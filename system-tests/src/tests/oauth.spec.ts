@@ -122,10 +122,17 @@ async function assertAndExtractCodeFromCallbackUrl(
   page: Page,
   expectedState: string,
 ): Promise<string> {
+  const expected = new URL(REDIRECT_URI)
+
+  // Wait until we actually reach the callback origin+path
+  const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  const expectedBase = `${escapeRe(expected.origin)}${escapeRe(expected.pathname)}`
+  await page.waitForURL(new RegExp(`^${expectedBase}(\\?.*)?$`, "i"))
+
   await page.waitForLoadState("domcontentloaded")
   const final = new URL(page.url())
-  const expected = new URL(REDIRECT_URI)
   expect(final.origin + final.pathname).toBe(expected.origin + expected.pathname)
+
   const code = final.searchParams.get("code")
   const state = final.searchParams.get("state")
   expect(state).toBe(expectedState)
@@ -281,7 +288,7 @@ test.describe("OIDC discovery and JWKS", () => {
       expect.arrayContaining(["ES256", "RS256"]),
     )
     expect(cfg.token_endpoint_auth_methods_supported).toStrictEqual(
-      expect.arrayContaining(["client_secret_post", "client_secret_basic"]),
+      expect.arrayContaining(["client_secret_post"]),
     )
   })
 
@@ -325,7 +332,7 @@ test.describe("OAuth flow (login during flow)", () => {
     const { url, state, scopes } = oauthUrl(["openid", "email"])
 
     // Start at /authorize -> expect to hit /login?return_to
-    await page.goto(url, { waitUntil: "domcontentloaded" })
+    await page.goto(url)
     await page.waitForURL(/\/login\?return_to=.*/)
 
     // Login
@@ -354,7 +361,7 @@ test.describe("OAuth flow (login during flow)", () => {
   }) => {
     const { url, state, scopes } = oauthUrl(["openid", "email"])
 
-    await page.goto(url, { waitUntil: "domcontentloaded" })
+    await page.goto(url)
     await page.waitForURL(/\/login\?return_to=.*/)
 
     await performLogin(page, USER_EMAIL_2, USER_PASSWORD_2)
@@ -397,7 +404,7 @@ test.describe("OAuth flow (already logged in via storage state)", () => {
 
     // 1) First grant: consent + approve
     const first = oauthUrl(scopes)
-    await page.goto(first.url, { waitUntil: "domcontentloaded" })
+    await page.goto(first.url)
     const consent = new ConsentPage(page, scopes)
     await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
     await consent.approve()
@@ -405,7 +412,7 @@ test.describe("OAuth flow (already logged in via storage state)", () => {
 
     // 2) Same scopes again: immediate redirect to callback (no consent dialog)
     const second = oauthUrl(scopes)
-    await page.goto(second.url, { waitUntil: "domcontentloaded" })
+    await page.goto(second.url)
     await assertAndExtractCodeFromCallbackUrl(page, second.state)
     await consent.expectNotPresent()
   })
@@ -414,7 +421,7 @@ test.describe("OAuth flow (already logged in via storage state)", () => {
     // Ensure a grant exists
     const scopes = ["openid"]
     const initial = oauthUrl(scopes)
-    await page.goto(initial.url, { waitUntil: "domcontentloaded" })
+    await page.goto(initial.url)
     const consent = new ConsentPage(page, scopes)
     await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
     await consent.approve()
@@ -425,7 +432,7 @@ test.describe("OAuth flow (already logged in via storage state)", () => {
 
     // Visit authorize again — consent should appear (grant removed)
     const again = oauthUrl(scopes)
-    await page.goto(again.url, { waitUntil: "domcontentloaded" })
+    await page.goto(again.url)
     const consent2 = new ConsentPage(page, scopes)
     await consent2.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
   })

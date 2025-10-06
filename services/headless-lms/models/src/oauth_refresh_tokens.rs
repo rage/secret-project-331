@@ -149,41 +149,32 @@ impl OAuthRefreshTokens {
         conn: &mut PgConnection,
         digest: Digest,
     ) -> ModelResult<OAuthRefreshTokens> {
-        let mut tx = conn.begin().await?;
-        let refresh_token = sqlx::query_as!(
+        let row = sqlx::query_as!(
             OAuthRefreshTokens,
             r#"
-            SELECT
-              digest as "digest: _",
-              user_id,
-              client_id,
-              scope,
-              expires_at,
-              jti,
-              dpop_jkt,
-              metadata,
-              pepper_id,
-              audience,
-              revoked,
-              rotated_from as "rotated_from: _"
-            FROM oauth_refresh_tokens
-            WHERE digest = $1
-              AND revoked = false
-              AND expires_at > now()
-            "#,
+        UPDATE oauth_refresh_tokens
+           SET revoked = true
+         WHERE digest = $1
+           AND revoked = false
+           AND expires_at > now()
+        RETURNING
+          digest        as "digest: _",
+          user_id,
+          client_id,
+          scope,
+          expires_at,
+          jti,
+          dpop_jkt,
+          metadata,
+          pepper_id,
+          audience,
+          revoked,
+          rotated_from  as "rotated_from: _"
+        "#,
             digest.as_bytes()
         )
-        .fetch_one(&mut *tx)
+        .fetch_one(conn)
         .await?;
-
-        sqlx::query!(
-            r#"UPDATE oauth_refresh_tokens SET revoked = true WHERE digest = $1"#,
-            digest.as_bytes()
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        tx.commit().await?;
-        Ok(refresh_token)
+        Ok(row)
     }
 }

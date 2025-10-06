@@ -2,6 +2,7 @@
 use super::authorize_query::AuthorizeParams;
 use super::consent_deny_query::ConsentDenyQuery;
 use super::consent_query::ConsentQuery;
+use super::consent_response::ConsentResponse;
 use super::dpop::verify_dpop_from_actix;
 use super::helpers::{
     build_authorize_qs, build_consent_redirect, build_login_redirect, generate_access_token,
@@ -30,6 +31,7 @@ use models::{
 use serde_json::json;
 use sqlx::PgPool;
 use std::collections::HashSet;
+use url::{Url, form_urlencoded};
 
 /// Handles the `/authorize` endpoint for OAuth 2.0 / OpenID Connect.
 ///
@@ -143,24 +145,26 @@ async fn authorize(
 #[instrument(skip(pool))]
 async fn approve_consent(
     pool: web::Data<PgPool>,
-    query: web::Query<ConsentQuery>,
+    form: web::Json<ConsentQuery>,
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let client = OAuthClient::find_by_client_id(&mut conn, &query.client_id).await?;
-    if !client.redirect_uris.contains(&query.redirect_uri) {
+    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await?;
+    if !client.redirect_uris.contains(&form.redirect_uri) {
         return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
             "invalid redirect URI",
         )));
     }
 
-    let requested_scopes: Vec<String> = query
-        .scopes
+    // Validate requested scopes against client.allowed scopes
+    let requested_scopes: Vec<String> = form
+        .scope
         .split_whitespace()
         .map(|s| s.to_string())
         .collect();
+
     let allowed_scopes = client
         .scope
         .as_ref()
@@ -179,21 +183,22 @@ async fn approve_consent(
         OAuthUserClientScopes::insert(&mut conn, user.id, client.id, scope).await?;
     }
 
-    let redirect_url = format!(
-        "/api/v0/main-frontend/oauth/authorize?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&response_type={}",
-        query.client_id,
-        query.redirect_uri,
-        query.scopes,
-        query.state,
-        query.nonce,
-        query.response_type
-    );
+    // Redirect to /authorize (the OAuth authorize endpoint typically remains a GET)
+    let query = form_urlencoded::Serializer::new(String::new())
+        .append_pair("client_id", &form.client_id)
+        .append_pair("redirect_uri", &form.redirect_uri)
+        .append_pair("scope", &form.scope)
+        .append_pair("state", &form.state)
+        .append_pair("nonce", &form.nonce)
+        .append_pair("response_type", &form.response_type)
+        .finish();
 
-    token.authorized_ok(
-        HttpResponse::Found()
-            .append_header(("Location", redirect_url))
-            .finish(),
-    )
+    // Relative Location: browser resolves against current origin
+    let location = format!("/api/v0/main-frontend/oauth/authorize?{}", query);
+
+    token.authorized_ok(HttpResponse::Ok().json(ConsentResponse {
+        redirect_uri: location,
+    }))
 }
 
 /// Handles `/consent/deny` when the user refuses to grant scopes.
@@ -213,14 +218,36 @@ async fn approve_consent(
 /// Location: http://localhost?error=access_denied&state=random123
 /// ```
 #[instrument]
-async fn deny_consent(query: web::Query<ConsentDenyQuery>) -> Result<HttpResponse, Error> {
-    let redirect_url = format!(
-        "{}?error=access_denied&state={}",
-        query.redirect_uri, query.state
-    );
+async fn deny_consent(
+    pool: web::Data<PgPool>,
+    form: web::Json<ConsentDenyQuery>,
+) -> Result<HttpResponse, Error> {
+    let mut conn = pool
+        .acquire()
+        .await
+        .map_err(actix_web::error::ErrorInternalServerError)?;
+
+    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
+        .await
+        .map_err(actix_web::error::ErrorBadRequest)?;
+
+    if !client.redirect_uris.contains(&form.redirect_uri) {
+        return Err(actix_web::error::ErrorBadRequest("invalid redirect URI"));
+    }
+
+    let mut url = Url::parse(&form.redirect_uri)
+        .map_err(|_| actix_web::error::ErrorBadRequest("invalid redirect URI"))?;
+
+    {
+        let mut qp = url.query_pairs_mut();
+        qp.append_pair("error", "access_denied");
+        if !form.state.is_empty() {
+            qp.append_pair("state", &form.state);
+        }
+    }
 
     Ok(HttpResponse::Found()
-        .append_header(("Location", redirect_url))
+        .append_header(("Location", url.to_string()))
         .finish())
 }
 
@@ -269,11 +296,12 @@ async fn deny_consent(query: web::Query<ConsentDenyQuery>) -> Result<HttpRespons
 ///   "error_description": "invalid client secret"
 /// }
 /// ```
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn token(
     pool: web::Data<PgPool>,
     form: TokenParams,
     req: actix_web::HttpRequest,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let (pepper, pepper_id) = read_token_pepper()?;
     let mut conn = pool.acquire().await?;
@@ -437,6 +465,7 @@ async fn token(
         }
     };
 
+    let base_url = app_conf.base_url.trim_end_matches('/');
     // Optional ID Token (if OIDC requested and we’re in code flow)
     let id_token = if issue_id_token && scope_has_openid(&scope) {
         Some(generate_id_token(
@@ -444,6 +473,7 @@ async fn token(
             &client.client_id,
             &nonce.unwrap_or_default(),
             expires_at,
+            &format!("{}/api/v0/main-frontend/oauth", base_url),
         )?)
     } else {
         None
@@ -691,7 +721,7 @@ async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult
 async fn well_known_openid(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> Result<HttpResponse, Error> {
-    let base_url = &app_conf.base_url;
+    let base_url = app_conf.base_url.trim_end_matches('/');
     let config = json!({
         "issuer": format!("{}/api/v0/main-frontend/oauth", base_url),
         "authorization_endpoint": format!("{}/api/v0/main-frontend/oauth/authorize", base_url),
@@ -702,7 +732,7 @@ async fn well_known_openid(
         "subject_types_supported": ["public"],
         "id_token_signing_alg_values_supported": ["RS256"],
         "dpop_signing_alg_values_supported": ["ES256", "RS256"],
-        "token_endpoint_auth_methods_supported": ["client_secret_post", "client_secret_basic"]
+        "token_endpoint_auth_methods_supported": ["client_secret_post"]
     });
 
     Ok(HttpResponse::Ok().json(config))
@@ -755,8 +785,8 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
             web::get().to(well_known_openid),
         )
         .route("/jwks.json", web::get().to(jwks))
-        .route("/consent", web::get().to(approve_consent))
-        .route("/consent/deny", web::get().to(deny_consent))
+        .route("/consent", web::post().to(approve_consent))
+        .route("/consent/deny", web::post().to(deny_consent))
         .route("/authorized-clients", web::get().to(get_authorized_clients))
         .route(
             "/authorized-clients/{client_id}",

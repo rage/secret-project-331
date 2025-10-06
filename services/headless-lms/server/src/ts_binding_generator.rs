@@ -346,6 +346,9 @@ fn controllers(target: &mut File) {
             playground_views::PlaygroundViewsMessage,
             proposed_edits::GetEditProposalsQuery,
             roles::RoleQuery,
+            oauth::consent_query::ConsentQuery,
+            oauth::consent_response::ConsentResponse,
+            oauth::consent_deny_query::ConsentDenyQuery,
         };
     }
 }

@@ -81,7 +81,7 @@ impl OAuthValidate for TokenQuery {
             None => {
                 return Err(ControllerError::new(
                     ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
+                        error: OAuthErrorCode::InvalidRequest.as_str().into(),
                         error_description: "grant_type is required".into(),
                         redirect_uri: None,
                         state: None,
@@ -162,7 +162,7 @@ mod tests {
         let res = q.validate();
         assert_oauth_error(
             res,
-            OAuthErrorCode::UnsupportedGrantType,
+            OAuthErrorCode::InvalidRequest,
             "grant_type is required",
         );
     }

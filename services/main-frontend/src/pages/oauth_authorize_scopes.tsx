@@ -1,7 +1,12 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  postOAuthConsent as approveConsent,
+  postOAuthDeny as denyConsent,
+} from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 
 export default function ConsentPage() {
@@ -27,25 +32,21 @@ export default function ConsentPage() {
     offline_access: t("oauth-scope-description-offline-access"),
   }
 
-  const handleApprove = () => {
-    const params = new URLSearchParams({
-      client_id: query.client_id,
-      redirect_uri: query.redirect_uri,
-      response_type: query.response_type,
-      scopes: scopes.join(" "),
-      state: query.state,
-      nonce: query.nonce,
-    })
-    window.location.href = `/api/v0/main-frontend/oauth/consent?${params}`
+  const onApprove = async () => {
+    const res = await approveConsent(query)
+    if (res.redirect_uri) {
+      window.location.assign(res.redirect_uri)
+    }
   }
-
-  const handleDeny = () => {
-    const params = new URLSearchParams({
+  const onDeny = async () => {
+    const res = await denyConsent({
       client_id: query.client_id,
       redirect_uri: query.redirect_uri,
       state: query.state,
     })
-    window.location.href = `/api/v0/main-frontend/oauth/consent/deny?${params}`
+    if (res.redirect_uri) {
+      window.location.assign(res.redirect_uri)
+    }
   }
 
   return (
@@ -61,12 +62,10 @@ export default function ConsentPage() {
         margin: auto;
       `}
     >
-      {/* Prefer client_name if present */}
       <h2> {query.client_id}</h2>
 
       <p>{t("oauth-application-requesting-access")}</p>
 
-      {/* List doesn't need a new key; screen readers will announce it as a list */}
       <ul>
         {scopes.map((scope) => (
           <li key={scope}>
@@ -82,16 +81,10 @@ export default function ConsentPage() {
           gap: 10px;
         `}
       >
-        {/* Buttons get accessible names using existing translated text */}
-        <Button variant="primary" onClick={handleApprove} size="large" aria-label={t("approve")}>
+        <Button variant="primary" onClick={onApprove} size="large" aria-label={t("approve")}>
           {t("approve")}
         </Button>
-        <Button
-          onClick={handleDeny}
-          variant="reject"
-          size="large"
-          aria-label={t("button-text-cancel")}
-        >
+        <Button onClick={onDeny} variant="reject" size="large" aria-label={t("button-text-cancel")}>
           {t("button-text-cancel")}
         </Button>
       </div>

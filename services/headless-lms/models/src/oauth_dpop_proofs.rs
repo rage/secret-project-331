@@ -88,6 +88,13 @@ impl OAuthDpopProof {
     /// Delete old entries (call from a periodic task).
     /// Returns number of rows removed.
     pub async fn prune_older_than(conn: &mut PgConnection, keep_seconds: i64) -> ModelResult<u64> {
+        if keep_seconds < 0 {
+            return Err(ModelError::new(
+                ModelErrorType::Generic,
+                "keep_seconds must be >= 0".to_string(),
+                None,
+            ));
+        }
         let mut tx = conn.begin().await?;
         let res = sqlx::query!(
             r#"

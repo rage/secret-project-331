@@ -5,7 +5,7 @@ pub struct Claims {
     pub sub: String,
     pub aud: String,
     pub iss: String,
-    pub iat: usize,
-    pub exp: usize,
+    pub iat: i64,
+    pub exp: i64,
     pub nonce: String,
 }

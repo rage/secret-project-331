@@ -70,40 +70,32 @@ impl OAuthAuthCode {
     }
 
     pub async fn consume(conn: &mut PgConnection, digest: Digest) -> ModelResult<OAuthAuthCode> {
-        let mut tx = conn.begin().await?;
         let auth_code = sqlx::query_as!(
             OAuthAuthCode,
             r#"
-            SELECT
-              digest as "digest: _",
-              pepper_id,
-              user_id,
-              client_id,
-              redirect_uri,
-              scope,
-              jti,
-              nonce,
-              used,
-              expires_at,
-              metadata
-            FROM oauth_auth_codes
-            WHERE digest = $1
-              AND used = false
-              AND expires_at > now()
-            "#,
+        UPDATE oauth_auth_codes
+        SET used = true
+        WHERE digest = $1
+          AND used = false
+          AND expires_at > now()
+        RETURNING
+          digest      as "digest: _",
+          pepper_id,
+          user_id,
+          client_id,
+          redirect_uri,
+          scope,
+          jti,
+          nonce,
+          used,
+          expires_at,
+          metadata
+        "#,
             digest.as_bytes()
         )
-        .fetch_one(&mut *tx)
+        .fetch_one(conn) // RowNotFound if no match (already used/expired/unknown)
         .await?;
 
-        sqlx::query!(
-            "UPDATE oauth_auth_codes SET used = true WHERE digest = $1",
-            digest.as_bytes()
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        tx.commit().await?;
         Ok(auth_code)
     }
 }

@@ -55,7 +55,7 @@ pub enum ControllerErrorType {
     #[display("Forbidden")]
     Forbidden,
 
-    /// HTTP satus code 200. OAuthError is returned as a error message on OK response.
+    /// HTTP status code 200. OAuthError is returned as a error message on OK response.
     #[display("OAuthError")]
     OAuthError(Box<OAuthErrorData>),
 }
@@ -254,16 +254,20 @@ impl error::ResponseError for ControllerError {
         }
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
             if let Some(uri) = &data.redirect_uri {
-                let loc = format!(
-                    "{}?error={}&error_description={}&state={}",
-                    uri,
-                    data.error,
-                    data.error_description,
-                    data.state.clone().unwrap_or_default()
-                );
-                return HttpResponse::Found()
-                    .append_header(("Location", loc))
-                    .finish();
+                if let Ok(mut url) = url::Url::parse(uri) {
+                    {
+                        let mut qp = url.query_pairs_mut();
+                        qp.append_pair("error", &data.error);
+                        qp.append_pair("error_description", &data.error_description);
+                        if let Some(state) = &data.state {
+                            qp.append_pair("state", state);
+                        }
+                    }
+                    let loc = url.to_string();
+                    return HttpResponse::Found()
+                        .append_header(("Location", loc))
+                        .finish();
+                }
             }
 
             let status = match data.error.as_str() {
@@ -276,37 +280,46 @@ impl error::ResponseError for ControllerError {
             };
 
             let mut res = HttpResponse::build(status);
+            // Small helper to safely embed values in WWW-Authenticate auth-param strings.
+            fn escape_auth_param(s: &str) -> String {
+                s.replace('\\', "\\\\").replace('"', "\\\"")
+            }
+
             match data.error.as_str() {
+                // OAuth2 Bearer challenges (RFC 6750 §3)
                 "invalid_client" | "invalid_token" | "insufficient_scope" | "invalid_request" => {
-                    let hdr = format!(
-                        r#"Bearer error="{}", error_description="{}""#,
-                        data.error, data.error_description
-                    );
+                    let err = escape_auth_param(&data.error);
+                    let desc = escape_auth_param(&data.error_description);
+                    let hdr = format!(r#"Bearer error="{}", error_description="{}""#, err, desc);
                     res.append_header(("WWW-Authenticate", hdr));
                 }
 
-                // DPoP-auth related headers (RFC 9449 §12.2)
+                // DPoP auth challenges (RFC 9449 §12.2)
                 "invalid_dpop_proof" => {
-                    let hdr = format!(
-                        r#"DPoP error="{}", error_description="{}""#,
-                        data.error, data.error_description
-                    );
+                    let err = escape_auth_param(&data.error);
+                    let desc = escape_auth_param(&data.error_description);
+                    let hdr = format!(r#"DPoP error="{}", error_description="{}""#, err, desc);
                     res.append_header(("WWW-Authenticate", hdr));
                 }
+
                 "use_dpop_nonce" => {
-                    let hdr = format!(
-                        r#"DPoP error="{}", error_description="{}""#,
-                        data.error, data.error_description
-                    );
+                    let err = escape_auth_param(&data.error);
+                    let desc = escape_auth_param(&data.error_description);
+                    let hdr = format!(r#"DPoP error="{}", error_description="{}""#, err, desc);
                     res.append_header(("WWW-Authenticate", hdr));
 
-                    // Send the nonce in the DPoP-Nonce header
+                    // Provide the server-generated nonce (clients must echo it in the next proof)
                     if let Some(nonce) = &data.nonce {
                         res.append_header(("DPoP-Nonce", nonce.clone()));
                     }
                 }
+
                 _ => {}
             }
+
+            // Prevent caching per RFC 6749 §5.1 (common practice for error responses too)
+            res.append_header(("Cache-Control", "no-store"))
+                .append_header(("Pragma", "no-cache"));
 
             return res.json(serde_json::json!({
                 "error": data.error,

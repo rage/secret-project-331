@@ -56,7 +56,7 @@ impl OAuthAccessToken {
     pub async fn insert(
         conn: &mut PgConnection,
         params: NewAccessTokenParams<'_>,
-    ) -> sqlx::Result<()> {
+    ) -> ModelResult<()> {
         let sql = r#"
             INSERT INTO oauth_access_tokens
                 (digest, pepper_id, user_id, client_id, scope, audience, dpop_jkt, metadata, expires_at)

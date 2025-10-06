@@ -35,32 +35,54 @@ impl OAuthValidate for AuthorizeQuery {
     type Output = AuthorizeParams;
 
     fn validate(&self) -> Result<Self::Output, ControllerError> {
-        let rt = self.response_type.as_deref().unwrap_or_default();
+        let rt_opt = self.response_type.as_deref();
+        let rt = rt_opt.unwrap_or_default();
+
         let client_id = self.client_id.as_deref().unwrap_or_default();
         let redirect_uri = self.redirect_uri.as_deref().unwrap_or_default();
         let scope = self.scope.as_deref().unwrap_or_default();
-        let state = self.state.as_deref().unwrap_or_default();
 
+        // preserve original state (don’t stringify empty -> Some(""))
+        let state_opt = self.state.clone();
+
+        // Required params check
         if client_id.is_empty() || redirect_uri.is_empty() || scope.is_empty() {
             return Err(ControllerError::new(
                 ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::InvalidRequest.as_str().into(),
                     error_description: "client_id, redirect_uri, and scope are required".into(),
                     redirect_uri: None,
-                    state: Some(state.to_string()),
+                    state: state_opt.clone(),
                     nonce: None,
                 })),
                 "Missing required OAuth parameters",
                 None::<anyhow::Error>,
             ));
         }
+
+        // response_type presence check
+        if rt.is_empty() {
+            return Err(ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                    error_description: "response_type is required".into(),
+                    redirect_uri: None,
+                    state: state_opt.clone(),
+                    nonce: None,
+                })),
+                "Missing response_type",
+                None::<anyhow::Error>,
+            ));
+        }
+
+        // Only "code" is supported
         if rt != "code" {
             return Err(ControllerError::new(
                 ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::UnsupportedResponseType.as_str().into(),
                     error_description: "unsupported response_type".into(),
-                    redirect_uri: None, // include later only after client+URI validation
-                    state: Some(state.to_string()),
+                    redirect_uri: None, // add later after client+URI validation
+                    state: state_opt,
                     nonce: None,
                 })),
                 "Unsupported response_type",
@@ -172,5 +194,24 @@ mod tests {
         assert_eq!(q._extra.get("foo").map(String::as_str), Some("bar"));
         assert_eq!(q._extra.get("x").map(String::as_str), Some("y"));
         assert!(q.validate().is_ok());
+    }
+
+    #[test]
+    fn authorize_missing_response_type_is_invalid_request() {
+        let q = AuthorizeQuery {
+            response_type: None,
+            client_id: Some("cid".into()),
+            redirect_uri: Some("http://localhost".into()),
+            scope: Some("openid".into()),
+            state: None,
+            nonce: None,
+            _extra: Default::default(),
+        };
+        let res = q.validate();
+        assert_oauth_error(
+            res,
+            OAuthErrorCode::InvalidRequest,
+            "response_type is required",
+        );
     }
 }

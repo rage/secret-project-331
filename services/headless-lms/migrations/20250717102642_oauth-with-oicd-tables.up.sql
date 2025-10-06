@@ -119,7 +119,7 @@ COMMENT ON COLUMN oauth_access_tokens.audience IS
 COMMENT ON COLUMN oauth_access_tokens.jti IS
   'Unique token id for logging/trace';
 COMMENT ON COLUMN oauth_access_tokens.dpop_jkt IS
-  'Dpop jkt is the thumbprint of the JWK this token was signed with.';
+  'Dpop jkt is the thumbprint of the JWK this token was signed with. Empty string if the token is a bearer token.';
 COMMENT ON COLUMN oauth_access_tokens.expires_at IS
   'Timestamp when this access token expires';
 COMMENT ON COLUMN oauth_access_tokens.created_at IS

@@ -2,6 +2,9 @@ import { mainFrontendClient } from "../mainFrontendClient"
 
 import {
   AuthorizedClientInfo,
+  ConsentDenyQuery,
+  ConsentQuery,
+  ConsentResponse,
   Course,
   CourseInstanceEnrollmentsInfo,
   ExerciseResetLog,
@@ -10,6 +13,8 @@ import {
 } from "@/shared-module/common/bindings"
 import {
   isAuthorizedClientInfo,
+  isConsentDenyQuery,
+  isConsentResponse,
   isCourse,
   isCourseInstanceEnrollmentsInfo,
   isExerciseResetLog,
@@ -61,4 +66,14 @@ export const getAuthorizedClientInfos = async (): Promise<AuthorizedClientInfo[]
 
 export const revokeAuthorizedClient = async (clientId: string): Promise<void> => {
   await mainFrontendClient.delete(`/oauth/authorized-clients/${clientId}`)
+}
+
+export const postOAuthConsent = async (consentQuery: ConsentQuery): Promise<ConsentResponse> => {
+  const response = await mainFrontendClient.post(`/oauth/consent`, consentQuery)
+  return validateResponse(response, isConsentResponse)
+}
+
+export const postOAuthDeny = async (denyQuery: ConsentDenyQuery): Promise<ConsentResponse> => {
+  const response = await mainFrontendClient.post(`/oauth/deny`, denyQuery)
+  return validateResponse(response, isConsentDenyQuery)
 }

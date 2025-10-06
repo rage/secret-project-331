@@ -393,7 +393,7 @@ pub enum OAuthErrorCode {
     UnsupportedGrantType,
     UnsupportedResponseType,
     ServerError,
-    InvalidDopopProof,
+    InvalidDpopProof,
     UseDpopNonce,
 }
 
@@ -408,7 +408,7 @@ impl OAuthErrorCode {
             Self::UnsupportedGrantType => "unsupported_grant_type",
             Self::UnsupportedResponseType => "unsupported_response_type",
             Self::ServerError => "server_error",
-            Self::InvalidDopopProof => "invalid_dpop_proof",
+            Self::InvalidDpopProof => "invalid_dpop_proof",
             Self::UseDpopNonce => "use_dpop_nonce",
         }
     }
@@ -637,7 +637,7 @@ impl From<dpop_verifier::error::DpopError> for ControllerError {
             | DpopError::NonceMismatch
             | DpopError::NonceStale
             | DpopError::MissingNonce => OAuthErrorData {
-                error: OAuthErrorCode::InvalidDopopProof.as_str().into(),
+                error: OAuthErrorCode::InvalidDpopProof.as_str().into(),
                 error_description: err.to_string(),
                 redirect_uri: None,
                 state: None,

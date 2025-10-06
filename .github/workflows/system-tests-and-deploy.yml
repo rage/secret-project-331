@@ -1,17 +1,23 @@
 name: System tests and deploy
 
+permissions: read-all
+
 on:
   push:
     branches:
       - master
       - canary
+    paths-ignore:
+      - "docs/**"
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
 
 concurrency:
   # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha` is unique for each commit.
-  group: system-tests-${{ github.head_ref || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -19,10 +25,153 @@ env:
 
 jobs:
   build-and-system-tests:
+    permissions:
+      contents: read
     runs-on: ubicloud-standard-30-ubuntu-2404
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
+      - name: System Information Report
+        run: |
+          set -euo pipefail
+
+          echo "╔══════════════════════════════════════════════════════════════════════════════════════╗"
+          echo "║                                🖥️  SYSTEM INFORMATION REPORT                          ║"
+          echo "╚══════════════════════════════════════════════════════════════════════════════════════╝"
+          echo
+
+          # CPU Information
+          echo "🔧 CPU INFORMATION"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          CPU_CORES=$(nproc)
+          CPU_THREADS=$(nproc --all)
+          CPU_MODEL=$(lscpu | grep 'Model name' | cut -d ':' -f2 | xargs)
+          CPU_ARCH=$(lscpu | grep 'Architecture' | cut -d ':' -f2 | xargs)
+          CPU_MHz=$(lscpu | grep 'CPU MHz' | cut -d ':' -f2 | xargs || echo "N/A")
+
+          printf "  %-20s %s\n" "CPU Cores:" "$CPU_CORES"
+          printf "  %-20s %s\n" "CPU Threads:" "$CPU_THREADS"
+          printf "  %-20s %s\n" "CPU Model:" "$CPU_MODEL"
+          printf "  %-20s %s\n" "Architecture:" "$CPU_ARCH"
+          printf "  %-20s %s MHz\n" "Current Speed:" "$CPU_MHz"
+          echo
+
+          # Memory Information
+          echo "💾 MEMORY INFORMATION"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          TOTAL_RAM=$(free -h | awk 'NR==2{print $2}')
+          USED_RAM=$(free -h | awk 'NR==2{print $3}')
+          FREE_RAM=$(free -h | awk 'NR==2{print $4}')
+          AVAILABLE_RAM=$(free -h | awk 'NR==2{print $7}')
+          TOTAL_RAM_KB=$(free | awk 'NR==2{print $2}')
+          USED_RAM_KB=$(free | awk 'NR==2{print $3}')
+          USAGE_PERCENT=$(awk "BEGIN {printf \"%.1f\", ($USED_RAM_KB/$TOTAL_RAM_KB)*100}")
+
+          printf "  %-20s %s\n" "Total RAM:" "$TOTAL_RAM"
+          printf "  %-20s %s (%s%%)\n" "Used RAM:" "$USED_RAM" "$USAGE_PERCENT"
+          printf "  %-20s %s\n" "Free RAM:" "$FREE_RAM"
+          printf "  %-20s %s\n" "Available RAM:" "$AVAILABLE_RAM"
+          echo
+
+          # Disk Information
+          echo "💿 DISK INFORMATION"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          df -h --output=source,size,used,avail,pcent,target | grep -E '^(/dev/|tmpfs)' | while read -r line; do
+            echo "  $line"
+          done
+          echo
+
+          ROOT_TOTAL=$(df -h / | awk 'NR==2{print $2}')
+          ROOT_USED=$(df -h / | awk 'NR==2{print $3}')
+          ROOT_AVAIL=$(df -h / | awk 'NR==2{print $4}')
+          ROOT_PERCENT=$(df -h / | awk 'NR==2{print $5}')
+
+          printf "  %-20s %s\n" "Root Total:" "$ROOT_TOTAL"
+          printf "  %-20s %s (%s)\n" "Root Used:" "$ROOT_USED" "$ROOT_PERCENT"
+          printf "  %-20s %s\n" "Root Available:" "$ROOT_AVAIL"
+          echo
+
+          # System Load and Uptime
+          echo "⚡ SYSTEM PERFORMANCE"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          LOAD_AVG=$(uptime | awk -F'load average:' '{print $2}' | xargs)
+          UPTIME_INFO=$(uptime -p)
+
+          printf "  %-20s %s\n" "Load Average:" "$LOAD_AVG"
+          printf "  %-20s %s\n" "Uptime:" "$UPTIME_INFO"
+          echo
+
+          # Additional System Info
+          echo "🔍 ADDITIONAL SYSTEM INFO"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          if command -v lsb_release >/dev/null 2>&1; then
+            OS_NAME="$(lsb_release -d | cut -d: -f2 | xargs)"
+          else
+            OS_NAME="$(grep '^PRETTY_NAME=' /etc/os-release | cut -d'=' -f2- | tr -d '\"')"
+          fi
+          KERNEL_VERSION=$(uname -r)
+          HOSTNAME=$(hostname)
+
+          printf "  %-20s %s\n" "OS:" "$OS_NAME"
+          printf "  %-20s %s\n" "Kernel:" "$KERNEL_VERSION"
+          printf "  %-20s %s\n" "Hostname:" "$HOSTNAME"
+          echo
+
+          # Process Information
+          echo "📈 TOP PROCESSES BY MEMORY"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          ps aux --sort=-%mem --no-headers | head -5 | awk '{printf "  %-15s %5s%% %8s %s\n", $1, $4, $6"K", $11}'
+          echo
+
+          # Network Information
+          echo "🌐 NETWORK INTERFACES"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          ip -4 addr show | grep inet | awk '{print "  " $NF ": " $2}' | grep -v 127.0.0.1
+
+      - name: Worker fingerprint & fast sanity check
+        run: |
+          set -euo pipefail
+          echo "== Worker/Kernel =="
+          uname -a || true
+          echo
+          echo "== OS Release =="
+          cat /etc/os-release || true
+          echo
+          echo "== CPU detail =="
+          lscpu || true
+          echo
+          echo "== GLIBC =="
+          (ldd --version 2>&1 | head -1) || true
+          echo
+          echo "== Ulimits =="
+          ulimit -a || true
+          echo
+          echo "== CGroup limits =="
+          cat /sys/fs/cgroup/memory.max 2>/dev/null || echo "no memory.max"
+          cat /sys/fs/cgroup/memory.current 2>/dev/null || echo "no memory.current"
+          cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo "no cpu.max"
+          cat /sys/fs/cgroup/pids.max 2>/dev/null || echo "no pids.max"
+          echo
+          echo "== Docker service memory limits =="
+          systemctl show docker -p MemoryMax 2>/dev/null || echo "no MemoryMax"
+          echo
+          echo "== Memory usage breakdown =="
+          grep -E "(MemTotal|MemAvailable|MemFree|Buffers|Cached|Shmem)" /proc/meminfo || true
+          echo
+          echo "== PSI (pressure stall info) =="
+          for f in cpu memory io; do echo "[$f]"; cat /proc/pressure/$f || true; echo; done
+          echo
+          echo "== Free/DF =="
+          free -h || true
+          df -h || true
+          echo
+          echo "== Docker info (brief) =="
+          docker --version || true
+          (docker info 2>/dev/null | grep -E 'Server Version|Cgroup Driver|Cgroup Version|Docker Root Dir|Kernel Version' || true)
+          echo
+          echo "== dmesg scan (early) =="
+          (dmesg -T 2>/dev/null | grep -iE 'mce|hardware error|memory error|ecc|segfault|general protection|oom' || true)
 
       - name: Make sure we have no focused system-tests
         run: |
@@ -40,6 +189,54 @@ jobs:
           echo "Space after:"
           df -h
 
+      - name: Configure Docker to use tmpfs for better performance
+        run: |
+          set -euo pipefail
+          echo "Configuring Docker to use tmpfs (RAM) for data storage..."
+
+          sudo systemctl stop docker
+
+          sudo mkdir -p /mnt/docker-tmpfs
+          sudo mount -t tmpfs -o size=50g tmpfs /mnt/docker-tmpfs
+          sudo mkdir -p /etc/docker
+
+          echo '{
+            "data-root": "/mnt/docker-tmpfs",
+            "storage-driver": "overlay2"
+          }' | sudo tee /etc/docker/daemon.json
+
+          # Check Docker service memory limits
+          echo "Checking Docker service memory limits..."
+          echo "Current Docker service memory limit:"
+          MEMORY_LIMIT=$(systemctl show docker -p MemoryMax --value 2>/dev/null)
+          if [ -z "$MEMORY_LIMIT" ] || [ "$MEMORY_LIMIT" = "infinity" ] || [ "$MEMORY_LIMIT" = "0" ]; then
+            echo "  No memory limit set (unlimited)"
+          else
+            echo "  MemoryMax=$MEMORY_LIMIT"
+          fi
+          sudo systemctl start docker
+
+          sudo systemctl status docker --no-pager
+          docker info | grep "Docker Root Dir"
+
+          echo "Docker configured to use tmpfs. All container operations will use RAM."
+
+          # Create cleanup script
+          cat <<'EOS' | sudo tee /usr/local/bin/_cleanup_docker_tmpfs
+          #!/usr/bin/env bash
+          set -e
+          sudo systemctl stop docker || true
+          sudo rm -f /etc/docker/daemon.json || true
+          sudo systemctl start docker || true
+          sudo umount /mnt/docker-tmpfs || true
+          sudo rmdir /mnt/docker-tmpfs || true
+          EOS
+          sudo chmod +x /usr/local/bin/_cleanup_docker_tmpfs
+        shell: bash
+      - name: Cleanup docker tmpfs
+        if: always()
+        run: sudo /usr/local/bin/_cleanup_docker_tmpfs
+
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
@@ -51,8 +248,9 @@ jobs:
           kustomize: "5.4.1"
           skaffold: "2.13.1"
 
-      - name: Run npm ci so that shared module gets copied
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Run pnpm install --frozen-lockfile so that shared module gets copied
+        run: pnpm install --frozen-lockfile
 
       - name: Download tmc-langs
         run: bin/tmc-langs-setup
@@ -72,7 +270,7 @@ jobs:
         with:
           minikube version: "v1.33.1"
           kubernetes version: "v1.30.0"
-          start args: "--addons ingress --memory 10g"
+          start args: "--addons ingress --memory 60g"
           driver: "docker"
           github token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -85,6 +283,7 @@ jobs:
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json
+          retention-days: 7
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Unhide gcloud cli if master
@@ -140,20 +339,82 @@ jobs:
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
 
       - name: Setup system test environment
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/
 
       - name: Run system tests
-        run: npm run test
+        run: pnpm run test
         working-directory: ./system-tests/
+      - name: System Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🧪 System Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Environment**: Minikube with Docker tmpfs"
+            echo "- **Memory**: 60GB allocated"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
-        run: npm run test
+        run: pnpm run test
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 
       # upload logs for all the services on failure
+      - name: Dump kernel and system diagnostics (failure only)
+        if: ${{ failure() }}
+        run: |
+          set -euo pipefail
+          mkdir -p ./_failure_debug
+
+          echo "== dmesg (last 1000 lines) ==" | tee ./_failure_debug/dmesg.txt
+          (dmesg -T 2>/dev/null | tail -n 1000) | tee -a ./_failure_debug/dmesg.txt || true
+
+          echo "== journalctl -k (last 500 lines) ==" | tee ./_failure_debug/journalctl-kernel.txt
+          (journalctl -k -n 500 --no-pager 2>/dev/null) | tee -a ./_failure_debug/journalctl-kernel.txt || true
+
+          echo "== Top memory processes ==" | tee ./_failure_debug/top-mem-procs.txt
+          ps aux --sort=-%mem | head -n 30 | tee -a ./_failure_debug/top-mem-procs.txt || true
+
+          echo "== Limits ==" | tee ./_failure_debug/limits.txt
+          ulimit -a | tee -a ./_failure_debug/limits.txt || true
+
+          echo "== CGroup limits ==" | tee ./_failure_debug/cgroup.txt
+          {
+            echo "memory.max: $(cat /sys/fs/cgroup/memory.max 2>/dev/null || echo n/a)"
+            echo "memory.current: $(cat /sys/fs/cgroup/memory.current 2>/dev/null || echo n/a)"
+            echo "cpu.max: $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+            echo "pids.max: $(cat /sys/fs/cgroup/pids.max 2>/dev/null || echo n/a)"
+          } | tee -a ./_failure_debug/cgroup.txt
+
+          echo "== PSI (pressure stall info) ==" | tee ./_failure_debug/psi.txt
+          for f in cpu memory io; do
+            echo "[$f]" | tee -a ./_failure_debug/psi.txt
+            (cat /proc/pressure/$f 2>/dev/null || echo n/a) | tee -a ./_failure_debug/psi.txt
+            echo | tee -a ./_failure_debug/psi.txt
+          done
+
+          echo "== Filesystem usage ==" | tee ./_failure_debug/df.txt
+          df -h | tee -a ./_failure_debug/df.txt || true
+
+          echo "== OS/CPU detail ==" | tee ./_failure_debug/os-cpu.txt
+          { cat /etc/os-release; echo; lscpu; echo; head -n 50 /proc/cpuinfo; } \
+            | tee -a ./_failure_debug/os-cpu.txt || true
+
+          echo "== Docker info (brief) ==" | tee ./_failure_debug/docker-info.txt
+          (docker info 2>/dev/null | grep -E 'Server Version|Cgroup|Docker Root Dir|Logging Driver|Kernel Version' || true) \
+            | tee -a ./_failure_debug/docker-info.txt
+
+      - name: Upload failure diagnostics
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: worker-failure-diagnostics
+          path: ./_failure_debug/*
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Save service logs to disk
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         run: |
@@ -172,6 +433,7 @@ jobs:
         with:
           name: service-logs
           path: ./logs/*
+          retention-days: 7
 
       - name: Print pods information
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
@@ -195,6 +457,7 @@ jobs:
           name: test-results
           path: ./system-tests/test-results/
           if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload playwright report
         uses: actions/upload-artifact@v4
@@ -203,6 +466,7 @@ jobs:
           name: playwright-html-report
           path: ./system-tests/playwright-report/index.html
           if-no-files-found: ignore
+          retention-days: 7
 
       # These images are used for deployments and caching
       - name: Push images if master
@@ -283,7 +547,9 @@ jobs:
   deploy:
     needs: build-and-system-tests
     if: ${{ github.ref == 'refs/heads/master' }}
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     environment:
       name: production
       url: https://courses.mooc.fi
@@ -333,18 +599,21 @@ jobs:
         run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi
 
   typecheck:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Run npm ci in repo root
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Run pnpm install --frozen-lockfile in repo root
+        run: pnpm install --frozen-lockfile
 
-      - name: Run npm ci system-tests
-        run: npm ci
+      - name: Run pnpm install --frozen-lockfile system-tests
+        run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/
 
       - name: Run tsc
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
         working-directory: ./system-tests/

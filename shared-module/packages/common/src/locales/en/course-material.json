@@ -69,6 +69,7 @@
   "course-overview": "Course overview",
   "course-progress": "Course progress",
   "course-title": "Course: {{title}}",
+  "current-page-unavailable-in-the-new-language-taking-you-to-the-front-page": "The current page is not available in the language version you are switching to. You will be taken to the front page of the course.",
   "custom-view-iframe-title": "Content related to the exercises",
   "deadline": "Deadline: ",
   "default-course-instance-name": "Default",

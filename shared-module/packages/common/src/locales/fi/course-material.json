@@ -70,6 +70,7 @@
   "course-overview": "Kurssin yhteenveto",
   "course-progress": "Kurssin edistyminen",
   "course-title": "Kurssi: {{title}}",
+  "current-page-unavailable-in-the-new-language-taking-you-to-the-front-page": "Nykyinen sivu ei ole saatavilla kielellä, johon olet vaihtamassa. Sinut ohjataan kurssin etusivulle.",
   "custom-view-iframe-title": "Sisältö liittyen tehtäviin",
   "deadline": "Deadline: ",
   "default-course-instance-name": "Oletus",

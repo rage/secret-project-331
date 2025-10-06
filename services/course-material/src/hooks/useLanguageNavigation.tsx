@@ -6,6 +6,7 @@ import { buildLanguageSwitchedUrl } from "../utils/urlBuilder"
 
 import useCourseLanguageVersionNavigationInfos from "./useCourseLanguageVersionNavigationInfos"
 
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 
 interface LanguageNavigationParams {
@@ -20,6 +21,7 @@ interface LanguageOption {
   courseSlug: string
   pagePath: string
   isDraft: boolean
+  currentPageUnavailableInThisLanguage: boolean
 }
 
 interface LanguageNavigationResult {
@@ -68,6 +70,7 @@ export function useLanguageNavigation({
 }: LanguageNavigationParams): LanguageNavigationResult {
   const router = useRouter()
   const { t } = useTranslation()
+  const { alert } = useDialog()
 
   const languageVersionsQuery = useCourseLanguageVersionNavigationInfos(
     currentCourseId,
@@ -86,16 +89,21 @@ export function useLanguageNavigation({
       courseSlug: version.course_slug,
       pagePath: version.page_path,
       isDraft: version.is_draft,
+      currentPageUnavailableInThisLanguage: version.current_page_unavailable_in_this_language,
     }))
   }, [languageVersionsQuery.data])
 
   const languageDataMap = useMemo(() => {
-    const map = new Map<string, { courseSlug: string; pagePath: string }>()
+    const map = new Map<
+      string,
+      { courseSlug: string; pagePath: string; currentPageUnavailableInThisLanguage: boolean }
+    >()
 
     availableLanguages.forEach((language) => {
       map.set(language.code, {
         courseSlug: language.courseSlug,
         pagePath: language.pagePath,
+        currentPageUnavailableInThisLanguage: language.currentPageUnavailableInThisLanguage,
       })
     })
 
@@ -138,6 +146,12 @@ export function useLanguageNavigation({
         const normalizedTargetUrl = normalizeUrl(newUrl)
 
         if (normalizedCurrentUrl !== normalizedTargetUrl) {
+          const languageData = languageDataMap.get(languageCode)
+          if (languageData?.currentPageUnavailableInThisLanguage) {
+            await alert(
+              t("current-page-unavailable-in-the-new-language-taking-you-to-the-front-page"),
+            )
+          }
           await router.push(newUrl)
         }
       } catch (err) {
@@ -146,7 +160,7 @@ export function useLanguageNavigation({
         throw new Error(errorMessage)
       }
     },
-    [getLanguageUrl, router, t],
+    [getLanguageUrl, router, t, alert, languageDataMap],
   )
 
   return {

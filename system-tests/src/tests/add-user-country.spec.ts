@@ -19,7 +19,7 @@ test("User can add missing country information", async ({ page }) => {
     const countryPrompt = async () => {
       await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
       await page.getByRole("button", { name: "Select a country Where do you" }).click()
-      await page.getByLabel("Suggestions").getByText("Andorra").click()
+      await page.getByRole("option", { name: "Andorra" }).click()
       await page.getByRole("button", { name: "Save" }).click()
       await expect(page.getByText("Success", { exact: true })).toBeVisible()
     }
@@ -31,7 +31,7 @@ test("User can add missing country information", async ({ page }) => {
     await expect(page.getByRole("button", { name: "Andorra Where do you live? *" })).toBeVisible()
     await page.getByRole("button", { name: "Andorra Where do you live? *" }).click()
     await page.getByRole("searchbox", { name: "Search..." }).fill("fin")
-    await page.getByLabel("Suggestions").getByText("Finland").click()
+    await page.getByRole("option", { name: "Finland" }).click()
     await page.getByRole("button", { name: "Save" }).click()
     await expect(page.getByText("Success", { exact: true })).toBeVisible()
     await expect(page.getByRole("button", { name: "Finland Where do you live? *" })).toBeVisible()
@@ -47,7 +47,7 @@ test("User can add missing country information", async ({ page }) => {
     await page.getByRole("textbox", { name: "First name (Required)" }).fill("Test")
     await page.getByRole("textbox", { name: "Last name (Required)" }).fill("User")
     await page.getByRole("button", { name: "Select an item Where do you" }).click()
-    await page.getByLabel("Suggestions").getByText("Andorra").click()
+    await page.getByRole("option", { name: "Andorra" }).click()
     await page.getByRole("textbox", { name: "Email (Required)" }).fill("test-user@example.com")
     await page.getByRole("textbox", { name: "Password (Required)", exact: true }).fill("test-user")
     await page.getByRole("textbox", { name: "Confirm password (Required)" }).fill("test-user")

@@ -349,6 +349,9 @@ fn controllers(target: &mut File) {
             oauth::consent_query::ConsentQuery,
             oauth::consent_response::ConsentResponse,
             oauth::consent_deny_query::ConsentDenyQuery,
+            user_details::BulkUserDetailsRequest,
+            user_details::UserDetailsRequest,
+            user_details::UserInfoPayload,
         };
     }
 }

@@ -50,10 +50,12 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
     },
   )
 
-  if (exerciseRepositories.isPending) {
-    return <div>{t("loading-text")}</div>
-  } else if (exerciseRepositories.isError) {
+  if (exerciseRepositories.isError) {
     return <ErrorBanner error={exerciseRepositories.error} variant={"readOnly"} />
+  }
+
+  if (exerciseRepositories.isLoading || !exerciseRepositories.data) {
+    return <div>{t("loading-text")}</div>
   }
 
   return (

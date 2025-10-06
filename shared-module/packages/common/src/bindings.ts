@@ -636,6 +636,7 @@ export interface CourseLanguageVersionNavigationInfo {
   course_slug: string
   page_path: string
   is_draft: boolean
+  current_page_unavailable_in_this_language: boolean
 }
 
 export interface EmailTemplate {
@@ -2018,7 +2019,7 @@ export interface RoleInfo {
 }
 
 export interface RoleUser {
-  id: string
+  user_id: string
   first_name: string | null
   last_name: string | null
   email: string
@@ -2390,6 +2391,24 @@ export interface ConsentDenyQuery {
   client_id: string
   redirect_uri: string
   state: string
+}
+
+export interface BulkUserDetailsRequest {
+  user_ids: Array<string>
+  course_id: string
+}
+
+export interface UserDetailsRequest {
+  user_id: string
+  course_ids: Array<string>
+}
+
+export interface UserInfoPayload {
+  email: string
+  first_name: string
+  last_name: string
+  country: string
+  email_communication_consent: boolean
 }
 
 export interface Pagination {

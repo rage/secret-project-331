@@ -114,7 +114,7 @@ use url::Url;
 use user_exercise_states::UserExerciseState;
 use uuid::Uuid;
 
-pub use self::error::{ModelError, ModelErrorType, ModelResult};
+pub use self::error::{HttpErrorType, ModelError, ModelErrorType, ModelResult};
 use crate::prelude::*;
 
 #[macro_use]

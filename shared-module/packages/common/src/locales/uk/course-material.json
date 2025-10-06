@@ -71,6 +71,7 @@
   "course-overview": "Огляд курсу",
   "course-progress": "Прогрес курсу",
   "course-title": "Курс: {{title}}",
+  "current-page-unavailable-in-the-new-language-taking-you-to-the-front-page": "Поточна сторінка недоступна мовою, на яку ви переключаєтеся. Вас буде перенаправлено на головну сторінку курсу.",
   "custom-view-iframe-title": "Контент, пов'язаний з вправами",
   "deadline": "Кінцевий термін:",
   "default-course-instance-name": "За замовчуванням",

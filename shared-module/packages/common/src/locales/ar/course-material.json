@@ -70,6 +70,7 @@
   "course-overview": "نظرة عامة على الدورة",
   "course-progress": "تقدم الدورة",
   "course-title": "دورة: {{title}}",
+  "current-page-unavailable-in-the-new-language-taking-you-to-the-front-page": "الصفحة الحالية غير متوفرة في النسخة اللغوية التي تقوم بالتبديل إليها. سيتم نقلك إلى الصفحة الرئيسية للدورة.",
   "custom-view-iframe-title": "محتوى متعلق بالتمارين",
   "deadline": "الموعد النهائي: ",
   "default-course-instance-name": "افتراضي",

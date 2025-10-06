@@ -79,7 +79,7 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
           <ErrorBanner variant={"readOnly"} error={getUserDetails.error} />
         )}
         {getUserDetails.isLoading && <Spinner variant={"medium"} />}
-        {!getUserDetails.isLoading && getUserDetails.isSuccess && getUserDetails.data !== null && (
+        {getUserDetails.isSuccess && getUserDetails.data !== null && (
           <EditUserInformationForm
             firstName={getUserDetails.data?.first_name ?? ""}
             lastName={getUserDetails.data?.last_name ?? ""}

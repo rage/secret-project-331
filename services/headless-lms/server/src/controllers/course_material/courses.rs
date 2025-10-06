@@ -740,15 +740,13 @@ async fn get_all_course_language_versions_navigation_info_from_page(
     token.authorized_ok(web::Json(
         accessible_courses
             .into_iter()
-            .filter_map(|c| {
-                all_pages_in_same_page_language_group
-                    .get(&CourseOrExamId::Course(c.id))
-                    .map(|page_language_group_navigation_info| {
-                        CourseLanguageVersionNavigationInfo::from_course_and_page_info(
-                            &c,
-                            page_language_group_navigation_info,
-                        )
-                    })
+            .map(|c| {
+                let page_language_group_navigation_info =
+                    all_pages_in_same_page_language_group.get(&CourseOrExamId::Course(c.id));
+                CourseLanguageVersionNavigationInfo::from_course_and_page_info(
+                    &c,
+                    page_language_group_navigation_info,
+                )
             })
             .collect(),
     ))
@@ -999,16 +997,18 @@ async fn fetch_user_marketing_consent(
 }
 
 /**
-GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
+GET /courses/:course_id/partners-block - Gets a partners block related to a course
 */
 #[instrument(skip(pool))]
 async fn get_partners_block(
     path: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<PartnersBlock>> {
+) -> ControllerResult<web::Json<Option<PartnersBlock>>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id).await?;
+    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id)
+        .await
+        .optional()?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(partner_block))
 }

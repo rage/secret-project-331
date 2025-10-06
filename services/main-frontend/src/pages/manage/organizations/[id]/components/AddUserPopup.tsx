@@ -23,7 +23,7 @@ interface AddUserPopupProps {
 }
 
 const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) => {
-  const { t } = useTranslation("main-frontend")
+  const { t } = useTranslation()
   const {
     register,
     handleSubmit,

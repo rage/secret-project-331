@@ -24,7 +24,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
   setRole,
   handleSave,
 }) => {
-  const { t } = useTranslation("main-frontend") as { t: (key: string) => string }
+  const { t } = useTranslation()
 
   return (
     <StandardDialog

@@ -24,7 +24,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   onClose,
   onCreate,
 }) => {
-  const { t } = useTranslation("main-frontend")
+  const { t } = useTranslation()
   const {
     register,
     handleSubmit,

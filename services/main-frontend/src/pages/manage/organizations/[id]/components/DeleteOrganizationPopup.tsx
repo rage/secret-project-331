@@ -11,7 +11,7 @@ interface Props {
 }
 
 const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete }) => {
-  const { t } = useTranslation("main-frontend") as { t: (key: string) => string }
+  const { t } = useTranslation()
   const [confirmText, setConfirmText] = useState("")
 
   return (
@@ -35,7 +35,7 @@ const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete 
           disabled: confirmText !== "delete",
         },
         {
-          children: t("cancel"),
+          children: t("button-text-cancel"),
           onClick: () => {
             setShow(false)
             setConfirmText("")

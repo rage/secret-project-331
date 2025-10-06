@@ -1,6 +1,10 @@
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import {
+  AuthorizedClientInfo,
+  ConsentDenyQuery,
+  ConsentQuery,
+  ConsentResponse,
   Course,
   CourseInstanceEnrollmentsInfo,
   ExerciseResetLog,
@@ -8,6 +12,8 @@ import {
   UserResearchConsent,
 } from "@/shared-module/common/bindings"
 import {
+  isAuthorizedClientInfo,
+  isConsentResponse,
   isCourse,
   isCourseInstanceEnrollmentsInfo,
   isExerciseResetLog,
@@ -50,4 +56,23 @@ export const getUserResetExerciseLogs = async (
 ): Promise<Array<ExerciseResetLog>> => {
   const response = await mainFrontendClient.get(`/users/${userId}/user-reset-exercise-logs`)
   return validateResponse(response, isArray(isExerciseResetLog))
+}
+
+export const getAuthorizedClientInfos = async (): Promise<AuthorizedClientInfo[]> => {
+  const response = await mainFrontendClient.get(`/oauth/authorized-clients`)
+  return validateResponse(response, isArray(isAuthorizedClientInfo))
+}
+
+export const revokeAuthorizedClient = async (clientId: string): Promise<void> => {
+  await mainFrontendClient.delete(`/oauth/authorized-clients/${clientId}`)
+}
+
+export const postOAuthConsent = async (consentQuery: ConsentQuery): Promise<ConsentResponse> => {
+  const response = await mainFrontendClient.post(`/oauth/consent`, consentQuery)
+  return validateResponse(response, isConsentResponse)
+}
+
+export const postOAuthDeny = async (denyQuery: ConsentDenyQuery): Promise<ConsentResponse> => {
+  const response = await mainFrontendClient.post(`/oauth/deny`, denyQuery)
+  return validateResponse(response, isConsentResponse)
 }

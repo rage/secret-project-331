@@ -21,6 +21,7 @@ pub mod exercises;
 pub mod feedback;
 pub mod global_stats;
 pub mod glossary;
+pub mod oauth;
 pub mod org;
 pub mod organizations;
 pub mod page_audio_files;
@@ -71,5 +72,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 .configure(teacher_grading_decisions::_add_routes),
         )
         .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes))
+        .service(web::scope("/oauth").configure(oauth::_add_routes))
         .service(web::scope("/chatbots").configure(chatbots::_add_routes));
 }

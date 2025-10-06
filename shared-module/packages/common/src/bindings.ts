@@ -1406,6 +1406,12 @@ export interface Organization {
   hidden: boolean
 }
 
+export interface AuthorizedClientInfo {
+  client_id: string
+  client_name: string
+  scopes: Array<string>
+}
+
 export interface PageAudioFile {
   id: string
   page_id: string
@@ -2366,6 +2372,25 @@ export interface RoleQuery {
   course_id?: string
   course_instance_id?: string
   exam_id?: string
+}
+
+export interface ConsentQuery {
+  client_id: string
+  redirect_uri: string
+  response_type: string
+  scope: string
+  state: string
+  nonce: string
+}
+
+export interface ConsentResponse {
+  redirect_uri: string
+}
+
+export interface ConsentDenyQuery {
+  client_id: string
+  redirect_uri: string
+  state: string
 }
 
 export interface BulkUserDetailsRequest {

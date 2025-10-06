@@ -36,6 +36,9 @@ importers:
       concurrently:
         specifier: ^9.2.0
         version: 9.2.1
+      esbuild:
+        specifier: ^0.25.10
+        version: 0.25.10
       eslint:
         specifier: ^9.32.0
         version: 9.36.0

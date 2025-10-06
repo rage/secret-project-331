@@ -7,11 +7,10 @@ import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import AddUserPopup from "../../../../components/page-specific/organizations/[id]/AddUserPopup"
+import DeleteOrganizationPopup from "../../../../components/page-specific/organizations/[id]/DeleteOrganizationPopup"
+import EditUserPopup from "../../../../components/page-specific/organizations/[id]/EditUserPopup"
 import { fetchOrganization, updateOrganization } from "../../../../services/backend/organizations"
-
-import AddUserPopup from "./components/AddUserPopup"
-import DeleteOrganizationPopup from "./components/DeleteOrganizationPopup"
-import EditUserPopup from "./components/EditUserPopup"
 
 import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
 import { RoleDomain, RoleUser, UserRole } from "@/shared-module/common/bindings"

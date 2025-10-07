@@ -5,7 +5,7 @@ import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 import { waitForAnimationsToEnd } from "@/utils/waitForAnimationsToEnd"
 
-test.describe.only("Test chatbot chat box", () => {
+test.describe("Test chatbot chat box", () => {
   test.use({
     storageState: "src/states/teacher@example.com.json",
   })

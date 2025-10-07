@@ -191,6 +191,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     await accessibilityCheck(page, "Reference tooltip closed view")
     await page.getByRole("link", { name: "[1]" }).first().hover()
     await expect(page.getByRole("tooltip", { name: "Wang" })).toBeVisible()
+    await accessibilityCheck(page, "Reference tooltip open view")
     await page.keyboard.press("Escape")
     await expect(page.getByRole("tooltip", { name: "Wang" })).toBeHidden()
     await expect(page.locator("#content")).toMatchAriaSnapshot(`
@@ -199,6 +200,5 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       - superscript:
         - link
     `)
-    await accessibilityCheck(page, "Reference tooltip open view")
   })
 })

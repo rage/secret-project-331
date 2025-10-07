@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import TooltipNTrigger from "./TooltipNTrigger"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 const openAnimation = keyframes`
 0% { opacity: 0; }
@@ -45,7 +45,7 @@ const TextWrapper = styled.div`
     cursor: pointer;
     font-size: 1.8rem;
     font-weight: 400;
-    font-family: "Inter", sans-serif;
+    font-family: ${primaryFont};
     list-style: none;
     outline: 0;
     height: auto;
@@ -123,38 +123,40 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       return [null, null]
     }
     const citeOrder: string[] = []
-    const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]")).map(
-      (node, idx) => {
-        const reference = data.find((o) => o.id === node.dataset.citationId)
-
-        let citeNumber: number = 0
-        if (reference && !citeOrder.includes(reference.id)) {
-          citeOrder.push(reference.id)
-          citeNumber = citeOrder.length
-        } else if (reference && citeOrder.includes(reference.id)) {
-          citeNumber = citeOrder.indexOf(reference.id) + 1
-        }
-        return createPortal(
+    const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]")).reduce<
+      ReactPortal[]
+    >((acc, node, idx) => {
+      const reference = data.find((o) => o.id === node.dataset.citationId)
+      if (!reference) {
+        return acc
+      }
+      let citeNumber = 0
+      if (!citeOrder.includes(reference.id)) {
+        citeOrder.push(reference.id)
+        citeNumber = citeOrder.length
+      } else {
+        citeNumber = citeOrder.indexOf(reference.id) + 1
+      }
+      acc.push(
+        createPortal(
           <TooltipNTrigger reference={reference} citeNumber={citeNumber} />,
           node,
-          idx,
-        )
-      },
-    )
+          `${reference.id}-${idx}`,
+        ),
+      )
+      return acc
+    }, [])
     return [portals, citeOrder]
   }, [data, readyForPortal])
 
-  let sortedReferenceList = useMemo(
-    () =>
-      sortBy(data, (item) => {
-        if (!citeOrder) {
-          return 0
-        }
-        const idx = citeOrder.indexOf(item.id)
-        return idx === -1 ? Infinity : idx
-      }),
-    [citeOrder, data],
-  )
+  let sortedReferenceList = useMemo(() => {
+    if (!citeOrder) {
+      return []
+    }
+    return sortBy(data, (item) => {
+      return citeOrder.indexOf(item.id)
+    })
+  }, [citeOrder, data])
   return (
     <TextWrapper>
       <details>

@@ -3,7 +3,7 @@ import { Link, Tooltip, TooltipTrigger } from "react-aria-components"
 
 import { Reference } from "."
 
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 interface TooltipNTriggerProps {
   reference: Reference | undefined
@@ -31,7 +31,7 @@ const TooltipBox = styled.div`
   border: 1px solid ${baseTheme.colors.clear[300]};
   padding: 0 5px;
   color: ${baseTheme.colors.gray[600]};
-  font-family: "Inter", sans-serif;
+  font-family: ${primaryFont};
   font-size: 14px;
 `
 

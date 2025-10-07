@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 // @ts-expect-error: No type definitions
 import Cite from "citation-js"
-import React from "react"
+import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -54,7 +54,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
 
   const watchedReference = watch("reference")
 
-  const detection = React.useMemo(() => {
+  const detection = useMemo(() => {
     if (!watchedReference) {
       return { items: [], error: null as null | Error }
     }
@@ -65,7 +65,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
     }
   }, [watchedReference, t])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (detection.error && !errors.root) {
       setError("root", { message: detection.error.message })
     } else if (!detection.error && errors.root) {
@@ -75,7 +75,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
 
   const citationLabelsThatWillChange = detection.items
 
-  const isValidReference = React.useMemo(() => {
+  const isValidReference = useMemo(() => {
     return areCitationsValid(watchedReference)
   }, [watchedReference])
 

@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -187,6 +188,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   })
 
   await test.step("Tooltip is accessible", async () => {
+    await accessibilityCheck(page, "Peer review answering view")
     await page.getByRole("link", { name: "[1]" }).first().hover()
     await expect(page.getByRole("tooltip", { name: "Wang" })).toBeVisible()
     await page.keyboard.press("Escape")
@@ -197,5 +199,6 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       - superscript:
         - link
     `)
+    await accessibilityCheck(page, "Peer review answering view")
   })
 })

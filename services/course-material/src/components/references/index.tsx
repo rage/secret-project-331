@@ -78,12 +78,12 @@ const TextWrapper = styled.div`
     font-size: 3rem;
   }
 
-  ul {
+  ol {
     padding: 0 4.5rem 3rem 4.5rem;
     counter-reset: ref;
   }
 
-  details ul li {
+  details ol li {
     counter-increment: ref;
     font-size: 1.2rem;
     line-height: 1.6;
@@ -91,10 +91,9 @@ const TextWrapper = styled.div`
     padding-left: 8px;
     list-style-position: outside;
     overflow-wrap: break-word;
-    overflow-wrap: break-word;
   }
 
-  ul li::marker {
+  ol li::marker {
     display: list-item;
     content: "[" counter(ref) "]";
     text-align: center;
@@ -145,16 +144,20 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     return [portals, citeOrder]
   }, [data, readyForPortal])
 
-  let sortedReferenceList = sortBy(data, (item) => {
-    if (citeOrder) {
-      return citeOrder.indexOf(item.id)
-    }
-  })
+  let sortedReferenceList = useMemo(
+    () =>
+      sortBy(data, (item) => {
+        if (citeOrder) {
+          return citeOrder.indexOf(item.id)
+        }
+      }),
+    [citeOrder, data],
+  )
   return (
     <TextWrapper>
-      <details id="reference">
+      <details>
         <summary>{t("title-references")}</summary>
-        <ul>
+        <ol>
           {sortedReferenceList.map(({ id, text }, index) => {
             return (
               <li
@@ -168,7 +171,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
               </li>
             )
           })}
-        </ul>
+        </ol>
       </details>
       {portals}
     </TextWrapper>

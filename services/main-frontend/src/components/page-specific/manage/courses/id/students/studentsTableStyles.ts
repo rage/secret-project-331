@@ -62,3 +62,65 @@ export const noRightBorder = css`
 export const noLeftBorder = css`
   border-left: none !important;
 `
+
+export const tableOuterScroll = css`
+  width: 100%;
+  overflow-x: auto;
+  /* no flex! */
+  background: transparent;
+  /* preserves scroll bar */
+`
+
+export const tableCenteredInner = css`
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  min-width: 900px;
+  max-width: 90vw; // Optional: sets table max width to 90% of viewport
+`
+
+export const tableRoundedWrap = css`
+  position: relative;
+  border-radius: 8px;
+  border: 1px solid #ced1d7;
+  background: #fff;
+  overflow: hidden;
+  box-sizing: border-box;
+`
+
+export const topScrollbarWrap = css`
+  height: 7px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  pointer-events: auto;
+  background: transparent;
+  border: none;
+
+  /* was -11px when under header; not needed for trailer */
+  margin-top: 0;
+
+  /* WebKit */
+  &::-webkit-scrollbar {
+    height: 20px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #000;
+    border-radius: 8px;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #000 transparent;
+`
+
+export const topScrollbarInner = css`
+  /* Keep height equal to scrollbar so it doesn’t add extra spacing */
+  height: 0px; /* no need for vertical size here */
+  width: 100%;
+`

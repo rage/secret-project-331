@@ -71,6 +71,14 @@ const chapterMeta = chapterDefs.map((chapter) => {
   return { chapter, pointsMax, attemptsMax }
 })
 
+// === NEW: name formatter + sort comparator + sorted list ===
+export const formatName = (s: Student) => `${s.lastName}, ${s.firstName}`
+
+export const byLastThenFirst = (a: Student, b: Student) =>
+  a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(b.firstName)
+
+export const mockStudentsSorted: Student[] = [...mockStudents].sort(byLastThenFirst)
+
 // --- BUILD COLUMNS ---
 export const pointsColumns = [
   {
@@ -108,17 +116,17 @@ export const pointsColumns = [
 ]
 
 // --- BUILD STUDENT DATA ---
-export const pointsData = mockStudents.map((s) => {
-  // For each chapter, randomize points and attempts for the student
+export const pointsData = mockStudentsSorted.map((s) => {
   let totalPoints = 0
   let totalAttempted = 0
   const obj: any = {
-    student: `${s.firstName} ${s.lastName}`,
+    student: formatName(s), // CHANGED
   }
 
   chapterMeta.forEach((meta, idx) => {
-    const pointsKey = `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_points`
-    const attKey = `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_attempted`
+    const keyBase = ["basics","intermediaries","advanced","forbidden","another1","another2","bonus1","bonus2"][idx]
+    const pointsKey = `${keyBase}_points`
+    const attKey = `${keyBase}_attempted`
     const points = randInt(0, meta.pointsMax)
     const attempts = randInt(0, meta.attemptsMax)
     obj[pointsKey] = points
@@ -131,3 +139,19 @@ export const pointsData = mockStudents.map((s) => {
   obj["total_attempted"] = totalAttempted
   return obj
 })
+
+// At the end of studentsTableData.ts
+
+export const completionsColumns = [
+  { header: "Student", accessorKey: "student" },
+  { header: "Default", accessorKey: "default" },
+  { header: "Another module", accessorKey: "anotherModule" },
+  { header: "Bonus module", accessorKey: "bonusModule" },
+]
+
+export const completionsData = mockStudentsSorted.map((s) => ({
+  student: formatName(s),
+  default: "0/0",
+  anotherModule: "0/0",
+  bonusModule: "0/0",
+}))

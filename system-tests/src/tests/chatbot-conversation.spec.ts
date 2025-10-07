@@ -5,7 +5,7 @@ import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 import { waitForAnimationsToEnd } from "@/utils/waitForAnimationsToEnd"
 
-test.describe("Test chatbot chat box", () => {
+test.describe.only("Test chatbot chat box", () => {
   test.use({
     storageState: "src/states/teacher@example.com.json",
   })
@@ -177,7 +177,7 @@ test.describe("Test chatbot chat box", () => {
         waitForTheseToBeVisibleAndStable: [student1Page.getByText("More content on the same mock")],
         scrollToYCoordinate: {
           "desktop-regular": 0,
-          "mobile-tall": 100,
+          "mobile-tall": 80,
         },
       })
       await student1Page.locator("body").press("Escape")

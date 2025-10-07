@@ -1,16 +1,14 @@
 // StudentsTableTabs.tsx
 import { css } from "@emotion/react"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import { colorPairs } from "./studentsTableColors"
-
-// StudentsTableTabs.tsx
 import {
-  baseStudents,
   completionsColumns,
   completionsData,
-  mockStudents,
+  formatName,
+  mockStudentsSorted,
   pointsColumns,
   pointsData,
 } from "./studentsTableData"
@@ -20,78 +18,21 @@ import {
   noLeftBorder,
   noRightBorder,
   rowStyle,
-  tableOuterWrap,
+  tableCenteredInner,
+  tableOuterScroll,
+  tableRoundedWrap,
   tableStyle,
   tdStyle,
   thStyle,
+  topScrollbarInner,
+  topScrollbarWrap,
 } from "./studentsTableStyles"
 
-const tableOuterScroll = css`
-  width: 100%;
-  overflow-x: auto;
-  /* no flex! */
-  background: transparent;
-  /* preserves scroll bar */
-`
+// --- CONSTANTS ---
+const chapterHeaderStart = 2 // upper headers (groups) start index
+const subHeaderStart = 3 // lower headers (points/attempts) start index
 
-const tableCenteredInner = css`
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  min-width: 900px;
-  max-width: 90vw; // Optional: sets table max width to 90% of viewport
-`
-
-const tableRoundedWrap = css`
-  position: relative;
-  border-radius: 8px;
-  border: 1px solid #ced1d7;
-  background: #fff;
-  overflow: hidden;
-  box-sizing: border-box;
-`
-
-const topScrollbarWrap = css`
-  height: 7px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  pointer-events: auto;
-  background: transparent;
-  border: none;
-
-  /* was -11px when under header; not needed for trailer */
-  margin-top: 0;
-
-  /* WebKit */
-  &::-webkit-scrollbar {
-    height: 20px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #000;
-    border-radius: 8px;
-    border-left: 2px solid transparent;
-    border-right: 2px solid transparent;
-    background-clip: padding-box;
-  }
-
-  /* Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: #000 transparent;
-`
-
-const topScrollbarInner = css`
-  /* Keep height equal to scrollbar so it doesn’t add extra spacing */
-  height: 0px; /* no need for vertical size here */
-  width: 100%;
-`
-
-// --- UNIVERSAL FLOATING HEADER TABLE ---
-const chapterHeaderStart = 2 // First chapter header (upper, uses only light color)
-const subHeaderStart = 3 // First subheader (lower, uses light/dark pair)
-
+// --- COMPONENT ---
 export function FloatingHeaderTable({
   columns,
   data,
@@ -100,196 +41,214 @@ export function FloatingHeaderTable({
   colorHeaderUnderline = false,
   progressMode = false,
 }) {
-  const tableRef = useRef(null)
-  const wrapRef = useRef(null)
-  const [showSticky, setShowSticky] = useState(false)
-  const [colWidths, setColWidths] = useState([])
-  const [scrollLeft, setScrollLeft] = useState(0)
-  const [wrapRect, setWrapRect] = useState({ left: 0, width: 0 })
-  const table = useReactTable({ columns, data, getCoreRowModel: getCoreRowModel() })
-
-  const topScrollRef = useRef<HTMLDivElement | null>(null)
-  const [contentWidth, setContentWidth] = useState(0)
-  const syncingRef = useRef<null | "wrap" | "top">(null)
-  const trailerRef = useRef<HTMLDivElement | null>(null)
-  const [showTrailer, setShowTrailer] = useState(false)
-
+  // Refs
+  const tableRef = useRef<HTMLTableElement | null>(null)
+  const wrapRef = useRef<HTMLDivElement | null>(null)
   const stickyTableRef = useRef<HTMLTableElement | null>(null)
+  const trailerRef = useRef<HTMLDivElement | null>(null)
+  const syncingRef = useRef<null | "wrap" | "top">(null)
   const rafRef = useRef<number | null>(null)
   const latestScrollLeftRef = useRef(0)
 
+  // State
+  const [showSticky, setShowSticky] = useState(false)
+  const [colWidths, setColWidths] = useState<number[]>([])
+  const [wrapRect, setWrapRect] = useState({ left: 0, width: 0 })
+  const [contentWidth, setContentWidth] = useState(0)
+  const [showTrailer, setShowTrailer] = useState(false)
   const [bottomVisible, setBottomVisible] = useState(false)
-  // optional derived booleans for clarity in render:
-  const showFixedTrailer = showTrailer && !bottomVisible
-  const showDockedTrailer = showTrailer && bottomVisible
 
-  // --- Effects for sticky header, colWidths, etc (unchanged) ---
-  useEffect(() => {
-    const updateWidth = () => {
-      if (!wrapRef.current) {
-        return
-      }
-      // full scrollable width of the table content
-      setContentWidth(wrapRef.current.scrollWidth)
-    }
-    updateWidth()
-    window.addEventListener("resize", updateWidth)
-    const id = setInterval(updateWidth, 200) // catches font/layout async changes
-    return () => {
-      window.removeEventListener("resize", updateWidth)
-      clearInterval(id)
-    }
-  }, [data.length, colWidths.join(",")])
+  const table = useReactTable({ columns, data, getCoreRowModel: getCoreRowModel() })
 
-  useEffect(() => {
-    const wrap = wrapRef.current
-    if (!wrap) {
+  // ---------- Helpers ----------
+  const applyStickyTransform = useCallback((x: number) => {
+    if (x === latestScrollLeftRef.current) {
       return
     }
-
-    const apply = (x: number) => {
-      if (x === latestScrollLeftRef.current) {
-        return
-      }
-      latestScrollLeftRef.current = x
-      if (stickyTableRef.current) {
-        stickyTableRef.current.style.transform = `translateX(-${x}px)`
-      }
+    latestScrollLeftRef.current = x
+    if (stickyTableRef.current) {
+      stickyTableRef.current.style.transform = `translateX(-${x}px)`
     }
+  }, [])
 
-    const scheduleApply = () => {
+  const scheduleApplySticky = useCallback(
+    (x: number) => {
       if (rafRef.current != null) {
         return
       }
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null
-        apply(wrap.scrollLeft)
+        applyStickyTransform(x)
       })
+    },
+    [applyStickyTransform],
+  )
+
+  const measureWrapRect = useCallback(() => {
+    if (!wrapRef.current) {
+      return
+    }
+    const rect = wrapRef.current.getBoundingClientRect()
+    setWrapRect({ left: rect.left, width: rect.width })
+  }, [])
+
+  const measureColWidths = useCallback(() => {
+    if (!tableRef.current) {
+      return
+    }
+    const ths = tableRef.current.querySelectorAll<HTMLTableCellElement>("thead tr:first-of-type th")
+    if (!ths.length) {
+      return
+    }
+    setColWidths(Array.from(ths).map((th) => th.offsetWidth))
+  }, [])
+
+  const measureContentWidth = useCallback(() => {
+    if (!wrapRef.current) {
+      return
+    }
+    setContentWidth(wrapRef.current.scrollWidth)
+  }, [])
+
+  const handleWindowScroll = useCallback(() => {
+    if (!tableRef.current) {
+      return
+    }
+    const rect = tableRef.current.getBoundingClientRect()
+    const vh = window.innerHeight || document.documentElement.clientHeight
+
+    // sticky header visible when table header scrolled off top but table still on screen
+    setShowSticky(rect.top < 0 && rect.bottom > 48)
+
+    // trailer visibility logic
+    const tableOnScreen = rect.bottom > 0 && rect.top < vh
+    const pastTop = rect.top < vh - 48
+    const isBottomVisible = rect.bottom <= vh
+
+    setShowTrailer(tableOnScreen && pastTop)
+    setBottomVisible(isBottomVisible)
+  }, [])
+
+  const onWrapScroll = useCallback(() => {
+    const wrap = wrapRef.current
+    if (!wrap) {
+      return
     }
 
-    // always keep sticky header in sync with the main scroller
-    const onWrapScroll = () => {
-      const trailer = trailerRef.current
-      if (trailer && syncingRef.current !== "top") {
-        syncingRef.current = "wrap"
-        trailer.scrollLeft = wrap.scrollLeft
-        syncingRef.current = null
-      }
-      apply(wrap.scrollLeft) // immediate for zero lag
-    }
-
-    // (re)attach listeners
-    wrap.addEventListener("scroll", onWrapScroll, { passive: true })
-
+    // sync top trailer
     const trailer = trailerRef.current
-    const onTrailerScroll = () => {
-      if (syncingRef.current !== "wrap") {
-        syncingRef.current = "top"
-        wrap.scrollLeft = trailer!.scrollLeft
-        syncingRef.current = null
-      }
-      scheduleApply()
+    if (trailer && syncingRef.current !== "top") {
+      syncingRef.current = "wrap"
+      trailer.scrollLeft = wrap.scrollLeft
+      syncingRef.current = null
     }
+
+    // keep sticky in lockstep
+    applyStickyTransform(wrap.scrollLeft)
+  }, [applyStickyTransform])
+
+  const onTrailerScroll = useCallback(() => {
+    const wrap = wrapRef.current
+    const trailer = trailerRef.current
+    if (!wrap || !trailer) {
+      return
+    }
+    if (syncingRef.current !== "wrap") {
+      syncingRef.current = "top"
+      wrap.scrollLeft = trailer.scrollLeft
+      syncingRef.current = null
+    }
+    scheduleApplySticky(wrap.scrollLeft)
+  }, [scheduleApplySticky])
+
+  const getHeaderBg = useCallback(
+    (headerRow: number, colIdx: number, header: any) => {
+      if (!colorHeaders) {
+        return undefined
+      }
+      // Upper header groups
+      if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
+        const chapterIdx = Math.floor((colIdx - chapterHeaderStart) / 1)
+        return colorPairs[chapterIdx % colorPairs.length][0]
+      }
+      // Lower header (points/attempts)
+      if (headerRow === 1 && colIdx >= subHeaderStart && header.colSpan === 1) {
+        const pairIdx = Math.floor((colIdx - subHeaderStart) / 2)
+        const subIdx = (colIdx - subHeaderStart) % 2
+        return colorPairs[pairIdx % colorPairs.length][subIdx]
+      }
+      return undefined
+    },
+    [colorHeaders],
+  )
+
+  // Measure column widths after data/columns render
+  useLayoutEffect(() => {
+    // measure on next frame to let layout settle
+    const id = requestAnimationFrame(measureColWidths)
+    return () => cancelAnimationFrame(id)
+  }, [measureColWidths, data.length, columns])
+
+  // Keep wrapRect and contentWidth in sync with layout changes (ResizeObserver + window resize)
+  useEffect(() => {
+    measureWrapRect()
+    measureContentWidth()
+
+    const ro = new ResizeObserver(() => {
+      measureWrapRect()
+      measureContentWidth()
+      // columns might reflow if fonts/space change
+      measureColWidths()
+    })
+    if (wrapRef.current) {
+      ro.observe(wrapRef.current)
+    }
+    window.addEventListener("resize", measureWrapRect)
+
+    return () => {
+      ro.disconnect()
+      window.removeEventListener("resize", measureWrapRect)
+    }
+  }, [measureWrapRect, measureContentWidth, measureColWidths])
+
+  // Window scroll: sticky header + trailer visibility
+  useEffect(() => {
+    handleWindowScroll()
+    window.addEventListener("scroll", handleWindowScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleWindowScroll)
+  }, [handleWindowScroll])
+
+  // Sync scroll between wrap and trailer; keep sticky header transform updated
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const trailer = trailerRef.current
+    if (!wrap) {
+      return
+    }
+
+    // initialize positions
+    applyStickyTransform(wrap.scrollLeft)
     if (trailer) {
       trailer.scrollLeft = wrap.scrollLeft
-      trailer.addEventListener("scroll", onTrailerScroll, { passive: true })
     }
 
-    // initialize sticky header position (covers mount + trailer swap)
-    apply(wrap.scrollLeft)
+    wrap.addEventListener("scroll", onWrapScroll, { passive: true })
+    trailer?.addEventListener("scroll", onTrailerScroll, { passive: true })
 
     return () => {
       wrap.removeEventListener("scroll", onWrapScroll)
-      if (trailer) {
-        trailer.removeEventListener("scroll", onTrailerScroll)
-      }
+      trailer?.removeEventListener("scroll", onTrailerScroll)
       if (rafRef.current != null) {
         cancelAnimationFrame(rafRef.current)
       }
     }
-  }, [
-    showTrailer, // trailer visible or not
-    bottomVisible, // switches fixed ↔ docked (new element)
-  ]) // ← key change
+  }, [onWrapScroll, onTrailerScroll, applyStickyTransform, showTrailer, bottomVisible])
 
-  useEffect(() => {
-    if (showSticky && stickyTableRef.current && wrapRef.current) {
-      stickyTableRef.current.style.transform = `translateX(-${wrapRef.current.scrollLeft}px)`
-    }
-  }, [showSticky])
-
-  useEffect(() => {
-    if (tableRef.current) {
-      const ths = tableRef.current.querySelectorAll("thead tr:first-of-type th")
-      setColWidths(Array.from(ths).map((th) => th.offsetWidth))
-    }
-  }, [data.length])
-
-  useEffect(() => {
-    function updateRect() {
-      if (!wrapRef.current) {
-        return
-      }
-      const rect = wrapRef.current.getBoundingClientRect()
-      setWrapRect({ left: rect.left, width: rect.width })
-    }
-    window.addEventListener("scroll", updateRect, { passive: true })
-    window.addEventListener("resize", updateRect)
-    updateRect()
-    return () => {
-      window.removeEventListener("scroll", updateRect)
-      window.removeEventListener("resize", updateRect)
-    }
-  }, [])
-
-  useEffect(() => {
-    function onScroll() {
-      if (!tableRef.current) {
-        return
-      }
-      const rect = tableRef.current.getBoundingClientRect()
-      const vh = window.innerHeight || document.documentElement.clientHeight
-
-      // sticky header
-      setShowSticky(rect.top < 0 && rect.bottom > 48)
-
-      // visibility
-      const tableOnScreen = rect.bottom > 0 && rect.top < vh
-      const pastTop = rect.top < vh - 48
-      const isBottomVisible = rect.bottom <= vh
-
-      // trailer exists whenever table is on screen and we've moved past the top a bit
-      setShowTrailer(tableOnScreen && pastTop)
-      setBottomVisible(isBottomVisible)
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
-  function getHeaderBg(headerRow, colIdx, header) {
-    if (!colorHeaders) {
-      return undefined
-    }
-    // UPPER HEADER ROW (chapter group headers)
-    if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
-      const chapterIdx = Math.floor((colIdx - chapterHeaderStart) / 1)
-      return colorPairs[chapterIdx % colorPairs.length][0] // lighter color
-    }
-    // LOWER HEADER ROW (subcolumns: points/attempted)
-    if (headerRow === 1 && colIdx >= subHeaderStart && header.colSpan === 1) {
-      const pairIdx = Math.floor((colIdx - subHeaderStart) / 2)
-      const subIdx = (colIdx - subHeaderStart) % 2
-      return colorPairs[pairIdx % colorPairs.length][subIdx]
-    }
-    return undefined
-  }
-
+  // ---------- Render helpers ----------
   const renderDockedTrailer = () => (
     <div
       style={{
-        position: "absolute", // docked inside the table container
+        position: "absolute",
         left: 0,
         bottom: 0,
         width: "100%",
@@ -300,11 +259,7 @@ export function FloatingHeaderTable({
       <div
         ref={trailerRef}
         css={topScrollbarWrap}
-        style={{
-          pointerEvents: "auto",
-          paddingLeft: 2,
-          paddingRight: 2,
-        }}
+        style={{ pointerEvents: "auto", paddingLeft: 2, paddingRight: 2 }}
       >
         <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
       </div>
@@ -320,26 +275,19 @@ export function FloatingHeaderTable({
         width: wrapRect.width,
         zIndex: 100,
         pointerEvents: "none",
-        // keep clear of notches / iOS home bar if applicable
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
       <div
         ref={trailerRef}
         css={topScrollbarWrap}
-        style={{
-          pointerEvents: "auto",
-          // small inward padding so the thumb doesn't touch edges hard
-          paddingLeft: 2,
-          paddingRight: 2,
-        }}
+        style={{ pointerEvents: "auto", paddingLeft: 2, paddingRight: 2 }}
       >
         <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
       </div>
     </div>
   )
 
-  // --- STICKY HEADER RENDER (EXACT SAME WIDTHS) ---
   const renderStickyHeader = () => (
     <div
       style={{
@@ -374,7 +322,7 @@ export function FloatingHeaderTable({
             borderSpacing: 0,
             margin: 0,
             pointerEvents: "none",
-            transform: "translate3d(0,0,0)", // prime compositing
+            transform: "translate3d(0,0,0)",
             willChange: "transform",
             contain: "paint",
             backfaceVisibility: "hidden",
@@ -386,11 +334,9 @@ export function FloatingHeaderTable({
     </div>
   )
 
-  // --- TABLE HEAD RENDER (uses explicit widths) ---
   const renderTableHead = () => (
     <thead>
       {table.getHeaderGroups().map((headerGroup, rowIdx) => {
-        // Track chapter index for header row 0 only
         let chapterCount = 0
         return (
           <tr key={headerGroup.id} css={headerRowStyle}>
@@ -398,7 +344,7 @@ export function FloatingHeaderTable({
               let removeRight = false
               let removeLeft = false
 
-              // --- Remove border between Total Points/Attempts
+              // Remove border between Total points/attempts
               if (progressMode && rowIdx === 1 && colIdx === 1) {
                 removeRight = true
               }
@@ -406,7 +352,7 @@ export function FloatingHeaderTable({
                 removeLeft = true
               }
 
-              // --- Remove borders between chapter points/attempts
+              // Remove borders between chapter points/attempts
               if (
                 progressMode &&
                 rowIdx === 1 &&
@@ -424,7 +370,7 @@ export function FloatingHeaderTable({
                 removeLeft = true
               }
 
-              // Chapter indexing logic: only for upper header row, after "Total"
+              // Number the chapter headers on the upper row
               let headerLabel = flexRender(header.column.columnDef.header, header.getContext())
               if (rowIdx === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
                 chapterCount += 1
@@ -453,7 +399,7 @@ export function FloatingHeaderTable({
                   colSpan={header.colSpan > 1 ? header.colSpan : undefined}
                 >
                   {headerLabel}
-                  {/* Only show underline for upper header, if enabled */}
+                  {/* colored underline for upper header (optional) */}
                   {colorHeaderUnderline &&
                     rowIdx === 0 &&
                     colIdx >= chapterHeaderStart &&
@@ -494,21 +440,18 @@ export function FloatingHeaderTable({
               const subIdx = (i - subHeaderStart) % 2
               bg = colorPairs[pairIdx % colorPairs.length][subIdx]
             }
+
             let removeRight = false
             let removeLeft = false
-
-            // --- Remove border between Total Points/Attempts
             if (progressMode && i === 1) {
               removeRight = true
-            }
+            } // total points → attempts
             if (progressMode && i === 2) {
               removeLeft = true
             }
-
-            // --- Remove borders between chapter points/attempts (all other pairs)
             if (progressMode && i >= subHeaderStart && (i - subHeaderStart) % 2 === 0) {
               removeRight = true
-            }
+            } // chapter points → attempts
             if (progressMode && i >= subHeaderStart && (i - subHeaderStart) % 2 === 1) {
               removeLeft = true
             }
@@ -522,10 +465,7 @@ export function FloatingHeaderTable({
                   removeRight && noRightBorder,
                   removeLeft && noLeftBorder,
                 ]}
-                style={{
-                  width: colWidths[i],
-                  background: bg,
-                }}
+                style={{ width: colWidths[i], background: bg }}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
@@ -536,7 +476,7 @@ export function FloatingHeaderTable({
     </tbody>
   )
 
-  // --- SCROLL & ROUNDED WRAP (native scrollbar only) ---
+  // ---------- Render ----------
   return (
     <div css={tableOuterScroll} style={{ position: "relative" }}>
       {showSticky && renderStickyHeader()}
@@ -549,20 +489,14 @@ export function FloatingHeaderTable({
             ref={wrapRef}
             style={{
               width: "100%",
-              overflowX: bottomVisible ? "hidden" : "auto", // <-- hide native when bottom visible
+              overflowX: bottomVisible ? "hidden" : "auto",
               overflowY: "hidden",
               borderRadius: 8,
               border: "none",
               background: "none",
             }}
           >
-            <table
-              css={tableStyle}
-              ref={tableRef}
-              style={{
-                minWidth: 900,
-              }}
-            >
+            <table css={tableStyle} ref={tableRef} style={{ minWidth: 900 }}>
               {renderTableHead()}
               {renderTableBody()}
             </table>
@@ -573,19 +507,24 @@ export function FloatingHeaderTable({
   )
 }
 
-// -- EXPORT TABLE CONTENTS FOR TABS --
+// -- TABS --
 export const UserTabContent = () => (
   <FloatingHeaderTable
     columns={[
-      { header: "First Name", accessorKey: "firstName" },
-      { header: "Last Name", accessorKey: "lastName" },
+      {
+        header: "Name",
+        id: "name",
+        accessorFn: (row: { firstName: string; lastName: string }) =>
+          `${row.lastName}, ${row.firstName}`, // CHANGED: display format
+      },
       { header: "User ID", accessorKey: "userId" },
       { header: "Email", accessorKey: "email" },
       { header: "Course Instance", accessorKey: "courseInstance" },
     ]}
-    data={mockStudents}
+    data={mockStudentsSorted} // CHANGED: sorted by last name (then first name)
   />
 )
+
 export const CertificatesTabContent = () => (
   <FloatingHeaderTable
     columns={[
@@ -593,23 +532,25 @@ export const CertificatesTabContent = () => (
       { header: "Certificate", accessorKey: "certificate" },
       { header: "Date Issued", accessorKey: "date" },
     ]}
-    data={mockStudents.map((s, i) => ({
-      student: `${s.firstName} ${s.lastName}`,
+    data={mockStudentsSorted.map((s, i) => ({
+      student: `${s.lastName}, ${s.firstName}`, // CHANGED: display format
       certificate: i % 2 === 0 ? "Course Certificate" : "No Certificate",
       date: i % 2 === 0 ? "2025-09-02" : "-",
     }))}
   />
 )
+
 export const CompletionsTabContent = () => (
   <FloatingHeaderTable columns={completionsColumns} data={completionsData} />
 )
+
 export const PointsTabContent = () => (
   <FloatingHeaderTable
     columns={pointsColumns}
     data={pointsData}
-    colorHeaders={true}
-    colorColumns={true}
-    colorHeaderUnderline={true}
-    progressMode={true}
+    colorHeaders
+    colorColumns
+    colorHeaderUnderline
+    progressMode
   />
 )

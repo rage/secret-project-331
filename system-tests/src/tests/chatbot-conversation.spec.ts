@@ -193,6 +193,7 @@ test.describe("Test chatbot chat box", () => {
       await student1Page.goto(
         "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1/page-2",
       )
+      await selectCourseInstanceIfPrompted(student1Page)
       await expect(student1Page.getByText("Hello! How can I assist you")).toBeVisible()
       await student1Page.getByRole("button", { name: "New conversation" }).click()
       await student1Page.getByText("Haiii xD").waitFor()

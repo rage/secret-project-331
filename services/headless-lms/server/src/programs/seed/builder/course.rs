@@ -244,7 +244,10 @@ impl CourseBuilder {
             chatbot_configurations::insert(
                 &mut tx,
                 PKeyPolicy::Fixed(chatbotconf_id),
-                chatbot_conf,
+                NewChatbotConf {
+                    course_id,
+                    ..chatbot_conf
+                },
             )
             .await
             .context("inserting chatbot configuration for course")?;

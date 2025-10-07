@@ -54,7 +54,7 @@
 <a href=#54 id=54 data-nosnippet>54</a>    }
 <a href=#55 id=55 data-nosnippet>55</a>}
 <a href=#56 id=56 data-nosnippet>56</a>
-<a href=#57 id=57 data-nosnippet>57</a><span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
+<a href=#57 id=57 data-nosnippet>57</a><span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
 <a href=#58 id=58 data-nosnippet>58</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 <a href=#59 id=59 data-nosnippet>59</a></span><span class="kw">pub struct </span>NewChatbotConf {
 <a href=#60 id=60 data-nosnippet>60</a>    <span class="kw">pub </span>course_id: Uuid,
@@ -74,247 +74,259 @@
 <a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">pub </span>hide_citations: bool,
 <a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">pub </span>use_semantic_reranking: bool,
 <a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">pub </span>default_chatbot: bool,
-<a href=#77 id=77 data-nosnippet>77</a>}
-<a href=#78 id=78 data-nosnippet>78</a>
-<a href=#79 id=79 data-nosnippet>79</a><span class="kw">impl </span>Default <span class="kw">for </span>NewChatbotConf {
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#81 id=81 data-nosnippet>81</a>        <span class="kw">let </span>chatbot_conf: ChatbotConfiguration = ChatbotConfiguration::default();
-<a href=#82 id=82 data-nosnippet>82</a>        <span class="self">Self </span>{
-<a href=#83 id=83 data-nosnippet>83</a>            course_id: chatbot_conf.course_id,
-<a href=#84 id=84 data-nosnippet>84</a>            enabled_to_students: chatbot_conf.enabled_to_students,
-<a href=#85 id=85 data-nosnippet>85</a>            chatbot_name: chatbot_conf.chatbot_name,
-<a href=#86 id=86 data-nosnippet>86</a>            prompt: chatbot_conf.prompt,
-<a href=#87 id=87 data-nosnippet>87</a>            initial_message: chatbot_conf.initial_message,
-<a href=#88 id=88 data-nosnippet>88</a>            weekly_tokens_per_user: chatbot_conf.weekly_tokens_per_user,
-<a href=#89 id=89 data-nosnippet>89</a>            daily_tokens_per_user: chatbot_conf.daily_tokens_per_user,
-<a href=#90 id=90 data-nosnippet>90</a>            temperature: chatbot_conf.temperature,
-<a href=#91 id=91 data-nosnippet>91</a>            top_p: chatbot_conf.top_p,
-<a href=#92 id=92 data-nosnippet>92</a>            frequency_penalty: chatbot_conf.frequency_penalty,
-<a href=#93 id=93 data-nosnippet>93</a>            presence_penalty: chatbot_conf.presence_penalty,
-<a href=#94 id=94 data-nosnippet>94</a>            response_max_tokens: chatbot_conf.response_max_tokens,
-<a href=#95 id=95 data-nosnippet>95</a>            use_azure_search: chatbot_conf.use_azure_search,
-<a href=#96 id=96 data-nosnippet>96</a>            maintain_azure_search_index: chatbot_conf.maintain_azure_search_index,
-<a href=#97 id=97 data-nosnippet>97</a>            hide_citations: chatbot_conf.hide_citations,
-<a href=#98 id=98 data-nosnippet>98</a>            use_semantic_reranking: chatbot_conf.use_semantic_reranking,
-<a href=#99 id=99 data-nosnippet>99</a>            default_chatbot: chatbot_conf.default_chatbot,
-<a href=#100 id=100 data-nosnippet>100</a>        }
-<a href=#101 id=101 data-nosnippet>101</a>    }
-<a href=#102 id=102 data-nosnippet>102</a>}
-<a href=#103 id=103 data-nosnippet>103</a>
-<a href=#104 id=104 data-nosnippet>104</a><span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;ChatbotConfiguration&gt; {
-<a href=#105 id=105 data-nosnippet>105</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#106 id=106 data-nosnippet>106</a>        ChatbotConfiguration,
-<a href=#107 id=107 data-nosnippet>107</a>        <span class="string">r#"
-<a href=#108 id=108 data-nosnippet>108</a>SELECT * FROM chatbot_configurations
-<a href=#109 id=109 data-nosnippet>109</a>WHERE id = $1
-<a href=#110 id=110 data-nosnippet>110</a>AND deleted_at IS NULL
-<a href=#111 id=111 data-nosnippet>111</a>        "#</span>,
-<a href=#112 id=112 data-nosnippet>112</a>        id
-<a href=#113 id=113 data-nosnippet>113</a>    )
-<a href=#114 id=114 data-nosnippet>114</a>    .fetch_one(conn)
-<a href=#115 id=115 data-nosnippet>115</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#116 id=116 data-nosnippet>116</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#117 id=117 data-nosnippet>117</a>}
-<a href=#118 id=118 data-nosnippet>118</a>
-<a href=#119 id=119 data-nosnippet>119</a><span class="kw">pub async fn </span>insert(
-<a href=#120 id=120 data-nosnippet>120</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#121 id=121 data-nosnippet>121</a>    input: NewChatbotConf,
-<a href=#122 id=122 data-nosnippet>122</a>) -&gt; ModelResult&lt;ChatbotConfiguration&gt; {
-<a href=#123 id=123 data-nosnippet>123</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#124 id=124 data-nosnippet>124</a>        ChatbotConfiguration,
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="string">r#"
-<a href=#126 id=126 data-nosnippet>126</a>INSERT INTO chatbot_configurations (
-<a href=#127 id=127 data-nosnippet>127</a>    course_id,
-<a href=#128 id=128 data-nosnippet>128</a>    enabled_to_students,
-<a href=#129 id=129 data-nosnippet>129</a>    chatbot_name,
-<a href=#130 id=130 data-nosnippet>130</a>    prompt,
-<a href=#131 id=131 data-nosnippet>131</a>    initial_message,
-<a href=#132 id=132 data-nosnippet>132</a>    weekly_tokens_per_user,
-<a href=#133 id=133 data-nosnippet>133</a>    daily_tokens_per_user,
-<a href=#134 id=134 data-nosnippet>134</a>    temperature,
-<a href=#135 id=135 data-nosnippet>135</a>    top_p,
-<a href=#136 id=136 data-nosnippet>136</a>    frequency_penalty,
-<a href=#137 id=137 data-nosnippet>137</a>    presence_penalty,
-<a href=#138 id=138 data-nosnippet>138</a>    response_max_tokens
-<a href=#139 id=139 data-nosnippet>139</a>  )
-<a href=#140 id=140 data-nosnippet>140</a>VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-<a href=#141 id=141 data-nosnippet>141</a>RETURNING *
-<a href=#142 id=142 data-nosnippet>142</a>        "#</span>,
-<a href=#143 id=143 data-nosnippet>143</a>        input.course_id,
-<a href=#144 id=144 data-nosnippet>144</a>        input.enabled_to_students,
-<a href=#145 id=145 data-nosnippet>145</a>        input.chatbot_name,
-<a href=#146 id=146 data-nosnippet>146</a>        input.prompt,
-<a href=#147 id=147 data-nosnippet>147</a>        input.initial_message,
-<a href=#148 id=148 data-nosnippet>148</a>        input.weekly_tokens_per_user,
-<a href=#149 id=149 data-nosnippet>149</a>        input.daily_tokens_per_user,
-<a href=#150 id=150 data-nosnippet>150</a>        input.temperature,
-<a href=#151 id=151 data-nosnippet>151</a>        input.top_p,
-<a href=#152 id=152 data-nosnippet>152</a>        input.frequency_penalty,
-<a href=#153 id=153 data-nosnippet>153</a>        input.presence_penalty,
-<a href=#154 id=154 data-nosnippet>154</a>        input.response_max_tokens
-<a href=#155 id=155 data-nosnippet>155</a>    )
-<a href=#156 id=156 data-nosnippet>156</a>    .fetch_one(conn)
-<a href=#157 id=157 data-nosnippet>157</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#158 id=158 data-nosnippet>158</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#159 id=159 data-nosnippet>159</a>}
-<a href=#160 id=160 data-nosnippet>160</a>
-<a href=#161 id=161 data-nosnippet>161</a><span class="kw">pub async fn </span>edit(
-<a href=#162 id=162 data-nosnippet>162</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#163 id=163 data-nosnippet>163</a>    input: NewChatbotConf,
-<a href=#164 id=164 data-nosnippet>164</a>    chatbot_configuration_id: Uuid,
-<a href=#165 id=165 data-nosnippet>165</a>) -&gt; ModelResult&lt;ChatbotConfiguration&gt; {
-<a href=#166 id=166 data-nosnippet>166</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#167 id=167 data-nosnippet>167</a>        ChatbotConfiguration,
-<a href=#168 id=168 data-nosnippet>168</a>        <span class="string">r#"
-<a href=#169 id=169 data-nosnippet>169</a>UPDATE chatbot_configurations AS cc
-<a href=#170 id=170 data-nosnippet>170</a>SET
-<a href=#171 id=171 data-nosnippet>171</a>    enabled_to_students = $1,
-<a href=#172 id=172 data-nosnippet>172</a>    chatbot_name = $2,
-<a href=#173 id=173 data-nosnippet>173</a>    prompt = $3,
-<a href=#174 id=174 data-nosnippet>174</a>    initial_message = $4,
-<a href=#175 id=175 data-nosnippet>175</a>    weekly_tokens_per_user = $5,
-<a href=#176 id=176 data-nosnippet>176</a>    daily_tokens_per_user = $6,
-<a href=#177 id=177 data-nosnippet>177</a>    temperature = $7,
-<a href=#178 id=178 data-nosnippet>178</a>    top_p = $8,
-<a href=#179 id=179 data-nosnippet>179</a>    frequency_penalty = $9,
-<a href=#180 id=180 data-nosnippet>180</a>    presence_penalty = $10,
-<a href=#181 id=181 data-nosnippet>181</a>    response_max_tokens = $11,
-<a href=#182 id=182 data-nosnippet>182</a>    use_azure_search = $12,
-<a href=#183 id=183 data-nosnippet>183</a>    maintain_azure_search_index = $13,
-<a href=#184 id=184 data-nosnippet>184</a>    hide_citations = $14,
-<a href=#185 id=185 data-nosnippet>185</a>    use_semantic_reranking = $15,
-<a href=#186 id=186 data-nosnippet>186</a>    default_chatbot = $16
-<a href=#187 id=187 data-nosnippet>187</a>WHERE cc.id = $17
-<a href=#188 id=188 data-nosnippet>188</a>RETURNING *"#</span>,
-<a href=#189 id=189 data-nosnippet>189</a>        input.enabled_to_students,
-<a href=#190 id=190 data-nosnippet>190</a>        input.chatbot_name,
-<a href=#191 id=191 data-nosnippet>191</a>        input.prompt,
-<a href=#192 id=192 data-nosnippet>192</a>        input.initial_message,
-<a href=#193 id=193 data-nosnippet>193</a>        input.weekly_tokens_per_user,
-<a href=#194 id=194 data-nosnippet>194</a>        input.daily_tokens_per_user,
-<a href=#195 id=195 data-nosnippet>195</a>        input.temperature,
-<a href=#196 id=196 data-nosnippet>196</a>        input.top_p,
-<a href=#197 id=197 data-nosnippet>197</a>        input.frequency_penalty,
-<a href=#198 id=198 data-nosnippet>198</a>        input.presence_penalty,
-<a href=#199 id=199 data-nosnippet>199</a>        input.response_max_tokens,
-<a href=#200 id=200 data-nosnippet>200</a>        input.use_azure_search,
-<a href=#201 id=201 data-nosnippet>201</a>        input.maintain_azure_search_index,
-<a href=#202 id=202 data-nosnippet>202</a>        input.hide_citations,
-<a href=#203 id=203 data-nosnippet>203</a>        input.use_semantic_reranking,
-<a href=#204 id=204 data-nosnippet>204</a>        input.default_chatbot,
-<a href=#205 id=205 data-nosnippet>205</a>        chatbot_configuration_id
-<a href=#206 id=206 data-nosnippet>206</a>    )
-<a href=#207 id=207 data-nosnippet>207</a>    .fetch_one(conn)
-<a href=#208 id=208 data-nosnippet>208</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#209 id=209 data-nosnippet>209</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#210 id=210 data-nosnippet>210</a>}
-<a href=#211 id=211 data-nosnippet>211</a>
-<a href=#212 id=212 data-nosnippet>212</a><span class="kw">pub async fn </span>delete(conn: <span class="kw-2">&amp;mut </span>PgConnection, chatbot_configuration_id: Uuid) -&gt; ModelResult&lt;()&gt; {
-<a href=#213 id=213 data-nosnippet>213</a>    <span class="macro">sqlx::query!</span>(
-<a href=#214 id=214 data-nosnippet>214</a>        <span class="string">r#"
-<a href=#215 id=215 data-nosnippet>215</a>UPDATE chatbot_configurations
-<a href=#216 id=216 data-nosnippet>216</a>SET deleted_at = now()
-<a href=#217 id=217 data-nosnippet>217</a>WHERE id = $1
-<a href=#218 id=218 data-nosnippet>218</a>AND deleted_at IS NULL
-<a href=#219 id=219 data-nosnippet>219</a>        "#</span>,
-<a href=#220 id=220 data-nosnippet>220</a>        chatbot_configuration_id
-<a href=#221 id=221 data-nosnippet>221</a>    )
-<a href=#222 id=222 data-nosnippet>222</a>    .execute(conn)
-<a href=#223 id=223 data-nosnippet>223</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#224 id=224 data-nosnippet>224</a>    <span class="prelude-val">Ok</span>(())
-<a href=#225 id=225 data-nosnippet>225</a>}
-<a href=#226 id=226 data-nosnippet>226</a>
-<a href=#227 id=227 data-nosnippet>227</a><span class="kw">pub async fn </span>get_for_course(
-<a href=#228 id=228 data-nosnippet>228</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#229 id=229 data-nosnippet>229</a>    course_id: Uuid,
-<a href=#230 id=230 data-nosnippet>230</a>) -&gt; ModelResult&lt;Vec&lt;ChatbotConfiguration&gt;&gt; {
-<a href=#231 id=231 data-nosnippet>231</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#232 id=232 data-nosnippet>232</a>        ChatbotConfiguration,
-<a href=#233 id=233 data-nosnippet>233</a>        <span class="string">r#"
-<a href=#234 id=234 data-nosnippet>234</a>SELECT * FROM
-<a href=#235 id=235 data-nosnippet>235</a>chatbot_configurations
-<a href=#236 id=236 data-nosnippet>236</a>WHERE course_id = $1
-<a href=#237 id=237 data-nosnippet>237</a>AND deleted_at IS NULL
-<a href=#238 id=238 data-nosnippet>238</a>"#</span>,
-<a href=#239 id=239 data-nosnippet>239</a>        course_id
-<a href=#240 id=240 data-nosnippet>240</a>    )
-<a href=#241 id=241 data-nosnippet>241</a>    .fetch_all(conn)
-<a href=#242 id=242 data-nosnippet>242</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#243 id=243 data-nosnippet>243</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#244 id=244 data-nosnippet>244</a>}
-<a href=#245 id=245 data-nosnippet>245</a>
-<a href=#246 id=246 data-nosnippet>246</a><span class="kw">pub async fn </span>get_enabled_nondefault_for_course(
-<a href=#247 id=247 data-nosnippet>247</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#248 id=248 data-nosnippet>248</a>    course_id: Uuid,
-<a href=#249 id=249 data-nosnippet>249</a>) -&gt; ModelResult&lt;Vec&lt;ChatbotConfiguration&gt;&gt; {
-<a href=#250 id=250 data-nosnippet>250</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#251 id=251 data-nosnippet>251</a>        ChatbotConfiguration,
-<a href=#252 id=252 data-nosnippet>252</a>        <span class="string">r#"
-<a href=#253 id=253 data-nosnippet>253</a>SELECT * FROM
-<a href=#254 id=254 data-nosnippet>254</a>chatbot_configurations
-<a href=#255 id=255 data-nosnippet>255</a>WHERE course_id = $1
-<a href=#256 id=256 data-nosnippet>256</a>AND default_chatbot IS false
-<a href=#257 id=257 data-nosnippet>257</a>AND enabled_to_students IS true
-<a href=#258 id=258 data-nosnippet>258</a>AND deleted_at IS NULL
-<a href=#259 id=259 data-nosnippet>259</a>"#</span>,
-<a href=#260 id=260 data-nosnippet>260</a>        course_id
-<a href=#261 id=261 data-nosnippet>261</a>    )
-<a href=#262 id=262 data-nosnippet>262</a>    .fetch_all(conn)
-<a href=#263 id=263 data-nosnippet>263</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#264 id=264 data-nosnippet>264</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#265 id=265 data-nosnippet>265</a>}
-<a href=#266 id=266 data-nosnippet>266</a>
-<a href=#267 id=267 data-nosnippet>267</a><span class="kw">pub async fn </span>get_for_azure_search_maintenance(
-<a href=#268 id=268 data-nosnippet>268</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#269 id=269 data-nosnippet>269</a>) -&gt; ModelResult&lt;Vec&lt;ChatbotConfiguration&gt;&gt; {
-<a href=#270 id=270 data-nosnippet>270</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#271 id=271 data-nosnippet>271</a>        ChatbotConfiguration,
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="string">r#"
-<a href=#273 id=273 data-nosnippet>273</a>SELECT * FROM
-<a href=#274 id=274 data-nosnippet>274</a>chatbot_configurations
-<a href=#275 id=275 data-nosnippet>275</a>WHERE maintain_azure_search_index = true
-<a href=#276 id=276 data-nosnippet>276</a>AND deleted_at IS NULL
-<a href=#277 id=277 data-nosnippet>277</a>"#</span>,
-<a href=#278 id=278 data-nosnippet>278</a>    )
-<a href=#279 id=279 data-nosnippet>279</a>    .fetch_all(conn)
-<a href=#280 id=280 data-nosnippet>280</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#281 id=281 data-nosnippet>281</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#282 id=282 data-nosnippet>282</a>}
-<a href=#283 id=283 data-nosnippet>283</a>
-<a href=#284 id=284 data-nosnippet>284</a><span class="kw">pub async fn </span>remove_default_chatbot_from_course(
-<a href=#285 id=285 data-nosnippet>285</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#286 id=286 data-nosnippet>286</a>    course_id: Uuid,
-<a href=#287 id=287 data-nosnippet>287</a>) -&gt; ModelResult&lt;()&gt; {
-<a href=#288 id=288 data-nosnippet>288</a>    <span class="macro">sqlx::query!</span>(
-<a href=#289 id=289 data-nosnippet>289</a>        <span class="string">r#"
-<a href=#290 id=290 data-nosnippet>290</a>UPDATE chatbot_configurations
-<a href=#291 id=291 data-nosnippet>291</a>SET default_chatbot = false
-<a href=#292 id=292 data-nosnippet>292</a>WHERE course_id = $1
-<a href=#293 id=293 data-nosnippet>293</a>AND default_chatbot = true
-<a href=#294 id=294 data-nosnippet>294</a>AND deleted_at IS NULL
-<a href=#295 id=295 data-nosnippet>295</a>"#</span>,
-<a href=#296 id=296 data-nosnippet>296</a>        course_id,
-<a href=#297 id=297 data-nosnippet>297</a>    )
-<a href=#298 id=298 data-nosnippet>298</a>    .execute(conn)
-<a href=#299 id=299 data-nosnippet>299</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#300 id=300 data-nosnippet>300</a>    <span class="prelude-val">Ok</span>(())
-<a href=#301 id=301 data-nosnippet>301</a>}
-<a href=#302 id=302 data-nosnippet>302</a>
-<a href=#303 id=303 data-nosnippet>303</a><span class="kw">pub async fn </span>set_default_chatbot_for_course(
-<a href=#304 id=304 data-nosnippet>304</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#305 id=305 data-nosnippet>305</a>    chatbot_configuration_id: Uuid,
-<a href=#306 id=306 data-nosnippet>306</a>) -&gt; ModelResult&lt;ChatbotConfiguration&gt; {
-<a href=#307 id=307 data-nosnippet>307</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#308 id=308 data-nosnippet>308</a>        ChatbotConfiguration,
-<a href=#309 id=309 data-nosnippet>309</a>        <span class="string">r#"
-<a href=#310 id=310 data-nosnippet>310</a>UPDATE chatbot_configurations
-<a href=#311 id=311 data-nosnippet>311</a>SET default_chatbot = true
-<a href=#312 id=312 data-nosnippet>312</a>WHERE id = $1
-<a href=#313 id=313 data-nosnippet>313</a>RETURNING *
-<a href=#314 id=314 data-nosnippet>314</a>"#</span>,
-<a href=#315 id=315 data-nosnippet>315</a>        chatbot_configuration_id,
-<a href=#316 id=316 data-nosnippet>316</a>    )
-<a href=#317 id=317 data-nosnippet>317</a>    .fetch_one(conn)
-<a href=#318 id=318 data-nosnippet>318</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#319 id=319 data-nosnippet>319</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#320 id=320 data-nosnippet>320</a>}</code></pre></div></section></main></body></html>
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">pub </span>chatbotconf_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+<a href=#78 id=78 data-nosnippet>78</a>}
+<a href=#79 id=79 data-nosnippet>79</a>
+<a href=#80 id=80 data-nosnippet>80</a><span class="kw">impl </span>Default <span class="kw">for </span>NewChatbotConf {
+<a href=#81 id=81 data-nosnippet>81</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#82 id=82 data-nosnippet>82</a>        <span class="kw">let </span>chatbot_conf: ChatbotConfiguration = ChatbotConfiguration::default();
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="self">Self </span>{
+<a href=#84 id=84 data-nosnippet>84</a>            course_id: chatbot_conf.course_id,
+<a href=#85 id=85 data-nosnippet>85</a>            enabled_to_students: chatbot_conf.enabled_to_students,
+<a href=#86 id=86 data-nosnippet>86</a>            chatbot_name: chatbot_conf.chatbot_name,
+<a href=#87 id=87 data-nosnippet>87</a>            prompt: chatbot_conf.prompt,
+<a href=#88 id=88 data-nosnippet>88</a>            initial_message: chatbot_conf.initial_message,
+<a href=#89 id=89 data-nosnippet>89</a>            weekly_tokens_per_user: chatbot_conf.weekly_tokens_per_user,
+<a href=#90 id=90 data-nosnippet>90</a>            daily_tokens_per_user: chatbot_conf.daily_tokens_per_user,
+<a href=#91 id=91 data-nosnippet>91</a>            temperature: chatbot_conf.temperature,
+<a href=#92 id=92 data-nosnippet>92</a>            top_p: chatbot_conf.top_p,
+<a href=#93 id=93 data-nosnippet>93</a>            frequency_penalty: chatbot_conf.frequency_penalty,
+<a href=#94 id=94 data-nosnippet>94</a>            presence_penalty: chatbot_conf.presence_penalty,
+<a href=#95 id=95 data-nosnippet>95</a>            response_max_tokens: chatbot_conf.response_max_tokens,
+<a href=#96 id=96 data-nosnippet>96</a>            use_azure_search: chatbot_conf.use_azure_search,
+<a href=#97 id=97 data-nosnippet>97</a>            maintain_azure_search_index: chatbot_conf.maintain_azure_search_index,
+<a href=#98 id=98 data-nosnippet>98</a>            hide_citations: chatbot_conf.hide_citations,
+<a href=#99 id=99 data-nosnippet>99</a>            use_semantic_reranking: chatbot_conf.use_semantic_reranking,
+<a href=#100 id=100 data-nosnippet>100</a>            default_chatbot: chatbot_conf.default_chatbot,
+<a href=#101 id=101 data-nosnippet>101</a>            chatbotconf_id: <span class="prelude-val">None</span>,
+<a href=#102 id=102 data-nosnippet>102</a>        }
+<a href=#103 id=103 data-nosnippet>103</a>    }
+<a href=#104 id=104 data-nosnippet>104</a>}
+<a href=#105 id=105 data-nosnippet>105</a>
+<a href=#106 id=106 data-nosnippet>106</a><span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;ChatbotConfiguration&gt; {
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#108 id=108 data-nosnippet>108</a>        ChatbotConfiguration,
+<a href=#109 id=109 data-nosnippet>109</a>        <span class="string">r#"
+<a href=#110 id=110 data-nosnippet>110</a>SELECT * FROM chatbot_configurations
+<a href=#111 id=111 data-nosnippet>111</a>WHERE id = $1
+<a href=#112 id=112 data-nosnippet>112</a>AND deleted_at IS NULL
+<a href=#113 id=113 data-nosnippet>113</a>        "#</span>,
+<a href=#114 id=114 data-nosnippet>114</a>        id
+<a href=#115 id=115 data-nosnippet>115</a>    )
+<a href=#116 id=116 data-nosnippet>116</a>    .fetch_one(conn)
+<a href=#117 id=117 data-nosnippet>117</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#118 id=118 data-nosnippet>118</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#119 id=119 data-nosnippet>119</a>}
+<a href=#120 id=120 data-nosnippet>120</a>
+<a href=#121 id=121 data-nosnippet>121</a><span class="kw">pub async fn </span>insert(
+<a href=#122 id=122 data-nosnippet>122</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#123 id=123 data-nosnippet>123</a>    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+<a href=#124 id=124 data-nosnippet>124</a>    input: NewChatbotConf,
+<a href=#125 id=125 data-nosnippet>125</a>) -&gt; ModelResult&lt;ChatbotConfiguration&gt; {
+<a href=#126 id=126 data-nosnippet>126</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#127 id=127 data-nosnippet>127</a>        ChatbotConfiguration,
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="string">r#"
+<a href=#129 id=129 data-nosnippet>129</a>INSERT INTO chatbot_configurations (
+<a href=#130 id=130 data-nosnippet>130</a>    id,
+<a href=#131 id=131 data-nosnippet>131</a>    course_id,
+<a href=#132 id=132 data-nosnippet>132</a>    enabled_to_students,
+<a href=#133 id=133 data-nosnippet>133</a>    chatbot_name,
+<a href=#134 id=134 data-nosnippet>134</a>    prompt,
+<a href=#135 id=135 data-nosnippet>135</a>    initial_message,
+<a href=#136 id=136 data-nosnippet>136</a>    weekly_tokens_per_user,
+<a href=#137 id=137 data-nosnippet>137</a>    daily_tokens_per_user,
+<a href=#138 id=138 data-nosnippet>138</a>    temperature,
+<a href=#139 id=139 data-nosnippet>139</a>    top_p,
+<a href=#140 id=140 data-nosnippet>140</a>    hide_citations,
+<a href=#141 id=141 data-nosnippet>141</a>    frequency_penalty,
+<a href=#142 id=142 data-nosnippet>142</a>    presence_penalty,
+<a href=#143 id=143 data-nosnippet>143</a>    response_max_tokens,
+<a href=#144 id=144 data-nosnippet>144</a>    use_azure_search,
+<a href=#145 id=145 data-nosnippet>145</a>    maintain_azure_search_index,
+<a href=#146 id=146 data-nosnippet>146</a>    default_chatbot
+<a href=#147 id=147 data-nosnippet>147</a>  )
+<a href=#148 id=148 data-nosnippet>148</a>VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $15, $16)
+<a href=#149 id=149 data-nosnippet>149</a>RETURNING *
+<a href=#150 id=150 data-nosnippet>150</a>        "#</span>,
+<a href=#151 id=151 data-nosnippet>151</a>        pkey_policy.into_uuid(),
+<a href=#152 id=152 data-nosnippet>152</a>        input.course_id,
+<a href=#153 id=153 data-nosnippet>153</a>        input.enabled_to_students,
+<a href=#154 id=154 data-nosnippet>154</a>        input.chatbot_name,
+<a href=#155 id=155 data-nosnippet>155</a>        input.prompt,
+<a href=#156 id=156 data-nosnippet>156</a>        input.initial_message,
+<a href=#157 id=157 data-nosnippet>157</a>        input.weekly_tokens_per_user,
+<a href=#158 id=158 data-nosnippet>158</a>        input.daily_tokens_per_user,
+<a href=#159 id=159 data-nosnippet>159</a>        input.temperature,
+<a href=#160 id=160 data-nosnippet>160</a>        input.top_p,
+<a href=#161 id=161 data-nosnippet>161</a>        input.hide_citations,
+<a href=#162 id=162 data-nosnippet>162</a>        input.frequency_penalty,
+<a href=#163 id=163 data-nosnippet>163</a>        input.presence_penalty,
+<a href=#164 id=164 data-nosnippet>164</a>        input.response_max_tokens,
+<a href=#165 id=165 data-nosnippet>165</a>        input.use_azure_search,
+<a href=#166 id=166 data-nosnippet>166</a>        input.default_chatbot
+<a href=#167 id=167 data-nosnippet>167</a>    )
+<a href=#168 id=168 data-nosnippet>168</a>    .fetch_one(conn)
+<a href=#169 id=169 data-nosnippet>169</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#170 id=170 data-nosnippet>170</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#171 id=171 data-nosnippet>171</a>}
+<a href=#172 id=172 data-nosnippet>172</a>
+<a href=#173 id=173 data-nosnippet>173</a><span class="kw">pub async fn </span>edit(
+<a href=#174 id=174 data-nosnippet>174</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#175 id=175 data-nosnippet>175</a>    input: NewChatbotConf,
+<a href=#176 id=176 data-nosnippet>176</a>    chatbot_configuration_id: Uuid,
+<a href=#177 id=177 data-nosnippet>177</a>) -&gt; ModelResult&lt;ChatbotConfiguration&gt; {
+<a href=#178 id=178 data-nosnippet>178</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#179 id=179 data-nosnippet>179</a>        ChatbotConfiguration,
+<a href=#180 id=180 data-nosnippet>180</a>        <span class="string">r#"
+<a href=#181 id=181 data-nosnippet>181</a>UPDATE chatbot_configurations AS cc
+<a href=#182 id=182 data-nosnippet>182</a>SET
+<a href=#183 id=183 data-nosnippet>183</a>    enabled_to_students = $1,
+<a href=#184 id=184 data-nosnippet>184</a>    chatbot_name = $2,
+<a href=#185 id=185 data-nosnippet>185</a>    prompt = $3,
+<a href=#186 id=186 data-nosnippet>186</a>    initial_message = $4,
+<a href=#187 id=187 data-nosnippet>187</a>    weekly_tokens_per_user = $5,
+<a href=#188 id=188 data-nosnippet>188</a>    daily_tokens_per_user = $6,
+<a href=#189 id=189 data-nosnippet>189</a>    temperature = $7,
+<a href=#190 id=190 data-nosnippet>190</a>    top_p = $8,
+<a href=#191 id=191 data-nosnippet>191</a>    frequency_penalty = $9,
+<a href=#192 id=192 data-nosnippet>192</a>    presence_penalty = $10,
+<a href=#193 id=193 data-nosnippet>193</a>    response_max_tokens = $11,
+<a href=#194 id=194 data-nosnippet>194</a>    use_azure_search = $12,
+<a href=#195 id=195 data-nosnippet>195</a>    maintain_azure_search_index = $13,
+<a href=#196 id=196 data-nosnippet>196</a>    hide_citations = $14,
+<a href=#197 id=197 data-nosnippet>197</a>    use_semantic_reranking = $15,
+<a href=#198 id=198 data-nosnippet>198</a>    default_chatbot = $16
+<a href=#199 id=199 data-nosnippet>199</a>WHERE cc.id = $17
+<a href=#200 id=200 data-nosnippet>200</a>RETURNING *"#</span>,
+<a href=#201 id=201 data-nosnippet>201</a>        input.enabled_to_students,
+<a href=#202 id=202 data-nosnippet>202</a>        input.chatbot_name,
+<a href=#203 id=203 data-nosnippet>203</a>        input.prompt,
+<a href=#204 id=204 data-nosnippet>204</a>        input.initial_message,
+<a href=#205 id=205 data-nosnippet>205</a>        input.weekly_tokens_per_user,
+<a href=#206 id=206 data-nosnippet>206</a>        input.daily_tokens_per_user,
+<a href=#207 id=207 data-nosnippet>207</a>        input.temperature,
+<a href=#208 id=208 data-nosnippet>208</a>        input.top_p,
+<a href=#209 id=209 data-nosnippet>209</a>        input.frequency_penalty,
+<a href=#210 id=210 data-nosnippet>210</a>        input.presence_penalty,
+<a href=#211 id=211 data-nosnippet>211</a>        input.response_max_tokens,
+<a href=#212 id=212 data-nosnippet>212</a>        input.use_azure_search,
+<a href=#213 id=213 data-nosnippet>213</a>        input.maintain_azure_search_index,
+<a href=#214 id=214 data-nosnippet>214</a>        input.hide_citations,
+<a href=#215 id=215 data-nosnippet>215</a>        input.use_semantic_reranking,
+<a href=#216 id=216 data-nosnippet>216</a>        input.default_chatbot,
+<a href=#217 id=217 data-nosnippet>217</a>        chatbot_configuration_id
+<a href=#218 id=218 data-nosnippet>218</a>    )
+<a href=#219 id=219 data-nosnippet>219</a>    .fetch_one(conn)
+<a href=#220 id=220 data-nosnippet>220</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#221 id=221 data-nosnippet>221</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#222 id=222 data-nosnippet>222</a>}
+<a href=#223 id=223 data-nosnippet>223</a>
+<a href=#224 id=224 data-nosnippet>224</a><span class="kw">pub async fn </span>delete(conn: <span class="kw-2">&amp;mut </span>PgConnection, chatbot_configuration_id: Uuid) -&gt; ModelResult&lt;()&gt; {
+<a href=#225 id=225 data-nosnippet>225</a>    <span class="macro">sqlx::query!</span>(
+<a href=#226 id=226 data-nosnippet>226</a>        <span class="string">r#"
+<a href=#227 id=227 data-nosnippet>227</a>UPDATE chatbot_configurations
+<a href=#228 id=228 data-nosnippet>228</a>SET deleted_at = now()
+<a href=#229 id=229 data-nosnippet>229</a>WHERE id = $1
+<a href=#230 id=230 data-nosnippet>230</a>AND deleted_at IS NULL
+<a href=#231 id=231 data-nosnippet>231</a>        "#</span>,
+<a href=#232 id=232 data-nosnippet>232</a>        chatbot_configuration_id
+<a href=#233 id=233 data-nosnippet>233</a>    )
+<a href=#234 id=234 data-nosnippet>234</a>    .execute(conn)
+<a href=#235 id=235 data-nosnippet>235</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#236 id=236 data-nosnippet>236</a>    <span class="prelude-val">Ok</span>(())
+<a href=#237 id=237 data-nosnippet>237</a>}
+<a href=#238 id=238 data-nosnippet>238</a>
+<a href=#239 id=239 data-nosnippet>239</a><span class="kw">pub async fn </span>get_for_course(
+<a href=#240 id=240 data-nosnippet>240</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#241 id=241 data-nosnippet>241</a>    course_id: Uuid,
+<a href=#242 id=242 data-nosnippet>242</a>) -&gt; ModelResult&lt;Vec&lt;ChatbotConfiguration&gt;&gt; {
+<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#244 id=244 data-nosnippet>244</a>        ChatbotConfiguration,
+<a href=#245 id=245 data-nosnippet>245</a>        <span class="string">r#"
+<a href=#246 id=246 data-nosnippet>246</a>SELECT * FROM
+<a href=#247 id=247 data-nosnippet>247</a>chatbot_configurations
+<a href=#248 id=248 data-nosnippet>248</a>WHERE course_id = $1
+<a href=#249 id=249 data-nosnippet>249</a>AND deleted_at IS NULL
+<a href=#250 id=250 data-nosnippet>250</a>"#</span>,
+<a href=#251 id=251 data-nosnippet>251</a>        course_id
+<a href=#252 id=252 data-nosnippet>252</a>    )
+<a href=#253 id=253 data-nosnippet>253</a>    .fetch_all(conn)
+<a href=#254 id=254 data-nosnippet>254</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#255 id=255 data-nosnippet>255</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#256 id=256 data-nosnippet>256</a>}
+<a href=#257 id=257 data-nosnippet>257</a>
+<a href=#258 id=258 data-nosnippet>258</a><span class="kw">pub async fn </span>get_enabled_nondefault_for_course(
+<a href=#259 id=259 data-nosnippet>259</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#260 id=260 data-nosnippet>260</a>    course_id: Uuid,
+<a href=#261 id=261 data-nosnippet>261</a>) -&gt; ModelResult&lt;Vec&lt;ChatbotConfiguration&gt;&gt; {
+<a href=#262 id=262 data-nosnippet>262</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#263 id=263 data-nosnippet>263</a>        ChatbotConfiguration,
+<a href=#264 id=264 data-nosnippet>264</a>        <span class="string">r#"
+<a href=#265 id=265 data-nosnippet>265</a>SELECT * FROM
+<a href=#266 id=266 data-nosnippet>266</a>chatbot_configurations
+<a href=#267 id=267 data-nosnippet>267</a>WHERE course_id = $1
+<a href=#268 id=268 data-nosnippet>268</a>AND default_chatbot IS false
+<a href=#269 id=269 data-nosnippet>269</a>AND enabled_to_students IS true
+<a href=#270 id=270 data-nosnippet>270</a>AND deleted_at IS NULL
+<a href=#271 id=271 data-nosnippet>271</a>"#</span>,
+<a href=#272 id=272 data-nosnippet>272</a>        course_id
+<a href=#273 id=273 data-nosnippet>273</a>    )
+<a href=#274 id=274 data-nosnippet>274</a>    .fetch_all(conn)
+<a href=#275 id=275 data-nosnippet>275</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#277 id=277 data-nosnippet>277</a>}
+<a href=#278 id=278 data-nosnippet>278</a>
+<a href=#279 id=279 data-nosnippet>279</a><span class="kw">pub async fn </span>get_for_azure_search_maintenance(
+<a href=#280 id=280 data-nosnippet>280</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#281 id=281 data-nosnippet>281</a>) -&gt; ModelResult&lt;Vec&lt;ChatbotConfiguration&gt;&gt; {
+<a href=#282 id=282 data-nosnippet>282</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#283 id=283 data-nosnippet>283</a>        ChatbotConfiguration,
+<a href=#284 id=284 data-nosnippet>284</a>        <span class="string">r#"
+<a href=#285 id=285 data-nosnippet>285</a>SELECT * FROM
+<a href=#286 id=286 data-nosnippet>286</a>chatbot_configurations
+<a href=#287 id=287 data-nosnippet>287</a>WHERE maintain_azure_search_index = true
+<a href=#288 id=288 data-nosnippet>288</a>AND deleted_at IS NULL
+<a href=#289 id=289 data-nosnippet>289</a>"#</span>,
+<a href=#290 id=290 data-nosnippet>290</a>    )
+<a href=#291 id=291 data-nosnippet>291</a>    .fetch_all(conn)
+<a href=#292 id=292 data-nosnippet>292</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#293 id=293 data-nosnippet>293</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#294 id=294 data-nosnippet>294</a>}
+<a href=#295 id=295 data-nosnippet>295</a>
+<a href=#296 id=296 data-nosnippet>296</a><span class="kw">pub async fn </span>remove_default_chatbot_from_course(
+<a href=#297 id=297 data-nosnippet>297</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#298 id=298 data-nosnippet>298</a>    course_id: Uuid,
+<a href=#299 id=299 data-nosnippet>299</a>) -&gt; ModelResult&lt;()&gt; {
+<a href=#300 id=300 data-nosnippet>300</a>    <span class="macro">sqlx::query!</span>(
+<a href=#301 id=301 data-nosnippet>301</a>        <span class="string">r#"
+<a href=#302 id=302 data-nosnippet>302</a>UPDATE chatbot_configurations
+<a href=#303 id=303 data-nosnippet>303</a>SET default_chatbot = false
+<a href=#304 id=304 data-nosnippet>304</a>WHERE course_id = $1
+<a href=#305 id=305 data-nosnippet>305</a>AND default_chatbot = true
+<a href=#306 id=306 data-nosnippet>306</a>AND deleted_at IS NULL
+<a href=#307 id=307 data-nosnippet>307</a>"#</span>,
+<a href=#308 id=308 data-nosnippet>308</a>        course_id,
+<a href=#309 id=309 data-nosnippet>309</a>    )
+<a href=#310 id=310 data-nosnippet>310</a>    .execute(conn)
+<a href=#311 id=311 data-nosnippet>311</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#312 id=312 data-nosnippet>312</a>    <span class="prelude-val">Ok</span>(())
+<a href=#313 id=313 data-nosnippet>313</a>}
+<a href=#314 id=314 data-nosnippet>314</a>
+<a href=#315 id=315 data-nosnippet>315</a><span class="kw">pub async fn </span>set_default_chatbot_for_course(
+<a href=#316 id=316 data-nosnippet>316</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#317 id=317 data-nosnippet>317</a>    chatbot_configuration_id: Uuid,
+<a href=#318 id=318 data-nosnippet>318</a>) -&gt; ModelResult&lt;ChatbotConfiguration&gt; {
+<a href=#319 id=319 data-nosnippet>319</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#320 id=320 data-nosnippet>320</a>        ChatbotConfiguration,
+<a href=#321 id=321 data-nosnippet>321</a>        <span class="string">r#"
+<a href=#322 id=322 data-nosnippet>322</a>UPDATE chatbot_configurations
+<a href=#323 id=323 data-nosnippet>323</a>SET default_chatbot = true
+<a href=#324 id=324 data-nosnippet>324</a>WHERE id = $1
+<a href=#325 id=325 data-nosnippet>325</a>RETURNING *
+<a href=#326 id=326 data-nosnippet>326</a>"#</span>,
+<a href=#327 id=327 data-nosnippet>327</a>        chatbot_configuration_id,
+<a href=#328 id=328 data-nosnippet>328</a>    )
+<a href=#329 id=329 data-nosnippet>329</a>    .fetch_one(conn)
+<a href=#330 id=330 data-nosnippet>330</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#331 id=331 data-nosnippet>331</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#332 id=332 data-nosnippet>332</a>}</code></pre></div></section></main></body></html>

@@ -18,7 +18,7 @@
 <a href=#18 id=18 data-nosnippet>18</a>//! # let teacher = uuid::Uuid::new_v4();
 <a href=#19 id=19 data-nosnippet>19</a>//! # let org = uuid::Uuid::new_v4();
 <a href=#20 id=20 data-nosnippet>20</a>//! # let base_course_ns = uuid::Uuid::new_v4();
-<a href=#21 id=21 data-nosnippet>21</a>//! # let mut context = SeedContext { conn: &amp;mut conn, teacher, org, base_course_ns };
+<a href=#21 id=21 data-nosnippet>21</a>//! # let mut context = SeedContext { teacher, org, base_course_ns };
 <a href=#22 id=22 data-nosnippet>22</a>//! let course = CourseBuilder::new("My Course", "my-course")
 <a href=#23 id=23 data-nosnippet>23</a>//!     .desc("A sample course")
 <a href=#24 id=24 data-nosnippet>24</a>//!     .chatbot(true)
@@ -34,7 +34,7 @@
 <a href=#34 id=34 data-nosnippet>34</a>//!             )
 <a href=#35 id=35 data-nosnippet>35</a>//!     );
 <a href=#36 id=36 data-nosnippet>36</a>//!
-<a href=#37 id=37 data-nosnippet>37</a>//! let (course, instance, module) = course.seed(&amp;mut context).await?;
+<a href=#37 id=37 data-nosnippet>37</a>//! let (course, instance, module) = course.seed(&amp;mut conn, &amp;context).await?;
 <a href=#38 id=38 data-nosnippet>38</a>//! # Ok(())
 <a href=#39 id=39 data-nosnippet>39</a>//! # }
 <a href=#40 id=40 data-nosnippet>40</a>//! ```

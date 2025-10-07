@@ -155,13 +155,13 @@
 <a href=#155 id=155 data-nosnippet>155</a>        .app_data(icu4x_blob)
 <a href=#156 id=156 data-nosnippet>156</a>        .app_data(ip_to_country_mapper)
 <a href=#157 id=157 data-nosnippet>157</a>        .app_data(file_store)
-<a href=#158 id=158 data-nosnippet>158</a>        .app_data(app_conf)
+<a href=#158 id=158 data-nosnippet>158</a>        .app_data(app_conf.clone())
 <a href=#159 id=159 data-nosnippet>159</a>        .app_data(jwt_key)
 <a href=#160 id=160 data-nosnippet>160</a>        .app_data(cache)
 <a href=#161 id=161 data-nosnippet>161</a>        .app_data(tmc_client)
 <a href=#162 id=162 data-nosnippet>162</a>        .service(
 <a href=#163 id=163 data-nosnippet>163</a>            web::scope(<span class="string">"/api/v0"</span>)
 <a href=#164 id=164 data-nosnippet>164</a>                .wrap(RequestSpan)
-<a href=#165 id=165 data-nosnippet>165</a>                .configure(<span class="kw">crate</span>::controllers::configure_controllers),
+<a href=#165 id=165 data-nosnippet>165</a>                .configure(|c| <span class="kw">crate</span>::controllers::configure_controllers(c, app_conf)),
 <a href=#166 id=166 data-nosnippet>166</a>        );
 <a href=#167 id=167 data-nosnippet>167</a>}</code></pre></div></section></main></body></html>

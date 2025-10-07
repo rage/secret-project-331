@@ -147,9 +147,11 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   let sortedReferenceList = useMemo(
     () =>
       sortBy(data, (item) => {
-        if (citeOrder) {
-          return citeOrder.indexOf(item.id)
+        if (!citeOrder) {
+          return 0
         }
+        const idx = citeOrder.indexOf(item.id)
+        return idx === -1 ? Infinity : idx
       }),
     [citeOrder, data],
   )

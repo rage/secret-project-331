@@ -188,7 +188,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   })
 
   await test.step("Tooltip is accessible", async () => {
-    await accessibilityCheck(page, "Peer review answering view")
+    await accessibilityCheck(page, "Reference tooltip closed view")
     await page.getByRole("link", { name: "[1]" }).first().hover()
     await expect(page.getByRole("tooltip", { name: "Wang" })).toBeVisible()
     await page.keyboard.press("Escape")
@@ -199,6 +199,6 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       - superscript:
         - link
     `)
-    await accessibilityCheck(page, "Peer review answering view")
+    await accessibilityCheck(page, "Reference tooltip open view")
   })
 })

@@ -39,6 +39,31 @@ export const baseStudents: Student[] = [
   },
 ]
 
+const badStudents: Student[] = [
+  {
+    firstName: null,
+    lastName: null,
+    userId: "bad-001",
+    email: "unknown1@example.com",
+    courseInstance: "Unknown",
+  },
+  {
+    firstName: "",
+    lastName: null,
+    userId: "bad-002",
+    email: "unknown2@example.com",
+    courseInstance: "Unknown",
+  },
+  {
+    firstName: "NoLastName",
+    lastName: "",
+    userId: "bad-003",
+    email: "unknown3@example.com",
+    courseInstance: "Unknown",
+  },
+]
+
+
 export const mockStudents: Student[] = Array.from({ length: 5 }).flatMap((_, i) =>
   baseStudents.map((s) => ({
     ...s,
@@ -46,6 +71,11 @@ export const mockStudents: Student[] = Array.from({ length: 5 }).flatMap((_, i) 
     firstName: `${s.firstName} ${i + 1}`,
   })),
 )
+
+const allStudents: Student[] = [...badStudents, ...mockStudents]
+
+
+
 
 // --- RANDOMIZED CHAPTER MAX VALUES ---
 function randInt(min: number, max: number) {
@@ -71,13 +101,30 @@ const chapterMeta = chapterDefs.map((chapter) => {
   return { chapter, pointsMax, attemptsMax }
 })
 
-// === NEW: name formatter + sort comparator + sorted list ===
-export const formatName = (s: Student) => `${s.lastName}, ${s.firstName}`
+// --- Name formatter ---
+export const formatName = (s: Student) => {
+  const first = s.firstName?.trim()
+  const last = s.lastName?.trim()
+  if (!first && !last) return "(Missing Name)"
+  if (!last) return first ?? "(Missing Name)"
+  if (!first) return last ?? "(Missing Name)"
+  return `${last}, ${first}`
+}
 
-export const byLastThenFirst = (a: Student, b: Student) =>
-  a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(b.firstName)
+// --- Sort: missing names come first ---
+export const byLastThenFirst = (a: Student, b: Student) => {
+  const aMissing = !a.firstName || !a.lastName
+  const bMissing = !b.firstName || !b.lastName
+  if (aMissing && !bMissing) return -1
+  if (!aMissing && bMissing) return 1
 
-export const mockStudentsSorted: Student[] = [...mockStudents].sort(byLastThenFirst)
+  const lastCmp = (a.lastName ?? "").localeCompare(b.lastName ?? "")
+  if (lastCmp !== 0) return lastCmp
+  return (a.firstName ?? "").localeCompare(b.firstName ?? "")
+}
+
+// --- Sorted list ---
+export const mockStudentsSorted: Student[] = [...allStudents].sort(byLastThenFirst)
 
 // --- BUILD COLUMNS ---
 export const pointsColumns = [
@@ -89,11 +136,11 @@ export const pointsColumns = [
     header: "Total",
     columns: [
       {
-        header: `Points / ${chapterMeta.reduce((acc, m) => acc + m.pointsMax, 0)}`,
+        header: `Points/${chapterMeta.reduce((acc, m) => acc + m.pointsMax, 0)}`,
         accessorKey: "total_points",
       },
       {
-        header: `Attempts / ${chapterMeta.reduce((acc, m) => acc + m.attemptsMax, 0)}`,
+        header: `Attempts/${chapterMeta.reduce((acc, m) => acc + m.attemptsMax, 0)}`,
         accessorKey: "total_attempted",
         meta: { altBg: true },
       },
@@ -103,11 +150,11 @@ export const pointsColumns = [
     header: meta.chapter,
     columns: [
       {
-        header: `Points / ${meta.pointsMax}`,
+        header: `Points/${meta.pointsMax}`,
         accessorKey: `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_points`,
       },
       {
-        header: `Attempts / ${meta.attemptsMax}`,
+        header: `Attempts/${meta.attemptsMax}`,
         accessorKey: `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_attempted`,
         meta: { altBg: true },
       },
@@ -120,7 +167,7 @@ export const pointsData = mockStudentsSorted.map((s) => {
   let totalPoints = 0
   let totalAttempted = 0
   const obj: any = {
-    student: formatName(s), // CHANGED
+    student: formatName(s),
   }
 
   chapterMeta.forEach((meta, idx) => {
@@ -139,8 +186,6 @@ export const pointsData = mockStudentsSorted.map((s) => {
   obj["total_attempted"] = totalAttempted
   return obj
 })
-
-// At the end of studentsTableData.ts
 
 export const completionsColumns = [
   { header: "Student", accessorKey: "student" },

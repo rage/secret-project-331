@@ -413,7 +413,7 @@ export function FloatingHeaderTable({
                           height: 4,
                           background: getHeaderBg(rowIdx, colIdx, header),
                           borderRadius: 2,
-                          bottom: "4px",
+                          top: "0px",
                           zIndex: 2,
                           pointerEvents: "none",
                         }}
@@ -514,14 +514,16 @@ export const UserTabContent = () => (
       {
         header: "Name",
         id: "name",
-        accessorFn: (row: { firstName: string; lastName: string }) =>
-          `${row.lastName}, ${row.firstName}`, // CHANGED: display format
+        accessorFn: (row: { firstName: string | null; lastName: string | null }) =>
+          `${row.lastName ? row.lastName : ""}${row.lastName && row.firstName ? ", " : ""}${
+            row.firstName ? row.firstName : "(Missing Name)"
+          }`,
       },
       { header: "User ID", accessorKey: "userId" },
       { header: "Email", accessorKey: "email" },
       { header: "Course Instance", accessorKey: "courseInstance" },
     ]}
-    data={mockStudentsSorted} // CHANGED: sorted by last name (then first name)
+    data={mockStudentsSorted}
   />
 )
 

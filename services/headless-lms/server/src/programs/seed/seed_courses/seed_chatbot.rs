@@ -7,7 +7,7 @@ use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::{chatbot_block, heading, list, list_item, paragraph};
 use anyhow::Result;
-use chrono::{TimeZone, Utc};
+use chrono::Utc;
 
 use headless_lms_models::chatbot_configurations::NewChatbotConf;
 use headless_lms_models::roles::UserRole;
@@ -59,16 +59,6 @@ pub async fn seed_chatbot_course(
             closing_time: None,
             instance_id: Some(cx.v5(b"instance:default")),
         })
-        .instance(CourseInstanceConfig {
-            name: Some("Non-default instance".to_string()),
-            description: Some("This is a non-default instance".to_string()),
-            support_email: Some("contact@example.com".to_string()),
-            teacher_in_charge_name: "admin".to_string(),
-            teacher_in_charge_email: "admin@example.com".to_string(),
-            opening_time: None,
-            closing_time: None,
-            instance_id: Some(cx.v5(b"instance:non-default")),
-        })
         .chatbot_config(NewChatbotConf {
             course_id,
             chatbotconf_id: Some(cx.v5(b"chatbot_config:default")),
@@ -100,7 +90,6 @@ pub async fn seed_chatbot_course(
                 .chapter(
                     ChapterBuilder::new(1, "The Basics")
                         .opens(Utc::now())
-                        .deadline(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap())
                         .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
                         .page(
                             PageBuilder::new("/chapter-1/page-1", "Page One")
@@ -186,17 +175,13 @@ pub async fn seed_chatbot_course(
                             heading("The Mesopotamian and Egyptian Influence", cx.v5(b"page:2:1:block:meso-heading"), 2)
                         )
                         .block(paragraph(
-                            "The **earliest true abacus-like devices** may have emerged in **Mesopotamia** around 2300 BCE. Sumerians used small pebbles or tokens (called **calculi**) on flat surfaces to perform basic arithmetic, especially for commerce and taxation. These were often used in conjunction with **clay tablets**, making them a precursor to what would become the abacus.
-
-                            Similarly, in **Ancient Egypt**, records suggest the use of counting boards with grooves and stones to assist in calculations. Although no physical abacuses from these periods survive, descriptions and artwork hint at their existence.", cx.v5(b"page:2:1:block:meso"),)
+                            "The **earliest true abacus-like devices** may have emerged in **Mesopotamia** around 2300 BCE. Sumerians used small pebbles or tokens (called **calculi**) on flat surfaces to perform basic arithmetic, especially for commerce and taxation. These were often used in conjunction with **clay tablets**, making them a precursor to what would become the abacus. Similarly, in **Ancient Egypt**, records suggest the use of counting boards with grooves and stones to assist in calculations. Although no physical abacuses from these periods survive, descriptions and artwork hint at their existence.", cx.v5(b"page:2:1:block:meso"),)
                         )
                         .block(
                             heading("The Greek and Roman Counting Boards", cx.v5(b"page:2:1:block:greek-heading"), 2)
                         )
                         .block(paragraph(
-                            "By the 5th century BCE, the **Greeks** developed more advanced counting tools. One notable example is the **Salamis Tablet**, discovered on the Greek island of Salamis in 1846. Dating to around 300 BCE, this marble slab features carved lines and Greek numerals, suggesting it was used as a counting board or abacus.
-
-                            The **Romans** adopted and refined the Greek system. They developed portable versions made from bronze or wood, often with grooves and beads. The Roman abacus featured a **dual bead system**: one side represented units (ones, tens, hundreds), and the other represented fives, mirroring their base-10 numerical system with elements of base-5. This system allowed merchants and tax collectors to perform quick and efficient calculations.", cx.v5(b"page:2:1:block:greek"),)
+                            "By the 5th century BCE, the **Greeks** developed more advanced counting tools. One notable example is the **Salamis Tablet**, discovered on the Greek island of Salamis in 1846. Dating to around 300 BCE, this marble slab features carved lines and Greek numerals, suggesting it was used as a counting board or abacus. The **Romans** adopted and refined the Greek system. They developed portable versions made from bronze or wood, often with grooves and beads. The Roman abacus featured a **dual bead system**: one side represented units (ones, tens, hundreds), and the other represented fives, mirroring their base-10 numerical system with elements of base-5. This system allowed merchants and tax collectors to perform quick and efficient calculations.", cx.v5(b"page:2:1:block:greek"),)
                         )
                         .block(
                             heading("The Chinese Suanpan: A Milestone in Abacus Evolution", cx.v5(b"page:2:1:block:chinese-heading"), 2)
@@ -273,9 +258,7 @@ pub async fn seed_chatbot_course(
                             heading("Conclusion: The Legacy of the Abacus", cx.v5(b"page:2:1:block:concl-heading"), 2)
                         )
                         .block(paragraph(
-                            "The abacus has endured for thousands of years, evolving across continents and cultures. From Mesopotamian merchants to modern-day students mastering mental math, it has remained a testament to human creativity and the universal need to understand and manipulate numbers.
-
-                            In an age where technology continues to advance at lightning speed, the abacus reminds us that sometimes, the simplest tools can be the most profound. Whether made of beads, wood, or stone, the abacus is a bridge between the ancient and the modern—an enduring legacy of humankind’s quest for knowledge.", cx.v5(b"page:2:1:block:concl"),)
+                            "The abacus has endured for thousands of years, evolving across continents and cultures. From Mesopotamian merchants to modern-day students mastering mental math, it has remained a testament to human creativity and the universal need to understand and manipulate numbers. In an age where technology continues to advance at lightning speed, the abacus reminds us that sometimes, the simplest tools can be the most profound. Whether made of beads, wood, or stone, the abacus is a bridge between the ancient and the modern—an enduring legacy of humankind’s quest for knowledge.", cx.v5(b"page:2:1:block:concl"),)
                         )
                     ),
                 ),

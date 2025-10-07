@@ -210,6 +210,10 @@ impl AzureConfiguration {
         }
     }
 
+    /// Creates an AzureConfiguration with empty and mock values to be used in testing and dev
+    /// environments when Azure access is not needed. Enables the azure chatbot functionality to be
+    /// mocked with the api_endpoint from our application.
+    /// Returns `Ok(Some(AzureConfiguration))`
     pub fn mock_conf() -> anyhow::Result<Option<Self>> {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let chatbot_config = Some(AzureChatbotConfiguration {

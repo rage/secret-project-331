@@ -23,22 +23,20 @@ test.describe("Test chatbot chat box", () => {
   })
 
   test("student uses the default chatbot", async ({ headless }, testInfo) => {
-    const { chatbotDialog, student1Page } = await test.step("open chatbot box", async () => {
-      const student1Page = await context1.newPage()
+    const student1Page = await context1.newPage()
+    const chatbotDialog = student1Page
+      .getByRole("dialog")
+      .filter({ has: student1Page.getByRole("heading", { name: "Genetic Lifeform" }) })
+
+    await test.step("open chatbot box", async () => {
       await student1Page.goto(
         "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course",
       )
       await selectCourseInstanceIfPrompted(student1Page)
-
       await student1Page.getByRole("button", { name: "Open chatbot" }).click()
       await waitForAnimationsToEnd(student1Page.getByText("About the chatbot"))
 
-      const chatbotDialog = student1Page
-        .getByRole("dialog")
-        .filter({ has: student1Page.getByRole("heading", { name: "Genetic Lifeform" }) })
       await expect(chatbotDialog).toBeVisible()
-
-      return { chatbotDialog, student1Page }
     })
 
     await test.step("agree to terms", async () => {
@@ -114,8 +112,9 @@ test.describe("Test chatbot chat box", () => {
   })
 
   test("student uses course material block chatbot box", async ({ headless }, testInfo) => {
-    const student1Page = await test.step("go to chatbot box", async () => {
-      const student1Page = await context1.newPage()
+    const student1Page = await context1.newPage()
+
+    await test.step("go to chatbot box", async () => {
       await student1Page.goto(
         "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1/page-2",
       )
@@ -123,8 +122,6 @@ test.describe("Test chatbot chat box", () => {
 
       await student1Page.getByRole("heading", { name: "Test bot" }).scrollIntoViewIfNeeded()
       await expect(student1Page.getByRole("heading", { name: "Test bot" })).toBeVisible()
-
-      return student1Page
     })
 
     await test.step("agree to terms", async () => {

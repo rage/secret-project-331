@@ -135,7 +135,7 @@ impl ChapterBuilder {
         }
 
         for p in self.pages {
-            p.seed(conn, &cx, course_id, chapter.id).await?;
+            p.seed(conn, cx, course_id, chapter.id).await?;
         }
         Ok(())
     }

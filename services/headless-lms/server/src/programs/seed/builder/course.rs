@@ -253,7 +253,7 @@ impl CourseBuilder {
         let mut last_module = None;
 
         for (i, m) in self.modules.into_iter().enumerate() {
-            last_module = Some(m.seed(&mut tx, &cx, course.id, i as i32).await?);
+            last_module = Some(m.seed(&mut tx, cx, course.id, i as i32).await?);
         }
 
         for (user_id, role) in self.extra_roles {

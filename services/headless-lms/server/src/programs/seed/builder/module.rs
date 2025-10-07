@@ -120,7 +120,7 @@ impl ModuleBuilder {
         }
 
         for ch in self.chapters {
-            ch.seed(conn, &cx, course_id, module.id).await?;
+            ch.seed(conn, cx, course_id, module.id).await?;
         }
 
         Ok(module)

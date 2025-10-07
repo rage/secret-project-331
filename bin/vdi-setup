@@ -98,10 +98,10 @@ rm /tmp/bashrc_addition
 export HOME="/data/$original_user"
 
 # Installing packages
-# If nvm not installed, install it
-if ! command -v nvm; then
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-  echo "Installed nvm"
+# Install pnpm using standalone script (no npm required)
+if ! command -v pnpm; then
+  curl -fsSL https://get.pnpm.io/install.sh | sh -
+  echo "Installed pnpm"
 fi
 
 # Install postgres-cli from apt
@@ -135,7 +135,6 @@ if ! command -v rustc; then
 fi
 
 fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
-fish -c "fisher install jorgebucaran/nvm.fish; and fisher install edc/bass"
 
 echo "Fish setup complete"
 

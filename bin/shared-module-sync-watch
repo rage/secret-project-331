@@ -11,4 +11,4 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 cd "$RELATIVE_PATH"
 
-run_command npm run sync
+run_command pnpm run sync

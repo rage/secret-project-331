@@ -38,10 +38,14 @@ global.document = dom.window.document
 // @ts-expect-error: Just to prevent a crash, not used
 global.CSS = {}
 global.location = dom.window.location
-global.navigator = {
-  userAgent:
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-} as Navigator
+Object.defineProperty(global, "navigator", {
+  value: {
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  } as Navigator,
+  writable: true,
+  configurable: true,
+})
 
 const OriginalURL = global.URL
 

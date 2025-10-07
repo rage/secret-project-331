@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+echo "Installing dependencies for cms..."
+run_command bash -c 'cd services/cms/ && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for course-material..."
+run_command bash -c 'cd services/course-material/ && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for main-frontend..."
+run_command bash -c 'cd services/main-frontend && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for example-exercise..."
+run_command bash -c 'cd services/example-exercise && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for shared-module..."
+run_command bash -c 'cd shared-module && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for quizzes..."
+run_command bash -c 'cd services/quizzes/ && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for tmc..."
+run_command bash -c 'cd services/tmc/ && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for system-tests..."
+run_command bash -c 'cd system-tests && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for shared-module-common..."
+run_command bash -c 'cd shared-module/packages/common && pnpm install --frozen-lockfile'
+
+
+echo "finished"

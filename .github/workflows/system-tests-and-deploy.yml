@@ -1,17 +1,23 @@
 name: System tests and deploy
 
+permissions: read-all
+
 on:
   push:
     branches:
       - master
       - canary
+    paths-ignore:
+      - "docs/**"
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
 
 concurrency:
   # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha` is unique for each commit.
-  group: system-tests-${{ github.head_ref || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -19,12 +25,14 @@ env:
 
 jobs:
   build-and-system-tests:
+    permissions:
+      contents: read
     runs-on: ubicloud-standard-30-ubuntu-2404
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: 📊 System Information Report
+      - name: System Information Report
         run: |
           set -euo pipefail
 
@@ -69,7 +77,7 @@ jobs:
           # Disk Information
           echo "💿 DISK INFORMATION"
           echo "────────────────────────────────────────────────────────────────────────────────────────"
-          df -h --output=source,size,used,avail,pcent,target | grep -E '^(/dev/|tmpfs)' | while read line; do
+          df -h --output=source,size,used,avail,pcent,target | grep -E '^(/dev/|tmpfs)' | while read -r line; do
             echo "  $line"
           done
           echo
@@ -97,7 +105,11 @@ jobs:
           # Additional System Info
           echo "🔍 ADDITIONAL SYSTEM INFO"
           echo "────────────────────────────────────────────────────────────────────────────────────────"
-          OS_NAME=$(lsb_release -d 2>/dev/null | cut -d ':' -f2 | xargs || cat /etc/os-release | grep PRETTY_NAME | cut -d '"' -f2)
+          if command -v lsb_release >/dev/null 2>&1; then
+            OS_NAME="$(lsb_release -d | cut -d: -f2 | xargs)"
+          else
+            OS_NAME="$(grep '^PRETTY_NAME=' /etc/os-release | cut -d'=' -f2- | tr -d '\"')"
+          fi
           KERNEL_VERSION=$(uname -r)
           HOSTNAME=$(hostname)
 
@@ -145,7 +157,7 @@ jobs:
           systemctl show docker -p MemoryMax 2>/dev/null || echo "no MemoryMax"
           echo
           echo "== Memory usage breakdown =="
-          cat /proc/meminfo | grep -E "(MemTotal|MemAvailable|MemFree|Buffers|Cached|Shmem)" || true
+          grep -E "(MemTotal|MemAvailable|MemFree|Buffers|Cached|Shmem)" /proc/meminfo || true
           echo
           echo "== PSI (pressure stall info) =="
           for f in cpu memory io; do echo "[$f]"; cat /proc/pressure/$f || true; echo; done
@@ -156,10 +168,10 @@ jobs:
           echo
           echo "== Docker info (brief) =="
           docker --version || true
-          (docker info 2>/dev/null | egrep 'Server Version|Cgroup Driver|Cgroup Version|Docker Root Dir|Kernel Version' || true)
+          (docker info 2>/dev/null | grep -E 'Server Version|Cgroup Driver|Cgroup Version|Docker Root Dir|Kernel Version' || true)
           echo
           echo "== dmesg scan (early) =="
-          (dmesg -T 2>/dev/null | egrep -i 'mce|hardware error|memory error|ecc|segfault|general protection|oom' || true)
+          (dmesg -T 2>/dev/null | grep -iE 'mce|hardware error|memory error|ecc|segfault|general protection|oom' || true)
 
       - name: Make sure we have no focused system-tests
         run: |
@@ -179,6 +191,7 @@ jobs:
 
       - name: Configure Docker to use tmpfs for better performance
         run: |
+          set -euo pipefail
           echo "Configuring Docker to use tmpfs (RAM) for data storage..."
 
           sudo systemctl stop docker
@@ -208,6 +221,22 @@ jobs:
 
           echo "Docker configured to use tmpfs. All container operations will use RAM."
 
+          # Create cleanup script
+          cat <<'EOS' | sudo tee /usr/local/bin/_cleanup_docker_tmpfs
+          #!/usr/bin/env bash
+          set -e
+          sudo systemctl stop docker || true
+          sudo rm -f /etc/docker/daemon.json || true
+          sudo systemctl start docker || true
+          sudo umount /mnt/docker-tmpfs || true
+          sudo rmdir /mnt/docker-tmpfs || true
+          EOS
+          sudo chmod +x /usr/local/bin/_cleanup_docker_tmpfs
+        shell: bash
+      - name: Cleanup docker tmpfs
+        if: always()
+        run: sudo /usr/local/bin/_cleanup_docker_tmpfs
+
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
@@ -219,8 +248,9 @@ jobs:
           kustomize: "5.4.1"
           skaffold: "2.13.1"
 
-      - name: Run npm ci so that shared module gets copied
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Run pnpm install --frozen-lockfile so that shared module gets copied
+        run: pnpm install --frozen-lockfile
 
       - name: Download tmc-langs
         run: bin/tmc-langs-setup
@@ -253,6 +283,7 @@ jobs:
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json
+          retention-days: 7
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Unhide gcloud cli if master
@@ -308,16 +339,25 @@ jobs:
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
 
       - name: Setup system test environment
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/
 
       - name: Run system tests
-        run: npm run test
+        run: pnpm run test
         working-directory: ./system-tests/
+      - name: System Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🧪 System Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Environment**: Minikube with Docker tmpfs"
+            echo "- **Memory**: 60GB allocated"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
-        run: npm run test
+        run: pnpm run test
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 
@@ -363,7 +403,7 @@ jobs:
             | tee -a ./_failure_debug/os-cpu.txt || true
 
           echo "== Docker info (brief) ==" | tee ./_failure_debug/docker-info.txt
-          (docker info 2>/dev/null | egrep 'Server Version|Cgroup|Docker Root Dir|Logging Driver|Kernel Version' || true) \
+          (docker info 2>/dev/null | grep -E 'Server Version|Cgroup|Docker Root Dir|Logging Driver|Kernel Version' || true) \
             | tee -a ./_failure_debug/docker-info.txt
 
       - name: Upload failure diagnostics
@@ -373,6 +413,7 @@ jobs:
           name: worker-failure-diagnostics
           path: ./_failure_debug/*
           if-no-files-found: ignore
+          retention-days: 7
 
       - name: Save service logs to disk
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
@@ -392,6 +433,7 @@ jobs:
         with:
           name: service-logs
           path: ./logs/*
+          retention-days: 7
 
       - name: Print pods information
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
@@ -415,6 +457,7 @@ jobs:
           name: test-results
           path: ./system-tests/test-results/
           if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload playwright report
         uses: actions/upload-artifact@v4
@@ -423,6 +466,7 @@ jobs:
           name: playwright-html-report
           path: ./system-tests/playwright-report/index.html
           if-no-files-found: ignore
+          retention-days: 7
 
       # These images are used for deployments and caching
       - name: Push images if master
@@ -503,7 +547,9 @@ jobs:
   deploy:
     needs: build-and-system-tests
     if: ${{ github.ref == 'refs/heads/master' }}
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     environment:
       name: production
       url: https://courses.mooc.fi
@@ -553,18 +599,21 @@ jobs:
         run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi
 
   typecheck:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Run npm ci in repo root
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Run pnpm install --frozen-lockfile in repo root
+        run: pnpm install --frozen-lockfile
 
-      - name: Run npm ci system-tests
-        run: npm ci
+      - name: Run pnpm install --frozen-lockfile system-tests
+        run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/
 
       - name: Run tsc
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
         working-directory: ./system-tests/

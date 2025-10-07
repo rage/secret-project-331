@@ -25,7 +25,9 @@ minimumReleaseAge: 1440
 # Fail install if a dependency wants to run unreviewed build scripts (it's better to fail so that we know to review the build scripts straight away)
 strictDepBuilds: true
 # Dependencies that are allowed to run build scripts
-onlyBuiltDependencies: []
+onlyBuiltDependencies: [
+    esbuild
+  ]
 
 # Prefer local workspace packages and link them for better DX
 linkWorkspacePackages: true

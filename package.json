@@ -2,36 +2,40 @@
   "name": "secret-project-331",
   "version": "0.0.0",
   "description": "",
+  "homepage": "https://github.com/rage/secret-project-331#readme",
   "main": "index.js",
   "packageManager": "pnpm@10.17.1",
   "type": "module",
-  "scripts": {
-    "eslint": "eslint --fix .",
-    "eslint:format-bindings": "eslint --fix shared-module/packages/common/src/bindings.ts",
-    "eslint:format-generated-docs": "prettier --write services/headless-lms/server/generated-docs/",
-    "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
-    "eslint:ci": "eslint .",
-    "prepare": "husky",
-    "lint:css": "stylelint '**/*.tsx'",
-    "postinstall": "cd shared-module && pnpm install && pnpm run sync-once"
+  "bugs": {
+    "url": "https://github.com/rage/secret-project-331/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rage/secret-project-331.git"
   },
-  "bugs": {
-    "url": "https://github.com/rage/secret-project-331/issues"
+  "scripts": {
+    "eslint": "eslint --fix .",
+    "eslint:ci": "eslint .",
+    "eslint:format-bindings": "eslint --fix shared-module/packages/common/src/bindings.ts",
+    "eslint:format-generated-docs": "prettier --write services/headless-lms/server/generated-docs/",
+    "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
+    "lint:css": "stylelint '**/*.tsx'",
+    "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
+    "prepare": "husky"
   },
-  "homepage": "https://github.com/rage/secret-project-331#readme",
+  "dependencies": {
+    "@vectopus/atlas-icons": "^0.0.7"
+  },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@next/eslint-plugin-next": "^15.5.4",
     "@stylelint/postcss-css-in-js": "^0.38.0",
-    "@tanstack/eslint-plugin-query": "^5.83.1",
-    "@types/node": "^24.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.38.0",
+    "@tanstack/eslint-plugin-query": "^5.91.0",
+    "@types/node": "^24.6.2",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
     "concurrently": "^9.2.0",
+    "esbuild": "^0.25.10",
     "eslint": "^9.32.0",
     "eslint-config-next": "^15.4.5",
     "eslint-config-prettier": "^10.1.8",
@@ -41,10 +45,10 @@
     "eslint-plugin-playwright": "^2.2.2",
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-hooks": "^6.1.0",
     "globals": "^16.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
+    "lint-staged": "^16.2.3",
     "postcss": "^8.5.6",
     "postcss-styled-syntax": "^0.7.1",
     "postcss-syntax": "^0.36.2",
@@ -53,9 +57,6 @@
     "stylelint-config-recommended": "^17.0.0",
     "ts-auto-guard": "^5.0.1",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "@vectopus/atlas-icons": "^0.0.7"
+    "typescript": "^5.9.3"
   }
 }

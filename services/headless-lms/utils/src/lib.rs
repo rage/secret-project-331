@@ -24,13 +24,14 @@ pub mod url_to_oembed_endpoint;
 extern crate tracing;
 
 use anyhow::Context;
-use std::env;
+use std::{env, str::FromStr};
 use url::Url;
 
 #[derive(Clone, PartialEq)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,
+    pub test_chatbot: bool,
     pub development_uuid_login: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub tmc_account_creation_origin: Option<String>,
@@ -42,8 +43,15 @@ impl ApplicationConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let test_mode = env::var("TEST_MODE").is_ok();
         let development_uuid_login = env::var("DEVELOPMENT_UUID_LOGIN").is_ok();
+        let test_chatbot = test_mode
+            && (env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok_and(|v| v.as_str() != "false")
+                || env::var("AZURE_CHATBOT_API_KEY").is_err());
 
-        let azure_configuration = AzureConfiguration::try_from_env()?;
+        let azure_configuration = if test_chatbot {
+            AzureConfiguration::mock_conf()?
+        } else {
+            AzureConfiguration::try_from_env()?
+        };
 
         let tmc_account_creation_origin = Some(
             env::var("TMC_ACCOUNT_CREATION_ORIGIN")
@@ -53,6 +61,7 @@ impl ApplicationConfiguration {
         Ok(Self {
             base_url,
             test_mode,
+            test_chatbot,
             development_uuid_login,
             azure_configuration,
             tmc_account_creation_origin,
@@ -199,5 +208,35 @@ impl AzureConfiguration {
         } else {
             Ok(None)
         }
+    }
+
+    /// Creates an AzureConfiguration with empty and mock values to be used in testing and dev
+    /// environments when Azure access is not needed. Enables the azure chatbot functionality to be
+    /// mocked with the api_endpoint from our application.
+    /// Returns `Ok(Some(AzureConfiguration))`
+    pub fn mock_conf() -> anyhow::Result<Option<Self>> {
+        let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
+        let chatbot_config = Some(AzureChatbotConfiguration {
+            api_key: "".to_string(),
+            api_endpoint: Url::from_str(&base_url)?.join("/api/v0/mock-azure/test")?,
+        });
+        let search_config = Some(AzureSearchConfiguration {
+            vectorizer_resource_uri: "".to_string(),
+            vectorizer_deployment_id: "".to_string(),
+            vectorizer_api_key: "".to_string(),
+            vectorizer_model_name: "".to_string(),
+            search_api_key: "".to_string(),
+            search_endpoint: Url::from_str("https://example.com/does-not-exist/")?,
+        });
+        let blob_storage_config = Some(AzureBlobStorageConfiguration {
+            storage_account: "".to_string(),
+            access_key: "".to_string(),
+        });
+
+        Ok(Some(AzureConfiguration {
+            chatbot_config,
+            search_config,
+            blob_storage_config,
+        }))
     }
 }

@@ -3,6 +3,7 @@ use anyhow::{Context, Result};
 use headless_lms_models::course_modules::{
     self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
 };
+use sqlx::PgConnection;
 
 use crate::programs::seed::builder::{chapter::ChapterBuilder, context::SeedContext};
 
@@ -84,14 +85,15 @@ impl ModuleBuilder {
 
     pub(crate) async fn seed(
         self,
-        cx: &mut SeedContext<'_>,
+        conn: &mut PgConnection,
+        cx: &SeedContext,
         course_id: uuid::Uuid,
         fallback_order: i32,
     ) -> Result<CourseModule> {
         let order = self.order.unwrap_or(fallback_order);
 
         let module = course_modules::insert(
-            cx.conn,
+            conn,
             headless_lms_models::PKeyPolicy::Generate,
             &NewCourseModule::new(course_id, self.name, order)
                 .set_ects_credits(self.ects)
@@ -104,21 +106,21 @@ impl ModuleBuilder {
         if let CompletionPolicy::Automatic(mut requirements) = self.completion_policy {
             requirements.course_module_id = module.id;
             let updated_policy = CompletionPolicy::Automatic(requirements);
-            course_modules::update_automatic_completion_status(cx.conn, module.id, &updated_policy)
+            course_modules::update_automatic_completion_status(conn, module.id, &updated_policy)
                 .await
                 .context("updating automatic completion policy")?;
         }
 
         if self.register_to_open_university {
             course_modules::update_enable_registering_completion_to_uh_open_university(
-                cx.conn, module.id, true,
+                conn, module.id, true,
             )
             .await
             .context("enabling OU registration for module")?;
         }
 
         for ch in self.chapters {
-            ch.seed(cx, course_id, module.id).await?;
+            ch.seed(conn, cx, course_id, module.id).await?;
         }
 
         Ok(module)

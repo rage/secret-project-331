@@ -60,6 +60,7 @@ const Review: React.FC<React.PropsWithChildren<ReviewComponentProps>> = () => {
         setSelectedOption={function (_value: number | null): void {
           // NOP
         }}
+        peerOrSelfReviewQuestionId={"00000000-0000-0000-0000-000000000000"}
       />
     </Wrapper>
   )

@@ -2,7 +2,7 @@ use std::collections::{HashMap, hash_map};
 
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
-    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
+    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages, replace_duplicate_client_ids,
 };
 use itertools::Itertools;
 use serde_json::json;
@@ -21,6 +21,7 @@ use crate::{
     exercise_slides::ExerciseSlide,
     exercise_tasks::ExerciseTask,
     exercises::Exercise,
+    organizations::Organization,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
     peer_or_self_review_questions::{
@@ -85,6 +86,7 @@ pub struct CoursePageWithUserData {
     pub instance: Option<CourseInstance>,
     pub settings: Option<UserCourseSettings>,
     pub course: Option<Course>,
+    pub organization: Option<Organization>,
     /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
     pub was_redirected: bool,
     pub is_test_mode: bool,
@@ -105,8 +107,7 @@ pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
-    // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value
-    pub content: serde_json::Value,
+    pub content: Vec<GutenbergBlock>,
     pub url_path: String,
     pub title: String,
     pub course_id: Option<Uuid>,
@@ -672,6 +673,8 @@ pub async fn get_page_with_user_data_by_path(
     user_id: Option<Uuid>,
     course_data: &CourseContextData,
     url_path: &str,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
     let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
 
@@ -682,6 +685,8 @@ pub async fn get_page_with_user_data_by_path(
             page,
             false,
             course_data.is_test_mode,
+            file_store,
+            app_conf,
         )
         .await;
     } else {
@@ -694,6 +699,8 @@ pub async fn get_page_with_user_data_by_path(
                 redirected_page,
                 true,
                 course_data.is_test_mode,
+                file_store,
+                app_conf,
             )
             .await;
         }
@@ -749,6 +756,8 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     page: Page,
     was_redirected: bool,
     is_test_mode: bool,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(course_id) = page.course_id {
         if let Some(user_id) = user_id {
@@ -759,6 +768,11 @@ pub async fn get_course_page_with_user_data_from_selected_page(
             )
             .await?;
             let course = courses::get_course(conn, course_id).await?;
+            let organization = Organization::from_database_organization(
+                crate::organizations::get_organization(conn, course.organization_id).await?,
+                file_store,
+                app_conf,
+            );
             return Ok(CoursePageWithUserData {
                 page,
                 instance,
@@ -766,6 +780,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
                 course: Some(course),
                 was_redirected,
                 is_test_mode,
+                organization: Some(organization),
             });
         }
     }
@@ -776,6 +791,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         course: None,
         was_redirected,
         is_test_mode,
+        organization: None,
     })
 }
 
@@ -1006,7 +1022,7 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageUpdate {
-    pub content: serde_json::Value,
+    pub content: Vec<GutenbergBlock>,
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
@@ -1099,10 +1115,11 @@ pub async fn update_page(
         }
     }
 
-    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(cms_page_update.content)?;
+    let content = replace_duplicate_client_ids(cms_page_update.content.clone());
+
     if !page_update.is_exam_page
         && cms_page_update.chapter_id.is_none()
-        && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
+        && contains_blocks_not_allowed_in_top_level_pages(&content)
     {
         return Err(ModelError::new(
                ModelErrorType::Generic , "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(), None
@@ -1137,7 +1154,7 @@ RETURNING id,
   pages.page_language_group_id
         ",
         page_update.page_id,
-        serde_json::to_value(parsed_content)?,
+        serde_json::to_value(&content)?,
         cms_page_update.url_path.trim(),
         cms_page_update.title.trim(),
         cms_page_update.chapter_id
@@ -1989,10 +2006,7 @@ pub async fn insert_new_content_page(
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
 
-    let course_material_content = serde_json::to_value(vec![GutenbergBlock::hero_section(
-        new_page.title.trim(),
-        "",
-    )])?;
+    let course_material_content = vec![GutenbergBlock::hero_section(new_page.title.trim(), "")];
 
     let content_page = NewPage {
         chapter_id: new_page.chapter_id,
@@ -2054,6 +2068,8 @@ pub async fn insert_page(
         .into();
     let course = course.await.transpose()?;
 
+    let content = replace_duplicate_client_ids(new_page.content.clone());
+
     let mut tx = conn.begin().await?;
 
     let content_search_language = course
@@ -2092,7 +2108,7 @@ RETURNING id,
           "#,
         new_page.course_id,
         new_page.exam_id,
-        new_page.content,
+        serde_json::to_value(content)?,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
@@ -2103,13 +2119,15 @@ RETURNING id,
     .fetch_one(&mut *tx)
     .await?;
 
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content)?;
+
     let cms_page = update_page(
         &mut tx,
         PageUpdateArgs {
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {
-                content: page.content,
+                content: parsed_content,
                 exercises: new_page.exercises,
                 exercise_slides: new_page.exercise_slides,
                 exercise_tasks: new_page.exercise_tasks,
@@ -2924,13 +2942,15 @@ pub async fn restore(
     let page = get_page(conn, page_id).await?;
     let history_data = page_history::get_history_data(conn, history_id).await?;
 
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(history_data.content.content)?;
+
     update_page(
         conn,
         PageUpdateArgs {
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {
-                content: history_data.content.content,
+                content: parsed_content,
                 exercises: history_data.content.exercises,
                 exercise_slides: history_data.content.exercise_slides,
                 exercise_tasks: history_data.content.exercise_tasks,
@@ -3467,7 +3487,7 @@ mod test {
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
-                content: serde_json::Value::Array(vec![]),
+                content: vec![],
                 url_path: "url".to_string(),
                 title: "title".to_string(),
                 course_id: None,
@@ -3555,7 +3575,7 @@ mod test {
         exercise_tasks: Vec<CmsPageExerciseTask>,
     ) -> CmsPageUpdate {
         CmsPageUpdate {
-            content: serde_json::json!([]),
+            content: vec![],
             exercises,
             exercise_slides,
             exercise_tasks,

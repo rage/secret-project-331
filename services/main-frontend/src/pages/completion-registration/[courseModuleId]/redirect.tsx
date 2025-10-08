@@ -45,7 +45,7 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
           variant={"readOnly"}
         />
       )}
-      {userCompletionInformation.isPending && <Spinner variant={"medium"} />}
+      {userCompletionInformation.isLoading && <Spinner variant={"medium"} />}
       {userCompletionInformation.isSuccess && (
         <div>
           <Trans

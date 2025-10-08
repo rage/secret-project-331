@@ -167,7 +167,7 @@ To analyze test results:
 2. View the trace using:
 
 ```bash
-npx playwright view-trace test-results/path_to/trace.zip
+pnpm exec playwright view-trace test-results/path_to/trace.zip
 ```
 
 This will open a detailed view of each test step.
@@ -237,7 +237,7 @@ Unit tests are located in each service's directory.
 Navigate to the service directory and run:
 
 ```bash
-npm run test
+pnpm run test
 ```
 
 - **For the Backend (Rust):**

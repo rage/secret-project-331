@@ -94,6 +94,7 @@ fn models(target: &mut File) {
         courses::CourseStructure,
         courses::CourseUpdate,
         courses::NewCourse,
+        courses::CourseLanguageVersionNavigationInfo,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,
@@ -343,6 +344,9 @@ fn controllers(target: &mut File) {
             playground_views::PlaygroundViewsMessage,
             proposed_edits::GetEditProposalsQuery,
             roles::RoleQuery,
+            user_details::BulkUserDetailsRequest,
+            user_details::UserDetailsRequest,
+            user_details::UserInfoPayload,
         };
     }
 }
@@ -355,5 +359,6 @@ fn utils(target: &mut File) {
 
         pagination::Pagination,
         url_to_oembed_endpoint::OEmbedResponse,
+        document_schema_processor::GutenbergBlock,
     };
 }

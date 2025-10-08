@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom"
 
-import { renumberFilterCitations } from "../Chatbot/MessageBubble"
+import { renumberFilterCitations } from "../shared/MessageBubble"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/chatbotCitationRegexes"

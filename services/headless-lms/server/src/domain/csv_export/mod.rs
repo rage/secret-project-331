@@ -90,18 +90,10 @@ impl<W: Write + Send + 'static> CsvWriter<W> {
             Arc::try_unwrap(self.csv_writer)
                 .map_err(|_| anyhow::anyhow!("Failed to extract inner writer from arc"))?
                 .into_inner()
-                .map_err(|e| {
-                    anyhow::anyhow!(
-                        "Failed to extract inner writer from mutex: {}",
-                        e.to_string()
-                    )
-                })?
+                .map_err(|e| anyhow::anyhow!("Failed to extract inner writer from mutex: {}", e))?
                 .into_inner()
                 .map_err(|e| {
-                    anyhow::anyhow!(
-                        "Failed to extract inner writer from CSV writer: {}",
-                        e.to_string()
-                    )
+                    anyhow::anyhow!("Failed to extract inner writer from CSV writer: {}", e)
                 })
         })
         .await??;

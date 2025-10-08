@@ -16,12 +16,15 @@ use headless_lms_models::{
     peer_or_self_review_questions::{self, CmsPeerOrSelfReviewQuestion},
     user_exercise_slide_states, user_exercise_states,
 };
-use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
+use headless_lms_utils::{
+    attributes,
+    document_schema_processor::{GutenbergBlock, validate_unique_client_ids},
+};
 use once_cell::sync::OnceCell;
 use serde_json::Value;
 use sqlx::PgConnection;
-use std::collections::HashMap;
 use std::sync::Arc;
+use std::{collections::HashMap, vec};
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
@@ -58,8 +61,9 @@ pub async fn create_page(
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
 ) -> Result<Uuid> {
+    validate_unique_client_ids(page_data.content.clone())?;
     let new_page = NewPage {
-        content: Value::Array(vec![]),
+        content: vec![],
         url_path: page_data.url_path.to_string(),
         title: format!("{} WIP", page_data.title),
         course_id: Some(course_id),
@@ -116,6 +120,20 @@ pub fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
         inner_blocks: vec![],
     }
 }
+
+pub fn chatbot_block(block: Uuid, chatbot_conf_id: Uuid, course_id: Uuid) -> GutenbergBlock {
+    GutenbergBlock {
+        client_id: block,
+        name: "moocfi/chatbot".to_string(),
+        is_valid: true,
+        attributes: attributes! {
+            "chatbotConfigurationId": chatbot_conf_id,
+            "courseId": course_id,
+        },
+        inner_blocks: vec![],
+    }
+}
+
 pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/heading".to_string(),
@@ -124,6 +142,30 @@ pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
         attributes: attributes! {
             "content": content,
             "level": level,
+        },
+        inner_blocks: vec![],
+    }
+}
+
+pub fn list(block: Uuid, ordered: bool, inner_blocks: Vec<GutenbergBlock>) -> GutenbergBlock {
+    GutenbergBlock {
+        name: "core/list".to_string(),
+        client_id: block,
+        is_valid: true,
+        attributes: attributes! {
+            "ordered": ordered,
+        },
+        inner_blocks,
+    }
+}
+
+pub fn list_item(block: Uuid, content: &str) -> GutenbergBlock {
+    GutenbergBlock {
+        name: "core/list-item".to_string(),
+        client_id: block,
+        is_valid: true,
+        attributes: attributes! {
+            "content": content,
         },
         inner_blocks: vec![],
     }
@@ -553,11 +595,11 @@ pub async fn create_exam(
             exercises: vec![exam_exercise_1, exam_exercise_2],
             exercise_slides: vec![exam_exercise_slide_1, exam_exercise_slide_2],
             exercise_tasks: vec![exam_exercise_task_1, exam_exercise_task_2],
-            content: serde_json::json!([
+            content: vec![
                 heading(
                     "The exam",
                     Uuid::parse_str("d6cf16ce-fe78-4e57-8399-e8b63d7fddac").unwrap(),
-                    1
+                    1,
                 ),
                 paragraph(
                     "In this exam you're supposed to answer to two easy questions. Good luck!",
@@ -565,7 +607,7 @@ pub async fn create_exam(
                 ),
                 exam_exercise_block_1,
                 exam_exercise_block_2,
-            ]),
+            ],
             url_path: "".to_string(),
             title: "".to_string(),
             course_id: None,

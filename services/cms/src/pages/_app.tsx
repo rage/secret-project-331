@@ -16,6 +16,7 @@ import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/co
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
 import initI18n from "@/shared-module/common/utils/initI18n"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import "../styles/Gutenberg/style.scss"
 
@@ -102,4 +103,4 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
 
 export const reportWebVitals = generateWebVitalsReporter(SERVICE_NAME)
 
-export default MyApp
+export default withErrorBoundary(MyApp)

@@ -186,6 +186,38 @@ pub enum ModelErrorType {
     Json,
     Util,
     Generic,
+    HttpRequest {
+        status_code: u16,
+        response_body: String,
+    },
+    /// HTTP request failed with specific error details
+    HttpError {
+        error_type: HttpErrorType,
+        reason: String,
+        status_code: Option<u16>,
+        response_body: Option<String>,
+    },
+}
+
+/// Types of HTTP errors that can occur
+#[derive(Debug, PartialEq, Eq)]
+pub enum HttpErrorType {
+    /// HTTP request failed due to network connection issues
+    ConnectionFailed,
+    /// HTTP request failed due to timeout
+    Timeout,
+    /// HTTP request failed due to redirect issues
+    RedirectFailed,
+    /// HTTP request failed due to request building issues
+    RequestBuildFailed,
+    /// HTTP request failed due to response body issues
+    BodyFailed,
+    /// HTTP request succeeded but response body could not be decoded as JSON
+    ResponseDecodeFailed,
+    /// HTTP request failed with non-success status code
+    StatusError,
+    /// Unknown HTTP error type
+    Unknown,
 }
 
 impl From<sqlx::Error> for ModelError {
@@ -269,6 +301,46 @@ impl From<anyhow::Error> for ModelError {
 impl From<url::ParseError> for ModelError {
     fn from(err: url::ParseError) -> ModelError {
         Self::new(ModelErrorType::Generic, err.to_string(), Some(err.into()))
+    }
+}
+
+impl From<reqwest::Error> for ModelError {
+    fn from(err: reqwest::Error) -> Self {
+        let error_type = if err.is_decode() {
+            HttpErrorType::ResponseDecodeFailed
+        } else if err.is_timeout() {
+            HttpErrorType::Timeout
+        } else if err.is_connect() {
+            HttpErrorType::ConnectionFailed
+        } else if err.is_redirect() {
+            HttpErrorType::RedirectFailed
+        } else if err.is_builder() {
+            HttpErrorType::RequestBuildFailed
+        } else if err.is_body() {
+            HttpErrorType::BodyFailed
+        } else if err.is_status() {
+            HttpErrorType::StatusError
+        } else {
+            HttpErrorType::Unknown
+        };
+
+        let status_code = err.status().map(|s| s.as_u16());
+        let response_body = if err.is_decode() {
+            Some("Failed to decode JSON response".to_string())
+        } else {
+            None
+        };
+
+        ModelError::new(
+            ModelErrorType::HttpError {
+                error_type,
+                reason: err.to_string(),
+                status_code,
+                response_body,
+            },
+            format!("HTTP request failed: {}", err),
+            Some(err.into()),
+        )
     }
 }
 

@@ -53,7 +53,7 @@ test("Reject and reset submission", async () => {
     await teacherPage.getByRole("spinbutton", { name: "Peer reviews to receive (" }).fill("1")
     await teacherPage.getByRole("spinbutton", { name: "Peer reviews to give (" }).fill("2")
     await teacherPage.getByRole("button", { name: "Add peer review question" }).click()
-    await teacherPage.getByLabel("Peer review question type").selectOption("Scale")
+    await teacherPage.getByLabel("Peer review question type").nth(1).selectOption("Scale")
     await teacherPage.getByRole("textbox", { name: "Peer review question" }).fill("Good answer?")
 
     await teacherPage.getByRole("button", { name: "Edit" }).nth(1).click()

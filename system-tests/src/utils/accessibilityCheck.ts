@@ -25,6 +25,13 @@ export default async function accessibilityCheck(
     axeSkip.push("scrollable-region-focusable")
     if (axeSkip && Array.isArray(axeSkip)) {
       resultsFiltered = results.violations.filter((violation) => {
+        // For react-aria overlays (modals, popovers, etc.) the content is supposed not be directly inside landmarks
+        if (
+          violation.nodes.some((node) => node.html.includes("data-overlay-container")) &&
+          violation.id === "region"
+        ) {
+          return
+        }
         if (axeSkip && axeSkip.find((skippable) => skippable === violation.id)) {
           return
         } else {

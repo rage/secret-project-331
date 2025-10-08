@@ -123,29 +123,28 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       return [null, null]
     }
     const citeOrder: string[] = []
-    const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]")).reduce<
-      ReactPortal[]
-    >((acc, node, idx) => {
-      const reference = data.find((o) => o.id === node.dataset.citationId)
-      if (!reference) {
-        return acc
-      }
-      let citeNumber = 0
-      if (!citeOrder.includes(reference.id)) {
-        citeOrder.push(reference.id)
-        citeNumber = citeOrder.length
-      } else {
-        citeNumber = citeOrder.indexOf(reference.id) + 1
-      }
-      acc.push(
-        createPortal(
+    const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]"))
+      .map((node, idx) => {
+        const reference = data.find((o) => o.id === node.dataset.citationId)
+
+        if (!reference) {
+          return null
+        }
+
+        let citeNumber: number = 0
+        if (reference && !citeOrder.includes(reference.id)) {
+          citeOrder.push(reference.id)
+          citeNumber = citeOrder.length
+        } else if (reference && citeOrder.includes(reference.id)) {
+          citeNumber = citeOrder.indexOf(reference.id) + 1
+        }
+        return createPortal(
           <TooltipNTrigger reference={reference} citeNumber={citeNumber} />,
           node,
-          `${reference.id}-${idx}`,
-        ),
-      )
-      return acc
-    }, [])
+          idx,
+        )
+      })
+      .filter((o) => !!o)
     return [portals, citeOrder]
   }, [data, readyForPortal])
 

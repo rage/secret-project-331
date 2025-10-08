@@ -199,6 +199,7 @@ export interface ChatbotConfiguration {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model: string
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
@@ -219,6 +220,7 @@ export interface NewChatbotConf {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model: string
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
@@ -233,6 +235,16 @@ export interface NewChatbotConf {
   hide_citations: boolean
   use_semantic_reranking: boolean
   default_chatbot: boolean
+  chatbotconf_id: string | null
+}
+
+export interface ChatbotConfigurationModel {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  model: string
+  deployment_name: string
 }
 
 export interface ChatbotConversationMessage {

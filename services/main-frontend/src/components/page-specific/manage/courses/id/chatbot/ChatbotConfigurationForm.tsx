@@ -1,9 +1,13 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+/* eslint-disable i18next/no-literal-string */
+
+import { getChatbotModels } from "@/services/backend/chatbotModels"
 import { configureChatbot, deleteChatbot } from "@/services/backend/chatbots"
 import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
@@ -11,6 +15,7 @@ import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -22,7 +27,10 @@ interface Props {
   chatbotQueryRefetch: () => void
 }
 
-type ConfigureChatbotFields = Omit<NewChatbotConf, "course_id" | "maintain_azure_search_index">
+type ConfigureChatbotFields = Omit<
+  NewChatbotConf,
+  "course_id" | "maintain_azure_search_index" | "chatbotconf_id"
+>
 
 const itemCss = css`
   flex: 1;
@@ -45,6 +53,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   } = useForm<ConfigureChatbotFields>({
     defaultValues: {
       chatbot_name: oldChatbotConf.chatbot_name,
+      model: oldChatbotConf.model,
       enabled_to_students: oldChatbotConf.enabled_to_students,
       prompt: oldChatbotConf.prompt,
       initial_message: oldChatbotConf.initial_message,
@@ -59,6 +68,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
     },
+  })
+
+  const getChatbotModelsList = useQuery({
+    queryKey: ["chatbot-models", oldChatbotConf.course_id],
+    queryFn: () => getChatbotModels(oldChatbotConf.course_id),
+    enabled: !!oldChatbotConf.course_id,
   })
 
   const configureChatbotMutation = useToastMutation(
@@ -96,6 +111,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
+      model: data.model,
       enabled_to_students: data.enabled_to_students,
       prompt: data.prompt,
       initial_message: data.initial_message,
@@ -113,6 +129,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
+      chatbotconf_id: null,
     })
   })
 
@@ -144,6 +161,16 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
           <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
         </div>
+        <SelectMenu
+          id="model-select"
+          label="Select model"
+          options={[
+            { value: "lol", label: "lol" },
+            { value: "xd", label: "xd" },
+          ]}
+          showDefaultOption={false}
+          {...register("model")}
+        />
 
         <Accordion>
           <details

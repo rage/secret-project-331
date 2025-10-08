@@ -943,8 +943,6 @@ def azure_chat_completion(
 
     body = {
         "messages": messages,
-        "temperature": temperature,
-        "top_p": 1.0,
         "stream": False,
     }
     headers = {
@@ -1076,6 +1074,7 @@ IMPORTANT: The file path above is the new, correct path in the App Router struct
   2. The original code actually uses router.query to access those route parameters.
 - ONLY use useSearchParams() if the original code uses router.query for URL search parameters (e.g., ?param=value).
 - If the original code doesn't access any route or search parameters, do NOT add `useParams` or `useSearchParams` hooks.
+- If the original code uses waitUntilQueryParametersReady, remove it. Also if parameters are passed to the page as arguments, remove them as well.
 - Example: `app/posts/[id]/page.tsx` with `router.query.id` → use `useParams<{{ id: string }}>()`
 - Example: `app/posts/page.tsx` with `router.query.search` → use `useSearchParams()`
 
@@ -1086,6 +1085,7 @@ Task:
   - Replacing `next/router` imports/hooks with `next/navigation`.
   - Updating data fetching logic if necessary (though this may require manual review).
 - Preserve all original logic and behavior as closely as possible.
+- Don't remove existing comments unless they are wrong after the migration, don't add new comments.
 
 SOURCE:
 <<CODE
@@ -1243,12 +1243,9 @@ def process_file(
             print(unified_diff(original, migrated, rel_repo))
             wrote_any = True
         else:
-            backup_path = full_path + ".bak"
-            with open(backup_path, "w", encoding="utf-8") as bf:
-                bf.write(original)
             with open(full_path, "w", encoding="utf-8") as wf:
                 wf.write(migrated)
-            logging.info("Wrote %s (backup: %s)", rel_repo, backup_path)
+            logging.info("Wrote %s", rel_repo)
             wrote_any = True
 
     return wrote_any, created_paths

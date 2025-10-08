@@ -1,5 +1,6 @@
 import { UserItemAnswerTimeline } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuizItemTimeline } from "../../../types/quizTypes/privateSpec"
+import { clamp01, safeDivide } from "../utils/math"
 
 const assessTimeline = (
   quizItemAnswer: UserItemAnswerTimeline,
@@ -10,12 +11,14 @@ const assessTimeline = (
   }
 
   const result = quizItemAnswer.timelineChoices.map((choice) => {
-    const item = quizItem.timelineItems?.find((qItem) => qItem.id == choice.timelineItemId)
-    return item?.correctEventId == choice.chosenEventId
+    const item = quizItem.timelineItems?.find((qItem) => qItem.id === choice.timelineItemId)
+    return item?.correctEventId === choice.chosenEventId
   })
 
-  const correctnessCoefficient =
-    result.filter((item) => item == true).length / quizItem.timelineItems.length
+  const totalItems = quizItem.timelineItems.length
+  const correctItems = result.filter((item) => item === true).length
+  const rawCoefficient = safeDivide(correctItems, totalItems)
+  const correctnessCoefficient = clamp01(rawCoefficient)
 
   return {
     quizItemId: quizItem.id,

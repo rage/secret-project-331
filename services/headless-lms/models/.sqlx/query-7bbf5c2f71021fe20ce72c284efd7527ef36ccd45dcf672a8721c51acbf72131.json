@@ -107,6 +107,11 @@
         "ordinal": 20,
         "name": "default_chatbot",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 21,
+        "name": "model",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
@@ -134,6 +139,7 @@
       false,
       false,
       true,
+      false,
       false,
       false,
       false,

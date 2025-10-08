@@ -10,6 +10,7 @@ pub struct ChatbotConfiguration {
     pub course_id: Uuid,
     pub enabled_to_students: bool,
     pub chatbot_name: String,
+    pub model: Uuid,
     pub prompt: String,
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
@@ -36,6 +37,7 @@ impl Default for ChatbotConfiguration {
             course_id: Default::default(),
             enabled_to_students: false,
             chatbot_name: Default::default(),
+            model: Uuid::nil(),
             prompt: Default::default(),
             initial_message: Default::default(),
             weekly_tokens_per_user: 20000 * 5,
@@ -60,6 +62,7 @@ pub struct NewChatbotConf {
     pub course_id: Uuid,
     pub enabled_to_students: bool,
     pub chatbot_name: String,
+    pub model: Uuid,
     pub prompt: String,
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
@@ -84,6 +87,7 @@ impl Default for NewChatbotConf {
             course_id: chatbot_conf.course_id,
             enabled_to_students: chatbot_conf.enabled_to_students,
             chatbot_name: chatbot_conf.chatbot_name,
+            model: chatbot_conf.model,
             prompt: chatbot_conf.prompt,
             initial_message: chatbot_conf.initial_message,
             weekly_tokens_per_user: chatbot_conf.weekly_tokens_per_user,
@@ -195,8 +199,9 @@ SET
     maintain_azure_search_index = $13,
     hide_citations = $14,
     use_semantic_reranking = $15,
-    default_chatbot = $16
-WHERE cc.id = $17
+    default_chatbot = $16,
+    model = $17
+WHERE cc.id = $18
 RETURNING *"#,
         input.enabled_to_students,
         input.chatbot_name,
@@ -214,6 +219,7 @@ RETURNING *"#,
         input.hide_citations,
         input.use_semantic_reranking,
         input.default_chatbot,
+        input.model,
         chatbot_configuration_id
     )
     .fetch_one(conn)

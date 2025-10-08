@@ -933,47 +933,137 @@ def _sanitize_host(host: str) -> str:
     return h.lstrip("/")
 
 
-def azure_chat_completion(
-    messages: List[Dict[str, str]], temperature: float = 0.2, max_retries: int = 3
-) -> str:
-    """Call Azure OpenAI Chat Completions and return assistant content."""
+import json, time, logging, http.client, sys
+
+import json, time, logging, http.client, sys
+
+def azure_chat_completion(messages, max_retries=3, max_completion_tokens=30000, show_thinking=True, debug_payloads=False):
+    """
+    Stream from Azure Chat Completions and print tokens live, including reasoning when available.
+    - Avoids 'list index out of range' by guarding for chunks without choices.
+    - Does NOT send unsupported params like temperature if your model doesn't allow it.
+    """
     api_host = _sanitize_host(_require_env("AZURE_API_HOST"))
     deployment = _require_env("AZURE_API_MODEL")
     api_key = _require_env("AZURE_API_KEY")
+    path = f"/openai/deployments/{deployment}/chat/completions?api-version={API_VERSION}"
 
+    # Only include fields your deployment supports.
     body = {
         "messages": messages,
-        "stream": False,
+        "stream": True,
+        "max_completion_tokens": max_completion_tokens,
+        # If your model supports it, you can also add:
+        # "reasoning": {"effort": "medium"},
     }
-    headers = {
-        "api-key": api_key,
-        "Content-Type": "application/json; charset=utf-8",
-    }
-    path = (
-        f"/openai/deployments/{deployment}/chat/completions?api-version={API_VERSION}"
-    )
+    headers = {"api-key": api_key, "Content-Type": "application/json; charset=utf-8"}
 
     backoff = 1.6
     for attempt in range(1, max_retries + 1):
         try:
-            conn = http.client.HTTPSConnection(api_host, timeout=60)
-            conn.request(
-                "POST",
-                path,
-                body=json.dumps(body, ensure_ascii=False).encode("utf-8"),
-                headers=headers,
-            )
+            conn = http.client.HTTPSConnection(api_host, timeout=300)
+            conn.request("POST", path, body=json.dumps(body).encode("utf-8"), headers=headers)
             res = conn.getresponse()
-            raw = res.read().decode("utf-8", errors="replace")
-            conn.close()
+
             if not (200 <= res.status < 300):
+                raw = res.read().decode("utf-8", errors="replace")
+                conn.close()
                 raise RuntimeError(f"Azure error HTTP {res.status}: {raw[:300]}")
-            data = json.loads(raw)
-            return data["choices"][0]["message"]["content"]
+
+            print("\n--- Streaming response ---\n", flush=True)
+            full_text = []
+            thinking_buf = []
+
+            while True:
+                line = res.readline()
+                if not line:  # EOF
+                    break
+                if not line.startswith(b"data: "):
+                    # ignore comments/blank lines in the SSE stream
+                    continue
+                payload = line[6:].strip()
+                if payload == b"[DONE]":
+                    break
+
+                # Optionally dump payloads for debugging rare chunk shapes
+                if debug_payloads:
+                    try:
+                        sys.stderr.write(f"\n[SSE] {payload.decode('utf-8', errors='replace')}\n")
+                    except Exception:
+                        pass
+
+                # Parse JSON chunk safely
+                try:
+                    obj = json.loads(payload)
+                except json.JSONDecodeError:
+                    continue
+
+                choices = obj.get("choices")
+                if not choices or not isinstance(choices, list):
+                    # Some service-side heartbeats/diagnostics lack choices
+                    continue
+
+                c0 = choices[0] if choices else None
+                if not c0:
+                    continue
+
+                delta = c0.get("delta") or {}
+
+                # 1) Standard assistant tokens
+                content = delta.get("content")
+                if isinstance(content, str) and content:
+                    sys.stdout.write(content)
+                    sys.stdout.flush()
+                    full_text.append(content)
+
+                # 2) Reasoning / thinking tokens (several possible shapes)
+                if show_thinking:
+                    # a) direct "reasoning_content": str
+                    rc = delta.get("reasoning_content")
+                    if isinstance(rc, str) and rc:
+                        sys.stdout.write(f"\033[90m{rc}\033[0m")
+                        sys.stdout.flush()
+                        thinking_buf.append(rc)
+
+                    # b) nested object e.g. {"reasoning":{"content":"..."}}
+                    reasoning_obj = delta.get("reasoning")
+                    if isinstance(reasoning_obj, dict):
+                        rtxt = reasoning_obj.get("content")
+                        if isinstance(rtxt, str) and rtxt:
+                            sys.stdout.write(f"\033[90m{rtxt}\033[0m")
+                            sys.stdout.flush()
+                            thinking_buf.append(rtxt)
+
+                    # c) occasionally content may be an array of parts
+                    if isinstance(content, list):
+                        for part in content:
+                            if isinstance(part, dict):
+                                if part.get("type") in ("reasoning", "thinking", "system"):
+                                    txt = part.get("text") or part.get("content")
+                                    if isinstance(txt, str) and txt:
+                                        sys.stdout.write(f"\033[90m{txt}\033[0m")
+                                        sys.stdout.flush()
+                                        thinking_buf.append(txt)
+
+                # Ignore role/tool_calls/etc. but you could handle them here
+                # role = delta.get("role")
+                # tool_calls = delta.get("tool_calls")
+
+            conn.close()
+            print("\n\n--- End of stream ---\n", flush=True)
+
+            # If you prefer to reveal thinking after, leave this in; otherwise remove.
+            if show_thinking and thinking_buf:
+                # You might want to log instead of printing:
+                # logging.debug("THINKING: %s", "".join(thinking_buf))
+                pass
+
+            return "".join(full_text)
+
         except Exception as e:
             if attempt == max_retries:
                 raise
-            sleep_s = backoff**attempt
+            sleep_s = backoff ** attempt
             logging.warning("Azure call failed (%s). Retrying in %.1fs", e, sleep_s)
             time.sleep(sleep_s)
 
@@ -1200,7 +1290,7 @@ def process_file(
         {"role": "user", "content": user_prompt_for_file(rel_repo, original)},
     ]
     logging.info("Migrating: %s", rel_repo)
-    raw = azure_chat_completion(messages)
+    raw = azure_chat_completion(messages, debug_payloads=True)
     content = strip_code_fences(raw)
 
     # Try to detect a multi-file manifest

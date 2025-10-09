@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import Head from "next/head"
-import { useRouter } from "next/router"
+import { usePathname } from "next/navigation"
 import React, { ReactNode } from "react"
 
 import Centered from "@/shared-module/common/components/Centering/Centered"
@@ -32,7 +32,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
   noVisibleLayout = false,
 }) => {
-  const router = useRouter()
+  const pathname = usePathname()
   // eslint-disable-next-line i18next/no-literal-string
   const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
@@ -61,7 +61,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             </NavItems>
           </NavContainer>
           <Menu>
-            <LoginControls currentPagePath={router.asPath} />
+            <LoginControls currentPagePath={pathname} />
           </Menu>
         </NavBar>
 

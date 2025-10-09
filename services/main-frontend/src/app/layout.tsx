@@ -14,9 +14,13 @@ const SERVICE_NAME = "main-frontend"
 
 const RootLayout = ({
   children,
+  params: _params,
 }: {
-  children: React.ReactNode & { noVisibleLayout?: boolean }
+  children: React.ReactNode
+  params: Promise<Record<string, string | string[]>>
 }) => {
+  // @ts-expect-error: custom prop
+  const noVisibleLayout = Boolean(children?.noVisibleLayout)
   return (
     <html lang="en" dir={getDir("en")}>
       <body>
@@ -24,7 +28,7 @@ const RootLayout = ({
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>
         <Providers>
-          <Layout noVisibleLayout={Boolean(children?.noVisibleLayout)}>{children}</Layout>
+          <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
         </Providers>
       </body>
     </html>

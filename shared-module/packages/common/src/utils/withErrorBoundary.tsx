@@ -6,9 +6,7 @@ interface ErrorBoundaryState {
   trace?: string
 }
 
-export default function withErrorBoundary<T>(
-  Component: ComponentType<React.PropsWithChildren<T>>,
-): ComponentClass<T> {
+export default function withErrorBoundary<T>(Component: ComponentType<T>): ComponentClass<T> {
   class ErrorBoundary extends React.Component<T, ErrorBoundaryState> {
     constructor(props: T) {
       super(props)
@@ -63,6 +61,8 @@ export default function withErrorBoundary<T>(
         )
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: Shared module might have a diffrerent react version
       return <Component {...this.props} />
     }
   }

@@ -2,7 +2,6 @@
 // This page is not translated because this page is a development tool and using different languages here would just create confusing terminology and weird language.
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import { isServer } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 
@@ -10,6 +9,7 @@ import PlaygroundAnswers from "@/components/page-specific/playground-views/Playg
 import PlaygroundPreview from "@/components/page-specific/playground-views/PlaygroundPreview"
 import PlayGroundSettings from "@/components/page-specific/playground-views/PlaygroundSettings"
 import PlaygroundSpecs from "@/components/page-specific/playground-views/PlaygroundSpecs"
+import { DEFAULT_SERVICE_INFO_URL } from "@/constants/playground"
 import useParsedPrivateSpec from "@/hooks/playground/useParsedPrivateSpec"
 import usePlaygroundQueriesAndMutations from "@/hooks/playground/usePlaygroundQueriesAndMutations"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -44,9 +44,6 @@ export interface PlaygroundSettings {
   pseudonymousUserId: string
   signedIn: boolean
 }
-
-const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
-export const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
 let PlaygroudTabs = () => {
   // Settings

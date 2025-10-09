@@ -63,7 +63,6 @@ const badStudents: Student[] = [
   },
 ]
 
-
 export const mockStudents: Student[] = Array.from({ length: 5 }).flatMap((_, i) =>
   baseStudents.map((s) => ({
     ...s,
@@ -73,9 +72,6 @@ export const mockStudents: Student[] = Array.from({ length: 5 }).flatMap((_, i) 
 )
 
 const allStudents: Student[] = [...badStudents, ...mockStudents]
-
-
-
 
 // --- RANDOMIZED CHAPTER MAX VALUES ---
 function randInt(min: number, max: number) {
@@ -105,9 +101,15 @@ const chapterMeta = chapterDefs.map((chapter) => {
 export const formatName = (s: Student) => {
   const first = s.firstName?.trim()
   const last = s.lastName?.trim()
-  if (!first && !last) return "(Missing Name)"
-  if (!last) return first ?? "(Missing Name)"
-  if (!first) return last ?? "(Missing Name)"
+  if (!first && !last) {
+    return "(Missing Name)"
+  }
+  if (!last) {
+    return first ?? "(Missing Name)"
+  }
+  if (!first) {
+    return last ?? "(Missing Name)"
+  }
   return `${last}, ${first}`
 }
 
@@ -115,11 +117,17 @@ export const formatName = (s: Student) => {
 export const byLastThenFirst = (a: Student, b: Student) => {
   const aMissing = !a.firstName || !a.lastName
   const bMissing = !b.firstName || !b.lastName
-  if (aMissing && !bMissing) return -1
-  if (!aMissing && bMissing) return 1
+  if (aMissing && !bMissing) {
+    return -1
+  }
+  if (!aMissing && bMissing) {
+    return 1
+  }
 
   const lastCmp = (a.lastName ?? "").localeCompare(b.lastName ?? "")
-  if (lastCmp !== 0) return lastCmp
+  if (lastCmp !== 0) {
+    return lastCmp
+  }
   return (a.firstName ?? "").localeCompare(b.firstName ?? "")
 }
 
@@ -171,7 +179,16 @@ export const pointsData = mockStudentsSorted.map((s) => {
   }
 
   chapterMeta.forEach((meta, idx) => {
-    const keyBase = ["basics","intermediaries","advanced","forbidden","another1","another2","bonus1","bonus2"][idx]
+    const keyBase = [
+      "basics",
+      "intermediaries",
+      "advanced",
+      "forbidden",
+      "another1",
+      "another2",
+      "bonus1",
+      "bonus2",
+    ][idx]
     const pointsKey = `${keyBase}_points`
     const attKey = `${keyBase}_attempted`
     const points = randInt(0, meta.pointsMax)
@@ -187,16 +204,55 @@ export const pointsData = mockStudentsSorted.map((s) => {
   return obj
 })
 
-export const completionsColumns = [
-  { header: "Student", accessorKey: "student" },
-  { header: "Default", accessorKey: "default" },
-  { header: "Another module", accessorKey: "anotherModule" },
-  { header: "Bonus module", accessorKey: "bonusModule" },
+// --- MODULE DEFINITIONS FOR COMPLETIONS ---
+const moduleDefs = [
+  "Default",
+  "Another module",
+  "Bonus module",
+  "Bonus module",
+  "Bonus module",
+  "Bonus module",
+  "Bonus module",
 ]
 
-export const completionsData = mockStudentsSorted.map((s) => ({
-  student: formatName(s),
-  default: "0/0",
-  anotherModule: "0/0",
-  bonusModule: "0/0",
-}))
+// 👇 fixed widths for leaf columns (per module)
+export const COMPLETIONS_COL_WIDTH = 120 // px; tweak if you like
+
+// Completions columns: Student + each Module with two subcolumns (Grade, Status)
+export const completionsColumns = [
+  {
+    header: "Student",
+    columns: [{ header: "", accessorKey: "student" }], // Student stays free-width
+  },
+  ...moduleDefs.map((name, idx) => ({
+    header: name,
+    columns: [
+      {
+        header: "Grade",
+        accessorKey: `module${idx + 1}_grade`,
+        meta: { width: COMPLETIONS_COL_WIDTH },
+      },
+      {
+        header: "Status",
+        accessorKey: `module${idx + 1}_status`,
+        meta: { width: COMPLETIONS_COL_WIDTH, altBg: true },
+      },
+    ],
+  })),
+]
+
+// Completions data: 0–5 OR "Accepted"/"Failed"
+type Grade = 0 | 1 | 2 | 3 | 4 | 5 | "Accepted" | "Failed"
+const gradePool: Grade[] = [0, 1, 2, 3, 4, 5, "Accepted", "Failed"]
+const statusPool = ["Registered", "-"] as const
+
+export const completionsData = mockStudentsSorted.map((s, i) => {
+  const obj: any = { student: formatName(s) }
+
+  moduleDefs.forEach((_, idx) => {
+    obj[`module${idx + 1}_grade`] = gradePool[(i + idx) % gradePool.length]
+    obj[`module${idx + 1}_status`] = statusPool[(i + idx) % statusPool.length]
+  })
+
+  return obj
+})

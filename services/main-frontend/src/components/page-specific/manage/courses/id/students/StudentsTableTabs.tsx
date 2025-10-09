@@ -2,7 +2,7 @@
 import { css } from "@emotion/react"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
 import { colorPairs } from "./studentsTableColors"
 import {
@@ -267,6 +267,17 @@ export function FloatingHeaderTable({
     }
   }, [onWrapScroll, onTrailerScroll, applyStickyTransform, showTrailer, bottomVisible])
 
+  useLayoutEffect(() => {
+    if (!showSticky) {
+      return
+    }
+    const wrap = wrapRef.current
+    const sticky = stickyTableRef.current
+    if (wrap && sticky) {
+      sticky.style.transform = `translateX(-${wrap.scrollLeft}px)`
+    }
+  }, [showSticky])
+
   // ---------- Render helpers ----------
   const renderDockedTrailer = () => (
     <div
@@ -409,20 +420,47 @@ export function FloatingHeaderTable({
                   key={header.id}
                   css={[thStyle, removeRight && noRightBorder, removeLeft && noLeftBorder]}
                   style={{
-                    minWidth: 110,
-                    width: colWidths[colIdx],
+                    minWidth:
+                      ((header.column?.columnDef as any)?.meta?.minWidth as number | undefined) ??
+                      110,
+                    width: (() => {
+                      if (
+                        header.colSpan &&
+                        header.colSpan > 1 &&
+                        typeof header.getLeafHeaders === "function"
+                      ) {
+                        const leaves = header.getLeafHeaders()
+                        const sumLeafMeta = leaves.reduce((acc: number, h: any) => {
+                          const w = (h.column?.columnDef as any)?.meta?.width as number | undefined
+                          return acc + (typeof w === "number" ? w : 0)
+                        }, 0)
+                        return sumLeafMeta > 0 ? sumLeafMeta : colWidths[colIdx]
+                      }
+                      const metaW = (header.column?.columnDef as any)?.meta?.width as
+                        | number
+                        | undefined
+                      return metaW ?? colWidths[colIdx]
+                    })(),
                     background:
                       colorHeaders && !colorHeaderUnderline
                         ? getHeaderBg(rowIdx, colIdx, header)
                         : undefined,
                     position: "relative",
                     overflow: "visible",
+
+                    paddingTop:
+                      colorHeaderUnderline &&
+                      rowIdx === 0 &&
+                      colIdx >= chapterHeaderStart &&
+                      header.colSpan === 2
+                        ? 10
+                        : undefined,
                   }}
                   rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
                   colSpan={header.colSpan > 1 ? header.colSpan : undefined}
                 >
                   {headerLabel}
-                  {/* colored underline for upper header (optional) */}
+
                   {colorHeaderUnderline &&
                     rowIdx === 0 &&
                     colIdx >= chapterHeaderStart &&
@@ -489,10 +527,18 @@ export function FloatingHeaderTable({
                   removeLeft && noLeftBorder,
                 ]}
                 style={{
-                  width: cell.column.id === "actions" ? 80 : colWidths[i],
-                  minWidth: cell.column.id === "actions" ? 80 : undefined,
-                  paddingLeft: cell.column.id === "actions" ? "0px" : undefined,
-                  paddingRight: cell.column.id === "actions" ? "0px" : undefined, // ⬅️ no trailing pad
+                  ...(() => {
+                    const meta = (cell.column.columnDef as any)?.meta as
+                      | { width?: number; minWidth?: number }
+                      | undefined
+                    if (cell.column.id === "actions") {
+                      return { width: 80, minWidth: 80, paddingLeft: "4px", paddingRight: "0px" }
+                    }
+                    return {
+                      width: meta?.width ?? colWidths[i],
+                      minWidth: meta?.minWidth,
+                    }
+                  })(),
                   background: bg,
                 }}
               >
@@ -606,9 +652,32 @@ export const CertificatesTabContent = () => (
   />
 )
 
-export const CompletionsTabContent = () => (
-  <FloatingHeaderTable columns={completionsColumns} data={completionsData} />
-)
+const COMPLETIONS_LEAF_WIDTH = 120
+const COMPLETIONS_LEAF_MIN_WIDTH = 200
+
+export const CompletionsTabContent = () => {
+  const sizedCompletionsColumns = useMemo(() => {
+    return completionsColumns.map((group: any) => {
+      if (group.header === "Student") {
+        return group
+      }
+
+      return {
+        ...group,
+        columns: group.columns.map((leaf: any) => ({
+          ...leaf,
+          meta: {
+            ...(leaf.meta ?? {}),
+            width: COMPLETIONS_LEAF_WIDTH,
+            minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
+          },
+        })),
+      }
+    })
+  }, [])
+
+  return <FloatingHeaderTable columns={sizedCompletionsColumns} data={completionsData} />
+}
 
 export const PointsTabContent = () => (
   <FloatingHeaderTable

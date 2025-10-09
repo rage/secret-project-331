@@ -2272,6 +2272,10 @@ export interface CourseMaterialPeerOrSelfReviewDataWithToken {
   token: string | null
 }
 
+export interface CourseInfo {
+  course_id: string
+}
+
 export interface CertificateConfigurationUpdate {
   course_module_id: string
   course_instance_id: string | null

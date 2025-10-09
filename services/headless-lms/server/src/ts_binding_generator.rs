@@ -333,6 +333,7 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
+            chatbot_models::CourseInfo,
             certificates::CertificateConfigurationUpdate,
             courses::GetFeedbackQuery,
             courses::CopyCourseRequest,

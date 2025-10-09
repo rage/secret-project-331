@@ -3,6 +3,12 @@ use crate::prelude::*;
 
 use models::chatbot_configurations_models::ChatbotConfigurationModel;
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseInfo {
+    course_id: Uuid,
+}
+
 /// GET `/api/v0/main-frontend/chatbot-models/{chatbot_configuration_id}`
 #[instrument(skip(pool))]
 async fn get_model(
@@ -19,18 +25,24 @@ async fn get_model(
     token.authorized_ok(web::Json(model))
 }
 
-/// GET `/api/v0/main-frontend/chatbot-models/`
+/// GET `/api/v0/main-frontend/chatbot-models?course_id={course_id}`
 #[instrument(skip(pool))]
 async fn get_all_models(
-    course_id: web::Path<Uuid>,
+    course_info: web::Query<CourseInfo>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ChatbotConfigurationModel>>> {
     let mut conn = pool.acquire().await?;
-    let model = models::chatbot_configurations_models::get_all(&mut conn).await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let models = models::chatbot_configurations_models::get_all(&mut conn).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(course_info.course_id),
+    )
+    .await?;
 
-    token.authorized_ok(web::Json(model))
+    token.authorized_ok(web::Json(models))
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

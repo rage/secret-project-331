@@ -352,6 +352,7 @@ pub async fn seed_organization_uh_mathstat(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             default_chatbot: true,
+            model: Uuid::parse_str("22ba6c35-7e71-4c1d-ae26-5cf94201a6ee")?,
             ..Default::default()
         },
     )

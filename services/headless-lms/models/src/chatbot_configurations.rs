@@ -127,6 +127,7 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     input: NewChatbotConf,
 ) -> ModelResult<ChatbotConfiguration> {
+    let maintain_azure_search_index = input.use_azure_search.clone();
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
@@ -135,6 +136,7 @@ INSERT INTO chatbot_configurations (
     course_id,
     enabled_to_students,
     chatbot_name,
+    model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -149,13 +151,14 @@ INSERT INTO chatbot_configurations (
     maintain_azure_search_index,
     default_chatbot
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $15, $16)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
 RETURNING *
         "#,
         pkey_policy.into_uuid(),
         input.course_id,
         input.enabled_to_students,
         input.chatbot_name,
+        input.model,
         input.prompt,
         input.initial_message,
         input.weekly_tokens_per_user,
@@ -167,6 +170,7 @@ RETURNING *
         input.presence_penalty,
         input.response_max_tokens,
         input.use_azure_search,
+        maintain_azure_search_index,
         input.default_chatbot
     )
     .fetch_one(conn)

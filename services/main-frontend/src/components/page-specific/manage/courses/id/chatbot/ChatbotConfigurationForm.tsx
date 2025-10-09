@@ -5,17 +5,17 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-/* eslint-disable i18next/no-literal-string */
-
 import { getChatbotModels } from "@/services/backend/chatbotModels"
 import { configureChatbot, deleteChatbot } from "@/services/backend/chatbots"
 import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -72,7 +72,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const getChatbotModelsList = useQuery({
     queryKey: ["chatbot-models", oldChatbotConf.course_id],
-    queryFn: () => getChatbotModels(oldChatbotConf.course_id),
+    queryFn: () => getChatbotModels(assertNotNullOrUndefined(oldChatbotConf.course_id)),
     enabled: !!oldChatbotConf.course_id,
   })
 
@@ -133,6 +133,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     })
   })
 
+  if (getChatbotModelsList.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getChatbotModelsList.error} />
+  }
+
+  if (getChatbotModelsList.isLoading || getChatbotModelsList.data === undefined) {
+    // todo better way?
+    return <Spinner variant={"medium"} />
+  }
+
   return (
     <div>
       <h2>{t("customize-chatbot")}</h2>
@@ -163,11 +172,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         </div>
         <SelectMenu
           id="model-select"
-          label="Select model"
-          options={[
-            { value: "lol", label: "lol" },
-            { value: "xd", label: "xd" },
-          ]}
+          label={t("select-LLM")}
+          options={getChatbotModelsList.data.map((m) => {
+            return { value: m.id, label: m.model }
+          })}
           showDefaultOption={false}
           {...register("model")}
         />

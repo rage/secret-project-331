@@ -1,6 +1,7 @@
 // StudentsTableTabs.tsx
 import { css } from "@emotion/react"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
+import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import { colorPairs } from "./studentsTableColors"
@@ -27,6 +28,28 @@ import {
   topScrollbarInner,
   topScrollbarWrap,
 } from "./studentsTableStyles"
+
+const iconBtnStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 28,
+  height: 28,
+  borderRadius: 6,
+  border: "1px solid #d0d5dd",
+  background: "#fff",
+  cursor: "pointer",
+}
+
+const IconButton: React.FC<{
+  label: string
+  onClick?: () => void
+  children: React.ReactNode
+}> = ({ label, onClick, children }) => (
+  <button type="button" aria-label={label} title={label} onClick={onClick} style={iconBtnStyle}>
+    {children}
+  </button>
+)
 
 // --- CONSTANTS ---
 const chapterHeaderStart = 2 // upper headers (groups) start index
@@ -465,7 +488,13 @@ export function FloatingHeaderTable({
                   removeRight && noRightBorder,
                   removeLeft && noLeftBorder,
                 ]}
-                style={{ width: colWidths[i], background: bg }}
+                style={{
+                  width: cell.column.id === "actions" ? 80 : colWidths[i],
+                  minWidth: cell.column.id === "actions" ? 80 : undefined,
+                  paddingLeft: cell.column.id === "actions" ? "0px" : undefined,
+                  paddingRight: cell.column.id === "actions" ? "0px" : undefined, // ⬅️ no trailing pad
+                  background: bg,
+                }}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
@@ -533,9 +562,44 @@ export const CertificatesTabContent = () => (
       { header: "Student", accessorKey: "student" },
       { header: "Certificate", accessorKey: "certificate" },
       { header: "Date Issued", accessorKey: "date" },
+      {
+        header: "Actions",
+        id: "actions",
+        // tell the table this column should be narrow
+        size: 80, // you can tweak (try 70–90)
+        meta: { style: { paddingLeft: "4px", paddingRight: "4px" } }, // optional hint
+
+        cell: ({ row }) => {
+          const handleView = () => console.log("View certificate for:", row.original.student)
+          const handleEdit = () => console.log("Edit certificate for:", row.original.student)
+
+          return (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center", // ⬅️ changed from "flex-start"
+                gap: 6, // spacing between buttons
+                paddingLeft: "0px",
+                paddingRight: "0px",
+                width: "100%", // ensures flex centering spans full cell width
+              }}
+            >
+              <IconButton label="View certificate" onClick={handleView}>
+                <Eye size={18} />
+              </IconButton>
+              <IconButton label="Edit certificate" onClick={handleEdit}>
+                <Pen size={18} />
+              </IconButton>
+            </div>
+          )
+        },
+      },
     ]}
     data={mockStudentsSorted.map((s, i) => ({
-      student: `${s.lastName}, ${s.firstName}`, // CHANGED: display format
+      student: `${s.lastName ? s.lastName : ""}${s.lastName && s.firstName ? ", " : ""}${
+        s.firstName ? s.firstName : "(Missing Name)"
+      }`,
       certificate: i % 2 === 0 ? "Course Certificate" : "No Certificate",
       date: i % 2 === 0 ? "2025-09-02" : "-",
     }))}

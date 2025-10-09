@@ -406,7 +406,12 @@ export function FloatingHeaderTable({
 
               // Number the chapter headers on the upper row
               let headerLabel = flexRender(header.column.columnDef.header, header.getContext())
-              if (rowIdx === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
+              if (
+                progressMode &&
+                rowIdx === 0 &&
+                colIdx >= chapterHeaderStart &&
+                header.colSpan === 2
+              ) {
                 chapterCount += 1
                 headerLabel = (
                   <span>

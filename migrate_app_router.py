@@ -1151,7 +1151,7 @@ def user_prompt_for_file(rel_path: str, original: str) -> str:
     return f"""We are migrating a Next.js project from the Pages Router to the App Router.
 
 **Migration Context:**
-A preliminary script has already handled the file system restructuring. It moved and renamed files from the `/pages` directory to their new locations in the `/app` directory (e.g., `pages/about.tsx` became `app/about/page.tsx`). The file content itself has NOT been modified yet. Your only task is to update the source code below to align with its new App Router path and conventions. Do not suggest file moves or renames.
+A preliminary script has already handled the file system restructuring. It moved and renamed files from the `/pages` directory to their new locations in the `/app` directory (e.g., `pages/about.tsx` became `app/about/page.tsx`). The file content itself has NOT been modified yet. Your only task is to update the source code below to align with its new App Router path and conventions. Don't rename the file or the route you are migrating.
 
 Repository path: {rel_path}
 
@@ -1176,6 +1176,9 @@ Task:
   - Updating data fetching logic if necessary (though this may require manual review).
 - Preserve all original logic and behavior as closely as possible.
 - Don't remove existing comments unless they are wrong after the migration, don't add new comments.
+- Don't remove any existing functionality
+- Remember to migrate the file completely, don't leave todo comments anywhere.
+- If needed in addition to outputting the file, you can also output other files next to the files (so not page.tsx) that are imported by the page.tsx file if they are needed to structure the file correctly.
 
 SOURCE:
 <<CODE
@@ -1290,7 +1293,7 @@ def process_file(
         {"role": "user", "content": user_prompt_for_file(rel_repo, original)},
     ]
     logging.info("Migrating: %s", rel_repo)
-    raw = azure_chat_completion(messages, debug_payloads=True)
+    raw = azure_chat_completion(messages, debug_payloads=False)
     content = strip_code_fences(raw)
 
     # Try to detect a multi-file manifest

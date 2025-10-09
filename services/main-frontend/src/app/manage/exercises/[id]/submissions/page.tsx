@@ -1,11 +1,13 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseSubmissionList from "../../../../components/page-specific/manage/exercises/id/submissions/ExerciseSubmissionList"
-import { fetchExerciseSubmissions, getExercise } from "../../../../services/backend/exercises"
-
+import ExerciseSubmissionList from "@/components/page-specific/manage/exercises/id/submissions/ExerciseSubmissionList"
+import { fetchExerciseSubmissions, getExercise } from "@/services/backend/exercises"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -13,28 +15,21 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { fontWeights } from "@/shared-module/common/styles"
-import {
-  dontRenderUntilQueryParametersReady,
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface SubmissionPageProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
+const SubmissionsPage: React.FC = () => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
+  const { id } = useParams<{ id: string }>()
 
   const exerciseQuery = useQuery({
-    queryKey: [`exercise`, query.id],
-    queryFn: () => getExercise(query.id),
+    queryKey: [`exercise`, id],
+    queryFn: () => getExercise(id),
   })
 
   const exerciseSubmissionsQuery = useQuery({
-    queryKey: [`exercise-submissions`, query.id, paginationInfo.page, paginationInfo.limit],
-    queryFn: () => fetchExerciseSubmissions(query.id, paginationInfo.page, paginationInfo.limit),
+    queryKey: [`exercise-submissions`, id, paginationInfo.page, paginationInfo.limit],
+    queryFn: () => fetchExerciseSubmissions(id, paginationInfo.page, paginationInfo.limit),
   })
 
   return (
@@ -93,4 +88,4 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(SubmissionsPage)))
+export default withErrorBoundary(withSignedIn(SubmissionsPage))

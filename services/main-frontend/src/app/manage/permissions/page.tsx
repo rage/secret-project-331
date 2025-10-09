@@ -1,13 +1,13 @@
+"use client"
 import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PermissionPage } from "../../components/PermissionPage"
-
+import { PermissionPage } from "@/components/PermissionPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-const GlobalPermissions: React.FC<React.PropsWithChildren<unknown>> = () => {
+const GlobalPermissions: React.FC = () => {
   const { t } = useTranslation()
 
   return (

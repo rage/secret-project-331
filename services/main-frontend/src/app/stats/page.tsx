@@ -1,19 +1,20 @@
+"use client"
 import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import GlobalStatTable from "../components/page-specific/global-stats/GlobalStatTable"
+import GlobalStatTable from "@/components/page-specific/global-stats/GlobalStatTable"
 import {
   useCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery,
   useNumberOfPeopleCompletedACourseQuery,
   useNumberOfPeopleDoneAtLeastOneExerciseQuery,
   useNumberOfPeopleRegisteredCompletionToStudyRegistryQuery,
   useNumberOfPeopleStartedCourseQuery,
-} from "../hooks/globalStats"
-
+} from "@/hooks/globalStats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const YEAR_GRANULARITY = "Year"
 const MONTH_GRANULARITY = "Month"
@@ -102,4 +103,4 @@ const StatsPage = () => {
   )
 }
 
-export default withSignedIn(StatsPage)
+export default withErrorBoundary(withSignedIn(StatsPage))

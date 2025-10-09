@@ -1,6 +1,8 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -14,8 +16,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 
 const CodeGiveawayPage = () => {
-  const router = useRouter()
-  const { id } = router.query
+  const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const [importDialogOpen, setImportDialogOpen] = useState(false)
   const codeGiveawayQuery = useQuery({

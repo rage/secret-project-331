@@ -1,38 +1,34 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import EditExamDialog from "../../../../components/page-specific/manage/courses/id/exams/EditExamDialog"
+import EditExamDialog from "@/components/page-specific/manage/courses/id/exams/EditExamDialog"
 import {
   fetchExam,
   fetchOrganization,
   fetchOrgExam,
   setCourse,
   unsetCourse,
-} from "../../../../services/backend/exams"
-
+} from "@/services/backend/exams"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface OrganizationPageProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
+const Organization: React.FC = () => {
+  const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const getExam = useQuery({ queryKey: [`exam-${query.id}`], queryFn: () => fetchExam(query.id) })
+  const getExam = useQuery({ queryKey: [`exam-${id}`], queryFn: () => fetchExam(id) })
   const organizationId = useQuery({
-    queryKey: [`organizations-${query.id}`],
-    queryFn: () => fetchOrgExam(query.id),
+    queryKey: [`organizations-${id}`],
+    queryFn: () => fetchOrgExam(id),
   }).data?.organization_id
 
   const organizationSlug = useQuery({
@@ -198,4 +194,4 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(Organization)))
+export default withErrorBoundary(withSignedIn(Organization))

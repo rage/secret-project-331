@@ -1,14 +1,15 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import GradeExamAnswerForm from "../../../components/forms/GradeExamAnswerForm"
-import SubmissionIFrame from "../../../components/page-specific/submissions/id/SubmissionIFrame"
-import { Block } from "../../../services/backend/exercises"
-import { fetchSubmissionInfo } from "../../../services/backend/submissions"
-
+import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
+import SubmissionIFrame from "@/components/page-specific/submissions/id/SubmissionIFrame"
 import { fetchExam } from "@/services/backend/exams"
+import { Block } from "@/services/backend/exercises"
+import { fetchSubmissionInfo } from "@/services/backend/submissions"
 import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -18,20 +19,15 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface SubmissionPageProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
+const Submission: React.FC = () => {
   const { t } = useTranslation()
+  const { id } = useParams<{ id: string }>()
 
   const getSubmissionInfo = useQuery({
-    queryKey: [`submission-${query.id}`],
-    queryFn: () => fetchSubmissionInfo(query.id),
+    queryKey: [`submission-${id}`],
+    queryFn: () => fetchSubmissionInfo(id),
   })
 
   const handleGetAssignments = (task: CourseMaterialExerciseTask) => {
@@ -59,10 +55,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
         // eslint-disable-next-line i18next/no-literal-string
         url: `/manage/exercises/${exerciseId}/exam-submissions`,
       },
-      { text: query.id, url: "" },
+      { text: id, url: "" },
     ]
     return pieces
-  }, [examId, exerciseId, query.id, t])
+  }, [examId, exerciseId, id, t])
 
   return (
     <div>
@@ -136,4 +132,4 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
   )
 }
 
-export default dontRenderUntilQueryParametersReady(Submission)
+export default withErrorBoundary(Submission)

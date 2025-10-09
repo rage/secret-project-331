@@ -5,11 +5,11 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { postNewThreshold } from "../../../../../../services/backend/courses"
 
 import CourseCheatersTabs from "./CourseCheatersTabs"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import { ThresholdData } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"

@@ -1,32 +1,28 @@
+"use client"
+
 import { css } from "@emotion/css"
+import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import MainFrontendBreadCrumbs from "../../components/MainFrontendBreadCrumbs"
-import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
-import ExamList from "../../components/page-specific/org/organizationSlug/ExamList"
-import useOrganizationQueryBySlug from "../../hooks/useOrganizationQueryBySlug"
-
+import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
+import CourseList from "@/components/page-specific/org/organizationSlug/CourseList"
+import ExamList from "@/components/page-specific/org/organizationSlug/ExamList"
+import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface OrganizationPageProps {
-  query: SimplifiedUrlQuery<"organizationSlug">
-}
-
-const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
+const Organization: React.FC = () => {
   const { t } = useTranslation()
-  const organizationQuery = useOrganizationQueryBySlug(query.organizationSlug)
+  const { organizationSlug } = useParams<{ organizationSlug: string }>()
+  const organizationQuery = useOrganizationQueryBySlug(organizationSlug)
 
   return (
     <>
-      <MainFrontendBreadCrumbs organizationSlug={query.organizationSlug} courseId={null} />
+      <MainFrontendBreadCrumbs organizationSlug={organizationSlug} courseId={null} />
       <div>
         {organizationQuery.isSuccess && (
           <h1
@@ -87,7 +83,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
             {/* TODO: Implement perPage dropdown? */}
             <CourseList
               organizationId={organizationQuery.data.id}
-              organizationSlug={query.organizationSlug}
+              organizationSlug={organizationSlug}
             />
 
             {/* TODO: We should render ExamList once we can filter away exams etc. */}
@@ -98,7 +94,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
               <h2>{t("exam-list")}</h2>
               <ExamList
                 organizationId={organizationQuery.data.id}
-                organizationSlug={query.organizationSlug}
+                organizationSlug={organizationSlug}
               />
             </OnlyRenderIfPermissions>
           </>
@@ -110,4 +106,4 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(Organization))
+export default withErrorBoundary(Organization)

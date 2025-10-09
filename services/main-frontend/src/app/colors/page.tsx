@@ -1,6 +1,6 @@
-import ColorPalette from "../../components/page-specific/colors/ColorPalette"
+import ColorPalette from "@/components/page-specific/colors/ColorPalette"
 
-const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
+const Home: React.FC = () => {
   return (
     <div>
       <ColorPalette />

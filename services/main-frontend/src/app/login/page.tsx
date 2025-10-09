@@ -1,12 +1,13 @@
+"use client"
+
 import { css } from "@emotion/css"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
-import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
-
+import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
+import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -21,17 +22,18 @@ import {
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
+const Login: React.FC = () => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
 
   const router = useRouter()
+  const pathname = usePathname()
   const [credentialsError, setCredentialsError] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
-  const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(router.asPath)
+  const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(pathname)
   const [showForm, setShowForm] = useState<boolean>(false)
 
   const loginMutation = useToastMutation(

@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { ChangeEvent, useEffect, useState } from "react"
@@ -8,8 +9,7 @@ import {
   fetchPlaygroundExamples,
   savePlaygroundExample,
   updatePlaygroundExample,
-} from "../services/backend/playground-examples"
-
+} from "@/services/backend/playground-examples"
 import { PlaygroundExample } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -24,7 +24,7 @@ import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPse
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
-const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
+const Home: React.FC = () => {
   const { t } = useTranslation()
   const [exampleUrl, setExampleUrl] = useState<string>("")
   const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)

@@ -1,28 +1,23 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PermissionPage } from "../../../../components/PermissionPage"
-import { fetchExam } from "../../../../services/backend/exams"
-
+import { PermissionPage } from "@/components/PermissionPage"
+import { fetchExam } from "@/services/backend/exams"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import {
-  dontRenderUntilQueryParametersReady,
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface Props {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const ExamPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
+const ExamPermissions: React.FC = () => {
   const { t } = useTranslation()
-  const exam = useQuery({ queryKey: [`exam-${query.id}`], queryFn: () => fetchExam(query.id) })
+  const { id } = useParams<{ id: string }>()
+
+  const exam = useQuery({ queryKey: [`exam-${id}`], queryFn: () => fetchExam(id) })
 
   return (
     <div
@@ -53,4 +48,4 @@ const ExamPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) =>
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ExamPermissions)))
+export default withErrorBoundary(withSignedIn(ExamPermissions))

@@ -1,23 +1,23 @@
+"use client"
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
+import type React from "react"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "../../../components/tables/FullWidthTable"
-import { fetchRegradingInfo } from "../../../services/backend/regradings"
-
+import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
+import { fetchRegradingInfo } from "@/services/backend/regradings"
 import ProgressBar from "@/shared-module/common/components/CourseProgress/ProgressBar"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { dateToString } from "@/shared-module/common/utils/time"
 
-const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
+const ViewRegradingPage: React.FC = () => {
   const { t } = useTranslation()
-  const id = useQueryParameter("id")
+  const { id } = useParams<{ id: string }>()
 
   const query = useQuery({
     queryKey: [`regrading`, id],
@@ -161,4 +161,4 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(ViewRegradingPage))
+export default withSignedIn(ViewRegradingPage)

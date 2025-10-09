@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { isServer, useQuery } from "@tanstack/react-query"
@@ -9,10 +10,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
-import PlaygroundExerciseIframe from "../components/page-specific/playground-views/PlaygroundExerciseIframe"
-import PlaygroundViewSubmissionIframe from "../components/page-specific/playground-views/PlaygroundViewSubmissionIframe"
-
+import PlaygroundExerciseEditorIframe from "@/components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
+import PlaygroundExerciseIframe from "@/components/page-specific/playground-views/PlaygroundExerciseIframe"
+import PlaygroundViewSubmissionIframe from "@/components/page-specific/playground-views/PlaygroundViewSubmissionIframe"
 import {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
@@ -146,7 +146,7 @@ const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.loc
 const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "wss://")
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
-const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
+const IframeViewPlayground: React.FC = () => {
   const { t } = useTranslation()
 
   const SCROLL_TARGETS = [

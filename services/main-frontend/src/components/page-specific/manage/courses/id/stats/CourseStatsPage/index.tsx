@@ -4,8 +4,6 @@ import { useRouter } from "next/router"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "../../../../../../../pages/manage/courses/[id]/[...path]"
-
 import {
   TAB_ALL_LANGUAGES,
   TAB_COURSE_INSTANCES,
@@ -14,6 +12,7 @@ import {
   TAB_VISITORS,
 } from "./constants"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"

@@ -8,7 +8,7 @@ import { CardList, CardListItem } from "../../../../styles/styles"
 
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
-import { CourseManagementPagesProps } from "@/pages/manage/courses/[id]/[...path]"
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import {
   getCourseChatbots,
   setAsDefaultChatbot,

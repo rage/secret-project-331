@@ -1,23 +1,25 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import CertificateForm, {
   CertificateFields,
-} from "../../../../components/page-specific/manage/certificates/CertificateForm"
-import CertificateView from "../../../../components/page-specific/manage/certificates/CertificateView"
+} from "@/components/page-specific/manage/certificates/CertificateForm"
+import CertificateView from "@/components/page-specific/manage/certificates/CertificateView"
 import {
   deleteCertificateConfiguration,
   updateCertificateConfiguration,
-} from "../../../../services/backend/certificates"
+} from "@/services/backend/certificates"
 import {
   fetchCourseInstance,
   fetchDefaultCertificateConfigurations,
-} from "../../../../services/backend/course-instances"
-import { setCertificationGeneration } from "../../../../services/backend/course-modules"
-import { fetchCourseStructure } from "../../../../services/backend/courses"
-
+} from "@/services/backend/course-instances"
+import { setCertificationGeneration } from "@/services/backend/course-modules"
+import { fetchCourseStructure } from "@/services/backend/courses"
 import { CertificateConfigurationUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -27,14 +29,7 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-
-interface Props {
-  query: SimplifiedUrlQuery<"id">
-}
 
 interface UpdateMutationArgs {
   courseModuleId: string
@@ -42,10 +37,10 @@ interface UpdateMutationArgs {
   fields: CertificateFields
 }
 
-const CertificationsPage: React.FC<Props> = ({ query }) => {
+const CertificationsPage: React.FC = () => {
   const { t } = useTranslation()
   const { confirm } = useDialog()
-  const courseInstanceId = query.id
+  const { id: courseInstanceId } = useParams<{ id: string }>()
 
   const [editingConfiguration, setEditingConfiguration] = useState<string | null>(null)
   const getCourseInstance = useQuery({
@@ -281,6 +276,4 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(CertificationsPage)),
-)
+export default withErrorBoundary(withSignedIn(CertificationsPage))

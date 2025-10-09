@@ -1,34 +1,27 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewEmailTemplateForm from "../../../../components/page-specific/manage/course-instances/id/emails/NewEmailTemplateForm"
+import NewEmailTemplateForm from "@/components/page-specific/manage/course-instances/id/emails/NewEmailTemplateForm"
 import {
   fetchCourseInstanceEmailTemplates,
   postNewEmailTemplateForCourseInstance,
-} from "../../../../services/backend/course-instances"
-import { deleteEmailTemplate } from "../../../../services/backend/email-templates"
-
+} from "@/services/backend/course-instances"
+import { deleteEmailTemplate } from "@/services/backend/email-templates"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-export interface CourseInstanceEmailTemplatesProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const CourseInstanceEmailTemplates: React.FC<
-  React.PropsWithChildren<CourseInstanceEmailTemplatesProps>
-> = ({ query }) => {
+const CourseInstanceEmailTemplates: React.FC = () => {
   const { t } = useTranslation()
-  const courseInstanceId = query.id
+  const { id: courseInstanceId } = useParams<{ id: string }>()
   const getCourseInstanceEmailTemplates = useQuery({
     queryKey: [`course-instance-${courseInstanceId}-emails`],
     queryFn: () => fetchCourseInstanceEmailTemplates(courseInstanceId),
@@ -98,6 +91,4 @@ const CourseInstanceEmailTemplates: React.FC<
   )
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(CourseInstanceEmailTemplates)),
-)
+export default withErrorBoundary(withSignedIn(CourseInstanceEmailTemplates))

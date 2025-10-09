@@ -1,3 +1,4 @@
+"use client"
 // This page is not translated because this page is a development tool and using different languages here would just create confusing terminology and weird language.
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
@@ -5,13 +6,12 @@ import { isServer } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 
-import PlaygroundAnswers from "../components/page-specific/playground-views/PlaygroundAnswers"
-import PlaygroundPreview from "../components/page-specific/playground-views/PlaygroundPreview"
-import PlayGroundSettings from "../components/page-specific/playground-views/PlaygroundSettings"
-import PlaygroundSpecs from "../components/page-specific/playground-views/PlaygroundSpecs"
-import useParsedPrivateSpec from "../hooks/playground/useParsedPrivateSpec"
-import usePlaygroundQueriesAndMutations from "../hooks/playground/usePlaygroundQueriesAndMutations"
-
+import PlaygroundAnswers from "@/components/page-specific/playground-views/PlaygroundAnswers"
+import PlaygroundPreview from "@/components/page-specific/playground-views/PlaygroundPreview"
+import PlayGroundSettings from "@/components/page-specific/playground-views/PlaygroundSettings"
+import PlaygroundSpecs from "@/components/page-specific/playground-views/PlaygroundSpecs"
+import useParsedPrivateSpec from "@/hooks/playground/useParsedPrivateSpec"
+import usePlaygroundQueriesAndMutations from "@/hooks/playground/usePlaygroundQueriesAndMutations"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -50,10 +50,15 @@ export const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/
 
 let PlaygroudTabs = () => {
   // Settings
+  const defaultUrl =
+    typeof window !== "undefined"
+      ? (localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL)
+      : DEFAULT_SERVICE_INFO_URL
+
   const settingsForm = useForm<PlaygroundSettings>({
     mode: "onChange",
     defaultValues: {
-      url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
+      url: defaultUrl,
       width: narrowContainerWidthPx.toString(),
 
       private_spec: "null",

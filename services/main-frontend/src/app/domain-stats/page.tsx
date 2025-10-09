@@ -1,18 +1,19 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseCompletionStatsTable from "../components/page-specific/domain-stats/CourseCompletionStatsTable"
-import DomainCompletionStatsTable from "../components/page-specific/domain-stats/DomainCompletionStatsTable"
-import YearFilter from "../components/page-specific/domain-stats/YearFilter"
+import CourseCompletionStatsTable from "@/components/page-specific/domain-stats/CourseCompletionStatsTable"
+import DomainCompletionStatsTable from "@/components/page-specific/domain-stats/DomainCompletionStatsTable"
+import YearFilter from "@/components/page-specific/domain-stats/YearFilter"
 import {
   getCompletionStatsByEmailDomain,
   getCourseCompletionStatsForEmailDomain,
-} from "../services/backend/global-stats"
-
+} from "@/services/backend/global-stats"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const DomainStatsPage = () => {
   const { t } = useTranslation()
@@ -90,4 +91,4 @@ const DomainStatsPage = () => {
   )
 }
 
-export default withSignedIn(DomainStatsPage)
+export default withErrorBoundary(withSignedIn(DomainStatsPage))

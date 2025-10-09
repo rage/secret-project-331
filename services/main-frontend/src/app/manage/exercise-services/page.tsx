@@ -1,17 +1,15 @@
+"use client"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseServiceContainer from "../../../components/page-specific/manage/exercise-services/ExerciseServiceContainer"
-import ExerciseServiceCreationModal from "../../../components/page-specific/manage/exercise-services/ExerciseServiceCreationModal"
-import {
-  addExerciseService,
-  fetchExerciseServices,
-} from "../../../services/backend/exercise-services"
 import { canSave } from "../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../utils/convert"
 import { prepareExerciseServiceForBackend } from "../../../utils/prepareServiceForBackend.ts"
 
+import ExerciseServiceContainer from "@/components/page-specific/manage/exercise-services/ExerciseServiceContainer"
+import ExerciseServiceCreationModal from "@/components/page-specific/manage/exercise-services/ExerciseServiceCreationModal"
+import { addExerciseService, fetchExerciseServices } from "@/services/backend/exercise-services"
 import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -21,7 +19,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
+const ExerciseServicePage: React.FC = () => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [exerciseService, setExerciseService] = useState<ExerciseServiceNewOrUpdate>({

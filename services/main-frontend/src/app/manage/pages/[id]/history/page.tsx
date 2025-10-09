@@ -1,14 +1,14 @@
-import { useRouter } from "next/router"
+"use client"
+
+import { useParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import HistoryView from "../../../../components/page-specific/manage/pages/id/history/HistoryView"
-
+import HistoryView from "@/components/page-specific/manage/pages/id/history/HistoryView"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 
-const History: React.FC<React.PropsWithChildren<unknown>> = () => {
+const History: React.FC = () => {
   const { t } = useTranslation()
-  const router = useRouter()
-  const id = router.query.id
+  const { id } = useParams<{ id: string }>()
 
   if (typeof id !== "string") {
     return (

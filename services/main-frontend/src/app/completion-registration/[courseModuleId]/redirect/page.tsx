@@ -1,24 +1,17 @@
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React, { useEffect } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { fetchCompletionRegistrationLink } from "../../../services/backend/course-modules"
-
+import { fetchCompletionRegistrationLink } from "@/services/backend/course-modules"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-export interface CompletionRedirectPageProps {
-  query: SimplifiedUrlQuery<"courseModuleId">
-}
-
-const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirectPageProps>> = ({
-  query,
-}) => {
-  const { courseModuleId } = query
+const CompletionRedirectPage: React.FC = () => {
+  const { courseModuleId } = useParams<{ courseModuleId: string }>()
   const { t } = useTranslation()
   const userCompletionInformation = useQuery({
     queryKey: [`course-${courseModuleId}-completion-registration-link`],
@@ -71,4 +64,4 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CompletionRedirectPage))
+export default withErrorBoundary(CompletionRedirectPage)

@@ -1,11 +1,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  CourseManagementPagesProps,
-  TabPage,
-} from "../../../../../../pages/manage/courses/[id]/[...path]"
-
+import { CourseManagementPagesProps, TabPage } from "@/app/manage/courses/[id]/[...path]/page"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"

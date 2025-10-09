@@ -1,18 +1,20 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import AllSubmissionsList from "../../components/AllSubmissionsList"
-import ExerciseGradingCard from "../../components/ExerciseGradingCard"
-import KeyValueCard from "../../components/KeyValueCard"
-import MainFrontedViewSubmission from "../../components/MainFrontedViewSubmission"
-import { useExerciseSubmissionsForUser } from "../../hooks/useExerciseSubmissionsForUser"
-import { useUserCourseSettings } from "../../hooks/useUserCourseSettings"
-import { useUserDetails } from "../../hooks/useUserDetails"
-import { fetchSubmissionInfo } from "../../services/backend/submissions"
-
+import AllSubmissionsList from "@/components/AllSubmissionsList"
+import ExerciseGradingCard from "@/components/ExerciseGradingCard"
+import KeyValueCard from "@/components/KeyValueCard"
+import MainFrontedViewSubmission from "@/components/MainFrontedViewSubmission"
+import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsForUser"
+import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
+import { useUserDetails } from "@/hooks/useUserDetails"
+import { fetchSubmissionInfo } from "@/services/backend/submissions"
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -21,24 +23,19 @@ import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import {
   courseInstanceUserStatusSummaryRoute,
   exerciseSubmissionsRoute,
 } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface SubmissionPageProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
+const Submission: React.FC = () => {
+  const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const getSubmissionInfo = useQuery({
-    queryKey: [`submission-${query.id}`],
-    queryFn: () => fetchSubmissionInfo(query.id),
+    queryKey: [`submission-${id}`],
+    queryFn: () => fetchSubmissionInfo(id),
   })
 
   const userDetails = useUserDetails(
@@ -99,12 +96,12 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
         url: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
       },
       {
-        text: t("title-submission-id", { id: query.id }),
+        text: t("title-submission-id", { id }),
         // eslint-disable-next-line i18next/no-literal-string
-        url: `/submissions/${query.id}`,
+        url: `/submissions/${id}`,
       },
     ]
-  }, [getSubmissionInfo.data, query.id, t])
+  }, [getSubmissionInfo.data, id, t])
 
   return (
     <div>
@@ -127,7 +124,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
             `}
           >
             <HideTextInSystemTests
-              text={t("title-submission-id", { id: query.id })}
+              text={t("title-submission-id", { id })}
               testPlaceholder={t("title-submission-id", {
                 id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
               })}
@@ -294,4 +291,4 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
   )
 }
 
-export default dontRenderUntilQueryParametersReady(Submission)
+export default withErrorBoundary(Submission)

@@ -1,29 +1,24 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
-import FullWidthTable, { FullWidthTableRow } from "../../../../components/tables/FullWidthTable"
-import { getPoints } from "../../../../services/backend/course-instances"
-
+import ChapterPointsDashboard from "@/components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
+import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
+import { getPoints } from "@/services/backend/course-instances"
 import { UserDetail } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { fontWeights, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { roundDown } from "@/shared-module/common/utils/numbers"
 import { courseInstanceUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-
-export interface CourseInstancePointsListProps {
-  query: SimplifiedUrlQuery<"id">
-}
 
 interface ProcessedUser {
   user: UserDetail
@@ -37,10 +32,8 @@ const SCORE = "score"
 const EMAIL = "email"
 const DOWN_ARROW = "v"
 
-const CourseInstancePointsList: React.FC<
-  React.PropsWithChildren<CourseInstancePointsListProps>
-> = ({ query }) => {
-  const courseInstanceId = query.id
+const CourseInstancePointsList: React.FC = () => {
+  const { id: courseInstanceId } = useParams<{ id: string }>()
   const { t } = useTranslation()
 
   const [sorting, setSorting] = useState(NAME)
@@ -89,7 +82,7 @@ const CourseInstancePointsList: React.FC<
         className={css`
           font-size: 45px;
           line-height: 45px;
-          text-transform: capitalize;
+          text-transform: capitalize.;
         `}
       >
         {t("point-summary")}: {courseInstanceId}
@@ -232,6 +225,4 @@ const CourseInstancePointsList: React.FC<
   )
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(CourseInstancePointsList)),
-)
+export default withErrorBoundary(withSignedIn(CourseInstancePointsList))

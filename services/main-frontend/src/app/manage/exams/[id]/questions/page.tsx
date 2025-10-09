@@ -1,5 +1,8 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,8 +11,7 @@ import {
   fetchExerciseSubmissionsAndUserExerciseStatesWithExamId,
   fetchExercisesWithExamId,
   releaseGrades,
-} from "../../../../services/backend/exams"
-
+} from "@/services/backend/exams"
 import { ExerciseSlideSubmissionAndUserExerciseState } from "@/shared-module/common/bindings"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
@@ -24,26 +26,21 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface SubmissionPageProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
+const GradingPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const { confirm } = useDialog()
+
   const getExam = useQuery({
-    queryKey: [`/exams/${query.id}/`, query.id],
-    queryFn: () => fetchExam(query.id),
+    queryKey: [`/exams/${id}/`, id],
+    queryFn: () => fetchExam(id),
   })
 
   const getExercises = useQuery({
-    queryKey: [`/exams/${query.id}/exam-exercises`, query.id],
-    queryFn: () => fetchExercisesWithExamId(query.id),
+    queryKey: [`/exams/${id}/exam-exercises`, id],
+    queryFn: () => fetchExercisesWithExamId(id),
   })
 
   const sorted = getExercises.data?.sort((a, b) =>
@@ -51,8 +48,8 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   )
 
   const getAllSubmissions = useQuery({
-    queryKey: [`/exams/${query.id}/submissions-with-exam-id`, query.id],
-    queryFn: () => fetchExerciseSubmissionsAndUserExerciseStatesWithExamId(query.id),
+    queryKey: [`/exams/${id}/submissions-with-exam-id`, id],
+    queryFn: () => fetchExerciseSubmissionsAndUserExerciseStatesWithExamId(id),
     staleTime: 1,
   })
 
@@ -75,7 +72,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
           exerciseSubmissionList.map((sub) => sub.teacher_grading_decision?.id),
         )
         .filter((id): id is string => id !== undefined)
-      return releaseGrades(query.id, teacherGradingDecisionIds)
+      return releaseGrades(id, teacherGradingDecisionIds)
     },
     { notify: true, method: "PUT" },
     {
@@ -202,12 +199,12 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   const pieces: BreadcrumbPiece[] = useMemo(() => {
     const pieces = [
       // eslint-disable-next-line i18next/no-literal-string
-      { text: t("link-manage"), url: `/manage/exams/${query.id}` },
+      { text: t("link-manage"), url: `/manage/exams/${id}` },
       // eslint-disable-next-line i18next/no-literal-string
-      { text: t("questions"), url: `/manage/exams/${query.id}/questions` },
+      { text: t("questions"), url: `/manage/exams/${id}/questions` },
     ]
     return pieces
-  }, [query.id, t])
+  }, [id, t])
 
   return (
     <div>
@@ -349,4 +346,4 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(GradingPage)))
+export default withErrorBoundary(withSignedIn(GradingPage))

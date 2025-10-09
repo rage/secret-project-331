@@ -1,24 +1,27 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { maxBy } from "lodash"
+import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import AddCompletionsForm from "../../../../components/forms/AddCompletionsForm"
-import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
-import CompletionRegistrationPreview from "../../../../components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
+import CaretDownIcon from "../../../../imgs/caret-down.svg"
+
+import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
+import ChapterPointsDashboard from "@/components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
+import CompletionRegistrationPreview from "@/components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
 import UserCompletionRow, {
   UserCompletionRowUser,
-} from "../../../../components/page-specific/manage/course-instances/id/UserCompletionRow"
-import CompletionsExportButton from "../../../../components/page-specific/manage/course-instances/id/completions/CompletionsExportButton"
-import FullWidthTable from "../../../../components/tables/FullWidthTable"
-import CaretDownIcon from "../../../../imgs/caret-down.svg"
+} from "@/components/page-specific/manage/course-instances/id/UserCompletionRow"
+import CompletionsExportButton from "@/components/page-specific/manage/course-instances/id/completions/CompletionsExportButton"
+import FullWidthTable from "@/components/tables/FullWidthTable"
 import {
   getCompletions,
   postCompletions,
   postCompletionsPreview,
-} from "../../../../services/backend/course-instances"
-
+} from "@/services/backend/course-instances"
 import {
   CourseModuleCompletionWithRegistrationInfo,
   ManualCompletionPreview,
@@ -31,27 +34,21 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const EMAIL = "email"
 const NAME = "name"
 const NUMBER = "number"
 
-export interface CompletionsPageProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
 interface Sorting {
   type: string
   data: string | null
 }
 
-const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
+const CompletionsPage: React.FC = () => {
   const { t } = useTranslation()
-  const courseInstanceId = query.id
+  const params = useParams<{ id: string }>()
+  const courseInstanceId = params.id
   const getCompletionsList = useQuery({
     queryKey: [`completions-list-${courseInstanceId}`],
     queryFn: async () => {
@@ -340,7 +337,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(CompletionsPage)))
+export default withErrorBoundary(withSignedIn(CompletionsPage))
 
 function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
   const moduleCompletions = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()

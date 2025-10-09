@@ -1,27 +1,23 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams, useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import { fetchCertificateImage } from "../../../services/backend/certificates"
-
+import { fetchCertificateImage } from "@/services/backend/certificates"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface Props {
-  query: SimplifiedUrlQuery<string>
-}
-
-const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
+const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
-  const certificateVerificationId = query.certificateVerificationId
-  const debug = query.debug
-  const testCourseModuleId = query.test_certificate_configuration_id
-  const testCourseInstanceId = query.test_course_instance_id
+  const { certificateVerificationId } = useParams<{ certificateVerificationId: string }>()
+  const searchParams = useSearchParams()
+  const debug = searchParams.get("debug")
+  const testCourseModuleId = searchParams.get("test_certificate_configuration_id")
+  const testCourseInstanceId = searchParams.get("test_course_instance_id")
 
   const certificate = useQuery({
     queryKey: [
@@ -35,8 +31,8 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
       fetchCertificateImage(
         certificateVerificationId,
         !!debug,
-        testCourseModuleId,
-        testCourseInstanceId,
+        testCourseModuleId ?? undefined,
+        testCourseInstanceId ?? undefined,
       ),
     // This is expensive, so it doesn't make sense to retry
     retry: false,
@@ -67,4 +63,4 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(ModuleCertificateVerification))
+export default withErrorBoundary(ModuleCertificateVerification)

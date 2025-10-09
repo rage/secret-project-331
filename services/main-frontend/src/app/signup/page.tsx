@@ -1,14 +1,14 @@
+"use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
-import { useRouter } from "next/router"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
-
+import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { fetchCountryFromIP } from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -16,7 +16,6 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { createUser } from "@/shared-module/common/services/backend/auth"
@@ -117,7 +116,7 @@ const Wrapper = styled.div`
   }
 `
 
-const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
+const CreateAccountForm: React.FC = () => {
   const { register, formState, watch, reset, handleSubmit, trigger, control } = useForm<FormFields>(
     {
       // eslint-disable-next-line i18next/no-literal-string
@@ -138,8 +137,13 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
-  const uncheckedReturnTo = useQueryParameter("return_to")
-  const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(router.asPath)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const uncheckedReturnTo = searchParams.get("return_to") ?? undefined
+  const currentAsPath = searchParams.toString()
+    ? `${pathname}?${searchParams.toString()}`
+    : pathname
+  const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(currentAsPath)
   const { errors, isValid, isSubmitting } = formState
 
   const [confirmEmailPageVisible, setConfirmEmailPageVisible] = useState(false)

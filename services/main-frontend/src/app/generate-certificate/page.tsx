@@ -1,16 +1,17 @@
+"use client"
+
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { TFunction } from "i18next"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchCertificate, generateCertificate } from "../../services/backend/certificates"
+import { fetchCertificate, generateCertificate } from "@/services/backend/certificates"
 import {
   fetchCourseModule,
   fetchUserCourseModuleCompletion,
-} from "../../services/backend/course-modules"
-import { getCourse } from "../../services/backend/courses"
-
+} from "@/services/backend/course-modules"
+import { getCourse } from "@/services/backend/courses"
 import { Course, CourseModule } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -21,11 +22,10 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
+const ModuleCertificate: React.FC = () => {
   const { t } = useTranslation()
   const router = useRouter()
   const { confirm } = useDialog()
@@ -35,7 +35,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
   const userInfo = useUserInfo()
   const [nameOnCertificate, setNameOnCertificate] = useState("")
   useEffect(() => {
-    if (!router || !router.isReady) {
+    if (!certificateConfigurationId) {
       return
     }
     fetchCertificate(certificateConfigurationId).then((certificate) => {
@@ -160,6 +160,4 @@ function getHeaderContent(
   })
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(ModuleCertificate)),
-)
+export default withErrorBoundary(withSignedIn(ModuleCertificate))

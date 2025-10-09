@@ -1,31 +1,31 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SearchUsersResults from "../../components/page-specific/manage/search-users/SearchUsersResults"
+import SearchUsersResults from "@/components/page-specific/manage/search-users/SearchUsersResults"
 import {
   searchForUserDetailsByEmail,
   searchForUserDetailsByOtherDetails,
   searchForUserDetailsFuzzyMatch,
-} from "../../services/backend/user-details"
-
+} from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
+const SearchUsersPage: React.FC = () => {
   const { t } = useTranslation()
   const router = useRouter()
-  const searchQueryParameter = useQueryParameter("search")
-  const [typedSearchQuery, setTypedSearchQuery] = useState(searchQueryParameter ?? "")
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const initialSearch = searchParams.get("search") ?? ""
+  const [typedSearchQuery, setTypedSearchQuery] = useState(initialSearch)
   const [searchQuery, setSearchQuery] = useState<string>(typedSearchQuery)
   const trimmedSearchQuery = searchQuery.trim()
   const searchByEmailQuery = useQuery({
@@ -45,12 +45,15 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   })
   const onSearch = () => {
     const value = typedSearchQuery.trim()
+    const params = new URLSearchParams(searchParams)
     if (value === "") {
-      delete router.query.search
+      params.delete("search")
     } else {
-      router.query.search = value
+      // eslint-disable-next-line i18next/no-literal-string
+      params.set("search", value)
     }
-    router.replace(router, undefined, { shallow: true })
+    const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
+    router.replace(newUrl)
     setSearchQuery(value)
   }
 
@@ -111,6 +114,4 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(SearchUsersPage, true)),
-)
+export default withErrorBoundary(withSignedIn(SearchUsersPage))

@@ -1,30 +1,26 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PermissionPage } from "../../../../components/PermissionPage"
-import { fetchCourseInstance } from "../../../../services/backend/course-instances"
-
+import { PermissionPage } from "@/components/PermissionPage"
+import { fetchCourseInstance } from "@/services/backend/course-instances"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import {
-  dontRenderUntilQueryParametersReady,
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface Props {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const CourseInstancePermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
+const CourseInstancePermissions: React.FC = () => {
   const { t } = useTranslation()
+  const { id } = useParams<{ id: string }>()
+
   const courseInstance = useQuery({
-    queryKey: [`course-instance-${query.id}`],
-    queryFn: () => fetchCourseInstance(query.id),
+    queryKey: [`course-instance-${id}`],
+    queryFn: () => fetchCourseInstance(id),
   })
 
   return (
@@ -56,6 +52,4 @@ const CourseInstancePermissions: React.FC<React.PropsWithChildren<Props>> = ({ q
   )
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(CourseInstancePermissions)),
-)
+export default withErrorBoundary(withSignedIn(CourseInstancePermissions))

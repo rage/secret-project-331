@@ -5,8 +5,7 @@ import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { DEFAULT_SERVICE_INFO_URL, PlaygroundSettings } from "../../../pages/playground-tabs"
-
+import { DEFAULT_SERVICE_INFO_URL, PlaygroundSettings } from "@/app/playground-tabs/page"
 import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"

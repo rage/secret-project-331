@@ -1,17 +1,18 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
-import { useRouter } from "next/router"
+import { useParams, useRouter } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import AddUserPopup from "../../../../components/page-specific/organizations/[id]/AddUserPopup"
-import DeleteOrganizationPopup from "../../../../components/page-specific/organizations/[id]/DeleteOrganizationPopup"
-import EditUserPopup from "../../../../components/page-specific/organizations/[id]/EditUserPopup"
-import { fetchOrganization, updateOrganization } from "../../../../services/backend/organizations"
-
+import AddUserPopup from "@/components/page-specific/organizations/[id]/AddUserPopup"
+import DeleteOrganizationPopup from "@/components/page-specific/organizations/[id]/DeleteOrganizationPopup"
+import EditUserPopup from "@/components/page-specific/organizations/[id]/EditUserPopup"
+import { fetchOrganization, updateOrganization } from "@/services/backend/organizations"
 import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
 import { RoleDomain, RoleUser, UserRole } from "@/shared-module/common/bindings"
 import type { Organization } from "@/shared-module/common/bindings"
@@ -21,9 +22,6 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
@@ -41,11 +39,7 @@ const DEFAULT_TAB = GENERAL_TAB
 
 type TabKey = typeof GENERAL_TAB | typeof PERMISSIONS_TAB
 
-interface Props {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
+const ManageOrganization: React.FC = () => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = React.useState<TabKey>(DEFAULT_TAB)
   const [showAddUserPopup, setShowAddUserPopup] = React.useState(false)
@@ -60,11 +54,12 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const [editedSlug, setEditedSlug] = React.useState("")
 
   const router = useRouter()
+  const { id } = useParams<{ id: string }>()
 
   const addMutation = useToastMutation(
     (data: { email: string; role: string }) => {
       // eslint-disable-next-line i18next/no-literal-string
-      return giveRole(data.email, data.role as UserRole, { tag: "Organization", id: query.id })
+      return giveRole(data.email, data.role as UserRole, { tag: "Organization", id })
     },
     { notify: true, method: "POST" },
     {
@@ -77,7 +72,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
 
   const deleteMutation = useToastMutation(
     async () => {
-      const res = await fetch(`/api/v0/main-frontend/organizations/${query.id}`, {
+      const res = await fetch(`/api/v0/main-frontend/organizations/${id}`, {
         method: "PATCH", // keep PATCH here — this is the real HTTP method
         headers: {
           "Content-Type": "application/json",
@@ -112,7 +107,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const handleDelete = (userToDelete: NamedRoleUser) => {
     if (window.confirm(t("confirm-delete-user", { email: userToDelete.email }))) {
       // eslint-disable-next-line i18next/no-literal-string
-      removeRole(userToDelete.email, userToDelete.role, { tag: "Organization", id: query.id })
+      removeRole(userToDelete.email, userToDelete.role, { tag: "Organization", id })
         .then(() => {
           roleQuery.refetch()
         })
@@ -135,12 +130,12 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     }
 
     // eslint-disable-next-line i18next/no-literal-string
-    void removeRole(editUser.email, editUser.role, { tag: "Organization", id: query.id })
+    void removeRole(editUser.email, editUser.role, { tag: "Organization", id })
       .then(() =>
         giveRole(editUser.email, editRole as UserRole, {
           // eslint-disable-next-line i18next/no-literal-string
           tag: "Organization",
-          id: query.id,
+          id,
         }),
       )
       .then(() => {
@@ -155,7 +150,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const updateOrgMutation = useToastMutation(
     (newData: { name: string; hidden: boolean; slug: string }) => {
       console.log("Sending payload:", newData)
-      return updateOrganization(query.id, newData.name, newData.hidden, newData.slug)
+      return updateOrganization(id, newData.name, newData.hidden, newData.slug)
     },
     { notify: true, method: "PUT" },
     {
@@ -167,16 +162,16 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   )
 
   // eslint-disable-next-line i18next/no-literal-string
-  const domain: RoleDomain = { tag: "Organization", id: query.id }
+  const domain: RoleDomain = { tag: "Organization", id }
 
   const roleQuery = useQuery({
-    queryKey: ["roles", domain, query.id],
-    queryFn: () => fetchRoles({ organization_id: query.id }),
+    queryKey: ["roles", domain, id],
+    queryFn: () => fetchRoles({ organization_id: id }),
   })
 
   const organization = useQuery<Organization>({
-    queryKey: [`organization-${query.id}`],
-    queryFn: () => fetchOrganization(query.id),
+    queryKey: [`organization-${id}`],
+    queryFn: () => fetchOrganization(id),
   })
 
   React.useEffect(() => {
@@ -813,6 +808,4 @@ const permissionContent = (
   </div>
 )
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(ManageOrganization)),
-)
+export default withErrorBoundary(withSignedIn(ManageOrganization))

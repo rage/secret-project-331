@@ -3,10 +3,9 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-
 import EditProposalList from "./EditProposalList"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"

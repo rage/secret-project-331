@@ -1,31 +1,23 @@
+"use client"
+
+import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import useCountAnswersRequiringAttentionHook from "../../../../hooks/count/useCountAnswersRequiringAttentionHook"
-import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
-import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
-
 import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
 import Other from "@/components/page-specific/manage/courses/id/other"
+import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
+import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
+import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
-import {
-  dontRenderUntilQueryParametersReady,
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseManagementPagesProps {
   courseId: string
-}
-
-interface CourseManagementPageProps {
-  // id | path
-  query: SimplifiedUrlQuery<string>
 }
 
 export type TabPage = React.ComponentType<React.PropsWithChildren<CourseManagementPagesProps>>
@@ -112,11 +104,11 @@ function selectPageToRender(path: string): PageToRender {
   }
 }
 
-const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPageProps>> = ({
-  query,
-}) => {
-  const courseId = query.id
-  const path = `${useQueryParameter("path")}`
+const CourseManagementPage: React.FC = () => {
+  const params = useParams<{ id: string; path?: string | string[] }>()
+  const courseId = params.id
+  const pathParam = params.path
+  const path = Array.isArray(pathParam) ? pathParam.join("/") : (pathParam ?? "")
   const { t } = useTranslation()
 
   // See if path exists, if not, default to first
@@ -189,6 +181,4 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
   )
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(CourseManagementPage)),
-)
+export default withErrorBoundary(withSignedIn(CourseManagementPage))

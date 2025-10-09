@@ -1,11 +1,13 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
+import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import useExamSubmissionsInfo from "../../../../hooks/useExamSubmissionsInfo"
-
+import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
 import { fetchExam } from "@/services/backend/exams"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
@@ -18,19 +20,14 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface SubmissionPageProps {
-  query: SimplifiedUrlQuery<"id">
-}
-const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
+const GradingPage: React.FC = () => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
+  const { id } = useParams<{ id: string }>()
 
-  const getSubmissions = useExamSubmissionsInfo(query.id, paginationInfo.page, paginationInfo.limit)
+  const getSubmissions = useExamSubmissionsInfo(id, paginationInfo.page, paginationInfo.limit)
 
   const examId = getSubmissions.data?.data[0].exercise.exam_id
   const getExam = useQuery({
@@ -230,4 +227,4 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(GradingPage)))
+export default withErrorBoundary(withSignedIn(GradingPage))

@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
@@ -5,8 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
+const EmailVerifiedPage: React.FC = () => {
   const { t } = useTranslation()
   return (
     <>
@@ -41,4 +44,4 @@ const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default EmailVerifiedPage
+export default withErrorBoundary(EmailVerifiedPage)

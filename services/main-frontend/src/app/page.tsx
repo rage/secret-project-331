@@ -1,9 +1,9 @@
+"use client"
 import { css } from "@emotion/css"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import MyCourses from "../components/page-specific/index/MyCourses"
-
+import MyCourses from "@/components/page-specific/index/MyCourses"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import {

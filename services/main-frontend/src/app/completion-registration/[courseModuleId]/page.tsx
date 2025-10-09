@@ -1,29 +1,23 @@
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useParams, usePathname } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import RegisterCompletion from "../../../components/page-specific/register-completion/RegisterCompletion"
-import { fetchUserCompletionInformation } from "../../../services/backend/course-modules"
-
+import RegisterCompletion from "@/components/page-specific/register-completion/RegisterCompletion"
+import { fetchUserCompletionInformation } from "@/services/backend/course-modules"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const REDIRECT = "redirect"
 
-export interface CompletionPageProps {
-  query: SimplifiedUrlQuery<"courseModuleId">
-}
-
-const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = ({ query }) => {
+const CompletionPage: React.FC = () => {
   const { t } = useTranslation()
-  const { courseModuleId } = query
-  const router = useRouter()
+  const { courseModuleId } = useParams<{ courseModuleId: string }>()
+  const pathname = usePathname()
   const userCompletionInformation = useQuery({
     queryKey: [`course-module-${courseModuleId}-completion-information`],
     queryFn: () => fetchUserCompletionInformation(courseModuleId),
@@ -49,11 +43,11 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
       {userCompletionInformation.isSuccess && (
         <RegisterCompletion
           data={userCompletionInformation.data}
-          registrationFormUrl={`${router.asPath.split("?")[0]}/${REDIRECT}`}
+          registrationFormUrl={`${pathname}/${REDIRECT}`}
         />
       )}
     </>
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(CompletionPage)))
+export default withErrorBoundary(withSignedIn(CompletionPage))

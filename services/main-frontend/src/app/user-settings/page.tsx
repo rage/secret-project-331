@@ -1,28 +1,22 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
-import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
-import { getCourseBreadCrumbInfo } from "../services/backend/courses"
-import { getAllResearchConsentAnswersByUserId } from "../services/backend/users"
-
 import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
+import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
+import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
+import { getCourseBreadCrumbInfo } from "@/services/backend/courses"
 import { getUserDetailsForUser } from "@/services/backend/user-details"
+import { getAllResearchConsentAnswersByUserId } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface Slug {
-  name: string
-  courseSlug: string
-  courseId: string
-  orgSlug: string
-}
-
-const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
+const UserSettings: React.FC = () => {
   const { t } = useTranslation()
 
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)

@@ -1,15 +1,17 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import AnswersRequiringAttentionList from "../../../../components/page-specific/manage/exercises/id/submissions/AnswersRequiringAttentionList"
-import { fetchAnswersRequiringAttention } from "../../../../services/backend/answers-requiring-attention"
-
 import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
+import AnswersRequiringAttentionList from "@/components/page-specific/manage/exercises/id/submissions/AnswersRequiringAttentionList"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
+import { fetchAnswersRequiringAttention } from "@/services/backend/answers-requiring-attention"
 import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -17,16 +19,8 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import {
-  dontRenderUntilQueryParametersReady,
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { manageCourseExercisesRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-
-interface SubmissionPageProps {
-  query: SimplifiedUrlQuery<"id">
-}
 
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
   <h5
@@ -44,9 +38,10 @@ const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
   </h5>
 )
 
-const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
+const SubmissionsPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const exerciseQuery = useExerciseQuery(query.id)
+  const exerciseQuery = useExerciseQuery(id)
   const paginationInfo = usePaginationInfo()
   const courseStructure = useCourseStructure(exerciseQuery.data?.course_id ?? null)
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(exerciseQuery.data?.course_id ?? null)
@@ -68,12 +63,11 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
 
   const answersQuery = useQuery({
     queryKey: [
-      `exercises-${query.id}-answers-requiring-attention`,
+      `exercises-${id}-answers-requiring-attention`,
       paginationInfo.page,
       paginationInfo.limit,
     ],
-    queryFn: () =>
-      fetchAnswersRequiringAttention(query.id, paginationInfo.page, paginationInfo.limit),
+    queryFn: () => fetchAnswersRequiringAttention(id, paginationInfo.page, paginationInfo.limit),
   })
 
   if (courseStructure.isLoading) {
@@ -142,4 +136,4 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(SubmissionsPage)))
+export default withErrorBoundary(withSignedIn(SubmissionsPage))

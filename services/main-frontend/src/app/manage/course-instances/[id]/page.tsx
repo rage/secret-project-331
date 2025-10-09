@@ -1,38 +1,28 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { isPast, parseISO } from "date-fns"
-import { useRouter } from "next/router"
+import { useParams, useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/course-instances/NewCourseInstanceForm"
+import NewCourseInstanceForm from "@/components/page-specific/manage/courses/id/course-instances/NewCourseInstanceForm"
 import {
   deleteCourseInstance,
   editCourseInstance,
   fetchCourseInstance,
-} from "../../../../services/backend/course-instances"
-
+} from "@/services/backend/course-instances"
 import { CourseInstanceForm } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-export interface ManageCourseInstancesProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstancesProps>> = ({
-  query,
-}) => {
+const ManageCourseInstances: React.FC = () => {
   const { t } = useTranslation()
-  const courseInstanceId = query.id
+  const { id: courseInstanceId } = useParams<{ id: string }>()
   const router = useRouter()
 
   const getCourseInstances = useQuery({
@@ -168,6 +158,4 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
   )
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(ManageCourseInstances)),
-)
+export default withErrorBoundary(withSignedIn(ManageCourseInstances))

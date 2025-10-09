@@ -1,5 +1,7 @@
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useParams, useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
@@ -16,11 +18,11 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const CustomizeChatbotPage = () => {
   const { t } = useTranslation()
   const router = useRouter()
-  const { id } = router.query
+  const { id } = useParams<{ id: string }>()
 
   const chatbotQuery = useQuery<ChatbotConfiguration>({
     queryKey: [`chatbot`, id],
-    queryFn: () => getChatbotConfiguration(assertNotNullOrUndefined(id?.toString())),
+    queryFn: () => getChatbotConfiguration(assertNotNullOrUndefined(id)),
     enabled: !!id,
   })
 

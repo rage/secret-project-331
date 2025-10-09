@@ -1,3 +1,3 @@
-import CustomizeChatbotPage from "./[...path]"
+import CustomizeChatbotPage from "./[...path]/page"
 
 export default CustomizeChatbotPage

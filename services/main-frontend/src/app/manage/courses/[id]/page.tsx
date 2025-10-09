@@ -1,3 +1,3 @@
-import CourseManagementPageTabs from "./[...path]"
+import CourseManagementPageTabs from "./[...path]/page"
 
 export default CourseManagementPageTabs

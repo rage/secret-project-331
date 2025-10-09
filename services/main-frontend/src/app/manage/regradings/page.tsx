@@ -1,18 +1,18 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "../../../components/tables/FullWidthTable"
+import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
   createNewRegrading,
   fetchAllRegradings,
   fetchRegradingsCount,
-} from "../../../services/backend/regradings"
-
+} from "@/services/backend/regradings"
 import {
   NewRegrading,
   NewRegradingIdType,

@@ -244,6 +244,7 @@ export interface ChatbotConfigurationModel {
   updated_at: string
   deleted_at: string | null
   model: string
+  default_model: boolean
   deployment_name: string
 }
 

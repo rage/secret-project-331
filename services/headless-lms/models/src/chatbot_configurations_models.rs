@@ -8,6 +8,7 @@ pub struct ChatbotConfigurationModel {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub model: String,
+    pub default_model: bool,
     pub deployment_name: String,
 }
 
@@ -38,6 +39,20 @@ WHERE deleted_at IS NULL
         "#,
     )
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_default(conn: &mut PgConnection) -> ModelResult<ChatbotConfigurationModel> {
+    let res = sqlx::query_as!(
+        ChatbotConfigurationModel,
+        r#"
+SELECT * FROM chatbot_configurations_models
+WHERE default_model = true
+AND deleted_at IS NULL
+        "#,
+    )
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

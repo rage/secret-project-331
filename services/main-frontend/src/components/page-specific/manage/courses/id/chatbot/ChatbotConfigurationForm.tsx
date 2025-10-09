@@ -138,7 +138,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   }
 
   if (getChatbotModelsList.isLoading || getChatbotModelsList.data === undefined) {
-    // todo better way?
     return <Spinner variant={"medium"} />
   }
 

@@ -533,6 +533,7 @@ export function isChatbotConfigurationModel(obj: unknown): obj is ChatbotConfigu
         (typedObj["deleted_at"] === null ||
             typeof typedObj["deleted_at"] === "string") &&
         typeof typedObj["model"] === "string" &&
+        typeof typedObj["default_model"] === "boolean" &&
         typeof typedObj["deployment_name"] === "string"
     )
 }

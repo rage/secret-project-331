@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT * FROM chatbot_configurations_models\nWHERE id = $1\nAND deleted_at IS NULL\n        ",
+  "query": "\nSELECT * FROM chatbot_configurations_models\nWHERE default_model = true\nAND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -40,9 +40,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -54,5 +52,5 @@
       true
     ]
   },
-  "hash": "a1e09322d04e740c7691c9957591a23b2778a6f0099a1165ede95931d50fc763"
+  "hash": "d17a5589e1d7539aff46b0cc1540ec92c7a488aa0acd7f3481389339ff507c5d"
 }

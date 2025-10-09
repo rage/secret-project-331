@@ -41,12 +41,15 @@ async fn create_chatbot(
         ));
     }
 
+    let model = models::chatbot_configurations_models::get_default(&mut tx).await?;
+
     let configuration = models::chatbot_configurations::insert(
         &mut tx,
         PKeyPolicy::Generate,
         NewChatbotConf {
             chatbot_name: payload.into_inner(),
             course_id: *course_id,
+            model: model.id,
             ..Default::default()
         },
     )

@@ -144,11 +144,11 @@ export const pointsColumns = [
     header: "Total",
     columns: [
       {
-        header: `Points/${chapterMeta.reduce((acc, m) => acc + m.pointsMax, 0)}`,
+        header: `Points /${chapterMeta.reduce((acc, m) => acc + m.pointsMax, 0)}`,
         accessorKey: "total_points",
       },
       {
-        header: `Attempts/${chapterMeta.reduce((acc, m) => acc + m.attemptsMax, 0)}`,
+        header: `Attempts /${chapterMeta.reduce((acc, m) => acc + m.attemptsMax, 0)}`,
         accessorKey: "total_attempted",
         meta: { altBg: true },
       },
@@ -158,11 +158,11 @@ export const pointsColumns = [
     header: meta.chapter,
     columns: [
       {
-        header: `Points/${meta.pointsMax}`,
+        header: `Points /${meta.pointsMax}`,
         accessorKey: `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_points`,
       },
       {
-        header: `Attempts/${meta.attemptsMax}`,
+        header: `Attempts /${meta.attemptsMax}`,
         accessorKey: `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_attempted`,
         meta: { altBg: true },
       },

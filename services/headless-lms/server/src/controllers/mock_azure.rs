@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-// GET /api/v0/mock_azure/test
-// POST /api/v0/mock_azure/test
+// GET /api/v0/mock_azure/test/{deployment_name}/
+// POST /api/v0/mock_azure/test/{deployment_name/
 async fn mock_azure(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult<String> {
     assert!(app_conf.test_chatbot && app_conf.test_mode);
     let a = r#"
@@ -40,6 +40,6 @@ data: [DONE]"#
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/test", web::get().to(mock_azure))
-        .route("/test", web::post().to(mock_azure));
+    cfg.route("/test/{deployment_name}/", web::get().to(mock_azure))
+        .route("/test/{deployment_name}/", web::post().to(mock_azure));
 }

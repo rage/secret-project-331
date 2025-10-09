@@ -19,7 +19,9 @@ use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use url::Url;
 
-use crate::llm_utils::{LLM_API_VERSION, build_llm_headers, estimate_tokens};
+use crate::llm_utils::{
+    LLM_API_VERSION, build_llm_headers, estimate_tokens, make_streaming_llm_request,
+};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 
@@ -401,8 +403,15 @@ pub async fn send_chat_request_and_parse_stream(
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("Chatbot configuration not found"))?;
 
+    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
+        conn,
+        chatbot_configuration_id,
+    )
+    .await?;
+
     let api_key = chatbot_config.api_key.clone();
-    let mut url = chatbot_config.api_endpoint.clone();
+    let mut url = chatbot_config.api_endpoint_first.clone();
+    url = url.join(&(model.deployment_name.clone() + &chatbot_config.api_endpoint_last))?;
 
     // Always set the API version so that we actually use the API that the code is written for
     url.set_query(Some(&format!("api-version={}", LLM_API_VERSION)));
@@ -443,6 +452,7 @@ pub async fn send_chat_request_and_parse_stream(
         .json(&chat_request)
         .send();
 
+    //let response = make_streaming_llm_request();
     let response = request.await?;
 
     info!("Receiving chat response with {:?}", response.version());

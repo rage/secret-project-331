@@ -72,7 +72,8 @@ impl ApplicationConfiguration {
 #[derive(Clone, PartialEq)]
 pub struct AzureChatbotConfiguration {
     pub api_key: String,
-    pub api_endpoint: Url,
+    pub api_endpoint_first: Url,
+    pub api_endpoint_last: String,
 }
 
 impl AzureChatbotConfiguration {
@@ -82,14 +83,22 @@ impl AzureChatbotConfiguration {
     /// Returns an error if set environment variables fail to parse.
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
         let api_key = env::var("AZURE_CHATBOT_API_KEY").ok();
-        let api_endpoint_str = env::var("AZURE_CHATBOT_API_ENDPOINT").ok();
+        let api_endpoint_str_first = env::var("AZURE_CHATBOT_API_ENDPOINT_FIRST").ok();
+        let api_endpoint_str_last = env::var("AZURE_CHATBOT_API_ENDPOINT_LAST").ok();
 
-        if let (Some(api_key), Some(api_endpoint_str)) = (api_key, api_endpoint_str) {
-            let api_endpoint = Url::parse(&api_endpoint_str)
-                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
+        if let (Some(api_key), Some(api_endpoint_str_first), Some(api_endpoint_str_last)) =
+            (api_key, api_endpoint_str_first, api_endpoint_str_last)
+        {
+            let api_endpoint_first = Url::parse(&api_endpoint_str_first)
+                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT_FIRST")?;
+            api_endpoint_first
+                .join("test")?
+                .join(&api_endpoint_str_last)
+                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT_LAST")?;
             Ok(Some(AzureChatbotConfiguration {
                 api_key,
-                api_endpoint,
+                api_endpoint_first,
+                api_endpoint_last: api_endpoint_str_last,
             }))
         } else {
             Ok(None)
@@ -218,7 +227,8 @@ impl AzureConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: "".to_string(),
-            api_endpoint: Url::from_str(&base_url)?.join("/api/v0/mock-azure/test")?,
+            api_endpoint_first: Url::parse(&base_url)?.join("/api/v0/mock-azure/test/")?,
+            api_endpoint_last: String::from("/"),
         });
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),

@@ -56,3 +56,23 @@ AND deleted_at IS NULL
     .await?;
     Ok(res)
 }
+
+pub async fn get_by_chatbot_configuration_id(
+    conn: &mut PgConnection,
+    chatbotconf_id: Uuid,
+) -> ModelResult<ChatbotConfigurationModel> {
+    let res = sqlx::query_as!(
+        ChatbotConfigurationModel,
+        r#"
+SELECT * FROM chatbot_configurations_models
+WHERE id = (
+    SELECT model FROM chatbot_configurations WHERE id = $1
+)
+AND deleted_at IS NULL
+        "#,
+        chatbotconf_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

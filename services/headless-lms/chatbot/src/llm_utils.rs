@@ -191,6 +191,7 @@ pub async fn make_streaming_llm_request(
     messages: Vec<Message>,
     temperature: f32,
     max_tokens: Option<i32>,
+    model_deployment_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<Response> {
     debug!(
@@ -221,15 +222,18 @@ pub async fn make_streaming_llm_request(
     };
 
     let headers = build_llm_headers(&chatbot_config.api_key)?;
+    let api_endpoint = chatbot_config
+        .api_endpoint_first
+        .join(&(model_deployment_name.to_owned() + &chatbot_config.api_endpoint_last))?;
     debug!(
         "Sending streaming request to LLM endpoint: {}",
-        chatbot_config.api_endpoint
+        api_endpoint
     );
 
-    dbg!(&request, &headers, &chatbot_config.api_endpoint);
+    dbg!(&request, &headers, &chatbot_config.api_endpoint_first);
 
     let response = REQWEST_CLIENT
-        .post(prepare_azure_endpoint(chatbot_config.api_endpoint.clone()))
+        .post(prepare_azure_endpoint(api_endpoint.clone()))
         .headers(headers)
         .json(&request)
         .send()
@@ -280,15 +284,17 @@ pub async fn make_blocking_llm_request(
         anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
     })?;
 
-    trace!(
-        "Making LLM request to endpoint: {}",
-        chatbot_config.api_endpoint
-    );
+    let api_endpoint = chatbot_config
+        .api_endpoint_first
+        .join("gpt-4o")?
+        .join(&chatbot_config.api_endpoint_last)?;
+
+    trace!("Making LLM request to endpoint: {}", api_endpoint);
     make_llm_request(
         messages,
         temperature,
         max_tokens,
-        &chatbot_config.api_endpoint,
+        &api_endpoint,
         &chatbot_config.api_key,
     )
     .await

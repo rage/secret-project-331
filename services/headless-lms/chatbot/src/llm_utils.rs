@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{azure_chatbot::LLMRequest, prelude::*};
 use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
@@ -19,9 +19,9 @@ pub enum MessageRole {
     Assistant,
 }
 
-/// Common message structure used for LLM requests
+/// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Message {
+pub struct APIMessage {
     pub role: MessageRole,
     pub content: String,
 }
@@ -29,7 +29,7 @@ pub struct Message {
 /// Base LLM request structure (common fields)
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BaseLlmRequest {
-    pub messages: Vec<Message>,
+    pub messages: Vec<APIMessage>,
     pub temperature: f32,
     pub max_tokens: Option<i32>,
 }
@@ -39,19 +39,19 @@ pub struct BaseLlmRequest {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AzureCompletionRequest {
     #[serde(flatten)]
-    pub base: BaseLlmRequest,
+    pub base: LLMRequest,
     pub stream: bool,
 }
 
 /// Response from LLM for simple completions
 #[derive(Deserialize, Debug)]
-pub struct LlmCompletionResponse {
-    pub choices: Vec<LlmChoice>,
+pub struct LLMCompletionResponse {
+    pub choices: Vec<LLMChoice>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct LlmChoice {
-    pub message: Message,
+pub struct LLMChoice {
+    pub message: APIMessage,
 }
 
 /// Builds common headers for LLM requests
@@ -84,6 +84,7 @@ pub fn prepare_azure_endpoint(mut endpoint: url::Url) -> url::Url {
         "Preparing Azure endpoint with API version {}",
         LLM_API_VERSION
     );
+    // Always set the API version so that we actually use the API that the code is written for
     endpoint.set_query(Some(&format!("api-version={}", LLM_API_VERSION)));
     trace!("Endpoint prepared: {}", endpoint);
     endpoint
@@ -112,30 +113,26 @@ pub fn estimate_tokens(text: &str) -> i32 {
 }
 
 /// Makes a non-streaming request to an LLM
-#[instrument(skip(messages, endpoint, api_key), fields(
-    num_messages = messages.len(),
+#[instrument(skip(chat_request, endpoint, api_key), fields(
+    num_messages = chat_request.messages.len(),
     temperature,
     max_tokens,
     endpoint = %endpoint
 ))]
 async fn make_llm_request(
-    messages: Vec<Message>,
-    temperature: f32,
-    max_tokens: Option<i32>,
+    chat_request: LLMRequest,
     endpoint: &url::Url,
     api_key: &str,
-) -> anyhow::Result<LlmCompletionResponse> {
-    debug!("Preparing LLM request with {} messages", messages.len());
-    let base_request = BaseLlmRequest {
-        messages,
-        temperature,
-        max_tokens,
-    };
+) -> anyhow::Result<LLMCompletionResponse> {
+    debug!(
+        "Preparing LLM request with {} messages",
+        chat_request.messages.len()
+    );
 
-    trace!("Base request prepared: {:?}", base_request);
+    trace!("Base request: {:?}", chat_request);
 
     let request = AzureCompletionRequest {
-        base: base_request,
+        base: chat_request,
         stream: false,
     };
 
@@ -155,7 +152,7 @@ async fn make_llm_request(
 
 /// Process a non-streaming LLM response
 #[instrument(skip(response), fields(status = %response.status()))]
-async fn process_llm_response(response: Response) -> anyhow::Result<LlmCompletionResponse> {
+async fn process_llm_response(response: Response) -> anyhow::Result<LLMCompletionResponse> {
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await?;
@@ -173,7 +170,7 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LlmCompletio
 
     trace!("Processing successful LLM response");
     // Parse the response
-    let completion: LlmCompletionResponse = response.json().await?;
+    let completion: LLMCompletionResponse = response.json().await?;
     debug!(
         "Successfully processed LLM response with {} choices",
         completion.choices.len()
@@ -182,21 +179,19 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LlmCompletio
 }
 
 /// Makes a streaming request to an LLM
-#[instrument(skip(messages, app_config), fields(
-    num_messages = messages.len(),
+#[instrument(skip(chat_request, app_config), fields(
+    num_messages = chat_request.messages.len(),
     temperature,
     max_tokens
 ))]
 pub async fn make_streaming_llm_request(
-    messages: Vec<Message>,
-    temperature: f32,
-    max_tokens: Option<i32>,
+    chat_request: LLMRequest,
     model_deployment_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<Response> {
     debug!(
         "Preparing streaming LLM request with {} messages",
-        messages.len()
+        chat_request.messages.len()
     );
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         error!("Azure configuration missing");
@@ -208,16 +203,10 @@ pub async fn make_streaming_llm_request(
         anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
     })?;
 
-    let base_request = BaseLlmRequest {
-        messages,
-        temperature,
-        max_tokens,
-    };
-
-    trace!("Base request prepared: {:?}", base_request);
+    trace!("Base request: {:?}", chat_request);
 
     let request = AzureCompletionRequest {
-        base: base_request,
+        base: chat_request,
         stream: true,
     };
 
@@ -229,8 +218,6 @@ pub async fn make_streaming_llm_request(
         "Sending streaming request to LLM endpoint: {}",
         api_endpoint
     );
-
-    dbg!(&request, &headers, &chatbot_config.api_endpoint_first);
 
     let response = REQWEST_CLIENT
         .post(prepare_azure_endpoint(api_endpoint.clone()))
@@ -259,20 +246,18 @@ pub async fn make_streaming_llm_request(
 }
 
 /// Makes a non-streaming request to an LLM using application configuration
-#[instrument(skip(messages, app_config), fields(
-    num_messages = messages.len(),
+#[instrument(skip(chat_request, app_config), fields(
+    num_messages = chat_request.messages.len(),
     temperature,
     max_tokens
 ))]
 pub async fn make_blocking_llm_request(
-    messages: Vec<Message>,
-    temperature: f32,
-    max_tokens: Option<i32>,
+    chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<LlmCompletionResponse> {
+) -> anyhow::Result<LLMCompletionResponse> {
     debug!(
         "Preparing blocking LLM request with {} messages",
-        messages.len()
+        chat_request.messages.len()
     );
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         error!("Azure configuration missing");
@@ -290,14 +275,7 @@ pub async fn make_blocking_llm_request(
         .join(&chatbot_config.api_endpoint_last)?;
 
     trace!("Making LLM request to endpoint: {}", api_endpoint);
-    make_llm_request(
-        messages,
-        temperature,
-        max_tokens,
-        &api_endpoint,
-        &chatbot_config.api_key,
-    )
-    .await
+    make_llm_request(chat_request, &api_endpoint, &chatbot_config.api_key).await
 }
 
 #[cfg(test)]

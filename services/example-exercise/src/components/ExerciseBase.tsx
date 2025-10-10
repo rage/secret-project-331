@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 
-import { ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
-
 import { baseTheme } from "@/shared-module/common/styles/theme"
+import { ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
+
 interface Props {
   alternatives: PublicAlternative[]
   selectedId: string | null

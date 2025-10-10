@@ -1,47 +1,70 @@
-import { NextApiRequest, NextApiResponse } from "next"
-
-import { Alternative, ClientErrorResponse, PublicAlternative } from "../../util/stateInterfaces"
+import { NextResponse } from "next/server"
 
 import { SpecRequest } from "@/shared-module/common/bindings"
 import { isSpecRequest } from "@/shared-module/common/bindings.guard"
+import { Alternative, ClientErrorResponse, PublicAlternative } from "@/util/stateInterfaces"
 
-export default (req: NextApiRequest, res: NextApiResponse): void => {
-  if (req.method !== "POST") {
-    return res.status(404).json({ message: "Not found" })
-  }
+function notFound() {
+  return NextResponse.json({ message: "Not found" }, { status: 404 })
+}
 
+export async function POST(req: Request): Promise<Response> {
   try {
-    if (!isSpecRequest(req.body)) {
+    const body = await req.json()
+    if (!isSpecRequest(body)) {
       throw new Error("Request was not valid.")
     }
-    return handlePost(req, res)
+    return handlePost(body as SpecRequest)
   } catch (e) {
     console.error("Public spec request failed:", e)
     if (e instanceof Error) {
-      return res.status(500).json({
+      const err: ClientErrorResponse = {
         error_name: e.name,
         error_message: e.message,
         error_stack: e.stack,
-      })
+      }
+      return NextResponse.json(err, { status: 500 })
     }
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
   }
 }
 
-function handlePost(
-  req: NextApiRequest,
-  res: NextApiResponse<PublicAlternative[] | ClientErrorResponse>,
-) {
-  const specRequest = req.body as SpecRequest
+function handlePost(specRequest: SpecRequest): Response {
   const uncheckedAlternatives: unknown = specRequest.private_spec
   if (!Array.isArray(uncheckedAlternatives)) {
-    return res
-      .status(400)
-      .json({ message: "Malformed data:" + JSON.stringify(uncheckedAlternatives) })
+    return NextResponse.json(
+      { message: "Malformed data:" + JSON.stringify(uncheckedAlternatives) },
+      { status: 400 },
+    )
   }
 
   const publicAlternatives = uncheckedAlternatives.map<PublicAlternative>((x: Alternative) => ({
     id: x.id,
     name: x.name,
   }))
-  return res.status(200).json(publicAlternatives)
+  return NextResponse.json(publicAlternatives, { status: 200 })
+}
+
+export async function GET(): Promise<Response> {
+  return notFound()
+}
+
+export async function PUT(): Promise<Response> {
+  return notFound()
+}
+
+export async function PATCH(): Promise<Response> {
+  return notFound()
+}
+
+export async function DELETE(): Promise<Response> {
+  return notFound()
+}
+
+export async function OPTIONS(): Promise<Response> {
+  return notFound()
+}
+
+export async function HEAD(): Promise<Response> {
+  return notFound()
 }

@@ -1,34 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from "next"
-
-import { Alternative, Answer } from "../../util/stateInterfaces"
+import { NextResponse } from "next/server"
 
 import {
   GradingRequest,
   GradingResult,
 } from "@/shared-module/common/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
-
-export default (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method !== "POST") {
-    return res.status(404).json({ message: "Not found" })
-  }
-
-  try {
-    if (!isNonGenericGradingRequest(req.body)) {
-      throw new Error("Invalid grading request")
-    }
-    return handlePost(req, res)
-  } catch (e) {
-    console.error("Grading request failed:", e)
-    if (e instanceof Error) {
-      return res.status(500).json({
-        error_name: e.name,
-        error_message: e.message,
-        error_stack: e.stack,
-      })
-    }
-  }
-}
+import { Alternative, Answer } from "@/util/stateInterfaces"
 
 type ExampleExerciseGradingResult = GradingResult<ExerciseFeedback | null>
 
@@ -38,11 +15,32 @@ export interface ExerciseFeedback {
 
 type ServiceGradingRequest = GradingRequest<Alternative[], Answer>
 
-const handlePost = (req: NextApiRequest, res: NextApiResponse<ExampleExerciseGradingResult>) => {
-  const gradingRequest: ServiceGradingRequest = req.body
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    if (!isNonGenericGradingRequest(body)) {
+      throw new Error("Invalid grading request")
+    }
+    return handlePost(body as ServiceGradingRequest)
+  } catch (e) {
+    console.error("Grading request failed:", e)
+    if (e instanceof Error) {
+      return NextResponse.json(
+        {
+          error_name: e.name,
+          error_message: e.message,
+          error_stack: e.stack,
+        },
+        { status: 500 },
+      )
+    }
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+  }
+}
 
+const handlePost = (gradingRequest: ServiceGradingRequest) => {
   if (!gradingRequest?.submission_data?.selectedOptionId) {
-    return res.status(200).json({
+    return NextResponse.json<ExampleExerciseGradingResult>({
       grading_progress: "FullyGraded",
       score_given: 0,
       score_maximum: 1,
@@ -55,7 +53,7 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<ExampleExerciseGra
 
   const selectedOptionSpec = gradingRequest?.exercise_spec.find((o) => o.id == selectedOptionId)
   if (!selectedOptionSpec || !selectedOptionSpec.correct) {
-    return res.status(200).json({
+    return NextResponse.json<ExampleExerciseGradingResult>({
       grading_progress: "FullyGraded",
       score_given: 0,
       score_maximum: 1,
@@ -64,7 +62,7 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<ExampleExerciseGra
     })
   }
 
-  res.status(200).json({
+  return NextResponse.json<ExampleExerciseGradingResult>({
     grading_progress: "FullyGraded",
     score_given: 1,
     score_maximum: 1,

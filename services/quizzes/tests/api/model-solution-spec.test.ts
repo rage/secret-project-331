@@ -1,15 +1,15 @@
-import handler from "../../src/pages/api/model-solution"
+import { POST } from "../../src/app/api/model-solution/route"
 import {
   ModelSolutionQuiz,
   ModelSolutionQuizItemClosedEndedQuestion,
 } from "../../types/quizTypes/modelSolutionSpec"
 
+import testClient from "./utils/appRouterTestClient"
 import { generatePrivateSpecWithOneClosedEndedQuestionQuizItem } from "./utils/privateSpecGenerator"
-import testClient from "./utils/testClient"
 
 import { SpecRequest } from "@/shared-module/common/bindings"
 
-const client = testClient(handler)
+const client = testClient(POST)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/model-solution"
 
 describe("Model solution spec generation", () => {

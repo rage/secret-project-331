@@ -7,11 +7,11 @@ import { v4 } from "uuid"
 import { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import QuizEditor from "../QuizComponents/QuizEditor"
+import { createEmptyQuizItem } from "../utils/general"
 
 import QuizItemOption, { QuizOption } from "./QuizOption"
 
 import Button from "@/shared-module/common/components/Button"
-import { createEmptyQuizItem } from "@/utils/general"
 
 interface QuizOptionProps {
   [key: string]: QuizOption

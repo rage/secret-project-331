@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 
-import { OldQuiz } from "../../../types/oldQuizTypes"
-import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
+import { OldQuiz } from "../../../../types/oldQuizTypes"
+import { ModelSolutionQuiz } from "../../../../types/quizTypes/modelSolutionSpec"
+import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../types/quizTypes/privateSpec"
 
 import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 import { isOldQuiz } from "@/util/migration/migrationSettings"

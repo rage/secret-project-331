@@ -1,26 +1,26 @@
 import request from "supertest"
 
-import handler from "../../src/pages/api/service-info"
+import { GET } from "../../src/app/api/service-info/route"
 
-import testClient from "./utils/testClient"
+import testClient from "./utils/appRouterTestClient"
 
 import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
 import { isExerciseServiceInfoApi } from "@/shared-module/common/bindings.guard"
 
 describe("service-info", () => {
   it("exists", async () => {
-    const client = testClient(handler)
+    const client = testClient(GET)
     await client.get("/api/service-info").expect("Content-Type", /json/).expect(200)
   })
 
   it("gives correct format", async () => {
-    const client = testClient(handler)
+    const client = testClient(GET)
     const response: request.Response = await client.get("/api/service-info")
     expect(isExerciseServiceInfoApi(JSON.parse(response.text)))
   })
 
   it("has correct name", async () => {
-    const client = testClient(handler)
+    const client = testClient(GET)
     const response: request.Response = await client.get("/api/service-info")
     expect(isExerciseServiceInfoApi(JSON.parse(response.text)))
     const exerciseService = JSON.parse(response.text) as ExerciseServiceInfoApi
@@ -28,7 +28,7 @@ describe("service-info", () => {
   })
 
   it("has correct paths", async () => {
-    const client = testClient(handler)
+    const client = testClient(GET)
     const response: request.Response = await client.get("/api/service-info")
     expect(isExerciseServiceInfoApi(JSON.parse(response.text)))
     const exerciseService = JSON.parse(response.text) as ExerciseServiceInfoApi

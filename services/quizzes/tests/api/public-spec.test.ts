@@ -1,4 +1,4 @@
-import handler from "../../src/pages/api/public-spec"
+import { POST } from "../../src/app/api/public-spec/route"
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
@@ -21,6 +21,7 @@ import {
   PublicSpecQuizItemTimeline,
 } from "../../types/quizTypes/publicSpec"
 
+import testClient from "./utils/appRouterTestClient"
 import {
   ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
   FAILURE_MESSAGE_CANARY_FOR_TESTS,
@@ -40,11 +41,10 @@ import {
   SUCCESS_MESSAGE_CANARY_FOR_TESTS,
   VALIDITY_REGEX_CANARY_FOR_TESTS,
 } from "./utils/privateSpecGenerator"
-import testClient from "./utils/testClient"
 
 import { SpecRequest } from "@/shared-module/common/bindings"
 
-const client = testClient(handler)
+const client = testClient(POST)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/public-spec"
 
 /**

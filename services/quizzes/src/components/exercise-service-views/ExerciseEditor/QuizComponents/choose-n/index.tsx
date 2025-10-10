@@ -5,6 +5,7 @@ import { v4 } from "uuid"
 
 import { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
+import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
@@ -14,7 +15,6 @@ import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { primaryFont } from "@/shared-module/common/styles"
-import findQuizItem from "@/utils/general"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string

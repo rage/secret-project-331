@@ -1,7 +1,6 @@
 import { UserItemAnswerTimeline } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuizItemTimeline } from "../../../types/quizTypes/privateSpec"
-
-import { clamp01, safeDivide } from "@/utils/math"
+import { clamp01, safeDivide } from "../utils/math"
 
 const assessTimeline = (
   quizItemAnswer: UserItemAnswerTimeline,

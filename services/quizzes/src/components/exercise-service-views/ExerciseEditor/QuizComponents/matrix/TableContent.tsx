@@ -3,10 +3,9 @@ import React, { useEffect, useState } from "react"
 
 import { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
+import findQuizItem from "../../utils/general"
 
 import TableCellContent from "./TableCellContent"
-
-import findQuizItem from "@/utils/general"
 
 const MatrixTableContainer = styled.table`
   margin: auto;

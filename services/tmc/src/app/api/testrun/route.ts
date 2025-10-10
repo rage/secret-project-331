@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { testRuns } from "./test"
+import { testRuns } from "../test/route"
 
 import { ClientErrorResponse } from "@/lib"
 import { RunResult } from "@/tmc/cli"

@@ -1,45 +1,47 @@
-import { NextApiRequest, NextApiResponse } from "next"
+import { NextResponse } from "next/server"
 
 import { OldQuiz } from "../../../types/oldQuizTypes"
 import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
-import { isOldQuiz } from "../../util/migration/migrationSettings"
-import migrateModelSolutionSpecQuiz from "../../util/migration/modelSolutionSpecQuiz"
 
 import { isSpecRequest } from "@/shared-module/common/bindings.guard"
+import { isOldQuiz } from "@/util/migration/migrationSettings"
+import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz"
 
-export default (req: NextApiRequest, res: NextApiResponse): void => {
+export async function POST(request: Request): Promise<Response> {
   try {
-    return handleModelSolutionGeneration(req, res)
+    const body = await request.json()
+    const modelSolution = handleModelSolutionGeneration(body)
+    return NextResponse.json(modelSolution, { status: 200 })
   } catch (e) {
     console.error("Model solution request failed:", e)
     if (e instanceof Error) {
-      return res.status(500).json({
-        error_name: e.name,
-        error_message: e.message,
-        error_stack: e.stack,
-      })
+      return NextResponse.json(
+        {
+          error_name: e.name,
+          error_message: e.message,
+          error_stack: e.stack,
+        },
+        { status: 500 },
+      )
     } else {
-      return res.status(500).json({ error_message: e })
+      return NextResponse.json({ error_message: e }, { status: 500 })
     }
   }
 }
 
-function handleModelSolutionGeneration(
-  req: NextApiRequest,
-  res: NextApiResponse<ModelSolutionQuiz>,
-) {
-  if (!isSpecRequest(req.body)) {
+function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
+  if (!isSpecRequest(body)) {
     throw new Error("Request was not valid.")
   }
-  const specRequest = req.body
+  const specRequest = body
   const quiz = specRequest.private_spec as OldQuiz | null
   if (quiz === null) {
     throw new Error("Private spec cannot be null")
   }
 
   const modelSolution = createModelSolution(quiz)
-  return res.status(200).json(modelSolution)
+  return modelSolution
 }
 
 function createModelSolution(quiz: OldQuiz | ModelSolutionQuiz): ModelSolutionQuiz {

@@ -1,7 +1,8 @@
 import { UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
 import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import { PrivateSpecQuizItemMultiplechoice } from "../../../types/quizTypes/privateSpec"
-import { clamp01, isValidNumber, safeDivide } from "../utils/math"
+
+import { clamp01, isValidNumber, safeDivide } from "@/utils/math"
 
 const getMultipleChoicePointsByGradingPolicy = (
   quizItemAnswer: UserItemAnswerMultiplechoice,

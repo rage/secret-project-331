@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import ParsedTextField from "../common/ParsedTextField"
 
@@ -16,6 +15,7 @@ import RadioButton from "@/shared-module/common/components/InputFields/RadioButt
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { primaryFont } from "@/shared-module/common/styles"
+import findQuizItem from "@/utils/general"
 
 interface ClosedEndedQuestionEditorProps {
   quizItemId: string

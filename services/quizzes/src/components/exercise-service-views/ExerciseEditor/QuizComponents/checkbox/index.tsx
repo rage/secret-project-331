@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemCheckbox } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import findQuizItem from "@/utils/general"
 
 interface CheckboxEditorProps {
   quizItemId: string

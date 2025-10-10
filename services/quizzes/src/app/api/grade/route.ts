@@ -1,12 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from "next"
+import { NextResponse } from "next/server"
 
-import { UserAnswer } from "../../../types/quizTypes/answer"
-import { ItemAnswerFeedback } from "../../../types/quizTypes/grading"
-import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
-import { assessAnswers } from "../../grading/assessment"
-import { submissionFeedback } from "../../grading/feedback"
-import { gradeAnswers } from "../../grading/grading"
-import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../grading/utils"
+import { UserAnswer } from "../../../../types/quizTypes/answer"
+import { ItemAnswerFeedback } from "../../../../types/quizTypes/grading"
+import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
+import { assessAnswers } from "../../../grading/assessment"
+import { submissionFeedback } from "../../../grading/feedback"
+import { gradeAnswers } from "../../../grading/grading"
+import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../../grading/utils"
 
 import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
@@ -15,15 +15,12 @@ import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 
 type QuizzesGradingRequest = GradingRequest<PrivateSpecQuiz, UserAnswer>
 
-const handleGradingRequest = (
-  req: NextApiRequest,
-  res: NextApiResponse<ExerciseTaskGradingResult>,
-): void => {
+function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
   // Validate grading request
-  if (!isNonGenericGradingRequest(req.body)) {
+  if (!isNonGenericGradingRequest(body)) {
     throw new Error("Invalid grading request")
   }
-  const { exercise_spec, submission_data } = req.body as QuizzesGradingRequest
+  const { exercise_spec, submission_data } = body as QuizzesGradingRequest
 
   // Migrate to newer version
   const privateSpecQuiz = handlePrivateSpecMigration(exercise_spec)
@@ -46,27 +43,53 @@ const handleGradingRequest = (
     score_maximum: exercise_spec.items.length,
   }
 
-  return res.status(200).json(responseJson)
+  return responseJson
 }
 
 /**
  * Handle grading requests
  */
-export default (req: NextApiRequest, res: NextApiResponse): void => {
-  if (req.method !== "POST") {
-    return res.status(404).json({ message: "Not found" })
-  }
-
+export async function POST(req: Request) {
   try {
-    return handleGradingRequest(req, res)
+    const body = await req.json()
+    const result = handleGradingRequest(body)
+    return NextResponse.json(result, { status: 200 })
   } catch (e) {
     console.error("Grading request failed:", e)
     if (e instanceof Error) {
-      return res.status(500).json({
-        error_name: e.name,
-        error_message: e.message,
-        error_stack: e.stack,
-      })
+      return NextResponse.json(
+        {
+          error_name: e.name,
+          error_message: e.message,
+          error_stack: e.stack,
+        },
+        { status: 500 },
+      )
     }
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ message: "Not found" }, { status: 404 })
+}
+
+export async function PUT() {
+  return NextResponse.json({ message: "Not found" }, { status: 404 })
+}
+
+export async function PATCH() {
+  return NextResponse.json({ message: "Not found" }, { status: 404 })
+}
+
+export async function DELETE() {
+  return NextResponse.json({ message: "Not found" }, { status: 404 })
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({ message: "Not found" }, { status: 404 })
+}
+
+export async function HEAD() {
+  return new Response(null, { status: 404 })
 }

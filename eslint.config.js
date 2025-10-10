@@ -449,6 +449,12 @@ const config = [
       },
     },
   },
+  {
+    files: ["**/next-env.d.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
+    },
+  },
 ]
 
 export default config

@@ -60,7 +60,7 @@ export type State =
     }
   | { viewType: "exercise-editor"; privateSpec: PrivateSpecQuiz; userInformation: UserInformation }
 
-const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
+const IFrame: React.FC = () => {
   const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
 

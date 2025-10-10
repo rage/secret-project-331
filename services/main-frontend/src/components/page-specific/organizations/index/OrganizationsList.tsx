@@ -17,7 +17,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
+const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()
   const [showCreatePopup, setShowCreatePopup] = React.useState(false)
   const { refetch } = useAllOrganizationsQuery()

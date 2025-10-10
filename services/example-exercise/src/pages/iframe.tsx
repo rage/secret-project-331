@@ -38,7 +38,7 @@ export type State =
       private_spec: Alternative[]
     }
 
-const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
+const Iframe: React.FC = () => {
   const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
 

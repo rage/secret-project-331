@@ -9,7 +9,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const GlossaryBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
+const GlossaryBlock: React.FC = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
 

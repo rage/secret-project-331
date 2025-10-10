@@ -1,6 +1,7 @@
+'use client'
+
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
-import type { AppProps } from "next/app"
 import Script from "next/script"
 import React, { useEffect, useState } from "react"
 
@@ -23,7 +24,7 @@ const SERVICE_NAME = "course-material"
 
 const i18n = initI18n(SERVICE_NAME)
 
-const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pageProps }) => {
+function RootLayout({ children }: { children: React.ReactNode }) {
   const initialLanguage = useLanguage()
   // eslint-disable-next-line i18next/no-literal-string
   const [language, setLanguage] = useState(initialLanguage ?? "en")
@@ -75,27 +76,27 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
   }, [initialLanguage])
 
   return (
-    <>
-      <Script noModule id="outdated-browser-warning">
-        {OUTDATED_BROWSER_WARNING_SCRIPT}
-      </Script>
+    <html lang={language} dir={getDir(language)}>
+      <body>
+        <Script noModule id="outdated-browser-warning">
+          {OUTDATED_BROWSER_WARNING_SCRIPT}
+        </Script>
 
-      <QueryClientProvider client={queryClient}>
-        <OverlayProvider>
-          <DialogProvider>
-            <GlobalStyles />
-            <LoginStateContextProvider>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </LoginStateContextProvider>
-          </DialogProvider>
-        </OverlayProvider>
-      </QueryClientProvider>
-    </>
+        <QueryClientProvider client={queryClient}>
+          <OverlayProvider>
+            <DialogProvider>
+              <GlobalStyles />
+              <LoginStateContextProvider>
+                <Layout>{children}</Layout>
+              </LoginStateContextProvider>
+            </DialogProvider>
+          </OverlayProvider>
+        </QueryClientProvider>
+      </body>
+    </html>
   )
 }
 
 export const reportWebVitals = generateWebVitalsReporter(SERVICE_NAME)
 
-export default withErrorBoundary(MyApp)
+export default withErrorBoundary(RootLayout)

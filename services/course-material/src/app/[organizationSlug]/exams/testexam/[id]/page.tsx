@@ -1,28 +1,31 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
+import { useParams } from "next/navigation"
 import React, { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentRenderer from "../../../../components/ContentRenderer"
-import Page from "../../../../components/Page"
-import ExamStartBanner from "../../../../components/exams/ExamStartBanner"
-import ExamTimer from "../../../../components/exams/ExamTimer"
-import ExamTimeOverModal from "../../../../components/modals/ExamTimeOverModal"
-import LayoutContext from "../../../../contexts/LayoutContext"
+import ContentRenderer from "../../../../../components/ContentRenderer"
+import Page from "../../../../../components/Page"
+import ExamStartBanner from "../../../../../components/exams/ExamStartBanner"
+import ExamTimer from "../../../../../components/exams/ExamTimer"
+import ExamTimeOverModal from "../../../../../components/modals/ExamTimeOverModal"
+import LayoutContext from "../../../../../contexts/LayoutContext"
 import PageContext, {
   CoursePageDispatch,
   getDefaultPageState,
-} from "../../../../contexts/PageContext"
-import useTime from "../../../../hooks/useTime"
-import pageStateReducer from "../../../../reducers/pageStateReducer"
+} from "../../../../../contexts/PageContext"
+import useTime from "../../../../../hooks/useTime"
+import pageStateReducer from "../../../../../reducers/pageStateReducer"
 import {
   Block,
   enrollInExam,
   fetchExamForTesting,
   resetExamProgress,
   updateShowExerciseAnswers,
-} from "../../../../services/backend"
+} from "../../../../../services/backend"
 
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -34,20 +37,13 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface ExamProps {
-  // "organizationSlug"
-  query: SimplifiedUrlQuery<string>
-}
-
-const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
+const Exam: React.FC = () => {
+  const params = useParams<{ organizationSlug: string; id: string }>()
   const { t, i18n } = useTranslation()
-  const examId = query.id
+  const examId = params.id
   const [showExamAnswers, setShowExamAnswers] = useState<boolean>(false)
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
@@ -124,8 +120,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
 
   const layoutContext = useContext(LayoutContext)
   useEffect(() => {
-    layoutContext.setOrganizationSlug(query.organizationSlug)
-  }, [layoutContext, query.organizationSlug])
+    layoutContext.setOrganizationSlug(params.organizationSlug)
+  }, [layoutContext, params.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
     await refetchExam()
@@ -324,7 +320,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
               <div>{t("exam-time-running-out-soon-help-text")}</div>
             </div>
           )}
-          <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
+          <Page onRefresh={handleRefresh} organizationSlug={params.organizationSlug} />
         </PageContext.Provider>
       </CoursePageDispatch.Provider>
       <>
@@ -377,4 +373,4 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(Exam)))
+export default withErrorBoundary(withSignedIn(Exam))

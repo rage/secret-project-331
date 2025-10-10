@@ -27,7 +27,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { RunResult } from "@/tmc/cli"
 import { extractTarZstd } from "@/util/helpers"
 
-const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
+const Iframe: React.FC = () => {
   const iframeId = v4().slice(0, 4)
 
   const [state, setState] = useState<ExerciseIframeState | null>(null)

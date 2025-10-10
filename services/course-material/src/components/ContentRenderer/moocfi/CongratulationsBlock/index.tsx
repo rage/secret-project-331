@@ -10,7 +10,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const CongratulationsBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
+const CongratulationsBlock: React.FC = () => {
   const pageContext = useContext(PageContext)
   const courseInstanceId = pageContext.instance?.id
   const getModuleCompletions = useUserModuleCompletions(courseInstanceId)

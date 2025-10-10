@@ -9,7 +9,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const CourseChapterGridBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
+const CourseChapterGridBlock: React.FC = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
 

@@ -1,4 +1,4 @@
-const MenuItem: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
+const MenuItem: React.FC<React.PropsWithChildren> = ({ children }) => {
   return <li>{children}</li>
 }
 

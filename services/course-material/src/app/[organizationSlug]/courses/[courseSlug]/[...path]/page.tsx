@@ -1,5 +1,7 @@
+'use client'
+
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useRouter, useParams } from "next/navigation"
 import React, { useCallback, useContext, useEffect, useMemo, useReducer } from "react"
 
 import Page from "../../../../components/Page"
@@ -18,19 +20,17 @@ import { fetchCoursePageByPath } from "../../../../services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import basePath from "@/shared-module/common/utils/base-path"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const PagePage: React.FC = () => {
   const layoutContext = useContext(LayoutContext)
   const router = useRouter()
-  const courseSlug = useQueryParameter("courseSlug")
-  const pathQueryParameter = useQueryParameter("path")
-  const organizationSlug = useQueryParameter("organizationSlug")
-  const path = useMemo(() => `/${pathQueryParameter}`, [pathQueryParameter])
+  const params = useParams<{ organizationSlug: string; courseSlug: string; path: string[] }>()
+  const organizationSlug = params.organizationSlug
+  const courseSlug = params.courseSlug
+  const path = useMemo(() => `/${params.path.join("/")}`, [params.path])
 
   const getCoursePageByPath = useQuery({
     queryKey: [`course-page-${courseSlug}-${path}`],
@@ -107,9 +107,7 @@ const PagePage: React.FC = () => {
       const nextJsAdjustedPath = newPath.substring(basePath().length)
 
       console.info(`Redirecting to ${newPath} (${nextJsAdjustedPath})`)
-      router.replace(nextJsAdjustedPath, undefined, {
-        shallow: true,
-      })
+      router.replace(nextJsAdjustedPath)
     }
   }, [courseSlug, getCoursePageByPath.data, router])
 
@@ -145,4 +143,4 @@ const PagePage: React.FC = () => {
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(PagePage))
+export default withErrorBoundary(PagePage)

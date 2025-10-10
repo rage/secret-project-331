@@ -1,8 +1,11 @@
+'use client'
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
 import React, { useCallback, useContext, useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next"
+import { useParams } from "next/navigation"
 
 import ContentRenderer from "../../../components/ContentRenderer"
 import Page from "../../../components/Page"
@@ -25,20 +28,13 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface ExamProps {
-  // "organizationSlug"
-  query: SimplifiedUrlQuery<string>
-}
-
-const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
+const Exam: React.FC = () => {
+  const params = useParams<{ organizationSlug: string; id: string }>()
   const { t, i18n } = useTranslation()
-  const examId = query.id
+  const examId = params.id
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
     // We don't pass a refetch function here on purpose because refetching during an exam is risky because we don't want to accidentally lose unsubmitted answers
@@ -81,8 +77,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
 
   const layoutContext = useContext(LayoutContext)
   useEffect(() => {
-    layoutContext.setOrganizationSlug(query.organizationSlug)
-  }, [layoutContext, query.organizationSlug])
+    layoutContext.setOrganizationSlug(params.organizationSlug)
+  }, [layoutContext, params.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
     await refetchExam()
@@ -346,7 +342,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             <div>{t("exam-ended-see-points-below")}</div>
           </div>
         )}
-        <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
+        <Page onRefresh={handleRefresh} organizationSlug={params.organizationSlug} />
         {!exam.data.ended && (
           <Button
             variant={"primary"}
@@ -366,4 +362,4 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(Exam)))
+export default withErrorBoundary(withSignedIn(Exam))

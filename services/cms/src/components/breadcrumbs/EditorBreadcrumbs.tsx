@@ -9,7 +9,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
-const EditorBreadcrumbs: React.FC<React.PropsWithChildren<unknown>> = () => {
+const EditorBreadcrumbs: React.FC = () => {
   const router = useRouter()
 
   const pathParts = router.asPath ? router.asPath.split("/") : []

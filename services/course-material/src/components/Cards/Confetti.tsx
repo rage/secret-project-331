@@ -17,7 +17,7 @@ const StyledDiv = styled.div`
   }
 `
 
-const Confetti: React.FC<React.PropsWithChildren<unknown>> = () => {
+const Confetti: React.FC = () => {
   return (
     <StyledDiv>
       <Particles

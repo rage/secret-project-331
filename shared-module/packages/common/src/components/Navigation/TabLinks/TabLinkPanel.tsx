@@ -1,4 +1,4 @@
-const TabLinkPanel: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
+const TabLinkPanel: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <div role={"tabpanel"} tabIndex={0}>
       {children}

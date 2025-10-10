@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Head from "next/head"
-import { useRouter } from "next/router"
+import { usePathname } from "next/navigation"
 import React, { ReactNode, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -39,7 +39,7 @@ const DynamicToaster = dynamicImport(
 const DEFAULT_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) => {
-  const router = useRouter()
+  const pathname = usePathname()
   const { i18n } = useTranslation()
 
   const [title, setTitle] = useState<string | null>(null)
@@ -126,7 +126,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
                 </NavItem>
               </NavItems>
             </NavContainer>
-            <UserNavigationControls currentPagePath={router.asPath} courseId={courseId} />
+            <UserNavigationControls currentPagePath={pathname} courseId={courseId} />
           </NavBar>
         </PageContext.Provider>
 

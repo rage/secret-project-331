@@ -9,7 +9,6 @@ import LineChart, {
 } from "../../LineChart"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface CourseVisitorsLineChartProps {
@@ -80,4 +79,4 @@ const CourseVisitorsLineChart: React.FC<React.PropsWithChildren<CourseVisitorsLi
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseVisitorsLineChart))
+export default withErrorBoundary(CourseVisitorsLineChart)

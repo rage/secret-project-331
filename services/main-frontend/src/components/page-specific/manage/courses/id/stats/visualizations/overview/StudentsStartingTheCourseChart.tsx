@@ -11,7 +11,6 @@ import LineChart, {
 
 import { useUniqueUsersStartingHistoryQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface StudentsStartingTheCourseChartProps {
@@ -52,6 +51,4 @@ const StudentsStartingTheCourseChart: React.FC<
   )
 }
 
-export default withErrorBoundary(
-  dontRenderUntilQueryParametersReady(StudentsStartingTheCourseChart),
-)
+export default withErrorBoundary(StudentsStartingTheCourseChart)

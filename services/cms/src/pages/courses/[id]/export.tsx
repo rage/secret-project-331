@@ -10,7 +10,7 @@ import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 

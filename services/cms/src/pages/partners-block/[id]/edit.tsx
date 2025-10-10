@@ -10,7 +10,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useStateQuery from "@/shared-module/common/hooks/useStateQuery"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

@@ -11,7 +11,6 @@ import LineChart, {
 
 import { useFirstExerciseSubmissionsHistoryQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface FirstSubmissionTrendsProps {
@@ -52,4 +51,4 @@ const FirstSubmissionTrends: React.FC<React.PropsWithChildren<FirstSubmissionTre
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(FirstSubmissionTrends))
+export default withErrorBoundary(FirstSubmissionTrends)

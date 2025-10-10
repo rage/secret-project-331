@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
-import { useRouter } from "next/router"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -140,8 +140,11 @@ const ExerciseBlock: React.FC<
 > = (props) => {
   const sectionRef = useRef<HTMLElement>(null)
   const exerciseTitleId = useId()
-  const router = useRouter()
-  const returnTo = useCurrentPagePathForReturnTo(router.asPath)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const returnTo = useCurrentPagePathForReturnTo(
+    pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
+  )
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()

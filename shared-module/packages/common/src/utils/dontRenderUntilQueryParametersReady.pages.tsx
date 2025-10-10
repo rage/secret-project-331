@@ -3,7 +3,7 @@
 // parameters are ready. This way parts outside the subtree can still be
 // prerendered and optimized by Next.js.
 
-import { useSearchParams } from "next/navigation"
+import { useRouter } from "next/router"
 
 const DEFAULT_DISPLAY_NAME = "Component"
 
@@ -27,26 +27,27 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
 
   const InnerComponent = (props: T) => {
     const queryParameters: NodeJS.Dict<string> = {}
-    const searchParams = useSearchParams()
-
-    // No query parameters, don't render anything
-    if (!allowNoQueryParameters && searchParams.toString().length === 0) {
+    const router = useRouter()
+    // We're a bit defensive with the null checks because the type definitions
+    // around query seem to be unreliable.
+    if (!router || !router.isReady || (!allowNoQueryParameters && !router.query)) {
       return null
     }
 
-    // Convert search params to object
-    const queryObject: Record<string, string> = {}
-    if (searchParams.toString()) {
-      searchParams.forEach((value, key) => {
-        queryObject[key] = value
-      })
+    // No query parameters, don't render anything
+    if (!allowNoQueryParameters && Object.keys(router.query).length === 0) {
+      return null
     }
 
-    for (const [key, value] of Object.entries(queryObject)) {
+    for (const [key, value] of Object.entries(router.query)) {
       if (value === undefined) {
         return null
       }
-      queryParameters[key] = value
+      let queryValue = value
+      if (Array.isArray(queryValue)) {
+        queryValue = queryValue[0]
+      }
+      queryParameters[key] = value?.toString()
     }
 
     return <WrappedComponent {...(props as T)} query={queryParameters as SimplifiedUrlQuery<P>} />

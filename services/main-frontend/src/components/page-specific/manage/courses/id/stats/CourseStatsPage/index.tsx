@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useRouter } from "next/router"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -46,16 +46,19 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 }) => {
   const { t } = useTranslation()
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState(TAB_OVERVIEW)
 
   const courseLanguageVersions = useCourseLanguageVersions(courseId)
   const courseInstances = useCourseInstancesQuery(courseId)
 
   useEffect(() => {
-    if (router.query.tab) {
-      setActiveTab(router.query.tab as string)
+    const tab = searchParams.get("tab")
+    if (tab) {
+      setActiveTab(tab)
     }
-  }, [router.query.tab])
+  }, [searchParams])
 
   const showLanguageVersionsTab = useMemo(
     () => courseLanguageVersions.isSuccess && courseLanguageVersions.data.length > 1,
@@ -82,26 +85,26 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 
       <TabLinkNavigation>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_OVERVIEW } }}
+          url={{ pathname, query: { tab: TAB_OVERVIEW } }}
           isActive={activeTab === TAB_OVERVIEW}
         >
           {t("stats-tab-overview")}
         </TabLink>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_USER_ACTIVITY } }}
+          url={{ pathname, query: { tab: TAB_USER_ACTIVITY } }}
           isActive={activeTab === TAB_USER_ACTIVITY}
         >
           {t("stats-tab-user-activity")}
         </TabLink>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_VISITORS } }}
+          url={{ pathname, query: { tab: TAB_VISITORS } }}
           isActive={activeTab === TAB_VISITORS}
         >
           {t("stats-tab-visitors")}
         </TabLink>
         {showLanguageVersionsTab && (
           <TabLink
-            url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_ALL_LANGUAGES } }}
+            url={{ pathname, query: { tab: TAB_ALL_LANGUAGES } }}
             isActive={activeTab === TAB_ALL_LANGUAGES}
           >
             {t("stats-tab-all-languages")}
@@ -110,8 +113,8 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {showCourseInstancesTab && (
           <TabLink
             url={{
-              pathname: router.pathname,
-              query: { ...router.query, tab: TAB_COURSE_INSTANCES },
+              pathname,
+              query: { tab: TAB_COURSE_INSTANCES },
             }}
             isActive={activeTab === TAB_COURSE_INSTANCES}
           >

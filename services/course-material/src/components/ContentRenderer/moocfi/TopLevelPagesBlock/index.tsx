@@ -8,7 +8,6 @@ import TopLevelPages from "./TopLevelPage"
 import PageContext from "@/contexts/PageContext"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const TopLevelPageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
@@ -31,4 +30,4 @@ const TopLevelPageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unk
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(TopLevelPageBlock))
+export default withErrorBoundary(TopLevelPageBlock)

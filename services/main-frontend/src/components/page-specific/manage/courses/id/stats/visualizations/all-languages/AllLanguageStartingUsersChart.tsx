@@ -11,7 +11,6 @@ import LineChart, {
 
 import { useUniqueUsersStartingHistoryAllLanguageVersionsQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface AllLanguageStartingUsersChartProps {
@@ -52,4 +51,4 @@ const AllLanguageStartingUsersChart: React.FC<
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(AllLanguageStartingUsersChart))
+export default withErrorBoundary(AllLanguageStartingUsersChart)

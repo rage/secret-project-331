@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useRouter, useSearchParams } from "next/navigation"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -36,7 +36,6 @@ import {
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -73,13 +72,14 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const { t } = useTranslation()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const [showResearchConsentForm, setShowResearchConsentForm] = useState<boolean>(false)
   const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
   const [shouldAnswerMissingInfoForm, setShouldAnswerMissingInfoForm] = useState<boolean>(false)
 
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
-  const researchFormQueryParam = useQueryParameter("show_research_form")
+  const researchFormQueryParam = searchParams.get("show_research_form")
   const loginContext = useContext(LoginStateContext)
   const waitingForCourseSettingsToBeFilled =
     pageContext.settings?.current_course_instance_id === null ||
@@ -90,15 +90,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   useEffect(() => {
     if (researchFormQueryParam) {
       setShowResearchConsentForm(true)
-      const newPathObject = {
-        ...router,
-      }
-
-      delete newPathObject.query.show_research_form
-
-      router.replace(newPathObject, undefined, { shallow: true })
+      const newSearchParams = new URLSearchParams(searchParams)
+      newSearchParams.delete("show_research_form")
+      const newUrl = `${window.location.pathname}${newSearchParams.toString() ? `?${newSearchParams.toString()}` : ""}`
+      router.replace(newUrl)
     }
-  }, [router, researchFormQueryParam])
+  }, [router, researchFormQueryParam, searchParams])
 
   const researchConsentFormQuery = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form`],

@@ -2,7 +2,7 @@
 import { css } from "@emotion/css"
 import _ from "lodash"
 import { orderBy } from "natural-orderby"
-import { useRouter } from "next/router"
+import { useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { v4 } from "uuid"
@@ -33,8 +33,8 @@ const Iframe: React.FC = () => {
   const [state, setState] = useState<ExerciseIframeState | null>(null)
   const [testRequestResponse, setTestRequestResponse] = useState<RunResult | null>(null)
   const [fileUploadResponse, setFileUploadResponse] = useState<UploadResultMessage | null>(null)
-  const router = useRouter()
-  const rawMaxWidth = router?.query?.width
+  const searchParams = useSearchParams()
+  const rawMaxWidth = searchParams.get("width")
   let maxWidth: number | null = 500
   if (rawMaxWidth) {
     maxWidth = Number(rawMaxWidth)

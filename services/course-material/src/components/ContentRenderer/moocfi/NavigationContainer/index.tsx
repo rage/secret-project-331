@@ -5,7 +5,6 @@ import NextPage from "./NextPage"
 import PageContext from "@/contexts/PageContext"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const NavigationContainer: React.FC<React.PropsWithChildren> = () => {
@@ -29,4 +28,4 @@ const NavigationContainer: React.FC<React.PropsWithChildren> = () => {
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(NavigationContainer))
+export default withErrorBoundary(NavigationContainer)

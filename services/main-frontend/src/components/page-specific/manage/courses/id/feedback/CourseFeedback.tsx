@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { useRouter } from "next/router"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,12 +18,15 @@ const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const [read, setRead] = useState(false)
   const { t } = useTranslation()
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (router.query.read) {
-      setRead(router.query.read === "true")
+    const readParam = searchParams.get("read")
+    if (readParam) {
+      setRead(readParam === "true")
     }
-  }, [router.query.read])
+  }, [searchParams])
 
   return (
     <div>
@@ -40,15 +43,12 @@ const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       <TabLinkNavigation>
         <TabLink
           isActive={!read}
-          url={{ pathname: router.pathname, query: { ...router.query, read: false } }}
+          url={{ pathname, query: { read: false } }}
           countHook={createUnreadFeedbackCountHook(courseId)}
         >
           {t("unread")}
         </TabLink>
-        <TabLink
-          isActive={read}
-          url={{ pathname: router.pathname, query: { ...router.query, read: true } }}
-        >
+        <TabLink isActive={read} url={{ pathname, query: { read: true } }}>
           {t("read")}
         </TabLink>
       </TabLinkNavigation>

@@ -7,7 +7,6 @@ import { fetchChaptersPagesWithExercises } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 
 const ExercisesInChapter: React.FC<
   React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>
@@ -44,4 +43,4 @@ const ExercisesInChapter: React.FC<
   )
 }
 
-export default dontRenderUntilQueryParametersReady(ExercisesInChapter)
+export default ExercisesInChapter

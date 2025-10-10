@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { useRouter } from "next/router"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,12 +18,15 @@ const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPages
   const [pending, setPending] = useState(true)
   const { t } = useTranslation()
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (router.query.pending) {
-      setPending(router.query.pending === "true")
+    const pendingParam = searchParams.get("pending")
+    if (pendingParam) {
+      setPending(pendingParam === "true")
     }
-  }, [router.query.pending])
+  }, [searchParams])
 
   return (
     <div>
@@ -40,16 +43,13 @@ const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPages
       {}
       <TabLinkNavigation>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, pending: true } }}
+          url={{ pathname, query: { pending: true } }}
           isActive={pending}
           countHook={createPendingChangeRequestCountHook(courseId)}
         >
           {t("pending")}
         </TabLink>
-        <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, pending: false } }}
-          isActive={!pending}
-        >
+        <TabLink url={{ pathname, query: { pending: false } }} isActive={!pending}>
           {t("old")}
         </TabLink>
       </TabLinkNavigation>

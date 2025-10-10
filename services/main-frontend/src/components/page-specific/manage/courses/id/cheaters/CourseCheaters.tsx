@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Gear } from "@vectopus/atlas-icons-react"
-import { useRouter } from "next/router"
+import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -29,12 +29,14 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const [archive, setArchive] = useState(false)
   const { t } = useTranslation()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (router.query.archive) {
-      setArchive(router.query.archive === "true")
+    const archiveParam = searchParams.get("archive")
+    if (archiveParam) {
+      setArchive(archiveParam === "true")
     }
-  }, [router.query.archive])
+  }, [searchParams])
 
   const [points, setPoints] = useState<number>()
   const [duration, setDuration] = useState<number>()
@@ -177,14 +179,14 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       {}
       <TabLinkNavigation>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, archive: false } }}
+          url={{ pathname: window.location.pathname, query: { archive: false } }}
           isActive={!archive}
           // countHook={createPendingChangeRequestCountHook(courseId)}
         >
           {t("suspected-student")}
         </TabLink>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, archive: true } }}
+          url={{ pathname: window.location.pathname, query: { archive: true } }}
           isActive={archive}
         >
           {t("archived")}

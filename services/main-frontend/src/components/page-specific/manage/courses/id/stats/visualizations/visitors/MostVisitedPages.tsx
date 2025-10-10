@@ -12,7 +12,6 @@ import { fetchCoursePageVisitDatumSummaryByPages } from "@/services/backend/cour
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface MostVisitedPagesProps {
@@ -136,4 +135,4 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(MostVisitedPages))
+export default withErrorBoundary(MostVisitedPages)

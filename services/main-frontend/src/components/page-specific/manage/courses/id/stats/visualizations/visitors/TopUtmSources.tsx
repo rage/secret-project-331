@@ -10,7 +10,6 @@ import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSumma
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface TopUTMSourcesProps {
@@ -118,4 +117,4 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(TopUTMSources))
+export default withErrorBoundary(TopUTMSources)

@@ -1,4 +1,4 @@
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 

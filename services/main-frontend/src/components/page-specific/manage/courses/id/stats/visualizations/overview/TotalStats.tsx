@@ -9,7 +9,6 @@ import {
 } from "@/hooks/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -143,4 +142,4 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(TotalStats))
+export default withErrorBoundary(TotalStats)

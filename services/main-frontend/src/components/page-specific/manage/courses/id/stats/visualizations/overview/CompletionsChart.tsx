@@ -11,7 +11,6 @@ import LineChart, {
 
 import { useCourseCompletionsHistoryQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface CompletionsChartProps {
@@ -52,4 +51,4 @@ const CompletionsChart: React.FC<React.PropsWithChildren<CompletionsChartProps>>
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CompletionsChart))
+export default withErrorBoundary(CompletionsChart)

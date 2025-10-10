@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { UrlObject } from "node:url"
 import React from "react"
 
@@ -25,6 +25,8 @@ const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
   const count = countHook?.()
   const path = `${useQueryParameter("path")}`
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   if (count?.isError) {
     console.error(`Could not fetch count for ${path}:\n`, count.error)
@@ -33,11 +35,11 @@ const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
   const urlObject =
     typeof url === "string"
       ? {
-          // Ensure that router.route has the [...path] defined, this way it won't become a query parameter in any case.
+          // Ensure that pathname has the [...path] defined, this way it won't become a query parameter in any case.
           // eslint-disable-next-line i18next/no-literal-string
-          pathname: path ? router.route : `${router.route}/[...path]`,
+          pathname: path ? pathname : `${pathname}/[...path]`,
           // Support for subpaths with splitting to an array.
-          query: { ...router.query, path: url ? url.split("/") : [] },
+          query: { path: url ? url.split("/") : [] },
         }
       : url
   return (

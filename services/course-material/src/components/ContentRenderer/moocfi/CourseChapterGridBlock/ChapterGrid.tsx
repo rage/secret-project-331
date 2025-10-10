@@ -14,7 +14,6 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
 
 const COLORS_ARRAY = [
@@ -136,4 +135,4 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
   )
 }
 
-export default dontRenderUntilQueryParametersReady(ChapterGrid)
+export default ChapterGrid

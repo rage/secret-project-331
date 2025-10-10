@@ -1,5 +1,5 @@
 import { dir } from "i18next"
-import { useSearchParams } from "next/navigation"
+import { useRouter } from "next/router"
 
 import { LANGUAGE_COOKIE_KEY } from "../utils/constants"
 import { getValueFromCookieString } from "../utils/cookies"
@@ -16,7 +16,6 @@ export function getDir(language: string) {
   try {
     return dir(language)
   } catch (_e) {
-    // eslint-disable-next-line i18next/no-literal-string
     return "ltr"
   }
 }
@@ -24,9 +23,12 @@ export function getDir(language: string) {
 // If language is specified with the `lang` query param, use that and save that as a langauge preference.
 // Otherwise use either the saved language preference or detect the desired language
 export default function useLanguage(): string | null {
-  const searchParams = useSearchParams()
-  const value = searchParams.get(LANGUAGE_QUERY_KEY)
-  const languageCandidate = determineLanguageFromQueryValue(value || undefined)
+  const router = useRouter()
+  if (!router || !router.isReady) {
+    return null
+  }
+  const value = router?.query[LANGUAGE_QUERY_KEY]
+  const languageCandidate = determineLanguageFromQueryValue(value)
 
   if (!languageCandidate) {
     return null
@@ -38,7 +40,7 @@ export default function useLanguage(): string | null {
 
   if (!IS_SERVER && CAN_ACCESS_COOKIES) {
     // Remember the selected language in a cookie
-    // eslint-disable-next-line i18next/no-literal-string
+
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage}; path=/; SameSite=Strict; max-age=31536000;`
 
     // Set html lang=lang attribute

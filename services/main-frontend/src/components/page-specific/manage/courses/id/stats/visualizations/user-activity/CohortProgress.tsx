@@ -6,7 +6,6 @@ import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "../../LineChart"
 
 import { useCohortActivityHistoryQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface CohortProgressProps {
@@ -44,4 +43,4 @@ const CohortProgress: React.FC<React.PropsWithChildren<CohortProgressProps>> = (
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CohortProgress))
+export default withErrorBoundary(CohortProgress)

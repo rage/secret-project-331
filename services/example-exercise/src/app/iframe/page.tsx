@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseFeedback } from "./api/grade"
+import { ExerciseFeedback } from "../api/grade/route"
 
 import Renderer from "@/components/Renderer"
 import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"

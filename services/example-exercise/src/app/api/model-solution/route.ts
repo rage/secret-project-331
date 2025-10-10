@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { SpecRequest } from "@/shared-module/common/bindings"
 import { isSpecRequest } from "@/shared-module/common/bindings.guard"
-import { ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
+import { Alternative, ModelSolutionApi } from "@/util/stateInterfaces"
 
 const methodNotFound = () => NextResponse.json({ message: "Not found" }, { status: 404 })
 
@@ -63,9 +63,9 @@ const handlePost = (specRequest: SpecRequest) => {
   }
 
   const correctAlternatives: ModelSolutionApi = {
-    correctOptionIds: uncheckedAlternatives
-      .filter((alt) => Boolean((alt as any).correct))
-      .map<string>((x: PublicAlternative) => x.id),
+    correctOptionIds: (uncheckedAlternatives as Alternative[])
+      .filter((alt) => Boolean(alt.correct))
+      .map<string>((x: Alternative) => x.id),
   }
 
   return NextResponse.json(correctAlternatives, { status: 200 })

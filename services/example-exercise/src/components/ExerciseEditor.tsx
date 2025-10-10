@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { State } from "../pages/iframe"
+import { State } from "../app/iframe/page"
 
 import ButtonEditor from "./ButtonEditor"
 

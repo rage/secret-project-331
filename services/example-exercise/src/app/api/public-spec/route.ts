@@ -19,9 +19,7 @@ export async function POST(req: Request): Promise<Response> {
     console.error("Public spec request failed:", e)
     if (e instanceof Error) {
       const err: ClientErrorResponse = {
-        error_name: e.name,
-        error_message: e.message,
-        error_stack: e.stack,
+        message: e.message,
       }
       return NextResponse.json(err, { status: 500 })
     }

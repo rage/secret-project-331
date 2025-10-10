@@ -1,8 +1,8 @@
 import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseFeedback } from "../pages/api/grade"
-import { State } from "../pages/iframe"
+import { ExerciseFeedback } from "../app/api/grade/route"
+import { State } from "../app/iframe/page"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"

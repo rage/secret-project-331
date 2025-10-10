@@ -5,16 +5,6 @@ import { useRouter } from "next/router"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { GlossaryContext, GlossaryState } from "../contexts/GlossaryContext"
-import PageContext from "../contexts/PageContext"
-import {
-  Block,
-  fetchGlossary,
-  fetchPageAudioFiles,
-  fetchResearchFormAnswersWithUserId,
-  fetchResearchFormWithCourseId,
-  getDefaultChatbotConfigurationForCourse,
-} from "../services/backend"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import AudioSpeaker from "./../img/audio-player/audio-speaker.svg"
@@ -31,8 +21,18 @@ import SelectUserInformationForm from "./forms/SelectUserInformationForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
+import { GlossaryContext, GlossaryState } from "@/contexts/GlossaryContext"
+import PageContext from "@/contexts/PageContext"
 import useHasCourseClosed from "@/hooks/useHasCourseClosed"
 import { useUserDetails } from "@/hooks/useUserDetails"
+import {
+  Block,
+  fetchGlossary,
+  fetchPageAudioFiles,
+  fetchResearchFormAnswersWithUserId,
+  fetchResearchFormWithCourseId,
+  getDefaultChatbotConfigurationForCourse,
+} from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"

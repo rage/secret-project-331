@@ -1,22 +1,18 @@
-'use client'
+"use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { useRouter, useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import React, { useCallback, useContext, useEffect, useMemo, useReducer } from "react"
 
-import Page from "../../../../components/Page"
-import PageNotFound from "../../../../components/PageNotFound"
-import CourseMaterialPageBreadcrumbs from "../../../../components/navigation/CourseMaterialPageBreadcrumbs"
-import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
-import LayoutContext from "../../../../contexts/LayoutContext"
-import PageContext, {
-  CoursePageDispatch,
-  getDefaultPageState,
-} from "../../../../contexts/PageContext"
-import useScrollToSelector from "../../../../hooks/useScrollToSelector"
-import pageStateReducer from "../../../../reducers/pageStateReducer"
-import { fetchCoursePageByPath } from "../../../../services/backend"
-
+import Page from "@/components/Page"
+import PageNotFound from "@/components/PageNotFound"
+import CourseMaterialPageBreadcrumbs from "@/components/navigation/CourseMaterialPageBreadcrumbs"
+import CourseTestModeNotification from "@/components/notifications/CourseTestModeNotification"
+import LayoutContext from "@/contexts/LayoutContext"
+import PageContext, { CoursePageDispatch, getDefaultPageState } from "@/contexts/PageContext"
+import useScrollToSelector from "@/hooks/useScrollToSelector"
+import pageStateReducer from "@/reducers/pageStateReducer"
+import { fetchCoursePageByPath } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"

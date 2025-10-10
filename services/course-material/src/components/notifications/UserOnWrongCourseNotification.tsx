@@ -4,10 +4,9 @@ import Link from "next/link"
 import React, { useContext, useMemo } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import PageContext from "../../contexts/PageContext"
-import { useCourseData } from "../../hooks/useCourseData"
-import useLanguageNavigation from "../../hooks/useLanguageNavigation"
-
+import PageContext from "@/contexts/PageContext"
+import { useCourseData } from "@/hooks/useCourseData"
+import useLanguageNavigation from "@/hooks/useLanguageNavigation"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

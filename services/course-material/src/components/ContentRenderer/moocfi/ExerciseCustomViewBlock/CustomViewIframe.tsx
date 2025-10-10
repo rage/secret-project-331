@@ -3,15 +3,14 @@ import { parseISO } from "date-fns"
 import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "../../../../contexts/PageContext"
-import useCourseInfo from "../../../../hooks/useCourseInfo"
+import PageContext from "@/contexts/PageContext"
+import useCourseInfo from "@/hooks/useCourseInfo"
 import {
   fetchCourseModuleExercisesAndSubmissionsByType,
   fetchDefaultModuleIdByCourseId,
   fetchModuleIdByChapterId,
   getAllCourseModuleCompletionsForUserAndCourseInstance,
-} from "../../../../services/backend"
-
+} from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import {

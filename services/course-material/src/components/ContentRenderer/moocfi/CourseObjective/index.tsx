@@ -4,9 +4,9 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import { HeadingAttributes, ListAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import { Block } from "../../../../services/backend"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
+import { Block } from "@/services/backend"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 

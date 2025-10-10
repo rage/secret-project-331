@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchCourseById } from "../services/backend"
+import { fetchCourseById } from "@/services/backend"
 
 export interface UseCourseDataOptions {
   courseId: string

@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchTopLevelPages } from "../../../../services/backend"
 import { coursePageRoute } from "../../../../utils/routing"
 
+import { fetchTopLevelPages } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import TopLevelPage from "@/shared-module/common/components/TopLevelPage"

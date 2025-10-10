@@ -5,14 +5,14 @@ import { i18n, TFunction } from "i18next"
 import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "../../../../contexts/PageContext"
-import useTime from "../../../../hooks/useTime"
+import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
+
+import PageContext from "@/contexts/PageContext"
+import useTime from "@/hooks/useTime"
 import {
   fetchPageNavigationData,
   fetchUserChapterInstanceChapterProgress,
-} from "../../../../services/backend"
-import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
-
+} from "@/services/backend"
 import { PageNavigationInformation } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import NextSectionLink, {

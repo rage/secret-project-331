@@ -4,8 +4,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { exerciseButtonStyles, makeExerciseButtonMutedStyles } from ".."
-import { courseMaterialExerciseQueryKey } from "../../../../../hooks/useCourseMaterialExerciseQuery"
 
+import { courseMaterialExerciseQueryKey } from "@/hooks/useCourseMaterialExerciseQuery"
 import { CourseMaterialExercise } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
 

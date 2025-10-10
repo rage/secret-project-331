@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 
-import useCourseInfo from "../../hooks/useCourseInfo"
 import languageCodesToNamesList from "../modals/LanguageCodesToNames.json"
 
+import useCourseInfo from "@/hooks/useCourseInfo"
 import Language from "@/shared-module/common/components/LanguageSelection/Language"
 import { baseTheme } from "@/shared-module/common/styles"
 

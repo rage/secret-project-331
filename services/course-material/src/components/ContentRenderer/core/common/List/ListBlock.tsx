@@ -3,11 +3,11 @@ import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import { fontSizeMapper, mobileFontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 
+import { GlossaryContext } from "@/contexts/GlossaryContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -1,6 +1,6 @@
 import React, { Dispatch } from "react"
 
-import { PageState, PageStateAction } from "../reducers/pageStateReducer"
+import { PageState, PageStateAction } from "@/reducers/pageStateReducer"
 
 export const getDefaultPageState = (refetchPage?: () => Promise<void>): PageState => ({
   state: "loading",

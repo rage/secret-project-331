@@ -3,19 +3,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "../../contexts/PageContext"
-import useLanguageNavigation from "../../hooks/useLanguageNavigation"
-import {
-  fetchCourseById,
-  fetchCourseInstances,
-  fetchUserMarketingConsent,
-  postSaveCourseSettings,
-} from "../../services/backend"
 import SelectCourseLanguage from "../SelectCourseLanguage"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 import { getLanguageName } from "./ChooseCourseLanguage"
 
+import PageContext from "@/contexts/PageContext"
+import useLanguageNavigation from "@/hooks/useLanguageNavigation"
+import {
+  fetchCourseById,
+  fetchCourseInstances,
+  fetchUserMarketingConsent,
+  postSaveCourseSettings,
+} from "@/services/backend"
 import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

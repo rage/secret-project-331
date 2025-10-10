@@ -5,11 +5,11 @@ import Zoom from "react-medium-image-zoom"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import { parseText } from "../../../util/textParsing"
 
 import { useImageInteractivity } from "./ImageInteractivityContext"
 
+import { GlossaryContext } from "@/contexts/GlossaryContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExtraAttributes {

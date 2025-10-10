@@ -4,7 +4,6 @@ import DOMPurify from "dompurify"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Block } from "../../services/backend"
 import {
   COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
   courseMaterialBlockClass,
@@ -72,6 +71,7 @@ import TableBox from "./moocfi/TableBox"
 import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
+import { Block } from "@/services/backend"
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"

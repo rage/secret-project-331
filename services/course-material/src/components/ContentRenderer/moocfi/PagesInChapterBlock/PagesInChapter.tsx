@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend"
 import { coursePageRoute } from "../../../../utils/routing"
 
+import { fetchChaptersPagesExcludeFrontpage } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PagesInChapterBox from "@/shared-module/common/components/PagesInChapterBox"
 import Spinner from "@/shared-module/common/components/Spinner"

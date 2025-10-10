@@ -1,10 +1,9 @@
 import React, { useCallback, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import LayoutContext from "../../contexts/LayoutContext"
-import PageContext from "../../contexts/PageContext"
-import useLanguageNavigation from "../../hooks/useLanguageNavigation"
-
+import LayoutContext from "@/contexts/LayoutContext"
+import PageContext from "@/contexts/PageContext"
+import useLanguageNavigation from "@/hooks/useLanguageNavigation"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LanguageSelection, {
   LanguageOption,

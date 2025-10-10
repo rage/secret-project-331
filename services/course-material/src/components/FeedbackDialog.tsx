@@ -4,12 +4,12 @@ import { useAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postFeedback } from "../services/backend"
 import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materialFeedbackStore"
 import { courseMaterialBlockClass } from "../utils/constants"
 
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
+import { postFeedback } from "@/services/backend"
 import { FeedbackBlock } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"

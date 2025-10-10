@@ -3,9 +3,9 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchAllCoursePages } from "../services/backend"
 import { coursePageRoute } from "../utils/routing"
 
+import { fetchAllCoursePages } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 

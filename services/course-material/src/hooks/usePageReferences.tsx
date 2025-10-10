@@ -4,8 +4,8 @@ import cite from "citation-js"
 import { compact } from "lodash"
 import { useContext, useEffect, useState } from "react"
 
-import PageContext from "../contexts/PageContext"
-import { fetchCourseReferences } from "../services/backend"
+import PageContext from "@/contexts/PageContext"
+import { fetchCourseReferences } from "@/services/backend"
 
 const BIBLIOGRAPHY = "bibliography"
 const EN_US = "en-US"

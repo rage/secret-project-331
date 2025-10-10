@@ -1,12 +1,11 @@
-'use client'
+"use client"
 
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import Script from "next/script"
 import React, { useEffect, useState } from "react"
 
-import Layout from "../components/layout/Layout"
-
+import Layout from "@/components/layout/Layout"
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage"

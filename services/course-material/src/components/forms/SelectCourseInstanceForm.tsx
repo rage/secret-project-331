@@ -4,14 +4,13 @@ import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
+
 import {
   fetchBackgroundQuestionsAndAnswers,
   fetchCourseById,
   updateMarketingConsent,
-} from "../../services/backend"
-
-import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
-
+} from "@/services/backend"
 import { CourseInstance, NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

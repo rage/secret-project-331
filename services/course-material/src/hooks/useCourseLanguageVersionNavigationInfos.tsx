@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchCourseLanguageVersionNavigationInfos } from "../services/backend"
-
+import { fetchCourseLanguageVersionNavigationInfos } from "@/services/backend"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 const useCourseLanguageVersionNavigationInfos = (

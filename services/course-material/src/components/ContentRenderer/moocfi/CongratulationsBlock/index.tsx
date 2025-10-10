@@ -1,10 +1,9 @@
 import React, { useContext } from "react"
 
-import PageContext from "../../../../contexts/PageContext"
-import useUserModuleCompletions from "../../../../hooks/useUserModuleCompletions"
-
 import Congratulations from "./Congratulations"
 
+import PageContext from "@/contexts/PageContext"
+import useUserModuleCompletions from "@/hooks/useUserModuleCompletions"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"

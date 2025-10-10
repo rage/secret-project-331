@@ -6,12 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
 import ContentRenderer from "../../.."
-import {
-  Block,
-  fetchPeerOrSelfReviewDataByExerciseId,
-  postFlagAnswerInPeerReview,
-  postPeerOrSelfReviewSubmission,
-} from "../../../../../services/backend"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
@@ -19,6 +13,12 @@ import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 
 import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
 
+import {
+  Block,
+  fetchPeerOrSelfReviewDataByExerciseId,
+  postFlagAnswerInPeerReview,
+  postPeerOrSelfReviewSubmission,
+} from "@/services/backend"
 import {
   CourseMaterialPeerOrSelfReviewQuestionAnswer,
   ReportReason,

@@ -1,7 +1,6 @@
 import React from "react"
 
-import usePageReferences from "../hooks/usePageReferences"
-
+import usePageReferences from "@/hooks/usePageReferences"
 import Reference from "@/shared-module/common/components/Reference"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

@@ -2,8 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchPageChapterAndCourse } from "../../services/backend"
-
+import { fetchPageChapterAndCourse } from "@/services/backend"
 import { Page } from "@/shared-module/common/bindings"
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"

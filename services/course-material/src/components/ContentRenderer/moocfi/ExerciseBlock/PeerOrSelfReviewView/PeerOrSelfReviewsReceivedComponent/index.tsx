@@ -7,10 +7,9 @@ import * as React from "react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchPeerReviewDataReceivedByExerciseId } from "../../../../../../services/backend"
-
 import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 
+import { fetchPeerReviewDataReceivedByExerciseId } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"

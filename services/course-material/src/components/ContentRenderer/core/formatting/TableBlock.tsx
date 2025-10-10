@@ -7,9 +7,9 @@ import {
   Cells,
   TableAttributes,
 } from "../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../contexts/GlossaryContext"
 import { parseText } from "../../util/textParsing"
 
+import { GlossaryContext } from "@/contexts/GlossaryContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -3,7 +3,6 @@ import { useAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { postProposedEdits } from "../services/backend"
 import {
   blockEditsAtom,
   currentlyOpenFeedbackDialogAtom,
@@ -12,6 +11,7 @@ import {
 
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
+import { postProposedEdits } from "@/services/backend"
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"

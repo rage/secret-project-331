@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
-import { fetchChaptersPagesWithExercises } from "../../../../services/backend"
-
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
+import { fetchChaptersPagesWithExercises } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"

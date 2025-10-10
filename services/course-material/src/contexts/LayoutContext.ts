@@ -1,6 +1,6 @@
 import { createContext } from "react"
 
-import { PageState } from "../reducers/pageStateReducer"
+import { PageState } from "@/reducers/pageStateReducer"
 
 interface LayoutContextType {
   title: string | null

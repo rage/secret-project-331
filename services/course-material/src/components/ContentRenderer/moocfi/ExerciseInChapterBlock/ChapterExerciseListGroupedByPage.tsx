@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { fetchUserCourseInstanceChapterExercisesProgress } from "../../../../services/backend"
 import { coursePageSectionRoute } from "../../../../utils/routing"
 
+import { fetchUserCourseInstanceChapterExercisesProgress } from "@/services/backend"
 import { PageWithExercises } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import ExerciseBox from "@/shared-module/common/components/ExerciseList/ExerciseBox"

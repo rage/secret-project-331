@@ -8,12 +8,6 @@ import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } f
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import PageContext from "../../../../contexts/PageContext"
-import useCourseMaterialExerciseQuery, {
-  courseMaterialExerciseQueryKey,
-} from "../../../../hooks/useCourseMaterialExerciseQuery"
-import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
-import { postStartPeerOrSelfReview, postSubmission } from "../../../../services/backend"
 import YellowBox from "../../../YellowBox"
 import UserOnWrongCourseNotification from "../../../notifications/UserOnWrongCourseNotification"
 
@@ -23,6 +17,12 @@ import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
+import PageContext from "@/contexts/PageContext"
+import useCourseMaterialExerciseQuery, {
+  courseMaterialExerciseQueryKey,
+} from "@/hooks/useCourseMaterialExerciseQuery"
+import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/exerciseBlockPostThisStateToIFrameReducer"
+import { postStartPeerOrSelfReview, postSubmission } from "@/services/backend"
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,

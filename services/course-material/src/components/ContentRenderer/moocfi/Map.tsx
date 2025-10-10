@@ -4,16 +4,11 @@ import { useQuery } from "@tanstack/react-query"
 import React, { Fragment, useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "../../../contexts/PageContext"
-import {
-  fetchStudentCountries,
-  fetchStudentCountry,
-  postStudentCountry,
-} from "../../../services/backend"
-
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
 
+import PageContext from "@/contexts/PageContext"
+import { fetchStudentCountries, fetchStudentCountry, postStudentCountry } from "@/services/backend"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"

@@ -2,10 +2,10 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import PageContext from "../../../../contexts/PageContext"
 
 import PagesInChapter from "./PagesInChapter"
 
+import PageContext from "@/contexts/PageContext"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"

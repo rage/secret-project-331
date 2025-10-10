@@ -2,9 +2,9 @@ import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
-import { GlossaryContext } from "../../../contexts/GlossaryContext"
 import { parseText } from "../../ContentRenderer/util/textParsing"
 
+import { GlossaryContext } from "@/contexts/GlossaryContext"
 import { headingFont, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

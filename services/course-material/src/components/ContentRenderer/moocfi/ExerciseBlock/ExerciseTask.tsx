@@ -4,10 +4,10 @@ import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
-import { Block } from "../../../../services/backend"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
+import { Block } from "@/services/backend"
 import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { ExerciseIframeState } from "@/shared-module/common/exercise-service-protocol-types"

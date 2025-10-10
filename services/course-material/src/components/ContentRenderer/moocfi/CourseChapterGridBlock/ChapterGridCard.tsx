@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import { useTranslation } from "react-i18next"
 
-import { fetchPageUrl } from "../../../../services/backend"
 import { coursePageRoute } from "../../../../utils/routing"
 
+import { fetchPageUrl } from "@/services/backend"
 import { ChapterWithStatus } from "@/shared-module/common/bindings"
 import Card from "@/shared-module/common/components/Card"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

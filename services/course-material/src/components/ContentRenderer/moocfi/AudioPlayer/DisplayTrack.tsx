@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 import { RefObject, useContext, useMemo } from "react"
 
-import PageContext from "../../../../contexts/PageContext"
 import { AudioFile } from "../../../Page"
 
+import PageContext from "@/contexts/PageContext"
 import { headingFont } from "@/shared-module/common/styles"
 
 interface DisplayTrackProps {

@@ -3,11 +3,11 @@ import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import PageContext from "../../../../contexts/PageContext"
-import { fetchUserCourseProgress } from "../../../../services/backend"
 
 import CourseProgress from "./CourseProgress"
 
+import PageContext from "@/contexts/PageContext"
+import { fetchUserCourseProgress } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"

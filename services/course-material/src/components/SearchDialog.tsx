@@ -7,9 +7,9 @@ import { useTranslation } from "react-i18next"
 // useDebounce from "usehooks-ts" doesn't seem to work
 import { useDebounce } from "use-debounce"
 
-import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend"
 import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
+import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/backend"
 import { PageSearchResult } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import Spinner from "@/shared-module/common/components/Spinner"

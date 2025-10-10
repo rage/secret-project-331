@@ -3,15 +3,15 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CheckboxContext } from "../../contexts/CheckboxContext"
-import PageContext from "../../contexts/PageContext"
+import ContentRenderer from "../ContentRenderer"
+
+import { CheckboxContext } from "@/contexts/CheckboxContext"
+import PageContext from "@/contexts/PageContext"
 import {
   Block,
   fetchResearchFormQuestionsWithCourseId,
   postResearchFormUserAnswer,
-} from "../../services/backend"
-import ContentRenderer from "../ContentRenderer"
-
+} from "@/services/backend"
 import { ResearchForm, ResearchFormQuestionAnswer } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"

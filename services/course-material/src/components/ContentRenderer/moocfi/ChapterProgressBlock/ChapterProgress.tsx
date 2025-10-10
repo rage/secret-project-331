@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchUserChapterInstanceChapterProgress } from "../../../../services/backend"
 import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
 
+import { fetchUserChapterInstanceChapterProgress } from "@/services/backend"
 import Progress from "@/shared-module/common/components/CourseProgress"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

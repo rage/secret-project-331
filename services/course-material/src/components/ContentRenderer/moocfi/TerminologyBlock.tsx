@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
-import { GlossaryContext } from "../../../contexts/GlossaryContext"
 import { parseText } from "../../ContentRenderer/util/textParsing"
 import InnerBlocks from "../util/InnerBlocks"
 
+import { GlossaryContext } from "@/contexts/GlossaryContext"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

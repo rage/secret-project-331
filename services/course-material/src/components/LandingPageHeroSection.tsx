@@ -3,12 +3,12 @@ import styled from "@emotion/styled"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { GlossaryContext } from "../contexts/GlossaryContext"
-import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
 import { escapeUrlForCss } from "../utils/sanitizeCourseMaterialHtml"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
+import { GlossaryContext } from "@/contexts/GlossaryContext"
+import { useCornerTapFlip } from "@/hooks/useCornerTapFlip"
 import Button from "@/shared-module/common/components/Button"
 import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
 import { baseTheme } from "@/shared-module/common/styles"

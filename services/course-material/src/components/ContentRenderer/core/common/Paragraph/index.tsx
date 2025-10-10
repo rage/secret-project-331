@@ -3,12 +3,12 @@ import React, { useContext, useMemo } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import { parseText } from "../../../util/textParsing"
 
 import EditingParagraph from "./proposing-edits/EditingParagraph"
 import { getParagraphStyles } from "./styles"
 
+import { GlossaryContext } from "@/contexts/GlossaryContext"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentlyOpenFeedbackDialogAtom } from "@/stores/materialFeedbackStore"

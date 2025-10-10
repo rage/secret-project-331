@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchUserModuleCompletionStatuses } from "../services/backend"
-
+import { fetchUserModuleCompletionStatuses } from "@/services/backend"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 const useUserModuleCompletions = (courseInstanceId: string | undefined | null) => {

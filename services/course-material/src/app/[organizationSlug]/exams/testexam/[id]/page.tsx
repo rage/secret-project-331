@@ -7,26 +7,22 @@ import { useParams } from "next/navigation"
 import React, { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentRenderer from "../../../../../components/ContentRenderer"
-import Page from "../../../../../components/Page"
-import ExamStartBanner from "../../../../../components/exams/ExamStartBanner"
-import ExamTimer from "../../../../../components/exams/ExamTimer"
-import ExamTimeOverModal from "../../../../../components/modals/ExamTimeOverModal"
-import LayoutContext from "../../../../../contexts/LayoutContext"
-import PageContext, {
-  CoursePageDispatch,
-  getDefaultPageState,
-} from "../../../../../contexts/PageContext"
-import useTime from "../../../../../hooks/useTime"
-import pageStateReducer from "../../../../../reducers/pageStateReducer"
+import ContentRenderer from "@/components/ContentRenderer"
+import Page from "@/components/Page"
+import ExamStartBanner from "@/components/exams/ExamStartBanner"
+import ExamTimer from "@/components/exams/ExamTimer"
+import ExamTimeOverModal from "@/components/modals/ExamTimeOverModal"
+import LayoutContext from "@/contexts/LayoutContext"
+import PageContext, { CoursePageDispatch, getDefaultPageState } from "@/contexts/PageContext"
+import useTime from "@/hooks/useTime"
+import pageStateReducer from "@/reducers/pageStateReducer"
 import {
   Block,
   enrollInExam,
   fetchExamForTesting,
   resetExamProgress,
   updateShowExerciseAnswers,
-} from "../../../../../services/backend"
-
+} from "@/services/backend"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

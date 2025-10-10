@@ -2,10 +2,9 @@ import { css } from "@emotion/css"
 import React, { useCallback, useContext, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "../contexts/PageContext"
-
 import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
 
+import PageContext from "@/contexts/PageContext"
 import useCourseLanguageVersionNavigationInfos from "@/hooks/useCourseLanguageVersionNavigationInfos"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

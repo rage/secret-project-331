@@ -1,10 +1,10 @@
 import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
-import PageContext from "../../../contexts/PageContext"
-import useUserModuleCompletions from "../../../hooks/useUserModuleCompletions"
 import InnerBlocks from "../util/InnerBlocks"
 
+import PageContext from "@/contexts/PageContext"
+import useUserModuleCompletions from "@/hooks/useUserModuleCompletions"
 import { UserCourseSettings } from "@/shared-module/common/bindings"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 

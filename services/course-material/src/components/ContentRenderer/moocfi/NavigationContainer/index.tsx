@@ -1,9 +1,8 @@
 import React, { useContext } from "react"
 
-import PageContext from "../../../../contexts/PageContext"
-
 import NextPage from "./NextPage"
 
+import PageContext from "@/contexts/PageContext"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"

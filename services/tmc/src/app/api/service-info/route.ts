@@ -1,24 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from "next"
+import { NextResponse } from "next/server"
 
-import { ClientErrorResponse } from "../../lib"
-
+import { ClientErrorResponse } from "@/lib"
 import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
 import basePath from "@/shared-module/common/utils/base-path"
 
-export default (
-  req: NextApiRequest,
-  res: NextApiResponse<ExerciseServiceInfoApi | ClientErrorResponse>,
-): void => {
-  if (req.method !== "GET") {
-    return res.status(404).json({ message: "Not found" })
-  }
-
-  return handleGet(req, res)
-}
-
-const handleGet = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInfoApi>) => {
+export function GET() {
   const prefix = basePath()
-  res.json({
+  return NextResponse.json<ExerciseServiceInfoApi>({
     service_name: "TMC",
     user_interface_iframe_path: `${prefix}/iframe`,
     grade_endpoint_path: `${prefix}/api/grade`,
@@ -26,3 +14,14 @@ const handleGet = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInf
     model_solution_spec_endpoint_path: `${prefix}/api/model-solution`,
   })
 }
+
+function methodNotFound() {
+  return NextResponse.json<ClientErrorResponse>({ message: "Not found" }, { status: 404 })
+}
+
+export const HEAD = methodNotFound
+export const POST = methodNotFound
+export const PUT = methodNotFound
+export const PATCH = methodNotFound
+export const DELETE = methodNotFound
+export const OPTIONS = methodNotFound

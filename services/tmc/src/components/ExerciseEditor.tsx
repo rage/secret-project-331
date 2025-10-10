@@ -2,10 +2,9 @@
 import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseEditorState, ExerciseIframeState } from "../util/stateInterfaces"
-
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import { ExerciseEditorState, ExerciseIframeState } from "@/util/stateInterfaces"
 
 interface Props {
   state: ExerciseEditorState

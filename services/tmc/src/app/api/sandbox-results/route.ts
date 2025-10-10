@@ -1,22 +1,10 @@
 import axios from "axios"
-import type { NextApiRequest, NextApiResponse } from "next"
+import { NextResponse } from "next/server"
 
-import { ClientErrorResponse, ExerciseFeedback } from "../../lib"
-
+import { ClientErrorResponse, ExerciseFeedback } from "@/lib"
 import { GradingResult } from "@/shared-module/common/exercise-service-protocol-types-2"
 
 // Endpoint for the sandbox to report test results
-export default async (
-  req: NextApiRequest,
-  res: NextApiResponse<void | ClientErrorResponse>,
-): Promise<void> => {
-  if (req.method !== "POST") {
-    return res.status(404).json({ message: "Not found" })
-  }
-
-  // verify that the request is coming from sandbox?
-  return await handlePost(req, res)
-}
 
 interface TestResults {
   success: boolean
@@ -26,9 +14,13 @@ interface TestResults {
   stderr: string
 }
 
-const handlePost = async (req: NextApiRequest, res: NextApiResponse<void>): Promise<void> => {
+const notFound = (): NextResponse => {
+  return NextResponse.json({ message: "Not found" } as ClientErrorResponse, { status: 404 })
+}
+
+const handlePost = async (request: Request): Promise<Response> => {
   // guard
-  const testResults: TestResults = req.body
+  const testResults: TestResults = await request.json()
 
   // test results to grading result
   const grading: GradingResult<ExerciseFeedback> = {
@@ -42,5 +34,34 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse<void>): Prom
   // send grading to lms
   await axios.post("lms/something", grading)
 
-  return res.status(200).send()
+  return new Response(null, { status: 200 })
+}
+
+export async function POST(request: Request): Promise<Response> {
+  // verify that the request is coming from sandbox?
+  return await handlePost(request)
+}
+
+export function GET(): NextResponse {
+  return notFound()
+}
+
+export function PUT(): NextResponse {
+  return notFound()
+}
+
+export function PATCH(): NextResponse {
+  return notFound()
+}
+
+export function DELETE(): NextResponse {
+  return notFound()
+}
+
+export function HEAD(): NextResponse {
+  return notFound()
+}
+
+export function OPTIONS(): NextResponse {
+  return notFound()
 }

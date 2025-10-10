@@ -1,13 +1,12 @@
 import _ from "lodash"
 import React from "react"
 
-import { ExerciseIframeState, PublicSpec, UserAnswer } from "../util/stateInterfaces"
-
 import AnswerBrowserExercise from "./AnswerBrowserExercise"
 import AnswerEditorExercise from "./AnswerEditorExercise"
 
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
 import { RunResult } from "@/tmc/cli"
+import { ExerciseIframeState, PublicSpec, UserAnswer } from "@/util/stateInterfaces"
 
 interface Props {
   publicSpec: PublicSpec

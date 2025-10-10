@@ -1,59 +1,56 @@
 import axios from "axios"
 import FormData from "form-data"
 import * as fs from "fs"
-import { NextApiRequest, NextApiResponse } from "next"
+import { NextResponse } from "next/server"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
-import { ClientErrorResponse, downloadStream } from "../../lib"
+import { ClientErrorResponse, downloadStream } from "@/lib"
+import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
+import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
+import { isObjectMap } from "@/shared-module/common/utils/fetching"
 import {
   compressProject,
   extractProject,
   getExercisePackagingConfiguration,
   prepareStub,
-} from "../../tmc/langs"
-import { PrivateSpec, PublicSpec } from "../../util/stateInterfaces"
-
-import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
-import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
-import { isObjectMap } from "@/shared-module/common/utils/fetching"
+} from "@/tmc/langs"
 import { buildArchiveName } from "@/util/helpers"
+import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
 
-export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+export const runtime = "nodejs"
+
+export async function POST(request: Request): Promise<Response> {
   try {
-    const specRequest = req.body as SpecRequest
+    const specRequest = (await request.json()) as SpecRequest
     const requestId = specRequest.request_id.slice(0, 4)
 
-    if (req.method !== "POST") {
-      return badRequest(requestId, res, "Wrong method")
-    }
     let uploadClaim: string | null = null
-    const uploadClaimHeader = req.headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER]
+    const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
     if (typeof uploadClaimHeader === "string") {
       uploadClaim = uploadClaimHeader
     }
 
-    return await processPublicSpec(res, requestId, specRequest, uploadClaim)
+    return await processPublicSpec(requestId, specRequest, uploadClaim)
   } catch (err) {
-    return internalServerError("----", res, "Error while processing request", err)
+    return internalServerError("----", "Error while processing request", err)
   }
 }
 
 async function processPublicSpec(
-  res: NextApiResponse<PublicSpec | ClientErrorResponse>,
   requestId: string,
   specRequest: SpecRequest,
   uploadClaim: string | null,
-): Promise<void> {
+): Promise<Response> {
   try {
     log(requestId, "Processing public spec")
 
     const { private_spec, upload_url } = specRequest
     const privateSpec = private_spec as PrivateSpec | null
     if (privateSpec === null) {
-      return badRequest(requestId, res, "Private spec cannot be null")
+      return badRequest(requestId, "Private spec cannot be null")
     }
     if (upload_url === null) {
-      return badRequest(requestId, res, "Missing upload URL")
+      return badRequest(requestId, "Missing upload URL")
     }
 
     debug(requestId, "preparing stub dir")
@@ -68,9 +65,9 @@ async function processPublicSpec(
       upload_url,
       uploadClaim,
     )
-    return ok(res, publicSpec)
+    return ok(publicSpec)
   } catch (err) {
-    return internalServerError(requestId, res, "Error while processing the public spec", err)
+    return internalServerError(requestId, "Error while processing the public spec", err)
   }
 }
 
@@ -129,35 +126,28 @@ const uploadPublicSpec = async (
 
 // response helpers
 
-const ok = (res: NextApiResponse<PublicSpec>, publicSpec: PublicSpec): void => {
-  res.status(200).json(publicSpec)
+const ok = (publicSpec: PublicSpec): Response => {
+  return NextResponse.json(publicSpec, { status: 200 })
 }
 
-const badRequest = (
-  requestId: string,
-  res: NextApiResponse<ClientErrorResponse>,
-  contextMessage: string,
-  error?: unknown,
-): void => {
-  errorResponse(requestId, res, 400, contextMessage, error)
+const badRequest = (requestId: string, contextMessage: string, error?: unknown): Response => {
+  return errorResponse(requestId, 400, contextMessage, error)
 }
 
 const internalServerError = (
   requestId: string,
-  res: NextApiResponse<ClientErrorResponse>,
   contextMessage: string,
   error?: unknown,
-): void => {
-  errorResponse(requestId, res, 500, contextMessage, error)
+): Response => {
+  return errorResponse(requestId, 500, contextMessage, error)
 }
 
 const errorResponse = (
   requestId: string,
-  res: NextApiResponse<ClientErrorResponse>,
   statusCode: number,
   contextMessage: string,
   err?: unknown,
-) => {
+): Response => {
   let message
   if (err instanceof Error) {
     message = `${contextMessage}: ${err.message}`
@@ -170,7 +160,7 @@ const errorResponse = (
     message = `${contextMessage}: ${JSON.stringify(err, undefined, 2)}`
   }
   error(requestId, message)
-  res.status(statusCode).json({ message })
+  return NextResponse.json({ message } as ClientErrorResponse, { status: statusCode })
 }
 
 // logging helpers

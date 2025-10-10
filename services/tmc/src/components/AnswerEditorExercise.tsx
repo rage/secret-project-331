@@ -1,10 +1,9 @@
 import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PublicSpec } from "../util/stateInterfaces"
-
 import Button from "@/shared-module/common/components/Button"
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
+import { PublicSpec } from "@/util/stateInterfaces"
 
 interface Props {
   publicSpec: PublicSpec

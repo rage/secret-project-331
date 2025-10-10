@@ -1,51 +1,47 @@
 import * as k8s from "@kubernetes/client-node"
 import axios from "axios"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
-import { NextApiRequest, NextApiResponse } from "next"
 import path from "path"
 import internal from "stream"
 import { temporaryDirectory, temporaryFile } from "tempy"
 import { v4 } from "uuid"
 
-import { ClientErrorResponse, downloadStream, initKubeApi, initKubeConfig } from "../../lib"
-import { isRunResult } from "../../tmc/cli.guard"
+import { ClientErrorResponse, downloadStream, initKubeApi, initKubeConfig } from "@/lib"
+import { ExerciseTaskGradingResult, GradingProgress } from "@/shared-module/common/bindings"
+import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
+import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
+import { isRunResult } from "@/tmc/cli.guard"
 import {
   compressProject,
   extractProject,
   fastAvailablePoints,
   prepareSubmission,
-} from "../../tmc/langs"
-import { PrivateSpec, UserAnswer } from "../../util/stateInterfaces"
-
-import { ExerciseTaskGradingResult, GradingProgress } from "@/shared-module/common/bindings"
-import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
-import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
-import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
+} from "@/tmc/langs"
+import { PrivateSpec, UserAnswer } from "@/util/stateInterfaces"
 
 const DEFAULT_TASK_TIMEOUT_MS = 60000
 
-export default async (
-  req: NextApiRequest,
-  res: NextApiResponse<ExerciseTaskGradingResult | ClientErrorResponse>,
-): Promise<void> => {
+export async function POST(request: Request): Promise<Response> {
   try {
-    if (req.method !== "POST") {
-      return badRequest(res, "Wrong method")
-    }
-    if (!isNonGenericGradingRequest(req.body)) {
+    const body = await request.json()
+
+    if (!isNonGenericGradingRequest(body)) {
       throw new Error("Invalid grading request")
     }
 
-    const specRequest = req.body as TmcGradingRequest
+    const specRequest = body as TmcGradingRequest
     let gradingUpdateClaim: string | null = null
-    const gradingUpdateClaimHeader = req.headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER]
+    const gradingUpdateClaimHeader = request.headers.get(
+      EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER,
+    )
     if (typeof gradingUpdateClaimHeader === "string") {
       gradingUpdateClaim = gradingUpdateClaimHeader
     }
 
-    return await processGrading(specRequest, gradingUpdateClaim, res)
+    return await processGrading(specRequest, gradingUpdateClaim)
   } catch (err) {
-    return internalServerError(res, "Error while processing request", err)
+    return internalServerError("Error while processing request", err)
   }
 }
 
@@ -54,8 +50,7 @@ type TmcGradingRequest = GradingRequest<PrivateSpec, UserAnswer>
 const processGrading = async (
   req: TmcGradingRequest,
   gradingUpdateClaim: string | null,
-  res: NextApiResponse<ExerciseTaskGradingResult | ClientErrorResponse>,
-): Promise<void> => {
+): Promise<Response> => {
   try {
     const { exercise_spec, submission_data, grading_update_url } = req
 
@@ -82,7 +77,7 @@ const processGrading = async (
       await compressProject(submissionDir, submissionArchivePath, "zstd", true, log)
       extractSubmissionNaively = true
     } else {
-      return badRequest(res, `unexpected submission type '${exercise_spec.type}'`)
+      return badRequest(`unexpected submission type '${exercise_spec.type}'`)
     }
 
     debug("downloading exercise template")
@@ -107,51 +102,54 @@ const processGrading = async (
     log("grading in pod")
     const pendingSubmission = gradeInPod(preparedSubmissionArchivePath, sandboxImage, points)
 
-    // inner try, we should send a grading update in any case
-    try {
-      // let the server know the grading request has been received
-      ok(res, {
-        grading_progress: "Pending",
-        score_given: 0,
-        score_maximum: 0,
-        feedback_text: null,
-        feedback_json: null,
-      })
+    // let the server know the grading request has been received
+    const initialResponse = ok({
+      grading_progress: "Pending",
+      score_given: 0,
+      score_maximum: 0,
+      feedback_text: null,
+      feedback_json: null,
+    })
 
-      // wait for the grading to finish and send the finished grading
-      log("waiting for the grading")
-      const gradingResult = await pendingSubmission
-      log(`sending grading to ${grading_update_url}`)
-      const headers: Record<string, string> = {}
-      if (gradingUpdateClaim) {
-        headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] = gradingUpdateClaim
-      }
-      await axios.post(grading_update_url, gradingResult, {
-        headers,
-      })
-    } catch (err) {
+    // wait for the grading to finish and send the finished grading
+    ;(async () => {
       try {
-        error("Error while grading, sending failed grading update")
-        const errorGradingResult: ExerciseTaskGradingResult = {
-          grading_progress: "Failed",
-          score_given: 0,
-          score_maximum: 0,
-          feedback_text: `Error while grading: ${err}`,
-          feedback_json: null,
-        }
+        log("waiting for the grading")
+        const gradingResult = await pendingSubmission
+        log(`sending grading to ${grading_update_url}`)
         const headers: Record<string, string> = {}
         if (gradingUpdateClaim) {
           headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] = gradingUpdateClaim
         }
-        await axios.post(grading_update_url, errorGradingResult, {
+        await axios.post(grading_update_url, gradingResult, {
           headers,
         })
-      } catch (_err) {
-        error("Failed to send failed grading update")
+      } catch (err) {
+        try {
+          error("Error while grading, sending failed grading update")
+          const errorGradingResult: ExerciseTaskGradingResult = {
+            grading_progress: "Failed",
+            score_given: 0,
+            score_maximum: 0,
+            feedback_text: `Error while grading: ${err}`,
+            feedback_json: null,
+          }
+          const headers: Record<string, string> = {}
+          if (gradingUpdateClaim) {
+            headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] = gradingUpdateClaim
+          }
+          await axios.post(grading_update_url, errorGradingResult, {
+            headers,
+          })
+        } catch (_err) {
+          error("Failed to send failed grading update")
+        }
       }
-    }
+    })()
+
+    return initialResponse
   } catch (e) {
-    return internalServerError(res, "Error while processing grading", e)
+    return internalServerError("Error while processing grading", e)
   }
 }
 
@@ -396,35 +394,19 @@ const execWithTimeout = async (
 
 // response helpers
 
-const ok = (
-  res: NextApiResponse<ExerciseTaskGradingResult>,
-  modelSolutionSpec: ExerciseTaskGradingResult,
-): void => {
-  res.status(200).json(modelSolutionSpec)
+const ok = (modelSolutionSpec: ExerciseTaskGradingResult): Response => {
+  return Response.json(modelSolutionSpec, { status: 200 })
 }
 
-const badRequest = (
-  res: NextApiResponse<ClientErrorResponse>,
-  contextMessage: string,
-  error?: unknown,
-): void => {
-  errorResponse(res, 400, contextMessage, error)
+const badRequest = (contextMessage: string, error?: unknown): Response => {
+  return errorResponse(400, contextMessage, error)
 }
 
-const internalServerError = (
-  res: NextApiResponse<ClientErrorResponse>,
-  contextMessage: string,
-  err?: unknown,
-): void => {
-  errorResponse(res, 500, contextMessage, err)
+const internalServerError = (contextMessage: string, err?: unknown): Response => {
+  return errorResponse(500, contextMessage, err)
 }
 
-const errorResponse = (
-  res: NextApiResponse<ClientErrorResponse>,
-  statusCode: number,
-  contextMessage: string,
-  err?: unknown,
-) => {
+const errorResponse = (statusCode: number, contextMessage: string, err?: unknown): Response => {
   let message
   let stack = undefined
   if (err instanceof Error) {
@@ -439,7 +421,8 @@ const errorResponse = (
     message = `${contextMessage}: ${JSON.stringify(err, undefined, 2)}`
   }
   error(message, stack)
-  res.status(statusCode).json({ message })
+  const body: ClientErrorResponse = { message }
+  return Response.json(body, { status: statusCode })
 }
 
 // logging helpers

@@ -3,11 +3,10 @@ import _ from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseFile, ExerciseIframeState, PublicSpec } from "../util/stateInterfaces"
-
 import Button from "@/shared-module/common/components/Button"
 import { RunResult } from "@/tmc/cli"
 import { runBrowserTests, waitForTestResults } from "@/util/requests"
+import { ExerciseFile, ExerciseIframeState, PublicSpec } from "@/util/stateInterfaces"
 
 interface Props {
   publicSpec: PublicSpec

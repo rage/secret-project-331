@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import _ from "lodash"
@@ -7,17 +8,7 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
-import StateRenderer from "../components/StateRenderer"
-import {
-  CurrentStateMessageData,
-  ExerciseIframeState,
-  MessageToParent,
-  ModelSolutionSpec,
-  PrivateSpec,
-  PublicSpec,
-  UserAnswer,
-} from "../util/stateInterfaces"
-
+import StateRenderer from "@/components/StateRenderer"
 import { ExerciseTaskSubmission } from "@/shared-module/common/bindings"
 import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
@@ -26,6 +17,15 @@ import useExerciseServiceParentConnection from "@/shared-module/common/hooks/use
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { RunResult } from "@/tmc/cli"
 import { extractTarZstd } from "@/util/helpers"
+import {
+  CurrentStateMessageData,
+  ExerciseIframeState,
+  MessageToParent,
+  ModelSolutionSpec,
+  PrivateSpec,
+  PublicSpec,
+  UserAnswer,
+} from "@/util/stateInterfaces"
 
 const Iframe: React.FC = () => {
   const iframeId = v4().slice(0, 4)

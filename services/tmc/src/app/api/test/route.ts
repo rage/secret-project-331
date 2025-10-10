@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next"
+import { NextResponse } from "next/server"
 import { v4 } from "uuid"
 
 import { ClientErrorResponse } from "@/lib"
@@ -25,16 +25,13 @@ export type TestRequestResult = {
   id: string
 }
 
-export default async (
-  req: NextApiRequest,
-  res: NextApiResponse<TestRequestResult | ClientErrorResponse>,
-): Promise<void> => {
+export async function POST(req: Request): Promise<Response> {
   try {
     if (req.method !== "POST") {
-      return badRequest(res, "Wrong method")
+      return badRequest("Wrong method")
     }
 
-    const body = JSON.parse(req.body) as TestRequest
+    const body = (await req.json()) as TestRequest
 
     const testRunId = v4()
     testRuns.set(testRunId, null)
@@ -44,52 +41,36 @@ export default async (
         type: "browser",
         files: body.files,
       }).then((rr) => testRuns.set(testRunId, rr))
-      ok(res, { id: testRunId })
+      return ok({ id: testRunId })
     } else if (body.type === "editor") {
       runTests(templateDownloadUrl, {
         type: "editor",
         archiveDownloadUrl: body.archiveDownloadUrl,
       }).then((rr) => testRuns.set(testRunId, rr))
-      ok(res, { id: testRunId })
+      return ok({ id: testRunId })
     } else {
       throw new Error("Invalid type")
     }
   } catch (err) {
-    return internalServerError(res, "Error while processing request", err)
+    return internalServerError("Error while processing request", err)
   }
 }
 
 // response helpers
 
-const ok = (
-  res: NextApiResponse<TestRequestResult>,
-  testRequestResult: TestRequestResult,
-): void => {
-  res.status(200).json(testRequestResult)
+const ok = (testRequestResult: TestRequestResult): NextResponse => {
+  return NextResponse.json(testRequestResult, { status: 200 })
 }
 
-const badRequest = (
-  res: NextApiResponse<ClientErrorResponse>,
-  contextMessage: string,
-  error?: unknown,
-): void => {
-  errorResponse(res, 400, contextMessage, error)
+const badRequest = (contextMessage: string, error?: unknown): NextResponse => {
+  return errorResponse(400, contextMessage, error)
 }
 
-const internalServerError = (
-  res: NextApiResponse<ClientErrorResponse>,
-  contextMessage: string,
-  err?: unknown,
-): void => {
-  errorResponse(res, 500, contextMessage, err)
+const internalServerError = (contextMessage: string, err?: unknown): NextResponse => {
+  return errorResponse(500, contextMessage, err)
 }
 
-const errorResponse = (
-  res: NextApiResponse<ClientErrorResponse>,
-  statusCode: number,
-  contextMessage: string,
-  err?: unknown,
-) => {
+const errorResponse = (statusCode: number, contextMessage: string, err?: unknown): NextResponse => {
   let message
   let stack = undefined
   if (err instanceof Error) {
@@ -104,7 +85,7 @@ const errorResponse = (
     message = `${contextMessage}: ${JSON.stringify(err, undefined, 2)}`
   }
   error(message, stack)
-  res.status(statusCode).json({ message })
+  return NextResponse.json<ClientErrorResponse>({ message }, { status: statusCode })
 }
 
 // logging helpers

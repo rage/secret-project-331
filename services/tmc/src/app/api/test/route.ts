@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server"
 import { v4 } from "uuid"
 
+import { testRuns } from "./testRuns"
+
 import { ClientErrorResponse } from "@/lib"
-import { RunResult } from "@/tmc/cli"
 import { ExerciseFile } from "@/util/stateInterfaces"
 import { runTests } from "@/util/test"
-
-// todo timed cache
-export const testRuns: Map<string, RunResult | null> = new Map()
 
 export type TestRequest =
   | {

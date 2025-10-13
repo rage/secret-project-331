@@ -25,7 +25,7 @@ export function getDir(language: string) {
 // Otherwise use either the saved language preference or detect the desired language
 export default function useLanguage(): string | null {
   const searchParams = useSearchParams()
-  const value = searchParams.get(LANGUAGE_QUERY_KEY)
+  const value = searchParams?.get(LANGUAGE_QUERY_KEY)
   const languageCandidate = determineLanguageFromQueryValue(value || undefined)
 
   if (!languageCandidate) {

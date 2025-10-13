@@ -23,7 +23,16 @@ const SERVICE_NAME = "course-material"
 
 const i18n = initI18n(SERVICE_NAME)
 
-function RootLayout({ children }: { children: React.ReactNode }) {
+function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  // Suppress unused params warning
+  void params
+
   const initialLanguage = useLanguage()
   // eslint-disable-next-line i18next/no-literal-string
   const [language, setLanguage] = useState(initialLanguage ?? "en")

@@ -34,7 +34,7 @@ const Iframe: React.FC = () => {
   const [testRequestResponse, setTestRequestResponse] = useState<RunResult | null>(null)
   const [fileUploadResponse, setFileUploadResponse] = useState<UploadResultMessage | null>(null)
   const searchParams = useSearchParams()
-  const rawMaxWidth = searchParams.get("width")
+  const rawMaxWidth = searchParams?.get("width")
   let maxWidth: number | null = 500
   if (rawMaxWidth) {
     maxWidth = Number(rawMaxWidth)

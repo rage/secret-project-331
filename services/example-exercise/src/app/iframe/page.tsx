@@ -1,4 +1,7 @@
 "use client"
+
+export const dynamic = "force-dynamic"
+
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"

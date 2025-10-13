@@ -1,4 +1,7 @@
 "use client"
+
+export const dynamic = "force-dynamic"
+
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"

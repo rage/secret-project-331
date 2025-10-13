@@ -1,9 +1,11 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import Script from "next/script"
-import React, { useEffect, useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 
 import Layout from "@/components/layout/Layout"
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -95,7 +97,9 @@ function RootLayout({
             <DialogProvider>
               <GlobalStyles />
               <LoginStateContextProvider>
-                <Layout>{children}</Layout>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Layout>{children}</Layout>
+                </Suspense>
               </LoginStateContextProvider>
             </DialogProvider>
           </OverlayProvider>

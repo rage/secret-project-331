@@ -1,6 +1,9 @@
 "use client"
+
+export const dynamic = "force-dynamic"
+
 import Script from "next/script"
-import React from "react"
+import React, { Suspense } from "react"
 
 import Providers from "./providers"
 
@@ -28,7 +31,9 @@ const RootLayout = ({
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>
         <Providers>
-          <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
+          </Suspense>
         </Providers>
       </body>
     </html>

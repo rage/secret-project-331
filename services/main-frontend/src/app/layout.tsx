@@ -1,13 +1,12 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-
 import Script from "next/script"
 import React, { Suspense } from "react"
 
 import Providers from "./providers"
 
 import Layout from "@/components/Layout"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/constants"
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
@@ -30,11 +29,11 @@ const RootLayout = ({
         <Script noModule id="outdated-browser-warning">
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>
-        <Providers>
-          <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Spinner />}>
+          <Providers>
             <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
-          </Suspense>
-        </Providers>
+          </Providers>
+        </Suspense>
       </body>
     </html>
   )

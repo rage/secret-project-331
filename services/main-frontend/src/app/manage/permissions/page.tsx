@@ -1,6 +1,6 @@
 "use client"
 
-export const dynamic = "force-dynamic"
+
 
 import { css } from "@emotion/css"
 import React from "react"

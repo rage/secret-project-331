@@ -1,13 +1,12 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import Script from "next/script"
 import React, { Suspense, useEffect, useState } from "react"
 
 import Layout from "@/components/layout/Layout"
+import Spinner from "@/shared-module/common/components/Spinner"
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage"
@@ -92,18 +91,18 @@ function RootLayout({
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>
 
-        <QueryClientProvider client={queryClient}>
-          <OverlayProvider>
-            <DialogProvider>
-              <GlobalStyles />
-              <LoginStateContextProvider>
-                <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Spinner />}>
+          <QueryClientProvider client={queryClient}>
+            <OverlayProvider>
+              <DialogProvider>
+                <GlobalStyles />
+                <LoginStateContextProvider>
                   <Layout>{children}</Layout>
-                </Suspense>
-              </LoginStateContextProvider>
-            </DialogProvider>
-          </OverlayProvider>
-        </QueryClientProvider>
+                </LoginStateContextProvider>
+              </DialogProvider>
+            </OverlayProvider>
+          </QueryClientProvider>
+        </Suspense>
       </body>
     </html>
   )

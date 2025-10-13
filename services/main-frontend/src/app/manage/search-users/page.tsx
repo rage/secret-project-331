@@ -18,6 +18,7 @@ import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRende
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const SearchUsersPage: React.FC = () => {
   const { t } = useTranslation()
@@ -114,4 +115,4 @@ const SearchUsersPage: React.FC = () => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(SearchUsersPage))
+export default withErrorBoundary(withSuspenseBoundary(withSignedIn(SearchUsersPage)))

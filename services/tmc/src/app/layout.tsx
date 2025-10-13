@@ -1,9 +1,10 @@
-export const dynamic = 'force-dynamic'
+"use client"
 
 import React, { Suspense } from "react"
 
 import Providers from "./providers"
 
+import Spinner from "@/shared-module/common/components/Spinner"
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
 
 const SERVICE_NAME = "tmc"
@@ -14,11 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <Providers>
-          <Suspense fallback={<div>Loading...</div>}>
-            {children}
-          </Suspense>
-        </Providers>
+        <Suspense fallback={<Spinner />}>
+          <Providers>{children}</Providers>
+        </Suspense>
       </body>
     </html>
   )

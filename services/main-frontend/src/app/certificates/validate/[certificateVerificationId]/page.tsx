@@ -10,6 +10,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
@@ -63,4 +64,4 @@ const ModuleCertificateVerification: React.FC = () => {
   )
 }
 
-export default withErrorBoundary(ModuleCertificateVerification)
+export default withErrorBoundary(withSuspenseBoundary(ModuleCertificateVerification))

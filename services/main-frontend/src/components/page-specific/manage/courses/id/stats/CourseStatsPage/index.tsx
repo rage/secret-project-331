@@ -21,6 +21,7 @@ import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 export const DEFAULT_CHART_HEIGHT = 450
 
@@ -134,4 +135,4 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   )
 }
 
-export default withNoSsr(CourseStatsPage)
+export default withNoSsr(withSuspenseBoundary(CourseStatsPage))

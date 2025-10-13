@@ -9,6 +9,7 @@ import useQueryParameter from "../../../hooks/useQueryParameter"
 import { baseTheme, theme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import Spinner from "../../Spinner"
+import withSuspenseBoundary from "../../../utils/withSuspenseBoundary"
 
 export interface TabLinkProps {
   url: string | UrlObject
@@ -98,4 +99,4 @@ const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
   )
 }
 
-export default TabLink
+export default withSuspenseBoundary(TabLink)

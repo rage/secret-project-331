@@ -5,6 +5,8 @@
 
 import { useSearchParams } from "next/navigation"
 
+import withSuspenseBoundary from "./withSuspenseBoundary"
+
 const DEFAULT_DISPLAY_NAME = "Component"
 
 interface ProvidedExtraProps<T> {
@@ -57,4 +59,4 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
   return InnerComponent
 }
 
-export default dontRenderUntilQueryParametersReady
+export default withSuspenseBoundary(dontRenderUntilQueryParametersReady)

@@ -18,6 +18,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import CaretArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
 const SORT_KEY_ROLE = "role"
@@ -71,7 +72,7 @@ interface Props {
   domain: RoleDomain
 }
 
-export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domain }) => {
+const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ domain }) => {
   const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -518,3 +519,5 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
     </>
   )
 }
+
+export const PermissionPage = withSuspenseBoundary(PermissionPageComponent)

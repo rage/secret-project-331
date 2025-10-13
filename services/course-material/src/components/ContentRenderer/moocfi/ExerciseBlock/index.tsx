@@ -39,6 +39,7 @@ import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const FORWARD_SLASH = "/"
 
@@ -820,4 +821,4 @@ function makeSureComponentStaysVisibleAfterChangingView(ref: React.RefObject<HTM
   setTimeout(scrollToViewIfNeeded, 500)
 }
 
-export default withErrorBoundary(ExerciseBlock)
+export default withErrorBoundary(withSuspenseBoundary(ExerciseBlock))

@@ -24,6 +24,7 @@ import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 interface FormFields {
   first_name: string
@@ -382,4 +383,4 @@ const CreateAccountForm: React.FC = () => {
   )
 }
 
-export default CreateAccountForm
+export default withSuspenseBoundary(CreateAccountForm)

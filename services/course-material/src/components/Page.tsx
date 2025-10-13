@@ -39,6 +39,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 interface Props {
   onRefresh: () => void
@@ -302,4 +303,4 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   )
 }
 
-export default withErrorBoundary(Page)
+export default withErrorBoundary(withSuspenseBoundary(Page))

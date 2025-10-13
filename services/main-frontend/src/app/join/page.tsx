@@ -1,7 +1,5 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
 import { useEffect } from "react"
@@ -18,6 +16,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const JoinCoursePage: React.FC = () => {
   const { t } = useTranslation()
@@ -93,4 +92,4 @@ const JoinCoursePage: React.FC = () => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(JoinCoursePage))
+export default withErrorBoundary(withSuspenseBoundary(withSignedIn(JoinCoursePage)))

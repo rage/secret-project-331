@@ -15,6 +15,7 @@ import { UploadResultMessage } from "@/shared-module/common/exercise-service-pro
 import { isMessageToIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { RunResult } from "@/tmc/cli"
 import { extractTarZstd } from "@/util/helpers"
 import {
@@ -242,4 +243,4 @@ const error = (requestId: string, message: string, ...optionalParams: unknown[])
   console.error(`[tmc-iframe/${requestId}]`, message, ...optionalParams)
 }
 
-export default withErrorBoundary(Iframe)
+export default withErrorBoundary(withSuspenseBoundary(Iframe))

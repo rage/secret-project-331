@@ -18,6 +18,7 @@ import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabL
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const Header = styled.div`
   width: 100%;
@@ -200,4 +201,4 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   )
 }
 
-export default CourseCheaters
+export default withSuspenseBoundary(CourseCheaters)

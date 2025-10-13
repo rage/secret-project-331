@@ -11,6 +11,7 @@ import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLi
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -59,4 +60,4 @@ const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   )
 }
 
-export default CourseFeedback
+export default withSuspenseBoundary(CourseFeedback)

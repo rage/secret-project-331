@@ -1,7 +1,8 @@
 import React from "react"
 
+import References from "./references/index"
+
 import usePageReferences from "@/hooks/usePageReferences"
-import Reference from "@/shared-module/common/components/Reference"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ReferencesProps {
@@ -20,7 +21,7 @@ const ReferenceList: React.FC<React.PropsWithChildren<ReferencesProps>> = ({ cou
     id: r.citationKey,
     text: r.citation,
   }))
-  return <Reference data={refs} />
+  return <References data={refs} />
 }
 
 export default withErrorBoundary(ReferenceList)

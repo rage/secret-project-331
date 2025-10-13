@@ -1,5 +1,6 @@
 use anyhow::{Context, Result, bail};
 use chrono::{DateTime, Utc};
+use sqlx::PgConnection;
 use uuid::Uuid;
 
 use headless_lms_models::{
@@ -78,7 +79,8 @@ impl ChapterBuilder {
 
     pub(crate) async fn seed(
         self,
-        cx: &mut SeedContext<'_>,
+        conn: &mut PgConnection,
+        cx: &SeedContext,
         course_id: Uuid,
         module_id: Uuid,
     ) -> Result<()> {
@@ -102,7 +104,7 @@ impl ChapterBuilder {
         let (chapter, _front) = match (self.chapter_id, self.front_page_id) {
             (Some(ch_id), Some(fp_id)) => {
                 library::content_management::create_new_chapter_with_content(
-                    cx.conn,
+                    conn,
                     PKeyPolicy::Fixed((ch_id, fp_id)),
                     &new_chapter,
                     cx.teacher,
@@ -114,7 +116,7 @@ impl ChapterBuilder {
                 .context("creating chapter with fixed IDs")?
             }
             _ => library::content_management::create_new_chapter_with_content(
-                cx.conn,
+                conn,
                 PKeyPolicy::Generate,
                 &new_chapter,
                 cx.teacher,
@@ -127,13 +129,13 @@ impl ChapterBuilder {
         };
 
         if let Some(opens_at) = self.opens_at {
-            chapters::set_opens_at(cx.conn, chapter.id, opens_at)
+            chapters::set_opens_at(conn, chapter.id, opens_at)
                 .await
                 .context("setting chapter opens_at")?;
         }
 
         for p in self.pages {
-            p.seed(cx, course_id, chapter.id).await?;
+            p.seed(conn, cx, course_id, chapter.id).await?;
         }
         Ok(())
     }

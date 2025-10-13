@@ -101,7 +101,7 @@ interface RenderedMessageProps {
   citedDocs: number[]
   citationNumberingMap: Map<number, number>
   citationButtonClicked: boolean
-  currentRefId: string | undefined
+  currentTriggerId: string | undefined
   handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   hoverCitationProps: DOMAttributes<HTMLButtonElement>
 }
@@ -129,7 +129,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   citedDocs,
   citationNumberingMap,
   citationButtonClicked,
-  currentRefId,
+  currentTriggerId,
   handleClick,
   hoverCitationProps,
 }) => {
@@ -188,7 +188,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
           idx={idx.toString()}
           citationButtonClicked={citationButtonClicked}
           hoverCitationProps={hoverCitationProps}
-          currentRefId={currentRefId}
+          currentTriggerId={currentTriggerId}
           handleClick={handleClick}
         />,
         node,
@@ -199,7 +199,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     citationButtonClicked,
     citationNumberingMap,
     citedDocs,
-    currentRefId,
+    currentTriggerId,
     handleClick,
     hoverCitationProps,
     readyForPortal,

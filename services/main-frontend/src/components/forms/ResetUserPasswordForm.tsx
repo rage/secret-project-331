@@ -2,7 +2,7 @@ import { useRouter } from "next/router"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postPasswordChange } from "@/services/backend/users"
+import { postPasswordReset } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -38,7 +38,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
   const postPasswordChangeMutation = useToastMutation<boolean, unknown, ResetPasswordFormFields>(
     async (data) => {
       const { token, new_password } = data
-      const result = await postPasswordChange(token, new_password)
+      const result = await postPasswordReset(token, new_password)
       return result
     },
     {

@@ -8,6 +8,7 @@ import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 import { getCourseBreadCrumbInfo } from "../services/backend/courses"
 import { getAllResearchConsentAnswersByUserId } from "../services/backend/users"
 
+import ChangeUserPasswordForm from "@/components/forms/ChangeUserPasswordForm"
 import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
 import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
 import { getUserDetailsForUser } from "@/services/backend/user-details"
@@ -38,6 +39,7 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
     queryKey: [`users-user-research-form-question-answers`],
     queryFn: () => getAllResearchConsentAnswersByUserId(),
   })
+
   const handleGeneralResearchFormButton = async () => {
     await getUserConsent.refetch()
     setOpenResearchForm(true)
@@ -87,6 +89,7 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
               emailCommunicationConsent={getUserDetails.data?.email_communication_consent ?? false}
               email={getUserDetails.data?.email}
             />
+            <ChangeUserPasswordForm />
             {getUserDetails.data?.email && (
               <DeleteUserAccountForm email={getUserDetails.data.email} />
             )}

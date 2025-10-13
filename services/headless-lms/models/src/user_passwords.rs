@@ -218,7 +218,7 @@ WHERE token = $1
     Ok(record.is_some())
 }
 
-pub async fn change_user_password(
+pub async fn change_user_password_with_password_reset_token(
     conn: &mut PgConnection,
     token: Uuid,
     password_hash: SecretString,
@@ -266,19 +266,7 @@ AND deleted_at IS NULL
     upsert_user_password(&mut tx, user_id, password_hash).await?;
 
     // Mark the token as used
-    sqlx::query!(
-        r#"
-UPDATE password_reset_tokens
-SET used_at = NOW(),
-  deleted_at = NOW()
-WHERE token = $1
-  AND deleted_at IS NULL
-  AND used_at IS NULL
-            "#,
-        token
-    )
-    .execute(&mut *tx)
-    .await?;
+    mark_token_used(&mut tx, token).await?;
 
     // Fetch user
     let user = get_by_id(&mut tx, user_id).await?;
@@ -305,6 +293,28 @@ WHERE token = $1
     Ok(true)
 }
 
+pub async fn change_user_password_with_old_password(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    old_password: &SecretString,
+    new_password_hash: SecretString,
+) -> ModelResult<bool> {
+    let mut tx = conn.begin().await?;
+
+    // Verify old password
+    let is_valid = verify_user_password(&mut tx, user_id, old_password).await?;
+    if !is_valid {
+        return Ok(false);
+    }
+
+    // Upsert the new password
+    upsert_user_password(&mut tx, user_id, new_password_hash).await?;
+
+    tx.commit().await?;
+
+    Ok(true)
+}
+
 pub async fn mark_token_used(conn: &mut PgConnection, token: Uuid) -> ModelResult<bool> {
     let result = sqlx::query!(
         r#"
@@ -313,6 +323,7 @@ SET used_at = NOW(),
   deleted_at = NOW()
 WHERE token = $1
   AND deleted_at IS NULL
+  AND used_at IS NULL
         "#,
         token
     )

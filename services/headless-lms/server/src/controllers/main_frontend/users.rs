@@ -266,15 +266,15 @@ pub async fn reset_password_token_status(
 
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ChangePasswordData {
+pub struct ResetPasswordData {
     pub token: String,
     pub new_password: String,
 }
 
 #[instrument(skip(pool))]
-pub async fn change_user_password(
+pub async fn reset_user_password(
     pool: web::Data<PgPool>,
-    payload: web::Json<ChangePasswordData>,
+    payload: web::Json<ResetPasswordData>,
     tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
@@ -286,11 +286,43 @@ pub async fn change_user_password(
     ))
     .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
-    let res = models::user_passwords::change_user_password(
+    let res = models::user_passwords::change_user_password_with_password_reset_token(
         &mut conn,
         token_uuid,
         password_hash,
         &tmc_client,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ChangePasswordData {
+    pub old_password: String,
+    pub new_password: String,
+}
+
+#[instrument(skip(pool))]
+pub async fn change_user_password(
+    pool: web::Data<PgPool>,
+    payload: web::Json<ChangePasswordData>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let password_hash = models::user_passwords::hash_password(&SecretString::new(
+        payload.new_password.clone().into(),
+    ))
+    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+    let old_password = SecretString::new(payload.old_password.clone().into());
+
+    let res = models::user_passwords::change_user_password_with_old_password(
+        &mut conn,
+        user.id,
+        &old_password,
+        password_hash,
     )
     .await?;
 
@@ -328,5 +360,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/reset-password-token-status",
         web::post().to(reset_password_token_status),
     )
+    .route("/reset-password", web::post().to(reset_user_password))
     .route("/change-password", web::post().to(change_user_password));
 }

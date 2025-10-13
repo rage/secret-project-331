@@ -241,9 +241,9 @@ export const completionsColumns = [
   })),
 ]
 
-// Completions data: 0–5 OR "Accepted"/"Failed"
-type Grade = 0 | 1 | 2 | 3 | 4 | 5 | "Accepted" | "Failed"
-const gradePool: Grade[] = [0, 1, 2, 3, 4, 5, "Accepted", "Failed"]
+// Completions data: 0–5 OR "Passed"/"Failed"
+type Grade = "-" | 0 | 1 | 2 | 3 | 4 | 5 | "Passed" | "Failed"
+const gradePool: Grade[] = ["-", 0, 1, 2, 3, 4, 5, "Passed", "Failed"]
 const statusPool = ["Registered", "-"] as const
 
 export const completionsData = mockStudentsSorted.map((s, i) => {

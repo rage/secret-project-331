@@ -27,8 +27,13 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "exclude": ["node_modules", "src/shared-module"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/pages/_app.tsx"]
+  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", "src/pages/_app.tsx", ".next/types/**/*.ts"]
 }

@@ -24,15 +24,21 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "exclude": ["node_modules", "src/shared-module"],
   "include": [
-    "next-env.d.ts",
-    "katex.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "../../shared-module/packages/common/src/components/SpeechBalloonPopover.tsx",
     "@/shared-module/packages/common/src/components/layout/PageMarginOffset.tsx",
-    "../../shared-module/packages/common/src/components/SpeechBalloonPopover.tsx"
+    "katex.d.ts",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
   ]
 }

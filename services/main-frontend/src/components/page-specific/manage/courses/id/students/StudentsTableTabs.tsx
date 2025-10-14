@@ -633,10 +633,27 @@ export function FloatingHeaderTable({
                   removeLeft && noLeftBorder,
                 ]}
                 style={{
-                  width: meta?.width ?? colWidths[i],
-                  minWidth: meta?.minWidth,
-                  paddingLeft: 16,
-                  paddingRight: 16,
+                  ...(() => {
+                    if (cell.column.id === "actions") {
+                      return {
+                        width: 80,
+                        minWidth: 80,
+                        maxWidth: 80,
+                        paddingLeft: 4,
+                        paddingRight: 4,
+                        whiteSpace: "nowrap",
+                      }
+                    }
+                    const meta = (cell.column.columnDef as any)?.meta as
+                      | { width?: number; minWidth?: number }
+                      | undefined
+                    return {
+                      width: meta?.width ?? colWidths[i],
+                      minWidth: meta?.minWidth,
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                    }
+                  })(),
                   background: bg,
                 }}
               >

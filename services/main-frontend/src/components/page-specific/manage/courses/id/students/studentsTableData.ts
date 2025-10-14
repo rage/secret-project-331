@@ -209,10 +209,13 @@ const moduleDefs = [
   "Default",
   "Another module",
   "Bonus module",
-  "Bonus module",
-  "Bonus module",
-  "Bonus module",
-  "Bonus module",
+  "Bonus module another",
+  "Bonus module another",
+  "Bonus module another",
+  "Bonus module another",
+  "Bonus module another",
+  "Bonus module another",
+  "Bonus module another",
 ]
 
 // 👇 fixed widths for leaf columns (per module)

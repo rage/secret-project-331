@@ -272,15 +272,81 @@ export function FloatingHeaderTable({
   }, [onWrapScroll, onTrailerScroll, applyStickyTransform, showTrailer, bottomVisible])
 
   useLayoutEffect(() => {
+    const srcTable = tableRef.current
+    const dstTable = stickyTableRef.current
+    if (!srcTable || !dstTable) {
+      return
+    }
+
+    // only do this when sticky is visible (to avoid useless work)
     if (!showSticky) {
       return
     }
-    const wrap = wrapRef.current
-    const sticky = stickyTableRef.current
-    if (wrap && sticky) {
-      sticky.style.transform = `translateX(-${wrap.scrollLeft}px)`
+
+    const srcThead = srcTable.tHead
+    if (!srcThead) {
+      return
     }
-  }, [showSticky])
+
+    // Clean any previous injected thead in the sticky table
+    if (dstTable.tHead) {
+      dstTable.removeChild(dstTable.tHead)
+    }
+
+    // Clone the whole thead DOM
+    const clonedHead = srcThead.cloneNode(true) as HTMLTableSectionElement
+
+    // --------- WIDTH FREEZE (pixel-perfect) ----------
+    // We read the computed widths from the *source* header's leaf cells,
+    // then set those widths (inline) on the cloned header's corresponding cells.
+
+    // 1) Read leaf widths from the source (last header row = leaf cells)
+    const srcLeafThs = srcTable.querySelectorAll("thead tr:last-of-type th")
+    const leafWidths = Array.from(srcLeafThs).map((th) => th.getBoundingClientRect().width)
+
+    // 2) Apply widths to the cloned leaf cells
+    const clonedLeafThs = clonedHead.querySelectorAll("tr:last-of-type th")
+    clonedLeafThs.forEach((th, i) => {
+      const w = leafWidths[i]
+      if (typeof w === "number") {
+        ;(th as HTMLTableCellElement).style.width = `${w}px`
+        ;(th as HTMLTableCellElement).style.minWidth = `${w}px`
+        ;(th as HTMLTableCellElement).style.maxWidth = `${w}px`
+        ;(th as HTMLTableCellElement).style.boxSizing = "border-box"
+      }
+    })
+
+    // 3) Fix group headers (first row): set width = sum of its leaf widths
+    const clonedGroupRow = clonedHead.querySelector("tr:first-of-type")
+    if (clonedGroupRow) {
+      let cursor = 0
+      clonedGroupRow.querySelectorAll("th").forEach((th) => {
+        const colSpan = Number((th as HTMLTableCellElement).colSpan || 1)
+        // sum widths of the next 'colSpan' leaves
+        const sum = leafWidths.slice(cursor, cursor + colSpan).reduce((a, b) => a + b, 0)
+        cursor += colSpan
+        if (sum > 0) {
+          ;(th as HTMLTableCellElement).style.width = `${sum}px`
+          ;(th as HTMLTableCellElement).style.minWidth = `${sum}px`
+          ;(th as HTMLTableCellElement).style.maxWidth = `${sum}px`
+          ;(th as HTMLTableCellElement).style.boxSizing = "border-box"
+        }
+      })
+    }
+
+    // 4) Mount cloned thead into the sticky table
+    dstTable.appendChild(clonedHead)
+
+    // 5) Also freeze the sticky table's overall width to match the source table's rendered width
+    const tableW = srcTable.getBoundingClientRect().width
+    dstTable.style.width = `${tableW}px`
+
+    // 6) Ensure sticky transform matches current scroll
+    const wrap = wrapRef.current
+    if (wrap) {
+      dstTable.style.transform = `translateX(-${wrap.scrollLeft}px)`
+    }
+  }, [showSticky, columns, data, contentWidth])
 
   // ---------- Render helpers ----------
   const renderDockedTrailer = () => (
@@ -367,17 +433,9 @@ export function FloatingHeaderTable({
             willChange: "transform",
             contain: "paint",
             backfaceVisibility: "hidden",
-
-            // ✅ let the sticky header have the same intrinsic width as the content
-            // (this is the full scrollable width of the real table)
             width: Math.max(contentWidth, wrapRect.width),
-
-            // ❌ don’t force a different layout algorithm here
-            // tableLayout: "fixed",
           }}
-        >
-          {renderTableHead()}
-        </table>
+        />
       </div>
     </div>
   )

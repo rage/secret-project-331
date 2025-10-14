@@ -41,6 +41,10 @@ const iconBtnStyle: React.CSSProperties = {
   cursor: "pointer",
 }
 
+const PAD = 16
+const COMPLETIONS_LEAF_WIDTH = 120
+const COMPLETIONS_LEAF_MIN_WIDTH = 80
+
 const IconButton: React.FC<{
   label: string
   onClick?: () => void
@@ -328,7 +332,7 @@ export function FloatingHeaderTable({
         position: "fixed",
         top: 0,
         left: wrapRect.left,
-        width: wrapRect.width,
+        width: wrapRect.width, // keep the viewport clip the same
         zIndex: 100,
         pointerEvents: "none",
         background: "transparent",
@@ -340,13 +344,16 @@ export function FloatingHeaderTable({
     >
       <div
         style={{
-          minWidth: 900,
-          borderRadius: "8px 8px 0 0",
-          border: "1px solid #ced1d7",
+          // no border/radius (you already removed), keep layout-neutral
+          boxShadow: "0 1px 0 rgba(0,0,0,0.06)",
           background: "#fff",
           overflow: "hidden",
           display: "inline-block",
           margin: 0,
+          padding: 0,
+          boxSizing: "border-box",
+          // ❌ remove width: "100%" so the inner table can be its true content width
+          // width: "100%",
         }}
       >
         <table
@@ -360,6 +367,13 @@ export function FloatingHeaderTable({
             willChange: "transform",
             contain: "paint",
             backfaceVisibility: "hidden",
+
+            // ✅ let the sticky header have the same intrinsic width as the content
+            // (this is the full scrollable width of the real table)
+            width: Math.max(contentWidth, wrapRect.width),
+
+            // ❌ don’t force a different layout algorithm here
+            // tableLayout: "fixed",
           }}
         >
           {renderTableHead()}
@@ -420,6 +434,9 @@ export function FloatingHeaderTable({
                 )
               }
 
+              const hMeta = (header.column?.columnDef as any)?.meta as
+                | { padLeft?: number; padRight?: number }
+                | undefined
               return (
                 <th
                   key={header.id}
@@ -427,7 +444,7 @@ export function FloatingHeaderTable({
                   style={{
                     minWidth:
                       ((header.column?.columnDef as any)?.meta?.minWidth as number | undefined) ??
-                      110,
+                      80,
                     width: (() => {
                       if (
                         header.colSpan &&
@@ -435,23 +452,45 @@ export function FloatingHeaderTable({
                         typeof header.getLeafHeaders === "function"
                       ) {
                         const leaves = header.getLeafHeaders()
+                        // Sum leaf content widths AND their horizontal padding to match real table width
                         const sumLeafMeta = leaves.reduce((acc: number, h: any) => {
-                          const w = (h.column?.columnDef as any)?.meta?.width as number | undefined
-                          return acc + (typeof w === "number" ? w : 0)
+                          const leafMeta = (h.column?.columnDef as any)?.meta as
+                            | { width?: number; minWidth?: number }
+                            | undefined
+                          const leafContentW =
+                            typeof leafMeta?.width === "number"
+                              ? leafMeta.width // e.g., 120
+                              : typeof leafMeta?.minWidth === "number"
+                                ? leafMeta.minWidth
+                                : 0
+                          const leafTotalW = leafContentW + PAD * 2 // add 16 left + 16 right
+                          return acc + leafTotalW
                         }, 0)
                         return sumLeafMeta > 0 ? sumLeafMeta : colWidths[colIdx]
                       }
-                      const metaW = (header.column?.columnDef as any)?.meta?.width as
-                        | number
+
+                      // Leaf header: prefer meta.width/minWidth; else fallback to measured
+                      const meta = (header.column?.columnDef as any)?.meta as
+                        | { width?: number; minWidth?: number }
                         | undefined
-                      return metaW ?? colWidths[colIdx]
+                      if (typeof meta?.width === "number") {
+                        return meta.width
+                      }
+                      if (typeof meta?.minWidth === "number") {
+                        return meta.minWidth
+                      }
+                      return colWidths[colIdx]
                     })(),
+
                     background:
                       colorHeaders && !colorHeaderUnderline
                         ? getHeaderBg(rowIdx, colIdx, header)
                         : undefined,
                     position: "relative",
                     overflow: "visible",
+
+                    paddingLeft: 16,
+                    paddingRight: 16,
 
                     paddingTop:
                       colorHeaderUnderline &&
@@ -522,6 +561,10 @@ export function FloatingHeaderTable({
               removeLeft = true
             }
 
+            const meta = (cell.column.columnDef as any)?.meta as
+              | { width?: number; minWidth?: number; padLeft?: number; padRight?: number }
+              | undefined
+
             return (
               <td
                 key={cell.id}
@@ -532,18 +575,10 @@ export function FloatingHeaderTable({
                   removeLeft && noLeftBorder,
                 ]}
                 style={{
-                  ...(() => {
-                    const meta = (cell.column.columnDef as any)?.meta as
-                      | { width?: number; minWidth?: number }
-                      | undefined
-                    if (cell.column.id === "actions") {
-                      return { width: 80, minWidth: 80, paddingLeft: "4px", paddingRight: "0px" }
-                    }
-                    return {
-                      width: meta?.width ?? colWidths[i],
-                      minWidth: meta?.minWidth,
-                    }
-                  })(),
+                  width: meta?.width ?? colWidths[i],
+                  minWidth: meta?.minWidth,
+                  paddingLeft: 16,
+                  paddingRight: 16,
                   background: bg,
                 }}
               >
@@ -657,31 +692,42 @@ export const CertificatesTabContent = () => (
   />
 )
 
-const COMPLETIONS_LEAF_WIDTH = 120
-const COMPLETIONS_LEAF_MIN_WIDTH = 200
-
 export const CompletionsTabContent = () => {
   const sizedCompletionsColumns = useMemo(() => {
-    return completionsColumns.map((group: any) => {
+    return completionsColumns.map((group: any, groupIdx: number) => {
       if (group.header === "Student") {
         return group
       }
 
+      const colorPairIndex = groupIdx - 1
       return {
         ...group,
-        columns: group.columns.map((leaf: any) => ({
+        meta: { ...(group.meta ?? {}), colorPairIndex },
+        columns: group.columns.map((leaf: any, leafIdx: number) => ({
           ...leaf,
           meta: {
             ...(leaf.meta ?? {}),
             width: COMPLETIONS_LEAF_WIDTH,
             minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
+            colorPairIndex,
+            subIdx: leafIdx % 2,
+            padLeft: PAD,
+            padRight: PAD,
           },
         })),
       }
     })
   }, [])
 
-  return <FloatingHeaderTable columns={sizedCompletionsColumns} data={completionsData} />
+  return (
+    <FloatingHeaderTable
+      columns={sizedCompletionsColumns}
+      data={completionsData}
+      colorHeaders
+      colorColumns
+      colorHeaderUnderline
+    />
+  )
 }
 
 export const PointsTabContent = () => (

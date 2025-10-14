@@ -4,6 +4,7 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
+import { ProgressTabContent } from "./StudentsTableTabs"
 import { colorPairs } from "./studentsTableColors"
 import {
   completionsColumns,

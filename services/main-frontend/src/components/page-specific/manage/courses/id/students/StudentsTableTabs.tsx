@@ -29,6 +29,57 @@ import {
   topScrollbarWrap,
 } from "./studentsTableStyles"
 
+// --- STYLE ATOMS / HELPERS (top of file) ---
+const padX = (px: number) => ({ paddingLeft: px, paddingRight: px })
+
+const cellBase: React.CSSProperties = {
+  whiteSpace: "nowrap",
+  verticalAlign: "middle",
+}
+
+const actionCellFixed: React.CSSProperties = {
+  width: 80,
+  minWidth: 80,
+  maxWidth: 80,
+  ...padX(4),
+}
+
+const contentCell = (w?: number, minW?: number): React.CSSProperties => ({
+  width: w,
+  minWidth: minW,
+  ...padX(16),
+})
+
+const stickyShellCss = css`
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  pointer-events: none;
+  background: transparent;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  transition:
+    left 0.2s,
+    width 0.2s;
+`
+
+const stickyInnerCss = css`
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  background: #fff;
+  overflow: hidden;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+`
+
+const trailerBarCss = css`
+  pointer-events: auto;
+  padding-left: 2px;
+  padding-right: 2px;
+`
+
 const iconBtnStyle: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
@@ -40,6 +91,18 @@ const iconBtnStyle: React.CSSProperties = {
   background: "#fff",
   cursor: "pointer",
 }
+
+const headerUnderlineCss = css`
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  top: 0;
+  z-index: 2;
+  pointer-events: none;
+`
 
 const PAD = 16
 const COMPLETIONS_LEAF_WIDTH = 120
@@ -209,43 +272,49 @@ export function FloatingHeaderTable({
     [colorHeaders],
   )
 
-  // Measure column widths after data/columns render
-  useLayoutEffect(() => {
-    // measure on next frame to let layout settle
-    const id = requestAnimationFrame(measureColWidths)
-    return () => cancelAnimationFrame(id)
-  }, [measureColWidths, data.length, columns])
+  // --- EFFECTS (condensed) ---
 
-  // Keep wrapRect and contentWidth in sync with layout changes (ResizeObserver + window resize)
+  // 1) Measurements + observers (init + keep in sync)
+  //    - Keeps wrapRect, contentWidth, and col widths fresh
   useEffect(() => {
+    // initial pass
     measureWrapRect()
     measureContentWidth()
 
+    // ResizeObserver on the scroll wrap to catch content width + layout changes
     const ro = new ResizeObserver(() => {
+      // keep viewport & content in sync
       measureWrapRect()
       measureContentWidth()
-      // columns might reflow if fonts/space change
-      measureColWidths()
+      // columns might reflow if fonts/space change → debounce via rAF for safety
+      requestAnimationFrame(measureColWidths)
     })
     if (wrapRef.current) {
       ro.observe(wrapRef.current)
     }
-    window.addEventListener("resize", measureWrapRect)
+
+    // Window resize (viewport changes)
+    const onWinResize = () => {
+      measureWrapRect()
+      // headers can reflow after resize → rAF ensures layout is settled
+      requestAnimationFrame(measureColWidths)
+    }
+    window.addEventListener("resize", onWinResize)
+
+    // Window scroll: sticky + trailer visibility
+    handleWindowScroll()
+    window.addEventListener("scroll", handleWindowScroll, { passive: true })
 
     return () => {
       ro.disconnect()
-      window.removeEventListener("resize", measureWrapRect)
+      window.removeEventListener("resize", onWinResize)
+      window.removeEventListener("scroll", handleWindowScroll)
     }
-  }, [measureWrapRect, measureContentWidth, measureColWidths])
+    // helpers are stable via useCallback; no need to depend on frequently-changing state
+  }, [measureWrapRect, measureContentWidth, measureColWidths, handleWindowScroll])
 
-  // Window scroll: sticky header + trailer visibility
-  useEffect(() => {
-    handleWindowScroll()
-    window.addEventListener("scroll", handleWindowScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleWindowScroll)
-  }, [handleWindowScroll])
-
-  // Sync scroll between wrap and trailer; keep sticky header transform updated
+  // 2) Scroll sync wiring (wrap ↔ trailer) + init positions
+  //    - Rebind only when trailer appears/disappears or handlers change
   useEffect(() => {
     const wrap = wrapRef.current
     const trailer = trailerRef.current
@@ -253,12 +322,13 @@ export function FloatingHeaderTable({
       return
     }
 
-    // initialize positions
+    // init positions (also ensures sticky transform matches current scroll)
     applyStickyTransform(wrap.scrollLeft)
     if (trailer) {
       trailer.scrollLeft = wrap.scrollLeft
     }
 
+    // listeners
     wrap.addEventListener("scroll", onWrapScroll, { passive: true })
     trailer?.addEventListener("scroll", onTrailerScroll, { passive: true })
 
@@ -271,82 +341,79 @@ export function FloatingHeaderTable({
     }
   }, [onWrapScroll, onTrailerScroll, applyStickyTransform, showTrailer, bottomVisible])
 
+  // 3) Render-time layout work (merged):
+  //    a) After data/columns render: measure leaf widths (rAF, lets layout settle)
+  //    b) When sticky is visible: clone & freeze the header (pixel-perfect widths)
   useLayoutEffect(() => {
+    // (a) measure leaf widths next frame (only when data/columns change)
+    const rafId = requestAnimationFrame(measureColWidths)
+
+    // (b) sticky header clone (only when visible and refs are ready)
     const srcTable = tableRef.current
     const dstTable = stickyTableRef.current
-    if (!srcTable || !dstTable) {
-      return
-    }
-
-    // only do this when sticky is visible (to avoid useless work)
-    if (!showSticky) {
-      return
-    }
-
-    const srcThead = srcTable.tHead
-    if (!srcThead) {
-      return
-    }
-
-    // Clean any previous injected thead in the sticky table
-    if (dstTable.tHead) {
-      dstTable.removeChild(dstTable.tHead)
-    }
-
-    // Clone the whole thead DOM
-    const clonedHead = srcThead.cloneNode(true) as HTMLTableSectionElement
-
-    // --------- WIDTH FREEZE (pixel-perfect) ----------
-    // We read the computed widths from the *source* header's leaf cells,
-    // then set those widths (inline) on the cloned header's corresponding cells.
-
-    // 1) Read leaf widths from the source (last header row = leaf cells)
-    const srcLeafThs = srcTable.querySelectorAll("thead tr:last-of-type th")
-    const leafWidths = Array.from(srcLeafThs).map((th) => th.getBoundingClientRect().width)
-
-    // 2) Apply widths to the cloned leaf cells
-    const clonedLeafThs = clonedHead.querySelectorAll("tr:last-of-type th")
-    clonedLeafThs.forEach((th, i) => {
-      const w = leafWidths[i]
-      if (typeof w === "number") {
-        ;(th as HTMLTableCellElement).style.width = `${w}px`
-        ;(th as HTMLTableCellElement).style.minWidth = `${w}px`
-        ;(th as HTMLTableCellElement).style.maxWidth = `${w}px`
-        ;(th as HTMLTableCellElement).style.boxSizing = "border-box"
-      }
-    })
-
-    // 3) Fix group headers (first row): set width = sum of its leaf widths
-    const clonedGroupRow = clonedHead.querySelector("tr:first-of-type")
-    if (clonedGroupRow) {
-      let cursor = 0
-      clonedGroupRow.querySelectorAll("th").forEach((th) => {
-        const colSpan = Number((th as HTMLTableCellElement).colSpan || 1)
-        // sum widths of the next 'colSpan' leaves
-        const sum = leafWidths.slice(cursor, cursor + colSpan).reduce((a, b) => a + b, 0)
-        cursor += colSpan
-        if (sum > 0) {
-          ;(th as HTMLTableCellElement).style.width = `${sum}px`
-          ;(th as HTMLTableCellElement).style.minWidth = `${sum}px`
-          ;(th as HTMLTableCellElement).style.maxWidth = `${sum}px`
-          ;(th as HTMLTableCellElement).style.boxSizing = "border-box"
+    if (showSticky && srcTable && dstTable) {
+      const srcThead = srcTable.tHead
+      if (srcThead) {
+        // clear previous
+        if (dstTable.tHead) {
+          dstTable.removeChild(dstTable.tHead)
         }
-      })
+
+        // clone
+        const clonedHead = srcThead.cloneNode(true) as HTMLTableSectionElement
+
+        // read leaf widths from source
+        const srcLeafThs = srcTable.querySelectorAll("thead tr:last-of-type th")
+        const leafWidths = Array.from(srcLeafThs).map((th) => th.getBoundingClientRect().width)
+
+        // apply to cloned leaves
+        const clonedLeafThs = clonedHead.querySelectorAll("tr:last-of-type th")
+        clonedLeafThs.forEach((th, i) => {
+          const w = leafWidths[i]
+          if (typeof w === "number") {
+            const el = th as HTMLTableCellElement
+            el.style.width = `${w}px`
+            el.style.minWidth = `${w}px`
+            el.style.maxWidth = `${w}px`
+            el.style.boxSizing = "border-box"
+          }
+        })
+
+        // fix group widths (sum of leaves)
+        const clonedGroupRow = clonedHead.querySelector("tr:first-of-type")
+        if (clonedGroupRow) {
+          let cursor = 0
+          clonedGroupRow.querySelectorAll("th").forEach((th) => {
+            const el = th as HTMLTableCellElement
+            const colSpan = Number(el.colSpan || 1)
+            const sum = leafWidths.slice(cursor, cursor + colSpan).reduce((a, b) => a + b, 0)
+            cursor += colSpan
+            if (sum > 0) {
+              el.style.width = `${sum}px`
+              el.style.minWidth = `${sum}px`
+              el.style.maxWidth = `${sum}px`
+              el.style.boxSizing = "border-box"
+            }
+          })
+        }
+
+        // mount clone + freeze table width
+        dstTable.appendChild(clonedHead)
+        const tableW = srcTable.getBoundingClientRect().width
+        dstTable.style.width = `${tableW}px`
+
+        // sync transform with current scroll
+        const wrap = wrapRef.current
+        if (wrap) {
+          dstTable.style.transform = `translateX(-${wrap.scrollLeft}px)`
+        }
+      }
     }
 
-    // 4) Mount cloned thead into the sticky table
-    dstTable.appendChild(clonedHead)
-
-    // 5) Also freeze the sticky table's overall width to match the source table's rendered width
-    const tableW = srcTable.getBoundingClientRect().width
-    dstTable.style.width = `${tableW}px`
-
-    // 6) Ensure sticky transform matches current scroll
-    const wrap = wrapRef.current
-    if (wrap) {
-      dstTable.style.transform = `translateX(-${wrap.scrollLeft}px)`
-    }
-  }, [showSticky, columns, data, contentWidth])
+    return () => cancelAnimationFrame(rafId)
+    // Re-run when we need fresh leaf widths (columns/data) or when sticky visibility toggles,
+    // or when the content width changes enough to affect table width.
+  }, [measureColWidths, showSticky, columns, data, contentWidth])
 
   // ---------- Render helpers ----------
   const renderDockedTrailer = () => (
@@ -384,8 +451,8 @@ export function FloatingHeaderTable({
     >
       <div
         ref={trailerRef}
-        css={topScrollbarWrap}
-        style={{ pointerEvents: "auto", paddingLeft: 2, paddingRight: 2 }}
+        css={[topScrollbarWrap, trailerBarCss]}
+        style={{ pointerEvents: "auto" }}
       >
         <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
       </div>
@@ -393,46 +460,13 @@ export function FloatingHeaderTable({
   )
 
   const renderStickyHeader = () => (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: wrapRect.left,
-        width: wrapRect.width, // keep the viewport clip the same
-        zIndex: 100,
-        pointerEvents: "none",
-        background: "transparent",
-        overflow: "hidden",
-        margin: 0,
-        padding: 0,
-        transition: "left 0.2s, width 0.2s",
-      }}
-    >
-      <div
-        style={{
-          // no border/radius (you already removed), keep layout-neutral
-          boxShadow: "0 1px 0 rgba(0,0,0,0.06)",
-          background: "#fff",
-          overflow: "hidden",
-          display: "inline-block",
-          margin: 0,
-          padding: 0,
-          boxSizing: "border-box",
-          // ❌ remove width: "100%" so the inner table can be its true content width
-          // width: "100%",
-        }}
-      >
+    <div css={stickyShellCss} style={{ left: wrapRect.left, width: wrapRect.width }}>
+      <div css={stickyInnerCss}>
         <table
           ref={stickyTableRef}
           style={{
             borderCollapse: "separate",
             borderSpacing: 0,
-            margin: 0,
-            pointerEvents: "none",
-            transform: "translate3d(0,0,0)",
-            willChange: "transform",
-            contain: "paint",
-            backfaceVisibility: "hidden",
             width: Math.max(contentWidth, wrapRect.width),
           }}
         />
@@ -568,18 +602,8 @@ export function FloatingHeaderTable({
                     colIdx >= chapterHeaderStart &&
                     header.colSpan === 2 && (
                       <span
-                        style={{
-                          position: "absolute",
-                          left: 0,
-                          right: 0,
-                          width: "100%",
-                          height: 4,
-                          background: getHeaderBg(rowIdx, colIdx, header),
-                          borderRadius: 2,
-                          top: "0px",
-                          zIndex: 2,
-                          pointerEvents: "none",
-                        }}
+                        css={headerUnderlineCss}
+                        style={{ background: getHeaderBg(rowIdx, colIdx, header) }}
                       />
                     )}
                 </th>
@@ -625,7 +649,6 @@ export function FloatingHeaderTable({
 
             return (
               <td
-                key={cell.id}
                 css={[
                   tdStyle,
                   isLast && lastRowTdStyle,
@@ -633,27 +656,13 @@ export function FloatingHeaderTable({
                   removeLeft && noLeftBorder,
                 ]}
                 style={{
-                  ...(() => {
-                    if (cell.column.id === "actions") {
-                      return {
-                        width: 80,
-                        minWidth: 80,
-                        maxWidth: 80,
-                        paddingLeft: 4,
-                        paddingRight: 4,
-                        whiteSpace: "nowrap",
-                      }
-                    }
-                    const meta = (cell.column.columnDef as any)?.meta as
-                      | { width?: number; minWidth?: number }
-                      | undefined
-                    return {
-                      width: meta?.width ?? colWidths[i],
-                      minWidth: meta?.minWidth,
-                      paddingLeft: 16,
-                      paddingRight: 16,
-                    }
-                  })(),
+                  ...cellBase,
+                  ...(cell.column.id === "actions"
+                    ? actionCellFixed
+                    : contentCell(
+                        (cell.column.columnDef as any)?.meta?.width ?? colWidths[i],
+                        (cell.column.columnDef as any)?.meta?.minWidth,
+                      )),
                   background: bg,
                 }}
               >

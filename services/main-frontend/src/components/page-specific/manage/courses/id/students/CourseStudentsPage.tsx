@@ -1,5 +1,7 @@
+import { useRouter } from "next/router"
 import React, { useState } from "react"
 
+import { ProgressTabContent } from "./ProgressTabBackend"
 import styles from "./StudentsPage.module.css"
 import {
   CertificatesTabContent,
@@ -18,18 +20,22 @@ const TAB_PROGRESS = "Progress"
 const TAB_CERTIFICATES = "Certificates"
 const TAB_LIST = [TAB_USER, TAB_COMPLETIONS, TAB_PROGRESS, TAB_CERTIFICATES]
 
-const tabContentMap: { [k: string]: React.ReactNode } = {
-  [TAB_USER]: <UserTabContent />,
-  [TAB_COMPLETIONS]: <CompletionsTabContent />,
-  [TAB_PROGRESS]: <PointsTabContent />,
-  [TAB_CERTIFICATES]: <CertificatesTabContent />,
-}
-
 // tiny helper to join classes without bringing a lib
 const cx = (...arr: Array<string | false | undefined>) => arr.filter(Boolean).join(" ")
 
 const StudentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(TAB_USER)
+  const router = useRouter()
+  const courseInstanceId = typeof router.query?.id === "string" ? router.query.id : undefined
+  // given your URL: /manage/courses/[id]/students → id is a path param
+  const courseId = typeof router.query?.id === "string" ? router.query.id : undefined
+
+  const tabContentMap: { [k: string]: React.ReactNode } = {
+    [TAB_USER]: <UserTabContent />,
+    [TAB_COMPLETIONS]: <CompletionsTabContent />,
+    [TAB_PROGRESS]: <ProgressTabContent courseId={courseId} />,
+    [TAB_CERTIFICATES]: <CertificatesTabContent />,
+  }
 
   return (
     <BreakFromCentered>

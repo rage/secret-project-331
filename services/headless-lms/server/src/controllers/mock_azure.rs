@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 // GET /api/v0/mock_azure/test/{deployment_name}/
-// POST /api/v0/mock_azure/test/{deployment_name/
+// POST /api/v0/mock_azure/test/{deployment_name}/
 async fn mock_azure(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult<String> {
     assert!(app_conf.test_chatbot && app_conf.test_mode);
     let a = r#"

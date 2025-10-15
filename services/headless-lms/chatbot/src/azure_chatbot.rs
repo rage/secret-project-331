@@ -108,10 +108,9 @@ pub struct NonThinkingParams {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[serde(untagged)]
 pub enum LLMRequestParams {
-    //#[serde(flatten)]
     Thinking(ThinkingParams),
-    //#[serde(flatten)]
     NonThinking(NonThinkingParams),
 }
 
@@ -131,7 +130,6 @@ impl LLMRequest {
         chatbot_configuration_id: Uuid,
         conversation_id: Uuid,
         message: &str,
-        thinking_model: bool,
         app_config: &ApplicationConfiguration,
     ) -> anyhow::Result<(Self, ChatbotConversationMessage, i32)> {
         let index_name = Url::parse(&app_config.base_url)?
@@ -241,7 +239,7 @@ impl LLMRequest {
 
         // omg this probably doesn't work because the json-version of this is not the correct shape for a Azure api request body :'(
         // unless it's flattened?
-        let params = if thinking_model {
+        let params = if configuration.thinking_model {
             LLMRequestParams::Thinking(ThinkingParams {
                 max_completion_tokens: configuration.max_completion_tokens,
                 max_output_tokens: configuration.max_output_tokens,
@@ -408,22 +406,21 @@ pub async fn send_chat_request_and_parse_stream(
     conversation_id: Uuid,
     message: &str,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
-    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
-        conn,
-        chatbot_configuration_id,
-    )
-    .await?;
-
     let (chat_request, new_message, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_message_to_db(
             conn,
             chatbot_configuration_id,
             conversation_id,
             message,
-            model.thinking,
             app_config,
         )
         .await?;
+
+    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
+        conn,
+        chatbot_configuration_id,
+    )
+    .await?;
 
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let done = Arc::new(AtomicBool::new(false));
@@ -481,7 +478,6 @@ pub async fn send_chat_request_and_parse_stream(
                 continue;
             }
             let json_str = line.trim_start_matches("data: ");
-            println!("{:?}", json_str);
 
             let mut full_response_text = full_response_text.lock().await;
             if json_str.trim() == "[DONE]" {
@@ -505,6 +501,8 @@ pub async fn send_chat_request_and_parse_stream(
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
+            println!("{:?}", response_chunk);
+
 
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {

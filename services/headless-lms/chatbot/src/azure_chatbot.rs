@@ -9,6 +9,7 @@ use std::task::{Context, Poll};
 use bytes::Bytes;
 use chrono::Utc;
 use futures::{Stream, TryStreamExt};
+use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::ApplicationConfiguration;
@@ -89,16 +90,38 @@ impl From<ChatbotConversationMessage> for APIMessage {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct LLMRequest {
-    pub messages: Vec<APIMessage>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub data_sources: Vec<DataSource>,
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct ThinkingParams {
+    pub max_completion_tokens: Option<i32>,
+    pub max_output_tokens: Option<i32>,
+    pub verbosity: Option<VerbosityLevel>,
+    pub reasoning_effort: Option<ReasoningEffortLevel>,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct NonThinkingParams {
     pub temperature: Option<f32>,
     pub top_p: Option<f32>,
     pub frequency_penalty: Option<f32>,
     pub presence_penalty: Option<f32>,
     pub max_tokens: Option<i32>,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub enum LLMRequestParams {
+    //#[serde(flatten)]
+    Thinking(ThinkingParams),
+    //#[serde(flatten)]
+    NonThinking(NonThinkingParams),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LLMRequest {
+    pub messages: Vec<APIMessage>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub data_sources: Vec<DataSource>,
+    #[serde(flatten)]
+    pub params: LLMRequestParams,
     pub stop: Option<String>,
 }
 
@@ -108,6 +131,7 @@ impl LLMRequest {
         chatbot_configuration_id: Uuid,
         conversation_id: Uuid,
         message: &str,
+        thinking_model: bool,
         app_config: &ApplicationConfiguration,
     ) -> anyhow::Result<(Self, ChatbotConversationMessage, i32)> {
         let index_name = Url::parse(&app_config.base_url)?
@@ -215,15 +239,30 @@ impl LLMRequest {
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
 
+        // omg this probably doesn't work because the json-version of this is not the correct shape for a Azure api request body :'(
+        // unless it's flattened?
+        let params = if thinking_model {
+            LLMRequestParams::Thinking(ThinkingParams {
+                max_completion_tokens: configuration.max_completion_tokens,
+                max_output_tokens: configuration.max_output_tokens,
+                reasoning_effort: configuration.reasoning_effort,
+                verbosity: configuration.verbosity,
+            })
+        } else {
+            LLMRequestParams::NonThinking(NonThinkingParams {
+                temperature: configuration.temperature,
+                top_p: configuration.top_p,
+                frequency_penalty: configuration.frequency_penalty,
+                presence_penalty: configuration.presence_penalty,
+                max_tokens: configuration.response_max_tokens,
+            })
+        };
+
         Ok((
             Self {
                 messages: api_chat_messages,
                 data_sources,
-                temperature: Some(configuration.temperature),
-                top_p: Some(configuration.top_p),
-                frequency_penalty: Some(configuration.frequency_penalty),
-                presence_penalty: Some(configuration.presence_penalty),
-                max_tokens: Some(configuration.response_max_tokens),
+                params,
                 stop: None,
             },
             new_message,
@@ -369,24 +408,25 @@ pub async fn send_chat_request_and_parse_stream(
     conversation_id: Uuid,
     message: &str,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
+    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
+        conn,
+        chatbot_configuration_id,
+    )
+    .await?;
+
     let (chat_request, new_message, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_message_to_db(
             conn,
             chatbot_configuration_id,
             conversation_id,
             message,
+            model.thinking,
             app_config,
         )
         .await?;
 
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let done = Arc::new(AtomicBool::new(false));
-
-    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
-        conn,
-        chatbot_configuration_id,
-    )
-    .await?;
 
     let response_order_number = new_message.order_number + 1;
 
@@ -441,6 +481,7 @@ pub async fn send_chat_request_and_parse_stream(
                 continue;
             }
             let json_str = line.trim_start_matches("data: ");
+            println!("{:?}", json_str);
 
             let mut full_response_text = full_response_text.lock().await;
             if json_str.trim() == "[DONE]" {

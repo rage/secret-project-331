@@ -8,6 +8,7 @@ pub struct ChatbotConfigurationModel {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub model: String,
+    pub thinking: bool,
     pub default_model: bool,
     pub deployment_name: String,
 }

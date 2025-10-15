@@ -1,0 +1,218 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_configurations\nSET\n    enabled_to_students = $1,\n    chatbot_name = $2,\n    prompt = $3,\n    initial_message = $4,\n    weekly_tokens_per_user = $5,\n    daily_tokens_per_user = $6,\n    temperature = $7,\n    top_p = $8,\n    frequency_penalty = $9,\n    presence_penalty = $10,\n    response_max_tokens = $11,\n    use_azure_search = $12,\n    maintain_azure_search_index = $13,\n    hide_citations = $14,\n    use_semantic_reranking = $15,\n    default_chatbot = $16,\n    model = $17\nWHERE id = $18\nRETURNING     id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_output_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    verbosity as \"verbosity?: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort?: ReasoningEffortLevel\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "enabled_to_students",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "chatbot_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "model",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "thinking_model",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "prompt",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "initial_message",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "weekly_tokens_per_user",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 12,
+        "name": "daily_tokens_per_user",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 13,
+        "name": "temperature",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 14,
+        "name": "top_p",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 15,
+        "name": "frequency_penalty",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 16,
+        "name": "presence_penalty",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 17,
+        "name": "response_max_tokens",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 18,
+        "name": "max_output_tokens",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 19,
+        "name": "max_completion_tokens",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 20,
+        "name": "use_azure_search",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 21,
+        "name": "maintain_azure_search_index",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 22,
+        "name": "hide_citations",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 23,
+        "name": "use_semantic_reranking",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 24,
+        "name": "default_chatbot",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 25,
+        "name": "verbosity?: VerbosityLevel",
+        "type_info": {
+          "Custom": {
+            "name": "verbosity_level",
+            "kind": {
+              "Enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 26,
+        "name": "reasoning_effort?: ReasoningEffortLevel",
+        "type_info": {
+          "Custom": {
+            "name": "reasoning_effort_level",
+            "kind": {
+              "Enum": [
+                "minimal",
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Float4",
+        "Float4",
+        "Float4",
+        "Float4",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "094e57ef57e99ddee61de6720db25d8e60dcc4df254896de3d527479cb795e37"
+}

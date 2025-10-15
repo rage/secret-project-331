@@ -200,15 +200,20 @@ export interface ChatbotConfiguration {
   enabled_to_students: boolean
   chatbot_name: string
   model: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  temperature: number
-  top_p: number
-  frequency_penalty: number
-  presence_penalty: number
-  response_max_tokens: number
+  temperature: number | null
+  top_p: number | null
+  frequency_penalty: number | null
+  presence_penalty: number | null
+  response_max_tokens: number | null
+  max_completion_tokens: number | null
+  max_output_tokens: number | null
+  verbosity: VerbosityLevel | null
+  reasoning_effort: ReasoningEffortLevel | null
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
@@ -221,15 +226,16 @@ export interface NewChatbotConf {
   enabled_to_students: boolean
   chatbot_name: string
   model: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  temperature: number
-  top_p: number
-  frequency_penalty: number
-  presence_penalty: number
-  response_max_tokens: number
+  temperature: number | null
+  top_p: number | null
+  frequency_penalty: number | null
+  presence_penalty: number | null
+  response_max_tokens: number | null
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
@@ -238,12 +244,17 @@ export interface NewChatbotConf {
   chatbotconf_id: string | null
 }
 
+export type VerbosityLevel = "Low" | "Medium" | "High"
+
+export type ReasoningEffortLevel = "Minimal" | "Low" | "Medium" | "High"
+
 export interface ChatbotConfigurationModel {
   id: string
   created_at: string
   updated_at: string
   deleted_at: string | null
   model: string
+  thinking: boolean
   default_model: boolean
   deployment_name: string
 }

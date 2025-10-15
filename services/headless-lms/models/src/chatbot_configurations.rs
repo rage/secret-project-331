@@ -1,5 +1,24 @@
 use crate::prelude::*;
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[sqlx(type_name = "reasoning_effort_level", rename_all = "snake_case")]
+pub enum ReasoningEffortLevel {
+    Minimal,
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[sqlx(type_name = "verbosity_level", rename_all = "snake_case")]
+pub enum VerbosityLevel {
+    Low,
+    Medium,
+    High,
+}
+
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConfiguration {
@@ -11,15 +30,23 @@ pub struct ChatbotConfiguration {
     pub enabled_to_students: bool,
     pub chatbot_name: String,
     pub model: Uuid,
+    pub thinking_model: bool,
     pub prompt: String,
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
     pub daily_tokens_per_user: i32,
-    pub temperature: f32,
-    pub top_p: f32,
-    pub frequency_penalty: f32,
-    pub presence_penalty: f32,
-    pub response_max_tokens: i32,
+    //
+    pub temperature: Option<f32>,
+    pub top_p: Option<f32>,
+    pub frequency_penalty: Option<f32>,
+    pub presence_penalty: Option<f32>,
+    pub response_max_tokens: Option<i32>,
+    //
+    pub max_completion_tokens: Option<i32>,
+    pub max_output_tokens: Option<i32>,
+    pub verbosity: Option<VerbosityLevel>,
+    pub reasoning_effort: Option<ReasoningEffortLevel>,
+    //
     pub use_azure_search: bool,
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
@@ -38,15 +65,20 @@ impl Default for ChatbotConfiguration {
             enabled_to_students: false,
             chatbot_name: Default::default(),
             model: Uuid::nil(),
+            thinking_model: false,
             prompt: Default::default(),
             initial_message: Default::default(),
             weekly_tokens_per_user: 20000 * 5,
             daily_tokens_per_user: 20000,
-            temperature: 0.7,
-            top_p: 1.0,
+            temperature: Some(0.7),
+            top_p: Some(1.0),
             frequency_penalty: Default::default(),
             presence_penalty: Default::default(),
-            response_max_tokens: 500,
+            response_max_tokens: Some(500),
+            max_completion_tokens: None,
+            max_output_tokens: None,
+            reasoning_effort: None,
+            verbosity: None,
             use_azure_search: false,
             maintain_azure_search_index: false,
             hide_citations: false,
@@ -63,15 +95,16 @@ pub struct NewChatbotConf {
     pub enabled_to_students: bool,
     pub chatbot_name: String,
     pub model: Uuid,
+    pub thinking_model: bool,
     pub prompt: String,
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
     pub daily_tokens_per_user: i32,
-    pub temperature: f32,
-    pub top_p: f32,
-    pub frequency_penalty: f32,
-    pub presence_penalty: f32,
-    pub response_max_tokens: i32,
+    pub temperature: Option<f32>,
+    pub top_p: Option<f32>,
+    pub frequency_penalty: Option<f32>,
+    pub presence_penalty: Option<f32>,
+    pub response_max_tokens: Option<i32>,
     pub use_azure_search: bool,
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
@@ -88,6 +121,7 @@ impl Default for NewChatbotConf {
             enabled_to_students: chatbot_conf.enabled_to_students,
             chatbot_name: chatbot_conf.chatbot_name,
             model: chatbot_conf.model,
+            thinking_model: chatbot_conf.thinking_model,
             prompt: chatbot_conf.prompt,
             initial_message: chatbot_conf.initial_message,
             weekly_tokens_per_user: chatbot_conf.weekly_tokens_per_user,
@@ -111,7 +145,35 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Chatbot
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT * FROM chatbot_configurations
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    enabled_to_students,
+    chatbot_name,
+    model,
+    thinking_model,
+    prompt,
+    initial_message,
+    weekly_tokens_per_user,
+    daily_tokens_per_user,
+    temperature,
+    top_p,
+    frequency_penalty,
+    presence_penalty,
+    response_max_tokens,
+    max_output_tokens,
+    max_completion_tokens,
+    use_azure_search,
+    maintain_azure_search_index,
+    hide_citations,
+    use_semantic_reranking,
+    default_chatbot,
+    verbosity as "verbosity?: VerbosityLevel",
+    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+FROM chatbot_configurations
 WHERE id = $1
 AND deleted_at IS NULL
         "#,
@@ -152,7 +214,33 @@ INSERT INTO chatbot_configurations (
     default_chatbot
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-RETURNING *
+RETURNING         id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    enabled_to_students,
+    chatbot_name,
+    model,
+    thinking_model,
+    prompt,
+    initial_message,
+    weekly_tokens_per_user,
+    daily_tokens_per_user,
+    temperature,
+    top_p,
+    frequency_penalty,
+    presence_penalty,
+    response_max_tokens,
+    max_output_tokens,
+    max_completion_tokens,
+    use_azure_search,
+    maintain_azure_search_index,
+    hide_citations,
+    use_semantic_reranking,
+    default_chatbot,
+    verbosity as "verbosity?: VerbosityLevel",
+    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
         "#,
         pkey_policy.into_uuid(),
         input.course_id,
@@ -186,7 +274,7 @@ pub async fn edit(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-UPDATE chatbot_configurations AS cc
+UPDATE chatbot_configurations
 SET
     enabled_to_students = $1,
     chatbot_name = $2,
@@ -205,8 +293,35 @@ SET
     use_semantic_reranking = $15,
     default_chatbot = $16,
     model = $17
-WHERE cc.id = $18
-RETURNING *"#,
+WHERE id = $18
+RETURNING     id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    enabled_to_students,
+    chatbot_name,
+    model,
+    thinking_model,
+    prompt,
+    initial_message,
+    weekly_tokens_per_user,
+    daily_tokens_per_user,
+    temperature,
+    top_p,
+    frequency_penalty,
+    presence_penalty,
+    response_max_tokens,
+    max_output_tokens,
+    max_completion_tokens,
+    use_azure_search,
+    maintain_azure_search_index,
+    hide_citations,
+    use_semantic_reranking,
+    default_chatbot,
+    verbosity as "verbosity?: VerbosityLevel",
+    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+"#,
         input.enabled_to_students,
         input.chatbot_name,
         input.prompt,
@@ -253,8 +368,35 @@ pub async fn get_for_course(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT * FROM
-chatbot_configurations
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    enabled_to_students,
+    chatbot_name,
+    model,
+    thinking_model,
+    prompt,
+    initial_message,
+    weekly_tokens_per_user,
+    daily_tokens_per_user,
+    temperature,
+    top_p,
+    frequency_penalty,
+    presence_penalty,
+    response_max_tokens,
+    max_output_tokens,
+    max_completion_tokens,
+    use_azure_search,
+    maintain_azure_search_index,
+    hide_citations,
+    use_semantic_reranking,
+    default_chatbot,
+    verbosity as "verbosity?: VerbosityLevel",
+    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+FROM chatbot_configurations
 WHERE course_id = $1
 AND deleted_at IS NULL
 "#,
@@ -272,8 +414,35 @@ pub async fn get_enabled_nondefault_for_course(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT * FROM
-chatbot_configurations
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    enabled_to_students,
+    chatbot_name,
+    model,
+    thinking_model,
+    prompt,
+    initial_message,
+    weekly_tokens_per_user,
+    daily_tokens_per_user,
+    temperature,
+    top_p,
+    frequency_penalty,
+    presence_penalty,
+    response_max_tokens,
+    max_output_tokens,
+    max_completion_tokens,
+    use_azure_search,
+    maintain_azure_search_index,
+    hide_citations,
+    use_semantic_reranking,
+    default_chatbot,
+    verbosity as "verbosity?: VerbosityLevel",
+    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+FROM chatbot_configurations
 WHERE course_id = $1
 AND default_chatbot IS false
 AND enabled_to_students IS true
@@ -292,8 +461,36 @@ pub async fn get_for_azure_search_maintenance(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT * FROM
-chatbot_configurations
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    enabled_to_students,
+    chatbot_name,
+    model,
+    thinking_model,
+    prompt,
+    initial_message,
+    weekly_tokens_per_user,
+    daily_tokens_per_user,
+    temperature,
+    top_p,
+    frequency_penalty,
+    presence_penalty,
+    response_max_tokens,
+    max_output_tokens,
+    max_completion_tokens,
+    use_azure_search,
+    maintain_azure_search_index,
+    hide_citations,
+    use_semantic_reranking,
+    default_chatbot,
+    verbosity as "verbosity?: VerbosityLevel",
+    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+
+FROM chatbot_configurations
 WHERE maintain_azure_search_index = true
 AND deleted_at IS NULL
 "#,
@@ -332,7 +529,34 @@ pub async fn set_default_chatbot_for_course(
 UPDATE chatbot_configurations
 SET default_chatbot = true
 WHERE id = $1
-RETURNING *
+RETURNING
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    enabled_to_students,
+    chatbot_name,
+    model,
+    thinking_model,
+    prompt,
+    initial_message,
+    weekly_tokens_per_user,
+    daily_tokens_per_user,
+    temperature,
+    top_p,
+    frequency_penalty,
+    presence_penalty,
+    response_max_tokens,
+    max_output_tokens,
+    max_completion_tokens,
+    use_azure_search,
+    maintain_azure_search_index,
+    hide_citations,
+    use_semantic_reranking,
+    default_chatbot,
+    verbosity as "verbosity?: VerbosityLevel",
+    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
 "#,
         chatbot_configuration_id,
     )

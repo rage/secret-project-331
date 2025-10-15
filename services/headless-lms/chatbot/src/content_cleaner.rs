@@ -1,4 +1,4 @@
-use crate::azure_chatbot::LLMRequest;
+use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
 use crate::llm_utils::{APIMessage, MessageRole, estimate_tokens, make_blocking_llm_request};
 use crate::prelude::*;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
@@ -218,11 +218,13 @@ async fn process_block_chunk(
     let llm_base_request: LLMRequest = LLMRequest {
         messages,
         data_sources: vec![],
-        temperature: Some(REQUEST_TEMPERATURE),
-        top_p: None,
-        frequency_penalty: None,
-        presence_penalty: None,
-        max_tokens: None,
+        params: LLMRequestParams::NonThinking(NonThinkingParams {
+            temperature: Some(REQUEST_TEMPERATURE),
+            top_p: None,
+            frequency_penalty: None,
+            presence_penalty: None,
+            max_tokens: None,
+        }),
         stop: None,
     };
     info!(

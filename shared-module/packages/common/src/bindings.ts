@@ -233,6 +233,7 @@ export interface NewChatbotConf {
   hide_citations: boolean
   use_semantic_reranking: boolean
   default_chatbot: boolean
+  chatbotconf_id: string | null
 }
 
 export interface ChatbotConversationMessage {
@@ -1363,6 +1364,12 @@ export interface UserWithModuleCompletions {
   first_name: string | null
   last_name: string | null
   user_id: string
+}
+
+export interface ProgressOverview {
+  user_details: Array<UserDetail>
+  chapters: Array<DatabaseChapter>
+  user_exercise_states: Array<UserExerciseState>
 }
 
 export interface UserMarketingConsent {

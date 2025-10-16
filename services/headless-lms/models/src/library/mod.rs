@@ -12,6 +12,7 @@ pub mod peer_or_self_reviewing;
 pub mod progressing;
 pub mod regrading;
 pub mod user_exercise_state_updater;
+pub mod students_view;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

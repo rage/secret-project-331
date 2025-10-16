@@ -1,13 +1,9 @@
 import { useRouter } from "next/router"
 import React, { useEffect, useMemo, useState } from "react"
 
+import { ProgressTabContent } from "./ProgressTab"
 import styles from "./StudentsPage.module.css"
-import {
-  CertificatesTabContent,
-  CompletionsTabContent,
-  ProgressTabContent,
-  UserTabContent,
-} from "./StudentsTableTabs"
+import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from "./StudentsTableTabs"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 
@@ -41,8 +37,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
 
   // derive courseId from prop (preferred) or from router as fallback
   const courseId =
-    courseIdProp ??
-    (typeof router.query?.id === "string" ? router.query.id : undefined)
+    courseIdProp ?? (typeof router.query?.id === "string" ? router.query.id : undefined)
 
   // read initial tab from parent/router (e.g. "progress" in /students/progress)
   const tabFromUrl = useMemo<(typeof TAB_LIST)[number]>(() => {
@@ -68,13 +63,14 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
 
   const goTab = (tab: (typeof TAB_LIST)[number]) => {
     setActiveTab(tab)
-    if (!courseId) return
+    if (!courseId) {
+      return
+    }
     const slug = TAB_TO_SLUG[tab]
-    router.push(
-      `/manage/courses/${courseId}/students/${slug}`,
-      undefined,
-      { shallow: true, scroll: false },
-    )
+    router.push(`/manage/courses/${courseId}/students/${slug}`, undefined, {
+      shallow: true,
+      scroll: false,
+    })
   }
 
   const tabContentMap: { [k in (typeof TAB_LIST)[number]]: React.ReactNode } = {
@@ -122,7 +118,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
                     tab === TAB_COMPLETIONS && styles.tabCompletions,
                     activeTab === tab && styles.tabActive,
                   )}
-                  onClick={() => goTab(tab)}  // URL-syncing click
+                  onClick={() => goTab(tab)} // URL-syncing click
                 >
                   {tab}
                 </button>
@@ -132,9 +128,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
         </div>
 
         {/* TABLE SECTION */}
-        <div style={{ paddingLeft: "5vw", paddingRight: "5vw" }}>
-          {tabContentMap[activeTab]}
-        </div>
+        <div style={{ paddingLeft: "5vw", paddingRight: "5vw" }}>{tabContentMap[activeTab]}</div>
       </div>
     </BreakFromCentered>
   )

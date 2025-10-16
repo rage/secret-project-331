@@ -2,11 +2,11 @@ import { css } from "@emotion/css"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 
-import { LIGHT_GREEN } from "../shared/styles"
-
 import ChatbotReferenceList from "./ChatbotReferenceList"
+import CitationPopovers from "./CitationPopovers"
 import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
 import ThinkingIndicator from "./ThinkingIndicator"
+import { LIGHT_GREEN } from "./styles"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -102,7 +102,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   // the ref is updated manually because there are multiple trigger elements for the popover
   // that need to be able to be set as the ref conditionally
-  let triggerRef = useRef<HTMLButtonElement>(null)
+  let triggerElement = useRef<HTMLButtonElement>(null)
+  let [triggerElementId, setTriggerElementId] = useState("")
 
   const [citationsOpen, setCitationsOpen] = useState(false)
   const [citationButtonClicked, setCitationButtonClicked] = useState(false)
@@ -112,7 +113,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       if (!(e.target instanceof HTMLButtonElement)) {
         throw new Error("This hover is meant to be used on buttons only.")
       }
-      triggerRef.current = e.target
+      triggerElement.current = e.target
+      setTriggerElementId(e.target.id)
     },
   })
 
@@ -133,13 +135,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       <RenderedMessage
         renderOption={renderOption}
         citationButtonClicked={citationButtonClicked}
-        currentRefId={triggerRef.current?.id}
+        currentTriggerId={triggerElementId}
         message={message}
         citedDocs={citedDocs}
         citationNumberingMap={citationNumberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)
-          triggerRef.current = e.currentTarget
+          triggerElement.current = e.currentTarget
+          setTriggerElementId(e.currentTarget.id)
         }}
         hoverCitationProps={hoverCitationProps}
       />
@@ -153,6 +156,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     hoverCitationProps,
     citationButtonClicked,
     renumberFilterCitationsResult,
+    triggerElementId,
   ])
 
   return (
@@ -173,12 +177,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           <ChatbotReferenceList
             citations={processedCitations}
             citationNumberingMap={citationNumberingMap}
-            triggerRef={triggerRef}
             citationsOpen={citationsOpen}
-            citationButtonClicked={citationButtonClicked}
-            isCitationHovered={isCitationHovered}
-            setCitationButtonClicked={setCitationButtonClicked}
             setCitationsOpen={setCitationsOpen}
+          />
+          <CitationPopovers
+            citations={processedCitations}
+            citationNumberingMap={citationNumberingMap}
+            triggerElement={triggerElement}
+            triggerElementId={triggerElementId}
+            setTriggerElementId={setTriggerElementId}
+            citationButtonClicked={citationButtonClicked}
+            setCitationButtonClicked={setCitationButtonClicked}
+            isCitationHovered={isCitationHovered}
           />
         </div>
       )}

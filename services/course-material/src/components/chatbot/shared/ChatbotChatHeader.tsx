@@ -2,9 +2,10 @@ import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotDialog"
+import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -12,10 +13,9 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
-type ChatbotDialogHeaderProps = {
+type ChatbotChatHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-  isCourseMaterialBlock: boolean
 } & DiscrChatbotDialogProps
 
 const headerContainerStyle = css`
@@ -65,7 +65,7 @@ const buttonsWrapper = css`
   align-items: flex-start;
 `
 
-const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
+const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
 
@@ -93,7 +93,13 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
       <div className={iconStyle}>
         <Account />
       </div>
-      <h1 className={titleStyle}>{currentConversationInfo.data?.chatbot_name}</h1>
+      <Heading
+        id={isCourseMaterialBlock ? undefined : props.chatbotTitleId}
+        slot="title"
+        className={titleStyle}
+      >
+        {currentConversationInfo.data?.chatbot_name}
+      </Heading>
       <div className={buttonsWrapper}>
         <button
           onClick={() => newConversation.mutate()}
@@ -109,17 +115,13 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
           />
         </button>
         {!isCourseMaterialBlock && (
-          <button
-            onClick={() => props.setDialogOpen(false)}
-            className={buttonStyle}
-            aria-label={t("close")}
-          >
+          <Button slot="close" className={buttonStyle} aria-label={t("close")}>
             <DownIcon />
-          </button>
+          </Button>
         )}
       </div>
     </div>
   )
 }
 
-export default React.memo(ChatbotDialogHeader)
+export default React.memo(ChatbotChatHeader)

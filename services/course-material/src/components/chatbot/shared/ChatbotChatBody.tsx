@@ -6,9 +6,10 @@ import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { CHATBOX_HEIGHT_PX } from "../Chatbot"
-import ErrorDisplay from "../Chatbot/ErrorDisplay"
-import MessageBubble from "../Chatbot/MessageBubble"
+import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
+
+import ErrorDisplay from "./ErrorDisplay"
+import MessageBubble from "./MessageBubble"
 
 import { sendChatbotMessage } from "@/services/backend"
 import {
@@ -23,7 +24,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotDialogBodyProps {
+interface ChatbotChatBodyProps {
   chatbotConfigurationId: string
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
@@ -56,7 +57,7 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
   }
 }
 
-const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
+const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
   currentConversationInfo,
   newConversation,
   chatbotConfigurationId,
@@ -239,6 +240,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           display: flex;
           flex-direction: column;
           padding: 20px;
+          overflow: hidden;
 
           h2 {
             font-size: 24px;
@@ -262,6 +264,9 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         <div
           className={css`
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: scroll;
           `}
         >
           <h2>{t("about-the-chatbot")}</h2>
@@ -280,6 +285,9 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           </ul>
         </div>
         <Button
+          className={css`
+            margin-top: 6px;
+          `}
           size="medium"
           variant="secondary"
           onClick={() => {
@@ -411,7 +419,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         className={css`
           margin: 0.5rem;
           font-size: 0.8rem;
-          color: ${baseTheme.colors.gray[400]};
+          color: ${baseTheme.colors.gray[500]};
           text-align: center;
         `}
       >
@@ -421,4 +429,4 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   )
 }
 
-export default React.memo(ChatbotDialogBody)
+export default React.memo(ChatbotChatBody)

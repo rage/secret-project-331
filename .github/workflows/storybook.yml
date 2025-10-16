@@ -54,8 +54,8 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: ./storybook
 
-      - name: npm run build-storybook
-        run: npm run build-storybook -- --quiet
+      - name: pnpm run build-storybook
+        run: pnpm run build-storybook -- --quiet
         working-directory: ./storybook
 
       - name: Remove old files from repo

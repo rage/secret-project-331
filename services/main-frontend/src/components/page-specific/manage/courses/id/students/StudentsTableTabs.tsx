@@ -13,7 +13,7 @@ import {
   mockStudentsSorted,
   pointsColumns as progressColumns,
   pointsData as progressData,
-} from "./studentsTableData"
+} from "./studentsTableData" // This is all placeholder and will be nuked later.
 import {
   headerRowStyle,
   lastRowTdStyle,
@@ -29,10 +29,6 @@ import {
   topScrollbarInner,
   topScrollbarWrap,
 } from "./studentsTableStyles"
-
-import { getProgress } from "@/services/backend/courses/students"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 
 // --- STYLE ATOMS / HELPERS (top of file) ---
 const padX = (px: number) => ({ paddingLeft: px, paddingRight: px })
@@ -815,34 +811,6 @@ export const CompletionsTabContent = () => {
       colorHeaders
       colorColumns
       colorHeaderUnderline
-    />
-  )
-}
-
-export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId }) => {
-  const query = useQuery({
-    queryKey: ["progress-tab", courseId], // include id for correct caching
-    queryFn: () => getProgress(courseId), // pass the string id
-  })
-
-  if (query.isLoading) {
-    return <Spinner />
-  }
-
-  if (query.isError) {
-    return <ErrorBanner error={query.error} />
-  }
-
-  console.log("Query data", query.data)
-
-  return (
-    <FloatingHeaderTable
-      columns={progressColumns}
-      data={progressData}
-      colorHeaders
-      colorColumns
-      colorHeaderUnderline
-      progressMode
     />
   )
 }

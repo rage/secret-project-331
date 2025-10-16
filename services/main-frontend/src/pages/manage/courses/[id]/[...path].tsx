@@ -91,6 +91,7 @@ type PageToRender =
       type: "other"
       subtab: string
     }
+  | { type: "students"; subtab: string }
 
 function selectPageToRender(path: string): PageToRender {
   // if page is other the path format is other/subtab
@@ -102,6 +103,11 @@ function selectPageToRender(path: string): PageToRender {
         type: "other",
         subtab,
       }
+    }
+    if (path && path.startsWith("students")) {
+      const parts = path.split("/")
+      const subtab = parts.length > 1 ? parts[1] : ""
+      return { type: "students", subtab }
     }
   } catch (_e) {
     // Default to overview
@@ -166,7 +172,7 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"course-instances"} isActive={path === "course-instances"}>
           {t("link-course-instances")}
         </TabLink>
-        <TabLink url={"students"} isActive={path === "students"}>
+        <TabLink url={"students/users"} isActive={path.startsWith("students")}>
           {t("Students")}
         </TabLink>
         <TabLink url={"language-versions"} isActive={path === "language-versions"}>
@@ -188,6 +194,8 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
             const PageComponent = pageToRender.component
             return <PageComponent courseId={courseId} />
           })()
+        ) : pageToRender.type === "students" ? (
+          <CourseStudentsPage courseId={courseId} initialTab={pageToRender.subtab} />
         ) : (
           <Other courseId={courseId} activeSubtab={pageToRender.subtab} />
         )}

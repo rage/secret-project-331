@@ -1,18 +1,18 @@
 // StudentsTableTabs.tsx
 import { css } from "@emotion/react"
+import { useQuery } from "@tanstack/react-query"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
-import { ProgressTabContent } from "./StudentsTableTabs"
 import { colorPairs } from "./studentsTableColors"
 import {
   completionsColumns,
   completionsData,
   formatName,
   mockStudentsSorted,
-  pointsColumns,
-  pointsData,
+  pointsColumns as progressColumns,
+  pointsData as progressData,
 } from "./studentsTableData"
 import {
   headerRowStyle,
@@ -29,6 +29,10 @@ import {
   topScrollbarInner,
   topScrollbarWrap,
 } from "./studentsTableStyles"
+
+import { getProgress } from "@/services/backend/courses/students"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 // --- STYLE ATOMS / HELPERS (top of file) ---
 const padX = (px: number) => ({ paddingLeft: px, paddingRight: px })
@@ -815,13 +819,32 @@ export const CompletionsTabContent = () => {
   )
 }
 
-export const PointsTabContent = () => (
-  <FloatingHeaderTable
-    columns={pointsColumns}
-    data={pointsData}
-    colorHeaders
-    colorColumns
-    colorHeaderUnderline
-    progressMode
-  />
-)
+export const ProgressTabContent = (courseId) => {
+  const query = useQuery({
+    queryKey: ["progress-tab"],
+    queryFn: () => {
+      return getProgress(courseId)
+    },
+  })
+
+  if (query.isLoading) {
+    return <Spinner />
+  }
+
+  if (query.isError) {
+    return <ErrorBanner error={query.error} />
+  }
+
+  console.log(query.data)
+
+  return (
+    <FloatingHeaderTable
+      columns={progressColumns}
+      data={progressData}
+      colorHeaders
+      colorColumns
+      colorHeaderUnderline
+      progressMode
+    />
+  )
+}

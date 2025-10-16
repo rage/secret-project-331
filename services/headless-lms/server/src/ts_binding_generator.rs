@@ -186,6 +186,7 @@ fn models(target: &mut File) {
         library::progressing::UserCourseModuleCompletion,
         library::progressing::UserModuleCompletionStatus,
         library::progressing::UserWithModuleCompletions,
+        library::students_view::ProgressOverview,
 
         marketing_consents::UserMarketingConsent,
         material_references::MaterialReference,

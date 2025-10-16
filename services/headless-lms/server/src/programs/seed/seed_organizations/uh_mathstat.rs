@@ -18,7 +18,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_peer_review_course_without_submissions, seed_sample_course,
+            CommonCourseData, seed_chatbot::seed_chatbot_course,
+            seed_peer_review_course_without_submissions, seed_sample_course,
             seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
@@ -342,24 +343,16 @@ pub async fn seed_organization_uh_mathstat(
 
     chatbot_configurations::insert(
         &mut conn,
+        PKeyPolicy::Generate,
         NewChatbotConf {
             course_id: chatbot_course_id,
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
             prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't ever use a shortened version of your own name, don't babble; either get to the point straight away or tell jokes.".to_string(),
             initial_message: "Oh... It's you.".to_string(),
-            weekly_tokens_per_user: 3000,
-            daily_tokens_per_user: 1000,
-            temperature: 0.5,
-            top_p: 1.0,
-            frequency_penalty: 0.0,
-            presence_penalty: 0.0,
-            response_max_tokens: 500,
-            use_azure_search: false,
-            maintain_azure_search_index: false,
-            hide_citations: false,
-            use_semantic_reranking: false,
+            use_azure_search: true,
             default_chatbot: true,
+            ..Default::default()
         },
     )
     .await?;
@@ -408,6 +401,15 @@ pub async fn seed_organization_uh_mathstat(
         "changing-course-instance",
         uh_data.clone(),
         false,
+        seed_users_result,
+    )
+    .await?;
+
+    let _advanced_chatbot_id = seed_chatbot_course(
+        Uuid::parse_str("ced2f632-25ba-4e93-8e38-8df53ef7ab41")?,
+        "Advanced Chatbot course",
+        "advanced-chatbot-course",
+        uh_data.clone(),
         seed_users_result,
     )
     .await?;

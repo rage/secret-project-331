@@ -4,8 +4,7 @@ permissions: read-all
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
     paths-ignore:
       - "docs/**"
       - "services/cms/**"
@@ -16,8 +15,7 @@ on:
       - "services/tmc/**"
       - "storybook/**"
   pull_request:
-    branches:
-      - master
+    branches: [master]
     paths-ignore:
       - "docs/**"
       - "services/cms/**"
@@ -35,7 +33,7 @@ concurrency:
 jobs:
   build-and-deploy:
     permissions:
-      contents: read
+      contents: write
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -56,7 +54,7 @@ jobs:
       - name: Generate doc files
         run: |
           bin/generate-doc-files
-          npm run eslint:format-generated-docs
+          pnpm run eslint:format-generated-docs
 
       - name: Generate documentation
         run: cargo doc --document-private-items

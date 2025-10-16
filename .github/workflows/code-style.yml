@@ -33,8 +33,8 @@ jobs:
         with:
           args: -color
       - name: Eslint
-        run: npm run eslint:ci
+        run: pnpm run eslint:ci
       - name: Stylelint
-        run: npm run lint:css
+        run: pnpm run lint:css
       - name: Cargo fmt
         run: cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff --check

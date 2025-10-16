@@ -2,22 +2,14 @@ import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React, { useId, useMemo } from "react"
-import { useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { LIGHT_GREEN } from "../shared/styles"
-
-import { citationId } from "./CitationButton"
+import { LIGHT_GREEN } from "./styles"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
-import SpeechBalloonPopover from "@/shared-module/common/components/SpeechBalloonPopover"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import { getRemarkable } from "@/utils/getRemarkable"
-import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
-
-let md = getRemarkable()
 
 const referenceStyle = css`
   margin: 4px 4px 4px 0;
@@ -82,28 +74,18 @@ const expandButtonStyle = css`
 interface ChatbotReferenceListProps {
   citations: ChatbotConversationMessageCitation[]
   citationNumberingMap: Map<number, number>
-  triggerRef: React.RefObject<HTMLButtonElement | null>
   citationsOpen: boolean
-  citationButtonClicked: boolean
-  isCitationHovered: boolean
-  setCitationButtonClicked: (value: React.SetStateAction<boolean>) => void
   setCitationsOpen: (value: React.SetStateAction<boolean>) => void
 }
 
 const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
   citations,
   citationNumberingMap,
-  triggerRef,
   citationsOpen,
-  citationButtonClicked,
-  isCitationHovered,
-  setCitationButtonClicked,
   setCitationsOpen,
 }) => {
   const referenceListId = useId()
   const { t } = useTranslation()
-
-  let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
 
   let citationsToList = useMemo(() => {
     let citationFilteringSet = new Set()
@@ -193,94 +175,6 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                     )}
                   </div>
                 )}
-                <SpeechBalloonPopover
-                  placement="top"
-                  triggerRef={triggerRef}
-                  isOpen={
-                    triggerRef.current?.id.includes(
-                      // the triggerRef's id will contain the citationId's first part
-                      // if it's associated with this citation
-                      citationId(cit.citation_number.toString(), ""),
-                    ) &&
-                    (isCitationHovered || isPopoverHovered || citationButtonClicked)
-                  }
-                  isNonModal={!citationButtonClicked}
-                  onOpenChange={() => {
-                    setCitationButtonClicked(false)
-                  }}
-                  popoverLabel={`${t("citation")} ${citationNumber}`}
-                  {...hoverPopoverProps}
-                >
-                  <span
-                    className={css`
-                      overflow-wrap: break-word;
-                      height: fit-content;
-                      max-height: 5lh;
-                      margin-bottom: 0.5em;
-                      mask-image: linear-gradient(0.5turn, black 66%, transparent);
-                      h1 {
-                        font-size: 1.8rem;
-                      }
-                      h2 {
-                        font-size: 1.5rem;
-                      }
-                      h3 {
-                        font-size: 1.2rem;
-                      }
-                      h4 {
-                        font-size: 1rem;
-                      }
-                      h5 {
-                        font-size: 0.8rem;
-                      }
-                      h6 {
-                        font-size: 0.6rem;
-                      }
-                    `}
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizeCourseMaterialHtml(md.render(cit.content)),
-                    }}
-                  ></span>
-                  <p
-                    className={css`
-                      display: flex;
-                      justify-content: space-between;
-                      flex-flow: row nowrap;
-                      position: relative;
-                      gap: 10px;
-                      a {
-                        color: ${baseTheme.colors.blue[700]};
-                      }
-                      a::after {
-                        content: "";
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                      }
-                    `}
-                  >
-                    <a href={cit.document_url}>
-                      <span>
-                        <b>
-                          {cit.course_material_chapter_number &&
-                            `${t("chapter-chapter-number", {
-                              number: cit.course_material_chapter_number,
-                            })}: `}
-                          {`${cit.title}`}
-                        </b>
-                      </span>
-                    </a>
-                    <Library
-                      className={css`
-                        align-self: flex-end;
-                        width: 3em;
-                        margin-right: -5px;
-                      `}
-                    />
-                  </p>
-                </SpeechBalloonPopover>
               </div>
             )
           })}

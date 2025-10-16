@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 
-import ChatbotDialogBody from "@/components/chatbot/shared/ChatbotDialogBody"
-import ChatbotDialogHeader from "@/components/chatbot/shared/ChatbotDialogHeader"
+import ChatbotChatBody from "@/components/chatbot/shared/ChatbotChatBody"
+import ChatbotChatHeader from "@/components/chatbot/shared/ChatbotChatHeader"
 import useNewConversationMutation from "@/hooks/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationInfo"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -34,13 +34,13 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
         border-radius: 10px;
       `}
     >
-      <ChatbotDialogHeader
+      <ChatbotChatHeader
         chatbotConfigurationId={chatbotConfigurationId}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
         isCourseMaterialBlock={true}
       />
-      <ChatbotDialogBody
+      <ChatbotChatBody
         chatbotConfigurationId={chatbotConfigurationId}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}

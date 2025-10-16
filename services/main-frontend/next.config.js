@@ -12,6 +12,7 @@ const config = {
     ignoreDuringBuilds: true,
   },
   output: "standalone",
+  outputFileTracingRoot: ".",
   async headers() {
     return [
       {

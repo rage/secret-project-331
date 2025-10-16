@@ -8,6 +8,7 @@ import { fontSizeMapper, mobileFontSizeMapper } from "../../../../../styles/font
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 
+import ParsedText from "@/components/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -63,15 +64,29 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 
   if (ordered) {
     return (
-      // eslint-disable-next-line react/no-danger-with-children
-      <ol
-        className={listItemClass}
-        {...(start && { start: start })}
-        reversed={reversed}
-        dangerouslySetInnerHTML={dangerouslySetInnerHTML}
-        // eslint-disable-next-line react/no-children-prop
-        children={children}
+      <ParsedText
+        text={values}
+        tag="ol"
+        tagProps={{
+          className: listItemClass,
+          ...(start && { start: start }),
+          reversed: reversed,
+          dangerouslySetInnerHTML: dangerouslySetInnerHTML,
+          children: children,
+        }}
       />
+      // ,{...(start && { start: start })}, reversed={reversed}, dangerouslySetInnerHTML={dangerouslySetInnerHTML}, children={children}}}/>
+
+      // <ol
+      //   className={listItemClass}
+      //   {...(start && { start: start })}
+      //   reversed={reversed}
+      //   dangerouslySetInnerHTML={dangerouslySetInnerHTML}
+      //   // eslint-disable-next-line react/no-children-prop
+      //   children={children}
+      //<ParsedText text={text} tag="p" />
+      // <ParsedText text={text} render={({ innerHtml }) => <span dangerouslySetInnerHTML={{ __html: innerHtml }} />} />
+      // />
     )
   } else {
     return (

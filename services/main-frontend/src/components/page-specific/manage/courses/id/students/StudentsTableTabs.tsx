@@ -819,12 +819,10 @@ export const CompletionsTabContent = () => {
   )
 }
 
-export const ProgressTabContent = (courseId) => {
+export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId }) => {
   const query = useQuery({
-    queryKey: ["progress-tab"],
-    queryFn: () => {
-      return getProgress(courseId)
-    },
+    queryKey: ["progress-tab", courseId], // include id for correct caching
+    queryFn: () => getProgress(courseId), // pass the string id
   })
 
   if (query.isLoading) {
@@ -835,7 +833,7 @@ export const ProgressTabContent = (courseId) => {
     return <ErrorBanner error={query.error} />
   }
 
-  console.log(query.data)
+  console.log("Query data", query.data)
 
   return (
     <FloatingHeaderTable

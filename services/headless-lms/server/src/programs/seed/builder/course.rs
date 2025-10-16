@@ -1,10 +1,12 @@
 use anyhow::{Context, Result};
-use sqlx::Connection;
+use sqlx::{Connection, PgConnection};
+use tracing::log::warn;
 use uuid::Uuid;
 
 use headless_lms_models::{
     PKeyPolicy, certificate_configuration_to_requirements,
     certificate_configurations::{self, DatabaseCertificateConfiguration},
+    chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, CourseInstance, NewCourseInstance},
     course_language_groups,
     course_modules::CourseModule,
@@ -70,6 +72,7 @@ pub struct CourseBuilder {
     pub extra_roles: Vec<(Uuid, UserRole)>,
     pub course_id: Option<Uuid>,
     pub instances: Vec<CourseInstanceConfig>,
+    pub chatbot_configs: Vec<NewChatbotConf>,
     pub pages: Vec<PageConfig>,
     pub glossary_entries: Vec<GlossaryEntry>,
     pub certificate_config: Option<CertificateConfig>,
@@ -89,6 +92,7 @@ impl CourseBuilder {
             extra_roles: vec![],
             course_id: None,
             instances: vec![],
+            chatbot_configs: vec![],
             pages: vec![],
             glossary_entries: vec![],
             certificate_config: None,
@@ -127,6 +131,15 @@ impl CourseBuilder {
 
     pub fn instance(mut self, config: CourseInstanceConfig) -> Self {
         self.instances.push(config);
+        self
+    }
+
+    pub fn chatbot_config(mut self, config: NewChatbotConf) -> Self {
+        if !self.can_add_chatbot {
+            warn!("Can't add chatbot to this course!!!!");
+            return self;
+        }
+        self.chatbot_configs.push(config);
         self
     }
 
@@ -182,7 +195,8 @@ impl CourseBuilder {
     /// Seeds the course and all nested content. Returns `(course, default_instance, last_module)`.
     pub async fn seed(
         self,
-        cx: &mut SeedContext<'_>,
+        conn: &mut PgConnection,
+        cx: &SeedContext,
     ) -> Result<(Course, CourseInstance, CourseModule)> {
         let course_id = self.course_id.unwrap_or(cx.base_course_ns);
 
@@ -206,7 +220,7 @@ impl CourseBuilder {
         };
 
         // Create course manually without default module
-        let mut tx = cx.conn.begin().await.context("starting transaction")?;
+        let mut tx = conn.begin().await.context("starting transaction")?;
 
         let course_language_group_id =
             course_language_groups::insert(&mut tx, headless_lms_models::PKeyPolicy::Generate)
@@ -225,16 +239,28 @@ impl CourseBuilder {
             .await
             .context("getting course")?;
 
-        tx.commit().await.context("committing transaction")?;
+        for chatbot_conf in self.chatbot_configs {
+            let chatbotconf_id = chatbot_conf.chatbotconf_id.unwrap_or_else(Uuid::new_v4);
+            chatbot_configurations::insert(
+                &mut tx,
+                PKeyPolicy::Fixed(chatbotconf_id),
+                NewChatbotConf {
+                    course_id,
+                    ..chatbot_conf
+                },
+            )
+            .await
+            .context("inserting chatbot configuration for course")?;
+        }
 
         let mut last_module = None;
 
         for (i, m) in self.modules.into_iter().enumerate() {
-            last_module = Some(m.seed(cx, course.id, i as i32).await?);
+            last_module = Some(m.seed(&mut tx, cx, course.id, i as i32).await?);
         }
 
         for (user_id, role) in self.extra_roles {
-            roles::insert(cx.conn, user_id, role, RoleDomain::Course(course.id))
+            roles::insert(&mut tx, user_id, role, RoleDomain::Course(course.id))
                 .await
                 .context("inserting course role")?;
         }
@@ -244,7 +270,7 @@ impl CourseBuilder {
         for instance_config in self.instances {
             let instance_id = instance_config.instance_id.unwrap_or_else(Uuid::new_v4);
             let instance = course_instances::insert(
-                cx.conn,
+                &mut tx,
                 PKeyPolicy::Fixed(instance_id),
                 NewCourseInstance {
                     course_id: course.id,
@@ -302,7 +328,7 @@ impl CourseBuilder {
         };
 
         pages::insert_page(
-            cx.conn,
+            &mut tx,
             course_front_page,
             cx.teacher,
             get_seed_spec_fetcher(),
@@ -328,7 +354,7 @@ impl CourseBuilder {
                 course_page = course_page.set_content(content);
             }
 
-            pages::insert_course_page(cx.conn, &course_page, cx.teacher)
+            pages::insert_course_page(&mut tx, &course_page, cx.teacher)
                 .await
                 .context("inserting course page")?;
         }
@@ -336,7 +362,7 @@ impl CourseBuilder {
         // Add glossary entries
         for glossary_entry in self.glossary_entries {
             glossary::insert(
-                cx.conn,
+                &mut tx,
                 &glossary_entry.acronym,
                 &glossary_entry.definition,
                 course.id,
@@ -348,7 +374,7 @@ impl CourseBuilder {
         // Create certificate configuration
         if let Some(cert_config) = self.certificate_config {
             let background_svg_file_upload_id = file_uploads::insert(
-                cx.conn,
+                &mut tx,
                 &format!(
                     "background-{}.svg",
                     last_module
@@ -397,11 +423,11 @@ impl CourseBuilder {
                 certificate_grade_text_anchor: None,
             };
             let database_configuration =
-                certificate_configurations::insert(cx.conn, &configuration)
+                certificate_configurations::insert(&mut tx, &configuration)
                     .await
                     .context("inserting certificate configuration")?;
             certificate_configuration_to_requirements::insert(
-                cx.conn,
+                &mut tx,
                 database_configuration.id,
                 Some(
                     last_module
@@ -413,6 +439,7 @@ impl CourseBuilder {
             .await
             .context("linking certificate configuration to requirements")?;
         }
+        tx.commit().await.context("committing transaction")?;
 
         Ok((
             course,

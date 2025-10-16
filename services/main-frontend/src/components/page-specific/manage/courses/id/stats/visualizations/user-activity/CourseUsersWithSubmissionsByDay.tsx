@@ -75,7 +75,7 @@ const CourseUsersWithSubmissionsByDay: React.FC<
           justify-content: center;
         `}
       >
-        {query.isPending ? (
+        {query.isLoading ? (
           <Spinner variant="medium" />
         ) : query.isError ? (
           <ErrorBanner variant="readOnly" error={query.error} />

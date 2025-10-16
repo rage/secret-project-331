@@ -85,7 +85,7 @@ const RegradingsPage: React.FC = () => {
     return <ErrorBanner variant="readOnly" error={regradingsQuery.error} />
   }
 
-  if (regradingsQuery.isPending) {
+  if (regradingsQuery.isLoading || !regradingsQuery.data) {
     return <Spinner variant="medium" />
   }
 

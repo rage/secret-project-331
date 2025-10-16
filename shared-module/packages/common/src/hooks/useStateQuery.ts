@@ -77,7 +77,7 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
         error: getQueryState.error,
         refetch: getQueryState.refetch,
       })
-    } else if (getQueryState.isPending) {
+    } else if (getQueryState.isLoading) {
       setQueryState({
         state: "pending",
         data: null,
@@ -96,7 +96,7 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
     getQueryState.data,
     enabled,
     getQueryState.error,
-    getQueryState.isPending,
+    getQueryState.isLoading,
     getQueryState.refetch,
     getQueryState.isError,
     getQueryState.isSuccess,

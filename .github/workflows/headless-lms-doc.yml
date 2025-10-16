@@ -1,20 +1,40 @@
 name: headless-lms docs
 
+permissions: read-all
+
 on:
   push:
-    branches:
-      - master
+    branches: [master]
+    paths-ignore:
+      - "docs/**"
+      - "services/cms/**"
+      - "services/course-material/**"
+      - "services/example-exercise/**"
+      - "services/main-frontend/**"
+      - "services/quizzes/**"
+      - "services/tmc/**"
+      - "storybook/**"
   pull_request:
-    branches:
-      - master
+    branches: [master]
+    paths-ignore:
+      - "docs/**"
+      - "services/cms/**"
+      - "services/example-exercise/**"
+      - "services/course-material/**"
+      - "services/main-frontend/**"
+      - "services/quizzes/**"
+      - "services/tmc/**"
+      - "storybook/**"
 
 concurrency:
-  group: headless-lms-doc-${{ github.head_ref || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,13 +47,14 @@ jobs:
       - name: Update rust to get edition 2021 support
         run: rustup update stable
 
-      - name: Run npm ci
-        run: npm ci && git config --unset core.hooksPath
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Run pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile && git config --unset core.hooksPath
 
       - name: Generate doc files
         run: |
           bin/generate-doc-files
-          npm run eslint:format-generated-docs
+          pnpm run eslint:format-generated-docs
 
       - name: Generate documentation
         run: cargo doc --document-private-items

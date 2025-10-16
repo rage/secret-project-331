@@ -1,4 +1,4 @@
-FROM eu.gcr.io/moocfi-public/project-331-node-base:latest
+FROM eu.gcr.io/moocfi-public/project-331-node-cache:latest
 
 RUN mkdir -p /app && chown -R node /app
 
@@ -7,14 +7,15 @@ USER node
 WORKDIR /app
 
 COPY --chown=node package.json /app/
-COPY --chown=node package-lock.json /app/
+COPY --chown=node pnpm-lock.yaml /app/
+COPY --chown=node pnpm-workspace.yaml /app/
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 COPY --chown=node . /app
 
-RUN npm run postinstall
+RUN pnpm run postinstall
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "dev" ]
+CMD [ "pnpm", "run", "dev" ]

@@ -1,71 +1,349 @@
-#!/bin/bash
-set -euo pipefail
-source "$(dirname "$0")/.common"
+#!/usr/bin/env python3
+"""
+Python port of bin/update-dependencies-part-1
 
-BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FOLDER_PATH="$BASEDIR/../"
-RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+Notes:
+- Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`)
+- Behavior matches the Bash version, including:
+  * Stops if there are uncommitted changes at start
+  * Echoes each command before running it
+  * Tries `pnpm update --latest --interactive`, and if it fails, prompts you
+    to do manual updates and press Enter to continue so the script can commit
+  * Runs `pnpm audit --fix` and `pnpm install` non-fatally, then commits lockfile changes if present
+  * Updates Rust deps in services/headless-lms (upgrade + update), committing each step if changes exist
+"""
 
-run_command cd "$RELATIVE_PATH"
+from __future__ import annotations
 
-if [[ $(git status --porcelain) ]]; then
-  echo "You have uncommitted changes. Please commit them before running this script."
-  exit 1
-fi
+import json
+import os
+import shlex
+import subprocess
+import sys
+from contextlib import contextmanager
+from pathlib import Path
 
-run_command npm ci
-run_command bin/npm-ci-all
+BLUE = "\033[0;34m"
+RED = "\033[0;31m"
+GREEN = "\033[0;32m"
+BOLD = "\033[1m"
+CURSIVE = "\033[3m"
+RESET = "\033[0m"
 
-function update_node_deps() {
-  folder=$1
-  target_name=$2
-  run_command command cd  "$folder"
 
-  set +e
-  if ! run_command npx npm-check --update; then
-    echo "Updating dependencies for $target_name failed. Please do the dependency update manually."
-    echo "Press enter when you're ready. The script will then commit your changes."
-    read -r
-  fi
-  set -e
+def echo_command(cmd: list[str] | str) -> None:
+    if isinstance(cmd, list):
+        pretty = " ".join(shlex.quote(c) for c in cmd)
+    else:
+        pretty = cmd
+    print(f"{CURSIVE}> {pretty}{RESET}")
 
-  # check if there are any uncommitted changes
-  if [[ $(git status --porcelain) ]]; then
-    git add package.json package-lock.json
-    git commit -m "Update dependencies for $target_name " --no-verify
-  fi
-  set +e
-  run_command npm audit fix
-  run_command npm audit fix
-  run_command npm audit fix
-  set -e
-  if [[ $(git status --porcelain) ]]; then
-    git add package-lock.json
-    git commit -am "npm audit for $target_name" --no-verify
-  fi
-  cd -
-}
 
-update_node_deps "$RELATIVE_PATH" "repo root"
-update_node_deps "$RELATIVE_PATH/system-tests" "system-tests"
-update_node_deps "$RELATIVE_PATH/services/cms" "cms"
-update_node_deps "$RELATIVE_PATH/services/course-material" "course-material"
-update_node_deps "$RELATIVE_PATH/services/example-exercise" "example-exercise"
-update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
-update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
-update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
-update_node_deps "$RELATIVE_PATH/shared-module" "shared-module"
-update_node_deps "$RELATIVE_PATH/shared-module/packages/common" "shared-module/common"
+def run(
+    cmd: list[str] | str, check: bool = True, cwd: Path | None = None
+) -> subprocess.CompletedProcess:
+    echo_command(cmd if isinstance(cmd, list) else cmd)
+    return subprocess.run(
+        cmd,
+        shell=isinstance(cmd, str),
+        cwd=str(cwd) if cwd else None,
+        check=check,
+    )
 
-# Update rust deps
-run_command cd services/headless-lms
-run_command cargo upgrade --incompatible allow --pinned allow --recursive true --ignore-rust-version
-if [[ $(git status --porcelain) ]]; then
-  git add .
-  git commit -m "Cargo upgrade" --no-verify
-fi
-run_command cargo update --recursive
-if [[ $(git status --porcelain) ]]; then
-  git add .
-  git commit -m "Cargo update" --no-verify
-fi
+
+def git_has_changes(cwd: Path | None = None) -> bool:
+    cp = subprocess.run(
+        ["git", "status", "--porcelain"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=str(cwd) if cwd else None,
+        text=True,
+        check=True,
+    )
+    return cp.stdout.strip() != ""
+
+
+def write_package_json(data: dict, path: Path) -> None:
+    """Write package.json data to file with proper formatting and newline at end."""
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
+def sort_dict_recursively(obj):
+    """Recursively sort dictionary keys with non-object values first, then object values, all alphabetically."""
+    if isinstance(obj, dict):
+        string_keys = []
+        non_object_keys = []
+
+        for key in obj.keys():
+            value = obj[key]
+            if isinstance(value, str) or not isinstance(value, dict):
+                string_keys.append(key)
+            elif isinstance(value, dict):
+                non_object_keys.append(key)
+
+        string_keys.sort()
+        non_object_keys.sort()
+
+        all_keys = string_keys + non_object_keys
+
+        sorted_dict = {}
+        for key in all_keys:
+            sorted_dict[key] = sort_dict_recursively(obj[key])
+        return sorted_dict
+    elif isinstance(obj, list):
+        return [sort_dict_recursively(item) for item in obj]
+    else:
+        return obj
+
+
+def sort_package_json(folder: Path) -> bool:
+    """Sort package.json (mostly) alphabetically. Returns True if changes were made."""
+    package_json_path = folder / "package.json"
+    if not package_json_path.exists():
+        return False
+
+    try:
+        with open(package_json_path, "r") as f:
+            data = json.load(f)
+
+        sorted_data = {}
+
+        # Sort keys with specific ordering:
+        # 1. name, version, description (always first)
+        # 2. String values (alphabetical)
+        # 3. Object values (alphabetical)
+        # 4. dependencies
+        # 5. devDependencies
+
+        first_keys = ["name", "version", "description"]
+
+        dependency_keys = ["dependencies", "devDependencies"]
+
+        non_object_keys = []
+        object_keys = []
+
+        for key in data.keys():
+            if key in first_keys or key in dependency_keys:
+                continue
+
+            value = data[key]
+            if isinstance(value, str):
+                non_object_keys.append(key)
+            elif isinstance(value, dict):
+                object_keys.append(key)
+            else:
+                non_object_keys.append(key)
+
+        non_object_keys.sort()
+        object_keys.sort()
+
+        all_keys = (
+            [k for k in first_keys if k in data]
+            + non_object_keys
+            + object_keys
+            + [k for k in dependency_keys if k in data]
+        )
+
+        for key in all_keys:
+            if key in data:
+                sorted_data[key] = sort_dict_recursively(data[key])
+
+        original_json = json.dumps(data, sort_keys=False, indent=2)
+        sorted_json = json.dumps(sorted_data, sort_keys=False, indent=2)
+
+        if original_json != sorted_json:
+            print(
+                f"{BLUE}Sorted package.json fields alphabetically in {folder.name}/package.json{RESET}"
+            )
+
+            write_package_json(sorted_data, package_json_path)
+
+            return True
+        return False
+    except (json.JSONDecodeError, KeyError, OSError) as e:
+        print(f"{RED}Error processing {package_json_path}: {e}{RESET}")
+        return False
+
+
+def remove_pnpm_overrides(folder: Path) -> bool:
+    """Remove pnpm.overrides from package.json if it exists. Returns True if changes were made."""
+    package_json_path = folder / "package.json"
+    if not package_json_path.exists():
+        return False
+
+    try:
+        with open(package_json_path, "r") as f:
+            data = json.load(f)
+
+        if "pnpm" in data and "overrides" in data["pnpm"]:
+            print(
+                f"{BLUE}Removing pnpm.overrides from {folder.name}/package.json{RESET}"
+            )
+            del data["pnpm"]["overrides"]
+
+            if not data["pnpm"]:
+                del data["pnpm"]
+
+            write_package_json(data, package_json_path)
+
+            return True
+        return False
+    except (json.JSONDecodeError, KeyError, OSError) as e:
+        print(f"{RED}Error processing {package_json_path}: {e}{RESET}")
+        return False
+
+
+@contextmanager
+def pushd(path: Path):
+    old = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(old)
+
+
+def update_node_deps(folder: Path, target_name: str) -> None:
+    with pushd(folder):
+        # Sort package.json fields (mostly) alphabetically as the first step
+        if sort_package_json(folder):
+            if git_has_changes():
+                run(["git", "add", "package.json"])
+                run(
+                    [
+                        "git",
+                        "commit",
+                        "-m",
+                        f"Sort package.json fields in {target_name}",
+                        "--no-verify",
+                    ]
+                )
+
+        # Remove pnpm.overrides before updating dependencies
+        if remove_pnpm_overrides(folder):
+            if git_has_changes():
+                run(["git", "add", "package.json"])
+                run(
+                    [
+                        "git",
+                        "commit",
+                        "-m",
+                        f"Remove pnpm.overrides from {target_name}",
+                        "--no-verify",
+                    ]
+                )
+
+        try:
+            run(["pnpm", "update", "--latest", "--interactive"], check=True)
+        except subprocess.CalledProcessError:
+            print(
+                f"{RED}Updating dependencies for {target_name} failed."
+                f" Please do the dependency update manually in {folder}{RESET}"
+            )
+            input(
+                "Press Enter when you're ready. The script will then commit your changes..."
+            )
+
+        if git_has_changes():
+            to_add = [p for p in ["package.json", "pnpm-lock.yaml"] if Path(p).exists()]
+            if to_add:
+                run(["git", "add", *to_add])
+            run(
+                [
+                    "git",
+                    "commit",
+                    "-m",
+                    f"Update dependencies for {target_name} ",
+                    "--no-verify",
+                ]
+            )
+
+        try:
+            run(["pnpm", "audit", "--fix"], check=False)
+            run(["pnpm", "install"], check=False)
+        finally:
+            pass
+
+        if git_has_changes():
+            if Path("pnpm-lock.yaml").exists():
+                run(["git", "add", "pnpm-lock.yaml"])
+            run(
+                ["git", "commit", "-am", f"pnpm audit for {target_name}", "--no-verify"]
+            )
+
+
+def main() -> int:
+    script_dir = Path(__file__).resolve().parent
+    repo_root = (script_dir / "..").resolve()
+
+    run(["pwd"], check=False)
+    run(["bash", "-lc", f"cd {shlex.quote(str(repo_root))} && pwd"], check=False)
+    os.chdir(repo_root)
+
+    if git_has_changes(repo_root):
+        print(
+            "You have uncommitted changes. Please commit them before running this script."
+        )
+        return 1
+
+    run(["pnpm", "install"])
+    run([str(repo_root / "bin" / "pnpm-install-all")])
+
+    node_targets = [
+        (repo_root, "repo root"),
+        (repo_root / "system-tests", "system-tests"),
+        (repo_root / "services" / "cms", "cms"),
+        (repo_root / "services" / "course-material", "course-material"),
+        (repo_root / "services" / "example-exercise", "example-exercise"),
+        (repo_root / "services" / "main-frontend", "main-frontend"),
+        (repo_root / "services" / "quizzes", "quizzes"),
+        (repo_root / "services" / "tmc", "tmc"),
+        (repo_root / "shared-module", "shared-module"),
+        (repo_root / "shared-module" / "packages" / "common", "shared-module/common"),
+    ]
+
+    for folder, name in node_targets:
+        if folder.exists():
+            update_node_deps(folder, name)
+        else:
+            print(f"{BLUE}Skipping {name} (missing at {folder}){RESET}")
+
+    headless_lms = repo_root / "services" / "headless-lms"
+    if headless_lms.exists():
+        with pushd(headless_lms):
+            run(
+                [
+                    "cargo",
+                    "upgrade",
+                    "--incompatible",
+                    "allow",
+                    "--pinned",
+                    "allow",
+                    "--recursive",
+                    "true",
+                    "--ignore-rust-version",
+                ]
+            )
+            if git_has_changes():
+                run(["git", "add", "."])
+                run(["git", "commit", "-m", "Cargo upgrade", "--no-verify"])
+
+            run(["cargo", "update", "--recursive"])
+            if git_has_changes():
+                run(["git", "add", "."])
+                run(["git", "commit", "-m", "Cargo update", "--no-verify"])
+    else:
+        print(f"{BLUE}Skipping Rust update (missing at {headless_lms}){RESET}")
+
+    print(f"{GREEN}{BOLD}All done!{RESET}")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("\nInterrupted.")
+        sys.exit(130)

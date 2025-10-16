@@ -274,6 +274,7 @@ const config = [
               "sx",
               "component",
               "align",
+              "slot",
             ],
           },
           words: {

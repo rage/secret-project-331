@@ -19,6 +19,10 @@ import { assessMultipleChoice } from "./multiple-choice"
 import { assessMultipleChoiceDropdown } from "./multiple-choice-dropdown"
 import { assessTimeline } from "./timeline"
 
+function assertNever(x: never): never {
+  throw new Error(`Unexpected item answer type: ${JSON.stringify(x)}`)
+}
+
 const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemAnswerGrading[] => {
   if (!quizAnswer) {
     throw new Error("Quiz answer was not provided")
@@ -65,6 +69,8 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
           quizItemId: itemAnswer.quizItemId,
           correctnessCoefficient: 1,
         } satisfies QuizItemAnswerGrading
+      default:
+        return assertNever(itemAnswer as never)
     }
   })
 }

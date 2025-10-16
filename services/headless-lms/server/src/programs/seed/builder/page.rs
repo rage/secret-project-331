@@ -4,6 +4,7 @@ use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use headless_lms_models::pages::{
     CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate,
 };
+use sqlx::PgConnection;
 
 use crate::programs::seed::builder::{context::SeedContext, exercise::ExerciseBuilder};
 
@@ -46,7 +47,8 @@ impl PageBuilder {
 
     pub(crate) async fn seed(
         self,
-        cx: &mut SeedContext<'_>,
+        conn: &mut PgConnection,
+        cx: &SeedContext,
         course_id: uuid::Uuid,
         chapter_id: uuid::Uuid,
     ) -> Result<uuid::Uuid> {
@@ -64,7 +66,7 @@ impl PageBuilder {
         }
 
         create_page(
-            cx.conn,
+            conn,
             course_id,
             cx.teacher,
             Some(chapter_id),

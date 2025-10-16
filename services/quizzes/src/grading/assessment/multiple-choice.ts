@@ -1,6 +1,7 @@
 import { UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
 import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import { PrivateSpecQuizItemMultiplechoice } from "../../../types/quizTypes/privateSpec"
+import { clamp01, isValidNumber, safeDivide } from "../utils/math"
 
 const getMultipleChoicePointsByGradingPolicy = (
   quizItemAnswer: UserItemAnswerMultiplechoice,
@@ -52,7 +53,12 @@ const getMultipleChoicePointsByGradingPolicy = (
       break
   }
 
-  return totalScore / totalCorrectAnswers
+  // Handle case where there are no correct answers
+  if (totalCorrectAnswers === 0) {
+    return 0
+  }
+
+  return safeDivide(totalScore, totalCorrectAnswers)
 }
 
 const assessMultipleChoice = (
@@ -67,7 +73,23 @@ const assessMultipleChoice = (
     throw new Error("Cannot select multiple answer options on this quiz item")
   }
 
-  const correctnessCoefficient = getMultipleChoicePointsByGradingPolicy(quizItemAnswer, quizItem)
+  const rawCoefficient = getMultipleChoicePointsByGradingPolicy(quizItemAnswer, quizItem)
+  const correctnessCoefficient = clamp01(rawCoefficient)
+
+  // Safety check to ensure we never return invalid values
+  if (!isValidNumber(correctnessCoefficient)) {
+    console.error(
+      "Invalid correctnessCoefficient calculated:",
+      correctnessCoefficient,
+      "for item:",
+      quizItem.id,
+      "Returning 0 instead",
+    )
+    return {
+      quizItemId: quizItem.id,
+      correctnessCoefficient: 0,
+    }
+  }
 
   return {
     quizItemId: quizItem.id,

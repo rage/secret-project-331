@@ -11,6 +11,13 @@ pub struct BulkUserDetailsRequest {
     pub course_id: Uuid,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserDetailsRequest {
+    pub user_id: Uuid,
+    pub course_ids: Vec<Uuid>,
+}
+
 /**
 GET `/api/v0/main-frontend/user-details/{course_id}/user/{user_id}` - Find user details by user id with course permission check
 Only returns user details if the user is enrolled in the specified course
@@ -34,6 +41,61 @@ pub async fn get_user_details(
     let res =
         models::user_details::get_user_details_by_user_id_for_course(&mut conn, user_id, course_id)
             .await?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+POST `/api/v0/main-frontend/user-details/user-by-courses` - Find user details by user id with multi-course permission check
+Returns user details if the user has permission to view user details through any of the specified courses
+*/
+#[instrument(skip(pool))]
+pub async fn get_user_details_by_courses(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<UserDetailsRequest>,
+) -> ControllerResult<web::Json<UserDetail>> {
+    let mut conn = pool.acquire().await?;
+
+    // Check if the user has permission to view user details through any of the provided courses
+    let mut token = None;
+
+    if payload.course_ids.is_empty() {
+        // One can view the details though global permissions even though they have not started any course yet
+        token = Some(
+            authorize(
+                &mut conn,
+                Act::ViewUserProgressOrDetails,
+                Some(user.id),
+                Res::GlobalPermissions,
+            )
+            .await?,
+        );
+    } else {
+        for course_id in &payload.course_ids {
+            if let Ok(auth_token) = authorize(
+                &mut conn,
+                Act::ViewUserProgressOrDetails,
+                Some(user.id),
+                Res::Course(*course_id),
+            )
+            .await
+            {
+                token = Some(auth_token);
+                break;
+            }
+        }
+    }
+
+    let token = token.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "No permission to view user details through any of the provided courses".to_string(),
+            None,
+        )
+    })?;
+
+    // If we have permission, get the user details without course restriction
+    let res = models::user_details::get_user_details_by_user_id(&mut conn, payload.user_id).await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -294,6 +356,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/user/{user_id}",
             web::get().to(get_user_details),
+        )
+        .route(
+            "/user-by-courses",
+            web::post().to(get_user_details_by_courses),
         )
         .route("/users-ip-country", web::get().to(get_user_country_by_ip))
         .route(

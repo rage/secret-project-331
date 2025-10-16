@@ -42,7 +42,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
   })
 
   const userDetails = useUserDetails(
-    getSubmissionInfo.data?.exercise.course_id,
+    getSubmissionInfo.data?.exercise.course_id ? [getSubmissionInfo.data.exercise.course_id] : null,
     getSubmissionInfo.data?.exercise_slide_submission.user_id,
   )
 
@@ -111,7 +111,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
       {getSubmissionInfo.isError && (
         <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
       )}
-      {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
+      {getSubmissionInfo.isLoading && <Spinner variant={"medium"} />}
       {getSubmissionInfo.isSuccess && breadcrumbPieces.length > 0 && (
         <Breadcrumbs pieces={breadcrumbPieces} />
       )}

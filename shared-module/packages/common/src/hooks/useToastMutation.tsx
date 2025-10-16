@@ -1,5 +1,6 @@
 import {
   MutationFunction,
+  MutationFunctionContext,
   useMutation,
   UseMutationOptions,
   UseMutationResult,
@@ -66,7 +67,7 @@ export default function useToastMutation<
   const mutation = useMutation({
     mutationFn,
     ...mutationOptions,
-    onMutate: (variables: TVariables) => {
+    onMutate: (variables: TVariables, context: MutationFunctionContext) => {
       if (notificationOptions.notify) {
         // Remove old toasts
         toast.remove()
@@ -76,11 +77,11 @@ export default function useToastMutation<
         })
       }
       if (mutationOptions?.onMutate) {
-        mutationOptions.onMutate(variables)
+        return mutationOptions.onMutate(variables, context)
       }
-      return undefined
+      return undefined as TContext
     },
-    onSuccess: (data: TData, variables: TVariables, context) => {
+    onSuccess: (data: TData, variables: TVariables, context, meta) => {
       if (notificationOptions.notify) {
         // Remove old toasts
         toast.remove()
@@ -109,10 +110,10 @@ export default function useToastMutation<
         }
       }
       if (mutationOptions?.onSuccess) {
-        return mutationOptions.onSuccess(data, variables, context)
+        mutationOptions.onSuccess(data, variables, context, meta)
       }
     },
-    onError: (error: TError, variables: TVariables, context) => {
+    onError: (error: TError, variables: TVariables, context, meta) => {
       console.groupCollapsed(`Mutation resulted in an error.`)
       console.warn(`Error: ${error}`)
       console.warn(error)
@@ -151,7 +152,7 @@ export default function useToastMutation<
         )
       }
       if (mutationOptions?.onError) {
-        return mutationOptions.onError(error, variables, context)
+        mutationOptions.onError(error, variables, context, meta)
       }
     },
   })

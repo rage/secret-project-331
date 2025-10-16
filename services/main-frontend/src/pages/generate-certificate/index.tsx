@@ -104,7 +104,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
         <ErrorBanner error={courseAndModule.error} variant={"readOnly"} />
       )}
       {userGrade.isError && <ErrorBanner error={userGrade.error} variant={"readOnly"} />}
-      {(userInfo.isPending || courseAndModule.isPending || userGrade.isPending) && (
+      {(userInfo.isLoading || courseAndModule.isLoading || userGrade.isLoading) && (
         <Spinner variant={"medium"} />
       )}
       {courseAndModule.isSuccess && (
@@ -121,7 +121,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
           <Button
             size="medium"
             variant="primary"
-            disabled={!nameOnCertificate || userGrade.isPending}
+            disabled={!nameOnCertificate || userGrade.isLoading}
             onClick={async () => {
               if (
                 await confirm(t("certificate-generation-confirmation", { name: nameOnCertificate }))

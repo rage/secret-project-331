@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { t } from "i18next"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useContext, useEffect, useMemo, useState } from "react"
 
 import {
   fetchCustomPrivacyPolicyCheckboxTexts,
@@ -9,6 +9,7 @@ import {
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
@@ -25,11 +26,12 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
 }) => {
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [emailSubscriptionConsent, setEmailSubscriptionConsent] = useState(false)
+  const loginStateContext = useContext(LoginStateContext)
 
   const initialMarketingConsentQuery = useQuery({
     queryKey: ["marketing-consent", courseId],
     queryFn: () => fetchUserMarketingConsent(assertNotNullOrUndefined(courseId)),
-    enabled: courseId !== undefined,
+    enabled: courseId !== undefined && loginStateContext.signedIn === true,
   })
 
   const customPrivacyPolicyCheckboxTextsQuery = useQuery({

@@ -89,7 +89,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
           justify-content: center;
         `}
       >
-        {query.isPending ? (
+        {query.isLoading ? (
           <Spinner variant="medium" />
         ) : query.isError ? (
           <ErrorBanner variant="readOnly" error={query.error} />

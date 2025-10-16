@@ -6,14 +6,14 @@ import { UserDetail } from "@/shared-module/common/bindings"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export const useUserDetails = (
-  courseId: string | null | undefined,
+  courseIds: string[] | null | undefined,
   userId: string | null | undefined,
 ) => {
   return useQuery<UserDetail>({
-    queryKey: ["user-details/user", courseId, userId],
+    queryKey: ["user-details/user", courseIds, userId],
     queryFn: () =>
-      getUserDetails(assertNotNullOrUndefined(courseId), assertNotNullOrUndefined(userId)),
-    enabled: !!courseId && !!userId,
+      getUserDetails(assertNotNullOrUndefined(courseIds), assertNotNullOrUndefined(userId)),
+    enabled: !!courseIds && !!userId,
   })
 }
 

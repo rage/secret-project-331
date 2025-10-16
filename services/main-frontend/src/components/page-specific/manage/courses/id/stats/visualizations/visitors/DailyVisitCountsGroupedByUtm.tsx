@@ -128,7 +128,7 @@ const DailyVisitCountsGroupedByUtm: React.FC<
       <StatsHeader heading={t("stats-heading-utm-traffic-details")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-utm-traffic-details")}</InstructionBox>
       <div className={containerStyles}>
-        {query.isPending ? (
+        {query.isLoading ? (
           <Spinner variant="medium" />
         ) : query.isError ? (
           <ErrorBanner variant="readOnly" error={query.error} />

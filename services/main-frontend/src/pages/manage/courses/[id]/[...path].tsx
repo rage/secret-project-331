@@ -91,8 +91,9 @@ type PageToRender =
 function selectPageToRender(path: string): PageToRender {
   // if page is other the path format is other/subtab
   try {
-    if (path.startsWith("other")) {
-      const subtab = path.split("/")[1]
+    if (path && path.startsWith("other")) {
+      const pathParts = path.split("/")
+      const subtab = pathParts.length > 1 ? pathParts[1] : ""
       return {
         type: "other",
         subtab,

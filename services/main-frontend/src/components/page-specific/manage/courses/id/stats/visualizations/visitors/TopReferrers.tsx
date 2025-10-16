@@ -82,7 +82,7 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
       <StatsHeader heading={t("stats-heading-referrers")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-referrers")}</InstructionBox>
       <div className={containerStyles}>
-        {query.isPending ? (
+        {query.isLoading ? (
           <Spinner variant="medium" />
         ) : query.isError ? (
           <ErrorBanner variant="readOnly" error={query.error} />

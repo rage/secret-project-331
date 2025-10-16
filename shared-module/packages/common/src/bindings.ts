@@ -629,6 +629,16 @@ export interface NewCourse {
   can_add_chatbot: boolean
 }
 
+export interface CourseLanguageVersionNavigationInfo {
+  course_language_group_id: string
+  course_id: string
+  language_code: string
+  course_slug: string
+  page_path: string
+  is_draft: boolean
+  current_page_unavailable_in_this_language: boolean
+}
+
 export interface EmailTemplate {
   id: string
   created_at: string
@@ -1529,6 +1539,7 @@ export interface CoursePageWithUserData {
   instance: CourseInstance | null
   settings: UserCourseSettings | null
   course: Course | null
+  organization: Organization | null
   was_redirected: boolean
   is_test_mode: boolean
 }
@@ -2002,7 +2013,7 @@ export interface RoleInfo {
 }
 
 export interface RoleUser {
-  id: string
+  user_id: string
   first_name: string | null
   last_name: string | null
   email: string
@@ -2355,6 +2366,24 @@ export interface RoleQuery {
   course_id?: string
   course_instance_id?: string
   exam_id?: string
+}
+
+export interface BulkUserDetailsRequest {
+  user_ids: Array<string>
+  course_id: string
+}
+
+export interface UserDetailsRequest {
+  user_id: string
+  course_ids: Array<string>
+}
+
+export interface UserInfoPayload {
+  email: string
+  first_name: string
+  last_name: string
+  country: string
+  email_communication_consent: boolean
 }
 
 export interface Pagination {

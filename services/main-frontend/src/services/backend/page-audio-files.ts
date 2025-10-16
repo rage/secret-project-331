@@ -15,6 +15,7 @@ export const postPageAudioFile = async (pageId: string, file: File): Promise<boo
   const response = await mainFrontendClient.post(`/page_audio/${pageId}`, data, {
     headers: {
       "Content-Type": "multipart/form-data",
+      "X-File-Type": file.type || "application/octet-stream",
     },
   })
   return validateResponse(response, isBoolean)

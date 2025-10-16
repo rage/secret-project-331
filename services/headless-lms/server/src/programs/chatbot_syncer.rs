@@ -45,6 +45,15 @@ pub async fn main() -> anyhow::Result<()> {
             tokio::time::sleep(Duration::from_secs(u64::MAX)).await;
         }
     }
+    if config.app_configuration.test_chatbot {
+        warn!(
+            "Using mock azure configuration, this must be a test/dev environment. Not running chatbot syncer."
+        );
+        // Sleep indefinitely to prevent the program from exiting. This only happens in development.
+        loop {
+            tokio::time::sleep(Duration::from_secs(u64::MAX)).await;
+        }
+    }
 
     let db_pool = initialize_database_pool(&config.database_url).await?;
     let mut conn = db_pool.acquire().await?;

@@ -121,7 +121,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     return <ErrorBanner error={peerOrSelfReviewConfigurationQuery.error} variant="text" />
   }
 
-  if (peerOrSelfReviewConfigurationQuery.isPending) {
+  if (peerOrSelfReviewConfigurationQuery.isLoading || !peerOrSelfReviewConfigurationQuery.data) {
     return <Spinner variant="medium" />
   }
 

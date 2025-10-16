@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT plg.id AS page_language_group_id,\n  p.id AS page_id,\n  p.url_path AS page_path,\n  p.course_id AS course_id,\n  p.exam_id AS exam_id\nFROM page_language_groups plg\n  JOIN pages p ON plg.id = p.page_language_group_id\nWHERE plg.id = (SELECT page_language_group_id FROM pages WHERE id = $1)\n  AND plg.deleted_at IS NULL\n  AND p.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "page_language_group_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "page_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "page_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "d6666becb7f6be4ff0f66626ed6ed6be5dfac54f5180a953f0178d06fb6ff7e2"
+}

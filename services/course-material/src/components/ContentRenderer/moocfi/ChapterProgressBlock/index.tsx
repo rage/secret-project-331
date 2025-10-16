@@ -16,7 +16,7 @@ const ChapterProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<
   const pageContext = useContext(PageContext)
   const loginStateContext = useContext(LoginStateContext)
 
-  if (pageContext.state !== "ready" || loginStateContext.isPending) {
+  if (pageContext.state !== "ready" || loginStateContext.isLoading) {
     return <Spinner variant={"small"} />
   }
   if (!loginStateContext.signedIn) {

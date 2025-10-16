@@ -7,6 +7,7 @@ export const getDefaultPageState = (refetchPage?: () => Promise<void>): PageStat
   error: null,
   instance: null,
   pageData: null,
+  organization: null,
   settings: null,
   exam: null,
   isTest: false,

@@ -12,4 +12,4 @@ run_command docker pull debian:bookworm-slim
 run_command docker pull golang:bookworm
 run_command docker pull rust:bookworm
 
-run_command docker build . --file DbDocs.dockerfile -t eu.gcr.io/moocfi-public/db-docs
+run_command docker build . --file DbDocs.dockerfile -t eu.gcr.io/moocfi-public/db-docs "$@"

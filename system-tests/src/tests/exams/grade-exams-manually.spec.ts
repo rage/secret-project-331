@@ -125,6 +125,7 @@ test("Grade exams manually", async ({}) => {
   await teacherPage.locator("#Justification").fill("Ok")
   await teacherPage.getByLabel("Score", { exact: true }).fill("1")
   await teacherPage.getByRole("button", { name: "Save and next" }).click()
+  await teacherPage.getByText("Operation successful!").waitFor()
 
   await teacherPage.locator("#Justification").fill("Good")
   await teacherPage.getByLabel("Score", { exact: true }).fill("0.5")

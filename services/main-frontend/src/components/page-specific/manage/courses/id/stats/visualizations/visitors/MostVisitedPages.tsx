@@ -82,7 +82,7 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
   }, [aggregatedData])
 
   const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
-  const isLoading = query.isPending || courseStructure.isPending
+  const isLoading = query.isLoading || courseStructure.isLoading
 
   return (
     <>

@@ -66,9 +66,9 @@ const PagePage: React.FC = () => {
   useEffect(() => {
     if (getCoursePageByPath.isError) {
       pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
-    } else if (getCoursePageByPath.isPending) {
+    } else if (getCoursePageByPath.isLoading) {
       pageStateDispatch({ type: "setLoading" })
-    } else {
+    } else if (getCoursePageByPath.data) {
       pageStateDispatch({
         type: "setData",
         payload: {
@@ -78,6 +78,7 @@ const PagePage: React.FC = () => {
           course: getCoursePageByPath.data.course ?? null,
           exam: null,
           isTest: getCoursePageByPath.data.is_test_mode,
+          organization: getCoursePageByPath.data.organization ?? null,
         },
       })
     }
@@ -85,7 +86,7 @@ const PagePage: React.FC = () => {
     getCoursePageByPath.data,
     getCoursePageByPath.error,
     getCoursePageByPath.isError,
-    getCoursePageByPath.isPending,
+    getCoursePageByPath.isLoading,
     getCoursePageByPath.isSuccess,
   ])
 
@@ -127,7 +128,7 @@ const PagePage: React.FC = () => {
     return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
   }
 
-  if (getCoursePageByPath.isPending) {
+  if (getCoursePageByPath.isLoading || !getCoursePageByPath.data) {
     return <Spinner variant={"small"} />
   }
 

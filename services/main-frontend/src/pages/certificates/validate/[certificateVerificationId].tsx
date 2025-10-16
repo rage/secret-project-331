@@ -45,7 +45,7 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
   return (
     <>
       {certificate.isError && <ErrorBanner error={certificate.error} variant={"readOnly"} />}
-      {certificate.isPending && <Spinner variant={"medium"} />}
+      {certificate.isLoading && <Spinner variant={"medium"} />}
       {certificate.isSuccess && (
         <div>
           <img

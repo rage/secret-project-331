@@ -8,40 +8,6 @@ import { validateFile } from "@/shared-module/common/utils/files"
 // Don't change this, with this default value we can detect when the teacher has not changed the alt text.
 const ALT_TEXT_NOT_CHANGED_PLACEHOLDER = "Add alt"
 
-// These limits must match the limits in server/src/controllers/helpers/file_uploading.rs
-// If you modify these, update the Rust file as well.
-// Note: The nginx ingress also has a limit on max request size (see kubernetes/base/ingress.yml). That one should not be increased too much.
-const FILE_SIZE_LIMITS = {
-  // 10 MB for images
-  IMAGE: 10 * 1024 * 1024,
-  // 100 MB for audio
-  AUDIO: 100 * 1024 * 1024,
-  // 100 MB for video, if you want bigger videos, use Youtube or Unitube.
-  VIDEO: 100 * 1024 * 1024,
-  // 25 MB for other documents
-  DOCUMENT: 25 * 1024 * 1024,
-  // 10 MB default fallback
-  DEFAULT: 10 * 1024 * 1024,
-} as const
-
-function getMaxFileSizeForType(file: File): number {
-  const fileType = file.type.split("/")[0].toLowerCase()
-
-  switch (fileType) {
-    case "image":
-      return FILE_SIZE_LIMITS.IMAGE
-    case "audio":
-      return FILE_SIZE_LIMITS.AUDIO
-    case "video":
-      return FILE_SIZE_LIMITS.VIDEO
-    case "application":
-    case "text":
-      return FILE_SIZE_LIMITS.DOCUMENT
-    default:
-      return FILE_SIZE_LIMITS.DEFAULT
-  }
-}
-
 export interface UploadMediaArgs {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   additionalData?: any
@@ -151,8 +117,7 @@ function validateFileAndBroadcastErrors(
   onError: (message: string) => void,
 ): boolean {
   try {
-    const maxSize = getMaxFileSizeForType(file)
-    validateFile(file, allowedTypes, maxSize)
+    validateFile(file, allowedTypes)
   } catch (e: unknown) {
     if (!(e instanceof Error)) {
       throw e

@@ -8,7 +8,7 @@
 
 ## 📌 Introduction
 
-**Secret Project 331** is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi.
+**Secret Project 331** is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi).
 
 ## 🚀 Getting Started
 

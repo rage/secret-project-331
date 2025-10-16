@@ -78,7 +78,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     return <ErrorBanner variant={"readOnly"} error={getChatbotsList.error} />
   }
 
-  if (getChatbotsList.isPending) {
+  if (getChatbotsList.isLoading) {
     return <Spinner variant={"medium"} />
   }
   // use memo for sorting to sort once

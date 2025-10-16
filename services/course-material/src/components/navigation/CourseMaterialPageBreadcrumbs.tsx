@@ -44,7 +44,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
     return <ErrorBanner variant={"readOnly"} error={data.error} />
   }
 
-  if (data.isPending) {
+  if (data.isLoading) {
     return <Spinner variant={"small"} />
   }
 

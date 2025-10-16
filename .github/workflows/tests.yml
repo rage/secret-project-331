@@ -1,25 +1,33 @@
 name: Tests
 
+permissions: read-all
+
 on:
   push:
     branches:
       - master
       - canary
+    paths-ignore:
+      - "docs/**"
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   headless_lms:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     container: eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest
 
     services:
       postgres:
-        image: postgres
+        image: postgres:16.4
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -28,7 +36,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis
+        image: redis:7.2
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -85,118 +93,141 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
           DATABASE_URL_TEST: postgres://postgres:postgres@postgres/headless_lms_integration
           REDIS_URL: redis://redis:6379/1
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🧪 Headless LMS Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Database**: PostgreSQL 16.4"
+            echo "- **Cache**: Redis 7.2"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   cms:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            **/node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-cms-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-cms-
-
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./services/cms
       - name: Run tests
-        run: npm run test
+        run: pnpm run test
         working-directory: ./services/cms
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 📝 CMS Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: CMS"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   shared-module-common:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            **/node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-shared-common-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-shared-common-
-
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/common
+        run: pnpm install --frozen-lockfile
         working-directory: ./shared-module/packages/common
+        # Have to run pnpm install on main-frontend because we read next config from there
+      - name: Install dependencies for services/main-frontend
+        run: pnpm install --frozen-lockfile
+        working-directory: ./services/main-frontend
       - name: Run tests
-        run: npm run test
+        run: pnpm run test
         working-directory: ./shared-module/packages/common
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🔧 Shared Module Common Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Common"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   quizzes:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            **/node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-quizzes-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-quizzes-
-
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./services/quizzes
       - name: Run tests
-        run: npm run test
+        run: pnpm run test
         working-directory: ./services/quizzes
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## ❓ Quizzes Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Quizzes"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   course-material:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            **/node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-course-material-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-course-material-
-
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./services/course-material
       - name: Run tests
-        run: npm run test
+        run: pnpm run test
         working-directory: ./services/course-material
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 📚 Course Material Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Course Material"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   main-frontend:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            **/node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-main-frontend-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-main-frontend-
-
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./services/main-frontend
       - name: Run tests
-        run: npm run test
+        run: pnpm run test
         working-directory: ./services/main-frontend
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🎨 Main Frontend Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Main Frontend"
+          } >> "$GITHUB_STEP_SUMMARY"

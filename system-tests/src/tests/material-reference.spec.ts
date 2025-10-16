@@ -1,8 +1,9 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -184,5 +185,20 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     snapshotName: "open-course-material-reference-list",
     waitForTheseToBeVisibleAndStable: [page.getByText("Reference"), page.locator("text=Wang")],
     beforeScreenshot: async () => await page.getByText("Reference").scrollIntoViewIfNeeded(),
+  })
+
+  await test.step("Tooltip is accessible", async () => {
+    await accessibilityCheck(page, "Reference tooltip closed view")
+    await page.getByRole("link", { name: "[1]" }).first().hover()
+    await expect(page.getByRole("tooltip", { name: "Wang" })).toBeVisible()
+    await accessibilityCheck(page, "Reference tooltip open view")
+    await page.keyboard.press("Escape")
+    await expect(page.getByRole("tooltip", { name: "Wang" })).toBeHidden()
+    await expect(page.locator("#content")).toMatchAriaSnapshot(`
+    - paragraph:
+      - text: This paragraph contains a citation
+      - superscript:
+        - link
+    `)
   })
 })

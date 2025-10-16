@@ -6,7 +6,7 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
-use headless_lms_models::courses::CourseMaterialCourse;
+use headless_lms_models::courses::{CourseLanguageVersionNavigationInfo, CourseMaterialCourse};
 use headless_lms_models::{
     course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
     marketing_consents::UserMarketingConsent,
@@ -39,7 +39,8 @@ use models::{
 
 use crate::{
     domain::authorization::{
-        authorize_access_to_course_material, can_user_view_chapter, skip_authorize,
+        Action, Resource, authorize_access_to_course_material,
+        authorize_with_fetched_list_of_roles, can_user_view_chapter, skip_authorize,
     },
     prelude::*,
 };
@@ -67,13 +68,15 @@ If the page has moved and there's a redirection, this will still return the move
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
 
-#[instrument(skip(pool, ip_to_country_mapper, req))]
+#[instrument(skip(pool, ip_to_country_mapper, req, file_store, app_conf))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     req: HttpRequest,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
 
@@ -85,9 +88,15 @@ async fn get_course_page_by_path(
     };
     let user_id = user.map(|u| u.id);
     let course_data = get_nondeleted_course_id_by_slug(&mut conn, &course_slug).await?;
-    let page_with_user_data =
-        models::pages::get_page_with_user_data_by_path(&mut conn, user_id, &course_data, &path)
-            .await?;
+    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
+        &mut conn,
+        user_id,
+        &course_data,
+        &path,
+        file_store.as_ref(),
+        &app_conf,
+    )
+    .await?;
 
     // Chapters may be closed
     if !can_user_view_chapter(
@@ -680,52 +689,66 @@ async fn get_public_top_level_pages(
 }
 
 /**
-GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include draft courses if the course the request for is a draft course and the teacher has a permission to access it.
+GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.
 */
 #[instrument(skip(pool))]
-async fn get_all_course_language_versions(
+async fn get_all_course_language_versions_navigation_info_from_page(
     pool: web::Data<PgPool>,
-    course_id: web::Path<Uuid>,
+    path: web::Path<(Uuid, Uuid)>,
     user: Option<AuthUser>,
-) -> ControllerResult<web::Json<Vec<CourseMaterialCourse>>> {
+) -> ControllerResult<web::Json<Vec<CourseLanguageVersionNavigationInfo>>> {
     let mut conn = pool.acquire().await?;
+    let (course_id, page_id) = path.into_inner();
     let token = skip_authorize();
-    let course = models::courses::get_course(&mut conn, *course_id).await?;
+    let course = models::courses::get_course(&mut conn, course_id).await?;
 
     let unfiltered_language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
 
-    let language_versions = unfiltered_language_versions
+    let all_pages_in_same_page_language_group =
+        models::page_language_groups::get_all_pages_in_page_language_group_mapping(
+            &mut conn, page_id,
+        )
+        .await?;
+
+    let mut accessible_courses = unfiltered_language_versions
         .clone()
         .into_iter()
         .filter(|c| !c.is_draft)
         .collect::<Vec<_>>();
 
-    if !language_versions.iter().any(|c| c.id == course.id) {
-        // The course the language version was requested for is likely a draft course.
-        if let Some(user_id) = user.map(|u| u.id) {
-            let access_draft_course_token =
-                authorize_access_to_course_material(&mut conn, Some(user_id), *course_id).await?;
-            info!(
-                "Course {} the language version was requested for is a draft course. Including all draft courses in the response.",
-                course.id,
-            );
-            return access_draft_course_token.authorized_ok(web::Json(
-                unfiltered_language_versions
-                    .into_iter()
-                    .map(|c| c.into())
-                    .collect(),
-            ));
-        } else {
-            return Err(ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Please log in".to_string(),
-                None,
-            ));
+    // If user is logged in, check access if we need to add draft courses
+    if let Some(user_id) = user.map(|u| u.id) {
+        let user_roles = models::roles::get_roles(&mut conn, user_id).await?;
+
+        for course_version in unfiltered_language_versions.iter().filter(|c| c.is_draft) {
+            if authorize_with_fetched_list_of_roles(
+                &mut conn,
+                Action::ViewMaterial,
+                Some(user_id),
+                Resource::Course(course_version.id),
+                &user_roles,
+            )
+            .await
+            .is_ok()
+            {
+                accessible_courses.push(course_version.clone());
+            }
         }
     }
+
     token.authorized_ok(web::Json(
-        language_versions.into_iter().map(|c| c.into()).collect(),
+        accessible_courses
+            .into_iter()
+            .map(|c| {
+                let page_language_group_navigation_info =
+                    all_pages_in_same_page_language_group.get(&CourseOrExamId::Course(c.id));
+                CourseLanguageVersionNavigationInfo::from_course_and_page_info(
+                    &c,
+                    page_language_group_navigation_info,
+                )
+            })
+            .collect(),
     ))
 }
 
@@ -974,16 +997,18 @@ async fn fetch_user_marketing_consent(
 }
 
 /**
-GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
+GET /courses/:course_id/partners-block - Gets a partners block related to a course
 */
 #[instrument(skip(pool))]
 async fn get_partners_block(
     path: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<PartnersBlock>> {
+) -> ControllerResult<web::Json<Option<PartnersBlock>>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id).await?;
+    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id)
+        .await
+        .optional()?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(partner_block))
 }
@@ -1051,8 +1076,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(search_pages_with_phrase),
         )
         .route(
-            "/{course_id}/language-versions",
-            web::get().to(get_all_course_language_versions),
+            "/{course_id}/language-versions-navigation-info/from-page/{page_id}",
+            web::get().to(get_all_course_language_versions_navigation_info_from_page),
         )
         .route(
             "/{course_id}/search-pages-with-words",

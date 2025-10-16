@@ -248,7 +248,7 @@ const SelectCourseInstanceForm: React.FC<
             onClick={enrollOnCourse}
             disabled={
               !selectedInstanceId ||
-              additionalQuestionsQuery.isPending ||
+              additionalQuestionsQuery.isLoading ||
               (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked)
             }
             data-testid="select-course-instance-continue-button"

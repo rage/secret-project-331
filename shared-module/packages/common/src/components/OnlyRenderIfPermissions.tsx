@@ -29,7 +29,7 @@ const OnlyRenderIfPermissions: React.FC<React.PropsWithChildren<ComponentProps>>
     enabled: loginState.signedIn === true,
   })
 
-  if (loginState.signedIn !== true || data.isPending || data.isError || !data.data) {
+  if (loginState.signedIn !== true || data.isLoading || data.isError || !data.data) {
     if (elseRender) {
       return <>{elseRender}</>
     }

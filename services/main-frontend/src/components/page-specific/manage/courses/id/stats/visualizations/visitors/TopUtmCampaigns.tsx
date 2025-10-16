@@ -71,7 +71,7 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
       <StatsHeader heading={t("header-utm-campaigns")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-utm-campaigns")}</InstructionBox>
       <div className={containerStyles}>
-        {query.isPending ? (
+        {query.isLoading ? (
           <Spinner variant="medium" />
         ) : query.isError ? (
           <ErrorBanner variant="readOnly" error={query.error} />

@@ -72,7 +72,7 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
           error={exerciseQuery.error || exerciseSubmissionsQuery.error}
         />
       )}
-      {(exerciseQuery.isPending || exerciseSubmissionsQuery.isPending) && (
+      {(exerciseQuery.isLoading || exerciseSubmissionsQuery.isLoading) && (
         <Spinner variant={"medium"} />
       )}
       {exerciseQuery.isSuccess &&

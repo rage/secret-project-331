@@ -92,29 +92,23 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
 
    > **Note**: If this command does not work, try running it in a Bash shell instead of Fish. Enter Bash by typing `bash`, run the command, then exit Bash with `Ctrl+D`.
 
-4. Install the projects version of Node.js (run in secret-project-331 root):
-
-   ```bash
-   nvm install
-   ```
-
-5. Apply Docker group permissions:
+4. Apply Docker group permissions:
 
    ```bash
    newgrp docker
    ```
 
-6. Install Rust using rustup: https://rustup.rs/
+5. Install Rust using rustup: https://rustup.rs/
 
-7. Install required tools by running:
+6. Install required tools by running:
 
    ```bash
    bin/download-applications-linux
    ```
 
-8. Restart your terminal to apply all changes.
+7. Restart your terminal to apply all changes.
 
-9. Delete the initially cloned repository if you no longer need it and use the one located in `/data`.
+8. Delete the initially cloned repository if you no longer need it and use the one located in `/data`.
 
 ### Running the Development Environment
 

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -18,6 +19,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 
 interface GradeExamAnswerProps {
   submissionId: string
@@ -27,6 +29,7 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
   submissionId,
 }) => {
   const { t } = useTranslation()
+  const router = useRouter()
 
   const { register, handleSubmit } = useForm<NewTeacherGradingDecision>()
   const [nextSubmissionId, setNextSubmissionId] = useState("")
@@ -73,19 +76,6 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
     }
   }
 
-  const onSubmitWrapper = handleSubmit((data) => {
-    const newGrading: NewTeacherGradingDecision = {
-      user_exercise_state_id: getCurrentGradingInfo.data?.id ?? "",
-      justification: data.justification,
-      hidden: true,
-      exercise_id: getSubmissionInfo.data?.exercise.id ?? "",
-      // eslint-disable-next-line i18next/no-literal-string
-      action: "CustomPoints",
-      manual_points: Number(data.manual_points),
-    }
-    submitMutation.mutate(newGrading)
-  })
-
   const submitMutation = useToastMutation(
     (update: NewTeacherGradingDecision) => {
       return addTeacherGradingForExamSubmission(update)
@@ -103,9 +93,32 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
     },
   )
 
+  const handleGradeSubmission = async (
+    data: NewTeacherGradingDecision,
+    navigateToNext: boolean,
+  ) => {
+    const newGrading: NewTeacherGradingDecision = {
+      user_exercise_state_id: getCurrentGradingInfo.data?.id ?? "",
+      justification: data.justification,
+      hidden: true,
+      exercise_id: getSubmissionInfo.data?.exercise.id ?? "",
+      // eslint-disable-next-line i18next/no-literal-string
+      action: "CustomPoints",
+      manual_points: Number(data.manual_points),
+    }
+
+    await submitMutation.mutateAsync(newGrading)
+
+    if (navigateToNext) {
+      router.push(submissionGradingRoute(nextSubmissionId))
+    }
+  }
+
+  const handleSubmitForm = (data: NewTeacherGradingDecision) => handleGradeSubmission(data, false)
+  const handleSubmitAndNext = (data: NewTeacherGradingDecision) => handleGradeSubmission(data, true)
+
   return (
     <form
-      onSubmit={onSubmitWrapper}
       className={css`
         padding: 1.5rem 1rem;
       `}
@@ -162,7 +175,13 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
         `}
       >
         <div>
-          <Button variant={"primary"} size={"medium"} transform="none" type="submit">
+          <Button
+            variant={"primary"}
+            size={"medium"}
+            transform="none"
+            type="button"
+            onClick={handleSubmit(handleSubmitForm)}
+          >
             {t("button-text-submit")}
           </Button>
         </div>
@@ -171,11 +190,9 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
             variant={"blue"}
             size={"medium"}
             transform="none"
+            type="button"
             disabled={nextSubmissionId === "lastAnswer"}
-            type="submit"
-            onClick={() => {
-              location.href = `/submissions/${nextSubmissionId}/grading/`
-            }}
+            onClick={handleSubmit(handleSubmitAndNext)}
           >
             {t("button-text-save-and-next")}
           </Button>

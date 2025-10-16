@@ -37,7 +37,7 @@ const PlayGroundSettings: React.FC<PlayGroundSettingsProps> = ({
       <div>
         <TextField label={t("service-info-url")} {...settingsForm.register("url")} />
         {serviceInfoQuery.isError && t("error-fetching-service-info")}
-        {!serviceInfoQuery.isPending && (
+        {!serviceInfoQuery.isLoading && (
           <div
             className={css`
               margin-top: -0.7rem;

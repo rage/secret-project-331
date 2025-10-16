@@ -58,7 +58,7 @@ const parseCitation = (data: string) => {
 
     (_, citationId) =>
       // eslint-disable-next-line i18next/no-literal-string
-      `<sup class="reference" data-citation-id="${citationId}" style="line-height: 1.5em;">[?]</sup>`,
+      `<span data-citation-id="${citationId}"></span>`,
   )
   return converted
 }

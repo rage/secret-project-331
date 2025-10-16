@@ -91,3 +91,7 @@ export function courseInstanceUserStatusSummaryRoute(courseInstanceId: string, u
 export function exerciseSubmissionsRoute(exerciseId: string) {
   return `/manage/exercises/${exerciseId}/submissions`
 }
+
+export function submissionGradingRoute(submissionId: string) {
+  return `/submissions/${submissionId}/grading/`
+}

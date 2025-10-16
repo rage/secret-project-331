@@ -18,7 +18,7 @@
 //! # let teacher = uuid::Uuid::new_v4();
 //! # let org = uuid::Uuid::new_v4();
 //! # let base_course_ns = uuid::Uuid::new_v4();
-//! # let mut context = SeedContext { conn: &mut conn, teacher, org, base_course_ns };
+//! # let mut context = SeedContext { teacher, org, base_course_ns };
 //! let course = CourseBuilder::new("My Course", "my-course")
 //!     .desc("A sample course")
 //!     .chatbot(true)
@@ -34,7 +34,7 @@
 //!             )
 //!     );
 //!
-//! let (course, instance, module) = course.seed(&mut context).await?;
+//! let (course, instance, module) = course.seed(&mut conn, &context).await?;
 //! # Ok(())
 //! # }
 //! ```

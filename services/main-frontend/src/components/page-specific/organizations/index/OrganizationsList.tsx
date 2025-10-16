@@ -104,7 +104,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       {allOrganizationsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
       )}
-      {allOrganizationsQuery.isPending && <Spinner variant={"medium"} />}
+      {allOrganizationsQuery.isLoading && <Spinner variant={"medium"} />}
       {allOrganizationsQuery.isSuccess && (
         <div
           className={css`

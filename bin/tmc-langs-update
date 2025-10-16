@@ -36,12 +36,12 @@ echo "$GENERATED" >> "$BINDINGS_DOWNLOAD_TARGET"
 # write guard annotation for CliOutput and RunResult
 run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$BINDINGS_DOWNLOAD_TARGET"
 run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$BINDINGS_DOWNLOAD_TARGET"
-run_command npx eslint --fix "$BINDINGS_DOWNLOAD_TARGET"
+run_command pnpm exec eslint --fix "$BINDINGS_DOWNLOAD_TARGET"
 
 # generate guard
-run_command npx ts-auto-guard --paths "$BINDINGS_DOWNLOAD_TARGET" --project ./tsconfig.json
+run_command pnpm exec ts-auto-guard --paths "$BINDINGS_DOWNLOAD_TARGET" --project ./tsconfig.json
 run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' "$BINDINGS_GUARD"
-run_command npx eslint --fix --no-ignore "$BINDINGS_GUARD"
+run_command pnpm exec eslint --fix --no-ignore "$BINDINGS_GUARD"
 
 echo "Removing old langs binary"
 run_command find ./bin/ -name "${LANGS_FILENAME_ROOT}*" -delete

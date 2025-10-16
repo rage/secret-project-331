@@ -24,7 +24,7 @@ const CongratulationsBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
       {getModuleCompletions.isError && (
         <ErrorBanner error={getModuleCompletions.error} variant="readOnly" />
       )}
-      {getModuleCompletions.isPending && null}
+      {getModuleCompletions.isLoading && null}
       {getModuleCompletions.isSuccess && (
         <>
           {/* This block is only visible after the default module is completed.*/}

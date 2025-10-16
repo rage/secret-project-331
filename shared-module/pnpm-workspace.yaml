@@ -1,0 +1,45 @@
+# Download the right version of pnpm automatically (based on package.json)
+managePackageManagerVersions: true
+# Don't allow running with the wrong pnpm version
+packageManagerStrictVersion: true
+
+# Make pnpm automatically install the right node version
+useNodeVersion: 22.20.0
+# Check that packages are compatible with this node version
+nodeVersion: 22.20.0
+# Dont install packages that are not combatibile with the 'nodeVersion'
+engineStrict: true
+# Use pnpm-lock.yaml if we can
+preferFrozenLockfile: true
+
+# Don't tell about pnpm updates
+updateNotifier: false
+# Make each package to have its own lockfile
+sharedWorkspaceLockfile: false
+
+# Delay brand-new releases to reduce supply-chain risk (minutes)
+minimumReleaseAge: 1440
+# If you want to exclude some packages from the minimumReleaseAge, you can do it here
+# minimumReleaseAgeExclude:
+
+# Fail install if a dependency wants to run unreviewed build scripts (it's better to fail so that we know to review the build scripts straight away)
+strictDepBuilds: true
+# Dependencies that are allowed to run build scripts
+onlyBuiltDependencies: [
+    esbuild
+  ]
+
+# Prefer local workspace packages and link them for better DX
+linkWorkspacePackages: true
+# Use local versions over registry when available
+preferWorkspacePackages: true
+# Keep workspace:* behavior when adding deps from the workspace
+saveWorkspaceProtocol: rolling
+
+# Make repeat installs faster and reduce surprise subdep bumps
+resolutionMode: time-based
+# Set to true only if your registry supports "time" in abbreviated metadata
+registrySupportsTimeField: false
+
+# If trying to run a script when node_modules are not up to date, install them before proceeding
+verifyDepsBeforeRun: install

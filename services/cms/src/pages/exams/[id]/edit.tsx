@@ -45,12 +45,12 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
     return res
   }
 
-  if (getExamsInstructions.isPending) {
-    return <Spinner variant="medium" />
-  }
-
   if (getExamsInstructions.isError) {
     return <ErrorBanner variant={"readOnly"} error={getExamsInstructions.error} />
+  }
+
+  if (getExamsInstructions.isLoading || !getExamsInstructions.data) {
+    return <Spinner variant="medium" />
   }
 
   return (

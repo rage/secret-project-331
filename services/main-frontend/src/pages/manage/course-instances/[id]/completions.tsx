@@ -181,7 +181,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
       {getCompletionsList.isError && (
         <ErrorBanner variant="readOnly" error={getCompletionsList.error} />
       )}
-      {getCompletionsList.isPending && <Spinner variant="medium" />}
+      {getCompletionsList.isLoading && <Spinner variant="medium" />}
       {getCompletionsList.isSuccess && (
         <>
           <div

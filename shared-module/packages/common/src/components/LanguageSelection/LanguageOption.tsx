@@ -7,9 +7,10 @@ import Button from "../Button"
 export interface LanguageOptionProps {
   label: string
   onClick: () => void
+  isActive?: boolean
 }
 
-const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
+const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick, isActive = false }) => {
   return (
     <li
       // I don't know what causes it, but !important is required here for some pages (like
@@ -34,11 +35,12 @@ const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
           margin: 0 !important;
           padding: 0.7rem 1rem !important;
           font-size: 16px !important;
-          background: #fff !important;
-          color: ${baseTheme.colors.green[500]} !important;
+          background: ${isActive ? baseTheme.colors.green[100] : "#fff"} !important;
+          color: ${isActive ? baseTheme.colors.green[600] : baseTheme.colors.green[500]} !important;
           border: 0 !important;
           width: 100%;
           text-align: left;
+          font-weight: ${isActive ? "600" : "normal"} !important;
 
           :hover {
             color: ${baseTheme.colors.green[700]};

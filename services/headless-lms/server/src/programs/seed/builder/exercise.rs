@@ -101,7 +101,7 @@ impl ExerciseBuilder {
 
     pub(crate) fn to_cms(
         &self,
-        _cx: &SeedContext<'_>,
+        _cx: &SeedContext,
     ) -> Result<(
         GutenbergBlock,
         CmsPageExercise,

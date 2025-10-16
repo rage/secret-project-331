@@ -43,6 +43,7 @@ async fn create_chatbot(
 
     let configuration = models::chatbot_configurations::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         NewChatbotConf {
             chatbot_name: payload.into_inner(),
             course_id: *course_id,

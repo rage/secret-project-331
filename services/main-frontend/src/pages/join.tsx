@@ -66,7 +66,7 @@ const JoinCoursePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (
     <div>
       {course.isError && <ErrorBanner variant={"readOnly"} error={courseBreadcrumbs.error} />}
-      {course.isPending && <Spinner variant={"medium"} />}
+      {course.isLoading && <Spinner variant={"medium"} />}
       {course.isSuccess && (
         <div>
           <h1>{course.data.name}</h1>

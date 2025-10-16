@@ -1,6 +1,7 @@
 import { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
 import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import { PrivateSpecQuizItemChooseN } from "../../../types/quizTypes/privateSpec"
+import { clamp01, safeDivide } from "../utils/math"
 
 const assessChooseN = (
   quizItemAnswer: UserItemAnswerChooseN,
@@ -18,9 +19,13 @@ const assessChooseN = (
     }
   })
 
+  const denominator = Math.min(quizItem.n, totalCorrectOptions)
+  const rawCoefficient = safeDivide(correctOptions, denominator)
+  const correctnessCoefficient = clamp01(rawCoefficient)
+
   return {
     quizItemId: quizItem.id,
-    correctnessCoefficient: correctOptions / Math.min(quizItem.n, totalCorrectOptions),
+    correctnessCoefficient,
   }
 }
 

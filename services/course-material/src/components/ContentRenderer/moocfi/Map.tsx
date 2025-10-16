@@ -229,7 +229,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   let activeStudentCountry = ""
   let countryTableData
 
-  if (getCountry.isPending) {
+  if (getCountry.isLoading) {
     return <Spinner variant={"small"} />
   }
 

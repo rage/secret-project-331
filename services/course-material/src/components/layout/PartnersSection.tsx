@@ -18,7 +18,9 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
   })
 
   const content =
-    getPartnersBlock.isSuccess && Array.isArray(getPartnersBlock.data.content)
+    getPartnersBlock.isSuccess &&
+    getPartnersBlock.data &&
+    Array.isArray(getPartnersBlock.data.content)
       ? getPartnersBlock.data.content
       : [] // Default to an empty array if content is not present
 

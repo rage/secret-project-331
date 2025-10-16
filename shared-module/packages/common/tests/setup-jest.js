@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals"
 import { ServerResponse } from "http"
 import { TextEncoder } from "util"
 import "@testing-library/jest-dom"
@@ -36,3 +37,5 @@ global.BroadcastChannel = class BroadcastChannel {
     // NOP
   }
 }
+
+global.jest = jest

@@ -82,11 +82,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.getByText("First chapters second page.").click()
   await page.getByRole("button", { name: "Language" }).click()
   await page.getByRole("button", { name: "Suomi" }).click()
-  await page
-    .getByRole("link", {
-      name: "Olet tekemässä kurssia jo toisella kielellä. Ennen kuin vastaat mihinkään tehtävään, palaa kieliversioon Introduction to citations (English) tai vaihda käytössä oleva kieli kurssin asetuksista.",
-    })
-    .waitFor()
+  await page.getByText("Olet aiemmin aloittanut tämän kurssin eri kielellä.").first().waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin/chapter-1/page-2",
   )

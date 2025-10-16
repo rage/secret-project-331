@@ -1,16 +1,13 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import AIChat from "../../../img/ai-chat.svg"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface OpenChatbotButtonProps {
-  setDialogOpen: (dialogOpen: boolean) => void
-}
-
-const buttonStyle = css`
+const buttonStyle = (hide: boolean) => css`
   position: fixed;
   bottom: 62px;
   right: 14px;
@@ -27,21 +24,21 @@ const buttonStyle = css`
   justify-content: center;
   transition: background-color 0.2s;
   background-color: ${baseTheme.colors.green[300]};
-
   &:hover {
     background-color: ${baseTheme.colors.green[400]};
   }
+  ${hide && `visibility: hidden;`}
 `
 
-const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ setDialogOpen }) => {
+interface OpenChatbotButtonProps {
+  hide: boolean
+}
+
+const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide }) => {
   const { t } = useTranslation()
 
-  const handleClick = () => {
-    setDialogOpen(true)
-  }
-
   return (
-    <button className={buttonStyle} aria-label={t("open-chatbot")} onClick={handleClick}>
+    <Button className={buttonStyle(hide)} aria-label={t("open-chatbot")}>
       <AIChat
         className={css`
           position: relative;
@@ -50,7 +47,7 @@ const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ setDialogOpen }) 
           height: 35px;
         `}
       />
-    </button>
+    </Button>
   )
 }
 

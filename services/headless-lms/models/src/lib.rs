@@ -108,7 +108,7 @@ use url::Url;
 use user_exercise_states::UserExerciseState;
 use uuid::Uuid;
 
-pub use self::error::{ModelError, ModelErrorType, ModelResult};
+pub use self::error::{HttpErrorType, ModelError, ModelErrorType, ModelResult};
 use crate::prelude::*;
 
 #[macro_use]
@@ -287,7 +287,7 @@ impl<
 ///
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
 /// between two, so `CourseOrExamId` helps when handling these separate scenarios.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum CourseOrExamId {
     Course(Uuid),
     Exam(Uuid),

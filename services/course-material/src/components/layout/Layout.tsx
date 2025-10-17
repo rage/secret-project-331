@@ -3,7 +3,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Head from "next/head"
 import { usePathname } from "next/navigation"
-import React, { ReactNode, useEffect, useMemo, useState } from "react"
+import React, { ReactNode, Suspense, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import SearchDialog from "../SearchDialog"
@@ -25,9 +25,11 @@ import {
   NavItem,
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 interface LayoutProps {
   children: ReactNode
@@ -97,7 +99,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
     }
   }, [courseId, hideFromSearchEngines, organizationSlug, title])
   return (
-    <>
+    <Suspense fallback={<Spinner variant="large" />}>
       <Head>
         <title>{fullTitle}</title>
         <meta charSet="utf-8" />
@@ -127,7 +129,9 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
                 </NavItem>
               </NavItems>
             </NavContainer>
-            <UserNavigationControls currentPagePath={pathname} courseId={courseId} />
+            <Suspense fallback={<Spinner variant="large" />}>
+              <UserNavigationControls currentPagePath={pathname} courseId={courseId} />
+            </Suspense>
           </NavBar>
         </PageContext.Provider>
 
@@ -146,8 +150,8 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
         {courseId && <PartnersSectionBlock courseId={courseId} />}
         <Footer privacyLinks={customPrivacyLinks} />
       </div>
-    </>
+    </Suspense>
   )
 }
 
-export default withNoSsr(Layout)
+export default withSuspenseBoundary(withNoSsr(Layout))

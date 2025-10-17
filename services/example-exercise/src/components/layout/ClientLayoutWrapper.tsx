@@ -8,12 +8,17 @@ import useLanguage from "@/shared-module/common/hooks/useLanguage"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import initI18n from "@/shared-module/common/utils/initI18n"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const SERVICE_NAME = "tmc"
+const SERVICE_NAME = "example-exercise"
 
 const i18n = initI18n(SERVICE_NAME)
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+interface ClientLayoutWrapperProps {
+  children: React.ReactNode
+}
+
+function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
   const language = useLanguage()
 
   useEffect(() => {
@@ -31,7 +36,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
     console.info(`Setting language to: ${language}`)
     i18n.changeLanguage(language)
-    // Mirror previous behavior of setting the <html> lang attribute
     document.documentElement.lang = language
   }, [language])
 
@@ -44,3 +48,5 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     </QueryClientProvider>
   )
 }
+
+export default withErrorBoundary(ClientLayoutWrapper)

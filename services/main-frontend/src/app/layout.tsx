@@ -3,9 +3,8 @@
 import Script from "next/script"
 import React, { Suspense } from "react"
 
-import Providers from "./providers"
-
 import Layout from "@/components/Layout"
+import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/constants"
@@ -30,9 +29,9 @@ const RootLayout = ({
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>
         <Suspense fallback={<Spinner />}>
-          <Providers>
+          <ClientLayoutWrapper>
             <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
-          </Providers>
+          </ClientLayoutWrapper>
         </Suspense>
       </body>
     </html>

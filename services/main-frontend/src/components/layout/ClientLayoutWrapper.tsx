@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react"
 
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
-import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage"
+import useLanguage, { DEFAULT_LANGUAGE, getDir } from "@/shared-module/common/hooks/useLanguage"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import initI18n from "@/shared-module/common/utils/initI18n"
@@ -17,15 +17,17 @@ const SERVICE_NAME = "main-frontend"
 
 const i18n = initI18n(SERVICE_NAME)
 
-function Providers({ children }: { children: React.ReactNode }) {
+interface ClientLayoutWrapperProps {
+  children: React.ReactNode
+}
+
+function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
   const initialLanguage = useLanguage()
-  // eslint-disable-next-line i18next/no-literal-string
-  const [language, setLanguage] = useState(initialLanguage ?? "en")
+  const [language, setLanguage] = useState(initialLanguage ?? DEFAULT_LANGUAGE)
   const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
 
   useEffect(() => {
     // Remove the server-side injected CSS.
-
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
       jssStyles.parentElement?.removeChild(jssStyles)
@@ -80,4 +82,4 @@ function Providers({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default withErrorBoundary(Providers)
+export default withErrorBoundary(ClientLayoutWrapper)

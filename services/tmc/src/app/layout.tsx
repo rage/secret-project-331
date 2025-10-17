@@ -2,8 +2,7 @@
 
 import React, { Suspense } from "react"
 
-import Providers from "./providers"
-
+import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
 import Spinner from "@/shared-module/common/components/Spinner"
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
 
@@ -16,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <Suspense fallback={<Spinner />}>
-          <Providers>{children}</Providers>
+          <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
         </Suspense>
       </body>
     </html>

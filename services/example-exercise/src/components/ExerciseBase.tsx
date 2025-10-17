@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 
 import { baseTheme } from "@/shared-module/common/styles/theme"

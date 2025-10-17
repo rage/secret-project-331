@@ -1,3 +1,4 @@
+"use client"
 import { UseQueryResult } from "@tanstack/react-query"
 
 import { newChatbotConversation } from "@/services/backend"

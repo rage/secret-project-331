@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 

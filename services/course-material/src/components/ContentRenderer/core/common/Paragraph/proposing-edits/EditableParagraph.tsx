@@ -1,3 +1,4 @@
+"use client"
 import React, { memo, useRef } from "react"
 
 import { getEditableHoverStyles, getEditingStyles } from "../styles"

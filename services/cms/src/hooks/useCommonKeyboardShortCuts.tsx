@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable i18next/no-literal-string */
 import { useDispatch } from "@wordpress/data"
 import { useEffect } from "@wordpress/element"

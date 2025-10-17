@@ -1,3 +1,4 @@
+"use client"
 import styled from "@emotion/styled"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"

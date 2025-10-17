@@ -1,3 +1,4 @@
+"use client"
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"

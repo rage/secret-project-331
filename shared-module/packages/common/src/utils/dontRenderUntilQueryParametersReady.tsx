@@ -1,3 +1,4 @@
+"use client"
 // During initial render query parameters are undedined in Next.js due to optimization
 // reasons. This HOC allows one to delay rendering a subtree until required query
 // parameters are ready. This way parts outside the subtree can still be

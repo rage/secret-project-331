@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { useAtom } from "jotai"
 import React from "react"

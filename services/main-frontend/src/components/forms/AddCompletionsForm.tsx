@@ -1,3 +1,4 @@
+"use client"
 import styled from "@emotion/styled"
 import Papa from "papaparse"
 import React, { useState } from "react"

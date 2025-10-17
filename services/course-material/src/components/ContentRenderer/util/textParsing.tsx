@@ -1,3 +1,4 @@
+"use client"
 import KaTex from "katex"
 import { renderToString } from "react-dom/server"
 import "katex/dist/katex.min.css"

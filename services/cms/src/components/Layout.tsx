@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import Head from "next/head"
 import { useRouter } from "next/router"

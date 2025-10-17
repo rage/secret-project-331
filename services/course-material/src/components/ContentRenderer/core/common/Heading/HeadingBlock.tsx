@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable jsx-a11y/heading-has-content */
 import { css, cx } from "@emotion/css"
 import { DetailedHTMLProps, HTMLAttributes } from "react"

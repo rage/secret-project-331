@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { groupBy, mapValues } from "lodash"
 import Link from "next/link"

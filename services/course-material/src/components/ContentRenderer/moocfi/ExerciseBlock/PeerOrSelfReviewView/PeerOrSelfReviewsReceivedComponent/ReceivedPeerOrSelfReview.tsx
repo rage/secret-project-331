@@ -1,3 +1,4 @@
+"use client"
 import styled from "@emotion/styled"
 import * as React from "react"
 import { useMemo } from "react"

@@ -1,3 +1,4 @@
+"use client"
 import "highlight.js/styles/atom-one-dark.css"
 import { css } from "@emotion/css"
 import hljs from "highlight.js"

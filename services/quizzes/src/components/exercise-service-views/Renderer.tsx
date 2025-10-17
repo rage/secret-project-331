@@ -1,3 +1,4 @@
+"use client"
 import dynamic from "next/dynamic"
 import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"

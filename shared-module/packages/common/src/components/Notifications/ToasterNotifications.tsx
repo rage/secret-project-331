@@ -1,3 +1,4 @@
+"use client"
 import { Toaster } from "react-hot-toast"
 
 import useMedia from "../../hooks/useMedia"

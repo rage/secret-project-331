@@ -1,3 +1,4 @@
+"use client"
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
 import React, { useContext, useMemo } from "react"

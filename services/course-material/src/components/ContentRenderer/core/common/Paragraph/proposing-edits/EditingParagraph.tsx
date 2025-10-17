@@ -1,3 +1,4 @@
+"use client"
 import { useAtom, useSetAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"

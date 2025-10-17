@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
@@ -8,8 +9,8 @@ import React from "react"
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { baseTheme, theme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
-import Spinner from "../../Spinner"
 import withSuspenseBoundary from "../../../utils/withSuspenseBoundary"
+import Spinner from "../../Spinner"
 
 export interface TabLinkProps {
   url: string | UrlObject

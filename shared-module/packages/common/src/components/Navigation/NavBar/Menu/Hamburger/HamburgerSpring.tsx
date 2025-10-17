@@ -1,3 +1,4 @@
+"use client"
 // From https://github.com/AuvikAlive/react-animated-burgers/tree/master/src/lib/components/HamburgerSpring
 
 import styled from "@emotion/styled"

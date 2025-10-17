@@ -1,3 +1,4 @@
+"use client"
 import useQueryParameter from "../hooks/useQueryParameter"
 
 function figureOutWhichReturnToPathToUse(

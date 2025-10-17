@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import Link from "next/link"

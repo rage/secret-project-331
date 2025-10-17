@@ -1,3 +1,4 @@
+"use client"
 import EssayPeerOrSelfReviewQuestion from "./EssayPeerOrSelfReviewQuestion"
 import ScalePeerOrSelfReviewQuestion from "./ScalePeerOrSelfReviewQuestion"
 

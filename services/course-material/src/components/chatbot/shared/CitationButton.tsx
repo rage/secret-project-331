@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React, { DOMAttributes } from "react"
 import { useTranslation } from "react-i18next"

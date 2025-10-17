@@ -1,3 +1,4 @@
+"use client"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"

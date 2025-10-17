@@ -1,3 +1,4 @@
+"use client"
 import { css, injectGlobal } from "@emotion/css"
 
 import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"

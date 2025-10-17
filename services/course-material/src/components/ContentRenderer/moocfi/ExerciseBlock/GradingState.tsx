@@ -1,3 +1,4 @@
+"use client"
 import { Namespace, TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"

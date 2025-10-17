@@ -1,3 +1,4 @@
+"use client"
 import { PeerOrSelfReviewQuestionProps } from "."
 
 import LikertScale from "@/shared-module/common/components/PeerReview/LikertScale"

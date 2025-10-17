@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { times } from "lodash"
 import React, { JSX } from "react"

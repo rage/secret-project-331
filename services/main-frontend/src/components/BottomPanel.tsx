@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { ExclamationMessage } from "@vectopus/atlas-icons-react"
 import React from "react"

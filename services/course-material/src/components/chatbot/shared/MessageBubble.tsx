@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"

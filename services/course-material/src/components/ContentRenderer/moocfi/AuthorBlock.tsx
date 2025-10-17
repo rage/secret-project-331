@@ -1,3 +1,4 @@
+"use client"
 import styled from "@emotion/styled"
 import { t } from "i18next"
 import React from "react"

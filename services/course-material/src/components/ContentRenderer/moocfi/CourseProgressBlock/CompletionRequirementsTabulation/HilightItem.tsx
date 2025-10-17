@@ -1,3 +1,4 @@
+"use client"
 import { css, cx } from "@emotion/css"
 
 import { headingFont } from "@/shared-module/common/styles"

@@ -24,6 +24,9 @@ const PagePage: React.FC = () => {
   const layoutContext = useContext(LayoutContext)
   const router = useRouter()
   const params = useParams<{ organizationSlug: string; courseSlug: string; path: string[] }>()
+  if (params === null) {
+    throw new Error("Params are null (and they are not supposed to be)")
+  }
   const organizationSlug = params.organizationSlug
   const courseSlug = params.courseSlug
   const path = useMemo(() => `/${params.path?.join("/") || ""}`, [params.path])

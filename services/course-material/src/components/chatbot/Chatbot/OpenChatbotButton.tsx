@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React from "react"
 import { Button } from "react-aria-components"

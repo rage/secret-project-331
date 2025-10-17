@@ -1,3 +1,4 @@
+"use client"
 import { Button } from "@wordpress/components"
 import { useTranslation } from "react-i18next"
 

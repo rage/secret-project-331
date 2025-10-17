@@ -1,3 +1,4 @@
+"use client"
 export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   align-items: center;
   flex-grow: 1;

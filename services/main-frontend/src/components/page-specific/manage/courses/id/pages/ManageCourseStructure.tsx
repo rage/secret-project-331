@@ -1,3 +1,4 @@
+"use client"
 import { css, cx } from "@emotion/css"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import { BlockProhibited } from "@vectopus/atlas-icons-react"

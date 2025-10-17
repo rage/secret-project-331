@@ -1,5 +1,4 @@
-export const dynamic = 'force-dynamic'
-
+"use client"
 export default function NotFound() {
   return (
     <div>

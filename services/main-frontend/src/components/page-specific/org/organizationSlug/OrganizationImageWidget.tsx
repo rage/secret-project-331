@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"

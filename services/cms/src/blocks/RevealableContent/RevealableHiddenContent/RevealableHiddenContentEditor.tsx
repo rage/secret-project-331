@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable i18next/no-literal-string */
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"

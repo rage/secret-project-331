@@ -1,3 +1,4 @@
+"use client"
 // Disables server-side rendering for the wrapped component.
 
 import { useEffect, useState } from "react"

@@ -1,3 +1,4 @@
+"use client"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"

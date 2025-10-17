@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { max } from "lodash"
 import React, { useMemo } from "react"

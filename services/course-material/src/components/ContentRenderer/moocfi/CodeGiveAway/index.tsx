@@ -1,3 +1,4 @@
+"use client"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"

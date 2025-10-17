@@ -1,3 +1,4 @@
+"use client"
 import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"

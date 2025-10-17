@@ -10,7 +10,38 @@ import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"
 
 export async function POST(req: Request) {
   try {
-    const specRequest = await req.json()
+    let specRequest
+    try {
+      specRequest = await req.json()
+    } catch (jsonError) {
+      const bodyText = await req.text()
+
+      const contentType = req.headers.get("content-type")
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Public spec request failed: Invalid Content-Type", {
+          contentType,
+          bodyText,
+        })
+        return NextResponse.json(
+          { message: "Content-Type must be application/json" },
+          { status: 400 },
+        )
+      }
+
+      if (!bodyText || bodyText.trim() === "") {
+        console.error("Public spec request failed: Empty request body", {
+          bodyText,
+        })
+        return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
+      }
+
+      console.error("Public spec request failed: Invalid JSON", {
+        bodyText,
+        parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
+      })
+      return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
+    }
+
     return handlePost(specRequest)
   } catch (e) {
     console.error("Public spec request failed:", e)
@@ -55,13 +86,30 @@ export function HEAD() {
 
 function handlePost(specRequest: unknown) {
   if (typeof specRequest !== "object" || specRequest === null || !("private_spec" in specRequest)) {
-    throw new Error("Invalid request")
+    const errorInfo = {
+      specRequest,
+      specRequestType: typeof specRequest,
+      specRequestKeys:
+        specRequest && typeof specRequest === "object" ? Object.keys(specRequest) : [],
+      hasPrivateSpec:
+        specRequest && typeof specRequest === "object" && "private_spec" in specRequest,
+    }
+    console.error("Public spec request failed: Invalid request structure", errorInfo)
+    throw new Error(`Invalid request structure: ${JSON.stringify(errorInfo)}`)
   }
-  const request = specRequest as { private_spec: unknown }
-  if (!isSpecRequest(request.private_spec)) {
-    throw new Error("Invalid request")
+  if (!isSpecRequest(specRequest)) {
+    const errorInfo = {
+      privateSpec: specRequest.private_spec,
+      privateSpecType: typeof specRequest.private_spec,
+      privateSpecKeys:
+        specRequest.private_spec && typeof specRequest.private_spec === "object"
+          ? Object.keys(specRequest.private_spec)
+          : [],
+    }
+    console.error("Public spec request failed: Invalid private_spec", errorInfo)
+    throw new Error(`Invalid private_spec: ${JSON.stringify(errorInfo)}`)
   }
-  const quiz = request.private_spec as unknown as OldQuiz | PrivateSpecQuiz | null
+  const quiz = specRequest.private_spec as unknown as OldQuiz | PrivateSpecQuiz | null
   if (quiz === null) {
     throw new Error("Quiz cannot be null")
   }

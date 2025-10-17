@@ -10,8 +10,42 @@ function notFound() {
 
 export async function POST(req: Request): Promise<Response> {
   try {
-    const body = await req.json()
+    let body
+    try {
+      body = await req.json()
+    } catch (jsonError) {
+      const bodyText = await req.text()
+
+      const contentType = req.headers.get("content-type")
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Public spec request failed: Invalid Content-Type", {
+          contentType,
+          bodyText,
+        })
+        return NextResponse.json(
+          { message: "Content-Type must be application/json" },
+          { status: 400 },
+        )
+      }
+
+      if (!bodyText || bodyText.trim() === "") {
+        console.error("Public spec request failed: Empty request body", {
+          bodyText,
+        })
+        return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
+      }
+
+      console.error("Public spec request failed: Invalid JSON", {
+        bodyText,
+        parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
+      })
+      return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
+    }
+
     if (!isSpecRequest(body)) {
+      console.error("Public spec request failed: Invalid spec request", {
+        body,
+      })
       throw new Error("Request was not valid.")
     }
     return handlePost(body as SpecRequest)

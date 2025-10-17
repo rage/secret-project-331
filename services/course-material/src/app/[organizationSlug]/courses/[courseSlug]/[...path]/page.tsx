@@ -26,7 +26,7 @@ const PagePage: React.FC = () => {
   const params = useParams<{ organizationSlug: string; courseSlug: string; path: string[] }>()
   const organizationSlug = params.organizationSlug
   const courseSlug = params.courseSlug
-  const path = useMemo(() => `/${params.path.join("/")}`, [params.path])
+  const path = useMemo(() => `/${params.path?.join("/") || ""}`, [params.path])
 
   const getCoursePageByPath = useQuery({
     queryKey: [`course-page-${courseSlug}-${path}`],

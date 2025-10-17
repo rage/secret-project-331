@@ -10,7 +10,38 @@ import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const body = await request.json()
+    let body
+    try {
+      body = await request.json()
+    } catch (jsonError) {
+      const bodyText = await request.text()
+
+      const contentType = request.headers.get("content-type")
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Model solution request failed: Invalid Content-Type", {
+          contentType,
+          bodyText,
+        })
+        return NextResponse.json(
+          { message: "Content-Type must be application/json" },
+          { status: 400 },
+        )
+      }
+
+      if (!bodyText || bodyText.trim() === "") {
+        console.error("Model solution request failed: Empty request body", {
+          bodyText,
+        })
+        return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
+      }
+
+      console.error("Model solution request failed: Invalid JSON", {
+        bodyText,
+        parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
+      })
+      return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
+    }
+
     const modelSolution = handleModelSolutionGeneration(body)
     return NextResponse.json(modelSolution, { status: 200 })
   } catch (e) {
@@ -32,7 +63,20 @@ export async function POST(request: Request): Promise<Response> {
 
 function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
   if (!isSpecRequest(body)) {
-    throw new Error("Request was not valid.")
+    const errorInfo = {
+      body,
+      bodyKeys: Object.keys(body || {}),
+      bodyType: typeof body,
+      isArray: Array.isArray(body),
+      hasPrivateSpec: body && typeof body === "object" && "private_spec" in body,
+      privateSpecType:
+        body && typeof body === "object" && "private_spec" in body
+          ? typeof body.private_spec
+          : "undefined",
+      expectedKeys: ["request_id", "private_spec", "upload_url"],
+    }
+    console.error("Model solution request failed: Invalid spec request", errorInfo)
+    throw new Error(`Invalid spec request: ${JSON.stringify(errorInfo)}`)
   }
   const specRequest = body
   const quiz = specRequest.private_spec as OldQuiz | null

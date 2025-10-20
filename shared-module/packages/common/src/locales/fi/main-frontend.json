@@ -1042,5 +1042,14 @@
   "wiki-link-text": "Ohjeita kurssimateriaalien muokkaamiseen löydät",
   "year": "Vuosi",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinut ohjataan Avoimen yliopiston suoritusten kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
-  "your-name": "Nimi"
+  "your-name": "Nimi",
+  "missing-name": "(Nimi puuttuu)",
+  "certificate": "Todistus",
+  "date-issued": "Myöntämispäivä",
+  "view_certificate": "Näytä todistus",
+  "edit_certificate": "Muokkaa todistusta",
+  "course_certificate": "Kurssitodistus",
+  "no_certificate": "Ei todistusta",
+  "total": "Kokonaismäärä",
+  "attempts": "Yritykset"
 }

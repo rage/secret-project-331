@@ -1,14 +1,17 @@
 // ProgressTab.tsx
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "./StudentsTableTabs"
+import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 import { getProgress } from "@/services/backend/courses/students"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
 export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId }) => {
+  const { t } = useTranslation()
+
   const query = useQuery({
     queryKey: ["progress-tab", courseId],
     queryFn: () => getProgress(courseId),
@@ -45,12 +48,11 @@ export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId })
     const first = (u.first_name ?? "").trim()
     const last = (u.last_name ?? "").trim()
     if (!first || !last) {
-      return "(Missing Name)"
+      return t("missing-name")
     }
     return `${last}, ${first}`
   }
 
-  // sort chapters for deterministic column order
   const sortedChapters = [...chapters].sort(
     (a, b) => (a.chapter_number ?? 0) - (b.chapter_number ?? 0),
   )
@@ -58,21 +60,26 @@ export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId })
   // --- columns: Student | Total (Points/Attempts) | per-chapter (Points/Attempts)
   const dynamicColumns = [
     {
-      header: "Student",
+      header: t("label-student"),
+      // eslint-disable-next-line i18next/no-literal-string
       columns: [{ header: "", accessorKey: "student" }],
     },
     {
-      header: "Total",
+      header: t("total"),
       columns: [
-        { header: "Points", accessorKey: "total_points" },
-        { header: "Attempts", accessorKey: "total_attempted", meta: { altBg: true } },
+        // eslint-disable-next-line i18next/no-literal-string
+        { header: t("points"), accessorKey: "total_points" },
+        // eslint-disable-next-line i18next/no-literal-string
+        { header: t("attempts"), accessorKey: "total_attempted", meta: { altBg: true } },
       ],
     },
     ...sortedChapters.map((ch) => ({
       header: `${ch.chapter_number}: ${ch.name ?? "-"}`,
       columns: [
-        { header: "Points", accessorKey: `ch_${ch.id}_points` },
-        { header: "Attempts", accessorKey: `ch_${ch.id}_attempts`, meta: { altBg: true } },
+        // eslint-disable-next-line i18next/no-literal-string
+        { header: t("points"), accessorKey: `ch_${ch.id}_points` },
+        // eslint-disable-next-line i18next/no-literal-string
+        { header: t("attempts"), accessorKey: `ch_${ch.id}_attempts`, meta: { altBg: true } },
       ],
     })),
   ]

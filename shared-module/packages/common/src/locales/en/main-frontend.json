@@ -1036,5 +1036,14 @@
   "wiki-link-text": "For instructions on how to edit your course materials, view the",
   "year": "Year",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "You are automatically being redirected to Open University's completion registration page. If nothing happens, please <2>click here</2>.",
-  "your-name": "Your name"
+  "your-name": "Your name",
+  "missing-name": "(Missing Name)",
+  "certificate": "Certificate",
+  "date-issued": "Date Issued",
+  "view_certificate": "View certificate",
+  "edit_certificate": "Edit certificate",
+  "course_certificate": "Course Certificate",
+  "no_certificate": "No Certificate",
+  "total": "Total",
+  "attempts": "Attempts"
 }

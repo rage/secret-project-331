@@ -6,7 +6,18 @@ import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 import { mockStudentsSorted } from "../studentsTableData"
-import { iconBtnStyle } from "../studentsTableStyles"
+
+const iconBtnStyle = css`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  cursor: pointer;
+`
 
 type CertificateRow = {
   student: string

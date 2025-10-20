@@ -88,43 +88,6 @@ export const tableRoundedWrap = css`
   box-sizing: border-box;
 `
 
-export const topScrollbarWrap = css`
-  height: 7px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  pointer-events: auto;
-  background: transparent;
-  border: none;
-
-  /* was -11px when under header; not needed for trailer */
-  margin-top: 0;
-
-  /* WebKit */
-  &::-webkit-scrollbar {
-    height: 20px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #000;
-    border-radius: 8px;
-    border-left: 2px solid transparent;
-    border-right: 2px solid transparent;
-    background-clip: padding-box;
-  }
-
-  /* Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: #000 transparent;
-`
-
-export const topScrollbarInner = css`
-  /* Keep height equal to scrollbar so it doesn’t add extra spacing */
-  height: 0px; /* no need for vertical size here */
-  width: 100%;
-`
-
 export const stickyShellCss = css`
   position: fixed;
   top: 0;
@@ -191,16 +154,4 @@ export const contentCell = (w?: number, minW?: number) => css`
   ${w != null ? `width: ${w}px;` : ``}
   ${minW != null ? `min-width: ${minW}px;` : ``}
   ${padX(PAD)};
-`
-
-export const iconBtnStyle = emotionCss`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 1px solid #d0d5dd;
-  background: #fff;
-  cursor: pointer;
 `

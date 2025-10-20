@@ -1,18 +1,15 @@
+import { css, cx } from "@emotion/css"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
-import { Eye, Pen } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import type { ColumnDef } from "@tanstack/react-table"
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import { colorPairs } from "./studentsTableColors"
-import { completionsColumns, completionsData, mockStudentsSorted } from "./studentsTableData" // This is all placeholder and will be nuked later.
 import {
   actionCellFixed,
   cellBase,
-  COMPLETIONS_LEAF_MIN_WIDTH,
-  COMPLETIONS_LEAF_WIDTH,
   contentCell,
   headerRowStyle,
   headerUnderlineCss,
-  iconBtnStyle,
   lastRowTdStyle,
   noLeftBorder,
   noRightBorder,
@@ -26,24 +23,86 @@ import {
   tableStyle,
   tdStyle,
   thStyle,
-  topScrollbarInner,
-  topScrollbarWrap,
   trailerBarCss,
 } from "./studentsTableStyles"
+
+const dockedTrailerClass = css`
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 60;
+  pointer-events: none;
+`
+
+const topScrollbarWrap = css`
+  height: 7px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  pointer-events: auto;
+  background: transparent;
+  border: none;
+
+  /* was -11px when under header; not needed for trailer */
+  margin-top: 0;
+
+  /* WebKit */
+  &::-webkit-scrollbar {
+    height: 20px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #000;
+    border-radius: 8px;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #000 transparent;
+`
+
+const topScrollbarInner = css`
+  /* Keep height equal to scrollbar so it doesn’t add extra spacing */
+  height: 0px; /* no need for vertical size here */
+  width: 100%;
+`
 
 // --- CONSTANTS ---
 const chapterHeaderStart = 2 // upper headers (groups) start index
 const subHeaderStart = 3 // lower headers (points/attempts) start index
 
+type FloatingHeaderTableProps<T extends object> = {
+  columns: ColumnDef<T, unknown>[]
+  data: T[]
+  // existing optional flags you already support:
+  colorHeaders?: boolean
+  colorColumns?: boolean
+  colorHeaderUnderline?: boolean
+  progressMode?: boolean
+}
+
 // --- COMPONENT ---
-export function FloatingHeaderTable({
+export function FloatingHeaderTable<T extends object>({
   columns,
   data,
   colorHeaders = false,
   colorColumns = false,
   colorHeaderUnderline = false,
   progressMode = false,
-}) {
+}: FloatingHeaderTableProps<T>) {
+  const reactTable = useReactTable<T>({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  type HeaderBgArg = { colSpan: number }
+
   // Refs
   const tableRef = useRef<HTMLTableElement | null>(null)
   const wrapRef = useRef<HTMLDivElement | null>(null)
@@ -63,6 +122,42 @@ export function FloatingHeaderTable({
 
   const table = useReactTable({ columns, data, getCoreRowModel: getCoreRowModel() })
 
+  // Docked trailer container (was inline style)
+  const trailerWrapClass = css`
+    pointer-events: auto;
+    padding-left: 2px;
+    padding-right: 2px;
+  `
+
+  const innerWidthClass = React.useMemo(
+    () => css`
+      width: ${Math.max(contentWidth, wrapRect.width)}px;
+    `,
+    [contentWidth, wrapRect.width],
+  )
+
+  const dockedTrailerClass = css`
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 60;
+    pointer-events: none;
+  `
+
+  const fixedTrailerShellClass = React.useMemo(
+    () => css`
+      position: fixed;
+      left: ${wrapRect.left}px;
+      bottom: 0;
+      width: ${wrapRect.width}px;
+      z-index: 100;
+      pointer-events: none;
+      padding-bottom: env(safe-area-inset-bottom);
+    `,
+    [wrapRect.left, wrapRect.width],
+  )
+
   // ---------- Helpers ----------
   const applyStickyTransform = useCallback((x: number) => {
     if (x === latestScrollLeftRef.current) {
@@ -70,6 +165,7 @@ export function FloatingHeaderTable({
     }
     latestScrollLeftRef.current = x
     if (stickyTableRef.current) {
+      // eslint-disable-next-line i18next/no-literal-string
       stickyTableRef.current.style.transform = `translateX(-${x}px)`
     }
   }, [])
@@ -99,6 +195,7 @@ export function FloatingHeaderTable({
     if (!tableRef.current) {
       return
     }
+    // eslint-disable-next-line i18next/no-literal-string
     const ths = tableRef.current.querySelectorAll<HTMLTableCellElement>("thead tr:first-of-type th")
     if (!ths.length) {
       return
@@ -141,6 +238,7 @@ export function FloatingHeaderTable({
     // sync top trailer
     const trailer = trailerRef.current
     if (trailer && syncingRef.current !== "top") {
+      // eslint-disable-next-line i18next/no-literal-string
       syncingRef.current = "wrap"
       trailer.scrollLeft = wrap.scrollLeft
       syncingRef.current = null
@@ -157,6 +255,7 @@ export function FloatingHeaderTable({
       return
     }
     if (syncingRef.current !== "wrap") {
+      // eslint-disable-next-line i18next/no-literal-string
       syncingRef.current = "top"
       wrap.scrollLeft = trailer.scrollLeft
       syncingRef.current = null
@@ -165,10 +264,11 @@ export function FloatingHeaderTable({
   }, [scheduleApplySticky])
 
   const getHeaderBg = useCallback(
-    (headerRow: number, colIdx: number, header: any) => {
+    (headerRow: number, colIdx: number, header: HeaderBgArg): string | undefined => {
       if (!colorHeaders) {
         return undefined
       }
+
       // Upper header groups
       if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
         const chapterIdx = Math.floor((colIdx - chapterHeaderStart) / 1)
@@ -276,18 +376,24 @@ export function FloatingHeaderTable({
         const clonedHead = srcThead.cloneNode(true) as HTMLTableSectionElement
 
         // read leaf widths from source
+        // eslint-disable-next-line i18next/no-literal-string
         const srcLeafThs = srcTable.querySelectorAll("thead tr:last-of-type th")
         const leafWidths = Array.from(srcLeafThs).map((th) => th.getBoundingClientRect().width)
 
         // apply to cloned leaves
+        // eslint-disable-next-line i18next/no-literal-string
         const clonedLeafThs = clonedHead.querySelectorAll("tr:last-of-type th")
         clonedLeafThs.forEach((th, i) => {
           const w = leafWidths[i]
           if (typeof w === "number") {
             const el = th as HTMLTableCellElement
+            // eslint-disable-next-line i18next/no-literal-string
             el.style.width = `${w}px`
+            // eslint-disable-next-line i18next/no-literal-string
             el.style.minWidth = `${w}px`
+            // eslint-disable-next-line i18next/no-literal-string
             el.style.maxWidth = `${w}px`
+            // eslint-disable-next-line i18next/no-literal-string
             el.style.boxSizing = "border-box"
           }
         })
@@ -296,15 +402,20 @@ export function FloatingHeaderTable({
         const clonedGroupRow = clonedHead.querySelector("tr:first-of-type")
         if (clonedGroupRow) {
           let cursor = 0
+          // eslint-disable-next-line i18next/no-literal-string
           clonedGroupRow.querySelectorAll("th").forEach((th) => {
             const el = th as HTMLTableCellElement
             const colSpan = Number(el.colSpan || 1)
             const sum = leafWidths.slice(cursor, cursor + colSpan).reduce((a, b) => a + b, 0)
             cursor += colSpan
             if (sum > 0) {
+              // eslint-disable-next-line i18next/no-literal-string
               el.style.width = `${sum}px`
+              // eslint-disable-next-line i18next/no-literal-string
               el.style.minWidth = `${sum}px`
+              // eslint-disable-next-line i18next/no-literal-string
               el.style.maxWidth = `${sum}px`
+              // eslint-disable-next-line i18next/no-literal-string
               el.style.boxSizing = "border-box"
             }
           })
@@ -313,11 +424,13 @@ export function FloatingHeaderTable({
         // mount clone + freeze table width
         dstTable.appendChild(clonedHead)
         const tableW = srcTable.getBoundingClientRect().width
+        // eslint-disable-next-line i18next/no-literal-string
         dstTable.style.width = `${tableW}px`
 
         // sync transform with current scroll
         const wrap = wrapRef.current
         if (wrap) {
+          // eslint-disable-next-line i18next/no-literal-string
           dstTable.style.transform = `translateX(-${wrap.scrollLeft}px)`
         }
       }
@@ -330,44 +443,17 @@ export function FloatingHeaderTable({
 
   // ---------- Render helpers ----------
   const renderDockedTrailer = () => (
-    <div
-      style={{
-        position: "absolute",
-        left: 0,
-        bottom: 0,
-        width: "100%",
-        zIndex: 60,
-        pointerEvents: "none",
-      }}
-    >
-      <div
-        ref={trailerRef}
-        css={topScrollbarWrap}
-        style={{ pointerEvents: "auto", paddingLeft: 2, paddingRight: 2 }}
-      >
-        <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
+    <div className={dockedTrailerClass}>
+      <div ref={trailerRef} className={cx(topScrollbarWrap, trailerWrapClass)}>
+        <div className={cx(topScrollbarInner, innerWidthClass)} />
       </div>
     </div>
   )
 
   const renderTrailer = () => (
-    <div
-      style={{
-        position: "fixed",
-        left: wrapRect.left,
-        bottom: 0,
-        width: wrapRect.width,
-        zIndex: 100,
-        pointerEvents: "none",
-        paddingBottom: "env(safe-area-inset-bottom)",
-      }}
-    >
-      <div
-        ref={trailerRef}
-        css={[topScrollbarWrap, trailerBarCss]}
-        style={{ pointerEvents: "auto" }}
-      >
-        <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
+    <div className={fixedTrailerShellClass}>
+      <div ref={trailerRef} className={cx(topScrollbarWrap, trailerBarCss)}>
+        <div className={cx(topScrollbarInner, innerWidthClass)} />
       </div>
     </div>
   )

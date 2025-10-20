@@ -1,7 +1,7 @@
 import { useRouter } from "next/router"
 import React, { useEffect, useMemo, useState } from "react"
 
-import { ProgressTabContent } from "./ProgressTab"
+import { ProgressTabContent } from "./tabs/ProgressTab"
 import styles from "./StudentsPage.module.css"
 import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from "./StudentsTableTabs"
 

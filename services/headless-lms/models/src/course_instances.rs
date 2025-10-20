@@ -191,6 +191,8 @@ SELECT courses.organization_id
 FROM course_instances
   JOIN courses ON courses.id = course_instances.course_id
 WHERE course_instances.id = $1
+  AND course_instances.deleted_at IS NULL
+  AND courses.deleted_at IS NULL
 ",
         course_instance_id
     )
@@ -223,7 +225,8 @@ FROM user_course_settings ucs
   JOIN course_instances i ON (ucs.current_course_instance_id = i.id)
 WHERE ucs.user_id = $1
   AND ucs.current_course_id = $2
-  AND ucs.deleted_at IS NULL;
+  AND ucs.deleted_at IS NULL
+  AND i.deleted_at IS NULL;
     "#,
         user_id,
         course_id,
@@ -468,6 +471,7 @@ SET name = $1,
   starts_at = $6,
   ends_at = $7
 WHERE id = $8
+  AND deleted_at IS NULL
 ",
         update.name,
         update.description,
@@ -503,6 +507,7 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uui
 SELECT course_id
 FROM course_instances
 WHERE id = $1
+  AND deleted_at IS NULL
 ",
         id
     )
@@ -518,6 +523,7 @@ SELECT starts_at,
   ends_at
 FROM course_instances
 WHERE id = $1
+  AND deleted_at IS NULL
 ",
         id
     )
@@ -545,6 +551,7 @@ pub async fn get_by_ids(
 SELECT *
 FROM course_instances
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
+  AND deleted_at IS NULL
     "#,
         course_instance_ids
     )

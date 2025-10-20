@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT starts_at,\n  ends_at\nFROM course_instances\nWHERE id = $1\n",
+  "query": "\nSELECT starts_at,\n  ends_at\nFROM course_instances\nWHERE id = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -24,5 +24,5 @@
       true
     ]
   },
-  "hash": "5bffd3713a72d39d37bb7bb50aafe5a7f418332d65126b3ff6d9601024359be4"
+  "hash": "aaa259df0f09d4aadee17a3355627c15ea95c72af26008c8c2912617a82d93ad"
 }

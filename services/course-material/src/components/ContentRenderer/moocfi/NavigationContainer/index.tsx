@@ -1,4 +1,5 @@
 "use client"
+import { useParams } from "next/navigation"
 import React, { useContext } from "react"
 
 import NextPage from "./NextPage"
@@ -11,7 +12,8 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const NavigationContainer: React.FC<React.PropsWithChildren> = () => {
   const pageContext = useContext(PageContext)
   const layoutContext = useContext(LayoutContext)
-  const courseSlug = pageContext.pageData?.course_id
+  const params = useParams<{ organizationSlug: string; courseSlug: string }>()
+  const courseSlug = params?.courseSlug
   const organizationSlug = layoutContext.organizationSlug
 
   if (pageContext.state !== "ready") {

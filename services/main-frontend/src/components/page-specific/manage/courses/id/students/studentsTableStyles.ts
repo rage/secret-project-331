@@ -1,14 +1,11 @@
 import { css as emotionCss } from "@emotion/css"
-import { css } from "@emotion/react"
 
-// Problematic fix later
-export const tableOuterWrap = css`
+export const tableOuterWrap = emotionCss`
   width: 100%;
   overflow-x: auto;
   position: relative;
 `
-// Problematic fix later
-export const tableStyle = css`
+export const tableStyle = emotionCss`
   width: 100%;
   min-width: 900px;
   border-collapse: separate;
@@ -82,8 +79,7 @@ export const tableCenteredInner = emotionCss`
   max-width: 90vw; // Optional: sets table max width to 90% of viewport
 `
 
-// Problematic, fix later
-export const tableRoundedWrap = css`
+export const tableRoundedWrap = emotionCss`
   position: relative;
   border-radius: 8px;
   border: 1px solid #ced1d7;
@@ -134,8 +130,7 @@ export const trailerBarCss = emotionCss`
   padding-right: 2px;
 `
 
-// Problematic fix later
-export const headerUnderlineCss = css`
+export const headerUnderlineCss = emotionCss`
   position: absolute;
   left: 0;
   right: 0;

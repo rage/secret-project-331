@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
-import type { ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef, Header } from "@tanstack/react-table"
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import { colorPairs } from "./studentsTableColors"
@@ -27,6 +27,18 @@ import {
   thStyle,
   trailerBarCss,
 } from "./studentsTableStyles"
+
+type ColMeta = {
+  width?: number
+  minWidth?: number
+  padLeft?: number
+  padRight?: number
+}
+
+function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): ColMeta | undefined {
+  // ColumnDef allows arbitrary 'meta'; we narrow it safely
+  return (colDef as ColumnDef<T, unknown> & { meta?: ColMeta })?.meta
+}
 
 // --- TD classes using @emotion/css (className-based) ---
 const tdClass = css`
@@ -186,6 +198,24 @@ export function FloatingHeaderTable<T extends object>({
     `,
     [wrapRect.left, wrapRect.width],
   )
+
+  // inside the component, before the return:
+  const rootDynamic = css`
+    position: relative;
+  `
+
+  const wrapDynamic = css`
+    width: 100%;
+    ${bottomVisible ? "overflow-x: hidden;" : "overflow-x: auto;"}
+    overflow-y: hidden;
+    border-radius: 8px;
+    border: none;
+    background: none;
+  `
+
+  const tableMinWidth = css`
+    min-width: 900px;
+  `
 
   // ---------- Helpers ----------
   const applyStickyTransform = useCallback((x: number) => {
@@ -561,9 +591,7 @@ export function FloatingHeaderTable<T extends object>({
                     removeRight && noRightBorder,
                     removeLeft && noLeftBorder,
                     (() => {
-                      const minW =
-                        ((header.column?.columnDef as any)?.meta?.minWidth as number | undefined) ??
-                        80
+                      const minW = getMeta<T>(header.column?.columnDef)?.minWidth ?? 80
 
                       const computedWidth = (() => {
                         if (
@@ -571,25 +599,24 @@ export function FloatingHeaderTable<T extends object>({
                           header.colSpan > 1 &&
                           typeof header.getLeafHeaders === "function"
                         ) {
-                          const leaves = header.getLeafHeaders()
-                          const sumLeafMeta = leaves.reduce((acc: number, h: any) => {
-                            const leafMeta = (h.column?.columnDef as any)?.meta as
-                              | { width?: number; minWidth?: number }
-                              | undefined
-                            const leafContentW =
-                              typeof leafMeta?.width === "number"
-                                ? leafMeta.width
-                                : typeof leafMeta?.minWidth === "number"
-                                  ? leafMeta.minWidth
-                                  : 0
-                            const leafTotalW = leafContentW + PAD * 2
-                            return acc + leafTotalW
-                          }, 0)
+                          const leaves = header.getLeafHeaders() as Header<T, unknown>[]
+                          const sumLeafMeta = leaves.reduce(
+                            (acc: number, h: Header<T, unknown>) => {
+                              const leafMeta = getMeta<T>(h.column?.columnDef)
+                              const leafContentW =
+                                typeof leafMeta?.width === "number"
+                                  ? leafMeta.width
+                                  : typeof leafMeta?.minWidth === "number"
+                                    ? leafMeta.minWidth
+                                    : 0
+                              const leafTotalW = leafContentW + PAD * 2
+                              return acc + leafTotalW
+                            },
+                            0,
+                          )
                           return sumLeafMeta > 0 ? sumLeafMeta : colWidths[colIdx]
                         }
-                        const meta = (header.column?.columnDef as any)?.meta as
-                          | { width?: number; minWidth?: number }
-                          | undefined
+                        const meta = getMeta<T>(header.column?.columnDef)
                         if (typeof meta?.width === "number") {
                           return meta.width
                         }
@@ -656,6 +683,7 @@ export function FloatingHeaderTable<T extends object>({
         <tr key={row.id} className={rowStyle}>
           {row.getVisibleCells().map((cell, i) => {
             const isLast = rowIdx === data.length - 1
+
             let bg: string | undefined = undefined
             if (colorColumns && i >= subHeaderStart) {
               const pairIdx = Math.floor((i - subHeaderStart) / 2)
@@ -678,40 +706,54 @@ export function FloatingHeaderTable<T extends object>({
               removeLeft = true
             }
 
-            const meta = (cell.column.columnDef as any)?.meta as
-              | { width?: number; minWidth?: number; padLeft?: number; padRight?: number }
-              | undefined
-
             return (
               <td
+                key={cell.id}
                 className={cx(
-                  tdClass,
-                  isLast && lastRowTdClass,
-                  removeRight && noRightBorderClass,
-                  removeLeft && noLeftBorderClass,
+                  tdStyle, // base cell look (borders, font, height, etc.)
+                  isLast && lastRowTdStyle,
+                  removeRight && noRightBorder,
+                  removeLeft && noLeftBorder,
+                  (() => {
+                    // --- compute dynamic values (just like before) ---
+                    const meta = getMeta<T>(cell.column.columnDef)
+                    const computedWidth =
+                      typeof meta?.width === "number" ? meta.width : colWidths[i]
+                    const minW = typeof meta?.minWidth === "number" ? meta.minWidth : undefined
+
+                    // pick bg color for colored columns (keeps your previous visual)
+                    const bgClass = bg
+                      ? css`
+                          background: ${bg};
+                        `
+                      : ""
+
+                    // action column is a fixed narrow cell with tighter padding
+                    if (cell.column.id === "actions") {
+                      return cx(
+                        bgClass,
+                        css`
+                          width: 80px;
+                          min-width: 80px;
+                          max-width: 80px;
+                          padding-left: 4px;
+                          padding-right: 4px;
+                        `,
+                      )
+                    }
+
+                    // normal content cells: width + minWidth (if any) + PAD padding
+                    return cx(
+                      bgClass,
+                      css`
+                        ${typeof computedWidth === "number" ? `width: ${computedWidth}px;` : ""}
+                        ${typeof minW === "number" ? `min-width: ${minW}px;` : ""}
+          padding-left: ${PAD}px;
+                        padding-right: ${PAD}px;
+                      `,
+                    )
+                  })(),
                 )}
-                style={{
-                  // keep per-cell dimensions in inline style (plain CSSProperties)
-                  ...(cell.column.id === "actions"
-                    ? {
-                        width: 80,
-                        minWidth: 80,
-                        maxWidth: 80,
-                        paddingLeft: 4,
-                        paddingRight: 4,
-                      }
-                    : {
-                        width:
-                          ((cell.column.columnDef as any)?.meta?.width as number | undefined) ??
-                          colWidths[i],
-                        minWidth: (cell.column.columnDef as any)?.meta?.minWidth as
-                          | number
-                          | undefined,
-                        paddingLeft: PAD,
-                        paddingRight: PAD,
-                      }),
-                  background: bg,
-                }}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
@@ -724,25 +766,15 @@ export function FloatingHeaderTable<T extends object>({
 
   // ---------- Render ----------
   return (
-    <div css={tableOuterScroll} style={{ position: "relative" }}>
+    <div className={cx(tableOuterScroll, rootDynamic)}>
       {showSticky && renderStickyHeader()}
       {showTrailer && !bottomVisible && renderTrailer()}
       {showTrailer && bottomVisible && renderDockedTrailer()}
 
-      <div css={tableCenteredInner}>
-        <div css={tableRoundedWrap}>
-          <div
-            ref={wrapRef}
-            style={{
-              width: "100%",
-              overflowX: bottomVisible ? "hidden" : "auto",
-              overflowY: "hidden",
-              borderRadius: 8,
-              border: "none",
-              background: "none",
-            }}
-          >
-            <table css={tableStyle} ref={tableRef} style={{ minWidth: 900 }}>
+      <div className={tableCenteredInner}>
+        <div className={tableRoundedWrap}>
+          <div ref={wrapRef} className={wrapDynamic}>
+            <table className={cx(tableStyle, tableMinWidth)} ref={tableRef}>
               {renderTableHead()}
               {renderTableBody()}
             </table>

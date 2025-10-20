@@ -17,6 +17,8 @@ import {
   rowStyle,
   stickyInnerCss,
   stickyShellCss,
+  stickyShellDynamic,
+  stickyTableWidthClass,
   tableCenteredInner,
   tableOuterScroll,
   tableRoundedWrap,
@@ -485,27 +487,25 @@ export function FloatingHeaderTable<T extends object>({
     </div>
   )
 
-  const renderStickyHeader = () => (
-    <div css={stickyShellCss} style={{ left: wrapRect.left, width: wrapRect.width }}>
-      <div css={stickyInnerCss}>
-        <table
-          ref={stickyTableRef}
-          style={{
-            borderCollapse: "separate",
-            borderSpacing: 0,
-            width: Math.max(contentWidth, wrapRect.width),
-          }}
-        />
+  const renderStickyHeader = () => {
+    const shellDyn = stickyShellDynamic(wrapRect.left, wrapRect.width)
+    const tableW = stickyTableWidthClass(Math.max(contentWidth, wrapRect.width))
+
+    return (
+      <div className={cx(stickyShellCss, shellDyn)}>
+        <div className={stickyInnerCss}>
+          <table ref={stickyTableRef} className={tableW} />
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderTableHead = () => (
     <thead>
       {table.getHeaderGroups().map((headerGroup, rowIdx) => {
         let chapterCount = 0
         return (
-          <tr key={headerGroup.id} css={headerRowStyle}>
+          <tr key={headerGroup.id} className={headerRowStyle}>
             {headerGroup.headers.map((header, colIdx) => {
               let removeRight = false
               let removeLeft = false
@@ -644,7 +644,7 @@ export function FloatingHeaderTable<T extends object>({
   const renderTableBody = () => (
     <tbody>
       {table.getRowModel().rows.map((row, rowIdx) => (
-        <tr key={row.id} css={rowStyle}>
+        <tr key={row.id} className={rowStyle}>
           {row.getVisibleCells().map((cell, i) => {
             const isLast = rowIdx === data.length - 1
             let bg: string | undefined = undefined

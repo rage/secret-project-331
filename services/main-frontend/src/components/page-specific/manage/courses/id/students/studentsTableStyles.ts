@@ -1,20 +1,27 @@
-import { css } from "@emotion/react"
+// studentsTableStyles.ts
+import { css } from "@emotion/css"
+import type { CSSProperties } from "react"
+
+// --- static className styles (use className={...}) ---
 
 export const tableOuterWrap = css`
   width: 100%;
   overflow-x: auto;
   position: relative;
 `
+
 export const tableStyle = css`
   width: 100%;
   min-width: 900px;
   border-collapse: separate;
   border-spacing: 0;
 `
+
 export const headerRowStyle = css`
   background: #f7f8f9;
   height: 48px;
 `
+
 export const thStyle = css`
   color: #1a2333;
   font-weight: 500;
@@ -27,6 +34,7 @@ export const thStyle = css`
   border-bottom: 1px solid #ced1d7;
   vertical-align: middle;
   border-right: 1px solid #ced1d7;
+
   &:first-of-type {
     border-radius: 7px 0 0 0;
   }
@@ -34,9 +42,12 @@ export const thStyle = css`
     border-radius: 0 7px 0 0;
   }
 `
+
 export const rowStyle = css`
   height: 50px;
 `
+
+/* You can keep this, but your <td> now uses class-based tdClass in the component. */
 export const tdStyle = css`
   color: #1a2333;
   opacity: 0.8;
@@ -50,6 +61,7 @@ export const tdStyle = css`
   border-bottom: 1px solid #ced1d7;
   border-right: 1px solid #ced1d7;
 `
+
 export const lastRowTdStyle = css`
   border-bottom: none;
 `
@@ -75,7 +87,8 @@ export const tableCenteredInner = css`
   margin-left: auto;
   margin-right: auto;
   min-width: 900px;
-  max-width: 90vw; // Optional: sets table max width to 90% of viewport
+  /* Optional: sets table max width to 90% of viewport */
+  max-width: 90vw;
 `
 
 export const tableRoundedWrap = css`
@@ -134,23 +147,27 @@ export const PAD = 16
 export const COMPLETIONS_LEAF_WIDTH = 120
 export const COMPLETIONS_LEAF_MIN_WIDTH = 80
 
-// --- inline style helpers/atoms ---
-export const padX = (px: number) => ({ paddingLeft: px, paddingRight: px })
+// --- inline style helpers (use in style={...}) ---
 
-export const cellBase = css`
+export const padX = (px: number): CSSProperties => ({
+  paddingLeft: px,
+  paddingRight: px,
+})
+
+export const cellBase: CSSProperties = {
   whiteSpace: "nowrap",
   verticalAlign: "middle",
-`
+}
 
-export const actionCellFixed = css`
+export const actionCellFixed: CSSProperties = {
   width: 80,
   minWidth: 80,
   maxWidth: 80,
   ...padX(4),
-`
+}
 
-export const contentCell = (w?: number, minW?: number) => css`
-  ${w != null ? `width: ${w}px;` : ``}
-  ${minW != null ? `min-width: ${minW}px;` : ``}
-  ${padX(PAD)};
-`
+export const contentCell = (w?: number, minW?: number): CSSProperties => ({
+  ...(w != null ? { width: w } : {}),
+  ...(minW != null ? { minWidth: minW } : {}),
+  ...padX(PAD),
+})

@@ -24,14 +24,7 @@ const CourseLanguageVersionsList: React.FC<
         <ul>
           {getCourseLanguageVersions.data.map((course) => (
             <li key={course.id}>
-              <Link
-                href={{
-                  pathname: "/manage/courses/[id]",
-                  query: { id: course.id },
-                }}
-              >
-                {course.name}
-              </Link>{" "}
+              <Link href={`/manage/courses/${course.id}`}>{course.name}</Link>{" "}
               <span>({course.language_code})</span>
             </li>
           ))}

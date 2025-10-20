@@ -17,10 +17,9 @@ export async function login(
   await page.click(`label:has-text("Password")`)
   await page.fill(`label:has-text("Password")`, password)
 
-  await page.locator("id=login-button").click()
-
-  await page.locator(`text=Log out`).first().waitFor({ state: "attached" })
-  await page.locator(`text=Log in`).first().waitFor({ state: "detached" })
+  const loginButton = page.locator("id=login-button")
+  await loginButton.click()
+  await loginButton.waitFor({ state: "hidden" })
 
   // Store login state
   await page.context().storageState({ path: `src/states/${user}.json` })

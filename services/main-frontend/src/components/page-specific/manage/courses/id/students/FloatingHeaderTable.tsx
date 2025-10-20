@@ -54,7 +54,6 @@ const subHeaderStart = 3 // lower headers (points/attempts) start index
 type FloatingHeaderTableProps<T extends object> = {
   columns: ColumnDef<T, unknown>[]
   data: T[]
-  // existing optional flags you already support:
   colorHeaders?: boolean
   colorColumns?: boolean
   colorHeaderUnderline?: boolean

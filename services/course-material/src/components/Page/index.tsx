@@ -5,25 +5,25 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { inlineColorStyles } from "../styles/inlineColorStyles"
-
-import AudioSpeaker from "./../img/audio-player/audio-speaker.svg"
-import ClosedCourseWarningDialog from "./ClosedCourseWarningDialog"
-import ContentRenderer from "./ContentRenderer"
-import AudioPlayer from "./ContentRenderer/moocfi/AudioPlayer"
-import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
-import FeedbackHandler from "./FeedbackHandler"
-import HeadingsNavigation from "./HeadingsNavigation"
-import ReferenceList from "./ReferencesList"
-import Chatbot from "./chatbot/Chatbot"
-import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
-import SelectUserInformationForm from "./forms/SelectUserInformationForm"
-import CourseSettingsModal from "./modals/CourseSettingsModal"
-import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
+import { inlineColorStyles } from "../../styles/inlineColorStyles"
+import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
+import ContentRenderer from "../ContentRenderer"
+import AudioPlayer from "../ContentRenderer/moocfi/AudioPlayer"
+import NavigationContainer from "../ContentRenderer/moocfi/NavigationContainer"
+import FeedbackHandler from "../FeedbackHandler"
+import HeadingsNavigation from "../HeadingsNavigation"
+import ReferenceList from "../ReferencesList"
+import Chatbot from "../chatbot/Chatbot"
+import SelectResearchConsentForm from "../forms/SelectResearchConsentForm"
+import SelectUserInformationForm from "../forms/SelectUserInformationForm"
+import AudioSpeaker from "../img/audio-player/audio-speaker.svg"
+import CourseSettingsModal from "../modals/CourseSettingsModal"
+import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
 
 import { GlossaryContext, GlossaryState } from "@/contexts/GlossaryContext"
 import PageContext from "@/contexts/PageContext"
 import useChatbotConfiguration from "@/hooks/useChatbotConfiguration"
+import useDialogStep, { DialogStep } from "@/hooks/useDialogStep"
 import useGlossary from "@/hooks/useGlossary"
 import useHasCourseClosed from "@/hooks/useHasCourseClosed"
 import usePageAudioFiles from "@/hooks/usePageAudioFiles"
@@ -105,6 +105,19 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const userDetailsQuery = useUserDetails()
 
+  const researchFormIsLoadedAndExists =
+    researchConsentFormQuery.isSuccess && researchConsentFormQuery.data !== null
+
+  const activeStep = useDialogStep({
+    shouldAnswerMissingInfoForm,
+    shouldChooseInstance,
+    waitingForCourseSettingsToBeFilled,
+    researchFormIsLoadedAndExists,
+    showResearchConsentFormBecauseOfUrl,
+    showResearchConsentFormBecauseOfMissingAnswers,
+    hasAnsweredForm,
+  })
+
   useMemo(() => {
     if (
       userDetailsQuery.data?.country === null ||
@@ -173,37 +186,35 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               organizationSlug={organizationSlug}
             />
           )}
-        {courseId && (
+        {courseId && activeStep === DialogStep.ChooseInstance && (
           <CourseSettingsModal
             onClose={() => {
               onRefresh()
             }}
-            shouldChooseInstance={shouldChooseInstance}
+            shouldChooseInstance={true}
           />
         )}
-        {researchConsentFormQuery.isSuccess &&
-          researchConsentFormQuery.data !== null &&
-          (showResearchConsentFormBecauseOfUrl ||
-            showResearchConsentFormBecauseOfMissingAnswers) && (
-            <SelectResearchConsentForm
-              editForm={showResearchConsentFormBecauseOfUrl}
-              shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
-              usersInitialAnswers={researchConsentFormAnswerQuery.data}
-              researchForm={researchConsentFormQuery.data}
-              onClose={() => {
-                setShowResearchConsentFormBecauseOfUrl(false)
-                setShowResearchConsentFormBecauseOfMissingAnswers(false)
-                setHasAnsweredForm(true)
-                if (showResearchConsentFormBecauseOfUrl) {
-                  router.back()
-                }
-              }}
-            />
-          )}
 
-        {shouldAnswerMissingInfoForm && (
+        {activeStep === DialogStep.ResearchConsent && (
+          <SelectResearchConsentForm
+            editForm={showResearchConsentFormBecauseOfUrl}
+            shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
+            usersInitialAnswers={researchConsentFormAnswerQuery.data}
+            researchForm={researchConsentFormQuery.data!}
+            onClose={() => {
+              setShowResearchConsentFormBecauseOfUrl(false)
+              setShowResearchConsentFormBecauseOfMissingAnswers(false)
+              setHasAnsweredForm(true)
+              if (showResearchConsentFormBecauseOfUrl) {
+                router.back()
+              }
+            }}
+          />
+        )}
+
+        {activeStep === DialogStep.MissingInfo && (
           <SelectUserInformationForm
-            shouldAnswerMissingInfoForm={shouldAnswerMissingInfoForm}
+            shouldAnswerMissingInfoForm={true}
             setShouldAnswerMissingInfoForm={setShouldAnswerMissingInfoForm}
             email={userDetailsQuery.data?.email ?? ""}
             firstName={userDetailsQuery.data?.first_name ?? ""}

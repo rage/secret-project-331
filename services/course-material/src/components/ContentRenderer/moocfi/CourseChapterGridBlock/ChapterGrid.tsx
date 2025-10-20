@@ -1,6 +1,7 @@
 "use client"
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,7 +13,6 @@ import useTime from "@/hooks/useTime"
 import { fetchChaptersInTheCourse } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
@@ -38,8 +38,9 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
     queryKey: [`course-${courseId}-chapters`],
     queryFn: () => fetchChaptersInTheCourse(courseId),
   })
-  const courseSlug = useQueryParameter("courseSlug")
-  const organizationSlug = useQueryParameter("organizationSlug")
+  const params = useParams<{ organizationSlug: string; courseSlug: string }>()
+  const courseSlug = params?.courseSlug
+  const organizationSlug = params?.organizationSlug
 
   return (
     <div
@@ -67,7 +68,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
         <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
       )}
       {getChaptersInCourse.isLoading && <Spinner variant={"medium"} />}
-      {getChaptersInCourse.isSuccess && (
+      {getChaptersInCourse.isSuccess && courseSlug && organizationSlug && (
         <>
           {getChaptersInCourse.data.modules
             .sort((a, b) => a.order_number - b.order_number)

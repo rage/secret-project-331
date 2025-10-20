@@ -1,5 +1,6 @@
 "use client"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React from "react"
 
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
@@ -7,7 +8,6 @@ import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage
 import { fetchChaptersPagesWithExercises } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 
 const ExercisesInChapter: React.FC<
   React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>
@@ -16,8 +16,9 @@ const ExercisesInChapter: React.FC<
     queryKey: [`chapter-${chapterId}-pages-with-exercises`],
     queryFn: () => fetchChaptersPagesWithExercises(chapterId),
   })
-  const courseSlug = useQueryParameter("courseSlug")
-  const organizationSlug = useQueryParameter("organizationSlug")
+  const params = useParams<{ organizationSlug: string; courseSlug: string }>()
+  const courseSlug = params?.courseSlug
+  const organizationSlug = params?.organizationSlug
 
   return (
     <div>
@@ -25,7 +26,7 @@ const ExercisesInChapter: React.FC<
         <ErrorBanner variant={"readOnly"} error={getChaptersPagesWithExercises.error} />
       )}
       {getChaptersPagesWithExercises.isLoading && <Spinner variant={"medium"} />}
-      {getChaptersPagesWithExercises.isSuccess && (
+      {getChaptersPagesWithExercises.isSuccess && courseSlug && organizationSlug && (
         <>
           {getChaptersPagesWithExercises.data.map((page) => (
             <div key={page.id}>

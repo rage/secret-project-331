@@ -3,17 +3,22 @@ import React, { useContext } from "react"
 
 import NextPage from "./NextPage"
 
+import LayoutContext from "@/contexts/LayoutContext"
 import PageContext from "@/contexts/PageContext"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const NavigationContainer: React.FC<React.PropsWithChildren> = () => {
   const pageContext = useContext(PageContext)
-  const courseSlug = useQueryParameter("courseSlug")
-  const organizationSlug = useQueryParameter("organizationSlug")
+  const layoutContext = useContext(LayoutContext)
+  const courseSlug = pageContext.pageData?.course_id
+  const organizationSlug = layoutContext.organizationSlug
 
   if (pageContext.state !== "ready") {
+    return <Spinner variant={"medium"} />
+  }
+
+  if (!organizationSlug || !courseSlug) {
     return <Spinner variant={"medium"} />
   }
 

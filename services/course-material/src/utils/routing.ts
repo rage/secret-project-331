@@ -13,6 +13,15 @@ export function coursePageRoute(
   courseSlug: string,
   relativePathWithSlash: string,
 ) {
+  if (organizationSlug === null || organizationSlug === undefined || organizationSlug === "") {
+    throw new Error("Cannot build course page route without an organization slug")
+  }
+  if (courseSlug === null || courseSlug === undefined || courseSlug === "") {
+    throw new Error("Cannot build course page route without a course slug")
+  }
+  if (relativePathWithSlash === null || relativePathWithSlash === undefined) {
+    throw new Error("Cannot build course page route without a relative path")
+  }
   return `/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}`
 }
 

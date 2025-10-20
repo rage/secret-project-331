@@ -2,6 +2,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
+import { useSearchParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -74,7 +75,6 @@ import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 import { Block } from "@/services/backend"
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
@@ -201,7 +201,8 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
   dontAddWrapperDivMeantForMostOutermostContentRenderer,
   dontAllowBlockToBeWiderThanContainerWidth = true,
 }) => {
-  const highlightBlocks = useQueryParameter("highlight-blocks")
+  const searchParams = useSearchParams()
+  const highlightBlocks = (searchParams.get("highlight-blocks") ?? "")
     .split(",")
     .filter((id) => id !== "")
   const { t } = useTranslation()

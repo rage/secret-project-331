@@ -2,6 +2,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +12,6 @@ import { fetchTopLevelPages } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import TopLevelPage from "@/shared-module/common/components/TopLevelPage"
-import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -33,15 +33,16 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
         pages.filter((x) => x.url_path !== "/").sort((a, b) => a.order_number - b.order_number),
       ),
   })
-  const courseSlug = useQueryParameter("courseSlug")
-  const organizationSlug = useQueryParameter("organizationSlug")
+  const params = useParams<{ organizationSlug: string; courseSlug: string }>()
+  const courseSlug = params?.courseSlug
+  const organizationSlug = params?.organizationSlug
   return (
     <>
       {getTopLevelPages.isError && (
         <ErrorBanner variant={"readOnly"} error={getTopLevelPages.error} />
       )}
       {getTopLevelPages.isLoading && <Spinner variant={"medium"} />}
-      {getTopLevelPages.isSuccess && (
+      {getTopLevelPages.isSuccess && courseSlug && organizationSlug && (
         <>
           {getTopLevelPages.data && (
             <Wrapper>

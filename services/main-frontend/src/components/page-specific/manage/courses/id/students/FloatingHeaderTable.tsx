@@ -504,6 +504,7 @@ export function FloatingHeaderTable<T extends object>({
     <thead>
       {table.getHeaderGroups().map((headerGroup, rowIdx) => {
         let chapterCount = 0
+
         return (
           <tr key={headerGroup.id} className={headerRowStyle}>
             {headerGroup.headers.map((header, colIdx) => {
@@ -552,72 +553,76 @@ export function FloatingHeaderTable<T extends object>({
                 )
               }
 
-              const hMeta = (header.column?.columnDef as any)?.meta as
-                | { padLeft?: number; padRight?: number }
-                | undefined
               return (
                 <th
                   key={header.id}
-                  css={[thStyle, removeRight && noRightBorder, removeLeft && noLeftBorder]}
-                  style={{
-                    minWidth:
-                      ((header.column?.columnDef as any)?.meta?.minWidth as number | undefined) ??
-                      80,
-                    width: (() => {
-                      if (
-                        header.colSpan &&
-                        header.colSpan > 1 &&
-                        typeof header.getLeafHeaders === "function"
-                      ) {
-                        const leaves = header.getLeafHeaders()
-                        // Sum leaf content widths AND their horizontal padding to match real table width
-                        const sumLeafMeta = leaves.reduce((acc: number, h: any) => {
-                          const leafMeta = (h.column?.columnDef as any)?.meta as
-                            | { width?: number; minWidth?: number }
-                            | undefined
-                          const leafContentW =
-                            typeof leafMeta?.width === "number"
-                              ? leafMeta.width // e.g., 120
-                              : typeof leafMeta?.minWidth === "number"
-                                ? leafMeta.minWidth
-                                : 0
-                          const leafTotalW = leafContentW + PAD * 2 // add 16 left + 16 right
-                          return acc + leafTotalW
-                        }, 0)
-                        return sumLeafMeta > 0 ? sumLeafMeta : colWidths[colIdx]
-                      }
+                  className={cx(
+                    thStyle,
+                    removeRight && noRightBorder,
+                    removeLeft && noLeftBorder,
+                    (() => {
+                      const minW =
+                        ((header.column?.columnDef as any)?.meta?.minWidth as number | undefined) ??
+                        80
 
-                      // Leaf header: prefer meta.width/minWidth; else fallback to measured
-                      const meta = (header.column?.columnDef as any)?.meta as
-                        | { width?: number; minWidth?: number }
-                        | undefined
-                      if (typeof meta?.width === "number") {
-                        return meta.width
-                      }
-                      if (typeof meta?.minWidth === "number") {
-                        return meta.minWidth
-                      }
-                      return colWidths[colIdx]
+                      const computedWidth = (() => {
+                        if (
+                          header.colSpan &&
+                          header.colSpan > 1 &&
+                          typeof header.getLeafHeaders === "function"
+                        ) {
+                          const leaves = header.getLeafHeaders()
+                          const sumLeafMeta = leaves.reduce((acc: number, h: any) => {
+                            const leafMeta = (h.column?.columnDef as any)?.meta as
+                              | { width?: number; minWidth?: number }
+                              | undefined
+                            const leafContentW =
+                              typeof leafMeta?.width === "number"
+                                ? leafMeta.width
+                                : typeof leafMeta?.minWidth === "number"
+                                  ? leafMeta.minWidth
+                                  : 0
+                            const leafTotalW = leafContentW + PAD * 2
+                            return acc + leafTotalW
+                          }, 0)
+                          return sumLeafMeta > 0 ? sumLeafMeta : colWidths[colIdx]
+                        }
+                        const meta = (header.column?.columnDef as any)?.meta as
+                          | { width?: number; minWidth?: number }
+                          | undefined
+                        if (typeof meta?.width === "number") {
+                          return meta.width
+                        }
+                        if (typeof meta?.minWidth === "number") {
+                          return meta.minWidth
+                        }
+                        return colWidths[colIdx]
+                      })()
+
+                      const bg =
+                        colorHeaders && !colorHeaderUnderline
+                          ? getHeaderBg(rowIdx, colIdx, header)
+                          : undefined
+
+                      const needsPadTop =
+                        colorHeaderUnderline &&
+                        rowIdx === 0 &&
+                        colIdx >= chapterHeaderStart &&
+                        header.colSpan === 2
+
+                      // ---- build a dynamic class (no inline styles) ----
+                      return css`
+                        min-width: ${minW}px;
+                        width: ${typeof computedWidth === "number" ? `${computedWidth}px` : "auto"};
+                        ${bg ? `background: ${bg};` : ""}
+                        position: relative;
+                        overflow: visible;
+                        padding-left: 16px;
+                        padding-right: 16px;
+                        ${needsPadTop ? `padding-top: 10px;` : ""}
+                      `
                     })(),
-
-                    background:
-                      colorHeaders && !colorHeaderUnderline
-                        ? getHeaderBg(rowIdx, colIdx, header)
-                        : undefined,
-                    position: "relative",
-                    overflow: "visible",
-
-                    paddingLeft: 16,
-                    paddingRight: 16,
-
-                    paddingTop:
-                      colorHeaderUnderline &&
-                      rowIdx === 0 &&
-                      colIdx >= chapterHeaderStart &&
-                      header.colSpan === 2
-                        ? 10
-                        : undefined,
-                  }}
+                  )}
                   rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
                   colSpan={header.colSpan > 1 ? header.colSpan : undefined}
                 >
@@ -628,8 +633,12 @@ export function FloatingHeaderTable<T extends object>({
                     colIdx >= chapterHeaderStart &&
                     header.colSpan === 2 && (
                       <span
-                        css={headerUnderlineCss}
-                        style={{ background: getHeaderBg(rowIdx, colIdx, header) }}
+                        className={cx(
+                          headerUnderlineCss,
+                          css`
+                            background: ${getHeaderBg(rowIdx, colIdx, header)};
+                          `,
+                        )}
                       />
                     )}
                 </th>

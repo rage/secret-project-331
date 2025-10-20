@@ -1,24 +1,21 @@
 "use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { UseMutationResult, useQuery } from "@tanstack/react-query"
+import { UseMutationResult } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
-import {
-  fetchBackgroundQuestionsAndAnswers,
-  fetchCourseById,
-  updateMarketingConsent,
-} from "@/services/backend"
+import useAdditionalQuestions from "@/hooks/useAdditionalQuestions"
+import useCourse from "@/hooks/useCourse"
+import { updateMarketingConsent } from "@/services/backend"
 import { CourseInstance, NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import { baseTheme } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 const FieldContainer = styled.div`
   margin-bottom: 1.5rem;
@@ -68,17 +65,8 @@ const SelectCourseInstanceForm: React.FC<
   const [isMarketingConsentChecked, setIsMarketingConsentChecked] = useState(false)
   const [isEmailSubscriptionConsentChecked, setIsEmailSubscriptionConsentChecked] = useState(false)
 
-  const additionalQuestionsQuery = useQuery({
-    queryKey: ["additional-questions", selectedInstanceId],
-    queryFn: () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(selectedInstanceId)),
-    enabled: selectedInstanceId !== undefined,
-  })
-
-  const getCourse = useQuery({
-    queryKey: ["courses", selectedLangCourseId],
-    queryFn: () => fetchCourseById(selectedLangCourseId as NonNullable<string>),
-    enabled: selectedLangCourseId !== null,
-  })
+  const additionalQuestionsQuery = useAdditionalQuestions(selectedInstanceId)
+  const getCourse = useCourse(selectedLangCourseId)
 
   useEffect(() => {
     if (!additionalQuestionsQuery.data) {

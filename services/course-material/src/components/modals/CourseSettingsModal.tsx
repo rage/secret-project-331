@@ -1,6 +1,6 @@
 "use client"
 import { css } from "@emotion/css"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,13 +10,11 @@ import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 import { getLanguageName } from "./ChooseCourseLanguage"
 
 import PageContext from "@/contexts/PageContext"
+import useCourse from "@/hooks/useCourse"
+import useCourseInstances from "@/hooks/useCourseInstances"
 import useLanguageNavigation from "@/hooks/useLanguageNavigation"
-import {
-  fetchCourseById,
-  fetchCourseInstances,
-  fetchUserMarketingConsent,
-  postSaveCourseSettings,
-} from "@/services/backend"
+import useUserMarketingConsent from "@/hooks/useUserMarketingConsent"
+import { postSaveCourseSettings } from "@/services/backend"
 import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -25,7 +23,6 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont, typography } from "@/shared-module/common/styles"
 import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseSettingsModalProps {
@@ -68,24 +65,16 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     getCourseInstances.data?.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
   }
 
-  const getCourseInstances = useQuery({
-    queryKey: ["course-instances", selectedLangCourseId],
-    queryFn: () => fetchCourseInstances(assertNotNullOrUndefined(selectedLangCourseId)),
-    enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
+  const getCourseInstances = useCourseInstances(selectedLangCourseId, {
+    enabled: open && pageState.state === "ready",
   })
   sortInstances()
 
-  const askMarketingConsent = useQuery({
-    queryKey: ["courses", selectedLangCourseId],
-    queryFn: () => fetchCourseById(assertNotNullOrUndefined(selectedLangCourseId)),
-    enabled: selectedLangCourseId !== null,
-  }).data?.ask_marketing_consent
+  const courseQuery = useCourse(selectedLangCourseId)
+  const askMarketingConsent = courseQuery.data?.ask_marketing_consent
 
-  const checkUserMarketingConsent = useQuery({
-    queryKey: ["marketing-consent", selectedLangCourseId],
-    queryFn: () => fetchUserMarketingConsent(assertNotNullOrUndefined(selectedLangCourseId)),
-    enabled: selectedLangCourseId !== null && loginState.signedIn === true,
-  }).data?.email_subscription_in_mailchimp
+  const userMarketingConsentQuery = useUserMarketingConsent(selectedLangCourseId)
+  const checkUserMarketingConsent = userMarketingConsentQuery.data?.email_subscription_in_mailchimp
 
   useEffect(() => {
     getCourseInstances.refetch()

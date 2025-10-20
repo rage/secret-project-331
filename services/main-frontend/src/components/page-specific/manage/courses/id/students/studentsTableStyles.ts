@@ -19,8 +19,7 @@ export const headerRowStyle = emotionCss`
   height: 48px;
 `
 
-// Problematic fix later
-export const thStyle = css`
+export const thStyle = emotionCss`
   color: #1a2333;
   font-weight: 500;
   font-size: 14px;

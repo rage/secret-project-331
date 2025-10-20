@@ -1,4 +1,3 @@
-import { css as emotionCss } from "@emotion/css"
 import { css } from "@emotion/react"
 
 export const tableOuterWrap = css`

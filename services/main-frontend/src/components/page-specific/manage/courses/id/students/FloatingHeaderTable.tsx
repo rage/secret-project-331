@@ -26,6 +26,33 @@ import {
   trailerBarCss,
 } from "./studentsTableStyles"
 
+// --- TD classes using @emotion/css (className-based) ---
+const tdClass = css`
+  color: #1a2333;
+  opacity: 0.8;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 140%;
+  height: 50px;
+  vertical-align: middle;
+  background: #fff;
+  border-bottom: 1px solid #ced1d7;
+  border-right: 1px solid #ced1d7;
+  white-space: nowrap;
+`
+
+const lastRowTdClass = css`
+  border-bottom: none;
+`
+
+const noRightBorderClass = css`
+  border-right: none !important;
+`
+
+const noLeftBorderClass = css`
+  border-left: none !important;
+`
+
 const dockedTrailerClass = css`
   position: absolute;
   left: 0;
@@ -648,20 +675,32 @@ export function FloatingHeaderTable<T extends object>({
 
             return (
               <td
-                css={[
-                  tdStyle,
-                  isLast && lastRowTdStyle,
-                  removeRight && noRightBorder,
-                  removeLeft && noLeftBorder,
-                ]}
+                className={cx(
+                  tdClass,
+                  isLast && lastRowTdClass,
+                  removeRight && noRightBorderClass,
+                  removeLeft && noLeftBorderClass,
+                )}
                 style={{
-                  ...cellBase,
+                  // keep per-cell dimensions in inline style (plain CSSProperties)
                   ...(cell.column.id === "actions"
-                    ? actionCellFixed
-                    : contentCell(
-                        (cell.column.columnDef as any)?.meta?.width ?? colWidths[i],
-                        (cell.column.columnDef as any)?.meta?.minWidth,
-                      )),
+                    ? {
+                        width: 80,
+                        minWidth: 80,
+                        maxWidth: 80,
+                        paddingLeft: 4,
+                        paddingRight: 4,
+                      }
+                    : {
+                        width:
+                          ((cell.column.columnDef as any)?.meta?.width as number | undefined) ??
+                          colWidths[i],
+                        minWidth: (cell.column.columnDef as any)?.meta?.minWidth as
+                          | number
+                          | undefined,
+                        paddingLeft: PAD,
+                        paddingRight: PAD,
+                      }),
                   background: bg,
                 }}
               >

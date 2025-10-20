@@ -5,27 +5,34 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from
 
 import { colorPairs } from "./studentsTableColors"
 import {
-  actionCellFixed,
-  cellBase,
-  contentCell,
+  dockedTrailerCss,
+  fixedTrailerShellDynamic,
   headerRowStyle,
   headerUnderlineCss,
+  innerWidthDynamic,
   lastRowTdStyle,
   noLeftBorder,
   noRightBorder,
   PAD,
+  rootRelative,
   rowStyle,
   stickyInnerCss,
   stickyShellCss,
   stickyShellDynamic,
   stickyTableWidthClass,
   tableCenteredInner,
+  tableMinWidth,
   tableOuterScroll,
   tableRoundedWrap,
   tableStyle,
   tdStyle,
   thStyle,
+  topScrollbarInner,
+  topScrollbarWrap,
   trailerBarCss,
+  trailerWrapCss,
+  wrapAutoX,
+  wrapHiddenX,
 } from "./studentsTableStyles"
 
 type ColMeta = {
@@ -39,79 +46,6 @@ function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): C
   // ColumnDef allows arbitrary 'meta'; we narrow it safely
   return (colDef as ColumnDef<T, unknown> & { meta?: ColMeta })?.meta
 }
-
-// --- TD classes using @emotion/css (className-based) ---
-const tdClass = css`
-  color: #1a2333;
-  opacity: 0.8;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 140%;
-  height: 50px;
-  vertical-align: middle;
-  background: #fff;
-  border-bottom: 1px solid #ced1d7;
-  border-right: 1px solid #ced1d7;
-  white-space: nowrap;
-`
-
-const lastRowTdClass = css`
-  border-bottom: none;
-`
-
-const noRightBorderClass = css`
-  border-right: none !important;
-`
-
-const noLeftBorderClass = css`
-  border-left: none !important;
-`
-
-const dockedTrailerClass = css`
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  z-index: 60;
-  pointer-events: none;
-`
-
-const topScrollbarWrap = css`
-  height: 7px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  pointer-events: auto;
-  background: transparent;
-  border: none;
-
-  /* was -11px when under header; not needed for trailer */
-  margin-top: 0;
-
-  /* WebKit */
-  &::-webkit-scrollbar {
-    height: 20px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #000;
-    border-radius: 8px;
-    border-left: 2px solid transparent;
-    border-right: 2px solid transparent;
-    background-clip: padding-box;
-  }
-
-  /* Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: #000 transparent;
-`
-
-const topScrollbarInner = css`
-  /* Keep height equal to scrollbar so it doesn’t add extra spacing */
-  height: 0px; /* no need for vertical size here */
-  width: 100%;
-`
 
 // --- CONSTANTS ---
 const chapterHeaderStart = 2 // upper headers (groups) start index
@@ -136,12 +70,6 @@ export function FloatingHeaderTable<T extends object>({
   colorHeaderUnderline = false,
   progressMode = false,
 }: FloatingHeaderTableProps<T>) {
-  const reactTable = useReactTable<T>({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  })
-
   type HeaderBgArg = { colSpan: number }
 
   // Refs
@@ -163,59 +91,18 @@ export function FloatingHeaderTable<T extends object>({
 
   const table = useReactTable({ columns, data, getCoreRowModel: getCoreRowModel() })
 
-  // Docked trailer container (was inline style)
-  const trailerWrapClass = css`
-    pointer-events: auto;
-    padding-left: 2px;
-    padding-right: 2px;
-  `
-
   const innerWidthClass = React.useMemo(
-    () => css`
-      width: ${Math.max(contentWidth, wrapRect.width)}px;
-    `,
+    () => innerWidthDynamic(Math.max(contentWidth, wrapRect.width)),
     [contentWidth, wrapRect.width],
   )
 
-  const dockedTrailerClass = css`
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    z-index: 60;
-    pointer-events: none;
-  `
-
   const fixedTrailerShellClass = React.useMemo(
-    () => css`
-      position: fixed;
-      left: ${wrapRect.left}px;
-      bottom: 0;
-      width: ${wrapRect.width}px;
-      z-index: 100;
-      pointer-events: none;
-      padding-bottom: env(safe-area-inset-bottom);
-    `,
+    () => fixedTrailerShellDynamic(wrapRect.left, wrapRect.width),
     [wrapRect.left, wrapRect.width],
   )
 
-  // inside the component, before the return:
-  const rootDynamic = css`
-    position: relative;
-  `
-
-  const wrapDynamic = css`
-    width: 100%;
-    ${bottomVisible ? "overflow-x: hidden;" : "overflow-x: auto;"}
-    overflow-y: hidden;
-    border-radius: 8px;
-    border: none;
-    background: none;
-  `
-
-  const tableMinWidth = css`
-    min-width: 900px;
-  `
+  // For the wrap container, swap the old conditional css with classes:
+  const wrapClass = bottomVisible ? wrapHiddenX : wrapAutoX
 
   // ---------- Helpers ----------
   const applyStickyTransform = useCallback((x: number) => {
@@ -502,8 +389,8 @@ export function FloatingHeaderTable<T extends object>({
 
   // ---------- Render helpers ----------
   const renderDockedTrailer = () => (
-    <div className={dockedTrailerClass}>
-      <div ref={trailerRef} className={cx(topScrollbarWrap, trailerWrapClass)}>
+    <div className={dockedTrailerCss}>
+      <div ref={trailerRef} className={cx(topScrollbarWrap, trailerWrapCss)}>
         <div className={cx(topScrollbarInner, innerWidthClass)} />
       </div>
     </div>
@@ -766,14 +653,14 @@ export function FloatingHeaderTable<T extends object>({
 
   // ---------- Render ----------
   return (
-    <div className={cx(tableOuterScroll, rootDynamic)}>
+    <div className={cx(tableOuterScroll, rootRelative)}>
       {showSticky && renderStickyHeader()}
       {showTrailer && !bottomVisible && renderTrailer()}
       {showTrailer && bottomVisible && renderDockedTrailer()}
 
       <div className={tableCenteredInner}>
         <div className={tableRoundedWrap}>
-          <div ref={wrapRef} className={wrapDynamic}>
+          <div ref={wrapRef} className={wrapClass}>
             <table className={cx(tableStyle, tableMinWidth)} ref={tableRef}>
               {renderTableHead()}
               {renderTableBody()}

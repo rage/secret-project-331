@@ -71,9 +71,15 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const [showResearchConsentForm, setShowResearchConsentForm] = useState<boolean>(false)
-  const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
+  const [showResearchConsentFormBecauseOfUrl, setShowResearchConsentFormBecauseOfUrl] =
+    useState<boolean>(false)
+  const [
+    showResearchConsentFormBecauseOfMissingAnswers,
+    setShowResearchConsentFormBecauseOfMissingAnswers,
+  ] = useState<boolean>(false)
   const [shouldAnswerMissingInfoForm, setShouldAnswerMissingInfoForm] = useState<boolean>(false)
+  const shouldChooseInstance =
+    pageContext.state === "ready" && pageContext.instance === null && pageContext.settings === null
 
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = searchParams.get("show_research_form")
@@ -85,7 +91,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   useEffect(() => {
     if (researchFormQueryParam) {
-      setShowResearchConsentForm(true)
+      setShowResearchConsentFormBecauseOfUrl(true)
       const newSearchParams = new URLSearchParams(searchParams)
       newSearchParams.delete("show_research_form")
       const newUrl = `${window.location.pathname}${newSearchParams.toString() ? `?${newSearchParams.toString()}` : ""}`
@@ -117,16 +123,16 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     if (
       researchConsentFormQuery.data !== null &&
       researchConsentFormAnswerQuery.data?.length === 0 &&
-      !shouldAnswerResearchForm &&
+      !showResearchConsentFormBecauseOfMissingAnswers &&
       !hasAnsweredForm &&
       !waitingForCourseSettingsToBeFilled
     ) {
-      setShouldAnswerResearchForm(true)
+      setShowResearchConsentFormBecauseOfMissingAnswers(true)
     }
   }, [
     researchConsentFormAnswerQuery.data?.length,
     hasAnsweredForm,
-    shouldAnswerResearchForm,
+    showResearchConsentFormBecauseOfMissingAnswers,
     researchConsentFormQuery.data,
     waitingForCourseSettingsToBeFilled,
   ])
@@ -172,21 +178,23 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             onClose={() => {
               onRefresh()
             }}
+            shouldChooseInstance={shouldChooseInstance}
           />
         )}
         {researchConsentFormQuery.isSuccess &&
           researchConsentFormQuery.data !== null &&
-          (showResearchConsentForm || shouldAnswerResearchForm) && (
+          (showResearchConsentFormBecauseOfUrl ||
+            showResearchConsentFormBecauseOfMissingAnswers) && (
             <SelectResearchConsentForm
-              editForm={showResearchConsentForm}
-              shouldAnswerResearchForm={shouldAnswerResearchForm}
+              editForm={showResearchConsentFormBecauseOfUrl}
+              shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
               usersInitialAnswers={researchConsentFormAnswerQuery.data}
               researchForm={researchConsentFormQuery.data}
               onClose={() => {
-                setShowResearchConsentForm(false)
-                setShouldAnswerResearchForm(false)
+                setShowResearchConsentFormBecauseOfUrl(false)
+                setShowResearchConsentFormBecauseOfMissingAnswers(false)
                 setHasAnsweredForm(true)
-                if (showResearchConsentForm) {
+                if (showResearchConsentFormBecauseOfUrl) {
                   router.back()
                 }
               }}

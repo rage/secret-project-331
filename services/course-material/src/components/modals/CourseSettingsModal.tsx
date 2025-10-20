@@ -28,11 +28,13 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 export interface CourseSettingsModalProps {
   onClose: () => void
   manualOpen?: boolean
+  shouldChooseInstance?: boolean
 }
 
 const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalProps>> = ({
   onClose,
   manualOpen = false,
+  shouldChooseInstance = false,
 }) => {
   const queryClient = useQueryClient()
   const { i18n } = useTranslation()
@@ -94,15 +96,13 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
 
   useEffect(() => {
     const signedIn = !!loginState.signedIn
-    const shouldChooseInstance =
-      pageState.state === "ready" && pageState.instance === null && pageState.settings === null
 
     setOpen(
       (signedIn && shouldChooseInstance) ||
         (signedIn && manualOpen) ||
         (signedIn && askMarketingConsent === true && checkUserMarketingConsent === "unsubscribed"),
     )
-  }, [loginState, pageState, manualOpen, askMarketingConsent, checkUserMarketingConsent])
+  }, [loginState, manualOpen, shouldChooseInstance, askMarketingConsent, checkUserMarketingConsent])
 
   const languageChanged = savedOrDefaultLangCourseId !== selectedLangCourseId
 

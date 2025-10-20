@@ -2,6 +2,9 @@
 
 import React, { ComponentClass, ComponentType, ErrorInfo } from "react"
 import { Translation } from "react-i18next"
+
+import ErrorBanner from "../components/ErrorBanner"
+
 interface ErrorBoundaryState {
   showTrace: boolean
   error?: string
@@ -16,7 +19,12 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
     }
 
     static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
-      return { showTrace: false, error: `${error}`, trace: undefined }
+      const errorObj = error instanceof Error ? error : new Error(String(error))
+      return {
+        showTrace: false,
+        error: errorObj.message,
+        trace: errorObj.stack,
+      }
     }
 
     componentDidCatch(error: Error, info: ErrorInfo) {
@@ -38,28 +46,24 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
     }
 
     render() {
-      const { showTrace, error, trace } = this.state
+      const { error, trace } = this.state
 
       if (error) {
-        return (
+        const context = (
           <Translation>
             {(t) => (
               <>
-                <p>
-                  {t("error-part-of-page-has-crashed-error", { error })}
-                  {Component.displayName && <>({Component.displayName})</>}
-                </p>
-                {trace && (
-                  <>
-                    <button onClick={() => this.setState({ showTrace: !showTrace })}>
-                      {showTrace ? t("hide-trace") : t("show-trace")}
-                    </button>
-                    {showTrace && <pre>{trace}</pre>}
-                  </>
-                )}
+                {t("error-part-of-page-has-crashed-error", { error })}
+                {Component.displayName && <> ({Component.displayName})</>}
               </>
             )}
           </Translation>
+        )
+        const structuredError =
+          trace !== undefined ? { message: error, stack: trace } : { message: error }
+
+        return (
+          <ErrorBanner variant="frontendCrash" error={structuredError} contextMessage={context} />
         )
       }
 

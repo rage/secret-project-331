@@ -1,7 +1,6 @@
 "use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -24,21 +23,17 @@ import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNoti
 
 import { GlossaryContext, GlossaryState } from "@/contexts/GlossaryContext"
 import PageContext from "@/contexts/PageContext"
+import useChatbotConfiguration from "@/hooks/useChatbotConfiguration"
+import useGlossary from "@/hooks/useGlossary"
 import useHasCourseClosed from "@/hooks/useHasCourseClosed"
+import usePageAudioFiles from "@/hooks/usePageAudioFiles"
+import useResearchConsentForm from "@/hooks/useResearchConsentForm"
+import useResearchConsentFormAnswers from "@/hooks/useResearchConsentFormAnswers"
 import { useUserDetails } from "@/hooks/useUserDetails"
-import {
-  Block,
-  fetchGlossary,
-  fetchPageAudioFiles,
-  fetchResearchFormAnswersWithUserId,
-  fetchResearchFormWithCourseId,
-  getDefaultChatbotConfigurationForCourse,
-} from "@/services/backend"
+import { Block } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
@@ -82,7 +77,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = searchParams.get("show_research_form")
-  const loginContext = useContext(LoginStateContext)
   const waitingForCourseSettingsToBeFilled =
     pageContext.settings?.current_course_instance_id === null ||
     pageContext.settings?.current_course_instance_id === undefined
@@ -99,23 +93,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     }
   }, [router, researchFormQueryParam, searchParams])
 
-  const researchConsentFormQuery = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form`],
-    queryFn: () => fetchResearchFormWithCourseId(assertNotNullOrUndefined(courseId)),
-    enabled: loginContext.signedIn === true && Boolean(courseId),
-  })
-
-  const researchConsentFormAnswerQuery = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
-    queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
-    enabled: loginContext.signedIn === true && Boolean(courseId),
-  })
-
-  const chatbotConfiguration = useQuery({
-    queryKey: ["chatbot", "default-for-course", courseId],
-    queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
-    enabled: loginContext.signedIn === true && Boolean(courseId),
-  })
+  const researchConsentFormQuery = useResearchConsentForm(courseId)
+  const researchConsentFormAnswerQuery = useResearchConsentFormAnswers(courseId)
+  const chatbotConfiguration = useChatbotConfiguration(courseId)
 
   const userDetailsQuery = useUserDetails()
 
@@ -151,17 +131,10 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     waitingForCourseSettingsToBeFilled,
   ])
 
-  const getPageAudioFiles = useQuery({
-    queryKey: [`page-${pageId}-audio-files`, courseId, isMaterialPage],
-    queryFn: () => (courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : []),
-  })
+  const getPageAudioFiles = usePageAudioFiles(pageId, courseId, isMaterialPage)
 
   // Fetch glossary for each page seperately
-  const glossary = useQuery({
-    queryKey: [`glossary-${courseId}`, pageContext.exam, isMaterialPage],
-    queryFn: () =>
-      courseId && pageContext.exam === null && isMaterialPage ? fetchGlossary(courseId) : [],
-  })
+  const glossary = useGlossary(courseId, pageContext.exam, isMaterialPage)
 
   if (glossary.isLoading) {
     return <Spinner variant={"small"} />

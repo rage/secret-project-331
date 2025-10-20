@@ -3,6 +3,7 @@ use headless_lms_models::{
     exercises::get_exercise_by_id,
     library::user_exercise_state_updater,
     teacher_grading_decisions::{NewTeacherGradingDecision, TeacherDecisionType},
+    user_exercise_states::UserExerciseState,
 };
 
 /**
@@ -13,7 +14,7 @@ async fn create_teacher_grading_decision(
     payload: web::Json<NewTeacherGradingDecision>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<Option<UserExerciseState>>> {
     let action = &payload.action;
     let exercise_id = payload.exercise_id;
     let user_exercise_state_id = payload.user_exercise_state_id;
@@ -76,7 +77,7 @@ async fn create_teacher_grading_decision(
 
         tx.commit().await?;
 
-        return token.authorized_ok(HttpResponse::NoContent().finish());
+        return token.authorized_ok(web::Json(None));
     } else {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -120,7 +121,7 @@ async fn create_teacher_grading_decision(
 
     tx.commit().await?;
 
-    token.authorized_ok(HttpResponse::Ok().json(new_user_exercise_state))
+    token.authorized_ok(web::Json(Some(new_user_exercise_state)))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

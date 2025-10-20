@@ -513,7 +513,9 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
         typeof typedObj["maintain_azure_search_index"] === "boolean" &&
         typeof typedObj["hide_citations"] === "boolean" &&
         typeof typedObj["use_semantic_reranking"] === "boolean" &&
-        typeof typedObj["default_chatbot"] === "boolean"
+        typeof typedObj["default_chatbot"] === "boolean" &&
+        (typedObj["chatbotconf_id"] === null ||
+            typeof typedObj["chatbotconf_id"] === "string")
     )
 }
 
@@ -1938,7 +1940,9 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
         Array.isArray(typedObj["user_course_instance_exercise_service_variables"]) &&
         typedObj["user_course_instance_exercise_service_variables"].every((e: any) =>
             isUserCourseExerciseServiceVariable(e) as boolean
-        )
+        ) &&
+        (typedObj["teacher_grading_decision"] === null ||
+            isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean)
     )
 }
 

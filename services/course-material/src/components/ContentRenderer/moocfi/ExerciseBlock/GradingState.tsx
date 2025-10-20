@@ -9,6 +9,7 @@ import {
   Exercise,
   GradingProgress,
   ReviewingStage,
+  TeacherGradingDecision,
 } from "@/shared-module/common/bindings"
 
 interface GradingStateProps {
@@ -16,18 +17,28 @@ interface GradingStateProps {
   reviewingStage: ReviewingStage
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null
   exercise: Exercise
+  teacherGradingDecision: TeacherGradingDecision | null
 }
 const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   gradingProgress,
   reviewingStage,
   peerOrSelfReviewConfig,
   exercise,
+  teacherGradingDecision,
 }) => {
   const { t } = useTranslation()
 
   const text = useMemo(
-    () => getText(reviewingStage, gradingProgress, peerOrSelfReviewConfig, exercise, t),
-    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, t],
+    () =>
+      getText(
+        reviewingStage,
+        gradingProgress,
+        peerOrSelfReviewConfig,
+        exercise,
+        teacherGradingDecision,
+        t,
+      ),
+    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, teacherGradingDecision, t],
   )
 
   if (text === null) {
@@ -46,8 +57,15 @@ const getText = (
   gradingProgress: GradingProgress,
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
   exercise: Exercise,
+  teacherGradingDecision: TeacherGradingDecision | null,
   t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
 ): string | null => {
+  if (
+    teacherGradingDecision?.teacher_decision === "RejectAndReset" &&
+    reviewingStage === "NotStarted"
+  ) {
+    return t("help-text-exercise-involves-reject-and-reset")
+  }
   if (peerOrSelfReviewConfig && reviewingStage === "NotStarted") {
     if (exercise.needs_peer_review && exercise.needs_self_review) {
       return t("help-text-exercise-involves-peer-review-and-self-review", {
@@ -90,5 +108,4 @@ const getText = (
       return null
   }
 }
-
 export default GradingState

@@ -1,0 +1,85 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT tgd.id,\n  tgd.user_exercise_state_id,\n  tgd.created_at,\n  tgd.updated_at,\n  tgd.deleted_at,\n  tgd.score_given,\n  tgd.teacher_decision AS \"teacher_decision: _\",\n  tgd.justification,\n  tgd.hidden\nFROM teacher_grading_decisions tgd\nJOIN user_exercise_states ues ON ues.id = tgd.user_exercise_state_id\nWHERE ues.user_id = $1\n  AND ues.exercise_id = $2\n  AND ues.course_id = $3\n  AND (\n    tgd.deleted_at IS NULL\n    OR tgd.teacher_decision = 'reject-and-reset'::teacher_decision_type\n  )\nORDER BY tgd.created_at DESC\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_exercise_state_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "score_given",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 6,
+        "name": "teacher_decision: _",
+        "type_info": {
+          "Custom": {
+            "name": "teacher_decision_type",
+            "kind": {
+              "Enum": [
+                "full-points",
+                "zero-points",
+                "custom-points",
+                "suspected-plagiarism",
+                "reject-and-reset"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "justification",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "d82bbaf55ca0cf9b0c9302de18a5d8686f6f3138ea40ddc0407515a9a8543522"
+}

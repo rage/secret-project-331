@@ -8,8 +8,7 @@ export const createTeacherGradingDecision = async (
   data: NewTeacherGradingDecision,
 ): Promise<UserExerciseState | null> => {
   const response = await mainFrontendClient.post(`/teacher-grading-decisions`, data)
-
-  if (response.status === 204) {
+  if (response.data === null) {
     return null
   }
 

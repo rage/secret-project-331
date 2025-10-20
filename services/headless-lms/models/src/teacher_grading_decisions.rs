@@ -110,6 +110,45 @@ LIMIT 1
     Ok(res)
 }
 
+pub async fn get_latest_grading_decision_by_user_id_and_exercise_id_and_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Option<TeacherGradingDecision>> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+SELECT tgd.id,
+  tgd.user_exercise_state_id,
+  tgd.created_at,
+  tgd.updated_at,
+  tgd.deleted_at,
+  tgd.score_given,
+  tgd.teacher_decision AS "teacher_decision: _",
+  tgd.justification,
+  tgd.hidden
+FROM teacher_grading_decisions tgd
+JOIN user_exercise_states ues ON ues.id = tgd.user_exercise_state_id
+WHERE ues.user_id = $1
+  AND ues.exercise_id = $2
+  AND ues.course_id = $3
+  AND (
+    tgd.deleted_at IS NULL
+    OR tgd.teacher_decision = 'reject-and-reset'::teacher_decision_type
+  )
+ORDER BY tgd.created_at DESC
+LIMIT 1
+        "#,
+        user_id,
+        exercise_id,
+        course_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn try_to_get_latest_grading_decision_by_user_exercise_state_id_for_users(
     conn: &mut PgConnection,
     user_exercise_state_ids: &[Uuid],

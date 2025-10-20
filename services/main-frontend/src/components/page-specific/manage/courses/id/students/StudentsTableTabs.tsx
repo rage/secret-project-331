@@ -1,25 +1,26 @@
 // StudentsTableTabs.tsx
-import { css } from "@emotion/react"
-import { useQuery } from "@tanstack/react-query"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
 import { colorPairs } from "./studentsTableColors"
+import { completionsColumns, completionsData, mockStudentsSorted } from "./studentsTableData" // This is all placeholder and will be nuked later.
 import {
-  completionsColumns,
-  completionsData,
-  formatName,
-  mockStudentsSorted,
-  pointsColumns as progressColumns,
-  pointsData as progressData,
-} from "./studentsTableData" // This is all placeholder and will be nuked later.
-import {
+  actionCellFixed,
+  cellBase,
+  COMPLETIONS_LEAF_MIN_WIDTH,
+  COMPLETIONS_LEAF_WIDTH,
+  contentCell,
   headerRowStyle,
+  headerUnderlineCss,
+  iconBtnStyle,
   lastRowTdStyle,
   noLeftBorder,
   noRightBorder,
+  PAD,
   rowStyle,
+  stickyInnerCss,
+  stickyShellCss,
   tableCenteredInner,
   tableOuterScroll,
   tableRoundedWrap,
@@ -28,93 +29,15 @@ import {
   thStyle,
   topScrollbarInner,
   topScrollbarWrap,
+  trailerBarCss,
 } from "./studentsTableStyles"
-
-// --- STYLE ATOMS / HELPERS (top of file) ---
-const padX = (px: number) => ({ paddingLeft: px, paddingRight: px })
-
-const cellBase: React.CSSProperties = {
-  whiteSpace: "nowrap",
-  verticalAlign: "middle",
-}
-
-const actionCellFixed: React.CSSProperties = {
-  width: 80,
-  minWidth: 80,
-  maxWidth: 80,
-  ...padX(4),
-}
-
-const contentCell = (w?: number, minW?: number): React.CSSProperties => ({
-  width: w,
-  minWidth: minW,
-  ...padX(16),
-})
-
-const stickyShellCss = css`
-  position: fixed;
-  top: 0;
-  z-index: 100;
-  pointer-events: none;
-  background: transparent;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  transition:
-    left 0.2s,
-    width 0.2s;
-`
-
-const stickyInnerCss = css`
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
-  background: #fff;
-  overflow: hidden;
-  display: inline-block;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-`
-
-const trailerBarCss = css`
-  pointer-events: auto;
-  padding-left: 2px;
-  padding-right: 2px;
-`
-
-const iconBtnStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 28,
-  height: 28,
-  borderRadius: 6,
-  border: "1px solid #d0d5dd",
-  background: "#fff",
-  cursor: "pointer",
-}
-
-const headerUnderlineCss = css`
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 4px;
-  border-radius: 2px;
-  top: 0;
-  z-index: 2;
-  pointer-events: none;
-`
-
-const PAD = 16
-const COMPLETIONS_LEAF_WIDTH = 120
-const COMPLETIONS_LEAF_MIN_WIDTH = 80
 
 const IconButton: React.FC<{
   label: string
   onClick?: () => void
   children: React.ReactNode
 }> = ({ label, onClick, children }) => (
-  <button type="button" aria-label={label} title={label} onClick={onClick} style={iconBtnStyle}>
+  <button type="button" aria-label={label} title={label} onClick={onClick} className={iconBtnStyle}>
     {children}
   </button>
 )

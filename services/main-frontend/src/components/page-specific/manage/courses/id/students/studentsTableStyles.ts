@@ -1,4 +1,4 @@
-// studentsTableStyles.ts
+import { css as emotionCss } from "@emotion/css"
 import { css } from "@emotion/react"
 
 export const tableOuterWrap = css`
@@ -123,4 +123,84 @@ export const topScrollbarInner = css`
   /* Keep height equal to scrollbar so it doesn’t add extra spacing */
   height: 0px; /* no need for vertical size here */
   width: 100%;
+`
+
+export const stickyShellCss = css`
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  pointer-events: none;
+  background: transparent;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  transition:
+    left 0.2s,
+    width 0.2s;
+`
+
+export const stickyInnerCss = css`
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  background: #fff;
+  overflow: hidden;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+`
+
+export const trailerBarCss = css`
+  pointer-events: auto;
+  padding-left: 2px;
+  padding-right: 2px;
+`
+
+export const headerUnderlineCss = css`
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  top: 0;
+  z-index: 2;
+  pointer-events: none;
+`
+
+// --- shared sizing/padding ---
+export const PAD = 16
+export const COMPLETIONS_LEAF_WIDTH = 120
+export const COMPLETIONS_LEAF_MIN_WIDTH = 80
+
+// --- inline style helpers/atoms ---
+export const padX = (px: number) => ({ paddingLeft: px, paddingRight: px })
+
+export const cellBase = css`
+  whiteSpace: "nowrap",
+  verticalAlign: "middle",
+`
+
+export const actionCellFixed = css`
+  width: 80,
+  minWidth: 80,
+  maxWidth: 80,
+  ...padX(4),
+`
+
+export const contentCell = (w?: number, minW?: number) => css`
+  ${w != null ? `width: ${w}px;` : ``}
+  ${minW != null ? `min-width: ${minW}px;` : ``}
+  ${padX(PAD)};
+`
+
+export const iconBtnStyle = emotionCss`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  cursor: pointer;
 `

@@ -11,8 +11,15 @@ async fn get_progress(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ProgressOverview>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(*course_id)).await?;
-    let res = headless_lms_models::library::students_view::get_progress(&mut conn, *course_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let res =
+        headless_lms_models::library::students_view::get_progress(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(res))
 }

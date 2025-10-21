@@ -204,8 +204,8 @@ pub async fn make_streaming_llm_request(
 
     let headers = build_llm_headers(&chatbot_config.api_key)?;
     let api_endpoint = chatbot_config
-        .api_endpoint_first
-        .join(&(model_deployment_name.to_owned() + &chatbot_config.api_endpoint_last))?;
+        .api_endpoint
+        .join(&(model_deployment_name.to_owned() + "/chat/completions"))?;
     debug!(
         "Sending streaming request to LLM endpoint: {}",
         api_endpoint
@@ -262,9 +262,9 @@ pub async fn make_blocking_llm_request(
     })?;
 
     let api_endpoint = chatbot_config
-        .api_endpoint_first
+        .api_endpoint
         .join("gpt-4o")?
-        .join(&chatbot_config.api_endpoint_last)?;
+        .join("/chat/completions")?;
 
     trace!("Making LLM request to endpoint: {}", api_endpoint);
     make_llm_request(chat_request, &api_endpoint, &chatbot_config.api_key).await

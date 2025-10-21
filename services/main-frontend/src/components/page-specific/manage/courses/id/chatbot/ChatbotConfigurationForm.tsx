@@ -242,7 +242,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
               <TextField
                 className={textFieldCss}
                 type="number"
-                label={t("max-reasoning-tokens")}
+                label={t("max-completion-tokens")}
                 error={errors.max_completion_tokens?.message}
                 disabled={!thinkingModel}
                 {...register("max_completion_tokens", { required: t("required-field") })}

@@ -69,6 +69,7 @@ pub async fn seed_chatbot_course(
             use_azure_search: true,
             hide_citations: false,
             model: Uuid::parse_str("22ba6c35-7e71-4c1d-ae26-5cf94201a6ee")?,
+            thinking_model: false,
             default_chatbot: true,
             ..Default::default()
         })

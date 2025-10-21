@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_output_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    verbosity as \"verbosity?: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort?: ReasoningEffortLevel\"\n\nFROM chatbot_configurations\nWHERE maintain_azure_search_index = true\nAND deleted_at IS NULL\n",
+  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = true\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\n",
   "describe": {
     "columns": [
       {
@@ -95,42 +95,37 @@
       },
       {
         "ordinal": 18,
-        "name": "max_output_tokens",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 19,
         "name": "max_completion_tokens",
         "type_info": "Int4"
       },
       {
-        "ordinal": 20,
+        "ordinal": 19,
         "name": "use_azure_search",
         "type_info": "Bool"
       },
       {
-        "ordinal": 21,
+        "ordinal": 20,
         "name": "maintain_azure_search_index",
         "type_info": "Bool"
       },
       {
-        "ordinal": 22,
+        "ordinal": 21,
         "name": "hide_citations",
         "type_info": "Bool"
       },
       {
-        "ordinal": 23,
+        "ordinal": 22,
         "name": "use_semantic_reranking",
         "type_info": "Bool"
       },
       {
-        "ordinal": 24,
+        "ordinal": 23,
         "name": "default_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 25,
-        "name": "verbosity?: VerbosityLevel",
+        "ordinal": 24,
+        "name": "verbosity: VerbosityLevel",
         "type_info": {
           "Custom": {
             "name": "verbosity_level",
@@ -145,8 +140,8 @@
         }
       },
       {
-        "ordinal": 26,
-        "name": "reasoning_effort?: ReasoningEffortLevel",
+        "ordinal": 25,
+        "name": "reasoning_effort: ReasoningEffortLevel",
         "type_info": {
           "Custom": {
             "name": "reasoning_effort_level",
@@ -163,7 +158,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -179,21 +176,20 @@
       false,
       false,
       false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       false,
       false,
       false,
       false,
       false,
-      true,
-      true
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
     ]
   },
-  "hash": "4fc016aed7f498e56e9e5d81db8f91351ca325380a649f64e179584ab1cdee62"
+  "hash": "fd1896737c6a702692c75b856838b47f73b28453299878197fd35c1c553640ef"
 }

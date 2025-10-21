@@ -35,17 +35,16 @@ pub struct ChatbotConfiguration {
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
     pub daily_tokens_per_user: i32,
+    pub response_max_tokens: i32,
     //
-    pub temperature: Option<f32>,
-    pub top_p: Option<f32>,
-    pub frequency_penalty: Option<f32>,
-    pub presence_penalty: Option<f32>,
-    pub response_max_tokens: Option<i32>,
+    pub temperature: f32,
+    pub top_p: f32,
+    pub frequency_penalty: f32,
+    pub presence_penalty: f32,
     //
-    pub max_completion_tokens: Option<i32>,
-    pub max_output_tokens: Option<i32>,
-    pub verbosity: Option<VerbosityLevel>,
-    pub reasoning_effort: Option<ReasoningEffortLevel>,
+    pub max_completion_tokens: i32,
+    pub verbosity: VerbosityLevel,
+    pub reasoning_effort: ReasoningEffortLevel,
     //
     pub use_azure_search: bool,
     pub maintain_azure_search_index: bool,
@@ -70,15 +69,17 @@ impl Default for ChatbotConfiguration {
             initial_message: Default::default(),
             weekly_tokens_per_user: 20000 * 5,
             daily_tokens_per_user: 20000,
-            temperature: Some(0.7),
-            top_p: Some(1.0),
-            frequency_penalty: Default::default(),
-            presence_penalty: Default::default(),
-            response_max_tokens: Some(500),
-            max_completion_tokens: None,
-            max_output_tokens: None,
-            reasoning_effort: None,
-            verbosity: None,
+            response_max_tokens: 500,
+            //
+            temperature: 0.7,
+            top_p: 1.0,
+            frequency_penalty: 0.0,
+            presence_penalty: 0.0,
+            //
+            max_completion_tokens: 600,
+            reasoning_effort: ReasoningEffortLevel::Minimal,
+            verbosity: VerbosityLevel::Medium,
+            //
             use_azure_search: false,
             maintain_azure_search_index: false,
             hide_citations: false,
@@ -100,11 +101,17 @@ pub struct NewChatbotConf {
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
     pub daily_tokens_per_user: i32,
-    pub temperature: Option<f32>,
-    pub top_p: Option<f32>,
-    pub frequency_penalty: Option<f32>,
-    pub presence_penalty: Option<f32>,
-    pub response_max_tokens: Option<i32>,
+    pub response_max_tokens: i32,
+    //
+    pub temperature: f32,
+    pub top_p: f32,
+    pub frequency_penalty: f32,
+    pub presence_penalty: f32,
+    //
+    pub max_completion_tokens: i32,
+    pub verbosity: VerbosityLevel,
+    pub reasoning_effort: ReasoningEffortLevel,
+    //
     pub use_azure_search: bool,
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
@@ -126,11 +133,17 @@ impl Default for NewChatbotConf {
             initial_message: chatbot_conf.initial_message,
             weekly_tokens_per_user: chatbot_conf.weekly_tokens_per_user,
             daily_tokens_per_user: chatbot_conf.daily_tokens_per_user,
+            response_max_tokens: chatbot_conf.response_max_tokens,
+            //
             temperature: chatbot_conf.temperature,
             top_p: chatbot_conf.top_p,
             frequency_penalty: chatbot_conf.frequency_penalty,
             presence_penalty: chatbot_conf.presence_penalty,
-            response_max_tokens: chatbot_conf.response_max_tokens,
+            //
+            max_completion_tokens: chatbot_conf.max_completion_tokens,
+            verbosity: chatbot_conf.verbosity,
+            reasoning_effort: chatbot_conf.reasoning_effort,
+            //
             use_azure_search: chatbot_conf.use_azure_search,
             maintain_azure_search_index: chatbot_conf.maintain_azure_search_index,
             hide_citations: chatbot_conf.hide_citations,
@@ -164,15 +177,14 @@ SELECT
     frequency_penalty,
     presence_penalty,
     response_max_tokens,
-    max_output_tokens,
     max_completion_tokens,
     use_azure_search,
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
-    verbosity as "verbosity?: VerbosityLevel",
-    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+    verbosity as "verbosity: VerbosityLevel",
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 FROM chatbot_configurations
 WHERE id = $1
 AND deleted_at IS NULL
@@ -199,6 +211,7 @@ INSERT INTO chatbot_configurations (
     enabled_to_students,
     chatbot_name,
     model,
+    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -208,13 +221,17 @@ INSERT INTO chatbot_configurations (
     hide_citations,
     frequency_penalty,
     presence_penalty,
+    max_completion_tokens,
+    verbosity,
+    reasoning_effort,
     response_max_tokens,
     use_azure_search,
     maintain_azure_search_index,
     default_chatbot
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-RETURNING         id,
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+RETURNING
+    id,
     created_at,
     updated_at,
     deleted_at,
@@ -232,21 +249,21 @@ RETURNING         id,
     frequency_penalty,
     presence_penalty,
     response_max_tokens,
-    max_output_tokens,
     max_completion_tokens,
     use_azure_search,
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
-    verbosity as "verbosity?: VerbosityLevel",
-    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+    verbosity as "verbosity: VerbosityLevel",
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
         "#,
         pkey_policy.into_uuid(),
         input.course_id,
         input.enabled_to_students,
         input.chatbot_name,
         input.model,
+        input.thinking_model,
         input.prompt,
         input.initial_message,
         input.weekly_tokens_per_user,
@@ -256,6 +273,9 @@ RETURNING         id,
         input.hide_citations,
         input.frequency_penalty,
         input.presence_penalty,
+        input.max_completion_tokens,
+        input.verbosity as VerbosityLevel,
+        input.reasoning_effort as ReasoningEffortLevel,
         input.response_max_tokens,
         input.use_azure_search,
         maintain_azure_search_index,
@@ -292,9 +312,14 @@ SET
     hide_citations = $14,
     use_semantic_reranking = $15,
     default_chatbot = $16,
-    model = $17
-WHERE id = $18
-RETURNING     id,
+    model = $17,
+    thinking_model = $18,
+    max_completion_tokens = $19,
+    verbosity = $20,
+    reasoning_effort = $21
+WHERE id = $22
+RETURNING
+    id,
     created_at,
     updated_at,
     deleted_at,
@@ -312,15 +337,14 @@ RETURNING     id,
     frequency_penalty,
     presence_penalty,
     response_max_tokens,
-    max_output_tokens,
     max_completion_tokens,
     use_azure_search,
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
-    verbosity as "verbosity?: VerbosityLevel",
-    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+    verbosity as "verbosity: VerbosityLevel",
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 "#,
         input.enabled_to_students,
         input.chatbot_name,
@@ -339,6 +363,10 @@ RETURNING     id,
         input.use_semantic_reranking,
         input.default_chatbot,
         input.model,
+        input.thinking_model,
+        input.max_completion_tokens,
+        input.verbosity as VerbosityLevel,
+        input.reasoning_effort as ReasoningEffortLevel,
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -387,15 +415,14 @@ SELECT
     frequency_penalty,
     presence_penalty,
     response_max_tokens,
-    max_output_tokens,
     max_completion_tokens,
     use_azure_search,
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
-    verbosity as "verbosity?: VerbosityLevel",
-    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+    verbosity as "verbosity: VerbosityLevel",
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 FROM chatbot_configurations
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -433,15 +460,14 @@ SELECT
     frequency_penalty,
     presence_penalty,
     response_max_tokens,
-    max_output_tokens,
     max_completion_tokens,
     use_azure_search,
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
-    verbosity as "verbosity?: VerbosityLevel",
-    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+    verbosity as "verbosity: VerbosityLevel",
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 FROM chatbot_configurations
 WHERE course_id = $1
 AND default_chatbot IS false
@@ -480,15 +506,14 @@ SELECT
     frequency_penalty,
     presence_penalty,
     response_max_tokens,
-    max_output_tokens,
     max_completion_tokens,
     use_azure_search,
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
-    verbosity as "verbosity?: VerbosityLevel",
-    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+    verbosity as "verbosity: VerbosityLevel",
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 
 FROM chatbot_configurations
 WHERE maintain_azure_search_index = true
@@ -548,15 +573,14 @@ RETURNING
     frequency_penalty,
     presence_penalty,
     response_max_tokens,
-    max_output_tokens,
     max_completion_tokens,
     use_azure_search,
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
-    verbosity as "verbosity?: VerbosityLevel",
-    reasoning_effort as "reasoning_effort?: ReasoningEffortLevel"
+    verbosity as "verbosity: VerbosityLevel",
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 "#,
         chatbot_configuration_id,
     )

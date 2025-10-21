@@ -205,15 +205,14 @@ export interface ChatbotConfiguration {
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  temperature: number | null
-  top_p: number | null
-  frequency_penalty: number | null
-  presence_penalty: number | null
-  response_max_tokens: number | null
-  max_completion_tokens: number | null
-  max_output_tokens: number | null
-  verbosity: VerbosityLevel | null
-  reasoning_effort: ReasoningEffortLevel | null
+  response_max_tokens: number
+  temperature: number
+  top_p: number
+  frequency_penalty: number
+  presence_penalty: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
@@ -231,11 +230,14 @@ export interface NewChatbotConf {
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  temperature: number | null
-  top_p: number | null
-  frequency_penalty: number | null
-  presence_penalty: number | null
-  response_max_tokens: number | null
+  response_max_tokens: number
+  temperature: number
+  top_p: number
+  frequency_penalty: number
+  presence_penalty: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean

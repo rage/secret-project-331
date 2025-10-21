@@ -31,35 +31,19 @@ CREATE TYPE reasoning_effort_level AS ENUM ('minimal', 'low', 'medium', 'high');
 CREATE TYPE verbosity_level AS ENUM ('low', 'medium', 'high');
 
 
-ALTER TABLE chatbot_configurations
+ALTER TABLE chatbot_configurations -- these are set not null later
 ADD COLUMN model UUID REFERENCES chatbot_configurations_models(id) ON DELETE CASCADE,
   ADD COLUMN thinking_model BOOLEAN,
   ADD CONSTRAINT thinking_model_constraint FOREIGN KEY (model, thinking_model) REFERENCES chatbot_configurations_models (id, thinking);
 
 ALTER TABLE chatbot_configurations
-ADD COLUMN max_completion_tokens INT CHECK (
-    (max_completion_tokens IS NOT NULL) = thinking_model
-  ),
-  ADD COLUMN max_output_tokens INT CHECK (
-    (max_output_tokens IS NOT NULL) = thinking_model
-  ),
-  ADD COLUMN verbosity verbosity_level CHECK ((verbosity IS NOT NULL) = thinking_model),
-  ADD COLUMN reasoning_effort reasoning_effort_level CHECK ((reasoning_effort IS NOT NULL) = thinking_model),
-  ALTER COLUMN temperature DROP NOT NULL,
-  ADD CONSTRAINT a CHECK ((temperature IS NULL) = thinking_model),
-  ALTER COLUMN top_p DROP NOT NULL,
-  ADD CONSTRAINT b CHECK ((top_p IS NULL) = thinking_model),
-  ALTER COLUMN frequency_penalty DROP NOT NULL,
-  ADD CONSTRAINT c CHECK ((frequency_penalty IS NULL) = thinking_model),
-  ALTER COLUMN presence_penalty DROP NOT NULL,
-  ADD CONSTRAINT d CHECK ((presence_penalty IS NULL) = thinking_model),
-  ALTER COLUMN response_max_tokens DROP NOT NULL,
-  ADD CONSTRAINT e CHECK ((response_max_tokens IS NULL) = thinking_model);
+ADD COLUMN max_completion_tokens INT NOT NULL DEFAULT 600,
+  ADD COLUMN verbosity verbosity_level NOT NULL DEFAULT 'medium',
+  ADD COLUMN reasoning_effort reasoning_effort_level NOT NULL DEFAULT 'minimal';
 
 COMMENT ON COLUMN chatbot_configurations.model IS 'The LLM to use in this chatbot configuration. The model choice affects the some of the behaviour of the chatbot.';
 COMMENT ON COLUMN chatbot_configurations.max_completion_tokens IS 'The max. number of tokens the thinking LLM is allowed to use in generating the response, including output tokens and reasoning tokens.';
-COMMENT ON COLUMN chatbot_configurations.max_output_tokens IS 'The maximum number of tokens the chatbot can output in a response, i.e. maximum response length in tokens.';
--- IF YOU update the response_max_tokens comment, then the same field could be used for both models.
+COMMENT ON COLUMN chatbot_configurations.response_max_tokens IS 'The maximum number of tokens the chatbot can output in a response, i.e. maximum response length in tokens.';
 COMMENT ON COLUMN chatbot_configurations.verbosity IS 'Verbosity of the generated response, with a higher level meaning that the model is more likely to generate longer responses and vice versa.';
 COMMENT ON COLUMN chatbot_configurations.reasoning_effort IS 'Controls the amount of effort (time, tokens) used in the reasoning phase of response generations. A lower level means the model is more likely to use less tokens in reasoning (thinking). A low reasoning effort level will likely negatively affect how successful the model is in tasks that require complicated planning, reasoning, or complicated tool use.';
 

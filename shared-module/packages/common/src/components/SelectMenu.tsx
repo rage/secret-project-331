@@ -17,6 +17,7 @@ interface SelectMenuExtraProps {
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
   className?: string
   showDefaultOption?: boolean
+  disabled?: boolean
 }
 
 const DEFAULT_VALUE_KEY = "default-value"
@@ -51,7 +52,7 @@ const SelectMenu = ({
       className={cx(
         css`
           margin-bottom: 1rem;
-
+          ${rest.disabled && `filter: opacity(0.5);`}
           :hover {
             background: #f9f9f9;
           }
@@ -72,6 +73,7 @@ const SelectMenu = ({
             color: #4c5868;
             appearance: none;
             background: transparent;
+            ${rest.disabled && `cursor: not-allowed;`}
 
             :hover {
               background: #f9f9f9;

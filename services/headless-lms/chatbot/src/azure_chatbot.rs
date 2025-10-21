@@ -92,19 +92,19 @@ impl From<ChatbotConversationMessage> for APIMessage {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct ThinkingParams {
+    pub max_output_tokens: i32,
     pub max_completion_tokens: Option<i32>,
-    pub max_output_tokens: Option<i32>,
     pub verbosity: Option<VerbosityLevel>,
     pub reasoning_effort: Option<ReasoningEffortLevel>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct NonThinkingParams {
+    pub max_tokens: Option<i32>,
     pub temperature: Option<f32>,
     pub top_p: Option<f32>,
     pub frequency_penalty: Option<f32>,
     pub presence_penalty: Option<f32>,
-    pub max_tokens: Option<i32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -241,18 +241,18 @@ impl LLMRequest {
         // unless it's flattened?
         let params = if configuration.thinking_model {
             LLMRequestParams::Thinking(ThinkingParams {
-                max_completion_tokens: configuration.max_completion_tokens,
-                max_output_tokens: configuration.max_output_tokens,
-                reasoning_effort: configuration.reasoning_effort,
-                verbosity: configuration.verbosity,
+                max_completion_tokens: Some(configuration.max_completion_tokens),
+                max_output_tokens: configuration.response_max_tokens,
+                reasoning_effort: Some(configuration.reasoning_effort),
+                verbosity: Some(configuration.verbosity),
             })
         } else {
             LLMRequestParams::NonThinking(NonThinkingParams {
-                temperature: configuration.temperature,
-                top_p: configuration.top_p,
-                frequency_penalty: configuration.frequency_penalty,
-                presence_penalty: configuration.presence_penalty,
-                max_tokens: configuration.response_max_tokens,
+                max_tokens: Some(configuration.response_max_tokens),
+                temperature: Some(configuration.temperature),
+                top_p: Some(configuration.top_p),
+                frequency_penalty: Some(configuration.frequency_penalty),
+                presence_penalty: Some(configuration.presence_penalty),
             })
         };
 

@@ -100,7 +100,7 @@ pub struct CourseMaterialExercise {
     pub peer_or_self_review_config: Option<CourseMaterialPeerOrSelfReviewConfig>,
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
     pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
-    pub teacher_grading_decision: Option<TeacherGradingDecision>,
+    pub should_show_reset_message: bool,
 }
 
 impl CourseMaterialExercise {
@@ -481,11 +481,15 @@ pub async fn get_course_material_exercise(
         _ => None,
     }.unwrap_or_default();
 
-    let teacher_grading_decision = match (user_id, exercise.course_id) {
-        (Some(user_id), Some(course_id)) => {
-            crate::teacher_grading_decisions::get_latest_grading_decision_by_user_id_and_exercise_id_and_course_id(&mut *conn, user_id, exercise.id, course_id).await?
-        }
-        _ => None,
+    let should_show_reset_message = if let Some(user_id) = user_id {
+        crate::exercise_reset_logs::user_should_see_reset_message_for_exercise(
+            conn,
+            user_id,
+            exercise_id,
+        )
+        .await?
+    } else {
+        false
     };
 
     Ok(CourseMaterialExercise {
@@ -497,7 +501,7 @@ pub async fn get_course_material_exercise(
         peer_or_self_review_config,
         user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
-        teacher_grading_decision,
+        should_show_reset_message,
     })
 }
 

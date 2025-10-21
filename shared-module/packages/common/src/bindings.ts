@@ -958,7 +958,7 @@ export interface CourseMaterialExercise {
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
-  teacher_grading_decision: TeacherGradingDecision | null
+  should_show_reset_message: boolean
 }
 
 export interface Exercise {

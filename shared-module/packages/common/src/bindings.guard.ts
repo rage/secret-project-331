@@ -1941,8 +1941,7 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
         typedObj["user_course_instance_exercise_service_variables"].every((e: any) =>
             isUserCourseExerciseServiceVariable(e) as boolean
         ) &&
-        (typedObj["teacher_grading_decision"] === null ||
-            isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean)
+        typeof typedObj["should_show_reset_message"] === "boolean"
     )
 }
 

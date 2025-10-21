@@ -26,14 +26,6 @@ pub struct APIMessage {
     pub content: String,
 }
 
-/// Base LLM request structure (common fields)
-#[derive(Serialize, Deserialize, Debug)]
-pub struct BaseLlmRequest {
-    pub messages: Vec<APIMessage>,
-    pub temperature: f32,
-    pub max_tokens: Option<i32>,
-}
-
 /// Simple completion-focused LLM request for Azure OpenAI
 /// Note: In Azure OpenAI, the model is specified in the URL, not in the request body
 #[derive(Serialize, Deserialize, Debug)]

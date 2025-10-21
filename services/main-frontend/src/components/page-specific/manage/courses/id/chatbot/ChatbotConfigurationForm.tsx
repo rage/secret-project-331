@@ -130,7 +130,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   )
 
   const onConfigureChatbotWrapper = handleSubmit((data) => {
-    console.log("thinking", thinkingModel)
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
@@ -149,10 +148,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       reasoning_effort: data.reasoning_effort,
       verbosity: data.verbosity,
       thinking_model: thinkingModel,
-      use_azure_search: data.use_azure_search,
+      use_azure_search: thinkingModel ? false : data.use_azure_search,
       // right now use_azure_search requires the next field to be true and there is no need for it to
       // be true if azure search is false, so set them as the same value
-      maintain_azure_search_index: data.use_azure_search,
+      maintain_azure_search_index: thinkingModel ? false : data.use_azure_search,
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
@@ -193,18 +192,70 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           `}
         >
           <CheckBox label={t("enabled-to-students")} {...register("enabled_to_students")} />
-          <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
-          <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
         </div>
         <SelectMenu
           id="model-select"
           label={t("select-LLM")}
           options={getChatbotModelsList.data.map((m) => {
-            return { value: m.id, label: m.model }
+            return {
+              value: m.id,
+              label: `${m.model} (${m.thinking ? t("reasoning") : t("non-reasoning")})`,
+            }
           })}
           showDefaultOption={false}
           {...register("model")}
         />
+        {thinkingModel ? (
+          <div className={itemCss}>
+            <h4>{"Configure reasoning"}</h4>
+            <div
+              className={css`
+                margin: 20px 20px;
+              `}
+            >
+              <SelectMenu
+                id="verbosity-select"
+                label={t("select-verbosity")}
+                error={errors.verbosity?.message}
+                options={[
+                  { value: "low", label: t("low") },
+                  { value: "medium", label: t("medium") },
+                  { value: "high", label: t("high") },
+                ]}
+                disabled={!thinkingModel}
+                showDefaultOption={false}
+                {...register("verbosity")}
+              />
+              <SelectMenu
+                id="reasoning-effort-select"
+                label={t("select-reasoning-effort")}
+                error={errors.reasoning_effort?.message}
+                options={[
+                  { value: "minimal", label: t("minimal") },
+                  { value: "low", label: t("low") },
+                  { value: "medium", label: t("medium") },
+                  { value: "high", label: t("high") },
+                ]}
+                disabled={!thinkingModel}
+                showDefaultOption={false}
+                {...register("reasoning_effort")}
+              />
+              <TextField
+                className={textFieldCss}
+                type="number"
+                label={t("max-reasoning-tokens")}
+                error={errors.max_completion_tokens?.message}
+                disabled={!thinkingModel}
+                {...register("max_completion_tokens", { required: t("required-field") })}
+              />
+            </div>
+          </div>
+        ) : (
+          <>
+            <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
+            <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
+          </>
+        )}
         <Accordion>
           <details
             className={css`
@@ -242,13 +293,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     label={t("weekly-token-user")}
                     {...register("weekly_tokens_per_user")}
                   />
-                  <TextField
-                    className={textFieldCss}
-                    type="number"
-                    label={t("max-token-response")}
-                    error={errors.response_max_tokens?.message}
-                    {...register("response_max_tokens")}
-                  />
                 </div>
                 <div className={itemCss}>
                   <h4>{t("configure-search")}</h4>
@@ -272,121 +316,133 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     margin-right: 20px;
                   `}
                 >
-                  <h3>NON THINKIN</h3>
-                  <div className={itemCss}>
-                    <h4>{t("configure-penalty")}</h4>
-                    <TextField
-                      className={textFieldCss}
-                      type="number"
-                      error={errors.frequency_penalty?.message}
-                      step="0.01"
-                      label={t("frequency-penalty")}
-                      disabled={thinkingModel}
-                      {...register("frequency_penalty", {
-                        required: t("required-field"),
-                        min: {
-                          value: 0,
-                          message: t("error-field-value-between", {
-                            field: t("frequency-penalty"),
-                            lower: "0",
-                            upper: "1",
-                          }),
-                        },
-                        max: {
-                          value: 1,
-                          message: t("error-field-value-between", {
-                            field: t("frequency-penalty"),
-                            lower: "0",
-                            upper: "1",
-                          }),
-                        },
-                      })}
-                    />
-                    <TextField
-                      className={textFieldCss}
-                      type="number"
-                      error={errors.presence_penalty?.message}
-                      step="0.01"
-                      label={t("presence-penalty")}
-                      disabled={thinkingModel}
-                      {...register("presence_penalty", {
-                        required: t("required-field"),
-                        min: {
-                          value: 0,
-                          message: t("error-field-value-between", {
-                            field: t("presence-penalty"),
-                            lower: "0",
-                            upper: "1",
-                          }),
-                        },
-                        max: {
-                          value: 1,
-                          message: t("error-field-value-between", {
-                            field: t("presence-penalty"),
-                            lower: "0",
-                            upper: "1",
-                          }),
-                        },
-                      })}
-                    />
-                  </div>
-                  <div className={itemCss}>
-                    <h4>{t("configure-creativity")}</h4>
-                    <TextField
-                      className={textFieldCss}
-                      type="number"
-                      error={errors.temperature?.message}
-                      step="0.01"
-                      label={t("temperature")}
-                      disabled={thinkingModel}
-                      {...register("temperature", {
-                        required: t("required-field"),
-                        min: {
-                          value: 0,
-                          message: t("error-field-value-between", {
-                            field: t("temperature"),
-                            lower: "0",
-                            upper: "1",
-                          }),
-                        },
-                        max: {
-                          value: 1,
-                          message: t("error-field-value-between", {
-                            field: t("temperature"),
-                            lower: "0",
-                            upper: "1",
-                          }),
-                        },
-                      })}
-                    />
-                    <TextField
-                      className={textFieldCss}
-                      type="number"
-                      error={errors.top_p?.message}
-                      step="0.01"
-                      label={t("top-p")}
-                      disabled={thinkingModel}
-                      {...register("top_p", {
-                        required: t("required-field"),
-                        min: {
-                          value: 0,
-                          message: t("error-field-value-between", {
-                            field: t("top-p"),
-                            lower: "0",
-                            upper: "1",
-                          }),
-                        },
-                        max: {
-                          value: 1,
-                          message: t("error-field-value-between", {
-                            field: t("top-p"),
-                            lower: "0",
-                            upper: "1",
-                          }),
-                        },
-                      })}
-                    />
-                  </div>
+                  {!thinkingModel && (
+                    <div>
+                      {" "}
+                      <div className={itemCss}>
+                        <h3>Non-reasoning model settings</h3>
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          label={t("max-token-response")}
+                          error={errors.response_max_tokens?.message}
+                          {...register("response_max_tokens")}
+                        />
+                        <h4>{t("configure-penalty")}</h4>
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          error={errors.frequency_penalty?.message}
+                          step="0.01"
+                          label={t("frequency-penalty")}
+                          disabled={thinkingModel}
+                          {...register("frequency_penalty", {
+                            required: t("required-field"),
+                            min: {
+                              value: 0,
+                              message: t("error-field-value-between", {
+                                field: t("frequency-penalty"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                            max: {
+                              value: 1,
+                              message: t("error-field-value-between", {
+                                field: t("frequency-penalty"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                          })}
+                        />
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          error={errors.presence_penalty?.message}
+                          step="0.01"
+                          label={t("presence-penalty")}
+                          disabled={thinkingModel}
+                          {...register("presence_penalty", {
+                            required: t("required-field"),
+                            min: {
+                              value: 0,
+                              message: t("error-field-value-between", {
+                                field: t("presence-penalty"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                            max: {
+                              value: 1,
+                              message: t("error-field-value-between", {
+                                field: t("presence-penalty"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                          })}
+                        />
+                      </div>
+                      <div className={itemCss}>
+                        <h4>{t("configure-creativity")}</h4>
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          error={errors.temperature?.message}
+                          step="0.01"
+                          label={t("temperature")}
+                          disabled={thinkingModel}
+                          {...register("temperature", {
+                            required: t("required-field"),
+                            min: {
+                              value: 0,
+                              message: t("error-field-value-between", {
+                                field: t("temperature"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                            max: {
+                              value: 1,
+                              message: t("error-field-value-between", {
+                                field: t("temperature"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                          })}
+                        />
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          error={errors.top_p?.message}
+                          step="0.01"
+                          label={t("top-p")}
+                          disabled={thinkingModel}
+                          {...register("top_p", {
+                            required: t("required-field"),
+                            min: {
+                              value: 0,
+                              message: t("error-field-value-between", {
+                                field: t("top-p"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                            max: {
+                              value: 1,
+                              message: t("error-field-value-between", {
+                                field: t("top-p"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                          })}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div
                   className={css`
@@ -394,55 +450,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     flex-grow: 1;
                     margin-left: 20px;
                   `}
-                >
-                  <h3>Thinkingmodel</h3>
-                  <div className={itemCss}>
-                    <h4>{"Configure reasoning"}</h4>
-                    <div
-                      className={css`
-                        margin: 20px 20px;
-                      `}
-                    >
-                      <SelectMenu
-                        id="verbosity-select"
-                        label={t("select-verbosity")}
-                        error={errors.verbosity?.message}
-                        options={[
-                          { value: "Low", label: t("low") },
-                          { value: "Medium", label: t("medium") },
-                          { value: "High", label: t("high") },
-                        ]}
-                        disabled={!thinkingModel}
-                        showDefaultOption={false}
-                        {...register("verbosity")}
-                      />
-                      <SelectMenu
-                        id="reasoning-effort-select"
-                        label={t("select-reasoning-effort")}
-                        error={errors.reasoning_effort?.message}
-                        options={[
-                          { value: "Minimal", label: t("minimal") },
-                          { value: "Low", label: t("low") },
-                          { value: "Medium", label: t("medium") },
-                          { value: "High", label: t("high") },
-                        ]}
-                        disabled={!thinkingModel}
-                        showDefaultOption={false}
-                        {...register("reasoning_effort")}
-                      />
-                      <TextField
-                        className={textFieldCss}
-                        type="number"
-                        label={t("max-reasoning-tokens")}
-                        error={errors.max_completion_tokens?.message}
-                        disabled={!thinkingModel}
-                        {...register("max_completion_tokens", { required: t("required-field") })}
-                      />
-                    </div>
-                  </div>
-                </div>
+                ></div>
               </div>
-              <p>NOTE about how the thiknign and non thinkign differ</p>
             </div>
           </details>
         </Accordion>

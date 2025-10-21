@@ -532,19 +532,19 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
 export function isVerbosityLevel(obj: unknown): obj is VerbosityLevel {
     const typedObj = obj as VerbosityLevel
     return (
-        (typedObj === "Low" ||
-            typedObj === "Medium" ||
-            typedObj === "High")
+        (typedObj === "low" ||
+            typedObj === "medium" ||
+            typedObj === "high")
     )
 }
 
 export function isReasoningEffortLevel(obj: unknown): obj is ReasoningEffortLevel {
     const typedObj = obj as ReasoningEffortLevel
     return (
-        (typedObj === "Low" ||
-            typedObj === "Medium" ||
-            typedObj === "High" ||
-            typedObj === "Minimal")
+        (typedObj === "low" ||
+            typedObj === "medium" ||
+            typedObj === "high" ||
+            typedObj === "minimal")
     )
 }
 

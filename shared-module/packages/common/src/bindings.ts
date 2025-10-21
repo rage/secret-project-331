@@ -246,9 +246,9 @@ export interface NewChatbotConf {
   chatbotconf_id: string | null
 }
 
-export type VerbosityLevel = "Low" | "Medium" | "High"
+export type VerbosityLevel = "low" | "medium" | "high"
 
-export type ReasoningEffortLevel = "Minimal" | "Low" | "Medium" | "High"
+export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
 
 export interface ChatbotConfigurationModel {
   id: string

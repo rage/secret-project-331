@@ -42,10 +42,10 @@ ADD COLUMN max_completion_tokens INT NOT NULL DEFAULT 600,
   ADD COLUMN reasoning_effort reasoning_effort_level NOT NULL DEFAULT 'minimal';
 
 COMMENT ON COLUMN chatbot_configurations.model IS 'The LLM to use in this chatbot configuration. The model choice affects the some of the behaviour of the chatbot.';
-COMMENT ON COLUMN chatbot_configurations.max_completion_tokens IS 'The max. number of tokens the thinking LLM is allowed to use in generating the response, including output tokens and reasoning tokens.';
-COMMENT ON COLUMN chatbot_configurations.response_max_tokens IS 'The maximum number of tokens the chatbot can output in a response, i.e. maximum response length in tokens.';
-COMMENT ON COLUMN chatbot_configurations.verbosity IS 'Verbosity of the generated response, with a higher level meaning that the model is more likely to generate longer responses and vice versa.';
-COMMENT ON COLUMN chatbot_configurations.reasoning_effort IS 'Controls the amount of effort (time, tokens) used in the reasoning phase of response generations. A lower level means the model is more likely to use less tokens in reasoning (thinking). A low reasoning effort level will likely negatively affect how successful the model is in tasks that require complicated planning, reasoning, or complicated tool use.';
+COMMENT ON COLUMN chatbot_configurations.max_completion_tokens IS 'The max. number of tokens the thinking LLM is allowed to use in generating the response, including output tokens and reasoning tokens. Only used with reasoning models.';
+COMMENT ON COLUMN chatbot_configurations.response_max_tokens IS 'The maximum number of tokens the chatbot can output in a response, i.e. maximum response length in tokens. Only used with non-reasoning models.';
+COMMENT ON COLUMN chatbot_configurations.verbosity IS 'Verbosity of the generated response, with a higher level meaning that the model is more likely to generate longer responses and vice versa. Only used with reasoning models.';
+COMMENT ON COLUMN chatbot_configurations.reasoning_effort IS 'Controls the amount of effort (time, tokens) used in the reasoning phase of response generations. A lower level means the model is more likely to use less tokens in reasoning (thinking). A low reasoning effort level will likely negatively affect how successful the model is in tasks that require complicated planning, reasoning, or complicated tool use. Only used with reasoning models.';
 
 -- delete this ----------------------------------------------------------------
 INSERT INTO chatbot_configurations_models (

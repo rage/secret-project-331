@@ -92,7 +92,6 @@ impl From<ChatbotConversationMessage> for APIMessage {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct ThinkingParams {
-    pub max_output_tokens: i32,
     pub max_completion_tokens: Option<i32>,
     pub verbosity: Option<VerbosityLevel>,
     pub reasoning_effort: Option<ReasoningEffortLevel>,
@@ -112,6 +111,7 @@ pub struct NonThinkingParams {
 pub enum LLMRequestParams {
     Thinking(ThinkingParams),
     NonThinking(NonThinkingParams),
+    None,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -242,7 +242,6 @@ impl LLMRequest {
         let params = if configuration.thinking_model {
             LLMRequestParams::Thinking(ThinkingParams {
                 max_completion_tokens: Some(configuration.max_completion_tokens),
-                max_output_tokens: configuration.response_max_tokens,
                 reasoning_effort: Some(configuration.reasoning_effort),
                 verbosity: Some(configuration.verbosity),
             })

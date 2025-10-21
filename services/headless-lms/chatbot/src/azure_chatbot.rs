@@ -237,8 +237,6 @@ impl LLMRequest {
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
 
-        // omg this probably doesn't work because the json-version of this is not the correct shape for a Azure api request body :'(
-        // unless it's flattened?
         let params = if configuration.thinking_model {
             LLMRequestParams::Thinking(ThinkingParams {
                 max_completion_tokens: Some(configuration.max_completion_tokens),

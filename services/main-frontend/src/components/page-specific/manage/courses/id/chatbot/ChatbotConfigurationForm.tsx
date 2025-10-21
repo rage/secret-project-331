@@ -94,7 +94,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           }),
         ).thinking,
       )
-      console.log("changed thinkign")
     }
   }, [modelFieldValue, getChatbotModelsList.data])
 

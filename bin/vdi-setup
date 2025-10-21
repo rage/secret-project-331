@@ -104,9 +104,9 @@ if ! command -v pnpm; then
   echo "Installed pnpm"
 fi
 
-# Install postgres-cli from apt
+# Install postgres-cli and earlyoom from apt
 sudo apt-get update
-sudo apt-get install -y postgresql-client bc jq rsync moreutils libssl-dev pkg-config
+sudo apt-get install -y postgresql-client bc jq rsync moreutils libssl-dev pkg-config earlyoom
 
 # Add Docker's official GPG key:
 sudo apt-get update

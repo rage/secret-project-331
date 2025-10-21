@@ -47,7 +47,7 @@ pub async fn seed_peer_review_course(
 
     info!("Inserting sample course {}", course_name);
     let course = CourseBuilder::new(course_name, course_slug)
-    .desc("Sample course for testing reject and reset -feature in manual review after peer review.")
+    .desc("Sample course for testing reject and reset-feature in manual review after peer review.")
     .chatbot(false)
     .course_id(course_id)
     .instance(CourseInstanceConfig {

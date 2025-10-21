@@ -76,6 +76,7 @@ async fn create_teacher_grading_decision(
         .await?;
 
         tx.commit().await?;
+        info!("Teacher took the following action: RejectAndReset.",);
 
         return token.authorized_ok(web::Json(None));
     } else {

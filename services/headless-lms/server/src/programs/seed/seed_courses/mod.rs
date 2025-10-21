@@ -91,7 +91,6 @@ pub async fn seed_sample_course(
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
     info!("inserting sample course {}", course_name);
-    info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
         name: course_name.to_string(),

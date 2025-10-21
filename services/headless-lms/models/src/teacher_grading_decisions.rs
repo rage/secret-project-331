@@ -110,6 +110,10 @@ LIMIT 1
     Ok(res)
 }
 
+/// Gets the latest grading decision with user_id, exercise_id and course_id.
+///
+/// Note: RejectAndReset decisions are included even when soft-deleted to maintain
+/// visibility of the rejection history for the student.
 pub async fn get_latest_grading_decision_by_user_id_and_exercise_id_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,

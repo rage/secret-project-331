@@ -1,13 +1,20 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
-import { ProgressTabContent } from "./tabs/ProgressTab"
 import styles from "./StudentsPage.module.css"
 import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from "./StudentsTableTabs"
+import { ProgressTabContent } from "./tabs/ProgressTab"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 
 type Props = { courseId?: string; initialTab?: string }
+
+const tableSection = css({
+  paddingLeft: "5vw",
+  paddingRight: "5vw",
+})
 
 // ---- Tabs
 const TAB_USER = "User"
@@ -29,10 +36,10 @@ const SLUG_TO_TAB: Record<string, (typeof TAB_LIST)[number]> = {
   certificates: TAB_CERTIFICATES,
 }
 
-// tiny helper
 const cx = (...arr: Array<string | false | undefined>) => arr.filter(Boolean).join(" ")
 
 const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) => {
+  const { t } = useTranslation()
   const router = useRouter()
 
   // derive courseId from prop (preferred) or from router as fallback
@@ -54,6 +61,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
   // if user lands on /students (no subtab), gently normalize to /students/users
   useEffect(() => {
     if (!initialTab && courseId) {
+      // eslint-disable-next-line i18next/no-literal-string
       router.replace(`/manage/courses/${courseId}/students/users`, undefined, {
         shallow: true,
         scroll: false,
@@ -67,6 +75,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
       return
     }
     const slug = TAB_TO_SLUG[tab]
+    // eslint-disable-next-line i18next/no-literal-string
     router.push(`/manage/courses/${courseId}/students/${slug}`, undefined, {
       shallow: true,
       scroll: false,
@@ -81,20 +90,17 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
   }
 
   return (
-    <BreakFromCentered>
+    <BreakFromCentered sidebar={false}>
       <div>
         <div className={styles.headerTopSection}>
           <div className={styles.headerTopRow}>
             <div className={styles.headerTitleWrap}>
-              <div className={styles.title}>Students</div>
-              <div className={styles.chatbotInfo}>
-                Enabling the chatbot will allow automated assistance for students, providing instant
-                responses to common questions and guidance throughout the course. You can disable it
-                at any time in the settings.
-              </div>
+              <div className={styles.title}>{t("label-students")}</div>
+              <div className={styles.chatbotInfo}>{t("chatbot-student-page-info")}</div>
             </div>
             <div className={styles.dropdownTop}>
-              All instances
+              {t("all-instances")}
+              {/* eslint-disable-next-line i18next/no-literal-string */}
               <span className={styles.dropdownIcon}>▼</span>
             </div>
           </div>
@@ -128,7 +134,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
         </div>
 
         {/* TABLE SECTION */}
-        <div style={{ paddingLeft: "5vw", paddingRight: "5vw" }}>{tabContentMap[activeTab]}</div>
+        <div className={tableSection}>{tabContentMap[activeTab]}</div>
       </div>
     </BreakFromCentered>
   )

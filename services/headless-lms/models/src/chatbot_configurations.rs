@@ -203,7 +203,7 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     input: NewChatbotConf,
 ) -> ModelResult<ChatbotConfiguration> {
-    let maintain_azure_search_index = input.use_azure_search.clone();
+    let maintain_azure_search_index = input.use_azure_search;
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"

@@ -8,7 +8,11 @@ import { useTranslation } from "react-i18next"
 
 import { getChatbotModels } from "@/services/backend/chatbotModels"
 import { configureChatbot, deleteChatbot } from "@/services/backend/chatbots"
-import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
+import {
+  ChatbotConfiguration,
+  ChatbotConfigurationModel,
+  NewChatbotConf,
+} from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -47,7 +51,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const { t } = useTranslation()
   const router = useRouter()
   const { confirm } = useDialog()
-  const [thinkingModel, setThinkingModel] = useState(false)
+  const [selectedModel, setSelectedModel] = useState<null | ChatbotConfigurationModel>(null)
   const {
     register,
     handleSubmit,
@@ -87,12 +91,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   useEffect(() => {
     if (getChatbotModelsList.data) {
-      setThinkingModel(
+      setSelectedModel(
         assertNotNullOrUndefined(
           getChatbotModelsList.data.find((m) => {
             return m.id == modelFieldValue
           }),
-        ).thinking,
+        ),
       )
     }
   }, [modelFieldValue, getChatbotModelsList.data])
@@ -129,6 +133,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   )
 
   const onConfigureChatbotWrapper = handleSubmit((data) => {
+    let azure_search = assertNotNullOrUndefined(selectedModel?.thinking)
+      ? false
+      : selectedModel?.model === "model-router"
+        ? false
+        : data.use_azure_search
+
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
@@ -146,11 +156,11 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       max_completion_tokens: +data.max_completion_tokens,
       reasoning_effort: data.reasoning_effort,
       verbosity: data.verbosity,
-      thinking_model: thinkingModel,
-      use_azure_search: thinkingModel ? false : data.use_azure_search,
+      thinking_model: assertNotNullOrUndefined(selectedModel?.thinking),
+      use_azure_search: azure_search,
       // right now use_azure_search requires the next field to be true and there is no need for it to
       // be true if azure search is false, so set them as the same value
-      maintain_azure_search_index: thinkingModel ? false : data.use_azure_search,
+      maintain_azure_search_index: azure_search,
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
@@ -204,7 +214,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           showDefaultOption={false}
           {...register("model")}
         />
-        {thinkingModel ? (
+        {selectedModel?.thinking ? (
           <div className={itemCss}>
             <h4>{"Configure reasoning"}</h4>
             <div
@@ -221,7 +231,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   { value: "medium", label: t("medium") },
                   { value: "high", label: t("high") },
                 ]}
-                disabled={!thinkingModel}
+                disabled={!selectedModel?.thinking}
                 showDefaultOption={false}
                 {...register("verbosity")}
               />
@@ -235,7 +245,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   { value: "medium", label: t("medium") },
                   { value: "high", label: t("high") },
                 ]}
-                disabled={!thinkingModel}
+                disabled={!selectedModel?.thinking}
                 showDefaultOption={false}
                 {...register("reasoning_effort")}
               />
@@ -244,16 +254,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 type="number"
                 label={t("max-completion-tokens")}
                 error={errors.max_completion_tokens?.message}
-                disabled={!thinkingModel}
+                disabled={!selectedModel?.thinking}
                 {...register("max_completion_tokens", { required: t("required-field") })}
               />
             </div>
           </div>
         ) : (
-          <>
-            <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
-            <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
-          </>
+          selectedModel?.model !== "model-router" && (
+            <>
+              <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
+              <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
+            </>
+          )
         )}
         <Accordion>
           <details
@@ -315,7 +327,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     margin-right: 20px;
                   `}
                 >
-                  {!thinkingModel && (
+                  {!selectedModel?.thinking && (
                     <div>
                       {" "}
                       <div className={itemCss}>
@@ -334,7 +346,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           error={errors.frequency_penalty?.message}
                           step="0.01"
                           label={t("frequency-penalty")}
-                          disabled={thinkingModel}
+                          disabled={selectedModel?.thinking}
                           {...register("frequency_penalty", {
                             required: t("required-field"),
                             min: {
@@ -361,7 +373,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           error={errors.presence_penalty?.message}
                           step="0.01"
                           label={t("presence-penalty")}
-                          disabled={thinkingModel}
+                          disabled={selectedModel?.thinking}
                           {...register("presence_penalty", {
                             required: t("required-field"),
                             min: {
@@ -391,7 +403,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           error={errors.temperature?.message}
                           step="0.01"
                           label={t("temperature")}
-                          disabled={thinkingModel}
+                          disabled={selectedModel?.thinking}
                           {...register("temperature", {
                             required: t("required-field"),
                             min: {
@@ -418,7 +430,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           error={errors.top_p?.message}
                           step="0.01"
                           label={t("top-p")}
-                          disabled={thinkingModel}
+                          disabled={selectedModel?.thinking}
                           {...register("top_p", {
                             required: t("required-field"),
                             min: {

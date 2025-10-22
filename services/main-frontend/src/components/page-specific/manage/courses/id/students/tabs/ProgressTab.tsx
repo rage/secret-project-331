@@ -22,10 +22,21 @@ type ProgressChapter = {
   chapter_number?: number | null
 }
 
-type ProgressExerciseState = {
+type UserChapterProgress = {
   user_id: string
-  exercise_id: string
-  score_given?: number | null
+  chapter_id: string
+  chapter_number?: number | null
+  chapter_name?: string | null
+  exercises_attempted?: number | null
+  points_obtained?: number | null
+}
+
+type ChapterAvailability = {
+  chapter_id: string
+  chapter_number?: number | null
+  chapter_name?: string | null
+  points_available?: number | null
+  exercises_available?: number | null
 }
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
@@ -51,12 +62,26 @@ export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId })
     return <ErrorBanner error={query.error} />
   }
 
-  console.log(query) // =======================> DELETE LATER <====================
-
-  const { user_details, chapters, user_exercise_states } = query.data as {
+  const { user_details, chapters, user_chapter_progress, chapter_availability } = query.data as {
     user_details: ProgressUser[]
     chapters: ProgressChapter[]
-    user_exercise_states: ProgressExerciseState[]
+    user_chapter_progress: UserChapterProgress[]
+    chapter_availability: ChapterAvailability[]
+  }
+
+  // --- maxima lookups (per chapter, not per user)
+  const maxPointsByChapter: Record<string, number | undefined> = {}
+  const maxAttemptsByChapter: Record<string, number | undefined> = {}
+  for (const ca of chapter_availability ?? []) {
+    if (!ca?.chapter_id) {
+      continue
+    }
+    if (typeof ca.points_available === "number") {
+      maxPointsByChapter[ca.chapter_id] = ca.points_available
+    }
+    if (typeof ca.exercises_available === "number") {
+      maxAttemptsByChapter[ca.chapter_id] = ca.exercises_available
+    }
   }
 
   // --- helpers ---
@@ -69,11 +94,13 @@ export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId })
     return `${last}, ${first}`
   }
 
+  const round2 = (n: number) => Math.round(n * 100) / 100
+
   const sortedChapters = [...chapters].sort(
     (a, b) => (a.chapter_number ?? 0) - (b.chapter_number ?? 0),
   )
 
-  // --- columns: Student | Total (Points/Attempts) | per-chapter (Points/Attempts)
+  // --- columns: Student | Total | per-chapter with maxima in subheaders
   const dynamicColumns = [
     {
       header: t("label-student"),
@@ -89,47 +116,72 @@ export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId })
         { header: t("attempts"), accessorKey: "total_attempted", meta: { altBg: true } },
       ],
     },
-    ...sortedChapters.map((ch) => ({
-      header: `${ch.chapter_number}: ${ch.name ?? "-"}`,
-      columns: [
-        // eslint-disable-next-line i18next/no-literal-string
-        { header: t("points"), accessorKey: `ch_${ch.id}_points` },
-        // eslint-disable-next-line i18next/no-literal-string
-        { header: t("attempts"), accessorKey: `ch_${ch.id}_attempts`, meta: { altBg: true } },
-      ],
-    })),
+    ...sortedChapters.map((ch) => {
+      const ptsMax = maxPointsByChapter[ch.id]
+      const attMax = maxAttemptsByChapter[ch.id]
+      return {
+        header: `${ch.name ?? "-"}`,
+        columns: [
+          {
+            header: `${t("points")}${typeof ptsMax === "number" ? ` /${ptsMax}` : ""}`,
+            // eslint-disable-next-line i18next/no-literal-string
+            accessorKey: `ch_${ch.id}_points`,
+          },
+          {
+            header: `${t("attempts")}${typeof attMax === "number" ? ` /${attMax}` : ""}`,
+            // eslint-disable-next-line i18next/no-literal-string
+            accessorKey: `ch_${ch.id}_attempts`,
+            meta: { altBg: true },
+          },
+        ],
+      }
+    }),
   ]
 
-  // --- aggregate totals per user from exercise states
-  const totalsByUser: Record<string, { total_points: number; total_attempted: number }> = {}
-  for (const s of user_exercise_states) {
-    const uid = s.user_id
-    if (!totalsByUser[uid]) {
-      totalsByUser[uid] = { total_points: 0, total_attempted: 0 }
+  // --- aggregate per-user, per-chapter
+  const byUserChapter: Record<string, Record<string, { points: number; attempts: number }>> = {}
+  for (const p of user_chapter_progress) {
+    const uid = p.user_id
+    const chId = p.chapter_id
+    if (!byUserChapter[uid]) {
+      byUserChapter[uid] = {}
     }
-    totalsByUser[uid].total_attempted += 1
-    totalsByUser[uid].total_points += typeof s.score_given === "number" ? s.score_given : 0
+    byUserChapter[uid][chId] = {
+      points: round2(typeof p.points_obtained === "number" ? p.points_obtained : 0),
+      attempts: typeof p.exercises_attempted === "number" ? p.exercises_attempted : 0,
+    }
   }
 
+  // --- totals from same source
+  const totalsByUser: Record<string, { total_points: number; total_attempted: number }> = {}
+  for (const [uid, chapterMap] of Object.entries(byUserChapter)) {
+    let tp = 0
+    let ta = 0
+    for (const v of Object.values(chapterMap)) {
+      tp += v.points
+      ta += v.attempts
+    }
+    totalsByUser[uid] = { total_points: round2(tp), total_attempted: ta }
+  }
+
+  // --- rows
   const rows: ProgressRow[] = user_details.map((u) => {
     const totals = totalsByUser[u.user_id] ?? { total_points: 0, total_attempted: 0 }
-
     const row: ProgressRow = {
       student: formatUserName(u),
       total_points: totals.total_points,
       total_attempted: totals.total_attempted,
     }
 
-    // placeholders for dynamic chapter cells
     for (const ch of sortedChapters) {
       // eslint-disable-next-line i18next/no-literal-string
       const pointsKey: ChapterCellKey = `ch_${ch.id}_points`
       // eslint-disable-next-line i18next/no-literal-string
       const attemptsKey: ChapterCellKey = `ch_${ch.id}_attempts`
-      row[pointsKey] = undefined
-      row[attemptsKey] = undefined
+      const cell = byUserChapter[u.user_id]?.[ch.id]
+      row[pointsKey] = cell ? cell.points : 0
+      row[attemptsKey] = cell ? cell.attempts : 0
     }
-
     return row
   })
 

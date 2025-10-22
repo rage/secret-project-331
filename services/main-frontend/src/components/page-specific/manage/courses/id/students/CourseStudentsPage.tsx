@@ -111,7 +111,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
         <div className={styles.headerControlsSection}>
           <div className={styles.controlsRow}>
             <div className={styles.searchBoxWrap}>
-              <input className={styles.searchInput} placeholder="Search students..." />
+              <input className={styles.searchInput} placeholder={t("search-students")} />
               <span className={styles.searchIcon}>🔍</span>
             </div>
 

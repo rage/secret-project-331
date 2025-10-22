@@ -1,10 +1,9 @@
 import { css } from "@emotion/css"
-import React, { useContext } from "react"
+import React from "react"
 
 import { BlockRendererProps } from ".."
-import { GlossaryContext } from "../../../contexts/GlossaryContext"
-import { parseText } from "../util/textParsing"
 
+import ParsedText from "@/components/ParsedText"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -17,7 +16,6 @@ interface HighlightBoxAttributes {
 const HightlightBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HighlightBoxAttributes>>
 > = (props) => {
-  const { terms } = useContext(GlossaryContext)
   return (
     <>
       <div
@@ -51,22 +49,18 @@ const HightlightBlock: React.FC<
             }
           `}
         >
-          <span
-            className={css`
-              color: ${baseTheme.colors.green[700]};
-              font-weight: 700;
-              font-family: ${monospaceFont};
-            `}
-            dangerouslySetInnerHTML={{
-              __html: parseText(props.data.attributes.title, terms).parsedText,
+          <ParsedText
+            text={props.data.attributes.title}
+            tag="span"
+            tagProps={{
+              className: css`
+                color: ${baseTheme.colors.green[700]};
+                font-weight: 700;
+                font-family: ${monospaceFont};
+              `,
             }}
           />
-
-          <span
-            dangerouslySetInnerHTML={{
-              __html: parseText(props.data.attributes.content, terms).parsedText,
-            }}
-          />
+          <ParsedText text={props.data.attributes.content} tag="span" />
         </div>
       </div>
     </>

@@ -1,13 +1,12 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useContext } from "react"
+import React from "react"
 
-import { GlossaryContext } from "../contexts/GlossaryContext"
 import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "../utils/constants"
 import { escapeUrlForCss } from "../utils/sanitizeCourseMaterialHtml"
 
-import { parseText } from "./ContentRenderer/util/textParsing"
+import ParsedText from "./ParsedText"
 
 import { respondToOrLarger } from "@/shared-module/common//styles/respond"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -108,7 +107,6 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   const CENTER = "center"
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
-  const { terms } = useContext(GlossaryContext)
   // eslint-disable-next-line i18next/no-literal-string
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
@@ -183,17 +181,15 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
     >
       <TextBox color={fontColor} direction={direction}>
         <span className="chapter">{label}</span>
-        <h1
-          className={cx(INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS, flipClassName)}
-          dangerouslySetInnerHTML={{
-            __html: parseText(title, terms, { glossary: false }).parsedText,
+        <ParsedText
+          text={title}
+          tag="h1"
+          tagProps={{
+            className: cx(INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS, flipClassName),
           }}
+          options={{ glossary: false }}
         />
-        <span
-          dangerouslySetInnerHTML={{
-            __html: parseText(subtitle, terms, { glossary: false }).parsedText,
-          }}
-        />
+        <ParsedText text={subtitle} tag="span" options={{ glossary: false }} />
       </TextBox>
     </div>
   )

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { useContext, useMemo } from "react"
+import { useMemo } from "react"
 
 import { BlockRendererProps } from "../.."
 import {
@@ -7,9 +7,8 @@ import {
   Cells,
   TableAttributes,
 } from "../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../contexts/GlossaryContext"
-import { parseText } from "../../util/textParsing"
 
+import ParsedText from "@/components/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -43,7 +42,6 @@ const TableBlock: React.FC<
   }, [body])
   const shouldUseSmallerFont = hasManyColumns && dontAllowBlockToBeWiderThanContainerWidth
 
-  const { terms } = useContext(GlossaryContext)
   const isStriped = className === "is-style-stripes"
 
   const fetchAlignment = (align: string | undefined) => {
@@ -93,16 +91,14 @@ const TableBlock: React.FC<
               <tr key={j}>
                 {cellRows.cells &&
                   cellRows.cells.map((cell: CellAttributes, i) => (
-                    <th
-                      className={fetchAlignment(cell.align)}
+                    <ParsedText
                       key={i}
-                      colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
-                      rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
-                      dangerouslySetInnerHTML={{
-                        __html: parseText(
-                          cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
-                          terms,
-                        ).parsedText,
+                      text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                      tag="th"
+                      tagProps={{
+                        className: fetchAlignment(cell.align),
+                        colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                        rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
                     />
                   ))}
@@ -115,16 +111,14 @@ const TableBlock: React.FC<
             <tr key={j}>
               {cellRows.cells &&
                 cellRows.cells.map((cell: CellAttributes, i: number) => (
-                  <td
-                    className={fetchAlignment(cell.align)}
+                  <ParsedText
                     key={i}
-                    colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
-                    rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
-                    dangerouslySetInnerHTML={{
-                      __html: parseText(
-                        cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
-                        terms,
-                      ).parsedText,
+                    text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                    tag="td"
+                    tagProps={{
+                      className: fetchAlignment(cell.align),
+                      colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                      rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                     }}
                   />
                 ))}
@@ -137,16 +131,14 @@ const TableBlock: React.FC<
               <tr key={j}>
                 {cellRows.cells &&
                   cellRows.cells.map((cell: CellAttributes, i: number) => (
-                    <th
-                      className={fetchAlignment(cell.align)}
+                    <ParsedText
                       key={i}
-                      colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
-                      rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
-                      dangerouslySetInnerHTML={{
-                        __html: parseText(
-                          cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
-                          terms,
-                        ).parsedText,
+                      text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                      tag="th"
+                      tagProps={{
+                        className: fetchAlignment(cell.align),
+                        colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                        rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
                     />
                   ))}
@@ -154,14 +146,15 @@ const TableBlock: React.FC<
             ))}
           </tfoot>
         )}
-        <caption
-          className={css`
-            text-align: center;
-            font-size: 0.8125rem;
-            caption-side: bottom;
-          `}
-          dangerouslySetInnerHTML={{
-            __html: parseText(caption, terms).parsedText,
+        <ParsedText
+          text={caption}
+          tag="caption"
+          tagProps={{
+            className: css`
+              text-align: center;
+              font-size: 0.8125rem;
+              caption-side: bottom;
+            `,
           }}
         />
       </table>

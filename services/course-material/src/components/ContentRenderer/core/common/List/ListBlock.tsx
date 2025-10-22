@@ -1,12 +1,9 @@
 import { css, cx } from "@emotion/css"
-import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import { fontSizeMapper, mobileFontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
-import { parseText } from "../../../util/textParsing"
 
 import ParsedText from "@/components/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -30,8 +27,6 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     // type,
   } = props.data.attributes
 
-  const { terms } = useContext(GlossaryContext)
-
   const listItemClass = cx(
     css`
       ${fontSize && `font-size: ${mobileFontSizeMapper(fontSize)};`}
@@ -51,12 +46,31 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
   )
 
   const usesNewFormat = props.data.innerBlocks && props.data.innerBlocks.length > 0
-  let dangerouslySetInnerHTML = undefined
   let children = undefined
-  // We well use either children or dangerouslySetInnerHtml but not both at the same time
+  // This is for handling pages saved with an older version of Gutenberg, where list blocks did not have list item blocks as innerblocks but it had the list items as HTML strings.
   if (!usesNewFormat) {
-    dangerouslySetInnerHTML = {
-      __html: parseText(values, terms).parsedText,
+    if (ordered) {
+      return (
+        <ParsedText
+          text={values}
+          tag="ol"
+          tagProps={{
+            className: listItemClass,
+            ...(start && { start }),
+            reversed,
+          }}
+        />
+      )
+    } else {
+      return (
+        <ParsedText
+          text={values}
+          tag="ul"
+          tagProps={{
+            className: listItemClass,
+          }}
+        />
+      )
     }
   } else {
     children = <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
@@ -64,40 +78,12 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 
   if (ordered) {
     return (
-      <ParsedText
-        text={values}
-        tag="ol"
-        tagProps={{
-          className: listItemClass,
-          ...(start && { start: start }),
-          reversed: reversed,
-          dangerouslySetInnerHTML: dangerouslySetInnerHTML,
-          children: children,
-        }}
-      />
-      // ,{...(start && { start: start })}, reversed={reversed}, dangerouslySetInnerHTML={dangerouslySetInnerHTML}, children={children}}}/>
-
-      // <ol
-      //   className={listItemClass}
-      //   {...(start && { start: start })}
-      //   reversed={reversed}
-      //   dangerouslySetInnerHTML={dangerouslySetInnerHTML}
-      //   // eslint-disable-next-line react/no-children-prop
-      //   children={children}
-      //<ParsedText text={text} tag="p" />
-      // <ParsedText text={text} render={({ innerHtml }) => <span dangerouslySetInnerHTML={{ __html: innerHtml }} />} />
-      // />
+      <ol className={listItemClass} {...(start && { start: start })} reversed={reversed}>
+        {children}
+      </ol>
     )
   } else {
-    return (
-      // eslint-disable-next-line react/no-danger-with-children
-      <ul
-        className={listItemClass}
-        dangerouslySetInnerHTML={dangerouslySetInnerHTML}
-        // eslint-disable-next-line react/no-children-prop
-        children={children}
-      />
-    )
+    return <ul className={listItemClass}>{children}</ul>
   }
 }
 

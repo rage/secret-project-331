@@ -1,14 +1,13 @@
 import { useAtom } from "jotai"
-import React, { useContext, useMemo } from "react"
+import React from "react"
 
 import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
-import { parseText } from "../../../util/textParsing"
 
 import EditingParagraph from "./proposing-edits/EditingParagraph"
 import { getParagraphStyles } from "./styles"
 
+import ParsedText from "@/components/ParsedText"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentlyOpenFeedbackDialogAtom } from "@/stores/materialFeedbackStore"
@@ -29,28 +28,31 @@ const ParagraphBlock: React.FC<
   const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
   const isEditing = type === "proposed-edits"
 
-  const { terms } = useContext(GlossaryContext)
-  const parsedTextResult = useMemo(() => parseText(content, terms), [content, terms])
-  const { count, parsedText, hasCitationsOrGlossary } = parsedTextResult
-  const ParagraphComponent = useMemo(() => (count > 0 ? LatexParagraph : P), [count])
-  const hideOverflow = useMemo(() => !hasCitationsOrGlossary, [hasCitationsOrGlossary])
-
   if (isEditing) {
     return <EditingParagraph data={data} id={id} />
   }
 
   return (
-    <ParagraphComponent
-      className={getParagraphStyles(
-        textColor,
-        backgroundColor,
-        fontSize,
-        hideOverflow,
-        dropCap,
-        align,
-      )}
-      dangerouslySetInnerHTML={{
-        __html: parsedText,
+    <ParsedText
+      text={content}
+      render={({ __html, count, hasCitationsOrGlossary }) => {
+        const ParagraphComponent = count > 0 ? LatexParagraph : P
+        const hideOverflow = !hasCitationsOrGlossary
+        return (
+          <ParagraphComponent
+            className={getParagraphStyles(
+              textColor,
+              backgroundColor,
+              fontSize,
+              hideOverflow,
+              dropCap,
+              align,
+            )}
+            dangerouslySetInnerHTML={{
+              __html,
+            }}
+          />
+        )
       }}
     />
   )

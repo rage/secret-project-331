@@ -276,6 +276,7 @@ const config = [
               "align",
               "slot",
               "tag",
+              "text",
             ],
           },
           words: {

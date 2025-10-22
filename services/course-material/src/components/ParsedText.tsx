@@ -8,11 +8,22 @@ import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 type Tag = keyof JSX.IntrinsicElements
 
 type ParsedTextProps<T extends Tag> =
-  | { text: string; tag: T; tagProps: JSX.IntrinsicElements[T]; render?: undefined }
   | {
-      text: string
-      render: ({ __html }: { __html: string }) => React.ReactElement
+      text: string | undefined
+      tag: T
+      tagProps?: JSX.IntrinsicElements[T]
+      render?: undefined
+      options?: { glossary: boolean }
+    }
+  | {
+      text: string | undefined
+      render: (rendered: {
+        __html: string
+        count: number
+        hasCitationsOrGlossary: boolean
+      }) => React.ReactElement
       tag?: undefined
+      options?: { glossary: boolean }
     }
 
 /**
@@ -42,19 +53,24 @@ type ParsedTextProps<T extends Tag> =
 const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
 
-  const sanitized = useMemo(() => {
-    const parsedText = parseText(props.text, terms).parsedText
-    return sanitizeCourseMaterialHtml(parsedText)
-  }, [props.text, terms])
+  const parsedTextResult = useMemo(() => {
+    const res = parseText(props.text, terms, props.options)
+    const parsedText = sanitizeCourseMaterialHtml(res.parsedText)
+    return { ...res, parsedText }
+  }, [props.text, terms, props.options])
 
   if (props.render) {
-    return props.render({ __html: sanitized })
+    return props.render({
+      __html: parsedTextResult.parsedText,
+      count: parsedTextResult.count,
+      hasCitationsOrGlossary: parsedTextResult.hasCitationsOrGlossary,
+    })
   }
 
   const Tag: T = props.tag
 
   return createElement(Tag, {
-    dangerouslySetInnerHTML: { __html: sanitized },
+    dangerouslySetInnerHTML: { __html: parsedTextResult.parsedText },
     ...props.tagProps,
   })
 }

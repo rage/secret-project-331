@@ -1,11 +1,10 @@
 import { css } from "@emotion/css"
-import React, { useContext } from "react"
+import React from "react"
 
 import { BlockRendererProps } from ".."
-import { GlossaryContext } from "../../../contexts/GlossaryContext"
 import InnerBlocks from "../util/InnerBlocks"
-import { parseText } from "../util/textParsing"
 
+import ParsedText from "@/components/ParsedText"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -18,7 +17,6 @@ interface AsideWithImageBlockAttributes {
 const AsideWithImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<AsideWithImageBlockAttributes>>
 > = (props) => {
-  const { terms } = useContext(GlossaryContext)
   return (
     <div
       className={css`
@@ -73,19 +71,16 @@ const AsideWithImageBlock: React.FC<
     >
       <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       <div>
-        <h4
-          dangerouslySetInnerHTML={{
-            __html: parseText(props.data.attributes.title, terms).parsedText,
-          }}
-        />
-        <p
-          className={css`
-            font-size: 1rem;
-            line-height: 100%;
-            font-weight: 400;
-          `}
-          dangerouslySetInnerHTML={{
-            __html: parseText(props.data.attributes.content, terms).parsedText,
+        <ParsedText text={props.data.attributes.title} tag="h4" />
+        <ParsedText
+          text={props.data.attributes.content}
+          tag="p"
+          tagProps={{
+            className: css`
+              font-size: 1rem;
+              line-height: 100%;
+              font-weight: 400;
+            `,
           }}
         />
       </div>

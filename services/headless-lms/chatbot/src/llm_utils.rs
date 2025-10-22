@@ -263,8 +263,7 @@ pub async fn make_blocking_llm_request(
 
     let api_endpoint = chatbot_config
         .api_endpoint
-        .join("gpt-4o")?
-        .join("/chat/completions")?;
+        .join("gpt-4o/chat/completions")?;
 
     trace!("Making LLM request to endpoint: {}", api_endpoint);
     make_llm_request(chat_request, &api_endpoint, &chatbot_config.api_key).await

@@ -157,7 +157,7 @@ const UserSettings: React.FC = () => {
                     {course.data?.course_name}:
                   </p>
                   <a
-                    href={`org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
+                    href={`/org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
                   >
                     <Button size="medium" variant="primary">
                       {t("edit")}

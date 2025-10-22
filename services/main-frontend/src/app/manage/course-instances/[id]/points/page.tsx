@@ -82,7 +82,6 @@ const CourseInstancePointsList: React.FC = () => {
         className={css`
           font-size: 45px;
           line-height: 45px;
-          text-transform: capitalize.;
         `}
       >
         {t("point-summary")}: {courseInstanceId}

@@ -110,7 +110,6 @@ export function FloatingHeaderTable<T extends object>({
     }
     latestScrollLeftRef.current = x
     if (stickyTableRef.current) {
-      // eslint-disable-next-line i18next/no-literal-string
       stickyTableRef.current.style.transform = `translateX(-${x}px)`
     }
   }, [])
@@ -140,7 +139,6 @@ export function FloatingHeaderTable<T extends object>({
     if (!tableRef.current) {
       return
     }
-    // eslint-disable-next-line i18next/no-literal-string
     const ths = tableRef.current.querySelectorAll<HTMLTableCellElement>("thead tr:first-of-type th")
     if (!ths.length) {
       return
@@ -321,24 +319,18 @@ export function FloatingHeaderTable<T extends object>({
         const clonedHead = srcThead.cloneNode(true) as HTMLTableSectionElement
 
         // read leaf widths from source
-        // eslint-disable-next-line i18next/no-literal-string
         const srcLeafThs = srcTable.querySelectorAll("thead tr:last-of-type th")
         const leafWidths = Array.from(srcLeafThs).map((th) => th.getBoundingClientRect().width)
 
         // apply to cloned leaves
-        // eslint-disable-next-line i18next/no-literal-string
         const clonedLeafThs = clonedHead.querySelectorAll("tr:last-of-type th")
         clonedLeafThs.forEach((th, i) => {
           const w = leafWidths[i]
           if (typeof w === "number") {
             const el = th as HTMLTableCellElement
-            // eslint-disable-next-line i18next/no-literal-string
             el.style.width = `${w}px`
-            // eslint-disable-next-line i18next/no-literal-string
             el.style.minWidth = `${w}px`
-            // eslint-disable-next-line i18next/no-literal-string
             el.style.maxWidth = `${w}px`
-            // eslint-disable-next-line i18next/no-literal-string
             el.style.boxSizing = "border-box"
           }
         })
@@ -347,20 +339,16 @@ export function FloatingHeaderTable<T extends object>({
         const clonedGroupRow = clonedHead.querySelector("tr:first-of-type")
         if (clonedGroupRow) {
           let cursor = 0
-          // eslint-disable-next-line i18next/no-literal-string
+
           clonedGroupRow.querySelectorAll("th").forEach((th) => {
             const el = th as HTMLTableCellElement
             const colSpan = Number(el.colSpan || 1)
             const sum = leafWidths.slice(cursor, cursor + colSpan).reduce((a, b) => a + b, 0)
             cursor += colSpan
             if (sum > 0) {
-              // eslint-disable-next-line i18next/no-literal-string
               el.style.width = `${sum}px`
-              // eslint-disable-next-line i18next/no-literal-string
               el.style.minWidth = `${sum}px`
-              // eslint-disable-next-line i18next/no-literal-string
               el.style.maxWidth = `${sum}px`
-              // eslint-disable-next-line i18next/no-literal-string
               el.style.boxSizing = "border-box"
             }
           })
@@ -369,13 +357,11 @@ export function FloatingHeaderTable<T extends object>({
         // mount clone + freeze table width
         dstTable.appendChild(clonedHead)
         const tableW = srcTable.getBoundingClientRect().width
-        // eslint-disable-next-line i18next/no-literal-string
         dstTable.style.width = `${tableW}px`
 
         // sync transform with current scroll
         const wrap = wrapRef.current
         if (wrap) {
-          // eslint-disable-next-line i18next/no-literal-string
           dstTable.style.transform = `translateX(-${wrap.scrollLeft}px)`
         }
       }

@@ -597,6 +597,98 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserChapterProgress {
+    pub user_id: Uuid,
+    pub chapter_id: Uuid,
+    pub chapter_number: i32,
+    pub chapter_name: String,
+    pub points_obtained: f64,
+    pub exercises_attempted: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ChapterAvailability {
+    pub chapter_id: Uuid,
+    pub chapter_number: i32,
+    pub chapter_name: String,
+    pub exercises_available: i64,
+    pub points_available: i64,
+}
+
+pub async fn fetch_user_chapter_progress(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserChapterProgress>> {
+    let rows = sqlx::query_as!(
+        UserChapterProgress,
+        r#"
+WITH base AS (
+  SELECT ues.user_id,
+    ex.chapter_id,
+    ues.exercise_id,
+    COALESCE(ues.score_given, 0)::double precision AS points
+  FROM user_exercise_states ues
+    JOIN exercises ex ON ex.id = ues.exercise_id
+  WHERE ues.course_id = $1
+    AND ues.deleted_at IS NULL
+    AND ex.deleted_at IS NULL
+)
+SELECT b.user_id AS user_id,
+  c.id AS chapter_id,
+  c.chapter_number AS chapter_number,
+  c.name AS chapter_name,
+  COALESCE(SUM(b.points), 0)::double precision AS "points_obtained!",
+  COALESCE(COUNT(DISTINCT b.exercise_id), 0)::bigint AS "exercises_attempted!"
+FROM base b
+  JOIN chapters c ON c.id = b.chapter_id
+GROUP BY b.user_id,
+  c.id,
+  c.chapter_number,
+  c.name
+ORDER BY b.user_id,
+  c.chapter_number
+        "#,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok(rows)
+}
+
+pub async fn fetch_chapter_availability(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ChapterAvailability>> {
+    let rows = sqlx::query_as!(
+        ChapterAvailability,
+        r#"
+SELECT c.id AS chapter_id,
+  c.chapter_number AS chapter_number,
+  c.name AS chapter_name,
+  COALESCE(COUNT(ex.id), 0)::bigint AS "exercises_available!",
+  COALESCE(COUNT(ex.id), 0)::bigint AS "points_available!"
+FROM chapters c
+  JOIN exercises ex ON ex.chapter_id = c.id
+WHERE c.course_id = $1
+  AND c.deleted_at IS NULL
+  AND ex.deleted_at IS NULL
+GROUP BY c.id,
+  c.chapter_number,
+  c.name
+ORDER BY c.chapter_number
+        "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(rows)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

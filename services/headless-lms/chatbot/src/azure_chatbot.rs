@@ -237,7 +237,7 @@ impl LLMRequest {
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
 
-        let params = if configuration.thinking_model {
+        let params = if let Some(true) = configuration.thinking_model {
             LLMRequestParams::Thinking(ThinkingParams {
                 max_completion_tokens: Some(configuration.max_completion_tokens),
                 reasoning_effort: Some(configuration.reasoning_effort),

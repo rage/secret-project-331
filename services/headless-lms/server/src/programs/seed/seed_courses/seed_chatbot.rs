@@ -68,8 +68,8 @@ pub async fn seed_chatbot_course(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             hide_citations: false,
-            model: Uuid::parse_str("22ba6c35-7e71-4c1d-ae26-5cf94201a6ee")?,
-            thinking_model: false,
+            model: Some(Uuid::parse_str("22ba6c35-7e71-4c1d-ae26-5cf94201a6ee")?),
+            thinking_model: Some(false),
             default_chatbot: true,
             ..Default::default()
         })
@@ -82,7 +82,7 @@ pub async fn seed_chatbot_course(
             initial_message: "Haiii xD What's up?".to_string(),
             use_azure_search: true,
             hide_citations: false,
-            model: Uuid::parse_str("22ba6c35-7e71-4c1d-ae26-5cf94201a6ee")?,
+            model: Some(Uuid::parse_str("22ba6c35-7e71-4c1d-ae26-5cf94201a6ee")?),
             ..Default::default()})
         .role(seed_users_result.teacher_user_id, UserRole::Teacher)
         .module(

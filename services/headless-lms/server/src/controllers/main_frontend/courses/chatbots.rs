@@ -49,7 +49,7 @@ async fn create_chatbot(
         NewChatbotConf {
             chatbot_name: payload.into_inner(),
             course_id: *course_id,
-            model: model.id,
+            model: Some(model.id),
             ..Default::default()
         },
     )

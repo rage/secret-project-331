@@ -92,11 +92,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   useEffect(() => {
     if (getChatbotModelsList.data) {
       setSelectedModel(
-        assertNotNullOrUndefined(
-          getChatbotModelsList.data.find((m) => {
-            return m.id == modelFieldValue
-          }),
-        ),
+        getChatbotModelsList.data.find((m) => {
+          return m.id == modelFieldValue
+        }) ?? null,
       )
     }
   }, [modelFieldValue, getChatbotModelsList.data])
@@ -134,7 +132,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const onConfigureChatbotWrapper = handleSubmit((data) => {
     // if the model is thinking or called model-router, force search to be off
-    let azure_search = assertNotNullOrUndefined(selectedModel?.thinking)
+    let azure_search = selectedModel?.thinking
       ? false
       : selectedModel?.model === "model-router"
         ? false
@@ -143,7 +141,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
-      model: data.model,
+      model: (data.model?.length ?? 0 > 0) ? data.model : null,
       enabled_to_students: data.enabled_to_students,
       prompt: data.prompt,
       initial_message: data.initial_message,
@@ -157,7 +155,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       max_completion_tokens: +data.max_completion_tokens,
       reasoning_effort: data.reasoning_effort,
       verbosity: data.verbosity,
-      thinking_model: assertNotNullOrUndefined(selectedModel?.thinking),
+      thinking_model: selectedModel?.thinking ?? null,
       use_azure_search: azure_search,
       // right now use_azure_search requires the next field to be true and there is no need for it to
       // be true if azure search is false, so set them as the same value

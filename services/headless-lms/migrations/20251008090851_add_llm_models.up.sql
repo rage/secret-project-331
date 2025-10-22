@@ -46,31 +46,3 @@ COMMENT ON COLUMN chatbot_configurations.max_completion_tokens IS 'The max. numb
 COMMENT ON COLUMN chatbot_configurations.response_max_tokens IS 'The maximum number of tokens the chatbot can output in a response, i.e. maximum response length in tokens. Only used with non-reasoning models.';
 COMMENT ON COLUMN chatbot_configurations.verbosity IS 'Verbosity of the generated response, with a higher level meaning that the model is more likely to generate longer responses and vice versa. Only used with reasoning models.';
 COMMENT ON COLUMN chatbot_configurations.reasoning_effort IS 'Controls the amount of effort (time, tokens) used in the reasoning phase of response generations. A lower level means the model is more likely to use less tokens in reasoning (thinking). A low reasoning effort level will likely negatively affect how successful the model is in tasks that require complicated planning, reasoning, or complicated tool use. Only used with reasoning models.';
-
--- delete this ----------------------------------------------------------------
-INSERT INTO chatbot_configurations_models (
-    id,
-    model,
-    thinking,
-    deployment_name,
-    default_model
-  )
-VALUES (
-    '22ba6c35-7e71-4c1d-ae26-5cf94201a6ee',
-    'gpt-4o',
-    FALSE,
-    'gpt-4o',
-    TRUE
-  );
-
-UPDATE chatbot_configurations
-SET model = '22ba6c35-7e71-4c1d-ae26-5cf94201a6ee',
-  thinking_model = FALSE
-WHERE TRUE;
-
------------------------------------------------------------------------------
-ALTER TABLE chatbot_configurations
-ALTER COLUMN model
-SET NOT NULL,
-  ALTER COLUMN thinking_model
-SET NOT NULL;

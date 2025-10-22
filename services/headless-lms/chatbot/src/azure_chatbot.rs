@@ -451,7 +451,7 @@ pub async fn send_chat_request_and_parse_stream(
     };
 
     let response =
-        make_streaming_llm_request(chat_request, &model.deployment_name, &app_config).await?;
+        make_streaming_llm_request(chat_request, &model.deployment_name, app_config).await?;
 
     info!("Receiving chat response with {:?}", response.version());
 

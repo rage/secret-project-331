@@ -133,6 +133,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   )
 
   const onConfigureChatbotWrapper = handleSubmit((data) => {
+    // if the model is thinking or called model-router, force search to be off
     let azure_search = assertNotNullOrUndefined(selectedModel?.thinking)
       ? false
       : selectedModel?.model === "model-router"

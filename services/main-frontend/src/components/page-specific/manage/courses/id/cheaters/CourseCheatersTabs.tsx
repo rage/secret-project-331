@@ -136,10 +136,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                   <td>
                     {" "}
                     <Link
-                      href={{
-                        pathname: "/manage/users/[userId]",
-                        query: { userId: user_id },
-                      }}
+                      href={`/manage/users/${user_id}`}
                       className={css`
                         text-decoration: none;
                       `}

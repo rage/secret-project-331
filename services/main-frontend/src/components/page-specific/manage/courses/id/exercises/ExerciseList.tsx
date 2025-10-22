@@ -171,12 +171,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                                 line-height: 160%;
                               `}
                             >
-                              <Link
-                                href={{
-                                  pathname: "/manage/exercises/[exerciseId]/submissions",
-                                  query: { exerciseId: exercise.id },
-                                }}
-                              >
+                              <Link href={`/manage/exercises/${exercise.id}/submissions`}>
                                 {exercise.name} {exercise.count}
                               </Link>
                             </div>
@@ -194,11 +189,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                                     border-radius: 100px;
                                     padding: 3px 16px 5px;
                                   `}
-                                  href={{
-                                    pathname:
-                                      "/manage/exercises/[exerciseId]/answers-requiring-attention",
-                                    query: { exerciseId: exercise.id },
-                                  }}
+                                  href={`/manage/exercises/${exercise.id}/answers-requiring-attention`}
                                 >
                                   {t("link-view-answers-requiring-attention")}
                                 </Link>

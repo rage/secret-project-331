@@ -149,12 +149,7 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
                       text-align: center !important;
                     `}
                   >
-                    <Link
-                      href={{
-                        pathname: "/submissions/[id]",
-                        query: { id: x.id },
-                      }}
-                    >
+                    <Link href={`/submissions/${x.id}`}>
                       <LinkIcon
                         size={20}
                         className={css`

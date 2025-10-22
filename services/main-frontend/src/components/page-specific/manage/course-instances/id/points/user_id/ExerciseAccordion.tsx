@@ -278,12 +278,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                           `}
                         >
                           <Link
-                            href={{
-                              pathname: "/submissions/[submissionId]",
-                              query: {
-                                submissionId: exerciseSlideSubmission.id,
-                              },
-                            }}
+                            href={`/submissions/${exerciseSlideSubmission.id}`}
                             className={css`
                               color: ${baseTheme.colors.blue[600]};
                               text-decoration: none;

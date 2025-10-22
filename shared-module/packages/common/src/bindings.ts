@@ -191,6 +191,23 @@ export interface UserCourseInstanceChapterProgress {
   attempted_exercises: number | null
 }
 
+export interface ChapterAvailability {
+  chapter_id: string
+  chapter_number: number
+  chapter_name: string
+  exercises_available: number
+  points_available: number
+}
+
+export interface UserChapterProgress {
+  user_id: string
+  chapter_id: string
+  chapter_number: number
+  chapter_name: string
+  points_obtained: number
+  exercises_attempted: number
+}
+
 export interface ChatbotConfiguration {
   id: string
   created_at: string
@@ -1370,6 +1387,8 @@ export interface ProgressOverview {
   user_details: Array<UserDetail>
   chapters: Array<DatabaseChapter>
   user_exercise_states: Array<UserExerciseState>
+  chapter_availability: Array<ChapterAvailability>
+  user_chapter_progress: Array<UserChapterProgress>
 }
 
 export interface UserMarketingConsent {

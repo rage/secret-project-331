@@ -16,6 +16,8 @@ const tableSection = css({
   paddingRight: "5vw",
 })
 
+const DOWN_SYMBOL = "▼"
+
 // ---- Tabs
 const TAB_USER = "User"
 const TAB_COMPLETIONS = "Completions"
@@ -100,8 +102,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
             </div>
             <div className={styles.dropdownTop}>
               {t("all-instances")}
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              <span className={styles.dropdownIcon}>▼</span>
+              <span className={styles.dropdownIcon}>{DOWN_SYMBOL}</span>
             </div>
           </div>
           <hr className={styles.divider} />

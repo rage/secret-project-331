@@ -51,6 +51,8 @@ export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId })
     return <ErrorBanner error={query.error} />
   }
 
+  console.log(query) // =======================> DELETE LATER <====================
+
   const { user_details, chapters, user_exercise_states } = query.data as {
     user_details: ProgressUser[]
     chapters: ProgressChapter[]

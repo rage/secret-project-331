@@ -123,12 +123,12 @@ export const ProgressTabContent: React.FC<{ courseId: string }> = ({ courseId })
         header: `${ch.name ?? "-"}`,
         columns: [
           {
-            header: `${t("points")}${typeof ptsMax === "number" ? ` /${ptsMax}` : ""}`,
+            header: `${t("points")} /${ptsMax ?? "0"}`,
             // eslint-disable-next-line i18next/no-literal-string
             accessorKey: `ch_${ch.id}_points`,
           },
           {
-            header: `${t("attempts")}${typeof attMax === "number" ? ` /${attMax}` : ""}`,
+            header: `${t("attempts")} /${attMax ?? "0"}`,
             // eslint-disable-next-line i18next/no-literal-string
             accessorKey: `ch_${ch.id}_attempts`,
             meta: { altBg: true },

@@ -77,3 +77,19 @@ AND deleted_at IS NULL
     .await?;
     Ok(res)
 }
+
+pub async fn insert_mock_model(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+) -> ModelResult<ChatbotConfigurationModel> {
+    let res = sqlx::query_as!(
+        ChatbotConfigurationModel,
+        r#"
+INSERT INTO chatbot_configurations_models (id, model, thinking, deployment_name, default_model) VALUES ($1, 'mock-gpt', FALSE, 'mock-gpt', TRUE) RETURNING *
+        "#,
+        pkey_policy.into_uuid(),
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

@@ -3,6 +3,7 @@ use std::sync::Arc;
 use headless_lms_models::{
     PKeyPolicy,
     chatbot_configurations::{self, NewChatbotConf},
+    chatbot_configurations_models,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -341,6 +342,9 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let llm =
+        chatbot_configurations_models::insert_mock_model(&mut conn, PKeyPolicy::Generate).await?;
+
     chatbot_configurations::insert(
         &mut conn,
         PKeyPolicy::Generate,
@@ -352,8 +356,8 @@ pub async fn seed_organization_uh_mathstat(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             default_chatbot: true,
-            model: Some(Uuid::parse_str("22ba6c35-7e71-4c1d-ae26-5cf94201a6ee")?),
-            thinking_model: Some(false),
+            model: Some(llm.id),
+            thinking_model: Some(llm.thinking),
             ..Default::default()
         },
     )

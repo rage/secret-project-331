@@ -13,6 +13,15 @@ pub struct ChatbotConfigurationModel {
     pub deployment_name: String,
 }
 
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
+pub struct NewChatbotConfigurationModel {
+    pub id: Uuid,
+    pub model: String,
+    pub thinking: bool,
+    pub default_model: bool,
+    pub deployment_name: String,
+}
+
 pub async fn get_by_id(
     conn: &mut PgConnection,
     id: Uuid,
@@ -78,17 +87,20 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
-//* Inserts one default mock model into the db for testing */
-pub async fn insert_default_mock_model(
+pub async fn insert(
     conn: &mut PgConnection,
-    pkey_policy: PKeyPolicy<Uuid>,
+    input: NewChatbotConfigurationModel,
 ) -> ModelResult<ChatbotConfigurationModel> {
     let res = sqlx::query_as!(
         ChatbotConfigurationModel,
         r#"
-INSERT INTO chatbot_configurations_models (id, model, thinking, deployment_name, default_model) VALUES ($1, 'mock-gpt', FALSE, 'mock-gpt', TRUE) RETURNING *
+INSERT INTO chatbot_configurations_models (id, model, thinking, deployment_name, default_model) VALUES ($1, $2, $3, $4, $5) RETURNING *
         "#,
-        pkey_policy.into_uuid(),
+        input.id,
+        input.model,
+        input.thinking,
+        input.deployment_name,
+        input.default_model,
     )
     .fetch_one(conn)
     .await?;

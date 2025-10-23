@@ -1,4 +1,3 @@
--- Add up migration script here
 CREATE TABLE chatbot_configurations_models (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   model VARCHAR(255) NOT NULL,
@@ -32,9 +31,9 @@ CREATE TYPE verbosity_level AS ENUM ('low', 'medium', 'high');
 
 
 ALTER TABLE chatbot_configurations -- these are set not null later
-ADD COLUMN model UUID REFERENCES chatbot_configurations_models(id) ON DELETE CASCADE,
+ADD COLUMN model UUID,
   ADD COLUMN thinking_model BOOLEAN,
-  ADD CONSTRAINT thinking_model_constraint FOREIGN KEY (model, thinking_model) REFERENCES chatbot_configurations_models (id, thinking);
+  ADD CONSTRAINT chatbot_configurations_models_fk FOREIGN KEY (model, thinking_model) REFERENCES chatbot_configurations_models (id, thinking);
 
 ALTER TABLE chatbot_configurations
 ADD COLUMN max_completion_tokens INT NOT NULL DEFAULT 600,

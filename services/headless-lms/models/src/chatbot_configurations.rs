@@ -38,16 +38,13 @@ pub struct ChatbotConfiguration {
     pub weekly_tokens_per_user: i32,
     pub daily_tokens_per_user: i32,
     pub response_max_tokens: i32,
-    //
     pub temperature: f32,
     pub top_p: f32,
     pub frequency_penalty: f32,
     pub presence_penalty: f32,
-    //
     pub max_completion_tokens: i32,
     pub verbosity: VerbosityLevel,
     pub reasoning_effort: ReasoningEffortLevel,
-    //
     pub use_azure_search: bool,
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
@@ -72,16 +69,13 @@ impl Default for ChatbotConfiguration {
             weekly_tokens_per_user: 20000 * 5,
             daily_tokens_per_user: 20000,
             response_max_tokens: 500,
-            //
             temperature: 0.7,
             top_p: 1.0,
             frequency_penalty: 0.0,
             presence_penalty: 0.0,
-            //
             max_completion_tokens: 600,
             reasoning_effort: ReasoningEffortLevel::Minimal,
             verbosity: VerbosityLevel::Medium,
-            //
             use_azure_search: false,
             maintain_azure_search_index: false,
             hide_citations: false,
@@ -104,16 +98,13 @@ pub struct NewChatbotConf {
     pub weekly_tokens_per_user: i32,
     pub daily_tokens_per_user: i32,
     pub response_max_tokens: i32,
-    //
     pub temperature: f32,
     pub top_p: f32,
     pub frequency_penalty: f32,
     pub presence_penalty: f32,
-    //
     pub max_completion_tokens: i32,
     pub verbosity: VerbosityLevel,
     pub reasoning_effort: ReasoningEffortLevel,
-    //
     pub use_azure_search: bool,
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
@@ -136,16 +127,13 @@ impl Default for NewChatbotConf {
             weekly_tokens_per_user: chatbot_conf.weekly_tokens_per_user,
             daily_tokens_per_user: chatbot_conf.daily_tokens_per_user,
             response_max_tokens: chatbot_conf.response_max_tokens,
-            //
             temperature: chatbot_conf.temperature,
             top_p: chatbot_conf.top_p,
             frequency_penalty: chatbot_conf.frequency_penalty,
             presence_penalty: chatbot_conf.presence_penalty,
-            //
             max_completion_tokens: chatbot_conf.max_completion_tokens,
             verbosity: chatbot_conf.verbosity,
             reasoning_effort: chatbot_conf.reasoning_effort,
-            //
             use_azure_search: chatbot_conf.use_azure_search,
             maintain_azure_search_index: chatbot_conf.maintain_azure_search_index,
             hide_citations: chatbot_conf.hide_citations,

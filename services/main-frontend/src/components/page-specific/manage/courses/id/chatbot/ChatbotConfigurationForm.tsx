@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -27,6 +27,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
+import { emptyStringToNull } from "@/utils/emptyStringToNull"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -57,7 +58,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const { t } = useTranslation()
   const router = useRouter()
   const { confirm } = useDialog()
-  const [selectedModel, setSelectedModel] = useState<null | ChatbotConfigurationModel>(null)
   const {
     register,
     handleSubmit,
@@ -95,15 +95,14 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const modelFieldValue = watch("model")
 
-  useEffect(() => {
-    if (getChatbotModelsList.data) {
-      setSelectedModel(
-        getChatbotModelsList.data.find((m) => {
-          return m.id === modelFieldValue
-        }) ?? null,
-      )
-    }
-  }, [modelFieldValue, getChatbotModelsList.data])
+  let selectedModel: ChatbotConfigurationModel | null = null
+
+  if (getChatbotModelsList.data) {
+    selectedModel =
+      getChatbotModelsList.data.find((m) => {
+        return m.id === modelFieldValue
+      }) ?? null
+  }
 
   const configureChatbotMutation = useToastMutation(
     async (bot: NewChatbotConf) => {
@@ -138,16 +137,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const onConfigureChatbotWrapper = handleSubmit((data) => {
     // if the model is thinking or called model-router, force search to be off
-    let azure_search = selectedModel?.thinking
-      ? false
-      : selectedModel?.model === "model-router"
+    let azure_search =
+      selectedModel?.thinking || selectedModel?.model === "model-router"
         ? false
         : data.use_azure_search
 
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
-      model: (data.model?.length ?? 0) > 0 ? data.model : null,
+      model: emptyStringToNull(data.model),
       enabled_to_students: data.enabled_to_students,
       prompt: data.prompt,
       initial_message: data.initial_message,
@@ -232,9 +230,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 label={t("select-verbosity")}
                 error={errors.verbosity?.message}
                 options={[
-                  { value: LOW, label: t("low") },
-                  { value: MEDIUM, label: t("medium") },
-                  { value: HIGH, label: t("high") },
+                  { value: LOW, label: t("reasoning-effort-low") },
+                  { value: MEDIUM, label: t("reasoning-effort-medium") },
+                  { value: HIGH, label: t("reasoning-effort-high") },
                 ]}
                 disabled={!selectedModel?.thinking}
                 showDefaultOption={false}
@@ -245,10 +243,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 label={t("select-reasoning-effort")}
                 error={errors.reasoning_effort?.message}
                 options={[
-                  { value: MINIMAL, label: t("minimal") },
-                  { value: LOW, label: t("low") },
-                  { value: MEDIUM, label: t("medium") },
-                  { value: HIGH, label: t("high") },
+                  { value: MINIMAL, label: t("reasoning-effort-minimal") },
+                  { value: LOW, label: t("reasoning-effort-low") },
+                  { value: MEDIUM, label: t("reasoning-effort-medium") },
+                  { value: HIGH, label: t("reasoning-effort-high") },
                 ]}
                 disabled={!selectedModel?.thinking}
                 showDefaultOption={false}
@@ -342,7 +340,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           type="number"
                           label={t("max-token-response")}
                           error={errors.response_max_tokens?.message}
-                          {...register("response_max_tokens")}
+                          {...register("response_max_tokens", { required: t("required-field") })}
                         />
                         <h4>{t("configure-penalty")}</h4>
                         <TextField

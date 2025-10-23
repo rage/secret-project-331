@@ -499,7 +499,6 @@ pub async fn send_chat_request_and_parse_stream(
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
 
-
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {
                     if let Some(content) = &delta.content {

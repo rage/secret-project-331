@@ -1,4 +1,3 @@
--- Add down migration script here
 ALTER TABLE chatbot_configurations DROP COLUMN model,
   DROP COLUMN max_completion_tokens,
   DROP COLUMN verbosity,

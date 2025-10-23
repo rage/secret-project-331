@@ -618,6 +618,15 @@ pub struct ChapterAvailability {
     pub points_available: i64,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseUserInfo {
+    pub name: String,
+    pub user_id: Uuid,
+    pub email: Option<String>,
+    pub course_instance: Uuid,
+}
+
 pub async fn fetch_user_chapter_progress(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -684,6 +693,36 @@ ORDER BY c.chapter_number
         course_id
     )
     .fetch_all(conn)
+    .await?;
+
+    Ok(rows)
+}
+
+pub async fn fetch_course_users(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseUserInfo>> {
+    let rows = sqlx::query_as!(
+        CourseUserInfo,
+        r#"
+SELECT
+  COALESCE(
+    NULLIF(TRIM(COALESCE(ud.first_name, '') || ' ' || COALESCE(ud.last_name, '')), ''),
+    '(Missing Name)'
+  )                           AS "name!",
+  u.id                        AS user_id,
+  ud.email                    AS email,
+  cie.course_instance_id      AS course_instance
+FROM course_instance_enrollments AS cie
+JOIN users              AS u  ON u.id = cie.user_id
+LEFT JOIN user_details  AS ud ON ud.user_id = u.id
+WHERE cie.course_id = $1
+  AND cie.deleted_at IS NULL
+ORDER BY 1, user_id  -- ✅ order by column position instead of name
+        "#,
+        course_id
+    )
+    .fetch_all(&mut *conn)
     .await?;
 
     Ok(rows)

@@ -85,7 +85,7 @@ const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) =
   }
 
   const tabContentMap: { [k in (typeof TAB_LIST)[number]]: React.ReactNode } = {
-    [TAB_USER]: <UserTabContent />,
+    [TAB_USER]: courseId ? <UserTabContent courseId={courseId} /> : null,
     [TAB_COMPLETIONS]: <CompletionsTabContent />,
     [TAB_PROGRESS]: courseId ? <ProgressTabContent courseId={courseId} /> : null,
     [TAB_CERTIFICATES]: <CertificatesTabContent />,

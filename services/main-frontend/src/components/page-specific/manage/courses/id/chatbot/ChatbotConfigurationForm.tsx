@@ -113,6 +113,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
+      chatbotconf_id: null,
     })
   })
 

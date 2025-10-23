@@ -1,10 +1,9 @@
 use actix_web::HttpRequest;
 use async_trait::async_trait;
 use dpop_verifier::{
-    DpopError, VerifyOptions,
+    DpopError, DpopVerifier,
     actix_helpers::{dpop_header_str, expected_htu_from_actix},
     replay::{ReplayContext, ReplayStore},
-    verify_proof,
 };
 use headless_lms_models::oauth_dpop_proofs::OAuthDpopProof;
 use headless_lms_models::oauth_shared_types::Digest as TokenDigest;
@@ -48,13 +47,11 @@ pub async fn verify_dpop_from_actix(
 
     let htu = expected_htu_from_actix(req, true);
 
-    let opts = VerifyOptions {
-        max_age_secs: 300,
-        future_skew_secs: 10,
-        ..Default::default()
-    };
     let mut store = SqlxReplayStore { conn };
-    let out = verify_proof(&mut store, hdr, &htu, method, access_token, opts).await?;
+    let verifier = DpopVerifier::new().with_max_age(300).with_future_skew(5);
+    let verified = verifier
+        .verify(&mut store, hdr, &htu, method, access_token)
+        .await?;
 
-    Ok(out.jkt)
+    Ok(verified.jkt)
 }

@@ -1350,9 +1350,9 @@ checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
 name = "dpop-verifier"
-version = "0.2.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c779f5f85175fed2d1b795f4848371a6ecd5fb688a42d823646d454470868eb5"
+checksum = "f7f5b9e3336fd45cbfae2ff5667d88f9227706367d2e3cc04ac5ce9d4d76986a"
 dependencies = [
  "actix-web",
  "async-trait",
@@ -1363,6 +1363,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "signature",
  "subtle",
  "thiserror 1.0.69",
  "time",

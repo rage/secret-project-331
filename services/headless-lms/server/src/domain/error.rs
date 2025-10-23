@@ -616,7 +616,6 @@ impl From<dpop_verifier::error::DpopError> for ControllerError {
             DpopError::MultipleDpopHeaders
             | DpopError::InvalidDpopHeader
             | DpopError::MissingDpopHeader
-            | DpopError::MissingHeader
             | DpopError::MalformedJws
             | DpopError::InvalidAlg(_)
             | DpopError::UnsupportedAlg(_)
@@ -636,6 +635,7 @@ impl From<dpop_verifier::error::DpopError> for ControllerError {
             | DpopError::JtiTooLong
             | DpopError::NonceMismatch
             | DpopError::NonceStale
+            | DpopError::InvalidHmacConfig
             | DpopError::MissingNonce => OAuthErrorData {
                 error: OAuthErrorCode::InvalidDpopProof.as_str().into(),
                 error_description: err.to_string(),

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_exercise_reset_logs_for_user","log_exercise_reset"],"struct":["ExerciseResetLog"]};
+window.SIDEBAR_ITEMS = {"fn":["get_exercise_reset_logs_for_user","log_exercise_reset","user_should_see_reset_message_for_exercise"],"struct":["ExerciseResetLog"]};

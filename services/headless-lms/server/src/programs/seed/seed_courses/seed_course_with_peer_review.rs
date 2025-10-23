@@ -47,36 +47,36 @@ pub async fn seed_peer_review_course(
 
     info!("Inserting sample course {}", course_name);
     let course = CourseBuilder::new(course_name, course_slug)
-    .desc("Sample course for testing reject and reset-feature in manual review after peer review.")
-    .chatbot(false)
-    .course_id(course_id)
-    .instance(CourseInstanceConfig {
-        name: None,
-        description: None,
-        support_email: None,
-        teacher_in_charge_name: "admin".to_string(),
-        teacher_in_charge_email: "admin@example.com".to_string(),
-        opening_time: None,
-        closing_time: None,
-        instance_id: Some(cx.v5(b"instance:default")),
-    })
-    .role(seed_users_result.teacher_user_id, UserRole::Teacher)
-    .module(
-        ModuleBuilder::new()
-            .order(0)
-            .register_to_open_university(false)
-            .automatic_completion(Some(1), Some(1), false)
-            .chapter(
-                ChapterBuilder::new(1, "The Basics")
-                    .opens(Utc::now())
-                    .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
-                    .page(
-                        PageBuilder::new("/chapter-1/page-1", "Page One")
-                            .block(paragraph(
-                                "This is a simple introduction to the basics.",
-                                cx.v5(b"page:1:1:block:intro"),
-                            ))
-                           .exercise(ExerciseBuilder::example_exercise(
+        .desc("Sample course for testing reject and reset-feature in manual review after peer review.")
+        .chatbot(false)
+        .course_id(course_id)
+        .instance(CourseInstanceConfig {
+            name: None,
+            description: None,
+            support_email: None,
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            opening_time: None,
+            closing_time: None,
+            instance_id: Some(cx.v5(b"instance:default")),
+        })
+        .role(seed_users_result.teacher_user_id, UserRole::Teacher)
+        .module(
+            ModuleBuilder::new()
+                .order(0)
+                .register_to_open_university(false)
+                .automatic_completion(Some(1), Some(1), false)
+                .chapter(
+                    ChapterBuilder::new(1, "The Basics")
+                        .opens(Utc::now())
+                        .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
+                        .page(
+                            PageBuilder::new("/chapter-1/page-1", "Page One")
+                                .block(paragraph(
+                                    "This is a simple introduction to the basics.",
+                                    cx.v5(b"page:1:1:block:intro"),
+                                ))
+                                .exercise(ExerciseBuilder::example_exercise(
                                     "Simple multiple choice",
                                     ExerciseIds {
                                         exercise_id: cx.v5(b"exercise:1:1:e"),
@@ -107,33 +107,30 @@ pub async fn seed_peer_review_course(
                                     ]),
                                     true,
                                     Some(CmsPeerOrSelfReviewConfig {
-                                id: cx.v5(b"peer-review:1"),
-                                course_id,
-                                exercise_id: Some(cx.v5(b"exercise:1:1:e")),
-                                peer_reviews_to_give: 2,
-                                peer_reviews_to_receive: 1,
-                                accepting_threshold: 2.1,
-                                processing_strategy: PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
-                                points_are_all_or_nothing: true,
-                                review_instructions: None,
-                            }),
-                            Some(vec![
-                                CmsPeerOrSelfReviewQuestion {
-                                    id: cx.v5(b"peer-review:1:q1"),
-                                    peer_or_self_review_config_id: cx.v5(b"peer-review:1"),
-                                    order_number: 1,
-                                    question: "Good answer?".to_string(),
-                                    question_type: headless_lms_models::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
-                                    answer_required: true,
-                                    weight: 0.0,
-                                },
-                            ]),
-
-                        ))
-                    )
-            )
-    );
-
+                                        id: cx.v5(b"peer-review:1"),
+                                        course_id,
+                                        exercise_id: Some(cx.v5(b"exercise:1:1:e")),
+                                        peer_reviews_to_give: 2,
+                                        peer_reviews_to_receive: 1,
+                                        accepting_threshold: 2.1,
+                                        processing_strategy:
+                                            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+                                        points_are_all_or_nothing: true,
+                                        review_instructions: None,
+                                    }),
+                                    Some(vec![CmsPeerOrSelfReviewQuestion {
+                                        id: cx.v5(b"peer-review:1:q1"),
+                                        peer_or_self_review_config_id: cx.v5(b"peer-review:1"),
+                                        order_number: 1,
+                                        question: "Good answer?".to_string(),
+                                        question_type: headless_lms_models::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
+                                        answer_required: true,
+                                        weight: 0.0,
+                                    }]),
+                                )),
+                        ),
+                ),
+        );
     let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
     Ok(course.id)
 }

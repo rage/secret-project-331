@@ -233,6 +233,7 @@ export interface NewChatbotConf {
   hide_citations: boolean
   use_semantic_reranking: boolean
   default_chatbot: boolean
+  chatbotconf_id: string | null
 }
 
 export interface ChatbotConversationMessage {
@@ -957,6 +958,7 @@ export interface CourseMaterialExercise {
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
+  should_show_reset_message: boolean
 }
 
 export interface Exercise {
@@ -2071,6 +2073,7 @@ export type TeacherDecisionType =
   | "ZeroPoints"
   | "CustomPoints"
   | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export interface TeacherGradingDecision {
   id: string

@@ -4,7 +4,11 @@ use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
 use uuid::Uuid;
 
-use headless_lms_models::pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask};
+use headless_lms_models::{
+    pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
+    peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
+    peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
+};
 
 use crate::programs::seed::{
     builder::{context::SeedContext, json_source::JsonSource},
@@ -30,6 +34,9 @@ pub enum ExerciseBuilder {
         assignment_blocks: Vec<GutenbergBlock>,
         name: String,
         options: Value,
+        needs_peer_review: bool,
+        peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
+        peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
     },
     /// Quizzes service exercise with JSON specification
     Quizzes {
@@ -90,12 +97,18 @@ impl ExerciseBuilder {
         ids: ExerciseIds,
         assignment_blocks: Vec<GutenbergBlock>,
         options: Value,
+        needs_peer_review: bool,
+        peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
+        peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
     ) -> Self {
         Self::ExampleExercise {
             ids,
             assignment_blocks,
             name: name.into(),
             options,
+            needs_peer_review,
+            peer_or_self_review_config,
+            peer_or_self_review_questions,
         }
     }
 
@@ -127,6 +140,9 @@ impl ExerciseBuilder {
                         vec![(ids.task_id, "quizzes".to_string(), assignment_json, spec_v)],
                     )],
                     ids.block_id,
+                    None,
+                    None,
+                    None,
                 );
                 let slide = slides.swap_remove(0);
                 let task = tasks.swap_remove(0);
@@ -150,6 +166,9 @@ impl ExerciseBuilder {
                         vec![(ids.task_id, "tmc".to_string(), assignment_json, spec_v)],
                     )],
                     ids.block_id,
+                    Some(false),
+                    None,
+                    None,
                 );
                 let slide = slides.swap_remove(0);
                 let task = tasks.swap_remove(0);
@@ -161,6 +180,9 @@ impl ExerciseBuilder {
                 assignment_blocks,
                 name,
                 options,
+                needs_peer_review,
+                peer_or_self_review_config,
+                peer_or_self_review_questions,
             } => {
                 let assignment_json = serde_json::to_value(assignment_blocks)?;
                 let (_block, exercise, slides, tasks) = example_exercise_flexible(
@@ -176,6 +198,9 @@ impl ExerciseBuilder {
                         )],
                     )],
                     ids.block_id,
+                    Some(*needs_peer_review),
+                    peer_or_self_review_config.clone(),
+                    peer_or_self_review_questions.clone(),
                 );
 
                 let slide = slides
@@ -307,6 +332,9 @@ mod tests {
             ids.clone(),
             assignment_blocks.clone(),
             options.clone(),
+            false,
+            None,
+            None,
         );
 
         match builder {
@@ -315,6 +343,9 @@ mod tests {
                 assignment_blocks: builder_blocks,
                 name,
                 options: builder_options,
+                needs_peer_review: _,
+                peer_or_self_review_config: _,
+                peer_or_self_review_questions: _,
             } => {
                 assert_eq!(name, "Test Example Exercise");
                 assert_eq!(builder_ids.exercise_id, ids.exercise_id);

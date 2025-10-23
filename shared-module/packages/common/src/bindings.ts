@@ -208,6 +208,13 @@ export interface UserChapterProgress {
   exercises_attempted: number
 }
 
+export interface CourseUserInfo {
+  name: string
+  user_id: string
+  email: string | null
+  course_instance: string
+}
+
 export interface ChatbotConfiguration {
   id: string
   created_at: string

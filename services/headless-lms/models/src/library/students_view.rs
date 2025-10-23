@@ -1,5 +1,7 @@
 //! Contains helper functions needed for student view
-use crate::chapters::{self, ChapterAvailability, DatabaseChapter, UserChapterProgress};
+use crate::chapters::{
+    self, ChapterAvailability, CourseUserInfo, DatabaseChapter, UserChapterProgress,
+};
 use crate::prelude::*;
 use crate::user_details::UserDetail;
 use crate::user_exercise_states::UserExerciseState;
@@ -32,4 +34,12 @@ pub async fn get_progress(
         chapter_availability,
         user_chapter_progress,
     })
+}
+
+pub async fn get_course_users(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseUserInfo>> {
+    let rows = chapters::fetch_course_users(conn, course_id).await?;
+    Ok(rows)
 }

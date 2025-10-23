@@ -133,6 +133,9 @@ pub async fn seed_chatbot_course(
                                             "id": cx.v5(b"exercise:1:1:option:3")
                                         }
                                     ]),
+                                    false,
+                                    None,
+                                    None
                                 )),
                         )
                         .page(

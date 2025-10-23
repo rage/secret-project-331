@@ -1993,7 +1993,8 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
         Array.isArray(typedObj["user_course_instance_exercise_service_variables"]) &&
         typedObj["user_course_instance_exercise_service_variables"].every((e: any) =>
             isUserCourseExerciseServiceVariable(e) as boolean
-        )
+        ) &&
+        typeof typedObj["should_show_reset_message"] === "boolean"
     )
 }
 
@@ -2048,7 +2049,8 @@ export function isExerciseGradingStatus(obj: unknown): obj is ExerciseGradingSta
             typedObj["teacher_decision"] === "FullPoints" ||
             typedObj["teacher_decision"] === "ZeroPoints" ||
             typedObj["teacher_decision"] === "CustomPoints" ||
-            typedObj["teacher_decision"] === "SuspectedPlagiarism") &&
+            typedObj["teacher_decision"] === "SuspectedPlagiarism" ||
+            typedObj["teacher_decision"] === "RejectAndReset") &&
         typeof typedObj["submission_id"] === "string" &&
         typeof typedObj["updated_at"] === "string"
     )
@@ -4266,7 +4268,8 @@ export function isTeacherDecisionType(obj: unknown): obj is TeacherDecisionType 
         (typedObj === "FullPoints" ||
             typedObj === "ZeroPoints" ||
             typedObj === "CustomPoints" ||
-            typedObj === "SuspectedPlagiarism")
+            typedObj === "SuspectedPlagiarism" ||
+            typedObj === "RejectAndReset")
     )
 }
 

@@ -41,7 +41,15 @@ async fn create_chatbot(
         ));
     }
 
-    let model = models::chatbot_configurations_models::get_default(&mut tx).await?;
+    let model = models::chatbot_configurations_models::get_default(&mut tx)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "No default chatbot model configured. Ask an admin to set one.".to_string(),
+                Some(e.into()),
+            )
+        })?;
 
     let configuration = models::chatbot_configurations::insert(
         &mut tx,
@@ -50,6 +58,7 @@ async fn create_chatbot(
             chatbot_name: payload.into_inner(),
             course_id: *course_id,
             model: Some(model.id),
+            thinking_model: Some(model.thinking),
             ..Default::default()
         },
     )

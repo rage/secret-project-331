@@ -343,7 +343,8 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let llm =
-        chatbot_configurations_models::insert_mock_model(&mut conn, PKeyPolicy::Generate).await?;
+        chatbot_configurations_models::insert_default_mock_model(&mut conn, PKeyPolicy::Generate)
+            .await?;
 
     chatbot_configurations::insert(
         &mut conn,

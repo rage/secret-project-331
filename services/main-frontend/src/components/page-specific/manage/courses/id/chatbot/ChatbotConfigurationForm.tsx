@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
@@ -12,6 +11,8 @@ import {
   ChatbotConfiguration,
   ChatbotConfigurationModel,
   NewChatbotConf,
+  ReasoningEffortLevel,
+  VerbosityLevel,
 } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
@@ -46,6 +47,11 @@ const itemCss = css`
 const textFieldCss = css`
   width: auto;
 `
+
+const MINIMAL = "minimal"
+const LOW = "low"
+const MEDIUM = "medium"
+const HIGH = "high"
 
 const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQueryRefetch }) => {
   const { t } = useTranslation()
@@ -93,7 +99,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     if (getChatbotModelsList.data) {
       setSelectedModel(
         getChatbotModelsList.data.find((m) => {
-          return m.id == modelFieldValue
+          return m.id === modelFieldValue
         }) ?? null,
       )
     }
@@ -141,13 +147,13 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
-      model: (data.model?.length ?? 0 > 0) ? data.model : null,
+      model: (data.model?.length ?? 0) > 0 ? data.model : null,
       enabled_to_students: data.enabled_to_students,
       prompt: data.prompt,
       initial_message: data.initial_message,
       weekly_tokens_per_user: +data.weekly_tokens_per_user,
       daily_tokens_per_user: +data.daily_tokens_per_user,
-      temperature: data.temperature,
+      temperature: +data.temperature,
       top_p: +data.top_p,
       frequency_penalty: +data.frequency_penalty,
       presence_penalty: +data.presence_penalty,
@@ -215,34 +221,34 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         />
         {selectedModel?.thinking ? (
           <div className={itemCss}>
-            <h4>{"Configure reasoning"}</h4>
+            <h4>{t("configure-reasoning")}</h4>
             <div
               className={css`
                 margin: 20px 20px;
               `}
             >
-              <SelectMenu
+              <SelectMenu<VerbosityLevel>
                 id="verbosity-select"
                 label={t("select-verbosity")}
                 error={errors.verbosity?.message}
                 options={[
-                  { value: "low", label: t("low") },
-                  { value: "medium", label: t("medium") },
-                  { value: "high", label: t("high") },
+                  { value: LOW, label: t("low") },
+                  { value: MEDIUM, label: t("medium") },
+                  { value: HIGH, label: t("high") },
                 ]}
                 disabled={!selectedModel?.thinking}
                 showDefaultOption={false}
                 {...register("verbosity")}
               />
-              <SelectMenu
+              <SelectMenu<ReasoningEffortLevel>
                 id="reasoning-effort-select"
                 label={t("select-reasoning-effort")}
                 error={errors.reasoning_effort?.message}
                 options={[
-                  { value: "minimal", label: t("minimal") },
-                  { value: "low", label: t("low") },
-                  { value: "medium", label: t("medium") },
-                  { value: "high", label: t("high") },
+                  { value: MINIMAL, label: t("minimal") },
+                  { value: LOW, label: t("low") },
+                  { value: MEDIUM, label: t("medium") },
+                  { value: HIGH, label: t("high") },
                 ]}
                 disabled={!selectedModel?.thinking}
                 showDefaultOption={false}
@@ -330,7 +336,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     <div>
                       {" "}
                       <div className={itemCss}>
-                        <h3>Non-reasoning model settings</h3>
+                        <h3>{t("non-reasoning-model-settings")}</h3>
                         <TextField
                           className={textFieldCss}
                           type="number"

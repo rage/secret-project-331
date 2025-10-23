@@ -86,7 +86,7 @@ impl AzureChatbotConfiguration {
 
         if let (Some(api_key), Some(api_endpoint_str)) = (api_key, api_endpoint_str) {
             let api_endpoint = Url::parse(&api_endpoint_str)
-                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT_FIRST")?;
+                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
             Ok(Some(AzureChatbotConfiguration {
                 api_key,
                 api_endpoint,

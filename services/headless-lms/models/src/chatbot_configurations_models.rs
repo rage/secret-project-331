@@ -78,7 +78,8 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
-pub async fn insert_mock_model(
+//* Inserts one default mock model into the db for testing */
+pub async fn insert_default_mock_model(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
 ) -> ModelResult<ChatbotConfigurationModel> {

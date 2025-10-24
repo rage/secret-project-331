@@ -1,150 +1,486 @@
-/* eslint-disable i18next/no-literal-string */
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
-import { Button as AriaButton, Dialog, Modal, ModalOverlay, TextField } from "react-aria-components"
+import styled from "@emotion/styled"
+import { MagnifyingGlass, XmarkCircle } from "@vectopus/atlas-icons-react"
+import Link from "next/link"
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
+import { useDebounce } from "use-debounce"
 
+// TODO: Replace with actual backend import when available
+// import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/backend"
+
+// Placeholder search functions
+const searchPagesWithPhrase = async (
+  params: { query: string },
+  courseId: string | null,
+  signal?: AbortSignal,
+): Promise<PageSearchResult[]> => {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  if (signal?.aborted) {
+    throw new Error("AbortError")
+  }
+
+  // Return placeholder data
+  return [
+    {
+      id: "1",
+      title: `Search result for "${params.query}" (phrase)`,
+      url: "/search-result-1",
+      excerpt: "This is a placeholder search result for phrase matching...",
+      courseId: courseId || "default",
+    },
+  ]
+}
+
+const searchPagesWithWords = async (
+  params: { query: string },
+  courseId: string | null,
+  signal?: AbortSignal,
+): Promise<PageSearchResult[]> => {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  if (signal?.aborted) {
+    throw new Error("AbortError")
+  }
+
+  // Return placeholder data
+  return [
+    {
+      id: "2",
+      title: `Search result for "${params.query}" (words)`,
+      url: "/search-result-2",
+      excerpt: "This is a placeholder search result for word matching...",
+      courseId: courseId || "default",
+    },
+  ]
+}
+import { PageSearchResult } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Spinner from "@/shared-module/common/components/Spinner"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-const iconBtn = css`
-  display: inline-flex;
+const HeaderBar = styled.div`
+  display: flex;
+  padding: 0.75rem 0;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  transition: background 120ms ease;
-
-  &:hover,
-  &[data-hovered] {
-    background: #f3f4f6;
-  }
-  &[data-pressed] {
-    background: #e5e7eb;
-  }
-  &[data-focus-visible] {
-    box-shadow: 0 0 0 2px #111827;
-  }
-
-  /* hide on small screens, show at md+ */
-  display: none;
-  ${respondToOrLarger.md} {
-    display: inline-flex;
+  gap: 0.5rem;
+  h1 {
+    font-size: 1.25rem;
+    margin-bottom: 0;
   }
 `
 
-const SearchIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden focusable="false">
-    <path
-      d="M21 21l-4.2-4.2m1.7-5.3a7 7 0 11-14 0 7 7 0 0114 0z"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
+const SearchContainer = styled.div<{ $hasContent: boolean }>`
+  overflow: hidden;
+  width: 100%;
+  height: ${(props) => (props.$hasContent ? "700px" : "80px")};
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+`
 
-const SearchButton: React.FC = () => {
+const SearchInputContainer = styled.div`
+  position: relative;
+  flex-shrink: 0;
+  padding: 0 1rem;
+`
+
+const ResultsContainer = styled.div<{ $hasResults: boolean }>`
+  margin-top: 1rem;
+  padding: 4px 1rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 90px);
+`
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+`
+
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  color: ${baseTheme.colors.gray[500]};
+  text-align: center;
+  transition: padding 0.2s ease;
+`
+
+const ResultCard = styled(Link)`
+  text-decoration: none;
+  color: unset;
+  display: block;
+  background: #ffffff;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid ${baseTheme.colors.gray[100]};
+
+  &:hover {
+    background: ${baseTheme.colors.green[100]};
+    border-color: ${baseTheme.colors.green[200]};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .chapter-name {
+    font-size: 0.75rem;
+    color: ${baseTheme.colors.gray[500]};
+    margin: 0 0 0.25rem;
+    line-height: 1.4;
+  }
+
+  h2 {
+    font-size: 1rem;
+    margin: 0 0 0.25rem;
+    line-height: 1.4;
+
+    ${respondToOrLarger.md} {
+      font-size: 1.125rem;
+    }
+  }
+
+  p {
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.5;
+    color: ${baseTheme.colors.gray[600]};
+
+    ${respondToOrLarger.md} {
+      font-size: 0.875rem;
+    }
+  }
+`
+
+const StyledInput = styled.input`
+  display: flex;
+  background: #ffffff;
+  width: 100%;
+  padding: 0 3.5rem;
+  height: 56px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  border: none;
+  outline: 1px solid ${baseTheme.colors.gray[200]};
+  margin-right: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: 2px solid ${baseTheme.colors.green[400]};
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  }
+`
+
+const SearchIcon = styled(MagnifyingGlass)`
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: ${baseTheme.colors.gray[400]};
+  transition: color 0.2s ease;
+`
+
+const StyledIcon = css`
+  right: -8px;
+  bottom: -2px;
+  :hover {
+    cursor: pointer;
+  }
+  &:focus-visible {
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
+  }
+`
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  padding: 2px;
+  margin: 0;
+  cursor: pointer;
+  color: ${baseTheme.colors.gray[400]};
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+
+  &:hover {
+    color: ${baseTheme.colors.gray[600]};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${baseTheme.colors.green[400]};
+    outline-offset: 2px;
+  }
+`
+
+const KEYS = {
+  SHORTCUT: "k",
+}
+
+export interface SearchButtonProps {
+  courseId?: string | null
+  organizationSlug?: string | null
+}
+
+const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug }) => {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState<string>("")
+  const [debouncedQuery] = useDebounce(query, 200)
+  const [phraseSearchResults, setPhraseSearchResults] = useState<PageSearchResult[] | null>(null)
+  const [wordSearchResults, setWordSearchResults] = useState<PageSearchResult[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const abortControllerRef = useRef<AbortController>(new AbortController())
+
+  const combinedResults = useMemo(() => {
+    if (phraseSearchResults === null || wordSearchResults === null) {
+      return null
+    }
+    const pages = [...phraseSearchResults]
+    wordSearchResults.forEach((pageWithWords) => {
+      if (pages.find((p) => p.id === pageWithWords.id)) {
+        return
+      }
+      pages.push(pageWithWords)
+    })
+    return pages
+  }, [phraseSearchResults, wordSearchResults])
+
+  const hasNoResults = useMemo(() => {
+    return combinedResults !== null && combinedResults.length === 0 && debouncedQuery.trim() !== ""
+  }, [combinedResults, debouncedQuery])
+
+  const hasContent = useMemo(() => {
+    return (
+      isLoading || !!error || debouncedQuery.trim() !== "" || (combinedResults?.length ?? 0) > 0
+    )
+  }, [isLoading, error, debouncedQuery, combinedResults])
+
+  useEffect(() => {
+    async function innerFunction() {
+      abortControllerRef.current?.abort()
+      abortControllerRef.current = new AbortController()
+
+      if (!debouncedQuery || debouncedQuery.trim() === "") {
+        setPhraseSearchResults([])
+        setWordSearchResults([])
+        setIsLoading(false)
+        return
+      }
+
+      if (!courseId) {
+        return
+      }
+
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const [pagesWithPhrase, pagesWithWords] = await Promise.all([
+          searchPagesWithPhrase(
+            { query: debouncedQuery },
+            courseId,
+            abortControllerRef.current.signal,
+          ),
+          searchPagesWithWords(
+            { query: debouncedQuery },
+            courseId,
+            abortControllerRef.current.signal,
+          ),
+        ])
+        setPhraseSearchResults(pagesWithPhrase)
+        setWordSearchResults(pagesWithWords)
+      } catch (e: unknown) {
+        if (e instanceof Error && e.name === "AbortError") {
+          return
+        }
+
+        if (!(e instanceof Error)) {
+          throw e
+        }
+
+        if ((e as any)?.response?.data) {
+          setError(JSON.stringify((e as any).response.data, undefined, 2))
+        } else {
+          setError(e.toString())
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    innerFunction()
+
+    return () => {
+      abortControllerRef.current?.abort()
+    }
+  }, [courseId, debouncedQuery])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === KEYS.SHORTCUT) {
+        e.preventDefault()
+        setOpen(true)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown, { signal: controller.signal })
+
+    return () => {
+      controller.abort()
+    }
+  }, [])
+
+  const closeModal = () => {
+    setOpen(false)
+  }
+
+  const openModal = () => {
+    setOpen(true)
+  }
+
+  const handleResultClick = () => {
+    setOpen(false)
+    setQuery("")
+    setPhraseSearchResults([])
+    setWordSearchResults([])
+  }
+
+  if (!courseId || !organizationSlug) {
+    return null
+  }
 
   return (
     <>
-      <AriaButton aria-label="Open search" className={iconBtn} onPress={() => setOpen(true)}>
-        <SearchIcon />
-      </AriaButton>
-
-      {/* Lightweight command palette modal (optional) */}
-      <ModalOverlay
-        isOpen={open}
-        onOpenChange={setOpen}
-        className={css`
-          position: fixed;
-          inset: 0;
-          background: rgba(17, 24, 39, 0.4);
-          display: grid;
-          place-items: start center;
-          padding-top: 10vh;
-          z-index: 1000;
-
-          &[data-exiting],
-          &[data-entering] {
-            transition: opacity 120ms ease;
-          }
-        `}
+      <Button
+        tabIndex={0}
+        id="search-for-pages-button"
+        className={StyledIcon}
+        aria-label={t("button-label-search-for-pages")}
+        aria-hidden={false}
+        size="small"
+        variant="icon"
+        onClick={openModal}
       >
-        <Modal
-          className={css`
-            width: min(720px, 92vw);
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.18);
-            padding: 16px;
-          `}
-        >
-          <Dialog
-            aria-label="Search"
-            className={css`
-              display: grid;
-              gap: 12px;
-            `}
-          >
-            <TextField
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  setOpen(false)
-                }
-                if (e.key === "Enter") {
-                  const target = e.target as HTMLInputElement
-                  const q = target?.value?.trim()
-                  if (q) {
-                    window.location.href = `/search?q=${encodeURIComponent(q)}`
-                  }
-                }
-              }}
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
-              className={css`
-                position: relative;
-                display: flex;
-                align-items: center;
-                border: 1px solid #e5e7eb;
-                border-radius: 10px;
-                padding: 10px 12px;
-                gap: 8px;
+        <MagnifyingGlass size={16} weight="bold" />
+      </Button>
+      <Dialog
+        open={open}
+        onClose={closeModal}
+        noPadding
+        preventBackgroundScroll
+        aria-label={t("title-search-dialog")}
+      >
+        <SearchContainer $hasContent={hasContent}>
+          <SearchInputContainer>
+            <HeaderBar>
+              <SearchIcon size={20} weight="bold" />
+              <StyledInput
+                value={query}
+                autoFocus
+                onChange={(e) => {
+                  setError(null)
+                  setQuery(e.target.value)
+                }}
+                placeholder={t("search-field-placeholder")}
+              />
+              <CloseButton type="button" aria-label={t("close")} onClick={closeModal}>
+                <XmarkCircle size={18} />
+              </CloseButton>
+            </HeaderBar>
+          </SearchInputContainer>
 
-                &:focus-within {
-                  box-shadow: 0 0 0 2px #111827;
-                }
+          <ResultsContainer $hasResults={!!debouncedQuery || isLoading}>
+            {error && (
+              <div
+                className={css`
+                  padding: 1rem;
+                  background-color: ${baseTheme.colors.red[100]};
+                  border-left: 4px solid ${baseTheme.colors.red[500]};
+                  color: ${baseTheme.colors.red[700]};
+                  margin-bottom: 1rem;
+                  border-radius: 4px;
+                `}
+              >
+                {error}
+              </div>
+            )}
 
-                input {
-                  border: none;
-                  outline: none;
-                  width: 100%;
-                  font-size: 14px;
-                }
-              `}
-            >
-              <SearchIcon />
-              <input placeholder="Search…" />
-            </TextField>
-            <div
-              className={css`
-                font-size: 12px;
-                color: #6b7280;
-              `}
-            >
-              Press Enter to search • Esc to close
-            </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
+            {isLoading && (
+              <LoadingContainer>
+                <Spinner variant="medium" />
+              </LoadingContainer>
+            )}
+
+            {hasNoResults && (
+              <EmptyState>
+                <MagnifyingGlass size={48} weight="thin" />
+                <h3>{t("no-results-found")}</h3>
+                <p>{t("try-different-search-terms")}</p>
+              </EmptyState>
+            )}
+
+            {!isLoading &&
+              combinedResults?.map((result) => (
+                <ResultCard
+                  href={`/${organizationSlug}/courses/${result.url_path}`}
+                  key={result.id}
+                  onClick={handleResultClick}
+                >
+                  <h2
+                    className={css`
+                      font-size: 1.5rem;
+                      b {
+                        text-decoration: underline;
+                      }
+                    `}
+                    dangerouslySetInnerHTML={{
+                      __html: result.title_headline ?? "",
+                    }}
+                  />
+                  {result.chapter_name != null && result.chapter_name !== "" && (
+                    <div
+                      className={css`
+                        font-size: 0.75rem;
+                        color: ${baseTheme.colors.gray[500]};
+                        margin: 0 0 0.25rem;
+                        line-height: 1.4;
+                      `}
+                    >
+                      {result.chapter_name}
+                    </div>
+                  )}
+                  {result.content_headline && (
+                    <p
+                      className={css`
+                        color: #5a5757;
+                      `}
+                      dangerouslySetInnerHTML={{
+                        __html: result.content_headline,
+                      }}
+                    />
+                  )}
+                </ResultCard>
+              ))}
+          </ResultsContainer>
+        </SearchContainer>
+      </Dialog>
     </>
   )
 }

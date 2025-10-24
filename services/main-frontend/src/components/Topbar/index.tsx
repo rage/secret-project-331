@@ -2,8 +2,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useContext } from "react"
 import { Separator } from "react-aria-components"
+import { useTranslation } from "react-i18next"
 
 import Brand from "./Brand"
 import LanguageMenu from "./LanguageMenu"
@@ -11,13 +12,110 @@ import QuickActionsMenu from "./QuickActionsMenu"
 import SearchButton from "./SearchButton"
 import UserMenu from "./UserMenu"
 
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+
+interface MenuOption {
+  type: "link" | "action" | "separator"
+  label?: string
+  href?: string
+  onAction?: () => void
+  icon?: string
+  isDestructive?: boolean
+  requiresPermission?: boolean
+  permissionAction?: string
+  permissionResource?: string
+}
+
+/**
+ * Configurable Topbar component with feature toggles and custom menu options
+ *
+ * @example
+ * // Basic usage with all features enabled
+ * <Topbar courseId="123" organizationSlug="org" currentPagePath="/course" />
+ *
+ * @example
+ * // Minimal topbar for non-course pages
+ * <Topbar
+ *   enableSearch={false}
+ *   enableLanguageMenu={true}
+ *   enableUserMenu={true}
+ *   enableQuickActions={false}
+ * />
+ *
+ * @example
+ * // Custom user menu options
+ * <Topbar
+ *   userMenuOptions={[
+ *     { type: "link", label: "Profile", href: "/profile", icon: "👤" },
+ *     { type: "separator" },
+ *     { type: "action", label: "Logout", onAction: handleLogout, isDestructive: true }
+ *   ]}
+ * />
+ *
+ * @example
+ * // Language menu with custom options for non-course pages
+ * <Topbar
+ *   courseId={null}
+ *   enableLanguageMenu={true}
+ *   languageMenuProps={{
+ *     availableLanguages: [
+ *       { code: "en", name: "English" },
+ *       { code: "fi", name: "Finnish" }
+ *     ],
+ *     onLanguageChange: async (code) => {
+ *       await i18n.changeLanguage(code)
+ *       // Handle URL update, etc.
+ *     }
+ *   }}
+ * />
+ */
+
+interface LanguageMenuProps {
+  availableLanguages?: Array<{
+    code: string
+    name: string
+    isDraft?: boolean
+  }>
+  onLanguageChange?: (languageCode: string) => Promise<void>
+}
 
 interface TopbarProps {
   children?: React.ReactNode
+  courseId?: string | null
+  organizationSlug?: string | null
+  currentPagePath?: string
+  // Feature toggles
+  enableSearch?: boolean
+  enableLanguageMenu?: boolean
+  enableUserMenu?: boolean
+  enableQuickActions?: boolean
+  // Menu customization
+  userMenuOptions?: MenuOption[]
+  quickActionsOptions?: MenuOption[]
+  languageMenuProps?: LanguageMenuProps
 }
 
-const Topbar: React.FC<TopbarProps> = ({ children }) => {
+const Topbar: React.FC<TopbarProps> = ({
+  children,
+  courseId,
+  organizationSlug,
+  currentPagePath,
+  enableSearch = true,
+  enableLanguageMenu = true,
+  enableUserMenu = true,
+  enableQuickActions = true,
+  userMenuOptions,
+  quickActionsOptions,
+  languageMenuProps,
+}) => {
+  const { t, i18n } = useTranslation()
+  const loginStateContext = useContext(LoginStateContext)
+  const returnTo = useCurrentPagePathForReturnTo(currentPagePath || "")
+
+  const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
+  const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
   return (
     <header
       className={css`
@@ -73,38 +171,153 @@ const Topbar: React.FC<TopbarProps> = ({ children }) => {
               gap: 4px;
             `}
           >
-            <SearchButton />
-            <LanguageMenu />
+            {enableSearch && (
+              <SearchButton courseId={courseId} organizationSlug={organizationSlug} />
+            )}
 
-            <Separator
-              orientation="vertical"
-              className={css`
-                height: 24px;
-                background: #e5e7eb;
-                margin-inline: 4px;
-                display: none;
-                ${respondToOrLarger.md} {
-                  display: block;
-                }
-              `}
-            />
+            {enableLanguageMenu && (
+              <LanguageMenu
+                courseId={courseId}
+                currentPageId={currentPagePath}
+                availableLanguages={languageMenuProps?.availableLanguages}
+                onLanguageChange={languageMenuProps?.onLanguageChange}
+              />
+            )}
 
-            <UserMenu />
+            {enableSearch && enableLanguageMenu && (
+              <Separator
+                orientation="vertical"
+                className={css`
+                  height: 24px;
+                  background: #e5e7eb;
+                  margin-inline: 4px;
+                  display: none;
+                  ${respondToOrLarger.md} {
+                    display: block;
+                  }
+                `}
+              />
+            )}
 
-            <Separator
-              orientation="vertical"
-              className={css`
-                height: 24px;
-                background: #e5e7eb;
-                margin-inline: 4px;
-                display: none;
-                ${respondToOrLarger.md} {
-                  display: block;
-                }
-              `}
-            />
+            {loginStateContext.signedIn ? (
+              <>
+                {enableUserMenu && (
+                  <UserMenu
+                    currentPagePath={currentPagePath || ""}
+                    courseId={courseId}
+                    menuOptions={userMenuOptions}
+                  />
+                )}
 
-            <QuickActionsMenu />
+                {enableUserMenu && enableQuickActions && (
+                  <Separator
+                    orientation="vertical"
+                    className={css`
+                      height: 24px;
+                      background: #e5e7eb;
+                      margin-inline: 4px;
+                      display: none;
+                      ${respondToOrLarger.md} {
+                        display: block;
+                      }
+                    `}
+                  />
+                )}
+
+                {enableQuickActions && <QuickActionsMenu menuOptions={quickActionsOptions} />}
+              </>
+            ) : (
+              <div
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                `}
+              >
+                <a
+                  href={signUpPathWithReturnTo}
+                  className={css`
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    padding: 10px 16px;
+                    height: 40px;
+                    border-radius: 999px;
+                    background: rgba(248, 250, 252, 0.8);
+                    border: 1px solid rgba(0, 0, 0, 0.08);
+                    cursor: pointer;
+                    transition: all 120ms ease;
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+                    text-decoration: none;
+                    color: #374151;
+                    font-weight: 500;
+                    font-size: 14px;
+
+                    &:hover {
+                      background: rgba(241, 245, 249, 0.95);
+                      border-color: rgba(0, 0, 0, 0.12);
+                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+                      color: #111827;
+                    }
+
+                    &:active {
+                      background: rgba(226, 232, 240, 1);
+                      border-color: rgba(0, 0, 0, 0.16);
+                      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+                    }
+
+                    &:focus-visible {
+                      outline: none;
+                      box-shadow: 0 0 0 2px #111827;
+                    }
+                  `}
+                >
+                  {t("create-new-account")}
+                </a>
+
+                <a
+                  href={loginPathWithReturnTo}
+                  className={css`
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    padding: 10px 16px;
+                    height: 40px;
+                    border-radius: 999px;
+                    background: #111827;
+                    border: 1px solid #111827;
+                    cursor: pointer;
+                    transition: all 120ms ease;
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+                    text-decoration: none;
+                    color: #ffffff;
+                    font-weight: 500;
+                    font-size: 14px;
+
+                    &:hover {
+                      background: #374151;
+                      border-color: #374151;
+                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+                    }
+
+                    &:active {
+                      background: #1f2937;
+                      border-color: #1f2937;
+                      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+                    }
+
+                    &:focus-visible {
+                      outline: none;
+                      box-shadow: 0 0 0 2px #111827;
+                    }
+                  `}
+                >
+                  {t("log-in")}
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>

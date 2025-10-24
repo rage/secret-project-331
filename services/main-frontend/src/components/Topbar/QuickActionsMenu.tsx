@@ -44,7 +44,20 @@ const itemIcon = css`
   opacity: 0.9;
 `
 
-const quickActions = [
+interface MenuOption {
+  type: "link" | "action" | "separator"
+  label?: string
+  href?: string
+  onAction?: () => void
+  icon?: string
+  isDestructive?: boolean
+}
+
+interface QuickActionsMenuProps {
+  menuOptions?: MenuOption[]
+}
+
+const defaultQuickActions = [
   { type: "link" as const, label: "Search", href: "/search" },
   { type: "link" as const, label: "Change Language", href: "/language" },
   { type: "link" as const, label: "Settings", href: "/user-settings" },
@@ -56,8 +69,11 @@ const quickActions = [
   { type: "link" as const, label: "Send Feedback", href: "/feedback" },
 ] as const
 
-const QuickActionsMenu: React.FC = () => {
+const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions }) => {
   const [isOpen, setIsOpen] = useState(false)
+
+  // Use custom menu options if provided, otherwise use defaults
+  const quickActions = menuOptions || defaultQuickActions
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -119,11 +135,32 @@ const QuickActionsMenu: React.FC = () => {
                   />
                 )
               }
+
+              const icon = (
+                <span aria-hidden className={itemIcon}>
+                  {item.icon || "•"}
+                </span>
+              )
+
+              if (item.type === "link") {
+                return (
+                  <MenuItem key={item.href || `link-${idx}`} href={item.href} className={itemRow}>
+                    {icon}
+                    <span>{item.label}</span>
+                  </MenuItem>
+                )
+              }
+
               return (
-                <MenuItem key={item.href} href={item.href} className={itemRow}>
-                  <span aria-hidden className={itemIcon}>
-                    •
-                  </span>
+                <MenuItem
+                  key={item.label || `action-${idx}`}
+                  onAction={item.onAction}
+                  className={css`
+                    ${itemRow};
+                    ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};
+                  `}
+                >
+                  {icon}
                   <span>{item.label}</span>
                 </MenuItem>
               )

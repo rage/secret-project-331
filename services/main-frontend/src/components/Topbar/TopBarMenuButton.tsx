@@ -37,6 +37,8 @@ interface TopBarMenuButtonProps {
   className?: string
   onClick?: () => void
   showChevron?: boolean
+  lang?: string
+  dir?: "ltr" | "rtl"
 }
 
 const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
@@ -47,6 +49,8 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
   className,
   onClick,
   showChevron = true,
+  lang,
+  dir,
 }) => {
   const state = useContext(OverlayTriggerStateContext)
   const isOpen = state?.isOpen ?? false
@@ -56,6 +60,8 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
         id={id}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
+        lang={lang}
+        dir={dir}
         className={css`
           display: inline-flex;
           align-items: center;

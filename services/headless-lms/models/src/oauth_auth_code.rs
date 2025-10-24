@@ -34,38 +34,26 @@ pub struct NewAuthCodeParams<'a> {
     pub metadata: serde_json::Map<String, serde_json::Value>,
 }
 
-/// Centralized binder for INSERT
-fn bind_auth_code<'q>(
-    mut q: Query<'q, Postgres, PgArguments>,
-    p: NewAuthCodeParams<'q>,
-) -> Query<'q, Postgres, PgArguments> {
-    q = q
-        .bind(p.digest.as_bytes())
-        .bind(p.pepper_id)
-        .bind(p.user_id)
-        .bind(p.client_id)
-        .bind(p.redirect_uri)
-        .bind(p.scope)
-        .bind(p.nonce)
-        .bind(p.expires_at)
-        .bind(serde_json::Value::Object(p.metadata));
-    q
-}
-
 impl OAuthAuthCode {
     #[allow(clippy::too_many_arguments)]
     pub async fn insert(conn: &mut PgConnection, params: NewAuthCodeParams<'_>) -> ModelResult<()> {
-        let sql = r#"
+        sqlx::query!(
+            r#"
             INSERT INTO oauth_auth_codes
                 (digest, pepper_id, user_id, client_id, redirect_uri, scope, nonce, expires_at, metadata)
             VALUES ($1,     $2,       $3,      $4,        $5,           $6,   $7,    $8,         $9)
-        "#;
-
-        let mut tx = conn.begin().await?;
-        bind_auth_code(sqlx::query(sql), params)
-            .execute(&mut *tx)
+        "#,
+            params.digest.as_bytes(),
+            params.pepper_id,
+            params.user_id,
+            params.client_id,
+            params.redirect_uri,
+            params.scope,
+            params.nonce,
+            params.expires_at,
+            serde_json::Value::Object(params.metadata)
+        ).execute(conn)
             .await?;
-        tx.commit().await?;
         Ok(())
     }
 

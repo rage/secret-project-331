@@ -1,8 +1,7 @@
 use crate::oauth_shared_types::Digest;
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
-use sqlx::{self, FromRow};
-use sqlx::{PgConnection, Postgres, postgres::PgArguments, query::Query};
+use sqlx::{self, FromRow, PgConnection};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
@@ -33,41 +32,28 @@ pub struct NewAccessTokenParams<'a> {
     pub expires_at: DateTime<Utc>,
 }
 
-/// Internal helper: perform the binds in one place (idiomatic SQLx pattern).
-fn bind_access_token<'q>(
-    mut q: Query<'q, Postgres, PgArguments>,
-    p: NewAccessTokenParams<'q>,
-) -> Query<'q, Postgres, PgArguments> {
-    q = q
-        .bind(p.digest.as_bytes())
-        .bind(p.pepper_id)
-        .bind(p.user_id)
-        .bind(p.client_id)
-        .bind(p.scope)
-        .bind(p.audience)
-        .bind(p.dpop_jkt)
-        .bind(serde_json::Value::Object(p.metadata))
-        .bind(p.expires_at);
-    q
-}
-
 impl OAuthAccessToken {
     /// Insert a new access token (with jti).
     pub async fn insert(
         conn: &mut PgConnection,
         params: NewAccessTokenParams<'_>,
     ) -> ModelResult<()> {
-        let sql = r#"
+        sqlx::query!(r#"
             INSERT INTO oauth_access_tokens
                 (digest, pepper_id, user_id, client_id, scope, audience, dpop_jkt, metadata, expires_at)
             VALUES ($1,     $2,       $3,      $4,        $5,    $6,       $7,  $8,       $9       )
-        "#;
-
-        let mut tx = conn.begin().await?;
-        bind_access_token(sqlx::query(sql), params)
-            .execute(&mut *tx)
+        "#,
+        params.digest.as_bytes(),
+        params.pepper_id,
+        params.user_id,
+        params.client_id,
+        params.scope,
+        params.audience,
+        params.dpop_jkt,
+        serde_json::Value::Object(params.metadata),
+        params.expires_at
+        ).execute(conn)
             .await?;
-        tx.commit().await?;
         Ok(())
     }
 

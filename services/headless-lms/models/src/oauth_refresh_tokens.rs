@@ -1,6 +1,6 @@
 use crate::{oauth_shared_types::Digest, prelude::*};
 use chrono::{DateTime, Utc};
-use sqlx::{FromRow, Postgres, postgres::PgArguments, query::Query};
+use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
@@ -35,42 +35,28 @@ pub struct NewRefreshTokenParams<'a> {
     pub dpop_jkt: &'a str,
 }
 
-fn bind_refresh<'q>(
-    mut q: Query<'q, Postgres, PgArguments>,
-    p: NewRefreshTokenParams<'q>,
-) -> Query<'q, Postgres, PgArguments> {
-    q = q
-        .bind(p.digest.as_bytes())
-        .bind(p.user_id)
-        .bind(p.client_id)
-        .bind(p.scope)
-        .bind(p.audience)
-        .bind(p.pepper_id)
-        .bind(serde_json::Value::Object(p.metadata))
-        .bind(p.dpop_jkt)
-        .bind(p.expires_at)
-        .bind(p.rotated_from.map(|d| d.as_bytes()));
-    q
-}
-
-/* ------------ impl ------------ */
-
 impl OAuthRefreshTokens {
     pub async fn insert(
         conn: &mut PgConnection,
         params: NewRefreshTokenParams<'_>,
     ) -> ModelResult<()> {
-        let sql = r#"
+        sqlx::query!(r#"
             INSERT INTO oauth_refresh_tokens
               (digest, user_id, client_id, scope, audience, pepper_id, metadata, dpop_jkt, expires_at, rotated_from)
             VALUES ($1,     $2,      $3,        $4,   $5,       $6,        $7,       $8,       $9,        $10)
-        "#;
-
-        let mut tx = conn.begin().await?;
-        bind_refresh(sqlx::query(sql), params)
-            .execute(&mut *tx)
+        "#,
+        params.digest.as_bytes(),
+        params.user_id,
+        params.client_id,
+        params.scope,
+        params.audience,
+        params.pepper_id,
+        serde_json::Value::Object(params.metadata),
+        params.dpop_jkt,
+        params.expires_at,
+        params.rotated_from.map(|d| d.as_bytes() as &[u8])
+        ).execute(conn)
             .await?;
-        tx.commit().await?;
         Ok(())
     }
 

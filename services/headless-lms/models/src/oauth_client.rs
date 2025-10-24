@@ -1,5 +1,5 @@
 use crate::{oauth_shared_types::Digest, prelude::*};
-use sqlx::{FromRow, Postgres, Row, postgres::PgArguments, query::Query};
+use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
@@ -15,8 +15,6 @@ pub struct OAuthClient {
     pub bearer_allowed: bool,
 }
 
-/* ------------ internal helper for INSERT ------------ */
-
 #[derive(Debug, Clone)]
 pub struct NewClientParams<'a> {
     pub client_id: &'a str,
@@ -28,24 +26,6 @@ pub struct NewClientParams<'a> {
     pub origin: &'a str,
     pub bearer_allowed: bool,
 }
-
-fn bind_client<'q>(
-    mut q: Query<'q, Postgres, PgArguments>,
-    p: &NewClientParams<'q>,
-) -> Query<'q, Postgres, PgArguments> {
-    q = q
-        .bind(p.client_id)
-        .bind(p.client_secret.as_bytes())
-        .bind(p.pepper_id)
-        .bind(p.redirect_uris)
-        .bind(p.grant_types)
-        .bind(p.scope)
-        .bind(p.origin)
-        .bind(p.bearer_allowed);
-    q
-}
-
-/* ------------ impl ------------ */
 
 impl OAuthClient {
     pub async fn find_by_client_id(
@@ -78,7 +58,8 @@ impl OAuthClient {
     }
 
     pub async fn insert(conn: &mut PgConnection, params: NewClientParams<'_>) -> ModelResult<Uuid> {
-        let sql = r#"
+        let res = sqlx::query!(
+            r#"
             INSERT INTO oauth_clients (
                 client_id,
                 client_secret,
@@ -91,17 +72,18 @@ impl OAuthClient {
             )
             VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
             RETURNING id
-        "#;
-
-        let mut tx = conn.begin().await?;
-        let row = bind_client(sqlx::query(sql), &params)
-            .fetch_one(&mut *tx)
-            .await?;
-        tx.commit().await?;
-
-        // `RETURNING id` is the first (and only) column in the row
-        // Use `try_get` if you prefer: `row.try_get::<Uuid, _>(0)?`
-        let id: Uuid = row.try_get(0)?;
-        Ok(id)
+        "#,
+            params.client_id,
+            params.client_secret.as_bytes(),
+            params.pepper_id,
+            params.redirect_uris,
+            params.grant_types,
+            params.scope,
+            params.origin,
+            params.bearer_allowed
+        )
+        .fetch_one(conn)
+        .await?;
+        Ok(res.id)
     }
 }

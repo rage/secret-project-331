@@ -57,6 +57,13 @@ interface QuickActionsMenuProps {
   menuOptions?: MenuOption[]
 }
 
+type QuickAction = {
+  type: "link" | "separator"
+  label: string
+  href: string
+  metadata: { [k: string]: string }
+}
+
 const defaultQuickActions = [
   { type: "link" as const, label: "Search", href: "/search" },
   { type: "link" as const, label: "Change Language", href: "/language" },

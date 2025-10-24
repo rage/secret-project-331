@@ -13,22 +13,19 @@ import TopBarMenuButton from "./TopBarMenuButton"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import { getDir } from "@/shared-module/common/hooks/useLanguage"
+import { getDir, SUPPORTED_LANGUAGES } from "@/shared-module/common/hooks/useLanguage"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type LanguageCode = "en" | "fi" | "sv" | "de" | "fr"
 
 // Prefer a single source of truth for supported languages
-const SUPPORTED_LANGS: LanguageCode[] = ["en", "fi", "sv", "de", "fr"]
 
 function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-/** Robust label getter: native (endonym), localized (in current UI lang), and English. */
 function getLanguageLabels(targetCode: string, displayLocale: string) {
-  // Fallbacks if Intl.DisplayNames isn't supported (older engines)
-  const hasIntl = typeof Intl !== "undefined" && typeof (Intl as Intl).DisplayNames === "function"
+  const hasIntl = typeof Intl !== "undefined" && typeof Intl.DisplayNames === "function"
   if (!hasIntl) {
     return {
       native: targetCode.toUpperCase(),
@@ -36,9 +33,9 @@ function getLanguageLabels(targetCode: string, displayLocale: string) {
       english: targetCode.toUpperCase(),
     }
   }
-  const NativeNames = new (Intl as any).DisplayNames(targetCode, { type: "language" })
-  const LocalizedNames = new (Intl as any).DisplayNames(displayLocale, { type: "language" })
-  const EnglishNames = new (Intl as any).DisplayNames("en", { type: "language" })
+  const NativeNames = new Intl.DisplayNames(targetCode, { type: "language" })
+  const LocalizedNames = new Intl.DisplayNames(displayLocale, { type: "language" })
+  const EnglishNames = new Intl.DisplayNames("en", { type: "language" })
   return {
     native: capitalizeFirst(NativeNames.of(targetCode) || targetCode.toUpperCase()),
     localized: capitalizeFirst(LocalizedNames.of(targetCode) || targetCode.toUpperCase()),
@@ -205,7 +202,7 @@ const LanguageMenuWithHook: React.FC<
   const error = hookResult?.error || null
 
   const current = (i18n.resolvedLanguage || i18n.language || "en").split("-")[0] // normalize
-  const active = SUPPORTED_LANGS.includes(current as LanguageCode)
+  const active = SUPPORTED_LANGUAGES.includes(current as LanguageCode)
     ? (current as LanguageCode)
     : "en"
   const { native: activeNative } = getLanguageLabels(active, active) // button shows native name
@@ -383,7 +380,7 @@ const LanguageMenuWithHook: React.FC<
             outline: none;
           `}
         >
-          {SUPPORTED_LANGS.map((code) => {
+          {SUPPORTED_LANGUAGES.map((code) => {
             const { native, localized, english } = getLanguageLabels(code, active)
             const selected = code === active
             const subtitle = selected ? english : localized

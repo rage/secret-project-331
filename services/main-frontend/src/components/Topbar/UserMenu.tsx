@@ -3,14 +3,9 @@
 
 import { css } from "@emotion/css"
 import React, { useState } from "react"
-import {
-  Button as AriaButton,
-  Menu,
-  MenuItem,
-  MenuTrigger,
-  Popover,
-  Separator,
-} from "react-aria-components"
+import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
+
+import TopBarMenuButton from "./TopBarMenuButton"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -79,59 +74,15 @@ const userMenuItems = [
   },
 ] as const
 
-const Chevron: React.FC<{ open: boolean }> = ({ open }) => (
-  <svg
-    width="14"
-    height="14"
-    viewBox="0 0 20 20"
-    aria-hidden
-    className={css`
-      transition: transform 160ms ease;
-      transform: rotate(${open ? 180 : 0}deg);
-      opacity: 0.8;
-    `}
-  >
-    <path
-      d="M5 7l5 5 5-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
 const UserMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
-      <AriaButton
-        slot="trigger"
+      <TopBarMenuButton
         id="topbar-user-menu"
-        aria-label="Open account menu"
-        aria-expanded={isOpen}
-        className={css`
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          border-radius: 999px;
-          padding: 6px 10px;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          transition: background 120ms ease;
-
-          &:hover,
-          &[data-pressed],
-          &[data-hovered] {
-            background: #f3f4f6;
-          }
-          &[data-focus-visible] {
-            box-shadow: 0 0 0 2px #111827;
-          }
-        `}
+        ariaLabel="Open account menu"
+        tooltipText="Account menu"
       >
         <div
           aria-hidden
@@ -170,9 +121,8 @@ const UserMenu: React.FC = () => {
           `}
         >
           User
-          <Chevron open={isOpen} />
         </span>
-      </AriaButton>
+      </TopBarMenuButton>
 
       <Popover
         placement="bottom end"

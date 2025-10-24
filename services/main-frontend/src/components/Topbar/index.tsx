@@ -38,7 +38,7 @@ const Topbar: React.FC<TopbarProps> = ({ children }) => {
           className={css`
             display: flex;
             align-items: center;
-            height: 56px;
+            height: 4rem;
             gap: 8px;
           `}
           aria-label="Top bar"
@@ -70,7 +70,7 @@ const Topbar: React.FC<TopbarProps> = ({ children }) => {
               margin-inline-start: auto;
               display: flex;
               align-items: center;
-              gap: 6px;
+              gap: 4px;
             `}
           >
             <SearchButton />
@@ -81,7 +81,7 @@ const Topbar: React.FC<TopbarProps> = ({ children }) => {
               className={css`
                 height: 24px;
                 background: #e5e7eb;
-                margin-inline: 6px;
+                margin-inline: 4px;
                 display: none;
                 ${respondToOrLarger.md} {
                   display: block;
@@ -96,7 +96,7 @@ const Topbar: React.FC<TopbarProps> = ({ children }) => {
               className={css`
                 height: 24px;
                 background: #e5e7eb;
-                margin-inline: 6px;
+                margin-inline: 4px;
                 display: none;
                 ${respondToOrLarger.md} {
                   display: block;

@@ -3,9 +3,11 @@
 
 import { css } from "@emotion/css"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
-import React from "react"
-import { Button as AriaButton, Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
+import React, { useState } from "react"
+import { Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
+
+import TopBarMenuButton from "./TopBarMenuButton"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -40,27 +42,6 @@ function getLanguageLabels(targetCode: string, displayLocale: string) {
 }
 
 const triggerBtn = css`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  transition: background 120ms ease;
-
-  &:hover,
-  &[data-hovered] {
-    background: #f3f4f6;
-  }
-  &[data-pressed] {
-    background: #e5e7eb;
-  }
-  &[data-focus-visible] {
-    box-shadow: 0 0 0 2px #111827;
-  }
-
   /* Keep DOM stable; structure changes via CSS only */
   display: none;
   ${respondToOrLarger.md} {
@@ -165,6 +146,7 @@ const footerMessage = css`
 
 const LanguageMenu: React.FC = () => {
   const { i18n } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
   const current = (i18n.resolvedLanguage || i18n.language || "en").split("-")[0] // normalize
   const active = SUPPORTED_LANGS.includes(current as LanguageCode)
     ? (current as LanguageCode)
@@ -180,8 +162,12 @@ const LanguageMenu: React.FC = () => {
   }
 
   return (
-    <MenuTrigger>
-      <AriaButton aria-label={`Change language, current ${activeNative}`} className={triggerBtn}>
+    <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
+      <TopBarMenuButton
+        ariaLabel={`Change language, current ${activeNative}`}
+        tooltipText={`Change language, current: ${activeNative}`}
+        className={triggerBtn}
+      >
         <LanguageTranslation size={18} />
         {/* Always show active language name on the button */}
         <span
@@ -193,7 +179,7 @@ const LanguageMenu: React.FC = () => {
         >
           {activeNative}
         </span>
-      </AriaButton>
+      </TopBarMenuButton>
 
       <Popover
         placement="bottom end"

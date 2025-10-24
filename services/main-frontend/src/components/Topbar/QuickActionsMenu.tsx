@@ -3,16 +3,9 @@
 
 import { css } from "@emotion/css"
 import React, { useState } from "react"
-import {
-  Button as AriaButton,
-  Menu,
-  MenuItem,
-  MenuTrigger,
-  Popover,
-  Separator,
-  Tooltip,
-  TooltipTrigger,
-} from "react-aria-components"
+import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
+
+import TopBarMenuButton from "./TopBarMenuButton"
 
 import Hamburger from "@/shared-module/common/components/Navigation/NavBar/Menu/Hamburger/Hamburger"
 
@@ -68,65 +61,14 @@ const QuickActionsMenu: React.FC = () => {
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
-      <TooltipTrigger>
-        <AriaButton
-          slot="trigger"
-          id="topbar-quick-actions"
-          aria-label="Open quick actions menu"
-          aria-expanded={isOpen}
-          className={css`
-            padding: 8px 10px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 120ms ease;
-            background: transparent;
-            border: none;
-            border-radius: 999px;
-            outline: none;
-
-            &:hover,
-            &[data-hovered] {
-              background: #f3f4f6;
-            }
-            &[data-pressed] {
-              background: #e5e7eb;
-            }
-            &[data-focus-visible] {
-              box-shadow: 0 0 0 2px #111827;
-            }
-          `}
-        >
-          <Hamburger isActive={isOpen} />
-          <span
-            className={css`
-              font-size: 14px;
-              font-weight: 600;
-              color: #111827;
-              display: none;
-
-              @media (min-width: 768px) {
-                display: inline;
-              }
-            `}
-          >
-            Menu
-          </span>
-        </AriaButton>
-        <Tooltip
-          className={css`
-            background: #111827;
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-          `}
-        >
-          Quick actions
-        </Tooltip>
-      </TooltipTrigger>
+      <TopBarMenuButton
+        id="topbar-quick-actions"
+        ariaLabel="Open quick actions menu"
+        tooltipText="Quick actions"
+        showChevron={false}
+      >
+        <Hamburger isActive={isOpen} buttonWidth={20} />
+      </TopBarMenuButton>
 
       <Popover
         placement="bottom end"

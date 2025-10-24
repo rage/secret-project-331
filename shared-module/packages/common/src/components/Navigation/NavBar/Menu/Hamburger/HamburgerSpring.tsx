@@ -9,13 +9,13 @@ const getLayerHeight = (buttonWidth: ButtonWidth) => buttonWidth * 0.1
 const getLayerSpacing = (buttonWidth: ButtonWidth) => buttonWidth * 0.15
 
 const active = `
-  transition-delay: 0.22s;
+  transition-delay: 0.15s;
   background-color: transparent;
 `
 
 const getActiveBefore = (buttonWidth: ButtonWidth) => `
   top: 0;
-  transition: top 0.1s 0.15s cubic-bezier(0.33333, 0, 0.66667, 0.33333), transform 0.13s 0.22s cubic-bezier(0.215, 0.61, 0.355, 1);
+  transition: top 0.07s 0.1s cubic-bezier(0.33333, 0, 0.66667, 0.33333), transform 0.09s 0.15s cubic-bezier(0.215, 0.61, 0.355, 1);
   transform: translate3d(0, ${
     getLayerHeight(buttonWidth) + getLayerSpacing(buttonWidth)
   }px, 0) rotate(45deg);
@@ -23,7 +23,7 @@ const getActiveBefore = (buttonWidth: ButtonWidth) => `
 
 const getActiveAfter = (buttonWidth: ButtonWidth) => `
   top: 0;
-  transition: top 0.2s cubic-bezier(0.33333, 0, 0.66667, 0.33333), transform 0.13s 0.22s cubic-bezier(0.215, 0.61, 0.355, 1);
+  transition: top 0.13s cubic-bezier(0.33333, 0, 0.66667, 0.33333), transform 0.09s 0.15s cubic-bezier(0.215, 0.61, 0.355, 1);
   transform: translate3d(0, ${
     getLayerHeight(buttonWidth) + getLayerSpacing(buttonWidth)
   }px, 0) rotate(-45deg);
@@ -35,7 +35,7 @@ const getLinesCommon = ({ buttonWidth }: { buttonWidth: ButtonWidth }) => `
   border-radius: ${buttonWidth * 0.1}px;
   position: absolute;
   transition-property: transform;
-  transition-duration: 0.15s;
+  transition-duration: 0.1s;
   transition-timing-function: ease;
 `
 
@@ -69,8 +69,8 @@ const StyledLinesSpring = styled(StyledLines)`
   &::before {
     top: ${({ buttonWidth }) => getLayerHeight(buttonWidth) + getLayerSpacing(buttonWidth)}px;
     transition:
-      top 0.1s 0.2s cubic-bezier(0.33333, 0.66667, 0.66667, 1),
-      transform 0.13s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+      top 0.07s 0.13s cubic-bezier(0.33333, 0.66667, 0.66667, 1),
+      transform 0.09s cubic-bezier(0.55, 0.055, 0.675, 0.19);
     ${({ isActive, buttonWidth }) => isActive && getActiveBefore(buttonWidth)}
     ${getBarColor}
   }
@@ -79,109 +79,28 @@ const StyledLinesSpring = styled(StyledLines)`
     top: ${({ buttonWidth }) =>
       2 * getLayerHeight(buttonWidth) + 2 * getLayerSpacing(buttonWidth)}px;
     transition:
-      top 0.2s 0.2s cubic-bezier(0.33333, 0.66667, 0.66667, 1),
-      transform 0.13s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+      top 0.13s 0.13s cubic-bezier(0.33333, 0.66667, 0.66667, 1),
+      transform 0.09s cubic-bezier(0.55, 0.055, 0.675, 0.19);
     ${({ isActive, buttonWidth }) => isActive && getActiveAfter(buttonWidth)}
     ${getBarColor}
   }
 
   top: ${({ buttonWidth }) => getLayerHeight(buttonWidth)}px;
-  transition: background-color 0s 0.13s linear;
+  transition: background-color 0s 0.09s linear;
   ${getBarColor}
   ${({ isActive }) => isActive && active}
 `
 
 type BarColor = string
-type ButtonColor = string
 type ButtonWidth = number
 type IsActive = boolean
 
-type ButtonProps = {
-  /**
-   * Color of the bars, default 'black'
-   */
+export type HamburgerIconProps = {
   barColor?: BarColor
-  /**
-   * Component to use as the box
-   */
-  Box?: React.ElementType
-  /**
-   * Color of the button, default 'transparent'
-   */
-  buttonColor?: ButtonColor
-  /**
-   * Width of the button, default 40
-   */
   buttonWidth?: ButtonWidth
-  /**
-   * ClassName for the button
-   */
-  className?: string
-  /**
-   * Specifies if the button is active or not, default false
-   */
   isActive?: IsActive
-  /**
-   * Component to use as the bar lines
-   */
+  Box?: React.ElementType
   Lines?: React.ElementType
-  /**
-   * Callback to invoke on button click to toggle active state, default () => {}
-   */
-  toggleButton?: () => void
-  /**
-   * id to differirentiate Hamburger menus from each other, needed for accesibility
-   */
-  buttonId?: string
-}
-
-type StyledButtonProps = {
-  buttonWidth: ButtonWidth
-  buttonColor: ButtonColor
-}
-
-const StyledButton = styled.div<StyledButtonProps>`
-  padding: ${({ buttonWidth }) => buttonWidth * 0.375}px;
-  display: inline-block;
-  cursor: pointer;
-  transition-property: opacity, filter;
-  transition-duration: 0.15s;
-  transition-timing-function: linear;
-  font: inherit;
-  color: inherit;
-  text-transform: none;
-  background-color: ${({ buttonColor }) => buttonColor};
-  margin: 0;
-  border: none;
-  overflow: visible;
-`
-
-const Button: React.FC<React.PropsWithChildren<ButtonProps>> = (props) => {
-  const {
-    barColor = "black",
-    Box = StyledBox,
-    buttonColor = "transparent",
-    buttonWidth = 40,
-    className,
-    isActive = false,
-    Lines = StyledLines,
-    toggleButton,
-    buttonId,
-    ...rest
-  } = props
-
-  return (
-    <StyledButton
-      onClick={toggleButton}
-      {...{ buttonWidth, buttonColor, className }}
-      {...rest}
-      id={buttonId}
-    >
-      <Box {...{ buttonWidth }}>
-        <Lines {...{ buttonWidth, barColor, isActive }} />
-      </Box>
-    </StyledButton>
-  )
 }
 
 export type LineProps = {
@@ -201,6 +120,15 @@ const StyledBox = styled.div<StyledBoxProps>`
   position: relative;
 `
 
-export const HamburgerSpring: React.FC<React.PropsWithChildren<ButtonProps>> = (props) => (
-  <Button {...props} Lines={StyledLinesSpring} />
-)
+export const HamburgerSpring: React.FC<HamburgerIconProps> = ({
+  barColor = "black",
+  buttonWidth = 40,
+  isActive = false,
+  Box = StyledBox,
+}) => {
+  return (
+    <Box {...{ buttonWidth }}>
+      <StyledLinesSpring {...{ buttonWidth, barColor, isActive }} />
+    </Box>
+  )
+}

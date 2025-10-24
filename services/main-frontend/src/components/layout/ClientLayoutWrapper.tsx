@@ -2,7 +2,9 @@
 
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
+import { RouterProvider } from "react-aria-components"
 
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
@@ -22,6 +24,7 @@ interface ClientLayoutWrapperProps {
 }
 
 function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
+  const router = useRouter()
   const initialLanguage = useLanguage()
   const [language, setLanguage] = useState(initialLanguage ?? DEFAULT_LANGUAGE)
   const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
@@ -72,12 +75,14 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <OverlayProvider>
-        <DialogProvider>
-          <GlobalStyles />
-          <LoginStateContextProvider>{children}</LoginStateContextProvider>
-        </DialogProvider>
-      </OverlayProvider>
+      <RouterProvider navigate={(path) => router.push(path)}>
+        <OverlayProvider>
+          <DialogProvider>
+            <GlobalStyles />
+            <LoginStateContextProvider>{children}</LoginStateContextProvider>
+          </DialogProvider>
+        </OverlayProvider>
+      </RouterProvider>
     </QueryClientProvider>
   )
 }

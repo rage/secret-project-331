@@ -4,6 +4,8 @@ import Head from "next/head"
 import { usePathname } from "next/navigation"
 import React, { ReactNode } from "react"
 
+import Topbar from "./Topbar"
+
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
 import LanguageSelection from "@/shared-module/common/components/LanguageSelection"
@@ -15,6 +17,7 @@ import {
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
 import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
@@ -48,25 +51,14 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <NavBar
-          // faqUrl={faqUrl}
-          variant={"simple"}
-          // Return to path can be override per page
-          // returnToPath={returnToPath ?? returnPath}
-        >
-          <NavContainer>
-            <NavItems>
-              <NavItem>
-                <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
-              </NavItem>
-            </NavItems>
-          </NavContainer>
-          <Menu>
-            <LoginControls currentPagePath={pathname} />
-          </Menu>
-        </NavBar>
+        <Topbar />
 
-        <main id="maincontent">
+        <main
+          id="maincontent"
+          className={css`
+            padding-top: 4rem;
+          `}
+        >
           <Centered variant="default">{children}</Centered>
         </main>
       </div>

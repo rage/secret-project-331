@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = true\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\n",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\nFROM chatbot_configurations\nWHERE id = $1\nAND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -40,7 +40,7 @@
       },
       {
         "ordinal": 7,
-        "name": "model",
+        "name": "model_id",
         "type_info": "Uuid"
       },
       {
@@ -170,8 +170,8 @@
       false,
       false,
       false,
-      true,
-      true,
+      false,
+      false,
       false,
       false,
       false,
@@ -191,5 +191,5 @@
       false
     ]
   },
-  "hash": "fd1896737c6a702692c75b856838b47f73b28453299878197fd35c1c553640ef"
+  "hash": "abded56bad78442867f1ca08540d9e443049f4762b1995acc6c238d42e417a72"
 }

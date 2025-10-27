@@ -27,7 +27,6 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
-import { emptyStringToNull } from "@/utils/emptyStringToNull"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -66,7 +65,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   } = useForm<ConfigureChatbotFields>({
     defaultValues: {
       chatbot_name: oldChatbotConf.chatbot_name,
-      model: oldChatbotConf.model,
+      model_id: oldChatbotConf.model_id,
       enabled_to_students: oldChatbotConf.enabled_to_students,
       prompt: oldChatbotConf.prompt,
       initial_message: oldChatbotConf.initial_message,
@@ -93,15 +92,17 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     enabled: !!oldChatbotConf.course_id,
   })
 
-  const modelFieldValue = watch("model")
+  const modelFieldValue = watch("model_id")
 
   let selectedModel: ChatbotConfigurationModel | null = null
 
   if (getChatbotModelsList.data) {
-    selectedModel =
+    // once the query has finished, selectedModel cannot be null
+    selectedModel = assertNotNullOrUndefined(
       getChatbotModelsList.data.find((m) => {
         return m.id === modelFieldValue
-      }) ?? null
+      }),
+    )
   }
 
   const configureChatbotMutation = useToastMutation(
@@ -137,15 +138,14 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const onConfigureChatbotWrapper = handleSubmit((data) => {
     // if the model is thinking or called model-router, force search to be off
+    let model: ChatbotConfigurationModel = assertNotNullOrUndefined(selectedModel)
     let azure_search =
-      selectedModel?.thinking || selectedModel?.model === "model-router"
-        ? false
-        : data.use_azure_search
+      model.thinking || model.model === "model-router" ? false : data.use_azure_search
 
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
-      model: emptyStringToNull(data.model),
+      model_id: data.model_id,
       enabled_to_students: data.enabled_to_students,
       prompt: data.prompt,
       initial_message: data.initial_message,
@@ -159,7 +159,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       max_completion_tokens: +data.max_completion_tokens,
       reasoning_effort: data.reasoning_effort,
       verbosity: data.verbosity,
-      thinking_model: selectedModel?.thinking ?? null,
+      thinking_model: model.thinking,
       use_azure_search: azure_search,
       // right now use_azure_search requires the next field to be true and there is no need for it to
       // be true if azure search is false, so set them as the same value
@@ -215,7 +215,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
             }
           })}
           showDefaultOption={false}
-          {...register("model")}
+          {...register("model_id")}
         />
         {selectedModel?.thinking ? (
           <div className={itemCss}>

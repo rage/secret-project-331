@@ -218,7 +218,7 @@
 <a href=#218 id=218 data-nosnippet>218</a>        <span class="kw">let </span>base_url = env::var(<span class="string">"BASE_URL"</span>).context(<span class="string">"BASE_URL must be defined"</span>)<span class="question-mark">?</span>;
 <a href=#219 id=219 data-nosnippet>219</a>        <span class="kw">let </span>chatbot_config = <span class="prelude-val">Some</span>(AzureChatbotConfiguration {
 <a href=#220 id=220 data-nosnippet>220</a>            api_key: <span class="string">""</span>.to_string(),
-<a href=#221 id=221 data-nosnippet>221</a>            api_endpoint: Url::from_str(<span class="kw-2">&amp;</span>base_url)<span class="question-mark">?</span>.join(<span class="string">"/api/v0/mock-azure/test"</span>)<span class="question-mark">?</span>,
+<a href=#221 id=221 data-nosnippet>221</a>            api_endpoint: Url::parse(<span class="kw-2">&amp;</span>base_url)<span class="question-mark">?</span>.join(<span class="string">"/api/v0/mock-azure/test/"</span>)<span class="question-mark">?</span>,
 <a href=#222 id=222 data-nosnippet>222</a>        });
 <a href=#223 id=223 data-nosnippet>223</a>        <span class="kw">let </span>search_config = <span class="prelude-val">Some</span>(AzureSearchConfiguration {
 <a href=#224 id=224 data-nosnippet>224</a>            vectorizer_resource_uri: <span class="string">""</span>.to_string(),

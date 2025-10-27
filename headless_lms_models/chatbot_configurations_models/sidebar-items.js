@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_all","get_by_chatbot_configuration_id","get_by_id","get_default","insert"],"struct":["ChatbotConfigurationModel","NewChatbotConfigurationModel"]};

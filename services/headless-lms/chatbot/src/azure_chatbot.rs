@@ -9,9 +9,10 @@ use std::task::{Context, Poll};
 use bytes::Bytes;
 use chrono::Utc;
 use futures::{Stream, TryStreamExt};
+use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
-use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
+use headless_lms_utils::ApplicationConfiguration;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -19,7 +20,7 @@ use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use url::Url;
 
-use crate::llm_utils::{LLM_API_VERSION, build_llm_headers, estimate_tokens};
+use crate::llm_utils::{APIMessage, MessageRole, estimate_tokens, make_streaming_llm_request};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 
@@ -76,41 +77,54 @@ pub struct ResponseChunk {
     pub system_fingerprint: Option<String>,
 }
 
-/// The format accepted by the API.
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ApiChatMessage {
-    pub role: String,
-    pub content: String,
-}
-
-impl From<ChatbotConversationMessage> for ApiChatMessage {
+impl From<ChatbotConversationMessage> for APIMessage {
     fn from(message: ChatbotConversationMessage) -> Self {
-        ApiChatMessage {
+        APIMessage {
             role: if message.is_from_chatbot {
-                "assistant".to_string()
+                MessageRole::Assistant
             } else {
-                "user".to_string()
+                MessageRole::User
             },
             content: message.message.unwrap_or_default(),
         }
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ChatRequest {
-    pub messages: Vec<ApiChatMessage>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub data_sources: Vec<DataSource>,
-    pub temperature: f32,
-    pub top_p: f32,
-    pub frequency_penalty: f32,
-    pub presence_penalty: f32,
-    pub max_tokens: i32,
-    pub stop: Option<String>,
-    pub stream: bool,
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct ThinkingParams {
+    pub max_completion_tokens: Option<i32>,
+    pub verbosity: Option<VerbosityLevel>,
+    pub reasoning_effort: Option<ReasoningEffortLevel>,
 }
 
-impl ChatRequest {
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct NonThinkingParams {
+    pub max_tokens: Option<i32>,
+    pub temperature: Option<f32>,
+    pub top_p: Option<f32>,
+    pub frequency_penalty: Option<f32>,
+    pub presence_penalty: Option<f32>,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum LLMRequestParams {
+    Thinking(ThinkingParams),
+    NonThinking(NonThinkingParams),
+    None,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LLMRequest {
+    pub messages: Vec<APIMessage>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub data_sources: Vec<DataSource>,
+    #[serde(flatten)]
+    pub params: LLMRequestParams,
+    pub stop: Option<String>,
+}
+
+impl LLMRequest {
     pub async fn build_and_insert_incoming_message_to_db(
         conn: &mut PgConnection,
         chatbot_configuration_id: Uuid,
@@ -154,15 +168,15 @@ impl ChatRequest {
         )
         .await?;
 
-        let mut api_chat_messages: Vec<ApiChatMessage> =
+        let mut api_chat_messages: Vec<APIMessage> =
             conversation_messages.into_iter().map(Into::into).collect();
 
         api_chat_messages.push(new_message.clone().into());
 
         api_chat_messages.insert(
             0,
-            ApiChatMessage {
-                role: "system".to_string(),
+            APIMessage {
+                role: MessageRole::System,
                 content: configuration.prompt.clone(),
             },
         );
@@ -223,17 +237,28 @@ impl ChatRequest {
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
 
+        let params = if let Some(true) = configuration.thinking_model {
+            LLMRequestParams::Thinking(ThinkingParams {
+                max_completion_tokens: Some(configuration.max_completion_tokens),
+                reasoning_effort: Some(configuration.reasoning_effort),
+                verbosity: Some(configuration.verbosity),
+            })
+        } else {
+            LLMRequestParams::NonThinking(NonThinkingParams {
+                max_tokens: Some(configuration.response_max_tokens),
+                temperature: Some(configuration.temperature),
+                top_p: Some(configuration.top_p),
+                frequency_penalty: Some(configuration.frequency_penalty),
+                presence_penalty: Some(configuration.presence_penalty),
+            })
+        };
+
         Ok((
             Self {
                 messages: api_chat_messages,
                 data_sources,
-                temperature: configuration.temperature,
-                top_p: configuration.top_p,
-                frequency_penalty: configuration.frequency_penalty,
-                presence_penalty: configuration.presence_penalty,
-                max_tokens: configuration.response_max_tokens,
+                params,
                 stop: None,
-                stream: true,
             },
             new_message,
             request_estimated_tokens,
@@ -379,7 +404,7 @@ pub async fn send_chat_request_and_parse_stream(
     message: &str,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
     let (chat_request, new_message, request_estimated_tokens) =
-        ChatRequest::build_and_insert_incoming_message_to_db(
+        LLMRequest::build_and_insert_incoming_message_to_db(
             conn,
             chatbot_configuration_id,
             conversation_id,
@@ -388,26 +413,14 @@ pub async fn send_chat_request_and_parse_stream(
         )
         .await?;
 
+    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
+        conn,
+        chatbot_configuration_id,
+    )
+    .await?;
+
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let done = Arc::new(AtomicBool::new(false));
-
-    let azure_config = app_config
-        .azure_configuration
-        .as_ref()
-        .ok_or_else(|| anyhow::anyhow!("Azure configuration not found"))?;
-
-    let chatbot_config = azure_config
-        .chatbot_config
-        .as_ref()
-        .ok_or_else(|| anyhow::anyhow!("Chatbot configuration not found"))?;
-
-    let api_key = chatbot_config.api_key.clone();
-    let mut url = chatbot_config.api_endpoint.clone();
-
-    // Always set the API version so that we actually use the API that the code is written for
-    url.set_query(Some(&format!("api-version={}", LLM_API_VERSION)));
-
-    let headers = build_llm_headers(&api_key)?;
 
     let response_order_number = new_message.order_number + 1;
 
@@ -437,13 +450,8 @@ pub async fn send_chat_request_and_parse_stream(
         request_estimated_tokens,
     };
 
-    let request = REQWEST_CLIENT
-        .post(url)
-        .headers(headers)
-        .json(&chat_request)
-        .send();
-
-    let response = request.await?;
+    let response =
+        make_streaming_llm_request(chat_request, &model.deployment_name, app_config).await?;
 
     info!("Receiving chat response with {:?}", response.version());
 

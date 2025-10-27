@@ -1,28 +1,43 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { getChatbotModels } from "@/services/backend/chatbotModels"
 import { configureChatbot, deleteChatbot } from "@/services/backend/chatbots"
-import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
+import {
+  ChatbotConfiguration,
+  ChatbotConfigurationModel,
+  NewChatbotConf,
+  ReasoningEffortLevel,
+  VerbosityLevel,
+} from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import SelectMenu from "@/shared-module/common/components/SelectMenu"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
+import { emptyStringToNull } from "@/utils/emptyStringToNull"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
   chatbotQueryRefetch: () => void
 }
 
-type ConfigureChatbotFields = Omit<NewChatbotConf, "course_id" | "maintain_azure_search_index">
+type ConfigureChatbotFields = Omit<
+  NewChatbotConf,
+  "course_id" | "maintain_azure_search_index" | "chatbotconf_id"
+>
 
 const itemCss = css`
   flex: 1;
@@ -34,6 +49,11 @@ const textFieldCss = css`
   width: auto;
 `
 
+const MINIMAL = "minimal"
+const LOW = "low"
+const MEDIUM = "medium"
+const HIGH = "high"
+
 const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQueryRefetch }) => {
   const { t } = useTranslation()
   const router = useRouter()
@@ -41,10 +61,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<ConfigureChatbotFields>({
     defaultValues: {
       chatbot_name: oldChatbotConf.chatbot_name,
+      model: oldChatbotConf.model,
       enabled_to_students: oldChatbotConf.enabled_to_students,
       prompt: oldChatbotConf.prompt,
       initial_message: oldChatbotConf.initial_message,
@@ -55,11 +77,32 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       frequency_penalty: oldChatbotConf.frequency_penalty,
       presence_penalty: oldChatbotConf.presence_penalty,
       response_max_tokens: oldChatbotConf.response_max_tokens,
+      verbosity: oldChatbotConf.verbosity,
+      reasoning_effort: oldChatbotConf.reasoning_effort,
+      thinking_model: oldChatbotConf.thinking_model,
+      max_completion_tokens: oldChatbotConf.max_completion_tokens,
       use_azure_search: oldChatbotConf.use_azure_search,
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
     },
   })
+
+  const getChatbotModelsList = useQuery({
+    queryKey: ["chatbot-models", oldChatbotConf.course_id],
+    queryFn: () => getChatbotModels(assertNotNullOrUndefined(oldChatbotConf.course_id)),
+    enabled: !!oldChatbotConf.course_id,
+  })
+
+  const modelFieldValue = watch("model")
+
+  let selectedModel: ChatbotConfigurationModel | null = null
+
+  if (getChatbotModelsList.data) {
+    selectedModel =
+      getChatbotModelsList.data.find((m) => {
+        return m.id === modelFieldValue
+      }) ?? null
+  }
 
   const configureChatbotMutation = useToastMutation(
     async (bot: NewChatbotConf) => {
@@ -93,9 +136,16 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   )
 
   const onConfigureChatbotWrapper = handleSubmit((data) => {
+    // if the model is thinking or called model-router, force search to be off
+    let azure_search =
+      selectedModel?.thinking || selectedModel?.model === "model-router"
+        ? false
+        : data.use_azure_search
+
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
+      model: emptyStringToNull(data.model),
       enabled_to_students: data.enabled_to_students,
       prompt: data.prompt,
       initial_message: data.initial_message,
@@ -106,16 +156,28 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       frequency_penalty: +data.frequency_penalty,
       presence_penalty: +data.presence_penalty,
       response_max_tokens: +data.response_max_tokens,
-      use_azure_search: data.use_azure_search,
+      max_completion_tokens: +data.max_completion_tokens,
+      reasoning_effort: data.reasoning_effort,
+      verbosity: data.verbosity,
+      thinking_model: selectedModel?.thinking ?? null,
+      use_azure_search: azure_search,
       // right now use_azure_search requires the next field to be true and there is no need for it to
       // be true if azure search is false, so set them as the same value
-      maintain_azure_search_index: data.use_azure_search,
+      maintain_azure_search_index: azure_search,
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
       chatbotconf_id: null,
     })
   })
+
+  if (getChatbotModelsList.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getChatbotModelsList.error} />
+  }
+
+  if (getChatbotModelsList.isLoading || getChatbotModelsList.data === undefined) {
+    return <Spinner variant={"medium"} />
+  }
 
   return (
     <div>
@@ -142,10 +204,72 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           `}
         >
           <CheckBox label={t("enabled-to-students")} {...register("enabled_to_students")} />
-          <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
-          <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
         </div>
-
+        <SelectMenu
+          id="model-select"
+          label={t("select-LLM")}
+          options={getChatbotModelsList.data.map((m) => {
+            return {
+              value: m.id,
+              label: `${m.model} (${m.thinking ? t("reasoning") : t("non-reasoning")})`,
+            }
+          })}
+          showDefaultOption={false}
+          {...register("model")}
+        />
+        {selectedModel?.thinking ? (
+          <div className={itemCss}>
+            <h4>{t("configure-reasoning")}</h4>
+            <div
+              className={css`
+                margin: 20px 20px;
+              `}
+            >
+              <SelectMenu<VerbosityLevel>
+                id="verbosity-select"
+                label={t("select-verbosity")}
+                error={errors.verbosity?.message}
+                options={[
+                  { value: LOW, label: t("reasoning-effort-low") },
+                  { value: MEDIUM, label: t("reasoning-effort-medium") },
+                  { value: HIGH, label: t("reasoning-effort-high") },
+                ]}
+                disabled={!selectedModel?.thinking}
+                showDefaultOption={false}
+                {...register("verbosity")}
+              />
+              <SelectMenu<ReasoningEffortLevel>
+                id="reasoning-effort-select"
+                label={t("select-reasoning-effort")}
+                error={errors.reasoning_effort?.message}
+                options={[
+                  { value: MINIMAL, label: t("reasoning-effort-minimal") },
+                  { value: LOW, label: t("reasoning-effort-low") },
+                  { value: MEDIUM, label: t("reasoning-effort-medium") },
+                  { value: HIGH, label: t("reasoning-effort-high") },
+                ]}
+                disabled={!selectedModel?.thinking}
+                showDefaultOption={false}
+                {...register("reasoning_effort")}
+              />
+              <TextField
+                className={textFieldCss}
+                type="number"
+                label={t("max-completion-tokens")}
+                error={errors.max_completion_tokens?.message}
+                disabled={!selectedModel?.thinking}
+                {...register("max_completion_tokens", { required: t("required-field") })}
+              />
+            </div>
+          </div>
+        ) : (
+          selectedModel?.model !== "model-router" && (
+            <>
+              <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
+              <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
+            </>
+          )
+        )}
         <Accordion>
           <details
             className={css`
@@ -183,122 +307,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     label={t("weekly-token-user")}
                     {...register("weekly_tokens_per_user")}
                   />
-                  <TextField
-                    className={textFieldCss}
-                    type="number"
-                    label={t("max-token-response")}
-                    {...register("response_max_tokens")}
-                  />
-                </div>
-                <div className={itemCss}>
-                  <h4>{t("configure-penalty")}</h4>
-                  <TextField
-                    className={textFieldCss}
-                    type="number"
-                    error={errors.frequency_penalty?.message}
-                    step="0.01"
-                    label={t("frequency-penalty")}
-                    {...register("frequency_penalty", {
-                      required: t("required-field"),
-                      min: {
-                        value: 0,
-                        message: t("error-field-value-between", {
-                          field: t("frequency-penalty"),
-                          lower: "0",
-                          upper: "1",
-                        }),
-                      },
-                      max: {
-                        value: 1,
-                        message: t("error-field-value-between", {
-                          field: t("frequency-penalty"),
-                          lower: "0",
-                          upper: "1",
-                        }),
-                      },
-                    })}
-                  />
-                  <TextField
-                    className={textFieldCss}
-                    type="number"
-                    error={errors.presence_penalty?.message}
-                    step="0.01"
-                    label={t("presence-penalty")}
-                    {...register("presence_penalty", {
-                      required: t("required-field"),
-                      min: {
-                        value: 0,
-                        message: t("error-field-value-between", {
-                          field: t("presence-penalty"),
-                          lower: "0",
-                          upper: "1",
-                        }),
-                      },
-                      max: {
-                        value: 1,
-                        message: t("error-field-value-between", {
-                          field: t("presence-penalty"),
-                          lower: "0",
-                          upper: "1",
-                        }),
-                      },
-                    })}
-                  />
-                </div>
-                <div className={itemCss}>
-                  <h4>{t("configure-creativity")}</h4>
-                  <TextField
-                    className={textFieldCss}
-                    type="number"
-                    error={errors.temperature?.message}
-                    step="0.01"
-                    label={t("temperature")}
-                    {...register("temperature", {
-                      required: t("required-field"),
-                      min: {
-                        value: 0,
-                        message: t("error-field-value-between", {
-                          field: t("temperature"),
-                          lower: "0",
-                          upper: "1",
-                        }),
-                      },
-                      max: {
-                        value: 1,
-                        message: t("error-field-value-between", {
-                          field: t("temperature"),
-                          lower: "0",
-                          upper: "1",
-                        }),
-                      },
-                    })}
-                  />
-                  <TextField
-                    className={textFieldCss}
-                    type="number"
-                    error={errors.top_p?.message}
-                    step="0.01"
-                    label={t("top-p")}
-                    {...register("top_p", {
-                      required: t("required-field"),
-                      min: {
-                        value: 0,
-                        message: t("error-field-value-between", {
-                          field: t("top-p"),
-                          lower: "0",
-                          upper: "1",
-                        }),
-                      },
-                      max: {
-                        value: 1,
-                        message: t("error-field-value-between", {
-                          field: t("top-p"),
-                          lower: "0",
-                          upper: "1",
-                        }),
-                      },
-                    })}
-                  />
                 </div>
                 <div className={itemCss}>
                   <h4>{t("configure-search")}</h4>
@@ -313,6 +321,150 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     />
                   </div>
                 </div>
+                <div
+                  className={css`
+                    flex-direction: column;
+                    flex-grow: 1;
+                    gap: 20px;
+                    justify-content: space-between;
+                    margin-right: 20px;
+                  `}
+                >
+                  {!selectedModel?.thinking && (
+                    <div>
+                      {" "}
+                      <div className={itemCss}>
+                        <h3>{t("non-reasoning-model-settings")}</h3>
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          label={t("max-token-response")}
+                          error={errors.response_max_tokens?.message}
+                          {...register("response_max_tokens", { required: t("required-field") })}
+                        />
+                        <h4>{t("configure-penalty")}</h4>
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          error={errors.frequency_penalty?.message}
+                          step="0.01"
+                          label={t("frequency-penalty")}
+                          disabled={selectedModel?.thinking}
+                          {...register("frequency_penalty", {
+                            required: t("required-field"),
+                            min: {
+                              value: 0,
+                              message: t("error-field-value-between", {
+                                field: t("frequency-penalty"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                            max: {
+                              value: 1,
+                              message: t("error-field-value-between", {
+                                field: t("frequency-penalty"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                          })}
+                        />
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          error={errors.presence_penalty?.message}
+                          step="0.01"
+                          label={t("presence-penalty")}
+                          disabled={selectedModel?.thinking}
+                          {...register("presence_penalty", {
+                            required: t("required-field"),
+                            min: {
+                              value: 0,
+                              message: t("error-field-value-between", {
+                                field: t("presence-penalty"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                            max: {
+                              value: 1,
+                              message: t("error-field-value-between", {
+                                field: t("presence-penalty"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                          })}
+                        />
+                      </div>
+                      <div className={itemCss}>
+                        <h4>{t("configure-creativity")}</h4>
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          error={errors.temperature?.message}
+                          step="0.01"
+                          label={t("temperature")}
+                          disabled={selectedModel?.thinking}
+                          {...register("temperature", {
+                            required: t("required-field"),
+                            min: {
+                              value: 0,
+                              message: t("error-field-value-between", {
+                                field: t("temperature"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                            max: {
+                              value: 1,
+                              message: t("error-field-value-between", {
+                                field: t("temperature"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                          })}
+                        />
+                        <TextField
+                          className={textFieldCss}
+                          type="number"
+                          error={errors.top_p?.message}
+                          step="0.01"
+                          label={t("top-p")}
+                          disabled={selectedModel?.thinking}
+                          {...register("top_p", {
+                            required: t("required-field"),
+                            min: {
+                              value: 0,
+                              message: t("error-field-value-between", {
+                                field: t("top-p"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                            max: {
+                              value: 1,
+                              message: t("error-field-value-between", {
+                                field: t("top-p"),
+                                lower: "0",
+                                upper: "1",
+                              }),
+                            },
+                          })}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div
+                  className={css`
+                    flex-direction: column;
+                    flex-grow: 1;
+                    margin-left: 20px;
+                  `}
+                ></div>
               </div>
             </div>
           </details>

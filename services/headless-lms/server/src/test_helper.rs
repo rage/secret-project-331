@@ -18,6 +18,7 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
         oauth_application_id: "some-id".to_string(),
         oauth_secret: "some-secret".to_string(),
         auth_url: "http://example.com".parse().unwrap(),
+        token_url: "http://example.com/token".parse().unwrap(),
         icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
         file_store: Arc::new(futures::executor::block_on(async {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())

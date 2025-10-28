@@ -282,7 +282,7 @@ pub async fn authorize_multiple_actions_on_resources(
 POST `/api/v0/auth/login` Logs in to TMC.
 Returns true if login was successful, false if credentials were incorrect.
 **/
-#[instrument(skip(session, pool, client, payload, app_conf))]
+#[instrument(skip(session, pool, client, payload, app_conf, tmc_client))]
 pub async fn login(
     session: Session,
     pool: web::Data<PgPool>,
@@ -411,6 +411,7 @@ async fn handle_production_login(
             client,
             email.to_string(),
             password.to_string(),
+            tmc_client,
         )
         .await?;
 

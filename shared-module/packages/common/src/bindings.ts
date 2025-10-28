@@ -199,8 +199,8 @@ export interface ChatbotConfiguration {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
-  model: string | null
-  thinking_model: boolean | null
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
@@ -224,8 +224,8 @@ export interface NewChatbotConf {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
-  model: string | null
-  thinking_model: boolean | null
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number

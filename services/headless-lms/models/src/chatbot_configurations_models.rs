@@ -76,7 +76,7 @@ pub async fn get_by_chatbot_configuration_id(
         r#"
 SELECT * FROM chatbot_configurations_models
 WHERE id = (
-    SELECT model FROM chatbot_configurations WHERE id = $1
+    SELECT model_id FROM chatbot_configurations WHERE id = $1
 )
 AND deleted_at IS NULL
         "#,

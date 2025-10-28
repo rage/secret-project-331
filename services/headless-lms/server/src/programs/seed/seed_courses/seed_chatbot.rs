@@ -71,8 +71,8 @@ pub async fn seed_chatbot_course(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             hide_citations: false,
-            model: Some(llm.id),
-            thinking_model: Some(llm.thinking),
+            model_id: llm.id,
+            thinking_model: llm.thinking,
             default_chatbot: true,
             ..Default::default()
         })
@@ -85,8 +85,8 @@ pub async fn seed_chatbot_course(
             initial_message: "Haiii xD What's up?".to_string(),
             use_azure_search: true,
             hide_citations: false,
-            model: Some(llm.id),
-            thinking_model: Some(llm.thinking),
+            model_id: llm.id,
+            thinking_model: llm.thinking,
             ..Default::default()})
         .role(seed_users_result.teacher_user_id, UserRole::Teacher)
         .module(

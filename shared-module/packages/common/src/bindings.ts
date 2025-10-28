@@ -1398,6 +1398,13 @@ export interface ProgressOverview {
   user_chapter_progress: Array<UserChapterProgress>
 }
 
+export interface CompletionGridRow {
+  student: string
+  module: string | null
+  grade: string
+  status: string
+}
+
 export interface UserMarketingConsent {
   id: string
   course_id: string

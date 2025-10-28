@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH modules AS (\n  SELECT id AS module_id, name, order_number\n  FROM course_modules\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n),\nenrolled AS (\n  SELECT DISTINCT user_id\n  FROM course_instance_enrollments\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n),\nrecent_cmc AS (\n  SELECT DISTINCT ON (cmc.user_id, cmc.course_module_id)\n         cmc.id,\n         cmc.user_id,\n         cmc.course_module_id,\n         cmc.grade,\n         cmc.passed,\n         cmc.completion_date\n  FROM course_module_completions cmc\n  WHERE cmc.course_id = $1\n    AND cmc.deleted_at IS NULL\n  ORDER BY cmc.user_id, cmc.course_module_id, cmc.completion_date DESC\n),\ncmcr AS (\n  SELECT course_module_completion_id\n  FROM course_module_completion_registered_to_study_registries\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n)\nSELECT\n  /* non-null */\n  CASE\n    WHEN ud.first_name IS NULL OR TRIM(ud.first_name) = ''\n      OR ud.last_name  IS NULL OR TRIM(ud.last_name)  = ''\n    THEN '(Missing name)'\n    ELSE TRIM(ud.first_name) || ' ' || TRIM(ud.last_name)\n  END AS \"student!\",\n  /* nullable */\n  m.name AS \"module?\",\n  /* non-null */\n  CASE\n    WHEN r.grade IS NOT NULL THEN r.grade::text\n    WHEN r.passed IS TRUE     THEN 'Passed'\n    WHEN r.passed IS FALSE    THEN 'Failed'\n    ELSE '-'\n  END AS \"grade!\",\n  /* non-null */\n  CASE\n    WHEN r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)\n      THEN 'Registered'\n    ELSE '-'\n  END AS \"status!\"\nFROM modules m\nCROSS JOIN enrolled e\nJOIN users u ON u.id = e.user_id\nLEFT JOIN user_details ud ON ud.user_id = u.id\nLEFT JOIN recent_cmc r\n  ON r.user_id = e.user_id\n AND r.course_module_id = m.module_id\nORDER BY\n  COALESCE(NULLIF(LOWER(TRIM(ud.last_name)),  ''), 'zzzzzz'),\n  COALESCE(NULLIF(LOWER(TRIM(ud.first_name)), ''), 'zzzzzz'),\n  m.order_number, m.name NULLS LAST\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "student!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "module?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "grade!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "dbd2bb3177860899846913e92a2b504f8f5ca3d6fdcb9a743969f64a457463e5"
+}

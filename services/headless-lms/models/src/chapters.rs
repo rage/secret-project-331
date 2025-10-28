@@ -624,7 +624,7 @@ pub struct CourseUserInfo {
     pub name: String,
     pub user_id: Uuid,
     pub email: Option<String>,
-    pub course_instance: Uuid,
+    pub course_instance: String,
 }
 
 pub async fn fetch_user_chapter_progress(
@@ -709,16 +709,17 @@ SELECT
   COALESCE(
     NULLIF(TRIM(COALESCE(ud.first_name, '') || ' ' || COALESCE(ud.last_name, '')), ''),
     '(Missing Name)'
-  )                           AS "name!",
-  u.id                        AS user_id,
-  ud.email                    AS email,
-  cie.course_instance_id      AS course_instance
+  )                            AS "name!",
+  u.id                         AS user_id,
+  ud.email                     AS email,
+  COALESCE(ci.name, 'Default instance') AS "course_instance!"
 FROM course_instance_enrollments AS cie
 JOIN users              AS u  ON u.id = cie.user_id
 LEFT JOIN user_details  AS ud ON ud.user_id = u.id
+JOIN course_instances   AS ci ON ci.id = cie.course_instance_id
 WHERE cie.course_id = $1
   AND cie.deleted_at IS NULL
-ORDER BY 1, user_id  -- ✅ order by column position instead of name
+ORDER BY 1, user_id
         "#,
         course_id
     )

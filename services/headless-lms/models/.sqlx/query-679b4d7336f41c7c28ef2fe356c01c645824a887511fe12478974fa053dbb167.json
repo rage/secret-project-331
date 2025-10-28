@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  COALESCE(\n    NULLIF(TRIM(COALESCE(ud.first_name, '') || ' ' || COALESCE(ud.last_name, '')), ''),\n    '(Missing Name)'\n  )                            AS \"name!\",\n  u.id                         AS user_id,\n  ud.email                     AS email,\n  COALESCE(ci.name, 'Default instance') AS \"course_instance!\"\nFROM course_instance_enrollments AS cie\nJOIN users              AS u  ON u.id = cie.user_id\nLEFT JOIN user_details  AS ud ON ud.user_id = u.id\nJOIN course_instances   AS ci ON ci.id = cie.course_instance_id\nWHERE cie.course_id = $1\n  AND cie.deleted_at IS NULL\nORDER BY 1, user_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_instance!",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "679b4d7336f41c7c28ef2fe356c01c645824a887511fe12478974fa053dbb167"
+}

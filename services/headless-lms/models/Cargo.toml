@@ -59,7 +59,7 @@ anyhow = "1.0.100"
 # HTTP client for Rust
 reqwest = { version = "0.12.23", features = ["json"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
-secrecy = "0.10.3"
+secrecy.workspace = true
 # Password hashing using Argon2id
 argon2 = "0.5.3"
 

@@ -22,6 +22,7 @@ use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
 use oauth2::TokenResponse;
 use oauth2::basic::BasicTokenType;
+use secrecy::SecretString;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use std::env;
@@ -722,7 +723,7 @@ pub async fn authenticate_moocfi_user(
     email: String,
     password: String,
     tmc_client: &TmcClient,
-) -> anyhow::Result<Option<(User, LoginToken)>> {
+) -> anyhow::Result<Option<(User, SecretString)>> {
     info!("Attempting to authenticate user with TMC");
     let token = match exchange_password_with_tmc(client, email.clone(), password).await? {
         Some(token) => token,
@@ -731,7 +732,7 @@ pub async fn authenticate_moocfi_user(
     debug!("Successfully obtained OAuth token from TMC");
 
     let tmc_user = tmc_client
-        .get_user_from_tmc_mooc_fi_by_tmc_access_token(token.access_token().secret())
+        .get_user_from_tmc_mooc_fi_by_tmc_access_token(token.clone())
         .await?;
     debug!(
         "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
@@ -766,7 +767,7 @@ pub async fn exchange_password_with_tmc(
     client: &OAuthClient,
     email: String,
     password: String,
-) -> anyhow::Result<Option<LoginToken>> {
+) -> anyhow::Result<Option<SecretString>> {
     let token_result = client
         .exchange_password(
             &ResourceOwnerUsername::new(email),
@@ -775,7 +776,9 @@ pub async fn exchange_password_with_tmc(
         .request_async(&async_http_client_with_headers)
         .await;
     match token_result {
-        Ok(token) => Ok(Some(token)),
+        Ok(token) => Ok(Some(SecretString::new(
+            token.access_token().secret().to_owned().into(),
+        ))),
         Err(RequestTokenError::ServerResponse(server_response)) => {
             let error = server_response.error();
             let error_description = server_response.error_description();
@@ -912,12 +915,13 @@ pub async fn authenticate_test_user(
 // Only used for testing, not to use in production.
 pub async fn authenticate_test_token(
     conn: &mut PgConnection,
-    token: &str,
+    _token: &SecretString,
     application_configuration: &ApplicationConfiguration,
 ) -> anyhow::Result<User> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
-    let user = models::users::get_by_email(conn, token).await?;
+    // TODO: this has never worked
+    let user = models::users::get_by_email(conn, "TODO").await?;
     Ok(user)
 }
 

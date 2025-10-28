@@ -60,7 +60,14 @@ blake3 = "1.8.2"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # higher level HTTP client library
-reqwest = { version = "0.12.23", features = ["brotli", "gzip", "json", "http2", "rustls-tls", "stream"] }
+reqwest = { version = "0.12.23", features = [
+  "brotli",
+  "gzip",
+  "json",
+  "http2",
+  "rustls-tls",
+  "stream",
+] }
 # Sessions for Actix web
 actix-session = { version = "0.11.0", features = ["cookie-session"] }
 # An extensible, strongly-typed implementation of OAuth2
@@ -130,7 +137,7 @@ tokio-util = "0.7.16"
 # Asynchronous streams using async & await notation
 async-stream = "0.3.6"
 # Secret value wrapper to avoid leaking secrets in logs and memory
-secrecy = { version = "0.10.3", features = ["serde"] }
+secrecy.workspace = true
 # Password hashing using Argon2id
 argon2 = "0.5.3"
 

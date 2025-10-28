@@ -88,6 +88,8 @@ redis = { version = "0.32.6", features = [
   "tokio-comp",
   "connection-manager",
 ] }
+# Secret value wrapper to avoid leaking secrets in logs and memory
+secrecy.workspace = true
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

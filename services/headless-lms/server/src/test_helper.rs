@@ -6,6 +6,7 @@ use crate::{
 use headless_lms_utils::{
     ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
 };
+use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;
@@ -31,6 +32,7 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
             azure_configuration: None,
             test_chatbot: false,
             tmc_account_creation_origin: None,
+            tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"

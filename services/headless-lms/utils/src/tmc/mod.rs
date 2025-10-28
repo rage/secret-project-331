@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use reqwest::Client;
+use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use url::Url;
@@ -10,8 +11,8 @@ use crate::ApplicationConfiguration;
 #[derive(Debug, Clone)]
 pub struct TmcClient {
     client: Client,
-    admin_access_token: String,
-    ratelimit_api_key: String,
+    admin_access_token: SecretString,
+    ratelimit_api_key: SecretString,
 }
 
 pub struct NewUserInfo {
@@ -62,7 +63,7 @@ pub struct TMCUserField {
 
 enum TMCRequestAuth {
     UseAdminToken,
-    UseUserToken(String),
+    UseUserToken(SecretString),
     NoAuth,
 }
 
@@ -106,8 +107,8 @@ impl TmcClient {
 
         Ok(Self {
             client,
-            admin_access_token,
-            ratelimit_api_key,
+            admin_access_token: SecretString::new(admin_access_token.into()),
+            ratelimit_api_key: SecretString::new(ratelimit_api_key.into()),
         })
     }
 
@@ -121,7 +122,10 @@ impl TmcClient {
         let mut builder = self
             .client
             .request(method, url)
-            .header("RATELIMIT-PROTECTION-SAFE-API-KEY", &self.ratelimit_api_key)
+            .header(
+                "RATELIMIT-PROTECTION-SAFE-API-KEY",
+                self.ratelimit_api_key.expose_secret(),
+            )
             .header(reqwest::header::CONTENT_TYPE, "application/json")
             .header(reqwest::header::ACCEPT, "application/json");
 
@@ -132,7 +136,7 @@ impl TmcClient {
         };
 
         if let Some(token) = access_token {
-            builder = builder.bearer_auth(token);
+            builder = builder.bearer_auth(token.expose_secret());
         }
 
         if let Some(json_body) = body {
@@ -324,7 +328,7 @@ impl TmcClient {
 
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token(
         &self,
-        tmc_access_token: &str,
+        tmc_access_token: SecretString,
     ) -> anyhow::Result<TMCUser> {
         info!("Getting user details from tmc.mooc.fi");
 
@@ -332,7 +336,7 @@ impl TmcClient {
             .request_with_headers(
                 reqwest::Method::GET,
                 &format!("{}/current", TMC_API_URL),
-                TMCRequestAuth::UseUserToken(tmc_access_token.to_string()),
+                TMCRequestAuth::UseUserToken(tmc_access_token),
                 None,
             )
             .await
@@ -359,7 +363,6 @@ impl TmcClient {
 
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(
         &self,
-        tmc_access_token: &str,
         upstream_id: &i32,
     ) -> anyhow::Result<TMCUser> {
         info!("Getting user details from tmc.mooc.fi");
@@ -368,7 +371,7 @@ impl TmcClient {
             .request_with_headers(
                 reqwest::Method::GET,
                 &format!("{}/{}", TMC_API_URL, upstream_id),
-                TMCRequestAuth::UseUserToken(tmc_access_token.to_string()),
+                TMCRequestAuth::UseAdminToken,
                 None,
             )
             .await
@@ -388,8 +391,8 @@ impl TmcClient {
     pub fn mock_for_test() -> Self {
         Self {
             client: Client::default(),
-            admin_access_token: "mock-token".to_string(),
-            ratelimit_api_key: "mock-api-key".to_string(),
+            admin_access_token: SecretString::new("mock-token".to_string().into()),
+            ratelimit_api_key: SecretString::new("mock-api-key".to_string().into()),
         }
     }
 }

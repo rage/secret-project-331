@@ -71,8 +71,8 @@
 <a href=#71 id=71 data-nosnippet>71</a>            initial_message: <span class="string">"Oh... It's you."</span>.to_string(),
 <a href=#72 id=72 data-nosnippet>72</a>            use_azure_search: <span class="bool-val">true</span>,
 <a href=#73 id=73 data-nosnippet>73</a>            hide_citations: <span class="bool-val">false</span>,
-<a href=#74 id=74 data-nosnippet>74</a>            model: <span class="prelude-val">Some</span>(llm.id),
-<a href=#75 id=75 data-nosnippet>75</a>            thinking_model: <span class="prelude-val">Some</span>(llm.thinking),
+<a href=#74 id=74 data-nosnippet>74</a>            model_id: llm.id,
+<a href=#75 id=75 data-nosnippet>75</a>            thinking_model: llm.thinking,
 <a href=#76 id=76 data-nosnippet>76</a>            default_chatbot: <span class="bool-val">true</span>,
 <a href=#77 id=77 data-nosnippet>77</a>            ..Default::default()
 <a href=#78 id=78 data-nosnippet>78</a>        })
@@ -85,8 +85,8 @@
 <a href=#85 id=85 data-nosnippet>85</a>            initial_message: <span class="string">"Haiii xD What's up?"</span>.to_string(),
 <a href=#86 id=86 data-nosnippet>86</a>            use_azure_search: <span class="bool-val">true</span>,
 <a href=#87 id=87 data-nosnippet>87</a>            hide_citations: <span class="bool-val">false</span>,
-<a href=#88 id=88 data-nosnippet>88</a>            model: <span class="prelude-val">Some</span>(llm.id),
-<a href=#89 id=89 data-nosnippet>89</a>            thinking_model: <span class="prelude-val">Some</span>(llm.thinking),
+<a href=#88 id=88 data-nosnippet>88</a>            model_id: llm.id,
+<a href=#89 id=89 data-nosnippet>89</a>            thinking_model: llm.thinking,
 <a href=#90 id=90 data-nosnippet>90</a>            ..Default::default()})
 <a href=#91 id=91 data-nosnippet>91</a>        .role(seed_users_result.teacher_user_id, UserRole::Teacher)
 <a href=#92 id=92 data-nosnippet>92</a>        .module(

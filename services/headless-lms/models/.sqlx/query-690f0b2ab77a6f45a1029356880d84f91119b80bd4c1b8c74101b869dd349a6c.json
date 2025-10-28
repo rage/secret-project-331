@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\nFROM chatbot_configurations\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\n\nFROM chatbot_configurations\nWHERE maintain_azure_search_index = true\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -40,7 +40,7 @@
       },
       {
         "ordinal": 7,
-        "name": "model",
+        "name": "model_id",
         "type_info": "Uuid"
       },
       {
@@ -158,9 +158,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -170,8 +168,8 @@
       false,
       false,
       false,
-      true,
-      true,
+      false,
+      false,
       false,
       false,
       false,
@@ -191,5 +189,5 @@
       false
     ]
   },
-  "hash": "44037a60b201feebf88e4a4dd0222ed86c4a9e54dabdb9889074569710184ed6"
+  "hash": "690f0b2ab77a6f45a1029356880d84f91119b80bd4c1b8c74101b869dd349a6c"
 }

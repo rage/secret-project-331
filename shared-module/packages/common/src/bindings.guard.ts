@@ -474,11 +474,8 @@ export function isChatbotConfiguration(obj: unknown): obj is ChatbotConfiguratio
         typeof typedObj["course_id"] === "string" &&
         typeof typedObj["enabled_to_students"] === "boolean" &&
         typeof typedObj["chatbot_name"] === "string" &&
-        (typedObj["model"] === null ||
-            typeof typedObj["model"] === "string") &&
-        (typedObj["thinking_model"] === null ||
-            typedObj["thinking_model"] === false ||
-            typedObj["thinking_model"] === true) &&
+        typeof typedObj["model_id"] === "string" &&
+        typeof typedObj["thinking_model"] === "boolean" &&
         typeof typedObj["prompt"] === "string" &&
         typeof typedObj["initial_message"] === "string" &&
         typeof typedObj["weekly_tokens_per_user"] === "number" &&
@@ -508,11 +505,8 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
         typeof typedObj["course_id"] === "string" &&
         typeof typedObj["enabled_to_students"] === "boolean" &&
         typeof typedObj["chatbot_name"] === "string" &&
-        (typedObj["model"] === null ||
-            typeof typedObj["model"] === "string") &&
-        (typedObj["thinking_model"] === null ||
-            typedObj["thinking_model"] === false ||
-            typedObj["thinking_model"] === true) &&
+        typeof typedObj["model_id"] === "string" &&
+        typeof typedObj["thinking_model"] === "boolean" &&
         typeof typedObj["prompt"] === "string" &&
         typeof typedObj["initial_message"] === "string" &&
         typeof typedObj["weekly_tokens_per_user"] === "number" &&

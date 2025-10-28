@@ -27,7 +27,7 @@ pub struct PasswordResetToken {
 pub async fn upsert_user_password(
     conn: &mut PgConnection,
     user_id: Uuid,
-    password_hash: SecretString,
+    password_hash: &SecretString,
 ) -> ModelResult<bool> {
     let result = sqlx::query!(
         r#"
@@ -221,7 +221,7 @@ WHERE token = $1
 pub async fn change_user_password_with_password_reset_token(
     conn: &mut PgConnection,
     token: Uuid,
-    password_hash: SecretString,
+    password_hash: &SecretString,
     tmc_client: &TmcClient,
 ) -> ModelResult<bool> {
     // Start a transaction and lock the token row
@@ -297,7 +297,7 @@ pub async fn change_user_password_with_old_password(
     conn: &mut PgConnection,
     user_id: Uuid,
     old_password: &SecretString,
-    new_password_hash: SecretString,
+    new_password_hash: &SecretString,
 ) -> ModelResult<bool> {
     let mut tx = conn.begin().await?;
 

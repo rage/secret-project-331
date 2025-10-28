@@ -92,7 +92,7 @@ pub async fn courses_moocfi_password_change(
     };
 
     let update_ok =
-        models::user_passwords::upsert_user_password(&mut conn, user_id, new_password_hash)
+        models::user_passwords::upsert_user_password(&mut conn, user_id, &new_password_hash)
             .await
             .unwrap_or(false);
 

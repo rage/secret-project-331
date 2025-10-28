@@ -140,7 +140,7 @@ pub async fn signup(
         let password_hash = models::user_passwords::hash_password(&password_secret)
             .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
-        models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
+        models::user_passwords::upsert_user_password(&mut conn, user.id, &password_hash)
             .await
             .map_err(|e| {
                 ControllerError::new(
@@ -219,7 +219,7 @@ async fn handle_test_mode_signup(
     ))
     .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
-    models::user_passwords::upsert_user_password(conn, user.id, password_hash)
+    models::user_passwords::upsert_user_password(conn, user.id, &password_hash)
         .await
         .map_err(|e| {
             ControllerError::new(
@@ -421,7 +421,7 @@ async fn handle_production_login(
                 models::user_passwords::hash_password(&SecretString::new(password.into()))
                     .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
-            models::user_passwords::upsert_user_password(conn, user.id, password_hash)
+            models::user_passwords::upsert_user_password(conn, user.id, &password_hash)
                 .await
                 .map_err(|e| {
                     ControllerError::new(

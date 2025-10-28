@@ -289,7 +289,7 @@ pub async fn reset_user_password(
     let res = models::user_passwords::change_user_password_with_password_reset_token(
         &mut conn,
         token_uuid,
-        password_hash,
+        &password_hash,
         &tmc_client,
     )
     .await?;
@@ -322,7 +322,7 @@ pub async fn change_user_password(
         &mut conn,
         user.id,
         &old_password,
-        password_hash,
+        &password_hash,
     )
     .await?;
 

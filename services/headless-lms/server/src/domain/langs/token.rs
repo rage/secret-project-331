@@ -81,7 +81,7 @@ impl FromRequest for UserFromTMCAccessToken {
                     Some(user) => user,
                     None => {
                         let tmc_user = tmc_client
-                            .get_user_from_tmc_mooc_fi_by_tmc_access_token(token.clone())
+                            .get_user_from_tmc_mooc_fi_by_tmc_access_token(&token.clone())
                             .await?;
 
                         debug!(

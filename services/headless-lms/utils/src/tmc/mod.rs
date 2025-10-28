@@ -328,7 +328,7 @@ impl TmcClient {
 
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token(
         &self,
-        tmc_access_token: SecretString,
+        tmc_access_token: &SecretString,
     ) -> anyhow::Result<TMCUser> {
         info!("Getting user details from tmc.mooc.fi");
 
@@ -336,7 +336,7 @@ impl TmcClient {
             .request_with_headers(
                 reqwest::Method::GET,
                 &format!("{}/current", TMC_API_URL),
-                TMCRequestAuth::UseUserToken(tmc_access_token),
+                TMCRequestAuth::UseUserToken(tmc_access_token.clone()),
                 None,
             )
             .await

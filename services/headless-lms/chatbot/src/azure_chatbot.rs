@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{
@@ -5,6 +6,7 @@ use std::sync::{
     atomic::{self, AtomicBool},
 };
 use std::task::{Context, Poll};
+use std::vec;
 
 use bytes::Bytes;
 use chrono::Utc;
@@ -15,6 +17,7 @@ use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConvers
 use headless_lms_utils::ApplicationConfiguration;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sqlx::PgPool;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
@@ -52,11 +55,24 @@ pub struct Choice {
 pub struct Delta {
     pub content: Option<String>,
     pub context: Option<DeltaContext>,
+    pub tool_calls: Option<Vec<DeltaToolCall>>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DeltaContext {
     pub citations: Vec<Citation>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct DeltaToolCall {
+    pub id: String,
+    pub function: DeltaTool,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct DeltaTool {
+    pub arguments: String,
+    pub name: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -86,8 +102,65 @@ impl From<ChatbotConversationMessage> for APIMessage {
                 MessageRole::User
             },
             content: message.message.unwrap_or_default(),
+            name: None,
+            tool_call_id: None,
         }
     }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AzureLLMToolDefintion {
+    #[serde(rename = "type")]
+    pub tool_type: LLMToolType,
+    pub function: LLMTool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LLMTool {
+    pub name: String,
+    pub description: String,
+    pub parameters: LLMToolParams,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LLMToolParams {
+    #[serde(rename = "type")]
+    pub tool_type: LLMToolParamType,
+    pub properties: Fooname,
+    pub required: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Fooname {
+    fooname: LLMToolParamProperties,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LLMToolParamProperties {
+    #[serde(rename = "type")]
+    pub param_type: String,
+    pub description: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum LLMToolParamType {
+    Object,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum LLMToolChoice {
+    // should be in chatbot_configurations?
+    Auto,
+    //Required,
+    None,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum LLMToolType {
+    Function,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -114,13 +187,15 @@ pub enum LLMRequestParams {
     None,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LLMRequest {
     pub messages: Vec<APIMessage>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub data_sources: Vec<DataSource>,
     #[serde(flatten)]
     pub params: LLMRequestParams,
+    pub tools: Vec<AzureLLMToolDefintion>,
+    pub tool_choice: Option<LLMToolChoice>,
     pub stop: Option<String>,
 }
 
@@ -178,6 +253,8 @@ impl LLMRequest {
             APIMessage {
                 role: MessageRole::System,
                 content: configuration.prompt.clone(),
+                name: None,
+                tool_call_id: None,
             },
         );
 
@@ -234,6 +311,28 @@ impl LLMRequest {
             Vec::new()
         };
 
+        let tools = if true {
+            vec![AzureLLMToolDefintion {
+                tool_type: LLMToolType::Function,
+                function: LLMTool {
+                    name: "foo".to_string(),
+                    description: "foo".to_string(),
+                    parameters: LLMToolParams {
+                        tool_type: LLMToolParamType::Object,
+                        properties: Fooname {
+                            fooname: LLMToolParamProperties {
+                                param_type: "string".to_string(),
+                                description: "Get foo".to_string(),
+                            },
+                        },
+                        required: vec!["fooname".to_string()],
+                    },
+                },
+            }]
+        } else {
+            vec![]
+        };
+
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
 
@@ -258,6 +357,8 @@ impl LLMRequest {
                 messages: api_chat_messages,
                 data_sources,
                 params,
+                tools,
+                tool_choice: Some(LLMToolChoice::Auto),
                 stop: None,
             },
             new_message,
@@ -266,14 +367,14 @@ impl LLMRequest {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DataSource {
     #[serde(rename = "type")]
     pub data_type: String,
     pub parameters: DataSourceParameters,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DataSourceParameters {
     pub endpoint: String,
     pub authentication: DataSourceParametersAuthentication,
@@ -289,21 +390,21 @@ pub struct DataSourceParameters {
     pub semantic_configuration: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DataSourceParametersAuthentication {
     #[serde(rename = "type")]
     pub auth_type: String,
     pub key: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EmbeddingDependency {
     #[serde(rename = "type")]
     pub dep_type: String,
     pub deployment_name: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FieldsMapping {
     pub content_fields_separator: String,
     pub content_fields: Vec<String>,
@@ -419,9 +520,6 @@ pub async fn send_chat_request_and_parse_stream(
     )
     .await?;
 
-    let full_response_text = Arc::new(Mutex::new(Vec::new()));
-    let done = Arc::new(AtomicBool::new(false));
-
     let response_order_number = new_message.order_number + 1;
 
     let response_message = models::chatbot_conversation_messages::insert(
@@ -441,6 +539,8 @@ pub async fn send_chat_request_and_parse_stream(
     )
     .await?;
 
+    let full_response_text = Arc::new(Mutex::new(Vec::new()));
+    let done = Arc::new(AtomicBool::new(false));
     // Instantiate the guard before creating the stream.
     let guard = RequestCancelledGuard {
         response_message_id: response_message.id,
@@ -451,7 +551,8 @@ pub async fn send_chat_request_and_parse_stream(
     };
 
     let response =
-        make_streaming_llm_request(chat_request, &model.deployment_name, app_config).await?;
+        make_streaming_llm_request(chat_request.clone(), &model.deployment_name, app_config)
+            .await?;
 
     info!("Receiving chat response with {:?}", response.version());
 
@@ -470,6 +571,11 @@ pub async fn send_chat_request_and_parse_stream(
     let mut lines = reader.lines();
 
     let response_stream = async_stream::try_stream! {
+        'outer: loop {
+        let mut function_calls: HashMap<(String, String), serde_json::Value> = HashMap::new();
+        let mut function_call: Option<(String,String)> = None;
+        let function_args = Arc::new(Mutex::new(Vec::new())); //idk?
+
         while let Some(line) = lines.next_line().await? {
             if !line.starts_with("data: ") {
                 continue;
@@ -477,7 +583,9 @@ pub async fn send_chat_request_and_parse_stream(
             let json_str = line.trim_start_matches("data: ");
 
             let mut full_response_text = full_response_text.lock().await;
+            let mut function_args = function_args.lock().await;
             if json_str.trim() == "[DONE]" {
+                if function_calls.is_empty() {
                 let full_response_as_string = full_response_text.join("");
                 let estimated_cost = estimate_tokens(&full_response_as_string);
                 info!(
@@ -493,14 +601,51 @@ pub async fn send_chat_request_and_parse_stream(
                     true,
                     request_estimated_tokens + estimated_cost,
                 ).await?;
-                break;
+                break 'outer;
+             } else {
+                    info!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Funcrion calls: {:?}\n Trying to call functions...", function_calls);
+                    let mut messages = (&chat_request).messages.clone();
+                    for (key,val) in function_calls.iter() {
+                        messages.push(APIMessage {
+                            role: MessageRole::Tool,
+                            content: "Your fooname has been recorded".to_string(),
+                            name: Some(key.0.to_string()),
+                            tool_call_id: Some(key.1.to_string()) })
+                    }
+                    let chat_request2 = LLMRequest {messages, data_sources: (&chat_request).data_sources.clone(), params: (&chat_request).params.clone(), tools: (&chat_request).tools.clone(), tool_choice: (&chat_request).tool_choice.clone(), stop: None
+                        };
+                    let response = make_streaming_llm_request(chat_request2, &model.deployment_name, app_config).await?;
+
+                    break;
+                }
             }
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
 
             for choice in &response_chunk.choices {
+                if Some("tool_calls".to_string()) == choice.finish_reason {
+                    if let Some(name_id) = &function_call {
+                        function_calls.insert(name_id.to_owned(), json!(function_args.join("")));
+                        function_args.clear();
+                        function_call = None;
+                    }
+                }
                 if let Some(delta) = &choice.delta {
+                    if let Some(tool_calls) = &delta.tool_calls {
+                        for call in tool_calls {
+                            if let Some(name) = &call.function.name {
+                                if let Some(prev_name) = function_call {
+                                    function_calls.insert(prev_name, json!(function_args.join("")));
+                                    function_args.clear();
+                                }
+                                function_call = Some((name.to_owned(), call.id.clone()));
+                            };
+                            function_args.push(call.function.arguments.clone());
+
+
+                        }
+                    }
                     if let Some(content) = &delta.content {
                         full_response_text.push(content.clone());
                         let response = ChatResponse { text: content.clone() };
@@ -556,6 +701,7 @@ pub async fn send_chat_request_and_parse_stream(
         if !done.load(atomic::Ordering::Relaxed) {
             Err(anyhow::anyhow!("Stream ended unexpectedly"))?;
         }
+    }
     };
 
     // Encapsulate the stream and the guard within GuardedStream. This moves the request guard into the stream and ensures that it is dropped when the stream is dropped.

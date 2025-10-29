@@ -45,6 +45,8 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     let system_message = APIMessage {
         role: MessageRole::System,
         content: SYSTEM_PROMPT.to_string(),
+        name: None,
+        tool_call_id: None,
     };
 
     let system_message_tokens = estimate_tokens(&system_message.content);
@@ -225,6 +227,8 @@ async fn process_block_chunk(
             presence_penalty: None,
             max_tokens: None,
         }),
+        tool_choice: None,
+        tools: vec![],
         stop: None,
     };
     info!(
@@ -267,6 +271,8 @@ pub fn prepare_llm_messages(
                 "{}\n\n{}{}\n{}",
                 USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
             ),
+            name: None,
+            tool_call_id: None,
         },
     ];
 
@@ -351,6 +357,8 @@ mod tests {
         let system_message = APIMessage {
             role: MessageRole::System,
             content: "System prompt".to_string(),
+            name: None,
+            tool_call_id: None,
         };
 
         let messages = prepare_llm_messages(&blocks_json, &system_message)?;

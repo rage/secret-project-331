@@ -10,19 +10,29 @@ pub const LLM_API_VERSION: &str = "2024-06-01";
 
 /// Role of a message in a conversation
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum MessageRole {
-    #[serde(rename = "system")]
     System,
-    #[serde(rename = "user")]
     User,
-    #[serde(rename = "assistant")]
     Assistant,
+    Tool,
 }
 
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIMessage {
     pub role: MessageRole,
+    pub content: String,
+    pub name: Option<String>, // the function name
+    pub tool_call_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct APIToolCallMessage {
+    // extend apimessage struct?
+    pub tool_call_id: String,
+    pub role: MessageRole, // should always be tool
+    pub name: String,      // the function name
     pub content: String,
 }
 

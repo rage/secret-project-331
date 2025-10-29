@@ -1,15 +1,7 @@
-DROP INDEX IF EXISTS idx_oauth_jwks_keys_expires_at;
-DROP INDEX IF EXISTS idx_oauth_refresh_tokens_expires_at;
-DROP INDEX IF EXISTS idx_oauth_access_tokens_expires_at;
-DROP INDEX IF EXISTS idx_oauth_auth_codes_expires_at;
-DROP INDEX IF EXISTS idx_oauth_user_client_scopes_user;
-DROP INDEX IF EXISTS idx_oauth_user_client_scopes_client;
-DROP INDEX IF EXISTS idx_oauth_dpop_seen_at;
-
-DROP TABLE IF EXISTS oauth_dpop_proofs;
-DROP TABLE IF EXISTS oauth_jwks_keys;
-DROP TABLE IF EXISTS oauth_auth_codes;
-DROP TABLE IF EXISTS oauth_access_tokens;
-DROP TABLE IF EXISTS oauth_refresh_tokens;
-DROP TABLE IF EXISTS oauth_user_client_scopes;
-DROP TABLE IF EXISTS oauth_clients;
+DROP TABLE oauth_dpop_proofs;
+DROP TABLE oauth_jwks_keys;
+DROP TABLE oauth_auth_codes;
+DROP TABLE oauth_access_tokens;
+DROP TABLE oauth_refresh_tokens;
+DROP TABLE oauth_user_client_scopes;
+DROP TABLE oauth_clients;

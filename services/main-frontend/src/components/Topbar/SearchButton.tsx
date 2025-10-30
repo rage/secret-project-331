@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 import { useDebounce } from "use-debounce"
 
 // TODO: Replace with actual backend import when available
-// import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/backend"
+// import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/course-material/backend"
 
 // Placeholder search functions
 const searchPagesWithPhrase = async (

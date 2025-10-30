@@ -9,11 +9,15 @@ const LANGUAGE_QUERY_KEY = "lang"
 const IS_SERVER = typeof window === "undefined"
 
 export const SUPPORTED_LANGUAGES = ["en", "fi", "uk", "sv"] as const
-export const DEFAULT_LANGUAGE = "en"
+export const DEFAULT_LANGUAGE: SUPPORTED_LANGUAGES_KEYS = "en" as const
 
-export type SUPPORTED_LANGUAGES_KEYS = typeof SUPPORTED_LANGUAGES
+export type SUPPORTED_LANGUAGES_KEYS = (typeof SUPPORTED_LANGUAGES)[number]
 
 const CAN_ACCESS_COOKIES = detectAccessToCookies()
+
+function isSupportedLanguage(lang: string): lang is SUPPORTED_LANGUAGES_KEYS {
+  return (SUPPORTED_LANGUAGES as readonly string[]).indexOf(lang) !== -1
+}
 
 export function getDir(language: string) {
   try {
@@ -97,12 +101,14 @@ function determineLanguageFromQueryValue(value: string | string[] | undefined): 
 }
 
 // Returns the supported language or null if the the candidate is not supported
-function mapLanguageCadidateToSupportedLanguage(navigatorLanguage: string): string | null {
-  if (SUPPORTED_LANGUAGES.indexOf(navigatorLanguage) !== -1) {
+function mapLanguageCadidateToSupportedLanguage(
+  navigatorLanguage: string,
+): SUPPORTED_LANGUAGES_KEYS | null {
+  if (isSupportedLanguage(navigatorLanguage)) {
     return navigatorLanguage
   }
   const languageParts = navigatorLanguage.split("-")
-  if (SUPPORTED_LANGUAGES.indexOf(languageParts[0]) !== -1) {
+  if (isSupportedLanguage(languageParts[0])) {
     return languageParts[0]
   }
   return null

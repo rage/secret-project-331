@@ -18,7 +18,7 @@ updateNotifier: false
 sharedWorkspaceLockfile: false
 
 # Delay brand-new releases to reduce supply-chain risk (minutes)
-minimumReleaseAge: 1440
+# minimumReleaseAge: 1440
 # If you want to exclude some packages from the minimumReleaseAge, you can do it here
 # minimumReleaseAgeExclude:
 

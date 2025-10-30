@@ -11,6 +11,8 @@ import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/co
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+import "react-medium-image-zoom/dist/styles.css"
+
 const SERVICE_NAME = "main-frontend"
 
 const RootLayout = ({

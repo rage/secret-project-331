@@ -1,11 +1,21 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "typeRoots": ["types", "./shared-module/packages/common/src/types", "./node_modules/@types"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "typeRoots": [
+      "types",
+      "./shared-module/packages/common/src/types",
+      "./node_modules/@types"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -27,9 +37,12 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "../cms/src/components/forms/NewResearchConsentForm.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "src/shared-module"]
+  "exclude": [
+    "node_modules",
+    "src/shared-module",
+    ".next"
+  ]
 }

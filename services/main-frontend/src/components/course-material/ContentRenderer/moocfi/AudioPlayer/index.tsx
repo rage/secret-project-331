@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react"
 
 import { AudioFile } from "../../../Page"
 
-import CloseIcon from "./../../../../img/close.svg"
+import CloseIcon from "/@/img/course-material/close.svg"
 import Controls from "./Controls"
 import DisplayTrack from "./DisplayTrack"
 import ProgressBar from "./ProgressBar"

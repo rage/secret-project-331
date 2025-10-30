@@ -4,7 +4,7 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from ".."
-import Check from "../../../img/checkmark.svg"
+import Check from "@/img/course-material/checkmark.svg"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import PageContext from "@/contexts/course-material/PageContext"

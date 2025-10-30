@@ -3,16 +3,16 @@ import { css, cx } from "@emotion/css"
 import { RefObject, useCallback, useEffect, useRef, useState } from "react"
 
 // icons
-import FastForward from "../../../../img/audio-player/fast-forward.svg"
-import HighVolume from "../../../../img/audio-player/high-volume.svg"
-import LowVolume from "../../../../img/audio-player/low-volume.svg"
-import MedVolume from "../../../../img/audio-player/med-volume.svg"
-import MuteVolume from "../../../../img/audio-player/mute-volume.svg"
-import Pause from "../../../../img/audio-player/pause.svg"
-import Play from "../../../../img/audio-player/play.svg"
-import Rewind from "../../../../img/audio-player/rewind.svg"
-
 import { styledRangeInput } from "./RangeComponentStyle"
+
+import FastForward from "@/img/course-material/audio-player/fast-forward.svg"
+import HighVolume from "@/img/course-material/audio-player/high-volume.svg"
+import LowVolume from "@/img/course-material/audio-player/low-volume.svg"
+import MedVolume from "@/img/course-material/audio-player/med-volume.svg"
+import MuteVolume from "@/img/course-material/audio-player/mute-volume.svg"
+import Pause from "@/img/course-material/audio-player/pause.svg"
+import Play from "@/img/course-material/audio-player/play.svg"
+import Rewind from "@/img/course-material/audio-player/rewind.svg"
 
 const styledVolume = css`
   display: flex;

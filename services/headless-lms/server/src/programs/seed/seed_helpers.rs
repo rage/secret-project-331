@@ -227,6 +227,9 @@ pub fn create_best_exercise(
             )],
         )],
         block_id,
+        Some(false),
+        None,
+        None,
     );
     (
         exercise_block,
@@ -242,6 +245,9 @@ pub fn example_exercise_flexible(
     exercise_name: String,
     exercise_slides: Vec<(Uuid, Vec<(Uuid, String, Value, Value)>)>,
     client_id: Uuid,
+    needs_peer_review: Option<bool>,
+    peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
+    peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -305,11 +311,11 @@ pub fn example_exercise_flexible(
         max_tries_per_slide: None,
         limit_number_of_tries: false,
         deadline: None,
-        needs_peer_review: false,
+        needs_peer_review: needs_peer_review.unwrap_or(false),
         needs_self_review: false,
         use_course_default_peer_or_self_review_config: false,
-        peer_or_self_review_config: None,
-        peer_or_self_review_questions: None,
+        peer_or_self_review_config,
+        peer_or_self_review_questions,
     };
     (block, exercise, slides, tasks)
 }

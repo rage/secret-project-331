@@ -575,6 +575,7 @@ const ExerciseBlock: React.FC<
                 reviewingStage={reviewingStage}
                 peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
                 exercise={getCourseMaterialExercise.data.exercise}
+                shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message}
               />
             )}
           {/* Reviewing stage seems to be undefined at least for exams */}

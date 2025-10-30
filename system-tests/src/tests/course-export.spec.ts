@@ -4,6 +4,7 @@ import { tmpdir } from "os"
 import path from "path"
 import tar from "tar-fs"
 
+import { getImgByURLPrefixAndSuffix } from "@/utils/imageLocators"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -32,6 +33,12 @@ test("course export", async ({ page }) => {
       page.getByRole("button", { name: "Upload" }).click(),
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
+    // wait for image to upload
+    await getImgByURLPrefixAndSuffix(
+      page,
+      "http://project-331.local/api/v0/files/",
+      ".png",
+    ).waitFor()
     await page.getByRole("button", { name: "Save", exact: true }).click()
     await page.getByText("Operation successful").waitFor()
   })

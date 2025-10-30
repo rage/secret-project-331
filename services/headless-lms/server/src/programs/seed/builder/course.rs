@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
-use sqlx::{Connection, PgConnection};
+use chrono::{DateTime, Utc};
+use sqlx::{Connection, PgConnection, Row};
 use tracing::log::warn;
 use uuid::Uuid;
 
@@ -59,6 +60,94 @@ pub struct CertificateConfig {
     pub certificate_id: Option<Uuid>,
 }
 
+/// Builder for completions within course modules
+#[derive(Debug, Clone)]
+pub struct CompletionBuilder {
+    module_order: Option<i32>,
+    user_id: Option<Uuid>,
+    grade: Option<i32>,
+    passed: Option<bool>,
+    // Optional metadata (set sensible defaults if absent)
+    email: Option<String>,
+    completion_language: Option<String>,
+    eligible_for_ects: Option<bool>,
+    prerequisite_modules_completed: Option<bool>,
+    needs_to_be_reviewed: Option<bool>,
+    completion_date: Option<DateTime<Utc>>,
+}
+
+impl CompletionBuilder {
+    pub fn new() -> Self {
+        Self {
+            module_order: None,
+            user_id: None,
+            grade: None,
+            passed: None,
+            email: None,
+            completion_language: None,
+            eligible_for_ects: None,
+            prerequisite_modules_completed: None,
+            needs_to_be_reviewed: None,
+            completion_date: None,
+        }
+    }
+    pub fn module_order(mut self, order: i32) -> Self {
+        self.module_order = Some(order);
+        self
+    }
+    pub fn user_id(mut self, id: Uuid) -> Self {
+        self.user_id = Some(id);
+        self
+    }
+    pub fn grade(mut self, g: i32) -> Self {
+        self.grade = Some(g);
+        self
+    }
+    pub fn passed(mut self, p: bool) -> Self {
+        self.passed = Some(p);
+        self
+    }
+
+    pub fn email(mut self, e: impl Into<String>) -> Self {
+        self.email = Some(e.into());
+        self
+    }
+    pub fn completion_language(mut self, lang: impl Into<String>) -> Self {
+        self.completion_language = Some(lang.into());
+        self
+    }
+    pub fn eligible_for_ects(mut self, v: bool) -> Self {
+        self.eligible_for_ects = Some(v);
+        self
+    }
+    pub fn prerequisites_completed(mut self, v: bool) -> Self {
+        self.prerequisite_modules_completed = Some(v);
+        self
+    }
+    pub fn needs_review(mut self, v: bool) -> Self {
+        self.needs_to_be_reviewed = Some(v);
+        self
+    }
+    pub fn completion_date(mut self, t: DateTime<Utc>) -> Self {
+        self.completion_date = Some(t);
+        self
+    }
+}
+
+#[derive(Debug, Clone)]
+struct PendingModuleCompletion {
+    module_order: i32,
+    user_id: Uuid,
+    grade: Option<i32>,                   // nullable in schema
+    passed: bool,                         // NOT NULL
+    email: String,                        // NOT NULL
+    completion_language: String,          // NOT NULL
+    eligible_for_ects: bool,              // NOT NULL
+    prerequisite_modules_completed: bool, // NOT NULL
+    needs_to_be_reviewed: bool,           // NOT NULL
+    completion_date: DateTime<Utc>,       // NOT NULL
+}
+
 /// Builder for courses with modules, chapters, pages, and exercises.
 #[derive(Debug, Clone)]
 pub struct CourseBuilder {
@@ -77,6 +166,7 @@ pub struct CourseBuilder {
     pub glossary_entries: Vec<GlossaryEntry>,
     pub certificate_config: Option<CertificateConfig>,
     pub front_page_content: Option<Vec<GutenbergBlock>>,
+    pending_module_completions: Vec<PendingModuleCompletion>,
 }
 
 impl CourseBuilder {
@@ -97,6 +187,7 @@ impl CourseBuilder {
             glossary_entries: vec![],
             certificate_config: None,
             front_page_content: None,
+            pending_module_completions: Vec::new(),
         }
     }
 
@@ -439,6 +530,70 @@ impl CourseBuilder {
             .await
             .context("linking certificate configuration to requirements")?;
         }
+        let rows = sqlx::query::<sqlx::Postgres>(
+            r#"
+    SELECT id, order_number
+    FROM course_modules
+    WHERE course_id = $1
+    "#,
+        )
+        .bind(course.id)
+        .fetch_all(tx.as_mut()) // <-- reborrow the tx each call
+        .await
+        .context("fetching course_modules for completion insertion")?;
+
+        use std::collections::HashMap;
+        let mut module_by_order: HashMap<i32, Uuid> = HashMap::new();
+        for r in rows {
+            let id: Uuid = r.get("id");
+            let order_number: i32 = r.get("order_number");
+            module_by_order.insert(order_number, id);
+        }
+
+        // Insert queued completions
+        for pmc in self.pending_module_completions {
+            let Some(module_id) = module_by_order.get(&pmc.module_order) else {
+                warn!(
+                    "Module with order_number {} not found; skipping completion",
+                    pmc.module_order
+                );
+                continue;
+            };
+
+            sqlx::query::<sqlx::Postgres>(
+                r#"
+        INSERT INTO course_module_completions (
+            course_id,
+            course_module_id,
+            user_id,
+            completion_date,
+            completion_language,
+            eligible_for_ects,
+            email,
+            grade,
+            passed,
+            prerequisite_modules_completed,
+            needs_to_be_reviewed
+        ) VALUES (
+            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+        )
+        "#,
+            )
+            .bind(course.id)
+            .bind(*module_id)
+            .bind(pmc.user_id)
+            .bind(pmc.completion_date)
+            .bind(pmc.completion_language)
+            .bind(pmc.eligible_for_ects)
+            .bind(pmc.email)
+            .bind(pmc.grade) // Option<i32> allowed (nullable)
+            .bind(pmc.passed)
+            .bind(pmc.prerequisite_modules_completed)
+            .bind(pmc.needs_to_be_reviewed)
+            .execute(tx.as_mut()) // <-- reborrow again here
+            .await
+            .context("inserting course_module_completion")?;
+        }
         tx.commit().await.context("committing transaction")?;
 
         Ok((
@@ -446,6 +601,34 @@ impl CourseBuilder {
             default_instance,
             last_module.expect("At least one module must be provided"),
         ))
+    }
+
+    /// Queue a module completion to be inserted after seeding.
+    /// Required: module_order, user_id. Grade is optional (NULL allowed).
+    pub fn completion(mut self, c: CompletionBuilder) -> Self {
+        let grade = c.grade; // Option<i32> matches schema
+        // passed: if explicitly set, use it; else infer from grade (>0) or default false
+        let inferred_passed = grade.map(|g| g > 0).unwrap_or(false);
+
+        let pmc = PendingModuleCompletion {
+            module_order: c
+                .module_order
+                .expect("CompletionBuilder: module_order is required"),
+            user_id: c.user_id.expect("CompletionBuilder: user_id is required"),
+            grade,
+            passed: c.passed.unwrap_or(inferred_passed),
+
+            // NOT NULL fields: give safe defaults if not provided
+            email: c.email.unwrap_or_else(|| "seed@example.com".to_string()),
+            completion_language: c.completion_language.unwrap_or_else(|| "en".to_string()),
+            eligible_for_ects: c.eligible_for_ects.unwrap_or(true),
+            prerequisite_modules_completed: c.prerequisite_modules_completed.unwrap_or(false),
+            needs_to_be_reviewed: c.needs_to_be_reviewed.unwrap_or(false),
+            completion_date: c.completion_date.unwrap_or_else(Utc::now),
+        };
+
+        self.pending_module_completions.push(pmc);
+        self
     }
 }
 

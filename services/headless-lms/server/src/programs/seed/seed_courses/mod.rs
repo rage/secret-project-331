@@ -1,4 +1,5 @@
 pub mod seed_chatbot;
+pub mod seed_graded;
 
 use std::sync::Arc;
 

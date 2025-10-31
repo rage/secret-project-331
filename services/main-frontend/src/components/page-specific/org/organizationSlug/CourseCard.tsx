@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import SettingIcon from "../../../../imgs/setting.svg"
 
+import PseudoContentLink from "@/components/PseudoContentLink"
 import Language, {
   DEFAULT_FLAG_CLIP_PATH,
 } from "@/shared-module/common/components/LanguageSelection/Language"
@@ -162,6 +163,7 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
             bottom: 24px;
             right: 16px;
             opacity: 0.6;
+            z-index: 110;
 
             :hover {
               cursor: pointer;
@@ -176,51 +178,45 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
       )}
 
       <CourseWrapper>
-        <a
-          href={navigateToCourseHref}
-          aria-label={t("course-navigation", { title })}
-          className={css`
-            display: block;
-            width: 100%;
-            height: 100%;
-            text-decoration: none;
-          `}
-        >
-          <CourseContent>
+        <CourseContent>
+          <PseudoContentLink
+            href={navigateToCourseHref}
+            aria-label={t("course-navigation", { title })}
+          >
             <CourseHeading>
               {title}
               {isDraft && ` (${t("draft")})`}
               {isUnlisted && ` (${t("unlisted")})`}
             </CourseHeading>
-            <CourseDescription>{description}</CourseDescription>
-          </CourseContent>
-          <CourseLanguageContent>
-            <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
-            {LanguageComponent && (
-              <LanguageComponent.image
+          </PseudoContentLink>
+          <CourseDescription>{description}</CourseDescription>
+        </CourseContent>
+        <CourseLanguageContent>
+          <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
+          {LanguageComponent && (
+            <LanguageComponent.image
+              className={css`
+                width: 45px;
+                height: 45px;
+                clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
+                margin-left: 10px;
+              `}
+            />
+          )}
+          <LanguageCode>
+            {LanguageComponent ? (
+              capitalizeFirstLetter(LanguageComponent.humanReadableName)
+            ) : (
+              <span
                 className={css`
-                  width: 45px;
-                  height: 45px;
-                  clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
-                  margin-left: 10px;
+                  margin-left: 1rem;
                 `}
-              />
+              >
+                {languageCode}
+              </span>
             )}
-            <LanguageCode>
-              {LanguageComponent ? (
-                capitalizeFirstLetter(LanguageComponent.humanReadableName)
-              ) : (
-                <span
-                  className={css`
-                    margin-left: 1rem;
-                  `}
-                >
-                  {languageCode}
-                </span>
-              )}
-            </LanguageCode>
-          </CourseLanguageContent>
-        </a>
+          </LanguageCode>
+        </CourseLanguageContent>
       </CourseWrapper>
     </CourseCard>
   )

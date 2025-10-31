@@ -5,10 +5,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
-import PseudoContentLink from "./PseudoContentLink"
 
 import { CardExtraProps } from "."
 
+import PseudoContentLink from "@/components/PseudoContentLink"
 import CardSVG from "@/shared-module/common/img/cardNext.svg"
 import { headingFont } from "@/shared-module/common/styles"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"

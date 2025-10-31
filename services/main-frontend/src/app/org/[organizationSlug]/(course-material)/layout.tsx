@@ -2,6 +2,8 @@
 
 import React from "react"
 
+import CourseMaterialProviders from "./CourseMaterialProviders"
+
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 function CourseMaterialLayout({
@@ -15,10 +17,9 @@ function CourseMaterialLayout({
   void params
 
   return (
-    <div>
-      <h1>This is the course material layout</h1>
+    <CourseMaterialProviders>
       <>{children}</>
-    </div>
+    </CourseMaterialProviders>
   )
 }
 

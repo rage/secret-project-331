@@ -105,11 +105,8 @@ const PagePage: React.FC = () => {
       const beginningOfNewPath = currentPathName.substring(0, courseSlugEndLocation)
       const newPath = `${beginningOfNewPath}${getCoursePageByPath.data.page.url_path}`
 
-      // Nextjs router adds the base path to the start of the url, so we need to remove it first
-      const nextJsAdjustedPath = newPath.substring(basePath().length)
-
-      console.info(`Redirecting to ${newPath} (${nextJsAdjustedPath})`)
-      router.replace(nextJsAdjustedPath)
+      console.info(`Redirecting to ${newPath}`)
+      router.replace(newPath)
     }
   }, [courseSlug, getCoursePageByPath.data, router])
 

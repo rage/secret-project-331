@@ -1,11 +1,9 @@
-// NOTE: the urls in this file don't have the base path in the beginning (i.e. /org) because when links are used with next/link, the base path is automatically added
-
 export function courseFrontPageRoute(organizationSlug: string, courseSlug: string) {
-  return `/${organizationSlug}/courses/${courseSlug}`
+  return `/org/${organizationSlug}/courses/${courseSlug}`
 }
 
 export function courseFaqPageRoute(organizationSlug: string, courseSlug: string) {
-  return `/${organizationSlug}/courses/${courseSlug}`
+  return `/org/${organizationSlug}/courses/${courseSlug}`
 }
 
 export function coursePageRoute(
@@ -22,7 +20,7 @@ export function coursePageRoute(
   if (relativePathWithSlash === null || relativePathWithSlash === undefined) {
     throw new Error("Cannot build course page route without a relative path")
   }
-  return `/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}`
+  return `/org/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}`
 }
 
 export function coursePageSectionRoute(
@@ -31,5 +29,5 @@ export function coursePageSectionRoute(
   relativePathWithSlash: string,
   anchor: string,
 ) {
-  return `/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}#${anchor}`
+  return `/org/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}#${anchor}`
 }

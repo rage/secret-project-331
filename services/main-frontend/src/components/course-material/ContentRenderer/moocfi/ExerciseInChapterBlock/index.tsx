@@ -4,7 +4,7 @@ import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import AccordionIcon from "../../../../../../shared-module/common//img/accordion-arrow.svg"
+import AccordionIcon from "../../../../../shared-module/common/img/accordion-arrow.svg"
 
 import ExercisesInChapter from "./ExercisesInChapter"
 

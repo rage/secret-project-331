@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import TopBarMenuButton from "./TopBarMenuButton"
 
 //import useLanguageNavigation from "@/hooks/useLanguageNavigation"
+import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"

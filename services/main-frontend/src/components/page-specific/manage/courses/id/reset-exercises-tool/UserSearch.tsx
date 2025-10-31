@@ -3,7 +3,7 @@ import { css } from "@emotion/css"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SearchIcon from "../../../../../../../shared-module/common/img/search-icon.svg"
+import SearchIcon from "../../../../../../shared-module/common/img/search-icon.svg"
 
 import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"

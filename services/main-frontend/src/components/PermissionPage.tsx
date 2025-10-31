@@ -8,9 +8,9 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { assert, Equals } from "tsafe"
 
-import CaretArrowDown from "../../shared-module/common/img/caret-arrow-down.svg"
 import { fetchPendingRoles } from "../services/backend/pendingRoles"
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
+import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
 import { RoleDomain, RoleQuery, RoleUser, UserRole } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"

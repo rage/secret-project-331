@@ -5,7 +5,7 @@ import Link from "next/link"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import DownIcon from "../../../../../shared-module/common/img/down.svg"
+import DownIcon from "../../../../shared-module/common/img/down.svg"
 
 import { LIGHT_GREEN } from "./styles"
 

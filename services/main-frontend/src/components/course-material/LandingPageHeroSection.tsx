@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import DefaultSVG from "../../../shared-module/common/img/hero-default-bg-image.svg"
+import DefaultSVG from "../../shared-module/common/img/hero-default-bg-image.svg"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 

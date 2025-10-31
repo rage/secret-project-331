@@ -4,7 +4,7 @@ import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
-import ArrowDown from "../../../../../../../shared-module/common/img/caret-arrow-down.svg"
+import ArrowDown from "../../../../../../shared-module/common/img/caret-arrow-down.svg"
 
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"

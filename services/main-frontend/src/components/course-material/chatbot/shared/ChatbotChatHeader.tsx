@@ -6,7 +6,7 @@ import React from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import DownIcon from "../../../../../shared-module/common/img/down.svg"
+import DownIcon from "../../../../shared-module/common/img/down.svg"
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"

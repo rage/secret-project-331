@@ -48,7 +48,7 @@ pub async fn seed_graded_course(
         .automatic_completion(Some(1), Some(1), false);
 
     // Add graded completions for each seeded example user (0–N)
-    for uid in seed_users_result.example_normal_user_ids.iter() {
+    for (i, uid) in seed_users_result.example_normal_user_ids.iter().enumerate() {
         module = module.completion(CompletionBuilder::new(*uid).grade(5).passed(true));
     }
 

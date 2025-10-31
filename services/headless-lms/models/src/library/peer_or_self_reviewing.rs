@@ -11,7 +11,7 @@ use crate::{
     exercise_task_submissions,
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::Exercise,
-    peer_or_self_review_configs::{self, PeerOrSelfReviewConfig},
+    peer_or_self_review_configs::{self, PeerOrSelfReviewConfig, PeerReviewProcessingStrategy},
     peer_or_self_review_question_submissions,
     peer_or_self_review_questions::{self, PeerOrSelfReviewQuestion},
     peer_or_self_review_submissions,
@@ -264,9 +264,109 @@ pub async fn create_peer_or_self_review_submission_for_user(
         giver_exercise_state.user_id,
     )
     .await?;
+
+    // Get updater receiver state after possible update above
+    let updated_receiver_state = user_exercise_states::get_user_exercise_state_if_exists(
+        &mut tx,
+        receiver_exercise_state.user_id,
+        receiver_exercise_state.exercise_id,
+        CourseOrExamId::Course(receiver_exercise_state.get_course_id()?),
+    )
+    .await?
+    .ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::Generic,
+            "Receiver exercise state not found".to_string(),
+            None,
+        )
+    })?;
+
     tx.commit().await?;
 
+    check_if_exercise_needs_reset_after_zero_points_from_review(
+        conn,
+        &peer_or_self_review_config,
+        &updated_receiver_state,
+    )
+    .await?;
+
     Ok(giver_exercise_state)
+}
+
+/// Checks whether the exercise should be reset after peer or self review
+/// and performs the reset if needed.
+/// Called after the user's state has been updated post-review.
+///
+/// Returns true if reset was performed, otherwise false.
+async fn check_if_exercise_needs_reset_after_zero_points_from_review(
+    conn: &mut PgConnection,
+    peer_review_config: &PeerOrSelfReviewConfig,
+    user_exercise_state: &UserExerciseState,
+) -> ModelResult<bool> {
+    tracing::info!(
+        "Checking reset need for user {}: reset_config={}, strategy={:?}, stage={:?}, score={:?}",
+        user_exercise_state.user_id,
+        peer_review_config.reset_answer_if_zero_points_from_review,
+        peer_review_config.processing_strategy,
+        user_exercise_state.reviewing_stage,
+        user_exercise_state.score_given,
+    );
+
+    if peer_review_config.reset_answer_if_zero_points_from_review
+        && peer_review_config.processing_strategy
+            == PeerReviewProcessingStrategy::AutomaticallyGradeByAverage
+        && user_exercise_state.reviewing_stage
+            == crate::user_exercise_states::ReviewingStage::ReviewedAndLocked
+        && user_exercise_state
+            .score_given
+            .is_some_and(|score| score == 0.0)
+    {
+        if let Ok(Some(latest_submission)) =
+            crate::exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
+                conn,
+                user_exercise_state
+                    .selected_exercise_slide_id
+                    .ok_or_else(|| {
+                        ModelError::new(
+                            ModelErrorType::PreconditionFailed,
+                            "No selected exercise slide id found".to_string(),
+                            None,
+                        )
+                    })?,
+                user_exercise_state.user_id,
+            )
+            .await
+        {
+            let mut tx = conn.begin().await?;
+            crate::exercises::reset_exercises_for_selected_users(
+                &mut tx,
+                &[(
+                    user_exercise_state.user_id,
+                    vec![latest_submission.exercise_id],
+                )],
+                user_exercise_state.user_id,
+                latest_submission.course_id.ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "No course id for submission".to_string(),
+                        None,
+                    )
+                })?,
+            )
+            .await?;
+            tx.commit().await?;
+
+            tracing::info!(
+                "Reset exercise {} for user {} due to 0 points from {:?}.",
+                latest_submission.exercise_id,
+                user_exercise_state.user_id,
+                peer_review_config.processing_strategy
+            );
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
 }
 
 /// Filters submitted peer review answers to those that are part of the peer review.

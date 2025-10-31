@@ -219,6 +219,12 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           points_are_all_or_nothing: value === "true",
         }
         break
+      case "reset_answer_if_zero_points_from_review":
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
+          reset_answer_if_zero_points_from_review: value === "true",
+        }
+        break
       default:
         break
     }
@@ -448,6 +454,17 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything"
                   }
                 />
+                <CheckBox
+                  label={t("label-reset-answer-if-zero")}
+                  checked={parsedPeerOrSelfReviewConfig.reset_answer_if_zero_points_from_review}
+                  onChangeByValue={(checked) =>
+                    handlePeerReviewValueChange(
+                      checked.toString(),
+                      // eslint-disable-next-line i18next/no-literal-string
+                      "reset_answer_if_zero_points_from_review",
+                    )
+                  }
+                />
                 {!parsedPeerOrSelfReviewConfig.points_are_all_or_nothing && (
                   <div
                     className={css`
@@ -597,6 +614,7 @@ function defaultPeerOrSelfReviewConfig(
     peer_reviews_to_give: 3,
     peer_reviews_to_receive: 2,
     points_are_all_or_nothing: true,
+    reset_answer_if_zero_points_from_review: false,
     review_instructions: [],
   }
 }

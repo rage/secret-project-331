@@ -1692,6 +1692,7 @@ export interface CmsPeerOrSelfReviewConfig {
   accepting_threshold: number
   processing_strategy: PeerReviewProcessingStrategy
   points_are_all_or_nothing: boolean
+  reset_answer_if_zero_points_from_review: boolean
   review_instructions: unknown | null
 }
 
@@ -1721,6 +1722,7 @@ export interface PeerOrSelfReviewConfig {
   processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
   points_are_all_or_nothing: boolean
+  reset_answer_if_zero_points_from_review: boolean
   review_instructions: unknown | null
 }
 

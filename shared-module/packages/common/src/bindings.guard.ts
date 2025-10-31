@@ -3458,7 +3458,8 @@ export function isCmsPeerOrSelfReviewConfig(obj: unknown): obj is CmsPeerOrSelfR
         typeof typedObj["peer_reviews_to_receive"] === "number" &&
         typeof typedObj["accepting_threshold"] === "number" &&
         isPeerReviewProcessingStrategy(typedObj["processing_strategy"]) as boolean &&
-        typeof typedObj["points_are_all_or_nothing"] === "boolean"
+        typeof typedObj["points_are_all_or_nothing"] === "boolean" &&
+        typeof typedObj["reset_answer_if_zero_points_from_review"] === "boolean"
     )
 }
 
@@ -3510,7 +3511,8 @@ export function isPeerOrSelfReviewConfig(obj: unknown): obj is PeerOrSelfReviewC
         typeof typedObj["accepting_threshold"] === "number" &&
         isPeerReviewProcessingStrategy(typedObj["processing_strategy"]) as boolean &&
         typeof typedObj["manual_review_cutoff_in_days"] === "number" &&
-        typeof typedObj["points_are_all_or_nothing"] === "boolean"
+        typeof typedObj["points_are_all_or_nothing"] === "boolean" &&
+        typeof typedObj["reset_answer_if_zero_points_from_review"] === "boolean"
     )
 }
 

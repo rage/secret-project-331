@@ -83,3 +83,31 @@ ORDER BY erl.reset_at DESC"#,
 
     Ok(result)
 }
+
+///Check if the user's exercise has been reset and no new submissions have been made since
+pub async fn user_should_see_reset_message_for_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<bool> {
+    let row = sqlx::query!(
+        r#"
+SELECT erl.id
+FROM exercise_reset_logs erl
+LEFT JOIN exercise_slide_submissions es
+  ON es.user_id = erl.reset_for
+  AND es.exercise_id = erl.exercise_id
+  AND es.created_at > erl.reset_at
+WHERE erl.reset_for = $1
+  AND erl.exercise_id = $2
+  AND es.id IS NULL
+LIMIT 1
+"#,
+        user_id,
+        exercise_id
+    )
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    Ok(row.is_some())
+}

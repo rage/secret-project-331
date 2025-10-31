@@ -1,4 +1,5 @@
-use crate::llm_utils::{Message, MessageRole, estimate_tokens, make_blocking_llm_request};
+use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
+use crate::llm_utils::{APIMessage, MessageRole, estimate_tokens, make_blocking_llm_request};
 use crate::prelude::*;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use tracing::{debug, error, info, instrument, warn};
@@ -41,7 +42,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<String> {
     debug!("Starting content conversion with {} blocks", blocks.len());
-    let system_message = Message {
+    let system_message = APIMessage {
         role: MessageRole::System,
         content: SYSTEM_PROMPT.to_string(),
     };
@@ -190,7 +191,7 @@ pub fn append_markdown_with_separator(result: &mut String, new_content: &str) {
 #[instrument(skip(chunks, system_message, app_config), fields(num_chunks = chunks.len()))]
 async fn process_chunks(
     chunks: &[String],
-    system_message: &Message,
+    system_message: &APIMessage,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<String> {
     debug!("Processing {} chunks", chunks.len());
@@ -210,24 +211,34 @@ async fn process_chunks(
 #[instrument(skip(chunk, system_message, app_config), fields(chunk_tokens = estimate_tokens(chunk)))]
 async fn process_block_chunk(
     chunk: &str,
-    system_message: &Message,
+    system_message: &APIMessage,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<String> {
     let messages = prepare_llm_messages(chunk, system_message)?;
-
+    let llm_base_request: LLMRequest = LLMRequest {
+        messages,
+        data_sources: vec![],
+        params: LLMRequestParams::NonThinking(NonThinkingParams {
+            temperature: Some(REQUEST_TEMPERATURE),
+            top_p: None,
+            frequency_penalty: None,
+            presence_penalty: None,
+            max_tokens: None,
+        }),
+        stop: None,
+    };
     info!(
         "Processing chunk of approximately {} tokens",
         estimate_tokens(chunk)
     );
 
-    let completion =
-        match make_blocking_llm_request(messages, REQUEST_TEMPERATURE, None, app_config).await {
-            Ok(completion) => completion,
-            Err(e) => {
-                error!("Failed to process chunk: {}", e);
-                return Err(e);
-            }
-        };
+    let completion = match make_blocking_llm_request(llm_base_request, app_config).await {
+        Ok(completion) => completion,
+        Err(e) => {
+            error!("Failed to process chunk: {}", e);
+            return Err(e);
+        }
+    };
 
     let cleaned_content = completion
         .choices
@@ -244,10 +255,13 @@ async fn process_block_chunk(
 }
 
 /// Prepare messages for the LLM request
-pub fn prepare_llm_messages(chunk: &str, system_message: &Message) -> anyhow::Result<Vec<Message>> {
+pub fn prepare_llm_messages(
+    chunk: &str,
+    system_message: &APIMessage,
+) -> anyhow::Result<Vec<APIMessage>> {
     let messages = vec![
         system_message.clone(),
-        Message {
+        APIMessage {
             role: MessageRole::User,
             content: format!(
                 "{}\n\n{}{}\n{}",
@@ -334,7 +348,7 @@ mod tests {
     fn test_prepare_llm_messages() -> anyhow::Result<()> {
         let blocks = vec![create_test_block("Test content")];
         let blocks_json = serde_json::to_string(&blocks)?;
-        let system_message = Message {
+        let system_message = APIMessage {
             role: MessageRole::System,
             content: "System prompt".to_string(),
         };

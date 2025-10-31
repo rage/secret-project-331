@@ -9,10 +9,6 @@
       "path": "./services/cms"
     },
     {
-      "name": "services/course-material",
-      "path": "./services/course-material"
-    },
-    {
       "name": "services/example-exercise",
       "path": "./services/example-exercise"
     },

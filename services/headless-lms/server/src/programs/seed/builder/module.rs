@@ -27,13 +27,14 @@ impl CompletionBuilder {
     pub fn new(user_id: Uuid) -> Self {
         Self {
             user_id,
-            email: None,
-            grade: None,
-            passed: None,
-            completion_date: Some(Utc::now()),
-            completion_language: Some("en".into()),
-            eligible_for_ects: Some(true),
-            prerequisite_modules_completed: Some(true),
+            email: Some(format!("{}@example.com", user_id)), // satisfies NOT NULL
+            grade: None,                                     // nullable in DB
+            passed: Some(true),                              // NOT NULL
+            completion_date: Some(chrono::Utc::now()),       // NOT NULL
+            completion_language: Some("en-US".to_string()),  // MUST match xx-YY
+            eligible_for_ects: Some(true),                   // NOT NULL
+            // these are NOT NULL but have DB defaults
+            prerequisite_modules_completed: Some(false),
             needs_to_be_reviewed: Some(false),
         }
     }
@@ -83,14 +84,27 @@ impl CompletionBuilder {
         course_id, course_module_id, user_id, completion_date,
         completion_language, eligible_for_ects, email, grade, passed,
         prerequisite_modules_completed, needs_to_be_reviewed
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    )
+    SELECT
+        $1, $2, $3, $4,
+        $5, $6, $7, $8, $9,
+        $10, $11
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM course_module_completions
+        WHERE course_id = $1
+          AND course_module_id = $2
+          AND user_id = $3
+          AND completion_granter_user_id IS NULL
+          AND deleted_at IS NULL
+    )
     "#,
         )
         .bind(course_id)
         .bind(course_module_id)
         .bind(self.user_id)
         .bind(self.completion_date)
-        .bind(self.completion_language.as_deref())
+        .bind(self.completion_language.as_deref()) // e.g. "en-US"
         .bind(self.eligible_for_ects)
         .bind(self.email.as_deref())
         .bind(self.grade)

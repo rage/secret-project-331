@@ -396,7 +396,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
             {!isLoading &&
               combinedResults?.map((result) => (
                 <ResultCard
-                  href={`/${organizationSlug}/courses/${result.url_path}`}
+                  href={`/org/${organizationSlug}/courses/${result.url_path}`}
                   key={result.id}
                   onClick={handleResultClick}
                 >

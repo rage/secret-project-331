@@ -58,7 +58,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
   const chapterFrontPageId = data.data?.chapter_front_page_id
   const isChapterFrontPage = chapterFrontPageId && page.id === chapterFrontPageId
   // eslint-disable-next-line i18next/no-literal-string
-  const courseUrlPrefix = `/${data.data.organization_slug}/courses/${data.data.course_slug}`
+  const courseUrlPrefix = `/org/${data.data.organization_slug}/courses/${data.data.course_slug}`
 
   const pieces = [{ text: data.data?.course_name ?? t("course"), url: courseUrlPrefix }]
   if (page.chapter_id) {

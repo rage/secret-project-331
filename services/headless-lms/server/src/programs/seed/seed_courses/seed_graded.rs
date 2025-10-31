@@ -1,7 +1,6 @@
 use crate::programs::seed::builder::chapter::ChapterBuilder;
 use crate::programs::seed::builder::context::SeedContext;
 use crate::programs::seed::builder::course::{CourseBuilder, CourseInstanceConfig};
-use crate::programs::seed::builder::exercise::{ExerciseBuilder, ExerciseIds};
 use crate::programs::seed::builder::module::{CompletionBuilder, ModuleBuilder};
 use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
@@ -9,12 +8,8 @@ use crate::programs::seed::seed_helpers::paragraph;
 use anyhow::Result;
 use chrono::Utc;
 
-use headless_lms_models::peer_or_self_review_configs::{
-    CmsPeerOrSelfReviewConfig, PeerReviewProcessingStrategy,
-};
-use headless_lms_models::peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion;
 use headless_lms_models::roles::UserRole;
-use serde_json::json;
+
 use tracing::info;
 use uuid::Uuid;
 

@@ -3,10 +3,10 @@ import { css } from "@emotion/css"
 import { useMemo } from "react"
 
 import { BlockRendererProps } from "../../.."
-import { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 
 import { CopyButton } from "./CopyButton"
 
+import { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { monospaceFont } from "@/shared-module/common/styles"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"

@@ -4,11 +4,10 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { coursePageRoute } from "@/utils/course-material/routing"
-
 import { fetchAllCoursePages } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { coursePageRoute } from "@/utils/course-material/routing"
 
 interface PublicPageListProps {
   courseId: string

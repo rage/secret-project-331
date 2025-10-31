@@ -7,14 +7,13 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMediaQuery } from "usehooks-ts"
 
-import { courseMaterialBlockClass } from "@/utils/course-material/constants"
-
 import PageContext from "@/contexts/course-material/PageContext"
 import useHeadingData from "@/hooks/course-material/useHeadingData"
 import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
 import useShouldHideStuffFromSystemTestScreenshots from "@/shared-module/common/hooks/useShouldHideStuffForSystemTestScreenshots"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import { isElementFullyInViewport } from "@/shared-module/common/utils/dom"
+import { courseMaterialBlockClass } from "@/utils/course-material/constants"
 
 const HERO_SECTION_Y_OFFSET_PX = 700
 const TOP_OFFSET_PX = 50

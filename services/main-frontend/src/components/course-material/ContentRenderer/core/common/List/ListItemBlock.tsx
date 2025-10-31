@@ -3,14 +3,14 @@ import { css, cx } from "@emotion/css"
 import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
-import { ListItemAttributes } from "@/../types/GutenbergBlockAttributes"
-import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 
+import { ListItemAttributes } from "@/../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 
 const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListItemAttributes>>> = (
   props,

@@ -3,13 +3,9 @@ import { css } from "@emotion/css"
 import { useContext, useMemo } from "react"
 
 import { BlockRendererProps } from "../.."
-import {
-  CellAttributes,
-  Cells,
-  TableAttributes,
-} from "@/../types/GutenbergBlockAttributes"
 import { parseText } from "../../util/textParsing"
 
+import { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"

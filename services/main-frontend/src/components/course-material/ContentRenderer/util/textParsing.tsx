@@ -3,11 +3,11 @@ import KaTex from "katex"
 import { renderToString } from "react-dom/server"
 import "katex/dist/katex.min.css"
 
-import { StringWithHTML } from "@/../types"
-import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 import Tooltip from "../core/common/GlossaryTooltip"
 
+import { StringWithHTML } from "@/../types"
 import { Term } from "@/shared-module/common/bindings"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
 const LATEX_CITE_REGEX = /\\cite{(.*?)}/g

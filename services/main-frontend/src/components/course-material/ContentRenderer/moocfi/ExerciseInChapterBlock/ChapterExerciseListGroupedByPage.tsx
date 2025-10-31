@@ -2,8 +2,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { coursePageSectionRoute } from "@/utils/course-material/routing"
-
 import { fetchUserCourseInstanceChapterExercisesProgress } from "@/services/course-material/backend"
 import { PageWithExercises } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -12,6 +10,7 @@ import PageBox from "@/shared-module/common/components/ExerciseList/PageBox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { coursePageSectionRoute } from "@/utils/course-material/routing"
 
 export interface ChapterExerciseListGroupedByPageProps {
   chapterId: string

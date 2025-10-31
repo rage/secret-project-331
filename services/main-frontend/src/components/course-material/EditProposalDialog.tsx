@@ -4,12 +4,6 @@ import { useAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  blockEditsAtom,
-  currentlyOpenFeedbackDialogAtom,
-  selectedBlockIdAtom,
-} from "@/stores/course-material/materialFeedbackStore"
-
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 import { postProposedEdits } from "@/services/course-material/backend"
@@ -18,6 +12,11 @@ import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import {
+  blockEditsAtom,
+  currentlyOpenFeedbackDialogAtom,
+  selectedBlockIdAtom,
+} from "@/stores/course-material/materialFeedbackStore"
 
 interface Props {
   courseId: string

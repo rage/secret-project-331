@@ -6,14 +6,13 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { coursePageRoute } from "@/utils/course-material/routing"
-
 import { fetchTopLevelPages } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import TopLevelPage from "@/shared-module/common/components/TopLevelPage"
 import { headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { coursePageRoute } from "@/utils/course-material/routing"
 
 export interface TopLevelPagesProps {
   courseId: string

@@ -3,10 +3,10 @@ import { css } from "@emotion/css"
 import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
-import { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 
+import { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

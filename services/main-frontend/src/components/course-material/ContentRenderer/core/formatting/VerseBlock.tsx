@@ -2,11 +2,11 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
+
 import { VerseAttributes } from "@/../types/GutenbergBlockAttributes"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
-
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const VerseBlock: React.FC<React.PropsWithChildren<BlockRendererProps<VerseAttributes>>> = ({
   data,

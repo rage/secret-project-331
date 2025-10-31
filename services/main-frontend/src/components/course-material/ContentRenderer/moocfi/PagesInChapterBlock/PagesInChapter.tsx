@@ -4,14 +4,13 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { coursePageRoute } from "@/utils/course-material/routing"
-
 import { fetchChaptersPagesExcludeFrontpage } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PagesInChapterBox from "@/shared-module/common/components/PagesInChapterBox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
+import { coursePageRoute } from "@/utils/course-material/routing"
 
 export interface PagesInChapterProps {
   chapterId: string

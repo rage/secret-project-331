@@ -9,7 +9,11 @@ import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
 
 import PageContext from "@/contexts/course-material/PageContext"
-import { fetchStudentCountries, fetchStudentCountry, postStudentCountry } from "@/services/course-material/backend"
+import {
+  fetchStudentCountries,
+  fetchStudentCountry,
+  postStudentCountry,
+} from "@/services/course-material/backend"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"

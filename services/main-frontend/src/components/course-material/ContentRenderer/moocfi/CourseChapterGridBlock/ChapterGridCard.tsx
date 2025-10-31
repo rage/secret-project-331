@@ -3,8 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import { useTranslation } from "react-i18next"
 
-import { coursePageRoute } from "@/utils/course-material/routing"
-
 import { fetchPageUrl } from "@/services/course-material/backend"
 import { ChapterWithStatus } from "@/shared-module/common/bindings"
 import Card from "@/shared-module/common/components/Card"
@@ -18,6 +16,7 @@ import Intersection from "@/shared-module/common/img/card-defualt-bg/intersectio
 import PixelSquare from "@/shared-module/common/img/card-defualt-bg/pixel-square.svg"
 import QuadrupleCircle from "@/shared-module/common/img/card-defualt-bg/quadruple-circle.svg"
 import Triangle from "@/shared-module/common/img/card-defualt-bg/triangle.svg"
+import { coursePageRoute } from "@/utils/course-material/routing"
 
 interface ChapterProps {
   now: Date

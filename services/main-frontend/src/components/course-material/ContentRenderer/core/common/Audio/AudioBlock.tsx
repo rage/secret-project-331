@@ -2,8 +2,8 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
-import { AudioAttributes } from "@/../types/GutenbergBlockAttributes"
 
+import { AudioAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const AudioBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AudioAttributes>>> = ({

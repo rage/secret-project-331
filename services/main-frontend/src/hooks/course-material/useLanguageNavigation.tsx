@@ -3,12 +3,11 @@ import { useRouter } from "next/navigation"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { buildLanguageSwitchedUrl } from "@/utils/course-material/urlBuilder"
-
 import useCourseLanguageVersionNavigationInfos from "./useCourseLanguageVersionNavigationInfos"
 
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
+import { buildLanguageSwitchedUrl } from "@/utils/course-material/urlBuilder"
 
 interface LanguageNavigationParams {
   currentCourseId: string | null

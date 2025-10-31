@@ -6,10 +6,12 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
-import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "@/stores/course-material/materialFeedbackStore"
-
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
+import {
+  currentlyOpenFeedbackDialogAtom,
+  selectionAtom,
+} from "@/stores/course-material/materialFeedbackStore"
 
 export const FEEDBACK_TOOLTIP_ID = "feedback-tooltip"
 

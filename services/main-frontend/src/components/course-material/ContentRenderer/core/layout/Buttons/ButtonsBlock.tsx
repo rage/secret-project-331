@@ -3,15 +3,12 @@ import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
-import {
-  ButtonAttributes,
-  ButtonsAttributes,
-} from "@/../types/GutenbergBlockAttributes"
-import colorMapper from "@/styles/course-material/colorMapper"
-import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 
+import { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
 import Button from "@/shared-module/common/components/Button"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import colorMapper from "@/styles/course-material/colorMapper"
+import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 
 // Layout looks like this:
 // export interface Layout {

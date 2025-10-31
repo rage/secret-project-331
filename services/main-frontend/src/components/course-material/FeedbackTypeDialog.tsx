@@ -4,13 +4,15 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "@/stores/course-material/materialFeedbackStore"
-
 import ImprovementExample from "./ImprovementExample"
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
+import {
+  currentlyOpenFeedbackDialogAtom,
+  selectionAtom,
+} from "@/stores/course-material/materialFeedbackStore"
 
 const FeedbackTypeDialog: React.FC = () => {
   const { t } = useTranslation()

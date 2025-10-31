@@ -6,9 +6,10 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, SpringValue, useTransition } from "react-spring"
 
+import CopyIcon from "../../../../../../img/course-material/copy.svg"
+
 import { useCopyToClipboard } from "./utils"
 
-import CopyIcon from "../../../../../../img/course-material/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const COPY_STATUS = {

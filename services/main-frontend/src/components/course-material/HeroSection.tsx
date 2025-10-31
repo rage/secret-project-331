@@ -3,9 +3,6 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useContext } from "react"
 
-import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
-import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
-
 import { parseText } from "./ContentRenderer/util/textParsing"
 
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
@@ -13,6 +10,8 @@ import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import { respondToOrLarger } from "@/shared-module/common//styles/respond"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
+import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
+import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface TextBoxProps {
   fontColor?: string

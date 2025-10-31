@@ -4,8 +4,6 @@ import { useAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "@/stores/course-material/materialFeedbackStore"
-
 import EditProposalDialog from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTooltip from "./FeedbackTooltip"
@@ -13,6 +11,10 @@ import FeedbackTypeDialog from "./FeedbackTypeDialog"
 import SelectionListener from "./SelectionListener"
 
 import Button from "@/shared-module/common/components/Button"
+import {
+  currentlyOpenFeedbackDialogAtom,
+  selectionAtom,
+} from "@/stores/course-material/materialFeedbackStore"
 
 interface Props {
   courseId: string

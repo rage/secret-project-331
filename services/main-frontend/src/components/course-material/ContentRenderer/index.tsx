@@ -6,11 +6,6 @@ import { useSearchParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
-  courseMaterialBlockClass,
-} from "@/utils/course-material/constants"
-
 import DefaultBlock from "./DefaultBlock"
 import AudioBlock from "./core/common/Audio/AudioBlock"
 import FileBlock from "./core/common/File/FileBlock"
@@ -79,6 +74,10 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import {
+  COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
+  courseMaterialBlockClass,
+} from "@/utils/course-material/constants"
 
 /** The props that this component receives */
 export interface ContentRendererProps {

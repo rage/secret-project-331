@@ -1,10 +1,9 @@
 "use client"
 import { css } from "@emotion/css"
 
-import { BlockAttributes } from "@/../types/GutenbergBlockAttributes"
-
 import { BlockRendererProps } from "."
 
+import { BlockAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

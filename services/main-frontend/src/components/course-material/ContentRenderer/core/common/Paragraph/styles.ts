@@ -1,9 +1,8 @@
 import { css } from "@emotion/css"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import colorMapper from "@/styles/course-material/colorMapper"
 import { fontSizeMapper, mobileFontSizeMapper } from "@/styles/course-material/fontSizeMapper"
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export const UNSET_COLOR = "unset"
 

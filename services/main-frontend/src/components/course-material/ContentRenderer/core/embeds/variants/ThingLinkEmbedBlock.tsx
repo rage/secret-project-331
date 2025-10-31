@@ -2,10 +2,9 @@
 import { css } from "@emotion/css"
 
 import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
-import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles/theme"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const THINGLINK = "thinglink"
 

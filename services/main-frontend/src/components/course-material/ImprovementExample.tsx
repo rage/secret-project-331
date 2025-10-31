@@ -5,10 +5,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, useSpring } from "react-spring"
 
-import { parseSentenceDifference } from "@/utils/course-material/typingDemoSentenceUtils"
-
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { parseSentenceDifference } from "@/utils/course-material/typingDemoSentenceUtils"
 
 type Phase = "initial" | "mouseMove" | "mouseClick" | "showCaret" | "deleting" | "typing"
 

@@ -4,9 +4,9 @@ import { css } from "@emotion/css"
 import hljs from "highlight.js"
 import { memo, useEffect, useMemo, useRef } from "react"
 
-import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
-
 import { replaceBrTagsWithNewlines } from "./utils"
+
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface SyntaxHighlightedContainerProps {
   content: string | undefined

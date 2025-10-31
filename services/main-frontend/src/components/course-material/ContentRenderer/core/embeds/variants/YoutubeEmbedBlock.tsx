@@ -4,11 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
-import aspectRatioFromClassName from "@/utils/course-material/aspectRatioFromClassName"
-import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles/theme"
+import aspectRatioFromClassName from "@/utils/course-material/aspectRatioFromClassName"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const YOUTUBE_EMBED_BASE_URL = "https://www.youtube-nocookie.com/embed/"
 const YOUTUBE_PLAYLIST_TYPE = "playlist"

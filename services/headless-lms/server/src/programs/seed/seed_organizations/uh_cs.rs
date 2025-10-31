@@ -22,7 +22,7 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, create_glossary_course, seed_cs_course_material, seed_graded_course,
+            CommonCourseData, create_glossary_course, seed_cs_course_material,
             seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
@@ -283,13 +283,6 @@ pub async fn seed_organization_uh_cs(
             cs_data.clone(),
             false,
             seed_users_result
-        )),
-        run_parallelly(seed_graded_course(
-            Uuid::new_v4(),
-            "Graded Modules (Test)",
-            "graded-modules-test",
-            cs_data.clone(),
-            seed_users_result.clone(),
         )),
     )?;
 

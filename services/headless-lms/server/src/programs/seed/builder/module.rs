@@ -6,6 +6,116 @@ use headless_lms_models::course_modules::{
 use sqlx::PgConnection;
 
 use crate::programs::seed::builder::{chapter::ChapterBuilder, context::SeedContext};
+use chrono::{DateTime, Utc};
+use uuid::Uuid;
+
+/// Builder for seeding a single course_module_completion row.
+#[derive(Debug, Clone)]
+pub struct CompletionBuilder {
+    user_id: Uuid,
+    email: Option<String>,
+    grade: Option<i32>,
+    passed: Option<bool>,
+    completion_date: Option<DateTime<Utc>>,
+    completion_language: Option<String>,
+    eligible_for_ects: Option<bool>,
+    prerequisite_modules_completed: Option<bool>,
+    needs_to_be_reviewed: Option<bool>,
+}
+
+impl CompletionBuilder {
+    pub fn new(user_id: Uuid) -> Self {
+        Self {
+            user_id,
+            email: None,
+            grade: None,
+            passed: None,
+            completion_date: Some(Utc::now()),
+            completion_language: Some("en".into()),
+            eligible_for_ects: Some(true),
+            prerequisite_modules_completed: Some(true),
+            needs_to_be_reviewed: Some(false),
+        }
+    }
+
+    pub fn email(mut self, v: impl Into<String>) -> Self {
+        self.email = Some(v.into());
+        self
+    }
+    pub fn grade(mut self, v: i32) -> Self {
+        self.grade = Some(v);
+        self
+    }
+    pub fn passed(mut self, v: bool) -> Self {
+        self.passed = Some(v);
+        self
+    }
+    pub fn completion_date(mut self, v: DateTime<Utc>) -> Self {
+        self.completion_date = Some(v);
+        self
+    }
+    pub fn completion_language(mut self, v: impl Into<String>) -> Self {
+        self.completion_language = Some(v.into());
+        self
+    }
+    pub fn eligible_for_ects(mut self, v: bool) -> Self {
+        self.eligible_for_ects = Some(v);
+        self
+    }
+    pub fn prerequisite_modules_completed(mut self, v: bool) -> Self {
+        self.prerequisite_modules_completed = Some(v);
+        self
+    }
+    pub fn needs_to_be_reviewed(mut self, v: bool) -> Self {
+        self.needs_to_be_reviewed = Some(v);
+        self
+    }
+
+    /// Performs the actual insert. Uses a direct query since the model function may not exist.
+    pub async fn seed(
+        &self,
+        conn: &mut sqlx::PgConnection,
+        course_id: Uuid,
+        course_module_id: Uuid,
+    ) -> anyhow::Result<()> {
+        // Adjust column names if your schema differs.
+        sqlx::query!(
+            r#"
+            INSERT INTO course_module_completions (
+                course_id,
+                course_module_id,
+                user_id,
+                completion_date,
+                completion_language,
+                eligible_for_ects,
+                email,
+                grade,
+                passed,
+                prerequisite_modules_completed,
+                needs_to_be_reviewed
+            ) VALUES (
+                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+            )
+            "#,
+            course_id,
+            course_module_id,
+            self.user_id,
+            self.completion_date,
+            self.completion_language,
+            self.eligible_for_ects,
+            self.email,
+            self.grade,
+            self.passed,
+            self.prerequisite_modules_completed,
+            self.needs_to_be_reviewed
+        )
+        .execute(conn)
+        .await
+        .context("inserting course_module_completion")?;
+
+        Ok(())
+    }
+}
 
 /// Builder for course modules that group chapters with ECTS credits and Open University registration.
 #[derive(Debug, Clone)]
@@ -16,6 +126,7 @@ pub struct ModuleBuilder {
     pub chapters: Vec<ChapterBuilder>,
     pub register_to_open_university: bool,
     pub completion_policy: CompletionPolicy,
+    pub completions: Vec<CompletionBuilder>,
 }
 
 impl Default for ModuleBuilder {
@@ -33,8 +144,19 @@ impl ModuleBuilder {
             chapters: vec![],
             register_to_open_university: false,
             completion_policy: CompletionPolicy::Manual,
+            completions: vec![],
         }
     }
+    pub fn completion(mut self, c: CompletionBuilder) -> Self {
+        self.completions.push(c);
+        self
+    }
+
+    pub fn completions<I: IntoIterator<Item = CompletionBuilder>>(mut self, it: I) -> Self {
+        self.completions.extend(it);
+        self
+    }
+
     pub fn order(mut self, n: i32) -> Self {
         self.order = Some(n);
         self
@@ -117,6 +239,10 @@ impl ModuleBuilder {
             )
             .await
             .context("enabling OU registration for module")?;
+        }
+
+        for comp in &self.completions {
+            comp.seed(conn, course_id, module.id).await?;
         }
 
         for ch in self.chapters {

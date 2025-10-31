@@ -9,7 +9,6 @@ const exec = promisify(execOriginal)
 
 const ALL_SERVICES_TARGETS = [
   "services/cms/src/shared-module",
-  "services/course-material/src/shared-module",
   "services/example-exercise/src/shared-module",
   "services/headless-lms/shared-module",
   "services/main-frontend/src/shared-module",

@@ -439,8 +439,9 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let graded_course_id = Uuid::parse_str("1c9f9ba8-aaaa-4aa4-bccb-123654abcabc")?;
     let _graded_demo_course = seed_graded_course(
-        Uuid::parse_str("1c9f9ba8-axax-4aa4-bccb-123654abcabc")?,
+        graded_course_id,
         "Graded Demo Course",
         "graded-demo-course",
         uh_data.clone(),

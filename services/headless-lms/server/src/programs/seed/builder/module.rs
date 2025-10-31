@@ -71,44 +71,32 @@ impl CompletionBuilder {
         self
     }
 
-    /// Performs the actual insert. Uses a direct query since the model function may not exist.
     pub async fn seed(
         &self,
         conn: &mut sqlx::PgConnection,
         course_id: Uuid,
         course_module_id: Uuid,
     ) -> anyhow::Result<()> {
-        // Adjust column names if your schema differs.
-        sqlx::query!(
+        sqlx::query(
             r#"
-            INSERT INTO course_module_completions (
-                course_id,
-                course_module_id,
-                user_id,
-                completion_date,
-                completion_language,
-                eligible_for_ects,
-                email,
-                grade,
-                passed,
-                prerequisite_modules_completed,
-                needs_to_be_reviewed
-            ) VALUES (
-                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
-            )
-            "#,
-            course_id,
-            course_module_id,
-            self.user_id,
-            self.completion_date,
-            self.completion_language,
-            self.eligible_for_ects,
-            self.email,
-            self.grade,
-            self.passed,
-            self.prerequisite_modules_completed,
-            self.needs_to_be_reviewed
+    INSERT INTO course_module_completions (
+        course_id, course_module_id, user_id, completion_date,
+        completion_language, eligible_for_ects, email, grade, passed,
+        prerequisite_modules_completed, needs_to_be_reviewed
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    "#,
         )
+        .bind(course_id)
+        .bind(course_module_id)
+        .bind(self.user_id)
+        .bind(self.completion_date)
+        .bind(self.completion_language.as_deref())
+        .bind(self.eligible_for_ects)
+        .bind(self.email.as_deref())
+        .bind(self.grade)
+        .bind(self.passed)
+        .bind(self.prerequisite_modules_completed)
+        .bind(self.needs_to_be_reviewed)
         .execute(conn)
         .await
         .context("inserting course_module_completion")?;

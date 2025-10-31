@@ -2,7 +2,7 @@
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
-import React, { useEffect } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
@@ -12,7 +12,6 @@ import { LandingPageHeroSectionAttributes } from "."
 
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { baseTheme } from "@/shared-module/common/styles"
 import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
@@ -26,23 +25,11 @@ const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
   ],
 ]
 
-const DEFAULT_BACKGROUND_COLOR = baseTheme.colors.clear[100]
-
 const LandingPageHeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<LandingPageHeroSectionAttributes>>
 > = ({ clientId, attributes, setAttributes }) => {
   const { title } = attributes
   const { t } = useTranslation()
-
-  useEffect(() => {
-    if (!attributes.fontColor) {
-      setAttributes({ fontColor: baseTheme.colors.gray[700] })
-    }
-    if (!attributes.backgroundColor) {
-      setAttributes({ backgroundColor: DEFAULT_BACKGROUND_COLOR })
-    }
-  }, [attributes.backgroundColor, attributes.fontColor, setAttributes])
-
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">

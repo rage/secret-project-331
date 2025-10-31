@@ -4,13 +4,13 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme, headingFont } from "../../styles"
-import { cardMaxWidth } from "../../styles/constants"
-import { respondToOrLarger } from "../../styles/respond"
-
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
 
 import { CardExtraProps } from "."
+
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { cardMaxWidth } from "@/shared-module/common/styles/constants"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export interface BackgroundProps {
   bg: string | undefined

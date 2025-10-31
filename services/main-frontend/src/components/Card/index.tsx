@@ -2,11 +2,11 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { baseTheme } from "../../styles"
-import basePath from "../../utils/base-path"
-
 import IllustrationCard from "./IllustrationCard"
 import SimpleCard from "./SimpleCard"
+
+import { baseTheme } from "@/shared-module/common/styles"
+import basePath from "@/shared-module/common/utils/base-path"
 
 // type CourseCardProps = {
 //   title: string

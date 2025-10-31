@@ -1,9 +1,9 @@
 "use client"
 import { css } from "@emotion/css"
 
-import { respondToOrLarger } from "../../styles/respond"
-
 import CardOpensText from "./CardOpensText"
+
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface CardOpensTextProps {
   open: boolean | undefined

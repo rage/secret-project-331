@@ -2,7 +2,7 @@
 import { css, cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import { secondaryFont } from "../../styles"
+import { secondaryFont } from "@/shared-module/common/styles"
 
 interface CardOpensTextProps {
   open: boolean | undefined

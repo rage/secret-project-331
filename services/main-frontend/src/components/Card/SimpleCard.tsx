@@ -4,14 +4,14 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CardSVG from "../../img/cardNext.svg"
-import { headingFont } from "../../styles"
-import { cardMaxWidth } from "../../styles/constants"
-import { respondToOrLarger } from "../../styles/respond"
-
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
 
 import { CardExtraProps } from "."
+
+import CardSVG from "@/shared-module/common/img/cardNext.svg"
+import { headingFont } from "@/shared-module/common/styles"
+import { cardMaxWidth } from "@/shared-module/common/styles/constants"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export interface BackgroundProps {
   bg: string | undefined

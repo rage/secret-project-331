@@ -5,6 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
+import PseudoContentLink from "./PseudoContentLink"
 
 import { CardExtraProps } from "."
 
@@ -35,7 +36,6 @@ const CardContentWrapper = styled.div`
   text-align: left;
   flex-direction: column;
   overflow-wrap: break-word;
-  position: relative;
   ${BackgroundStyles}
 
   &:hover {
@@ -89,8 +89,12 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   time,
   bg,
   backgroundImage,
+  url,
+  allowedToPreview,
 }) => {
   const { t } = useTranslation()
+
+  const shouldLink = url && (open || allowedToPreview)
 
   return (
     <div
@@ -146,14 +150,29 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                 margin-top: auto;
               `}
             >
-              <span
-                className={css`
-                  font-family: ${headingFont};
-                `}
-              >
-                {t("chapter-chapter-number", { number: chapterNumber })}
-              </span>
-              <h2>{title}</h2>
+              {shouldLink ? (
+                <PseudoContentLink href={url}>
+                  <span
+                    className={css`
+                      font-family: ${headingFont};
+                    `}
+                  >
+                    {t("chapter-chapter-number", { number: chapterNumber })}
+                  </span>
+                  <h2>{title}</h2>
+                </PseudoContentLink>
+              ) : (
+                <>
+                  <span
+                    className={css`
+                      font-family: ${headingFont};
+                    `}
+                  >
+                    {t("chapter-chapter-number", { number: chapterNumber })}
+                  </span>
+                  <h2>{title}</h2>
+                </>
+              )}
             </div>
           </div>
         </div>

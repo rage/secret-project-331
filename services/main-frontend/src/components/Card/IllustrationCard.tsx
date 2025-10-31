@@ -5,6 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
+import PseudoContentLink from "./PseudoContentLink"
 
 import { CardExtraProps } from "."
 
@@ -62,8 +63,12 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   open,
   date,
   time,
+  url,
+  allowedToPreview,
 }) => {
   const { t } = useTranslation()
+
+  const shouldLink = url && (open || allowedToPreview)
 
   return (
     <div
@@ -101,7 +106,6 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
           className={css`
             flex: 1 1 auto;
             padding: 1rem;
-            position: relative;
             background: #fff;
 
             ${respondToOrLarger.md} {
@@ -109,38 +113,75 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
             }
           `}
         >
-          <div
-            className={css`
-              position: absolute;
-              top: -15px;
-              left: 10px;
-              ${respondToOrLarger.md} {
-                left: 30px;
-              }
-            `}
-          >
-            <span
-              className={css`
-                font-family: ${headingFont};
-                min-width: 18px;
-                font-weight: 500;
-                color: ${baseTheme.colors.blue[600]} !important;
-                background: #edf1f4;
-                border: 3px solid #fff;
-                border-radius: 20px;
-                font-size: 0.7rem;
-                padding: 0.2rem 0.6rem 0.3rem 0.6rem;
+          {shouldLink ? (
+            <PseudoContentLink href={url}>
+              <div
+                className={css`
+                  position: absolute;
+                  top: -15px;
+                  left: 10px;
+                  ${respondToOrLarger.md} {
+                    left: 30px;
+                  }
+                `}
+              >
+                <span
+                  className={css`
+                    font-family: ${headingFont};
+                    min-width: 18px;
+                    font-weight: 500;
+                    color: ${baseTheme.colors.blue[600]} !important;
+                    background: #edf1f4;
+                    border: 3px solid #fff;
+                    border-radius: 20px;
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.6rem 0.3rem 0.6rem;
 
-                ${respondToOrLarger.md} {
-                  font-size: 0.9rem;
-                }
-              `}
-            >
-              {t("chapter-chapter-number", { number: chapterNumber })}
-            </span>
-          </div>
+                    ${respondToOrLarger.md} {
+                      font-size: 0.9rem;
+                    }
+                  `}
+                >
+                  {t("chapter-chapter-number", { number: chapterNumber })}
+                </span>
+              </div>
+              <h2>{title}</h2>
+            </PseudoContentLink>
+          ) : (
+            <>
+              <div
+                className={css`
+                  position: absolute;
+                  top: -15px;
+                  left: 10px;
+                  ${respondToOrLarger.md} {
+                    left: 30px;
+                  }
+                `}
+              >
+                <span
+                  className={css`
+                    font-family: ${headingFont};
+                    min-width: 18px;
+                    font-weight: 500;
+                    color: ${baseTheme.colors.blue[600]} !important;
+                    background: #edf1f4;
+                    border: 3px solid #fff;
+                    border-radius: 20px;
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.6rem 0.3rem 0.6rem;
 
-          <h2>{title}</h2>
+                    ${respondToOrLarger.md} {
+                      font-size: 0.9rem;
+                    }
+                  `}
+                >
+                  {t("chapter-chapter-number", { number: chapterNumber })}
+                </span>
+              </div>
+              <h2>{title}</h2>
+            </>
+          )}
         </div>
       </CardContentWrapper>
     </div>

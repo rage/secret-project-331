@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
 import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
 import ContentRenderer from "../ContentRenderer"
 import AudioPlayer from "../ContentRenderer/moocfi/AudioPlayer"
@@ -29,13 +28,14 @@ import usePageAudioFiles from "@/hooks/course-material/usePageAudioFiles"
 import useResearchConsentForm from "@/hooks/course-material/useResearchConsentForm"
 import useResearchConsentFormAnswers from "@/hooks/course-material/useResearchConsentFormAnswers"
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
-import AudioSpeaker from "@/img/audio-player/course-material/audio-speaker.svg"
+import AudioSpeaker from "@/img/course-material/audio-player/audio-speaker.svg"
 import { Block } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
 
 interface Props {
   onRefresh: () => void

@@ -4,12 +4,13 @@ import styled from "@emotion/styled"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
+import DefaultSVG from "../../../shared-module/common/img/hero-default-bg-image.svg"
+
 import { parseText } from "./ContentRenderer/util/textParsing"
 
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import Button from "@/shared-module/common/components/Button"
-import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"

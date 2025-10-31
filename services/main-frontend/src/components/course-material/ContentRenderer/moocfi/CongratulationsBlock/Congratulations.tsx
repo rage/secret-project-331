@@ -3,8 +3,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ConfettiBg from "@/img/course-material/confetti-bg.svg"
-import BackgroundImage from "@/img/course-material/congratulation-bg.svg"
+import ConfettiBg from "../../../../../img/course-material/confetti-bg.svg"
+import BackgroundImage from "../../../../../img/course-material/congratulation-bg.svg"
 
 import ModuleCard from "./ModuleCard"
 

@@ -4,8 +4,7 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from ".."
-import Check from "@/img/course-material/checkmark.svg"
-import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+import Check from "../../../../img/course-material/checkmark.svg"
 
 import PageContext from "@/contexts/course-material/PageContext"
 import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
@@ -13,6 +12,7 @@ import { Block } from "@/services/course-material/backend"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.
 const Wrapper = styled.div`

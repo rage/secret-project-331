@@ -7,6 +7,8 @@ import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import CaretDownIcon from "../../../../../imgs/caret-down.svg"
+
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import ChapterPointsDashboard from "@/components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import CompletionRegistrationPreview from "@/components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
@@ -15,7 +17,6 @@ import UserCompletionRow, {
 } from "@/components/page-specific/manage/course-instances/id/UserCompletionRow"
 import CompletionsExportButton from "@/components/page-specific/manage/course-instances/id/completions/CompletionsExportButton"
 import FullWidthTable from "@/components/tables/FullWidthTable"
-import CaretDownIcon from "@/imgs/caret-down.svg"
 import {
   getCompletions,
   postCompletions,

@@ -2,9 +2,9 @@
 import { css } from "@emotion/css"
 import React, { useRef, useState } from "react"
 
+import CloseIcon from "../../../../../img/course-material/close.svg"
 import { AudioFile } from "../../../Page"
 
-import CloseIcon from "/@/img/course-material/close.svg"
 import Controls from "./Controls"
 import DisplayTrack from "./DisplayTrack"
 import ProgressBar from "./ProgressBar"

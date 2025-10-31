@@ -142,7 +142,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         margin-bottom: 3rem;
         /** There should not be empty space before the hero section, so we'll undo the default block margin **/
         margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
-        background-color: ${backgroundColor};
+        background-color: ${backgroundColor || baseTheme.colors.clear[100]};
         position: relative;
         touch-action: manipulation;
 

@@ -146,7 +146,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 5em 1em;
         margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
-        ${backgroundColor && `background-color: ${backgroundColor};`}
+        background-color: ${backgroundColor || baseTheme.colors.clear[100]};
         ${getBackgroundImageUrl("mobile") &&
         `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("mobile"))}");
         background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};

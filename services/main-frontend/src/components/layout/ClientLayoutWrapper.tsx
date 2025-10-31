@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { RouterProvider } from "react-aria-components"
 
+import { LanguageOptionsProvider } from "@/contexts/LanguageOptionsContext"
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import useLanguage, { DEFAULT_LANGUAGE, getDir } from "@/shared-module/common/hooks/useLanguage"
@@ -78,8 +79,10 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
       <RouterProvider navigate={(path) => router.push(path)}>
         <OverlayProvider>
           <DialogProvider>
-            <GlobalStyles />
-            <LoginStateContextProvider>{children}</LoginStateContextProvider>
+            <LanguageOptionsProvider>
+              <GlobalStyles />
+              <LoginStateContextProvider>{children}</LoginStateContextProvider>
+            </LanguageOptionsProvider>
           </DialogProvider>
         </OverlayProvider>
       </RouterProvider>

@@ -8,24 +8,26 @@ import Page from "@/components/course-material/Page"
 import PageNotFound from "@/components/course-material/PageNotFound"
 import CourseMaterialPageBreadcrumbs from "@/components/course-material/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "@/components/course-material/notifications/CourseTestModeNotification"
+import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
 import LayoutContext from "@/contexts/course-material/LayoutContext"
 import PageContext, {
   CoursePageDispatch,
   getDefaultPageState,
 } from "@/contexts/course-material/PageContext"
+import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
 import pageStateReducer from "@/reducers/course-material/pageStateReducer"
 import { fetchCoursePageByPath } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
-import basePath from "@/shared-module/common/utils/base-path"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const PagePage: React.FC = () => {
   const layoutContext = useContext(LayoutContext)
   const router = useRouter()
+  const languageOptions = useLanguageOptions()
   const params = useParams<{ organizationSlug: string; courseSlug: string; path: string[] }>()
   if (params === null) {
     throw new Error("Params are null (and they are not supposed to be)")
@@ -40,6 +42,29 @@ const PagePage: React.FC = () => {
   })
 
   const { refetch: refetchGetCoursePageByPath } = getCoursePageByPath
+
+  // Get course and page IDs from the data
+  const currentCourseId = getCoursePageByPath.data?.page.course_id ?? null
+  const currentPageId = getCoursePageByPath.data?.page.id ?? null
+
+  // Use language navigation hook
+  const languageNavigation = useLanguageNavigation({
+    currentCourseId,
+    currentPageId,
+  })
+
+  // Update language options context when available languages change
+  useEffect(() => {
+    if (languageOptions && languageNavigation.availableLanguages.length > 0) {
+      languageOptions.setAvailableLanguages(languageNavigation.availableLanguages)
+    }
+    return () => {
+      // Clear language options when unmounting
+      if (languageOptions) {
+        languageOptions.clearAvailableLanguages()
+      }
+    }
+  }, [languageNavigation.availableLanguages, languageOptions])
 
   const pageStateReducerIntializer = useMemo(
     () =>

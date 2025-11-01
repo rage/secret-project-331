@@ -20,7 +20,7 @@ use crate::{
     programs::seed::{
         seed_courses::{
             CommonCourseData, seed_chatbot::seed_chatbot_course,
-            seed_course_with_peer_review::seed_peer_review_course, seed_graded_course,
+            seed_course_with_peer_review::seed_peer_review_course,
             seed_peer_review_course_without_submissions, seed_sample_course,
             seed_switching_course_instances_course,
         },
@@ -434,16 +434,6 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("5158f2c6-98d9-4be9-b372-528f2c736dd7")?,
         "Reject and reset submission with peer reviews course",
         "reject-and-reset-submission-with-peer-reviews-course",
-        uh_data.clone(),
-        seed_users_result,
-    )
-    .await?;
-
-    let graded_course_id = Uuid::parse_str("1c9f9ba8-aaaa-4aa4-bccb-123654abcabc")?;
-    let _graded_demo_course = seed_graded_course(
-        graded_course_id,
-        "Graded Demo Course",
-        "graded-demo-course",
         uh_data.clone(),
         seed_users_result,
     )

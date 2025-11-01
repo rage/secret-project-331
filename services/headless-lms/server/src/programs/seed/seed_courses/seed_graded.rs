@@ -7,9 +7,8 @@ use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
 use anyhow::Result;
 use chrono::Utc;
-
+use headless_lms_models::course_instance_enrollments;
 use headless_lms_models::roles::UserRole;
-
 use tracing::info;
 use uuid::Uuid;
 
@@ -28,7 +27,7 @@ pub async fn seed_graded_course(
         teacher_user_id,
         student_user_id: _student,
         langs_user_id: _langs_user_id,
-        example_normal_user_ids: _users,
+        example_normal_user_ids,
         jwt_key: _jwt_key,
         base_url: _base_url,
     } = common_course_data;
@@ -41,6 +40,7 @@ pub async fn seed_graded_course(
     };
 
     info!("Inserting sample course {}", course_name);
+
     // Build the graded module
     let mut module = ModuleBuilder::new()
         .order(0)
@@ -48,12 +48,12 @@ pub async fn seed_graded_course(
         .automatic_completion(Some(1), Some(1), false);
 
     // Add graded completions for each seeded example user (0–N)
-    for (i, uid) in seed_users_result.example_normal_user_ids.iter().enumerate() {
+    for uid in example_normal_user_ids.iter() {
         module = module.completion(CompletionBuilder::new(*uid).grade(5).passed(true));
     }
 
     // Build the actual course
-    let course = CourseBuilder::new(course_name, course_slug)
+    let course_builder = CourseBuilder::new(course_name, course_slug)
         .desc("A sample graded course that pre-seeds module completions for demo users.")
         .chatbot(false)
         .course_id(course_id)
@@ -83,6 +83,21 @@ pub async fn seed_graded_course(
         );
 
     // Actually insert the course into the DB
-    let (_course, _instance, _last_module) = course.seed(&mut conn, &cx).await?;
+    let (course, default_instance, _last_module) = course_builder.seed(&mut conn, &cx).await?;
+
+    // ---- ENROLL USERS HERE ----
+    // After: let (course, default_instance, _last_module) = course_builder.seed(&mut conn, &cx).await?;
+    for uid in example_normal_user_ids.iter() {
+        course_instance_enrollments::insert(
+            &mut conn,
+            *uid,                // user_id
+            course.id,           // course_id (from the seed return)
+            default_instance.id, // course_instance_id
+        )
+        .await?;
+    }
+
+    // ---------------------------
+
     Ok(course_id)
 }

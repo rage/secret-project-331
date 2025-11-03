@@ -8,9 +8,11 @@ use std::sync::{
 use std::task::{Context, Poll};
 use std::vec;
 
+use anyhow::{Error, Ok};
 use bytes::Bytes;
 use chrono::Utc;
-use futures::{Stream, TryStreamExt};
+use futures::stream::BoxStream;
+use futures::{Stream, StreamExt, TryStreamExt};
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
@@ -19,6 +21,7 @@ use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgPool;
+use tokio::io::Lines;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use url::Url;
@@ -445,6 +448,13 @@ where
     }
 }
 
+type BytesStreamReader<'a> =
+    Lines<StreamReader<BoxStream<'a, Result<Bytes, std::io::Error>>, Bytes>>;
+pub enum ResponseStreamType<'a> {
+    Toolcall(BytesStreamReader<'a>),
+    TextResponse(BytesStreamReader<'a>),
+}
+
 struct RequestCancelledGuard {
     response_message_id: Uuid,
     received_string: Arc<Mutex<Vec<String>>>,
@@ -496,6 +506,222 @@ impl Drop for RequestCancelledGuard {
     }
 }
 
+pub async fn make_request_and_stream<'a>(
+    chat_request: LLMRequest,
+    model_name: &str,
+    app_config: &ApplicationConfiguration,
+) -> anyhow::Result<ResponseStreamType<'a>> {
+    let response = make_streaming_llm_request(chat_request, model_name, app_config).await?;
+
+    info!("Receiving chat response with {:?}", response.version());
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_message = response.text().await?;
+        return Err(anyhow::anyhow!(
+            "Failed to send chat request. Status: {}. Error: {}",
+            status,
+            error_message
+        ));
+    }
+
+    let stream = response
+        .bytes_stream()
+        .map_err(std::io::Error::other)
+        .boxed();
+
+    let reader = StreamReader::new(stream);
+    let mut lines = reader.lines();
+    lines.next_line().await?;
+    lines.next_line().await?; // loop until we can know which
+
+    if let Some(line) = lines.next_line().await? {
+        let json_str = line.trim_start_matches("data: ");
+        let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
+            .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
+        for choice in &response_chunk.choices {
+            if let Some(d) = &choice.delta {
+                if Some("".to_string()) == d.content {
+                    // this is a text response
+                    return Ok(ResponseStreamType::TextResponse(lines));
+                } else if None == d.content {
+                    // this is a tool call
+                    return Ok(ResponseStreamType::Toolcall(lines));
+                }
+            }
+        }
+    }
+
+    return Err(Error::msg("IDK what type response this was".to_string()));
+}
+
+pub async fn parse_tool<'a>(mut lines: BytesStreamReader<'a>) -> anyhow::Result<Vec<APIMessage>> {
+    // parse the function call stream and call the functions
+    let mut function_calls: HashMap<(String, String), serde_json::Value> = HashMap::new();
+    let mut function_call: Option<(String, String)> = None;
+    let mut function_args = vec![]; //Arc::new(Mutex::new(Vec::new())); //idk?
+    let mut tool_result_messages = vec![];
+
+    while let Some(line) = lines.next_line().await? {
+        if !line.starts_with("data: ") {
+            continue;
+        }
+        let json_str = line.trim_start_matches("data: ");
+        if json_str.trim() == "[DONE]" {
+            if function_calls.is_empty() {
+                // return error
+            }
+            for (key, _val) in function_calls.iter() {
+                tool_result_messages.push(APIMessage {
+                    role: MessageRole::Tool,
+                    content: "Your fooname has been recorded".to_string(),
+                    name: Some(key.0.to_string()),
+                    tool_call_id: Some(key.1.to_string()),
+                })
+            }
+            println!(
+                "!!!!!!!!!!!!!!!!!!!!! Tool messages {:?}",
+                tool_result_messages
+            );
+            break;
+        }
+        let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
+            .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
+        for choice in &response_chunk.choices {
+            if Some("tool_calls".to_string()) == choice.finish_reason {
+                if let Some(name_id) = &function_call {
+                    function_calls.insert(name_id.to_owned(), json!(function_args.join("")));
+                    function_args.clear();
+                    function_call = None;
+                }
+            }
+            if let Some(delta) = &choice.delta {
+                if let Some(tool_calls) = &delta.tool_calls {
+                    for call in tool_calls {
+                        if let Some(name) = &call.function.name {
+                            if let Some(prev_name) = function_call {
+                                function_calls.insert(prev_name, json!(function_args.join("")));
+                                function_args.clear();
+                            }
+                            function_call = Some((name.to_owned(), call.id.clone()));
+                        };
+                        function_args.push(call.function.arguments.clone());
+                    }
+                }
+            }
+        }
+    }
+    Ok(tool_result_messages)
+}
+
+pub async fn parse_and_stream_to_user<'a>(
+    mut lines: BytesStreamReader<'a>,
+    response_message: ChatbotConversationMessage,
+    pool: PgPool,
+    request_estimated_tokens: i32,
+) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
+    let done = Arc::new(AtomicBool::new(false));
+    let full_response_text = Arc::new(Mutex::new(Vec::new()));
+    // Instantiate the guard before creating the stream.
+    let guard = RequestCancelledGuard {
+        response_message_id: response_message.id,
+        received_string: full_response_text.clone(),
+        pool: pool.clone(),
+        done: done.clone(),
+        request_estimated_tokens,
+    };
+
+    let response_stream = async_stream::try_stream! {
+        while let Some(line) = lines.next_line().await? {
+            if !line.starts_with("data: ") {
+                continue;
+            }
+            let json_str = line.trim_start_matches("data: ");
+
+            let mut full_response_text = full_response_text.lock().await;
+            if json_str.trim() == "[DONE]" {
+                let full_response_as_string = full_response_text.join("");
+                let estimated_cost = estimate_tokens(&full_response_as_string);
+                info!(
+                    "End of chatbot response stream. Estimated cost: {}. Response: {}",
+                    estimated_cost, full_response_as_string
+                );
+                done.store(true, atomic::Ordering::Relaxed);
+                let mut conn = pool.acquire().await?;
+                models::chatbot_conversation_messages::update(
+                    &mut conn,
+                    response_message.id,
+                    &full_response_as_string,
+                    true,
+                    request_estimated_tokens + estimated_cost,
+                ).await?;
+                break;
+            }
+            let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
+                anyhow::anyhow!("Failed to parse response chunk: {}", e)
+            })?;
+
+            for choice in &response_chunk.choices {
+                if let Some(delta) = &choice.delta {
+                    if let Some(content) = &delta.content {
+                        full_response_text.push(content.clone());
+                        let response = ChatResponse { text: content.clone() };
+                        let response_as_string = serde_json::to_string(&response)?;
+                        yield Bytes::from(response_as_string);
+                        yield Bytes::from("\n");
+                    }
+                    if let Some(context) = &delta.context {
+                        let citation_message_id = response_message.id;
+                        let mut conn = pool.acquire().await?;
+                        for (idx, cit) in context.citations.iter().enumerate() {
+                            let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
+                            let split = content.split_once(CONTENT_FIELD_SEPARATOR);
+                            if split.is_none() {
+                                error!("Chatbot citation doesn't have any content or is missing 'chunk_context'. Something is wrong with Azure.");
+                            }
+                            let cleaned_content: String = split.unwrap_or(("","")).1.to_string();
+
+                            let document_url = cit.url.clone();
+                            let mut page_path = PathBuf::from(&cit.filepath);
+                            page_path.set_extension("");
+                            let page_id_str = page_path.file_name();
+                            let page_id = page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
+                            let course_material_chapter_number = if let Some(id) = page_id {
+                                let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
+                                chapter.map(|c| c.chapter_number)
+                            } else {
+                                None
+                            };
+
+                            models::chatbot_conversation_messages_citations::insert(
+                                &mut conn, ChatbotConversationMessageCitation {
+                                    id: Uuid::new_v4(),
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                    conversation_message_id: citation_message_id,
+                                    conversation_id: response_message.conversation_id,
+                                    course_material_chapter_number,
+                                    title: cit.title.clone(),
+                                    content: cleaned_content,
+                                    document_url,
+                                    citation_number: (idx+1) as i32,
+                                }
+                            ).await?;
+                        }
+                    }
+                }
+            }
+        }
+
+        if !done.load(atomic::Ordering::Relaxed) {
+            Err(anyhow::anyhow!("Stream ended unexpectedly"))?;
+        }
+    };
+    let guarded_stream = GuardedStream::new(guard, response_stream);
+    Ok(Box::pin(guarded_stream))
+}
+
 pub async fn send_chat_request_and_parse_stream(
     conn: &mut PgConnection,
     pool: PgPool,
@@ -504,6 +730,79 @@ pub async fn send_chat_request_and_parse_stream(
     conversation_id: Uuid,
     message: &str,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
+    let (chat_request, new_message, request_estimated_tokens) =
+        LLMRequest::build_and_insert_incoming_message_to_db(
+            conn,
+            chatbot_configuration_id,
+            conversation_id,
+            message,
+            app_config,
+        )
+        .await?;
+
+    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
+        conn,
+        chatbot_configuration_id,
+    )
+    .await?;
+
+    let response_order_number = new_message.order_number + 1;
+
+    let response_message = models::chatbot_conversation_messages::insert(
+        conn,
+        ChatbotConversationMessage {
+            id: Uuid::new_v4(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            conversation_id,
+            message: None,
+            is_from_chatbot: true,
+            message_is_complete: false,
+            used_tokens: request_estimated_tokens,
+            order_number: response_order_number,
+        },
+    )
+    .await?;
+
+    let mut tool_msgs = vec![];
+
+    loop {
+        // ou maybe can't use the same chat request???
+        // save the reveived tool calling responses to the messages!!!!!
+        let mut chat_request = chat_request.clone();
+        chat_request.messages.extend(tool_msgs.to_owned());
+
+        let response_type =
+            make_request_and_stream(chat_request.clone(), &model.deployment_name, &app_config)
+                .await?;
+
+        // preserve rool_msgs across iters and push
+        let new_tool_msgs = match response_type {
+            ResponseStreamType::Toolcall(stream) => parse_tool(stream).await?,
+            ResponseStreamType::TextResponse(stream) => {
+                return parse_and_stream_to_user(
+                    stream,
+                    response_message,
+                    pool,
+                    request_estimated_tokens,
+                )
+                .await;
+            }
+        };
+        tool_msgs.extend(new_tool_msgs);
+    }
+}
+
+//____________________________________________________________________________
+pub async fn send_chat_request_and_parse_stream_old<'a>(
+    conn: &mut PgConnection,
+    pool: PgPool,
+    app_config: &'a ApplicationConfiguration,
+    chatbot_configuration_id: Uuid,
+    conversation_id: Uuid,
+    message: &str,
+) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
     let (chat_request, new_message, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_message_to_db(
             conn,

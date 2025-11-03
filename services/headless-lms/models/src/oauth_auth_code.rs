@@ -19,8 +19,6 @@ pub struct OAuthAuthCode {
     pub metadata: serde_json::Value,
 }
 
-/* ------------ internal helper types ------------ */
-
 #[derive(Debug, Clone)]
 pub struct NewAuthCodeParams<'a> {
     pub digest: &'a Digest,
@@ -35,7 +33,6 @@ pub struct NewAuthCodeParams<'a> {
 }
 
 impl OAuthAuthCode {
-    #[allow(clippy::too_many_arguments)]
     pub async fn insert(conn: &mut PgConnection, params: NewAuthCodeParams<'_>) -> ModelResult<()> {
         sqlx::query!(
             r#"

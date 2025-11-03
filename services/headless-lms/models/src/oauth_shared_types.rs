@@ -54,8 +54,7 @@ impl Digest {
             out[2 * i] = HEX[(b >> 4) as usize];
             out[2 * i + 1] = HEX[(b & 0x0f) as usize];
         }
-        // ASCII-only, safe
-        unsafe { String::from_utf8_unchecked(out) }
+        String::from_utf8(out).unwrap() // Cannot fail, above code generated only valid ascii.
     }
 }
 

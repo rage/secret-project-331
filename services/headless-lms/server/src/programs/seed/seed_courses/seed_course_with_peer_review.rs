@@ -77,7 +77,7 @@ pub async fn seed_peer_review_course(
                                     cx.v5(b"page:1:1:block:intro"),
                                 ))
                                 .exercise(ExerciseBuilder::example_exercise(
-                                    "Simple multiple choice",
+                                    "Simple multiple choice with peer review",
                                     ExerciseIds {
                                         exercise_id: cx.v5(b"exercise:1:1:e"),
                                         slide_id: cx.v5(b"exercise:1:1:s"),
@@ -114,7 +114,7 @@ pub async fn seed_peer_review_course(
                                         peer_reviews_to_receive: 1,
                                         accepting_threshold: 2.1,
                                         processing_strategy:
-                                        PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+                                            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
                                         reset_answer_if_zero_points_from_review: false,
                                         points_are_all_or_nothing: true,
                                         review_instructions: None,
@@ -124,7 +124,62 @@ pub async fn seed_peer_review_course(
                                         peer_or_self_review_config_id: cx.v5(b"peer-review:1"),
                                         order_number: 1,
                                         question: "Good answer?".to_string(),
-                                        question_type: headless_lms_models::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
+                                        question_type:
+                                            headless_lms_models::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
+                                        answer_required: true,
+                                        weight: 0.0,
+                                    }]),
+                                ))
+                                .exercise(ExerciseBuilder::example_exercise(
+                                    "Simple multiple choice with automatic reset on zero score",
+                                    ExerciseIds {
+                                        exercise_id: cx.v5(b"exercise:2:1:e"),
+                                        slide_id: cx.v5(b"exercise:2:1:s"),
+                                        task_id: cx.v5(b"exercise:2:1:t"),
+                                        block_id: cx.v5(b"exercise:2:1:b"),
+                                    },
+                                    vec![paragraph(
+                                        "What is 2 + 2?",
+                                        cx.v5(b"exercise:2:1:prompt"),
+                                    )],
+                                    json!([
+                                        {
+                                            "name": "3",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:2:1:option:1")
+                                        },
+                                        {
+                                            "name": "4",
+                                            "correct": true,
+                                            "id": cx.v5(b"exercise:2:1:option:2")
+                                        },
+                                        {
+                                            "name": "5",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:2:1:option:3")
+                                        }
+                                    ]),
+                                    true,
+                                    Some(CmsPeerOrSelfReviewConfig {
+                                        id: cx.v5(b"peer-review:2"),
+                                        course_id,
+                                        exercise_id: Some(cx.v5(b"exercise:2:1:e")),
+                                        peer_reviews_to_give: 2,
+                                        peer_reviews_to_receive: 1,
+                                        accepting_threshold: 2.1,
+                                        processing_strategy:
+                                            PeerReviewProcessingStrategy::AutomaticallyGradeByAverage,
+                                        reset_answer_if_zero_points_from_review: true,
+                                        points_are_all_or_nothing: true,
+                                        review_instructions: None,
+                                    }),
+                                    Some(vec![CmsPeerOrSelfReviewQuestion {
+                                        id: cx.v5(b"peer-review:2:q1"),
+                                        peer_or_self_review_config_id: cx.v5(b"peer-review:2"),
+                                        order_number: 1,
+                                        question: "Good answer?".to_string(),
+                                        question_type:
+                                            headless_lms_models::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
                                         answer_required: true,
                                         weight: 0.0,
                                     }]),

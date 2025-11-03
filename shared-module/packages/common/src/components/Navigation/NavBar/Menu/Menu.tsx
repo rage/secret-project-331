@@ -83,7 +83,6 @@ const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({ children, variant 
   const [clicked, setClicked] = useState(false)
   const { t } = useTranslation()
 
-  const buttonId = variant === "bottom" ? "" : "main-navigation-menu"
   const onClickHandler = () => {
     setClicked(!clicked)
   }
@@ -97,7 +96,7 @@ const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({ children, variant 
         aria-label={t("open-menu")}
         tabIndex={0}
       >
-        <Hamburger isActive={clicked} toggleButton={onClickHandler} buttonId={buttonId} />
+        <Hamburger isActive={clicked} />
       </div>
       <ul
         className={

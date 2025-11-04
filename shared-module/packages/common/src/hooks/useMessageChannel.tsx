@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 export default function useMessageChannel(): MessageChannel | null {
-  const [channel, setChannel] = useState<MessageChannel | null>(null)
-  useEffect(() => {
-    setChannel(new MessageChannel())
-  }, [])
+  const [channel] = useState<MessageChannel | null>(() => {
+    if (typeof MessageChannel !== "undefined") {
+      return new MessageChannel()
+    }
+    return null
+  })
   return channel
 }

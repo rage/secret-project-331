@@ -59,6 +59,37 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
 
   const messageChannel = useMessageChannel()
+  const portSentRef = useRef(false)
+  const readyMessageQueueRef = useRef<MessageEvent[]>([])
+
+  useEffect(() => {
+    portSentRef.current = false
+    readyMessageQueueRef.current = []
+  }, [url])
+
+  const sendPortToIframe = (messageChannel: MessageChannel) => {
+    if (portSentRef.current) {
+      return
+    }
+
+    if (!iframeRef.current) {
+      return
+    }
+
+    const contentWindow = iframeRef.current.contentWindow
+    if (!contentWindow) {
+      return
+    }
+
+    console.info("[MessageChannelIFrame] Parent posting message port to iframe")
+    try {
+      // The iframe will use port 2 for communication
+      contentWindow.postMessage("communication-port", "*", [messageChannel.port2])
+      portSentRef.current = true
+    } catch (e) {
+      console.error("[MessageChannelIFrame] Posting communication port to iframe failed", e)
+    }
+  }
 
   useEffect(() => {
     if (!messageChannel) {
@@ -97,21 +128,31 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       }
       console.groupEnd()
     }
+
+    const queuedMessages = readyMessageQueueRef.current
+    if (queuedMessages.length > 0) {
+      readyMessageQueueRef.current = []
+      queuedMessages.forEach((e) => {
+        if (e.data === "ready" && !portSentRef.current) {
+          sendPortToIframe(messageChannel)
+        }
+      })
+    }
   }, [messageChannel, onMessageFromIframe])
 
   // Set up a temporary listener for the initial ready event
   useEffect(() => {
-    if (!messageChannel) {
-      return
-    }
     const temporaryEventHandler = (e: WindowEventMap["message"]) => {
+      if (portSentRef.current) {
+        return
+      }
+
       // Verify the source of the message. Origin can be "null" if the IFrame is
       // sandboxed without allow-same-origin, or it can be the same as window.location.origin
       if (
         (!disableSandbox && e.origin !== "null" && e.origin !== window.location.origin) ||
         e.source !== iframeRef.current?.contentWindow
       ) {
-        // Only log if this was a "ready" message to avoid noise from other messages
         if (e.data === "ready") {
           console.warn("[MessageChannelIFrame] Received ready message from invalid origin", {
             origin: e.origin,
@@ -123,27 +164,16 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       }
 
       if (e.data !== "ready") {
-        console.warn(`[MessageChannelIFrame] Unsupported message from IFrame: ${e.data}`)
         return
       }
 
-      if (iframeRef.current && iframeRef.current.contentWindow) {
-        console.info("[MessageChannelIFrame] Parent posting message port to iframe")
-        try {
-          // The iframe will use port 2 for communication
-          iframeRef.current.contentWindow.postMessage("communication-port", "*", [
-            messageChannel.port2,
-          ])
-        } catch (e) {
-          console.error("[MessageChannelIFrame] Posting communication port to iframe failed", e)
-        }
+      if (messageChannel) {
+        sendPortToIframe(messageChannel)
       } else {
-        console.error(
-          "[MessageChannelIFrame] Could not send port to iframe because the target iframe content window could not be found.",
-        )
+        readyMessageQueueRef.current.push(e)
       }
-      removeEventListener("message", temporaryEventHandler)
     }
+
     addEventListener("message", temporaryEventHandler)
     return () => {
       removeEventListener("message", temporaryEventHandler)

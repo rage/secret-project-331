@@ -82,13 +82,13 @@ test("Reject and reset submission", async () => {
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
-    await teacherPage.getByText("Operation successful!").waitFor()
+    await student1Page.getByText("Operation successful!").waitFor()
     await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
-    await teacherPage.getByText("Operation successful!").waitFor()
+    await student1Page.getByText("Operation successful!").waitFor()
     await expect(
       student1Page.getByRole("heading", { name: "Waiting for peer reviews" }),
     ).toBeVisible()
@@ -100,13 +100,13 @@ test("Reject and reset submission", async () => {
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
-    await teacherPage.getByText("Operation successful!").waitFor()
+    await student2Page.getByText("Operation successful!").waitFor()
     await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
     await student2Page
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
-    await teacherPage.getByText("Operation successful!").waitFor()
+    await student2Page.getByText("Operation successful!").waitFor()
     await expect(student2Page.getByText("Your answer has been reviewed")).toBeVisible()
 
     // Teacher peer reviews Student1 and Student2 answers

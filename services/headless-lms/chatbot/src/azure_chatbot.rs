@@ -26,7 +26,10 @@ use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use url::Url;
 
-use crate::llm_utils::{APIMessage, MessageRole, estimate_tokens, make_streaming_llm_request};
+use crate::llm_utils::{
+    APIMessage, ApiMessageKind, ApiMessageToolCall, ApiTextMessage, ApiTool, ApiToolCallMessage,
+    ApiToolResponseMessage, MessageRole, estimate_tokens, make_streaming_llm_request,
+};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 
@@ -104,9 +107,9 @@ impl From<ChatbotConversationMessage> for APIMessage {
             } else {
                 MessageRole::User
             },
-            content: message.message.unwrap_or_default(),
-            name: None,
-            tool_call_id: None,
+            fields: ApiMessageKind::Text(ApiTextMessage {
+                content: message.message.unwrap_or_default(),
+            }),
         }
     }
 }
@@ -255,9 +258,9 @@ impl LLMRequest {
             0,
             APIMessage {
                 role: MessageRole::System,
-                content: configuration.prompt.clone(),
-                name: None,
-                tool_call_id: None,
+                fields: ApiMessageKind::Text(ApiTextMessage {
+                    content: configuration.prompt.clone(),
+                }),
             },
         );
 
@@ -532,16 +535,15 @@ pub async fn make_request_and_stream<'a>(
 
     let reader = StreamReader::new(stream);
     let mut lines = reader.lines();
-    lines.next_line().await?;
-    lines.next_line().await?; // loop until we can know which
 
-    if let Some(line) = lines.next_line().await? {
+    while let Some(line) = lines.next_line().await? {
         let json_str = line.trim_start_matches("data: ");
         let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
             .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
         for choice in &response_chunk.choices {
             if let Some(d) = &choice.delta {
-                if Some("".to_string()) == d.content {
+                println!("{:?}", d);
+                if let Some(_s) = &d.content {
                     // this is a text response
                     return Ok(ResponseStreamType::TextResponse(lines));
                 } else if None == d.content {
@@ -571,12 +573,29 @@ pub async fn parse_tool<'a>(mut lines: BytesStreamReader<'a>) -> anyhow::Result<
             if function_calls.is_empty() {
                 // return error
             }
+            tool_result_messages.push(APIMessage {
+                role: MessageRole::Assistant,
+                fields: ApiMessageKind::ToolCall(ApiToolCallMessage {
+                    tool_calls: function_calls
+                        .clone()
+                        .into_iter()
+                        .map(|((name, id), arguments)| ApiMessageToolCall {
+                            function: ApiTool { name, arguments },
+                            id,
+                            type_: "function".to_string(),
+                        })
+                        .collect(),
+                }),
+            });
+
             for (key, _val) in function_calls.iter() {
                 tool_result_messages.push(APIMessage {
                     role: MessageRole::Tool,
-                    content: "Your fooname has been recorded".to_string(),
-                    name: Some(key.0.to_string()),
-                    tool_call_id: Some(key.1.to_string()),
+                    fields: ApiMessageKind::ToolResponse(ApiToolResponseMessage {
+                        content: "Your fooname has been recorded".to_string(),
+                        name: key.0.to_string(),
+                        tool_call_id: key.1.to_string(),
+                    }),
                 })
             }
             println!(
@@ -739,6 +758,10 @@ pub async fn send_chat_request_and_parse_stream(
             app_config,
         )
         .await?;
+    println!(
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA{:?}",
+        chat_request
+    );
 
     let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
         conn,
@@ -772,6 +795,10 @@ pub async fn send_chat_request_and_parse_stream(
         // save the reveived tool calling responses to the messages!!!!!
         let mut chat_request = chat_request.clone();
         chat_request.messages.extend(tool_msgs.to_owned());
+        println!(
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA{:?}",
+            chat_request
+        );
 
         let response_type =
             make_request_and_stream(chat_request.clone(), &model.deployment_name, &app_config)
@@ -904,16 +931,20 @@ pub async fn send_chat_request_and_parse_stream_old<'a>(
              } else {
                     info!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Funcrion calls: {:?}\n Trying to call functions...", function_calls);
                     let mut messages = (&chat_request).messages.clone();
-                    for (key,val) in function_calls.iter() {
+                    for (key,_val) in function_calls.iter() {
                         messages.push(APIMessage {
                             role: MessageRole::Tool,
-                            content: "Your fooname has been recorded".to_string(),
-                            name: Some(key.0.to_string()),
-                            tool_call_id: Some(key.1.to_string()) })
+                            fields: ApiMessageKind::ToolResponse(ApiToolResponseMessage {
+                             content: "Your fooname has been recorded".to_string(),
+                            name: key.0.to_string(),
+                            tool_call_id: key.1.to_string(),
+                            })
+
+                        })
                     }
                     let chat_request2 = LLMRequest {messages, data_sources: (&chat_request).data_sources.clone(), params: (&chat_request).params.clone(), tools: (&chat_request).tools.clone(), tool_choice: (&chat_request).tool_choice.clone(), stop: None
                         };
-                    let response = make_streaming_llm_request(chat_request2, &model.deployment_name, app_config).await?;
+                    let _response = make_streaming_llm_request(chat_request2, &model.deployment_name, app_config).await?;
 
                     break;
                 }

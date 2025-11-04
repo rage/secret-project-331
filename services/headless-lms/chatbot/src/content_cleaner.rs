@@ -1,6 +1,10 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
-use crate::llm_utils::{APIMessage, MessageRole, estimate_tokens, make_blocking_llm_request};
+use crate::llm_utils::{
+    APIMessage, ApiMessageKind, ApiTextMessage, MessageRole, estimate_tokens,
+    make_blocking_llm_request,
+};
 use crate::prelude::*;
+use anyhow::Error;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use tracing::{debug, error, info, instrument, warn};
 
@@ -44,12 +48,17 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = APIMessage {
         role: MessageRole::System,
-        content: SYSTEM_PROMPT.to_string(),
-        name: None,
-        tool_call_id: None,
+        fields: ApiMessageKind::Text(ApiTextMessage {
+            content: SYSTEM_PROMPT.to_string(),
+        }),
     };
 
-    let system_message_tokens = estimate_tokens(&system_message.content);
+    let message_content = match &system_message.fields {
+        ApiMessageKind::Text(msg) => &msg.content,
+        _ => "", // ERROR
+    };
+
+    let system_message_tokens = estimate_tokens(message_content);
     let safe_token_limit = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
     let max_content_tokens = safe_token_limit - system_message_tokens;
 
@@ -244,7 +253,7 @@ async fn process_block_chunk(
         }
     };
 
-    let cleaned_content = completion
+    match &completion
         .choices
         .first()
         .ok_or_else(|| {
@@ -252,10 +261,11 @@ async fn process_block_chunk(
             anyhow::anyhow!("No content returned from LLM")
         })?
         .message
-        .content
-        .clone();
-
-    Ok(cleaned_content)
+        .fields
+    {
+        ApiMessageKind::Text(msg) => Ok(msg.content.clone()),
+        _ => Err(Error::msg("Didn't get a text content message aaaaaaaa")),
+    }
 }
 
 /// Prepare messages for the LLM request
@@ -267,12 +277,12 @@ pub fn prepare_llm_messages(
         system_message.clone(),
         APIMessage {
             role: MessageRole::User,
-            content: format!(
-                "{}\n\n{}{}\n{}",
-                USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
-            ),
-            name: None,
-            tool_call_id: None,
+            fields: ApiMessageKind::Text(ApiTextMessage {
+                content: format!(
+                    "{}\n\n{}{}\n{}",
+                    USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
+                ),
+            }),
         },
     ];
 
@@ -281,6 +291,8 @@ pub fn prepare_llm_messages(
 
 #[cfg(test)]
 mod tests {
+    use crate::llm_utils::{ApiMessageKind, ApiTextMessage};
+
     use super::*;
     use serde_json::json;
 
@@ -356,19 +368,27 @@ mod tests {
         let blocks_json = serde_json::to_string(&blocks)?;
         let system_message = APIMessage {
             role: MessageRole::System,
-            content: "System prompt".to_string(),
-            name: None,
-            tool_call_id: None,
+            fields: ApiMessageKind::Text(ApiTextMessage {
+                content: "System prompt".to_string(),
+            }),
         };
 
         let messages = prepare_llm_messages(&blocks_json, &system_message)?;
 
         assert_eq!(messages.len(), 2);
+        let msg1_content = match &messages[0].fields {
+            ApiMessageKind::Text(msg) => &msg.content,
+            _ => "",
+        };
+        let msg2_content = match &messages[1].fields {
+            ApiMessageKind::Text(msg) => &msg.content,
+            _ => "",
+        };
         assert_eq!(messages[0].role, MessageRole::System);
-        assert_eq!(messages[0].content, "System prompt");
+        assert_eq!(msg1_content, "System prompt");
         assert_eq!(messages[1].role, MessageRole::User);
-        assert!(messages[1].content.contains(JSON_BEGIN_MARKER));
-        assert!(messages[1].content.contains("Test content"));
+        assert!(msg2_content.contains(JSON_BEGIN_MARKER));
+        assert!(msg2_content.contains("Test content"));
 
         Ok(())
     }

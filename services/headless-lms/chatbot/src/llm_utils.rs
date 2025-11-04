@@ -3,6 +3,7 @@ use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use tracing::{debug, error, instrument, trace, warn};
 
 // API version for Azure OpenAI calls
@@ -21,19 +22,49 @@ pub enum MessageRole {
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIMessage {
+    // have to separate into differnt structs
     pub role: MessageRole,
-    pub content: String,
-    pub name: Option<String>, // the function name
-    pub tool_call_id: Option<String>,
+    #[serde(flatten)]
+    pub fields: ApiMessageKind,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct APIToolCallMessage {
-    // extend apimessage struct?
-    pub tool_call_id: String,
-    pub role: MessageRole, // should always be tool
-    pub name: String,      // the function name
+#[serde(untagged)]
+pub enum ApiMessageKind {
+    Text(ApiTextMessage),
+    ToolCall(ApiToolCallMessage),
+    ToolResponse(ApiToolResponseMessage),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiTextMessage {
     pub content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiToolCallMessage {
+    pub tool_calls: Vec<ApiMessageToolCall>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiToolResponseMessage {
+    pub tool_call_id: String,
+    pub name: String, // the function name
+    pub content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ApiMessageToolCall {
+    pub function: ApiTool,
+    pub id: String,
+    #[serde(rename = "type")]
+    pub type_: String, // should always be "function"
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ApiTool {
+    pub arguments: Value,
+    pub name: String,
 }
 
 /// Simple completion-focused LLM request for Azure OpenAI

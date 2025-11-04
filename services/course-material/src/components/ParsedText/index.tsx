@@ -1,18 +1,11 @@
-import {
-  createElement,
-  JSX,
-  ReactPortal,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react"
+import { JSX, ReactPortal, useContext, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 
-import GlossaryTooltip from "./ContentRenderer/core/common/GlossaryTooltip"
+// import GlossaryTooltip from "./ContentRenderer/core/common/GlossaryTooltip"
 import ParsedTextRenderer from "./ParsedTextRenderer"
 
 import { GlossaryContext } from "@/contexts/GlossaryContext"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 export type Tag = keyof JSX.IntrinsicElements
 
@@ -42,38 +35,31 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
     setReadyForPortal(true)
   }, [])
 
-  // let [portals]: [ReactPortal[] | null] = useMemo(() => {
-  //   if (!readyForPortal) {
-  //     return [null]
-  //   }
-  //   const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-glossary-id]")).map(
-  //     (node, idx) => {
-  //       console.log(node)  // let [portals]: [ReactPortal[] | null] = useMemo(() => {
-  //   if (!readyForPortal) {
-  //     return [null]
-  //   }
-  //   const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-glossary-id]")).map(
-  //     (node, idx) => {
-  //       console.log(node)
-  //       console.log(idx)
-  //       return createPortal()
-  //     },
-  //   )
-  //   return [portals]
-  // }, [readyForPortal])
-  //       console.log(idx)
-  //       return createPortal()
-  //     },
-  //   )
-  //   return [portals]
-  // }, [readyForPortal])
+  let portals: ReactPortal[] | null = useMemo(() => {
+    if (!readyForPortal) {
+      return null
+    }
+    const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-glossary-id]")).map(
+      (node, idx) => {
+        console.log(node)
+        console.log(
+          terms.find((term) => {
+            return term.id === node.getAttribute("data-glossary-id")
+          })?.term,
+        )
+
+        return createPortal(<Spinner></Spinner>, node, idx)
+      },
+    )
+    return portals
+  }, [terms, readyForPortal])
 
   // 2. todo render the createportal stuff and whats inside the portals
   // 3 .also handle attaching (requires modifying parsetext too) attaching??
   return (
     <>
       <ParsedTextRenderer {...props} />
-      {/* {portals} */}
+      {portals}
     </>
   )
 }

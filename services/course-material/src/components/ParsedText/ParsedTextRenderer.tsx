@@ -1,4 +1,4 @@
-import { createElement, JSX, useContext, useMemo } from "react"
+import { createElement, memo, useContext, useMemo, useRef } from "react"
 
 import { parseText } from "../ContentRenderer/util/textParsing"
 
@@ -33,6 +33,7 @@ import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
  */
 const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
+  const renderContainerRef = useRef<HTMLElement>(null)
 
   // why do we need to assign portals to variable why not just blast
   const parsedTextResult = useMemo(() => {
@@ -42,7 +43,6 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
     // for portalMarker in res.portalIds:
     // blast portals of tooltiparia
     const parsedText = sanitizeCourseMaterialHtml(res.parsedText)
-    console.log(terms)
     return { ...res, parsedText }
   }, [props.text, terms, props.options])
 
@@ -65,4 +65,4 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   })
 }
 
-export default ParsedText
+export default memo(ParsedText)

@@ -14,7 +14,7 @@ async fn create_teacher_grading_decision(
     payload: web::Json<NewTeacherGradingDecision>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<UserExerciseState>> {
+) -> ControllerResult<web::Json<Option<UserExerciseState>>> {
     let action = &payload.action;
     let exercise_id = payload.exercise_id;
     let user_exercise_state_id = payload.user_exercise_state_id;
@@ -39,6 +39,46 @@ async fn create_teacher_grading_decision(
         points_given = manual_points.unwrap_or(0.0);
     } else if *action == TeacherDecisionType::SuspectedPlagiarism {
         points_given = 0.0;
+    } else if *action == TeacherDecisionType::RejectAndReset {
+        points_given = 0.0;
+
+        let mut tx = conn.begin().await?;
+
+        let _res = models::teacher_grading_decisions::add_teacher_grading_decision(
+            &mut tx,
+            user_exercise_state_id,
+            *action,
+            points_given,
+            Some(user.id),
+            justification.clone(),
+            hidden,
+        )
+        .await?;
+
+        let student_state =
+            models::user_exercise_states::get_by_id(&mut tx, user_exercise_state_id).await?;
+        let users_and_exercises = vec![(student_state.user_id, vec![exercise_id])];
+
+        let course_id = student_state.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "RejectAndReset requires course_id".to_string(),
+                None,
+            )
+        })?;
+
+        let _reset = models::exercises::reset_exercises_for_selected_users(
+            &mut tx,
+            &users_and_exercises,
+            user.id,
+            course_id,
+        )
+        .await?;
+
+        tx.commit().await?;
+        info!("Teacher took the following action: RejectAndReset.",);
+
+        return token.authorized_ok(web::Json(None));
     } else {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -82,7 +122,7 @@ async fn create_teacher_grading_decision(
 
     tx.commit().await?;
 
-    token.authorized_ok(web::Json(new_user_exercise_state))
+    token.authorized_ok(web::Json(Some(new_user_exercise_state)))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

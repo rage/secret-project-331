@@ -131,7 +131,6 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/manage/courses/5158f2c6-98d9-4be9-b372-528f2c736dd7/exercises",
     )
     await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
-    await teacherPage.locator(".css-xknul2-TopBar").first().click()
     await teacherPage.getByRole("button", { name: "Reject and reset" }).first().click()
     await expect(teacherPage.getByText("Operation successful!")).toBeVisible()
   })

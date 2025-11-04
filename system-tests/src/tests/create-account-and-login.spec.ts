@@ -7,7 +7,7 @@ test("User can create an account and log in", async ({ page }) => {
     await page.getByRole("textbox", { name: "First name (Required)" }).fill("Test")
     await page.getByRole("textbox", { name: "Last name (Required)" }).fill("User")
     await page.getByRole("button", { name: "Select an item Where do you" }).click()
-    await page.getByLabel("Suggestions").getByText("Andorra").click()
+    await page.getByLabel("Where do you live?").getByText("Andorra").click()
     await page.getByRole("textbox", { name: "Email (Required)" }).fill("testuser@example.com")
     await page.getByRole("textbox", { name: "Password (Required)", exact: true }).fill("testuser")
     await page.getByRole("textbox", { name: "Confirm password (Required)" }).fill("testuser")

@@ -45,6 +45,7 @@ const TopBar = styled.div`
 const AnswersRequiringAttentionItem: React.FC<Props> = ({
   answerRequiringAttention,
   exerciseMaxPoints,
+  refetch,
 }) => {
   const { t } = useTranslation()
   const [updatedPoints, setUpdatedPoints] = useState<number | null>(null)
@@ -59,7 +60,12 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
     },
     {
       onSuccess: (data) => {
-        setUpdatedPoints(data.score_given)
+        if (data) {
+          setUpdatedPoints(data.score_given)
+        } else {
+          // In case that teacher used reject and reset
+          refetch()
+        }
       },
     },
   )

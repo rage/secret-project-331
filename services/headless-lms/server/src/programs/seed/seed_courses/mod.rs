@@ -1,4 +1,5 @@
 pub mod seed_chatbot;
+pub mod seed_course_with_peer_review;
 
 use std::sync::Arc;
 
@@ -89,7 +90,6 @@ pub async fn seed_sample_course(
         base_url: _base_url,
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
-    info!("inserting sample course {}", course_name);
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -1253,6 +1253,9 @@ pub async fn seed_sample_course(
                 ],
             )],
             Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            None,
+            None,
+            None,
         );
     create_page(
         &mut conn,
@@ -1558,6 +1561,9 @@ pub async fn seed_sample_course(
                 ],
             )],
             Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            None,
+            None,
+            None,
         );
 
     create_page(
@@ -2099,6 +2105,9 @@ pub async fn seed_switching_course_instances_course(
                                             "id": cx.v5(b"exercise:1:1:option:3")
                                         }
                                     ]),
+                                    false,
+                                    None,
+                                    None,
                                 )),
                         ),
                 ),
@@ -2147,6 +2156,9 @@ pub async fn seed_switching_course_instances_course(
                                             "id": cx.v5(b"exercise:2:1:option:3")
                                         }
                                     ]),
+                                    false,
+                                    None,
+                                    None,
                                 )),
                         ),
                 ),
@@ -2195,6 +2207,9 @@ pub async fn seed_switching_course_instances_course(
                                             "id": cx.v5(b"exercise:3:1:option:3")
                                         }
                                     ]),
+                                    false,
+                                    None,
+                                    None,
                                 )),
                         ),
                 ),

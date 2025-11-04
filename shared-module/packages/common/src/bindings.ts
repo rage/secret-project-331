@@ -199,15 +199,20 @@ export interface ChatbotConfiguration {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
+  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  response_max_tokens: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
@@ -219,20 +224,41 @@ export interface NewChatbotConf {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
+  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  response_max_tokens: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
   default_chatbot: boolean
+  chatbotconf_id: string | null
+}
+
+export type VerbosityLevel = "low" | "medium" | "high"
+
+export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+
+export interface ChatbotConfigurationModel {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  model: string
+  thinking: boolean
+  default_model: boolean
+  deployment_name: string
 }
 
 export interface ChatbotConversationMessage {
@@ -957,6 +983,7 @@ export interface CourseMaterialExercise {
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
+  should_show_reset_message: boolean
 }
 
 export interface Exercise {
@@ -2071,6 +2098,7 @@ export type TeacherDecisionType =
   | "ZeroPoints"
   | "CustomPoints"
   | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export interface TeacherGradingDecision {
   id: string
@@ -2258,6 +2286,10 @@ export type ExamEnrollmentData =
 export interface CourseMaterialPeerOrSelfReviewDataWithToken {
   course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData
   token: string | null
+}
+
+export interface CourseInfo {
+  course_id: string
 }
 
 export interface CertificateConfigurationUpdate {

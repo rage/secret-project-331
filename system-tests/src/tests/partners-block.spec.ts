@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { getImgByURLPrefixAndSuffix } from "@/utils/imageLocators"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -27,6 +28,8 @@ test("partner block tests", async ({ page }) => {
     page.click('button:has-text("Upload")'),
   ])
   await fileChooser.setFiles("src/fixtures/media/sample-logo.svg")
+  // wait for image to upload
+  await getImgByURLPrefixAndSuffix(page, "http://project-331.local/api/v0/files/", ".svg").waitFor()
   await page.getByRole("button", { name: "Save", exact: true }).click()
 
   await page.goto("http://project-331.local/org/uh-cs/courses/giveaway")

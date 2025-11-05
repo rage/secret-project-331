@@ -79,7 +79,7 @@ SELECT erl.id,
   erl.deleted_at
 FROM exercise_reset_logs erl
   JOIN exercises e ON erl.exercise_id = e.id
-  JOIN user_details ud ON erl.reset_by = ud.user_id
+  LEFT JOIN user_details ud ON erl.reset_by = ud.user_id
   WHERE erl.reset_for = $1
   ORDER BY erl.reset_at DESC"#,
         user_id

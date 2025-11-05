@@ -321,7 +321,7 @@ async fn check_if_exercise_needs_reset_after_zero_points_from_review(
             .score_given
             .is_some_and(|score| score == 0.0)
     {
-        if let Ok(Some(latest_submission)) =
+        let latest_submission =
             crate::exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
                 conn,
                 user_exercise_state
@@ -335,9 +335,11 @@ async fn check_if_exercise_needs_reset_after_zero_points_from_review(
                     })?,
                 user_exercise_state.user_id,
             )
-            .await
-        {
+            .await?;
+
+        if let Some(latest_submission) = latest_submission {
             let mut tx = conn.begin().await?;
+
             crate::exercises::reset_exercises_for_selected_users(
                 &mut tx,
                 &[(
@@ -355,6 +357,7 @@ async fn check_if_exercise_needs_reset_after_zero_points_from_review(
                 Some("automatic-reset-due-to-failed-review".to_string()),
             )
             .await?;
+
             tx.commit().await?;
 
             tracing::info!(
@@ -363,6 +366,7 @@ async fn check_if_exercise_needs_reset_after_zero_points_from_review(
                 user_exercise_state.user_id,
                 peer_review_config.processing_strategy
             );
+
             return Ok(true);
         }
     }

@@ -36,8 +36,7 @@ test("Reject and reset submission", async () => {
     await selectCourseInstanceIfPrompted(student1Page)
     student1Page
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
+      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "3" })
       .click()
 
@@ -55,8 +54,7 @@ test("Reject and reset submission", async () => {
     await selectCourseInstanceIfPrompted(student2Page)
     student2Page
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
+      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
       .click()
 
@@ -73,8 +71,7 @@ test("Reject and reset submission", async () => {
     await selectCourseInstanceIfPrompted(teacherPage)
     await teacherPage
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
+      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
       .click()
     await teacherPage
@@ -184,8 +181,7 @@ test("Reject and reset submission", async () => {
     ).toBeVisible()
     await student1Page
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
+      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
       .click()
     await student1Page

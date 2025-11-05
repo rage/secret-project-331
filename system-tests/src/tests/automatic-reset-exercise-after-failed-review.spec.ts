@@ -38,8 +38,7 @@ test("Automatic reject and reset submission", async () => {
       .getByRole("region", {
         name: "Exercise: Simple multiple choice with automatic reset on zero score",
       })
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
+      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "3" })
       .click()
 
@@ -59,8 +58,7 @@ test("Automatic reject and reset submission", async () => {
       .getByRole("region", {
         name: "Exercise: Simple multiple choice with automatic reset on zero score",
       })
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
+      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
       .click()
 
@@ -79,8 +77,7 @@ test("Automatic reject and reset submission", async () => {
       .getByRole("region", {
         name: "Exercise: Simple multiple choice with automatic reset on zero score",
       })
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
+      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
       .click()
     await teacherPage
@@ -151,8 +148,7 @@ test("Automatic reject and reset submission", async () => {
       .getByRole("region", {
         name: "Exercise: Simple multiple choice with automatic reset on zero score",
       })
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
+      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "3" })
       .click()
     await student1Page

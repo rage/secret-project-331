@@ -1,16 +1,11 @@
 import { act, render, waitFor } from "@testing-library/react"
 import { http, HttpResponse } from "msw"
 import { setupServer } from "msw/node"
-import React from "react"
 import { I18nextProvider } from "react-i18next"
 
 import MessageChannelIFrame from "../../src/components/MessageChannelIFrame"
 import i18nTest from "../../src/utils/testing/i18nTest"
-import {
-  createMockIframeRef,
-  createMockMessageChannel,
-  createMockMessageEvent,
-} from "../utils/iframeTestUtils"
+import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
 
 const server = setupServer(
   http.get("/example-iframe-page", (_info) => {
@@ -56,7 +51,6 @@ describe("MessageChannelIFrame", () => {
   })
 
   test("It renders", async () => {
-    // @ts-expect-error: jsdom does not have MessageChannel
     window.MessageChannel = jest
       .fn()
       .mockReturnValue({ port1: { postMessage: jest.fn() }, port2: {} })
@@ -87,7 +81,7 @@ describe("MessageChannelIFrame", () => {
   describe("basic connection flow", () => {
     it("creates MessageChannel synchronously", () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       render(
@@ -106,7 +100,7 @@ describe("MessageChannelIFrame", () => {
 
     it("sets up listener for ready messages", () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       render(
@@ -125,7 +119,7 @@ describe("MessageChannelIFrame", () => {
 
     it("sends port when ready message is received", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const { container } = render(
@@ -169,8 +163,6 @@ describe("MessageChannelIFrame", () => {
     it("queues ready messages received before messageChannel is available", async () => {
       let channelCreated = false
       const mockChannel = createMockMessageChannel()
-
-      // @ts-expect-error: jsdom does not have MessageChannel
       window.MessageChannel = jest.fn().mockImplementation(() => {
         channelCreated = true
         return mockChannel
@@ -216,7 +208,7 @@ describe("MessageChannelIFrame", () => {
   describe("multiple ready messages", () => {
     it("only sends port once", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const { container } = render(
@@ -264,7 +256,7 @@ describe("MessageChannelIFrame", () => {
   describe("origin verification", () => {
     it("accepts messages from null origin (sandboxed iframe)", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const { container } = render(
@@ -301,7 +293,7 @@ describe("MessageChannelIFrame", () => {
 
     it("accepts messages from window.location.origin (non-sandboxed)", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const { container } = render(
@@ -338,7 +330,7 @@ describe("MessageChannelIFrame", () => {
 
     it("rejects messages from invalid origin", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {})
@@ -381,7 +373,7 @@ describe("MessageChannelIFrame", () => {
   describe("contentWindow availability", () => {
     it("doesn't crash when contentWindow is null", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
@@ -420,7 +412,7 @@ describe("MessageChannelIFrame", () => {
   describe("URL changes", () => {
     it("resets portSentRef when URL changes", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const { container, rerender } = render(
@@ -481,7 +473,7 @@ describe("MessageChannelIFrame", () => {
   describe("message handling after connection", () => {
     it("handles height-changed messages", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const { container } = render(
@@ -512,7 +504,7 @@ describe("MessageChannelIFrame", () => {
 
     it("calls onMessageFromIframe for custom messages", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const onMessageFromIframe = jest.fn()
@@ -551,7 +543,7 @@ describe("MessageChannelIFrame", () => {
   describe("state posting", () => {
     it("posts set-state messages via port", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const stateToPost = {
@@ -584,7 +576,7 @@ describe("MessageChannelIFrame", () => {
 
     it("doesn't repost same state", async () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const stateToPost = {
@@ -629,7 +621,7 @@ describe("MessageChannelIFrame", () => {
   describe("cleanup", () => {
     it("removes listeners on unmount", () => {
       const mockChannel = createMockMessageChannel()
-      // @ts-expect-error: jsdom does not have MessageChannel
+
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
 
       const { unmount } = render(
@@ -646,6 +638,271 @@ describe("MessageChannelIFrame", () => {
       unmount()
 
       expect(removeEventListenerSpy).toHaveBeenCalledWith("message", expect.any(Function))
+    })
+  })
+
+  describe("port transfer recovery", () => {
+    beforeEach(() => {
+      jest.useFakeTimers()
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    it("triggers recovery when ready arrives 5+ seconds after port sent", async () => {
+      const mockChannel1 = createMockMessageChannel()
+      const mockChannel2 = createMockMessageChannel()
+      let channelCallCount = 0
+      window.MessageChannel = jest.fn().mockImplementation(() => {
+        channelCallCount++
+        return channelCallCount === 1 ? mockChannel1 : mockChannel2
+      })
+
+      const { container } = render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+
+      const iframe = await waitFor(() => container.querySelector("iframe"))
+      const mockContentWindow = {
+        postMessage: jest.fn(),
+      }
+      Object.defineProperty(iframe, "contentWindow", {
+        value: mockContentWindow,
+        writable: true,
+      })
+
+      const event1 = createMockMessageEvent("ready", {
+        source: mockContentWindow as unknown as Window,
+        origin: "null",
+      })
+
+      act(() => {
+        messageListeners.forEach((listener) => listener(event1))
+      })
+
+      expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(1)
+      expect(mockContentWindow.postMessage).toHaveBeenCalledWith("communication-port", "*", [
+        mockChannel1.port2,
+      ])
+
+      act(() => {
+        jest.advanceTimersByTime(6000)
+      })
+
+      const event2 = createMockMessageEvent("ready", {
+        source: mockContentWindow as unknown as Window,
+        origin: "null",
+      })
+
+      act(() => {
+        messageListeners.forEach((listener) => listener(event2))
+      })
+
+      await waitFor(() => {
+        expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(2)
+      })
+
+      expect(mockContentWindow.postMessage).toHaveBeenLastCalledWith("communication-port", "*", [
+        mockChannel2.port2,
+      ])
+    })
+
+    it("doesn't trigger recovery if ready arrives within 5 seconds", async () => {
+      const mockChannel = createMockMessageChannel()
+      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+
+      const { container } = render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+
+      const iframe = await waitFor(() => container.querySelector("iframe"))
+      const mockContentWindow = {
+        postMessage: jest.fn(),
+      }
+      Object.defineProperty(iframe, "contentWindow", {
+        value: mockContentWindow,
+        writable: true,
+      })
+
+      const event1 = createMockMessageEvent("ready", {
+        source: mockContentWindow as unknown as Window,
+        origin: "null",
+      })
+
+      act(() => {
+        messageListeners.forEach((listener) => listener(event1))
+      })
+
+      expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(1)
+
+      act(() => {
+        jest.advanceTimersByTime(3000)
+      })
+
+      const event2 = createMockMessageEvent("ready", {
+        source: mockContentWindow as unknown as Window,
+        origin: "null",
+      })
+
+      act(() => {
+        messageListeners.forEach((listener) => listener(event2))
+      })
+
+      expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(1)
+    })
+
+    it("limits recovery attempts to max 3", async () => {
+      const mockChannels = [
+        createMockMessageChannel(),
+        createMockMessageChannel(),
+        createMockMessageChannel(),
+        createMockMessageChannel(),
+      ]
+      let channelCallCount = 0
+      window.MessageChannel = jest.fn().mockImplementation(() => {
+        const channel = mockChannels[channelCallCount]
+        channelCallCount++
+        return channel
+      })
+
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
+
+      const { container } = render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+
+      const iframe = await waitFor(() => container.querySelector("iframe"))
+      const mockContentWindow = {
+        postMessage: jest.fn(),
+      }
+      Object.defineProperty(iframe, "contentWindow", {
+        value: mockContentWindow,
+        writable: true,
+      })
+
+      for (let i = 0; i < 5; i++) {
+        const event = createMockMessageEvent("ready", {
+          source: mockContentWindow as unknown as Window,
+          origin: "null",
+        })
+
+        act(() => {
+          messageListeners.forEach((listener) => listener(event))
+        })
+
+        act(() => {
+          jest.advanceTimersByTime(6000)
+        })
+      }
+
+      await waitFor(() => {
+        expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(4)
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining("Max recovery attempts"))
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it("posts current state after recovery", async () => {
+      const mockChannel1 = createMockMessageChannel()
+      const mockChannel2 = createMockMessageChannel()
+      let channelCallCount = 0
+      window.MessageChannel = jest.fn().mockImplementation(() => {
+        channelCallCount++
+        return channelCallCount === 1 ? mockChannel1 : mockChannel2
+      })
+
+      const stateToPost = {
+        view_type: "answer-exercise" as const,
+        exercise_task_id: "test-id",
+        user_information: { pseudonymous_id: "id", signed_in: false },
+        data: { public_spec: {}, previous_submission: null },
+      }
+
+      const { container } = render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            url="http://example.com/test"
+            postThisStateToIFrame={stateToPost}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+
+      const iframe = await waitFor(() => container.querySelector("iframe"))
+      const mockContentWindow = {
+        postMessage: jest.fn(),
+      }
+      Object.defineProperty(iframe, "contentWindow", {
+        value: mockContentWindow,
+        writable: true,
+      })
+
+      const event1 = createMockMessageEvent("ready", {
+        source: mockContentWindow as unknown as Window,
+        origin: "null",
+      })
+
+      act(() => {
+        messageListeners.forEach((listener) => listener(event1))
+      })
+
+      await waitFor(() => {
+        expect(mockChannel1.port1.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: "set-state",
+            ...stateToPost,
+          }),
+        )
+      })
+
+      mockChannel1.port1.postMessage.mockClear()
+
+      act(() => {
+        jest.advanceTimersByTime(6000)
+      })
+
+      const event2 = createMockMessageEvent("ready", {
+        source: mockContentWindow as unknown as Window,
+        origin: "null",
+      })
+
+      act(() => {
+        messageListeners.forEach((listener) => listener(event2))
+      })
+
+      await waitFor(() => {
+        expect(mockChannel2.port1.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: "set-state",
+            ...stateToPost,
+          }),
+        )
+      })
     })
   })
 })

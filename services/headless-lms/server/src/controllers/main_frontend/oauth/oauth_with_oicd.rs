@@ -7,8 +7,8 @@ use super::dpop::verify_dpop_from_actix;
 use super::helpers::{
     build_authorize_qs, build_consent_redirect, build_login_redirect, generate_access_token,
     generate_id_token, oauth_invalid_client, oauth_invalid_grant, oauth_invalid_request,
-    ok_json_no_cache, read_token_pepper, redirect_with_code, rsa_n_e_and_kid_from_pem,
-    scope_has_openid, token_digest_hmac_sha256,
+    ok_json_no_cache, redirect_with_code, rsa_n_e_and_kid_from_pem, scope_has_openid,
+    token_digest_sha256,
 };
 use super::jwks::{Jwk, Jwks};
 use super::token_query::{GrantType, TokenParams};
@@ -21,6 +21,7 @@ use domain::error::{OAuthErrorCode, OAuthErrorData};
 use dpop_verifier::DpopError;
 use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::*;
+use itertools::Itertools;
 use models::{
     oauth_access_token::NewAccessTokenParams, oauth_access_token::OAuthAccessToken,
     oauth_auth_code::OAuthAuthCode, oauth_client::OAuthClient,
@@ -94,16 +95,18 @@ async fn authorize(
             } else {
                 let code = generate_access_token();
                 let expires_at = Utc::now() + Duration::minutes(10);
-                let (pepper, pepper_id) = read_token_pepper()?;
-                let code_digest = token_digest_hmac_sha256(&code, &pepper);
+                let code_digest = token_digest_sha256(&code);
 
                 let new_auth_code_params = models::oauth_auth_code::NewAuthCodeParams {
                     digest: &code_digest,
-                    pepper_id,
                     user_id: user.id,
                     client_id: client.id,
                     redirect_uri: &query.redirect_uri,
-                    scope: Some(&query.scope),
+                    scopes: &query
+                        .scope
+                        .split_whitespace()
+                        .map(|s| s.to_string())
+                        .collect_vec(),
                     nonce: query.nonce.as_deref(),
                     expires_at,
                     metadata: serde_json::Map::new(),
@@ -165,23 +168,17 @@ async fn approve_consent(
         .map(|s| s.to_string())
         .collect();
 
-    let allowed_scopes = client
-        .scope
-        .as_ref()
-        .map(|s| s.split_whitespace().collect::<Vec<_>>())
-        .unwrap_or_default();
+    let allowed_scopes = client.scopes;
 
     for scope in &requested_scopes {
-        if !allowed_scopes.contains(&scope.as_str()) {
+        if !allowed_scopes.contains(&scope) {
             return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
                 "invalid scope",
             )));
         }
     }
 
-    for scope in requested_scopes {
-        OAuthUserClientScopes::insert(&mut conn, user.id, client.id, scope).await?;
-    }
+    OAuthUserClientScopes::insert(&mut conn, user.id, client.id, &requested_scopes).await?;
 
     // Redirect to /authorize (the OAuth authorize endpoint typically remains a GET)
     let query = form_urlencoded::Serializer::new(String::new())
@@ -303,7 +300,6 @@ async fn token(
     req: actix_web::HttpRequest,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
-    let (pepper, pepper_id) = read_token_pepper()?;
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
@@ -314,7 +310,7 @@ async fn token(
         .await
         .map_err(|_| oauth_invalid_client("invalid client_id"))?;
 
-    if client.client_secret != token_digest_hmac_sha256(&form.client_secret, &pepper) {
+    if client.client_secret != token_digest_sha256(&form.client_secret) {
         return Err(oauth_invalid_client("invalid client secret"));
     }
     if req.headers().get("dpop").is_none() && !client.bearer_allowed {
@@ -338,7 +334,7 @@ async fn token(
             }
 
             // consume code (by digest), verify binding
-            let code_digest = token_digest_hmac_sha256(code, &pepper);
+            let code_digest = token_digest_sha256(code);
             let auth_code = OAuthAuthCode::consume(&mut conn, code_digest).await?;
             if auth_code.client_id != client.id || &auth_code.redirect_uri != redirect_uri {
                 return Err(oauth_invalid_grant(
@@ -346,16 +342,15 @@ async fn token(
                 ));
             }
 
-            let scope = auth_code.scope.clone().unwrap_or_default();
+            let scope = auth_code.scopes;
             let expires_at = Utc::now() + access_ttl;
 
-            let at_digest = token_digest_hmac_sha256(&access_token_plain, &pepper);
+            let at_digest = token_digest_sha256(&access_token_plain);
             let new_access_token_params = NewAccessTokenParams {
                 digest: &at_digest,
-                pepper_id,
                 user_id: Some(auth_code.user_id),
                 client_id: auth_code.client_id,
-                scope: Some(&scope),
+                scopes: &scope,
                 audience: None,
                 dpop_jkt: &jkt_at_issue,
                 metadata: serde_json::Map::new(),
@@ -371,14 +366,13 @@ async fn token(
             )
             .await?;
 
-            let rt_digest = token_digest_hmac_sha256(&new_refresh_token_plain, &pepper);
+            let rt_digest = token_digest_sha256(&new_refresh_token_plain);
             let new_refresh_token_params = NewRefreshTokenParams {
                 digest: &rt_digest,
                 user_id: auth_code.user_id,
                 client_id: auth_code.client_id,
-                scope: &scope,
+                scopes: &scope,
                 audience: None,
-                pepper_id,
                 metadata: serde_json::Map::new(),
                 dpop_jkt: &jkt_at_issue,
                 expires_at: refresh_token_expires_at,
@@ -398,7 +392,7 @@ async fn token(
 
         GrantType::RefreshToken { refresh_token } => {
             // consume presented RT (by digest)
-            let presented = token_digest_hmac_sha256(refresh_token, &pepper);
+            let presented = token_digest_sha256(refresh_token);
             let token = OAuthRefreshTokens::consume(&mut conn, presented).await?;
             if token.client_id != client.id {
                 return Err(oauth_invalid_grant("invalid refresh_token"));
@@ -423,14 +417,13 @@ async fn token(
             )
             .await?;
 
-            let rt_digest = token_digest_hmac_sha256(&new_refresh_token_plain, &pepper);
+            let rt_digest = token_digest_sha256(&new_refresh_token_plain);
             let new_refresh_token_params = NewRefreshTokenParams {
                 digest: &rt_digest,
                 user_id: token.user_id,
                 client_id: token.client_id,
-                scope: &token.scope,
+                scopes: &token.scopes,
                 audience: token.audience.as_deref(),
-                pepper_id,
                 metadata: serde_json::Map::new(),
                 dpop_jkt: &jkt_at_issue,
                 expires_at: refresh_token_expires_at,
@@ -440,13 +433,12 @@ async fn token(
 
             // new AT for same scope/audience
             let expires_at = Utc::now() + access_ttl;
-            let at_digest = token_digest_hmac_sha256(&access_token_plain, &pepper);
+            let at_digest = token_digest_sha256(&access_token_plain);
             let new_access_token_params = NewAccessTokenParams {
                 digest: &at_digest,
-                pepper_id,
                 user_id: Some(token.user_id),
                 client_id: token.client_id,
-                scope: Some(&token.scope),
+                scopes: &token.scopes,
                 audience: token.audience.as_deref(),
                 dpop_jkt: &jkt_at_issue,
                 metadata: serde_json::Map::new(),
@@ -456,7 +448,7 @@ async fn token(
 
             (
                 token.user_id,
-                token.scope.clone(),
+                token.scopes.clone(),
                 None,
                 expires_at,
                 false,
@@ -474,6 +466,7 @@ async fn token(
             &nonce.unwrap_or_default(),
             expires_at,
             &format!("{}/api/v0/main-frontend/oauth", base_url),
+            &app_conf,
         )?)
     } else {
         None
@@ -565,8 +558,7 @@ async fn user_info(
     };
 
     // Hash the presented bearer token and look up by digest
-    let (pepper, _pepper_id) = read_token_pepper()?;
-    let digest = token_digest_hmac_sha256(token, &pepper);
+    let digest = token_digest_sha256(token);
 
     let access = OAuthAccessToken::find_valid(&mut conn, digest).await?;
 
@@ -612,12 +604,8 @@ async fn user_info(
     let user = user_details::get_user_details_by_user_id(&mut conn, user_id).await?;
 
     // Scope-gated claims
-    let scopes: std::collections::HashSet<&str> = access
-        .scope
-        .as_deref()
-        .unwrap_or("")
-        .split_whitespace()
-        .collect();
+    let scopes: std::collections::HashSet<String> =
+        std::collections::HashSet::from_iter(access.scopes);
 
     let mut res = UserInfoResponse {
         sub: user_id.to_string(),

@@ -1,11 +1,9 @@
 use super::authorize_query::AuthorizeParams;
 use super::claims::Claims;
-use super::hmac_sha256::HmacSha256;
 use crate::domain::error::{OAuthErrorCode, OAuthErrorData};
 use crate::prelude::*;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{DateTime, Utc};
-use hmac::Mac;
 use jsonwebtoken::{EncodingKey, Header, encode};
 use models::oauth_shared_types::Digest as TokenDigest;
 use rand::distr::SampleString;
@@ -51,14 +49,13 @@ pub fn generate_id_token(
     nonce: &str,
     expires_at: DateTime<Utc>,
     issuer: &str,
+    cfg: &ApplicationConfiguration,
 ) -> Result<String, ControllerError> {
     let now = Utc::now().timestamp();
     let exp = expires_at.timestamp();
 
-    let cfg = ApplicationConfiguration::try_from_env()?.oauth_server_configuration;
-
     // Derive kid from the public key
-    let (_, _, kid) = rsa_n_e_and_kid_from_pem(&cfg.rsa_public_key)?;
+    let (_, _, kid) = rsa_n_e_and_kid_from_pem(&cfg.oauth_server_configuration.rsa_public_key)?;
 
     let claims = Claims {
         sub: user_id.to_string(),
@@ -73,19 +70,21 @@ pub fn generate_id_token(
     let mut header = Header::new(jsonwebtoken::Algorithm::RS256);
     header.kid = Some(kid);
 
-    let enc_key = EncodingKey::from_rsa_pem(cfg.rsa_private_key.as_bytes()).map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                error: OAuthErrorCode::ServerError.as_str().into(),
-                error_description: "Failed to generate ID token".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            })),
-            "Failed to generate ID token (invalid private key)",
-            Some(e.into()),
-        )
-    })?;
+    let enc_key =
+        EncodingKey::from_rsa_pem(cfg.oauth_server_configuration.rsa_private_key.as_bytes())
+            .map_err(|e| {
+                ControllerError::new(
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                        error: OAuthErrorCode::ServerError.as_str().into(),
+                        error_description: "Failed to generate ID token".into(),
+                        redirect_uri: None,
+                        state: None,
+                        nonce: None,
+                    })),
+                    "Failed to generate ID token (invalid private key)",
+                    Some(e.into()),
+                )
+            })?;
 
     encode(&header, &claims, &enc_key).map_err(|e| {
         ControllerError::new(
@@ -102,25 +101,13 @@ pub fn generate_id_token(
     })
 }
 
-#[inline]
-pub fn token_digest_hmac_sha256(token_plaintext: &str, pepper: &[u8]) -> TokenDigest {
-    let mut mac = HmacSha256::new_from_slice(pepper).expect("valid HMAC key");
-    mac.update(token_plaintext.as_bytes());
-    let tag = mac.finalize().into_bytes(); // 32 bytes
+pub fn token_digest_sha256(token_plaintext: &str) -> TokenDigest {
+    let mut hasher = Sha256::new();
+    hasher.update(token_plaintext.as_bytes());
+    let result = hasher.finalize(); // 32 bytes
     let mut arr = [0u8; 32];
-    arr.copy_from_slice(&tag);
+    arr.copy_from_slice(&result);
     TokenDigest::from(arr)
-}
-
-pub fn read_token_pepper() -> Result<(Vec<u8>, i16), ControllerError> {
-    let pepper = ApplicationConfiguration::try_from_env()?
-        .oauth_server_configuration
-        .oauth_token_pepper_1
-        .into_bytes();
-    let pepper_id: i16 = ApplicationConfiguration::try_from_env()?
-        .oauth_server_configuration
-        .oauth_token_pepper_id;
-    Ok((pepper, pepper_id))
 }
 
 pub fn oauth_invalid_request(
@@ -219,8 +206,8 @@ pub fn oauth_invalid_grant(desc: &'static str) -> ControllerError {
     )
 }
 
-pub fn scope_has_openid(scope: &str) -> bool {
-    scope.split_whitespace().any(|s| s == "openid")
+pub fn scope_has_openid(scope: &Vec<String>) -> bool {
+    scope.iter().any(|s| s == "openid")
 }
 
 pub fn ok_json_no_cache<T: Serialize>(value: T) -> HttpResponse {
@@ -229,20 +216,3 @@ pub fn ok_json_no_cache<T: Serialize>(value: T) -> HttpResponse {
     resp.insert_header(("Pragma", "no-cache"));
     resp.json(value)
 }
-
-// #[cfg(test)]
-// pub mod tests {
-//     use super::*;
-//     use headless_lms_utils::ApplicationConfiguration;
-//
-//     #[test]
-//     fn util_print_token_digest_hmac_sha256() -> Result<(), anyhow::Error> {
-//         let token_plaintext = "very-secret";
-//         let pepper = ApplicationConfiguration::try_from_env()?
-//             .oauth_server_configuration
-//             .oauth_token_pepper_1;
-//         let digest = token_digest_hmac_sha256(token_plaintext, pepper.as_bytes());
-//         println!("{}", digest);
-//         Ok(())
-//     }
-// }

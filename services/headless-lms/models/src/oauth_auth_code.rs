@@ -1,17 +1,16 @@
 use crate::{oauth_shared_types::Digest, prelude::*};
 use chrono::{DateTime, Utc};
+use sqlx::FromRow;
 use sqlx::PgConnection;
-use sqlx::{FromRow, Postgres, postgres::PgArguments, query::Query};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct OAuthAuthCode {
     pub digest: Digest,
-    pub pepper_id: i16,
     pub user_id: Uuid,
     pub client_id: Uuid,
     pub redirect_uri: String,
-    pub scope: Option<String>,
+    pub scopes: Vec<String>,
     pub jti: Uuid,
     pub nonce: Option<String>,
     pub used: bool,
@@ -22,11 +21,10 @@ pub struct OAuthAuthCode {
 #[derive(Debug, Clone)]
 pub struct NewAuthCodeParams<'a> {
     pub digest: &'a Digest,
-    pub pepper_id: i16,
     pub user_id: Uuid,
     pub client_id: Uuid,
     pub redirect_uri: &'a str,
-    pub scope: Option<&'a str>,
+    pub scopes: &'a [String],
     pub nonce: Option<&'a str>,
     pub expires_at: DateTime<Utc>,
     pub metadata: serde_json::Map<String, serde_json::Value>,
@@ -37,20 +35,20 @@ impl OAuthAuthCode {
         sqlx::query!(
             r#"
             INSERT INTO oauth_auth_codes
-                (digest, pepper_id, user_id, client_id, redirect_uri, scope, nonce, expires_at, metadata)
-            VALUES ($1,     $2,       $3,      $4,        $5,           $6,   $7,    $8,         $9)
+                (digest, user_id, client_id, redirect_uri, scopes, nonce, expires_at, metadata)
+            VALUES ($1,     $2,       $3,      $4,        $5,           $6,   $7,    $8    )
         "#,
             params.digest.as_bytes(),
-            params.pepper_id,
             params.user_id,
             params.client_id,
             params.redirect_uri,
-            params.scope,
+            params.scopes,
             params.nonce,
             params.expires_at,
             serde_json::Value::Object(params.metadata)
-        ).execute(conn)
-            .await?;
+        )
+        .execute(conn)
+        .await?;
         Ok(())
     }
 
@@ -65,11 +63,10 @@ impl OAuthAuthCode {
           AND expires_at > now()
         RETURNING
           digest      as "digest: _",
-          pepper_id,
           user_id,
           client_id,
           redirect_uri,
-          scope,
+          scopes,
           jti,
           nonce,
           used,

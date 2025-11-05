@@ -7,11 +7,10 @@ use uuid::Uuid;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct OAuthAccessToken {
     pub digest: Digest,
-    pub pepper_id: i16,
     pub user_id: Option<Uuid>,
     pub client_id: Uuid,
-    pub scope: Option<String>,
-    pub audience: Option<String>,
+    pub scopes: Vec<String>,
+    pub audience: Option<Vec<String>>,
     pub jti: Uuid,
     pub dpop_jkt: String,
     pub metadata: serde_json::Value,
@@ -22,11 +21,10 @@ pub struct OAuthAccessToken {
 #[derive(Debug, Clone)]
 pub struct NewAccessTokenParams<'a> {
     pub digest: &'a Digest,
-    pub pepper_id: i16,
     pub user_id: Option<Uuid>,
     pub client_id: Uuid,
-    pub scope: Option<&'a str>,
-    pub audience: Option<&'a str>,
+    pub scopes: &'a [String],
+    pub audience: Option<&'a [String]>,
     pub dpop_jkt: &'a str,
     pub metadata: serde_json::Map<String, serde_json::Value>,
     pub expires_at: DateTime<Utc>,
@@ -38,22 +36,23 @@ impl OAuthAccessToken {
         conn: &mut PgConnection,
         params: NewAccessTokenParams<'_>,
     ) -> ModelResult<()> {
-        sqlx::query!(r#"
+        sqlx::query!(
+            r#"
             INSERT INTO oauth_access_tokens
-                (digest, pepper_id, user_id, client_id, scope, audience, dpop_jkt, metadata, expires_at)
-            VALUES ($1,     $2,       $3,      $4,        $5,    $6,       $7,  $8,       $9       )
+                    (digest, user_id, client_id, scopes, audience, dpop_jkt, metadata, expires_at)
+            VALUES ($1,     $2,       $3,      $4,        $5,    $6,       $7,          $8       )
         "#,
-        params.digest.as_bytes(),
-        params.pepper_id,
-        params.user_id,
-        params.client_id,
-        params.scope,
-        params.audience,
-        params.dpop_jkt,
-        serde_json::Value::Object(params.metadata),
-        params.expires_at
-        ).execute(conn)
-            .await?;
+            params.digest.as_bytes(),
+            params.user_id,
+            params.client_id,
+            params.scopes,
+            params.audience,
+            params.dpop_jkt,
+            serde_json::Value::Object(params.metadata),
+            params.expires_at
+        )
+        .execute(conn)
+        .await?;
         Ok(())
     }
 
@@ -67,10 +66,9 @@ impl OAuthAccessToken {
             r#"
             SELECT
               digest as "digest: _",
-              pepper_id,
               user_id,
               client_id,
-              scope,
+              scopes,
               audience,
               jti,
               dpop_jkt,

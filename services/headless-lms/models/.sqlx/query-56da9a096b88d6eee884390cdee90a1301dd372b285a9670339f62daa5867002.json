@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO oauth_access_tokens\n                    (digest, user_id, client_id, scopes, audience, dpop_jkt, metadata, expires_at)\n            VALUES ($1,     $2,       $3,      $4,        $5,    $6,       $7,          $8       )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "Text",
+        "Jsonb",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "56da9a096b88d6eee884390cdee90a1301dd372b285a9670339f62daa5867002"
+}

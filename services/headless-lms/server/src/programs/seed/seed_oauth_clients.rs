@@ -14,13 +14,16 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
     let new_client_parms = oauth_client::NewClientParams {
         client_id: "test-client-id",
         client_secret: &Digest::from_str(
-            "396b544a35b29f7d613452a165dcaebf4d71b80e981e687e91ce6d9ba9679cb2",
+            "b644133604bf99632137be3e9230c4056bd32eb2f404020d70adcde88353c760",
         )
         .unwrap(), // "very-secret"
-        pepper_id: 1,
         redirect_uris: &["http://127.0.0.1:8765/callback".to_string()],
         grant_types: &["user_info".to_string()],
-        scope: Some("openid email profile"),
+        scopes: &[
+            "openid".to_string(),
+            "profile".to_string(),
+            "email".to_string(),
+        ],
         origin: "http://localhost",
         bearer_allowed: true,
     };

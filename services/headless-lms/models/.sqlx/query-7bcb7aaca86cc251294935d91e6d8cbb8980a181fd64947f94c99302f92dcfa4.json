@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE oauth_auth_codes\n        SET used = true\n        WHERE digest = $1\n          AND used = false\n          AND expires_at > now()\n        RETURNING\n          digest      as \"digest: _\",\n          pepper_id,\n          user_id,\n          client_id,\n          redirect_uri,\n          scope,\n          jti,\n          nonce,\n          used,\n          expires_at,\n          metadata\n        ",
+  "query": "\n        UPDATE oauth_auth_codes\n        SET used = true\n        WHERE digest = $1\n          AND used = false\n          AND expires_at > now()\n        RETURNING\n          digest      as \"digest: _\",\n          user_id,\n          client_id,\n          redirect_uri,\n          scopes,\n          jti,\n          nonce,\n          used,\n          expires_at,\n          metadata\n        ",
   "describe": {
     "columns": [
       {
@@ -10,51 +10,46 @@
       },
       {
         "ordinal": 1,
-        "name": "pepper_id",
-        "type_info": "Int2"
-      },
-      {
-        "ordinal": 2,
         "name": "user_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 3,
+        "ordinal": 2,
         "name": "client_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 4,
+        "ordinal": 3,
         "name": "redirect_uri",
         "type_info": "Text"
       },
       {
-        "ordinal": 5,
-        "name": "scope",
-        "type_info": "Text"
+        "ordinal": 4,
+        "name": "scopes",
+        "type_info": "TextArray"
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "jti",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "nonce",
-        "type_info": "Text"
+        "type_info": "Varchar"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "used",
         "type_info": "Bool"
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "expires_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "metadata",
         "type_info": "Jsonb"
       }
@@ -71,12 +66,11 @@
       false,
       false,
       false,
-      false,
       true,
       false,
       false,
       false
     ]
   },
-  "hash": "910d8b1b6ac88892d68bfdf72999935c12e43b035a528e67def7b9f5b4a6df5b"
+  "hash": "7bcb7aaca86cc251294935d91e6d8cbb8980a181fd64947f94c99302f92dcfa4"
 }

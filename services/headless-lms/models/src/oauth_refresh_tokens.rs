@@ -6,12 +6,11 @@ use uuid::Uuid;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct OAuthRefreshTokens {
     pub digest: Digest,
-    pub pepper_id: i16,
     pub user_id: Uuid,
     pub client_id: Uuid,
     pub expires_at: DateTime<Utc>,
-    pub scope: String,
-    pub audience: Option<String>,
+    pub scopes: Vec<String>,
+    pub audience: Option<Vec<String>>,
     pub jti: Uuid,
     pub dpop_jkt: String,
     pub metadata: serde_json::Value,
@@ -19,16 +18,13 @@ pub struct OAuthRefreshTokens {
     pub rotated_from: Option<Digest>,
 }
 
-/* ------------ internal helper for INSERT ------------ */
-
 #[derive(Debug, Clone)]
 pub struct NewRefreshTokenParams<'a> {
     pub digest: &'a Digest,
-    pub pepper_id: i16,
     pub user_id: Uuid,
     pub client_id: Uuid,
-    pub scope: &'a str,
-    pub audience: Option<&'a str>,
+    pub scopes: &'a [String],
+    pub audience: Option<&'a [String]>,
     pub expires_at: DateTime<Utc>,
     pub rotated_from: Option<&'a Digest>,
     pub metadata: serde_json::Map<String, serde_json::Value>,
@@ -42,15 +38,14 @@ impl OAuthRefreshTokens {
     ) -> ModelResult<()> {
         sqlx::query!(r#"
             INSERT INTO oauth_refresh_tokens
-              (digest, user_id, client_id, scope, audience, pepper_id, metadata, dpop_jkt, expires_at, rotated_from)
-            VALUES ($1,     $2,      $3,        $4,   $5,       $6,        $7,       $8,       $9,        $10)
+                (digest, user_id, client_id, scopes, audience, metadata, dpop_jkt, expires_at, rotated_from)
+            VALUES ($1,     $2,      $3,        $4,   $5,       $6,        $7,       $8,       $9  )
         "#,
         params.digest.as_bytes(),
         params.user_id,
         params.client_id,
-        params.scope,
+        params.scopes,
         params.audience,
-        params.pepper_id,
         serde_json::Value::Object(params.metadata),
         params.dpop_jkt,
         params.expires_at,
@@ -72,12 +67,11 @@ impl OAuthRefreshTokens {
               digest as "digest: _",
               user_id,
               client_id,
-              scope,
+              scopes,
               expires_at,
               jti,
               dpop_jkt,
               metadata,
-              pepper_id,
               audience,
               revoked,
               rotated_from as "rotated_from: _"
@@ -147,12 +141,11 @@ impl OAuthRefreshTokens {
           digest        as "digest: _",
           user_id,
           client_id,
-          scope,
+          scopes,
           expires_at,
           jti,
           dpop_jkt,
           metadata,
-          pepper_id,
           audience,
           revoked,
           rotated_from  as "rotated_from: _"

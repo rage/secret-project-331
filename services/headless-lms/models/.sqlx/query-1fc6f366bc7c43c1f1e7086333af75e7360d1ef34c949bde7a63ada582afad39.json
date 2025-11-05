@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n              digest as \"digest: _\",\n              pepper_id,\n              user_id,\n              client_id,\n              scope,\n              audience,\n              jti,\n              dpop_jkt,\n              metadata,\n              expires_at\n            FROM oauth_access_tokens\n            WHERE digest = $1 AND expires_at > now()\n            ",
+  "query": "\n            SELECT\n              digest as \"digest: _\",\n              user_id,\n              client_id,\n              scopes,\n              audience,\n              jti,\n              dpop_jkt,\n              metadata,\n              expires_at\n            FROM oauth_access_tokens\n            WHERE digest = $1 AND expires_at > now()\n            ",
   "describe": {
     "columns": [
       {
@@ -10,46 +10,41 @@
       },
       {
         "ordinal": 1,
-        "name": "pepper_id",
-        "type_info": "Int2"
-      },
-      {
-        "ordinal": 2,
         "name": "user_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 3,
+        "ordinal": 2,
         "name": "client_id",
         "type_info": "Uuid"
       },
       {
+        "ordinal": 3,
+        "name": "scopes",
+        "type_info": "TextArray"
+      },
+      {
         "ordinal": 4,
-        "name": "scope",
-        "type_info": "Text"
+        "name": "audience",
+        "type_info": "TextArray"
       },
       {
         "ordinal": 5,
-        "name": "audience",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 6,
         "name": "jti",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "dpop_jkt",
         "type_info": "Text"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "metadata",
         "type_info": "Jsonb"
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "expires_at",
         "type_info": "Timestamptz"
       }
@@ -61,10 +56,9 @@
     },
     "nullable": [
       false,
-      false,
       true,
       false,
-      true,
+      false,
       true,
       false,
       false,
@@ -72,5 +66,5 @@
       false
     ]
   },
-  "hash": "bfb981745cebcd6ded0ef5ca5e609a914c8ef637a59e968149c0827987669f4b"
+  "hash": "1fc6f366bc7c43c1f1e7086333af75e7360d1ef34c949bde7a63ada582afad39"
 }

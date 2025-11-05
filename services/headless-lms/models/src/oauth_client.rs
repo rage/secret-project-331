@@ -7,10 +7,9 @@ pub struct OAuthClient {
     pub id: Uuid,
     pub client_id: String,
     pub client_secret: Digest,
-    pub pepper_id: i16,
     pub redirect_uris: Vec<String>,
     pub grant_types: Vec<String>,
-    pub scope: Option<String>,
+    pub scopes: Vec<String>,
     pub origin: String,
     pub bearer_allowed: bool,
 }
@@ -19,10 +18,9 @@ pub struct OAuthClient {
 pub struct NewClientParams<'a> {
     pub client_id: &'a str,
     pub client_secret: &'a Digest,
-    pub pepper_id: i16,
     pub redirect_uris: &'a [String],
     pub grant_types: &'a [String],
-    pub scope: Option<&'a str>,
+    pub scopes: &'a [String],
     pub origin: &'a str,
     pub bearer_allowed: bool,
 }
@@ -40,10 +38,9 @@ impl OAuthClient {
               id,
               client_id,
               client_secret as "client_secret: _",
-              pepper_id,
               redirect_uris,
               grant_types,
-              scope,
+              scopes,
               origin,
               bearer_allowed
             FROM oauth_clients
@@ -63,22 +60,20 @@ impl OAuthClient {
             INSERT INTO oauth_clients (
                 client_id,
                 client_secret,
-                pepper_id,
                 redirect_uris,
                 grant_types,
-                scope,
+                scopes,
                 origin,
                 bearer_allowed
             )
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+            VALUES ($1,$2,$3,$4,$5,$6,$7)
             RETURNING id
         "#,
             params.client_id,
             params.client_secret.as_bytes(),
-            params.pepper_id,
             params.redirect_uris,
             params.grant_types,
-            params.scope,
+            params.scopes,
             params.origin,
             params.bearer_allowed
         )

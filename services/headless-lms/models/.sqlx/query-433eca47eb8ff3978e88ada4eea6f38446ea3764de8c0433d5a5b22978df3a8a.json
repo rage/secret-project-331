@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n              digest as \"digest: _\",\n              user_id,\n              client_id,\n              scope,\n              expires_at,\n              jti,\n              dpop_jkt,\n              metadata,\n              pepper_id,\n              audience,\n              revoked,\n              rotated_from as \"rotated_from: _\"\n            FROM oauth_refresh_tokens\n            WHERE digest = $1\n              AND expires_at > now()\n              AND revoked = false\n            ",
+  "query": "\n            SELECT\n              digest as \"digest: _\",\n              user_id,\n              client_id,\n              scopes,\n              expires_at,\n              jti,\n              dpop_jkt,\n              metadata,\n              audience,\n              revoked,\n              rotated_from as \"rotated_from: _\"\n            FROM oauth_refresh_tokens\n            WHERE digest = $1\n              AND expires_at > now()\n              AND revoked = false\n            ",
   "describe": {
     "columns": [
       {
@@ -20,8 +20,8 @@
       },
       {
         "ordinal": 3,
-        "name": "scope",
-        "type_info": "Text"
+        "name": "scopes",
+        "type_info": "TextArray"
       },
       {
         "ordinal": 4,
@@ -45,21 +45,16 @@
       },
       {
         "ordinal": 8,
-        "name": "pepper_id",
-        "type_info": "Int2"
+        "name": "audience",
+        "type_info": "TextArray"
       },
       {
         "ordinal": 9,
-        "name": "audience",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 10,
         "name": "revoked",
         "type_info": "Bool"
       },
       {
-        "ordinal": 11,
+        "ordinal": 10,
         "name": "rotated_from: _",
         "type_info": "Bytea"
       }
@@ -78,11 +73,10 @@
       false,
       false,
       false,
-      false,
       true,
       false,
       true
     ]
   },
-  "hash": "f6cb133ab6914a6443354b82455f779344da6a4ac004f8435d048736e41dea1a"
+  "hash": "433eca47eb8ff3978e88ada4eea6f38446ea3764de8c0433d5a5b22978df3a8a"
 }

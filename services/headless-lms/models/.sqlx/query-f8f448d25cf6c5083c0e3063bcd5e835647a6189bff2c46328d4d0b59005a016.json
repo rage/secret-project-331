@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO oauth_user_client_scopes\n                (user_id, client_id, scopes)\n                VALUES ($1, $2, $3)\n                ON CONFLICT DO NOTHING\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f8f448d25cf6c5083c0e3063bcd5e835647a6189bff2c46328d4d0b59005a016"
+}

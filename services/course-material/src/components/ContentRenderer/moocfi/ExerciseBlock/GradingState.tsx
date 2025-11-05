@@ -90,7 +90,7 @@ const getText = (
       case "FullyGraded":
         return t("grading-fully-graded")
       case "NotReady":
-        return ""
+        return null
       case "Pending":
         return t("grading-pending")
       case "PendingManual":

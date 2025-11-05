@@ -88,7 +88,10 @@ test("Reject and reset submission", async () => {
     //Student1 gets a bad review from both so the submission will be moved to manual review
 
     // Student1 peer reviews Student2 and Teachers answers
-    await student1Page.getByRole("button", { name: "Start peer review" }).click()
+    await student1Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("button", { name: "Start peer review" })
+      .click()
     await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
@@ -108,7 +111,10 @@ test("Reject and reset submission", async () => {
     ).toBeVisible()
 
     // Student2 peer reviews Student1 and Teachers answers
-    await student2Page.getByRole("button", { name: "Start peer review" }).click()
+    await student2Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("button", { name: "Start peer review" })
+      .click()
     await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
     await student2Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
@@ -123,10 +129,17 @@ test("Reject and reset submission", async () => {
       .click()
     await expect(student2Page.getByText("Operation successful!")).toBeVisible()
 
-    await expect(student2Page.getByText("Your answer has been reviewed")).toBeVisible()
+    await expect(
+      student2Page
+        .getByLabel("Exercise:Simple multiple choice with peer review")
+        .getByText("Your answer has been reviewed"),
+    ).toBeVisible()
 
     // Teacher peer reviews Student1 and Student2 answers
-    await teacherPage.getByRole("button", { name: "Start peer review" }).click()
+    await teacherPage
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("button", { name: "Start peer review" })
+      .click()
     await teacherPage.getByRole("radio", { name: "Strongly disagree" }).click()
     await teacherPage
       .getByLabel("Exercise:Simple multiple choice with peer review")
@@ -141,7 +154,11 @@ test("Reject and reset submission", async () => {
       .click()
     await expect(teacherPage.getByText("Operation successful!")).toBeVisible()
 
-    await expect(teacherPage.getByText("Your answer has been reviewed")).toBeVisible()
+    await expect(
+      teacherPage
+        .getByLabel("Exercise:Simple multiple choice with peer review")
+        .getByText("Your answer has been reviewed"),
+    ).toBeVisible()
   })
 
   await test.step("Teacher can reject and reset Student1 submission", async () => {
@@ -187,6 +204,7 @@ test("Reject and reset submission", async () => {
     )
     await expect(
       student2Page
+        .getByLabel("Exercise:Simple multiple choice with peer review")
         .getByLabel("Exercise:Simple multiple choice with peer review")
         .getByText("Your answer has been reviewed"),
     ).toBeVisible()

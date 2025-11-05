@@ -16,7 +16,7 @@ interface GradingStateProps {
   reviewingStage: ReviewingStage
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null
   exercise: Exercise
-  shouldSeeResetMessage: boolean
+  shouldSeeResetMessage: string | null
 }
 const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   gradingProgress,
@@ -26,7 +26,6 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   shouldSeeResetMessage,
 }) => {
   const { t } = useTranslation()
-
   const text = useMemo(
     () =>
       getText(
@@ -56,11 +55,18 @@ const getText = (
   gradingProgress: GradingProgress,
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
   exercise: Exercise,
-  shouldSeeResetMessage: boolean,
+  shouldSeeResetMessage: string | null,
   t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
 ): string | null => {
-  if (shouldSeeResetMessage && reviewingStage === "NotStarted") {
-    return t("help-text-exercise-involves-reject-and-reset")
+  if (shouldSeeResetMessage !== null && reviewingStage === "NotStarted") {
+    switch (shouldSeeResetMessage) {
+      case "reset-automatically-due-to-failed-review":
+        return t("help-text-exercise-involves-reject-and-reset-automatically")
+      case "reset-by-staff":
+        return t("help-text-exercise-involves-reject-and-reset-by-staff")
+      default:
+        return null
+    }
   }
   if (peerOrSelfReviewConfig && reviewingStage === "NotStarted") {
     if (exercise.needs_peer_review && exercise.needs_self_review) {

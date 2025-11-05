@@ -344,7 +344,7 @@ async fn check_if_exercise_needs_reset_after_zero_points_from_review(
                     user_exercise_state.user_id,
                     vec![latest_submission.exercise_id],
                 )],
-                user_exercise_state.user_id,
+                None,
                 latest_submission.course_id.ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::Generic,
@@ -352,6 +352,7 @@ async fn check_if_exercise_needs_reset_after_zero_points_from_review(
                         None,
                     )
                 })?,
+                Some("automatic-reset-due-to-failed-review".to_string()),
             )
             .await?;
             tx.commit().await?;

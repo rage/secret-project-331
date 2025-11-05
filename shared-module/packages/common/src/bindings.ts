@@ -958,7 +958,7 @@ export interface CourseMaterialExercise {
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
-  should_show_reset_message: boolean
+  should_show_reset_message: string | null
 }
 
 export interface Exercise {
@@ -1017,12 +1017,13 @@ export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending
 
 export interface ExerciseResetLog {
   id: string
-  reset_by: string
+  reset_by: string | null
   reset_by_first_name: string | null
   reset_by_last_name: string | null
   reset_for: string
   exercise_id: string
   exercise_name: string
+  reason: string | null
   course_id: string
   reset_at: string
   created_at: string

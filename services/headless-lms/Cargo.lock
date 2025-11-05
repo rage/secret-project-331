@@ -1930,6 +1930,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "tokio",
+ "tokio-stream",
  "tokio-util",
  "tracing",
  "url",

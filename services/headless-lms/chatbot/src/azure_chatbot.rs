@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::pin::Pin;
+use std::result::Result;
 use std::sync::{
     Arc,
     atomic::{self, AtomicBool},
@@ -11,7 +12,7 @@ use std::vec;
 use anyhow::{Error, Ok};
 use bytes::Bytes;
 use chrono::Utc;
-use futures::stream::BoxStream;
+use futures::stream::{BoxStream, Peekable};
 use futures::{Stream, StreamExt, TryStreamExt};
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
@@ -21,8 +22,8 @@ use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgPool;
-use tokio::io::Lines;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
+use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 use url::Url;
 
@@ -71,14 +72,24 @@ pub struct DeltaContext {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DeltaToolCall {
-    pub id: String,
+    // if deltatool has a name, then this has to have an id and type
+    // if no name, no id, no type
+    pub id: Option<String>,
     pub function: DeltaTool,
+    #[serde(rename = "type")]
+    pub tool_type: Option<ToolCallType>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct DeltaTool {
     pub arguments: String,
     pub name: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum ToolCallType {
+    Function,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -200,6 +211,7 @@ pub struct LLMRequest {
     pub data_sources: Vec<DataSource>,
     #[serde(flatten)]
     pub params: LLMRequestParams,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub tools: Vec<AzureLLMToolDefintion>,
     pub tool_choice: Option<LLMToolChoice>,
     pub stop: Option<String>,
@@ -451,11 +463,12 @@ where
     }
 }
 
-type BytesStreamReader<'a> =
-    Lines<StreamReader<BoxStream<'a, Result<Bytes, std::io::Error>>, Bytes>>;
+type PeekableLinesStream<'a> = Pin<
+    Box<Peekable<LinesStream<StreamReader<BoxStream<'a, Result<Bytes, std::io::Error>>, Bytes>>>>,
+>;
 pub enum ResponseStreamType<'a> {
-    Toolcall(BytesStreamReader<'a>),
-    TextResponse(BytesStreamReader<'a>),
+    Toolcall(PeekableLinesStream<'a>),
+    TextResponse(PeekableLinesStream<'a>),
 }
 
 struct RequestCancelledGuard {
@@ -534,44 +547,76 @@ pub async fn make_request_and_stream<'a>(
         .boxed();
 
     let reader = StreamReader::new(stream);
-    let mut lines = reader.lines();
+    let lines = reader.lines();
+    let lines_stream = LinesStream::new(lines);
+    let peekable_lines_stream = lines_stream.peekable();
 
-    while let Some(line) = lines.next_line().await? {
-        let json_str = line.trim_start_matches("data: ");
-        let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
-            .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
-        for choice in &response_chunk.choices {
-            if let Some(d) = &choice.delta {
-                println!("{:?}", d);
-                if let Some(_s) = &d.content {
-                    // this is a text response
-                    return Ok(ResponseStreamType::TextResponse(lines));
-                } else if None == d.content {
-                    // this is a tool call
-                    return Ok(ResponseStreamType::Toolcall(lines));
-                }
+    let mut pinned_lines = Box::pin(peekable_lines_stream);
+
+    loop {
+        let line_res = pinned_lines.as_mut().peek().await;
+        match line_res {
+            None => {
+                break;
             }
+            Some(res) => match res {
+                Err(_e) => break, // how to retunr
+                Result::Ok(line) => {
+                    if !line.starts_with("data: ") {
+                        pinned_lines.next().await;
+                        continue;
+                    }
+                    let json_str = line.trim_start_matches("data: ");
+
+                    let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
+                        .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
+                    for choice in &response_chunk.choices {
+                        if let Some(d) = &choice.delta {
+                            if let Some(_s) = &d.content {
+                                return Ok(ResponseStreamType::TextResponse(pinned_lines));
+                            } else if let Some(_calls) = &d.tool_calls {
+                                return Ok(ResponseStreamType::Toolcall(pinned_lines));
+                            } else if None == d.content {
+                                pinned_lines.next().await;
+                                continue;
+                            }
+                        }
+                    }
+                    // there should always be choices, but if there isn't, let's continue
+                    pinned_lines.next().await;
+                }
+            },
         }
     }
 
-    return Err(Error::msg("IDK what type response this was".to_string()));
+    return Err(Error::msg(
+        "The response received from Azure had an unexpected shape and couldn't be parsed"
+            .to_string(),
+    ));
 }
 
-pub async fn parse_tool<'a>(mut lines: BytesStreamReader<'a>) -> anyhow::Result<Vec<APIMessage>> {
-    // parse the function call stream and call the functions
+/// Streams and parses a LLM response from Azure that contains function calls.
+/// Calls the functions and returns a Vec of function results to be sent to Azure.
+pub async fn parse_tool<'a>(mut lines: PeekableLinesStream<'a>) -> anyhow::Result<Vec<APIMessage>> {
+    // remember to validate args
     let mut function_calls: HashMap<(String, String), serde_json::Value> = HashMap::new();
-    let mut function_call: Option<(String, String)> = None;
+    let mut function_name_id: Option<(String, String)> = None;
     let mut function_args = vec![]; //Arc::new(Mutex::new(Vec::new())); //idk?
     let mut tool_result_messages = vec![];
 
-    while let Some(line) = lines.next_line().await? {
-        if !line.starts_with("data: ") {
+    println!("Parsing tool calls.........");
+
+    while let Some(val) = lines.next().await {
+        let line = val?;
+        if !line.to_owned().starts_with("data: ") {
             continue;
         }
         let json_str = line.trim_start_matches("data: ");
         if json_str.trim() == "[DONE]" {
             if function_calls.is_empty() {
-                // return error
+                return Err(anyhow::anyhow!(
+                    "The LLM response was supposed to contain function calls, but no function calls were found"
+                ));
             }
             tool_result_messages.push(APIMessage {
                 role: MessageRole::Assistant,
@@ -582,7 +627,7 @@ pub async fn parse_tool<'a>(mut lines: BytesStreamReader<'a>) -> anyhow::Result<
                         .map(|((name, id), arguments)| ApiMessageToolCall {
                             function: ApiTool { name, arguments },
                             id,
-                            type_: "function".to_string(),
+                            tool_type: ToolCallType::Function,
                         })
                         .collect(),
                 }),
@@ -598,31 +643,27 @@ pub async fn parse_tool<'a>(mut lines: BytesStreamReader<'a>) -> anyhow::Result<
                     }),
                 })
             }
-            println!(
-                "!!!!!!!!!!!!!!!!!!!!! Tool messages {:?}",
-                tool_result_messages
-            );
             break;
         }
         let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
-            .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
+            .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {} {}", e, json_str))?;
         for choice in &response_chunk.choices {
             if Some("tool_calls".to_string()) == choice.finish_reason {
-                if let Some(name_id) = &function_call {
+                if let Some(name_id) = &function_name_id {
                     function_calls.insert(name_id.to_owned(), json!(function_args.join("")));
                     function_args.clear();
-                    function_call = None;
+                    function_name_id = None;
                 }
             }
             if let Some(delta) = &choice.delta {
                 if let Some(tool_calls) = &delta.tool_calls {
                     for call in tool_calls {
-                        if let Some(name) = &call.function.name {
-                            if let Some(prev_name) = function_call {
+                        if let (Some(name), Some(id)) = (&call.function.name, &call.id) {
+                            if let Some(prev_name) = function_name_id {
                                 function_calls.insert(prev_name, json!(function_args.join("")));
                                 function_args.clear();
                             }
-                            function_call = Some((name.to_owned(), call.id.clone()));
+                            function_name_id = Some((name.to_owned(), id.clone()));
                         };
                         function_args.push(call.function.arguments.clone());
                     }
@@ -633,8 +674,9 @@ pub async fn parse_tool<'a>(mut lines: BytesStreamReader<'a>) -> anyhow::Result<
     Ok(tool_result_messages)
 }
 
+/// Streams and parses a LLM response from Azure that contains a text response.
 pub async fn parse_and_stream_to_user<'a>(
-    mut lines: BytesStreamReader<'a>,
+    mut lines: PeekableLinesStream<'a>,
     response_message: ChatbotConversationMessage,
     pool: PgPool,
     request_estimated_tokens: i32,
@@ -650,14 +692,17 @@ pub async fn parse_and_stream_to_user<'a>(
         request_estimated_tokens,
     };
 
+    println!("Parsing stream to user............");
+
     let response_stream = async_stream::try_stream! {
-        while let Some(line) = lines.next_line().await? {
+        while let Some(val) = lines.next().await {
+            let line = val?;
             if !line.starts_with("data: ") {
                 continue;
             }
             let json_str = line.trim_start_matches("data: ");
-
             let mut full_response_text = full_response_text.lock().await;
+
             if json_str.trim() == "[DONE]" {
                 let full_response_as_string = full_response_text.join("");
                 let estimated_cost = estimate_tokens(&full_response_as_string);
@@ -679,6 +724,8 @@ pub async fn parse_and_stream_to_user<'a>(
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
+
+            //println!("{:?}", response_chunk);
 
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {
@@ -737,7 +784,12 @@ pub async fn parse_and_stream_to_user<'a>(
             Err(anyhow::anyhow!("Stream ended unexpectedly"))?;
         }
     };
+
+    // Encapsulate the stream and the guard within GuardedStream. This moves the request guard into the stream and ensures that it is dropped when the stream is dropped.
+    // This way we do cleanup only when the stream is dropped and not when this function returns.
     let guarded_stream = GuardedStream::new(guard, response_stream);
+
+    // Box and pin the GuardedStream to satisfy the Unpin requirement
     Ok(Box::pin(guarded_stream))
 }
 
@@ -758,10 +810,6 @@ pub async fn send_chat_request_and_parse_stream(
             app_config,
         )
         .await?;
-    println!(
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA{:?}",
-        chat_request
-    );
 
     let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
         conn,
@@ -791,20 +839,15 @@ pub async fn send_chat_request_and_parse_stream(
     let mut tool_msgs = vec![];
 
     loop {
-        // ou maybe can't use the same chat request???
-        // save the reveived tool calling responses to the messages!!!!!
         let mut chat_request = chat_request.clone();
         chat_request.messages.extend(tool_msgs.to_owned());
-        println!(
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA{:?}",
-            chat_request
-        );
+
+        //println!("AAAAAAAAAAAAAAAAAAA {:?}", chat_request);
 
         let response_type =
             make_request_and_stream(chat_request.clone(), &model.deployment_name, &app_config)
                 .await?;
 
-        // preserve rool_msgs across iters and push
         let new_tool_msgs = match response_type {
             ResponseStreamType::Toolcall(stream) => parse_tool(stream).await?,
             ResponseStreamType::TextResponse(stream) => {
@@ -819,225 +862,4 @@ pub async fn send_chat_request_and_parse_stream(
         };
         tool_msgs.extend(new_tool_msgs);
     }
-}
-
-//____________________________________________________________________________
-pub async fn send_chat_request_and_parse_stream_old<'a>(
-    conn: &mut PgConnection,
-    pool: PgPool,
-    app_config: &'a ApplicationConfiguration,
-    chatbot_configuration_id: Uuid,
-    conversation_id: Uuid,
-    message: &str,
-) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
-    let (chat_request, new_message, request_estimated_tokens) =
-        LLMRequest::build_and_insert_incoming_message_to_db(
-            conn,
-            chatbot_configuration_id,
-            conversation_id,
-            message,
-            app_config,
-        )
-        .await?;
-
-    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
-        conn,
-        chatbot_configuration_id,
-    )
-    .await?;
-
-    let response_order_number = new_message.order_number + 1;
-
-    let response_message = models::chatbot_conversation_messages::insert(
-        conn,
-        ChatbotConversationMessage {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            conversation_id,
-            message: None,
-            is_from_chatbot: true,
-            message_is_complete: false,
-            used_tokens: request_estimated_tokens,
-            order_number: response_order_number,
-        },
-    )
-    .await?;
-
-    let full_response_text = Arc::new(Mutex::new(Vec::new()));
-    let done = Arc::new(AtomicBool::new(false));
-    // Instantiate the guard before creating the stream.
-    let guard = RequestCancelledGuard {
-        response_message_id: response_message.id,
-        received_string: full_response_text.clone(),
-        pool: pool.clone(),
-        done: done.clone(),
-        request_estimated_tokens,
-    };
-
-    let response =
-        make_streaming_llm_request(chat_request.clone(), &model.deployment_name, app_config)
-            .await?;
-
-    info!("Receiving chat response with {:?}", response.version());
-
-    if !response.status().is_success() {
-        let status = response.status();
-        let error_message = response.text().await?;
-        return Err(anyhow::anyhow!(
-            "Failed to send chat request. Status: {}. Error: {}",
-            status,
-            error_message
-        ));
-    }
-
-    let stream = response.bytes_stream().map_err(std::io::Error::other);
-    let reader = StreamReader::new(stream);
-    let mut lines = reader.lines();
-
-    let response_stream = async_stream::try_stream! {
-        'outer: loop {
-        let mut function_calls: HashMap<(String, String), serde_json::Value> = HashMap::new();
-        let mut function_call: Option<(String,String)> = None;
-        let function_args = Arc::new(Mutex::new(Vec::new())); //idk?
-
-        while let Some(line) = lines.next_line().await? {
-            if !line.starts_with("data: ") {
-                continue;
-            }
-            let json_str = line.trim_start_matches("data: ");
-
-            let mut full_response_text = full_response_text.lock().await;
-            let mut function_args = function_args.lock().await;
-            if json_str.trim() == "[DONE]" {
-                if function_calls.is_empty() {
-                let full_response_as_string = full_response_text.join("");
-                let estimated_cost = estimate_tokens(&full_response_as_string);
-                info!(
-                    "End of chatbot response stream. Estimated cost: {}. Response: {}",
-                    estimated_cost, full_response_as_string
-                );
-                done.store(true, atomic::Ordering::Relaxed);
-                let mut conn = pool.acquire().await?;
-                models::chatbot_conversation_messages::update(
-                    &mut conn,
-                    response_message.id,
-                    &full_response_as_string,
-                    true,
-                    request_estimated_tokens + estimated_cost,
-                ).await?;
-                break 'outer;
-             } else {
-                    info!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Funcrion calls: {:?}\n Trying to call functions...", function_calls);
-                    let mut messages = (&chat_request).messages.clone();
-                    for (key,_val) in function_calls.iter() {
-                        messages.push(APIMessage {
-                            role: MessageRole::Tool,
-                            fields: ApiMessageKind::ToolResponse(ApiToolResponseMessage {
-                             content: "Your fooname has been recorded".to_string(),
-                            name: key.0.to_string(),
-                            tool_call_id: key.1.to_string(),
-                            })
-
-                        })
-                    }
-                    let chat_request2 = LLMRequest {messages, data_sources: (&chat_request).data_sources.clone(), params: (&chat_request).params.clone(), tools: (&chat_request).tools.clone(), tool_choice: (&chat_request).tool_choice.clone(), stop: None
-                        };
-                    let _response = make_streaming_llm_request(chat_request2, &model.deployment_name, app_config).await?;
-
-                    break;
-                }
-            }
-            let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
-                anyhow::anyhow!("Failed to parse response chunk: {}", e)
-            })?;
-
-            for choice in &response_chunk.choices {
-                if Some("tool_calls".to_string()) == choice.finish_reason {
-                    if let Some(name_id) = &function_call {
-                        function_calls.insert(name_id.to_owned(), json!(function_args.join("")));
-                        function_args.clear();
-                        function_call = None;
-                    }
-                }
-                if let Some(delta) = &choice.delta {
-                    if let Some(tool_calls) = &delta.tool_calls {
-                        for call in tool_calls {
-                            if let Some(name) = &call.function.name {
-                                if let Some(prev_name) = function_call {
-                                    function_calls.insert(prev_name, json!(function_args.join("")));
-                                    function_args.clear();
-                                }
-                                function_call = Some((name.to_owned(), call.id.clone()));
-                            };
-                            function_args.push(call.function.arguments.clone());
-
-
-                        }
-                    }
-                    if let Some(content) = &delta.content {
-                        full_response_text.push(content.clone());
-                        let response = ChatResponse { text: content.clone() };
-                        let response_as_string = serde_json::to_string(&response)?;
-                        yield Bytes::from(response_as_string);
-                        yield Bytes::from("\n");
-                    }
-                    if let Some(context) = &delta.context {
-                        let citation_message_id = response_message.id;
-                        let mut conn = pool.acquire().await?;
-                        for (idx, cit) in context.citations.iter().enumerate() {
-                            let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
-                            let split = content.split_once(CONTENT_FIELD_SEPARATOR);
-                            if split.is_none() {
-                                error!("Chatbot citation doesn't have any content or is missing 'chunk_context'. Something is wrong with Azure.");
-                            }
-                            let cleaned_content: String = split.unwrap_or(("","")).1.to_string();
-
-                            let document_url = cit.url.clone();
-                            let mut page_path = PathBuf::from(&cit.filepath);
-                            page_path.set_extension("");
-                            let page_id_str = page_path.file_name();
-                            let page_id = page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
-                            let course_material_chapter_number = if let Some(id) = page_id {
-                                let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
-                                chapter.map(|c| c.chapter_number)
-                            } else {
-                                None
-                            };
-
-                            models::chatbot_conversation_messages_citations::insert(
-                                &mut conn, ChatbotConversationMessageCitation {
-                                    id: Uuid::new_v4(),
-                                    created_at: Utc::now(),
-                                    updated_at: Utc::now(),
-                                    deleted_at: None,
-                                    conversation_message_id: citation_message_id,
-                                    conversation_id,
-                                    course_material_chapter_number,
-                                    title: cit.title.clone(),
-                                    content: cleaned_content,
-                                    document_url,
-                                    citation_number: (idx+1) as i32,
-                                }
-                            ).await?;
-                        }
-                    }
-
-                }
-            }
-        }
-
-        if !done.load(atomic::Ordering::Relaxed) {
-            Err(anyhow::anyhow!("Stream ended unexpectedly"))?;
-        }
-    }
-    };
-
-    // Encapsulate the stream and the guard within GuardedStream. This moves the request guard into the stream and ensures that it is dropped when the stream is dropped.
-    // This way we do cleanup only when the stream is dropped and not when this function returns.
-    let guarded_stream = GuardedStream::new(guard, response_stream);
-
-    // Box and pin the GuardedStream to satisfy the Unpin requirement
-    Ok(Box::pin(guarded_stream))
 }

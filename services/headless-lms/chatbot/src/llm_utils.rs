@@ -1,4 +1,7 @@
-use crate::{azure_chatbot::LLMRequest, prelude::*};
+use crate::{
+    azure_chatbot::{LLMRequest, ToolCallType},
+    prelude::*,
+};
 use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
@@ -22,7 +25,6 @@ pub enum MessageRole {
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIMessage {
-    // have to separate into differnt structs
     pub role: MessageRole,
     #[serde(flatten)]
     pub fields: ApiMessageKind,
@@ -49,16 +51,16 @@ pub struct ApiToolCallMessage {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ApiToolResponseMessage {
     pub tool_call_id: String,
-    pub name: String, // the function name
+    pub name: String,
     pub content: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ApiMessageToolCall {
     pub function: ApiTool,
     pub id: String,
     #[serde(rename = "type")]
-    pub type_: String, // should always be "function"
+    pub tool_type: ToolCallType,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

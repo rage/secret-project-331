@@ -576,7 +576,7 @@ pub async fn make_request_and_stream<'a>(
                                 return Ok(ResponseStreamType::TextResponse(pinned_lines));
                             } else if let Some(_calls) = &d.tool_calls {
                                 return Ok(ResponseStreamType::Toolcall(pinned_lines));
-                            } else if None == d.content {
+                            } else if d.content.is_none() {
                                 pinned_lines.next().await;
                                 continue;
                             }
@@ -589,10 +589,10 @@ pub async fn make_request_and_stream<'a>(
         }
     }
 
-    return Err(Error::msg(
+    Err(Error::msg(
         "The response received from Azure had an unexpected shape and couldn't be parsed"
             .to_string(),
-    ));
+    ))
 }
 
 /// Streams and parses a LLM response from Azure that contains function calls.
@@ -845,7 +845,7 @@ pub async fn send_chat_request_and_parse_stream(
         //println!("AAAAAAAAAAAAAAAAAAA {:?}", chat_request);
 
         let response_type =
-            make_request_and_stream(chat_request.clone(), &model.deployment_name, &app_config)
+            make_request_and_stream(chat_request.clone(), &model.deployment_name, app_config)
                 .await?;
 
         let new_tool_msgs = match response_type {

@@ -236,8 +236,6 @@ async fn process_block_chunk(
             presence_penalty: None,
             max_tokens: None,
         }),
-        tool_choice: None,
-        tools: vec![],
         stop: None,
     };
     info!(

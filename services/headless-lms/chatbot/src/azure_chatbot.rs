@@ -185,6 +185,9 @@ pub struct ThinkingParams {
     pub max_completion_tokens: Option<i32>,
     pub verbosity: Option<VerbosityLevel>,
     pub reasoning_effort: Option<ReasoningEffortLevel>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub tools: Vec<AzureLLMToolDefintion>,
+    pub tool_choice: Option<LLMToolChoice>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -211,9 +214,6 @@ pub struct LLMRequest {
     pub data_sources: Vec<DataSource>,
     #[serde(flatten)]
     pub params: LLMRequestParams,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub tools: Vec<AzureLLMToolDefintion>,
-    pub tool_choice: Option<LLMToolChoice>,
     pub stop: Option<String>,
 }
 
@@ -359,6 +359,8 @@ impl LLMRequest {
                 max_completion_tokens: Some(configuration.max_completion_tokens),
                 reasoning_effort: Some(configuration.reasoning_effort),
                 verbosity: Some(configuration.verbosity),
+                tools,
+                tool_choice: Some(LLMToolChoice::Auto),
             })
         } else {
             LLMRequestParams::NonThinking(NonThinkingParams {
@@ -375,8 +377,6 @@ impl LLMRequest {
                 messages: api_chat_messages,
                 data_sources,
                 params,
-                tools,
-                tool_choice: Some(LLMToolChoice::Auto),
                 stop: None,
             },
             new_message,

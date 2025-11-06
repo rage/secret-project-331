@@ -6,7 +6,6 @@ use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tracing::{debug, error, instrument, trace, warn};
 
 // API version for Azure OpenAI calls
@@ -65,7 +64,7 @@ pub struct ApiMessageToolCall {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ApiTool {
-    pub arguments: Value,
+    pub arguments: String,
     pub name: String,
 }
 

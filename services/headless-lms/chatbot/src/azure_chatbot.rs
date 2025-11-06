@@ -20,13 +20,13 @@ use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConvers
 use headless_lms_utils::ApplicationConfiguration;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use sqlx::PgPool;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 use url::Url;
 
+use crate::azure_chatbot_tools::{AzureLLMToolDefintion, call_chatbot_tool, chatbot_tools};
 use crate::llm_utils::{
     APIMessage, ApiMessageKind, ApiMessageToolCall, ApiTextMessage, ApiTool, ApiToolCallMessage,
     ApiToolResponseMessage, MessageRole, estimate_tokens, make_streaming_llm_request,
@@ -125,46 +125,6 @@ impl From<ChatbotConversationMessage> for APIMessage {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct AzureLLMToolDefintion {
-    #[serde(rename = "type")]
-    pub tool_type: LLMToolType,
-    pub function: LLMTool,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMTool {
-    pub name: String,
-    pub description: String,
-    pub parameters: LLMToolParams,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMToolParams {
-    #[serde(rename = "type")]
-    pub tool_type: LLMToolParamType,
-    pub properties: Fooname,
-    pub required: Vec<String>,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Fooname {
-    fooname: LLMToolParamProperties,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMToolParamProperties {
-    #[serde(rename = "type")]
-    pub param_type: String,
-    pub description: String,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum LLMToolParamType {
-    Object,
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum LLMToolChoice {
@@ -172,12 +132,6 @@ pub enum LLMToolChoice {
     Auto,
     //Required,
     None,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum LLMToolType {
-    Function,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -329,27 +283,7 @@ impl LLMRequest {
             Vec::new()
         };
 
-        let tools = if true {
-            vec![AzureLLMToolDefintion {
-                tool_type: LLMToolType::Function,
-                function: LLMTool {
-                    name: "foo".to_string(),
-                    description: "foo".to_string(),
-                    parameters: LLMToolParams {
-                        tool_type: LLMToolParamType::Object,
-                        properties: Fooname {
-                            fooname: LLMToolParamProperties {
-                                param_type: "string".to_string(),
-                                description: "Get foo".to_string(),
-                            },
-                        },
-                        required: vec!["fooname".to_string()],
-                    },
-                },
-            }]
-        } else {
-            vec![]
-        };
+        let tools = if true { chatbot_tools() } else { vec![] };
 
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
@@ -599,7 +533,7 @@ pub async fn make_request_and_stream<'a>(
 /// Calls the functions and returns a Vec of function results to be sent to Azure.
 pub async fn parse_tool<'a>(mut lines: PeekableLinesStream<'a>) -> anyhow::Result<Vec<APIMessage>> {
     // remember to validate args
-    let mut function_calls: HashMap<(String, String), serde_json::Value> = HashMap::new();
+    let mut function_calls: HashMap<(String, String), String> = HashMap::new();
     let mut function_name_id: Option<(String, String)> = None;
     let mut function_args = vec![]; //Arc::new(Mutex::new(Vec::new())); //idk?
     let mut tool_result_messages = vec![];
@@ -618,14 +552,18 @@ pub async fn parse_tool<'a>(mut lines: PeekableLinesStream<'a>) -> anyhow::Resul
                     "The LLM response was supposed to contain function calls, but no function calls were found"
                 ));
             }
+            println!("TOOOL {:?}", function_calls);
             tool_result_messages.push(APIMessage {
                 role: MessageRole::Assistant,
                 fields: ApiMessageKind::ToolCall(ApiToolCallMessage {
                     tool_calls: function_calls
                         .clone()
                         .into_iter()
-                        .map(|((name, id), arguments)| ApiMessageToolCall {
-                            function: ApiTool { name, arguments },
+                        .map(|((name, id), args)| ApiMessageToolCall {
+                            function: ApiTool {
+                                name,
+                                arguments: args,
+                            },
                             id,
                             tool_type: ToolCallType::Function,
                         })
@@ -633,13 +571,15 @@ pub async fn parse_tool<'a>(mut lines: PeekableLinesStream<'a>) -> anyhow::Resul
                 }),
             });
 
-            for (key, _val) in function_calls.iter() {
+            for ((name, id), args) in function_calls.iter() {
+                let fn_args = &serde_json::from_str(args)?;
+                let res = call_chatbot_tool(name, fn_args);
                 tool_result_messages.push(APIMessage {
                     role: MessageRole::Tool,
                     fields: ApiMessageKind::ToolResponse(ApiToolResponseMessage {
-                        content: "Your fooname has been recorded".to_string(),
-                        name: key.0.to_string(),
-                        tool_call_id: key.1.to_string(),
+                        content: res,
+                        name: name.to_owned(),
+                        tool_call_id: id.to_owned(),
                     }),
                 })
             }
@@ -650,7 +590,7 @@ pub async fn parse_tool<'a>(mut lines: PeekableLinesStream<'a>) -> anyhow::Resul
         for choice in &response_chunk.choices {
             if Some("tool_calls".to_string()) == choice.finish_reason {
                 if let Some(name_id) = &function_name_id {
-                    function_calls.insert(name_id.to_owned(), json!(function_args.join("")));
+                    function_calls.insert(name_id.to_owned(), function_args.join(""));
                     function_args.clear();
                     function_name_id = None;
                 }
@@ -660,7 +600,7 @@ pub async fn parse_tool<'a>(mut lines: PeekableLinesStream<'a>) -> anyhow::Resul
                     for call in tool_calls {
                         if let (Some(name), Some(id)) = (&call.function.name, &call.id) {
                             if let Some(prev_name) = function_name_id {
-                                function_calls.insert(prev_name, json!(function_args.join("")));
+                                function_calls.insert(prev_name, function_args.join(""));
                                 function_args.clear();
                             }
                             function_name_id = Some((name.to_owned(), id.clone()));

@@ -70,10 +70,10 @@ pub fn chatbot_tools() -> Vec<AzureLLMToolDefintion> {
     }]
 }
 
-pub fn call_chatbot_tool(fn_name: &String, fn_args: &Value) -> String {
+pub fn call_chatbot_tool(fn_name: &str, fn_args: &Value) -> String {
     // returns a string that contains the info the chatbot should use.
     // in reality, the chatbot might want to use json data.
-    match fn_name.as_str() {
+    match fn_name {
         "foo" => {
             let fooname = fn_args["fooname"].as_str().unwrap_or("default");
             foo(fooname)

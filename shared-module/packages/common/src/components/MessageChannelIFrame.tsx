@@ -27,6 +27,7 @@ interface MessageChannelIFrameProps {
   showBorders?: boolean
   disableSandbox?: boolean
   headingBeforeIframe?: string
+  onReady?: () => void
 }
 
 const useIframeSandboxingAttribute = (disableSandbox: boolean) => {
@@ -50,11 +51,13 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   title,
   showBorders = false,
   disableSandbox = false,
+  onReady,
 }) => {
   const { t, i18n } = useTranslation()
   const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const iframeSandboxAttribute = useIframeSandboxingAttribute(disableSandbox)
+  const hasSignaledReadyRef = useRef(false)
 
   const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
 
@@ -73,6 +76,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     recoveryAttemptsRef.current = 0
     readyMessageQueueRef.current = []
     setLastThingPosted(null)
+    hasSignaledReadyRef.current = false
   }, [url])
 
   const sendPortToIframe = (messageChannel: MessageChannel, isRecovery = false) => {
@@ -129,6 +133,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
 
         window.open(data.data, "_blank", "noopener,noreferrer")
       } else if (isMessageFromIframe(data)) {
+        if (!hasSignaledReadyRef.current && onReady) {
+          hasSignaledReadyRef.current = true
+          onReady()
+        }
         try {
           onMessageFromIframe(data, messageChannel.port1)
         } catch (e) {
@@ -149,7 +157,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         }
       })
     }
-  }, [messageChannel, onMessageFromIframe])
+  }, [messageChannel, onMessageFromIframe, onReady])
 
   // Set up a temporary listener for the initial ready event
   useEffect(() => {

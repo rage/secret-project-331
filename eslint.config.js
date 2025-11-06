@@ -120,6 +120,8 @@ const config = [
         JSX: true,
         WindowEventMap: true,
         RequestInit: true,
+        IntersectionObserverInit: true,
+        IntersectionObserverCallback: true,
       },
     },
     settings: {

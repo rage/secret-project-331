@@ -1,4 +1,4 @@
-import { atom, useAtomValue, useSetAtom } from "jotai"
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai"
 import { atomFamily } from "jotai/utils"
 import * as React from "react"
 import { useCallback, useEffect, useMemo, useRef } from "react"
@@ -45,6 +45,7 @@ export interface QueueAPI {
 const capacityAtomFamily = atomFamily((_qid: string) => atom<number>(1))
 const maxHoldMsAtomFamily = atomFamily((_qid: string) => atom<number>(10_000))
 const participantsAtomFamily = atomFamily((_qid: string) => atom<Participant[]>([]))
+const configInitializedAtomFamily = atomFamily((_qid: string) => atom<boolean>(false))
 
 const dispatchAtomFamily = atomFamily((qid: string) =>
   atom(null, (get, set) => {
@@ -53,12 +54,14 @@ const dispatchAtomFamily = atomFamily((qid: string) =>
     const list = get(participantsAtomFamily(qid))
 
     const activeCount = list.filter((p) => p.status === "active").length
+    const waitingList = list.filter((p) => p.status === "waiting")
     const need = Math.max(0, capacity - activeCount)
+
     if (need === 0) {
       return
     }
 
-    const waiting = list.filter((p) => p.status === "waiting").slice(0, need)
+    const waiting = waitingList.slice(0, need)
     if (waiting.length === 0) {
       return
     }
@@ -108,9 +111,11 @@ const demoteAtomFamily = atomFamily((qid: string) =>
 const joinAtomFamily = atomFamily((qid: string) =>
   atom(null, (get, set, id: string) => {
     const list = get(participantsAtomFamily(qid))
+
     if (list.some((p) => p.id === id)) {
       return
     }
+
     const now = Date.now()
     const next: Participant = { id, joinedAt: now, status: "waiting", timer: null }
     set(participantsAtomFamily(qid), [...list, next])
@@ -130,6 +135,7 @@ const leaveAtomFamily = atomFamily((qid: string) =>
     }
 
     const wasActive = target.status === "active"
+
     const filtered = list.filter((p) => p.id !== id)
     set(participantsAtomFamily(qid), filtered)
     if (wasActive) {
@@ -177,17 +183,42 @@ export function useConcurrencyThrottle(qid: string, initial?: Partial<QueueConfi
   const setCapacityAtom = useSetAtom(capacityAtomFamily(qid))
   const setMaxHoldAtom = useSetAtom(maxHoldMsAtomFamily(qid))
   const dispatch = useSetAtom(dispatchAtomFamily(qid))
+  const [configInitialized, setConfigInitialized] = useAtom(configInitializedAtomFamily(qid))
 
   useEffect(() => {
-    if (typeof initial?.capacity === "number") {
-      setCapacityAtom(Math.max(0, Math.floor(initial.capacity)))
-      dispatch()
+    // Only set config once per qid, not once per component instance
+    // Rely on Jotai atom to prevent race conditions (atom writes are synchronous)
+    if (configInitialized) {
+      return
     }
+
+    let updated = false
+
+    if (typeof initial?.capacity === "number") {
+      const newCapacity = Math.max(0, Math.floor(initial.capacity))
+      setCapacityAtom(newCapacity)
+      updated = true
+    }
+
     if (typeof initial?.maxHoldMs === "number") {
       setMaxHoldAtom(initial.maxHoldMs)
+      updated = true
+    }
+
+    if (updated) {
+      setConfigInitialized(true)
       dispatch()
     }
-  }, [qid, initial?.capacity, initial?.maxHoldMs, setCapacityAtom, setMaxHoldAtom, dispatch])
+  }, [
+    qid,
+    initial?.capacity,
+    initial?.maxHoldMs,
+    setCapacityAtom,
+    setMaxHoldAtom,
+    dispatch,
+    configInitialized,
+    setConfigInitialized,
+  ])
 
   const doJoin = useSetAtom(joinAtomFamily(qid))
   const doLeave = useSetAtom(leaveAtomFamily(qid))
@@ -207,7 +238,8 @@ export function useConcurrencyThrottle(qid: string, initial?: Partial<QueueConfi
 
   const setCapacity = useCallback(
     (n: number) => {
-      setCapacityAtom(Math.max(0, Math.floor(n)))
+      const newCapacity = Math.max(0, Math.floor(n))
+      setCapacityAtom(newCapacity)
       dispatch()
     },
     [setCapacityAtom, dispatch],

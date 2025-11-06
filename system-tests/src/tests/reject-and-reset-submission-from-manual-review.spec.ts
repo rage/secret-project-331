@@ -34,7 +34,7 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student1Page)
-    student1Page
+    await student1Page
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "3" })
@@ -52,7 +52,7 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student2Page)
-    student2Page
+    await student2Page
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
@@ -200,7 +200,6 @@ test("Reject and reset submission", async () => {
     )
     await expect(
       student2Page
-        .getByLabel("Exercise:Simple multiple choice with peer review")
         .getByLabel("Exercise:Simple multiple choice with peer review")
         .getByText("Your answer has been reviewed"),
     ).toBeVisible()

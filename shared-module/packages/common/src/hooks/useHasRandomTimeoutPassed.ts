@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 
 /**
- * Returns true after a random delay in [minMs, maxMs]. Monotonic: once true, stays true.
+ * Returns true after a random delay in [minMs, maxMs). Monotonic: once true, stays true.
  */
 export function useHasRandomTimeoutPassed(minMs: number, maxMs: number): boolean {
   const [passed, setPassed] = useState(false)

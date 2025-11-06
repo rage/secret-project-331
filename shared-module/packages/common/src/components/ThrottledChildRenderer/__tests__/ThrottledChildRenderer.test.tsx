@@ -16,7 +16,7 @@ declare global {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const triggerIntersection = (global as any).triggerIntersection as (
+const mockTriggerIntersection = (global as any).triggerIntersection as (
   el: Element,
   opts?: Partial<IntersectionObserverEntry> & {
     isIntersecting: boolean
@@ -71,7 +71,7 @@ describe("ThrottledChildRenderer", () => {
 
     const shell = screen.getByTestId("throttled-renderer-vis")
     act(() => {
-      triggerIntersection(shell, { isIntersecting: true })
+      mockTriggerIntersection(shell, { isIntersecting: true })
     })
 
     await flush()
@@ -126,7 +126,7 @@ describe("ThrottledChildRenderer", () => {
 
     // Make B visible while it's waiting in queue
     act(() => {
-      triggerIntersection(shellB, { isIntersecting: true })
+      mockTriggerIntersection(shellB, { isIntersecting: true })
     })
 
     await flush()
@@ -161,7 +161,7 @@ describe("ThrottledChildRenderer", () => {
 
     const shell = screen.getByTestId("throttled-renderer-with-callback")
     act(() => {
-      triggerIntersection(shell, { isIntersecting: true })
+      mockTriggerIntersection(shell, { isIntersecting: true })
     })
 
     await flush()

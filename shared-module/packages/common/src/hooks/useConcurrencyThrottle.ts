@@ -1,7 +1,7 @@
 import { atom, useAtomValue, useSetAtom } from "jotai"
 import { atomFamily } from "jotai/utils"
 import * as React from "react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 
 export type ParticipantStatus = "waiting" | "active" | "demoted" | "left" | "done" | "canceled"
 
@@ -220,7 +220,10 @@ export function useConcurrencyThrottle(qid: string, initial?: Partial<QueueConfi
     [setMaxHoldAtom, dispatch],
   )
 
-  return { join, leave, done, setCapacity, setMaxHoldMs }
+  return useMemo(
+    () => ({ join, leave, done, setCapacity, setMaxHoldMs }),
+    [join, leave, done, setCapacity, setMaxHoldMs],
+  )
 }
 
 /**
@@ -302,12 +305,14 @@ export function useThrottledParticipant(qid: string, opts?: { autoJoin?: boolean
     leave: useCallback(() => {
       if (id) {
         queue.leave(id)
+        setId(undefined)
       }
-    }, [queue, id]),
+    }, [queue, id, setId]),
     done: useCallback(() => {
       if (id) {
         queue.done(id)
+        setId(undefined)
       }
-    }, [queue, id]),
+    }, [queue, id, setId]),
   } as const
 }

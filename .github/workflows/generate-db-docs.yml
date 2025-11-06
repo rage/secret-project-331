@@ -42,7 +42,8 @@ jobs:
       - name: Add GitHub to known_hosts
         run: |
           install -d -m 700 ~/.ssh
-          ssh-keyscan -t ed25519,ecdsa github.com >> ~/.ssh/known_hosts
+          # Add ALL key types GitHub may present
+          ssh-keyscan -H -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
       - name: Set up deploy key
@@ -55,7 +56,11 @@ jobs:
       - name: Check out docs repo
         run: git clone git@github.com:rage/secret-project-331-db-docs.git db-docs
         env:
-          GIT_SSH_COMMAND: "ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
+          GIT_SSH_COMMAND: >-
+            ssh -i ~/.ssh/id_ed25519
+                -o IdentitiesOnly=yes
+                -o StrictHostKeyChecking=yes
+                -o UserKnownHostsFile=~/.ssh/known_hosts
 
       - name: Setup database
         run: sqlx database setup
@@ -103,6 +108,10 @@ jobs:
 
       - name: Push changes
         run: git push
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
         working-directory: ./db-docs
+        env:
+          GIT_SSH_COMMAND: >-
+            ssh -i ~/.ssh/id_ed25519
+                -o IdentitiesOnly=yes
+                -o StrictHostKeyChecking=yes
+                -o UserKnownHostsFile=~/.ssh/known_hosts

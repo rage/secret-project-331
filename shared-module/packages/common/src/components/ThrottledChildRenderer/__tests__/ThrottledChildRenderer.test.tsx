@@ -101,7 +101,7 @@ describe("ThrottledChildRenderer", () => {
       await flush()
     })
 
-    // A should render first (capacity=1)
+    // A should render first (capacity=2)
     expect(hits).toContain("A")
     // B should render after A completes
     expect(hits).toContain("B")

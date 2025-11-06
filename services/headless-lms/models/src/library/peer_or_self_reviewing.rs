@@ -283,7 +283,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
 
     tx.commit().await?;
 
-    check_if_exercise_needs_reset_after_zero_points_from_review(
+    let _ = check_if_exercise_needs_reset_after_zero_points_from_review(
         conn,
         &peer_or_self_review_config,
         &updated_receiver_state,

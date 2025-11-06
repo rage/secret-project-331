@@ -41,13 +41,12 @@ test("Automatic reject and reset submission", async () => {
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "3" })
       .click()
-
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("button", { name: "Submit" })
       .click()
+
     await student1Page.getByText("Your answer was not correct").waitFor()
-    await expect(student1Page.getByText("Start peer review")).toBeVisible()
 
     // Student2 answers the exercise
     await student2Page.goto(
@@ -61,12 +60,12 @@ test("Automatic reject and reset submission", async () => {
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
       .click()
-
     await student2Page
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("button", { name: "Submit" })
       .click()
-    await expect(student2Page.getByText("Start peer review")).toBeVisible()
+
+    await student2Page.getByText("Good job!").waitFor()
 
     // Teacher answers the exercise
     await teacherPage.goto(
@@ -84,7 +83,8 @@ test("Automatic reject and reset submission", async () => {
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("button", { name: "Submit" })
       .click()
-    await expect(teacherPage.getByText("Start peer review")).toBeVisible()
+
+    await teacherPage.getByText("Good job!").waitFor()
   })
 
   await test.step("Students and teacher can peer review each other", async () => {
@@ -92,14 +92,20 @@ test("Automatic reject and reset submission", async () => {
 
     // Student1 peer reviews Student2 and Teachers answers
     await student1Page.getByRole("button", { name: "Start peer review" }).click()
-    await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
+    await student1Page
+      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
+      .getByRole("radio", { name: "Strongly agree" })
+      .click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("button", { name: "Submit" })
       .click()
     await expect(student1Page.getByText("Operation successful!")).toBeVisible()
 
-    await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
+    await student1Page
+      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
+      .getByRole("radio", { name: "Strongly agree" })
+      .click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("button", { name: "Submit" })
@@ -155,8 +161,11 @@ test("Automatic reject and reset submission", async () => {
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("button", { name: "Submit" })
       .click()
-    await expect(student1Page.getByText("Start peer review")).toBeVisible()
-
+    await expect(
+      student1Page
+        .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
+        .getByText("Start peer review"),
+    ).toBeVisible()
     // Student2 still has reviews preserved
     await student2Page.goto(
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",

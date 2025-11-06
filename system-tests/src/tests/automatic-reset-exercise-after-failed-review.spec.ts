@@ -34,7 +34,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student1Page)
-    student1Page
+    await student1Page
       .getByRole("region", {
         name: "Exercise: Simple multiple choice with automatic reset on zero score",
       })
@@ -53,7 +53,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student2Page)
-    student2Page
+    await student2Page
       .getByRole("region", {
         name: "Exercise: Simple multiple choice with automatic reset on zero score",
       })

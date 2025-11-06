@@ -1,7 +1,7 @@
 import { atom, useAtomValue, useSetAtom } from "jotai"
 import { atomFamily } from "jotai/utils"
 import * as React from "react"
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 
 export type ParticipantStatus = "waiting" | "active" | "demoted" | "left" | "done" | "canceled"
 
@@ -270,9 +270,13 @@ export function useParticipantView(qid: string, id: string | undefined): Partici
 export function useThrottledParticipant(qid: string, opts?: { autoJoin?: boolean; id?: string }) {
   const queue = useConcurrencyThrottle(qid)
   const [id, setId] = React.useState<string | undefined>(opts?.id)
+  const prevQidRef = useRef<string | undefined>(undefined)
 
   useEffect(() => {
-    setId(undefined)
+    if (prevQidRef.current !== undefined && prevQidRef.current !== qid) {
+      setId(undefined)
+    }
+    prevQidRef.current = qid
   }, [qid])
 
   useEffect(() => {

@@ -1,13 +1,13 @@
 use crate::oauth_shared_types::Digest;
 use crate::prelude::*;
 use chrono::{DateTime, TimeZone, Utc};
-use sqlx::FromRow;
+use sqlx::{FromRow, PgConnection};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct OAuthDpopProof {
     pub jti_hash: Digest,           // SHA-256(jti)
-    pub seen_at: DateTime<Utc>,     // when first observed
+    pub seen_at: DateTime<Utc>,     // when first observed (DB default now())
     pub client_id: Option<Uuid>,    // optional audit fields
     pub jkt: Option<String>,        // RFC 7638 thumbprint
     pub htm: Option<String>,        // HTTP method
@@ -37,12 +37,10 @@ impl OAuthDpopProof {
         let rows = sqlx::query!(
             r#"
             INSERT INTO oauth_dpop_proofs (jti_hash, client_id, jkt, htm, htu, iat)
-            VALUES (
-            $1, $2, $3, $4, $5, $6
-            )
+            VALUES ($1, $2, $3, $4, $5, $6)
             ON CONFLICT DO NOTHING
             "#,
-            jti_hash.as_slice(),
+            jti_hash.as_bytes(),
             client_id,
             jkt,
             htm,
@@ -57,7 +55,7 @@ impl OAuthDpopProof {
         Ok(rows == 1)
     }
 
-    /// fetch a stored proof row (for audits/debug).
+    /// Fetch a stored proof row (for audits/debug).
     pub async fn find_by_jti_hash(
         conn: &mut PgConnection,
         jti_hash: Digest,
@@ -67,17 +65,17 @@ impl OAuthDpopProof {
             OAuthDpopProof,
             r#"
             SELECT
-              jti_hash        AS "jti_hash: _",
-              seen_at         AS "seen_at: _",
-              client_id       AS "client_id?",
-              jkt             AS "jkt?",
-              htm             AS "htm?",
-              htu             AS "htu?",
-              iat             AS "iat?"
+              jti_hash  AS "jti_hash: _",
+              seen_at   AS "seen_at: _",
+              client_id AS "client_id?",
+              jkt       AS "jkt?",
+              htm       AS "htm?",
+              htu       AS "htu?",
+              iat       AS "iat?"
             FROM oauth_dpop_proofs
             WHERE jti_hash = $1
             "#,
-            jti_hash.as_slice(),
+            jti_hash.as_bytes(),
         )
         .fetch_optional(&mut *tx)
         .await?;
@@ -91,7 +89,7 @@ impl OAuthDpopProof {
         if keep_seconds < 0 {
             return Err(ModelError::new(
                 ModelErrorType::Generic,
-                "keep_seconds must be >= 0".to_string(),
+                "keep_seconds must be >= 0",
                 None,
             ));
         }

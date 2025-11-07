@@ -36,31 +36,16 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - name: Check out this repo
+        uses: actions/checkout@v5
 
-      - name: Add GitHub to known_hosts
-        run: |
-          install -d -m 700 ~/.ssh
-          # Add ALL key types GitHub may present
-          ssh-keyscan -H -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-      - name: Set up deploy key
-        run: |
-          echo "$DB_DOCS_DEPLOY_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-        env:
-          DB_DOCS_DEPLOY_KEY: ${{ secrets.DB_DOCS_DEPLOY_KEY }}
-
-      - name: Check out docs repo
-        run: git clone git@github.com:rage/secret-project-331-db-docs.git db-docs
-        env:
-          GIT_SSH_COMMAND: >-
-            ssh -i ~/.ssh/id_ed25519
-                -o IdentitiesOnly=yes
-                -o StrictHostKeyChecking=yes
-                -o UserKnownHostsFile=~/.ssh/known_hosts
+      - name: Check out docs repo (with an SSH deploy key)
+        uses: actions/checkout@v5
+        with:
+          repository: rage/secret-project-331-db-docs
+          path: db-docs
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DB_DOCS_DEPLOY_KEY }}
 
       - name: Setup database
         run: sqlx database setup
@@ -77,23 +62,23 @@ jobs:
       - name: Remove all column comments
         run: psql 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' -c 'DELETE FROM pg_description WHERE objsubid > 0;'
 
-      - name: Generate uml with planter
+      - name: Generate UML with planter
         run: planter 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' -o db-docs/schema.uml
 
-      - name: Patch uml to work with wide comments
+      - name: Patch UML for wide comments
         run: sed -i 's/skinparam linetype ortho/skinparam linetype ortho\nskinparam wrapWidth 300/' db-docs/schema.uml
 
-      - name: Generate plantuml svg
+      - name: Generate PlantUML SVG
         run: plantuml -tsvg schema.uml
         working-directory: ./db-docs
 
-      - name: Generate html with Pandoc
+      - name: Generate HTML with Pandoc
         run: |
           for f in *.md; do
-            # remove .md extension
             f2=${f%.md}
-            # convert to html
-            pandoc -f markdown -t html5 "$f" -o "$f2.html" --lua-filter=../misc/db-docs/pandoc-links-md-extension-to-html-extension.lua --template ../misc/db-docs/template.html
+            pandoc -f markdown -t html5 "$f" -o "$f2.html" \
+              --lua-filter=../misc/db-docs/pandoc-links-md-extension-to-html-extension.lua \
+              --template ../misc/db-docs/template.html
             cp README.html index.html
           done
         working-directory: ./db-docs
@@ -109,9 +94,3 @@ jobs:
       - name: Push changes
         run: git push
         working-directory: ./db-docs
-        env:
-          GIT_SSH_COMMAND: >-
-            ssh -i ~/.ssh/id_ed25519
-                -o IdentitiesOnly=yes
-                -o StrictHostKeyChecking=yes
-                -o UserKnownHostsFile=~/.ssh/known_hosts

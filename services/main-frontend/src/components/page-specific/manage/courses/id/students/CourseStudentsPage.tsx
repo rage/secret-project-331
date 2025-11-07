@@ -12,8 +12,8 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 type Props = { courseId?: string; initialTab?: string }
 
 const tableSection = css({
-  paddingLeft: "5vw",
-  paddingRight: "5vw",
+  paddingLeft: "4vw",
+  paddingRight: "4vw",
 })
 
 const DOWN_SYMBOL = "▼"

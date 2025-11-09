@@ -32,6 +32,10 @@ reviews:
         - Use `respondToConfirmDialog` for confirm dialogs (Yes/No)
         - Use `fillPromptDialog` for prompt dialogs with input fields
 
+        NEVER select elements by auto-generated CSS classes (e.g., `.locator(".css-xknul2-TopBar")`). Instead, use semantic selectors like data-testid attributes, role selectors,
+        text content, or accessible names. Use `page.getByTestId()`, `page.getByRole()`, `page.getByText()`,
+        or `page.getByLabel()` instead.
+
     - path: "**/*.tsx"
       instructions: >
         Make sure to use the `useTranslation` hook for all text that is visible to the user.

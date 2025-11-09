@@ -82,11 +82,13 @@ test("Reject and reset submission", async () => {
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
+    await student1Page.getByText("Operation successful!").waitFor()
     await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
+    await student1Page.getByText("Operation successful!").waitFor()
     await expect(
       student1Page.getByRole("heading", { name: "Waiting for peer reviews" }),
     ).toBeVisible()
@@ -98,11 +100,13 @@ test("Reject and reset submission", async () => {
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
+    await student2Page.getByText("Operation successful!").waitFor()
     await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
     await student2Page
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
+    await student2Page.getByText("Operation successful!").waitFor()
     await expect(student2Page.getByText("Your answer has been reviewed")).toBeVisible()
 
     // Teacher peer reviews Student1 and Student2 answers
@@ -112,11 +116,13 @@ test("Reject and reset submission", async () => {
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
+    await teacherPage.getByText("Operation successful!").waitFor()
     await teacherPage.getByRole("radio", { name: "Strongly disagree" }).click()
     await teacherPage
       .getByLabel("Exercise:Simple multiple choice")
       .getByRole("button", { name: "Submit" })
       .click()
+    await teacherPage.getByText("Operation successful!").waitFor()
     await expect(teacherPage.getByText("Your answer has been reviewed")).toBeVisible()
   })
 
@@ -125,7 +131,6 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/manage/courses/5158f2c6-98d9-4be9-b372-528f2c736dd7/exercises",
     )
     await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
-    await teacherPage.locator(".css-xknul2-TopBar").first().click()
     await teacherPage.getByRole("button", { name: "Reject and reset" }).first().click()
     await expect(teacherPage.getByText("Operation successful!")).toBeVisible()
   })

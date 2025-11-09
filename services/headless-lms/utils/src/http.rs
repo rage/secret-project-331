@@ -13,7 +13,7 @@ pub static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
 
     reqwest::Client::builder()
         .use_rustls_tls()
-        .https_only(!http_test_mode)
+        .https_only(false)
         .build()
         .expect("Failed to build Client")
 });

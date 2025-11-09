@@ -1,32 +1,32 @@
 use crate::{
-    domain::authorization::{self, LoginToken},
+    domain::authorization::{self, get_or_create_user_from_tmc_mooc_fi_response},
     prelude::*,
 };
 use actix_web::{FromRequest, http::header};
 use futures_util::{FutureExt, future::LocalBoxFuture};
-use headless_lms_utils::cache::Cache;
+use headless_lms_utils::{cache::Cache, tmc::TmcClient};
 use models::users::User;
-use oauth2::TokenResponse;
+use secrecy::{ExposeSecret, SecretString};
 use std::ops::{Deref, DerefMut};
 use std::time::Duration;
 
 #[derive(Debug, Clone)]
-pub struct AuthToken(User);
+pub struct UserFromTMCAccessToken(User);
 
-impl Deref for AuthToken {
+impl Deref for UserFromTMCAccessToken {
     type Target = User;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for AuthToken {
+impl DerefMut for UserFromTMCAccessToken {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl FromRequest for AuthToken {
+impl FromRequest for UserFromTMCAccessToken {
     type Error = ControllerError;
     type Future = LocalBoxFuture<'static, Result<Self, ControllerError>>;
 
@@ -48,7 +48,13 @@ impl FromRequest for AuthToken {
             .headers()
             .get(header::AUTHORIZATION)
             .map(|hv| String::from_utf8_lossy(hv.as_bytes()))
-            .and_then(|h| h.strip_prefix("Bearer ").map(str::to_string));
+            .and_then(|h| h.strip_prefix("Bearer ").map(str::to_string))
+            .map(|o| SecretString::new(o.into()));
+
+        let tmc_client: web::Data<TmcClient> = req
+            .app_data::<web::Data<TmcClient>>()
+            .expect("Missing TMC client")
+            .clone();
         async move {
             let Some(token) = auth_header else {
                 return Err(ControllerError::new(
@@ -74,14 +80,25 @@ impl FromRequest for AuthToken {
                 match load_user(&cache, &token).await {
                     Some(user) => user,
                     None => {
-                        let token = LoginToken::new(
-                            oauth2::AccessToken::new(token),
-                            oauth2::basic::BasicTokenType::Bearer,
-                            oauth2::EmptyExtraTokenFields {},
+                        let tmc_user = tmc_client
+                            .get_user_from_tmc_mooc_fi_by_tmc_access_token(&token.clone())
+                            .await?;
+
+                        debug!(
+                            "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
+                            tmc_user.id,
+                            tmc_user
+                                .courses_mooc_fi_user_id
+                                .map(|uuid| uuid.to_string())
+                                .unwrap_or_else(|| "None (will generate new UUID)".to_string())
                         );
                         let user =
-                            authorization::get_user_from_moocfi_by_login_token(&token, &mut conn)
+                            get_or_create_user_from_tmc_mooc_fi_response(&mut conn, tmc_user)
                                 .await?;
+                        info!(
+                            "Successfully got user details from mooc.fi for user {}",
+                            user.id
+                        );
                         cache_user(&cache, &token, &user).await;
                         user
                     }
@@ -103,16 +120,22 @@ struct TmcUser {
     administrator: bool,
 }
 
-pub async fn cache_user(cache: &Cache, token: &LoginToken, user: &User) {
+fn token_to_cache_key(token: &SecretString) -> String {
+    let mut hasher = blake3::Hasher::new();
+    hasher.update(token.expose_secret().as_bytes());
+    format!("user:{}", hasher.finalize().to_hex())
+}
+
+pub async fn cache_user(cache: &Cache, token: &SecretString, user: &User) {
     cache
         .cache_json(
-            token.access_token().secret(),
+            token_to_cache_key(token),
             user,
             Duration::from_secs(60 * 60),
         )
         .await;
 }
 
-pub async fn load_user(cache: &Cache, token: &str) -> Option<User> {
-    cache.get_json(token).await
+pub async fn load_user(cache: &Cache, token: &SecretString) -> Option<User> {
+    cache.get_json(token_to_cache_key(token)).await
 }

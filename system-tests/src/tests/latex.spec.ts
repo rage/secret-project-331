@@ -16,7 +16,10 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
-  await page.getByRole("button", { name: "Create", exact: true }).first().click()
+  await page
+    .getByRole("region", { name: "Courses" })
+    .getByRole("button", { name: "Create", exact: true })
+    .click()
 
   await page.click('input[type="radio"]')
   // Fill input[type="text"]

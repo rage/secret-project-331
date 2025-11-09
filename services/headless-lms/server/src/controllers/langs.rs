@@ -3,7 +3,7 @@ Handlers for HTTP requests to `/api/v0/langs`. Contains endpoints for the use of
 
 */
 use crate::controllers::helpers::file_uploading;
-use crate::domain::langs::token::AuthToken;
+use crate::domain::langs::token::UserFromTMCAccessToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_multipart::form::MultipartForm;
@@ -25,7 +25,7 @@ use std::collections::HashSet;
 #[instrument(skip(pool))]
 async fn get_courses(
     pool: web::Data<PgPool>,
-    user: AuthToken,
+    user: UserFromTMCAccessToken,
 ) -> ControllerResult<web::Json<Vec<api::Course>>> {
     let mut conn = pool.acquire().await?;
 
@@ -57,7 +57,7 @@ async fn get_courses(
 #[instrument(skip(pool))]
 async fn get_course(
     pool: web::Data<PgPool>,
-    user: AuthToken,
+    user: UserFromTMCAccessToken,
     course: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<api::Course>> {
     let mut conn = pool.acquire().await?;
@@ -87,7 +87,7 @@ async fn get_course(
 #[instrument(skip(pool))]
 async fn get_course_exercises(
     pool: web::Data<PgPool>,
-    user: AuthToken,
+    user: UserFromTMCAccessToken,
     course: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<api::ExerciseSlide>>> {
     let mut conn = pool.acquire().await?;
@@ -165,7 +165,7 @@ async fn get_course_exercises(
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
-    user: AuthToken,
+    user: UserFromTMCAccessToken,
     exercise_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<api::ExerciseSlide>> {
     let mut conn = pool.acquire().await?;
@@ -234,7 +234,7 @@ async fn submit_exercise(
     jwt_key: web::Data<JwtKey>,
     exercise_id: web::Path<Uuid>,
     submission: MultipartForm<SubmissionForm>,
-    user: AuthToken,
+    user: UserFromTMCAccessToken,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionResult>> {
     let mut conn = pool.acquire().await?;
@@ -325,7 +325,7 @@ async fn submit_exercise(
 async fn get_submission_grading(
     pool: web::Data<PgPool>,
     submission_id: web::Path<Uuid>,
-    user: AuthToken,
+    user: UserFromTMCAccessToken,
 ) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionStatus>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(

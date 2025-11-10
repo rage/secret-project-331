@@ -14,6 +14,29 @@ use uuid::Uuid;
 
 use super::super::seed_users::SeedUsersResult;
 
+async fn get_or_create_default_registrar(conn: &mut sqlx::PgConnection) -> anyhow::Result<Uuid> {
+    if let Some(id) = sqlx::query_scalar::<_, Uuid>(
+        r#"SELECT id FROM study_registry_registrars ORDER BY created_at LIMIT 1"#,
+    )
+    .fetch_optional(&mut *conn)
+    .await?
+    {
+        return Ok(id);
+    }
+
+    let id = sqlx::query_scalar::<_, Uuid>(
+        r#"
+        INSERT INTO study_registry_registrars (id, created_at, updated_at, name, secret_key)
+        VALUES (gen_random_uuid(), now(), now(), 'Default Registrar', encode(gen_random_bytes(32), 'hex'))
+        RETURNING id
+        "#,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    Ok(id)
+}
+
 pub async fn seed_graded_course(
     course_id: Uuid,
     course_name: &str,
@@ -42,32 +65,20 @@ pub async fn seed_graded_course(
     info!("Inserting sample course {}", course_name);
 
     // Build the graded module
-    let mut module = ModuleBuilder::new()
-        .order(0)
-        .register_to_open_university(false)
-        .automatic_completion(Some(1), Some(1), false);
-
-    // optional default registrar
-    let registrar_id_opt: Option<Uuid> =
-        sqlx::query_scalar!(r#"SELECT id FROM study_registry_registrars LIMIT 1"#)
-            .fetch_optional(conn.as_mut())
-            .await?;
+    let registrar_id = get_or_create_default_registrar(&mut conn).await?;
 
     let mut module = ModuleBuilder::new()
         .order(0)
         .register_to_open_university(false)
-        .automatic_completion(Some(1), Some(1), false);
-
-    if let Some(reg_id) = registrar_id_opt {
-        module = module.default_registrar(reg_id);
-    }
+        .automatic_completion(Some(1), Some(1), false)
+        .default_registrar(registrar_id);
 
     for (i, uid) in example_normal_user_ids.iter().enumerate() {
         module = module.completion(
             CompletionBuilder::new(*uid)
                 .grade(5)
                 .passed(true)
-                .completion_registered(format!("SN-{:03}", i)),
+                .completion_registered(format!("52-{:03}", i)),
         );
     }
 

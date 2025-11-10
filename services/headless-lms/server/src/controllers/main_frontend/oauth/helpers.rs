@@ -22,7 +22,7 @@ pub fn generate_access_token() -> String {
     rand::distr::Alphanumeric.sample_string(&mut rng(), LENGTH)
 }
 
-// Extract (n, e) in base64url and a stable kid
+/// Extract (n, e) in base64url and a stable kid
 pub fn rsa_n_e_and_kid_from_pem(public_pem: &str) -> anyhow::Result<(String, String, String)> {
     // 1) Try PKCS#1: -----BEGIN RSA PUBLIC KEY-----
     // 2) Fallback to PKCS#8/SPKI: -----BEGIN PUBLIC KEY-----

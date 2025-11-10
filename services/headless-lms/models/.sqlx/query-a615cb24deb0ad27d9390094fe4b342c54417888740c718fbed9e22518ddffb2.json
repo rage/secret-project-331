@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n              jti_hash        AS \"jti_hash: _\",\n              seen_at         AS \"seen_at: _\",\n              client_id       AS \"client_id?\",\n              jkt             AS \"jkt?\",\n              htm             AS \"htm?\",\n              htu             AS \"htu?\",\n              iat             AS \"iat?\"\n            FROM oauth_dpop_proofs\n            WHERE jti_hash = $1\n            ",
+  "query": "\n            SELECT\n              jti_hash  AS \"jti_hash: _\",\n              seen_at   AS \"seen_at: _\",\n              client_id AS \"client_id?\",\n              jkt       AS \"jkt?\",\n              htm       AS \"htm?\",\n              htu       AS \"htu?\",\n              iat       AS \"iat?\"\n            FROM oauth_dpop_proofs\n            WHERE jti_hash = $1\n            ",
   "describe": {
     "columns": [
       {
@@ -54,5 +54,5 @@
       true
     ]
   },
-  "hash": "f3127843130850147c6261498c2bee3264dc8a2960b08bf10d3c169f347246fb"
+  "hash": "a615cb24deb0ad27d9390094fe4b342c54417888740c718fbed9e22518ddffb2"
 }

@@ -5,6 +5,7 @@ use crate::prelude::*;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{DateTime, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
+use models::library::oauth::pkce::PkceMethod;
 use models::oauth_shared_types::Digest as TokenDigest;
 use rand::distr::SampleString;
 use rand::rng;
@@ -215,4 +216,30 @@ pub fn ok_json_no_cache<T: Serialize>(value: T) -> HttpResponse {
     resp.insert_header(("Cache-Control", "no-store"));
     resp.insert_header(("Pragma", "no-cache"));
     resp.json(value)
+}
+
+pub fn parse_pkce_method(s: &str) -> Option<PkceMethod> {
+    match s {
+        "S256" => Some(PkceMethod::S256),
+        "plain" => Some(PkceMethod::Plain),
+        _ => None,
+    }
+}
+
+// RFC 7636: code_challenge must be base64url (no padding), typically 43..128 chars if S256.
+// We keep this conservative quick check; deeper checks happen at /token with the verifier.
+pub fn looks_like_b64url_no_padding(s: &str) -> bool {
+    !s.is_empty()
+        && s.len() <= 256
+        && !s.contains('=')
+        && s.bytes().all(
+            |b| {
+                (b'A'..=b'Z').contains(&b)
+                    || (b'a'..=b'z').contains(&b)
+                    || (b'0'..=b'9').contains(&b)
+                    || b == b'-'
+                    || b == b'_'
+                    || b == b'.'
+            }, // allow dot for forward-compat
+        )
 }

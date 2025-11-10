@@ -668,3 +668,65 @@ impl From<dpop_verifier::error::DpopError> for ControllerError {
         )
     }
 }
+
+#[derive(Debug, thiserror::Error)]
+pub enum PkceFlowError {
+    /// Request is malformed or missing a required PKCE parameter
+    #[error("{0}")]
+    InvalidRequest(&'static str),
+
+    /// PKCE check failed (e.g., code_verifier doesn't match stored challenge)
+    #[error("{0}")]
+    InvalidGrant(&'static str),
+
+    /// Server-side (DB/state) problem
+    #[error("{0}")]
+    ServerError(&'static str),
+}
+
+impl From<PkceFlowError> for ControllerError {
+    fn from(err: PkceFlowError) -> Self {
+        let data = match &err {
+            PkceFlowError::InvalidRequest(msg) => OAuthErrorData {
+                error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                error_description: (*msg).into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+            PkceFlowError::InvalidGrant(msg) => OAuthErrorData {
+                error: OAuthErrorCode::InvalidGrant.as_str().into(),
+                error_description: (*msg).into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+            PkceFlowError::ServerError(msg) => OAuthErrorData {
+                error: OAuthErrorCode::ServerError.as_str().into(),
+                error_description: (*msg).into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+        };
+
+        ControllerError::new(
+            ControllerErrorType::OAuthError(Box::new(data)),
+            err.to_string(),
+            Some(anyhow::anyhow!(err)),
+        )
+    }
+}
+
+impl From<headless_lms_models::library::oauth::pkce::PkceError> for PkceFlowError {
+    fn from(_: headless_lms_models::library::oauth::pkce::PkceError) -> Self {
+        // Both BadLength and BadCharset are "invalid_request" per OAuth spec
+        PkceFlowError::InvalidRequest("invalid code_verifier")
+    }
+}
+
+impl From<headless_lms_models::library::oauth::pkce::PkceError> for ControllerError {
+    fn from(err: headless_lms_models::library::oauth::pkce::PkceError) -> Self {
+        PkceFlowError::from(err).into()
+    }
+}

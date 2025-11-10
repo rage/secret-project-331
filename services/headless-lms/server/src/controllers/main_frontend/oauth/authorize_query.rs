@@ -12,6 +12,8 @@ pub struct AuthorizeQuery {
     pub scope: Option<String>,
     pub state: Option<String>,
     pub nonce: Option<String>,
+    pub code_challenge: Option<String>,
+    pub code_challenge_method: Option<String>,
 
     // OAuth2.0 spec requires that auth does not fail when there are unknown parameters present,
     // see RFC 6749 3.1
@@ -27,6 +29,8 @@ pub struct AuthorizeParams {
     pub scope: String,
     pub state: Option<String>,
     pub nonce: Option<String>,
+    pub code_challenge: Option<String>,
+    pub code_challenge_method: Option<String>,
 }
 
 // We need to make sure we don't return errors directly, instead we need to return
@@ -56,7 +60,7 @@ impl OAuthValidate for AuthorizeQuery {
                     nonce: None,
                 })),
                 "Missing required OAuth parameters",
-                None::<anyhow::Error>,
+                None,
             ));
         }
 
@@ -97,6 +101,8 @@ impl OAuthValidate for AuthorizeQuery {
             scope: scope.to_string(),
             state: self.state.clone(),
             nonce: self.nonce.clone(),
+            code_challenge: self.code_challenge.clone(),
+            code_challenge_method: self.code_challenge_method.clone(),
         })
     }
 }
@@ -135,6 +141,8 @@ mod tests {
             scope: None,
             state: Some("xyz".into()),
             nonce: None,
+            code_challenge: None,
+            code_challenge_method: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -154,6 +162,8 @@ mod tests {
             scope: Some("openid".into()),
             state: None,
             nonce: None,
+            code_challenge: None,
+            code_challenge_method: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -174,6 +184,8 @@ mod tests {
             scope: Some("openid profile".into()),
             state: Some("s".into()),
             nonce: None,
+            code_challenge: None,
+            code_challenge_method: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -205,6 +217,8 @@ mod tests {
             scope: Some("openid".into()),
             state: None,
             nonce: None,
+            code_challenge: None,
+            code_challenge_method: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -213,5 +227,27 @@ mod tests {
             OAuthErrorCode::InvalidRequest,
             "response_type is required",
         );
+    }
+
+    // -------------------------
+    // New tests for PKCE fields
+    // -------------------------
+
+    #[test]
+    fn authorize_pkce_fields_passthrough() {
+        let q = AuthorizeQuery {
+            response_type: Some("code".into()),
+            client_id: Some("cid".into()),
+            redirect_uri: Some("http://localhost".into()),
+            scope: Some("openid profile".into()),
+            state: Some("s".into()),
+            nonce: Some("n".into()),
+            code_challenge: Some("abcDEF123-_".into()),
+            code_challenge_method: Some("S256".into()),
+            _extra: Default::default(),
+        };
+        let p = q.validate().expect("validate should pass");
+        assert_eq!(p.code_challenge.as_deref(), Some("abcDEF123-_"));
+        assert_eq!(p.code_challenge_method.as_deref(), Some("S256"));
     }
 }

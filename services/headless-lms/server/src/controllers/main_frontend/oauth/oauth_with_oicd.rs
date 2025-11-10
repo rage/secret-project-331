@@ -6,14 +6,15 @@ use super::consent_response::ConsentResponse;
 use super::dpop::verify_dpop_from_actix;
 use super::helpers::{
     build_authorize_qs, build_consent_redirect, build_login_redirect, generate_access_token,
-    generate_id_token, oauth_invalid_client, oauth_invalid_grant, oauth_invalid_request,
-    ok_json_no_cache, redirect_with_code, rsa_n_e_and_kid_from_pem, scope_has_openid,
-    token_digest_sha256,
+    generate_id_token, looks_like_b64url_no_padding, oauth_invalid_client, oauth_invalid_grant,
+    oauth_invalid_request, ok_json_no_cache, parse_pkce_method, redirect_with_code,
+    rsa_n_e_and_kid_from_pem, scope_has_openid, token_digest_sha256,
 };
 use super::jwks::{Jwk, Jwks};
 use super::token_query::{GrantType, TokenParams};
 use super::token_response::TokenResponse;
 use super::userinfo_response::UserInfoResponse;
+use crate::domain::error::PkceFlowError;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
 use chrono::{Duration, Utc};
@@ -23,33 +24,37 @@ use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::*;
 use itertools::Itertools;
 use models::{
-    oauth_access_token::NewAccessTokenParams, oauth_access_token::OAuthAccessToken,
-    oauth_auth_code::OAuthAuthCode, oauth_client::OAuthClient,
-    oauth_refresh_tokens::NewRefreshTokenParams, oauth_refresh_tokens::OAuthRefreshTokens,
-    oauth_user_client_scopes::AuthorizedClientInfo,
-    oauth_user_client_scopes::OAuthUserClientScopes, user_details,
+    library::oauth::pkce::{CodeChallenge, CodeVerifier, PkceMethod},
+    oauth_access_token::{NewAccessTokenParams, OAuthAccessToken, TokenType},
+    oauth_auth_code::{NewAuthCodeParams, OAuthAuthCode},
+    oauth_client::OAuthClient,
+    oauth_refresh_tokens::{NewRefreshTokenParams, OAuthRefreshTokens},
+    oauth_user_client_scopes::{AuthorizedClientInfo, OAuthUserClientScopes},
+    user_details,
 };
-use serde_json::json;
 use sqlx::PgPool;
 use std::collections::HashSet;
 use url::{Url, form_urlencoded};
 
-/// Handles the `/authorize` endpoint for OAuth 2.0 / OpenID Connect.
+/// Handles the `/authorize` endpoint for OAuth 2.0 and OpenID Connect with PKCE and DPoP support.
 ///
 /// This endpoint:
-/// - Validates the incoming authorization request.
-/// - Checks the client, redirect URI, and requested scopes.
-/// - If the user is logged in and has already granted the requested scopes, issues an authorization code.
+/// - Validates the incoming authorization request parameters.
+/// - Verifies the client, redirect URI, and requested scopes.
+/// - Enforces PKCE requirements (`code_challenge` and `code_challenge_method`) for public clients or clients configured with `require_pkce = true`.
+/// - Optionally stores a DPoP key thumbprint (`dpop_jkt`) for sender-constrained tokens.
+/// - If the user is logged in and has already granted the requested scopes, issues an authorization code and redirects back to the client.
 /// - If the user is logged in but missing consent for some scopes, redirects them to the consent screen.
 /// - If the user is not logged in, redirects them to the login page.
 ///
-/// Follows [RFC 6749 Section 3.1](https://datatracker.ietf.org/doc/html/rfc6749#section-3.1) and
-/// [OpenID Connect Core 1.0 Section 3](https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint).
+/// Follows:
+/// - [RFC 6749 Section 3.1](https://datatracker.ietf.org/doc/html/rfc6749#section-3.1) — Authorization Endpoint
+/// - [RFC 7636 (PKCE)](https://datatracker.ietf.org/doc/html/rfc7636) — Proof Key for Code Exchange
+/// - [OpenID Connect Core 1.0 Section 3](https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint)
 ///
 /// # Example
 /// ```http
-/// GET /api/v0/main-frontend/oauth/authorize?response_type=code&client_id=test-client-id&redirect_uri=http://localhost&scope=openid%20profile%20email&state=random123&nonce=secure_nonce_abc HTTP/1.1
-///
+/// GET /api/v0/main-frontend/oauth/authorize?response_type=code&client_id=test-client-id&redirect_uri=http://localhost&scope=openid%20profile%20email&state=random123&nonce=secure_nonce_abc&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256 HTTP/1.1
 /// ```
 ///
 /// Successful redirect:
@@ -57,7 +62,7 @@ use url::{Url, form_urlencoded};
 /// HTTP/1.1 302 Found
 /// Location: http://localhost?code=SplxlOBeZQQYbYS6WxSbIA&state=random123
 /// ```
-async fn authorize(
+pub async fn authorize(
     pool: web::Data<PgPool>,
     query: AuthorizeParams,
     user: Option<AuthUser>,
@@ -72,6 +77,55 @@ async fn authorize(
     if !client.redirect_uris.contains(&query.redirect_uri) {
         return Err(oauth_invalid_request(
             "redirect_uri does not match client",
+            Some(&query.redirect_uri),
+            query.state.as_deref(),
+        ));
+    }
+
+    // PKCE checks at authorize-time (store for later verification at /token)
+    let pkce_required = client.requires_pkce();
+    let (cc_opt, ccm_opt) = (
+        query.code_challenge.as_deref(),
+        query.code_challenge_method.as_deref(),
+    );
+    let parsed_pkce_method: Option<PkceMethod> = match (cc_opt, ccm_opt) {
+        (Some(ch), Some(m)) => {
+            if !looks_like_b64url_no_padding(ch) {
+                return Err(oauth_invalid_request(
+                    "invalid code_challenge",
+                    Some(&query.redirect_uri),
+                    query.state.as_deref(),
+                ));
+            }
+            let method = parse_pkce_method(m).ok_or_else(|| {
+                oauth_invalid_request(
+                    "unsupported code_challenge_method",
+                    Some(&query.redirect_uri),
+                    query.state.as_deref(),
+                )
+            })?;
+            if !client.allows_pkce_method(method) {
+                return Err(oauth_invalid_request(
+                    "code_challenge_method not allowed for this client",
+                    Some(&query.redirect_uri),
+                    query.state.as_deref(),
+                ));
+            }
+            Some(method)
+        }
+        (None, None) => None,
+        _ => {
+            return Err(oauth_invalid_request(
+                "code_challenge and code_challenge_method must be used together",
+                Some(&query.redirect_uri),
+                query.state.as_deref(),
+            ));
+        }
+    };
+
+    if pkce_required && parsed_pkce_method.is_none() {
+        return Err(oauth_invalid_request(
+            "PKCE required for this client",
             Some(&query.redirect_uri),
             query.state.as_deref(),
         ));
@@ -93,11 +147,11 @@ async fn authorize(
                 );
                 build_consent_redirect(&query, &return_to)
             } else {
-                let code = generate_access_token();
+                let code = generate_access_token(); // adjust path
                 let expires_at = Utc::now() + Duration::minutes(10);
-                let code_digest = token_digest_sha256(&code);
+                let code_digest = token_digest_sha256(&code); // adjust path
 
-                let new_auth_code_params = models::oauth_auth_code::NewAuthCodeParams {
+                let new_auth_code_params = NewAuthCodeParams {
                     digest: &code_digest,
                     user_id: user.id,
                     client_id: client.id,
@@ -108,14 +162,17 @@ async fn authorize(
                         .map(|s| s.to_string())
                         .collect_vec(),
                     nonce: query.nonce.as_deref(),
+                    code_challenge: query.code_challenge.as_deref(),
+                    code_challenge_method: parsed_pkce_method,
+                    dpop_jkt: None,
                     expires_at,
                     metadata: serde_json::Map::new(),
                 };
+
                 OAuthAuthCode::insert(&mut conn, new_auth_code_params).await?;
                 redirect_with_code(&query.redirect_uri, &code, query.state.as_deref())
             }
         }
-
         None => build_login_redirect(&query),
     };
 
@@ -125,7 +182,6 @@ async fn authorize(
             .finish(),
     )
 }
-
 /// Handles `/consent` approval after the user agrees to grant requested scopes.
 ///
 /// This endpoint:
@@ -248,25 +304,41 @@ async fn deny_consent(
         .finish())
 }
 
-/// Handles the `/token` endpoint for exchanging an authorization code or refresh token.
+/// Handles the `/token` endpoint for exchanging authorization codes or refresh tokens.
 ///
-/// This endpoint:
-/// - Validates the client credentials.
-/// - For `authorization_code` grants:
-///     - Verifies the code and redirect URI.
-///     - Issues an access token, refresh token, and optionally an ID token.
-/// - For `refresh_token` grants:
-///     - Issues a new access token and refresh token.
+/// This endpoint issues and rotates OAuth 2.0 and OpenID Connect tokens with support for
+/// **PKCE**, **DPoP sender-constrained tokens**, and **ID Token issuance**.
 ///
-/// Follows [RFC 6749 Section 3.2](https://datatracker.ietf.org/doc/html/rfc6749#section-3.2)
-/// and [OIDC Core Section 3.1.3](https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint).
+/// ### Authorization Code Grant
+/// - Validates client credentials (`client_id`, `client_secret`) or public client rules.
+/// - Verifies the authorization code, its redirect URI, PKCE binding (`code_verifier`), and expiration.
+/// - Optionally verifies a DPoP proof and binds the issued tokens to the DPoP JWK thumbprint (`dpop_jkt`).
+/// - Issues a new access token, refresh token, and (for OIDC requests) an ID token.
+///
+/// ### Refresh Token Grant
+/// - Validates the refresh token and client binding.
+/// - Verifies DPoP proof when applicable (must match the original `dpop_jkt`).
+/// - Rotates the refresh token (revokes the old one, inserts a new one linked to it).
+/// - Issues a new access token (and ID token if `openid` scope requested).
+///
+/// ### Security Features
+/// - **PKCE (RFC 7636)**: Enforced for public clients and optionally for confidential ones.
+/// - **DPoP (RFC 9449)**: Sender-constrains tokens to a JWK thumbprint.
+/// - **Refresh Token Rotation**: Prevents replay by revoking old RTs on use.
+/// - **OIDC ID Token**: Issued only if `openid` is in the granted scopes.
+///
+/// Follows:
+/// - [RFC 6749 §3.2 — Token Endpoint](https://datatracker.ietf.org/doc/html/rfc6749#section-3.2)
+/// - [RFC 7636 — PKCE](https://datatracker.ietf.org/doc/html/rfc7636)
+/// - [RFC 9449 — DPoP](https://datatracker.ietf.org/doc/html/rfc9449)
+/// - [OIDC Core §3.1.3 — Token Endpoint](https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint)
 ///
 /// # Example
 /// ```http
 /// POST /api/v0/main-frontend/oauth/token HTTP/1.1
 /// Content-Type: application/x-www-form-urlencoded
 ///
-/// grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=http://localhost&client_id=test-client-id&client_secret=test-secret
+/// grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=http://localhost&client_id=test-client-id&client_secret=test-secret&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
 /// ```
 ///
 /// Successful response:
@@ -278,12 +350,12 @@ async fn deny_consent(
 ///   "access_token": "2YotnFZFEjr1zCsicMWpAA",
 ///   "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
 ///   "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-///   "token_type": "Bearer",
+///   "token_type": "DPoP",
 ///   "expires_in": 3600
 /// }
 /// ```
 ///
-/// Error:
+/// Example error:
 /// ```http
 /// HTTP/1.1 401 Unauthorized
 /// Content-Type: application/json
@@ -293,8 +365,14 @@ async fn deny_consent(
 ///   "error_description": "invalid client secret"
 /// }
 /// ```
+///
+/// Example DPoP error:
+/// ```http
+/// HTTP/1.1 401 Unauthorized
+/// WWW-Authenticate: DPoP error="use_dpop_proof", error_description="Missing DPoP header"
+/// ```
 #[instrument(skip(pool, app_conf))]
-async fn token(
+pub async fn token(
     pool: web::Data<PgPool>,
     form: TokenParams,
     req: actix_web::HttpRequest,
@@ -310,161 +388,232 @@ async fn token(
         .await
         .map_err(|_| oauth_invalid_client("invalid client_id"))?;
 
-    if client.client_secret != token_digest_sha256(&form.client_secret) {
-        return Err(oauth_invalid_client("invalid client secret"));
+    if client.is_confidential() {
+        if client.client_secret
+            != Some(token_digest_sha256(&form.client_secret.unwrap_or_default()))
+        {
+            return Err(oauth_invalid_client("invalid client secret"));
+        }
     }
-    if req.headers().get("dpop").is_none() && !client.bearer_allowed {
-        return Err(oauth_invalid_client(
-            "client not allowed to use other than dpop-bound tokens",
-        ));
-    }
+
+    // DPoP vs Bearer selection
+    let dpop_jkt_opt = if let Some(_) = req.headers().get("DPoP") {
+        Some(verify_dpop_from_actix(&mut conn, &req, "POST", None).await?)
+    } else {
+        if !client.bearer_allowed {
+            return Err(oauth_invalid_client(
+                "client not allowed to use other than dpop-bound tokens",
+            ));
+        }
+        None
+    };
+
+    let issued_token_type = if dpop_jkt_opt.is_some() {
+        TokenType::DPoP
+    } else {
+        TokenType::Bearer
+    };
 
     let access_token_plain = generate_access_token();
     let new_refresh_token_plain = generate_access_token();
     let refresh_token_expires_at = Utc::now() + refresh_ttl;
 
-    let (user_id, scope, nonce, expires_at, issue_id_token, token_type) = match &form.grant {
-        GrantType::AuthorizationCode { code, redirect_uri } => {
-            // DPoP at /token? -> bind issued tokens and set type
-            let mut token_type = "Bearer".to_string();
-            let mut jkt_at_issue = String::new();
-            if req.headers().get("DPoP").is_some() {
-                jkt_at_issue = verify_dpop_from_actix(&mut conn, &req, "POST", None).await?;
-                token_type = "DPoP".to_string();
-            }
-
-            // consume code (by digest), verify binding
+    let (user_id, scope_vec, nonce_opt, at_expires_at, issue_id_token) = match &form.grant {
+        GrantType::AuthorizationCode {
+            code,
+            redirect_uri,
+            code_verifier,
+        } => {
             let code_digest = token_digest_sha256(code);
-            let auth_code = OAuthAuthCode::consume(&mut conn, code_digest).await?;
-            if auth_code.client_id != client.id || &auth_code.redirect_uri != redirect_uri {
-                return Err(oauth_invalid_grant(
-                    "invalid authorization code or redirect_uri",
-                ));
-            }
+            let code_row = if let Some(ref_uri) = redirect_uri {
+                OAuthAuthCode::consume_with_redirect(&mut conn, code_digest, ref_uri).await?
+            } else {
+                OAuthAuthCode::consume(&mut conn, code_digest).await?
+            };
 
-            let scope = auth_code.scopes;
-            let expires_at = Utc::now() + access_ttl;
+            // ---------- PKCE (using strong types) ----------
+
+            match (
+                code_row.code_challenge.as_deref(),
+                code_row.code_challenge_method,
+            ) {
+                (Some(stored_chal), Some(method)) => {
+                    if !client.allows_pkce_method(method) {
+                        return Err(PkceFlowError::InvalidRequest(
+                            "pkce method not allowed for this client",
+                        )
+                        .into());
+                    }
+
+                    let verifier_str = code_verifier
+                        .as_deref()
+                        .ok_or_else(|| PkceFlowError::InvalidRequest("code_verifier required"))?;
+
+                    let verifier = CodeVerifier::new(verifier_str)
+                        .map_err(|_| PkceFlowError::InvalidRequest("invalid code_verifier"))?;
+
+                    let challenge = CodeChallenge::from_stored(stored_chal);
+
+                    if !challenge.verify(&verifier, method) {
+                        return Err(PkceFlowError::InvalidGrant("PKCE verification failed").into());
+                    }
+                }
+
+                (None, None) => {
+                    if client.requires_pkce() {
+                        return Err(
+                            PkceFlowError::InvalidRequest("PKCE required for this client").into(),
+                        );
+                    }
+                    // else: PKCE not used for this auth code (allowed)
+                }
+
+                // Anything else is a server-side inconsistency
+                _ => {
+                    return Err(PkceFlowError::ServerError("inconsistent PKCE state").into());
+                }
+            }
+            // ---------- /PKCE ----------
+
+            if code_row.client_id != client.id {
+                return Err(oauth_invalid_grant("invalid authorization code"));
+            }
 
             let at_digest = token_digest_sha256(&access_token_plain);
-            let new_access_token_params = NewAccessTokenParams {
-                digest: &at_digest,
-                user_id: Some(auth_code.user_id),
-                client_id: auth_code.client_id,
-                scopes: &scope,
-                audience: None,
-                dpop_jkt: &jkt_at_issue,
-                metadata: serde_json::Map::new(),
-                expires_at,
-            };
-            OAuthAccessToken::insert(&mut conn, new_access_token_params).await?;
+            OAuthAccessToken::insert(
+                &mut conn,
+                NewAccessTokenParams {
+                    digest: &at_digest,
+                    user_id: Some(code_row.user_id),
+                    client_id: code_row.client_id,
+                    scopes: &code_row.scopes,
+                    audience: None,
+                    token_type: issued_token_type,
+                    dpop_jkt: dpop_jkt_opt.as_deref(),
+                    metadata: serde_json::Map::new(),
+                    expires_at: Utc::now() + access_ttl,
+                },
+            )
+            .await?;
 
-            // revoke previous RTs for this user+client, then insert fresh RT
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
-                auth_code.user_id,
-                auth_code.client_id,
+                code_row.user_id,
+                code_row.client_id,
             )
             .await?;
 
             let rt_digest = token_digest_sha256(&new_refresh_token_plain);
-            let new_refresh_token_params = NewRefreshTokenParams {
-                digest: &rt_digest,
-                user_id: auth_code.user_id,
-                client_id: auth_code.client_id,
-                scopes: &scope,
-                audience: None,
-                metadata: serde_json::Map::new(),
-                dpop_jkt: &jkt_at_issue,
-                expires_at: refresh_token_expires_at,
-                rotated_from: None,
-            };
-            OAuthRefreshTokens::insert(&mut conn, new_refresh_token_params).await?;
+            OAuthRefreshTokens::insert(
+                &mut conn,
+                NewRefreshTokenParams {
+                    digest: &rt_digest,
+                    user_id: code_row.user_id,
+                    client_id: code_row.client_id,
+                    scopes: &code_row.scopes,
+                    audience: None,
+                    expires_at: refresh_token_expires_at,
+                    rotated_from: None,
+                    metadata: serde_json::Map::new(),
+                    dpop_jkt: dpop_jkt_opt.as_deref(),
+                },
+            )
+            .await?;
 
             (
-                auth_code.user_id,
-                scope,
-                auth_code.nonce.clone(),
-                expires_at,
+                code_row.user_id,
+                code_row.scopes,
+                code_row.nonce.clone(),
+                Utc::now() + access_ttl,
                 true,
-                token_type,
             )
         }
 
-        GrantType::RefreshToken { refresh_token } => {
-            // consume presented RT (by digest)
+        GrantType::RefreshToken {
+            refresh_token,
+            scope: _,
+        } => {
             let presented = token_digest_sha256(refresh_token);
-            let token = OAuthRefreshTokens::consume(&mut conn, presented).await?;
-            if token.client_id != client.id {
+            let old = OAuthRefreshTokens::consume(&mut conn, presented).await?;
+
+            if old.client_id != client.id {
                 return Err(oauth_invalid_grant("invalid refresh_token"));
             }
 
-            // If original RT was DPoP-bound -> require matching proof now
-            let (token_type, jkt_at_issue) = if !token.dpop_jkt.is_empty() {
-                let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "POST", None).await?;
-                if presented_jkt != token.dpop_jkt {
+            if let Some(expected_jkt) = old.dpop_jkt.as_deref() {
+                let presented_jkt = dpop_jkt_opt.as_deref().ok_or_else(|| {
+                    oauth_invalid_client("missing DPoP header for sender-constrained refresh")
+                })?;
+                if presented_jkt != expected_jkt {
                     return Err(dpop_verifier::DpopError::AthMismatch.into());
                 }
-                ("DPoP".to_string(), token.dpop_jkt.clone())
-            } else {
-                ("Bearer".to_string(), String::new())
-            };
+            }
 
-            // rotate RT (revoke old; insert new linked to previous)
-            OAuthRefreshTokens::revoke_all_by_user_client(
+            OAuthRefreshTokens::revoke_all_by_user_client(&mut conn, old.user_id, old.client_id)
+                .await?;
+
+            let rt_digest = token_digest_sha256(&new_refresh_token_plain);
+            OAuthRefreshTokens::insert(
                 &mut conn,
-                token.user_id,
-                token.client_id,
+                NewRefreshTokenParams {
+                    digest: &rt_digest,
+                    user_id: old.user_id,
+                    client_id: old.client_id,
+                    scopes: &old.scopes,
+                    audience: old.audience.as_deref(),
+                    expires_at: refresh_token_expires_at,
+                    rotated_from: Some(&old.digest),
+                    metadata: serde_json::Map::new(),
+                    dpop_jkt: old.dpop_jkt.as_deref().or(dpop_jkt_opt.as_deref()),
+                },
             )
             .await?;
 
-            let rt_digest = token_digest_sha256(&new_refresh_token_plain);
-            let new_refresh_token_params = NewRefreshTokenParams {
-                digest: &rt_digest,
-                user_id: token.user_id,
-                client_id: token.client_id,
-                scopes: &token.scopes,
-                audience: token.audience.as_deref(),
-                metadata: serde_json::Map::new(),
-                dpop_jkt: &jkt_at_issue,
-                expires_at: refresh_token_expires_at,
-                rotated_from: Some(&token.digest),
-            };
-            OAuthRefreshTokens::insert(&mut conn, new_refresh_token_params).await?;
-
-            // new AT for same scope/audience
-            let expires_at = Utc::now() + access_ttl;
             let at_digest = token_digest_sha256(&access_token_plain);
-            let new_access_token_params = NewAccessTokenParams {
-                digest: &at_digest,
-                user_id: Some(token.user_id),
-                client_id: token.client_id,
-                scopes: &token.scopes,
-                audience: token.audience.as_deref(),
-                dpop_jkt: &jkt_at_issue,
-                metadata: serde_json::Map::new(),
-                expires_at,
+            let refresh_issue_type = if old.dpop_jkt.is_some() {
+                TokenType::DPoP
+            } else {
+                issued_token_type
             };
-            OAuthAccessToken::insert(&mut conn, new_access_token_params).await?;
+            let at_jkt = if let Some(j) = old.dpop_jkt.as_deref() {
+                Some(j)
+            } else {
+                dpop_jkt_opt.as_deref()
+            };
+
+            OAuthAccessToken::insert(
+                &mut conn,
+                NewAccessTokenParams {
+                    digest: &at_digest,
+                    user_id: Some(old.user_id),
+                    client_id: old.client_id,
+                    scopes: &old.scopes,
+                    audience: old.audience.as_deref(),
+                    token_type: refresh_issue_type,
+                    dpop_jkt: at_jkt,
+                    metadata: serde_json::Map::new(),
+                    expires_at: Utc::now() + access_ttl,
+                },
+            )
+            .await?;
 
             (
-                token.user_id,
-                token.scopes.clone(),
+                old.user_id,
+                old.scopes.clone(),
                 None,
-                expires_at,
+                Utc::now() + access_ttl,
                 false,
-                token_type,
             )
         }
     };
 
     let base_url = app_conf.base_url.trim_end_matches('/');
-    // Optional ID Token (if OIDC requested and we’re in code flow)
-    let id_token = if issue_id_token && scope_has_openid(&scope) {
+    let id_token = if issue_id_token && scope_has_openid(&scope_vec) {
         Some(generate_id_token(
             user_id,
             &client.client_id,
-            &nonce.unwrap_or_default(),
-            expires_at,
+            &nonce_opt.unwrap_or_default(),
+            at_expires_at,
             &format!("{}/api/v0/main-frontend/oauth", base_url),
             &app_conf,
         )?)
@@ -472,12 +621,14 @@ async fn token(
         None
     };
 
-    // Response (plaintext tokens)
     let response = TokenResponse {
         access_token: access_token_plain,
         refresh_token: Some(new_refresh_token_plain),
         id_token,
-        token_type,
+        token_type: match issued_token_type {
+            TokenType::Bearer => "Bearer".to_string(),
+            TokenType::DPoP => "DPoP".to_string(),
+        },
         expires_in: access_ttl.num_seconds() as u32,
     };
 
@@ -486,33 +637,12 @@ async fn token(
 
 /// Handles `/userinfo` for returning user claims according to granted scopes.
 ///
-/// This endpoint:
-/// - Validates the access token.
-/// - Returns `sub` always.
-/// - Returns `first_name` and `last_name` if `profile` scope is granted.
-/// - Returns `email` if `email` scope is granted.
+/// - Validates access token (Bearer or DPoP-bound)
+/// - For DPoP tokens: requires valid DPoP proof (JKT + ATH)
+/// - For Bearer tokens: requires client.bearer_allowed = true
+/// - Returns `sub` always; `first_name`/`last_name` with `profile`; `email` with `email`
 ///
-/// Follows [OIDC Core Section 5.3](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo).
-///
-/// # Example
-/// ```http
-/// GET /api/v0/main-frontend/oauth/userinfo HTTP/1.1
-/// Authorization: Bearer 2YotnFZFEjr1zCsicMWpAA
-///
-/// ```
-///
-/// Response with `profile` and `email` scopes:
-/// ```http
-/// HTTP/1.1 200 OK
-/// Content-Type: application/json
-///
-/// {
-///   "sub": "248289761001",
-///   "first_name": "Jane",
-///   "last_name": "Doe",
-///   "email": "janedoe@example.com"
-/// }
-/// ```
+/// Follows OIDC Core §5.3.
 #[instrument(skip(pool))]
 async fn user_info(
     pool: web::Data<sqlx::PgPool>,
@@ -521,6 +651,7 @@ async fn user_info(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
+    // ---- Parse Authorization header ----
     let auth = req
         .headers()
         .get("Authorization")
@@ -539,7 +670,7 @@ async fn user_info(
             )
         })?;
 
-    let (scheme, token) = if let Some(t) = auth.strip_prefix("DPoP ") {
+    let (presented_scheme, raw_token) = if let Some(t) = auth.strip_prefix("DPoP ") {
         ("DPoP", t)
     } else if let Some(t) = auth.strip_prefix("Bearer ") {
         ("Bearer", t)
@@ -557,33 +688,83 @@ async fn user_info(
         ));
     };
 
-    // Hash the presented bearer token and look up by digest
-    let digest = token_digest_sha256(token);
-
+    // ---- Look up token by digest ----
+    let digest = token_digest_sha256(raw_token);
     let access = OAuthAccessToken::find_valid(&mut conn, digest).await?;
 
-    if !access.dpop_jkt.is_empty() {
-        if scheme != "DPoP" {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidToken.as_str().into(),
-                    error_description: "DPoP-bound token must use DPoP scheme".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "wrong auth scheme",
-                None::<anyhow::Error>,
-            ));
-        }
+    // ---- Enforce scheme/token_type consistency ----
+    match access.token_type {
+        TokenType::Bearer => {
+            // Bearer tokens must use the Bearer scheme
+            if presented_scheme != "Bearer" {
+                return Err(ControllerError::new(
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                        error: OAuthErrorCode::InvalidToken.as_str().into(),
+                        error_description: "bearer token must use Bearer scheme".into(),
+                        redirect_uri: None,
+                        state: None,
+                        nonce: None,
+                    })),
+                    "wrong auth scheme for bearer token",
+                    None::<anyhow::Error>,
+                ));
+            }
 
-        let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "GET", Some(token)).await?;
-        if presented_jkt != access.dpop_jkt {
-            return Err(DpopError::AthMismatch.into()); // or your own OAuth error mapping
+            let client = OAuthClient::find_by_id(&mut conn, access.client_id).await?;
+            if !client.bearer_allowed {
+                return Err(ControllerError::new(
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                        error: OAuthErrorCode::InvalidToken.as_str().into(),
+                        error_description: "client not allowed to use bearer tokens".into(),
+                        redirect_uri: None,
+                        state: None,
+                        nonce: None,
+                    })),
+                    "client not bearer-allowed",
+                    None::<anyhow::Error>,
+                ));
+            }
+        }
+        TokenType::DPoP => {
+            // DPoP-bound tokens must use DPoP scheme + valid proof
+            if presented_scheme != "DPoP" {
+                return Err(ControllerError::new(
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                        error: OAuthErrorCode::InvalidToken.as_str().into(),
+                        error_description: "DPoP-bound token must use DPoP scheme".into(),
+                        redirect_uri: None,
+                        state: None,
+                        nonce: None,
+                    })),
+                    "wrong auth scheme for DPoP token",
+                    None::<anyhow::Error>,
+                ));
+            }
+
+            let bound_jkt = access.dpop_jkt.as_deref().ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                        error: OAuthErrorCode::InvalidToken.as_str().into(),
+                        error_description: "token marked DPoP but missing cnf.jkt".into(),
+                        redirect_uri: None,
+                        state: None,
+                        nonce: None,
+                    })),
+                    "dpop token missing jkt",
+                    None::<anyhow::Error>,
+                )
+            })?;
+
+            // Verify proof (includes `ath` = hash of raw_token)
+            let presented_jkt =
+                verify_dpop_from_actix(&mut conn, &req, "GET", Some(raw_token)).await?;
+            if presented_jkt != bound_jkt {
+                return Err(DpopError::AthMismatch.into());
+            }
         }
     }
 
-    // UserInfo is end-user focused; ensure the token is bound to a user
+    // ---- Ensure token is for a user ----
     let user_id = match access.user_id {
         Some(u) => u,
         None => {
@@ -601,11 +782,10 @@ async fn user_info(
         }
     };
 
+    // ---- Fetch user and scopes ----
     let user = user_details::get_user_details_by_user_id(&mut conn, user_id).await?;
-
-    // Scope-gated claims
     let scopes: std::collections::HashSet<String> =
-        std::collections::HashSet::from_iter(access.scopes);
+        std::collections::HashSet::from_iter(access.scopes.into_iter());
 
     let mut res = UserInfoResponse {
         sub: user_id.to_string(),
@@ -622,21 +802,25 @@ async fn user_info(
         res.email = Some(user.email.clone());
     }
 
-    server_token.authorized_ok(HttpResponse::Ok().json(res))
+    // Best practice: prevent caching
+    server_token.authorized_ok(
+        HttpResponse::Ok()
+            .insert_header(("Cache-Control", "no-store"))
+            .json(res),
+    )
 }
-
 /// Handles `/jwks.json` for returning the JSON Web Key Set (JWKS).
 ///
 /// This endpoint:
-/// - Reads the configured RSA public key.
+/// - Reads the configured ID Token signing public key (RS256).
 /// - Exposes it in JWKS format for clients to validate ID tokens.
 ///
-/// Follows [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517).
+/// Follows [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517) and
+/// [OIDC Core §10](https://openid.net/specs/openid-connect-core-1_0.html#RotateSigKeys).
 ///
 /// # Example
 /// ```http
 /// GET /api/v0/main-frontend/oauth/jwks.json HTTP/1.1
-///
 /// ```
 ///
 /// Response:
@@ -646,24 +830,21 @@ async fn user_info(
 ///
 /// {
 ///   "keys": [
-///     {
-///       "kty": "RSA",
-///       "use": "sig",
-///       "alg": "RS256",
-///       "kid": "abc123",
-///       "n": "0vx7agoebGcQSuuPiLJXZptN...",
-///       "e": "AQAB"
-///     }
+///     { "kty":"RSA","use":"sig","alg":"RS256","kid":"abc123","n":"...","e":"AQAB" }
 ///   ]
 /// }
 /// ```
 #[instrument(skip(app_conf))]
-async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult<HttpResponse> {
+pub async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult<HttpResponse> {
     let server_token = skip_authorize();
+
+    // The public key used for signing ID tokens (RS256)
     let public_pem = &app_conf.oauth_server_configuration.rsa_public_key;
 
+    // Extract modulus (n), exponent (e), and a stable key id (kid) from the PEM
     let (n, e, kid) = rsa_n_e_and_kid_from_pem(public_pem)?;
 
+    // Your existing JWKS types
     let jwk = Jwk {
         kty: "RSA".into(),
         use_: "sig".into(),
@@ -672,60 +853,86 @@ async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult
         n,
         e,
     };
+
     server_token.authorized_ok(HttpResponse::Ok().json(Jwks { keys: vec![jwk] }))
 }
+
 /// Handles `/.well-known/openid-configuration` to expose OIDC discovery metadata.
 ///
-/// This endpoint:
-/// - Lists available endpoints, supported response types, and signing algorithms.
-/// - Used by OpenID Connect clients for automatic configuration.
+/// This endpoint advertises the AS/OP capabilities so clients can auto-configure:
+/// - Endpoints (authorize, token, userinfo, jwks)
+/// - Supported response/grant types
+/// - Token endpoint auth methods
+/// - ID Token signing algs
+/// - PKCE and DPoP metadata
 ///
-/// Follows [OIDC Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html).
+/// Follows:
+/// - [OIDC Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html)
+/// - [RFC 8414 — OAuth 2.0 Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414)
+/// - [RFC 9449 — DPoP metadata](https://www.rfc-editor.org/rfc/rfc9449#name-authorization-server-metadata)
 ///
 /// # Example
 /// ```http
 /// GET /api/v0/main-frontend/oauth/.well-known/openid-configuration HTTP/1.1
-///
 /// ```
 ///
-/// Example response:
-/// ```http
-/// HTTP/1.1 200 OK
-/// Content-Type: application/json
-///
+/// Example response (truncated):
+/// ```json
 /// {
-///   "issuer": "https://courses.mooc.fi/api/v0/main-frontend/oauth",
-///   "authorization_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/authorize",
-///   "token_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/token",
-///   "userinfo_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/userinfo",
-///   "jwks_uri": "https://courses.mooc.fi/api/v0/main-frontend/oauth/jwks.json",
+///   "issuer": "https://example.org/api/v0/main-frontend/oauth",
+///   "authorization_endpoint": "https://example.org/api/v0/main-frontend/oauth/authorize",
+///   "token_endpoint": "https://example.org/api/v0/main-frontend/oauth/token",
+///   "userinfo_endpoint": "https://example.org/api/v0/main-frontend/oauth/userinfo",
+///   "jwks_uri": "https://example.org/api/v0/main-frontend/oauth/jwks.json",
 ///   "response_types_supported": ["code"],
-///   "subject_types_supported": ["public"],
+///   "grant_types_supported": ["authorization_code","refresh_token"],
+///   "code_challenge_methods_supported": ["S256"],
+///   "token_endpoint_auth_methods_supported": ["none","client_secret_post"],
 ///   "id_token_signing_alg_values_supported": ["RS256"],
-///   "dpop_signing_alg_values_supported": ["ES256", "RS256"],
-///   "token_endpoint_auth_methods_supported": ["client_secret_post", "client_secret_basic"]
+///   "subject_types_supported": ["public"],
+///   "dpop_signing_alg_values_supported": ["ES256","RS256"]
 /// }
 /// ```
-async fn well_known_openid(
+#[instrument(skip(app_conf))]
+pub async fn well_known_openid(
     app_conf: web::Data<ApplicationConfiguration>,
-) -> Result<HttpResponse, Error> {
+) -> ControllerResult<HttpResponse> {
+    let server_token = skip_authorize();
     let base_url = app_conf.base_url.trim_end_matches('/');
-    let config = json!({
-        "issuer": format!("{}/api/v0/main-frontend/oauth", base_url),
-        "authorization_endpoint": format!("{}/api/v0/main-frontend/oauth/authorize", base_url),
-        "token_endpoint": format!("{}/api/v0/main-frontend/oauth/token", base_url),
-        "userinfo_endpoint": format!("{}/api/v0/main-frontend/oauth/userinfo", base_url),
-        "jwks_uri": format!("{}/api/v0/main-frontend/oauth/jwks.json", base_url),
-        "response_types_supported": ["code"],
-        "subject_types_supported": ["public"],
+
+    // We advertise what the server *globally* supports. Per-client specifics (like allowed PKCE methods)
+    // can be stricter; by default we allow only S256 for PKCE at the server level.
+    let config = serde_json::json!({
+        "issuer":                          format!("{}/api/v0/main-frontend/oauth", base_url),
+        "authorization_endpoint":          format!("{}/api/v0/main-frontend/oauth/authorize", base_url),
+        "token_endpoint":                  format!("{}/api/v0/main-frontend/oauth/token", base_url),
+        "userinfo_endpoint":               format!("{}/api/v0/main-frontend/oauth/userinfo", base_url),
+        "jwks_uri":                        format!("{}/api/v0/main-frontend/oauth/jwks.json", base_url),
+
+        // Core capabilities
+        "response_types_supported":        ["code"],
+        "grant_types_supported":           ["authorization_code","refresh_token"],
+        "subject_types_supported":         ["public"],
         "id_token_signing_alg_values_supported": ["RS256"],
-        "dpop_signing_alg_values_supported": ["ES256", "RS256"],
-        "token_endpoint_auth_methods_supported": ["client_secret_post"]
+
+        // Token endpoint auth: public ("none") and confidential via client_secret_post
+        "token_endpoint_auth_methods_supported": ["none","client_secret_post"],
+
+        // PKCE (RFC 7636): server supports S256; "plain" discouraged and typically disabled
+        "code_challenge_methods_supported": ["S256"],
+
+        // DPoP (RFC 9449) metadata
+        "dpop_signing_alg_values_supported": ["ES256","RS256"],
+
+        // Nice-to-have hints for clients (optional but common)
+        "scopes_supported":                ["openid","profile","email","offline_access"],
+        "claims_supported":                ["sub","iss","aud","exp","iat","auth_time","nonce","email","email_verified","name","given_name","family_name"],
+        "response_modes_supported":        ["query"],
+        "userinfo_signing_alg_values_supported": [], // we return plain JSON at /userinfo
     });
 
-    Ok(HttpResponse::Ok().json(config))
+    server_token.authorized_ok(HttpResponse::Ok().json(config))
 }
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct AuthorizedClient {

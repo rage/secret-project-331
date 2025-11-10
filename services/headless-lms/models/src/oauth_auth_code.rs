@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgConnection};
 use uuid::Uuid;
 
-use crate::oauth_client::PkceMethod;
+use crate::library::oauth::pkce::PkceMethod;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct OAuthAuthCode {

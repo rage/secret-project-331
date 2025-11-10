@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO course_module_completion_registered_to_study_registries (\n              course_id, course_module_completion_id, course_module_id,\n              study_registry_registrar_id, user_id, real_student_number\n            )\n            VALUES ($1,$2,$3,$4,$5,$6)\n            ON CONFLICT DO NOTHING\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2001c9ae39f555d417ddbab17b64dc7ed3fc930f91f5a05d3de1e3fd6a943327"
+}

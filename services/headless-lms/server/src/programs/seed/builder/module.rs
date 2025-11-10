@@ -7,6 +7,7 @@ use sqlx::PgConnection;
 
 use crate::programs::seed::builder::{chapter::ChapterBuilder, context::SeedContext};
 use chrono::{DateTime, Utc};
+use sqlx::{Row, postgres::PgRow};
 use uuid::Uuid;
 
 /// Builder for seeding a single course_module_completion row.
@@ -21,6 +22,7 @@ pub struct CompletionBuilder {
     eligible_for_ects: Option<bool>,
     prerequisite_modules_completed: Option<bool>,
     needs_to_be_reviewed: Option<bool>,
+    register: Option<(Uuid, String)>,
 }
 
 impl CompletionBuilder {
@@ -33,40 +35,58 @@ impl CompletionBuilder {
             completion_date: Some(chrono::Utc::now()),       // NOT NULL
             completion_language: Some("en-US".to_string()),  // MUST match xx-YY
             eligible_for_ects: Some(true),                   // NOT NULL
-            // these are NOT NULL but have DB defaults
             prerequisite_modules_completed: Some(false),
             needs_to_be_reviewed: Some(false),
+            register: None,
         }
+    }
+
+    pub fn completion_registered(mut self, student_number: impl Into<String>) -> Self {
+        // will use module default registrar if available
+        self.register = Some((Uuid::nil(), student_number.into()));
+        self
+    }
+
+    pub fn register_with(mut self, registrar_id: Uuid, student_number: impl Into<String>) -> Self {
+        self.register = Some((registrar_id, student_number.into()));
+        self
     }
 
     pub fn email(mut self, v: impl Into<String>) -> Self {
         self.email = Some(v.into());
         self
     }
+
     pub fn grade(mut self, v: i32) -> Self {
         self.grade = Some(v);
         self
     }
+
     pub fn passed(mut self, v: bool) -> Self {
         self.passed = Some(v);
         self
     }
+
     pub fn completion_date(mut self, v: DateTime<Utc>) -> Self {
         self.completion_date = Some(v);
         self
     }
+
     pub fn completion_language(mut self, v: impl Into<String>) -> Self {
         self.completion_language = Some(v.into());
         self
     }
+
     pub fn eligible_for_ects(mut self, v: bool) -> Self {
         self.eligible_for_ects = Some(v);
         self
     }
+
     pub fn prerequisite_modules_completed(mut self, v: bool) -> Self {
         self.prerequisite_modules_completed = Some(v);
         self
     }
+
     pub fn needs_to_be_reviewed(mut self, v: bool) -> Self {
         self.needs_to_be_reviewed = Some(v);
         self
@@ -77,43 +97,99 @@ impl CompletionBuilder {
         conn: &mut sqlx::PgConnection,
         course_id: Uuid,
         course_module_id: Uuid,
+        default_registrar_id: Option<Uuid>,
     ) -> anyhow::Result<()> {
-        sqlx::query(
+        // 1) Insert completion if missing, return id
+        let inserted_row: Option<PgRow> = sqlx::query(
             r#"
-    INSERT INTO course_module_completions (
-        course_id, course_module_id, user_id, completion_date,
-        completion_language, eligible_for_ects, email, grade, passed,
-        prerequisite_modules_completed, needs_to_be_reviewed
-    )
-    SELECT
-        $1, $2, $3, $4,
-        $5, $6, $7, $8, $9,
-        $10, $11
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM course_module_completions
-        WHERE course_id = $1
-          AND course_module_id = $2
-          AND user_id = $3
-          AND completion_granter_user_id IS NULL
-          AND deleted_at IS NULL
-    )
-    "#,
+            INSERT INTO course_module_completions (
+                course_id, course_module_id, user_id, completion_date,
+                completion_language, eligible_for_ects, email, grade, passed,
+                prerequisite_modules_completed, needs_to_be_reviewed
+            )
+            SELECT $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+            WHERE NOT EXISTS (
+            SELECT 1 FROM course_module_completions
+            WHERE course_id=$1 AND course_module_id=$2 AND user_id=$3
+                AND completion_granter_user_id IS NULL AND deleted_at IS NULL
+            )
+            RETURNING id
+            "#,
         )
         .bind(course_id)
         .bind(course_module_id)
         .bind(self.user_id)
         .bind(self.completion_date)
-        .bind(self.completion_language.as_deref()) // e.g. "en-US"
+        .bind(self.completion_language.as_deref())
         .bind(self.eligible_for_ects)
         .bind(self.email.as_deref())
         .bind(self.grade)
         .bind(self.passed)
         .bind(self.prerequisite_modules_completed)
         .bind(self.needs_to_be_reviewed)
-        .execute(conn)
+        .fetch_optional(&mut *conn)
         .await
         .context("inserting course_module_completion")?;
+
+        let completion_id: Uuid = if let Some(row) = inserted_row {
+            row.try_get::<Uuid, _>("id")?
+        } else {
+            sqlx::query(
+                r#"
+                SELECT id FROM course_module_completions
+                WHERE course_id=$1 AND course_module_id=$2 AND user_id=$3
+                AND completion_granter_user_id IS NULL AND deleted_at IS NULL
+                "#,
+            )
+            .bind(course_id)
+            .bind(course_module_id)
+            .bind(self.user_id)
+            .map(|row: PgRow| row.try_get::<Uuid, _>("id").unwrap())
+            .fetch_one(&mut *conn)
+            .await?
+        };
+
+        // 2) Optional stamp: registration attempt time
+        let _ = sqlx::query(
+            "UPDATE course_module_completions
+            SET completion_registration_attempt_date = now()
+            WHERE id=$1",
+        )
+        .bind(completion_id)
+        .execute(&mut *conn)
+        .await;
+
+        // 3) Optional registry row (supports default registrar)
+        if let Some((rid, student_number)) = &self.register {
+            let registrar_id = if *rid != Uuid::nil() {
+                *rid
+            } else if let Some(def) = default_registrar_id {
+                def
+            } else {
+                // no registrar known → skip registry insert
+                return Ok(());
+            };
+
+            sqlx::query(
+                r#"
+                INSERT INTO course_module_completion_registered_to_study_registries (
+                    course_id, course_module_completion_id, course_module_id,
+                    study_registry_registrar_id, user_id, real_student_number
+                )
+                VALUES ($1,$2,$3,$4,$5,$6)
+                ON CONFLICT DO NOTHING
+                "#,
+            )
+            .bind(course_id)
+            .bind(completion_id)
+            .bind(course_module_id)
+            .bind(registrar_id)
+            .bind(self.user_id)
+            .bind(student_number)
+            .execute(&mut *conn)
+            .await
+            .context("inserting registry record")?;
+        }
 
         Ok(())
     }
@@ -129,6 +205,7 @@ pub struct ModuleBuilder {
     pub register_to_open_university: bool,
     pub completion_policy: CompletionPolicy,
     pub completions: Vec<CompletionBuilder>,
+    pub default_registrar_id: Option<Uuid>,
 }
 
 impl Default for ModuleBuilder {
@@ -147,7 +224,12 @@ impl ModuleBuilder {
             register_to_open_university: false,
             completion_policy: CompletionPolicy::Manual,
             completions: vec![],
+            default_registrar_id: None,
         }
+    }
+    pub fn default_registrar(mut self, id: Uuid) -> Self {
+        self.default_registrar_id = Some(id);
+        self
     }
     pub fn completion(mut self, c: CompletionBuilder) -> Self {
         self.completions.push(c);
@@ -244,7 +326,8 @@ impl ModuleBuilder {
         }
 
         for comp in &self.completions {
-            comp.seed(conn, course_id, module.id).await?;
+            comp.seed(conn, course_id, module.id, self.default_registrar_id)
+                .await?;
         }
 
         for ch in self.chapters {

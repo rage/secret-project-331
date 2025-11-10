@@ -47,9 +47,28 @@ pub async fn seed_graded_course(
         .register_to_open_university(false)
         .automatic_completion(Some(1), Some(1), false);
 
-    // Add graded completions for each seeded example user (0–N)
-    for uid in example_normal_user_ids.iter() {
-        module = module.completion(CompletionBuilder::new(*uid).grade(5).passed(true));
+    // optional default registrar
+    let registrar_id_opt: Option<Uuid> =
+        sqlx::query_scalar!(r#"SELECT id FROM study_registry_registrars LIMIT 1"#)
+            .fetch_optional(conn.as_mut())
+            .await?;
+
+    let mut module = ModuleBuilder::new()
+        .order(0)
+        .register_to_open_university(false)
+        .automatic_completion(Some(1), Some(1), false);
+
+    if let Some(reg_id) = registrar_id_opt {
+        module = module.default_registrar(reg_id);
+    }
+
+    for (i, uid) in example_normal_user_ids.iter().enumerate() {
+        module = module.completion(
+            CompletionBuilder::new(*uid)
+                .grade(5)
+                .passed(true)
+                .completion_registered(format!("SN-{:03}", i)),
+        );
     }
 
     // Build the actual course
@@ -82,22 +101,14 @@ pub async fn seed_graded_course(
             ),
         );
 
-    // Actually insert the course into the DB
+    // Insert course
     let (course, default_instance, _last_module) = course_builder.seed(&mut conn, &cx).await?;
 
-    // ---- ENROLL USERS HERE ----
-    // After: let (course, default_instance, _last_module) = course_builder.seed(&mut conn, &cx).await?;
+    // Enroll users to default instance
     for uid in example_normal_user_ids.iter() {
-        course_instance_enrollments::insert(
-            &mut conn,
-            *uid,                // user_id
-            course.id,           // course_id (from the seed return)
-            default_instance.id, // course_instance_id
-        )
-        .await?;
+        course_instance_enrollments::insert(&mut conn, *uid, course.id, default_instance.id)
+            .await?;
     }
-
-    // ---------------------------
 
     Ok(course_id)
 }

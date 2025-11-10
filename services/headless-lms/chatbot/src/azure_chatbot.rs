@@ -36,6 +36,12 @@ use crate::search_filter::SearchFilter;
 
 const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
+pub struct ChatbotUserContext {
+    pub user_id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+}
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
     pub hate: Option<ContentFilter>,
@@ -516,7 +522,6 @@ pub async fn make_request_and_stream<'a>(
                             }
                         }
                     }
-                    // there should always be choices, but if there isn't, let's continue
                     pinned_lines.next().await;
                 }
             },
@@ -531,7 +536,11 @@ pub async fn make_request_and_stream<'a>(
 
 /// Streams and parses a LLM response from Azure that contains function calls.
 /// Calls the functions and returns a Vec of function results to be sent to Azure.
-pub async fn parse_tool<'a>(mut lines: PeekableLinesStream<'a>) -> anyhow::Result<Vec<APIMessage>> {
+pub async fn parse_tool<'a>(
+    conn: &mut PgConnection,
+    mut lines: PeekableLinesStream<'a>,
+    user_context: &ChatbotUserContext,
+) -> anyhow::Result<Vec<APIMessage>> {
     // remember to validate args
     let mut function_calls: HashMap<(String, String), String> = HashMap::new();
     let mut function_name_id: Option<(String, String)> = None;
@@ -573,7 +582,7 @@ pub async fn parse_tool<'a>(mut lines: PeekableLinesStream<'a>) -> anyhow::Resul
 
             for ((name, id), args) in function_calls.iter() {
                 let fn_args = &serde_json::from_str(args)?;
-                let res = call_chatbot_tool(name, fn_args);
+                let res = call_chatbot_tool(conn, name, fn_args, &user_context).await?;
                 tool_result_messages.push(APIMessage {
                     role: MessageRole::Tool,
                     fields: ApiMessageKind::ToolResponse(ApiToolResponseMessage {
@@ -740,6 +749,7 @@ pub async fn send_chat_request_and_parse_stream(
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
     message: &str,
+    user_context: ChatbotUserContext,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
     let (chat_request, new_message, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_message_to_db(
@@ -789,7 +799,7 @@ pub async fn send_chat_request_and_parse_stream(
                 .await?;
 
         let new_tool_msgs = match response_type {
-            ResponseStreamType::Toolcall(stream) => parse_tool(stream).await?,
+            ResponseStreamType::Toolcall(stream) => parse_tool(conn, stream, &user_context).await?,
             ResponseStreamType::TextResponse(stream) => {
                 return parse_and_stream_to_user(
                     stream,

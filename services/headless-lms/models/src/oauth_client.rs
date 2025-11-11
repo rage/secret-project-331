@@ -49,7 +49,7 @@ pub enum GrantType {
     DeviceCode,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct OAuthClient {
     pub id: Uuid,
     pub client_id: String,

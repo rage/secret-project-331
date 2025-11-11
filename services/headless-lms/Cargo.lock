@@ -1350,9 +1350,9 @@ checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
 name = "dpop-verifier"
-version = "2.0.2"
+version = "4.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7f5b9e3336fd45cbfae2ff5667d88f9227706367d2e3cc04ac5ce9d4d76986a"
+checksum = "dabf3146cf4a8e051504cfe57a6b217798e20a5d73c1d9ac8d498d4f08f0f78b"
 dependencies = [
  "actix-web",
  "async-trait",

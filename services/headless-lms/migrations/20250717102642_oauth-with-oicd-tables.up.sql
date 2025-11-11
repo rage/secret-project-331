@@ -6,7 +6,7 @@
      - oauth_auth_codes: pending grants (authorization codes) with PKCE + optional DPoP code binding.
      - oauth_access_tokens: opaque ATs; can be Bearer or DPoP-bound (cnf via dpop_jkt).
      - oauth_refresh_tokens: opaque RTs; can be sender-constrained via dpop_jkt.
-     - oauth_user_client_scopes: remembered consent (user ↔ client).
+     - oauth_user_client_scopes: remembered consent (user <-> client).
      - oauth_dpop_proofs: replay store for DPoP `jti` (hashed), for proof reuse prevention.
 
    PKCE:
@@ -581,7 +581,7 @@ COMMENT ON COLUMN oauth_user_client_scopes.updated_at IS
 CREATE TABLE oauth_dpop_proofs (
   jti_hash  BYTEA       PRIMARY KEY,    -- store SHA-256(jti)
   seen_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-  client_id UUID        NULL,
+  client_id TEXT        NULL,
   jkt       TEXT        NULL,
   htm       TEXT        NULL,
   htu       TEXT        NULL,
@@ -599,7 +599,7 @@ COMMENT ON COLUMN oauth_dpop_proofs.jti_hash IS
 COMMENT ON COLUMN oauth_dpop_proofs.seen_at IS
   'When this DPoP proof was first observed.';
 COMMENT ON COLUMN oauth_dpop_proofs.client_id IS
-  'Optional client that presented this proof (for audit/analytics).';
+  'Optional client that presented this proof.';
 COMMENT ON COLUMN oauth_dpop_proofs.jkt IS
   'Thumbprint (RFC 7638) of the public key used in the DPoP proof.';
 COMMENT ON COLUMN oauth_dpop_proofs.htm IS

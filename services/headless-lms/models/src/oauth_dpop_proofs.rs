@@ -2,13 +2,12 @@ use crate::oauth_shared_types::Digest;
 use crate::prelude::*;
 use chrono::{DateTime, TimeZone, Utc};
 use sqlx::{FromRow, PgConnection};
-use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct OAuthDpopProof {
     pub jti_hash: Digest,           // SHA-256(jti)
     pub seen_at: DateTime<Utc>,     // when first observed (DB default now())
-    pub client_id: Option<Uuid>,    // optional audit fields
+    pub client_id: Option<String>,  // optional audit fields
     pub jkt: Option<String>,        // RFC 7638 thumbprint
     pub htm: Option<String>,        // HTTP method
     pub htu: Option<String>,        // HTTP URL (no query)
@@ -23,7 +22,7 @@ impl OAuthDpopProof {
     pub async fn insert_once(
         conn: &mut PgConnection,
         jti_hash: Digest,
-        client_id: Option<Uuid>,
+        client_id: Option<&str>,
         jkt: Option<&str>,
         htm: Option<&str>,
         htu: Option<&str>,

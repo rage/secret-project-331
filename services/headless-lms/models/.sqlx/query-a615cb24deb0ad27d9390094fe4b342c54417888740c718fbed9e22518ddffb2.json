@@ -16,7 +16,7 @@
       {
         "ordinal": 2,
         "name": "client_id?",
-        "type_info": "Uuid"
+        "type_info": "Text"
       },
       {
         "ordinal": 3,

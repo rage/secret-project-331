@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::library::oauth::pkce::PkceMethod;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct OAuthAuthCode {
     pub digest: Digest,
     pub user_id: Uuid,

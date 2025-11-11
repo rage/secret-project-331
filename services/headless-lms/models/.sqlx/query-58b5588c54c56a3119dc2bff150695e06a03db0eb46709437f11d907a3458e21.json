@@ -6,7 +6,7 @@
     "parameters": {
       "Left": [
         "Bytea",
-        "Uuid",
+        "Text",
         "Text",
         "Text",
         "Text",

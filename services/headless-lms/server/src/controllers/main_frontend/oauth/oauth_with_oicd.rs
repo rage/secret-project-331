@@ -1,23 +1,24 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
-use super::authorize_query::AuthorizeParams;
+use super::authorize_query::AuthorizeQuery;
 use super::consent_deny_query::ConsentDenyQuery;
 use super::consent_query::ConsentQuery;
 use super::consent_response::ConsentResponse;
 use super::dpop::verify_dpop_from_actix;
 use super::helpers::{
     build_authorize_qs, build_consent_redirect, build_login_redirect, generate_access_token,
-    generate_id_token, looks_like_b64url_no_padding, oauth_invalid_client, oauth_invalid_grant,
-    oauth_invalid_request, ok_json_no_cache, parse_pkce_method, redirect_with_code,
-    rsa_n_e_and_kid_from_pem, scope_has_openid, token_digest_sha256,
+    generate_id_token, oauth_invalid_client, oauth_invalid_grant, oauth_invalid_request,
+    ok_json_no_cache, redirect_with_code, rsa_n_e_and_kid_from_pem, scope_has_openid,
+    token_digest_sha256,
 };
 use super::jwks::{Jwk, Jwks};
 use super::oauth_validated::OAuthValidated;
-use super::token_query::{GrantType, TokenParams};
+use super::token_query::{GrantType, TokenQuery};
 use super::token_response::TokenResponse;
 use super::userinfo_response::UserInfoResponse;
 use crate::domain::error::PkceFlowError;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
+use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use dpop_verifier::DpopError;
@@ -65,7 +66,7 @@ use url::{Url, form_urlencoded};
 /// ```
 pub async fn authorize(
     pool: web::Data<PgPool>,
-    OAuthValidated(query): OAuthValidated<AuthorizeParams>,
+    OAuthValidated(query): OAuthValidated<AuthorizeQuery>,
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
@@ -91,13 +92,14 @@ pub async fn authorize(
     );
     let parsed_pkce_method: Option<PkceMethod> = match (cc_opt, ccm_opt) {
         (Some(ch), Some(m)) => {
-            let method = parse_pkce_method(m).ok_or_else(|| {
+            let method = PkceMethod::parse(m).ok_or_else(|| {
                 oauth_invalid_request(
                     "unsupported code_challenge_method",
                     Some(&query.redirect_uri),
                     query.state.as_deref(),
                 )
             })?;
+
             if !client.allows_pkce_method(method) {
                 return Err(oauth_invalid_request(
                     "code_challenge_method not allowed for this client",
@@ -105,6 +107,36 @@ pub async fn authorize(
                     query.state.as_deref(),
                 ));
             }
+
+            match method {
+                PkceMethod::S256 => {
+                    // must be base64url (no pad) and decode to 32 bytes
+                    let bytes = URL_SAFE_NO_PAD.decode(ch).map_err(|_| {
+                        oauth_invalid_request(
+                            "invalid code_challenge for S256 (not base64url/no-pad)",
+                            Some(&query.redirect_uri),
+                            query.state.as_deref(),
+                        )
+                    })?;
+                    if bytes.len() != 32 {
+                        return Err(oauth_invalid_request(
+                            "invalid code_challenge for S256 (must decode to 32 bytes)",
+                            Some(&query.redirect_uri),
+                            query.state.as_deref(),
+                        ));
+                    }
+                }
+                PkceMethod::Plain => {
+                    CodeVerifier::new(ch).map_err(|_| {
+                        oauth_invalid_request(
+                            "invalid code_challenge for plain",
+                            Some(&query.redirect_uri),
+                            query.state.as_deref(),
+                        )
+                    })?;
+                }
+            }
+
             Some(method)
         }
         (None, None) => None,
@@ -368,7 +400,7 @@ async fn deny_consent(
 #[instrument(skip(pool, app_conf))]
 pub async fn token(
     pool: web::Data<PgPool>,
-    OAuthValidated(form): OAuthValidated<TokenParams>,
+    OAuthValidated(form): OAuthValidated<TokenQuery>,
     req: actix_web::HttpRequest,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
@@ -383,10 +415,19 @@ pub async fn token(
         .map_err(|_| oauth_invalid_client("invalid client_id"))?;
 
     if client.is_confidential() {
-        if client.client_secret
-            != Some(token_digest_sha256(&form.client_secret.unwrap_or_default()))
-        {
-            return Err(oauth_invalid_client("invalid client secret"));
+        match client.client_secret {
+            Some(ref secret) => {
+                if !secret.constant_eq(&token_digest_sha256(
+                    &form.client_secret.clone().unwrap_or_default(),
+                )) {
+                    return Err(oauth_invalid_client("invalid client secret"));
+                }
+            }
+            None => {
+                return Err(oauth_invalid_client(
+                    "client_secret required for confidential clients",
+                ));
+            }
         }
     }
 

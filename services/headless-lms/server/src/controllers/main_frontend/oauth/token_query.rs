@@ -1,5 +1,4 @@
 use super::oauth_validate::OAuthValidate;
-use crate::impl_oauth_from_request;
 use crate::prelude::*;
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use serde::{Deserialize, Serialize};

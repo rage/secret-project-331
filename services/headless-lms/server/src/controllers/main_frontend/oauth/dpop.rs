@@ -24,7 +24,7 @@ impl<'c> ReplayStore for SqlxReplayStore<'c> {
         let first_time = OAuthDpopProof::insert_once(
             self.conn,
             digest,
-            /* client_id */ None,          // No client in ReplayContext; store None
+            ctx.client_id,
             ctx.jkt,       // jkt: Option<&str>
             ctx.htm,       // htm: Option<&str>
             ctx.htu,       // htu: Option<&str>
@@ -48,7 +48,9 @@ pub async fn verify_dpop_from_actix(
     let htu = expected_htu_from_actix(req, true);
 
     let mut store = SqlxReplayStore { conn };
-    let verifier = DpopVerifier::new().with_max_age(300).with_future_skew(5);
+    let verifier = DpopVerifier::new()
+        .with_max_age_seconds(300)
+        .with_future_skew_seconds(5);
     let verified = verifier
         .verify(&mut store, hdr, &htu, method, access_token)
         .await?;

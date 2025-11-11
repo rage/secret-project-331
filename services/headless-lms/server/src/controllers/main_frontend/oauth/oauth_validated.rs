@@ -1,16 +1,20 @@
-use actix_web::{Error, FromRequest, HttpRequest, dev::Payload, http::Method, web};
+use actix_web::{
+    Error, FromRequest, HttpRequest,
+    dev::Payload,
+    http::{Method, header},
+    web,
+};
 use futures_util::future::LocalBoxFuture;
 use serde::de::DeserializeOwned;
 
-use crate::controllers::main_frontend::oauth::oauth_validate::{ControllerError, OAuthValidate};
+use crate::controllers::main_frontend::oauth::oauth_validate::OAuthValidate;
 
-/// Wrapper that implements FromRequest for Oauth-related structs and validates them.
-pub struct OAuthValidated<T>(pub T);
+/// Wrapper for OAuth related requests.
+pub struct OAuthValidated<Raw: OAuthValidate>(pub <Raw as OAuthValidate>::Output);
 
-impl<T, Raw> FromRequest for OAuthValidated<T>
+impl<Raw> FromRequest for OAuthValidated<Raw>
 where
-    Raw: DeserializeOwned + Default + OAuthValidate<Output = T> + 'static,
-    T: 'static,
+    Raw: DeserializeOwned + OAuthValidate + 'static,
 {
     type Error = Error;
     type Future = LocalBoxFuture<'static, Result<Self, Self::Error>>;
@@ -22,19 +26,28 @@ where
         Box::pin(async move {
             let raw: Raw = match *req.method() {
                 Method::GET | Method::DELETE => {
-                    match web::Query::<Raw>::from_query(req.query_string()) {
-                        Ok(q) => q.into_inner(),
-                        Err(_) => Raw::default(),
+                    web::Query::<Raw>::from_query(req.query_string()).map(|q| q.into_inner())?
+                }
+                _ => {
+                    let ct = req
+                        .headers()
+                        .get(header::CONTENT_TYPE)
+                        .and_then(|v| v.to_str().ok())
+                        .unwrap_or("");
+
+                    if ct.starts_with("application/json") {
+                        web::Json::<Raw>::from_request(&req, &mut payload)
+                            .await
+                            .map(|j| j.into_inner())?
+                    } else {
+                        web::Form::<Raw>::from_request(&req, &mut payload)
+                            .await
+                            .map(|f| f.into_inner())?
                     }
                 }
-                _ => match web::Form::<Raw>::from_request(&req, &mut payload).await {
-                    Ok(f) => f.into_inner(),
-                    Err(_) => Raw::default(),
-                },
             };
 
-            let out: T = <Raw as OAuthValidate>::validate(&raw)
-                .map_err(|e: ControllerError| actix_web::error::ErrorBadRequest(e))?;
+            let out = <Raw as OAuthValidate>::validate(&raw)?;
 
             Ok(OAuthValidated(out))
         })

@@ -53,12 +53,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
         }),
     };
 
-    let message_content = match &system_message.fields {
-        ApiMessageKind::Text(msg) => &msg.content,
-        _ => "", // ERROR
-    };
-
-    let system_message_tokens = estimate_tokens(message_content);
+    let system_message_tokens = estimate_tokens(SYSTEM_PROMPT);
     let safe_token_limit = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
     let max_content_tokens = safe_token_limit - system_message_tokens;
 
@@ -262,7 +257,9 @@ async fn process_block_chunk(
         .fields
     {
         ApiMessageKind::Text(msg) => Ok(msg.content.clone()),
-        _ => Err(Error::msg("Didn't get a text content message aaaaaaaa")),
+        _ => Err(Error::msg(
+            "Didn't receive a text LLM response in content cleaner, this shouldn't happen!",
+        )),
     }
 }
 

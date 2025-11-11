@@ -1,15 +1,13 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::pin::Pin;
-use std::result::Result;
 use std::sync::{
     Arc,
     atomic::{self, AtomicBool},
 };
 use std::task::{Context, Poll};
-use std::vec;
 
-use anyhow::{Error, Ok};
+use anyhow::{Error, Ok, anyhow};
 use bytes::Bytes;
 use chrono::Utc;
 use futures::stream::{BoxStream, Peekable};
@@ -78,8 +76,6 @@ pub struct DeltaContext {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DeltaToolCall {
-    // if deltatool has a name, then this has to have an id and type
-    // if no name, no id, no type
     pub id: Option<String>,
     pub function: DeltaTool,
     #[serde(rename = "type")]
@@ -134,9 +130,7 @@ impl From<ChatbotConversationMessage> for APIMessage {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum LLMToolChoice {
-    // should be in chatbot_configurations?
     Auto,
-    //Required,
     None,
 }
 
@@ -289,7 +283,11 @@ impl LLMRequest {
             Vec::new()
         };
 
-        let tools = if true { chatbot_tools() } else { vec![] };
+        let tools = if configuration.thinking_model {
+            chatbot_tools()
+        } else {
+            Vec::new()
+        };
 
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
@@ -485,12 +483,10 @@ pub async fn make_request_and_stream<'a>(
         .bytes_stream()
         .map_err(std::io::Error::other)
         .boxed();
-
     let reader = StreamReader::new(stream);
     let lines = reader.lines();
     let lines_stream = LinesStream::new(lines);
     let peekable_lines_stream = lines_stream.peekable();
-
     let mut pinned_lines = Box::pin(peekable_lines_stream);
 
     loop {
@@ -499,32 +495,34 @@ pub async fn make_request_and_stream<'a>(
             None => {
                 break;
             }
-            Some(res) => match res {
-                Err(_e) => break, // how to retunr
-                Result::Ok(line) => {
-                    if !line.starts_with("data: ") {
-                        pinned_lines.next().await;
-                        continue;
-                    }
-                    let json_str = line.trim_start_matches("data: ");
-
-                    let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
-                        .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
-                    for choice in &response_chunk.choices {
-                        if let Some(d) = &choice.delta {
-                            if let Some(_s) = &d.content {
-                                return Ok(ResponseStreamType::TextResponse(pinned_lines));
-                            } else if let Some(_calls) = &d.tool_calls {
-                                return Ok(ResponseStreamType::Toolcall(pinned_lines));
-                            } else if d.content.is_none() {
-                                pinned_lines.next().await;
-                                continue;
-                            }
+            Some(Err(e)) => {
+                return Err(anyhow!(
+                    "There was an error streaming response from Azure: {}",
+                    e
+                ));
+            }
+            Some(Result::Ok(line)) => {
+                if !line.starts_with("data: ") {
+                    pinned_lines.next().await;
+                    continue;
+                }
+                let json_str = line.trim_start_matches("data: ");
+                let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
+                    .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
+                for choice in &response_chunk.choices {
+                    if let Some(d) = &choice.delta {
+                        if let Some(_s) = &d.content {
+                            return Ok(ResponseStreamType::TextResponse(pinned_lines));
+                        } else if let Some(_calls) = &d.tool_calls {
+                            return Ok(ResponseStreamType::Toolcall(pinned_lines));
+                        } else if d.content.is_none() {
+                            pinned_lines.next().await;
+                            continue;
                         }
                     }
-                    pinned_lines.next().await;
                 }
-            },
+                pinned_lines.next().await;
+            }
         }
     }
 
@@ -544,10 +542,10 @@ pub async fn parse_tool<'a>(
     // remember to validate args
     let mut function_calls: HashMap<(String, String), String> = HashMap::new();
     let mut function_name_id: Option<(String, String)> = None;
-    let mut function_args = vec![]; //Arc::new(Mutex::new(Vec::new())); //idk?
+    let mut function_args = vec![];
     let mut tool_result_messages = vec![];
 
-    println!("Parsing tool calls.........");
+    println!("Parsing tool calls...");
 
     while let Some(val) = lines.next().await {
         let line = val?;
@@ -561,7 +559,6 @@ pub async fn parse_tool<'a>(
                     "The LLM response was supposed to contain function calls, but no function calls were found"
                 ));
             }
-            println!("TOOOL {:?}", function_calls);
             tool_result_messages.push(APIMessage {
                 role: MessageRole::Assistant,
                 fields: ApiMessageKind::ToolCall(ApiToolCallMessage {
@@ -582,7 +579,7 @@ pub async fn parse_tool<'a>(
 
             for ((name, id), args) in function_calls.iter() {
                 let fn_args = &serde_json::from_str(args)?;
-                let res = call_chatbot_tool(conn, name, fn_args, &user_context).await?;
+                let res = call_chatbot_tool(conn, name, fn_args, user_context).await?;
                 tool_result_messages.push(APIMessage {
                     role: MessageRole::Tool,
                     fields: ApiMessageKind::ToolResponse(ApiToolResponseMessage {
@@ -641,7 +638,7 @@ pub async fn parse_and_stream_to_user<'a>(
         request_estimated_tokens,
     };
 
-    println!("Parsing stream to user............");
+    println!("Parsing stream to user...");
 
     let response_stream = async_stream::try_stream! {
         while let Some(val) = lines.next().await {
@@ -673,8 +670,6 @@ pub async fn parse_and_stream_to_user<'a>(
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
-
-            //println!("{:?}", response_chunk);
 
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {
@@ -768,7 +763,7 @@ pub async fn send_chat_request_and_parse_stream(
     .await?;
 
     let response_order_number = new_message.order_number + 1;
-
+    let mut tool_msgs = vec![];
     let response_message = models::chatbot_conversation_messages::insert(
         conn,
         ChatbotConversationMessage {
@@ -786,13 +781,9 @@ pub async fn send_chat_request_and_parse_stream(
     )
     .await?;
 
-    let mut tool_msgs = vec![];
-
     loop {
         let mut chat_request = chat_request.clone();
         chat_request.messages.extend(tool_msgs.to_owned());
-
-        //println!("AAAAAAAAAAAAAAAAAAA {:?}", chat_request);
 
         let response_type =
             make_request_and_stream(chat_request.clone(), &model.deployment_name, app_config)

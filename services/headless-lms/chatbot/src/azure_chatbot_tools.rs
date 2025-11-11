@@ -66,7 +66,6 @@ pub fn chatbot_tools() -> Vec<AzureLLMToolDefintion> {
                                     description: "your fooname".to_string(),
                                 },
                             ),
-                            // (,)...
                         ]
                     )},
                     required: vec!["fooname".to_string()],
@@ -90,15 +89,15 @@ pub async fn call_chatbot_tool(
     fn_args: &Value,
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<String> {
-    // returns a string that contains the info the chatbot should use.
-    // in reality, the chatbot might want to use json data.
     match fn_name {
         "foo" => {
             let fooname = fn_args["fooname"].as_str().unwrap_or("default");
             foo(fooname).await
         }
         "course_progress" => course_progress(conn, user_context).await,
-        _ => Err(anyhow::Error::msg("Incorrect function name".to_string())),
+        _ => Err(anyhow::Error::msg(
+            "Incorrect or unknown function name".to_string(),
+        )),
     }
 }
 
@@ -106,6 +105,7 @@ pub async fn foo(fooname: &str) -> anyhow::Result<String> {
     Ok(format!("Hello {fooname}! Barrr"))
 }
 
+/// Return a string explaining the user's progress on the course that the chatbot is on
 pub async fn course_progress(
     conn: &mut PgConnection,
     user_context: &ChatbotUserContext,
@@ -116,8 +116,6 @@ pub async fn course_progress(
         user_context.user_id,
     )
     .await?;
-    println!("!!!!!!!!!!!!!!!!{:?}", progress);
-
     let course_name = &user_context.course_name;
     let mut res = format!("The user is completing a course called {course_name}. ");
 
@@ -153,9 +151,7 @@ pub async fn course_progress(
                 module.score_required,
             )
         } else {
-            res.push_str(&format!(
-                "There is no progress information for this user on this course. "
-            ));
+            res.push_str("There is no progress information for this user on this course. ");
             res
         };
         for module in progress.iter().skip(1) {
@@ -174,7 +170,6 @@ pub async fn course_progress(
             );
         }
     }
-    println!("!!!!!!!!!!!!!!!!{:?}", res);
     Ok(res)
 }
 
@@ -190,7 +185,7 @@ fn push_exercises_scores_progress(
     if let Some(a) = attempted_exercises {
         res.push_str(&format!("They have attempted {a} exercises. "));
     } else {
-        res.push_str(&format!("They have not attempted any exercises. "));
+        res.push_str("They have not attempted any exercises. ");
     }
     if let Some(b) = total_exercises {
         res.push_str(&format!("There is a total of {b} exercises. "));

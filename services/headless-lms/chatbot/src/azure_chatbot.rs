@@ -24,7 +24,7 @@ use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 use url::Url;
 
-use crate::azure_chatbot_tools::{AzureLLMToolDefintion, call_chatbot_tool, chatbot_tools};
+use crate::azure_chatbot_tools::{AzureLLMToolDefinition, call_chatbot_tool, chatbot_tools};
 use crate::llm_utils::{
     APIMessage, ApiMessageKind, ApiMessageToolCall, ApiTextMessage, ApiTool, ApiToolCallMessage,
     ApiToolResponseMessage, MessageRole, estimate_tokens, make_streaming_llm_request,
@@ -139,7 +139,7 @@ pub struct ThinkingParams {
     pub verbosity: Option<VerbosityLevel>,
     pub reasoning_effort: Option<ReasoningEffortLevel>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub tools: Vec<AzureLLMToolDefintion>,
+    pub tools: Vec<AzureLLMToolDefinition>,
     pub tool_choice: Option<LLMToolChoice>,
 }
 
@@ -514,7 +514,7 @@ pub async fn make_request_and_stream<'a>(
                     .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
                 for choice in &response_chunk.choices {
                     if let Some(d) = &choice.delta {
-                        if let Some(_s) = &d.content {
+                        if d.content.is_some() || d.context.is_some() {
                             return Ok(ResponseStreamType::TextResponse(pinned_lines));
                         } else if let Some(_calls) = &d.tool_calls {
                             return Ok(ResponseStreamType::Toolcall(pinned_lines));
@@ -542,13 +542,12 @@ pub async fn parse_tool<'a>(
     mut lines: PeekableLinesStream<'a>,
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<Vec<APIMessage>> {
-    // remember to validate args
     let mut function_calls: HashMap<(String, String), String> = HashMap::new();
     let mut function_name_id: Option<(String, String)> = None;
     let mut function_args = vec![];
     let mut tool_result_messages = vec![];
 
-    println!("Parsing tool calls...");
+    info!("Parsing tool calls...");
 
     while let Some(val) = lines.next().await {
         let line = val?;
@@ -640,7 +639,7 @@ pub async fn parse_and_stream_to_user<'a>(
         request_estimated_tokens,
     };
 
-    println!("Parsing stream to user...");
+    info!("Parsing stream to user...");
 
     let response_stream = async_stream::try_stream! {
         while let Some(val) = lines.next().await {
@@ -672,6 +671,8 @@ pub async fn parse_and_stream_to_user<'a>(
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
+
+            println!("!!!!!!!!!!!!!!!!!!!!! {:?}", response_chunk );
 
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {

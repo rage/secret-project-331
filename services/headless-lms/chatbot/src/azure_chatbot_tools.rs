@@ -6,7 +6,7 @@ use sqlx::PgConnection;
 use crate::azure_chatbot::ChatbotUserContext;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct AzureLLMToolDefintion {
+pub struct AzureLLMToolDefinition {
     #[serde(rename = "type")]
     pub tool_type: LLMToolType,
     pub function: LLMTool,
@@ -47,31 +47,9 @@ pub enum LLMToolType {
     Function,
 }
 
-pub fn chatbot_tools() -> Vec<AzureLLMToolDefintion> {
+pub fn chatbot_tools() -> Vec<AzureLLMToolDefinition> {
     vec![
-        AzureLLMToolDefintion {
-            tool_type: LLMToolType::Function,
-            function: LLMTool {
-                name: "foo".to_string(),
-                description: "Get foo".to_string(),
-                parameters: Some(LLMToolParams {
-                    tool_type: LLMToolParamType::Object,
-                    properties: {
-                        HashMap::from([
-                            (
-                                "fooname".to_string(),
-                                LLMToolParamProperties {
-                                    param_type: "string".to_string(),
-                                    description: "your fooname".to_string(),
-                                },
-                            ),
-                        ]
-                    )},
-                    required: vec!["fooname".to_string()],
-                }),
-            },
-        },
-        AzureLLMToolDefintion {
+        AzureLLMToolDefinition {
             tool_type: LLMToolType::Function,
             function: LLMTool {
                 name: "course_progress".to_string(),
@@ -94,7 +72,7 @@ pub async fn call_chatbot_tool(
             let args: Value = serde_json::from_str(fn_args).map_err(|e| {
                 anyhow::anyhow!("Failed to parse LLm function call arguments: {}", e)
             })?;
-            let fooname = args["fooname"].as_str().unwrap_or("default");
+            let fooname = args["fooname"].as_str().ok_or_else(|| anyhow::anyhow!("Required parameter 'fooname' is missing"))?;
             foo(fooname).await
         } */
         "course_progress" => course_progress(conn, user_context).await,

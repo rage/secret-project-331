@@ -136,7 +136,7 @@ pub async fn course_progress(
         );
     } else {
         progress.sort_by_key(|m| m.course_module_order_number);
-        let first_mod = progress.remove(0);
+        let first_mod = progress.first();
 
         res = if let Some(module) = first_mod {
             let m_name = &module.course_module_name;
@@ -158,7 +158,7 @@ pub async fn course_progress(
             ));
             res
         };
-        for module in progress.iter() {
+        for module in progress.iter().skip(1) {
             let m_name = &module.course_module_name;
             res.push_str(&format!(
                 "The user's progress on the course module called {m_name} is the following: "

@@ -217,6 +217,7 @@ export interface ChatbotConfiguration {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  use_tools: boolean
   default_chatbot: boolean
 }
 
@@ -242,6 +243,7 @@ export interface NewChatbotConf {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  use_tools: boolean
   default_chatbot: boolean
   chatbotconf_id: string | null
 }

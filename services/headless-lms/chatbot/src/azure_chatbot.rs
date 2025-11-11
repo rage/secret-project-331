@@ -131,7 +131,6 @@ impl From<ChatbotConversationMessage> for APIMessage {
 #[serde(rename_all = "snake_case")]
 pub enum LLMToolChoice {
     Auto,
-    None,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -283,7 +282,7 @@ impl LLMRequest {
             Vec::new()
         };
 
-        let tools = if configuration.thinking_model {
+        let tools = if configuration.use_tools {
             chatbot_tools()
         } else {
             Vec::new()
@@ -298,7 +297,11 @@ impl LLMRequest {
                 reasoning_effort: Some(configuration.reasoning_effort),
                 verbosity: Some(configuration.verbosity),
                 tools,
-                tool_choice: Some(LLMToolChoice::Auto),
+                tool_choice: if configuration.use_tools {
+                    Some(LLMToolChoice::Auto)
+                } else {
+                    None
+                },
             })
         } else {
             LLMRequestParams::NonThinking(NonThinkingParams {

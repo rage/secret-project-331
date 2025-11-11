@@ -578,8 +578,7 @@ pub async fn parse_tool<'a>(
             });
 
             for ((name, id), args) in function_calls.iter() {
-                let fn_args = &serde_json::from_str(args)?;
-                let res = call_chatbot_tool(conn, name, fn_args, user_context).await?;
+                let res = call_chatbot_tool(conn, name, args, user_context).await?;
                 tool_result_messages.push(APIMessage {
                     role: MessageRole::Tool,
                     fields: ApiMessageKind::ToolResponse(ApiToolResponseMessage {

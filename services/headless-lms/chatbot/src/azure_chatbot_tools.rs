@@ -86,12 +86,15 @@ pub fn chatbot_tools() -> Vec<AzureLLMToolDefintion> {
 pub async fn call_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
-    fn_args: &Value,
+    fn_args: &str,
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<String> {
     match fn_name {
         "foo" => {
-            let fooname = fn_args["fooname"].as_str().unwrap_or("default");
+            let args: Value = serde_json::from_str(fn_args).map_err(|e| {
+                anyhow::anyhow!("Failed to parse LLm function call arguments: {}", e)
+            })?;
+            let fooname = args["fooname"].as_str().unwrap_or("default");
             foo(fooname).await
         }
         "course_progress" => course_progress(conn, user_context).await,

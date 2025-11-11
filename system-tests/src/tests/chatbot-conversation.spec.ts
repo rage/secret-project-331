@@ -80,6 +80,7 @@ test.describe("Test chatbot chat box", () => {
       await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
       await student1Page.locator("body").click()
 
+      await chatbotDialog.getByLabel("Citation 1").last().scrollIntoViewIfNeeded()
       await chatbotDialog.getByLabel("Citation 1").last().click()
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: student1Page,

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use sqlx::PgConnection;
 
 use crate::azure_chatbot::ChatbotUserContext;
@@ -86,26 +85,23 @@ pub fn chatbot_tools() -> Vec<AzureLLMToolDefintion> {
 pub async fn call_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
-    fn_args: &str,
+    _fn_args: &str,
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<String> {
     match fn_name {
-        "foo" => {
+        // if the function took arguments, this is how:
+        /* "foo" => {
             let args: Value = serde_json::from_str(fn_args).map_err(|e| {
                 anyhow::anyhow!("Failed to parse LLm function call arguments: {}", e)
             })?;
             let fooname = args["fooname"].as_str().unwrap_or("default");
             foo(fooname).await
-        }
+        } */
         "course_progress" => course_progress(conn, user_context).await,
         _ => Err(anyhow::Error::msg(
             "Incorrect or unknown function name".to_string(),
         )),
     }
-}
-
-pub async fn foo(fooname: &str) -> anyhow::Result<String> {
-    Ok(format!("Hello {fooname}! Barrr"))
 }
 
 /// Return a string explaining the user's progress on the course that the chatbot is on

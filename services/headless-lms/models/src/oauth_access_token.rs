@@ -12,7 +12,7 @@ pub enum TokenType {
     DPoP,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct OAuthAccessToken {
     pub digest: Digest,
     pub user_id: Option<Uuid>,

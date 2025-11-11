@@ -2,25 +2,24 @@ use core::fmt;
 use std::borrow::Cow;
 use std::str::FromStr;
 
+use secrecy::{ExposeSecret, SecretBox};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use subtle::ConstantTimeEq;
-use zeroize::Zeroize;
 
 use sqlx::encode::IsNull;
 use sqlx::postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef};
 use sqlx::{Decode, Encode, Postgres, error::BoxDynError};
 
-// --- Secure Digest (zeroizes on drop) --------------------------------------
-
-#[derive(Clone, Hash, Zeroize, PartialEq, Eq)]
-#[zeroize(drop)]
-pub struct Digest([u8; 32]);
+/// Secure Digest (zeroizes on drop via `secrecy::SecretBox`)
+pub struct Digest(SecretBox<[u8; 32]>);
 
 impl Digest {
     pub const LEN: usize = 32;
 
-    pub const fn new(bytes: [u8; 32]) -> Self {
-        Self(bytes)
+    #[inline]
+    pub fn new(bytes: [u8; 32]) -> Self {
+        // SecretBox::new takes a Box<T>
+        Self(SecretBox::new(Box::new(bytes)))
     }
 
     pub fn from_slice(slice: &[u8]) -> Result<Self, DigestError> {
@@ -29,32 +28,22 @@ impl Digest {
         }
         let mut arr = [0u8; Self::LEN];
         arr.copy_from_slice(slice);
-        Ok(Self(arr))
+        Ok(Self::new(arr))
     }
 
     #[inline]
     pub fn as_bytes(&self) -> &[u8; 32] {
-        &self.0
+        self.0.expose_secret()
     }
 
     #[inline]
     pub fn as_slice(&self) -> &[u8] {
-        &self.0
+        &self.0.expose_secret()[..]
     }
 
     /// Constant-time equality helper that returns bool.
     pub fn constant_eq(&self, other: &Self) -> bool {
-        self.0.ct_eq(&other.0).unwrap_u8() == 1
-    }
-
-    pub fn to_hex(&self) -> String {
-        const HEX: &[u8; 16] = b"0123456789abcdef";
-        let mut out = vec![0u8; 64];
-        for (i, b) in self.0.iter().copied().enumerate() {
-            out[2 * i] = HEX[(b >> 4) as usize];
-            out[2 * i + 1] = HEX[(b & 0x0f) as usize];
-        }
-        String::from_utf8(out).unwrap() // Cannot fail, above code generated only valid ascii.
+        self.as_slice().ct_eq(other.as_slice()).unwrap_u8() == 1
     }
 }
 
@@ -86,23 +75,16 @@ impl FromStr for Digest {
 
 impl fmt::Debug for Digest {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Never expose contents
         write!(f, "Digest(…redacted…)")
     }
 }
-impl fmt::Display for Digest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.to_hex())
-    }
-}
 
-impl AsRef<[u8]> for Digest {
-    fn as_ref(&self) -> &[u8] {
-        &self.0
-    }
-}
+// Intentionally no Clone, no AsRef, no Display.
+
 impl From<[u8; 32]> for Digest {
     fn from(v: [u8; 32]) -> Self {
-        Self(v)
+        Self::new(v)
     }
 }
 
@@ -115,7 +97,7 @@ impl core::convert::TryFrom<Vec<u8>> for Digest {
 
 impl From<Digest> for Vec<u8> {
     fn from(d: Digest) -> Self {
-        d.0.to_vec()
+        d.as_slice().to_vec()
     }
 }
 
@@ -123,7 +105,7 @@ impl From<Digest> for Vec<u8> {
 
 impl Serialize for Digest {
     fn serialize<S: Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
-        ser.serialize_bytes(&self.0)
+        ser.serialize_bytes(self.as_slice())
     }
 }
 impl<'de> Deserialize<'de> for Digest {
@@ -132,6 +114,8 @@ impl<'de> Deserialize<'de> for Digest {
         Digest::from_slice(&bytes).map_err(serde::de::Error::custom)
     }
 }
+
+// --- SQLx integration ------------------------------------------------------
 
 impl<'r> Decode<'r, Postgres> for Digest {
     fn decode(value: PgValueRef<'r>) -> Result<Self, BoxDynError> {
@@ -142,7 +126,7 @@ impl<'r> Decode<'r, Postgres> for Digest {
 
 impl<'q> Encode<'q, Postgres> for Digest {
     fn encode_by_ref(&self, buf: &mut PgArgumentBuffer) -> Result<IsNull, BoxDynError> {
-        <&[u8] as Encode<Postgres>>::encode_by_ref(&&self.0[..], buf)
+        <&[u8] as Encode<Postgres>>::encode_by_ref(&&self.as_slice()[..], buf)
     }
 }
 

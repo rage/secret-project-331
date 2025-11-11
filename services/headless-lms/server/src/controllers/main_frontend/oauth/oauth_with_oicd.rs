@@ -431,8 +431,6 @@ pub async fn token(
                 OAuthAuthCode::consume(&mut conn, code_digest).await?
             };
 
-            // ---------- PKCE (using strong types) ----------
-
             match (
                 code_row.code_challenge.as_deref(),
                 code_row.code_challenge_method,
@@ -473,7 +471,6 @@ pub async fn token(
                     return Err(PkceFlowError::ServerError("inconsistent PKCE state").into());
                 }
             }
-            // ---------- /PKCE ----------
 
             if code_row.client_id != client.id {
                 return Err(oauth_invalid_grant("invalid authorization code"));

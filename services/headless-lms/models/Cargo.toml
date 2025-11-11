@@ -61,6 +61,8 @@ rand = "0.9.2"
 zeroize = { version = "1.8.1", features = ["derive"] }
 # Constant-time cryptographic operations for security. (Not O(1), but always the the longest time)
 subtle = "2.6.1"
+# Easy-to-use secret management library.
+secrecy = { version = "0.10.3", features = ["serde"] }
 # for hex/base64 helpers
 hex = "0.4"
 base64 = "0.22"

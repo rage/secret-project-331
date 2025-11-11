@@ -102,6 +102,7 @@ pub struct Citation {
     pub filepath: String,
 }
 
+/// Response received from LLM API
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ResponseChunk {
     pub choices: Vec<Choice>,
@@ -157,7 +158,6 @@ pub struct NonThinkingParams {
 pub enum LLMRequestParams {
     Thinking(ThinkingParams),
     NonThinking(NonThinkingParams),
-    None,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -672,8 +672,6 @@ pub async fn parse_and_stream_to_user<'a>(
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
 
-            println!("!!!!!!!!!!!!!!!!!!!!! {:?}", response_chunk );
-
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {
                     if let Some(content) = &delta.content {
@@ -783,8 +781,16 @@ pub async fn send_chat_request_and_parse_stream(
         },
     )
     .await?;
+    let mut max_iterations_left = 15;
 
     loop {
+        max_iterations_left -= 1;
+        if max_iterations_left == 0 {
+            error!("Maximum tool call iterations exceeded");
+            return Err(anyhow::anyhow!(
+                "Maximum tool call iterations exceeded. The LLM may be stuck in a loop."
+            ));
+        }
         let mut chat_request = chat_request.clone();
         chat_request.messages.extend(tool_msgs.to_owned());
 

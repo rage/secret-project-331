@@ -11,6 +11,7 @@ use super::helpers::{
     rsa_n_e_and_kid_from_pem, scope_has_openid, token_digest_sha256,
 };
 use super::jwks::{Jwk, Jwks};
+use super::oauth_validated::OAuthValidated;
 use super::token_query::{GrantType, TokenParams};
 use super::token_response::TokenResponse;
 use super::userinfo_response::UserInfoResponse;
@@ -64,7 +65,7 @@ use url::{Url, form_urlencoded};
 /// ```
 pub async fn authorize(
     pool: web::Data<PgPool>,
-    query: AuthorizeParams,
+    OAuthValidated(query): OAuthValidated<AuthorizeParams>,
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
@@ -90,13 +91,6 @@ pub async fn authorize(
     );
     let parsed_pkce_method: Option<PkceMethod> = match (cc_opt, ccm_opt) {
         (Some(ch), Some(m)) => {
-            if !looks_like_b64url_no_padding(ch) {
-                return Err(oauth_invalid_request(
-                    "invalid code_challenge",
-                    Some(&query.redirect_uri),
-                    query.state.as_deref(),
-                ));
-            }
             let method = parse_pkce_method(m).ok_or_else(|| {
                 oauth_invalid_request(
                     "unsupported code_challenge_method",
@@ -374,7 +368,7 @@ async fn deny_consent(
 #[instrument(skip(pool, app_conf))]
 pub async fn token(
     pool: web::Data<PgPool>,
-    form: TokenParams,
+    OAuthValidated(form): OAuthValidated<TokenParams>,
     req: actix_web::HttpRequest,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {

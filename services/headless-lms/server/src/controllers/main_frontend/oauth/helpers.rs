@@ -225,21 +225,3 @@ pub fn parse_pkce_method(s: &str) -> Option<PkceMethod> {
         _ => None,
     }
 }
-
-// RFC 7636: code_challenge must be base64url (no padding), typically 43..128 chars if S256.
-// We keep this conservative quick check; deeper checks happen at /token with the verifier.
-pub fn looks_like_b64url_no_padding(s: &str) -> bool {
-    !s.is_empty()
-        && s.len() <= 256
-        && !s.contains('=')
-        && s.bytes().all(
-            |b| {
-                (b'A'..=b'Z').contains(&b)
-                    || (b'a'..=b'z').contains(&b)
-                    || (b'0'..=b'9').contains(&b)
-                    || b == b'-'
-                    || b == b'_'
-                    || b == b'.'
-            }, // allow dot for forward-compat
-        )
-}

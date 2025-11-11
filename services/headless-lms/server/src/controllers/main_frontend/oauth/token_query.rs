@@ -139,8 +139,6 @@ pub enum GrantType {
     },
 }
 
-impl_oauth_from_request!(TokenQuery => TokenParams);
-
 #[cfg(test)]
 mod tests {
     use super::*;

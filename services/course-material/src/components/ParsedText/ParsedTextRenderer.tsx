@@ -1,4 +1,4 @@
-import { createElement, memo, useContext, useMemo, useRef } from "react"
+import { createElement, memo, useContext, useMemo } from "react"
 
 import { parseText } from "../ContentRenderer/util/textParsing"
 

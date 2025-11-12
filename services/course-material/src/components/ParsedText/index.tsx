@@ -13,7 +13,7 @@ import { createPortal } from "react-dom"
 
 import ParsedTextRenderer from "./ParsedTextRenderer"
 
-import TooltipNTrigger from "@/components/references/TooltipNTrigger"
+import TooltipNTrigger from "@/components/TooltipNTrigger"
 import { GlossaryContext } from "@/contexts/GlossaryContext"
 
 export type Tag = keyof JSX.IntrinsicElements
@@ -79,7 +79,7 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
         return createPortal(
           <TooltipNTrigger
             key={`glossary-${glossaryId}-${idx}`}
-            variant="underlined-text"
+            variant="glossary"
             className={glossaryTermStyle}
             tooltipContent={term.definition}
           >

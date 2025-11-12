@@ -376,6 +376,9 @@ const config = [
               "useTransition",
               "createPopper",
               "closest",
+              "querySelectorAll",
+              "querySelector",
+              "getAttribute",
             ],
           },
           "object-properties": {

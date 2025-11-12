@@ -9,13 +9,12 @@ import {
   useRef,
   useState,
 } from "react"
-import { Tooltip, TooltipTrigger } from "react-aria-components"
 import { createPortal } from "react-dom"
 
 import ParsedTextRenderer from "./ParsedTextRenderer"
 
+import TooltipNTrigger from "@/components/references/TooltipNTrigger"
 import { GlossaryContext } from "@/contexts/GlossaryContext"
-import { baseTheme } from "@/shared-module/common/styles"
 
 export type Tag = keyof JSX.IntrinsicElements
 
@@ -43,32 +42,14 @@ const glossaryTermStyle = css`
   cursor: help;
 `
 
-const glossaryTooltipStyle = css`
-  max-width: 300px;
-  padding: 8px;
-  background-color: #fff;
-  border: 1px solid ${baseTheme.colors.clear[300]};
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  font-size: 14px;
-  line-height: 1.4;
-`
-
 const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
   const containerRef = useRef<HTMLDivElement>(null)
   const [readyForPortal, setReadyForPortal] = useState(false)
-  const [portalKey, setPortalKey] = useState(0)
 
   useLayoutEffect(() => {
     setReadyForPortal(true)
   }, [])
-
-  useLayoutEffect(() => {
-    if (readyForPortal && containerRef.current) {
-      setPortalKey((prev) => prev + 1)
-    }
-  }, [readyForPortal, props.text, terms])
 
   const portals = useMemo(() => {
     if (!readyForPortal || !containerRef.current) {
@@ -96,18 +77,20 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
         }
 
         return createPortal(
-          <TooltipTrigger delay={200} closeDelay={200} key={`glossary-${glossaryId}-${idx}`}>
-            <span className={glossaryTermStyle}>{term.term}</span>
-            <Tooltip placement="top">
-              <div className={glossaryTooltipStyle}>{term.definition}</div>
-            </Tooltip>
-          </TooltipTrigger>,
+          <TooltipNTrigger
+            key={`glossary-${glossaryId}-${idx}`}
+            variant="underlined-text"
+            className={glossaryTermStyle}
+            tooltipContent={term.definition}
+          >
+            {term.term}
+          </TooltipNTrigger>,
           node,
           idx,
         )
       })
       .filter((portal): portal is ReactPortal => portal !== null)
-  }, [terms, readyForPortal, portalKey])
+  }, [terms, readyForPortal])
 
   return (
     <div ref={containerRef}>

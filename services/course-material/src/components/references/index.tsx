@@ -139,7 +139,13 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
           citeNumber = citeOrder.indexOf(reference.id) + 1
         }
         return createPortal(
-          <TooltipNTrigger reference={reference} citeNumber={citeNumber} />,
+          <TooltipNTrigger
+            variant="sup-footnote"
+            href={"#ref-" + citeNumber}
+            tooltipContent={reference.text}
+          >
+            [{citeNumber}]
+          </TooltipNTrigger>,
           node,
           idx,
         )

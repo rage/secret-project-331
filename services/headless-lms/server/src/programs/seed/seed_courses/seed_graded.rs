@@ -12,6 +12,7 @@ use anyhow::Result;
 use chrono::Utc;
 use headless_lms_models::course_instance_enrollments;
 use headless_lms_models::roles::UserRole;
+use sqlx::{Row, postgres::PgRow};
 use tracing::info;
 use uuid::Uuid;
 
@@ -32,7 +33,7 @@ async fn get_or_attach_certificate_config_for_module(
     }
 
     // 2) Pick any existing certificate configuration (latest)
-    let config_id: Uuid = sqlx::query_scalar(
+    let config_id: Uuid = sqlx::query(
         r#"
         SELECT id
         FROM certificate_configurations
@@ -41,9 +42,9 @@ async fn get_or_attach_certificate_config_for_module(
         LIMIT 1
         "#,
     )
+    .map(|row: PgRow| row.get::<Uuid, _>("id"))
     .fetch_one(&mut *conn)
-    .await
-    .context("no certificate_configurations exist; create one via UI/seed first")?;
+    .await;
 
     // 3) Attach it to this module as a requirement (idempotent)
     sqlx::query(
@@ -70,22 +71,23 @@ async fn get_or_attach_certificate_config_for_module(
 }
 
 async fn get_or_create_default_registrar(conn: &mut sqlx::PgConnection) -> anyhow::Result<Uuid> {
-    if let Some(id) = sqlx::query_scalar::<_, Uuid>(
-        r#"SELECT id FROM study_registry_registrars ORDER BY created_at LIMIT 1"#,
-    )
-    .fetch_optional(&mut *conn)
-    .await?
+    if let Some(id) =
+        sqlx::query(r#"SELECT id FROM study_registry_registrars ORDER BY created_at LIMIT 1"#)
+            .map(|row: PgRow| row.get::<Uuid, _>("id"))
+            .fetch_optional(&mut *conn)
+            .await?
     {
         return Ok(id);
     }
 
-    let id = sqlx::query_scalar::<_, Uuid>(
+    let id = sqlx::query(
         r#"
         INSERT INTO study_registry_registrars (id, created_at, updated_at, name, secret_key)
         VALUES (gen_random_uuid(), now(), now(), 'Default Registrar', encode(gen_random_bytes(32), 'hex'))
         RETURNING id
         "#,
     )
+    .map(|row: PgRow| row.get::<Uuid, _>("id"))
     .fetch_one(&mut *conn)
     .await?;
 
@@ -120,13 +122,26 @@ pub async fn seed_graded_course(
     info!("Inserting sample course {}", course_name);
 
     // Build the graded module
-    let registrar_id = get_or_create_default_registrar(&mut conn).await?;
+    let registrar_id: Uuid = if let Some(id) =
+        sqlx::query(r#"SELECT id FROM study_registry_registrars ORDER BY created_at LIMIT 1"#)
+            .map(|row: PgRow| row.get::<Uuid, _>("id"))
+            .fetch_optional(&mut *conn)
+            .await?
+    {
+        id
+    } else {
+        sqlx::query(
+            r#"
+            INSERT INTO study_registry_registrars (id, created_at, updated_at, name, secret_key)
+            VALUES (gen_random_uuid(), now(), now(), 'Default Registrar', encode(gen_random_bytes(32), 'hex'))
+            RETURNING id
+            "#,
+        )
+        .map(|row: PgRow| row.get::<Uuid, _>("id"))
+        .fetch_one(&mut *conn)
+        .await?
+    };
 
-    let mut module = ModuleBuilder::new()
-        .order(0)
-        .register_to_open_university(false)
-        .automatic_completion(Some(1), Some(1), false)
-        .default_registrar(registrar_id);
 
     for (i, uid) in example_normal_user_ids.iter().enumerate() {
         module = module.completion(

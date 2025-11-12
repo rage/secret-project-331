@@ -1,0 +1,92 @@
+use crate::programs::seed::builder::chapter::ChapterBuilder;
+use crate::programs::seed::builder::context::SeedContext;
+use crate::programs::seed::builder::course::{CourseBuilder, CourseInstanceConfig};
+use crate::programs::seed::builder::module::ModuleBuilder;
+use crate::programs::seed::builder::page::PageBuilder;
+use crate::programs::seed::seed_courses::CommonCourseData;
+use crate::programs::seed::seed_helpers::paragraph;
+use anyhow::Result;
+use chrono::Utc;
+use headless_lms_models::roles::UserRole;
+use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
+use tracing::info;
+use uuid::Uuid;
+
+use super::super::seed_users::SeedUsersResult;
+
+pub async fn seed_glossary_course(
+    course_id: Uuid,
+    course_name: &str,
+    course_slug: &str,
+    common_course_data: CommonCourseData,
+    seed_users_result: SeedUsersResult,
+) -> Result<Uuid> {
+    let CommonCourseData {
+        db_pool,
+        organization_id: org,
+        teacher_user_id,
+        student_user_id: _student,
+        langs_user_id: _langs_user_id,
+        example_normal_user_ids: _users,
+        jwt_key: _jwt_key,
+        base_url: _base_url,
+    } = common_course_data;
+
+    let mut conn = db_pool.acquire().await?;
+    let cx = SeedContext {
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: course_id,
+    };
+
+    info!("Inserting glossary course {}", course_name);
+
+    let course = CourseBuilder::new(course_name, course_slug)
+        .desc("Sample course for glossary.")
+        .course_id(course_id)
+        .instance(CourseInstanceConfig {
+            name: None,
+            description: None,
+            support_email: None,
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            opening_time: None,
+            closing_time: None,
+            instance_id: Some(cx.v5(b"instance:default")),
+        })
+        .role(seed_users_result.teacher_user_id, UserRole::Teacher)
+        .top_level_page(
+            "/glossary",
+            "Glossary",
+            1,
+            false,
+            Some(vec![GutenbergBlock {
+                name: "moocfi/glossary".to_string(),
+                is_valid: true,
+                client_id: cx.v5(b"glossary-page-block"),
+                attributes: attributes! {},
+                inner_blocks: vec![],
+            }]),
+        )
+        .module(
+            ModuleBuilder::new()
+                .order(0)
+                .register_to_open_university(false)
+                .automatic_completion(Some(1), Some(1), false)
+                .chapter(
+                    ChapterBuilder::new(1, "Introduction")
+                        .opens(Utc::now())
+                        .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
+                        .page(
+                            PageBuilder::new("/chapter-1/page-1", "Page One").block(paragraph(
+                                "This paragraph contains the glossary term ABCD.",
+                                cx.v5(b"page:1:1:block:intro"),
+                            )),
+                        ),
+                ),
+        );
+
+    let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
+
+    Ok(course.id)
+}

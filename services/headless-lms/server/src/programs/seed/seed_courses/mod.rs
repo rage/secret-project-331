@@ -1,5 +1,6 @@
 pub mod seed_chatbot;
 pub mod seed_course_with_peer_review;
+pub mod seed_glossary;
 
 use std::sync::Arc;
 

@@ -1,9 +1,10 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 import { waitForFooterTranslationsToLoad } from "../utils/waitingUtils"
 
+import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -12,65 +13,106 @@ test.use({
 
 test("glossary test", async ({ page, headless }, testInfo) => {
   test.slow()
-  await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await test.step("Open Organizations and select UH CS", async () => {
+    await page.goto("http://project-331.local/organizations")
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+  })
 
-  await page.getByText("Glossary course").click()
+  await test.step("Open Glossary course and ensure course instance", async () => {
+    await page.getByText("Glossary course").click()
+    await selectCourseInstanceIfPrompted(page)
+  })
 
-  await selectCourseInstanceIfPrompted(page)
+  await test.step("Navigate to Glossary page then back to Organizations and re-select org", async () => {
+    await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
+    await page.goto("http://project-331.local/organizations")
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+  })
 
-  await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
+  await test.step("Open course manage menu and switch to Glossary tab", async () => {
+    await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()
+    await page.getByRole("tab", { name: "Other" }).click()
+    await page.getByRole("tab", { name: "Glossary" }).click()
+  })
 
-  await page.goto("http://project-331.local/organizations")
+  await test.step("Quick edit cancel, then delete existing entry", async () => {
+    await page.getByRole("button", { name: "Edit" }).first().click()
+    await page.getByText("Cancel").click()
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+    await page.getByRole("button", { name: "Delete" }).first().click()
+    await page.getByText("Deleted").first().waitFor()
+  })
 
-  await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()
+  await test.step("Create new glossary term and verify success", async () => {
+    await page.getByPlaceholder("New term").fill("abcd")
+    await page.getByPlaceholder("New definition").fill("efgh")
 
-  await page.getByRole("tab", { name: "Other" }).click()
-  await Promise.all([page.getByRole("tab", { name: "Glossary" }).click()])
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+    await page.getByText("Operation successful!").waitFor()
 
-  await page.getByRole("button", { name: "Edit" }).first().click()
-  await page.getByText("Cancel").click()
+    // Reload to stabilize screenshot later.
+    await page.reload()
+    await page.getByText("efgh").waitFor()
+    await waitForFooterTranslationsToLoad(page)
+  })
 
-  await page.getByRole("button", { name: "Delete" }).first().click()
+  await test.step("Edit the newly added term and definition, then save", async () => {
+    await page.getByRole("button", { name: "Edit" }).first().click()
 
-  await page.getByText("Deleted").first().waitFor()
+    await page.getByPlaceholder("Updated term").fill("ABCD")
+    await page.getByPlaceholder("Updated definition").fill("EFGH")
 
-  await page.getByPlaceholder("New term").fill("abcd")
-  await page.getByPlaceholder("New definition").fill("efgh")
+    await page.locator(':nth-match(:text("Save"), 2)').click()
+  })
 
-  await page.click(`button:text-is("Save") >> visible=true`)
-  await page.locator(`div:text-is("Success")`).waitFor()
-  // The save button reloads the data in the background and that might make the added-new-term screenshot unstable without the reload.
-  await page.reload()
-  await page.getByText("efgh").waitFor()
-  await waitForFooterTranslationsToLoad(page)
+  await test.step("Return to Glossary page and snapshot", async () => {
+    await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
+    await page.getByText("Give feedback").waitFor()
 
-  await page.getByRole("button", { name: "Edit" }).first().click()
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "final-glossary-page",
+      waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Glossary" })],
+      clearNotifications: true,
+    })
+  })
 
-  // Fill [placeholder="updated term"]
-  await page.getByPlaceholder("Updated term").fill("ABCD")
+  await test.step("Glossary popup is accessible", async () => {
+    const glossaryButton = page.getByRole("button", { name: "ABCD" }).first()
+    await expect(glossaryButton).toBeVisible()
 
-  // Fill text=efgh
-  await page.getByPlaceholder("Updated definition").fill("EFGH")
+    await accessibilityCheck(page, "Glossary tooltip closed view")
 
-  await page.click(':nth-match(:text("Save"), 2)')
+    await glossaryButton.hover()
+    await expect(page.getByRole("tooltip", { name: "EFGH" })).toBeVisible()
+    await accessibilityCheck(page, "Glossary tooltip open view")
+    await page.keyboard.press("Escape")
+    await expect(page.getByRole("tooltip", { name: "EFGH" })).toBeHidden()
 
-  await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
-  await page.getByText("Give feedback").waitFor()
+    await glossaryButton.click()
+    const popover = page.getByRole("dialog", { name: "Term explanation" })
+    await expect(popover).toBeVisible()
+    await expect(popover).toBeFocused()
+    await accessibilityCheck(page, "Glossary popover open view")
+    await page.keyboard.press("Escape")
+    await expect(popover).toBeHidden()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "final-glossary-page",
-    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Glossary" })],
-    clearNotifications: true,
+    await glossaryButton.focus()
+    await expect(glossaryButton).toBeFocused()
+    await page.keyboard.press("Enter")
+    await expect(popover).toBeVisible()
+    await expect(popover).toBeFocused()
+    await page.keyboard.press("Escape")
+    await expect(popover).toBeHidden()
+
+    await expect(page.locator("#content")).toMatchAriaSnapshot(`
+    - paragraph:
+      - text: This paragraph contains the glossary term
+      - button "ABCD"
+      - text: .
+    `)
   })
 })

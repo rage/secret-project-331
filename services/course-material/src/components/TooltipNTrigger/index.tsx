@@ -2,9 +2,9 @@ import { t } from "i18next"
 import React, { ReactNode } from "react"
 import { Tooltip, TooltipTrigger } from "react-aria-components"
 
+import GlossaryTriggerNPopover from "./GlossaryTriggerNPopover"
 import { TooltipBox } from "./TooltipBox"
 import { TooltipNTriggerAnchor } from "./TooltipNTriggerAnchor"
-import { UnderlinedWithPopover } from "./UnderlinedWithPopover"
 
 type TooltipNTriggerProps =
   | {
@@ -37,13 +37,13 @@ const TooltipNTrigger: React.FC<TooltipNTriggerProps> = (props) => {
   }
 
   return (
-    <UnderlinedWithPopover
+    <GlossaryTriggerNPopover
       className={props.className}
       tooltipContent={tooltipContent}
       dialogAriaLabel={t("term-explanation")}
     >
       {children}
-    </UnderlinedWithPopover>
+    </GlossaryTriggerNPopover>
   )
 }
 

@@ -1,10 +1,8 @@
 import KaTex from "katex"
-import { renderToString } from "react-dom/server"
 import "katex/dist/katex.min.css"
 
 import { StringWithHTML } from "../../../../types"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
-import Tooltip from "../core/common/GlossaryTooltip"
 
 import { Term } from "@/shared-module/common/bindings"
 
@@ -34,10 +32,6 @@ const convertToLatex = (data: string) => {
   return { count, converted }
 }
 
-// const generateToolTip = (term: Term) => {
-//   return renderToString(<Tooltip term={term} />)
-// }
-
 const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; terms: Term[] } => {
   let parsed = data
   let usedGlossary: Term[] = []
@@ -45,11 +39,10 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
   glossary.forEach((item) => {
     // eslint-disable-next-line i18next/no-literal-string
     const regexString = `\\b(${item.term})\\b`
-    parsed = parsed.replace(new RegExp(regexString, REGEX_MODE), (content, _) => {
+    parsed = parsed.replace(new RegExp(regexString, REGEX_MODE), (_content, _) => {
       usedGlossary.push(item)
       // eslint-disable-next-line i18next/no-literal-string
       return `<span data-glossary-id="${item.id}"></span>`
-      // generateToolTip({ ...item, term: content }),
     })
   })
 

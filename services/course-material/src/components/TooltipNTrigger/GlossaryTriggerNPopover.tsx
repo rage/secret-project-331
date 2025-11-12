@@ -41,7 +41,7 @@ const StyledButton = styled(ReactAriaButton)`
   }
 `
 
-export function UnderlinedWithPopover({
+export const GlossaryTriggerNPopover = ({
   className,
   tooltipContent,
   children,
@@ -51,7 +51,7 @@ export function UnderlinedWithPopover({
   tooltipContent: ReactNode
   children: ReactNode
   dialogAriaLabel: string
-}) {
+}) => {
   // Local, fully controlled state
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
@@ -142,3 +142,5 @@ export function UnderlinedWithPopover({
     </>
   )
 }
+
+export default GlossaryTriggerNPopover

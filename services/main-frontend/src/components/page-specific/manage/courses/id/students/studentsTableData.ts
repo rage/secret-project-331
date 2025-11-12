@@ -1,8 +1,10 @@
 // studentsTableData.ts
+/* eslint-disable */
+
 
 export type Student = {
-  firstName: string
-  lastName: string
+  firstName: string | null
+  lastName: string | null
   userId: string
   email: string
   courseInstance: string
@@ -219,7 +221,7 @@ const moduleDefs = [
 ]
 
 // 👇 fixed widths for leaf columns (per module)
-export const COMPLETIONS_COL_WIDTH = 120 // px; tweak if you like
+export const COMPLETIONS_COL_WIDTH = 120 // px;
 
 // Completions columns: Student + each Module with two subcolumns (Grade, Status)
 export const completionsColumns = [

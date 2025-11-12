@@ -1,7 +1,9 @@
 use crate::programs::seed::builder::chapter::ChapterBuilder;
 use crate::programs::seed::builder::context::SeedContext;
 use crate::programs::seed::builder::course::{CourseBuilder, CourseInstanceConfig};
-use crate::programs::seed::builder::module::{CompletionBuilder, ModuleBuilder};
+use crate::programs::seed::builder::module::{
+    CompletionBuilder, CompletionRegisteredBuilder, ModuleBuilder,
+};
 use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
@@ -78,7 +80,9 @@ pub async fn seed_graded_course(
             CompletionBuilder::new(*uid)
                 .grade(5)
                 .passed(true)
-                .completion_registered(format!("52-{:03}", i)),
+                .registered(
+                    CompletionRegisteredBuilder::new().real_student_number(format!("52-{:03}", i)),
+                ),
         );
     }
 

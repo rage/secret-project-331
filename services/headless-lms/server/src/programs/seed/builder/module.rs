@@ -10,6 +10,31 @@ use chrono::{DateTime, Utc};
 use sqlx::{Row, postgres::PgRow};
 use uuid::Uuid;
 
+#[derive(Debug, Clone)]
+pub struct CompletionRegisteredBuilder {
+    pub registrar_id: Option<Uuid>,
+    pub real_student_number: Option<String>,
+}
+
+impl CompletionRegisteredBuilder {
+    pub fn new() -> Self {
+        Self {
+            registrar_id: None,
+            real_student_number: None,
+        }
+    }
+
+    pub fn registrar_id(mut self, id: Uuid) -> Self {
+        self.registrar_id = Some(id);
+        self
+    }
+
+    pub fn real_student_number(mut self, num: impl Into<String>) -> Self {
+        self.real_student_number = Some(num.into());
+        self
+    }
+}
+
 /// Builder for seeding a single course_module_completion row.
 #[derive(Debug, Clone)]
 pub struct CompletionBuilder {
@@ -22,7 +47,7 @@ pub struct CompletionBuilder {
     eligible_for_ects: Option<bool>,
     prerequisite_modules_completed: Option<bool>,
     needs_to_be_reviewed: Option<bool>,
-    register: Option<(Uuid, String)>,
+    register: Option<CompletionRegisteredBuilder>,
 }
 
 impl CompletionBuilder {
@@ -41,14 +66,8 @@ impl CompletionBuilder {
         }
     }
 
-    pub fn completion_registered(mut self, student_number: impl Into<String>) -> Self {
-        // will use module default registrar if available
-        self.register = Some((Uuid::nil(), student_number.into()));
-        self
-    }
-
-    pub fn register_with(mut self, registrar_id: Uuid, student_number: impl Into<String>) -> Self {
-        self.register = Some((registrar_id, student_number.into()));
+    pub fn registered(mut self, r: CompletionRegisteredBuilder) -> Self {
+        self.register = Some(r);
         self
     }
 
@@ -99,7 +118,6 @@ impl CompletionBuilder {
         course_module_id: Uuid,
         default_registrar_id: Option<Uuid>,
     ) -> anyhow::Result<()> {
-        // 1) Insert completion if missing, return id
         let inserted_row: Option<PgRow> = sqlx::query(
             r#"
             INSERT INTO course_module_completions (
@@ -149,7 +167,6 @@ impl CompletionBuilder {
             .await?
         };
 
-        // 2) Optional stamp: registration attempt time
         let _ = sqlx::query(
             "UPDATE course_module_completions
             SET completion_registration_attempt_date = now()
@@ -159,36 +176,36 @@ impl CompletionBuilder {
         .execute(&mut *conn)
         .await;
 
-        // 3) Optional registry row (supports default registrar)
-        if let Some((rid, student_number)) = &self.register {
-            let registrar_id = if *rid != Uuid::nil() {
-                *rid
+        if let Some(r) = &self.register {
+            let registrar_id = if let Some(id) = r.registrar_id {
+                id
             } else if let Some(def) = default_registrar_id {
                 def
             } else {
-                // no registrar known → skip registry insert
                 return Ok(());
             };
 
-            sqlx::query(
-                r#"
-                INSERT INTO course_module_completion_registered_to_study_registries (
-                    course_id, course_module_completion_id, course_module_id,
-                    study_registry_registrar_id, user_id, real_student_number
+            if let Some(student_number) = &r.real_student_number {
+                sqlx::query(
+                    r#"
+                    INSERT INTO course_module_completion_registered_to_study_registries (
+                        course_id, course_module_completion_id, course_module_id,
+                        study_registry_registrar_id, user_id, real_student_number
+                    )
+                    VALUES ($1,$2,$3,$4,$5,$6)
+                    ON CONFLICT DO NOTHING
+                    "#,
                 )
-                VALUES ($1,$2,$3,$4,$5,$6)
-                ON CONFLICT DO NOTHING
-                "#,
-            )
-            .bind(course_id)
-            .bind(completion_id)
-            .bind(course_module_id)
-            .bind(registrar_id)
-            .bind(self.user_id)
-            .bind(student_number)
-            .execute(&mut *conn)
-            .await
-            .context("inserting registry record")?;
+                .bind(course_id)
+                .bind(completion_id)
+                .bind(course_module_id)
+                .bind(registrar_id)
+                .bind(self.user_id)
+                .bind(student_number)
+                .execute(&mut *conn)
+                .await
+                .context("inserting registry record")?;
+            }
         }
 
         Ok(())

@@ -33,21 +33,13 @@ import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
  */
 const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
-  const renderContainerRef = useRef<HTMLElement>(null)
 
-  // why do we need to assign portals to variable why not just blast
   const parsedTextResult = useMemo(() => {
-    // 1. todo make parsetext return the glossary entries that were found in this text (why? we have useContext Glossary already)
     const res = parseText(props.text, terms, props.options)
 
-    // for portalMarker in res.portalIds:
-    // blast portals of tooltiparia
     const parsedText = sanitizeCourseMaterialHtml(res.parsedText)
     return { ...res, parsedText }
   }, [props.text, terms, props.options])
-
-  // 2. todo render the createportal stuff and whats inside the portals
-  // 3 .also handle attaching (requires modifying parsetext too) attaching??
 
   if (props.render) {
     return props.render({

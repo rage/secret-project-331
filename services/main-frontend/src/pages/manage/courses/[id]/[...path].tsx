@@ -173,7 +173,7 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
           {t("link-course-instances")}
         </TabLink>
         <TabLink url={"students/users"} isActive={path.startsWith("students")}>
-          {t("Students")}
+          {t("label-students")}
         </TabLink>
         <TabLink url={"language-versions"} isActive={path === "language-versions"}>
           {t("link-language-versions")}
@@ -195,7 +195,7 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
             return <PageComponent courseId={courseId} />
           })()
         ) : pageToRender.type === "students" ? (
-          <CourseStudentsPage courseId={courseId} initialTab={pageToRender.subtab} />
+          <CourseStudentsPage courseId={courseId} />
         ) : (
           <Other courseId={courseId} activeSubtab={pageToRender.subtab} />
         )}

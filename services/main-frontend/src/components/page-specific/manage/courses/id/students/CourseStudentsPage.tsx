@@ -9,7 +9,7 @@ import { ProgressTabContent } from "./tabs/ProgressTab"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 
-type Props = { courseId?: string; initialTab?: string }
+type Props = { courseId?: string }
 
 const tableSection = css({
   paddingLeft: "4vw",
@@ -40,36 +40,35 @@ const SLUG_TO_TAB: Record<string, (typeof TAB_LIST)[number]> = {
 
 const cx = (...arr: Array<string | false | undefined>) => arr.filter(Boolean).join(" ")
 
-const StudentsPage: React.FC<Props> = ({ courseId: courseIdProp, initialTab }) => {
+const StudentsPage: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
   const router = useRouter()
 
-  // derive courseId from prop (preferred) or from router as fallback
-  const courseId =
-    courseIdProp ?? (typeof router.query?.id === "string" ? router.query.id : undefined)
+  const subtabFromUrl = useMemo(() => {
+    const asPath = router.asPath ?? ""
+    const m = asPath.match(/\/students\/([^/?#]+)/)
+    return m?.[1] // e.g. "users" | "completions" | "progress" | "certificates"
+  }, [router.asPath])
 
-  // read initial tab from parent/router (e.g. "progress" in /students/progress)
   const tabFromUrl = useMemo<(typeof TAB_LIST)[number]>(() => {
-    return SLUG_TO_TAB[initialTab ?? ""] ?? TAB_USER
-  }, [initialTab])
+    return SLUG_TO_TAB[subtabFromUrl ?? ""] ?? TAB_USER
+  }, [subtabFromUrl])
 
   const [activeTab, setActiveTab] = useState<(typeof TAB_LIST)[number]>(tabFromUrl)
 
-  // keep UI in sync if URL changes (back/forward)
   useEffect(() => {
     setActiveTab(tabFromUrl)
   }, [tabFromUrl])
 
-  // if user lands on /students (no subtab), gently normalize to /students/users
   useEffect(() => {
-    if (!initialTab && courseId) {
+    if (!subtabFromUrl && courseId) {
       // eslint-disable-next-line i18next/no-literal-string
       router.replace(`/manage/courses/${courseId}/students/users`, undefined, {
         shallow: true,
         scroll: false,
       })
     }
-  }, [initialTab, courseId, router])
+  }, [subtabFromUrl, courseId, router])
 
   const goTab = (tab: (typeof TAB_LIST)[number]) => {
     setActiveTab(tab)

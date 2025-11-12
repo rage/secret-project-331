@@ -16,6 +16,58 @@ use tracing::info;
 use uuid::Uuid;
 
 use super::super::seed_users::SeedUsersResult;
+use anyhow::Context;
+use headless_lms_models::certificate_configurations;
+
+async fn get_or_attach_certificate_config_for_module(
+    conn: &mut sqlx::PgConnection,
+    module_id: Uuid,
+) -> anyhow::Result<Uuid> {
+    // 1) If module already has a default config, return it
+    if let Ok(conf) =
+        certificate_configurations::get_default_configuration_by_course_module(conn, module_id)
+            .await
+    {
+        return Ok(conf.id);
+    }
+
+    // 2) Pick any existing certificate configuration (latest)
+    let config_id: Uuid = sqlx::query_scalar(
+        r#"
+        SELECT id
+        FROM certificate_configurations
+        WHERE deleted_at IS NULL
+        ORDER BY created_at DESC
+        LIMIT 1
+        "#,
+    )
+    .fetch_one(&mut *conn)
+    .await
+    .context("no certificate_configurations exist; create one via UI/seed first")?;
+
+    // 3) Attach it to this module as a requirement (idempotent)
+    sqlx::query(
+        r#"
+        INSERT INTO certificate_configuration_to_requirements
+            (certificate_configuration_id, course_module_id)
+        SELECT $1, $2
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM certificate_configuration_to_requirements
+            WHERE certificate_configuration_id = $1
+              AND course_module_id = $2
+              AND deleted_at IS NULL
+        )
+        "#,
+    )
+    .bind(config_id)
+    .bind(module_id)
+    .execute(&mut *conn)
+    .await
+    .context("attach certificate configuration to module")?;
+
+    Ok(config_id)
+}
 
 async fn get_or_create_default_registrar(conn: &mut sqlx::PgConnection) -> anyhow::Result<Uuid> {
     if let Some(id) = sqlx::query_scalar::<_, Uuid>(
@@ -104,17 +156,12 @@ pub async fn seed_graded_course(
         })
         .role(seed_users_result.teacher_user_id, UserRole::Teacher)
         .module(
-            module.chapter(
-                ChapterBuilder::new(1, "The Basics")
-                    .opens(Utc::now())
-                    .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
-                    .page(
-                        PageBuilder::new("/chapter-1/page-1", "Welcome").block(paragraph(
-                            "This is the graded example course.",
-                            cx.v5(b"page:1:1"),
-                        )),
-                    ),
-            ),
+            module.chapter(ChapterBuilder::new(1, "The Basics").opens(Utc::now()).page(
+                PageBuilder::new("/chapter-1/page-1", "Welcome").block(paragraph(
+                    "This is the graded example course.",
+                    cx.v5(b"page:1:1"),
+                )),
+            )),
         );
 
     // Insert course
@@ -126,9 +173,13 @@ pub async fn seed_graded_course(
             .await?;
     }
 
+    // Attach or reuse certificate configuration for this module
+    let config_id = get_or_attach_certificate_config_for_module(&mut conn, last_module.id).await?;
+
+    // Generate certificates for seeded users
     for uid in example_normal_user_ids.iter() {
         let _ = CertificateBuilder::new(*uid)
-            .default_configuration_for_module(last_module.id)
+            .configuration_id(config_id)
             .name_on_certificate("Example User")
             .ensure_requirements(false)
             .seed(&mut conn)

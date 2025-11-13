@@ -1431,6 +1431,12 @@ export interface CompletionGridRow {
   status: string
 }
 
+export interface CertificateGridRow {
+  student: string
+  certificate: string
+  date_issued: string | null
+}
+
 export interface UserMarketingConsent {
   id: string
   course_id: string

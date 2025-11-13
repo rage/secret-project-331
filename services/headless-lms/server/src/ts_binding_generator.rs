@@ -195,6 +195,7 @@ fn models(target: &mut File) {
         library::progressing::UserWithModuleCompletions,
         library::students_view::ProgressOverview,
         library::students_view::CompletionGridRow,
+        library::students_view::CertificateGridRow,
 
         marketing_consents::UserMarketingConsent,
         material_references::MaterialReference,

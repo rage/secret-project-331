@@ -50,7 +50,10 @@ pub async fn verify_dpop_from_actix(
     let mut store = SqlxReplayStore { conn };
     let verifier = DpopVerifier::new()
         .with_max_age_seconds(300)
-        .with_future_skew_seconds(5);
+        .with_future_skew_seconds(5)
+        .with_nonce_mode(dpop_verifier::NonceMode::Hmac(
+            dpop_verifier::HmacConfig::new(b"change-this-lol...", 300, true, true, true),
+        ));
     let verified = verifier
         .verify(&mut store, hdr, &htu, method, access_token)
         .await?;

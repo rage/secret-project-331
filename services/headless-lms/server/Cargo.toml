@@ -139,7 +139,7 @@ async-stream = "0.3.6"
 p256 = { version = "0.13", features = ["pkcs8"] }
 pkcs8 = "0.10"
 # Dpop verifying
-dpop-verifier = { version = "4.1.0", features = ["actix-web"]}
+dpop-verifier = { version = "4.4.0", features = ["actix-web"]}
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

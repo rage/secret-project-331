@@ -1,11 +1,16 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import type { CellContext, ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
-import { mockStudentsSorted } from "../studentsTableData"
+
+import { getCertificates } from "@/services/backend/courses/students"
+import { CertificateGridRow } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 const iconBtnStyle = css`
   display: inline-flex;
@@ -18,12 +23,6 @@ const iconBtnStyle = css`
   background: #fff;
   cursor: pointer;
 `
-
-type CertificateRow = {
-  student: string
-  certificate: string
-  date: string
-}
 
 const IconButton: React.FC<{
   label: string
@@ -44,55 +43,64 @@ const actionsCellInner = css`
   padding-right: 0;
   width: 100%;
 `
-
-export const CertificatesTabContent: React.FC = () => {
+export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ courseId }) => {
   const { t } = useTranslation()
 
-  const rows = useMemo<CertificateRow[]>(
-    () =>
-      mockStudentsSorted.map((s, i) => ({
-        student: `${s.lastName ?? ""}${s.lastName && s.firstName ? ", " : ""}${
-          s.firstName ?? t("missing-name")
-        }`,
-        certificate: i % 2 === 0 ? t("course_certificate") : t("no_certificate"),
-        date: i % 2 === 0 ? "2025-09-02" : "-",
-      })),
-    [t],
-  )
+  const query = useQuery({
+    queryKey: ["certificates-tab", courseId],
+    queryFn: () => getCertificates(courseId),
+  })
 
-  const columns = useMemo<ColumnDef<CertificateRow, unknown>[]>(
-    () => [
+  if (query.isLoading) {
+    return <Spinner />
+  }
+  if (query.isError) {
+    return <ErrorBanner error={query.error} />
+  }
+
+  const columns: ColumnDef<CertificateGridRow, unknown>[] = [
+    // eslint-disable-next-line i18next/no-literal-string
+    { header: t("label-student"), accessorKey: "student" },
+    // eslint-disable-next-line i18next/no-literal-string
+    { header: t("certificate"), accessorKey: "certificate" },
+    {
+      header: t("date-issued"),
       // eslint-disable-next-line i18next/no-literal-string
-      { header: t("label-student"), accessorKey: "student" },
-      // eslint-disable-next-line i18next/no-literal-string
-      { header: t("certificate"), accessorKey: "certificate" },
-      // eslint-disable-next-line i18next/no-literal-string
-      { header: t("date-issued"), accessorKey: "date" },
-      {
-        header: t("actions"),
-        // eslint-disable-next-line i18next/no-literal-string
-        id: "actions",
-        size: 80,
-        meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },
-        // Explicitly type the cell context so 'row' isn't 'any'
-        cell: ({ row }: CellContext<CertificateRow, unknown>) => {
-          const handleView = () => console.log("View certificate for:", row.original.student)
-          const handleEdit = () => console.log("Edit certificate for:", row.original.student)
-          return (
-            <div className={actionsCellInner}>
-              <IconButton label={t("view_certificate")} onClick={handleView}>
-                <Eye size={18} />
-              </IconButton>
-              <IconButton label={t("edit_certificate")} onClick={handleEdit}>
-                <Pen size={18} />
-              </IconButton>
-            </div>
-          )
-        },
+      accessorKey: "date_issued",
+      cell: ({ getValue }) => {
+        const value = getValue<string | null>()
+        if (!value) {
+          // eslint-disable-next-line i18next/no-literal-string
+          return "—"
+        }
+        const d = new Date(value)
+        return d.toISOString().slice(0, 10) // YYYY-MM-DD
       },
-    ],
-    [t],
-  )
+    },
+    {
+      header: t("actions"),
+      // eslint-disable-next-line i18next/no-literal-string
+      id: "actions",
+      size: 80,
+      meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },
+      cell: ({ row }: CellContext<CertificateGridRow, unknown>) => {
+        const handleView = () => console.log("View certificate for:", row.original.student)
+        const handleEdit = () => console.log("Edit certificate for:", row.original.student)
+        return (
+          <div className={actionsCellInner}>
+            <IconButton label={t("view_certificate")} onClick={handleView}>
+              <Eye size={18} />
+            </IconButton>
+            <IconButton label={t("edit_certificate")} onClick={handleEdit}>
+              <Pen size={18} />
+            </IconButton>
+          </div>
+        )
+      },
+    },
+  ]
+
+  const rows = (query.data ?? []) as CertificateGridRow[]
 
   return <FloatingHeaderTable columns={columns} data={rows} />
 }

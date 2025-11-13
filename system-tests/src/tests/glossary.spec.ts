@@ -81,12 +81,16 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   })
 
   await test.step("Glossary popup is accessible", async () => {
+    await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/chapter-1/page-1")
     const glossaryButton = page.getByRole("button", { name: "ABCD" }).first()
     await expect(glossaryButton).toBeVisible()
 
     await accessibilityCheck(page, "Glossary tooltip closed view")
 
+    // For reliability we move the mouse to a consitent position before hovering.
+    await page.mouse.move(0, 0)
     await glossaryButton.hover()
+
     await expect(page.getByRole("tooltip", { name: "EFGH" })).toBeVisible()
     await accessibilityCheck(page, "Glossary tooltip open view")
     await page.keyboard.press("Escape")
@@ -110,7 +114,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
 
     await expect(page.locator("#content")).toMatchAriaSnapshot(`
     - paragraph:
-      - text: This paragraph contains the glossary term
+      - text: This course uses many TLAs. Why? Because why use one word when three letters will do? It's like a secret code, but everyone knows it.
       - button "ABCD"
       - text: .
     `)

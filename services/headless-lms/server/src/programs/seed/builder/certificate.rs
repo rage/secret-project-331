@@ -42,7 +42,7 @@ impl CertificateBuilder {
     }
 
     pub async fn seed(self, conn: &mut PgConnection) -> Result<Uuid> {
-        // Resolve configuration id (explicit or default for module)
+        // Resolve configuration id (explicit or default for module).
         let config_id = match (self.config_id, self.default_for_module_id) {
             (Some(id), _) => id,
             (None, Some(module_id)) => {

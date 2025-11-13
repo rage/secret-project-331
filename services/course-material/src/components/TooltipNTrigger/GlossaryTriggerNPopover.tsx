@@ -7,7 +7,9 @@ import {
   Button as ReactAriaButton,
   Tooltip,
   TooltipTrigger,
+  VisuallyHidden,
 } from "react-aria-components"
+import { useTranslation } from "react-i18next"
 
 import { TooltipBox } from "./TooltipBox"
 
@@ -52,6 +54,7 @@ export const GlossaryTriggerNPopover = ({
   children: ReactNode
   dialogAriaLabel: string
 }) => {
+  const { t } = useTranslation()
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
 
@@ -109,6 +112,8 @@ export const GlossaryTriggerNPopover = ({
             onFocus={handleButtonFocus}
           >
             {children}
+
+            <VisuallyHidden> ({t("definition-in-parentheses")})</VisuallyHidden>
           </StyledButton>
         </span>
 

@@ -75,6 +75,7 @@
   "deadline": "Deadline: ",
   "default-course-instance-name": "Default",
   "definition": "Definition",
+  "definition-in-parentheses": "(definition)",
   "delete": "Delete",
   "do-you-want-to-send-changes": "You have made changes and should see a preview of them in the course material. Click send to send your changes to course staff for review, or click another paragraph to make more changes.",
   "dont-know-how-to-render-this-assignment": "Don't know how to render this assignment.",

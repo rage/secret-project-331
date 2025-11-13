@@ -52,14 +52,12 @@ export const GlossaryTriggerNPopover = ({
   children: ReactNode
   dialogAriaLabel: string
 }) => {
-  // Local, fully controlled state
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
 
   // When the popover closes via overlay interactions, we suppress the next focus tooltip once
   const [suppressNextFocusTooltip, setSuppressNextFocusTooltip] = useState(false)
 
-  // The popover needs a triggerRef when controlled
   const buttonRef = useRef<HTMLButtonElement | null>(null)
 
   const handleButtonFocus = (_e: FocusEvent) => {
@@ -123,16 +121,18 @@ export const GlossaryTriggerNPopover = ({
         offset={8}
         placement="top"
         isNonModal
-        // Controlled popover
         isOpen={popoverOpen}
         onOpenChange={(isOpen) => {
           setPopoverOpen(isOpen)
           if (!isOpen) {
             // After closing, suppress the *next* focus tooltip so we don't flash it
             setSuppressNextFocusTooltip(true)
+            // Restore focus to the trigger button, but tooltip won't open due to suppression
+            queueMicrotask(() => {
+              buttonRef.current?.focus()
+            })
           }
         }}
-        // Required when controlling Popover programmatically
         triggerRef={buttonRef}
       >
         <Dialog aria-label={dialogAriaLabel}>

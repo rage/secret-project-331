@@ -8,10 +8,12 @@ use crate::programs::seed::builder::module::{
 use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
-use anyhow::Result;
+
+use anyhow::{Context, Result};
 use chrono::Utc;
 use headless_lms_models::course_instance_enrollments;
 use headless_lms_models::roles::UserRole;
+use sqlx::Row;
 use tracing::info;
 use uuid::Uuid;
 
@@ -126,11 +128,57 @@ pub async fn seed_graded_course(
             .await?;
     }
 
-    // Seed certificates for the demo users using the module's default certificate configuration.
+    // Ensure there is a certificate configuration for this module.
+    // We reuse the first existing certificate configuration and link it to this module
+    // via certificate_configuration_to_requirements.
+    let cert_config_id_opt = sqlx::query(
+        r#"
+        SELECT id
+        FROM certificate_configurations
+        WHERE deleted_at IS NULL
+        ORDER BY created_at
+        LIMIT 1
+        "#,
+    )
+    .map(|row: sqlx::postgres::PgRow| row.get::<Uuid, _>("id"))
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    if let Some(cert_config_id) = cert_config_id_opt {
+        // Link configuration to our module if not already linked
+        sqlx::query(
+            r#"
+            INSERT INTO certificate_configuration_to_requirements (
+                certificate_configuration_id,
+                course_module_id
+            )
+            SELECT $1, $2
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM certificate_configuration_to_requirements
+                WHERE certificate_configuration_id = $1
+                  AND course_module_id = $2
+                  AND deleted_at IS NULL
+            )
+            "#,
+        )
+        .bind(cert_config_id)
+        .bind(last_module.id)
+        .execute(&mut *conn)
+        .await?;
+    } else {
+        info!(
+            "No existing certificate_configurations found, skipping certificate seeding for graded course {}",
+            course_id
+        );
+        return Ok(course_id);
+    }
+
+    // Now that the module has a configuration, generate certificates for the demo users
     for uid in example_normal_user_ids.iter() {
         CertificateBuilder::new(*uid)
             .default_configuration_for_module(last_module.id)
-            .name_on_certificate(format!("Test User Certificate {}", uid))
+            .name_on_certificate(format!("Demo User {}", uid))
             .seed(&mut conn)
             .await?;
     }

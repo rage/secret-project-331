@@ -1,3 +1,4 @@
+use crate::programs::seed::builder::certificate::CertificateBuilder;
 use crate::programs::seed::builder::chapter::ChapterBuilder;
 use crate::programs::seed::builder::context::SeedContext;
 use crate::programs::seed::builder::course::{CourseBuilder, CourseInstanceConfig};
@@ -117,11 +118,20 @@ pub async fn seed_graded_course(
         );
 
     // Insert course
-    let (course, default_instance, _last_module) = course_builder.seed(&mut conn, &cx).await?;
+    let (course, default_instance, last_module) = course_builder.seed(&mut conn, &cx).await?;
 
     // Enroll users to default instance
     for uid in example_normal_user_ids.iter() {
         course_instance_enrollments::insert(&mut conn, *uid, course.id, default_instance.id)
+            .await?;
+    }
+
+    // Seed certificates for the demo users using the module's default certificate configuration.
+    for uid in example_normal_user_ids.iter() {
+        CertificateBuilder::new(*uid)
+            .default_configuration_for_module(last_module.id)
+            .name_on_certificate(format!("Test User Certificate {}", uid))
+            .seed(&mut conn)
             .await?;
     }
 

@@ -283,7 +283,12 @@ pub async fn create_peer_or_self_review_submission_for_user(
 
     tx.commit().await?;
 
-    let _ = check_if_exercise_needs_reset_after_zero_points_from_review(
+    // The possible automatic reset is done after the main transaction
+    // has been committed, because it depends on
+    // the latest committed user_exercise_state.
+    // This is done seperately to avoid the risk of reading outdated data
+    // and nested transaction issues.
+    let _ = reset_exercise_if_needed_if_zero_points_from_review(
         conn,
         &peer_or_self_review_config,
         &updated_receiver_state,
@@ -298,20 +303,11 @@ pub async fn create_peer_or_self_review_submission_for_user(
 /// Called after the user's state has been updated post-review.
 ///
 /// Returns true if reset was performed, otherwise false.
-async fn check_if_exercise_needs_reset_after_zero_points_from_review(
+async fn reset_exercise_if_needed_if_zero_points_from_review(
     conn: &mut PgConnection,
     peer_review_config: &PeerOrSelfReviewConfig,
     user_exercise_state: &UserExerciseState,
 ) -> ModelResult<bool> {
-    tracing::info!(
-        "Checking reset need for user {}: reset_config={}, strategy={:?}, stage={:?}, score={:?}",
-        user_exercise_state.user_id,
-        peer_review_config.reset_answer_if_zero_points_from_review,
-        peer_review_config.processing_strategy,
-        user_exercise_state.reviewing_stage,
-        user_exercise_state.score_given,
-    );
-
     if peer_review_config.reset_answer_if_zero_points_from_review
         && peer_review_config.processing_strategy
             == PeerReviewProcessingStrategy::AutomaticallyGradeByAverage

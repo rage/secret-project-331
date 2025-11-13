@@ -5,6 +5,7 @@ use crate::chapters::{
 use crate::prelude::*;
 use crate::user_details::UserDetail;
 use crate::user_exercise_states::UserExerciseState;
+use chrono::{DateTime, Utc};
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -128,6 +129,74 @@ ORDER BY
   COALESCE(NULLIF(LOWER(TRIM(ud.first_name)), ''), 'zzzzzz'),
   m.order_number, m.name NULLS LAST
     "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(rows)
+}
+
+#[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CertificateGridRow {
+    pub student: String,
+    pub certificate: String, // "Course Certificate" | "No Certificate"
+    pub date_issued: Option<DateTime<Utc>>, // NULL if no certificate
+}
+
+/// Returns one row per enrolled student with their overall course certificate info.
+pub async fn get_certificates_grid_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CertificateGridRow>> {
+    let rows = sqlx::query_as!(
+        CertificateGridRow,
+        r#"
+WITH enrolled AS (
+  SELECT DISTINCT user_id
+  FROM course_instance_enrollments
+  WHERE course_id = $1
+    AND deleted_at IS NULL
+),
+user_certs AS (
+  SELECT
+    gc.user_id,
+    MAX(gc.created_at) AS latest_issued_at
+  FROM generated_certificates gc
+  JOIN certificate_configuration_to_requirements cctr
+    ON gc.certificate_configuration_id = cctr.certificate_configuration_id
+   AND cctr.deleted_at IS NULL
+  JOIN course_modules cm
+    ON cm.id = cctr.course_module_id
+   AND cm.deleted_at IS NULL
+  WHERE cm.course_id = $1
+    AND gc.deleted_at IS NULL
+  GROUP BY gc.user_id
+)
+SELECT
+  /* non-null */
+  CASE
+    WHEN ud.first_name IS NULL OR TRIM(ud.first_name) = ''
+      OR ud.last_name  IS NULL OR TRIM(ud.last_name)  = ''
+    THEN '(Missing name)'
+    ELSE TRIM(ud.first_name) || ' ' || TRIM(ud.last_name)
+  END AS "student!",
+  /* non-null */
+  CASE
+    WHEN uc.user_id IS NOT NULL THEN 'Course Certificate'
+    ELSE 'No Certificate'
+  END AS "certificate!",
+  /* nullable */
+  uc.latest_issued_at AS "date_issued?"
+FROM enrolled e
+JOIN users u ON u.id = e.user_id
+LEFT JOIN user_details ud ON ud.user_id = u.id
+LEFT JOIN user_certs uc ON uc.user_id = e.user_id
+ORDER BY
+  COALESCE(NULLIF(LOWER(TRIM(ud.last_name)),  ''), 'zzzzzz'),
+  COALESCE(NULLIF(LOWER(TRIM(ud.first_name)), ''), 'zzzzzz')
+        "#,
         course_id
     )
     .fetch_all(conn)

@@ -2,7 +2,9 @@
 use crate::prelude::*;
 
 use headless_lms_models::chapters::CourseUserInfo;
-use headless_lms_models::library::students_view::{CompletionGridRow, ProgressOverview};
+use headless_lms_models::library::students_view::{
+    CertificateGridRow, CompletionGridRow, ProgressOverview,
+};
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
 #[instrument(skip(pool))]
@@ -69,8 +71,32 @@ async fn get_completions(
     token.authorized_ok(web::Json(rows))
 }
 
+/// GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`
+#[instrument(skip(pool))]
+async fn get_certificates(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CertificateGridRow>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let rows = headless_lms_models::library::students_view::get_certificates_grid_by_course_id(
+        &mut conn, *course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(rows))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/progress", web::get().to(get_progress));
     cfg.route("/users", web::get().to(get_course_users));
     cfg.route("/completions", web::get().to(get_completions));
+    cfg.route("/certificates", web::get().to(get_certificates));
 }

@@ -128,9 +128,6 @@ pub async fn seed_graded_course(
             .await?;
     }
 
-    // Ensure there is a certificate configuration for this module.
-    // We reuse the first existing certificate configuration and link it to this module
-    // via certificate_configuration_to_requirements.
     let cert_config_id_opt = sqlx::query(
         r#"
         SELECT id
@@ -144,35 +141,30 @@ pub async fn seed_graded_course(
     .fetch_optional(&mut *conn)
     .await?;
 
-    if let Some(cert_config_id) = cert_config_id_opt {
-        // Link configuration to our module if not already linked
-        sqlx::query(
-            r#"
-            INSERT INTO certificate_configuration_to_requirements (
-                certificate_configuration_id,
-                course_module_id
-            )
-            SELECT $1, $2
-            WHERE NOT EXISTS (
-                SELECT 1
-                FROM certificate_configuration_to_requirements
-                WHERE certificate_configuration_id = $1
-                  AND course_module_id = $2
-                  AND deleted_at IS NULL
-            )
-            "#,
+    let cert_config_id = cert_config_id_opt
+        .context("No certificate_configurations found; cannot seed graded course certificates")?;
+
+    // Link configuration to our module if not already linked
+    sqlx::query(
+        r#"
+        INSERT INTO certificate_configuration_to_requirements (
+            certificate_configuration_id,
+            course_module_id
         )
-        .bind(cert_config_id)
-        .bind(last_module.id)
-        .execute(&mut *conn)
-        .await?;
-    } else {
-        info!(
-            "No existing certificate_configurations found, skipping certificate seeding for graded course {}",
-            course_id
-        );
-        return Ok(course_id);
-    }
+        SELECT $1, $2
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM certificate_configuration_to_requirements
+            WHERE certificate_configuration_id = $1
+              AND course_module_id = $2
+              AND deleted_at IS NULL
+        )
+        "#,
+    )
+    .bind(cert_config_id)
+    .bind(last_module.id)
+    .execute(&mut *conn)
+    .await?;
 
     // Now that the module has a configuration, generate certificates for the demo users
     for uid in example_normal_user_ids.iter() {

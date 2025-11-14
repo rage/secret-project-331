@@ -3,6 +3,7 @@ import {
   JSX,
   memo,
   ReactPortal,
+  RefObject,
   useContext,
   useLayoutEffect,
   useMemo,
@@ -18,7 +19,16 @@ import { GlossaryContext } from "@/contexts/GlossaryContext"
 
 export type Tag = keyof JSX.IntrinsicElements
 
-export type ParsedTextProps<T extends Tag> =
+export type ParsedTextPropsWithWrapperElement = {
+  hasWrapperElement: true
+}
+
+export type ParsedTextPropsWithoutWrapperElement = {
+  hasWrapperElement: false
+  wrapperRef: RefObject<HTMLElement | null>
+}
+
+export type BaseParsedTextProps<T extends Tag> =
   | {
       text: string | undefined
       tag: T
@@ -37,6 +47,9 @@ export type ParsedTextProps<T extends Tag> =
       options?: { glossary: boolean }
     }
 
+export type ParsedTextProps<T extends Tag> = BaseParsedTextProps<T> &
+  (ParsedTextPropsWithWrapperElement | ParsedTextPropsWithoutWrapperElement)
+
 const glossaryTermStyle = css`
   border-bottom: 1px dotted;
   cursor: help;
@@ -50,7 +63,8 @@ const glossaryTermStyle = css`
  */
 const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const internalRef = useRef<HTMLSpanElement>(null)
+  const containerRef = props.hasWrapperElement === false ? props.wrapperRef : internalRef
   const [readyForPortal, setReadyForPortal] = useState(false)
 
   useLayoutEffect(() => {
@@ -96,13 +110,29 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
         )
       })
       .filter((portal): portal is ReactPortal => portal !== null)
-  }, [terms, readyForPortal, props.text, props.options?.glossary])
+  }, [terms, readyForPortal, containerRef])
+
+  const content =
+    props.hasWrapperElement === false ? (
+      <ParsedTextRenderer {...props} wrapperRef={props.wrapperRef} />
+    ) : (
+      <ParsedTextRenderer {...props} />
+    )
+
+  if (props.hasWrapperElement === false) {
+    return (
+      <>
+        {content}
+        {portals}
+      </>
+    )
+  }
 
   return (
-    <div ref={containerRef}>
-      <ParsedTextRenderer {...props} />
+    <span ref={internalRef}>
+      {content}
       {portals}
-    </div>
+    </span>
   )
 }
 

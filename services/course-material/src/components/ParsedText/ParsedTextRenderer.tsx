@@ -1,4 +1,4 @@
-import { createElement, memo, useContext, useMemo } from "react"
+import React, { createElement, memo, RefObject, useContext, useMemo } from "react"
 
 import { parseText } from "../ContentRenderer/util/textParsing"
 
@@ -7,7 +7,9 @@ import { ParsedTextProps, Tag } from "."
 import { GlossaryContext } from "@/contexts/GlossaryContext"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
-const ParsedTextRenderer = <T extends Tag>(props: ParsedTextProps<T>) => {
+const ParsedTextRenderer = <T extends Tag>(
+  props: ParsedTextProps<T> & { wrapperRef?: RefObject<HTMLElement | null> },
+) => {
   const { terms } = useContext(GlossaryContext)
 
   const parsedTextResult = useMemo(() => {
@@ -27,10 +29,13 @@ const ParsedTextRenderer = <T extends Tag>(props: ParsedTextProps<T>) => {
 
   const Tag: T = props.tag
 
-  return createElement(Tag, {
+  const elementProps = {
     dangerouslySetInnerHTML: { __html: parsedTextResult.parsedText },
     ...props.tagProps,
-  })
+    ...(props.wrapperRef && { ref: props.wrapperRef }),
+  }
+
+  return createElement(Tag, elementProps as React.JSX.IntrinsicElements[T])
 }
 
 export default memo(ParsedTextRenderer)

@@ -42,6 +42,12 @@ const glossaryTermStyle = css`
   cursor: help;
 `
 
+/**
+ * Parses HTML from Gutenberg editor (can contain glossary entries, references, LaTeX, etc.),
+ * sanitizes it, and renders it. Rendering: use `tag` + `tagProps` for intrinsic elements,
+ * or `render` for custom rendering. In tag mode, sanitized HTML is injected via dangerouslySetInnerHTML.
+ * Adds tooltip portals for glossary terms.
+ */
 const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
   const containerRef = useRef<HTMLDivElement>(null)

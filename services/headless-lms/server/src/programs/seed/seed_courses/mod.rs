@@ -1,5 +1,6 @@
 pub mod seed_chatbot;
 pub mod seed_course_with_peer_review;
+pub mod seed_glossary;
 
 use std::sync::Arc;
 
@@ -1938,7 +1939,6 @@ pub async fn seed_sample_course(
     // acronyms
     glossary::insert(&mut conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
     glossary::insert(&mut conn, "HDD", "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",  course.id).await?;
-    glossary::insert(&mut conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
     glossary::insert(&mut conn, "KB", "Keyboard.", course.id).await?;
 
     // create_best_peer_review(&mut conn, course.id, Some(exercise_1_id)).await?;
@@ -2216,134 +2216,6 @@ pub async fn seed_switching_course_instances_course(
         );
 
     let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
-
-    Ok(course.id)
-}
-
-pub async fn create_glossary_course(
-    course_id: Uuid,
-    common_course_data: CommonCourseData,
-) -> Result<Uuid> {
-    let CommonCourseData {
-        db_pool,
-        organization_id: org_id,
-        teacher_user_id,
-        student_user_id: _,
-        langs_user_id: _,
-        example_normal_user_ids: _,
-        jwt_key: _jwt_key,
-        base_url: _base_url,
-    } = common_course_data;
-    let mut conn = db_pool.acquire().await?;
-
-    // Create new course
-    let new_course = NewCourse {
-        name: "Glossary Tooltip".to_string(),
-        organization_id: org_id,
-        slug: "glossary-tooltip".to_string(),
-        language_code: "en-US".to_string(),
-        teacher_in_charge_name: "admin".to_string(),
-        teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "Sample course.".to_string(),
-        is_draft: false,
-        is_test_mode: false,
-        is_unlisted: false,
-        copy_user_permissions: false,
-        is_joinable_by_code_only: false,
-        join_code: None,
-        ask_marketing_consent: false,
-        flagged_answers_threshold: Some(3),
-        can_add_chatbot: false,
-    };
-
-    let (course, _front_page, _default_instance, default_module) =
-        library::content_management::create_new_course(
-            &mut conn,
-            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
-                course_id,
-                default_course_instance_id: Uuid::new_v5(
-                    &course_id,
-                    b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454",
-                ),
-            }),
-            new_course,
-            teacher_user_id,
-            get_seed_spec_fetcher(),
-            models_requests::fetch_service_info,
-        )
-        .await?;
-
-    // Create course instance
-    course_instances::insert(
-        &mut conn,
-        PKeyPolicy::Fixed(Uuid::new_v5(
-            &course_id,
-            b"67f077b4-0562-47ae-a2b9-db2f08f168a9",
-        )),
-        NewCourseInstance {
-            course_id: course.id,
-            name: Some("Non-default instance"),
-            description: Some("This is a non-default instance"),
-            support_email: Some("contact@example.com"),
-            teacher_in_charge_name: "admin",
-            teacher_in_charge_email: "admin@example.com",
-            opening_time: None,
-            closing_time: None,
-        },
-    )
-    .await?;
-
-    // Chapter & Main page
-    let new_chapter = NewChapter {
-        chapter_number: 1,
-        course_id: course.id,
-        front_page_id: None,
-        name: "Glossary".to_string(),
-        color: None,
-        opens_at: None,
-        deadline: Some(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap()),
-        course_module_id: Some(default_module.id),
-    };
-    let (chapter, _front_page) = library::content_management::create_new_chapter(
-        &mut conn,
-        PKeyPolicy::Fixed((
-            Uuid::new_v5(&course_id, b"3d1d7303-b654-428a-8b46-1dbfe908d38a"),
-            Uuid::new_v5(&course_id, b"97568e97-0d6c-4702-9534-77d6e2784c8a"),
-        )),
-        &new_chapter,
-        teacher_user_id,
-        get_seed_spec_fetcher(),
-        models_requests::fetch_service_info,
-    )
-    .await?;
-    chapters::set_opens_at(&mut conn, chapter.id, Utc::now()).await?;
-
-    // Create page
-    create_page(
-        &mut conn,
-        course.id,
-        teacher_user_id,
-        Some(chapter.id),
-        CmsPageUpdate {
-            url_path: "/tooltip".to_string(),
-            title: "Tooltip".to_string(),
-            chapter_id: Some(chapter.id),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            content: vec![paragraph(
-                "Use the KB to write sentences for your CS-courses.",
-                Uuid::new_v5(&course.id, b"6903cf16-4f79-4985-a354-4257be1193a2"),
-            )],
-        },
-    )
-    .await?;
-
-    // Setup glossary
-    glossary::insert(&mut conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
-    glossary::insert(&mut conn, "HDD", "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",  course.id).await?;
-    glossary::insert(&mut conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
-    glossary::insert(&mut conn, "KB", "Keyboard.", course.id).await?;
 
     Ok(course.id)
 }

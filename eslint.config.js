@@ -277,6 +277,7 @@ const config = [
               "component",
               "align",
               "slot",
+              "tag",
             ],
           },
           words: {
@@ -376,6 +377,8 @@ const config = [
               "useTransition",
               "createPopper",
               "closest",
+              "querySelectorAll",
+              "getAttribute",
             ],
           },
           "object-properties": {

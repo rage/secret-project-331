@@ -78,6 +78,18 @@ pub struct MailchimpCourseTag {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct MailchimpLanguageCodeMapping {
+    pub id: Uuid,
+    pub marketing_mailing_list_access_token_id: Uuid,
+    pub old_language_code: String,
+    pub new_language_code: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
 pub async fn upsert_marketing_consent(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -93,6 +105,7 @@ pub async fn upsert_marketing_consent(
       ON CONFLICT (user_id, course_language_group_id)
       DO UPDATE
       SET
+        course_id = $2,
         consent = $4,
         email_subscription_in_mailchimp = $5
       RETURNING id
@@ -137,7 +150,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
 ) -> sqlx::Result<Vec<UserMarketingConsentWithDetails>> {
     let result = sqlx::query_as!(
         UserMarketingConsentWithDetails,
-        "
+        r#"
     SELECT
         umc.id,
         umc.course_id,
@@ -155,7 +168,10 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         u.country AS country,
         u.email AS email,
         c.name AS course_name,
-        c.language_code AS locale,
+        COALESCE(
+            mlcm.new_language_code,
+            c.language_code
+        ) AS locale,
         CASE WHEN cmc.passed IS NOT NULL THEN cmc.completion_date ELSE NULL END AS completed_course_at,
         COALESCE(csfa.research_consent, urc.research_consent) AS research_consent
     FROM user_marketing_consents AS umc
@@ -163,12 +179,18 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
     JOIN courses AS c ON c.id = umc.course_id
     LEFT JOIN course_module_completions AS cmc
         ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id
-     LEFT JOIN course_specific_consent_form_answers AS csfa
+    LEFT JOIN course_specific_consent_form_answers AS csfa
         ON csfa.course_id = umc.course_id AND csfa.user_id = umc.user_id
     LEFT JOIN user_research_consents AS urc
         ON urc.user_id = umc.user_id
     LEFT JOIN mailchimp_course_tags AS tags
         ON tags.course_language_group_id = umc.course_language_group_id
+    LEFT JOIN marketing_mailing_list_access_tokens AS mmlat
+        ON mmlat.course_language_group_id = umc.course_language_group_id AND mmlat.deleted_at IS NULL
+    LEFT JOIN mailchimp_language_code_mappings AS mlcm
+        ON mlcm.marketing_mailing_list_access_token_id = mmlat.id
+        AND mlcm.old_language_code = c.language_code
+        AND mlcm.deleted_at IS NULL
     WHERE umc.course_language_group_id = $1
     AND (
         umc.synced_to_mailchimp_at IS NULL
@@ -177,6 +199,8 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         OR urc.updated_at > umc.synced_to_mailchimp_at
         OR cmc.updated_at > umc.synced_to_mailchimp_at
         OR u.updated_at > umc.synced_to_mailchimp_at
+        OR c.updated_at > umc.synced_to_mailchimp_at
+        OR mlcm.updated_at > umc.synced_to_mailchimp_at
         OR EXISTS (
             SELECT 1
             FROM mailchimp_course_tags
@@ -185,7 +209,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
             AND deleted_at IS NULL
         )
     )
-    ",
+    "#,
         course_language_group_id
     )
     .fetch_all(conn)

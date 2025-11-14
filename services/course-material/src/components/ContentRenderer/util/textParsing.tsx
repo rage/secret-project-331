@@ -1,10 +1,8 @@
 import KaTex from "katex"
-import { renderToString } from "react-dom/server"
 import "katex/dist/katex.min.css"
 
 import { StringWithHTML } from "../../../../types"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
-import Tooltip from "../core/common/GlossaryTooltip"
 
 import { Term } from "@/shared-module/common/bindings"
 
@@ -34,22 +32,21 @@ const convertToLatex = (data: string) => {
   return { count, converted }
 }
 
-const generateToolTip = (term: Term) => {
-  return renderToString(<Tooltip term={term} />)
-}
-
-const parseGlossary = (data: string, glossary: Term[]): string => {
+const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; terms: Term[] } => {
   let parsed = data
+  let usedGlossary: Term[] = []
 
   glossary.forEach((item) => {
     // eslint-disable-next-line i18next/no-literal-string
     const regexString = `\\b(${item.term})\\b`
-    parsed = parsed.replace(new RegExp(regexString, REGEX_MODE), (content, _) =>
-      generateToolTip({ ...item, term: content }),
-    )
+    parsed = parsed.replace(new RegExp(regexString, REGEX_MODE), (_content, _) => {
+      usedGlossary.push(item)
+      // eslint-disable-next-line i18next/no-literal-string
+      return `<span data-glossary-id="${item.id}"></span>`
+    })
   })
 
-  return parsed
+  return { parsedText: parsed, terms: usedGlossary }
 }
 
 const parseCitation = (data: string) => {
@@ -73,16 +70,28 @@ const parseText = (
 
   let parsedText = parsedCitation
   let hasCitationsOrGlossary = false
+  let glossaryEntries: Term[] = []
 
   if (options.glossary) {
-    parsedText = parseGlossary(parsedCitation, terms ?? [])
+    const { parsedText: glossaryParsedText, terms: usedGlossary } = parseGlossary(
+      parsedCitation,
+      terms ?? [],
+    )
+    parsedText = glossaryParsedText
+    const uniqueTerms = new Map<string, Term>()
+    usedGlossary.forEach((term) => {
+      if (!uniqueTerms.has(term.id)) {
+        uniqueTerms.set(term.id, term)
+      }
+    })
+    glossaryEntries = Array.from(uniqueTerms.values())
   }
 
   hasCitationsOrGlossary = parsedLatex !== parsedText
 
   // Sanitation always needs to be the last step because otherwise we might accidentally introduce injection attacks with our custom parsing and modifications to the string
   parsedText = sanitizeCourseMaterialHtml(parsedText)
-  return { count, parsedText, hasCitationsOrGlossary }
+  return { count, parsedText, hasCitationsOrGlossary, glossaryEntries }
 }
 
 export { parseText }

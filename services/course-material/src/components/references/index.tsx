@@ -5,8 +5,7 @@ import React, { ReactPortal, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
-import TooltipNTrigger from "./TooltipNTrigger"
-
+import TooltipNTrigger from "@/components/TooltipNTrigger"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 const openAnimation = keyframes`
@@ -139,7 +138,13 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
           citeNumber = citeOrder.indexOf(reference.id) + 1
         }
         return createPortal(
-          <TooltipNTrigger reference={reference} citeNumber={citeNumber} />,
+          <TooltipNTrigger
+            variant="references"
+            href={"#ref-" + citeNumber}
+            tooltipContent={reference.text}
+          >
+            [{citeNumber}]
+          </TooltipNTrigger>,
           node,
           idx,
         )

@@ -1,13 +1,11 @@
 import { css, cx } from "@emotion/css"
-import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { ListItemAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
-import { parseText } from "../../../util/textParsing"
 
+import ParsedText from "@/components/ParsedText"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -15,8 +13,6 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
   props,
 ) => {
   const { content, fontSize } = props.data.attributes
-
-  const { terms } = useContext(GlossaryContext)
 
   return (
     <li
@@ -31,7 +27,7 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
       )}
       id={props.id}
     >
-      <span dangerouslySetInnerHTML={{ __html: parseText(content, terms).parsedText }} />
+      <ParsedText text={content} tag="span" useWrapperElement={true} />
       <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
     </li>
   )

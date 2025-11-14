@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["seed_glossary_course"]};

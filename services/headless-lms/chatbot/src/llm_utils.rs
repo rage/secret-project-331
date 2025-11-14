@@ -1,4 +1,7 @@
-use crate::{azure_chatbot::LLMRequest, prelude::*};
+use crate::{
+    azure_chatbot::{LLMRequest, ToolCallType},
+    prelude::*,
+};
 use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
@@ -10,20 +13,59 @@ pub const LLM_API_VERSION: &str = "2024-06-01";
 
 /// Role of a message in a conversation
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum MessageRole {
-    #[serde(rename = "system")]
     System,
-    #[serde(rename = "user")]
     User,
-    #[serde(rename = "assistant")]
     Assistant,
+    Tool,
 }
 
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIMessage {
     pub role: MessageRole,
+    #[serde(flatten)]
+    pub fields: ApiMessageKind,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum ApiMessageKind {
+    Text(ApiTextMessage),
+    ToolCall(ApiToolCallMessage),
+    ToolResponse(ApiToolResponseMessage),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiTextMessage {
     pub content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiToolCallMessage {
+    pub tool_calls: Vec<ApiMessageToolCall>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiToolResponseMessage {
+    pub tool_call_id: String,
+    pub name: String,
+    pub content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiMessageToolCall {
+    pub function: ApiTool,
+    pub id: String,
+    #[serde(rename = "type")]
+    pub tool_type: ToolCallType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ApiTool {
+    pub arguments: String,
+    pub name: String,
 }
 
 /// Simple completion-focused LLM request for Azure OpenAI

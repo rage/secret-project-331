@@ -40,7 +40,7 @@ const TooltipNTrigger: React.FC<TooltipNTriggerProps> = (props) => {
     <GlossaryTriggerNPopover
       className={props.className}
       tooltipContent={tooltipContent}
-      dialogAriaLabel={t("term-explanation")}
+      dialogAriaLabel={t("definition")}
     >
       {children}
     </GlossaryTriggerNPopover>

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { FocusEvent, ReactNode, useRef, useState } from "react"
+import { FocusEvent, ReactNode, useId, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import {
   Dialog,
@@ -43,6 +43,19 @@ const StyledButton = styled(ReactAriaButton)`
   }
 `
 
+/**
+ * Accessible glossary trigger that shows definitions on hover (tooltip) or click (popover).
+ *
+ * React Aria tooltips don't support opening on click, and tooltips can't be opened on mobile.
+ * This component uses a tooltip on hover and a popover on click to work around these limitations.
+ *
+ * The aria-describedby on the tooltip trigger is overridden to show a hint instead of the full definition on focus.
+ * This prevents screen readers from reading long definitions when navigating numerous,
+ * repetitive glossary buttons that are common throughout the course materials.
+ *
+ * Think of it as an accessible popover that everyone can open with a click,
+ * but sighted users can additionally preview it with hover.
+ */
 export const GlossaryTriggerNPopover = ({
   className,
   tooltipContent,
@@ -57,6 +70,8 @@ export const GlossaryTriggerNPopover = ({
   const { t } = useTranslation()
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
+
+  const definitionInParenthesesId = useId()
 
   // When the popover closes via overlay interactions, we suppress the next focus tooltip once
   const [suppressNextFocusTooltip, setSuppressNextFocusTooltip] = useState(false)
@@ -110,11 +125,13 @@ export const GlossaryTriggerNPopover = ({
             // re-trigger a focus-based tooltip during transitions.
             preventFocusOnPress
             onFocus={handleButtonFocus}
+            aria-describedby={definitionInParenthesesId}
           >
             {children}
-
-            <VisuallyHidden> ({t("definition-in-parentheses")})</VisuallyHidden>
           </StyledButton>
+          <VisuallyHidden>
+            <span id={definitionInParenthesesId}>{t("press-to-view-definition")}</span>
+          </VisuallyHidden>
         </span>
 
         <Tooltip offset={8} placement="top">

@@ -15,7 +15,7 @@ const DynamicallyLoadingComponentPlaceholder = () => {
         height: ${iframeHeight}px;
       `}
     >
-      <Spinner variant="medium" />
+      <Spinner variant="placeholder" />
     </div>
   )
 }

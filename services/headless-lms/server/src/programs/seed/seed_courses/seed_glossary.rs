@@ -79,7 +79,7 @@ pub async fn seed_glossary_course(
                         .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
                         .page(
                             PageBuilder::new("/chapter-1/page-1", "Page One").block(paragraph(
-                                "This course uses many TLAs. Why? Because why use one word when three letters will do? It's like a secret code, but everyone knows it. ABCD.",
+                                "This course uses many TLAs. Why? Because why use one word when three letters will do? It's like a secret code, but everyone knows it. You'll encounter CS, HDD, KB, and many more. When shopping for a new computer, you might hear someone say that an SSD makes everything faster, but don't worry if you're not sure what that means yet. By the end of this course, you'll be fluent in the language of three-letter abbreviations.",
                                 cx.v5(b"page:1:1:block:intro"),
                             )),
                         ),
@@ -96,10 +96,6 @@ pub async fn seed_glossary_course(
         .glossary_entry(
             "HDD",
             "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",
-        )
-        .glossary_entry(
-            "SSD",
-            "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",
         )
         .glossary_entry("KB", "Keyboard.");
 

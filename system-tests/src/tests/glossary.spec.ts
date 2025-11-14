@@ -11,6 +11,9 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
+const SSD_DEFINITION =
+  "A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers."
+
 test("glossary test", async ({ page, headless }, testInfo) => {
   test.slow()
 
@@ -45,23 +48,23 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   })
 
   await test.step("Create new glossary term and verify success", async () => {
-    await page.getByPlaceholder("New term").fill("abcd")
-    await page.getByPlaceholder("New definition").fill("efgh")
+    await page.getByPlaceholder("New term").fill("SSD")
+    await page.getByPlaceholder("New definition").fill(SSD_DEFINITION)
 
     await page.getByRole("button", { name: "Save", exact: true }).click()
     await page.getByText("Operation successful!").waitFor()
 
     // Reload to stabilize screenshot later.
     await page.reload()
-    await page.getByText("efgh").waitFor()
+    await page.getByText(SSD_DEFINITION).waitFor()
     await waitForFooterTranslationsToLoad(page)
   })
 
   await test.step("Edit the newly added term and definition, then save", async () => {
     await page.getByRole("button", { name: "Edit" }).first().click()
 
-    await page.getByPlaceholder("Updated term").fill("ABCD")
-    await page.getByPlaceholder("Updated definition").fill("EFGH")
+    await page.getByPlaceholder("Updated term").fill("SSD")
+    await page.getByPlaceholder("Updated definition").fill(SSD_DEFINITION)
 
     await page.locator(':nth-match(:text("Save"), 2)').click()
   })
@@ -82,7 +85,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
 
   await test.step("Glossary popup is accessible", async () => {
     await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/chapter-1/page-1")
-    const glossaryButton = page.getByRole("button", { name: "ABCD (definition)" }).first()
+    const glossaryButton = page.getByRole("button", { name: "SSD" }).first()
     await expect(glossaryButton).toBeVisible()
 
     await accessibilityCheck(page, "Glossary tooltip closed view")
@@ -91,13 +94,21 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await page.mouse.move(0, 0)
     await glossaryButton.hover()
 
-    await expect(page.getByRole("tooltip", { name: "EFGH" })).toBeVisible()
+    await expect(
+      page.getByRole("tooltip", {
+        name: SSD_DEFINITION,
+      }),
+    ).toBeVisible()
     await accessibilityCheck(page, "Glossary tooltip open view")
     await page.keyboard.press("Escape")
-    await expect(page.getByRole("tooltip", { name: "EFGH" })).toBeHidden()
+    await expect(
+      page.getByRole("tooltip", {
+        name: SSD_DEFINITION,
+      }),
+    ).toBeHidden()
 
     await glossaryButton.click()
-    const popover = page.getByRole("dialog", { name: "Term explanation" })
+    const popover = page.getByRole("dialog", { name: "Definition" })
     await expect(popover).toBeVisible()
     await expect(popover).toBeFocused()
     await accessibilityCheck(page, "Glossary popover open view")
@@ -113,10 +124,27 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await expect(popover).toBeHidden()
 
     await expect(page.locator("#content")).toMatchAriaSnapshot(`
-    - paragraph:
-      - text: This course uses many TLAs. Why? Because why use one word when three letters will do? It's like a secret code, but everyone knows it.
-      - button "ABCD (definition)"
-      - text: .
+      - paragraph:
+        - text: This course uses many TLAs. Why? Because why use one word when three letters will do? It's like a secret code, but everyone knows it. You'll encounter CS, HDD,
+        - button "KB"
+        - text: Press to view definition , and many more. When shopping for a new computer, you might hear someone say that an
+        - button "SSD"
+        - text: Press to view definition makes everything faster, but don't worry if you're not sure what that means yet. By the end of this course, you'll be fluent in the language of three-letter abbreviations.
     `)
+  })
+
+  await test.step("Glossary tooltip screenshot", async () => {
+    await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/chapter-1/page-1")
+    await selectCourseInstanceIfPrompted(page)
+
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "glossary-tooltips",
+      beforeScreenshot: async () => {
+        await page.getByRole("button", { name: "SSD" }).first().hover()
+      },
+    })
   })
 })

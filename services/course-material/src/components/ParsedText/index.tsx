@@ -96,7 +96,7 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
         )
       })
       .filter((portal): portal is ReactPortal => portal !== null)
-  }, [terms, readyForPortal])
+  }, [terms, readyForPortal, props.text, props.options?.glossary])
 
   return (
     <div ref={containerRef}>

@@ -4,7 +4,7 @@ import React from "react"
 import { BlockRendererProps } from ".."
 
 import ParsedText from "@/components/ParsedText"
-import { headingFont, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface IngressBlockAttributes {
@@ -15,6 +15,8 @@ interface IngressBlockAttributes {
 const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockAttributes>>> = (
   props,
 ) => {
+  const textColor = baseTheme.colors.gray[700]
+
   return (
     <div
       className={css`
@@ -28,7 +30,7 @@ const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockA
           tag="h2"
           tagProps={{
             className: css`
-              color: #1a2333;
+              color: ${textColor};
               font-weight: 700;
               font-size: 3.5rem;
               line-height: 4.375rem;
@@ -44,7 +46,7 @@ const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockA
         tag="h3"
         tagProps={{
           className: css`
-            color: #1a2333;
+            color: ${textColor};
             font-weight: normal;
             font-size: 1.75rem;
             line-height: 1.35;

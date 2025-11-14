@@ -67,6 +67,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await page.getByPlaceholder("Updated definition").fill(SSD_DEFINITION)
 
     await page.locator(':nth-match(:text("Save"), 2)').click()
+    await page.getByText("Operation successful!").waitFor()
   })
 
   await test.step("Return to Glossary page and snapshot", async () => {

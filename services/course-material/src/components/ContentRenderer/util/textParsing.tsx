@@ -73,9 +73,18 @@ const parseText = (
   let glossaryEntries: Term[] = []
 
   if (options.glossary) {
-    parsedText = parseGlossary(parsedCitation, terms ?? []).parsedText
-    glossaryEntries = parseGlossary(parsedCitation, terms ?? []).terms
-    glossaryEntries = terms ?? []
+    const { parsedText: glossaryParsedText, terms: usedGlossary } = parseGlossary(
+      parsedCitation,
+      terms ?? [],
+    )
+    parsedText = glossaryParsedText
+    const uniqueTerms = new Map<string, Term>()
+    usedGlossary.forEach((term) => {
+      if (!uniqueTerms.has(term.id)) {
+        uniqueTerms.set(term.id, term)
+      }
+    })
+    glossaryEntries = Array.from(uniqueTerms.values())
   }
 
   hasCitationsOrGlossary = parsedLatex !== parsedText

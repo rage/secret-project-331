@@ -1,6 +1,6 @@
-import { t } from "i18next"
 import React, { ReactNode } from "react"
 import { Tooltip, TooltipTrigger } from "react-aria-components"
+import { useTranslation } from "react-i18next"
 
 import GlossaryTriggerNPopover from "./GlossaryTriggerNPopover"
 import { TooltipBox } from "./TooltipBox"
@@ -21,6 +21,7 @@ type TooltipNTriggerProps =
     }
 
 const TooltipNTrigger: React.FC<TooltipNTriggerProps> = (props) => {
+  const { t } = useTranslation()
   const { children, tooltipContent } = props
 
   if (props.variant === "references") {

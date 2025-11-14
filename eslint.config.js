@@ -278,7 +278,6 @@ const config = [
               "align",
               "slot",
               "tag",
-              "text",
             ],
           },
           words: {
@@ -379,7 +378,6 @@ const config = [
               "createPopper",
               "closest",
               "querySelectorAll",
-              "querySelector",
               "getAttribute",
             ],
           },

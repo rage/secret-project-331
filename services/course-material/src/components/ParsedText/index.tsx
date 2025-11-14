@@ -20,11 +20,11 @@ import { GlossaryContext } from "@/contexts/GlossaryContext"
 export type Tag = keyof JSX.IntrinsicElements
 
 export type ParsedTextPropsWithWrapperElement = {
-  hasWrapperElement: true
+  useWrapperElement: true
 }
 
 export type ParsedTextPropsWithoutWrapperElement = {
-  hasWrapperElement: false
+  useWrapperElement: false
   wrapperRef: RefObject<HTMLElement | null>
 }
 
@@ -64,7 +64,7 @@ const glossaryTermStyle = css`
 const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
   const internalRef = useRef<HTMLSpanElement>(null)
-  const containerRef = props.hasWrapperElement === false ? props.wrapperRef : internalRef
+  const containerRef = props.useWrapperElement === false ? props.wrapperRef : internalRef
   const [readyForPortal, setReadyForPortal] = useState(false)
 
   useLayoutEffect(() => {
@@ -113,13 +113,13 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   }, [terms, readyForPortal, containerRef])
 
   const content =
-    props.hasWrapperElement === false ? (
+    props.useWrapperElement === false ? (
       <ParsedTextRenderer {...props} wrapperRef={props.wrapperRef} />
     ) : (
       <ParsedTextRenderer {...props} />
     )
 
-  if (props.hasWrapperElement === false) {
+  if (props.useWrapperElement === false) {
     return (
       <>
         {content}

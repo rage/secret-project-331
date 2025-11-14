@@ -112,7 +112,7 @@ const TableBlock: React.FC<
                         colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                         rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
-                      hasWrapperElement={false}
+                      useWrapperElement={false}
                       // eslint-disable-next-line i18next/no-literal-string
                       wrapperRef={getRef(`head-${j}-${i}`)}
                     />
@@ -136,7 +136,7 @@ const TableBlock: React.FC<
                       colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                       rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                     }}
-                    hasWrapperElement={false}
+                    useWrapperElement={false}
                     // eslint-disable-next-line i18next/no-literal-string
                     wrapperRef={getRef(`body-${j}-${i}`)}
                   />
@@ -160,7 +160,7 @@ const TableBlock: React.FC<
                         colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                         rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
-                      hasWrapperElement={false}
+                      useWrapperElement={false}
                       // eslint-disable-next-line i18next/no-literal-string
                       wrapperRef={getRef(`foot-${j}-${i}`)}
                     />
@@ -179,7 +179,7 @@ const TableBlock: React.FC<
               caption-side: bottom;
             `,
           }}
-          hasWrapperElement={false}
+          useWrapperElement={false}
           wrapperRef={captionRef}
         />
       </table>

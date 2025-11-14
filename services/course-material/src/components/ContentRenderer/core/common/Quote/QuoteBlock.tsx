@@ -57,6 +57,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
               font-size: 0.8125rem;
             `,
           }}
+          useWrapperElement={true}
         />
       </blockquote>
     </>

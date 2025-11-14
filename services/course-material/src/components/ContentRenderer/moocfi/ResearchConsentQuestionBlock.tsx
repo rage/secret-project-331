@@ -27,6 +27,7 @@ const ResearchFormCheckBoxBlock: React.FC<
   return (
     <ParsedText
       text={props.data.attributes.content}
+      useWrapperElement={true}
       render={(rendered) => {
         return (
           <CheckBox

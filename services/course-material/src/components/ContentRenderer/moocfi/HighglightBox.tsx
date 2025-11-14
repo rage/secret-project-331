@@ -59,8 +59,9 @@ const HightlightBlock: React.FC<
                 font-family: ${monospaceFont};
               `,
             }}
+            useWrapperElement={true}
           />
-          <ParsedText text={props.data.attributes.content} tag="span" />
+          <ParsedText text={props.data.attributes.content} tag="span" useWrapperElement={true} />
         </div>
       </div>
     </>

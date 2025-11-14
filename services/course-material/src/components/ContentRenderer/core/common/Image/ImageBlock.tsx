@@ -110,6 +110,7 @@ const ImageBlock: React.FC<
             margin-bottom: 0.8125rem;
           `,
         }}
+        useWrapperElement={true}
       />
     </div>
   )

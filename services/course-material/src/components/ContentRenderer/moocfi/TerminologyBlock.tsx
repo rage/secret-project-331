@@ -57,7 +57,7 @@ const TerminologyBlock: React.FC<
       >
         {props.data.attributes.blockName}
       </span>
-      <ParsedText text={props.data.attributes.title} tag="h2" />
+      <ParsedText text={props.data.attributes.title} tag="h2" useWrapperElement={true} />
       <Centered variant="narrow">
         <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </Centered>

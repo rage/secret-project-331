@@ -39,6 +39,7 @@ const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockA
               font-family: ${headingFont};
             `,
           }}
+          useWrapperElement={true}
         />
       )}
       <ParsedText
@@ -53,6 +54,7 @@ const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockA
             font-family: ${primaryFont};
           `,
         }}
+        useWrapperElement={true}
       />
     </div>
   )

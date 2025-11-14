@@ -27,7 +27,7 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
       )}
       id={props.id}
     >
-      <ParsedText text={content} tag="span" />
+      <ParsedText text={content} tag="span" useWrapperElement={true} />
       <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
     </li>
   )

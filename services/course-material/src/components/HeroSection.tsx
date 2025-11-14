@@ -188,8 +188,14 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
             className: cx(INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS, flipClassName),
           }}
           options={{ glossary: false }}
+          useWrapperElement={true}
         />
-        <ParsedText text={subtitle} tag="span" options={{ glossary: false }} />
+        <ParsedText
+          text={subtitle}
+          tag="span"
+          options={{ glossary: false }}
+          useWrapperElement={true}
+        />
       </TextBox>
     </div>
   )

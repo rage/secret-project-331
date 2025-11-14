@@ -71,10 +71,11 @@ const AsideWithImageBlock: React.FC<
     >
       <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       <div>
-        <ParsedText text={props.data.attributes.title} tag="h4" />
+        <ParsedText text={props.data.attributes.title} tag="h4" useWrapperElement={true} />
         <ParsedText
           text={props.data.attributes.content}
           tag="p"
+          useWrapperElement={true}
           tagProps={{
             className: css`
               font-size: 1rem;

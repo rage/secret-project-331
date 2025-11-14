@@ -59,6 +59,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
             ...(start && { start }),
             reversed,
           }}
+          useWrapperElement={true}
         />
       )
     } else {
@@ -69,6 +70,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
           tagProps={{
             className: listItemClass,
           }}
+          useWrapperElement={true}
         />
       )
     }

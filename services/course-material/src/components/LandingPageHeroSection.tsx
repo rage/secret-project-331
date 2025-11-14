@@ -173,7 +173,12 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
     >
       {getBackgroundImageUrl("mobile") === undefined && <StyledSVG />}
       <TextBox color={fontColor}>
-        <ParsedText text={title} tag="h1" tagProps={{ className: flipClassName }} />
+        <ParsedText
+          text={title}
+          tag="h1"
+          tagProps={{ className: flipClassName }}
+          useWrapperElement={true}
+        />
         <div className="hero-subtitle">{children}</div>
         <Button
           variant="primary"

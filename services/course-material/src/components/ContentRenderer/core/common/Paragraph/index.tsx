@@ -54,6 +54,7 @@ const ParagraphBlock: React.FC<
           />
         )
       }}
+      useWrapperElement={true}
     />
   )
 }

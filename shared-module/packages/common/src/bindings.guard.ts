@@ -1988,7 +1988,8 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
         typedObj["user_course_instance_exercise_service_variables"].every((e: any) =>
             isUserCourseExerciseServiceVariable(e) as boolean
         ) &&
-        typeof typedObj["should_show_reset_message"] === "boolean"
+        (typedObj["should_show_reset_message"] === null ||
+            typeof typedObj["should_show_reset_message"] === "string")
     )
 }
 
@@ -2122,7 +2123,8 @@ export function isExerciseResetLog(obj: unknown): obj is ExerciseResetLog {
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typeof typedObj["id"] === "string" &&
-        typeof typedObj["reset_by"] === "string" &&
+        (typedObj["reset_by"] === null ||
+            typeof typedObj["reset_by"] === "string") &&
         (typedObj["reset_by_first_name"] === null ||
             typeof typedObj["reset_by_first_name"] === "string") &&
         (typedObj["reset_by_last_name"] === null ||
@@ -2130,6 +2132,8 @@ export function isExerciseResetLog(obj: unknown): obj is ExerciseResetLog {
         typeof typedObj["reset_for"] === "string" &&
         typeof typedObj["exercise_id"] === "string" &&
         typeof typedObj["exercise_name"] === "string" &&
+        (typedObj["reason"] === null ||
+            typeof typedObj["reason"] === "string") &&
         typeof typedObj["course_id"] === "string" &&
         typeof typedObj["reset_at"] === "string" &&
         typeof typedObj["created_at"] === "string" &&
@@ -3505,7 +3509,8 @@ export function isCmsPeerOrSelfReviewConfig(obj: unknown): obj is CmsPeerOrSelfR
         typeof typedObj["peer_reviews_to_receive"] === "number" &&
         typeof typedObj["accepting_threshold"] === "number" &&
         isPeerReviewProcessingStrategy(typedObj["processing_strategy"]) as boolean &&
-        typeof typedObj["points_are_all_or_nothing"] === "boolean"
+        typeof typedObj["points_are_all_or_nothing"] === "boolean" &&
+        typeof typedObj["reset_answer_if_zero_points_from_review"] === "boolean"
     )
 }
 
@@ -3557,7 +3562,8 @@ export function isPeerOrSelfReviewConfig(obj: unknown): obj is PeerOrSelfReviewC
         typeof typedObj["accepting_threshold"] === "number" &&
         isPeerReviewProcessingStrategy(typedObj["processing_strategy"]) as boolean &&
         typeof typedObj["manual_review_cutoff_in_days"] === "number" &&
-        typeof typedObj["points_are_all_or_nothing"] === "boolean"
+        typeof typedObj["points_are_all_or_nothing"] === "boolean" &&
+        typeof typedObj["reset_answer_if_zero_points_from_review"] === "boolean"
     )
 }
 

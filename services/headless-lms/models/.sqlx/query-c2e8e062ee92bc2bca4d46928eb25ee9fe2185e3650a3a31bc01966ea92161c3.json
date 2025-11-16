@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  processing_strategy AS \"processing_strategy: _\",\n  points_are_all_or_nothing,\n  review_instructions\nFROM peer_or_self_review_configs\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL;\n",
+  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    processing_strategy AS \"processing_strategy: _\",\n    manual_review_cutoff_in_days,\n    points_are_all_or_nothing,\n    review_instructions,\n    reset_answer_if_zero_points_from_review\nFROM peer_or_self_review_configs\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -10,31 +10,46 @@
       },
       {
         "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
         "name": "course_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 2,
+        "ordinal": 5,
         "name": "exercise_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 3,
+        "ordinal": 6,
         "name": "peer_reviews_to_give",
         "type_info": "Int4"
       },
       {
-        "ordinal": 4,
+        "ordinal": 7,
         "name": "peer_reviews_to_receive",
         "type_info": "Int4"
       },
       {
-        "ordinal": 5,
+        "ordinal": 8,
         "name": "accepting_threshold",
         "type_info": "Float4"
       },
       {
-        "ordinal": 6,
+        "ordinal": 9,
         "name": "processing_strategy: _",
         "type_info": {
           "Custom": {
@@ -50,14 +65,24 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 10,
+        "name": "manual_review_cutoff_in_days",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
         "name": "points_are_all_or_nothing",
         "type_info": "Bool"
       },
       {
-        "ordinal": 8,
+        "ordinal": 12,
         "name": "review_instructions",
         "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 13,
+        "name": "reset_answer_if_zero_points_from_review",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -68,14 +93,19 @@
     "nullable": [
       false,
       false,
+      false,
+      true,
+      false,
       true,
       false,
       false,
       false,
       false,
       false,
-      true
+      false,
+      true,
+      false
     ]
   },
-  "hash": "bc6df11146cda9ecf56ccaedd4b92a59ce4c62ea2290b1b953016388f6c609b7"
+  "hash": "c2e8e062ee92bc2bca4d46928eb25ee9fe2185e3650a3a31bc01966ea92161c3"
 }

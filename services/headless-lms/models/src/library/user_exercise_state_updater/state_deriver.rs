@@ -1101,6 +1101,7 @@ mod tests {
                 peer_reviews_to_receive: 2,
                 accepting_threshold: 2.1,
                 processing_strategy,
+                reset_answer_if_zero_points_from_review: false,
                 manual_review_cutoff_in_days: 21,
                 points_are_all_or_nothing: true,
                 review_instructions: None,

@@ -86,6 +86,7 @@
   "label-points-are-all-or-nothing": "Pisteet ovat kaikki tai ei mitään",
   "label-question": "Kysymys",
   "label-repeat-background-x": "Toista taustaa vaakasuorasti",
+  "label-reset-answer-if-zero": "Poista vastaus automaattisesti, jos käyttäjä saa nolla pistettä vertaisarvioinnista",
   "label-template-name": "Sähköpostimallin nimi",
   "label-title": "Otsikko",
   "label-weight": "Paino",

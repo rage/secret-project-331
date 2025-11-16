@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT pr.id as id,\n  pr.course_id as course_id,\n  pr.exercise_id as exercise_id,\n  pr.peer_reviews_to_give as peer_reviews_to_give,\n  pr.peer_reviews_to_receive as peer_reviews_to_receive,\n  pr.accepting_threshold as accepting_threshold,\n  pr.processing_strategy AS \"processing_strategy: _\",\n  points_are_all_or_nothing,\n  pr.review_instructions\nfrom pages p\n  join exercises e on p.id = e.page_id\n  join peer_or_self_review_configs pr on e.id = pr.exercise_id\nwhere p.id = $1\n  AND p.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND pr.deleted_at IS NULL;\n    ",
+  "query": "\nSELECT id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  processing_strategy AS \"processing_strategy: _\",\n  points_are_all_or_nothing,\n  reset_answer_if_zero_points_from_review,\n  review_instructions\nFROM peer_or_self_review_configs\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL;\n",
   "describe": {
     "columns": [
       {
@@ -56,6 +56,11 @@
       },
       {
         "ordinal": 8,
+        "name": "reset_answer_if_zero_points_from_review",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
         "name": "review_instructions",
         "type_info": "Jsonb"
       }
@@ -74,8 +79,9 @@
       false,
       false,
       false,
+      false,
       true
     ]
   },
-  "hash": "d1ba494cd325829f292ed0d229e9c41d82a18ac7d9d169380f421ce1de5a7180"
+  "hash": "7884af0b6e95563afd99a82af0492909dc64841f446f859160c9d56ce458cebb"
 }

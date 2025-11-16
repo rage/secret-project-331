@@ -70,8 +70,9 @@ async fn create_teacher_grading_decision(
         let _reset = models::exercises::reset_exercises_for_selected_users(
             &mut tx,
             &users_and_exercises,
-            user.id,
+            Some(user.id),
             course_id,
+            Some("reset-by-staff".to_string()),
         )
         .await?;
 

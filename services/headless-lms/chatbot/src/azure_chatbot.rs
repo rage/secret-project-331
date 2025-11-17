@@ -28,8 +28,8 @@ use url::Url;
 use crate::chatbot_tools::ChatbotTool;
 use crate::chatbot_tools::course_progress::call_chatbot_tool;
 use crate::llm_utils::{
-    APIMessage, ApiMessageKind, ApiMessageToolCall, ApiTextMessage, ApiTool, ApiToolCallMessage,
-    ApiToolResponseMessage, MessageRole, estimate_tokens, make_streaming_llm_request,
+    APIMessage, ApiMessageKind, ApiMessageText, ApiMessageToolCall, ApiMessageToolResponse,
+    ApiTool, ApiToolCall, MessageRole, estimate_tokens, make_streaming_llm_request,
 };
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
@@ -56,6 +56,7 @@ pub struct ContentFilter {
     pub severity: String,
 }
 
+/// Data in a streamed response chunk
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Choice {
     pub content_filter_results: Option<ContentFilterResults>,
@@ -64,11 +65,12 @@ pub struct Choice {
     pub index: i32,
 }
 
+/// Content in a streamed response chunk Choice
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Delta {
     pub content: Option<String>,
     pub context: Option<DeltaContext>,
-    pub tool_calls: Option<Vec<DeltaToolCall>>,
+    pub tool_calls: Option<Vec<ToolCallInDelta>>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -76,14 +78,16 @@ pub struct DeltaContext {
     pub citations: Vec<Citation>,
 }
 
+/// A streamed tool call from Azure
 #[derive(Deserialize, Serialize, Debug)]
-pub struct DeltaToolCall {
+pub struct ToolCallInDelta {
     pub id: Option<String>,
     pub function: DeltaTool,
     #[serde(rename = "type")]
     pub tool_type: Option<ToolCallType>,
 }
 
+/// Streamed tool call content
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct DeltaTool {
     #[serde(default)]
@@ -124,7 +128,7 @@ impl From<ChatbotConversationMessage> for APIMessage {
             } else {
                 MessageRole::User
             },
-            fields: ApiMessageKind::Text(ApiTextMessage {
+            fields: ApiMessageKind::Text(ApiMessageText {
                 content: message.message.unwrap_or_default(),
             }),
         }
@@ -163,6 +167,7 @@ pub enum LLMRequestParams {
     NonThinking(NonThinkingParams),
 }
 
+/// A tool definition that is sent to the LLM. A tool that the LLM can call
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AzureLLMToolDefinition {
     #[serde(rename = "type")]
@@ -170,6 +175,7 @@ pub struct AzureLLMToolDefinition {
     pub function: LLMTool,
 }
 
+/// Content of a tool defintion that is sent to the LLM
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LLMTool {
     pub name: String,
@@ -178,6 +184,7 @@ pub struct LLMTool {
     pub parameters: Option<LLMToolParams>,
 }
 
+/// Parameters that an AzureLLMToolDefinition accepts
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LLMToolParams {
     #[serde(rename = "type")]
@@ -281,7 +288,7 @@ impl LLMRequest {
             0,
             APIMessage {
                 role: MessageRole::System,
-                fields: ApiMessageKind::Text(ApiTextMessage {
+                fields: ApiMessageKind::Text(ApiMessageText {
                     content: configuration.prompt.clone(),
                 }),
             },
@@ -462,6 +469,8 @@ where
     }
 }
 
+/// A LinesStream that is peekable. Needed to determine which type of LLM response is
+/// being received.
 type PeekableLinesStream<'a> = Pin<
     Box<Peekable<LinesStream<StreamReader<BoxStream<'a, Result<Bytes, std::io::Error>>, Bytes>>>>,
 >;
@@ -528,7 +537,7 @@ pub async fn make_request_and_stream<'a>(
 ) -> anyhow::Result<ResponseStreamType<'a>> {
     let response = make_streaming_llm_request(chat_request, model_name, app_config).await?;
 
-    info!("Receiving chat response with {:?}", response.version());
+    trace!("Receiving chat response with {:?}", response.version());
 
     if !response.status().is_success() {
         let status = response.status();
@@ -600,7 +609,7 @@ pub async fn parse_tool<'a>(
     mut lines: PeekableLinesStream<'a>,
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<Vec<APIMessage>> {
-    let mut function_name_id_args: Vec<(String, String, String)> = Vec::new();
+    let mut function_name_id_args: Vec<(String, String, String)> = vec![];
     let mut currently_streamed_function_name_id: Option<(String, String)> = None;
     let mut currently_streamed_function_args = vec![];
     let mut messages = vec![];
@@ -614,6 +623,7 @@ pub async fn parse_tool<'a>(
         }
         let json_str = line.trim_start_matches("data: ");
         if json_str.trim() == "[DONE]" {
+            // the stream ended
             if function_name_id_args.is_empty() {
                 return Err(anyhow::anyhow!(
                     "The LLM response was supposed to contain function calls, but no function calls were found"
@@ -626,7 +636,7 @@ pub async fn parse_tool<'a>(
                 // created and args parsed before above tool msg append
                 let tool = call_chatbot_tool(conn, &name, &args, user_context).await?;
 
-                assistant_tool_calls_msg.push(ApiMessageToolCall {
+                assistant_tool_calls_msg.push(ApiToolCall {
                     function: ApiTool {
                         name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
@@ -636,7 +646,7 @@ pub async fn parse_tool<'a>(
                 });
                 tool_result_msgs.push(APIMessage {
                     role: MessageRole::Tool,
-                    fields: ApiMessageKind::ToolResponse(ApiToolResponseMessage {
+                    fields: ApiMessageKind::ToolResponse(ApiMessageToolResponse {
                         content: tool.output(),
                         name: name.to_owned(),
                         tool_call_id: id.to_owned(),
@@ -645,7 +655,7 @@ pub async fn parse_tool<'a>(
             }
             messages.push(APIMessage {
                 role: MessageRole::Assistant,
-                fields: ApiMessageKind::ToolCall(ApiToolCallMessage {
+                fields: ApiMessageKind::ToolCall(ApiMessageToolCall {
                     tool_calls: assistant_tool_calls_msg,
                 }),
             });
@@ -657,6 +667,7 @@ pub async fn parse_tool<'a>(
         for choice in &response_chunk.choices {
             if Some("tool_calls".to_string()) == choice.finish_reason {
                 // the stream is finished for now because of "tool_calls"
+                // so if we're still streaming smóme func call, finish it and store it
                 if let Some((name, id)) = &currently_streamed_function_name_id {
                     // we have streamed some func call and args so let's join the args
                     // and save the call
@@ -666,7 +677,6 @@ pub async fn parse_tool<'a>(
                         id.to_owned(),
                         fn_args.to_owned(),
                     ));
-
                     currently_streamed_function_args.clear();
                     currently_streamed_function_name_id = None;
                 }
@@ -680,11 +690,12 @@ pub async fn parse_tool<'a>(
                             // if there is previously streamed args, then their streaming is
                             // complete, let's join and save them before processing this new
                             // call.
-                            if let Some((name2, id2)) = currently_streamed_function_name_id {
+                            if let Some((name_prev, id_prev)) = currently_streamed_function_name_id
+                            {
                                 let fn_args = currently_streamed_function_args.join("");
                                 function_name_id_args.push((
-                                    name2.to_owned(),
-                                    id2.to_owned(),
+                                    name_prev.to_owned(),
+                                    id_prev.to_owned(),
                                     fn_args,
                                 ));
                                 currently_streamed_function_args.clear();
@@ -724,7 +735,7 @@ pub async fn parse_and_stream_to_user<'a>(
         request_estimated_tokens,
     };
 
-    info!("Parsing stream to user...");
+    trace!("Parsing stream to user...");
 
     let response_stream = async_stream::try_stream! {
         while let Some(val) = lines.next().await {
@@ -738,7 +749,7 @@ pub async fn parse_and_stream_to_user<'a>(
             if json_str.trim() == "[DONE]" {
                 let full_response_as_string = full_response_text.join("");
                 let estimated_cost = estimate_tokens(&full_response_as_string);
-                info!(
+                trace!(
                     "End of chatbot response stream. Estimated cost: {}. Response: {}",
                     estimated_cost, full_response_as_string
                 );
@@ -756,7 +767,6 @@ pub async fn parse_and_stream_to_user<'a>(
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
-            println!("!!!!!!!!!!!!!!!!!!!!{:?}", response_chunk);
 
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {

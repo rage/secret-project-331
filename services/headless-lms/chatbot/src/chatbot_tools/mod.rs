@@ -10,7 +10,7 @@ pub trait ChatbotTool {
     type State;
     type Arguments: Serialize;
 
-    /// Parse the LLM-generated function arguments and validate them
+    /// Parse the LLM-generated function arguments and clean them
     fn parse_arguments(args_string: String) -> Self::Arguments;
 
     /// Create a new instance after parsing arguments
@@ -22,6 +22,7 @@ pub trait ChatbotTool {
     where
         Self: Sized;
 
+    /// Output the result of the tool call in LLM-readable form
     fn output(&self) -> String;
 
     fn get_arguments(&self) -> &Self::Arguments;

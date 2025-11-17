@@ -32,30 +32,35 @@ pub struct APIMessage {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum ApiMessageKind {
-    Text(ApiTextMessage),
-    ToolCall(ApiToolCallMessage),
-    ToolResponse(ApiToolResponseMessage),
+    Text(ApiMessageText),
+    ToolCall(ApiMessageToolCall),
+    ToolResponse(ApiMessageToolResponse),
 }
 
+/// LLM api message that contains only text
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiTextMessage {
+pub struct ApiMessageText {
     pub content: String,
 }
 
+/// LLM api message that contains tool calls. The tool calls were originally made by
+/// the LLM, but have been processed and added to the messages in a LLMRequest
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiToolCallMessage {
-    pub tool_calls: Vec<ApiMessageToolCall>,
+pub struct ApiMessageToolCall {
+    pub tool_calls: Vec<ApiToolCall>,
 }
 
+/// LLM api message that contains outputs of tool calls
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiToolResponseMessage {
+pub struct ApiMessageToolResponse {
     pub tool_call_id: String,
     pub name: String,
     pub content: String,
 }
 
+/// An LLM tool call that is part of a request to Azure
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiMessageToolCall {
+pub struct ApiToolCall {
     pub function: ApiTool,
     pub id: String,
     #[serde(rename = "type")]

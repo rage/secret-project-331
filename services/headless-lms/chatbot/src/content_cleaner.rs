@@ -1,6 +1,6 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
 use crate::llm_utils::{
-    APIMessage, ApiMessageKind, ApiTextMessage, MessageRole, estimate_tokens,
+    API_MESSAGE_TEXT, APIMessage, ApiMessageKind, MessageRole, estimate_tokens,
     make_blocking_llm_request,
 };
 use crate::prelude::*;
@@ -48,7 +48,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = APIMessage {
         role: MessageRole::System,
-        fields: ApiMessageKind::Text(ApiTextMessage {
+        fields: ApiMessageKind::Text(API_MESSAGE_TEXT {
             content: SYSTEM_PROMPT.to_string(),
         }),
     };
@@ -272,7 +272,7 @@ pub fn prepare_llm_messages(
         system_message.clone(),
         APIMessage {
             role: MessageRole::User,
-            fields: ApiMessageKind::Text(ApiTextMessage {
+            fields: ApiMessageKind::Text(API_MESSAGE_TEXT {
                 content: format!(
                     "{}\n\n{}{}\n{}",
                     USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
@@ -286,7 +286,7 @@ pub fn prepare_llm_messages(
 
 #[cfg(test)]
 mod tests {
-    use crate::llm_utils::{ApiMessageKind, ApiTextMessage};
+    use crate::llm_utils::{API_MESSAGE_TEXT, ApiMessageKind};
 
     use super::*;
     use serde_json::json;
@@ -363,7 +363,7 @@ mod tests {
         let blocks_json = serde_json::to_string(&blocks)?;
         let system_message = APIMessage {
             role: MessageRole::System,
-            fields: ApiMessageKind::Text(ApiTextMessage {
+            fields: ApiMessageKind::Text(API_MESSAGE_TEXT {
                 content: "System prompt".to_string(),
             }),
         };

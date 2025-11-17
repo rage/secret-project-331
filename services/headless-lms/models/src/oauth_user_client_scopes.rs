@@ -32,7 +32,9 @@ impl OAuthUserClientScopes {
                 INSERT INTO oauth_user_client_scopes
                 (user_id, client_id, scopes)
                 VALUES ($1, $2, $3)
-                ON CONFLICT DO NOTHING
+                                ON CONFLICT (user_id, client_id) DO UPDATE
+                  SET scopes = EXCLUDED.scopes,
+                      granted_at = NOW()
             "#,
             user_id,
             client_id,

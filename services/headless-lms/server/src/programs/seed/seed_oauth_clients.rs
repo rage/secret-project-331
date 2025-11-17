@@ -1,6 +1,10 @@
 use std::str::FromStr;
 
-use headless_lms_models::{library::oauth::pkce, oauth_client, oauth_shared_types::Digest};
+use headless_lms_models::{
+    library::oauth::pkce,
+    oauth_client,
+    oauth_shared_types::{Digest, GrantTypeName},
+};
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
@@ -21,7 +25,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         client_secret: Some(&secret), // "very-secret"
         client_secret_expires_at: None,
         redirect_uris: &["http://127.0.0.1:8765/callback".to_string()],
-        allowed_grant_types: &[oauth_client::GrantType::AuthorizationCode],
+        allowed_grant_types: &[GrantTypeName::AuthorizationCode],
         scopes: &[
             "openid".to_string(),
             "profile".to_string(),

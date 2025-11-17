@@ -1,6 +1,7 @@
 use super::oauth_validate::OAuthValidate;
 use crate::prelude::*;
 use domain::error::{OAuthErrorCode, OAuthErrorData};
+use models::oauth_shared_types::GrantTypeName;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -9,7 +10,7 @@ pub struct TokenQuery {
     pub client_id: Option<String>,
     pub client_secret: Option<String>, // optional: public clients won’t send this
     #[serde(flatten)]
-    pub grant: Option<GrantType>,
+    pub grant: Option<TokenGrant>,
     // OAuth 2.0 requires unknown params be ignored at /token (RFC 6749 §3.2)
     #[serde(flatten)]
     pub _extra: HashMap<String, String>,
@@ -19,7 +20,7 @@ pub struct TokenQuery {
 pub struct TokenParams {
     pub client_id: String,
     pub client_secret: Option<String>, // carry through; validation for presence is done per-client later
-    pub grant: GrantType,
+    pub grant: TokenGrant,
 }
 
 impl OAuthValidate for TokenQuery {
@@ -44,7 +45,7 @@ impl OAuthValidate for TokenQuery {
 
         // Grant-specific required params
         match &self.grant {
-            Some(GrantType::AuthorizationCode {
+            Some(TokenGrant::AuthorizationCode {
                 code,
                 redirect_uri,
                 code_verifier: _,
@@ -80,7 +81,7 @@ impl OAuthValidate for TokenQuery {
                 }
                 // PKCE code_verifier is verified at the token handler (if the code had a challenge)
             }
-            Some(GrantType::RefreshToken { refresh_token, .. }) => {
+            Some(TokenGrant::RefreshToken { refresh_token, .. }) => {
                 if refresh_token.is_empty() {
                     return Err(ControllerError::new(
                         ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -119,23 +120,30 @@ impl OAuthValidate for TokenQuery {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[serde(tag = "grant_type")]
-pub enum GrantType {
-    #[serde(rename = "authorization_code")]
+#[serde(tag = "grant_type", rename_all = "snake_case")]
+pub enum TokenGrant {
     AuthorizationCode {
         code: String,
         /// Optional per RFC 6749 §4.1.3 (required if it was present in the authorization request)
         redirect_uri: Option<String>,
-        /// Optional here; enforced at runtime if the code stored a challenge (RFC 7636)
+        /// Optional; enforced later if the code stored a challenge
         code_verifier: Option<String>,
     },
-    #[serde(rename = "refresh_token")]
     RefreshToken {
         refresh_token: String,
-        /// Optional down-scope (RFC 6749 §6 / best practice)
+        /// Optional down-scope
         #[serde(default)]
         scope: Option<String>,
     },
+}
+
+impl TokenGrant {
+    pub fn kind(&self) -> GrantTypeName {
+        match self {
+            TokenGrant::AuthorizationCode { .. } => GrantTypeName::AuthorizationCode,
+            TokenGrant::RefreshToken { .. } => GrantTypeName::RefreshToken,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -178,7 +186,7 @@ mod tests {
         let q = TokenQuery {
             client_id: Some("cid".into()),
             client_secret: None,
-            grant: Some(GrantType::RefreshToken {
+            grant: Some(TokenGrant::RefreshToken {
                 refresh_token: "rt".into(),
                 scope: None,
             }),
@@ -208,7 +216,7 @@ mod tests {
         let q = TokenQuery {
             client_id: Some("cid".into()),
             client_secret: Some("sec".into()),
-            grant: Some(GrantType::AuthorizationCode {
+            grant: Some(TokenGrant::AuthorizationCode {
                 code: "".into(),
                 redirect_uri: Some("http://localhost".into()),
                 code_verifier: None,
@@ -228,7 +236,7 @@ mod tests {
         let q = TokenQuery {
             client_id: Some("cid".into()),
             client_secret: Some("sec".into()),
-            grant: Some(GrantType::AuthorizationCode {
+            grant: Some(TokenGrant::AuthorizationCode {
                 code: "C".into(),
                 redirect_uri: Some("".into()),
                 code_verifier: None,
@@ -249,7 +257,7 @@ mod tests {
         let q = TokenQuery {
             client_id: Some("cid".into()),
             client_secret: Some("sec".into()),
-            grant: Some(GrantType::AuthorizationCode {
+            grant: Some(TokenGrant::AuthorizationCode {
                 code: "C".into(),
                 redirect_uri: None,
                 code_verifier: None,
@@ -264,7 +272,7 @@ mod tests {
         let q = TokenQuery {
             client_id: Some("cid".into()),
             client_secret: Some("sec".into()),
-            grant: Some(GrantType::AuthorizationCode {
+            grant: Some(TokenGrant::AuthorizationCode {
                 code: "C".into(),
                 redirect_uri: Some("http://localhost".into()),
                 code_verifier: Some("verifier".into()),
@@ -279,7 +287,7 @@ mod tests {
         let q = TokenQuery {
             client_id: Some("cid".into()),
             client_secret: Some("sec".into()),
-            grant: Some(GrantType::RefreshToken {
+            grant: Some(TokenGrant::RefreshToken {
                 refresh_token: "".into(),
                 scope: None,
             }),
@@ -298,7 +306,7 @@ mod tests {
         let q = TokenQuery {
             client_id: Some("cid".into()),
             client_secret: Some("sec".into()),
-            grant: Some(GrantType::AuthorizationCode {
+            grant: Some(TokenGrant::AuthorizationCode {
                 code: "abc".into(),
                 redirect_uri: Some("http://localhost".into()),
                 code_verifier: None,
@@ -313,7 +321,7 @@ mod tests {
         let q = TokenQuery {
             client_id: Some("cid".into()),
             client_secret: Some("sec".into()),
-            grant: Some(GrantType::RefreshToken {
+            grant: Some(TokenGrant::RefreshToken {
                 refresh_token: "r1".into(),
                 scope: None,
             }),
@@ -349,7 +357,7 @@ mod tests {
         }))
         .unwrap();
         match ac.grant {
-            Some(GrantType::AuthorizationCode {
+            Some(TokenGrant::AuthorizationCode {
                 code,
                 redirect_uri,
                 code_verifier,
@@ -371,7 +379,7 @@ mod tests {
         }))
         .unwrap();
         match rt.grant {
-            Some(GrantType::RefreshToken {
+            Some(TokenGrant::RefreshToken {
                 refresh_token,
                 scope,
             }) => {

@@ -3,7 +3,11 @@
 //! Mirrors the `oauth_clients` table and PostgreSQL enums.
 //! Includes small policy helpers (public/confidential, PKCE, grants).
 
-use crate::{library::oauth::pkce::PkceMethod, oauth_shared_types::Digest, prelude::*};
+use crate::{
+    library::oauth::pkce::PkceMethod,
+    oauth_shared_types::{Digest, GrantTypeName},
+    prelude::*,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgConnection, Type};
@@ -39,16 +43,6 @@ pub enum ApplicationType {
     Service,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[sqlx(type_name = "grant_type")]
-#[serde(rename_all = "snake_case")]
-pub enum GrantType {
-    AuthorizationCode,
-    RefreshToken,
-    ClientCredentials,
-    DeviceCode,
-}
-
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct OAuthClient {
     pub id: Uuid,
@@ -65,7 +59,7 @@ pub struct OAuthClient {
     pub redirect_uris: Vec<String>,
     pub post_logout_redirect_uris: Option<Vec<String>>,
 
-    pub allowed_grant_types: Vec<GrantType>,
+    pub allowed_grant_types: Vec<GrantTypeName>,
     pub scopes: Vec<String>,
 
     pub require_pkce: bool,
@@ -100,7 +94,7 @@ impl OAuthClient {
         self.pkce_methods_allowed.iter().any(|&x| x == m)
     }
 
-    pub fn allows_grant(&self, g: GrantType) -> bool {
+    pub fn allows_grant(&self, g: GrantTypeName) -> bool {
         self.allowed_grant_types.iter().any(|&x| x == g)
     }
 }
@@ -118,7 +112,7 @@ pub struct NewClientParams<'a> {
     pub redirect_uris: &'a [String],
     pub post_logout_redirect_uris: Option<&'a [String]>,
 
-    pub allowed_grant_types: &'a [GrantType],
+    pub allowed_grant_types: &'a [GrantTypeName],
     pub scopes: &'a [String],
 
     pub require_pkce: bool,
@@ -330,7 +324,7 @@ impl OAuthClient {
             p.client_secret_expires_at,
             p.redirect_uris,
             p.post_logout_redirect_uris,
-            p.allowed_grant_types as &[GrantType],
+            p.allowed_grant_types as &[GrantTypeName],
             p.scopes,
             p.require_pkce,
             p.pkce_methods_allowed as &[PkceMethod],

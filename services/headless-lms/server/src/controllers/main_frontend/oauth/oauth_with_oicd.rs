@@ -12,7 +12,7 @@ use super::helpers::{
 };
 use super::jwks::{Jwk, Jwks};
 use super::oauth_validated::OAuthValidated;
-use super::token_query::{GrantType, TokenQuery};
+use super::token_query::{TokenGrant, TokenQuery};
 use super::token_response::TokenResponse;
 use super::userinfo_response::UserInfoResponse;
 use crate::domain::error::PkceFlowError;
@@ -431,6 +431,22 @@ pub async fn token(
         }
     }
 
+    // Check if client allows this grant type
+    let grant_kind = form.grant.kind();
+    if !client.allows_grant(grant_kind) {
+        return Err(ControllerError::new(
+            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
+                error_description: "grant type not allowed for this client".into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            })),
+            "Grant type not allowed for this client",
+            None::<anyhow::Error>,
+        ));
+    }
+
     // DPoP vs Bearer selection
     let dpop_jkt_opt = if let Some(_) = req.headers().get("DPoP") {
         Some(verify_dpop_from_actix(&mut conn, &req, "POST", None).await?)
@@ -454,7 +470,7 @@ pub async fn token(
     let refresh_token_expires_at = Utc::now() + refresh_ttl;
 
     let (user_id, scope_vec, nonce_opt, at_expires_at, issue_id_token) = match &form.grant {
-        GrantType::AuthorizationCode {
+        TokenGrant::AuthorizationCode {
             code,
             redirect_uri,
             code_verifier,
@@ -561,7 +577,7 @@ pub async fn token(
             )
         }
 
-        GrantType::RefreshToken {
+        TokenGrant::RefreshToken {
             refresh_token,
             scope: _,
         } => {

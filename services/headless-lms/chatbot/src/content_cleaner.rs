@@ -50,7 +50,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
 
     let system_message_tokens = estimate_tokens(&system_message.content);
     let safe_token_limit = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
-    let max_content_tokens = safe_token_limit - system_message_tokens;
+    let max_content_tokens = (safe_token_limit - system_message_tokens).max(1);
 
     debug!(
         "Token limits - system: {}, safe: {}, max content: {}",
@@ -177,16 +177,18 @@ fn split_oversized_block(
     );
 
     // Make a very conservative estimate of the number of chunks we need
-    let num_chunks = (total_tokens as f32 / (max_tokens as f32 * 0.5)).ceil() as usize;
+    // Ensure max_tokens is at least 1 to avoid division by zero
+    let max_tokens_safe = max_tokens.max(1);
+    let num_chunks = (total_tokens as f32 / (max_tokens_safe as f32 * 0.5)).ceil() as usize;
 
-    if num_chunks <= 1 {
+    if num_chunks <= 1 || num_chunks == 0 {
         chunks.push(block_json.to_string());
         return Ok(());
     }
 
     // Split by byte length (not character count) for efficiency,
     // but ensure we only slice at UTF-8 character boundaries
-    let bytes_per_chunk = block_json.len() / num_chunks;
+    let bytes_per_chunk = (block_json.len() / num_chunks).max(1);
     debug!(
         "Splitting into {} chunks of approximately {} bytes each",
         num_chunks, bytes_per_chunk
@@ -194,10 +196,16 @@ fn split_oversized_block(
 
     let mut start = 0;
     while start < block_json.len() {
-        let mut end = if start + bytes_per_chunk >= block_json.len() {
+        // Use checked arithmetic to prevent overflow
+        let end_candidate = start
+            .checked_add(bytes_per_chunk)
+            .unwrap_or(block_json.len())
+            .min(block_json.len());
+
+        let mut end = if end_candidate >= block_json.len() {
             block_json.len()
         } else {
-            start + bytes_per_chunk
+            end_candidate
         };
 
         // Adjust end backwards to the nearest UTF-8 character boundary
@@ -205,10 +213,43 @@ fn split_oversized_block(
             end -= 1;
         }
 
-        let chunk = &block_json[start..end];
-        chunks.push(chunk.to_string());
+        // If backtracking resulted in end == start, advance forward to next boundary
+        if end == start {
+            // Find the next character boundary after start
+            let mut next_boundary = start
+                .checked_add(1)
+                .unwrap_or(block_json.len())
+                .min(block_json.len());
 
-        start = end;
+            while next_boundary < block_json.len() && !block_json.is_char_boundary(next_boundary) {
+                next_boundary = next_boundary
+                    .checked_add(1)
+                    .unwrap_or(block_json.len())
+                    .min(block_json.len());
+            }
+            end = next_boundary.min(block_json.len());
+        }
+
+        // Ensure we have a non-empty slice and valid bounds
+        if end > start && end <= block_json.len() && start < block_json.len() {
+            // Double-check bounds before slicing
+            let chunk = block_json.get(start..end).ok_or_else(|| {
+                anyhow::anyhow!("Invalid string slice bounds: {}..{}", start, end)
+            })?;
+            chunks.push(chunk.to_string());
+            start = end;
+        } else {
+            // Safety: if we can't make progress, break to avoid infinite loop
+            // Push remaining content if any
+            if start < block_json.len() {
+                if let Some(remaining) = block_json.get(start..) {
+                    if !remaining.is_empty() {
+                        chunks.push(remaining.to_string());
+                    }
+                }
+            }
+            break;
+        }
     }
 
     Ok(())

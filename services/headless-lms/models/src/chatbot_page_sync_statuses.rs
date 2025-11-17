@@ -13,6 +13,7 @@ pub struct ChatbotPageSyncStatus {
     pub page_id: Uuid,
     pub error_message: Option<String>,
     pub synced_page_revision_id: Option<Uuid>,
+    pub consecutive_failures: i32,
 }
 
 pub async fn ensure_sync_statuses_exist(
@@ -72,7 +73,9 @@ pub async fn update_page_revision_ids(
     sqlx::query!(
         r#"
 UPDATE chatbot_page_sync_statuses AS cps
-SET synced_page_revision_id = data.synced_page_revision_id
+SET synced_page_revision_id = data.synced_page_revision_id,
+    error_message = NULL,
+    consecutive_failures = 0
 FROM (
     SELECT unnest($1::uuid []) AS page_id,
       unnest($2::uuid []) AS synced_page_revision_id
@@ -82,6 +85,28 @@ AND cps.deleted_at IS NULL
     "#,
         &page_ids,
         &revision_ids
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn set_page_sync_error(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    error_message: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_page_sync_statuses
+SET error_message = $2,
+    consecutive_failures = consecutive_failures + 1
+WHERE page_id = $1
+AND deleted_at IS NULL
+    "#,
+        page_id,
+        error_message
     )
     .execute(conn)
     .await?;

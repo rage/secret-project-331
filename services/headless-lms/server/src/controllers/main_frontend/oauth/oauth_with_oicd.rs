@@ -250,10 +250,10 @@ async fn approve_consent(
         .map(|s| s.to_string())
         .collect();
 
-    let allowed_scopes = client.scopes;
+    let allowed_scopes = &client.scopes;
 
     for scope in &requested_scopes {
-        if !allowed_scopes.contains(&scope) {
+        if !allowed_scopes.contains(scope) {
             return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
                 "invalid scope",
             )));

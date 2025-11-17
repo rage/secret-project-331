@@ -96,6 +96,19 @@ impl OAuthValidate for TokenQuery {
                     ));
                 }
             }
+            Some(TokenGrant::Unknown) => {
+                return Err(ControllerError::new(
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                        error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
+                        error_description: "unsupported grant type".into(),
+                        redirect_uri: None,
+                        state: None,
+                        nonce: None,
+                    })),
+                    "Unsupported grant type",
+                    None::<anyhow::Error>,
+                ));
+            }
             None => {
                 return Err(ControllerError::new(
                     ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -135,6 +148,8 @@ pub enum TokenGrant {
         #[serde(default)]
         scope: Option<String>,
     },
+    #[serde(other)]
+    Unknown,
 }
 
 impl TokenGrant {
@@ -142,6 +157,11 @@ impl TokenGrant {
         match self {
             TokenGrant::AuthorizationCode { .. } => GrantTypeName::AuthorizationCode,
             TokenGrant::RefreshToken { .. } => GrantTypeName::RefreshToken,
+            TokenGrant::Unknown => {
+                unreachable!(
+                    "Unknown grant type should be caught by validate() before kind() is called"
+                )
+            }
         }
     }
 }

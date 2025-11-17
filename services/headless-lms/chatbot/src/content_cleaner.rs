@@ -2,6 +2,7 @@ use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
 use crate::llm_utils::{APIMessage, MessageRole, estimate_tokens, make_blocking_llm_request};
 use crate::prelude::*;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use serde_json::Value;
 use tracing::{debug, error, info, instrument, warn};
 
 /// Maximum context window size for LLM in tokens
@@ -66,6 +67,38 @@ pub fn calculate_safe_token_limit(context_window: i32, utilization: f32) -> i32 
     (context_window as f32 * utilization) as i32
 }
 
+/// Recursively removes all fields named "private_spec" from a JSON value
+fn remove_private_spec_recursive(value: &mut Value) {
+    match value {
+        Value::Object(map) => {
+            map.remove("private_spec");
+            for (_, v) in map.iter_mut() {
+                remove_private_spec_recursive(v);
+            }
+        }
+        Value::Array(arr) => {
+            for item in arr.iter_mut() {
+                remove_private_spec_recursive(item);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Converts a block to JSON string, removing any private_spec fields recursively
+fn block_to_json_string(block: &GutenbergBlock) -> anyhow::Result<String> {
+    let mut json_value = serde_json::to_value(block)?;
+    remove_private_spec_recursive(&mut json_value);
+    Ok(serde_json::to_string(&json_value)?)
+}
+
+/// Converts a vector of blocks to JSON string, removing any private_spec fields recursively
+fn blocks_to_json_string(blocks: &[GutenbergBlock]) -> anyhow::Result<String> {
+    let mut json_value = serde_json::to_value(blocks)?;
+    remove_private_spec_recursive(&mut json_value);
+    Ok(serde_json::to_string(&json_value)?)
+}
+
 /// Split blocks into chunks that fit within token limits
 #[instrument(skip(blocks), fields(max_content_tokens))]
 pub fn split_blocks_into_chunks(
@@ -78,7 +111,7 @@ pub fn split_blocks_into_chunks(
     let mut current_chunk_tokens = 0;
 
     for block in blocks {
-        let block_json = serde_json::to_string(block)?;
+        let block_json = block_to_json_string(block)?;
         let block_tokens = estimate_tokens(&block_json);
         debug!(
             "Processing block {} with {} tokens",
@@ -93,7 +126,7 @@ pub fn split_blocks_into_chunks(
             );
             // Add any accumulated blocks as a chunk
             if !current_chunk.is_empty() {
-                chunks.push(serde_json::to_string(&current_chunk)?);
+                chunks.push(blocks_to_json_string(&current_chunk)?);
                 current_chunk = Vec::new();
                 current_chunk_tokens = 0;
             }
@@ -109,7 +142,7 @@ pub fn split_blocks_into_chunks(
                 current_chunk.len(),
                 current_chunk_tokens
             );
-            chunks.push(serde_json::to_string(&current_chunk)?);
+            chunks.push(blocks_to_json_string(&current_chunk)?);
             current_chunk = Vec::new();
             current_chunk_tokens = 0;
         }
@@ -124,7 +157,7 @@ pub fn split_blocks_into_chunks(
             current_chunk.len(),
             current_chunk_tokens
         );
-        chunks.push(serde_json::to_string(&current_chunk)?);
+        chunks.push(blocks_to_json_string(&current_chunk)?);
     }
 
     Ok(chunks)
@@ -151,19 +184,26 @@ fn split_oversized_block(
         return Ok(());
     }
 
-    let chars_per_chunk = block_json.len() / num_chunks;
+    // Split by byte length (not character count) for efficiency,
+    // but ensure we only slice at UTF-8 character boundaries
+    let bytes_per_chunk = block_json.len() / num_chunks;
     debug!(
-        "Splitting into {} chunks of approximately {} chars each",
-        num_chunks, chars_per_chunk
+        "Splitting into {} chunks of approximately {} bytes each",
+        num_chunks, bytes_per_chunk
     );
 
     let mut start = 0;
     while start < block_json.len() {
-        let end = if start + chars_per_chunk >= block_json.len() {
+        let mut end = if start + bytes_per_chunk >= block_json.len() {
             block_json.len()
         } else {
-            start + chars_per_chunk
+            start + bytes_per_chunk
         };
+
+        // Adjust end backwards to the nearest UTF-8 character boundary
+        while !block_json.is_char_boundary(end) && end > start {
+            end -= 1;
+        }
 
         let chunk = &block_json[start..end];
         chunks.push(chunk.to_string());
@@ -316,9 +356,9 @@ mod tests {
         let blocks = vec![block1.clone(), block2.clone(), block3.clone()];
 
         // Estimate tokens for each block
-        let t1 = estimate_tokens(&serde_json::to_string(&block1)?);
-        let t2 = estimate_tokens(&serde_json::to_string(&block2)?);
-        let t3 = estimate_tokens(&serde_json::to_string(&block3)?);
+        let t1 = estimate_tokens(&block_to_json_string(&block1)?);
+        let t2 = estimate_tokens(&block_to_json_string(&block2)?);
+        let t3 = estimate_tokens(&block_to_json_string(&block3)?);
 
         // Test with a limit that fits all blocks
         let chunks = split_blocks_into_chunks(&blocks, t1 + t2 + t3 + 10)?;
@@ -347,7 +387,7 @@ mod tests {
     #[test]
     fn test_prepare_llm_messages() -> anyhow::Result<()> {
         let blocks = vec![create_test_block("Test content")];
-        let blocks_json = serde_json::to_string(&blocks)?;
+        let blocks_json = blocks_to_json_string(&blocks)?;
         let system_message = APIMessage {
             role: MessageRole::System,
             content: "System prompt".to_string(),

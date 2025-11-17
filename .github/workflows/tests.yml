@@ -23,7 +23,6 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
-    container: eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest
 
     services:
       postgres:
@@ -70,41 +69,85 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - name: Get service container network
+        id: get_network
+        run: |
+          POSTGRES_CONTAINER=$(docker ps -q -f ancestor=postgres:16.4 | head -1)
+          if [ -z "$POSTGRES_CONTAINER" ]; then
+            echo "Postgres container not found, trying redis..."
+            REDIS_CONTAINER=$(docker ps -q -f ancestor=redis:7.2 | head -1)
+            if [ -z "$REDIS_CONTAINER" ]; then
+              echo "No service containers found"
+              exit 1
+            fi
+            NETWORK=$(docker inspect "$REDIS_CONTAINER" --format='{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}{{end}}' | head -1)
+          else
+            NETWORK=$(docker inspect "$POSTGRES_CONTAINER" --format='{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}{{end}}' | head -1)
+          fi
+          echo "network=$NETWORK" >> $GITHUB_OUTPUT
+          echo "Using network: $NETWORK"
+
       - name: Cargo clippy
-        run: cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
+        run: |
+          docker run --rm \
+            --network "${{ steps.get_network.outputs.network }}" \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            -e CARGO_TERM_COLOR=always \
+            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
+            cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
+
       - name: Build
-        run: cargo build --verbose
-        working-directory: ./services/headless-lms
+        run: |
+          docker run --rm \
+            --network "${{ steps.get_network.outputs.network }}" \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/services/headless-lms \
+            -e CARGO_TERM_COLOR=always \
+            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
+            cargo build --verbose
 
       - name: Set up unit test database
-        run: sqlx database setup
-        working-directory: ./services/headless-lms
-        env:
-          DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
+        run: |
+          docker run --rm \
+            --network "${{ steps.get_network.outputs.network }}" \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/services/headless-lms \
+            -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_test \
+            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
+            sqlx database setup
 
       - name: Set up integration test database
-        run: sqlx database setup
-        working-directory: ./services/headless-lms
-        env:
-          DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_integration
+        run: |
+          docker run --rm \
+            --network "${{ steps.get_network.outputs.network }}" \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/services/headless-lms \
+            -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_integration \
+            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
+            sqlx database setup
 
       - name: Wait for Redis
         run: |
-          timeout 20s bash -c '
-          until redis-cli -h redis ping; do
-            echo "Waiting for Redis..."
-            sleep 1
-          done
-          '
-        working-directory: ./services/headless-lms
+          docker run --rm \
+            --network "${{ steps.get_network.outputs.network }}" \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/services/headless-lms \
+            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
+            bash -c "timeout 20s bash -c 'until redis-cli -h redis ping; do echo \"Waiting for Redis...\"; sleep 1; done'"
 
       - name: Run tests
-        run: cargo test --verbose
-        working-directory: ./services/headless-lms
-        env:
-          DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
-          DATABASE_URL_TEST: postgres://postgres:postgres@postgres/headless_lms_integration
-          REDIS_URL: redis://redis:6379/1
+        run: |
+          docker run --rm \
+            --network "${{ steps.get_network.outputs.network }}" \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/services/headless-lms \
+            -e CARGO_TERM_COLOR=always \
+            -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_test \
+            -e DATABASE_URL_TEST=postgres://postgres:postgres@postgres/headless_lms_integration \
+            -e REDIS_URL=redis://redis:6379/1 \
+            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
+            cargo test --verbose
       - name: Test Summary
         if: always()
         run: |

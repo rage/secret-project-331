@@ -55,7 +55,20 @@ pub fn generate_id_token(
     let exp = expires_at.timestamp();
 
     // Derive kid from the public key
-    let (_, _, kid) = rsa_n_e_and_kid_from_pem(&cfg.oauth_server_configuration.rsa_public_key)?;
+    let (_, _, kid) = rsa_n_e_and_kid_from_pem(&cfg.oauth_server_configuration.rsa_public_key)
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::ServerError.as_str().into(),
+                    error_description: "Failed to derive key id (kid) from public key".into(),
+                    redirect_uri: None,
+                    state: None,
+                    nonce: None,
+                })),
+                "Failed to derive kid from public key",
+                Some(e),
+            )
+        })?;
 
     let claims = Claims {
         sub: user_id.to_string(),

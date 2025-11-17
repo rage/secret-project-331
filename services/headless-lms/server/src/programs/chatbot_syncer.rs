@@ -431,30 +431,28 @@ async fn sync_pages_batch(
                     page.id, db_err
                 );
             }
-        } else {
-            if let Some(history_id) = latest_histories.get(&page.id) {
-                let mut page_revision_map = HashMap::new();
-                page_revision_map.insert(page.id, history_id.id);
-                if let Err(e) =
-                    headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
-                        conn,
-                        page_revision_map,
+        } else if let Some(history_id) = latest_histories.get(&page.id) {
+            let mut page_revision_map = HashMap::new();
+            page_revision_map.insert(page.id, history_id.id);
+            if let Err(e) =
+                headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
+                    conn,
+                    page_revision_map,
+                )
+                .await
+            {
+                let error_msg = format!("Sync failed: Status update error: {}", e);
+                warn!("Failed to update sync status for page {}: {:?}", page.id, e);
+                if let Err(db_err) =
+                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                        conn, page.id, &error_msg,
                     )
                     .await
                 {
-                    let error_msg = format!("Sync failed: Status update error: {}", e);
-                    warn!("Failed to update sync status for page {}: {:?}", page.id, e);
-                    if let Err(db_err) =
-                        headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
-                            conn, page.id, &error_msg,
-                        )
-                        .await
-                    {
-                        warn!(
-                            "Failed to record status update error for page {}: {:?}",
-                            page.id, db_err
-                        );
-                    }
+                    warn!(
+                        "Failed to record status update error for page {}: {:?}",
+                        page.id, db_err
+                    );
                 }
             }
         }

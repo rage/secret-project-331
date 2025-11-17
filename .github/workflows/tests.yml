@@ -44,6 +44,18 @@ jobs:
           --health-retries 5
 
     steps:
+      - name: Free up disk space
+        run: |
+          echo "Space before:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "Space after:"
+          df -h
+
       - uses: actions/checkout@v4
 
       - uses: actions/cache@v4

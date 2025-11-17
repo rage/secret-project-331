@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import _ from "lodash"
-import React from "react"
+import React, { useState } from "react"
+import { Button, VisuallyHidden } from "react-aria-components"
+import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
@@ -19,8 +21,10 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const ChooseN: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
-  const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const selectedOptionId = event.currentTarget.value
+  const { t } = useTranslation()
+  const [announcement, setAnnouncement] = useState<string>("")
+
+  const handleOptionSelect = (selectedOptionId: string) => {
     if (!quizItemAnswerState) {
       setQuizItemAnswerState({
         quizItemId: quizItem.id,
@@ -31,12 +35,15 @@ const ChooseN: React.FunctionComponent<
       return
     }
 
-    if (
-      !quizItemAnswerState.selectedOptionIds.includes(selectedOptionId) &&
-      quizItemAnswerState.selectedOptionIds.length == quizItem.n
-    ) {
+    const isSelected = quizItemAnswerState.selectedOptionIds.includes(selectedOptionId)
+    const isAtLimit = quizItemAnswerState.selectedOptionIds.length == quizItem.n
+
+    if (!isSelected && isAtLimit) {
+      setAnnouncement(t("choose-n-limit-reached", { count: quizItem.n }))
+      setTimeout(() => setAnnouncement(""), 1000)
       return
     }
+
     const selectedIds = _.xor(quizItemAnswerState.selectedOptionIds, [selectedOptionId])
     const validAnswer = selectedIds.length == quizItem.n
 
@@ -47,11 +54,8 @@ const ChooseN: React.FunctionComponent<
     }
 
     setQuizItemAnswerState(newItemAnswer)
+    setAnnouncement("")
   }
-
-  // Is it a dynamic color, because it was discarded in this PR
-  // const selectedBackgroundColor = quizTheme.selectedItemBackground
-  // const selectedForegroundColor = quizTheme.selectedItemColor
 
   return (
     <div
@@ -78,27 +82,26 @@ const ChooseN: React.FunctionComponent<
           flex-wrap: wrap;
         `}
       >
-        {quizItem.options.map((o) => (
-          <button
-            key={o.id}
-            value={o.id}
-            onClick={handleOptionSelect}
-            className={css`
-              ${TWO_DIMENSIONAL_BUTTON_STYLES}
-              ${quizItemAnswerState?.selectedOptionIds?.includes(o.id) &&
-              `
-                ${TWO_DIMENSIONAL_BUTTON_SELECTED}
+        {quizItem.options.map((o) => {
+          const isSelected = quizItemAnswerState?.selectedOptionIds?.includes(o.id) ?? false
+          return (
+            <Button
+              key={o.id}
+              onPress={() => handleOptionSelect(o.id)}
+              aria-pressed={isSelected}
+              className={css`
+                ${TWO_DIMENSIONAL_BUTTON_STYLES}
+                ${isSelected && TWO_DIMENSIONAL_BUTTON_SELECTED}
               `}
-            `}
-            disabled={
-              quizItemAnswerState?.selectedOptionIds.length == quizItem.n &&
-              !quizItemAnswerState?.selectedOptionIds?.includes(o.id)
-            }
-          >
-            {o.title || o.body}
-          </button>
-        ))}
+            >
+              {o.title || o.body}
+            </Button>
+          )
+        })}
       </div>
+      <VisuallyHidden aria-live="polite" aria-atomic>
+        {announcement}
+      </VisuallyHidden>
     </div>
   )
 }

@@ -84,7 +84,7 @@ jobs:
           else
             NETWORK=$(docker inspect "$POSTGRES_CONTAINER" --format='{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}{{end}}' | head -1)
           fi
-          echo "network=$NETWORK" >> $GITHUB_OUTPUT
+          echo "network=$NETWORK" >> "$GITHUB_OUTPUT"
           echo "Using network: $NETWORK"
 
       - name: Cargo clippy

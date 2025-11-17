@@ -4,6 +4,7 @@ use std::{
     time::Duration,
 };
 
+use chrono::Utc;
 use dotenv::dotenv;
 use sqlx::{PgConnection, PgPool};
 use url::Url;
@@ -34,6 +35,8 @@ use headless_lms_utils::{
 
 const SYNC_INTERVAL_SECS: u64 = 10;
 const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
+const FAILURE_COOLDOWN_SECS: i64 = 300;
+const MAX_CONSECUTIVE_FAILURES: i32 = 5;
 
 pub async fn main() -> anyhow::Result<()> {
     initialize_environment()?;
@@ -181,9 +184,36 @@ async fn sync_pages(
         let outdated_statuses: Vec<_> = statuses
             .iter()
             .filter(|status| {
-                latest_histories
+                let is_outdated = latest_histories
                     .get(&status.page_id)
-                    .is_some_and(|history| status.synced_page_revision_id != Some(history.id))
+                    .is_some_and(|history| status.synced_page_revision_id != Some(history.id));
+
+                if !is_outdated {
+                    return false;
+                }
+
+                if status.consecutive_failures >= MAX_CONSECUTIVE_FAILURES {
+                    debug!(
+                        "Skipping page {} due to permanent failure ({} consecutive failures). Manual intervention required.",
+                        status.page_id, status.consecutive_failures
+                    );
+                    return false;
+                }
+
+                if let Some(error_msg) = &status.error_message {
+                    if !error_msg.is_empty() {
+                        let error_age_seconds = (Utc::now() - status.updated_at).num_seconds();
+                        if error_age_seconds < FAILURE_COOLDOWN_SECS {
+                            debug!(
+                                "Skipping page {} due to recent failure ({} seconds ago, {} consecutive failures): {}",
+                                status.page_id, error_age_seconds, status.consecutive_failures, error_msg
+                            );
+                            return false;
+                        }
+                    }
+                }
+
+                true
             })
             .collect();
 
@@ -213,6 +243,7 @@ async fn sync_pages(
                 blob_client,
                 &base_url,
                 &config.app_configuration,
+                &latest_histories,
             )
             .await?;
         }
@@ -267,6 +298,7 @@ async fn sync_pages_batch(
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
+    latest_histories: &HashMap<Uuid, PageHistory>,
 ) -> anyhow::Result<()> {
     let course_id = pages
         .first()
@@ -315,10 +347,22 @@ async fn sync_pages_batch(
                 }
             }
             Err(e) => {
+                let error_msg = format!("Sync failed: LLM processing error: {}", e);
                 warn!(
                     "Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.",
-                    page.id, e
+                    page.id, error_msg
                 );
+                if let Err(db_err) =
+                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                        conn, page.id, &error_msg,
+                    )
+                    .await
+                {
+                    warn!(
+                        "Failed to record sync error for page {}: {:?}",
+                        page.id, db_err
+                    );
+                }
                 // Fallback to original content
                 serde_json::to_string(&sanitized_blocks)?
             }
@@ -374,7 +418,45 @@ async fn sync_pages_batch(
             .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
             .await
         {
+            let error_msg = format!("Sync failed: Upload error: {}", e);
             warn!("Failed to upload file {}: {:?}", blob_path, e);
+            if let Err(db_err) =
+                headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                    conn, page.id, &error_msg,
+                )
+                .await
+            {
+                warn!(
+                    "Failed to record upload error for page {}: {:?}",
+                    page.id, db_err
+                );
+            }
+        } else {
+            if let Some(history_id) = latest_histories.get(&page.id) {
+                let mut page_revision_map = HashMap::new();
+                page_revision_map.insert(page.id, history_id.id);
+                if let Err(e) =
+                    headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
+                        conn,
+                        page_revision_map,
+                    )
+                    .await
+                {
+                    let error_msg = format!("Sync failed: Status update error: {}", e);
+                    warn!("Failed to update sync status for page {}: {:?}", page.id, e);
+                    if let Err(db_err) =
+                        headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                            conn, page.id, &error_msg,
+                        )
+                        .await
+                    {
+                        warn!(
+                            "Failed to record status update error for page {}: {:?}",
+                            page.id, db_err
+                        );
+                    }
+                }
+            }
         }
     }
 

@@ -195,7 +195,17 @@ fn split_oversized_block(
     );
 
     let mut start = 0;
+    let mut iterations = 0;
+    const MAX_ITERATIONS: usize = 100;
     while start < block_json.len() {
+        iterations += 1;
+        if iterations > MAX_ITERATIONS {
+            return Err(anyhow::anyhow!(
+                "Infinite loop protection: exceeded {} iterations in split_oversized_block",
+                MAX_ITERATIONS
+            ));
+        }
+
         // Use checked arithmetic to prevent overflow
         let end_candidate = start
             .checked_add(bytes_per_chunk)
@@ -221,7 +231,16 @@ fn split_oversized_block(
                 .unwrap_or(block_json.len())
                 .min(block_json.len());
 
+            let mut boundary_iterations = 0;
+            const MAX_BOUNDARY_ITERATIONS: usize = 100;
             while next_boundary < block_json.len() && !block_json.is_char_boundary(next_boundary) {
+                boundary_iterations += 1;
+                if boundary_iterations > MAX_BOUNDARY_ITERATIONS {
+                    return Err(anyhow::anyhow!(
+                        "Infinite loop protection: exceeded {} iterations finding character boundary",
+                        MAX_BOUNDARY_ITERATIONS
+                    ));
+                }
                 next_boundary = next_boundary
                     .checked_add(1)
                     .unwrap_or(block_json.len())
@@ -237,7 +256,16 @@ fn split_oversized_block(
                 anyhow::anyhow!("Invalid string slice bounds: {}..{}", start, end)
             })?;
             chunks.push(chunk.to_string());
-            start = end;
+            let new_start = end;
+            // Safety check: ensure start always advances
+            if new_start <= start {
+                return Err(anyhow::anyhow!(
+                    "Infinite loop protection: start did not advance ({} -> {})",
+                    start,
+                    new_start
+                ));
+            }
+            start = new_start;
         } else {
             // Safety: if we can't make progress, break to avoid infinite loop
             // Push remaining content if any

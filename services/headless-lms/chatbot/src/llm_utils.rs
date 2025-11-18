@@ -2,6 +2,7 @@ use crate::{
     azure_chatbot::{LLMRequest, ToolCallType},
     prelude::*,
 };
+use headless_lms_models::chatbot_conversation_messages::MessageRole;
 use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
@@ -10,16 +11,6 @@ use tracing::{debug, error, instrument, trace, warn};
 
 // API version for Azure OpenAI calls
 pub const LLM_API_VERSION: &str = "2024-06-01";
-
-/// Role of a message in a conversation
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum MessageRole {
-    System,
-    User,
-    Assistant,
-    Tool,
-}
 
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]

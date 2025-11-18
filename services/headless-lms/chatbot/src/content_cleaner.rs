@@ -1,10 +1,10 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
 use crate::llm_utils::{
-    APIMessage, ApiMessageKind, ApiMessageText, MessageRole, estimate_tokens,
-    make_blocking_llm_request,
+    APIMessage, ApiMessageKind, ApiMessageText, estimate_tokens, make_blocking_llm_request,
 };
 use crate::prelude::*;
 use anyhow::Error;
+use headless_lms_models::chatbot_conversation_messages::MessageRole;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use tracing::{debug, error, info, instrument, warn};
 

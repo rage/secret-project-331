@@ -1,5 +1,15 @@
 use crate::prelude::*;
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[sqlx(type_name = "message_role", rename_all = "snake_case")]
+pub enum MessageRole {
+    Assistant,
+    User,
+    Tool,
+    System,
+}
+
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConversationMessage {
@@ -9,10 +19,12 @@ pub struct ChatbotConversationMessage {
     pub deleted_at: Option<DateTime<Utc>>,
     pub conversation_id: Uuid,
     pub message: Option<String>,
-    pub is_from_chatbot: bool,
+    pub message_role: MessageRole,
     pub message_is_complete: bool,
     pub used_tokens: i32,
     pub order_number: i32,
+    pub tool_output_id: Option<Uuid>,
+    pub tool_call_fields_id: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -22,16 +34,39 @@ pub async fn insert(
     let res = sqlx::query_as!(
         ChatbotConversationMessage,
         r#"
-INSERT INTO chatbot_conversation_messages (conversation_id, message, is_from_chatbot, message_is_complete, used_tokens, order_number)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING *
+INSERT INTO chatbot_conversation_messages (
+    conversation_id,
+    message,
+    message_role,
+    message_is_complete,
+    used_tokens,
+    order_number,
+    tool_output_id,
+    tool_call_fields_id
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    conversation_id,
+    message,
+    message_role as "message_role: MessageRole",
+    message_is_complete,
+    used_tokens,
+    order_number,
+    tool_output_id,
+    tool_call_fields_id
         "#,
         input.conversation_id,
         input.message,
-        input.is_from_chatbot,
+        input.message_role as MessageRole,
         input.message_is_complete,
         input.used_tokens,
-        input.order_number
+        input.order_number,
+        input.tool_output_id,
+        input.tool_call_fields_id,
     )
     .fetch_one(conn)
     .await?;
@@ -45,7 +80,20 @@ pub async fn get_by_conversation_id(
     let mut res = sqlx::query_as!(
         ChatbotConversationMessage,
         r#"
-SELECT * FROM chatbot_conversation_messages
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    conversation_id,
+    message,
+    message_role as "message_role: MessageRole",
+    message_is_complete,
+    used_tokens,
+    order_number,
+    tool_output_id,
+    tool_call_fields_id
+FROM chatbot_conversation_messages
 WHERE conversation_id = $1
         "#,
         conversation_id
@@ -70,7 +118,19 @@ pub async fn update(
 UPDATE chatbot_conversation_messages
 SET message = $2, message_is_complete = $3, used_tokens = $4
 WHERE id = $1
-RETURNING *
+RETURNING
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    conversation_id,
+    message,
+    message_role as "message_role: MessageRole",
+    message_is_complete,
+    used_tokens,
+    order_number,
+    tool_output_id,
+    tool_call_fields_id
         "#,
         id,
         message,
@@ -89,7 +149,19 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotCon
 UPDATE chatbot_conversation_messages
 SET deleted_at = NOW()
 WHERE id = $1
-RETURNING *
+RETURNING
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    conversation_id,
+    message,
+    message_role as "message_role: MessageRole",
+    message_is_complete,
+    used_tokens,
+    order_number,
+    tool_output_id,
+    tool_call_fields_id
         "#,
         id
     )

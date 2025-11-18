@@ -13,7 +13,7 @@ use chrono::Utc;
 use futures::stream::{BoxStream, Peekable};
 use futures::{Stream, StreamExt, TryStreamExt};
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
-use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
+use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole};
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::ApplicationConfiguration;
 use pin_project::pin_project;
@@ -29,7 +29,7 @@ use crate::chatbot_tools::ChatbotTool;
 use crate::chatbot_tools::course_progress::call_chatbot_tool;
 use crate::llm_utils::{
     APIMessage, ApiMessageKind, ApiMessageText, ApiMessageToolCall, ApiMessageToolResponse,
-    ApiTool, ApiToolCall, MessageRole, estimate_tokens, make_streaming_llm_request,
+    ApiTool, ApiToolCall, estimate_tokens, make_streaming_llm_request,
 };
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
@@ -123,11 +123,7 @@ pub struct ResponseChunk {
 impl From<ChatbotConversationMessage> for APIMessage {
     fn from(message: ChatbotConversationMessage) -> Self {
         APIMessage {
-            role: if message.is_from_chatbot {
-                MessageRole::Assistant
-            } else {
-                MessageRole::User
-            },
+            role: message.message_role,
             fields: ApiMessageKind::Text(ApiMessageText {
                 content: message.message.unwrap_or_default(),
             }),
@@ -271,10 +267,12 @@ impl LLMRequest {
                 deleted_at: None,
                 conversation_id,
                 message: Some(message.to_string()),
-                is_from_chatbot: false,
+                message_role: MessageRole::User,
                 message_is_complete: true,
                 used_tokens: estimate_tokens(message),
                 order_number: new_order_number,
+                tool_call_fields_id: None,
+                tool_output_id: None,
             },
         )
         .await?;
@@ -870,10 +868,12 @@ pub async fn send_chat_request_and_parse_stream(
             deleted_at: None,
             conversation_id,
             message: None,
-            is_from_chatbot: true,
+            message_role: MessageRole::Assistant,
             message_is_complete: false,
             used_tokens: request_estimated_tokens,
             order_number: response_order_number,
+            tool_call_fields_id: None, // update later
+            tool_output_id: None,
         },
     )
     .await?;

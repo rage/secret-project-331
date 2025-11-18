@@ -3,6 +3,7 @@ use chrono::Utc;
 
 use headless_lms_chatbot::azure_chatbot::{ChatbotUserContext, send_chat_request_and_parse_stream};
 use headless_lms_chatbot::llm_utils::estimate_tokens;
+use headless_lms_models::chatbot_conversation_messages::MessageRole;
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
@@ -126,10 +127,12 @@ async fn new_conversation(
             deleted_at: None,
             conversation_id: conversation.id,
             message: Some(configuration.initial_message.clone()),
-            is_from_chatbot: true,
+            message_role: MessageRole::Assistant,
             message_is_complete: true,
             used_tokens: estimate_tokens(&configuration.initial_message),
             order_number: 0,
+            tool_output_id: None,
+            tool_call_fields_id: None,
         },
     )
     .await?;

@@ -227,6 +227,12 @@ async fn sync_pages(
             outdated_statuses.len(),
             course_id
         );
+        for status in &outdated_statuses {
+            info!(
+                "Page id: {}, synced page revision id: {:?}.",
+                status.page_id, status.synced_page_revision_id
+            );
+        }
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
         let mut pages = headless_lms_models::pages::get_by_ids_and_visibility(
@@ -246,6 +252,8 @@ async fn sync_pages(
                 &latest_histories,
             )
             .await?;
+        } else {
+            info!("No pages to sync for course id: {}.", course_id);
         }
 
         let deleted_pages = headless_lms_models::pages::get_by_ids_deleted_and_visibility(
@@ -471,6 +479,8 @@ async fn update_sync_statuses(
         .iter()
         .map(|page| (page.id, latest_histories[&page.id].id))
         .collect();
+
+    info!("Updating sync statuses to: {:?}.", page_revision_map);
 
     headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
         conn,

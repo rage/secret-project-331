@@ -7,7 +7,7 @@ use actix_web::{
 use futures_util::future::LocalBoxFuture;
 use serde::de::DeserializeOwned;
 
-use crate::controllers::main_frontend::oauth::oauth_validate::OAuthValidate;
+use super::oauth_validate::OAuthValidate;
 
 /// Wrapper for OAuth related requests.
 pub struct OAuthValidated<Raw: OAuthValidate>(pub <Raw as OAuthValidate>::Output);

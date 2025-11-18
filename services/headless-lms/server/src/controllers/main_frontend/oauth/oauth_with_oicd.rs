@@ -1,21 +1,21 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
-use super::authorize_query::AuthorizeQuery;
-use super::consent_deny_query::ConsentDenyQuery;
-use super::consent_query::ConsentQuery;
-use super::consent_response::ConsentResponse;
-use super::dpop::verify_dpop_from_actix;
-use super::helpers::{
+use crate::domain::error::PkceFlowError;
+use crate::domain::oauth::authorize_query::AuthorizeQuery;
+use crate::domain::oauth::consent_deny_query::ConsentDenyQuery;
+use crate::domain::oauth::consent_query::ConsentQuery;
+use crate::domain::oauth::consent_response::ConsentResponse;
+use crate::domain::oauth::dpop::verify_dpop_from_actix;
+use crate::domain::oauth::helpers::{
     build_authorize_qs, build_consent_redirect, build_login_redirect, generate_access_token,
     generate_id_token, oauth_invalid_client, oauth_invalid_grant, oauth_invalid_request,
     ok_json_no_cache, redirect_with_code, rsa_n_e_and_kid_from_pem, scope_has_openid,
     token_digest_sha256,
 };
-use super::jwks::{Jwk, Jwks};
-use super::oauth_validated::OAuthValidated;
-use super::token_query::{TokenGrant, TokenQuery};
-use super::token_response::TokenResponse;
-use super::userinfo_response::UserInfoResponse;
-use crate::domain::error::PkceFlowError;
+use crate::domain::oauth::jwks::{Jwk, Jwks};
+use crate::domain::oauth::oauth_validated::OAuthValidated;
+use crate::domain::oauth::token_query::{TokenGrant, TokenQuery};
+use crate::domain::oauth::token_response::TokenResponse;
+use crate::domain::oauth::userinfo_response::UserInfoResponse;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
@@ -27,10 +27,12 @@ use headless_lms_utils::prelude::*;
 use itertools::Itertools;
 use models::{
     library::oauth::pkce::{CodeChallenge, CodeVerifier, PkceMethod},
-    oauth_access_token::{NewAccessTokenParams, OAuthAccessToken, TokenType},
+    oauth_access_token::{OAuthAccessToken, TokenType},
     oauth_auth_code::{NewAuthCodeParams, OAuthAuthCode},
     oauth_client::OAuthClient,
-    oauth_refresh_tokens::{NewRefreshTokenParams, OAuthRefreshTokens},
+    oauth_refresh_tokens::{
+        IssueTokensFromAuthCodeParams, OAuthRefreshTokens, RotateRefreshTokenParams,
+    },
     oauth_user_client_scopes::{AuthorizedClientInfo, OAuthUserClientScopes},
     user_details,
 };
@@ -465,8 +467,13 @@ pub async fn token(
         TokenType::Bearer
     };
 
+    // Start transaction for atomic token operations
+    let mut tx = conn.begin().await?;
+
     let access_token_plain = generate_access_token();
     let new_refresh_token_plain = generate_access_token();
+    let access_token_digest = token_digest_sha256(&access_token_plain);
+    let new_refresh_token_digest = token_digest_sha256(&new_refresh_token_plain);
     let refresh_token_expires_at = Utc::now() + refresh_ttl;
 
     let (user_id, scope_vec, nonce_opt, at_expires_at, issue_id_token) = match &form.grant {
@@ -477,9 +484,9 @@ pub async fn token(
         } => {
             let code_digest = token_digest_sha256(code);
             let code_row = if let Some(ref_uri) = redirect_uri {
-                OAuthAuthCode::consume_with_redirect(&mut conn, code_digest, ref_uri).await?
+                OAuthAuthCode::consume_with_redirect(&mut *tx, code_digest, ref_uri).await?
             } else {
-                OAuthAuthCode::consume(&mut conn, code_digest).await?
+                OAuthAuthCode::consume(&mut *tx, code_digest).await?
             };
 
             match (
@@ -527,43 +534,20 @@ pub async fn token(
                 return Err(oauth_invalid_grant("invalid authorization code"));
             }
 
-            let at_digest = token_digest_sha256(&access_token_plain);
-            OAuthAccessToken::insert(
-                &mut conn,
-                NewAccessTokenParams {
-                    digest: &at_digest,
-                    user_id: Some(code_row.user_id),
-                    client_id: code_row.client_id,
-                    scopes: &code_row.scopes,
-                    audience: None,
-                    token_type: issued_token_type,
-                    dpop_jkt: dpop_jkt_opt.as_deref(),
-                    metadata: serde_json::Map::new(),
-                    expires_at: Utc::now() + access_ttl,
-                },
-            )
-            .await?;
-
-            OAuthRefreshTokens::revoke_all_by_user_client(
-                &mut conn,
-                code_row.user_id,
-                code_row.client_id,
-            )
-            .await?;
-
-            let rt_digest = token_digest_sha256(&new_refresh_token_plain);
-            OAuthRefreshTokens::insert(
-                &mut conn,
-                NewRefreshTokenParams {
-                    digest: &rt_digest,
+            let access_expires_at = Utc::now() + access_ttl;
+            OAuthRefreshTokens::issue_tokens_from_auth_code_in_transaction(
+                &mut tx,
+                IssueTokensFromAuthCodeParams {
                     user_id: code_row.user_id,
                     client_id: code_row.client_id,
                     scopes: &code_row.scopes,
-                    audience: None,
-                    expires_at: refresh_token_expires_at,
-                    rotated_from: None,
-                    metadata: serde_json::Map::new(),
-                    dpop_jkt: dpop_jkt_opt.as_deref(),
+                    access_token_digest: &access_token_digest,
+                    refresh_token_digest: &new_refresh_token_digest,
+                    access_token_expires_at: access_expires_at,
+                    refresh_token_expires_at,
+                    access_token_type: issued_token_type,
+                    access_token_dpop_jkt: dpop_jkt_opt.as_deref(),
+                    refresh_token_dpop_jkt: dpop_jkt_opt.as_deref(),
                 },
             )
             .await?;
@@ -572,7 +556,7 @@ pub async fn token(
                 code_row.user_id,
                 code_row.scopes,
                 code_row.nonce.clone(),
-                Utc::now() + access_ttl,
+                access_expires_at,
                 true,
             )
         }
@@ -582,7 +566,7 @@ pub async fn token(
             scope: _,
         } => {
             let presented = token_digest_sha256(refresh_token);
-            let old = OAuthRefreshTokens::consume(&mut conn, presented).await?;
+            let old = OAuthRefreshTokens::consume_in_transaction(&mut tx, presented).await?;
 
             if old.client_id != client.id {
                 return Err(oauth_invalid_grant("invalid refresh_token"));
@@ -597,50 +581,26 @@ pub async fn token(
                 }
             }
 
-            OAuthRefreshTokens::revoke_all_by_user_client(&mut conn, old.user_id, old.client_id)
-                .await?;
-
-            let rt_digest = token_digest_sha256(&new_refresh_token_plain);
-            OAuthRefreshTokens::insert(
-                &mut conn,
-                NewRefreshTokenParams {
-                    digest: &rt_digest,
-                    user_id: old.user_id,
-                    client_id: old.client_id,
-                    scopes: &old.scopes,
-                    audience: old.audience.as_deref(),
-                    expires_at: refresh_token_expires_at,
-                    rotated_from: Some(&old.digest),
-                    metadata: serde_json::Map::new(),
-                    dpop_jkt: old.dpop_jkt.as_deref().or(dpop_jkt_opt.as_deref()),
-                },
-            )
-            .await?;
-
-            let at_digest = token_digest_sha256(&access_token_plain);
             let refresh_issue_type = if old.dpop_jkt.is_some() {
                 TokenType::DPoP
             } else {
                 issued_token_type
             };
-            let at_jkt = if let Some(j) = old.dpop_jkt.as_deref() {
-                Some(j)
-            } else {
-                dpop_jkt_opt.as_deref()
-            };
+            let at_jkt = old.dpop_jkt.as_deref().or(dpop_jkt_opt.as_deref());
+            let refresh_dpop_jkt = old.dpop_jkt.as_deref().or(dpop_jkt_opt.as_deref());
+            let access_expires_at = Utc::now() + access_ttl;
 
-            OAuthAccessToken::insert(
-                &mut conn,
-                NewAccessTokenParams {
-                    digest: &at_digest,
-                    user_id: Some(old.user_id),
-                    client_id: old.client_id,
-                    scopes: &old.scopes,
-                    audience: old.audience.as_deref(),
-                    token_type: refresh_issue_type,
-                    dpop_jkt: at_jkt,
-                    metadata: serde_json::Map::new(),
-                    expires_at: Utc::now() + access_ttl,
+            OAuthRefreshTokens::complete_refresh_token_rotation_in_transaction(
+                &mut tx,
+                &old,
+                RotateRefreshTokenParams {
+                    new_refresh_token_digest: &new_refresh_token_digest,
+                    new_access_token_digest: &access_token_digest,
+                    access_token_expires_at: access_expires_at,
+                    refresh_token_expires_at,
+                    access_token_type: refresh_issue_type,
+                    access_token_dpop_jkt: at_jkt,
+                    refresh_token_dpop_jkt: refresh_dpop_jkt,
                 },
             )
             .await?;
@@ -649,11 +609,28 @@ pub async fn token(
                 old.user_id,
                 old.scopes.clone(),
                 None,
-                Utc::now() + access_ttl,
+                access_expires_at,
                 false,
             )
         }
+
+        TokenGrant::Unknown => {
+            return Err(ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
+                    error_description: "unsupported grant type".into(),
+                    redirect_uri: None,
+                    state: None,
+                    nonce: None,
+                })),
+                "unsupported grant type",
+                None::<anyhow::Error>,
+            ));
+        }
     };
+
+    // Commit transaction after all token operations succeed
+    tx.commit().await?;
 
     let base_url = app_conf.base_url.trim_end_matches('/');
     let id_token = if issue_id_token && scope_has_openid(&scope_vec) {

@@ -176,4 +176,81 @@ impl OAuthAuthCode {
 
         Ok(auth_code)
     }
+
+    /// Consume an authorization code within a transaction.
+    /// Returns the consumed code data.
+    pub async fn consume_in_transaction(
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        digest: Digest,
+    ) -> ModelResult<OAuthAuthCode> {
+        let auth_code = sqlx::query_as!(
+            OAuthAuthCode,
+            r#"
+            UPDATE oauth_auth_codes
+               SET used = true
+             WHERE digest = $1
+               AND used = false
+               AND expires_at > now()
+            RETURNING
+              digest                   as "digest: _",
+              user_id,
+              client_id,
+              redirect_uri,
+              scopes,
+              jti,
+              nonce,
+              code_challenge,
+              code_challenge_method    as "code_challenge_method: PkceMethod",
+              dpop_jkt,
+              used,
+              expires_at,
+              metadata
+            "#,
+            digest.as_bytes()
+        )
+        .fetch_one(&mut **tx)
+        .await?;
+
+        Ok(auth_code)
+    }
+
+    /// Consume an authorization code with redirect URI check within a transaction.
+    /// Returns the consumed code data.
+    pub async fn consume_with_redirect_in_transaction(
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        digest: Digest,
+        redirect_uri: &str,
+    ) -> ModelResult<OAuthAuthCode> {
+        let auth_code = sqlx::query_as!(
+            OAuthAuthCode,
+            r#"
+            UPDATE oauth_auth_codes
+               SET used = true
+             WHERE digest = $1
+               AND redirect_uri = $2
+               AND used = false
+               AND expires_at > now()
+            RETURNING
+              digest                   as "digest: _",
+              user_id,
+              client_id,
+              redirect_uri,
+              scopes,
+              jti,
+              nonce,
+              code_challenge,
+              code_challenge_method    as "code_challenge_method: PkceMethod",
+              dpop_jkt,
+              used,
+              expires_at,
+              metadata
+            "#,
+            digest.as_bytes(),
+            redirect_uri
+        )
+        .fetch_one(&mut **tx)
+        .await?;
+
+        Ok(auth_code)
+    }
 }

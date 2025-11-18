@@ -8,7 +8,7 @@ use std::collections::HashMap;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
 pub struct TokenQuery {
     pub client_id: Option<String>,
-    pub client_secret: Option<String>, // optional: public clients won’t send this
+    pub client_secret: Option<String>, // optional: public clients won't send this
     #[serde(flatten)]
     pub grant: Option<TokenGrant>,
     // OAuth 2.0 requires unknown params be ignored at /token (RFC 6749 §3.2)

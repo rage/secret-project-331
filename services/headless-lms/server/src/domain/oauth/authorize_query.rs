@@ -1,5 +1,4 @@
-//use super::oauth_validate::OAuthValidate;
-use crate::controllers::main_frontend::oauth::oauth_validate::OAuthValidate;
+use super::oauth_validate::OAuthValidate;
 use crate::prelude::*;
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use std::collections::HashMap;
@@ -46,7 +45,7 @@ impl OAuthValidate for AuthorizeQuery {
         let redirect_uri = self.redirect_uri.as_deref().unwrap_or_default();
         let scope = self.scope.as_deref().unwrap_or_default();
 
-        // preserve original state (don’t stringify empty -> Some(""))
+        // preserve original state (don't stringify empty -> Some(""))
         let state_opt = self.state.clone();
 
         // Required params check

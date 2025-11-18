@@ -1,6 +1,6 @@
-use super::authorize_query::AuthorizeParams;
-use super::claims::Claims;
 use crate::domain::error::{OAuthErrorCode, OAuthErrorData};
+use crate::domain::oauth::authorize_query::AuthorizeParams;
+use crate::domain::oauth::claims::Claims;
 use crate::prelude::*;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{DateTime, Utc};

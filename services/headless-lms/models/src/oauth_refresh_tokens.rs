@@ -185,40 +185,12 @@ impl OAuthRefreshTokens {
         Ok(())
     }
 
-    /// Atomically consume (revoke) a valid, unrevoked RT and return it.
-    pub async fn consume(
-        conn: &mut PgConnection,
-        digest: Digest,
-    ) -> ModelResult<OAuthRefreshTokens> {
-        let row = sqlx::query_as!(
-            OAuthRefreshTokens,
-            r#"
-            UPDATE oauth_refresh_tokens
-               SET revoked = true
-             WHERE digest = $1
-               AND revoked = false
-               AND expires_at > now()
-            RETURNING
-              digest             as "digest: _",
-              user_id,
-              client_id,
-              expires_at,
-              scopes,
-              audience,
-              jti,
-              dpop_jkt,
-              metadata,
-              revoked,
-              rotated_from       as "rotated_from: _"
-            "#,
-            digest.as_bytes()
-        )
-        .fetch_one(conn)
-        .await?;
-        Ok(row)
-    }
-
-    /// Consume a refresh token within a transaction.
+    /// Consume a refresh token within an existing transaction.
+    ///
+    /// # Transaction Requirements
+    /// This method must be called within an existing database transaction.
+    /// The caller is responsible for managing the transaction (begin, commit, rollback).
+    ///
     /// Returns the consumed token data.
     pub async fn consume_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
@@ -253,6 +225,11 @@ impl OAuthRefreshTokens {
     }
 
     /// Complete refresh token rotation within an existing transaction after token has been consumed.
+    ///
+    /// # Transaction Requirements
+    /// This method must be called within an existing database transaction.
+    /// The caller is responsible for managing the transaction (begin, commit, rollback).
+    ///
     /// Revokes all tokens for user/client, inserts new refresh token, and inserts new access token.
     pub async fn complete_refresh_token_rotation_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
@@ -313,33 +290,12 @@ impl OAuthRefreshTokens {
         Ok(())
     }
 
-    /// Complete refresh token rotation after token has been consumed.
-    /// Revokes all tokens for user/client, inserts new refresh token, and inserts new access token.
-    pub async fn complete_refresh_token_rotation(
-        conn: &mut PgConnection,
-        old_token: &OAuthRefreshTokens,
-        params: RotateRefreshTokenParams<'_>,
-    ) -> ModelResult<()> {
-        let mut tx = conn.begin().await?;
-        Self::complete_refresh_token_rotation_in_transaction(&mut tx, old_token, params).await?;
-        tx.commit().await?;
-        Ok(())
-    }
-
-    /// Atomically rotate refresh token: consume old token, revoke all tokens for user/client,
-    /// insert new refresh token, and insert new access token.
-    /// Returns the consumed refresh token data for validation.
-    pub async fn rotate_refresh_token(
-        conn: &mut PgConnection,
-        old_refresh_token_digest: Digest,
-        params: RotateRefreshTokenParams<'_>,
-    ) -> ModelResult<OAuthRefreshTokens> {
-        let old = Self::consume(conn, old_refresh_token_digest).await?;
-        Self::complete_refresh_token_rotation(conn, &old, params).await?;
-        Ok(old)
-    }
-
     /// Issue tokens from authorization code within an existing transaction.
+    ///
+    /// # Transaction Requirements
+    /// This method must be called within an existing database transaction.
+    /// The caller is responsible for managing the transaction (begin, commit, rollback).
+    ///
     /// Inserts access token, revokes all refresh tokens for user/client, and inserts new refresh token.
     pub async fn issue_tokens_from_auth_code_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
@@ -395,18 +351,6 @@ impl OAuthRefreshTokens {
         .execute(&mut **tx)
         .await?;
 
-        Ok(())
-    }
-
-    /// Atomically issue tokens from authorization code: insert access token,
-    /// revoke all refresh tokens for user/client, and insert new refresh token.
-    pub async fn issue_tokens_from_auth_code(
-        conn: &mut PgConnection,
-        params: IssueTokensFromAuthCodeParams<'_>,
-    ) -> ModelResult<()> {
-        let mut tx = conn.begin().await?;
-        Self::issue_tokens_from_auth_code_in_transaction(&mut tx, params).await?;
-        tx.commit().await?;
         Ok(())
     }
 }

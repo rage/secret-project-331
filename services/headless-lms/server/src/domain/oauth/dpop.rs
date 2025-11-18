@@ -5,8 +5,8 @@ use dpop_verifier::{
     actix_helpers::{dpop_header_str, expected_htu_from_actix},
     replay::{ReplayContext, ReplayStore},
 };
+use headless_lms_models::library::oauth::Digest as TokenDigest;
 use headless_lms_models::oauth_dpop_proofs::OAuthDpopProof;
-use headless_lms_models::oauth_shared_types::Digest as TokenDigest;
 use sqlx::PgConnection;
 
 pub struct SqlxReplayStore<'c> {

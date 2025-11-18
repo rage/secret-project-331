@@ -10,58 +10,6 @@ use sqlx::encode::IsNull;
 use sqlx::postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef};
 use sqlx::{Decode, Encode, Postgres, Type, error::BoxDynError};
 
-/// OAuth 2.0 grant type name (fieldless enum for DB mapping and policy checks).
-///
-/// Maps 1:1 to the PostgreSQL `grant_type` enum.
-/// Used in `OAuthClient.allowed_grant_types` and for checking which grants a client supports.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[sqlx(type_name = "grant_type")]
-#[serde(rename_all = "snake_case")]
-pub enum GrantTypeName {
-    AuthorizationCode,
-    RefreshToken,
-    ClientCredentials,
-    DeviceCode,
-    // keep this in sync with the Postgres enum
-}
-
-/// Secure Digest (zeroizes on drop via `secrecy::SecretBox`)
-pub struct Digest(SecretBox<[u8; 32]>);
-
-impl Digest {
-    pub const LEN: usize = 32;
-
-    #[inline]
-    pub fn new(bytes: [u8; 32]) -> Self {
-        // SecretBox::new takes a Box<T>
-        Self(SecretBox::new(Box::new(bytes)))
-    }
-
-    pub fn from_slice(slice: &[u8]) -> Result<Self, DigestError> {
-        if slice.len() != Self::LEN {
-            return Err(DigestError::WrongLength(slice.len()));
-        }
-        let mut arr = [0u8; Self::LEN];
-        arr.copy_from_slice(slice);
-        Ok(Self::new(arr))
-    }
-
-    #[inline]
-    pub fn as_bytes(&self) -> &[u8; 32] {
-        self.0.expose_secret()
-    }
-
-    #[inline]
-    pub fn as_slice(&self) -> &[u8] {
-        &self.0.expose_secret()[..]
-    }
-
-    /// Constant-time equality helper that returns bool.
-    pub fn constant_eq(&self, other: &Self) -> bool {
-        self.as_slice().ct_eq(other.as_slice()).unwrap_u8() == 1
-    }
-}
-
 #[derive(Debug)]
 pub enum DigestError {
     WrongLength(usize),
@@ -80,6 +28,42 @@ impl fmt::Display for DigestError {
 }
 impl std::error::Error for DigestError {}
 
+/// Secure Digest (zeroizes on drop via `secrecy::SecretBox`)
+pub struct Digest(SecretBox<[u8; Self::LEN]>);
+
+impl Digest {
+    pub const LEN: usize = 32;
+
+    #[inline]
+    pub fn new(bytes: [u8; Self::LEN]) -> Self {
+        Self(SecretBox::new(Box::new(bytes)))
+    }
+
+    pub fn from_slice(slice: &[u8]) -> Result<Self, DigestError> {
+        if slice.len() != Self::LEN {
+            return Err(DigestError::WrongLength(slice.len()));
+        }
+        let mut arr = [0u8; Self::LEN];
+        arr.copy_from_slice(slice);
+        Ok(Self::new(arr))
+    }
+
+    #[inline]
+    pub fn as_bytes(&self) -> &[u8; Self::LEN] {
+        self.0.expose_secret()
+    }
+
+    #[inline]
+    pub fn as_slice(&self) -> &[u8] {
+        &self.0.expose_secret()[..]
+    }
+
+    /// Constant-time equality helper that returns bool.
+    pub fn constant_eq(&self, other: &Self) -> bool {
+        self.as_slice().ct_eq(other.as_slice()).unwrap_u8() == 1
+    }
+}
+
 impl FromStr for Digest {
     type Err = DigestError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -97,8 +81,8 @@ impl fmt::Debug for Digest {
 
 // Intentionally no Clone, no AsRef, no Display.
 
-impl From<[u8; 32]> for Digest {
-    fn from(v: [u8; 32]) -> Self {
+impl From<[u8; Digest::LEN]> for Digest {
+    fn from(v: [u8; Digest::LEN]) -> Self {
         Self::new(v)
     }
 }
@@ -145,9 +129,9 @@ impl<'q> Encode<'q, Postgres> for Digest {
     }
 }
 
-impl sqlx::Type<Postgres> for Digest {
+impl Type<Postgres> for Digest {
     fn type_info() -> PgTypeInfo {
-        <Vec<u8> as sqlx::Type<Postgres>>::type_info()
+        <Vec<u8> as Type<Postgres>>::type_info()
     }
 }
 impl PgHasArrayType for Digest {

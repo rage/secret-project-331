@@ -1,24 +1,28 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
-use crate::domain::error::PkceFlowError;
 use crate::domain::oauth::authorize_query::AuthorizeQuery;
 use crate::domain::oauth::consent_deny_query::ConsentDenyQuery;
 use crate::domain::oauth::consent_query::ConsentQuery;
 use crate::domain::oauth::consent_response::ConsentResponse;
 use crate::domain::oauth::dpop::verify_dpop_from_actix;
+use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::helpers::{
-    build_authorize_qs, build_consent_redirect, build_login_redirect, generate_access_token,
-    generate_id_token, oauth_invalid_client, oauth_invalid_grant, oauth_invalid_request,
-    ok_json_no_cache, redirect_with_code, rsa_n_e_and_kid_from_pem, scope_has_openid,
-    token_digest_sha256,
+    oauth_invalid_client, oauth_invalid_request, ok_json_no_cache, scope_has_openid,
 };
 use crate::domain::oauth::jwks::{Jwk, Jwks};
 use crate::domain::oauth::oauth_validated::OAuthValidated;
-use crate::domain::oauth::token_query::{TokenGrant, TokenQuery};
+use crate::domain::oauth::oidc::{generate_id_token, rsa_n_e_and_kid_from_pem};
+use crate::domain::oauth::pkce::parse_authorize_pkce;
+use crate::domain::oauth::redirects::{
+    build_authorize_qs, build_consent_redirect, build_login_redirect, redirect_with_code,
+};
+use crate::domain::oauth::token_query::TokenQuery;
 use crate::domain::oauth::token_response::TokenResponse;
+use crate::domain::oauth::token_service::{
+    TokenGrantRequest, TokenGrantResult, generate_token_pair, process_token_grant,
+};
 use crate::domain::oauth::userinfo_response::UserInfoResponse;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
-use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use dpop_verifier::DpopError;
@@ -26,13 +30,10 @@ use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::*;
 use itertools::Itertools;
 use models::{
-    library::oauth::pkce::{CodeChallenge, CodeVerifier, PkceMethod},
+    library::oauth::{generate_access_token, token_digest_sha256},
     oauth_access_token::{OAuthAccessToken, TokenType},
     oauth_auth_code::{NewAuthCodeParams, OAuthAuthCode},
     oauth_client::OAuthClient,
-    oauth_refresh_tokens::{
-        IssueTokensFromAuthCodeParams, OAuthRefreshTokens, RotateRefreshTokenParams,
-    },
     oauth_user_client_scopes::{AuthorizedClientInfo, OAuthUserClientScopes},
     user_details,
 };
@@ -86,78 +87,13 @@ pub async fn authorize(
         ));
     }
 
-    // PKCE checks at authorize-time (store for later verification at /token)
-    let pkce_required = client.requires_pkce();
-    let (cc_opt, ccm_opt) = (
+    let parsed_pkce_method = parse_authorize_pkce(
+        &client,
         query.code_challenge.as_deref(),
         query.code_challenge_method.as_deref(),
-    );
-    let parsed_pkce_method: Option<PkceMethod> = match (cc_opt, ccm_opt) {
-        (Some(ch), Some(m)) => {
-            let method = PkceMethod::parse(m).ok_or_else(|| {
-                oauth_invalid_request(
-                    "unsupported code_challenge_method",
-                    Some(&query.redirect_uri),
-                    query.state.as_deref(),
-                )
-            })?;
-
-            if !client.allows_pkce_method(method) {
-                return Err(oauth_invalid_request(
-                    "code_challenge_method not allowed for this client",
-                    Some(&query.redirect_uri),
-                    query.state.as_deref(),
-                ));
-            }
-
-            match method {
-                PkceMethod::S256 => {
-                    // must be base64url (no pad) and decode to 32 bytes
-                    let bytes = URL_SAFE_NO_PAD.decode(ch).map_err(|_| {
-                        oauth_invalid_request(
-                            "invalid code_challenge for S256 (not base64url/no-pad)",
-                            Some(&query.redirect_uri),
-                            query.state.as_deref(),
-                        )
-                    })?;
-                    if bytes.len() != 32 {
-                        return Err(oauth_invalid_request(
-                            "invalid code_challenge for S256 (must decode to 32 bytes)",
-                            Some(&query.redirect_uri),
-                            query.state.as_deref(),
-                        ));
-                    }
-                }
-                PkceMethod::Plain => {
-                    CodeVerifier::new(ch).map_err(|_| {
-                        oauth_invalid_request(
-                            "invalid code_challenge for plain",
-                            Some(&query.redirect_uri),
-                            query.state.as_deref(),
-                        )
-                    })?;
-                }
-            }
-
-            Some(method)
-        }
-        (None, None) => None,
-        _ => {
-            return Err(oauth_invalid_request(
-                "code_challenge and code_challenge_method must be used together",
-                Some(&query.redirect_uri),
-                query.state.as_deref(),
-            ));
-        }
-    };
-
-    if pkce_required && parsed_pkce_method.is_none() {
-        return Err(oauth_invalid_request(
-            "PKCE required for this client",
-            Some(&query.redirect_uri),
-            query.state.as_deref(),
-        ));
-    }
+        &query.redirect_uri,
+        query.state.as_deref(),
+    )?;
 
     let redirect_url = match user {
         Some(user) => {
@@ -175,9 +111,9 @@ pub async fn authorize(
                 );
                 build_consent_redirect(&query, &return_to)
             } else {
-                let code = generate_access_token(); // adjust path
+                let code = generate_access_token();
                 let expires_at = Utc::now() + Duration::minutes(10);
-                let code_digest = token_digest_sha256(&code); // adjust path
+                let code_digest = token_digest_sha256(&code);
 
                 let new_auth_code_params = NewAuthCodeParams {
                     digest: &code_digest,
@@ -467,170 +403,31 @@ pub async fn token(
         TokenType::Bearer
     };
 
-    // Start transaction for atomic token operations
-    let mut tx = conn.begin().await?;
-
-    let access_token_plain = generate_access_token();
-    let new_refresh_token_plain = generate_access_token();
-    let access_token_digest = token_digest_sha256(&access_token_plain);
-    let new_refresh_token_digest = token_digest_sha256(&new_refresh_token_plain);
+    let token_pair = generate_token_pair();
+    let access_token = token_pair.access_token.clone();
+    let refresh_token = token_pair.refresh_token.clone();
     let refresh_token_expires_at = Utc::now() + refresh_ttl;
+    let access_expires_at = Utc::now() + access_ttl;
 
-    let (user_id, scope_vec, nonce_opt, at_expires_at, issue_id_token) = match &form.grant {
-        TokenGrant::AuthorizationCode {
-            code,
-            redirect_uri,
-            code_verifier,
-        } => {
-            let code_digest = token_digest_sha256(code);
-            let code_row = if let Some(ref_uri) = redirect_uri {
-                OAuthAuthCode::consume_with_redirect(&mut *tx, code_digest, ref_uri).await?
-            } else {
-                OAuthAuthCode::consume(&mut *tx, code_digest).await?
-            };
-
-            match (
-                code_row.code_challenge.as_deref(),
-                code_row.code_challenge_method,
-            ) {
-                (Some(stored_chal), Some(method)) => {
-                    if !client.allows_pkce_method(method) {
-                        return Err(PkceFlowError::InvalidRequest(
-                            "pkce method not allowed for this client",
-                        )
-                        .into());
-                    }
-
-                    let verifier_str = code_verifier
-                        .as_deref()
-                        .ok_or_else(|| PkceFlowError::InvalidRequest("code_verifier required"))?;
-
-                    let verifier = CodeVerifier::new(verifier_str)
-                        .map_err(|_| PkceFlowError::InvalidRequest("invalid code_verifier"))?;
-
-                    let challenge = CodeChallenge::from_stored(stored_chal);
-
-                    if !challenge.verify(&verifier, method) {
-                        return Err(PkceFlowError::InvalidGrant("PKCE verification failed").into());
-                    }
-                }
-
-                (None, None) => {
-                    if client.requires_pkce() {
-                        return Err(
-                            PkceFlowError::InvalidRequest("PKCE required for this client").into(),
-                        );
-                    }
-                    // else: PKCE not used for this auth code (allowed)
-                }
-
-                // Anything else is a server-side inconsistency
-                _ => {
-                    return Err(PkceFlowError::ServerError("inconsistent PKCE state").into());
-                }
-            }
-
-            if code_row.client_id != client.id {
-                return Err(oauth_invalid_grant("invalid authorization code"));
-            }
-
-            let access_expires_at = Utc::now() + access_ttl;
-            OAuthRefreshTokens::issue_tokens_from_auth_code_in_transaction(
-                &mut tx,
-                IssueTokensFromAuthCodeParams {
-                    user_id: code_row.user_id,
-                    client_id: code_row.client_id,
-                    scopes: &code_row.scopes,
-                    access_token_digest: &access_token_digest,
-                    refresh_token_digest: &new_refresh_token_digest,
-                    access_token_expires_at: access_expires_at,
-                    refresh_token_expires_at,
-                    access_token_type: issued_token_type,
-                    access_token_dpop_jkt: dpop_jkt_opt.as_deref(),
-                    refresh_token_dpop_jkt: dpop_jkt_opt.as_deref(),
-                },
-            )
-            .await?;
-
-            (
-                code_row.user_id,
-                code_row.scopes,
-                code_row.nonce.clone(),
-                access_expires_at,
-                true,
-            )
-        }
-
-        TokenGrant::RefreshToken {
-            refresh_token,
-            scope: _,
-        } => {
-            let presented = token_digest_sha256(refresh_token);
-            let old = OAuthRefreshTokens::consume_in_transaction(&mut tx, presented).await?;
-
-            if old.client_id != client.id {
-                return Err(oauth_invalid_grant("invalid refresh_token"));
-            }
-
-            if let Some(expected_jkt) = old.dpop_jkt.as_deref() {
-                let presented_jkt = dpop_jkt_opt.as_deref().ok_or_else(|| {
-                    oauth_invalid_client("missing DPoP header for sender-constrained refresh")
-                })?;
-                if presented_jkt != expected_jkt {
-                    return Err(dpop_verifier::DpopError::AthMismatch.into());
-                }
-            }
-
-            let refresh_issue_type = if old.dpop_jkt.is_some() {
-                TokenType::DPoP
-            } else {
-                issued_token_type
-            };
-            let at_jkt = old.dpop_jkt.as_deref().or(dpop_jkt_opt.as_deref());
-            let refresh_dpop_jkt = old.dpop_jkt.as_deref().or(dpop_jkt_opt.as_deref());
-            let access_expires_at = Utc::now() + access_ttl;
-
-            OAuthRefreshTokens::complete_refresh_token_rotation_in_transaction(
-                &mut tx,
-                &old,
-                RotateRefreshTokenParams {
-                    new_refresh_token_digest: &new_refresh_token_digest,
-                    new_access_token_digest: &access_token_digest,
-                    access_token_expires_at: access_expires_at,
-                    refresh_token_expires_at,
-                    access_token_type: refresh_issue_type,
-                    access_token_dpop_jkt: at_jkt,
-                    refresh_token_dpop_jkt: refresh_dpop_jkt,
-                },
-            )
-            .await?;
-
-            (
-                old.user_id,
-                old.scopes.clone(),
-                None,
-                access_expires_at,
-                false,
-            )
-        }
-
-        TokenGrant::Unknown => {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
-                    error_description: "unsupported grant type".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "unsupported grant type",
-                None::<anyhow::Error>,
-            ));
-        }
+    let request = TokenGrantRequest {
+        grant: &form.grant,
+        client: &client,
+        token_pair,
+        access_expires_at,
+        refresh_expires_at: refresh_token_expires_at,
+        issued_token_type,
+        dpop_jkt: dpop_jkt_opt.as_deref(),
     };
 
-    // Commit transaction after all token operations succeed
-    tx.commit().await?;
+    let TokenGrantResult {
+        user_id,
+        scopes: scope_vec,
+        nonce: nonce_opt,
+        access_expires_at: at_expires_at,
+        issue_id_token,
+    } = process_token_grant(&mut conn, request)
+        .await
+        .map_err(|e: TokenGrantError| ControllerError::from(e))?;
 
     let base_url = app_conf.base_url.trim_end_matches('/');
     let id_token = if issue_id_token && scope_has_openid(&scope_vec) {
@@ -647,8 +444,8 @@ pub async fn token(
     };
 
     let response = TokenResponse {
-        access_token: access_token_plain,
-        refresh_token: Some(new_refresh_token_plain),
+        access_token,
+        refresh_token: Some(refresh_token),
         id_token,
         token_type: match issued_token_type {
             TokenType::Bearer => "Bearer".to_string(),

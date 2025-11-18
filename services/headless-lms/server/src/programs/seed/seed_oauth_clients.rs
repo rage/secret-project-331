@@ -1,9 +1,8 @@
 use std::str::FromStr;
 
 use headless_lms_models::{
-    library::oauth::pkce,
+    library::oauth::{Digest, GrantTypeName, pkce},
     oauth_client,
-    oauth_shared_types::{Digest, GrantTypeName},
 };
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;

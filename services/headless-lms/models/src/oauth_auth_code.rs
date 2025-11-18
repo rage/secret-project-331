@@ -1,4 +1,4 @@
-use crate::{oauth_shared_types::Digest, prelude::*};
+use crate::{library::oauth::Digest, prelude::*};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgConnection};

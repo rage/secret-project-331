@@ -58,7 +58,6 @@ pub mod oauth_auth_code;
 pub mod oauth_client;
 pub mod oauth_dpop_proofs;
 pub mod oauth_refresh_tokens;
-pub mod oauth_shared_types;
 pub mod oauth_user_client_scopes;
 pub mod offered_answers_to_peer_review_temporary;
 pub mod open_university_registration_links;

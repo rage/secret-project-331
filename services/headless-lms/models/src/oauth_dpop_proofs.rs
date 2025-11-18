@@ -1,4 +1,4 @@
-use crate::oauth_shared_types::Digest;
+use crate::library::oauth::Digest;
 use crate::prelude::*;
 use chrono::{DateTime, TimeZone, Utc};
 use sqlx::{FromRow, PgConnection};

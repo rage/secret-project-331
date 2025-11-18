@@ -718,15 +718,15 @@ impl From<PkceFlowError> for ControllerError {
     }
 }
 
-impl From<headless_lms_models::library::oauth::pkce::PkceError> for PkceFlowError {
-    fn from(_: headless_lms_models::library::oauth::pkce::PkceError) -> Self {
+impl From<crate::domain::oauth::pkce::PkceError> for PkceFlowError {
+    fn from(_err: crate::domain::oauth::pkce::PkceError) -> Self {
         // Both BadLength and BadCharset are "invalid_request" per OAuth spec
         PkceFlowError::InvalidRequest("invalid code_verifier")
     }
 }
 
-impl From<headless_lms_models::library::oauth::pkce::PkceError> for ControllerError {
-    fn from(err: headless_lms_models::library::oauth::pkce::PkceError) -> Self {
+impl From<crate::domain::oauth::pkce::PkceError> for ControllerError {
+    fn from(err: crate::domain::oauth::pkce::PkceError) -> Self {
         PkceFlowError::from(err).into()
     }
 }

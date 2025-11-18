@@ -4,8 +4,7 @@
 //! Includes small policy helpers (public/confidential, PKCE, grants).
 
 use crate::{
-    library::oauth::pkce::PkceMethod,
-    oauth_shared_types::{Digest, GrantTypeName},
+    library::oauth::{Digest, GrantTypeName, pkce::PkceMethod},
     prelude::*,
 };
 use chrono::{DateTime, Utc};

@@ -185,4 +185,21 @@ impl OAuthAccessToken {
         tx.commit().await?;
         Ok(())
     }
+
+    /// Revoke (delete) an access token by its digest.
+    ///
+    /// This method is used for the OAuth 2.0 token revocation endpoint (RFC 7009).
+    /// Access tokens are deleted rather than marked as revoked since they are short-lived.
+    pub async fn revoke_by_digest(conn: &mut PgConnection, digest: Digest) -> ModelResult<()> {
+        sqlx::query!(
+            r#"
+            DELETE FROM oauth_access_tokens
+            WHERE digest = $1
+            "#,
+            digest.as_bytes()
+        )
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
 }

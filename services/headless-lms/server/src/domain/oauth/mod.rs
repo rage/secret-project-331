@@ -14,6 +14,7 @@ pub mod oauth_validated;
 pub mod oidc;
 pub mod pkce;
 pub mod redirects;
+pub mod revoke_query;
 pub mod token_query;
 pub mod token_response;
 pub mod token_service;

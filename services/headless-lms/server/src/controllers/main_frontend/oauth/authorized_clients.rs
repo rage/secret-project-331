@@ -1,0 +1,47 @@
+use crate::prelude::*;
+use actix_web::{HttpResponse, web};
+use models::oauth_user_client_scopes::{AuthorizedClientInfo, OAuthUserClientScopes};
+use sqlx::PgPool;
+use uuid::Uuid;
+
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "ts_rs")]
+use ts_rs::TS;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AuthorizedClient {
+    pub client_id: Uuid,     // DB uuid (oauth_clients.id)
+    pub client_name: String, // human-readable name from oauth_clients.client_id
+    pub scopes: Vec<String>,
+}
+
+#[instrument(skip(pool, auth_user))]
+pub async fn get_authorized_clients(
+    pool: web::Data<PgPool>,
+    auth_user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let rows: Vec<AuthorizedClientInfo> =
+        OAuthUserClientScopes::list_authorized_clients_for_user(&mut conn, auth_user.id).await?;
+
+    token.authorized_ok(HttpResponse::Ok().json(rows))
+}
+
+#[instrument(skip(pool, auth_user))]
+pub async fn delete_authorized_client(
+    pool: web::Data<PgPool>,
+    auth_user: AuthUser,
+    path: web::Path<Uuid>, // client_id (DB uuid)
+) -> ControllerResult<HttpResponse> {
+    let client_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    OAuthUserClientScopes::revoke_user_client_everything(&mut conn, auth_user.id, client_id)
+        .await?;
+
+    token.authorized_ok(HttpResponse::NoContent().finish())
+}

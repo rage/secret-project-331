@@ -280,11 +280,10 @@ async fn sync_pages(
         .await?;
         pages.extend(deleted_pages);
 
-        let public_and_deleted_page_ids: HashSet<Uuid> = pages.iter().map(|p| p.id).collect();
         let hidden_page_ids: Vec<Uuid> = statuses
             .iter()
             .filter(|status| {
-                !public_and_deleted_page_ids.contains(&status.page_id)
+                !public_pages_set.contains(&status.page_id)
                     && status.synced_page_revision_id.is_some()
             })
             .map(|s| s.page_id)

@@ -245,12 +245,12 @@ async fn get_services(ns: &str) -> Result<Vec<ServiceInfo>> {
                         .map(|p| ServicePortInfo {
                             name: p.name.clone(),
                             port: p.port,
-                            target_port: p.target_port.as_ref().and_then(|tp| match tp {
+                            target_port: p.target_port.as_ref().map(|tp| match tp {
                                 k8s_openapi::apimachinery::pkg::util::intstr::IntOrString::Int(i) => {
-                                    Some(i.to_string())
+                                    i.to_string()
                                 }
                                 k8s_openapi::apimachinery::pkg::util::intstr::IntOrString::String(s) => {
-                                    Some(s.clone())
+                                    s.clone()
                                 }
                             }),
                             protocol: p.protocol.clone(),

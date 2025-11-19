@@ -195,9 +195,9 @@ const StatusSummary: React.FC = () => {
           }),
         )
       }
-      if (readyPods < runningPods.length && runningPods.length > 0) {
+      if (readyPods.length < runningPods.length && runningPods.length > 0) {
         // Some running pods are not ready
-        const notReadyCount = runningPods.length - readyPods
+        const notReadyCount = runningPods.length - readyPods.length
         if (notReadyCount > 0) {
           // eslint-disable-next-line i18next/no-literal-string
           overallHealth = "warning"

@@ -38,7 +38,6 @@ const StatusPodLogs: React.FC = () => {
         >
           <SelectMenu
             id="pod-select"
-            // @ts-expect-error - Translation key not yet in generated types
             label={t("status-select-pod")}
             value={selectedPod}
             onChange={(e) => setSelectedPod(e.currentTarget.value)}

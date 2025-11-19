@@ -22,11 +22,9 @@ export async function scrollElementContainerToBottom(element: Locator) {
     }
     return null
   })
-  if (scrollableContainer) {
-    await scrollableContainer.evaluate((el) => {
-      if (el) {
-        el.scrollTop = el.scrollHeight
-      }
-    })
-  }
+  await scrollableContainer.evaluate((el) => {
+    if (el) {
+      el.scrollTop = el.scrollHeight
+    }
+  })
 }

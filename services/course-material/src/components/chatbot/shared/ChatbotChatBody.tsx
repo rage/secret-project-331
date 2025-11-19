@@ -163,7 +163,8 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       messages.push({
         id: v4(),
         message: messageState.optimisticMessage,
-        is_from_chatbot: false,
+        // eslint-disable-next-line i18next/no-literal-string
+        message_role: "user",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         deleted_at: null,
@@ -171,13 +172,16 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
         message_is_complete: true,
         used_tokens: 0,
         order_number: lastOrderNumber + 1,
+        tool_call_fields_id: null,
+        tool_output_id: null,
       })
     }
     if (messageState.streamingMessage) {
       messages.push({
         id: v4(),
         message: messageState.streamingMessage,
-        is_from_chatbot: true,
+        // eslint-disable-next-line i18next/no-literal-string
+        message_role: "assistant",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         deleted_at: null,
@@ -185,6 +189,8 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
         message_is_complete: false,
         used_tokens: 0,
         order_number: lastOrderNumber + 2,
+        tool_call_fields_id: null,
+        tool_output_id: null,
       })
     }
     return messages
@@ -325,7 +331,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             key={`chatbot-message-${message.id}`}
             message={message.message ?? ""}
             citations={citations.get(message.id)}
-            isFromChatbot={message.is_from_chatbot}
+            isFromChatbot={message.message_role == "assistant"}
             isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}

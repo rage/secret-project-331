@@ -61,6 +61,7 @@ fn models(target: &mut File) {
         chatbot_configurations::ReasoningEffortLevel,
         chatbot_configurations_models::ChatbotConfigurationModel,
         chatbot_conversation_messages::ChatbotConversationMessage,
+        chatbot_conversation_messages::MessageRole,
         chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
         chatbot_conversations::ChatbotConversation,
         chatbot_conversations::ChatbotConversationInfo,

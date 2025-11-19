@@ -270,11 +270,15 @@ export interface ChatbotConversationMessage {
   deleted_at: string | null
   conversation_id: string
   message: string | null
-  is_from_chatbot: boolean
+  message_role: MessageRole
   message_is_complete: boolean
   used_tokens: number
   order_number: number
+  tool_output_id: string | null
+  tool_call_fields_id: string | null
 }
+
+export type MessageRole = "assistant" | "user" | "tool" | "system"
 
 export interface ChatbotConversationMessageCitation {
   id: string

@@ -61,11 +61,32 @@ SET NOT NULL,
 -- New columns for additional fields for tool call and tool result messages
 ALTER TABLE chatbot_conversation_messages
 ADD COLUMN tool_output_id UUID REFERENCES chatbot_conversation_message_tool_outputs CONSTRAINT is_tool_result_message CHECK (
-    message_role = 'tool'::message_role
-    AND tool_output_id IS NOT NULL
+    (
+      message_role = 'tool'::message_role
+      AND tool_output_id IS NOT NULL
+    )
+    OR (
+      message_role <> 'tool'::message_role
+      AND tool_output_id IS NULL
+    )
   );
 ALTER TABLE chatbot_conversation_messages
-ADD COLUMN tool_call_fields_id UUID REFERENCES chatbot_conversation_message_tool_calls CONSTRAINT is_chatbot_tool_call_message CHECK (message_role = 'assistant'::message_role);
+ADD COLUMN tool_call_fields_id UUID REFERENCES chatbot_conversation_message_tool_calls CONSTRAINT is_chatbot_tool_call_message CHECK (
+    (
+      message_role <> 'assistant'::message_role
+      AND tool_call_fields_id IS NULL
+    )
+    OR (message_role = 'assistant'::message_role)
+  ),
+  ADD CONSTRAINT is_user_message CHECK (
+    (
+      message_role = 'user'::message_role
+      AND tool_call_fields_id IS NULL
+      AND tool_output_id IS NULL
+      AND message IS NOT NULL
+    )
+    OR (message_role <> 'user'::message_role)
+  );
 
 COMMENT ON COLUMN chatbot_conversation_messages.message_role IS 'The role of the message, is it from the user or the chatbot, or does it contain chatbot tool call output.';
 COMMENT ON COLUMN chatbot_conversation_messages.tool_output_id IS 'If this message is a role "tool" message that contains tool output, this column is set. The corresponding row in chatbot_conversation_message_tool_outputs contains info about the tool call output.';

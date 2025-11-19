@@ -3,6 +3,7 @@ use crate::prelude::*;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "message_role", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageRole {
     Assistant,
     User,

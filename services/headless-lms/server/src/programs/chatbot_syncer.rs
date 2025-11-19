@@ -251,7 +251,7 @@ async fn sync_pages(
         }
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-        let mut pages = headless_lms_models::pages::get_by_ids_and_visibility(
+        let pages = headless_lms_models::pages::get_by_ids_and_visibility(
             conn,
             &page_ids,
             PageVisibility::Public,
@@ -271,14 +271,6 @@ async fn sync_pages(
         } else {
             info!("No pages to sync for course id: {}.", course_id);
         }
-
-        let deleted_pages = headless_lms_models::pages::get_by_ids_deleted_and_visibility(
-            conn,
-            &page_ids,
-            PageVisibility::Public,
-        )
-        .await?;
-        pages.extend(deleted_pages);
 
         let hidden_page_ids: Vec<Uuid> = statuses
             .iter()
@@ -514,7 +506,8 @@ fn generate_blob_path(page: &Page) -> anyhow::Result<String> {
     Ok(format!("courses/{}/pages/{}.md", course_id, page.id))
 }
 
-/// Deletes files from blob storage that are no longer associated with any page.
+/// Deletes files from blob storage that are no longer associated with any public page.
+/// This includes files for deleted pages, hidden pages, and any other pages that are no longer public.
 async fn delete_old_files(
     conn: &mut PgConnection,
     course_id: Uuid,

@@ -1,3 +1,4 @@
+import { expect } from "@playwright/test"
 import { Locator, Page } from "playwright"
 
 /** Scrolls the page to the specified y coordinate */
@@ -22,9 +23,34 @@ export async function scrollElementContainerToBottom(element: Locator) {
     }
     return null
   })
+
+  await expect(async () => {
+    const result = await scrollableContainer.evaluate((el) => {
+      if (!el) {
+        return { isAtBottom: true, scrollTop: 0, maxScroll: 0 }
+      }
+      el.scrollTop = el.scrollHeight
+      const maxScroll = el.scrollHeight - el.clientHeight
+      const currentScroll = el.scrollTop
+      const isScrolledToBottom = Math.abs(currentScroll - maxScroll) <= 1
+      return { isAtBottom: isScrolledToBottom, scrollTop: currentScroll, maxScroll }
+    })
+
+    if (!result.isAtBottom) {
+      // eslint-disable-next-line playwright/no-wait-for-timeout
+      await element.page().waitForTimeout(100)
+      throw new Error(
+        `Container not scrolled to bottom yet. scrollTop: ${result.scrollTop}, maxScroll: ${result.maxScroll}`,
+      )
+    }
+  }).toPass({ timeout: 5000 })
+
   await scrollableContainer.evaluate((el) => {
     if (el) {
       el.scrollTop = el.scrollHeight
     }
   })
+
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await element.page().waitForTimeout(200)
 }

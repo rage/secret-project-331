@@ -3,6 +3,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
+import { scrollToYCoordinate } from "@/utils/scrollUtils"
 import { waitForAnimationsToEnd } from "@/utils/waitForAnimationsToEnd"
 
 test.describe("Test chatbot chat box", () => {
@@ -80,7 +81,11 @@ test.describe("Test chatbot chat box", () => {
       await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
       await student1Page.locator("body").click()
 
-      await chatbotDialog.getByLabel("Citation 1").last().click()
+      const citation1 = chatbotDialog.getByLabel("Citation 1").last()
+      await citation1.waitFor({ state: "visible" })
+      await scrollToYCoordinate(student1Page, 0)
+
+      await citation1.click()
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: student1Page,
         headless,
@@ -165,7 +170,10 @@ test.describe("Test chatbot chat box", () => {
       await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
       await student1Page.locator("body").press("Escape")
 
-      await student1Page.getByLabel("Citation 1").last().click()
+      const citation1 = student1Page.getByLabel("Citation 1").last()
+      await citation1.waitFor({ state: "visible" })
+      await scrollToYCoordinate(student1Page, 0)
+      await citation1.click()
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: student1Page,
         headless,
@@ -174,7 +182,7 @@ test.describe("Test chatbot chat box", () => {
         waitForTheseToBeVisibleAndStable: [student1Page.getByText("More content on the same mock")],
         scrollToYCoordinate: {
           "desktop-regular": 0,
-          "mobile-tall": 80,
+          "mobile-tall": 140,
         },
       })
       await student1Page.locator("body").press("Escape")

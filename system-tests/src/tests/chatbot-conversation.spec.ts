@@ -3,7 +3,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
-import { scrollToYCoordinate } from "@/utils/scrollUtils"
+import { scrollElementContainerToBottom, scrollToYCoordinate } from "@/utils/scrollUtils"
 import { waitForAnimationsToEnd } from "@/utils/waitForAnimationsToEnd"
 
 test.describe("Test chatbot chat box", () => {
@@ -84,6 +84,7 @@ test.describe("Test chatbot chat box", () => {
       const citation1 = chatbotDialog.getByLabel("Citation 1").last()
       await citation1.waitFor({ state: "visible" })
       await scrollToYCoordinate(student1Page, 0)
+      await scrollElementContainerToBottom(citation1)
 
       await citation1.click()
       await expectScreenshotsToMatchSnapshots({
@@ -92,6 +93,9 @@ test.describe("Test chatbot chat box", () => {
         testInfo,
         snapshotName: "default-chatbot-references-and-citation-popover",
         waitForTheseToBeVisibleAndStable: [student1Page.getByText("More content on the same mock")],
+        beforeScreenshot: async () => {
+          await scrollElementContainerToBottom(citation1)
+        },
       })
       await student1Page.locator("body").click()
     })
@@ -173,6 +177,7 @@ test.describe("Test chatbot chat box", () => {
       const citation1 = student1Page.getByLabel("Citation 1").last()
       await citation1.waitFor({ state: "visible" })
       await scrollToYCoordinate(student1Page, 0)
+      await scrollElementContainerToBottom(citation1)
       await citation1.click()
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: student1Page,
@@ -183,6 +188,9 @@ test.describe("Test chatbot chat box", () => {
         scrollToYCoordinate: {
           "desktop-regular": 0,
           "mobile-tall": 140,
+        },
+        beforeScreenshot: async () => {
+          await scrollElementContainerToBottom(citation1)
         },
       })
       await student1Page.locator("body").press("Escape")

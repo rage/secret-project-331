@@ -6,6 +6,7 @@ import { useStatusEvents } from "../../../hooks/useStatusEvents"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const StatusEvents: React.FC = () => {
   const { t } = useTranslation()
@@ -82,7 +83,7 @@ const StatusEvents: React.FC = () => {
           }
           className={css`
             padding: 0.5rem;
-            border: 1px solid #ddd;
+            border: 1px solid ${baseTheme.colors.clear[300]};
             border-radius: 4px;
           `}
         >
@@ -93,7 +94,7 @@ const StatusEvents: React.FC = () => {
         </select>
         <span
           className={css`
-            color: #6c757d;
+            color: ${baseTheme.colors.gray[500]};
             font-size: 0.9rem;
           `}
         >
@@ -118,24 +119,24 @@ const StatusEvents: React.FC = () => {
             td {
               padding: 0.5rem;
               text-align: left;
-              border-bottom: 1px solid #ddd;
+              border-bottom: 1px solid ${baseTheme.colors.clear[300]};
             }
 
             th {
-              background-color: #f5f5f5;
+              background-color: ${baseTheme.colors.clear[100]};
               font-weight: 600;
             }
 
             tr:hover {
-              background-color: #f9f9f9;
+              background-color: ${baseTheme.colors.clear[200]};
             }
 
             .type-warning {
-              background-color: #fff3cd;
+              background-color: ${baseTheme.colors.yellow[100]};
             }
 
             .type-error {
-              background-color: #f8d7da;
+              background-color: ${baseTheme.colors.red[100]};
             }
           `}
         >
@@ -154,8 +155,12 @@ const StatusEvents: React.FC = () => {
               <tr
                 key={event.name}
                 className={css`
-                  ${event.type_ === "Warning" ? "background-color: #fff3cd;" : ""}
-                  ${event.type_ === "Error" ? "background-color: #f8d7da;" : ""}
+                  ${event.type_ === "Warning"
+                    ? `background-color: ${baseTheme.colors.yellow[100]};`
+                    : ""}
+                  ${event.type_ === "Error"
+                    ? `background-color: ${baseTheme.colors.red[100]};`
+                    : ""}
                 `}
               >
                 <td>{event.type_ || t("status-normal")}</td>

@@ -8,6 +8,7 @@ import { useStatusPods } from "../../../hooks/useStatusPods"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const StatusPodLogs: React.FC = () => {
   const { t } = useTranslation()
@@ -52,7 +53,6 @@ const StatusPodLogs: React.FC = () => {
         >
           <SelectMenu
             id="tail-select"
-            // @ts-expect-error - Translation key not yet in generated types
             label={t("status-tail-lines")}
             value={tail.toString()}
             onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
@@ -70,11 +70,11 @@ const StatusPodLogs: React.FC = () => {
       {selectedPod && (
         <div
           className={css`
-            border: 1px solid #ddd;
+            border: 1px solid ${baseTheme.colors.clear[300]};
             border-radius: 4px;
             padding: 1rem;
-            background-color: #1e1e1e;
-            color: #d4d4d4;
+            background-color: ${baseTheme.colors.gray[700]};
+            color: ${baseTheme.colors.gray[300]};
             font-family: "Courier New", monospace;
             font-size: 12px;
             max-height: 600px;

@@ -6,6 +6,7 @@ import { useStatusJobs } from "../../../hooks/useStatusJobs"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const StatusJobs: React.FC = () => {
   const { t } = useTranslation()
@@ -39,16 +40,16 @@ const StatusJobs: React.FC = () => {
           td {
             padding: 0.5rem;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid ${baseTheme.colors.clear[300]};
           }
 
           th {
-            background-color: #f5f5f5;
+            background-color: ${baseTheme.colors.clear[100]};
             font-weight: 600;
           }
 
           tr:hover {
-            background-color: #f9f9f9;
+            background-color: ${baseTheme.colors.clear[200]};
           }
         `}
       >
@@ -68,14 +69,14 @@ const StatusJobs: React.FC = () => {
               <tr
                 key={job.name}
                 className={css`
-                  ${hasFailures ? "background-color: #f8d7da;" : ""}
-                  ${isActive ? "background-color: #d1ecf1;" : ""}
+                  ${hasFailures ? `background-color: ${baseTheme.colors.red[100]};` : ""}
+                  ${isActive ? `background-color: ${baseTheme.colors.blue[100]};` : ""}
                 `}
               >
                 <td>{job.name}</td>
                 <td
                   className={css`
-                    color: #28a745;
+                    color: ${baseTheme.colors.green[600]};
                     font-weight: ${(job.succeeded ?? 0) > 0 ? "600" : "normal"};
                   `}
                 >
@@ -83,7 +84,7 @@ const StatusJobs: React.FC = () => {
                 </td>
                 <td
                   className={css`
-                    color: #dc3545;
+                    color: ${baseTheme.colors.red[600]};
                     font-weight: ${hasFailures ? "600" : "normal"};
                   `}
                 >
@@ -91,7 +92,7 @@ const StatusJobs: React.FC = () => {
                 </td>
                 <td
                   className={css`
-                    color: #0c5460;
+                    color: ${baseTheme.colors.blue[700]};
                     font-weight: ${isActive ? "600" : "normal"};
                   `}
                 >

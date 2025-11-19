@@ -6,6 +6,7 @@ import { useStatusIngresses } from "../../../hooks/useStatusIngresses"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const StatusIngresses: React.FC = () => {
   const { t } = useTranslation()
@@ -39,16 +40,16 @@ const StatusIngresses: React.FC = () => {
           td {
             padding: 0.5rem;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid ${baseTheme.colors.clear[300]};
           }
 
           th {
-            background-color: #f5f5f5;
+            background-color: ${baseTheme.colors.clear[100]};
             font-weight: 600;
           }
 
           tr:hover {
-            background-color: #f9f9f9;
+            background-color: ${baseTheme.colors.clear[200]};
           }
         `}
       >

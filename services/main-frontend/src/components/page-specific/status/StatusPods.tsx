@@ -9,6 +9,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const StatusPods: React.FC = () => {
   const { t } = useTranslation()
@@ -50,16 +51,16 @@ const StatusPods: React.FC = () => {
             td {
               padding: 0.5rem;
               text-align: left;
-              border-bottom: 1px solid #ddd;
+              border-bottom: 1px solid ${baseTheme.colors.clear[300]};
             }
 
             th {
-              background-color: #f5f5f5;
+              background-color: ${baseTheme.colors.clear[100]};
               font-weight: 600;
             }
 
             tr:hover {
-              background-color: #f9f9f9;
+              background-color: ${baseTheme.colors.clear[200]};
             }
           `}
         >
@@ -80,8 +81,8 @@ const StatusPods: React.FC = () => {
                 <tr
                   key={pod.name}
                   className={css`
-                    ${isFailed ? "background-color: #f8d7da;" : ""}
-                    ${isPending ? "background-color: #fff3cd;" : ""}
+                    ${isFailed ? `background-color: ${baseTheme.colors.red[100]};` : ""}
+                    ${isPending ? `background-color: ${baseTheme.colors.yellow[100]};` : ""}
                   `}
                 >
                   <td>{pod.name}</td>
@@ -93,19 +94,19 @@ const StatusPods: React.FC = () => {
                         font-size: 0.85rem;
                         font-weight: 600;
                         background-color: ${isHealthy
-                          ? "#d4edda"
+                          ? baseTheme.colors.green[100]
                           : isFailed
-                            ? "#f8d7da"
+                            ? baseTheme.colors.red[100]
                             : isPending
-                              ? "#fff3cd"
-                              : "#e9ecef"};
+                              ? baseTheme.colors.yellow[100]
+                              : baseTheme.colors.clear[300]};
                         color: ${isHealthy
-                          ? "#155724"
+                          ? baseTheme.colors.green[700]
                           : isFailed
-                            ? "#721c24"
+                            ? baseTheme.colors.red[700]
                             : isPending
-                              ? "#856404"
-                              : "#495057"};
+                              ? baseTheme.colors.yellow[700]
+                              : baseTheme.colors.gray[600]};
                       `}
                     >
                       {pod.phase}
@@ -116,10 +117,10 @@ const StatusPods: React.FC = () => {
                       className={css`
                         font-size: 1.2rem;
                         color: ${pod.ready === true
-                          ? "#28a745"
+                          ? baseTheme.colors.green[600]
                           : pod.ready === false
-                            ? "#dc3545"
-                            : "#ffc107"};
+                            ? baseTheme.colors.red[600]
+                            : baseTheme.colors.yellow[600]};
                       `}
                     >
                       {/* eslint-disable-next-line i18next/no-literal-string */}
@@ -182,7 +183,7 @@ const StatusPods: React.FC = () => {
                 onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
                 className={css`
                   padding: 0.5rem;
-                  border: 1px solid #ddd;
+                  border: 1px solid ${baseTheme.colors.clear[300]};
                   border-radius: 4px;
                 `}
               >
@@ -195,11 +196,11 @@ const StatusPods: React.FC = () => {
 
             <div
               className={css`
-                border: 1px solid #ddd;
+                border: 1px solid ${baseTheme.colors.clear[300]};
                 border-radius: 4px;
                 padding: 1rem;
-                background-color: #1e1e1e;
-                color: #d4d4d4;
+                background-color: ${baseTheme.colors.gray[700]};
+                color: ${baseTheme.colors.gray[300]};
                 font-family: "Courier New", monospace;
                 font-size: 12px;
                 max-height: 600px;

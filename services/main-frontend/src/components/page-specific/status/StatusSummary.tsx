@@ -8,6 +8,7 @@ import { useStatusPods } from "../../../hooks/useStatusPods"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const StatusSummary: React.FC = () => {
   const { t } = useTranslation()
@@ -66,7 +67,7 @@ const StatusSummary: React.FC = () => {
       const message = event.message?.toLowerCase() || ""
 
       // Ignore common informational events
-      // eslint-disable-next-line i18next/no-literal-string
+
       const ignoredReasons = [
         // eslint-disable-next-line i18next/no-literal-string
         "scheduled",
@@ -87,7 +88,7 @@ const StatusSummary: React.FC = () => {
       }
 
       // Critical reasons
-      // eslint-disable-next-line i18next/no-literal-string
+
       const criticalReasons = [
         // eslint-disable-next-line i18next/no-literal-string
         "failed",
@@ -182,7 +183,7 @@ const StatusSummary: React.FC = () => {
     }
 
     // Warning issues (only if not already in error state)
-    // eslint-disable-next-line i18next/no-literal-string
+
     if (overallHealth !== "error") {
       if (pendingPods.length > 0 && pendingPods.length > totalActivePods * 0.1) {
         // More than 10% of pods pending
@@ -272,16 +273,16 @@ const StatusSummary: React.FC = () => {
           padding: 1.5rem;
           border-radius: 8px;
           background-color: ${summary.overallHealth === "healthy"
-            ? "#d4edda"
+            ? baseTheme.colors.green[100]
             : summary.overallHealth === "warning"
-              ? "#fff3cd"
-              : "#f8d7da"};
+              ? baseTheme.colors.yellow[100]
+              : baseTheme.colors.red[100]};
           border: 2px solid
             ${summary.overallHealth === "healthy"
-              ? "#28a745"
+              ? baseTheme.colors.green[600]
               : summary.overallHealth === "warning"
-                ? "#ffc107"
-                : "#dc3545"};
+                ? baseTheme.colors.yellow[600]
+                : baseTheme.colors.red[600]};
         `}
       >
         <h3
@@ -308,7 +309,7 @@ const StatusSummary: React.FC = () => {
           className={css`
             margin: 0;
             font-size: 0.9rem;
-            opacity: 0.8;
+            color: ${baseTheme.colors.gray[500]};
           `}
         >
           {summary.overallHealth === "healthy"
@@ -326,14 +327,14 @@ const StatusSummary: React.FC = () => {
         className={css`
           padding: 1rem;
           border-radius: 8px;
-          background-color: #f8f9fa;
-          border: 1px solid #dee2e6;
+          background-color: ${baseTheme.colors.clear[100]};
+          border: 1px solid ${baseTheme.colors.clear[300]};
         `}
       >
         <div
           className={css`
             font-size: 0.9rem;
-            color: #6c757d;
+            color: ${baseTheme.colors.gray[500]};
             margin-bottom: 0.5rem;
           `}
         >
@@ -343,7 +344,7 @@ const StatusSummary: React.FC = () => {
           className={css`
             font-size: 2rem;
             font-weight: 600;
-            color: #212529;
+            color: ${baseTheme.colors.gray[700]};
           `}
         >
           {summary.readyPods}/{summary.totalPods}
@@ -357,7 +358,7 @@ const StatusSummary: React.FC = () => {
           {summary.failedPods > 0 && (
             <span
               className={css`
-                color: #dc3545;
+                color: ${baseTheme.colors.red[600]};
                 margin-right: 0.5rem;
               `}
             >
@@ -367,7 +368,7 @@ const StatusSummary: React.FC = () => {
           {summary.crashedPods > 0 && (
             <span
               className={css`
-                color: #dc3545;
+                color: ${baseTheme.colors.red[600]};
                 margin-right: 0.5rem;
               `}
             >
@@ -377,7 +378,7 @@ const StatusSummary: React.FC = () => {
           {summary.pendingPods > 0 && (
             <span
               className={css`
-                color: #ffc107;
+                color: ${baseTheme.colors.yellow[600]};
                 margin-right: 0.5rem;
               `}
             >
@@ -387,7 +388,7 @@ const StatusSummary: React.FC = () => {
           {summary.succeededPods > 0 && (
             <span
               className={css`
-                color: #6c757d;
+                color: ${baseTheme.colors.gray[400]};
                 font-size: 0.8rem;
               `}
             >
@@ -402,14 +403,14 @@ const StatusSummary: React.FC = () => {
         className={css`
           padding: 1rem;
           border-radius: 8px;
-          background-color: #f8f9fa;
-          border: 1px solid #dee2e6;
+          background-color: ${baseTheme.colors.clear[100]};
+          border: 1px solid ${baseTheme.colors.clear[300]};
         `}
       >
         <div
           className={css`
             font-size: 0.9rem;
-            color: #6c757d;
+            color: ${baseTheme.colors.gray[500]};
             margin-bottom: 0.5rem;
           `}
         >
@@ -419,7 +420,7 @@ const StatusSummary: React.FC = () => {
           className={css`
             font-size: 2rem;
             font-weight: 600;
-            color: #212529;
+            color: ${baseTheme.colors.gray[700]};
           `}
         >
           {summary.healthyDeployments}/{summary.totalDeployments}
@@ -433,7 +434,7 @@ const StatusSummary: React.FC = () => {
           {summary.unhealthyDeployments > 0 && (
             <span
               className={css`
-                color: #dc3545;
+                color: ${baseTheme.colors.red[600]};
               `}
             >
               {summary.unhealthyDeployments} {t("status-unhealthy")}
@@ -448,14 +449,14 @@ const StatusSummary: React.FC = () => {
           className={css`
             padding: 1rem;
             border-radius: 8px;
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
+            background-color: ${baseTheme.colors.yellow[100]};
+            border: 1px solid ${baseTheme.colors.yellow[600]};
           `}
         >
           <div
             className={css`
               font-size: 0.9rem;
-              color: #856404;
+              color: ${baseTheme.colors.yellow[700]};
               margin-bottom: 0.5rem;
               font-weight: 600;
             `}
@@ -466,7 +467,7 @@ const StatusSummary: React.FC = () => {
             className={css`
               font-size: 2rem;
               font-weight: 600;
-              color: #856404;
+              color: ${baseTheme.colors.yellow[700]};
             `}
           >
             {summary.recentWarnings.length}
@@ -480,14 +481,14 @@ const StatusSummary: React.FC = () => {
           className={css`
             padding: 1rem;
             border-radius: 8px;
-            background-color: #f8d7da;
-            border: 1px solid #dc3545;
+            background-color: ${baseTheme.colors.red[100]};
+            border: 1px solid ${baseTheme.colors.red[600]};
           `}
         >
           <div
             className={css`
               font-size: 0.9rem;
-              color: #721c24;
+              color: ${baseTheme.colors.red[700]};
               margin-bottom: 0.5rem;
               font-weight: 600;
             `}
@@ -498,7 +499,7 @@ const StatusSummary: React.FC = () => {
             className={css`
               font-size: 2rem;
               font-weight: 600;
-              color: #721c24;
+              color: ${baseTheme.colors.red[700]};
             `}
           >
             {summary.recentErrors.length}

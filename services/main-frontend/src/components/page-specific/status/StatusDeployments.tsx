@@ -6,6 +6,7 @@ import { useStatusDeployments } from "../../../hooks/useStatusDeployments"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const StatusDeployments: React.FC = () => {
   const { t } = useTranslation()
@@ -39,16 +40,16 @@ const StatusDeployments: React.FC = () => {
           td {
             padding: 0.5rem;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid ${baseTheme.colors.clear[300]};
           }
 
           th {
-            background-color: #f5f5f5;
+            background-color: ${baseTheme.colors.clear[100]};
             font-weight: 600;
           }
 
           tr:hover {
-            background-color: #f9f9f9;
+            background-color: ${baseTheme.colors.clear[200]};
           }
         `}
       >
@@ -69,7 +70,7 @@ const StatusDeployments: React.FC = () => {
               <tr
                 key={deployment.name}
                 className={css`
-                  ${!isHealthy ? "background-color: #fff3cd;" : ""}
+                  ${!isHealthy ? `background-color: ${baseTheme.colors.yellow[100]};` : ""}
                 `}
               >
                 <td>{deployment.name}</td>
@@ -84,7 +85,9 @@ const StatusDeployments: React.FC = () => {
                     <span
                       className={css`
                         font-weight: 600;
-                        color: ${isHealthy ? "#28a745" : "#dc3545"};
+                        color: ${isHealthy
+                          ? baseTheme.colors.green[600]
+                          : baseTheme.colors.red[600]};
                       `}
                     >
                       {deployment.ready_replicas}/{deployment.replicas}
@@ -94,7 +97,7 @@ const StatusDeployments: React.FC = () => {
                         flex: 1;
                         max-width: 200px;
                         height: 8px;
-                        background-color: #e9ecef;
+                        background-color: ${baseTheme.colors.clear[300]};
                         border-radius: 4px;
                         overflow: hidden;
                       `}
@@ -103,7 +106,9 @@ const StatusDeployments: React.FC = () => {
                         className={css`
                           height: 100%;
                           width: ${readinessPercent}%;
-                          background-color: ${isHealthy ? "#28a745" : "#dc3545"};
+                          background-color: ${isHealthy
+                            ? baseTheme.colors.green[600]
+                            : baseTheme.colors.red[600]};
                           transition: width 0.3s ease;
                         `}
                       />

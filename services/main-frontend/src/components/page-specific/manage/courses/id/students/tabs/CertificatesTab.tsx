@@ -43,7 +43,8 @@ const actionsCellInner = css`
   padding-right: 0;
   width: 100%;
 `
-export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ courseId }) => {
+
+export const CertificatesTabContent: React.FC<{ courseId: string }> = ({ courseId }) => {
   const { t } = useTranslation()
 
   const query = useQuery({
@@ -58,49 +59,51 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     return <ErrorBanner error={query.error} />
   }
 
-  const columns: ColumnDef<CertificateGridRow, unknown>[] = [
-    // eslint-disable-next-line i18next/no-literal-string
-    { header: t("label-student"), accessorKey: "student" },
-    // eslint-disable-next-line i18next/no-literal-string
-    { header: t("certificate"), accessorKey: "certificate" },
-    {
-      header: t("date-issued"),
-      // eslint-disable-next-line i18next/no-literal-string
-      accessorKey: "date_issued",
-      cell: ({ getValue }) => {
-        const value = getValue<string | null>()
-        if (!value) {
-          // eslint-disable-next-line i18next/no-literal-string
-          return "—"
-        }
-        const d = new Date(value)
-        return d.toISOString().slice(0, 10) // YYYY-MM-DD
-      },
-    },
-    {
-      header: t("actions"),
-      // eslint-disable-next-line i18next/no-literal-string
-      id: "actions",
-      size: 80,
-      meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },
-      cell: ({ row }: CellContext<CertificateGridRow, unknown>) => {
-        const handleView = () => console.log("View certificate for:", row.original.student)
-        const handleEdit = () => console.log("Edit certificate for:", row.original.student)
-        return (
-          <div className={actionsCellInner}>
-            <IconButton label={t("view_certificate")} onClick={handleView}>
-              <Eye size={18} />
-            </IconButton>
-            <IconButton label={t("edit_certificate")} onClick={handleEdit}>
-              <Pen size={18} />
-            </IconButton>
-          </div>
-        )
-      },
-    },
-  ]
-
   const rows = (query.data ?? []) as CertificateGridRow[]
+
+  const columns = useMemo<ColumnDef<CertificateGridRow, unknown>[]>(
+    () => [
+      // eslint-disable-next-line i18next/no-literal-string
+      { header: t("label-student"), accessorKey: "student" },
+      // eslint-disable-next-line i18next/no-literal-string
+      { header: t("certificate"), accessorKey: "certificate" },
+      {
+        header: t("date-issued"),
+        accessorKey: "date_issued",
+        cell: ({ getValue }) => {
+          const value = getValue<string | null>()
+          if (!value) {
+            // eslint-disable-next-line i18next/no-literal-string
+            return "—"
+          }
+          const d = new Date(value)
+          return d.toISOString().slice(0, 10)
+        },
+      },
+      {
+        header: t("actions"),
+        // eslint-disable-next-line i18next/no-literal-string
+        id: "actions",
+        size: 80,
+        meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },
+        cell: ({ row }: CellContext<CertificateGridRow, unknown>) => {
+          const handleView = () => console.log("View certificate for:", row.original.student)
+          const handleEdit = () => console.log("Edit certificate for:", row.original.student)
+          return (
+            <div className={actionsCellInner}>
+              <IconButton label={t("view_certificate")} onClick={handleView}>
+                <Eye size={18} />
+              </IconButton>
+              <IconButton label={t("edit_certificate")} onClick={handleEdit}>
+                <Pen size={18} />
+              </IconButton>
+            </div>
+          )
+        },
+      },
+    ],
+    [t],
+  )
 
   return <FloatingHeaderTable columns={columns} data={rows} />
 }

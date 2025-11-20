@@ -464,6 +464,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                       "reset_answer_if_zero_points_from_review",
                     )
                   }
+                  disabled={
+                    parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything" ||
+                    parsedPeerOrSelfReviewConfig.processing_strategy ===
+                      "AutomaticallyGradeOrManualReviewByAverage"
+                  }
                 />
                 {!parsedPeerOrSelfReviewConfig.points_are_all_or_nothing && (
                   <div

@@ -2955,7 +2955,9 @@ export function isCertificateGridRow(obj: unknown): obj is CertificateGridRow {
         typeof typedObj["student"] === "string" &&
         typeof typedObj["certificate"] === "string" &&
         (typedObj["date_issued"] === null ||
-            typeof typedObj["date_issued"] === "string")
+            typeof typedObj["date_issued"] === "string") &&
+        (typedObj["verification_id"] === null ||
+            typeof typedObj["verification_id"] === "string")
     )
 }
 

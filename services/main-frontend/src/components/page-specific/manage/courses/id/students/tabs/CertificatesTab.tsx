@@ -51,6 +51,9 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     queryFn: () => getCertificates(courseId),
   })
 
+  const [popupUrl, setPopupUrl] = React.useState<string | null>(null)
+  const closePopup = () => setPopupUrl(null)
+
   if (query.isLoading) {
     return <Spinner />
   }
@@ -58,41 +61,45 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     return <ErrorBanner error={query.error} />
   }
 
-  console.log("YEP",query)
-
   const columns: ColumnDef<CertificateGridRow, unknown>[] = [
-    // eslint-disable-next-line i18next/no-literal-string
     { header: t("label-student"), accessorKey: "student" },
-    // eslint-disable-next-line i18next/no-literal-string
     { header: t("certificate"), accessorKey: "certificate" },
     {
       header: t("date-issued"),
-      // eslint-disable-next-line i18next/no-literal-string
       accessorKey: "date_issued",
       cell: ({ getValue }) => {
         const value = getValue<string | null>()
         if (!value) {
-          // eslint-disable-next-line i18next/no-literal-string
           return "—"
         }
         const d = new Date(value)
-        return d.toISOString().slice(0, 10) // YYYY-MM-DD
+        return d.toISOString().slice(0, 10)
       },
     },
     {
       header: t("actions"),
-      // eslint-disable-next-line i18next/no-literal-string
       id: "actions",
       size: 80,
       meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },
-      cell: ({ row }: CellContext<CertificateGridRow, unknown>) => {
-        const handleView = () => console.log("View certificate for:", row.original.student)
-        const handleEdit = () => console.log("Edit certificate for:", row.original.student)
+      cell: ({ row }) => {
+        const { certificate, verification_id } = row.original
+
+        const handleView = () => {
+          if (certificate === "Course Certificate" && verification_id) {
+            setPopupUrl(`/api/v0/main-frontend/certificates/${verification_id}`)
+          }
+        }
+
+        const handleEdit = () => {
+          console.log("Edit certificate for:", row.original.student)
+        }
+
         return (
           <div className={actionsCellInner}>
             <IconButton label={t("view_certificate")} onClick={handleView}>
               <Eye size={18} />
             </IconButton>
+
             <IconButton label={t("edit_certificate")} onClick={handleEdit}>
               <Pen size={18} />
             </IconButton>
@@ -104,5 +111,64 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
 
   const rows = (query.data ?? []) as CertificateGridRow[]
 
-  return <FloatingHeaderTable columns={columns} data={rows} />
+  return (
+    <>
+      {/* POPUP */}
+      {popupUrl && (
+        <div
+          className={css`
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+          `}
+          onClick={closePopup}
+        >
+          <div
+            className={css`
+              position: relative;
+              background: white;
+              padding: 12px;
+              border-radius: 8px;
+              max-width: 95vw;
+              max-height: 95vh;
+            `}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={css`
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                background: #fff;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                cursor: pointer;
+                padding: 4px 8px;
+              `}
+              onClick={closePopup}
+            >
+              ✕
+            </button>
+
+            <img
+              src={popupUrl}
+              alt="Certificate"
+              className={css`
+                max-width: 90vw;
+                max-height: 85vh;
+                display: block;
+              `}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* TABLE */}
+      <FloatingHeaderTable columns={columns} data={rows} />
+    </>
+  )
 }

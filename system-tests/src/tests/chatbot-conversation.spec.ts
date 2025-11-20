@@ -2,8 +2,8 @@ import { BrowserContext, expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
-import { scrollElementContainerToBottom, scrollToYCoordinate } from "@/utils/scrollUtils"
+import expectScreenshotsToMatchSnapshots, { waitToBeStable } from "@/utils/screenshot"
+import { scrollElementContainerToTop, scrollToYCoordinate } from "@/utils/scrollUtils"
 import { waitForAnimationsToEnd } from "@/utils/waitForAnimationsToEnd"
 
 test.describe("Test chatbot chat box", () => {
@@ -81,20 +81,28 @@ test.describe("Test chatbot chat box", () => {
       await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
       await student1Page.locator("body").click()
 
-      const citation1 = chatbotDialog.getByLabel("Citation 1").last()
+      const citation1 = chatbotDialog.getByLabel("Citation 1").first()
       await citation1.waitFor({ state: "visible" })
       await scrollToYCoordinate(student1Page, 0)
-      await scrollElementContainerToBottom(citation1)
+      await scrollElementContainerToTop(citation1)
 
       await citation1.click()
+
+      const textInPopover = student1Page.getByText("Mock test page content")
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: student1Page,
         headless,
         testInfo,
         snapshotName: "default-chatbot-references-and-citation-popover",
-        waitForTheseToBeVisibleAndStable: [student1Page.getByText("More content on the same mock")],
+        waitForTheseToBeVisibleAndStable: [textInPopover],
         beforeScreenshot: async () => {
-          await scrollElementContainerToBottom(citation1)
+          // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
+          await student1Page.locator("body").press("Escape")
+          await textInPopover.waitFor({ state: "hidden" })
+          await scrollElementContainerToTop(citation1)
+          await citation1.click()
+          await textInPopover.waitFor()
+          await waitToBeStable([textInPopover])
         },
       })
       await student1Page.locator("body").click()
@@ -174,23 +182,29 @@ test.describe("Test chatbot chat box", () => {
       await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
       await student1Page.locator("body").press("Escape")
 
-      const citation1 = student1Page.getByLabel("Citation 1").last()
+      const citation1 = student1Page.getByLabel("Citation 1").first()
       await citation1.waitFor({ state: "visible" })
       await scrollToYCoordinate(student1Page, 0)
-      await scrollElementContainerToBottom(citation1)
       await citation1.click()
+      const textInPopover = student1Page.getByText("Mock test page content")
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: student1Page,
         headless,
         testInfo,
         snapshotName: "block-chatbot-references-and-citation-popover",
-        waitForTheseToBeVisibleAndStable: [student1Page.getByText("More content on the same mock")],
+        waitForTheseToBeVisibleAndStable: [textInPopover],
+        beforeScreenshot: async () => {
+          // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
+          await student1Page.locator("body").press("Escape")
+          await textInPopover.waitFor({ state: "hidden" })
+          await scrollElementContainerToTop(citation1)
+          await citation1.click()
+          await textInPopover.waitFor()
+          await waitToBeStable([textInPopover])
+        },
         scrollToYCoordinate: {
           "desktop-regular": 0,
           "mobile-tall": 140,
-        },
-        beforeScreenshot: async () => {
-          await scrollElementContainerToBottom(citation1)
         },
       })
       await student1Page.locator("body").press("Escape")

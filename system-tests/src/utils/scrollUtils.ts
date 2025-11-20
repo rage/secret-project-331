@@ -54,3 +54,27 @@ export async function scrollElementContainerToBottom(element: Locator) {
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await element.page().waitForTimeout(200)
 }
+
+/** Finds and scrolls the scrollable parent container of an element to the top */
+export async function scrollElementContainerToTop(element: Locator) {
+  const scrollableContainer = await element.evaluateHandle((el) => {
+    let current: Element | null = el
+    while (current) {
+      const style = window.getComputedStyle(current)
+      const overflowY = style.overflowY || style.overflow
+      if (
+        (overflowY === "auto" || overflowY === "scroll") &&
+        current.scrollHeight > current.clientHeight
+      ) {
+        return current
+      }
+      current = current.parentElement
+    }
+    return null
+  })
+  await scrollableContainer.evaluate((el) => {
+    if (el) {
+      el.scrollTop = 0
+    }
+  })
+}

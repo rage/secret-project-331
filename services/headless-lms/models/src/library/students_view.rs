@@ -143,6 +143,7 @@ pub struct CertificateGridRow {
     pub student: String,
     pub certificate: String, // "Course Certificate" | "No Certificate"
     pub date_issued: Option<DateTime<Utc>>, // NULL if no certificate
+    pub verification_id: Option<String>, // NULL if no certificate
 }
 
 /// Returns one row per enrolled student with their overall course certificate info.
@@ -160,9 +161,11 @@ WITH enrolled AS (
     AND deleted_at IS NULL
 ),
 user_certs AS (
-  SELECT
+  -- one latest certificate per user for this course
+  SELECT DISTINCT ON (gc.user_id)
     gc.user_id,
-    MAX(gc.created_at) AS latest_issued_at
+    gc.created_at AS latest_issued_at,
+    gc.verification_id
   FROM generated_certificates gc
   JOIN certificate_configuration_to_requirements cctr
     ON gc.certificate_configuration_id = cctr.certificate_configuration_id
@@ -172,7 +175,7 @@ user_certs AS (
    AND cm.deleted_at IS NULL
   WHERE cm.course_id = $1
     AND gc.deleted_at IS NULL
-  GROUP BY gc.user_id
+  ORDER BY gc.user_id, gc.created_at DESC
 )
 SELECT
   /* non-null */
@@ -188,7 +191,8 @@ SELECT
     ELSE 'No Certificate'
   END AS "certificate!",
   /* nullable */
-  uc.latest_issued_at AS "date_issued?"
+  uc.latest_issued_at AS "date_issued?",
+  uc.verification_id  AS "verification_id?"
 FROM enrolled e
 JOIN users u ON u.id = e.user_id
 LEFT JOIN user_details ud ON ud.user_id = u.id

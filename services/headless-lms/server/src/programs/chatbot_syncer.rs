@@ -181,9 +181,25 @@ async fn sync_pages(
     let mut any_changes = false;
 
     for (course_id, statuses) in sync_statuses.iter() {
+        let page_ids: Vec<Uuid> = statuses.iter().map(|s| s.page_id).collect();
+        let public_pages_set: HashSet<Uuid> =
+            headless_lms_models::pages::get_by_ids_and_visibility(
+                conn,
+                &page_ids,
+                PageVisibility::Public,
+            )
+            .await?
+            .into_iter()
+            .map(|p| p.id)
+            .collect();
+
         let outdated_statuses: Vec<_> = statuses
             .iter()
             .filter(|status| {
+                if !public_pages_set.contains(&status.page_id) {
+                    return false;
+                }
+
                 let is_outdated = latest_histories
                     .get(&status.page_id)
                     .is_some_and(|history| status.synced_page_revision_id != Some(history.id));
@@ -235,7 +251,7 @@ async fn sync_pages(
         }
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-        let mut pages = headless_lms_models::pages::get_by_ids_and_visibility(
+        let pages = headless_lms_models::pages::get_by_ids_and_visibility(
             conn,
             &page_ids,
             PageVisibility::Public,
@@ -256,15 +272,27 @@ async fn sync_pages(
             info!("No pages to sync for course id: {}.", course_id);
         }
 
-        let deleted_pages = headless_lms_models::pages::get_by_ids_deleted_and_visibility(
-            conn,
-            &page_ids,
-            PageVisibility::Public,
-        )
-        .await?;
-        pages.extend(deleted_pages);
+        let hidden_page_ids: Vec<Uuid> = statuses
+            .iter()
+            .filter(|status| {
+                !public_pages_set.contains(&status.page_id)
+                    && status.synced_page_revision_id.is_some()
+            })
+            .map(|s| s.page_id)
+            .collect();
 
-        update_sync_statuses(conn, &pages, &latest_histories).await?;
+        if !hidden_page_ids.is_empty() {
+            info!(
+                "Clearing sync statuses for {} hidden pages: {:?}",
+                hidden_page_ids.len(),
+                hidden_page_ids
+            );
+            headless_lms_models::chatbot_page_sync_statuses::clear_sync_statuses(
+                conn,
+                &hidden_page_ids,
+            )
+            .await?;
+        }
 
         delete_old_files(conn, *course_id, blob_client).await?;
     }
@@ -469,28 +497,6 @@ async fn sync_pages_batch(
     Ok(())
 }
 
-/// Update sync statuses for pages after syncing
-async fn update_sync_statuses(
-    conn: &mut PgConnection,
-    pages: &[Page],
-    latest_histories: &HashMap<Uuid, PageHistory>,
-) -> anyhow::Result<()> {
-    let page_revision_map: HashMap<Uuid, Uuid> = pages
-        .iter()
-        .map(|page| (page.id, latest_histories[&page.id].id))
-        .collect();
-
-    info!("Updating sync statuses to: {:?}.", page_revision_map);
-
-    headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
-        conn,
-        page_revision_map,
-    )
-    .await?;
-
-    Ok(())
-}
-
 /// Generates the blob storage path for a given page.
 fn generate_blob_path(page: &Page) -> anyhow::Result<String> {
     let course_id = page
@@ -500,7 +506,8 @@ fn generate_blob_path(page: &Page) -> anyhow::Result<String> {
     Ok(format!("courses/{}/pages/{}.md", course_id, page.id))
 }
 
-/// Deletes files from blob storage that are no longer associated with any page.
+/// Deletes files from blob storage that are no longer associated with any public page.
+/// This includes files for deleted pages, hidden pages, and any other pages that are no longer public.
 async fn delete_old_files(
     conn: &mut PgConnection,
     course_id: Uuid,

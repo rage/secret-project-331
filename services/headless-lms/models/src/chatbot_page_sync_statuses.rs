@@ -113,3 +113,27 @@ AND deleted_at IS NULL
 
     Ok(())
 }
+
+/// Clears sync statuses for the given page IDs.
+/// This is used when pages become hidden to ensure they'll be re-synced if unhidden.
+pub async fn clear_sync_statuses(conn: &mut PgConnection, page_ids: &[Uuid]) -> ModelResult<()> {
+    if page_ids.is_empty() {
+        return Ok(());
+    }
+
+    sqlx::query!(
+        r#"
+UPDATE chatbot_page_sync_statuses
+SET synced_page_revision_id = NULL,
+    error_message = NULL,
+    consecutive_failures = 0
+WHERE page_id = ANY($1)
+AND deleted_at IS NULL
+        "#,
+        page_ids
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}

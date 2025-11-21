@@ -265,35 +265,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
     )
     .await?;
 
-    // Get updater receiver state after possible update above
-    let updated_receiver_state = user_exercise_states::get_user_exercise_state_if_exists(
-        &mut tx,
-        receiver_exercise_state.user_id,
-        receiver_exercise_state.exercise_id,
-        CourseOrExamId::Course(receiver_exercise_state.get_course_id()?),
-    )
-    .await?
-    .ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::Generic,
-            "Receiver exercise state not found".to_string(),
-            None,
-        )
-    })?;
-
     tx.commit().await?;
-
-    // The possible automatic reset is done after the main transaction
-    // has been committed, because it depends on
-    // the latest committed user_exercise_state.
-    // This is done seperately to avoid the risk of reading outdated data
-    // and nested transaction issues.
-    let _ = reset_exercise_if_needed_if_zero_points_from_review(
-        conn,
-        &peer_or_self_review_config,
-        &updated_receiver_state,
-    )
-    .await?;
 
     Ok(giver_exercise_state)
 }
@@ -303,7 +275,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
 /// Called after the user's state has been updated post-review.
 ///
 /// Returns true if reset was performed, otherwise false.
-async fn reset_exercise_if_needed_if_zero_points_from_review(
+pub async fn reset_exercise_if_needed_if_zero_points_from_review(
     conn: &mut PgConnection,
     peer_review_config: &PeerOrSelfReviewConfig,
     user_exercise_state: &UserExerciseState,

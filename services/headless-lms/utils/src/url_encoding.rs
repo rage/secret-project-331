@@ -2,8 +2,9 @@ use bytes::Bytes;
 use percent_encoding::{NON_ALPHANUMERIC, percent_decode_str, utf8_percent_encode};
 
 /// URL-encodes a string value for use in HTTP headers or other contexts requiring ASCII-compatibility.
-/// Percent-encodes non-ASCII characters and control characters to preserve the original
-/// information while making the value safe for HTTP headers.
+/// Percent-encodes all non-alphanumeric characters (including spaces, punctuation, ASCII special
+/// characters, non-ASCII characters, and control characters) to preserve the original information
+/// while making the value ASCII-safe for use in HTTP headers or other contexts requiring ASCII-compatibility.
 pub fn url_encode(value: &str) -> Bytes {
     utf8_percent_encode(value, NON_ALPHANUMERIC)
         .to_string()

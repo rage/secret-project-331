@@ -14,6 +14,12 @@ pub fn build_authorize_qs(q: &AuthorizeParams) -> String {
     if let Some(nonce) = q.nonce.as_deref() {
         s.append_pair("nonce", nonce);
     }
+    if let Some(code_challenge) = q.code_challenge.as_deref() {
+        s.append_pair("code_challenge", code_challenge);
+    }
+    if let Some(code_challenge_method) = q.code_challenge_method.as_deref() {
+        s.append_pair("code_challenge_method", code_challenge_method);
+    }
     s.finish()
 }
 

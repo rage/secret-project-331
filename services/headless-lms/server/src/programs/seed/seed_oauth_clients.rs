@@ -22,6 +22,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         "openid".to_string(),
         "profile".to_string(),
         "email".to_string(),
+        "offline_access".to_string(),
     ];
     let allowed_grant_types = vec![GrantTypeName::AuthorizationCode];
     let pkce_methods_allowed = vec![pkce::PkceMethod::S256];

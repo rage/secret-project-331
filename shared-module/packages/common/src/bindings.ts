@@ -64,6 +64,27 @@ export interface SpecRequest {
   upload_url: string | null
 }
 
+export interface ConsentQuery {
+  client_id: string
+  redirect_uri: string
+  response_type: string
+  scope: string
+  state: string
+  nonce: string
+  code_challenge: string | null
+  code_challenge_method: string | null
+}
+
+export interface ConsentResponse {
+  redirect_uri: string
+}
+
+export interface ConsentDenyQuery {
+  client_id: string
+  redirect_uri: string
+  state: string
+}
+
 export interface CertificateAllRequirements {
   certificate_configuration_id: string
   course_module_ids: Array<string>
@@ -2372,25 +2393,6 @@ export interface RoleQuery {
   course_id?: string
   course_instance_id?: string
   exam_id?: string
-}
-
-export interface ConsentQuery {
-  client_id: string
-  redirect_uri: string
-  response_type: string
-  scope: string
-  state: string
-  nonce: string
-}
-
-export interface ConsentResponse {
-  redirect_uri: string
-}
-
-export interface ConsentDenyQuery {
-  client_id: string
-  redirect_uri: string
-  state: string
 }
 
 export interface BulkUserDetailsRequest {

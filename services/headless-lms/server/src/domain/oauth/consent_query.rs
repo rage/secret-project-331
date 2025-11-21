@@ -9,4 +9,8 @@ pub struct ConsentQuery {
     pub scope: String,
     pub state: String,
     pub nonce: String,
+    #[serde(default)]
+    pub code_challenge: Option<String>,
+    #[serde(default)]
+    pub code_challenge_method: Option<String>,
 }

@@ -6,7 +6,7 @@ use sqlx::Type;
 /// Maps 1:1 to the PostgreSQL `grant_type` enum.
 /// Used in `OAuthClient.allowed_grant_types` and for checking which grants a client supports.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[sqlx(type_name = "grant_type")]
+#[sqlx(type_name = "grant_type", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum GrantTypeName {
     AuthorizationCode,

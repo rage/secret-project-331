@@ -21,6 +21,10 @@ export default function ConsentPage() {
     scope: String(router.query.scope ?? ""),
     state: String(router.query.state ?? ""),
     nonce: String(router.query.nonce ?? ""),
+    code_challenge: router.query.code_challenge ? String(router.query.code_challenge) : null,
+    code_challenge_method: router.query.code_challenge_method
+      ? String(router.query.code_challenge_method)
+      : null,
   }
 
   const scopes = query.scope.split(" ").filter(Boolean)
@@ -52,6 +56,7 @@ export default function ConsentPage() {
   return (
     <section
       aria-label={t("oauth-application-requesting-access")}
+      data-testid="oauth-consent-form"
       className={css`
         display: flex;
         flex-direction: column;
@@ -81,10 +86,22 @@ export default function ConsentPage() {
           gap: 10px;
         `}
       >
-        <Button variant="primary" onClick={onApprove} size="large" aria-label={t("approve")}>
+        <Button
+          variant="primary"
+          onClick={onApprove}
+          size="large"
+          aria-label={t("approve")}
+          data-testid="oauth-consent-approve-button"
+        >
           {t("approve")}
         </Button>
-        <Button onClick={onDeny} variant="reject" size="large" aria-label={t("button-text-cancel")}>
+        <Button
+          onClick={onDeny}
+          variant="reject"
+          size="large"
+          aria-label={t("button-text-cancel")}
+          data-testid="oauth-consent-deny-button"
+        >
           {t("button-text-cancel")}
         </Button>
       </div>

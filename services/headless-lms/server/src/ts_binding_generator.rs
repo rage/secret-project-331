@@ -34,6 +34,9 @@ fn domain(target: &mut File) {
         error::ErrorData,
         error::ErrorResponse,
         models_requests::SpecRequest,
+        oauth::consent_query::ConsentQuery,
+        oauth::consent_response::ConsentResponse,
+        oauth::consent_deny_query::ConsentDenyQuery,
     };
 }
 
@@ -346,9 +349,6 @@ fn controllers(target: &mut File) {
             playground_views::PlaygroundViewsMessage,
             proposed_edits::GetEditProposalsQuery,
             roles::RoleQuery,
-            oauth::consent_query::ConsentQuery,
-            oauth::consent_response::ConsentResponse,
-            oauth::consent_deny_query::ConsentDenyQuery,
             user_details::BulkUserDetailsRequest,
             user_details::UserDetailsRequest,
             user_details::UserInfoPayload,

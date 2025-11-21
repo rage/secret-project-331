@@ -15,8 +15,10 @@ use sqlx::Type;
 #[sqlx(type_name = "pkce_method")]
 pub enum PkceMethod {
     #[serde(rename = "plain")]
+    #[sqlx(rename = "plain")]
     Plain,
     #[serde(rename = "S256")]
+    #[sqlx(rename = "S256")]
     S256,
 }
 

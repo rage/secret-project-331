@@ -13,12 +13,10 @@ use sqlx::{FromRow, PgConnection, Type};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[sqlx(type_name = "token_endpoint_auth_method")]
+#[sqlx(type_name = "token_endpoint_auth_method", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum TokenEndpointAuthMethod {
-    #[serde(rename = "none")]
     None,
-    #[serde(rename = "client_secret_post")]
     ClientSecretPost,
 }
 
@@ -33,7 +31,7 @@ impl TokenEndpointAuthMethod {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[sqlx(type_name = "application_type")]
+#[sqlx(type_name = "application_type", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum ApplicationType {
     Web,

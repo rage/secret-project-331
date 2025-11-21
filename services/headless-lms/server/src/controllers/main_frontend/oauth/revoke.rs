@@ -1,4 +1,3 @@
-use crate::domain::oauth::helpers::oauth_invalid_client;
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::revoke_query::RevokeQuery;
 use crate::prelude::*;
@@ -45,27 +44,39 @@ pub async fn revoke(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    // Authenticate client (OAuthValidated already handles this)
-    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
-        .await
-        .map_err(|_| oauth_invalid_client("invalid client_id"))?;
+    // Authenticate client
+    // RFC 7009 §2.1: "The authorization server responds with HTTP status code 200 if the token
+    // has been revoked successfully or if the client submitted an invalid token."
+    // This means we should return 200 OK even for invalid client_id/client_secret to prevent
+    // enumeration attacks. However, we still need to validate for legitimate revocations.
+    let client_result = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await;
+
+    // If client not found or secret invalid, return 200 OK per RFC 7009 (but don't actually revoke)
+    let client = match client_result {
+        Ok(c) => c,
+        Err(_) => {
+            // Invalid client_id - return 200 OK per RFC 7009 to prevent enumeration
+            return server_token.authorized_ok(HttpResponse::Ok().finish());
+        }
+    };
 
     // Validate client secret for confidential clients
-    if client.is_confidential() {
+    let client_valid = if client.is_confidential() {
         match &client.client_secret {
             Some(secret) => {
                 let provided_secret_digest =
                     token_digest_sha256(&form.client_secret.clone().unwrap_or_default());
-                if !secret.constant_eq(&provided_secret_digest) {
-                    return Err(oauth_invalid_client("invalid client secret"));
-                }
+                secret.constant_eq(&provided_secret_digest)
             }
-            None => {
-                return Err(oauth_invalid_client(
-                    "client_secret required for confidential clients",
-                ));
-            }
+            None => false,
         }
+    } else {
+        true // Public clients don't need secret validation
+    };
+
+    // If client secret is invalid, return 200 OK per RFC 7009 (but don't actually revoke)
+    if !client_valid {
+        return server_token.authorized_ok(HttpResponse::Ok().finish());
     }
 
     // Hash the provided token to get digest

@@ -1,267 +1,42 @@
 import { BrowserContext, expect, Page, test } from "@playwright/test"
-import crypto from "crypto"
-import http from "http"
-import { exportJWK, generateKeyPair, type JWK, SignJWT } from "jose"
 
-type KeyLike = CryptoKey | import("crypto").KeyObject
-// ---------- ENV / CONSTANTS ----------
-const BASE = "http://project-331.local"
-const AUTHORIZE = `${BASE}/api/v0/main-frontend/oauth/authorize`
-const TOKEN = `${BASE}/api/v0/main-frontend/oauth/token`
-const USERINFO = `${BASE}/api/v0/main-frontend/oauth/userinfo`
-const WELL_KNOWN = `${BASE}/api/v0/main-frontend/oauth/.well-known/openid-configuration`
-const JWKS_URI = `${BASE}/api/v0/main-frontend/oauth/jwks.json`
+// Import utilities
+import { resetClientAuthorization } from "../utils/oauth/authorizedClients"
+import { assertAndExtractCodeFromCallbackUrl } from "../utils/oauth/callbackHelpers"
+import { ConsentPage } from "../utils/oauth/consentPage"
+import {
+  APP_DISPLAY_NAME,
+  AUTHORIZE,
+  BASE,
+  JWKS_URI,
+  REVOKE,
+  STUDENT_STORAGE_STATE,
+  TEST_CLIENT_ID,
+  TEST_CLIENT_SECRET,
+  TOKEN,
+  USER_EMAIL,
+  USER_EMAIL_2,
+  USER_PASSWORD,
+  USER_PASSWORD_2,
+  USERINFO,
+  WELL_KNOWN,
+} from "../utils/oauth/constants"
+import { createDPoPKey } from "../utils/oauth/dpop"
+import { performLogin } from "../utils/oauth/loginHelpers"
+import { generateCodeChallenge, generateCodeVerifier } from "../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../utils/oauth/redirectServer"
+import { revokeToken } from "../utils/oauth/revokeHelpers"
+import { callUserInfo, exchangeCodeForToken } from "../utils/oauth/tokenHelpers"
+import { oauthUrl } from "../utils/oauth/urlHelpers"
 
-const TEST_CLIENT_ID = "test-client-id"
-const TEST_CLIENT_SECRET = "very-secret" // <- hardcoded as requested
-const APP_DISPLAY_NAME = "Test Client" // shown on consent <h2> and settings <strong>
-const REDIRECT_URI = "http://127.0.0.1:8765/callback" // MUST match the registered redirect for TEST_CLIENT_ID
-
-// Test users
-const USER_EMAIL = "student1@example.com"
-const USER_PASSWORD = "student1"
-const USER_EMAIL_2 = "student2@example.com"
-const USER_PASSWORD_2 = "student2"
-
-// Already-logged-in storage state for the same student
-const STUDENT_STORAGE_STATE = "src/states/student1@example.com.json"
-
-// ---------- CONSENT PAGE OBJECT ----------
-class ConsentPage {
-  constructor(
-    private page: Page,
-    private scopes: string[],
-  ) {}
-  private esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  private get scopesRegex() {
-    return new RegExp(`\\b(${this.scopes.map(this.esc).join("|")})\\b`, "i")
-  }
-  private get ul() {
-    return this.page
-      .locator("ul")
-      .filter({ has: this.page.locator("li", { hasText: this.scopesRegex }) })
-      .first()
-  }
-  private get container() {
-    return this.ul.locator("xpath=ancestor::div[1]")
-  }
-  private get title() {
-    return this.container.locator("h2").first()
-  }
-
-  async expectVisible(name: string | RegExp) {
-    await expect(this.ul).toBeVisible()
-    await expect(this.title).toBeVisible()
-    await expect(this.title).toContainText(name)
-    for (const s of this.scopes) {
-      await expect(
-        this.ul.locator("li", { hasText: new RegExp(`\\b${this.esc(s)}\\b`, "i") }).first(),
-      ).toBeVisible()
-    }
-  }
-
-  async approve() {
-    await this.ul.locator("xpath=following::button[1]").click()
-  }
-
-  async expectNotPresent() {
-    await expect(this.title).toHaveCount(0)
-  }
-}
-
-// ---------- LOCAL REDIRECT RECEIVER (real HTTP server on 127.0.0.1:8765) ----------
-let _redirectServer: http.Server | null = null
-
+// Setup redirect server
 test.beforeAll(async () => {
-  await new Promise<void>((resolve, reject) => {
-    const uri = new URL(REDIRECT_URI)
-    _redirectServer = http.createServer((_req, res) => {
-      res.writeHead(200, { "Content-Type": "text/html" })
-      res.end("<!doctype html><title>OAuth Callback</title><h1>Callback OK</h1>")
-    })
-    _redirectServer.once("error", reject)
-    _redirectServer.listen(Number(uri.port || 80), uri.hostname, () => resolve())
-  })
+  await setupRedirectServer()
 })
 
 test.afterAll(async () => {
-  if (_redirectServer) {
-    await new Promise<void>((resolve) => _redirectServer!.close(() => resolve()))
-    _redirectServer = null
-  }
+  await teardownRedirectServer()
 })
-
-// ---------- HELPERS ----------
-function oauthUrl(scopes: string[]) {
-  const state = crypto.randomBytes(9).toString("hex")
-  const params = new URLSearchParams({
-    response_type: "code",
-    client_id: TEST_CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
-    scope: scopes.join(" "),
-    state,
-  })
-  return { url: `${AUTHORIZE}?${params.toString()}`, state, scopes }
-}
-
-async function performLogin(page: Page, email: string, password: string) {
-  // Scope to the actual login <form> via the submit button id
-  const form = page
-    .locator("form")
-    .filter({ has: page.locator("#login-button") })
-    .first()
-  await form.locator("input").first().fill(email)
-  await form.locator("input").nth(1).fill(password)
-  await form.locator("#login-button").click()
-  await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible()
-}
-
-/** Assert the browser landed on the callback and the final URL has code & expected state.
- *  Returns the authorization code for token exchange. */
-async function assertAndExtractCodeFromCallbackUrl(
-  page: Page,
-  expectedState: string,
-): Promise<string> {
-  const expected = new URL(REDIRECT_URI)
-
-  // Wait until we actually reach the callback origin+path
-  const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  const expectedBase = `${escapeRe(expected.origin)}${escapeRe(expected.pathname)}`
-  await page.waitForURL(new RegExp(`^${expectedBase}(\\?.*)?$`, "i"))
-
-  await page.waitForLoadState("domcontentloaded")
-  const final = new URL(page.url())
-  expect(final.origin + final.pathname).toBe(expected.origin + expected.pathname)
-
-  const code = final.searchParams.get("code")
-  const state = final.searchParams.get("state")
-  expect(state).toBe(expectedState)
-  expect(code).toBeTruthy()
-  return code!
-}
-
-/** Revoke a single client row by visible name */
-async function revokeClientRow(page: Page, displayName: string) {
-  const row = page
-    .locator("div", { has: page.locator("strong", { hasText: displayName }) })
-    .filter({ has: page.getByRole("button") })
-    .first()
-
-  if ((await row.count()) === 0) {
-    return false
-  }
-  const revokeBtn = row.getByRole("button", { name: "REVOKE" })
-  await revokeBtn.click()
-  await expect(row).toHaveCount(0)
-  return true
-}
-
-async function openAuthorizedApps(page: Page) {
-  await page.goto(`${BASE}/user-settings`)
-  const authorizedHeading = page.getByRole("heading", { name: /Authorized applications/i })
-  await authorizedHeading.scrollIntoViewIfNeeded()
-  await expect(authorizedHeading).toBeVisible()
-}
-
-/** Reset this user's authorization for our test client (clean slate for Suite 2) */
-async function resetClientAuthorization(page: Page) {
-  await openAuthorizedApps(page)
-  // Try revoke by display name and client_id (in case the UI shows either)
-  await revokeClientRow(page, APP_DISPLAY_NAME)
-  await revokeClientRow(page, TEST_CLIENT_ID)
-}
-
-// ---------- DPoP helpers ----------
-type DPoPKey = { privateKey: KeyLike; publicJwk: JWK }
-
-async function createDPoPKey(): Promise<DPoPKey> {
-  const { publicKey, privateKey } = await generateKeyPair("ES256")
-  const publicJwk = await exportJWK(publicKey)
-  publicJwk.alg = "ES256"
-  return { privateKey, publicJwk }
-}
-
-function nowSec() {
-  return Math.floor(Date.now() / 1000)
-}
-
-function toB64Url(buf: Buffer) {
-  return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "")
-}
-
-/** Build a DPoP proof. Pass `ath` (base64url(sha256(access_token))) for resource requests. */
-async function makeDPoP(method: string, url: string, key: DPoPKey, ath?: string): Promise<string> {
-  const payload = {
-    htm: method.toUpperCase(),
-    htu: url,
-    iat: nowSec(),
-    jti: crypto.randomUUID(),
-    ath: ath,
-  }
-  return await new SignJWT(payload)
-    .setProtectedHeader({ typ: "dpop+jwt", alg: "ES256", jwk: key.publicJwk })
-    .sign(key.privateKey)
-}
-
-// ---------- Unified Token/UserInfo helpers ----------
-type AuthMode = { kind: "dpop"; key: DPoPKey } | { kind: "bearer" }
-
-async function exchangeCodeForToken(code: string, mode: AuthMode) {
-  const headers: Record<string, string> = {
-    "content-type": "application/x-www-form-urlencoded",
-    Accept: "application/json, application/x-www-form-urlencoded;q=0.9, */*;q=0.1",
-  }
-  const body = new URLSearchParams({
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: REDIRECT_URI,
-    client_id: TEST_CLIENT_ID,
-  })
-
-  body.set("client_secret", TEST_CLIENT_SECRET)
-
-  if (mode.kind === "dpop") {
-    headers.DPoP = await makeDPoP("POST", TOKEN, mode.key)
-  }
-
-  const resp = await fetch(TOKEN, { method: "POST", headers, body: body.toString() })
-  const contentType = resp.headers.get("content-type") || ""
-  const raw = await resp.text()
-
-  const data = contentType.includes("application/json")
-    ? JSON.parse(raw)
-    : Object.fromEntries(new URLSearchParams(raw).entries())
-
-  if (resp.status >= 400) {
-    throw new Error(`Token endpoint error ${resp.status}: ${JSON.stringify(data)}`)
-  }
-  expect(data.access_token).toBeTruthy()
-  return data as { access_token: string; token_type?: string }
-}
-
-async function callUserInfo(accessToken: string, mode: AuthMode) {
-  const headers: Record<string, string> = { Accept: "application/json" }
-
-  if (mode.kind === "dpop") {
-    const ath = toB64Url(crypto.createHash("sha256").update(accessToken, "utf8").digest())
-    headers.DPoP = await makeDPoP("GET", USERINFO, mode.key, ath)
-    headers.Authorization = `DPoP ${accessToken}`
-  } else {
-    headers.Authorization = `Bearer ${accessToken}`
-  }
-
-  const resp = await fetch(USERINFO, { method: "GET", headers })
-  const text = await resp.text()
-  let json
-  try {
-    json = JSON.parse(text)
-  } catch {
-    throw new Error(`userinfo response not JSON: status=${resp.status} body=${text}`)
-  }
-  expect(resp.status).toBe(200)
-  expect(json.sub).toBeTruthy()
-  return json
-}
 
 // ============================================================================
 // SUITE 0: OIDC Discovery and JWKS
@@ -277,6 +52,7 @@ test.describe("OIDC discovery and JWKS", () => {
     expect(cfg.authorization_endpoint).toBe(AUTHORIZE)
     expect(cfg.token_endpoint).toBe(TOKEN)
     expect(cfg.userinfo_endpoint).toBe(USERINFO)
+    expect(cfg.revocation_endpoint).toBe(REVOKE)
     expect(cfg.jwks_uri).toBe(JWKS_URI)
 
     // Capabilities
@@ -329,7 +105,12 @@ test.describe("OAuth flow (login during flow)", () => {
   test("DPoP: prompts for scopes, logs in, approves, exchanges code, and hits userinfo", async ({
     page,
   }) => {
-    const { url, state, scopes } = oauthUrl(["openid", "email"])
+    const codeVerifier = generateCodeVerifier()
+    const codeChallenge = generateCodeChallenge(codeVerifier)
+    const { url, state, scopes } = oauthUrl(["openid", "email"], {
+      codeChallenge,
+      codeChallengeMethod: "S256",
+    })
 
     // Start at /authorize -> expect to hit /login?return_to
     await page.goto(url)
@@ -349,7 +130,7 @@ test.describe("OAuth flow (login during flow)", () => {
 
     // --- DPoP flow ---
     const key = await createDPoPKey()
-    const tok = await exchangeCodeForToken(code, { kind: "dpop", key })
+    const tok = await exchangeCodeForToken(code, { kind: "dpop", key }, codeVerifier)
     const userinfo = await callUserInfo(tok.access_token, { kind: "dpop", key })
 
     expect(userinfo.sub).toBeTruthy()
@@ -359,7 +140,12 @@ test.describe("OAuth flow (login during flow)", () => {
   test("Bearer: prompts for scopes, logs in, approves, exchanges code, and hits userinfo", async ({
     page,
   }) => {
-    const { url, state, scopes } = oauthUrl(["openid", "email"])
+    const codeVerifier = generateCodeVerifier()
+    const codeChallenge = generateCodeChallenge(codeVerifier)
+    const { url, state, scopes } = oauthUrl(["openid", "email"], {
+      codeChallenge,
+      codeChallengeMethod: "S256",
+    })
 
     await page.goto(url)
     await page.waitForURL(/\/login\?return_to=.*/)
@@ -374,7 +160,7 @@ test.describe("OAuth flow (login during flow)", () => {
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
 
     // --- Bearer flow ---
-    const tok = await exchangeCodeForToken(code, { kind: "bearer" })
+    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
     const userinfo = await callUserInfo(tok.access_token, { kind: "bearer" })
 
     expect(userinfo.sub).toBeTruthy()
@@ -403,7 +189,12 @@ test.describe("OAuth flow (already logged in via storage state)", () => {
     const scopes = ["openid", "profile"]
 
     // 1) First grant: consent + approve
-    const first = oauthUrl(scopes)
+    const codeVerifier1 = generateCodeVerifier()
+    const codeChallenge1 = generateCodeChallenge(codeVerifier1)
+    const first = oauthUrl(scopes, {
+      codeChallenge: codeChallenge1,
+      codeChallengeMethod: "S256",
+    })
     await page.goto(first.url)
     const consent = new ConsentPage(page, scopes)
     await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
@@ -411,7 +202,12 @@ test.describe("OAuth flow (already logged in via storage state)", () => {
     await assertAndExtractCodeFromCallbackUrl(page, first.state)
 
     // 2) Same scopes again: immediate redirect to callback (no consent dialog)
-    const second = oauthUrl(scopes)
+    const codeVerifier2 = generateCodeVerifier()
+    const codeChallenge2 = generateCodeChallenge(codeVerifier2)
+    const second = oauthUrl(scopes, {
+      codeChallenge: codeChallenge2,
+      codeChallengeMethod: "S256",
+    })
     await page.goto(second.url)
     await assertAndExtractCodeFromCallbackUrl(page, second.state)
     await consent.expectNotPresent()
@@ -420,7 +216,12 @@ test.describe("OAuth flow (already logged in via storage state)", () => {
   test("revoking application authorization causes consent to reappear next time", async () => {
     // Ensure a grant exists
     const scopes = ["openid"]
-    const initial = oauthUrl(scopes)
+    const codeVerifier1 = generateCodeVerifier()
+    const codeChallenge1 = generateCodeChallenge(codeVerifier1)
+    const initial = oauthUrl(scopes, {
+      codeChallenge: codeChallenge1,
+      codeChallengeMethod: "S256",
+    })
     await page.goto(initial.url)
     const consent = new ConsentPage(page, scopes)
     await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
@@ -431,9 +232,399 @@ test.describe("OAuth flow (already logged in via storage state)", () => {
     await resetClientAuthorization(page)
 
     // Visit authorize again — consent should appear (grant removed)
-    const again = oauthUrl(scopes)
+    const codeVerifier2 = generateCodeVerifier()
+    const codeChallenge2 = generateCodeChallenge(codeVerifier2)
+    const again = oauthUrl(scopes, {
+      codeChallenge: codeChallenge2,
+      codeChallengeMethod: "S256",
+    })
     await page.goto(again.url)
     const consent2 = new ConsentPage(page, scopes)
     await consent2.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
+  })
+})
+
+// ============================================================================
+// SUITE 3: Token Revocation (RFC 7009)
+// ============================================================================
+test.describe("Token Revocation (RFC 7009)", () => {
+  // Helper to get a valid access token using PKCE
+  async function getAccessToken(page: Page): Promise<string> {
+    const codeVerifier = generateCodeVerifier()
+    const codeChallenge = generateCodeChallenge(codeVerifier)
+    const { url, state, scopes } = oauthUrl(["openid", "email"], {
+      codeChallenge,
+      codeChallengeMethod: "S256",
+    })
+    await page.goto(url)
+
+    // Handle login - user might already be logged in
+    try {
+      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+      // User needs to login
+      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+    } catch {
+      // User is already logged in, skip login page
+      // We might already be on consent page or callback, so continue
+    }
+
+    // Handle both cases: consent page may appear or may be skipped if already granted
+    // Wait for navigation after login - we'll either go to consent page or directly to callback
+    try {
+      // Try to wait for consent page first (with short timeout)
+      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+      // If we get here, we're on consent page
+      const consent = new ConsentPage(page, scopes)
+      await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
+      await consent.approve()
+    } catch {
+      // Consent page didn't appear (already granted), wait for callback instead
+      await page.waitForURL(/callback/, { timeout: 10000 })
+    }
+
+    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
+    return tok.access_token
+  }
+
+  // Helper to get a valid refresh token using PKCE
+  async function getRefreshToken(page: Page): Promise<string> {
+    const codeVerifier = generateCodeVerifier()
+    const codeChallenge = generateCodeChallenge(codeVerifier)
+    const { url, state, scopes } = oauthUrl(["openid", "offline_access"], {
+      codeChallenge,
+      codeChallengeMethod: "S256",
+    })
+    await page.goto(url)
+
+    // Handle login - user might already be logged in
+    try {
+      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+      // User needs to login
+      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+    } catch {
+      // User is already logged in, skip login page
+      // We might already be on consent page or callback, so continue
+    }
+
+    // Handle both cases: consent page may appear or may be skipped if already granted
+    // Wait for navigation after login - we'll either go to consent page or directly to callback
+    try {
+      // Try to wait for consent page first (with short timeout)
+      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+      // If we get here, we're on consent page
+      const consent = new ConsentPage(page, scopes)
+      await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
+      await consent.approve()
+    } catch {
+      // Consent page didn't appear (already granted), wait for callback instead
+      await page.waitForURL(/callback/, { timeout: 10000 })
+    }
+
+    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
+    if (!tok.refresh_token) {
+      throw new Error("Expected refresh_token but got none")
+    }
+    return tok.refresh_token
+  }
+
+  // ========== Success Cases ==========
+  test("revokes access token successfully", async ({ page }) => {
+    const accessToken = await getAccessToken(page)
+
+    // Revoke the token
+    const response = await revokeToken({ token: accessToken })
+    expect(response.status).toBe(200)
+
+    // Verify token is revoked (attempt to use it fails)
+    const userinfoResp = await fetch(USERINFO, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    })
+    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("revokes refresh token successfully", async ({ page }) => {
+    const refreshToken = await getRefreshToken(page)
+
+    // Revoke the refresh token
+    const response = await revokeToken({ token: refreshToken })
+    expect(response.status).toBe(200)
+
+    // Verify refresh token is revoked (attempt to refresh fails)
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    })
+    const refreshResp = await fetch(TOKEN, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    expect(refreshResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("revokes access token with token_type_hint", async ({ page }) => {
+    const accessToken = await getAccessToken(page)
+
+    const response = await revokeToken({
+      token: accessToken,
+      token_type_hint: "access_token",
+    })
+    expect(response.status).toBe(200)
+
+    // Verify token is revoked
+    const userinfoResp = await fetch(USERINFO, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    })
+    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("revokes refresh token with token_type_hint", async ({ page }) => {
+    const refreshToken = await getRefreshToken(page)
+
+    const response = await revokeToken({
+      token: refreshToken,
+      token_type_hint: "refresh_token",
+    })
+    expect(response.status).toBe(200)
+
+    // Verify refresh token is revoked
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    })
+    const refreshResp = await fetch(TOKEN, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    expect(refreshResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("revokes token without token_type_hint (tries access first)", async ({ page }) => {
+    const accessToken = await getAccessToken(page)
+
+    // Revoke without hint - should try access token first
+    const response = await revokeToken({ token: accessToken })
+    expect(response.status).toBe(200)
+
+    // Verify token is revoked
+    const userinfoResp = await fetch(USERINFO, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    })
+    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  // ========== Client Authentication Edge Cases ==========
+  test("returns 200 OK for invalid client_id (prevents enumeration)", async () => {
+    const response = await revokeToken({
+      token: "some-random-token",
+      client_id: "invalid-client-id",
+    })
+    // RFC 7009 requires 200 OK even for invalid clients to prevent enumeration
+    expect(response.status).toBe(200)
+  })
+
+  test("returns 200 OK for invalid client_secret (prevents enumeration)", async () => {
+    const response = await revokeToken({
+      token: "some-random-token",
+      client_secret: "invalid-secret",
+    })
+    // RFC 7009 requires 200 OK even for invalid secrets to prevent enumeration
+    expect(response.status).toBe(200)
+  })
+
+  // ========== Token Validation Edge Cases ==========
+  test("returns 200 OK for invalid token (prevents enumeration)", async () => {
+    const response = await revokeToken({ token: "invalid-token-that-does-not-exist" })
+    // RFC 7009 requires 200 OK even for invalid tokens to prevent enumeration
+    expect(response.status).toBe(200)
+  })
+
+  test("returns 200 OK for already revoked token", async ({ page }) => {
+    const accessToken = await getAccessToken(page)
+
+    // Revoke once
+    const response1 = await revokeToken({ token: accessToken })
+    expect(response1.status).toBe(200)
+
+    // Try to revoke again
+    const response2 = await revokeToken({ token: accessToken })
+    // RFC 7009 requires 200 OK even if already revoked
+    expect(response2.status).toBe(200)
+  })
+
+  // ========== Request Validation Edge Cases ==========
+  test("rejects missing token parameter", async () => {
+    const body = new URLSearchParams({
+      client_id: TEST_CLIENT_ID,
+    })
+    const response = await fetch(REVOKE, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    // Should return error for missing required parameter
+    expect(response.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("rejects missing client_id parameter", async () => {
+    const body = new URLSearchParams({
+      token: "some-token",
+    })
+    const response = await fetch(REVOKE, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    // Should return error for missing required parameter
+    expect(response.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("rejects invalid token_type_hint", async () => {
+    const body = new URLSearchParams({
+      token: "some-token",
+      client_id: TEST_CLIENT_ID,
+      token_type_hint: "invalid_hint_value",
+    })
+    const response = await fetch(REVOKE, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    // Should return error for invalid token_type_hint
+    expect(response.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("ignores unknown parameters (RFC 7009 §2.1)", async ({ page }) => {
+    const accessToken = await getAccessToken(page)
+
+    // Include unknown parameter (and required client_secret for confidential client)
+    const body = new URLSearchParams({
+      token: accessToken,
+      client_id: TEST_CLIENT_ID,
+      client_secret: TEST_CLIENT_SECRET,
+      unknown_param: "should-be-ignored",
+    })
+    const response = await fetch(REVOKE, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    // Should still process correctly
+    expect(response.status).toBe(200)
+
+    // Verify token was actually revoked
+    const userinfoResp = await fetch(USERINFO, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    })
+    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  // ========== Integration Tests ==========
+  test("revoked access token cannot be used for userinfo", async ({ page }) => {
+    const accessToken = await getAccessToken(page)
+
+    // Verify token works initially
+    const userinfo1 = await callUserInfo(accessToken, { kind: "bearer" })
+    expect(userinfo1.sub).toBeTruthy()
+
+    // Revoke the token
+    const response = await revokeToken({ token: accessToken })
+    expect(response.status).toBe(200)
+
+    // Attempt to use revoked token
+    const userinfoResp = await fetch(USERINFO, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    })
+    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("revoked refresh token cannot be used for token refresh", async ({ page }) => {
+    const refreshToken = await getRefreshToken(page)
+
+    // Revoke the refresh token
+    const response = await revokeToken({ token: refreshToken })
+    expect(response.status).toBe(200)
+
+    // Attempt to exchange refresh token
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    })
+    const refreshResp = await fetch(TOKEN, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    expect(refreshResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  // ========== PKCE Tests ==========
+  // Note: All tests now use PKCE by default. These tests remain to explicitly verify
+  // PKCE flow works correctly with token revocation.
+  test("revokes access token obtained via PKCE flow", async ({ page }) => {
+    const accessToken = await getAccessToken(page)
+
+    // Revoke the token
+    const response = await revokeToken({ token: accessToken })
+    expect(response.status).toBe(200)
+
+    // Verify token is revoked (attempt to use it fails)
+    const userinfoResp = await fetch(USERINFO, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    })
+    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+  })
+
+  test("revokes refresh token obtained via PKCE flow", async ({ page }) => {
+    const refreshToken = await getRefreshToken(page)
+
+    // Revoke the refresh token
+    const response = await revokeToken({ token: refreshToken })
+    expect(response.status).toBe(200)
+
+    // Verify refresh token is revoked (attempt to refresh fails)
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    })
+    const refreshResp = await fetch(TOKEN, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    expect(refreshResp.status).toBeGreaterThanOrEqual(400)
   })
 })

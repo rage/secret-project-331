@@ -1,6 +1,7 @@
 use crate::domain::oauth::consent_deny_query::ConsentDenyQuery;
 use crate::domain::oauth::consent_query::ConsentQuery;
 use crate::domain::oauth::consent_response::ConsentResponse;
+use crate::domain::oauth::helpers::oauth_invalid_request;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
 use models::{oauth_client::OAuthClient, oauth_user_client_scopes::OAuthUserClientScopes};
@@ -37,9 +38,11 @@ pub async fn approve_consent(
 
     let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await?;
     if !client.redirect_uris.contains(&form.redirect_uri) {
-        return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
-            "invalid redirect URI",
-        )));
+        return Err(oauth_invalid_request(
+            "redirect_uri does not match client",
+            Some(&form.redirect_uri),
+            Some(&form.state),
+        ));
     }
 
     // Validate requested scopes against client.allowed scopes
@@ -53,23 +56,37 @@ pub async fn approve_consent(
 
     for scope in &requested_scopes {
         if !allowed_scopes.contains(scope) {
-            return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
+            return Err(oauth_invalid_request(
                 "invalid scope",
-            )));
+                None,
+                Some(&form.state),
+            ));
         }
     }
 
     OAuthUserClientScopes::insert(&mut conn, user.id, client.id, &requested_scopes).await?;
 
     // Redirect to /authorize (the OAuth authorize endpoint typically remains a GET)
-    let query = form_urlencoded::Serializer::new(String::new())
-        .append_pair("client_id", &form.client_id)
-        .append_pair("redirect_uri", &form.redirect_uri)
-        .append_pair("scope", &form.scope)
-        .append_pair("state", &form.state)
-        .append_pair("nonce", &form.nonce)
-        .append_pair("response_type", &form.response_type)
-        .finish();
+    let mut query_string = String::new();
+    {
+        let mut query_builder = form_urlencoded::Serializer::new(&mut query_string);
+        query_builder
+            .append_pair("client_id", &form.client_id)
+            .append_pair("redirect_uri", &form.redirect_uri)
+            .append_pair("scope", &form.scope)
+            .append_pair("state", &form.state)
+            .append_pair("nonce", &form.nonce)
+            .append_pair("response_type", &form.response_type);
+
+        // Preserve PKCE parameters if present
+        if let Some(code_challenge) = &form.code_challenge {
+            query_builder.append_pair("code_challenge", code_challenge);
+        }
+        if let Some(code_challenge_method) = &form.code_challenge_method {
+            query_builder.append_pair("code_challenge_method", code_challenge_method);
+        }
+    }
+    let query = query_string;
 
     // Relative Location: browser resolves against current origin
     let location = format!("/api/v0/main-frontend/oauth/authorize?{}", query);

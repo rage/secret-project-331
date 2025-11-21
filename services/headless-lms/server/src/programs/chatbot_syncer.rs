@@ -423,7 +423,7 @@ async fn sync_pages_batch(
         // Azure Blob Storage metadata values must be ASCII-only. URL-encode values that may
         // contain non-ASCII characters (e.g., Finnish characters like ä, ö) to ensure they
         // are ASCII-compatible. We decode the url and the title before we save them in our database.
-        metadata.insert("url".to_string(), url_encode(&page_url.to_string()));
+        metadata.insert("url".to_string(), url_encode(page_url.as_ref()));
         metadata.insert("title".to_string(), url_encode(&page.title));
         metadata.insert(
             "course_id".to_string(),

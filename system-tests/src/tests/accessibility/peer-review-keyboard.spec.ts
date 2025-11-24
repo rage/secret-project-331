@@ -5,7 +5,7 @@ import { answerExercise } from "../peer-reviews/peer_review_utils"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 
 const TEST_PAGE =
-  "http://project-331.local/org/uh-mathstat/courses/accessibility-peer-review-course/chapter-1/can-give-extra-reviews"
+  "http://project-331.local/org/uh-mathstat/courses/peer-review-accessibility-course/chapter-1/can-give-extra-reviews"
 
 test.describe("Students should be able to navigate and select peer review radiobuttons", () => {
   test.use({

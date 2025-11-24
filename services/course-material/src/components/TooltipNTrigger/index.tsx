@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React, { ReactNode } from "react"
 import { Tooltip, TooltipTrigger } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -27,7 +28,13 @@ const TooltipNTrigger: React.FC<TooltipNTriggerProps> = (props) => {
   if (props.variant === "references") {
     return (
       <TooltipTrigger delay={200} closeDelay={200}>
-        <sup>
+        <sup
+          className={css`
+            /** This is to make the superscript not to change line spacing **/
+            line-height: 0;
+            display: inline-block;
+          `}
+        >
           <TooltipNTriggerAnchor href={props.href}>{children}</TooltipNTriggerAnchor>
         </sup>
         <Tooltip>

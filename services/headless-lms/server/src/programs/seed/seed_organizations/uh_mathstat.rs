@@ -405,8 +405,8 @@ pub async fn seed_organization_uh_mathstat(
 
     let _closed_course_id = seed_peer_review_course_without_submissions(
         Uuid::parse_str("16159801-cf70-4f9c-9cba-2110c3bd4622")?,
-        "Accessibility course",
-        "accessibility-course",
+        "Accessibility peer review course",
+        "accessibility-peer-review-course",
         uh_data.clone(),
     )
     .await?;

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import _ from "lodash"
 import React, { useState } from "react"
-import { Button, VisuallyHidden } from "react-aria-components"
+import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
@@ -76,32 +76,49 @@ const ChooseN: React.FunctionComponent<
       >
         {quizItem.title || quizItem.body}
       </h2>
-      <div
-        className={css`
-          display: flex;
-          flex-wrap: wrap;
-        `}
-      >
-        {quizItem.options.map((o) => {
-          const isSelected = quizItemAnswerState?.selectedOptionIds?.includes(o.id) ?? false
-          return (
-            <Button
-              key={o.id}
-              onPress={() => handleOptionSelect(o.id)}
-              aria-pressed={isSelected}
-              className={css`
-                ${TWO_DIMENSIONAL_BUTTON_STYLES}
-                ${isSelected && TWO_DIMENSIONAL_BUTTON_SELECTED}
-              `}
-            >
-              {o.title || o.body}
-            </Button>
-          )
-        })}
+      <div>
+        <div
+          className={css`
+            display: flex;
+            flex-wrap: wrap;
+          `}
+        >
+          {quizItem.options.map((o) => {
+            const isSelected = quizItemAnswerState?.selectedOptionIds?.includes(o.id) ?? false
+            return (
+              <Button
+                key={o.id}
+                onPress={() => handleOptionSelect(o.id)}
+                aria-pressed={isSelected}
+                className={css`
+                  ${TWO_DIMENSIONAL_BUTTON_STYLES}
+                  ${isSelected && TWO_DIMENSIONAL_BUTTON_SELECTED}
+                `}
+              >
+                {o.title || o.body}
+              </Button>
+            )
+          })}
+        </div>
+        {announcement && (
+          <div
+            aria-live="polite"
+            aria-atomic
+            className={css`
+              margin-top: 1rem;
+              padding: 0.875rem;
+              border-radius: 0.5rem;
+              background-color: #fff4e6;
+              border: 2px solid #ffa94d;
+              color: #d9480f;
+              font-size: 1rem;
+              line-height: 1.5;
+            `}
+          >
+            {announcement}
+          </div>
+        )}
       </div>
-      <VisuallyHidden aria-live="polite" aria-atomic>
-        {announcement}
-      </VisuallyHidden>
     </div>
   )
 }

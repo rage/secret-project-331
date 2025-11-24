@@ -44,14 +44,12 @@ test.describe("Choose N exercise accessibility", () => {
       await expect(secondButton).toBeFocused()
       await page.keyboard.press(" ")
       await expect(secondButton).toHaveAttribute("aria-pressed", "true")
-
-      await page.keyboard.press("Tab")
-      await expect(thirdButton).toBeFocused()
     })
 
     await test.step("All buttons remain focusable when limit is reached", async () => {
-      await page.keyboard.press(" ")
-      await expect(thirdButton).toHaveAttribute("aria-pressed", "true")
+      await page.keyboard.press("Tab")
+      await expect(thirdButton).toBeFocused()
+      await expect(thirdButton).toBeEnabled()
 
       await page.keyboard.press("Shift+Tab")
       await expect(secondButton).toBeFocused()
@@ -62,30 +60,33 @@ test.describe("Choose N exercise accessibility", () => {
       await expect(firstButton).toBeEnabled()
     })
 
-    await test.step("Aria-live announcement when trying to select more than allowed", async () => {
+    await test.step("Visible announcement when trying to select more than allowed", async () => {
+      await page.keyboard.press("Tab")
       await page.keyboard.press("Tab")
       await expect(thirdButton).toBeFocused()
-
-      const liveRegion = quizzesIframe.locator('[aria-live="polite"]')
-      await expect(liveRegion).toBeVisible()
+      await expect(thirdButton).toHaveAttribute("aria-pressed", "false")
 
       await page.keyboard.press(" ")
       // eslint-disable-next-line playwright/no-wait-for-timeout
       await page.waitForTimeout(100)
+
+      const liveRegion = quizzesIframe.locator('[aria-live="polite"]')
+      await expect(liveRegion).toBeVisible()
       const announcementText = await liveRegion.textContent()
       expect(announcementText).toContain("You have already chosen")
       expect(announcementText).toContain("Please remove a choice")
+      await expect(thirdButton).toHaveAttribute("aria-pressed", "false")
     })
 
     await test.step("Can deselect options to choose different ones", async () => {
       await firstButton.click()
       await expect(firstButton).toHaveAttribute("aria-pressed", "false")
 
-      await thirdButton.click()
-      await expect(thirdButton).toHaveAttribute("aria-pressed", "false")
-
       await secondButton.click()
       await expect(secondButton).toHaveAttribute("aria-pressed", "false")
+
+      await thirdButton.click()
+      await expect(thirdButton).toHaveAttribute("aria-pressed", "true")
 
       await firstButton.click()
       await expect(firstButton).toHaveAttribute("aria-pressed", "true")

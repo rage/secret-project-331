@@ -6,6 +6,7 @@ export const USERINFO = `${BASE}/api/v0/main-frontend/oauth/userinfo`
 export const WELL_KNOWN = `${BASE}/api/v0/main-frontend/oauth/.well-known/openid-configuration`
 export const JWKS_URI = `${BASE}/api/v0/main-frontend/oauth/jwks.json`
 export const REVOKE = `${BASE}/api/v0/main-frontend/oauth/revoke`
+export const INTROSPECT = `${BASE}/api/v0/main-frontend/oauth/introspect`
 
 // Test client constants
 export const TEST_CLIENT_ID = "test-client-id"

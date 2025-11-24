@@ -28,6 +28,7 @@ pub struct OAuthAccessToken {
 
     pub metadata: serde_json::Value,
     pub expires_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone)]
@@ -116,7 +117,8 @@ impl OAuthAccessToken {
               dpop_jkt,
               token_type    as "token_type: TokenType",
               metadata,
-              expires_at
+              expires_at,
+              created_at
             FROM oauth_access_tokens
             WHERE digest = $1 AND expires_at > now()
             "#,

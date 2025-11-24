@@ -26,6 +26,7 @@ import "./token/refresh"
 import "./userinfo/bearer"
 import "./userinfo/dpop"
 import "./userinfo/scopes"
+import "./introspect"
 
 // Setup redirect server for all OAuth tests
 test.beforeAll(async () => {

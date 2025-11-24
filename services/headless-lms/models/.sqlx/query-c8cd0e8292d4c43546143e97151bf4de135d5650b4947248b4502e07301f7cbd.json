@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n              digest        as \"digest: _\",\n              user_id,\n              client_id,\n              scopes,\n              audience,\n              jti,\n              dpop_jkt,\n              token_type    as \"token_type: TokenType\",\n              metadata,\n              expires_at\n            FROM oauth_access_tokens\n            WHERE digest = $1 AND expires_at > now()\n            ",
+  "query": "\n            SELECT\n              digest        as \"digest: _\",\n              user_id,\n              client_id,\n              scopes,\n              audience,\n              jti,\n              dpop_jkt,\n              token_type    as \"token_type: TokenType\",\n              metadata,\n              expires_at,\n              created_at\n            FROM oauth_access_tokens\n            WHERE digest = $1 AND expires_at > now()\n            ",
   "describe": {
     "columns": [
       {
@@ -62,6 +62,11 @@
         "ordinal": 9,
         "name": "expires_at",
         "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
@@ -79,8 +84,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "756d47ffc4390b56c6a489ca921269bf9bdb00a2eabe896203813677bbea06f8"
+  "hash": "c8cd0e8292d4c43546143e97151bf4de135d5650b4947248b4502e07301f7cbd"
 }

@@ -360,45 +360,4 @@ test.describe("Token Revocation (RFC 7009)", () => {
     })
     expect(refreshResp.status).toBeGreaterThanOrEqual(400)
   })
-
-  // ========== PKCE Tests ==========
-  // Note: All tests now use PKCE by default. These tests remain to explicitly verify
-  // PKCE flow works correctly with token revocation.
-  test("revokes access token obtained via PKCE flow", async ({ page }) => {
-    const accessToken = await getAccessToken(page)
-
-    // Revoke the token
-    const response = await revokeToken({ token: accessToken })
-    expect(response.status).toBe(200)
-
-    // Verify token is revoked (attempt to use it fails)
-    const userinfoResp = await fetch(USERINFO, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
-    })
-    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
-  })
-
-  test("revokes refresh token obtained via PKCE flow", async ({ page }) => {
-    const refreshToken = await getRefreshToken(page)
-
-    // Revoke the refresh token
-    const response = await revokeToken({ token: refreshToken })
-    expect(response.status).toBe(200)
-
-    // Verify refresh token is revoked (attempt to refresh fails)
-    const body = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-    })
-    const refreshResp = await fetch(TOKEN, {
-      method: "POST",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: body.toString(),
-    })
-    expect(refreshResp.status).toBeGreaterThanOrEqual(400)
-  })
 })

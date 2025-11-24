@@ -10,7 +10,7 @@ import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 test.describe("/authorize endpoint - Parameter Validation", () => {
   const validState = "test-state-123"
 
-  test("missing client_id → invalid_request error response", async () => {
+  test("missing client_id -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       redirect_uri: REDIRECT_URI,
@@ -23,7 +23,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(response.status).toBe(400)
   })
 
-  test("missing redirect_uri → invalid_request error response", async () => {
+  test("missing redirect_uri -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
@@ -35,7 +35,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(response.status).toBe(400)
   })
 
-  test("missing scope → invalid_request error response", async () => {
+  test("missing scope -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
@@ -47,7 +47,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(response.status).toBe(400)
   })
 
-  test("missing response_type → invalid_request error response", async () => {
+  test("missing response_type -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       client_id: TEST_CLIENT_ID,
       redirect_uri: REDIRECT_URI,
@@ -59,7 +59,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(response.status).toBe(400)
   })
 
-  test("empty client_id → invalid_request error response", async () => {
+  test("empty client_id -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: "",
@@ -72,7 +72,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(response.status).toBe(400)
   })
 
-  test("empty redirect_uri → invalid_request error response", async () => {
+  test("empty redirect_uri -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
@@ -85,7 +85,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(response.status).toBe(400)
   })
 
-  test("empty scope → invalid_request error response", async () => {
+  test("empty scope -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
@@ -98,7 +98,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(response.status).toBe(400)
   })
 
-  test("invalid response_type (not 'code') → unsupported_response_type error response", async () => {
+  test("invalid response_type (not 'code') -> unsupported_response_type error response", async () => {
     const params = new URLSearchParams({
       response_type: "token",
       client_id: TEST_CLIENT_ID,
@@ -111,7 +111,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(response.status).toBe(400)
   })
 
-  test("unknown parameters → should be ignored (RFC 6749 §3.1)", async ({ page }) => {
+  test("unknown parameters -> should be ignored (RFC 6749 §3.1)", async ({ page }) => {
     const codeVerifier = generateCodeVerifier()
     const codeChallenge = generateCodeChallenge(codeVerifier)
     const { url } = await oauthUrl(["openid"], {
@@ -133,7 +133,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     ).toBe(true)
   })
 
-  test("invalid client_id → invalid_request error response", async () => {
+  test("invalid client_id -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: "non-existent-client-id",
@@ -151,7 +151,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(data.error_description).toContain("client_id")
   })
 
-  test("unregistered redirect_uri → invalid_request error response", async () => {
+  test("unregistered redirect_uri -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
@@ -169,7 +169,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(data.error_description).toContain("redirect_uri")
   })
 
-  test("redirect_uri with fragment → should fail (per OAuth spec)", async () => {
+  test("redirect_uri with fragment -> should fail (per OAuth spec)", async () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
@@ -186,7 +186,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     expect(data.error_description).toContain("redirect_uri")
   })
 
-  test("redirect_uri exact match → succeed", async ({ page }) => {
+  test("redirect_uri exact match -> succeed", async ({ page }) => {
     const codeVerifier = generateCodeVerifier()
     const codeChallenge = generateCodeChallenge(codeVerifier)
     const { url } = await oauthUrl(["openid"], {

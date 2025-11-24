@@ -84,10 +84,8 @@ test.describe("/token endpoint - Token Issuance", () => {
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
 
     expect(tok.refresh_token).toBeTruthy()
-    if (tok.refresh_token) {
-      expect(typeof tok.refresh_token).toBe("string")
-      expect(tok.refresh_token.length).toBeGreaterThan(0)
-    }
+    expect(typeof tok.refresh_token).toBe("string")
+    expect(tok.refresh_token!.length).toBeGreaterThan(0)
   })
 
   test("tokens are unique (different tokens for different requests)", async ({ page }) => {
@@ -199,38 +197,5 @@ test.describe("/token endpoint - Token Issuance", () => {
     expect(response.status).toBe(200)
     expect(response.headers.get("Cache-Control")).toBe("no-store")
     expect(response.headers.get("Pragma")).toBe("no-cache")
-  })
-
-  test("response is JSON", async ({ page }) => {
-    const codeVerifier = generateCodeVerifier()
-    const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state } = await oauthUrl(["openid"], {
-      codeChallenge,
-      codeChallengeMethod: "S256",
-    })
-    await page.goto(url)
-
-    try {
-      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    try {
-      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      const consent = new ConsentPage(page, ["openid"])
-      await consent.approve()
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    await page.waitForURL(/callback/, { timeout: 10000 })
-    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-
-    // Exchange code for token
-    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    expect(typeof tok).toBe("object")
-    expect(tok.access_token).toBeTruthy()
   })
 })

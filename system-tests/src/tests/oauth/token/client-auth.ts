@@ -48,7 +48,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     return { code, codeVerifier }
   }
 
-  test("confidential client without client_secret → invalid_client error", async ({ page }) => {
+  test("confidential client without client_secret -> invalid_client error", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 
     // Try to exchange without client_secret
@@ -73,7 +73,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     expect(data.error).toBe("invalid_client")
   })
 
-  test("confidential client with wrong client_secret → invalid_client error", async ({ page }) => {
+  test("confidential client with wrong client_secret -> invalid_client error", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 
     // Try to exchange with wrong client_secret
@@ -98,7 +98,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     expect(data.error).toBe("invalid_client")
   })
 
-  test("confidential client with correct client_secret → succeed", async ({ page }) => {
+  test("confidential client with correct client_secret -> succeed", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 
     // Exchange with correct client_secret
@@ -106,7 +106,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     expect(tok.access_token).toBeTruthy()
   })
 
-  test("invalid client_id → invalid_client error", async () => {
+  test("invalid client_id -> invalid_client error", async () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code: "some-code",

@@ -18,7 +18,7 @@ import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 // /authorize endpoint - User Authentication State
 // ============================================================================
 test.describe("/authorize endpoint - User Authentication State", () => {
-  test("not logged in → redirect to /login?return_to=...", async ({ page }) => {
+  test("not logged in -> redirect to /login?return_to=...", async ({ page }) => {
     const codeVerifier = generateCodeVerifier()
     const codeChallenge = generateCodeChallenge(codeVerifier)
     const { url } = await oauthUrl(["openid"], {
@@ -32,7 +32,7 @@ test.describe("/authorize endpoint - User Authentication State", () => {
     expect(loginUrl.searchParams.has("return_to")).toBe(true)
   })
 
-  test("logged in, all scopes already granted → issue code immediately", async ({ browser }) => {
+  test("logged in, all scopes already granted -> issue code immediately", async ({ browser }) => {
     const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
     const page = await ctx.newPage()
 
@@ -90,7 +90,7 @@ test.describe("/authorize endpoint - User Authentication State", () => {
     }
   })
 
-  test("logged in, missing scopes → redirect to consent page", async ({ browser }) => {
+  test("logged in, missing scopes -> redirect to consent page", async ({ browser }) => {
     const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
     const page = await ctx.newPage()
 

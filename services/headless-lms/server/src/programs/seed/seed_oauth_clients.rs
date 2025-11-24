@@ -24,7 +24,10 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         "email".to_string(),
         "offline_access".to_string(),
     ];
-    let allowed_grant_types = vec![GrantTypeName::AuthorizationCode];
+    let allowed_grant_types = vec![
+        GrantTypeName::AuthorizationCode,
+        GrantTypeName::RefreshToken,
+    ];
     let pkce_methods_allowed = vec![pkce::PkceMethod::S256];
     let new_client_parms = oauth_client::NewClientParams {
         client_name: "Test Client",

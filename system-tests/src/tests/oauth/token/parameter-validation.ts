@@ -19,7 +19,7 @@ import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 // /token endpoint - Parameter Validation
 // ============================================================================
 test.describe("/token endpoint - Parameter Validation", () => {
-  test("missing client_id → invalid_client error", async () => {
+  test("missing client_id -> invalid_client error", async () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code: "some-code",
@@ -37,7 +37,7 @@ test.describe("/token endpoint - Parameter Validation", () => {
     expect(data.error).toBe("invalid_client")
   })
 
-  test("missing grant_type → invalid_request error", async () => {
+  test("missing grant_type -> invalid_request error", async () => {
     const body = new URLSearchParams({
       client_id: TEST_CLIENT_ID,
       code: "some-code",
@@ -55,7 +55,7 @@ test.describe("/token endpoint - Parameter Validation", () => {
     expect(data.error).toBe("invalid_request")
   })
 
-  test("invalid grant_type → unsupported_grant_type error", async () => {
+  test("invalid grant_type -> unsupported_grant_type error", async () => {
     const body = new URLSearchParams({
       client_id: TEST_CLIENT_ID,
       grant_type: "client_credentials",
@@ -74,7 +74,7 @@ test.describe("/token endpoint - Parameter Validation", () => {
     expect(data.error).toBe("unsupported_grant_type")
   })
 
-  test("unknown parameters → should be ignored", async ({ page }) => {
+  test("unknown parameters -> should be ignored", async ({ page }) => {
     const codeVerifier = generateCodeVerifier()
     const codeChallenge = generateCodeChallenge(codeVerifier)
     const { url, state } = await oauthUrl(["openid"], {

@@ -42,56 +42,57 @@ test.describe("/userinfo endpoint - Scope-Based Claims", () => {
     return tok.access_token
   }
 
-  test("token with profile scope → sub, first_name, last_name returned", async ({ page }) => {
+  test("token with profile scope -> sub, first_name, last_name returned", async ({ page }) => {
     const accessToken = await getTokenWithScopes(page, ["openid", "profile"])
     const userinfo = await callUserInfo(accessToken, { kind: "bearer" })
 
     expect(userinfo.sub).toBeTruthy()
-    // Profile claims may be present (depending on user data)
-    expect(userinfo).toHaveProperty("sub")
+    expect(typeof userinfo.sub).toBe("string")
+    // Profile scope should include given_name and family_name fields
+    // (fields may be null if user hasn't set names, but fields should exist)
+    expect(userinfo).toHaveProperty("given_name")
+    expect(userinfo).toHaveProperty("family_name")
+    // Email should NOT be present without email scope
+    expect(userinfo).not.toHaveProperty("email")
   })
 
-  test("token with email scope → sub, email returned", async ({ page }) => {
+  test("token with email scope -> sub, email returned", async ({ page }) => {
     const accessToken = await getTokenWithScopes(page, ["openid", "email"])
     const userinfo = await callUserInfo(accessToken, { kind: "bearer" })
 
     expect(userinfo.sub).toBeTruthy()
-    // Email claim may be present (depending on user data)
-    expect(userinfo).toHaveProperty("sub")
+    expect(typeof userinfo.sub).toBe("string")
+    // Email scope should include email field
+    expect(userinfo).toHaveProperty("email")
+    expect(typeof userinfo.email).toBe("string")
+    // Profile fields should NOT be present without profile scope
+    expect(userinfo).not.toHaveProperty("given_name")
+    expect(userinfo).not.toHaveProperty("family_name")
   })
 
-  test("token with profile and email → all claims returned", async ({ page }) => {
+  test("token with profile and email -> all claims returned", async ({ page }) => {
     const accessToken = await getTokenWithScopes(page, ["openid", "profile", "email"])
     const userinfo = await callUserInfo(accessToken, { kind: "bearer" })
 
     expect(userinfo.sub).toBeTruthy()
-    // Should have sub at minimum
-    expect(userinfo).toHaveProperty("sub")
+    expect(typeof userinfo.sub).toBe("string")
+    // With both scopes, all claim fields should be present
+    expect(userinfo).toHaveProperty("given_name")
+    expect(userinfo).toHaveProperty("family_name")
+    expect(userinfo).toHaveProperty("email")
+    expect(typeof userinfo.email).toBe("string")
   })
 
-  test("token with openid only → only sub returned (no profile/email)", async ({ page }) => {
-    const accessToken = await getTokenWithScopes(page, ["openid"])
-    const userinfo = await callUserInfo(accessToken, { kind: "bearer" })
-
-    expect(userinfo.sub).toBeTruthy()
-    // With only openid, should have sub but not necessarily profile/email claims
-    expect(userinfo).toHaveProperty("sub")
-  })
-
-  test("response includes sub (always)", async ({ page }) => {
+  test("token with openid only -> only sub returned (no profile/email)", async ({ page }) => {
     const accessToken = await getTokenWithScopes(page, ["openid"])
     const userinfo = await callUserInfo(accessToken, { kind: "bearer" })
 
     expect(userinfo.sub).toBeTruthy()
     expect(typeof userinfo.sub).toBe("string")
-  })
-
-  test("response is JSON", async ({ page }) => {
-    const accessToken = await getTokenWithScopes(page, ["openid", "profile", "email"])
-    const userinfo = await callUserInfo(accessToken, { kind: "bearer" })
-
-    expect(typeof userinfo).toBe("object")
-    expect(userinfo).toHaveProperty("sub")
+    // With only openid, should have sub but NOT profile/email claims
+    expect(userinfo).not.toHaveProperty("given_name")
+    expect(userinfo).not.toHaveProperty("family_name")
+    expect(userinfo).not.toHaveProperty("email")
   })
 
   test("response has Cache-Control: no-store header", async ({ page }) => {

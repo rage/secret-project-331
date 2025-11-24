@@ -48,7 +48,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     return { code, codeVerifier }
   }
 
-  test("missing code parameter → invalid_request error", async () => {
+  test("missing code parameter -> invalid_request error", async () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       redirect_uri: REDIRECT_URI,
@@ -68,7 +68,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_request")
   })
 
-  test("empty code parameter → invalid_request error", async () => {
+  test("empty code parameter -> invalid_request error", async () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code: "",
@@ -89,7 +89,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_request")
   })
 
-  test("invalid/unknown authorization code → invalid_grant error", async () => {
+  test("invalid/unknown authorization code -> invalid_grant error", async () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code: "invalid-code-that-does-not-exist",
@@ -110,7 +110,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_grant")
   })
 
-  test("already used authorization code → invalid_grant error", async ({ page }) => {
+  test("already used authorization code -> invalid_grant error", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 
     // First exchange - should succeed
@@ -139,7 +139,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_grant")
   })
 
-  test("code with PKCE challenge, missing code_verifier → invalid_grant error", async ({
+  test("code with PKCE challenge, missing code_verifier -> invalid_grant error", async ({
     page,
   }) => {
     const { code } = await getValidAuthCode(page)
@@ -166,7 +166,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_grant")
   })
 
-  test("code with PKCE challenge, wrong code_verifier → invalid_grant error", async ({ page }) => {
+  test("code with PKCE challenge, wrong code_verifier -> invalid_grant error", async ({ page }) => {
     const { code } = await getValidAuthCode(page)
 
     // Try to exchange with wrong code_verifier
@@ -192,7 +192,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_grant")
   })
 
-  test("code with PKCE challenge, correct code_verifier → succeed", async ({ page }) => {
+  test("code with PKCE challenge, correct code_verifier -> succeed", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 
     // Exchange with correct code_verifier

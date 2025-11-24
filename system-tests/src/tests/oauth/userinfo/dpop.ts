@@ -47,13 +47,13 @@ test.describe("/userinfo endpoint - DPoP Token Validation", () => {
     return { accessToken: tok.access_token, key }
   }
 
-  test("valid DPoP token with DPoP header → succeed", async ({ page }) => {
+  test("valid DPoP token with DPoP header -> succeed", async ({ page }) => {
     const { accessToken, key } = await getDPoPToken(page)
     const userinfo = await callUserInfo(accessToken, { kind: "dpop", key })
     expect(userinfo.sub).toBeTruthy()
   })
 
-  test("DPoP token used with Bearer scheme → invalid_token error", async ({ page }) => {
+  test("DPoP token used with Bearer scheme -> invalid_token error", async ({ page }) => {
     const { accessToken } = await getDPoPToken(page)
 
     // Try to use DPoP token with Bearer scheme
@@ -69,7 +69,7 @@ test.describe("/userinfo endpoint - DPoP Token Validation", () => {
     expect(data.error).toBe("invalid_token")
   })
 
-  test("DPoP token without DPoP header → invalid_dpop_proof error", async ({ page }) => {
+  test("DPoP token without DPoP header -> invalid_dpop_proof error", async ({ page }) => {
     const { accessToken } = await getDPoPToken(page)
 
     // Try to use DPoP token without DPoP header
@@ -84,12 +84,5 @@ test.describe("/userinfo endpoint - DPoP Token Validation", () => {
     expect(response.status).toBe(401)
     const data = await response.json()
     expect(data.error).toBe("invalid_dpop_proof")
-  })
-
-  test("DPoP nonce handling (retry with nonce)", async ({ page }) => {
-    // This is already tested in the callUserInfo helper which handles nonce retries
-    const { accessToken, key } = await getDPoPToken(page)
-    const userinfo = await callUserInfo(accessToken, { kind: "dpop", key })
-    expect(userinfo.sub).toBeTruthy()
   })
 })

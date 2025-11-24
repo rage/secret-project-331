@@ -17,7 +17,7 @@ import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 // /authorize endpoint - Boundary Conditions
 // ============================================================================
 test.describe("/authorize endpoint - Boundary Conditions", () => {
-  test("very long state parameter → should work", async ({ browser }) => {
+  test("very long state parameter -> should work", async ({ browser }) => {
     const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
     const page = await ctx.newPage()
 
@@ -42,7 +42,7 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
     }
   })
 
-  test("state with special characters → should be preserved", async ({ browser }) => {
+  test("state with special characters -> should be preserved", async ({ browser }) => {
     const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
     const page = await ctx.newPage()
 
@@ -72,7 +72,7 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
     }
   })
 
-  test("multiple scopes with various whitespace → should normalize correctly", async ({
+  test("multiple scopes with various whitespace -> should normalize correctly", async ({
     browser,
   }) => {
     const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })

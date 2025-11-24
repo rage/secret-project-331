@@ -52,7 +52,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     return tok.refresh_token
   }
 
-  test("missing refresh_token parameter → invalid_request error", async () => {
+  test("missing refresh_token parameter -> invalid_request error", async () => {
     const body = new URLSearchParams({
       grant_type: "refresh_token",
       client_id: TEST_CLIENT_ID,
@@ -71,7 +71,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     expect(data.error).toBe("invalid_request")
   })
 
-  test("empty refresh_token parameter → invalid_request error", async () => {
+  test("empty refresh_token parameter -> invalid_request error", async () => {
     const body = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: "",
@@ -91,7 +91,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     expect(data.error).toBe("invalid_request")
   })
 
-  test("invalid/unknown refresh token → invalid_grant error", async () => {
+  test("invalid/unknown refresh token -> invalid_grant error", async () => {
     const body = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: "invalid-refresh-token-that-does-not-exist",
@@ -108,9 +108,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     })
     expect(response.status).toBeGreaterThanOrEqual(400)
     const data = await response.json()
-    // The error could be unsupported_grant_type if client doesn't allow refresh_token,
-    // or invalid_grant if the token is invalid. Let's check both.
-    expect(["invalid_grant", "unsupported_grant_type"]).toContain(data.error)
+    expect(data.error).toBe("invalid_grant")
   })
 
   test("refresh token rotation - old token revoked after use", async ({ page }) => {
@@ -131,14 +129,6 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
       },
       body: body.toString(),
     })
-    // Client might not support refresh_token grant type, so check for that first
-    if (response.status === 400) {
-      const data = await response.json()
-      if (data.error === "unsupported_grant_type") {
-        test.skip() // Skip this test if refresh_token grant is not supported
-        return
-      }
-    }
     expect(response.status).toBe(200)
     const data = await response.json()
     expect(data.access_token).toBeTruthy()
@@ -184,7 +174,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     expect(data3.access_token).toBeTruthy()
   })
 
-  test("revoked refresh token → invalid_grant error", async ({ page }) => {
+  test("revoked refresh token -> invalid_grant error", async ({ page }) => {
     const refreshToken = await getRefreshToken(page)
 
     // Revoke the refresh token
@@ -207,8 +197,6 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     })
     expect(response.status).toBeGreaterThanOrEqual(400)
     const data = await response.json()
-    // The error could be unsupported_grant_type if client doesn't allow refresh_token,
-    // or invalid_grant if the token is invalid. Let's check both.
-    expect(["invalid_grant", "unsupported_grant_type"]).toContain(data.error)
+    expect(data.error).toBe("invalid_grant")
   })
 })

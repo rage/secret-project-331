@@ -9,7 +9,7 @@ import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 // /authorize endpoint - PKCE Validation
 // ============================================================================
 test.describe("/authorize endpoint - PKCE Validation", () => {
-  test("client requires PKCE, missing code_challenge → invalid_request error redirect", async ({
+  test("client requires PKCE, missing code_challenge -> invalid_request error redirect", async ({
     page,
   }) => {
     // Test client requires PKCE (require_pkce: true in seed data)
@@ -26,7 +26,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     expect(error.error_description?.toLowerCase()).toContain("pkce")
   })
 
-  test("code_challenge without code_challenge_method → invalid_request error redirect", async ({
+  test("code_challenge without code_challenge_method -> invalid_request error redirect", async ({
     page,
   }) => {
     const codeVerifier = generateCodeVerifier()
@@ -45,7 +45,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     expect(error.error).toBe("invalid_request")
   })
 
-  test("code_challenge_method without code_challenge → invalid_request error redirect", async ({
+  test("code_challenge_method without code_challenge -> invalid_request error redirect", async ({
     page,
   }) => {
     const params = new URLSearchParams({
@@ -62,7 +62,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     expect(error.error).toBe("invalid_request")
   })
 
-  test("invalid code_challenge_method (not 'S256' or 'plain') → invalid_request error redirect", async ({
+  test("invalid code_challenge_method (not 'S256' or 'plain') -> invalid_request error redirect", async ({
     page,
   }) => {
     const codeVerifier = generateCodeVerifier()
@@ -81,7 +81,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     expect(error.error).toBe("invalid_request")
   })
 
-  test("valid S256 challenge → succeed", async ({ page }) => {
+  test("valid S256 challenge -> succeed", async ({ page }) => {
     const codeVerifier = generateCodeVerifier()
     const codeChallenge = generateCodeChallenge(codeVerifier)
     const { url } = await oauthUrl(["openid"], {

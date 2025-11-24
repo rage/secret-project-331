@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import _ from "lodash"
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -23,6 +23,15 @@ const ChooseN: React.FunctionComponent<
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const [announcement, setAnnouncement] = useState<string>("")
+  const announcementTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (announcementTimeoutRef.current) {
+        clearTimeout(announcementTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleOptionSelect = (selectedOptionId: string) => {
     if (!quizItemAnswerState) {
@@ -39,8 +48,11 @@ const ChooseN: React.FunctionComponent<
     const isAtLimit = quizItemAnswerState.selectedOptionIds.length == quizItem.n
 
     if (!isSelected && isAtLimit) {
+      if (announcementTimeoutRef.current) {
+        clearTimeout(announcementTimeoutRef.current)
+      }
       setAnnouncement(t("choose-n-limit-reached", { count: quizItem.n }))
-      setTimeout(() => setAnnouncement(""), 1000)
+      announcementTimeoutRef.current = setTimeout(() => setAnnouncement(""), 1000)
       return
     }
 

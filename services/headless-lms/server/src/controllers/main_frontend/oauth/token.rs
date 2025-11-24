@@ -137,7 +137,16 @@ pub async fn token(
 
     // DPoP vs Bearer selection
     let dpop_jkt_opt = if let Some(_) = req.headers().get("DPoP") {
-        Some(verify_dpop_from_actix(&mut conn, &req, "POST", None).await?)
+        Some(
+            verify_dpop_from_actix(
+                &mut conn,
+                &req,
+                "POST",
+                &app_conf.oauth_server_configuration.dpop_nonce_key,
+                None,
+            )
+            .await?,
+        )
     } else {
         if !client.bearer_allowed {
             return Err(oauth_invalid_client(
@@ -205,4 +214,8 @@ pub async fn token(
     };
 
     server_token.authorized_ok(ok_json_no_cache(response))
+}
+
+pub fn _add_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route("/token", web::post().to(token));
 }

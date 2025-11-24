@@ -45,3 +45,11 @@ pub async fn delete_authorized_client(
 
     token.authorized_ok(HttpResponse::NoContent().finish())
 }
+
+pub fn _add_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route("/authorized-clients", web::get().to(get_authorized_clients))
+        .route(
+            "/authorized-clients/{client_id}",
+            web::delete().to(delete_authorized_client),
+        );
+}

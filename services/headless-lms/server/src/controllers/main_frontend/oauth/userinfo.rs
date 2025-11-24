@@ -4,6 +4,7 @@ use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use dpop_verifier::DpopError;
+use headless_lms_utils::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256,
     oauth_access_token::{OAuthAccessToken, TokenType},
@@ -20,10 +21,11 @@ use std::collections::HashSet;
 /// - Returns `sub` always; `first_name`/`last_name` with `profile`; `email` with `email`
 ///
 /// Follows OIDC Core §5.3.
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 pub async fn user_info(
     pool: web::Data<sqlx::PgPool>,
     req: actix_web::HttpRequest,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
@@ -133,8 +135,14 @@ pub async fn user_info(
             })?;
 
             // Verify proof (includes `ath` = hash of raw_token)
-            let presented_jkt =
-                verify_dpop_from_actix(&mut conn, &req, "GET", Some(raw_token)).await?;
+            let presented_jkt = verify_dpop_from_actix(
+                &mut conn,
+                &req,
+                "GET",
+                &app_conf.oauth_server_configuration.dpop_nonce_key,
+                Some(raw_token),
+            )
+            .await?;
             if presented_jkt != bound_jkt {
                 return Err(DpopError::AthMismatch.into());
             }
@@ -184,4 +192,8 @@ pub async fn user_info(
             .insert_header(("Cache-Control", "no-store"))
             .json(res),
     )
+}
+
+pub fn _add_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route("/userinfo", web::get().to(user_info));
 }

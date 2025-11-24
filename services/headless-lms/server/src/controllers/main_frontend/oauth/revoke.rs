@@ -141,3 +141,7 @@ pub async fn revoke(
     // Always return 200 OK per RFC 7009, even if token was not found or already revoked
     server_token.authorized_ok(HttpResponse::Ok().finish())
 }
+
+pub fn _add_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route("/revoke", web::post().to(revoke));
+}

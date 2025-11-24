@@ -84,6 +84,9 @@ pub async fn test_config() -> ServerConfig {
                 rsa_private_key: "test-change".into(),
                 oauth_token_pepper_1: "pippuri".into(),
                 oauth_token_pepper_id: 1,
+                dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
+                    "test-key".into(),
+                ))),
             },
         },
         redis_url: "redis://example.com".to_string(),

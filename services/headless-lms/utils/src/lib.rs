@@ -24,7 +24,9 @@ pub mod url_to_oembed_endpoint;
 extern crate tracing;
 
 use anyhow::Context;
+use secrecy::{ExposeSecret, SecretBox};
 use std::env;
+use std::sync::Arc;
 use url::Url;
 
 #[derive(Clone, PartialEq)]
@@ -207,12 +209,24 @@ impl AzureConfiguration {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct OAuthServerConfiguration {
     pub rsa_public_key: String,
     pub rsa_private_key: String,
     pub oauth_token_pepper_1: String,
     pub oauth_token_pepper_id: i16,
+    /// Secret key for signing DPoP nonces (HMAC).
+    pub dpop_nonce_key: Arc<SecretBox<String>>,
+}
+
+impl PartialEq for OAuthServerConfiguration {
+    fn eq(&self, other: &Self) -> bool {
+        self.rsa_public_key == other.rsa_public_key
+            && self.rsa_private_key == other.rsa_private_key
+            && self.oauth_token_pepper_1 == other.oauth_token_pepper_1
+            && self.oauth_token_pepper_id == other.oauth_token_pepper_id
+            && self.dpop_nonce_key.expose_secret() == other.dpop_nonce_key.expose_secret()
+    }
 }
 
 impl OAuthServerConfiguration {
@@ -230,11 +244,16 @@ impl OAuthServerConfiguration {
             .context("OAUTH_TOKEN_PEPPER_ID must be defined")?
             .parse()
             .context("OAUTH_TOKEN_PEPPER_ID must be a valid i16")?;
+        let dpop_nonce_key = Arc::new(SecretBox::new(Box::new(
+            env::var("OAUTH_DPOP_NONCE_KEY").context("OAUTH_DPOP_NONCE_KEY must be defined")?,
+        )));
+
         Ok(Self {
             rsa_public_key,
             rsa_private_key,
             oauth_token_pepper_1,
             oauth_token_pepper_id,
+            dpop_nonce_key,
         })
     }
 }

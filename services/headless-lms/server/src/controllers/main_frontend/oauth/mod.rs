@@ -1,14 +1,19 @@
-use actix_web::web::{self, ServiceConfig};
+use actix_web::web::ServiceConfig;
 
 mod authorize;
 mod authorized_clients;
 mod consent;
 mod discovery;
-mod oauth;
 mod revoke;
 mod token;
 mod userinfo;
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("").configure(oauth::_add_routes));
+    authorize::_add_routes(cfg);
+    token::_add_routes(cfg);
+    userinfo::_add_routes(cfg);
+    discovery::_add_routes(cfg);
+    revoke::_add_routes(cfg);
+    consent::_add_routes(cfg);
+    authorized_clients::_add_routes(cfg);
 }

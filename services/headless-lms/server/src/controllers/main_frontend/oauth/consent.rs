@@ -40,7 +40,7 @@ pub async fn approve_consent(
     if !client.redirect_uris.contains(&form.redirect_uri) {
         return Err(oauth_invalid_request(
             "redirect_uri does not match client",
-            Some(&form.redirect_uri),
+            None, // Never redirect to an invalid redirect_uri (security)
             Some(&form.state),
         ));
     }
@@ -144,4 +144,9 @@ pub async fn deny_consent(
     Ok(HttpResponse::Found()
         .append_header(("Location", url.to_string()))
         .finish())
+}
+
+pub fn _add_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route("/consent", web::post().to(approve_consent))
+        .route("/consent/deny", web::post().to(deny_consent));
 }

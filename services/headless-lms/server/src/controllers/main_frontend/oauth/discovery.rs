@@ -129,3 +129,11 @@ pub async fn well_known_openid(
 
     server_token.authorized_ok(HttpResponse::Ok().json(config))
 }
+
+pub fn _add_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route(
+        "/.well-known/openid-configuration",
+        web::get().to(well_known_openid),
+    )
+    .route("/jwks.json", web::get().to(jwks));
+}

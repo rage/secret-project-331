@@ -1,6 +1,7 @@
 import { expect, Page } from "@playwright/test"
 
 import { REDIRECT_URI } from "./constants"
+import { ensureRedirectServer } from "./redirectServer"
 
 /** Assert the browser landed on the callback and the final URL has code & expected state.
  *  Returns the authorization code for token exchange. */
@@ -8,6 +9,9 @@ export async function assertAndExtractCodeFromCallbackUrl(
   page: Page,
   expectedState: string,
 ): Promise<string> {
+  // Ensure redirect server is set up before waiting for callback
+  await ensureRedirectServer()
+
   const expected = new URL(REDIRECT_URI)
 
   // Wait for the callback page element instead of URL pattern

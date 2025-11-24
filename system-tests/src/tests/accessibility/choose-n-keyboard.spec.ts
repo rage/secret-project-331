@@ -24,20 +24,14 @@ test.describe("Choose N exercise accessibility", () => {
 
     await accessibilityCheck(page, "Choose N initial state")
 
-    const buttons = quizzesIframe.getByRole("button")
-    const buttonCount = await buttons.count()
-    expect(buttonCount).toBeGreaterThanOrEqual(2)
-
-    const firstButton = buttons.first()
-    const secondButton = buttons.nth(1)
-    const thirdButton = buttonCount >= 3 ? buttons.nth(2) : null
+    const firstButton = quizzesIframe.getByRole("button", { name: "Option 1" })
+    const secondButton = quizzesIframe.getByRole("button", { name: "Option 2" })
+    const thirdButton = quizzesIframe.getByRole("button", { name: "Option 3" })
 
     await test.step("Buttons have aria-pressed attribute", async () => {
       await expect(firstButton).toHaveAttribute("aria-pressed", "false")
       await expect(secondButton).toHaveAttribute("aria-pressed", "false")
-      if (thirdButton) {
-        await expect(thirdButton).toHaveAttribute("aria-pressed", "false")
-      }
+      await expect(thirdButton).toHaveAttribute("aria-pressed", "false")
     })
 
     await test.step("Can navigate and select options with keyboard", async () => {
@@ -51,17 +45,13 @@ test.describe("Choose N exercise accessibility", () => {
       await page.keyboard.press(" ")
       await expect(secondButton).toHaveAttribute("aria-pressed", "true")
 
-      if (thirdButton) {
-        await page.keyboard.press("Tab")
-        await expect(thirdButton).toBeFocused()
-      }
+      await page.keyboard.press("Tab")
+      await expect(thirdButton).toBeFocused()
     })
 
     await test.step("All buttons remain focusable when limit is reached", async () => {
-      if (thirdButton) {
-        await page.keyboard.press(" ")
-        await expect(thirdButton).toHaveAttribute("aria-pressed", "true")
-      }
+      await page.keyboard.press(" ")
+      await expect(thirdButton).toHaveAttribute("aria-pressed", "true")
 
       await page.keyboard.press("Shift+Tab")
       await expect(secondButton).toBeFocused()
@@ -74,16 +64,13 @@ test.describe("Choose N exercise accessibility", () => {
 
     await test.step("Aria-live announcement when trying to select more than allowed", async () => {
       await page.keyboard.press("Tab")
-      if (thirdButton) {
-        await expect(thirdButton).toBeFocused()
-      } else {
-        await expect(secondButton).toBeFocused()
-      }
+      await expect(thirdButton).toBeFocused()
 
       const liveRegion = quizzesIframe.locator('[aria-live="polite"]')
       await expect(liveRegion).toBeVisible()
 
       await page.keyboard.press(" ")
+      // eslint-disable-next-line playwright/no-wait-for-timeout
       await page.waitForTimeout(100)
       const announcementText = await liveRegion.textContent()
       expect(announcementText).toContain("You have already chosen")
@@ -94,10 +81,8 @@ test.describe("Choose N exercise accessibility", () => {
       await firstButton.click()
       await expect(firstButton).toHaveAttribute("aria-pressed", "false")
 
-      if (thirdButton) {
-        await thirdButton.click()
-        await expect(thirdButton).toHaveAttribute("aria-pressed", "false")
-      }
+      await thirdButton.click()
+      await expect(thirdButton).toHaveAttribute("aria-pressed", "false")
 
       await secondButton.click()
       await expect(secondButton).toHaveAttribute("aria-pressed", "false")

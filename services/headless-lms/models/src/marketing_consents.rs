@@ -83,8 +83,8 @@ pub struct MailchimpCourseTag {
 pub struct MailchimpLanguageCodeMapping {
     pub id: Uuid,
     pub marketing_mailing_list_access_token_id: Uuid,
-    pub old_language_code: String,
-    pub new_language_code: String,
+    pub our_language_code: String,
+    pub mailchimp_language_code: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -169,7 +169,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         u.email AS email,
         c.name AS course_name,
         COALESCE(
-            mlcm.new_language_code,
+            mlcm.mailchimp_language_code,
             c.language_code
         ) AS locale,
         CASE WHEN cmc.passed IS NOT NULL THEN cmc.completion_date ELSE NULL END AS completed_course_at,
@@ -189,7 +189,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         ON mmlat.course_language_group_id = umc.course_language_group_id AND mmlat.deleted_at IS NULL
     LEFT JOIN mailchimp_language_code_mappings AS mlcm
         ON mlcm.marketing_mailing_list_access_token_id = mmlat.id
-        AND mlcm.old_language_code = c.language_code
+        AND mlcm.our_language_code = c.language_code
         AND mlcm.deleted_at IS NULL
     WHERE umc.course_language_group_id = $1
     AND (

@@ -2,7 +2,10 @@ use crate::{
     azure_chatbot::{LLMRequest, ToolCallType},
     prelude::*,
 };
-use headless_lms_models::chatbot_conversation_messages::MessageRole;
+use headless_lms_models::{
+    chatbot_conversation_message_tool_calls::ToolCallFields,
+    chatbot_conversation_messages::MessageRole,
+};
 use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
@@ -17,33 +20,33 @@ pub const LLM_API_VERSION: &str = "2024-06-01";
 pub struct APIMessage {
     pub role: MessageRole,
     #[serde(flatten)]
-    pub fields: ApiMessageKind,
+    pub fields: APIMessageKind,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
-pub enum ApiMessageKind {
-    Text(ApiMessageText),
-    ToolCall(ApiMessageToolCall),
-    ToolResponse(ApiMessageToolResponse),
+pub enum APIMessageKind {
+    Text(APIMessageText),
+    ToolCall(APIMessageToolCall),
+    ToolResponse(APIMessageToolResponse),
 }
 
 /// LLM api message that contains only text
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiMessageText {
+pub struct APIMessageText {
     pub content: String,
 }
 
 /// LLM api message that contains tool calls. The tool calls were originally made by
 /// the LLM, but have been processed and added to the messages in a LLMRequest
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiMessageToolCall {
-    pub tool_calls: Vec<ApiToolCall>,
+pub struct APIMessageToolCall {
+    pub tool_calls: Vec<APIToolCall>,
 }
 
 /// LLM api message that contains outputs of tool calls
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiMessageToolResponse {
+pub struct APIMessageToolResponse {
     pub tool_call_id: String,
     pub name: String,
     pub content: String,
@@ -51,15 +54,43 @@ pub struct ApiMessageToolResponse {
 
 /// An LLM tool call that is part of a request to Azure
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiToolCall {
-    pub function: ApiTool,
+pub struct APIToolCall {
+    pub function: APITool,
     pub id: String,
     #[serde(rename = "type")]
     pub tool_type: ToolCallType,
 }
 
+impl From<ToolCallFields> for APIToolCall {
+    fn from(value: ToolCallFields) -> Self {
+        APIToolCall {
+            function: APITool {
+                arguments: value.tool_arguments,
+                name: value.tool_name,
+            },
+            id: value.tool_call_id,
+            tool_type: ToolCallType::Function,
+        }
+    }
+}
+
+/* impl From<APIToolCall> for ToolCallFields {
+    fn from(value: APIToolCall) -> Self {
+        ToolCallFields {
+            id: Uuid::nil(),
+            created_at: (),
+            updated_at: (),
+            deleted_at: (),
+            message_id: ,
+            tool_name: (),
+            tool_arguments: (),
+            tool_call_id: (),
+        }
+    }
+} */
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct ApiTool {
+pub struct APITool {
     pub arguments: String,
     pub name: String,
 }

@@ -157,7 +157,11 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
   ])
 
   const messages = useMemo(() => {
-    const messages = [...(currentConversationInfo.data?.current_conversation_messages ?? [])]
+    const messages = [
+      ...(currentConversationInfo.data?.current_conversation_messages?.filter(
+        (m) => m.message_role !== "tool" && m.tool_call_fields_id === null,
+      ) ?? []),
+    ]
     const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
     if (messageState.optimisticMessage) {
       messages.push({

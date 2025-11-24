@@ -14,7 +14,6 @@ ALTER TABLE chatbot_conversation_messages
 ALTER COLUMN is_from_chatbot
 SET NOT NULL;
 ALTER TABLE chatbot_conversation_messages DROP COLUMN message_role,
-  DROP COLUMN tool_call_fields_id,
   DROP COLUMN tool_output_id;
 
 COMMENT ON COLUMN chatbot_conversation_messages.is_from_chatbot IS 'If true, the message is from the chatbot. If false, the message is from the user.';

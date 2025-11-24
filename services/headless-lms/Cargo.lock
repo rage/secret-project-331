@@ -1918,6 +1918,7 @@ dependencies = [
  "azure_core",
  "azure_storage",
  "azure_storage_blobs",
+ "backtrace",
  "bytes",
  "chrono",
  "futures",
@@ -1933,6 +1934,7 @@ dependencies = [
  "tokio-stream",
  "tokio-util",
  "tracing",
+ "tracing-error",
  "url",
  "uuid",
 ]

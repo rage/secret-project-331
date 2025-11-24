@@ -16,6 +16,7 @@ use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, Verbosit
 use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole};
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_utils::prelude::BackendError;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -25,11 +26,12 @@ use tokio_util::io::StreamReader;
 use tracing::trace;
 use url::Url;
 
+use crate::chatbot_error::{ChatbotError, ChatbotErrorType};
 use crate::chatbot_tools::ChatbotTool;
 use crate::chatbot_tools::course_progress::call_chatbot_tool;
 use crate::llm_utils::{
-    APIMessage, ApiMessageKind, ApiMessageText, ApiMessageToolCall, ApiMessageToolResponse,
-    ApiTool, ApiToolCall, estimate_tokens, make_streaming_llm_request,
+    APIMessage, APIMessageKind, APIMessageText, APIMessageToolCall, APIMessageToolResponse,
+    APITool, APIToolCall, estimate_tokens, make_streaming_llm_request,
 };
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
@@ -120,16 +122,95 @@ pub struct ResponseChunk {
     pub system_fingerprint: Option<String>,
 }
 
-impl From<ChatbotConversationMessage> for APIMessage {
-    fn from(message: ChatbotConversationMessage) -> Self {
-        APIMessage {
-            role: message.message_role,
-            fields: ApiMessageKind::Text(ApiMessageText {
-                content: message.message.unwrap_or_default(),
-            }),
-        }
+impl TryFrom<ChatbotConversationMessage> for APIMessage {
+    type Error = ChatbotError;
+    fn try_from(message: ChatbotConversationMessage) -> Result<Self, Self::Error> {
+        let res = match message.message_role {
+            MessageRole::Assistant => {
+                if !message.tool_call_fields.is_empty() {
+                    APIMessage {
+                        role: message.message_role,
+                        fields: APIMessageKind::ToolCall(APIMessageToolCall {
+                            tool_calls: message
+                                .tool_call_fields
+                                .iter()
+                                .map(|f| APIToolCall::from(f.clone()))
+                                .collect(),
+                        }),
+                    }
+                } else if let Some(msg) = message.message {
+                    APIMessage {
+                        role: message.message_role,
+                        fields: APIMessageKind::Text(APIMessageText { content: msg }),
+                    }
+                } else {
+                    return Err(ChatbotError::new(
+                        ChatbotErrorType::InvalidMessageShape,
+                        "A 'role: assistant' type ChatbotConversationMessage must have either tool_call_fields or a text message.",
+                        None,
+                    ));
+                }
+            }
+            MessageRole::Tool => {
+                if let Some(tool_output) = message.tool_output {
+                    APIMessage {
+                        role: message.message_role,
+                        fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
+                            tool_call_id: tool_output.tool_call_id,
+                            name: tool_output.tool_name,
+                            content: tool_output.tool_output,
+                        }),
+                    }
+                } else {
+                    return Err(ChatbotError::new(
+                        ChatbotErrorType::InvalidMessageShape,
+                        "A 'role: tool' type ChatbotConversationMessage must have field tool_output.",
+                        None,
+                    ));
+                }
+            }
+            MessageRole::User => APIMessage {
+                role: message.message_role,
+                fields: APIMessageKind::Text(APIMessageText {
+                    content: message.message.unwrap_or_default(),
+                }),
+            },
+            MessageRole::System => {
+                return Err(ChatbotError::new(
+                    ChatbotErrorType::InvalidMessageShape,
+                    "A 'role: system' type ChatbotConversationMessage cannot be saved into the database.",
+                    None,
+                ));
+            }
+        };
+        Result::Ok(res)
     }
 }
+
+/* impl TryFrom<APIMessage> for ChatbotConversationMessage {
+    type Error = ChatbotError;
+    fn try_from(message: APIMessage) -> Result<Self, Self::Error> {
+        let res = match message.fields {
+            APIMessageKind::Text(msg) => ChatbotConversationMessage {
+                message_role: message.role,
+                message: Some(msg.content),
+                ..Default::default()
+            },
+            APIMessageKind::ToolCall(msg) => ChatbotConversationMessage {
+                message_role: message.role,
+                message: None,
+                tool_call_fields: msg
+                    .tool_calls
+                    .iter()
+                    .map(|x| ToolCallFields::try_from(x.to_owned()))
+                    .collect()?,
+                ..Default::default()
+            },
+            APIMessageKind::ToolResponse(msg) => {}
+        };
+        Result::Ok(res)
+    }
+} */
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
@@ -271,22 +352,26 @@ impl LLMRequest {
                 message_is_complete: true,
                 used_tokens: estimate_tokens(message),
                 order_number: new_order_number,
-                tool_call_fields_id: None,
-                tool_output_id: None,
+                tool_call_fields: vec![],
+                tool_output: None,
             },
         )
         .await?;
 
-        let mut api_chat_messages: Vec<APIMessage> =
-            conversation_messages.into_iter().map(Into::into).collect();
+        let mut api_chat_messages: Vec<APIMessage> = conversation_messages
+            .into_iter()
+            .map(|x| APIMessage::try_from(x))
+            .collect::<Result<Vec<_>, ChatbotError>>()?;
 
-        api_chat_messages.push(new_message.clone().into());
+        api_chat_messages = api_chat_messages;
+
+        api_chat_messages.push(new_message.clone().try_into()?);
 
         api_chat_messages.insert(
             0,
             APIMessage {
                 role: MessageRole::System,
-                fields: ApiMessageKind::Text(ApiMessageText {
+                fields: APIMessageKind::Text(APIMessageText {
                     content: configuration.prompt.clone(),
                 }),
             },
@@ -386,6 +471,30 @@ impl LLMRequest {
             new_message,
             request_estimated_tokens,
         ))
+    }
+
+    pub async fn update_messages_from_db(
+        mut self,
+        conn: &mut PgConnection,
+        conversation_id: Uuid,
+    ) -> anyhow::Result<Self> {
+        let conversation_messages =
+            models::chatbot_conversation_messages::get_by_conversation_id(conn, conversation_id)
+                .await?;
+        let api_messages: Vec<APIMessage> = conversation_messages
+            .into_iter()
+            .map(|x| APIMessage::try_from(x))
+            .collect::<Result<Vec<_>, ChatbotError>>()?;
+        self.messages.extend(api_messages);
+        Ok(self)
+    }
+
+    pub async fn update_messages_to_db(
+        self,
+        _conn: &mut PgConnection,
+        _new_msgs: Vec<APIMessage>,
+    ) -> anyhow::Result<(Self, i32)> {
+        Ok((self, 0))
     }
 }
 
@@ -634,8 +743,8 @@ pub async fn parse_tool<'a>(
                 // created and args parsed before above tool msg append
                 let tool = call_chatbot_tool(conn, &name, &args, user_context).await?;
 
-                assistant_tool_calls_msg.push(ApiToolCall {
-                    function: ApiTool {
+                assistant_tool_calls_msg.push(APIToolCall {
+                    function: APITool {
                         name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
                     },
@@ -644,7 +753,7 @@ pub async fn parse_tool<'a>(
                 });
                 tool_result_msgs.push(APIMessage {
                     role: MessageRole::Tool,
-                    fields: ApiMessageKind::ToolResponse(ApiMessageToolResponse {
+                    fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
                         content: tool.output(),
                         name: name.to_owned(),
                         tool_call_id: id.to_owned(),
@@ -653,7 +762,7 @@ pub async fn parse_tool<'a>(
             }
             messages.push(APIMessage {
                 role: MessageRole::Assistant,
-                fields: ApiMessageKind::ToolCall(ApiMessageToolCall {
+                fields: APIMessageKind::ToolCall(APIMessageToolCall {
                     tool_calls: assistant_tool_calls_msg,
                 }),
             });
@@ -717,11 +826,32 @@ pub async fn parse_tool<'a>(
 
 /// Streams and parses a LLM response from Azure that contains a text response.
 pub async fn parse_and_stream_to_user<'a>(
+    conn: &mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
-    response_message: ChatbotConversationMessage,
+    conversation_id: Uuid,
+    response_order_number: i32,
     pool: PgPool,
     request_estimated_tokens: i32,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
+    let response_message = models::chatbot_conversation_messages::insert(
+        conn,
+        ChatbotConversationMessage {
+            id: Uuid::new_v4(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            conversation_id,
+            message: None,
+            message_role: MessageRole::Assistant,
+            message_is_complete: false,
+            used_tokens: request_estimated_tokens,
+            order_number: response_order_number,
+            tool_call_fields: vec![], // update later
+            tool_output: None,
+        },
+    )
+    .await?;
+
     let done = Arc::new(AtomicBool::new(false));
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     // Instantiate the guard before creating the stream.
@@ -841,7 +971,7 @@ pub async fn send_chat_request_and_parse_stream(
     message: &str,
     user_context: ChatbotUserContext,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
-    let (chat_request, new_message, request_estimated_tokens) =
+    let (mut chat_request, new_message, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_message_to_db(
             conn,
             chatbot_configuration_id,
@@ -857,26 +987,9 @@ pub async fn send_chat_request_and_parse_stream(
     )
     .await?;
 
-    let response_order_number = new_message.order_number + 1;
-    let mut tool_msgs = vec![];
-    let response_message = models::chatbot_conversation_messages::insert(
-        conn,
-        ChatbotConversationMessage {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            conversation_id,
-            message: None,
-            message_role: MessageRole::Assistant,
-            message_is_complete: false,
-            used_tokens: request_estimated_tokens,
-            order_number: response_order_number,
-            tool_call_fields_id: None, // update later
-            tool_output_id: None,
-        },
-    )
-    .await?;
+    let mut response_order_number = new_message.order_number + 1;
+    //let mut tool_msgs = vec![];
+
     let mut max_iterations_left = 15;
 
     loop {
@@ -887,8 +1000,6 @@ pub async fn send_chat_request_and_parse_stream(
                 "Maximum tool call iterations exceeded. The LLM may be stuck in a loop."
             ));
         }
-        let mut chat_request = chat_request.clone();
-        chat_request.messages.extend(tool_msgs.to_owned());
 
         println!("!!!!!!!!!!!!!!!!!!!!{:?}", chat_request);
 
@@ -900,14 +1011,18 @@ pub async fn send_chat_request_and_parse_stream(
             ResponseStreamType::Toolcall(stream) => parse_tool(conn, stream, &user_context).await?,
             ResponseStreamType::TextResponse(stream) => {
                 return parse_and_stream_to_user(
+                    conn,
                     stream,
-                    response_message,
+                    conversation_id,
+                    response_order_number,
                     pool,
                     request_estimated_tokens,
                 )
                 .await;
             }
         };
-        tool_msgs.extend(new_tool_msgs);
+        (chat_request, response_order_number) = chat_request
+            .update_messages_to_db(conn, new_tool_msgs)
+            .await?;
     }
 }

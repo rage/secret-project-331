@@ -1,6 +1,6 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
 use crate::llm_utils::{
-    APIMessage, ApiMessageKind, ApiMessageText, estimate_tokens, make_blocking_llm_request,
+    APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
 };
 use crate::prelude::*;
 use anyhow::Error;
@@ -48,7 +48,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = APIMessage {
         role: MessageRole::System,
-        fields: ApiMessageKind::Text(ApiMessageText {
+        fields: APIMessageKind::Text(APIMessageText {
             content: SYSTEM_PROMPT.to_string(),
         }),
     };
@@ -256,7 +256,7 @@ async fn process_block_chunk(
         .message
         .fields
     {
-        ApiMessageKind::Text(msg) => Ok(msg.content.clone()),
+        APIMessageKind::Text(msg) => Ok(msg.content.clone()),
         _ => Err(Error::msg(
             "Didn't receive a text LLM response in content cleaner, this shouldn't happen!",
         )),
@@ -272,7 +272,7 @@ pub fn prepare_llm_messages(
         system_message.clone(),
         APIMessage {
             role: MessageRole::User,
-            fields: ApiMessageKind::Text(ApiMessageText {
+            fields: APIMessageKind::Text(APIMessageText {
                 content: format!(
                     "{}\n\n{}{}\n{}",
                     USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
@@ -286,7 +286,7 @@ pub fn prepare_llm_messages(
 
 #[cfg(test)]
 mod tests {
-    use crate::llm_utils::{ApiMessageKind, ApiMessageText};
+    use crate::llm_utils::{APIMessageKind, APIMessageText};
 
     use super::*;
     use serde_json::json;
@@ -363,7 +363,7 @@ mod tests {
         let blocks_json = serde_json::to_string(&blocks)?;
         let system_message = APIMessage {
             role: MessageRole::System,
-            fields: ApiMessageKind::Text(ApiMessageText {
+            fields: APIMessageKind::Text(APIMessageText {
                 content: "System prompt".to_string(),
             }),
         };
@@ -372,11 +372,11 @@ mod tests {
 
         assert_eq!(messages.len(), 2);
         let msg1_content = match &messages[0].fields {
-            ApiMessageKind::Text(msg) => &msg.content,
+            APIMessageKind::Text(msg) => &msg.content,
             _ => "",
         };
         let msg2_content = match &messages[1].fields {
-            ApiMessageKind::Text(msg) => &msg.content,
+            APIMessageKind::Text(msg) => &msg.content,
             _ => "",
         };
         assert_eq!(messages[0].role, MessageRole::System);

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_messages\nSET deleted_at = NOW()\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    conversation_id,\n    message,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens,\n    order_number,\n    tool_output_id,\n    tool_call_fields_id\n        ",
+  "query": "\nINSERT INTO chatbot_conversation_messages (\n    conversation_id,\n    message,\n    message_role,\n    message_is_complete,\n    used_tokens,\n    order_number,\n    tool_output_id\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    conversation_id,\n    message,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens,\n    order_number,\n    tool_output_id\n        ",
   "describe": {
     "columns": [
       {
@@ -68,15 +68,27 @@
         "ordinal": 10,
         "name": "tool_output_id",
         "type_info": "Uuid"
-      },
-      {
-        "ordinal": 11,
-        "name": "tool_call_fields_id",
-        "type_info": "Uuid"
       }
     ],
     "parameters": {
       "Left": [
+        "Uuid",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "message_role",
+            "kind": {
+              "Enum": [
+                "user",
+                "assistant",
+                "tool"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Int4",
+        "Int4",
         "Uuid"
       ]
     },
@@ -91,9 +103,8 @@
       false,
       false,
       false,
-      true,
       true
     ]
   },
-  "hash": "375a06f94fe1429479027105869becb5c4e111817ba4f59d7e24a5c11ed03fac"
+  "hash": "187aced15dee58d301211e2f0714909904584cbe4212e84975ea020bc099a1dd"
 }

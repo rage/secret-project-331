@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    conversation_id,\n    message,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens,\n    order_number,\n    tool_output_id,\n    tool_call_fields_id\nFROM chatbot_conversation_messages\nWHERE conversation_id = $1\n        ",
+  "query": "\nUPDATE chatbot_conversation_messages\nSET message = $2, message_is_complete = $3, used_tokens = $4\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    conversation_id,\n    message,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens,\n    order_number,\n    tool_output_id\n        ",
   "describe": {
     "columns": [
       {
@@ -68,16 +68,14 @@
         "ordinal": 10,
         "name": "tool_output_id",
         "type_info": "Uuid"
-      },
-      {
-        "ordinal": 11,
-        "name": "tool_call_fields_id",
-        "type_info": "Uuid"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Varchar",
+        "Bool",
+        "Int4"
       ]
     },
     "nullable": [
@@ -91,9 +89,8 @@
       false,
       false,
       false,
-      true,
       true
     ]
   },
-  "hash": "50f7c6987346840369cdca6b6e99f970d290652e117496e80a958ae13f5f0ed2"
+  "hash": "9fa8adeff97d37c903a61d4f4c0b1e50b1bb30f82af385f720f9f4491cf3bdc8"
 }

@@ -31,6 +31,7 @@ use headless_lms_models::{
 use headless_lms_utils::{
     ApplicationConfiguration,
     document_schema_processor::{GutenbergBlock, remove_sensitive_attributes},
+    url_encoding::url_encode,
 };
 
 const SYNC_INTERVAL_SECS: u64 = 10;
@@ -419,8 +420,11 @@ async fn sync_pages_batch(
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
-        metadata.insert("url".to_string(), page_url.to_string().into());
-        metadata.insert("title".to_string(), page.title.to_string().into());
+        // Azure Blob Storage metadata values must be ASCII-only. URL-encode values that may
+        // contain non-ASCII characters (e.g., Finnish characters like ä, ö) to ensure they
+        // are ASCII-compatible. We decode the url and the title before we save them in our database.
+        metadata.insert("url".to_string(), url_encode(page_url.as_ref()));
+        metadata.insert("title".to_string(), url_encode(&page.title));
         metadata.insert(
             "course_id".to_string(),
             page.course_id.unwrap_or(Uuid::nil()).to_string().into(),
@@ -433,20 +437,18 @@ async fn sync_pages_batch(
         if let Some(c) = chapter {
             metadata.insert(
                 "chunk_context".to_string(),
-                format!(
+                url_encode(&format!(
                     "This chunk is a snippet from page {} from chapter {}: {} of the course {}.",
                     page.title, c.chapter_number, c.name, course.name,
-                )
-                .into(),
+                )),
             );
         } else {
             metadata.insert(
                 "chunk_context".to_string(),
-                format!(
+                url_encode(&format!(
                     "This chunk is a snippet from page {} of the course {}.",
                     page.title, course.name,
-                )
-                .into(),
+                )),
             );
         }
 

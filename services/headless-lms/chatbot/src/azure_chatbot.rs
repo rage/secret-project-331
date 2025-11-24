@@ -20,6 +20,8 @@ use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use url::Url;
 
+use headless_lms_utils::url_encoding::url_decode;
+
 use crate::llm_utils::{APIMessage, MessageRole, estimate_tokens, make_streaming_llm_request};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
@@ -519,7 +521,12 @@ pub async fn send_chat_request_and_parse_stream(
                             }
                             let cleaned_content: String = split.unwrap_or(("","")).1.to_string();
 
-                            let document_url = cit.url.clone();
+                            // The title and URL come from Azure Blob Storage metadata, which was URL-encoded
+                            // (percent-encoded) because Azure Blob Storage metadata values must be ASCII-only.
+                            // We decode them back to their original UTF-8 strings before storing in the database.
+                            let decoded_title = url_decode(&cit.title)?;
+                            let decoded_url = url_decode(&cit.url)?;
+
                             let mut page_path = PathBuf::from(&cit.filepath);
                             page_path.set_extension("");
                             let page_id_str = page_path.file_name();
@@ -540,9 +547,9 @@ pub async fn send_chat_request_and_parse_stream(
                                     conversation_message_id: citation_message_id,
                                     conversation_id,
                                     course_material_chapter_number,
-                                    title: cit.title.clone(),
+                                    title: decoded_title,
                                     content: cleaned_content,
-                                    document_url,
+                                    document_url: decoded_url,
                                     citation_number: (idx+1) as i32,
                                 }
                             ).await?;

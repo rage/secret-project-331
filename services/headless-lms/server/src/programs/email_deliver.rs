@@ -97,12 +97,18 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
         .expect("Failed to build email");
 
     match mailer.send(&msg) {
-        Ok(_) => mark_as_sent(email.id, &mut conn)
-            .await
-            .context("Couldn't mark as sent")?,
-        Err(err) => save_err_to_email(email.id, err, &mut conn)
-            .await
-            .context("Couldn't save sent err to db")?,
+        Ok(_) => {
+            tracing::info!("Email sent successfully {}", email.id);
+            mark_as_sent(email.id, &mut conn)
+                .await
+                .context("Couldn't mark as sent")?;
+        }
+        Err(err) => {
+            tracing::error!("SMTP send failed for {}: {:?}", email.id, err);
+            save_err_to_email(email.id, err, &mut conn)
+                .await
+                .context("Couldn't save sent err to db")?;
+        }
     };
 
     Ok(())
@@ -191,9 +197,20 @@ pub async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
     tracing::info!("Email sender starting up...");
 
+    if std::env::var("SMTP_USER").is_err() || std::env::var("SMTP_PASS").is_err() {
+        tracing::warn!("SMTP user or password is missing or incorrect");
+    }
+
     let pool = PgPool::connect(&DB_URL.to_string()).await?;
     let creds = Credentials::new(SMTP_USER.to_string(), SMTP_PASS.to_string());
-    let mailer = SmtpTransport::relay(&SMTP_HOST)?.credentials(creds).build();
+
+    let mailer = match SmtpTransport::relay(&SMTP_HOST) {
+        Ok(builder) => builder.credentials(creds).build(),
+        Err(e) => {
+            tracing::error!("Could not configure SMTP transport: {}", e);
+            return Err(e.into());
+        }
+    };
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     loop {

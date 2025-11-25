@@ -266,6 +266,7 @@ WHERE conversation_id = $1
         let msg = message_row_to_message(&mut tx, m).await?;
         res.push(msg);
     }
+    tx.commit().await?;
     Ok(res)
 }
 
@@ -297,7 +298,7 @@ RETURNING
     tool_output_id
         "#,
         id,
-        message,
+        Some(message),
         message_is_complete,
         used_tokens
     )
@@ -306,6 +307,7 @@ RETURNING
 
     let res = message_row_to_message(&mut tx, row).await?;
 
+    tx.commit().await?;
     Ok(res)
 }
 
@@ -335,8 +337,10 @@ RETURNING
     )
     .fetch_one(&mut *tx)
     .await?;
+    // delete associated tools outputs and tc
 
     let res = message_row_to_message(&mut tx, row).await?;
+    tx.commit().await?;
     Ok(res)
 }
 

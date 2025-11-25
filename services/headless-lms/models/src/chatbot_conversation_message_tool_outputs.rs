@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ToolOutput {
     pub id: Uuid,

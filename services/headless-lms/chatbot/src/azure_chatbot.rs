@@ -833,7 +833,7 @@ pub async fn parse_and_stream_to_user<'a>(
     pool: PgPool,
     request_estimated_tokens: i32,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
-    // insert the to-be-streamed bot response to db
+    // insert the to-be-streamed bot text response to db
     let response_message = models::chatbot_conversation_messages::insert(
         conn,
         ChatbotConversationMessage {
@@ -842,12 +842,12 @@ pub async fn parse_and_stream_to_user<'a>(
             updated_at: Utc::now(),
             deleted_at: None,
             conversation_id,
-            message: None,
+            message: Some("".to_string()),
             message_role: MessageRole::Assistant,
             message_is_complete: false,
             used_tokens: request_estimated_tokens,
             order_number: response_order_number,
-            tool_call_fields: vec![], // update later
+            tool_call_fields: vec![],
             tool_output: None,
         },
     )
@@ -876,7 +876,9 @@ pub async fn parse_and_stream_to_user<'a>(
             let mut full_response_text = full_response_text.lock().await;
 
             if json_str.trim() == "[DONE]" {
+                println!("STREAmning response is done");
                 let full_response_as_string = full_response_text.join("");
+                println!("{:?}", full_response_as_string);
                 let estimated_cost = estimate_tokens(&full_response_as_string);
                 trace!(
                     "End of chatbot response stream. Estimated cost: {}. Response: {}",
@@ -907,7 +909,7 @@ pub async fn parse_and_stream_to_user<'a>(
                         yield Bytes::from("\n");
                     }
                     if let Some(context) = &delta.context {
-                        let citation_message_id = response_message.id;
+                        let citation_message_id = response_message.id.clone();
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {
                             let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};

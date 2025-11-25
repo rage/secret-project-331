@@ -159,7 +159,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
   const messages = useMemo(() => {
     const messages = [
       ...(currentConversationInfo.data?.current_conversation_messages?.filter(
-        (m) => m.message_role !== "tool" && m.tool_call_fields_id === null,
+        (m) => m.message_role !== "tool" && m.tool_call_fields.length === 0,
       ) ?? []),
     ]
     const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
@@ -176,8 +176,8 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
         message_is_complete: true,
         used_tokens: 0,
         order_number: lastOrderNumber + 1,
-        tool_call_fields_id: null,
-        tool_output_id: null,
+        tool_call_fields: [],
+        tool_output: null,
       })
     }
     if (messageState.streamingMessage) {
@@ -193,8 +193,8 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
         message_is_complete: false,
         used_tokens: 0,
         order_number: lastOrderNumber + 2,
-        tool_call_fields_id: null,
-        tool_output_id: null,
+        tool_call_fields: [],
+        tool_output: null,
       })
     }
     return messages

@@ -140,10 +140,6 @@ pub async fn seed_chatbot_course(
                         )
                         .page(
                           PageBuilder::new("/chapter-1/page-2", "Page 2")
-                            .block(paragraph(
-                                "Here you can prompt a chatbot.",
-                                cx.v5(b"page:1:2:block:intro"),
-                            ))
                             .block(chatbot_block(
                                 cx.v5(b"page:1:2:block:chatbox"),
                                 cx.v5(b"chatbot_config:block"),

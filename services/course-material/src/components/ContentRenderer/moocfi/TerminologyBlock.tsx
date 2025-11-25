@@ -1,11 +1,10 @@
 import { css } from "@emotion/css"
-import React, { useContext } from "react"
+import React from "react"
 
 import { BlockRendererProps } from ".."
-import { GlossaryContext } from "../../../contexts/GlossaryContext"
-import { parseText } from "../../ContentRenderer/util/textParsing"
 import InnerBlocks from "../util/InnerBlocks"
 
+import ParsedText from "@/components/ParsedText"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -20,7 +19,6 @@ interface TerminnologyBlockAttributes {
 const TerminologyBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<TerminnologyBlockAttributes>>
 > = (props) => {
-  const { terms } = useContext(GlossaryContext)
   return (
     <div
       className={css`
@@ -59,11 +57,7 @@ const TerminologyBlock: React.FC<
       >
         {props.data.attributes.blockName}
       </span>
-      <h2
-        dangerouslySetInnerHTML={{
-          __html: parseText(props.data.attributes.title, terms).parsedText,
-        }}
-      />
+      <ParsedText text={props.data.attributes.title} tag="h2" useWrapperElement={true} />
       <Centered variant="narrow">
         <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </Centered>

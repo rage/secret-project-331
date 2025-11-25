@@ -1,10 +1,13 @@
 use crate::{
     azure_chatbot::{LLMRequest, ToolCallType},
+    chatbot_error::ChatbotError,
     prelude::*,
 };
+use core::default::Default;
 use headless_lms_models::{
     chatbot_conversation_message_tool_calls::ToolCallFields,
-    chatbot_conversation_messages::MessageRole,
+    chatbot_conversation_message_tool_outputs::ToolOutput,
+    chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
 };
 use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
@@ -21,6 +24,61 @@ pub struct APIMessage {
     pub role: MessageRole,
     #[serde(flatten)]
     pub fields: APIMessageKind,
+}
+
+// todo should be a method??
+/// Create a ChatbotConversationMessage from an APIMessage to save it into the DB.
+/// Notice that the insert operation ignores some of the fields, like timestamps.
+/// The try_from doesn't set the correct order_number field value.
+pub fn chatbot_conversation_message_from_api_message(
+    message: APIMessage,
+    conversation_id: Uuid,
+    order_number: i32,
+) -> Result<ChatbotConversationMessage, ChatbotError> {
+    let res = match message.fields {
+        APIMessageKind::Text(msg) => ChatbotConversationMessage {
+            message_role: message.role,
+            conversation_id,
+            order_number,
+            message_is_complete: true,
+            used_tokens: estimate_tokens(&msg.content),
+            message: Some(msg.content),
+            ..Default::default()
+        },
+        APIMessageKind::ToolCall(msg) => {
+            let tool_call_fields = msg
+                .tool_calls
+                .iter()
+                .map(|x| ToolCallFields::from(x.to_owned()))
+                .collect();
+            let estimated_tokens: i32 = msg
+                .tool_calls
+                .iter()
+                .map(|x| estimate_tokens(&x.function.arguments))
+                .sum();
+            ChatbotConversationMessage {
+                message_role: message.role,
+                conversation_id,
+                order_number,
+                message_is_complete: true,
+                message: None,
+                tool_call_fields,
+                used_tokens: estimated_tokens,
+                ..Default::default()
+            }
+        }
+        APIMessageKind::ToolResponse(msg) => ChatbotConversationMessage {
+            message_role: message.role,
+            conversation_id,
+            order_number,
+            message_is_complete: true,
+            message: None,
+            used_tokens: 0,
+            tool_output: Some(ToolOutput::from(msg)),
+            ..Default::default()
+        },
+    };
+    Result::Ok(res)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -52,6 +110,27 @@ pub struct APIMessageToolResponse {
     pub content: String,
 }
 
+impl From<ToolOutput> for APIMessageToolResponse {
+    fn from(value: ToolOutput) -> Self {
+        APIMessageToolResponse {
+            tool_call_id: value.tool_call_id,
+            name: value.tool_name,
+            content: value.tool_output,
+        }
+    }
+}
+
+impl From<APIMessageToolResponse> for ToolOutput {
+    fn from(value: APIMessageToolResponse) -> Self {
+        ToolOutput {
+            tool_name: value.name,
+            tool_output: value.content,
+            tool_call_id: value.tool_call_id,
+            ..Default::default()
+        }
+    }
+}
+
 /// An LLM tool call that is part of a request to Azure
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIToolCall {
@@ -74,20 +153,16 @@ impl From<ToolCallFields> for APIToolCall {
     }
 }
 
-/* impl From<APIToolCall> for ToolCallFields {
+impl From<APIToolCall> for ToolCallFields {
     fn from(value: APIToolCall) -> Self {
         ToolCallFields {
-            id: Uuid::nil(),
-            created_at: (),
-            updated_at: (),
-            deleted_at: (),
-            message_id: ,
-            tool_name: (),
-            tool_arguments: (),
-            tool_call_id: (),
+            tool_name: value.function.name,
+            tool_arguments: value.function.arguments,
+            tool_call_id: value.id,
+            ..Default::default()
         }
     }
-} */
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct APITool {

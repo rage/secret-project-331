@@ -131,8 +131,8 @@ async fn new_conversation(
             message_is_complete: true,
             used_tokens: estimate_tokens(&configuration.initial_message),
             order_number: 0,
-            tool_output_id: None,
-            tool_call_fields_id: None,
+            tool_output: None,
+            tool_call_fields: vec![],
         },
     )
     .await?;

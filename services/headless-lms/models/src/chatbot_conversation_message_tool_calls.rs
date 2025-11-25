@@ -13,17 +13,26 @@ pub struct ToolCallFields {
     pub tool_call_id: String,
 }
 
-/* impl Default for ToolCallFields {
+impl Default for ToolCallFields {
     fn default() -> Self {
         Self {
             id: Uuid::nil(),
             created_at: Default::default(),
             updated_at: Default::default(),
             deleted_at: None,
+            message_id: Uuid::nil(),
+            tool_name: Default::default(),
+            tool_arguments: Default::default(),
+            tool_call_id: Default::default(),
         }
     }
-} */
-pub async fn insert(conn: &mut PgConnection, input: ToolCallFields) -> ModelResult<ToolCallFields> {
+}
+
+pub async fn insert(
+    conn: &mut PgConnection,
+    input: ToolCallFields,
+    msg_id: Uuid,
+) -> ModelResult<ToolCallFields> {
     let res = sqlx::query_as!(
         ToolCallFields,
         r#"
@@ -34,7 +43,7 @@ pub async fn insert(conn: &mut PgConnection, input: ToolCallFields) -> ModelResu
           tool_call_id
         ) VALUES ($1, $2, $3, $4) RETURNING *
                 "#,
-        input.message_id,
+        msg_id,
         input.tool_name,
         input.tool_arguments,
         input.tool_call_id,

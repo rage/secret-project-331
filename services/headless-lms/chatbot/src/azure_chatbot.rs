@@ -13,7 +13,9 @@ use chrono::Utc;
 use futures::stream::{BoxStream, Peekable};
 use futures::{Stream, StreamExt, TryStreamExt};
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
-use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole};
+use headless_lms_models::chatbot_conversation_messages::{
+    self, ChatbotConversationMessage, MessageRole,
+};
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::BackendError;
@@ -31,7 +33,8 @@ use crate::chatbot_tools::ChatbotTool;
 use crate::chatbot_tools::course_progress::call_chatbot_tool;
 use crate::llm_utils::{
     APIMessage, APIMessageKind, APIMessageText, APIMessageToolCall, APIMessageToolResponse,
-    APITool, APIToolCall, estimate_tokens, make_streaming_llm_request,
+    APITool, APIToolCall, chatbot_conversation_message_from_api_message, estimate_tokens,
+    make_streaming_llm_request,
 };
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
@@ -187,31 +190,6 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
     }
 }
 
-/* impl TryFrom<APIMessage> for ChatbotConversationMessage {
-    type Error = ChatbotError;
-    fn try_from(message: APIMessage) -> Result<Self, Self::Error> {
-        let res = match message.fields {
-            APIMessageKind::Text(msg) => ChatbotConversationMessage {
-                message_role: message.role,
-                message: Some(msg.content),
-                ..Default::default()
-            },
-            APIMessageKind::ToolCall(msg) => ChatbotConversationMessage {
-                message_role: message.role,
-                message: None,
-                tool_call_fields: msg
-                    .tool_calls
-                    .iter()
-                    .map(|x| ToolCallFields::try_from(x.to_owned()))
-                    .collect()?,
-                ..Default::default()
-            },
-            APIMessageKind::ToolResponse(msg) => {}
-        };
-        Result::Ok(res)
-    }
-} */
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum LLMToolChoice {
@@ -319,7 +297,7 @@ impl LLMRequest {
         conversation_id: Uuid,
         message: &str,
         app_config: &ApplicationConfiguration,
-    ) -> anyhow::Result<(Self, ChatbotConversationMessage, i32)> {
+    ) -> anyhow::Result<(Self, i32, i32)> {
         let index_name = Url::parse(&app_config.base_url)?
             .host_str()
             .expect("BASE_URL must have a host")
@@ -363,8 +341,7 @@ impl LLMRequest {
             .map(|x| APIMessage::try_from(x))
             .collect::<Result<Vec<_>, ChatbotError>>()?;
 
-        api_chat_messages = api_chat_messages;
-
+        // put new user message into the messages list
         api_chat_messages.push(new_message.clone().try_into()?);
 
         api_chat_messages.insert(
@@ -468,7 +445,7 @@ impl LLMRequest {
                 params,
                 stop: None,
             },
-            new_message,
+            new_message.order_number,
             request_estimated_tokens,
         ))
     }
@@ -490,11 +467,34 @@ impl LLMRequest {
     }
 
     pub async fn update_messages_to_db(
-        self,
-        _conn: &mut PgConnection,
-        _new_msgs: Vec<APIMessage>,
+        mut self,
+        conn: &mut PgConnection,
+        new_msgs: Vec<APIMessage>,
+        conversation_id: Uuid,
+        mut order_number: i32,
     ) -> anyhow::Result<(Self, i32)> {
-        Ok((self, 0))
+        /* let converted_messages: Vec<ChatbotConversationMessage> = new_msgs
+        .iter()
+        .map(|m| {
+            chatbot_conversation_message_from_api_message(
+                m.to_owned(),
+                conversation_id,
+                order_number,
+            )
+        })
+        .collect(); */
+        for m in new_msgs {
+            let converted_msg = chatbot_conversation_message_from_api_message(
+                m.to_owned(),
+                conversation_id,
+                order_number,
+            )?;
+            chatbot_conversation_messages::insert(conn, converted_msg).await?;
+            self.messages.push(m);
+            order_number += 1;
+        }
+
+        Ok((self, order_number))
     }
 }
 
@@ -833,6 +833,7 @@ pub async fn parse_and_stream_to_user<'a>(
     pool: PgPool,
     request_estimated_tokens: i32,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
+    // insert the to-be-streamed bot response to db
     let response_message = models::chatbot_conversation_messages::insert(
         conn,
         ChatbotConversationMessage {
@@ -971,7 +972,7 @@ pub async fn send_chat_request_and_parse_stream(
     message: &str,
     user_context: ChatbotUserContext,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
-    let (mut chat_request, new_message, request_estimated_tokens) =
+    let (mut chat_request, new_message_order_number, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_message_to_db(
             conn,
             chatbot_configuration_id,
@@ -987,9 +988,8 @@ pub async fn send_chat_request_and_parse_stream(
     )
     .await?;
 
-    let mut response_order_number = new_message.order_number + 1;
+    let mut next_message_order_number = new_message_order_number + 1;
     //let mut tool_msgs = vec![];
-
     let mut max_iterations_left = 15;
 
     loop {
@@ -1014,15 +1014,20 @@ pub async fn send_chat_request_and_parse_stream(
                     conn,
                     stream,
                     conversation_id,
-                    response_order_number,
+                    next_message_order_number,
                     pool,
                     request_estimated_tokens,
                 )
                 .await;
             }
         };
-        (chat_request, response_order_number) = chat_request
-            .update_messages_to_db(conn, new_tool_msgs)
+        (chat_request, next_message_order_number) = chat_request
+            .update_messages_to_db(
+                conn,
+                new_tool_msgs,
+                conversation_id,
+                next_message_order_number,
+            )
             .await?;
     }
 }

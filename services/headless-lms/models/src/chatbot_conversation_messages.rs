@@ -88,52 +88,44 @@ impl ChatbotConversationMessage {
         }
     }
 }
+/* impl ChatbotConversationMessage {
+    /// Create a ChatbotConversationMessage from an APIMessage to save it into the DB.
+    /// Notice that the insert operation ignores some of the fields, like timestamps.
+    /// The try_from doesn't set the correct order_number field value.
+    pub fn from_api_message(
+        message: APIMessage,
+        conversation_id: Uuid,
+        order_number: i32,
+    ) -> Result<Self, ChatbotError> {
+        let res = match message.fields {
+            APIMessageKind::Text(msg) => ChatbotConversationMessage {
+                message_role: message.role,
+                message: Some(msg.content),
+                conversation_id,
+                order_number,
+                ..Default::default()
+            },
+            APIMessageKind::ToolCall(msg) => ChatbotConversationMessage {
+                message_role: message.role,
+                message: None,
+                tool_call_fields: msg
+                    .tool_calls
+                    .iter()
+                    .map(|x| ToolCallFields::try_from(x.to_owned()))
+                    .collect()?,
+                ..Default::default()
+            },
+            APIMessageKind::ToolResponse(msg) => {}
+        };
+        Result::Ok(res)
+    }
+} */
 
 pub async fn insert(
     conn: &mut PgConnection,
     input: ChatbotConversationMessage,
 ) -> ModelResult<ChatbotConversationMessage> {
     let mut tx = conn.begin().await?;
-    let (tool_output_id, tool_output) = match input.message_role {
-        MessageRole::Assistant => {
-            if input.message.is_some() {
-                (None, None)
-            } else if !input.tool_call_fields.is_empty() {
-                for fields in &input.tool_call_fields {
-                    chatbot_conversation_message_tool_calls::insert(&mut tx, fields.clone())
-                        .await?;
-                }
-                (None, None)
-            } else {
-                return ModelResult::Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "A chatbot conversation message with role 'assistant' has to have either a message or tool calls",
-                    None,
-                ));
-            }
-        }
-        MessageRole::Tool => {
-            if let Some(output) = input.tool_output {
-                let o_res =
-                    chatbot_conversation_message_tool_outputs::insert(&mut tx, output).await?;
-                (Some(o_res.id), Some(o_res))
-            } else {
-                return ModelResult::Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "A chatbot conversation message with role 'tool' must have tool output",
-                    None,
-                ));
-            }
-        }
-        MessageRole::User => (None, None),
-        MessageRole::System => {
-            return ModelResult::Err(ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Can't save system message to database",
-                None,
-            ));
-        }
-    };
     let msg = sqlx::query_as!(
         ChatbotConversationMessageRow,
         r#"
@@ -166,10 +158,72 @@ RETURNING
         input.message_is_complete,
         input.used_tokens,
         input.order_number,
-        tool_output_id,
+        None::<Uuid>,
     )
     .fetch_one(&mut *tx)
     .await?;
+
+    let (tool_output_id, tool_output) = match msg.message_role {
+        MessageRole::Assistant => {
+            if msg.message.is_some() {
+                (None, None)
+            } else if !input.tool_call_fields.is_empty() {
+                for fields in &input.tool_call_fields {
+                    chatbot_conversation_message_tool_calls::insert(
+                        &mut tx,
+                        fields.clone(),
+                        msg.id,
+                    )
+                    .await?;
+                }
+                (None, None)
+            } else {
+                return ModelResult::Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "A chatbot conversation message with role 'assistant' has to have either a message or tool calls",
+                    None,
+                ));
+            }
+        }
+        MessageRole::Tool => {
+            if let Some(output) = input.tool_output {
+                let o_res =
+                    chatbot_conversation_message_tool_outputs::insert(&mut tx, output, msg.id)
+                        .await?;
+                (Some(o_res.id), Some(o_res))
+            } else {
+                return ModelResult::Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "A chatbot conversation message with role 'tool' must have tool output",
+                    None,
+                ));
+            }
+        }
+        MessageRole::User => (None, None),
+        MessageRole::System => {
+            return ModelResult::Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Can't save system message to database",
+                None,
+            ));
+        }
+    };
+
+    // Update the message to contain the tool_output_id if it was created
+    if tool_output_id.is_some() {
+        sqlx::query_as!(
+            ChatbotConversationMessageRow,
+            r#"
+        UPDATE chatbot_conversation_messages
+        SET tool_output_id = $1
+        WHERE id = $2
+        "#,
+            tool_output_id,
+            msg.id,
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
 
     let res = ChatbotConversationMessage::from_row(msg, tool_output, input.tool_call_fields);
 

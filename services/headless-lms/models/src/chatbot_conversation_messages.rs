@@ -337,7 +337,11 @@ RETURNING
     )
     .fetch_one(&mut *tx)
     .await?;
-    // delete associated tools outputs and tc
+
+    if let Some(output_id) = row.tool_output_id {
+        chatbot_conversation_message_tool_outputs::delete(&mut tx, output_id).await?;
+    }
+    chatbot_conversation_message_tool_calls::delete_all_by_message_id(&mut tx, row.id).await?;
 
     let res = message_row_to_message(&mut tx, row).await?;
     tx.commit().await?;

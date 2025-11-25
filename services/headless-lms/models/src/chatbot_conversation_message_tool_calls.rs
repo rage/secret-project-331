@@ -85,3 +85,22 @@ pub async fn get_by_message_id(
     .await?;
     Ok(res)
 }
+
+pub async fn delete_all_by_message_id(
+    conn: &mut PgConnection,
+    msg_id: Uuid,
+) -> ModelResult<ToolCallFields> {
+    let res = sqlx::query_as!(
+        ToolCallFields,
+        r#"
+        UPDATE chatbot_conversation_message_tool_calls
+        SET deleted_at = NOW()
+        WHERE message_id = $1
+        RETURNING *
+        "#,
+        id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

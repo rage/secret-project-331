@@ -69,8 +69,11 @@ const StatusJobs: React.FC = () => {
               <tr
                 key={job.name}
                 className={css`
-                  ${hasFailures ? `background-color: ${baseTheme.colors.red[100]};` : ""}
-                  ${isActive ? `background-color: ${baseTheme.colors.blue[100]};` : ""}
+                  ${hasFailures
+                    ? `background-color: ${baseTheme.colors.red[100]};`
+                    : isActive
+                      ? `background-color: ${baseTheme.colors.blue[100]};`
+                      : ""}
                 `}
               >
                 <td>{job.name}</td>

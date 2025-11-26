@@ -9,7 +9,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 
 const StatusPods: React.FC = () => {
   const { t } = useTranslation()
@@ -172,6 +172,7 @@ const StatusPods: React.FC = () => {
               `}
             >
               <label
+                htmlFor="tail-lines-select"
                 className={css`
                   font-weight: 600;
                 `}
@@ -179,6 +180,7 @@ const StatusPods: React.FC = () => {
                 {t("status-tail-lines")}:
               </label>
               <select
+                id="tail-lines-select"
                 value={tail}
                 onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
                 className={css`
@@ -201,7 +203,7 @@ const StatusPods: React.FC = () => {
                 padding: 1rem;
                 background-color: ${baseTheme.colors.gray[700]};
                 color: ${baseTheme.colors.gray[300]};
-                font-family: "Courier New", monospace;
+                font-family: ${monospaceFont};
                 font-size: 12px;
                 max-height: 600px;
                 overflow-y: auto;

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["reflector","store"],"mod":["store"],"struct":["ObjectRef","ObjectRefExtra","ReflectHandle","Store"],"trait":["Lookup"]};

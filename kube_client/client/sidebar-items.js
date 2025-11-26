@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AuthError","RustlsTlsError"],"mod":["middleware"],"struct":["Body","Client","ClientBuilder","Status"],"trait":["ConfigExt"],"type":["DynBody"]};

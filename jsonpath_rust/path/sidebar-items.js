@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FilterPath","TopPaths"],"struct":["ArrayIndex","ArraySlice","Current","ObjectField","UnionIndex"],"trait":["JsonLike","Path"]};

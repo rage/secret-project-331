@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["transform_subschemas"],"struct":["AddNullable","RecursiveTransform","RemoveRefSiblings","ReplaceBoolSchemas","ReplaceConstValue","ReplacePrefixItems","ReplaceUnevaluatedProperties","RestrictFormats","SetSingleExample"],"trait":["Transform"]};

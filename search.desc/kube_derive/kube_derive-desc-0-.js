@@ -1,0 +1,1 @@
+searchState.loadedDescShard("kube_derive", 0, "A crate for kube’s derive macros.\nA custom derive for kubernetes custom resource definitions.\nGenerates a JsonSchema implementation a set of CEL …\nA custom derive for inheriting Resource impl for the type.")

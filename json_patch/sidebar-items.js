@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PatchErrorKind","PatchOperation"],"fn":["diff","merge","patch","patch_unsafe"],"struct":["AddOperation","CopyOperation","MoveOperation","Patch","PatchError","RemoveOperation","ReplaceOperation","TestOperation"]};

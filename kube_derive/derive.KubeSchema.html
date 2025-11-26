@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Generates a JsonSchema implementation a set of CEL validation rules applied on the CRD."><title>KubeSchema in kube_derive - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="kube_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../kube_derive/index.html">kube_<wbr>derive</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">kube_derive</a></div><h1>Derive Macro <span class="derive">KubeSchema</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/kube_derive/lib.rs.html#397-399">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(KubeSchema)]
+{
+    <span class="comment">// Attributes available to this derive:</span>
+    #[x_kube]
+    #[schemars]
+    #[validate]
+}
+</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Generates a JsonSchema implementation a set of CEL validation rules applied on the CRD.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>kube::KubeSchema;
+<span class="kw">use </span>kube::CustomResource;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>serde::Serialize;
+<span class="kw">use </span>kube::core::crd::CustomResourceExt;
+
+<span class="attr">#[derive(CustomResource, KubeSchema, Serialize, Deserialize, Clone, Debug)]
+#[kube(
+    group = <span class="string">"kube.rs"</span>,
+    version = <span class="string">"v1"</span>,
+    kind = <span class="string">"Struct"</span>,
+    validation = <span class="string">"self.matadata.name == 'singleton'"</span>,
+)]
+#[x_kube(validation = <span class="string">"self == oldSelf"</span>)]
+</span><span class="kw">struct </span>MyStruct {
+    <span class="attr">#[serde(default = <span class="string">"default"</span>)]
+    #[x_kube(validation = Rule::new(<span class="string">"self != ''"</span>).message(<span class="string">"failure message"</span>))]
+    </span>field: String,
+}
+
+<span class="kw">fn </span>default() -&gt; String {
+    <span class="string">"value"</span>.into()
+}
+
+<span class="macro">assert!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>Struct::crd()).unwrap().contains(<span class="string">"x-kubernetes-validations"</span>));
+<span class="macro">assert!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>Struct::crd()).unwrap().contains(<span class="string">r#""rule":"self == oldSelf""#</span>));
+<span class="macro">assert!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>Struct::crd()).unwrap().contains(<span class="string">r#""rule":"self != ''""#</span>));
+<span class="macro">assert!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>Struct::crd()).unwrap().contains(<span class="string">r#""message":"failure message""#</span>));
+<span class="macro">assert!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>Struct::crd()).unwrap().contains(<span class="string">r#""default":"value""#</span>));
+<span class="macro">assert!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>Struct::crd()).unwrap().contains(<span class="string">r#""rule":"self.matadata.name == 'singleton'""#</span>));</code></pre></div>
+</div></details></section></div></main></body></html>

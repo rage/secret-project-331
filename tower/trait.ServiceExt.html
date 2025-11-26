@@ -1,5 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An extension trait for `Service`s that provides a variety of convenient adapters"><title>ServiceExt in tower - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="tower" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../tower/index.html">tower</a><span class="version">0.5.2</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Service<wbr>Ext</a></h2><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.and_then" title="and_then">and_then</a></li><li><a href="#method.boxed" title="boxed">boxed</a></li><li><a href="#method.boxed_clone" title="boxed_clone">boxed_clone</a></li><li><a href="#method.call_all" title="call_all">call_all</a></li><li><a href="#method.map_err" title="map_err">map_err</a></li><li><a href="#method.map_future" title="map_future">map_future</a></li><li><a href="#method.map_request" title="map_request">map_request</a></li><li><a href="#method.map_response" title="map_response">map_response</a></li><li><a href="#method.map_result" title="map_result">map_result</a></li><li><a href="#method.oneshot" title="oneshot">oneshot</a></li><li><a href="#method.ready" title="ready">ready</a></li><li><a href="#method.ready_oneshot" title="ready_oneshot">ready_oneshot</a></li><li><a href="#method.then" title="then">then</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate tower</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">tower</a></div><h1>Trait <span class="trait">ServiceExt</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/tower/util/mod.rs.html#71-1043">Source</a> </span></div><pre class="rust item-decl"><code>pub trait ServiceExt&lt;Request&gt;: <a class="trait" href="trait.Service.html" title="trait tower::Service">Service</a>&lt;Request&gt; {
-<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 13 methods</span></summary>    // Provided methods
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An extension trait for `Service`s that provides a variety of convenient adapters"><title>ServiceExt in tower - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="tower" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../tower/index.html">tower</a><span class="version">0.5.2</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Service<wbr>Ext</a></h2><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.and_then" title="and_then">and_then</a></li><li><a href="#method.boxed" title="boxed">boxed</a></li><li><a href="#method.boxed_clone" title="boxed_clone">boxed_clone</a></li><li><a href="#method.call_all" title="call_all">call_all</a></li><li><a href="#method.filter" title="filter">filter</a></li><li><a href="#method.filter_async" title="filter_async">filter_async</a></li><li><a href="#method.map_err" title="map_err">map_err</a></li><li><a href="#method.map_future" title="map_future">map_future</a></li><li><a href="#method.map_request" title="map_request">map_request</a></li><li><a href="#method.map_response" title="map_response">map_response</a></li><li><a href="#method.map_result" title="map_result">map_result</a></li><li><a href="#method.oneshot" title="oneshot">oneshot</a></li><li><a href="#method.ready" title="ready">ready</a></li><li><a href="#method.ready_oneshot" title="ready_oneshot">ready_oneshot</a></li><li><a href="#method.then" title="then">then</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate tower</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">tower</a></div><h1>Trait <span class="trait">ServiceExt</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/tower/util/mod.rs.html#71-1043">Source</a> </span></div><pre class="rust item-decl"><code>pub trait ServiceExt&lt;Request&gt;: <a class="trait" href="trait.Service.html" title="trait tower::Service">Service</a>&lt;Request&gt; {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 15 methods</span></summary>    // Provided methods
     fn <a href="#method.ready" class="fn">ready</a>(&amp;mut self) -&gt; <a class="struct" href="util/struct.Ready.html" title="struct tower::util::Ready">Ready</a>&lt;'_, Self, Request&gt; <a href="#" class="tooltip" data-notable-ty="Ready&lt;&#39;_, Self, Request&gt;">ⓘ</a>
        <span class="where">where Self: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a></span> { ... }
 <span class="item-spacer"></span>    fn <a href="#method.ready_oneshot" class="fn">ready_oneshot</a>(self) -&gt; <a class="struct" href="util/struct.ReadyOneshot.html" title="struct tower::util::ReadyOneshot">ReadyOneshot</a>&lt;Self, Request&gt; <a href="#" class="tooltip" data-notable-ty="ReadyOneshot&lt;Self, Request&gt;">ⓘ</a>
@@ -25,6 +25,12 @@
 <span class="item-spacer"></span>    fn <a href="#method.map_request" class="fn">map_request</a>&lt;F, NewRequest&gt;(self, f: F) -&gt; <a class="struct" href="util/struct.MapRequest.html" title="struct tower::util::MapRequest">MapRequest</a>&lt;Self, F&gt;
        <span class="where">where Self: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,
              F: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/ops/function/trait.FnMut.html" title="trait core::ops::function::FnMut">FnMut</a>(NewRequest) -&gt; Request</span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.filter" class="fn">filter</a>&lt;F, NewRequest&gt;(self, filter: F) -&gt; <a class="struct" href="filter/struct.Filter.html" title="struct tower::filter::Filter">Filter</a>&lt;Self, F&gt;
+       <span class="where">where Self: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,
+             F: <a class="trait" href="filter/trait.Predicate.html" title="trait tower::filter::Predicate">Predicate</a>&lt;NewRequest&gt;</span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.filter_async" class="fn">filter_async</a>&lt;F, NewRequest&gt;(self, filter: F) -&gt; <a class="struct" href="filter/struct.AsyncFilter.html" title="struct tower::filter::AsyncFilter">AsyncFilter</a>&lt;Self, F&gt;
+       <span class="where">where Self: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,
+             F: <a class="trait" href="filter/trait.AsyncPredicate.html" title="trait tower::filter::AsyncPredicate">AsyncPredicate</a>&lt;NewRequest&gt;</span> { ... }
 <span class="item-spacer"></span>    fn <a href="#method.then" class="fn">then</a>&lt;F, Response, Error, Fut&gt;(self, f: F) -&gt; <a class="struct" href="util/struct.Then.html" title="struct tower::util::Then">Then</a>&lt;Self, F&gt;
        <span class="where">where Self: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,
              Error: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;Self::<a class="associatedtype" href="trait.Service.html#associatedtype.Error" title="type tower::Service::Error">Error</a>&gt;,
@@ -236,6 +242,59 @@ given function <code>f</code> before sending it to <code>self</code>.</p>
     .<span class="kw">await</span><span class="question-mark">?
     </span>.call(id)
     .<span class="kw">await</span>;</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.filter" class="method"><a class="src rightside" href="../src/tower/util/mod.rs.html#671-677">Source</a><h4 class="code-header">fn <a href="#method.filter" class="fn">filter</a>&lt;F, NewRequest&gt;(self, filter: F) -&gt; <a class="struct" href="filter/struct.Filter.html" title="struct tower::filter::Filter">Filter</a>&lt;Self, F&gt;<div class="where">where
+    Self: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,
+    F: <a class="trait" href="filter/trait.Predicate.html" title="trait tower::filter::Predicate">Predicate</a>&lt;NewRequest&gt;,</div></h4></section></summary><div class="docblock"><p>Composes this service with a <a href="filter/struct.Filter.html" title="struct tower::filter::Filter"><code>Filter</code></a> that conditionally accepts or
+rejects requests based on a <a href="filter/trait.Predicate.html" title="trait tower::filter::Predicate">predicate</a>.</p>
+<p>This adapter produces a new service that passes each value through the
+given function <code>predicate</code> before sending it to <code>self</code>.</p>
+<h5 id="example-4"><a class="doc-anchor" href="#example-4">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// A service taking a u32 as a request and returning Result&lt;_, DbError&gt;
+</span><span class="kw">let </span>service = DatabaseService::new(<span class="string">"127.0.0.1:8080"</span>);
+
+<span class="comment">// Fallibly map the request to a new request
+</span><span class="kw">let </span><span class="kw-2">mut </span>new_service = service
+    .filter(|id_str: <span class="kw-2">&amp;</span>str| id_str.parse().map_err(DbError::Parse));
+
+<span class="comment">// Call the new service
+</span><span class="kw">let </span>id = <span class="string">"13"</span>;
+<span class="kw">let </span>response = new_service
+    .ready()
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.call(id)
+    .<span class="kw">await</span>;</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.filter_async" class="method"><a class="src rightside" href="../src/tower/util/mod.rs.html#757-763">Source</a><h4 class="code-header">fn <a href="#method.filter_async" class="fn">filter_async</a>&lt;F, NewRequest&gt;(self, filter: F) -&gt; <a class="struct" href="filter/struct.AsyncFilter.html" title="struct tower::filter::AsyncFilter">AsyncFilter</a>&lt;Self, F&gt;<div class="where">where
+    Self: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,
+    F: <a class="trait" href="filter/trait.AsyncPredicate.html" title="trait tower::filter::AsyncPredicate">AsyncPredicate</a>&lt;NewRequest&gt;,</div></h4></section></summary><div class="docblock"><p>Composes this service with an <a href="filter/struct.AsyncFilter.html" title="struct tower::filter::AsyncFilter"><code>AsyncFilter</code></a> that conditionally accepts or
+rejects requests based on an [async predicate].</p>
+<p>This adapter produces a new service that passes each value through the
+given function <code>predicate</code> before sending it to <code>self</code>.</p>
+<h5 id="example-5"><a class="doc-anchor" href="#example-5">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// A service taking a u32 as a request and returning Result&lt;_, DbError&gt;
+</span><span class="kw">let </span>service = DatabaseService::new(<span class="string">"127.0.0.1:8080"</span>);
+
+<span class="doccomment">/// Returns `true` if we should query the database for an ID.
+</span><span class="kw">async fn </span>should_query(id: u32) -&gt; bool {
+    <span class="comment">// ...
+</span>}
+
+<span class="comment">// Filter requests based on `should_query`.
+</span><span class="kw">let </span><span class="kw-2">mut </span>new_service = service
+    .filter_async(|id: u32| <span class="kw">async move </span>{
+        <span class="kw">if </span>should_query(id).<span class="kw">await </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(id);
+        }
+
+        <span class="prelude-val">Err</span>(DbError::Rejected)
+    });
+
+<span class="comment">// Call the new service
+</span><span class="kw">let </span>id = <span class="number">13</span>;
+<span class="kw">let </span>response = new_service
+    .ready()
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.call(id)
+    .<span class="kw">await</span>;</code></pre></div>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.then" class="method"><a class="src rightside" href="../src/tower/util/mod.rs.html#863-871">Source</a><h4 class="code-header">fn <a href="#method.then" class="fn">then</a>&lt;F, Response, Error, Fut&gt;(self, f: F) -&gt; <a class="struct" href="util/struct.Then.html" title="struct tower::util::Then">Then</a>&lt;Self, F&gt;<div class="where">where
     Self: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,
     Error: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;Self::<a class="associatedtype" href="trait.Service.html#associatedtype.Error" title="type tower::Service::Error">Error</a>&gt;,
@@ -323,7 +382,7 @@ the service’s <a href="trait.Service.html#tymethod.call" title="method tower::
 <p>If <code>Self</code> implements the <a href="https://doc.rust-lang.org/1.87.0/core/clone/trait.Clone.html" title="trait core::clone::Clone"><code>Clone</code></a> trait, the <a href="trait.ServiceExt.html#method.boxed_clone"><code>boxed_clone</code></a> method
 can be used instead, to produce a boxed service which will also
 implement <a href="https://doc.rust-lang.org/1.87.0/core/clone/trait.Clone.html" title="trait core::clone::Clone"><code>Clone</code></a>.</p>
-<h5 id="example-4"><a class="doc-anchor" href="#example-4">§</a>Example</h5>
+<h5 id="example-6"><a class="doc-anchor" href="#example-6">§</a>Example</h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tower::{Service, ServiceExt, BoxError, service_fn, util::BoxService};
 
 <span class="kw">let </span>service = service_fn(|req: Request| <span class="kw">async </span>{
@@ -346,7 +405,7 @@ implement <a href="https://doc.rust-lang.org/1.87.0/core/clone/trait.Clone.html"
 <p>This is similar to the <a href="trait.ServiceExt.html#method.boxed"><code>boxed</code></a> method, but it requires that <code>Self</code> implement
 <a href="https://doc.rust-lang.org/1.87.0/core/clone/trait.Clone.html" title="trait core::clone::Clone"><code>Clone</code></a>, and the returned boxed service implements <a href="https://doc.rust-lang.org/1.87.0/core/clone/trait.Clone.html" title="trait core::clone::Clone"><code>Clone</code></a>.
 See <a href="util/struct.BoxCloneService.html" title="struct tower::util::BoxCloneService"><code>BoxCloneService</code></a> for more details.</p>
-<h5 id="example-5"><a class="doc-anchor" href="#example-5">§</a>Example</h5>
+<h5 id="example-7"><a class="doc-anchor" href="#example-7">§</a>Example</h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tower::{Service, ServiceExt, BoxError, service_fn, util::BoxCloneService};
 
 <span class="kw">let </span>service = service_fn(|req: Request| <span class="kw">async </span>{

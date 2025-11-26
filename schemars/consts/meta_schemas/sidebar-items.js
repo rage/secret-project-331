@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DRAFT07","DRAFT2019_09","DRAFT2020_12","OPENAPI3"]};

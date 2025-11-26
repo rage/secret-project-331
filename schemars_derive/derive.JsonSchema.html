@@ -1,0 +1,276 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Derive macro for `JsonSchema` trait."><title>JsonSchema in schemars_derive - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="schemars_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../schemars_derive/index.html">schemars_<wbr>derive</a><span class="version">1.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Json<wbr>Schema</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#deriving-jsonschema" title="Deriving `JsonSchema`">Deriving <code>JsonSchema</code></a></li><li><a href="#attributes" title="Attributes">Attributes</a><ul><li><a href="#supported-serde-attributes" title="Supported Serde Attributes">Supported Serde Attributes</a></li><li><a href="#supported-validatorgarde-attributes" title="Supported Validator/Garde Attributes">Supported Validator/Garde Attributes</a></li><li><a href="#other-attributes" title="Other Attributes">Other Attributes</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate schemars_<wbr>derive</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">schemars_derive</a></div><h1>Derive Macro <span class="derive">JsonSchema</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/schemars_derive/lib.rs.html#32-37">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(JsonSchema)]
+{
+    <span class="comment">// Attributes available to this derive:</span>
+    #[schemars]
+    #[serde]
+    #[validate]
+    #[garde]
+}
+</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Derive macro for <code>JsonSchema</code> trait.</p>
+<h2 id="deriving-jsonschema"><a class="doc-anchor" href="#deriving-jsonschema">§</a>Deriving <code>JsonSchema</code></h2>
+<p>The most important trait in Schemars is <code>JsonSchema</code>, and the most important function of that trait is <code>json_schema(...)</code> which returns a JSON schema describing the type. Implementing this manually on many types would be slow and error-prone, so Schemars includes a derive macro which can implement that trait for you. Any derived implementation of <code>JsonSchema</code> should create a schema that describes the JSON representation of the type if it were to be serialized by serde_json.</p>
+<p>Usually, all you need to do to use it is to add a <code>#[derive(JsonSchema)]</code> attribute to your type:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>schemars::{JsonSchema, schema_for};
+
+<span class="attr">#[derive(JsonSchema, Debug)]
+</span><span class="kw">struct </span>Point {
+    x: i32,
+    y: i32,
+}
+
+<span class="kw">fn </span>main() {
+    <span class="kw">let </span>schema = <span class="macro">schema_for!</span>(Point);
+
+    <span class="kw">let </span>serialized = serde_json::to_string(<span class="kw-2">&amp;</span>schema).unwrap();
+    <span class="macro">println!</span>(<span class="string">"{}"</span>, serialized);
+}</code></pre></div>
+<!-- TODO:
+show example output
+requirements - when can/can't it be derived
+generic params behaviour
+-->
+<h2 id="attributes"><a class="doc-anchor" href="#attributes">§</a>Attributes</h2>
+<p>You can add attributes to your types to customize Schemars’s derived <code>JsonSchema</code> implementation.</p>
+<p><a href="https://serde.rs/">Serde</a> allows setting <code>#[serde(...)]</code> attributes which change how types are serialized, and Schemars will generally respect these attributes to ensure that generated schemas will match how the type is serialized by serde_json. <code>#[serde(...)]</code> attributes can be overriden using <code>#[schemars(...)]</code> attributes, which behave identically (e.g. <code>#[schemars(rename_all = "camelCase")]</code>). You may find this useful if you want to change the generated schema without affecting Serde’s behaviour, or if you’re just not using Serde.</p>
+<p>You can also “unset” serde attributes by including them with a <code>!</code> prefix in a schemars attribute, which will make schemars ignore the corresponding serde attribute item:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Deserialize, Serialize, JsonSchema)]
+#[serde(from = <span class="string">"OtherType"</span>)]
+</span><span class="comment">// this makes schemars ignore the `from = "OtherType"` from the serde attribute:
+</span><span class="attr">#[schemars(!from)]
+</span><span class="kw">pub struct </span>MyStruct {
+    <span class="comment">// ...
+</span>}</code></pre></div>
+<p><a href="https://github.com/Keats/validator">Validator</a> and <a href="https://github.com/jprochazk/garde">Garde</a> allow setting <code>#[validate(...)]</code>/<code>#[garde(...)]</code> attributes to restrict valid values of particular fields, many of which will be used by Schemars to generate more accurate schemas. These can also be overridden by <code>#[schemars(...)]</code> attributes.</p>
+<details open>
+<summary style="font-weight: bold">
+TABLE OF CONTENTS
+</summary>
+<ol>
+<li><a href="#supported-serde-attributes">Supported Serde Attributes</a>
+<ul>
+<li><a href="#rename"><code>rename</code></a></li>
+<li><a href="#rename_all"><code>rename_all</code></a></li>
+<li><a href="#rename_all_fields"><code>rename_all_fields</code></a></li>
+<li><a href="#tag"><code>tag</code> / <code>content</code> / <code>untagged</code></a></li>
+<li><a href="#default"><code>default</code></a></li>
+<li><a href="#skip"><code>skip</code></a></li>
+<li><a href="#skip_serializing"><code>skip_serializing</code></a></li>
+<li><a href="#skip_deserializing"><code>skip_deserializing</code></a></li>
+<li><a href="#flatten"><code>flatten</code></a></li>
+<li><a href="#with"><code>with</code></a></li>
+<li><a href="#bound"><code>bound</code></a></li>
+</ul>
+</li>
+<li><a href="#supported-validatorgarde-attributes">Supported Validator/Garde Attributes</a>
+<ul>
+<li><a href="#formats"><code>email</code> / <code>url</code> / <code>ip</code> / <code>ipv4</code> / <code>ipv6</code></a></li>
+<li><a href="#length"><code>length</code></a></li>
+<li><a href="#range"><code>range</code></a></li>
+<li><a href="#regex"><code>regex</code> / <code>pattern</code></a></li>
+<li><a href="#contains"><code>contains</code></a></li>
+<li><a href="#required"><code>required</code></a></li>
+<li><a href="#inner"><code>inner</code></a></li>
+</ul>
+</li>
+<li><a href="#other-attributes">Other Attributes</a>
+<ul>
+<li><a href="#schema_with"><code>schema_with</code></a></li>
+<li><a href="#title-description"><code>title</code> / <code>description</code></a></li>
+<li><a href="#example"><code>example</code></a></li>
+<li><a href="#deprecated"><code>deprecated</code></a></li>
+<li><a href="#inline"><code>inline</code></a></li>
+<li><a href="#crate"><code>crate</code></a></li>
+<li><a href="#extend"><code>extend</code></a></li>
+<li><a href="#transform"><code>transform</code></a></li>
+<li><a href="#doc">Doc Comments (<code>doc</code>)</a></li>
+</ul>
+</li>
+</ol>
+</details>
+<h3 id="supported-serde-attributes"><a class="doc-anchor" href="#supported-serde-attributes">§</a>Supported Serde Attributes</h3><div class="indented">
+<h3 id="rename">
+<p><code>#[serde(rename = "name")]</code> / <code>#[schemars(rename = "name")]</code></p>
+</h3>
+<p>Set on a struct, enum, field or variant to use the given name in the generated schema instead of the Rust name. When used on a struct or enum, the given name will be used as the title for root schemas, and the key within the root’s <code>$defs</code> property for subschemas.</p>
+<p>If set on a struct or enum with generic type parameters, then the given name may contain them enclosed in curly braces (e.g. <code>{T}</code>) and they will be replaced with the concrete type names when the schema is generated.</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#rename">container</a> / <a href="https://serde.rs/variant-attrs.html#rename">variant</a> / <a href="https://serde.rs/field-attrs.html#rename">field</a></p>
+<h3 id="rename_all">
+<p><code>#[serde(rename_all = "...")]</code> / <code>#[schemars(rename_all = "...")]</code></p>
+</h3>
+<p>Set on a struct, enum or variant to rename all fields according to the given case convention (see the Serde docs for details).</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#rename_all">container</a> / <a href="https://serde.rs/variant-attrs.html#rename_all">variant</a></p>
+<h3 id="rename_all_fields">
+<p><code>#[serde(rename_all_fields = "...")]</code> / <code>#[schemars(rename_all_fields = "...")]</code></p>
+</h3>
+<p>Set on an enum to rename all fields of all struct-style variants according to the given case convention (see the Serde docs for details).</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#rename_all">container</a></p>
+<h3 id="tag" style="line-height: 1.5">
+<p><code>#[serde(tag = "type")]</code> / <code>#[schemars(tag = "type")]</code> <br />
+<code>#[serde(tag = "t", content = "c")]</code> / <code>#[schemars(tag = "t", content = "c")]</code> <br />
+<code>#[serde(untagged)]</code> / <code>#[schemars(untagged)]</code></p>
+</h3>
+<p>Set on an enum to generate the schema for the <a href="https://serde.rs/enum-representations.html#internally-tagged">internally tagged</a>, <a href="https://serde.rs/enum-representations.html#adjacently-tagged">adjacently tagged</a>, or <a href="https://serde.rs/enum-representations.html#untagged">untagged</a> representation of this enum.</p>
+<p><code>#[serde(untagged)]</code>/<code>#[schemars(untagged)]</code> can also be set on an individual variant of a tagged enum to treat just that variant as untagged.</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#tag"><code>tag</code></a> / <a href="https://serde.rs/container-attrs.html#tag--content"><code>tag</code>+<code>content</code></a> / <a href="https://serde.rs/container-attrs.html#untagged"><code>untagged</code> (enum)</a> / <a href="https://serde.rs/variant-attrs.html#untagged"><code>untagged</code> (variant)</a></p>
+<h3 id="default">
+<p><code>#[serde(default)]</code> / <code>#[schemars(default)]</code> / <code>#[serde(default = "path")]</code> / <code>#[schemars(default = "path")]</code></p>
+</h3>
+<p>Set on a struct or field to give fields a default value, which excludes them from the schema’s <code>required</code> properties. The default will also be set on the field’s schema’s <code>default</code> property, unless it is skipped by a <a href="https://serde.rs/field-attrs.html#skip_serializing_if"><code>skip_serializing_if</code></a> attribute on the field. Any <a href="https://serde.rs/field-attrs.html#serialize_with"><code>serialize_with</code></a> or <a href="https://serde.rs/field-attrs.html#with"><code>with</code></a> attribute set on the field will be used to serialize the default value.</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#default">container</a> / <a href="https://serde.rs/field-attrs.html#default">field</a></p>
+<h3 id="skip">
+<p><code>#[serde(skip)]</code> / <code>#[schemars(skip)]</code></p>
+</h3>
+<p>Set on a variant or field to prevent it from appearing in any generated schema.</p>
+<p>Serde docs: <a href="https://serde.rs/variant-attrs.html#skip">variant</a> / <a href="https://serde.rs/field-attrs.html#skip">field</a></p>
+<h3 id="skip_serializing">
+<p><code>#[serde(skip_serializing)]</code> / <code>#[schemars(skip_serializing)]</code></p>
+</h3>
+<p>Set on a field of a (non-tuple) struct to set the <code>writeOnly</code> property on that field’s schema. Serde also allows this attribute on variants or tuple struct fields, but this will have no effect on generated schemas.</p>
+<p>Serde docs: <a href="https://serde.rs/field-attrs.html#skip_deserializing">field</a></p>
+<h3 id="skip_deserializing">
+<p><code>#[serde(skip_deserializing)]</code> / <code>#[schemars(skip_deserializing)]</code></p>
+</h3>
+<p>Set on a variant or field. When set on a field of a (non-tuple) struct, that field’s schema will have the <code>readOnly</code> property set. When set on a variant or tuple struct field Schemars will treat this the same as a <a href="#skip"><code>skip</code></a> attribute.</p>
+<p>Serde docs: <a href="https://serde.rs/variant-attrs.html#skip_deserializing">variant</a> / <a href="https://serde.rs/field-attrs.html#skip_deserializing">field</a></p>
+<h3 id="flatten">
+<p><code>#[serde(flatten)]</code> / <code>#[schemars(flatten)]</code></p>
+</h3>
+<p>Set on a field to include that field’s contents as though they belonged to the field’s container.</p>
+<p>Serde docs: <a href="https://serde.rs/field-attrs.html#flatten">field</a></p>
+<h3 id="with">
+<p><code>#[serde(with = "Type")]</code> / <code>#[schemars(with = "Type")]</code></p>
+</h3>
+<p>Set on a container, variant or field to generate its schema as the given type instead of its actual type. Serde allows the <code>with</code> attribute to refer to any module path, but Schemars requires this to be an actual type which implements <code>JsonSchema</code>.</p>
+<p>Serde does not allow this attribute to be set on containers, but this is allowed in <code>#[schemars(...)]</code> attributes.</p>
+<p>If the given type has any required generic type parameters, then they must all be explicitly specified in this attribute. Serde frequently allows you to omit them as it can make use of type inference, but unfortunately this is not possible with Schemars. For example, <code>with = "Vec::&lt;i32&gt;"</code> will work, but <code>with = "Vec"</code> and <code>with = "Vec::&lt;_&gt;"</code> will not.</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#from">from</a> / <a href="https://serde.rs/container-attrs.html#try_from">try_from</a></p>
+<h3 id="from">
+<p><code>#[serde(from = "Type")]</code> / <code>#[schemars(from = "Type")]</code><br />
+<code>#[serde(try_from = "Type")]</code> / <code>#[schemars(try_from = "Type")]</code></p>
+</h3>
+<p>Set on a container to generate its <a href="https://graham.cool/schemars/generating/#serialize-vs-deserialize-contract"><strong>deserialize</strong> schema</a> as the given type instead of its actual type. Schemars treats the <code>from</code>/<code>try_from</code> attributes identically.</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#into">into</a></p>
+<h3 id="into">
+<p><code>#[serde(into = "Type")]</code> / <code>#[schemars(into = "Type")]</code></p>
+</h3>
+<p>Set on a container to generate its <a href="https://graham.cool/schemars/generating/#serialize-vs-deserialize-contract"><strong>serialize</strong> schema</a> as the given type instead of its actual type. Schemars treats the <code>from</code>/<code>try_from</code> attributes identically.</p>
+<h3 id="deny_unknown_fields">
+<p><code>#[serde(deny_unknown_fields)]</code> / <code>#[schemars(deny_unknown_fields)]</code></p>
+</h3>
+<p>Setting this on a container will set the <code>additionalProperties</code> keyword on generated schemas to <code>false</code> to show that any extra properties are explicitly disallowed.</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#deny_unknown_fields">container</a></p>
+<h3 id="transparent">
+<p><code>#[serde(transparent)]</code> / <code>#[schemars(transparent)]</code></p>
+</h3>
+<p>Set on a newtype struct or a braced struct with one field to make the struct’s generated schema exactly the same as that of the single field’s.</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#transparent">container</a></p>
+<h3 id="bound">
+<p><code>#[schemars(bound = "...")]</code></p>
+</h3>
+<p>Where-clause for the <code>JsonSchema</code> impl. This replaces any trait bounds inferred by schemars. Schemars does <strong>not</strong> use trait bounds from <code>#[serde(bound)]</code> attributes.</p>
+<p>Serde docs: <a href="https://serde.rs/container-attrs.html#bound">container</a></p>
+</div>
+<h3 id="supported-validatorgarde-attributes"><a class="doc-anchor" href="#supported-validatorgarde-attributes">§</a>Supported Validator/Garde Attributes</h3><div class="indented">
+<h3 id="formats">
+<p><code>#[validate(email)]</code> / <code>#[garde(email)]</code> / <code>#[schemars(email)]</code><br />
+<code>#[validate(url)]</code> / <code>#[garde(url)]</code>/ <code>#[schemars(url)]</code><br />
+<code>#[garde(ip)]</code>/ <code>#[schemars(ip)]</code><br />
+<code>#[garde(ipv4)]</code>/ <code>#[schemars(ipv4)]</code><br />
+<code>#[garde(ipv6)]</code>/ <code>#[schemars(ip)v6]</code><br /></p>
+</h3>
+<p>Sets the schema’s <code>format</code> to <code>email</code>/<code>uri</code>/<code>ip</code>/<code>ipv4</code>/<code>ipv6</code>, as appropriate. Only one of these attributes may be present on a single field.</p>
+<p>Validator docs: <a href="https://github.com/Keats/validator#email">email</a> / <a href="https://github.com/Keats/validator#url">url</a></p>
+<h3 id="length">
+<p><code>#[validate(length(min = 1, max = 10))]</code> / <code>#[garde(length(min = 1, max = 10))]</code> / <code>#[schemars(length(min = 1, max = 10))]</code><br />
+<code>#[validate(length(equal = 10))]</code> / <code>#[garde(length(equal = 10))]</code> / <code>#[schemars(length(equal = 10))]</code></p>
+</h3>
+<p>Sets the <code>minLength</code>/<code>maxLength</code> properties for string schemas, or the <code>minItems</code>/<code>maxItems</code> properties for array schemas.</p>
+<p>Validator docs: <a href="https://github.com/Keats/validator#length">length</a></p>
+<h3 id="range">
+<p><code>#[validate(range(min = 1, max = 10))]</code> / <code>#[garde(range(min = 1, max = 10))]</code> / <code>#[schemars(range(min = 1, max = 10))]</code></p>
+</h3>
+<p>Sets the <code>minimum</code>/<code>maximum</code> properties for number schemas.</p>
+<p>Validator docs: <a href="https://github.com/Keats/validator#range">range</a></p>
+<h3 id="regex">
+<p><code>#[validate(regex(path = *static_regex)]</code><br />
+<code>#[schemars(regex(pattern = r"^\d+$"))]</code> / <code>#[schemars(regex(pattern = *static_regex))]</code><br />
+<code>#[garde(pattern(r"^\d+$")]</code> / <code>#[schemars(pattern(r"^\d+$")]</code>/ <code>#[schemars(pattern(*static_regex)]</code></p>
+</h3>
+<p>Sets the <code>pattern</code> property for string schemas. The <code>static_regex</code> will typically refer to a <a href="https://docs.rs/regex/*/regex/struct.Regex.html"><code>Regex</code></a> instance, but Schemars allows it to be any value with a <code>to_string()</code> method.</p>
+<p><code>regex(pattern = ...)</code> is a Schemars extension, and not currently supported by the Validator crate. When using this form (or the Garde-style <code>pattern</code> attribute), you may want to use a <code>r"raw string literal"</code> so that <code>\\</code> characters in the regex pattern are not interpreted as escape sequences in the string. Using the <code>path = ...</code> form is not allowed in a <code>#[schemars(...)]</code> attribute.</p>
+<p>Validator docs: <a href="https://github.com/Keats/validator#regex">regex</a></p>
+<h3 id="contains">
+<p><code>#[validate(contains(pattern = "string"))]</code> / <code>#[schemars(contains(pattern = "string"))]</code><br />
+<code>#[garde(contains("string"))]</code> / <code>#[schemars(contains("string"))]</code></p>
+</h3>
+<p>For string schemas, sets the <code>pattern</code> property to the given value, with any regex special characters escaped.</p>
+<p>Validator docs: <a href="https://github.com/Keats/validator#contains">contains</a></p>
+<h3 id="required">
+<p><code>#[validate(required)]</code> / <code>#[garde(required)]</code> / <code>#[schemars(required)]</code><br /></p>
+</h3>
+<p>When set on an <code>Option&lt;T&gt;</code> field, this will create a schemas as though the field were a <code>T</code>.</p>
+<p>Validator docs: <a href="https://github.com/Keats/validator#required">required</a></p>
+</div>
+<h3 id="inner">
+<p><code>#[garde(inner(...))]</code> / <code>#[schemars(inner(...))]</code></p>
+</h3>
+<p>Sets properties specified by <a href="#supported-validatorgarde-attributes">validation attributes</a> on items of an array schema. For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>Struct {
+    <span class="attr">#[schemars(inner(url, pattern(<span class="string">"^https://"</span>)))]
+    </span>urls: Vec&lt;String&gt;,
+}</code></pre></div>
+<p>Garde docs: <a href="https://github.com/jprochazk/garde?tab=readme-ov-file#inner-type-validation">Inner type validation</a></p>
+<h3 id="other-attributes"><a class="doc-anchor" href="#other-attributes">§</a>Other Attributes</h3><h3 id="schema_with">
+<p><code>#[schemars(schema_with = "some::function")]</code></p>
+</h3>
+<p>Set on a variant or field to generate this field’s schema using the given function. This function must be callable as <code>fn(&amp;mut schemars::SchemaGenerator) -&gt; schemars::schema::Schema</code>.</p>
+<h3 id="title-description">
+<p><code>#[schemars(title = "Some title", description = "Some description")]</code></p>
+</h3>
+<p>Set on a container, variant or field to set the generated schema’s <code>title</code> and/or <code>description</code>. If present, these will be used instead of values from any <a href="#doc"><code>doc</code> comments/attributes</a>.</p>
+<h3 id="example">
+<p><code>#[schemars(example = value)]</code></p>
+</h3>
+<p>Set on a container, variant or field to include the given value in the generated schema’s <code>examples</code>. The value can be any type that implements serde’s <code>Serialize</code> trait - it does not need to be the same type as the attached struct/field. This attribute can be repeated to specify multiple examples.</p>
+<p>In previous versions of schemars, the value had to be a string literal identifying a defined function that would be called to return the actual example value (similar to the <a href="#default"><code>default</code></a> attribute). To avoid the new attribute behaviour from silently breaking old consumers, string literals consisting of a single word (e.g. <code>#[schemars(example = "my_fn")]</code>) or a path (e.g. <code>#[schemars(example = "my_mod::my_fn")]</code>) are currently disallowed. This restriction may be relaxed in a future version of schemars, but for now if you want to include such a string as the literal example value, this can be done by borrowing the value, e.g. <code>#[schemars(example = &amp;"my_fn")]</code>. If you instead want to call a function to get the example value (mirrorring the old behaviour), you must use an explicit function call expression, e.g. <code>#[schemars(example = my_fn())]</code>.</p>
+<p>Alternatively, to directly set multiple examples without repeating <code>example = ...</code> attribute, you can instead use the <a href="#extend"><code>extend</code></a> attribute, e.g. <code>#[schemars(extend("examples" = [1, 2, 3]))]</code>.</p>
+<h3 id="deprecated">
+<p><code>#[deprecated]</code></p>
+</h3>
+<p>Set the Rust built-in <a href="https://doc.rust-lang.org/edition-guide/rust-2018/the-compiler/an-attribute-for-deprecation.html"><code>deprecated</code></a> attribute on a struct, enum, field or variant to set the generated schema’s <code>deprecated</code> keyword to <code>true</code>.</p>
+<h3 id="inline">
+<p><code>#[schemars(inline)]</code></p>
+</h3>
+<p>Set the return value of <a href="trait.JsonSchema.html#method.inline_schema"><code>inline_schema</code></a> to <code>true</code> to include JSON schemas generated for this type directly in parent schemas, rather than being re-used where possible using the <code>$ref</code> keyword.</p>
+<h3 id="crate">
+<p><code>#[schemars(crate = "other_crate::schemars")]</code></p>
+</h3>
+<p>Set the path to the schemars crate instance the generated code should depend on. This is mostly useful for other crates that depend on schemars in their macros.</p>
+<h3 id="extend">
+<p><code>#[schemars(extend("key" = value))]</code></p>
+</h3>
+<p>Set on a container, variant or field to add properties (or replace existing properties) in a generated schema. This can contain multiple key/value pairs and/or be specified multiple times, as long as each key is unique.</p>
+<p>The key must be a quoted string, and the value can be any expression that produces a type implementing <code>serde::Serialize</code>. The value can also be a JSON literal which can interpolate other values.</p>
+<div class="example-wrap"><pre class="language-plaintext"><code>#[derive(JsonSchema)]
+#[schemars(extend(&quot;simple&quot; = &quot;string value&quot;, &quot;complex&quot; = {&quot;array&quot;: [1, 2, 3]}))]
+struct Struct;</code></pre></div><h3 id="transform">
+<p><code>#[schemars(transform = some::transform)]</code></p>
+</h3>
+<p>Set on a container, variant or field to run a <code>schemars::transform::Transform</code> against the generated schema. This can be specified multiple times to run multiple transforms.</p>
+<p>The <code>Transform</code> trait is implemented on functions with the signature <code>fn(&amp;mut Schema) -&gt; ()</code>, allowing you to do this:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>my_transform(schema: <span class="kw-2">&amp;mut </span>Schema) {
+   <span class="macro">todo!</span>()
+}
+
+<span class="attr">#[derive(JsonSchema)]
+#[schemars(transform = my_transform)]
+</span><span class="kw">struct </span>Struct;</code></pre></div>
+<h3 id="doc">
+<p>Doc Comments (<code>#[doc = "..."]</code>)</p>
+</h3>
+<p>If a struct, variant or field has any <a href="https://doc.rust-lang.org/stable/rust-by-example/meta/doc.html#doc-comments">doc comments</a> (or <a href="https://doc.rust-lang.org/rustdoc/the-doc-attribute.html"><code>doc</code> attributes</a>), then these will be used as the generated schema’s <code>description</code>. If the first line is an ATX-style markdown heading (i.e. it begins with a # character), then it will be used as the schema’s <code>title</code>, and the remaining lines will be the <code>description</code>.</p>
+</div></details></section></div></main></body></html>

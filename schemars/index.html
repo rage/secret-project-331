@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Schemars"><title>schemars - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="schemars" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../schemars/index.html">schemars</a><span class="version">1.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#schemars" title="Schemars">Schemars</a><ul><li><a href="#basic-usage" title="Basic Usage">Basic Usage</a></li><li><a href="#versioning-and-stability" title="Versioning and Stability">Versioning and Stability</a></li><li><a href="#feature-flags" title="Feature Flags">Feature Flags</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#derives" title="Derive Macros">Derive Macros</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>schemars</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/schemars/lib.rs.html#1-190">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="schemars"><a class="doc-anchor" href="#schemars">§</a>Schemars</h2>
+<p><a href="https://github.com/GREsau/schemars/actions"><img src="https://img.shields.io/github/actions/workflow/status/GREsau/schemars/ci.yml?branch=master&amp;logo=GitHub" alt="CI Build" /></a>
+<a href="https://crates.io/crates/schemars"><img src="https://img.shields.io/crates/v/schemars" alt="Crates.io" /></a>
+<a href="https://docs.rs/schemars/latest"><img src="https://img.shields.io/docsrs/schemars/latest?label=API%20docs" alt="API Docs" /></a>
+<a href="https://graham.cool/schemars"><img src="https://img.shields.io/badge/Usage%20docs-graham.cool%2Fschemars-blue" alt="Usage Docs" /></a>
+<a href="https://blog.rust-lang.org/2023/11/16/Rust-1.74.0/"><img src="https://img.shields.io/badge/msrv-1.74-blue" alt="MSRV 1.74+" /></a></p>
+<p>Generate JSON Schema documents from Rust code</p>
+<h3 id="basic-usage"><a class="doc-anchor" href="#basic-usage">§</a>Basic Usage</h3>
+<p><em>For more detailed information, see the full <a href="https://docs.rs/schemars/latest">API documentation on docs.rs</a>, and the <a href="https://graham.cool/schemars">detailed usage documentation website</a>.</em></p>
+<p>If you don’t really care about the specifics, the easiest way to generate a JSON schema for your types is to <code>#[derive(JsonSchema)]</code> and use the <code>schema_for!</code> macro. All fields of the type must also implement <code>JsonSchema</code> - Schemars implements this for many standard library types.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>schemars::{schema_for, JsonSchema};
+
+<span class="attr">#[derive(JsonSchema)]
+</span><span class="kw">pub struct </span>MyStruct {
+    <span class="kw">pub </span>my_int: i32,
+    <span class="kw">pub </span>my_bool: bool,
+    <span class="kw">pub </span>my_nullable_enum: <span class="prelude-ty">Option</span>&lt;MyEnum&gt;,
+}
+
+<span class="attr">#[derive(JsonSchema)]
+</span><span class="kw">pub enum </span>MyEnum {
+    StringNewType(String),
+    StructVariant { floats: Vec&lt;f32&gt; },
+}
+
+<span class="kw">let </span>schema = <span class="macro">schema_for!</span>(MyStruct);
+<span class="macro">println!</span>(<span class="string">"{}"</span>, serde_json::to_string_pretty(<span class="kw-2">&amp;</span>schema).unwrap());</code></pre></div>
+<details>
+<summary>Click to see the output JSON schema...</summary>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;$schema&quot;: &quot;https://json-schema.org/draft/2020-12/schema&quot;,
+  &quot;title&quot;: &quot;MyStruct&quot;,
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;my_bool&quot;: {
+      &quot;type&quot;: &quot;boolean&quot;
+    },
+    &quot;my_int&quot;: {
+      &quot;type&quot;: &quot;integer&quot;,
+      &quot;format&quot;: &quot;int32&quot;
+    },
+    &quot;my_nullable_enum&quot;: {
+      &quot;anyOf&quot;: [
+        {
+          &quot;$ref&quot;: &quot;#/$defs/MyEnum&quot;
+        },
+        {
+          &quot;type&quot;: &quot;null&quot;
+        }
+      ]
+    }
+  },
+  &quot;required&quot;: [&quot;my_int&quot;, &quot;my_bool&quot;],
+  &quot;$defs&quot;: {
+    &quot;MyEnum&quot;: {
+      &quot;oneOf&quot;: [
+        {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;properties&quot;: {
+            &quot;StringNewType&quot;: {
+              &quot;type&quot;: &quot;string&quot;
+            }
+          },
+          &quot;additionalProperties&quot;: false,
+          &quot;required&quot;: [&quot;StringNewType&quot;]
+        },
+        {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;properties&quot;: {
+            &quot;StructVariant&quot;: {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;properties&quot;: {
+                &quot;floats&quot;: {
+                  &quot;type&quot;: &quot;array&quot;,
+                  &quot;items&quot;: {
+                    &quot;type&quot;: &quot;number&quot;,
+                    &quot;format&quot;: &quot;float&quot;
+                  }
+                }
+              },
+              &quot;required&quot;: [&quot;floats&quot;]
+            }
+          },
+          &quot;additionalProperties&quot;: false,
+          &quot;required&quot;: [&quot;StructVariant&quot;]
+        }
+      ]
+    }
+  }
+}</code></pre></div></details>
+<h4 id="serde-compatibility"><a class="doc-anchor" href="#serde-compatibility">§</a>Serde Compatibility</h4>
+<p>One of the main aims of this library is compatibility with <a href="https://github.com/serde-rs/serde">Serde</a>. Any generated schema <em>should</em> match how <a href="https://github.com/serde-rs/json">serde_json</a> would serialize/deserialize to/from JSON. To support this, Schemars will check for any <code>#[serde(...)]</code> attributes on types that derive <code>JsonSchema</code>, and adjust the generated schema accordingly.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>schemars::{schema_for, JsonSchema};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+
+<span class="attr">#[derive(Deserialize, Serialize, JsonSchema)]
+#[serde(rename_all = <span class="string">"camelCase"</span>, deny_unknown_fields)]
+</span><span class="kw">pub struct </span>MyStruct {
+    <span class="attr">#[serde(rename = <span class="string">"myNumber"</span>)]
+    </span><span class="kw">pub </span>my_int: i32,
+    <span class="kw">pub </span>my_bool: bool,
+    <span class="attr">#[serde(default)]
+    </span><span class="kw">pub </span>my_nullable_enum: <span class="prelude-ty">Option</span>&lt;MyEnum&gt;,
+}
+
+<span class="attr">#[derive(Deserialize, Serialize, JsonSchema)]
+#[serde(untagged)]
+</span><span class="kw">pub enum </span>MyEnum {
+    StringNewType(String),
+    StructVariant { floats: Vec&lt;f32&gt; },
+}
+
+<span class="kw">let </span>schema = <span class="macro">schema_for!</span>(MyStruct);
+<span class="macro">println!</span>(<span class="string">"{}"</span>, serde_json::to_string_pretty(<span class="kw-2">&amp;</span>schema).unwrap());</code></pre></div>
+<details>
+<summary>Click to see the output JSON schema...</summary>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;$schema&quot;: &quot;https://json-schema.org/draft/2020-12/schema&quot;,
+  &quot;title&quot;: &quot;MyStruct&quot;,
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;myBool&quot;: {
+      &quot;type&quot;: &quot;boolean&quot;
+    },
+    &quot;myNullableEnum&quot;: {
+      &quot;anyOf&quot;: [
+        {
+          &quot;$ref&quot;: &quot;#/$defs/MyEnum&quot;
+        },
+        {
+          &quot;type&quot;: &quot;null&quot;
+        }
+      ],
+      &quot;default&quot;: null
+    },
+    &quot;myNumber&quot;: {
+      &quot;type&quot;: &quot;integer&quot;,
+      &quot;format&quot;: &quot;int32&quot;
+    }
+  },
+  &quot;additionalProperties&quot;: false,
+  &quot;required&quot;: [&quot;myNumber&quot;, &quot;myBool&quot;],
+  &quot;$defs&quot;: {
+    &quot;MyEnum&quot;: {
+      &quot;anyOf&quot;: [
+        {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;properties&quot;: {
+            &quot;floats&quot;: {
+              &quot;type&quot;: &quot;array&quot;,
+              &quot;items&quot;: {
+                &quot;type&quot;: &quot;number&quot;,
+                &quot;format&quot;: &quot;float&quot;
+              }
+            }
+          },
+          &quot;required&quot;: [&quot;floats&quot;]
+        }
+      ]
+    }
+  }
+}</code></pre></div></details>
+<p><code>#[serde(...)]</code> attributes can be overriden using <code>#[schemars(...)]</code> attributes, which behave identically (e.g. <code>#[schemars(rename_all = "camelCase")]</code>). You may find this useful if you want to change the generated schema without affecting Serde’s behaviour, or if you’re just not using Serde.</p>
+<h4 id="schema-from-example-value"><a class="doc-anchor" href="#schema-from-example-value">§</a>Schema from Example Value</h4>
+<p>If you want a schema for a type that can’t/doesn’t implement <code>JsonSchema</code>, but does implement <code>serde::Serialize</code>, then you can generate a JSON schema from a value of that type. However, this schema will generally be less precise than if the type implemented <code>JsonSchema</code> - particularly when it involves enums, since schemars will not make any assumptions about the structure of an enum based on a single variant.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>schemars::schema_for_value;
+<span class="kw">use </span>serde::Serialize;
+
+<span class="attr">#[derive(Serialize)]
+</span><span class="kw">pub struct </span>MyStruct {
+    <span class="kw">pub </span>my_int: i32,
+    <span class="kw">pub </span>my_bool: bool,
+    <span class="kw">pub </span>my_nullable_enum: <span class="prelude-ty">Option</span>&lt;MyEnum&gt;,
+}
+
+<span class="attr">#[derive(Serialize)]
+</span><span class="kw">pub enum </span>MyEnum {
+    StringNewType(String),
+    StructVariant { floats: Vec&lt;f32&gt; },
+}
+
+<span class="kw">let </span>schema = <span class="macro">schema_for_value!</span>(MyStruct {
+    my_int: <span class="number">123</span>,
+    my_bool: <span class="bool-val">true</span>,
+    my_nullable_enum: <span class="prelude-val">Some</span>(MyEnum::StringNewType(<span class="string">"foo"</span>.to_string()))
+});
+<span class="macro">println!</span>(<span class="string">"{}"</span>, serde_json::to_string_pretty(<span class="kw-2">&amp;</span>schema).unwrap());</code></pre></div>
+<details>
+<summary>Click to see the output JSON schema...</summary>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
+  &quot;title&quot;: &quot;MyStruct&quot;,
+  &quot;examples&quot;: [
+    {
+      &quot;my_bool&quot;: true,
+      &quot;my_int&quot;: 123,
+      &quot;my_nullable_enum&quot;: {
+        &quot;StringNewType&quot;: &quot;foo&quot;
+      }
+    }
+  ],
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;my_bool&quot;: {
+      &quot;type&quot;: &quot;boolean&quot;
+    },
+    &quot;my_int&quot;: {
+      &quot;type&quot;: &quot;integer&quot;
+    },
+    &quot;my_nullable_enum&quot;: true
+  }
+}</code></pre></div></details>
+<h3 id="versioning-and-stability"><a class="doc-anchor" href="#versioning-and-stability">§</a>Versioning and Stability</h3>
+<p>Schemars follows semantic versioning, with the following caveats:</p>
+<ul>
+<li>Increasing MSRV (Minimum Supported Rust Version) is considered a semver-minor change. Schemars aims to support the past year of stable rust versions, but this is not guaranteed.</li>
+<li>External libraries that are supported via optional dependencies (see <a href="#feature-flags">Feature Flags</a>) <em>may</em> be removed in a minor version change, particularly if a newer semver-incompatible version has been released for a long time.</li>
+<li>The exact structure of generated schemas (both for built-in implementations on standard library types, and for <code>#[derive(JsonSchema)]</code> implementations) may change between versions of schemars - this is not considered a breaking change.</li>
+<li>Exported items that are marked with <code>#[doc(hidden)]</code> and have names beginning with <code>_</code> are not part of the public API, and may be changed or removed without notice.</li>
+<li>If a bug is found in schemars that causes attributes to be incorrectly processed or silently ignored by <code>#[derive(JsonSchema)]</code>, a subsequent version of schemars may instead fail compilation when encountering such attributes. This is considered a bug fix, and not a breaking change.</li>
+</ul>
+<h3 id="feature-flags"><a class="doc-anchor" href="#feature-flags">§</a>Feature Flags</h3>
+<ul>
+<li><code>std</code> (enabled by default) - implements <code>JsonSchema</code> for types in the rust standard library (<code>JsonSchema</code> is still implemented on types in <code>core</code> and <code>alloc</code>, even when this feature is disabled). Disable this feature to use schemars in <code>no_std</code> environments.</li>
+<li><code>derive</code> (enabled by default) - provides <code>#[derive(JsonSchema)]</code> macro</li>
+<li><code>preserve_order</code> - keep the order of struct fields in <code>Schema</code> properties</li>
+<li><code>raw_value</code> - implements <code>JsonSchema</code> for <code>serde_json::value::RawValue</code> (enables the serde_json <code>raw_value</code> feature)</li>
+</ul>
+<p>Schemars can implement <code>JsonSchema</code> on types from several popular crates, enabled via feature flags (dependency versions are shown in brackets):</p>
+<ul>
+<li><code>arrayvec07</code> - <a href="https://crates.io/crates/arrayvec">arrayvec</a> (^0.7)</li>
+<li><code>bigdecimal04</code> - <a href="https://crates.io/crates/bigdecimal">bigdecimal</a> (^0.4)</li>
+<li><code>bytes1</code> - <a href="https://crates.io/crates/bytes">bytes</a> (^1.0)</li>
+<li><code>chrono04</code> - <a href="https://crates.io/crates/chrono">chrono</a> (^0.4)</li>
+<li><code>either1</code> - <a href="https://crates.io/crates/either">either</a> (^1.3)</li>
+<li><code>indexmap2</code> - <a href="https://crates.io/crates/indexmap">indexmap</a> (^2.0)</li>
+<li><code>jiff02</code> - <a href="https://crates.io/crates/jiff">jiff</a> (^0.2)</li>
+<li><code>rust_decimal1</code> - <a href="https://crates.io/crates/rust_decimal">rust_decimal</a> (^1.0)</li>
+<li><code>semver1</code> - <a href="https://crates.io/crates/semver">semver</a> (^1.0.9)</li>
+<li><code>smallvec1</code> - <a href="https://crates.io/crates/smallvec">smallvec</a> (^1.0)</li>
+<li><code>smol_str02</code> - <a href="https://crates.io/crates/smol_str">smol_str</a> (^0.2.1)</li>
+<li><code>url2</code> - <a href="https://crates.io/crates/url">url</a> (^2.0)</li>
+<li><code>uuid1</code> - <a href="https://crates.io/crates/uuid">uuid</a> (^1.0)</li>
+</ul>
+<p>Bear in mind that each of these feature flags <em>may</em> be removed in a future semver-minor change of Schemars, particularly if a newer semver-incompatible version of the external library has been released for a long time. This is unfortunately necessary to avoid supporting old/unmaintained libraries indefinitely.</p>
+<p>For example, to implement <code>JsonSchema</code> on types from <code>chrono</code>, enable it as a feature in the <code>schemars</code> dependency in your <code>Cargo.toml</code> like so:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+schemars = { version = &quot;1.0&quot;, features = [&quot;chrono04&quot;] }</code></pre></div></div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="consts/index.html" title="mod schemars::consts">consts</a></dt><dd>Constants associated with JSON Schema generation.</dd><dt><a class="mod" href="generate/index.html" title="mod schemars::generate">generate</a></dt><dd>JSON Schema generator and settings.</dd><dt><a class="mod" href="transform/index.html" title="mod schemars::transform">transform</a></dt><dd>Contains the <a href="transform/trait.Transform.html" title="trait schemars::transform::Transform"><code>Transform</code></a> trait, used to modify a constructed schema and optionally its subschemas.
+This trait is automatically implemented for functions of the form <code>fn(&amp;mut Schema) -&gt; ()</code>.</dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.json_schema.html" title="macro schemars::json_schema">json_<wbr>schema</a></dt><dd>Construct a <a href="struct.Schema.html" title="struct schemars::Schema"><code>Schema</code></a> from a JSON literal. This can either be a JSON object, or
+a boolean (<code>true</code> or <code>false</code>).</dd><dt><a class="macro" href="macro.schema_for.html" title="macro schemars::schema_for">schema_<wbr>for</a></dt><dd>Generates a <a href="struct.Schema.html" title="struct schemars::Schema"><code>Schema</code></a> for the given type using default settings.
+The default settings currently conform to <a href="https://json-schema.org/specification-links#2020-12">JSON Schema 2020-12</a>, but this is liable to change in a future version of Schemars if support for other JSON Schema versions is added.</dd><dt><a class="macro" href="macro.schema_for_value.html" title="macro schemars::schema_for_value">schema_<wbr>for_<wbr>value</a></dt><dd>Generates a <a href="struct.Schema.html" title="struct schemars::Schema"><code>Schema</code></a> for the given example value using default settings.
+The default settings currently conform to <a href="https://json-schema.org/specification-links#2020-12">JSON Schema 2020-12</a>, but this is liable to change in a future version of Schemars if support for other JSON Schema versions is added.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Schema.html" title="struct schemars::Schema">Schema</a></dt><dd>A JSON Schema.</dd><dt><a class="struct" href="struct.SchemaGenerator.html" title="struct schemars::SchemaGenerator">Schema<wbr>Generator</a></dt><dd>The main type used to generate JSON Schemas.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.JsonSchema.html" title="trait schemars::JsonSchema">Json<wbr>Schema</a></dt><dd>A type which can be described as a JSON Schema document.</dd></dl><h2 id="derives" class="section-header">Derive Macros<a href="#derives" class="anchor">§</a></h2><dl class="item-table"><dt><a class="derive" href="derive.JsonSchema.html" title="derive schemars::JsonSchema">Json<wbr>Schema</a></dt><dd>Derive macro for <code>JsonSchema</code> trait.</dd><dt><a class="derive" href="derive.JsonSchema_repr.html" title="derive schemars::JsonSchema_repr">Json<wbr>Schema_<wbr>repr</a></dt></dl></section></div></main></body></html>

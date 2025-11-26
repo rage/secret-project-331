@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A JSON Patch (RFC 6902) and JSON Merge Patch (RFC 7396) implementation for Rust."><title>json_patch - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="json_patch" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../json_patch/index.html">json_<wbr>patch</a><span class="version">4.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#usage" title="Usage">Usage</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>json_patch</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/json_patch/lib.rs.html#1-683">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A <a href="https://tools.ietf.org/html/rfc6902">JSON Patch (RFC 6902)</a> and
+<a href="https://tools.ietf.org/html/rfc7396">JSON Merge Patch (RFC 7396)</a> implementation for Rust.</p>
+<h2 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h2>
+<p>Add this to your <em>Cargo.toml</em>:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+json-patch = &quot;*&quot;</code></pre></div><h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>Create and patch document using JSON Patch:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_use]
+</span><span class="kw">use </span>json_patch::{Patch, patch};
+<span class="kw">use </span>serde_json::{from_value, json};
+
+<span class="kw">let </span><span class="kw-2">mut </span>doc = <span class="macro">json!</span>([
+    { <span class="string">"name"</span>: <span class="string">"Andrew" </span>},
+    { <span class="string">"name"</span>: <span class="string">"Maxim" </span>}
+]);
+
+<span class="kw">let </span>p: Patch = from_value(<span class="macro">json!</span>([
+  { <span class="string">"op"</span>: <span class="string">"test"</span>, <span class="string">"path"</span>: <span class="string">"/0/name"</span>, <span class="string">"value"</span>: <span class="string">"Andrew" </span>},
+  { <span class="string">"op"</span>: <span class="string">"add"</span>, <span class="string">"path"</span>: <span class="string">"/0/happy"</span>, <span class="string">"value"</span>: <span class="bool-val">true </span>}
+])).unwrap();
+
+patch(<span class="kw-2">&amp;mut </span>doc, <span class="kw-2">&amp;</span>p).unwrap();
+<span class="macro">assert_eq!</span>(doc, <span class="macro">json!</span>([
+  { <span class="string">"name"</span>: <span class="string">"Andrew"</span>, <span class="string">"happy"</span>: <span class="bool-val">true </span>},
+  { <span class="string">"name"</span>: <span class="string">"Maxim" </span>}
+]));
+</code></pre></div>
+<p>Create and patch document using JSON Merge Patch:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_use]
+</span><span class="kw">use </span>json_patch::merge;
+<span class="kw">use </span>serde_json::json;
+
+<span class="kw">let </span><span class="kw-2">mut </span>doc = <span class="macro">json!</span>({
+  <span class="string">"title"</span>: <span class="string">"Goodbye!"</span>,
+  <span class="string">"author" </span>: {
+    <span class="string">"givenName" </span>: <span class="string">"John"</span>,
+    <span class="string">"familyName" </span>: <span class="string">"Doe"
+  </span>},
+  <span class="string">"tags"</span>:[ <span class="string">"example"</span>, <span class="string">"sample" </span>],
+  <span class="string">"content"</span>: <span class="string">"This will be unchanged"
+</span>});
+
+<span class="kw">let </span>patch = <span class="macro">json!</span>({
+  <span class="string">"title"</span>: <span class="string">"Hello!"</span>,
+  <span class="string">"phoneNumber"</span>: <span class="string">"+01-123-456-7890"</span>,
+  <span class="string">"author"</span>: {
+    <span class="string">"familyName"</span>: null
+  },
+  <span class="string">"tags"</span>: [ <span class="string">"example" </span>]
+});
+
+merge(<span class="kw-2">&amp;mut </span>doc, <span class="kw-2">&amp;</span>patch);
+<span class="macro">assert_eq!</span>(doc, <span class="macro">json!</span>({
+  <span class="string">"title"</span>: <span class="string">"Hello!"</span>,
+  <span class="string">"author" </span>: {
+    <span class="string">"givenName" </span>: <span class="string">"John"
+  </span>},
+  <span class="string">"tags"</span>: [ <span class="string">"example" </span>],
+  <span class="string">"content"</span>: <span class="string">"This will be unchanged"</span>,
+  <span class="string">"phoneNumber"</span>: <span class="string">"+01-123-456-7890"
+</span>}));</code></pre></div>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.jsonptr"><code>pub use <a class="mod" href="../jsonptr/index.html" title="mod jsonptr">jsonptr</a>;</code></dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AddOperation.html" title="struct json_patch::AddOperation">AddOperation</a></dt><dd>JSON Patch ‘add’ operation representation</dd><dt><a class="struct" href="struct.CopyOperation.html" title="struct json_patch::CopyOperation">Copy<wbr>Operation</a></dt><dd>JSON Patch ‘copy’ operation representation</dd><dt><a class="struct" href="struct.MoveOperation.html" title="struct json_patch::MoveOperation">Move<wbr>Operation</a></dt><dd>JSON Patch ‘move’ operation representation</dd><dt><a class="struct" href="struct.Patch.html" title="struct json_patch::Patch">Patch</a></dt><dd>Representation of JSON Patch (list of patch operations)</dd><dt><a class="struct" href="struct.PatchError.html" title="struct json_patch::PatchError">Patch<wbr>Error</a></dt><dd>This type represents all possible errors that can occur when applying JSON patch</dd><dt><a class="struct" href="struct.RemoveOperation.html" title="struct json_patch::RemoveOperation">Remove<wbr>Operation</a></dt><dd>JSON Patch ‘remove’ operation representation</dd><dt><a class="struct" href="struct.ReplaceOperation.html" title="struct json_patch::ReplaceOperation">Replace<wbr>Operation</a></dt><dd>JSON Patch ‘replace’ operation representation</dd><dt><a class="struct" href="struct.TestOperation.html" title="struct json_patch::TestOperation">Test<wbr>Operation</a></dt><dd>JSON Patch ‘test’ operation representation</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.PatchErrorKind.html" title="enum json_patch::PatchErrorKind">Patch<wbr>Error<wbr>Kind</a></dt><dd>This type represents all possible errors that can occur when applying JSON patch</dd><dt><a class="enum" href="enum.PatchOperation.html" title="enum json_patch::PatchOperation">Patch<wbr>Operation</a></dt><dd>JSON Patch single patch operation</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.diff.html" title="fn json_patch::diff">diff</a></dt><dd>Diff two JSON documents and generate a JSON Patch (RFC 6902).</dd><dt><a class="fn" href="fn.merge.html" title="fn json_patch::merge">merge</a></dt><dd>Patch provided JSON document (given as <code>serde_json::Value</code>) in place with JSON Merge Patch
+(RFC 7396).</dd><dt><a class="fn" href="fn.patch.html" title="fn json_patch::patch">patch</a></dt><dd>Patch provided JSON document (given as <code>serde_json::Value</code>) in-place. If any of the patch is
+failed, all previous operations are reverted. In case of internal error resulting in panic,
+document might be left in inconsistent state.</dd><dt><a class="fn" href="fn.patch_unsafe.html" title="fn json_patch::patch_unsafe">patch_<wbr>unsafe</a></dt><dd>Patch provided JSON document (given as <code>serde_json::Value</code>) in-place. Different from <a href="fn.patch.html" title="fn json_patch::patch"><code>patch</code></a>
+if any patch failed, the document is left in an inconsistent state. In case of internal error
+resulting in panic, document might be left in inconsistent state.</dd></dl></section></div></main></body></html>

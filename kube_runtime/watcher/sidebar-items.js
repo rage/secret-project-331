@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error","Event","InitialListStrategy","ListSemantic"],"fn":["metadata_watcher","watch_object","watcher"],"struct":["Config","DefaultBackoff","ExponentialBackoff"],"type":["Result"]};

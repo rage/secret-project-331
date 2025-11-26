@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Cache objects from a `watcher()` stream into a local `Store`"><title>reflector in kube::runtime - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kube" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../kube/index.html">kube</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">reflector</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#usage" title="Usage">Usage</a></li><li><a href="#example" title="Example">Example</a></li><li><a href="#memory-usage" title="Memory Usage">Memory Usage</a></li><li><a href="#stream-sharing" title="Stream sharing">Stream sharing</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In kube::<wbr>runtime</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">kube</a>::<wbr><a href="index.html">runtime</a></div><h1>Function <span class="fn">reflector</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/kube_runtime/reflector/mod.rs.html#116-120">Source</a> </span></div><pre class="rust item-decl"><code>pub fn reflector&lt;K, W&gt;(
+    writer: <a class="struct" href="reflector/store/struct.Writer.html" title="struct kube::runtime::reflector::store::Writer">Writer</a>&lt;K&gt;,
+    stream: W,
+) -&gt; impl <a class="trait" href="../../futures_core/stream/trait.Stream.html" title="trait futures_core::stream::Stream">Stream</a>&lt;Item = &lt;W as <a class="trait" href="../../futures_core/stream/trait.Stream.html" title="trait futures_core::stream::Stream">Stream</a>&gt;::<a class="associatedtype" href="../../futures_core/stream/trait.Stream.html#associatedtype.Item" title="type futures_core::stream::Stream::Item">Item</a>&gt;<div class="where">where
+    K: <a class="trait" href="reflector/trait.Lookup.html" title="trait kube::runtime::reflector::Lookup">Lookup</a> + <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a>,
+    &lt;K as <a class="trait" href="reflector/trait.Lookup.html" title="trait kube::runtime::reflector::Lookup">Lookup</a>&gt;::<a class="associatedtype" href="reflector/trait.Lookup.html#associatedtype.DynamicType" title="type kube::runtime::reflector::Lookup::DynamicType">DynamicType</a>: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a> + <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a>,
+    W: <a class="trait" href="../../futures_core/stream/trait.Stream.html" title="trait futures_core::stream::Stream">Stream</a>&lt;Item = <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="enum" href="watcher/enum.Event.html" title="enum kube::runtime::watcher::Event">Event</a>&lt;K&gt;, <a class="enum" href="watcher/enum.Error.html" title="enum kube::runtime::watcher::Error">Error</a>&gt;&gt;,</div></code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Cache objects from a <a href="fn.watcher.html" title="fn kube::runtime::watcher"><code>watcher()</code></a> stream into a local <a href="reflector/struct.Store.html" title="struct kube::runtime::reflector::Store"><code>Store</code></a></p>
+<p>Observes the raw <code>Stream</code> of <a href="watcher/enum.Event.html" title="enum kube::runtime::watcher::Event"><code>watcher::Event</code></a> objects, and modifies the cache.
+It passes the raw <a href="fn.watcher.html" title="fn kube::runtime::watcher"><code>watcher()</code></a> stream through unmodified.</p>
+<h3 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h3>
+<p>Create a <a href="reflector/struct.Store.html" title="struct kube::runtime::reflector::Store"><code>Store</code></a> through e.g. <a href="reflector/fn.store.html" title="fn kube::runtime::reflector::store"><code>store::store()</code></a>. The <code>writer</code> part is not-clonable,
+and must be moved into the reflector. The <code>reader</code> part is the <a href="reflector/struct.Store.html" title="struct kube::runtime::reflector::Store"><code>Store</code></a> interface
+that you can send to other parts of your program as state.</p>
+<p>The cache contains the last-seen state of objects,
+which may lag slightly behind the actual state.</p>
+<h3 id="example"><a class="doc-anchor" href="#example">§</a>Example</h3>
+<p>Infinite watch of <a href="../../k8s_openapi/v1_30/api/core/v1/node/struct.Node.html" title="struct k8s_openapi::v1_30::api::core::v1::node::Node"><code>Node</code></a> resources with a certain label.</p>
+<p>The <code>reader</code> part being passed around to a webserver is omitted.
+For examples see <a href="https://github.com/kube-rs/version-rs">version-rs</a> for integration with <a href="https://github.com/tokio-rs/axum">axum</a>,
+or <a href="https://github.com/kube-rs/controller-rs">controller-rs</a> for the similar controller integration with <a href="https://actix.rs/">actix-web</a>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::future::ready;
+<span class="kw">use </span>k8s_openapi::api::core::v1::Node;
+<span class="kw">use </span>kube::runtime::{reflector, watcher, WatchStreamExt, watcher::Config};
+<span class="kw">use </span>futures::StreamExt;
+
+<span class="kw">let </span>nodes: Api&lt;Node&gt; = Api::all(client);
+<span class="kw">let </span>node_filter = Config::default().labels(<span class="string">"kubernetes.io/arch=amd64"</span>);
+<span class="kw">let </span>(reader, writer) = reflector::store();
+
+<span class="comment">// Create the infinite reflector stream
+</span><span class="kw">let </span>rf = reflector(writer, watcher(nodes, node_filter));
+
+<span class="comment">// !!! pass reader to your webserver/manager as state !!!
+
+// Poll the stream (needed to keep the store up-to-date)
+</span><span class="kw">let </span>infinite_watch = rf.applied_objects().for_each(|o| { ready(()) });
+infinite_watch.<span class="kw">await</span>;</code></pre></div>
+<h3 id="memory-usage"><a class="doc-anchor" href="#memory-usage">§</a>Memory Usage</h3>
+<p>A reflector often constitutes one of the biggest components of a controller’s memory use.
+Given a ~2000 pods cluster, a reflector saving everything (including injected sidecars, managed fields)
+can quickly consume a couple of hundred megabytes or more, depending on how much of this you are storing.</p>
+<p>While generally acceptable, there are techniques you can leverage to reduce the memory usage
+depending on your use case.</p>
+<ol>
+<li>Reflect a <a href="../api/struct.PartialObjectMeta.html" title="struct kube::api::PartialObjectMeta"><code>PartialObjectMeta&lt;K&gt;</code></a> stream rather than a stream of <code>K</code></li>
+</ol>
+<p>You can send in a <a href="fn.metadata_watcher.html" title="fn kube::runtime::metadata_watcher"><code>metadata_watcher()</code></a> for a type rather than a <a href="fn.watcher.html" title="fn kube::runtime::watcher"><code>watcher()</code></a>,
+and this can drop your memory usage by more than a factor of two,
+depending on the size of <code>K</code>. 60% reduction seen for <code>Pod</code>. Usage is otherwise identical.</p>
+<ol start="2">
+<li>Use <code>modify</code> the raw <a href="watcher/enum.Event.html" title="enum kube::runtime::watcher::Event"><code>watcher::Event</code></a> object stream to clear unneeded properties</li>
+</ol>
+<p>For instance, managed fields typically constitutes around half the size of <code>ObjectMeta</code> and can often be dropped:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>stream = watcher(api, Default::default()).map_ok(|ev| {
+    ev.modify(|pod| {
+        pod.managed_fields_mut().clear();
+        pod.annotations_mut().clear();
+        pod.status = <span class="prelude-val">None</span>;
+    })
+});</code></pre></div>
+<p>The <code>stream</code> can then be passed to <code>reflector</code> causing smaller objects to be written to its store.
+Note that you <strong>cannot drop everything</strong>; you minimally need the spec properties your app relies on.
+Additionally, only <code>labels</code>, <code>annotations</code> and <code>managed_fields</code> are safe to drop from <code>ObjectMeta</code>.</p>
+<p>For more information check out: <a href="https://kube.rs/controllers/optimization/">https://kube.rs/controllers/optimization/</a> for graphs and techniques.</p>
+<h3 id="stream-sharing"><a class="doc-anchor" href="#stream-sharing">§</a>Stream sharing</h3>
+<p><code>reflector()</code> as an interface may optionally create a stream that can be
+shared with other components to help with resource usage.</p>
+<p>To share a stream, the <code>Writer&lt;K&gt;</code> consumed by <code>reflector()</code> must be
+created through an interface that allows a store to be subscribed on, such
+as [<code>store_shared()</code>]. When the store supports being subscribed on, it will
+broadcast an event to all active listeners after caching any object
+contained in the event.</p>
+<p>Creating subscribers requires an
+<a href="https://github.com/kube-rs/kube/blob/main/kube-runtime/Cargo.toml#L17-L21"><code>unstable</code></a>
+feature</p>
+</div></details></section></div></main></body></html>

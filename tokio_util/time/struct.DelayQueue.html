@@ -1,0 +1,387 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A queue of delayed elements."><title>DelayQueue in tokio_util::time - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_util" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc struct"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../tokio_util/index.html">tokio_<wbr>util</a><span class="version">0.7.16</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Delay<wbr>Queue</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#usage" title="Usage">Usage</a></li><li><a href="#stream-implementation" title="`Stream` implementation"><code>Stream</code> implementation</a></li><li><a href="#implementation" title="Implementation">Implementation</a></li><li><a href="#usage-1" title="Usage">Usage</a></li></ul><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.capacity" title="capacity">capacity</a></li><li><a href="#method.clear" title="clear">clear</a></li><li><a href="#method.compact" title="compact">compact</a></li><li><a href="#method.deadline" title="deadline">deadline</a></li><li><a href="#method.insert" title="insert">insert</a></li><li><a href="#method.insert_at" title="insert_at">insert_at</a></li><li><a href="#method.is_empty" title="is_empty">is_empty</a></li><li><a href="#method.len" title="len">len</a></li><li><a href="#method.new" title="new">new</a></li><li><a href="#method.peek" title="peek">peek</a></li><li><a href="#method.poll_expired" title="poll_expired">poll_expired</a></li><li><a href="#method.remove" title="remove">remove</a></li><li><a href="#method.reserve" title="reserve">reserve</a></li><li><a href="#method.reset" title="reset">reset</a></li><li><a href="#method.reset_at" title="reset_at">reset_at</a></li><li><a href="#method.shrink_to_fit" title="shrink_to_fit">shrink_to_fit</a></li><li><a href="#method.try_remove" title="try_remove">try_remove</a></li><li><a href="#method.with_capacity" title="with_capacity">with_capacity</a></li></ul><h3><a href="#trait-implementations">Trait Implementations</a></h3><ul class="block trait-implementation"><li><a href="#impl-Debug-for-DelayQueue%3CT%3E" title="Debug">Debug</a></li><li><a href="#impl-Default-for-DelayQueue%3CT%3E" title="Default">Default</a></li><li><a href="#impl-Stream-for-DelayQueue%3CT%3E" title="Stream">Stream</a></li><li><a href="#impl-Unpin-for-DelayQueue%3CT%3E" title="Unpin">Unpin</a></li></ul><h3><a href="#synthetic-implementations">Auto Trait Implementations</a></h3><ul class="block synthetic-implementation"><li><a href="#impl-RefUnwindSafe-for-DelayQueue%3CT%3E" title="!RefUnwindSafe">!RefUnwindSafe</a></li><li><a href="#impl-UnwindSafe-for-DelayQueue%3CT%3E" title="!UnwindSafe">!UnwindSafe</a></li><li><a href="#impl-Freeze-for-DelayQueue%3CT%3E" title="Freeze">Freeze</a></li><li><a href="#impl-Send-for-DelayQueue%3CT%3E" title="Send">Send</a></li><li><a href="#impl-Sync-for-DelayQueue%3CT%3E" title="Sync">Sync</a></li></ul><h3><a href="#blanket-implementations">Blanket Implementations</a></h3><ul class="block blanket-implementation"><li><a href="#impl-Any-for-T" title="Any">Any</a></li><li><a href="#impl-Borrow%3CT%3E-for-T" title="Borrow&#60;T&#62;">Borrow&#60;T&#62;</a></li><li><a href="#impl-BorrowMut%3CT%3E-for-T" title="BorrowMut&#60;T&#62;">BorrowMut&#60;T&#62;</a></li><li><a href="#impl-From%3CT%3E-for-T" title="From&#60;T&#62;">From&#60;T&#62;</a></li><li><a href="#impl-Into%3CU%3E-for-T" title="Into&#60;U&#62;">Into&#60;U&#62;</a></li><li><a href="#impl-TryFrom%3CU%3E-for-T" title="TryFrom&#60;U&#62;">TryFrom&#60;U&#62;</a></li><li><a href="#impl-TryInto%3CU%3E-for-T" title="TryInto&#60;U&#62;">TryInto&#60;U&#62;</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In tokio_<wbr>util::<wbr>time</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">tokio_util</a>::<wbr><a href="index.html">time</a></div><h1>Struct <span class="struct">DelayQueue</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/tokio_util/time/delay_queue.rs.html#130-154">Source</a> </span></div><pre class="rust item-decl"><code>pub struct DelayQueue&lt;T&gt; { <span class="comment">/* private fields */</span> }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A queue of delayed elements.</p>
+<p>Once an element is inserted into the <code>DelayQueue</code>, it is yielded once the
+specified deadline has been reached.</p>
+<h2 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h2>
+<p>Elements are inserted into <code>DelayQueue</code> using the <a href="struct.DelayQueue.html#method.insert" title="method tokio_util::time::DelayQueue::insert"><code>insert</code></a> or
+<a href="struct.DelayQueue.html#method.insert_at" title="method tokio_util::time::DelayQueue::insert_at"><code>insert_at</code></a> methods. A deadline is provided with the item and a <a href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key"><code>Key</code></a> is
+returned. The key is used to remove the entry or to change the deadline at
+which it should be yielded back.</p>
+<p>Once delays have been configured, the <code>DelayQueue</code> is used via its
+<a href="https://docs.rs/futures/0.1/futures/stream/trait.Stream.html"><code>Stream</code></a> implementation. <a href="struct.DelayQueue.html#method.poll_expired" title="method tokio_util::time::DelayQueue::poll_expired"><code>poll_expired</code></a> is called. If an entry has reached its
+deadline, it is returned. If not, <code>Poll::Pending</code> is returned indicating that the
+current task will be notified once the deadline has been reached.</p>
+<h2 id="stream-implementation"><a class="doc-anchor" href="#stream-implementation">§</a><code>Stream</code> implementation</h2>
+<p>Items are retrieved from the queue via <a href="struct.DelayQueue.html#method.poll_expired" title="method tokio_util::time::DelayQueue::poll_expired"><code>DelayQueue::poll_expired</code></a>. If no delays have
+expired, no items are returned. In this case, <code>Poll::Pending</code> is returned and the
+current task is registered to be notified once the next item’s delay has
+expired.</p>
+<p>If no items are in the queue, i.e. <code>is_empty()</code> returns <code>true</code>, then <code>poll</code>
+returns <code>Poll::Ready(None)</code>. This indicates that the stream has reached an end.
+However, if a new item is inserted <em>after</em>, <code>poll</code> will once again start
+returning items or <code>Poll::Pending</code>.</p>
+<p>Items are returned ordered by their expirations. Items that are configured
+to expire first will be returned first. There are no ordering guarantees
+for items configured to expire at the same instant. Also note that delays are
+rounded to the closest millisecond.</p>
+<h2 id="implementation"><a class="doc-anchor" href="#implementation">§</a>Implementation</h2>
+<p>The <a href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue"><code>DelayQueue</code></a> is backed by a separate instance of a timer wheel similar to that used internally
+by Tokio’s standalone timer utilities such as <a href="../../tokio/time/sleep/fn.sleep.html" title="fn tokio::time::sleep::sleep"><code>sleep</code></a>. Because of this, it offers the same
+performance and scalability benefits.</p>
+<p>State associated with each entry is stored in a <a href="../../slab/index.html" title="mod slab"><code>slab</code></a>. This amortizes the cost of allocation,
+and allows reuse of the memory allocated for expired entries.</p>
+<p>Capacity can be checked using <a href="struct.DelayQueue.html#method.capacity" title="method tokio_util::time::DelayQueue::capacity"><code>capacity</code></a> and allocated preemptively by using
+the <a href="struct.DelayQueue.html#method.reserve" title="method tokio_util::time::DelayQueue::reserve"><code>reserve</code></a> method.</p>
+<h2 id="usage-1"><a class="doc-anchor" href="#usage-1">§</a>Usage</h2>
+<p>Using <code>DelayQueue</code> to manage cache entries.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::{DelayQueue, delay_queue};
+
+<span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::task::{ready, Context, Poll};
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">struct </span>Cache {
+    entries: HashMap&lt;CacheKey, (Value, delay_queue::Key)&gt;,
+    expirations: DelayQueue&lt;CacheKey&gt;,
+}
+
+<span class="kw">const </span>TTL_SECS: u64 = <span class="number">30</span>;
+
+<span class="kw">impl </span>Cache {
+    <span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: CacheKey, value: Value) {
+        <span class="kw">let </span>delay = <span class="self">self</span>.expirations
+            .insert(key.clone(), Duration::from_secs(TTL_SECS));
+
+        <span class="self">self</span>.entries.insert(key, (value, delay));
+    }
+
+    <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>CacheKey) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Value&gt; {
+        <span class="self">self</span>.entries.get(key)
+            .map(|<span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>v, <span class="kw">_</span>)| v)
+    }
+
+    <span class="kw">fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>CacheKey) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, cache_key)) = <span class="self">self</span>.entries.remove(key) {
+            <span class="self">self</span>.expirations.remove(<span class="kw-2">&amp;</span>cache_key);
+        }
+    }
+
+    <span class="kw">fn </span>poll_purge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;()&gt; {
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(entry) = <span class="macro">ready!</span>(<span class="self">self</span>.expirations.poll_expired(cx)) {
+            <span class="self">self</span>.entries.remove(entry.get_ref());
+        }
+
+        Poll::Ready(())
+    }
+}</code></pre></div>
+</div></details><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-DelayQueue%3CT%3E" class="impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#432-1180">Source</a><a href="#impl-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.new" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#443-445">Source</a><h4 class="code-header">pub fn <a href="#method.new" class="fn">new</a>() -&gt; <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h4></section></summary><div class="docblock"><p>Creates a new, empty, <code>DelayQueue</code>.</p>
+<p>The queue will not allocate storage until items are inserted into it.</p>
+<h5 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>delay_queue: DelayQueue&lt;u32&gt; = DelayQueue::new();</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.with_capacity" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#472-482">Source</a><h4 class="code-header">pub fn <a href="#method.with_capacity" class="fn">with_capacity</a>(capacity: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>) -&gt; <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h4></section></summary><div class="docblock"><p>Creates a new, empty, <code>DelayQueue</code> with the specified capacity.</p>
+<p>The queue will be able to hold at least <code>capacity</code> elements without
+reallocating. If <code>capacity</code> is 0, the queue will not allocate for
+storage.</p>
+<h5 id="examples-1"><a class="doc-anchor" href="#examples-1">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::with_capacity(<span class="number">10</span>);
+
+<span class="comment">// These insertions are done without further allocation
+</span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
+    delay_queue.insert(i, Duration::from_secs(i));
+}
+
+<span class="comment">// This will make the queue allocate additional storage
+</span>delay_queue.insert(<span class="number">11</span>, Duration::from_secs(<span class="number">11</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.insert_at" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#533-572">Source</a><h4 class="code-header">pub fn <a href="#method.insert_at" class="fn">insert_at</a>(&amp;mut self, value: T, when: <a class="struct" href="../../tokio/time/instant/struct.Instant.html" title="struct tokio::time::instant::Instant">Instant</a>) -&gt; <a class="struct" href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key">Key</a></h4></section></summary><div class="docblock"><p>Inserts <code>value</code> into the queue set to expire at a specific instant in
+time.</p>
+<p>This function is identical to <code>insert</code>, but takes an <code>Instant</code> instead
+of a <code>Duration</code>.</p>
+<p><code>value</code> is stored in the queue until <code>when</code> is reached. At which point,
+<code>value</code> will be returned from <a href="struct.DelayQueue.html#method.poll_expired" title="method tokio_util::time::DelayQueue::poll_expired"><code>poll_expired</code></a>. If <code>when</code> has already been
+reached, then <code>value</code> is immediately made available to poll.</p>
+<p>The return value represents the insertion and is used as an argument to
+<a href="struct.DelayQueue.html#method.remove" title="method tokio_util::time::DelayQueue::remove"><code>remove</code></a> and <a href="struct.DelayQueue.html#method.reset" title="method tokio_util::time::DelayQueue::reset"><code>reset</code></a>. Note that <a href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key"><code>Key</code></a> is a token and is reused once
+<code>value</code> is removed from the queue either by calling <a href="struct.DelayQueue.html#method.poll_expired" title="method tokio_util::time::DelayQueue::poll_expired"><code>poll_expired</code></a> after
+<code>when</code> is reached or by calling <a href="struct.DelayQueue.html#method.remove" title="method tokio_util::time::DelayQueue::remove"><code>remove</code></a>. At this point, the caller
+must take care to not use the returned <a href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key"><code>Key</code></a> again as it may reference
+a different item in the queue.</p>
+<p>See <a href="#">type</a> level documentation for more details.</p>
+<h5 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h5>
+<p>This function panics if <code>when</code> is too far in the future.</p>
+<h5 id="examples-2"><a class="doc-anchor" href="#examples-2">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::time::{Duration, Instant};
+<span class="kw">use </span>tokio_util::time::DelayQueue;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+<span class="kw">let </span>key = delay_queue.insert_at(
+    <span class="string">"foo"</span>, Instant::now() + Duration::from_secs(<span class="number">5</span>));
+
+<span class="comment">// Remove the entry
+</span><span class="kw">let </span>item = delay_queue.remove(<span class="kw-2">&amp;</span>key);
+<span class="macro">assert_eq!</span>(<span class="kw-2">*</span>item.get_ref(), <span class="string">"foo"</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.poll_expired" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#577-599">Source</a><h4 class="code-header">pub fn <a href="#method.poll_expired" class="fn">poll_expired</a>(&amp;mut self, cx: &amp;mut <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/task/wake/struct.Context.html" title="struct core::task::wake::Context">Context</a>&lt;'_&gt;) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/task/poll/enum.Poll.html" title="enum core::task::poll::Poll">Poll</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.87.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="delay_queue/struct.Expired.html" title="struct tokio_util::time::delay_queue::Expired">Expired</a>&lt;T&gt;&gt;&gt;</h4></section></summary><div class="docblock"><p>Attempts to pull out the next value of the delay queue, registering the
+current task for wakeup if the value is not yet available, and returning
+<code>None</code> if the queue is exhausted.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.insert" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#652-654">Source</a><h4 class="code-header">pub fn <a href="#method.insert" class="fn">insert</a>(&amp;mut self, value: T, timeout: <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/time/struct.Duration.html" title="struct core::time::Duration">Duration</a>) -&gt; <a class="struct" href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key">Key</a></h4></section></summary><div class="docblock"><p>Inserts <code>value</code> into the queue set to expire after the requested duration
+elapses.</p>
+<p>This function is identical to <code>insert_at</code>, but takes a <code>Duration</code>
+instead of an <code>Instant</code>.</p>
+<p><code>value</code> is stored in the queue until <code>timeout</code> duration has
+elapsed after <code>insert</code> was called. At that point, <code>value</code> will
+be returned from <a href="struct.DelayQueue.html#method.poll_expired" title="method tokio_util::time::DelayQueue::poll_expired"><code>poll_expired</code></a>. If <code>timeout</code> is a <code>Duration</code> of
+zero, then <code>value</code> is immediately made available to poll.</p>
+<p>The return value represents the insertion and is used as an
+argument to <a href="struct.DelayQueue.html#method.remove" title="method tokio_util::time::DelayQueue::remove"><code>remove</code></a> and <a href="struct.DelayQueue.html#method.reset" title="method tokio_util::time::DelayQueue::reset"><code>reset</code></a>. Note that <a href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key"><code>Key</code></a> is a
+token and is reused once <code>value</code> is removed from the queue
+either by calling <a href="struct.DelayQueue.html#method.poll_expired" title="method tokio_util::time::DelayQueue::poll_expired"><code>poll_expired</code></a> after <code>timeout</code> has elapsed
+or by calling <a href="struct.DelayQueue.html#method.remove" title="method tokio_util::time::DelayQueue::remove"><code>remove</code></a>. At this point, the caller must not
+use the returned <a href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key"><code>Key</code></a> again as it may reference a different
+item in the queue.</p>
+<p>See <a href="#">type</a> level documentation for more details.</p>
+<h5 id="panics-1"><a class="doc-anchor" href="#panics-1">§</a>Panics</h5>
+<p>This function panics if <code>timeout</code> is greater than the maximum
+duration supported by the timer in the current <code>Runtime</code>.</p>
+<h5 id="examples-3"><a class="doc-anchor" href="#examples-3">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+<span class="kw">let </span>key = delay_queue.insert(<span class="string">"foo"</span>, Duration::from_secs(<span class="number">5</span>));
+
+<span class="comment">// Remove the entry
+</span><span class="kw">let </span>item = delay_queue.remove(<span class="kw-2">&amp;</span>key);
+<span class="macro">assert_eq!</span>(<span class="kw-2">*</span>item.get_ref(), <span class="string">"foo"</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.deadline" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#701-703">Source</a><h4 class="code-header">pub fn <a href="#method.deadline" class="fn">deadline</a>(&amp;self, key: &amp;<a class="struct" href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key">Key</a>) -&gt; <a class="struct" href="../../tokio/time/instant/struct.Instant.html" title="struct tokio::time::instant::Instant">Instant</a></h4></section></summary><div class="docblock"><p>Returns the deadline of the item associated with <code>key</code>.</p>
+<p>Since the queue operates at millisecond granularity, the returned
+deadline may not exactly match the value that was given when initially
+inserting the item into the queue.</p>
+<h5 id="panics-2"><a class="doc-anchor" href="#panics-2">§</a>Panics</h5>
+<p>This function panics if <code>key</code> is not contained by the queue.</p>
+<h5 id="examples-4"><a class="doc-anchor" href="#examples-4">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+
+<span class="kw">let </span>key1 = delay_queue.insert(<span class="string">"foo"</span>, Duration::from_secs(<span class="number">5</span>));
+<span class="kw">let </span>key2 = delay_queue.insert(<span class="string">"bar"</span>, Duration::from_secs(<span class="number">10</span>));
+
+<span class="macro">assert!</span>(delay_queue.deadline(<span class="kw-2">&amp;</span>key1) &lt; delay_queue.deadline(<span class="kw-2">&amp;</span>key2));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.remove" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#752-778">Source</a><h4 class="code-header">pub fn <a href="#method.remove" class="fn">remove</a>(&amp;mut self, key: &amp;<a class="struct" href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key">Key</a>) -&gt; <a class="struct" href="delay_queue/struct.Expired.html" title="struct tokio_util::time::delay_queue::Expired">Expired</a>&lt;T&gt;</h4></section></summary><div class="docblock"><p>Removes the item associated with <code>key</code> from the queue.</p>
+<p>There must be an item associated with <code>key</code>. The function returns the
+removed item as well as the <code>Instant</code> at which it will the delay will
+have expired.</p>
+<h5 id="panics-3"><a class="doc-anchor" href="#panics-3">§</a>Panics</h5>
+<p>The function panics if <code>key</code> is not contained by the queue.</p>
+<h5 id="examples-5"><a class="doc-anchor" href="#examples-5">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+<span class="kw">let </span>key = delay_queue.insert(<span class="string">"foo"</span>, Duration::from_secs(<span class="number">5</span>));
+
+<span class="comment">// Remove the entry
+</span><span class="kw">let </span>item = delay_queue.remove(<span class="kw-2">&amp;</span>key);
+<span class="macro">assert_eq!</span>(<span class="kw-2">*</span>item.get_ref(), <span class="string">"foo"</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.try_remove" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#809-815">Source</a><h4 class="code-header">pub fn <a href="#method.try_remove" class="fn">try_remove</a>(&amp;mut self, key: &amp;<a class="struct" href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key">Key</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="delay_queue/struct.Expired.html" title="struct tokio_util::time::delay_queue::Expired">Expired</a>&lt;T&gt;&gt;</h4></section></summary><div class="docblock"><p>Attempts to remove the item associated with <code>key</code> from the queue.</p>
+<p>Removes the item associated with <code>key</code>, and returns it along with the
+<code>Instant</code> at which it would have expired, if it exists.</p>
+<p>Returns <code>None</code> if <code>key</code> is not in the queue.</p>
+<h5 id="examples-6"><a class="doc-anchor" href="#examples-6">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+<span class="kw">let </span>key = delay_queue.insert(<span class="string">"foo"</span>, Duration::from_secs(<span class="number">5</span>));
+
+<span class="comment">// The item is in the queue, `try_remove` returns `Some(Expired("foo"))`.
+</span><span class="kw">let </span>item = delay_queue.try_remove(<span class="kw-2">&amp;</span>key);
+<span class="macro">assert_eq!</span>(item.unwrap().into_inner(), <span class="string">"foo"</span>);
+
+<span class="comment">// The item is not in the queue anymore, `try_remove` returns `None`.
+</span><span class="kw">let </span>item = delay_queue.try_remove(<span class="kw-2">&amp;</span>key);
+<span class="macro">assert!</span>(item.is_none());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.reset_at" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#852-868">Source</a><h4 class="code-header">pub fn <a href="#method.reset_at" class="fn">reset_at</a>(&amp;mut self, key: &amp;<a class="struct" href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key">Key</a>, when: <a class="struct" href="../../tokio/time/instant/struct.Instant.html" title="struct tokio::time::instant::Instant">Instant</a>)</h4></section></summary><div class="docblock"><p>Sets the delay of the item associated with <code>key</code> to expire at <code>when</code>.</p>
+<p>This function is identical to <code>reset</code> but takes an <code>Instant</code> instead of
+a <code>Duration</code>.</p>
+<p>The item remains in the queue but the delay is set to expire at <code>when</code>.
+If <code>when</code> is in the past, then the item is immediately made available to
+the caller.</p>
+<h5 id="panics-4"><a class="doc-anchor" href="#panics-4">§</a>Panics</h5>
+<p>This function panics if <code>when</code> is too far in the future or if <code>key</code> is
+not contained by the queue.</p>
+<h5 id="examples-7"><a class="doc-anchor" href="#examples-7">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::time::{Duration, Instant};
+<span class="kw">use </span>tokio_util::time::DelayQueue;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+<span class="kw">let </span>key = delay_queue.insert(<span class="string">"foo"</span>, Duration::from_secs(<span class="number">5</span>));
+
+<span class="comment">// "foo" is scheduled to be returned in 5 seconds
+
+</span>delay_queue.reset_at(<span class="kw-2">&amp;</span>key, Instant::now() + Duration::from_secs(<span class="number">10</span>));
+
+<span class="comment">// "foo" is now scheduled to be returned in 10 seconds</span></code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.shrink_to_fit" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#879-881">Source</a><h4 class="code-header">pub fn <a href="#method.shrink_to_fit" class="fn">shrink_to_fit</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Shrink the capacity of the slab, which <code>DelayQueue</code> uses internally for storage allocation.
+This function is not guaranteed to, and in most cases, won’t decrease the capacity of the slab
+to the number of elements still contained in it, because elements cannot be moved to a different
+index. To decrease the capacity to the size of the slab use <a href="struct.DelayQueue.html#method.compact" title="method tokio_util::time::DelayQueue::compact"><code>compact</code></a>.</p>
+<p>This function can take O(n) time even when the capacity cannot be reduced or the allocation is
+shrunk in place. Repeated calls run in O(1) though.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.compact" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#910-912">Source</a><h4 class="code-header">pub fn <a href="#method.compact" class="fn">compact</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Shrink the capacity of the slab, which <code>DelayQueue</code> uses internally for storage allocation,
+to the number of elements that are contained in it.</p>
+<p>This methods runs in O(n).</p>
+<h5 id="examples-8"><a class="doc-anchor" href="#examples-8">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::with_capacity(<span class="number">10</span>);
+
+<span class="kw">let </span>key1 = delay_queue.insert(<span class="number">5</span>, Duration::from_secs(<span class="number">5</span>));
+<span class="kw">let </span>key2 = delay_queue.insert(<span class="number">10</span>, Duration::from_secs(<span class="number">10</span>));
+<span class="kw">let </span>key3 = delay_queue.insert(<span class="number">15</span>, Duration::from_secs(<span class="number">15</span>));
+
+delay_queue.remove(<span class="kw-2">&amp;</span>key2);
+
+delay_queue.compact();
+<span class="macro">assert_eq!</span>(delay_queue.capacity(), <span class="number">2</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.peek" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#943-947">Source</a><h4 class="code-header">pub fn <a href="#method.peek" class="fn">peek</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key">Key</a>&gt;</h4></section></summary><div class="docblock"><p>Gets the <a href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key"><code>Key</code></a> that <a href="struct.DelayQueue.html#method.poll_expired" title="method tokio_util::time::DelayQueue::poll_expired"><code>poll_expired</code></a> will pull out of the queue next, without
+pulling it out or waiting for the deadline to expire.</p>
+<p>Entries that have already expired may be returned in any order, but it is
+guaranteed that this method returns them in the same order as when items
+are popped from the <code>DelayQueue</code>.</p>
+<h5 id="examples-9"><a class="doc-anchor" href="#examples-9">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+
+<span class="kw">let </span>key1 = delay_queue.insert(<span class="string">"foo"</span>, Duration::from_secs(<span class="number">10</span>));
+<span class="kw">let </span>key2 = delay_queue.insert(<span class="string">"bar"</span>, Duration::from_secs(<span class="number">5</span>));
+<span class="kw">let </span>key3 = delay_queue.insert(<span class="string">"baz"</span>, Duration::from_secs(<span class="number">15</span>));
+
+<span class="macro">assert_eq!</span>(delay_queue.peek().unwrap(), key2);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.reset" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#994-996">Source</a><h4 class="code-header">pub fn <a href="#method.reset" class="fn">reset</a>(&amp;mut self, key: &amp;<a class="struct" href="delay_queue/struct.Key.html" title="struct tokio_util::time::delay_queue::Key">Key</a>, timeout: <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/time/struct.Duration.html" title="struct core::time::Duration">Duration</a>)</h4></section></summary><div class="docblock"><p>Sets the delay of the item associated with <code>key</code> to expire after
+<code>timeout</code>.</p>
+<p>This function is identical to <code>reset_at</code> but takes a <code>Duration</code> instead
+of an <code>Instant</code>.</p>
+<p>The item remains in the queue but the delay is set to expire after
+<code>timeout</code>. If <code>timeout</code> is zero, then the item is immediately made
+available to the caller.</p>
+<h5 id="panics-5"><a class="doc-anchor" href="#panics-5">§</a>Panics</h5>
+<p>This function panics if <code>timeout</code> is greater than the maximum supported
+duration or if <code>key</code> is not contained by the queue.</p>
+<h5 id="examples-10"><a class="doc-anchor" href="#examples-10">§</a>Examples</h5>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+<span class="kw">let </span>key = delay_queue.insert(<span class="string">"foo"</span>, Duration::from_secs(<span class="number">5</span>));
+
+<span class="comment">// "foo" is scheduled to be returned in 5 seconds
+
+</span>delay_queue.reset(<span class="kw-2">&amp;</span>key, Duration::from_secs(<span class="number">10</span>));
+
+<span class="comment">// "foo"is now scheduled to be returned in 10 seconds</span></code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.clear" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1025-1030">Source</a><h4 class="code-header">pub fn <a href="#method.clear" class="fn">clear</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Clears the queue, removing all items.</p>
+<p>After calling <code>clear</code>, <a href="struct.DelayQueue.html#method.poll_expired" title="method tokio_util::time::DelayQueue::poll_expired"><code>poll_expired</code></a> will return <code>Ok(Ready(None))</code>.</p>
+<p>Note that this method has no effect on the allocated capacity.</p>
+<h5 id="examples-11"><a class="doc-anchor" href="#examples-11">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+
+delay_queue.insert(<span class="string">"foo"</span>, Duration::from_secs(<span class="number">5</span>));
+
+<span class="macro">assert!</span>(!delay_queue.is_empty());
+
+delay_queue.clear();
+
+<span class="macro">assert!</span>(delay_queue.is_empty());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.capacity" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1042-1044">Source</a><h4 class="code-header">pub fn <a href="#method.capacity" class="fn">capacity</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Returns the number of elements the queue can hold without reallocating.</p>
+<h5 id="examples-12"><a class="doc-anchor" href="#examples-12">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+
+<span class="kw">let </span>delay_queue: DelayQueue&lt;i32&gt; = DelayQueue::with_capacity(<span class="number">10</span>);
+<span class="macro">assert_eq!</span>(delay_queue.capacity(), <span class="number">10</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.len" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1062-1064">Source</a><h4 class="code-header">pub fn <a href="#method.len" class="fn">len</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Returns the number of elements currently in the queue.</p>
+<h5 id="examples-13"><a class="doc-anchor" href="#examples-13">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue: DelayQueue&lt;i32&gt; = DelayQueue::with_capacity(<span class="number">10</span>);
+<span class="macro">assert_eq!</span>(delay_queue.len(), <span class="number">0</span>);
+delay_queue.insert(<span class="number">3</span>, Duration::from_secs(<span class="number">5</span>));
+<span class="macro">assert_eq!</span>(delay_queue.len(), <span class="number">1</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.reserve" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1100-1106">Source</a><h4 class="code-header">pub fn <a href="#method.reserve" class="fn">reserve</a>(&amp;mut self, additional: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>)</h4></section></summary><div class="docblock"><p>Reserves capacity for at least <code>additional</code> more items to be queued
+without allocating.</p>
+<p><code>reserve</code> does nothing if the queue already has sufficient capacity for
+<code>additional</code> more values. If more capacity is required, a new segment of
+memory will be allocated and all existing values will be copied into it.
+As such, if the queue is already very large, a call to <code>reserve</code> can end
+up being expensive.</p>
+<p>The queue may reserve more than <code>additional</code> extra space in order to
+avoid frequent reallocations.</p>
+<h5 id="panics-6"><a class="doc-anchor" href="#panics-6">§</a>Panics</h5>
+<p>Panics if the new capacity exceeds the maximum number of entries the
+queue can contain.</p>
+<h5 id="examples-14"><a class="doc-anchor" href="#examples-14">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+
+delay_queue.insert(<span class="string">"hello"</span>, Duration::from_secs(<span class="number">10</span>));
+delay_queue.reserve(<span class="number">10</span>);
+
+<span class="macro">assert!</span>(delay_queue.capacity() &gt;= <span class="number">11</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.is_empty" class="method"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1128-1130">Source</a><h4 class="code-header">pub fn <a href="#method.is_empty" class="fn">is_empty</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if there are no items in the queue.</p>
+<p>Note that this function returns <code>false</code> even if all items have not yet
+expired and a call to <code>poll</code> will return <code>Poll::Pending</code>.</p>
+<h5 id="examples-15"><a class="doc-anchor" href="#examples-15">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio_util::time::DelayQueue;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="kw">let </span><span class="kw-2">mut </span>delay_queue = DelayQueue::new();
+<span class="macro">assert!</span>(delay_queue.is_empty());
+
+delay_queue.insert(<span class="string">"hello"</span>, Duration::from_secs(<span class="number">5</span>));
+<span class="macro">assert!</span>(!delay_queue.is_empty());</code></pre></div>
+</div></details></div></details></div><h2 id="trait-implementations" class="section-header">Trait Implementations<a href="#trait-implementations" class="anchor">§</a></h2><div id="trait-implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Debug-for-DelayQueue%3CT%3E" class="impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#129">Source</a><a href="#impl-Debug-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a>&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.fmt" class="method trait-impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#129">Source</a><a href="#method.fmt" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/fmt/trait.Debug.html#tymethod.fmt" class="fn">fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>&lt;'_&gt;) -&gt; <a class="type" href="https://doc.rust-lang.org/1.87.0/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></h4></section></summary><div class='docblock'>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/1.87.0/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-Default-for-DelayQueue%3CT%3E" class="impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1185-1189">Source</a><a href="#impl-Default-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.default" class="method trait-impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1186-1188">Source</a><a href="#method.default" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/default/trait.Default.html#tymethod.default" class="fn">default</a>() -&gt; <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h4></section></summary><div class='docblock'>Returns the “default value” for a type. <a href="https://doc.rust-lang.org/1.87.0/core/default/trait.Default.html#tymethod.default">Read more</a></div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-Stream-for-DelayQueue%3CT%3E" class="impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1191-1199">Source</a><a href="#impl-Stream-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../../futures_core/stream/trait.Stream.html" title="trait futures_core::stream::Stream">Stream</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Item" class="associatedtype trait-impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1194">Source</a><a href="#associatedtype.Item" class="anchor">§</a><h4 class="code-header">type <a href="../../futures_core/stream/trait.Stream.html#associatedtype.Item" class="associatedtype">Item</a> = <a class="struct" href="delay_queue/struct.Expired.html" title="struct tokio_util::time::delay_queue::Expired">Expired</a>&lt;T&gt;</h4></section></summary><div class='docblock'>Values yielded by the stream.</div></details><details class="toggle method-toggle" open><summary><section id="method.poll_next" class="method trait-impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1196-1198">Source</a><a href="#method.poll_next" class="anchor">§</a><h4 class="code-header">fn <a href="../../futures_core/stream/trait.Stream.html#tymethod.poll_next" class="fn">poll_next</a>(
+    self: <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/pin/struct.Pin.html" title="struct core::pin::Pin">Pin</a>&lt;&amp;mut Self&gt;,
+    cx: &amp;mut <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/task/wake/struct.Context.html" title="struct core::task::wake::Context">Context</a>&lt;'_&gt;,
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/task/poll/enum.Poll.html" title="enum core::task::poll::Poll">Poll</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.87.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Self::<a class="associatedtype" href="../../futures_core/stream/trait.Stream.html#associatedtype.Item" title="type futures_core::stream::Stream::Item">Item</a>&gt;&gt;</h4></section></summary><div class='docblock'>Attempt to pull out the next value of this stream, registering the
+current task for wakeup if the value is not yet available, and returning
+<code>None</code> if the stream is exhausted. <a href="../../futures_core/stream/trait.Stream.html#tymethod.poll_next">Read more</a></div></details><details class="toggle method-toggle" open><summary><section id="method.size_hint" class="method trait-impl"><a class="src rightside" href="../../src/futures_core/stream.rs.html#105">Source</a><a href="#method.size_hint" class="anchor">§</a><h4 class="code-header">fn <a href="../../futures_core/stream/trait.Stream.html#method.size_hint" class="fn">size_hint</a>(&amp;self) -&gt; (<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>, <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>&gt;)</h4></section></summary><div class='docblock'>Returns the bounds on the remaining length of the stream. <a href="../../futures_core/stream/trait.Stream.html#method.size_hint">Read more</a></div></details></div></details><section id="impl-Unpin-for-DelayQueue%3CT%3E" class="impl"><a class="src rightside" href="../../src/tokio_util/time/delay_queue.rs.html#1183">Source</a><a href="#impl-Unpin-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Unpin.html" title="trait core::marker::Unpin">Unpin</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h3></section></div><h2 id="synthetic-implementations" class="section-header">Auto Trait Implementations<a href="#synthetic-implementations" class="anchor">§</a></h2><div id="synthetic-implementations-list"><section id="impl-Freeze-for-DelayQueue%3CT%3E" class="impl"><a href="#impl-Freeze-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Freeze.html" title="trait core::marker::Freeze">Freeze</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h3></section><section id="impl-RefUnwindSafe-for-DelayQueue%3CT%3E" class="impl"><a href="#impl-RefUnwindSafe-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; !<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/panic/unwind_safe/trait.RefUnwindSafe.html" title="trait core::panic::unwind_safe::RefUnwindSafe">RefUnwindSafe</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h3></section><section id="impl-Send-for-DelayQueue%3CT%3E" class="impl"><a href="#impl-Send-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;<div class="where">where
+    T: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>,</div></h3></section><section id="impl-Sync-for-DelayQueue%3CT%3E" class="impl"><a href="#impl-Sync-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;<div class="where">where
+    T: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a>,</div></h3></section><section id="impl-UnwindSafe-for-DelayQueue%3CT%3E" class="impl"><a href="#impl-UnwindSafe-for-DelayQueue%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; !<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/panic/unwind_safe/trait.UnwindSafe.html" title="trait core::panic::unwind_safe::UnwindSafe">UnwindSafe</a> for <a class="struct" href="struct.DelayQueue.html" title="struct tokio_util::time::DelayQueue">DelayQueue</a>&lt;T&gt;</h3></section></div><h2 id="blanket-implementations" class="section-header">Blanket Implementations<a href="#blanket-implementations" class="anchor">§</a></h2><div id="blanket-implementations-list"><details class="toggle implementors-toggle"><summary><section id="impl-Any-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/any.rs.html#138">Source</a><a href="#impl-Any-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html" title="trait core::any::Any">Any</a> for T<div class="where">where
+    T: 'static + ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.type_id" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/any.rs.html#139">Source</a><a href="#method.type_id" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html#tymethod.type_id" class="fn">type_id</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/any/struct.TypeId.html" title="struct core::any::TypeId">TypeId</a></h4></section></summary><div class='docblock'>Gets the <code>TypeId</code> of <code>self</code>. <a href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html#tymethod.type_id">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-Borrow%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#209">Source</a><a href="#impl-Borrow%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html" title="trait core::borrow::Borrow">Borrow</a>&lt;T&gt; for T<div class="where">where
+    T: ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.borrow" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#211">Source</a><a href="#method.borrow" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html#tymethod.borrow" class="fn">borrow</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;T</a></h4></section></summary><div class='docblock'>Immutably borrows from an owned value. <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html#tymethod.borrow">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-BorrowMut%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#217">Source</a><a href="#impl-BorrowMut%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html" title="trait core::borrow::BorrowMut">BorrowMut</a>&lt;T&gt; for T<div class="where">where
+    T: ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.borrow_mut" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#218">Source</a><a href="#method.borrow_mut" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html#tymethod.borrow_mut" class="fn">borrow_mut</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;mut T</a></h4></section></summary><div class='docblock'>Mutably borrows from an owned value. <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html#tymethod.borrow_mut">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-From%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#767">Source</a><a href="#impl-From%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt; for T</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#770">Source</a><a href="#method.from" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(t: T) -&gt; T</h4></section></summary><div class="docblock"><p>Returns the argument unchanged.</p>
+</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-Into%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#750-752">Source</a><a href="#impl-Into%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.into" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#760">Source</a><a href="#method.into" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html#tymethod.into" class="fn">into</a>(self) -&gt; U</h4></section></summary><div class="docblock"><p>Calls <code>U::from(self)</code>.</p>
+<p>That is, this conversion is whatever the implementation of
+<code><a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt; for U</code> chooses to do.</p>
+</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryFrom%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#806-808">Source</a><a href="#impl-TryFrom%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Error-1" class="associatedtype trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#810">Source</a><a href="#associatedtype.Error-1" class="anchor">§</a><h4 class="code-header">type <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" class="associatedtype">Error</a> = <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/convert/enum.Infallible.html" title="enum core::convert::Infallible">Infallible</a></h4></section></summary><div class='docblock'>The type returned in the event of a conversion error.</div></details><details class="toggle method-toggle" open><summary><section id="method.try_from" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#813">Source</a><a href="#method.try_from" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#tymethod.try_from" class="fn">try_from</a>(value: U) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;T, &lt;T as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;U&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a>&gt;</h4></section></summary><div class='docblock'>Performs the conversion.</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryInto%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#791-793">Source</a><a href="#impl-TryInto%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html" title="trait core::convert::TryInto">TryInto</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Error" class="associatedtype trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#795">Source</a><a href="#associatedtype.Error" class="anchor">§</a><h4 class="code-header">type <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html#associatedtype.Error" class="associatedtype">Error</a> = &lt;U as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a></h4></section></summary><div class='docblock'>The type returned in the event of a conversion error.</div></details><details class="toggle method-toggle" open><summary><section id="method.try_into" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#798">Source</a><a href="#method.try_into" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html#tymethod.try_into" class="fn">try_into</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;U, &lt;U as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a>&gt;</h4></section></summary><div class='docblock'>Performs the conversion.</div></details></div></details></div></section></div></main></body></html>

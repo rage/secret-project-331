@@ -1,0 +1,260 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A custom derive for kubernetes custom resource definitions."><title>CustomResource in kube - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="kube" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../kube/index.html">kube</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Custom<wbr>Resource</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#required-properties" title="Required properties">Required properties</a><ul><li><a href="#kubegroup--mygrouptld" title="`#[kube(group = &#34;mygroup.tld&#34;)]`"><code>#[kube(group = "mygroup.tld")]</code></a></li><li><a href="#kubeversion--v1" title="`#[kube(version = &#34;v1&#34;)]`"><code>#[kube(version = "v1")]</code></a></li><li><a href="#kubekind--kind" title="`#[kube(kind = &#34;Kind&#34;)]`"><code>#[kube(kind = "Kind")]</code></a></li></ul></li><li><a href="#optional-kube-attributes" title="Optional `#[kube]` attributes">Optional <code>#[kube]</code> attributes</a><ul><li><a href="#kubesingular--nonstandard-singular" title="`#[kube(singular = &#34;nonstandard-singular&#34;)]`"><code>#[kube(singular = "nonstandard-singular")]</code></a></li><li><a href="#kubeplural--nonstandard-plural" title="`#[kube(plural = &#34;nonstandard-plural&#34;)]`"><code>#[kube(plural = "nonstandard-plural")]</code></a></li><li><a href="#kubenamespaced" title="`#[kube(namespaced)]`"><code>#[kube(namespaced)]</code></a></li><li><a href="#kuberoot--structname" title="`#[kube(root = &#34;StructName&#34;)]`"><code>#[kube(root = "StructName")]</code></a></li><li><a href="#kubecrateskube_core--kubecore" title="`#[kube(crates(kube_core = &#34;::kube::core&#34;))]`"><code>#[kube(crates(kube_core = "::kube::core"))]</code></a></li><li><a href="#kubecratesk8s_openapi--k8s_openapi" title="`#[kube(crates(k8s_openapi = &#34;::k8s_openapi&#34;))]`"><code>#[kube(crates(k8s_openapi = "::k8s_openapi"))]</code></a></li><li><a href="#kubecratesschemars--schemars" title="`#[kube(crates(schemars = &#34;::schemars&#34;))]`"><code>#[kube(crates(schemars = "::schemars"))]</code></a></li><li><a href="#kubecratesserde--serde" title="`#[kube(crates(serde = &#34;::serde&#34;))]`"><code>#[kube(crates(serde = "::serde"))]</code></a></li><li><a href="#kubecratesserde_json--serde_json" title="`#[kube(crates(serde_json = &#34;::serde_json&#34;))]`"><code>#[kube(crates(serde_json = "::serde_json"))]</code></a></li><li><a href="#kubestatus--statusstructname" title="`#[kube(status = &#34;StatusStructName&#34;)]`"><code>#[kube(status = "StatusStructName")]</code></a></li><li><a href="#kubederive--trait" title="`#[kube(derive = &#34;Trait&#34;)]`"><code>#[kube(derive = "Trait")]</code></a></li><li><a href="#kubeschema--mode" title="`#[kube(schema = &#34;mode&#34;)]`"><code>#[kube(schema = "mode")]</code></a></li><li><a href="#kubescale" title="`#[kube(scale(...))]`"><code>#[kube(scale(...))]</code></a></li><li><a href="#kubeprintcolumn--rjson" title="`#[kube(printcolumn = r#&#34;json&#34;#)]`"><code>#[kube(printcolumn = r#"json"#)]</code></a></li><li><a href="#kubeshortname--sn" title="`#[kube(shortname = &#34;sn&#34;)]`"><code>#[kube(shortname = "sn")]</code></a></li><li><a href="#kubecategory--apps" title="`#[kube(category = &#34;apps&#34;)]`"><code>#[kube(category = "apps")]</code></a></li><li><a href="#kubeselectable--fieldselectorpath" title="`#[kube(selectable = &#34;fieldSelectorPath&#34;)]`"><code>#[kube(selectable = "fieldSelectorPath")]</code></a></li><li><a href="#kubedoc--description" title="`#[kube(doc = &#34;description&#34;)]`"><code>#[kube(doc = "description")]</code></a></li><li><a href="#kubeannotationannotation_key-annotation_value" title="`#[kube(annotation(&#34;ANNOTATION_KEY&#34;, &#34;ANNOTATION_VALUE&#34;))]`"><code>#[kube(annotation("ANNOTATION_KEY", "ANNOTATION_VALUE"))]</code></a></li><li><a href="#kubelabellabel_key-label_value" title="`#[kube(label(&#34;LABEL_KEY&#34;, &#34;LABEL_VALUE&#34;))]`"><code>#[kube(label("LABEL_KEY", "LABEL_VALUE"))]</code></a></li><li><a href="#kubestorage--true" title="`#[kube(storage = true)]`"><code>#[kube(storage = true)]</code></a></li><li><a href="#kubeserved--true" title="`#[kube(served = true)]`"><code>#[kube(served = true)]</code></a></li><li><a href="#kubedeprecated--warning" title="`#[kube(deprecated [= &#34;warning&#34;])]`"><code>#[kube(deprecated [= "warning"])]</code></a></li><li><a href="#kubevalidation--rulenewself--oldselfmessagefield-is-immutable" title="`#[kube(validation = Rule::new(&#34;self == oldSelf&#34;).message(&#34;field is immutable&#34;))]`"><code>#[kube(validation = Rule::new("self == oldSelf").message("field is immutable"))]</code></a></li><li><a href="#example-with-all-properties" title="Example with all properties">Example with all properties</a></li></ul></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#generated-code" title="Generated code">Generated code</a></li><li><a href="#customizing-schemas" title="Customizing Schemas">Customizing Schemas</a></li><li><a href="#advanced-features" title="Advanced Features">Advanced Features</a><ul><li><a href="#schema-validation" title="Schema Validation">Schema Validation</a></li><li><a href="#versioning" title="Versioning">Versioning</a></li><li><a href="#debugging" title="Debugging">Debugging</a></li></ul></li><li><a href="#installation" title="Installation">Installation</a><ul><li><a href="#runtime-dependencies" title="Runtime dependencies">Runtime dependencies</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate kube</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">kube</a></div><h1>Derive Macro <span class="derive">CustomResource</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/kube_derive/lib.rs.html#358">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(CustomResource)]
+{
+    <span class="comment">// Attributes available to this derive:</span>
+    #[kube]
+}
+</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A custom derive for kubernetes custom resource definitions.</p>
+<p>This will generate a <strong>root object</strong> containing your spec and metadata.
+This root object will implement the <a href="https://docs.rs/kube/*/kube/trait.Resource.html"><code>kube::Resource</code></a> trait
+so it can be used with <a href="https://docs.rs/kube/*/kube/struct.Api.html"><code>kube::Api</code></a>.</p>
+<p>The generated type will also implement kube’s <a href="https://docs.rs/kube/*/kube/trait.CustomResourceExt.html"><code>kube::CustomResourceExt</code></a> trait to generate the crd
+and generate <a href="https://docs.rs/kube/*/kube/core/struct.ApiResource.html"><code>kube::core::ApiResource</code></a> information for use with the dynamic api.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>serde::{Serialize, Deserialize};
+<span class="kw">use </span>kube::core::{Resource, CustomResourceExt};
+<span class="kw">use </span>kube_derive::CustomResource;
+<span class="kw">use </span>schemars::JsonSchema;
+
+<span class="attr">#[derive(CustomResource, Clone, Debug, Deserialize, Serialize, JsonSchema)]
+#[kube(group = <span class="string">"clux.dev"</span>, version = <span class="string">"v1"</span>, kind = <span class="string">"Foo"</span>, namespaced)]
+</span><span class="kw">struct </span>FooSpec {
+    info: String,
+}
+
+<span class="macro">println!</span>(<span class="string">"kind = {}"</span>, Foo::kind(<span class="kw-2">&amp;</span>())); <span class="comment">// impl kube::Resource
+</span><span class="kw">let </span>f = Foo::new(<span class="string">"foo-1"</span>, FooSpec {
+    info: <span class="string">"informative info"</span>.into(),
+});
+<span class="macro">println!</span>(<span class="string">"foo: {:?}"</span>, f); <span class="comment">// debug print on root type
+</span><span class="macro">println!</span>(<span class="string">"crd: {}"</span>, serde_yaml::to_string(<span class="kw-2">&amp;</span>Foo::crd()).unwrap()); <span class="comment">// crd yaml</span></code></pre></div>
+<p>This example generates a <code>struct Foo</code> containing metadata, the spec,
+and optionally status. The <strong>root</strong> struct <code>Foo</code> can be used with the <a href="https://docs.rs/kube"><code>kube</code></a> crate
+as an <code>Api&lt;Foo&gt;</code> object (<code>FooSpec</code> can not be used with <a href="https://docs.rs/kube/*/kube/struct.Api.html"><code>Api</code></a>).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code> <span class="kw">let </span>foos: Api&lt;Foo&gt; = Api::default_namespaced(client.clone());
+ <span class="kw">let </span>crds: Api&lt;CustomResourceDefinition&gt; = Api::all(client.clone());
+ crds.patch(<span class="string">"foos.clux.dev"</span>, <span class="kw-2">&amp;</span>PatchParams::apply(<span class="string">"myapp"</span>), <span class="kw-2">&amp;</span>Patch::Apply(Foo::crd())).<span class="kw">await</span>;</code></pre></div>
+<p>This example posts the generated <code>::crd</code> to the <code>CustomResourceDefinition</code> API.
+After this has been accepted (few secs max), you can start using <code>foos</code> as a normal
+kube <code>Api</code> object. See the <code>crd_</code> prefixed <a href="https://github.com/kube-rs/kube/blob/main/examples/">examples</a>
+for details on this.</p>
+<h2 id="required-properties"><a class="doc-anchor" href="#required-properties">§</a>Required properties</h2><h3 id="kubegroup--mygrouptld"><a class="doc-anchor" href="#kubegroup--mygrouptld">§</a><code>#[kube(group = "mygroup.tld")]</code></h3>
+<p>Your cr api group. The part before the slash in the top level <code>apiVersion</code> key.</p>
+<h3 id="kubeversion--v1"><a class="doc-anchor" href="#kubeversion--v1">§</a><code>#[kube(version = "v1")]</code></h3>
+<p>Your cr api version. The part after the slash in the top level <code>apiVersion</code> key.</p>
+<h3 id="kubekind--kind"><a class="doc-anchor" href="#kubekind--kind">§</a><code>#[kube(kind = "Kind")]</code></h3>
+<p>Name of your kind, and implied default for your generated root type.</p>
+<h2 id="optional-kube-attributes"><a class="doc-anchor" href="#optional-kube-attributes">§</a>Optional <code>#[kube]</code> attributes</h2><h3 id="kubesingular--nonstandard-singular"><a class="doc-anchor" href="#kubesingular--nonstandard-singular">§</a><code>#[kube(singular = "nonstandard-singular")]</code></h3>
+<p>To specify the singular name. Defaults to lowercased <code>.kind</code> value.</p>
+<h3 id="kubeplural--nonstandard-plural"><a class="doc-anchor" href="#kubeplural--nonstandard-plural">§</a><code>#[kube(plural = "nonstandard-plural")]</code></h3>
+<p>To specify the plural name. Defaults to inferring from singular.</p>
+<h3 id="kubenamespaced"><a class="doc-anchor" href="#kubenamespaced">§</a><code>#[kube(namespaced)]</code></h3>
+<p>To specify that this is a namespaced resource rather than cluster level.</p>
+<h3 id="kuberoot--structname"><a class="doc-anchor" href="#kuberoot--structname">§</a><code>#[kube(root = "StructName")]</code></h3>
+<p>Customize the name of the generated root struct (defaults to <code>.kind</code> value).</p>
+<h3 id="kubecrateskube_core--kubecore"><a class="doc-anchor" href="#kubecrateskube_core--kubecore">§</a><code>#[kube(crates(kube_core = "::kube::core"))]</code></h3>
+<p>Customize the crate name the generated code will reach into (defaults to <code>::kube::core</code>).
+Should be one of <code>kube::core</code>, <code>kube_client::core</code> or <code>kube_core</code>.</p>
+<h3 id="kubecratesk8s_openapi--k8s_openapi"><a class="doc-anchor" href="#kubecratesk8s_openapi--k8s_openapi">§</a><code>#[kube(crates(k8s_openapi = "::k8s_openapi"))]</code></h3>
+<p>Customize the crate name the generated code will use for <a href="https://docs.rs/k8s-openapi/"><code>k8s_openapi</code></a> (defaults to <code>::k8s_openapi</code>).</p>
+<h3 id="kubecratesschemars--schemars"><a class="doc-anchor" href="#kubecratesschemars--schemars">§</a><code>#[kube(crates(schemars = "::schemars"))]</code></h3>
+<p>Customize the crate name the generated code will use for <a href="https://docs.rs/schemars/"><code>schemars</code></a> (defaults to <code>::schemars</code>).</p>
+<h3 id="kubecratesserde--serde"><a class="doc-anchor" href="#kubecratesserde--serde">§</a><code>#[kube(crates(serde = "::serde"))]</code></h3>
+<p>Customize the crate name the generated code will use for <a href="https://docs.rs/serde/"><code>serde</code></a> (defaults to <code>::serde</code>).</p>
+<h3 id="kubecratesserde_json--serde_json"><a class="doc-anchor" href="#kubecratesserde_json--serde_json">§</a><code>#[kube(crates(serde_json = "::serde_json"))]</code></h3>
+<p>Customize the crate name the generated code will use for <a href="https://docs.rs/serde_json/"><code>serde_json</code></a> (defaults to <code>::serde_json</code>).</p>
+<h3 id="kubestatus--statusstructname"><a class="doc-anchor" href="#kubestatus--statusstructname">§</a><code>#[kube(status = "StatusStructName")]</code></h3>
+<p>Adds a status struct to the top level generated type and enables the status
+subresource in your crd.</p>
+<h3 id="kubederive--trait"><a class="doc-anchor" href="#kubederive--trait">§</a><code>#[kube(derive = "Trait")]</code></h3>
+<p>Adding <code>#[kube(derive = "PartialEq")]</code> is required if you want your generated
+top level type to be able to <code>#[derive(PartialEq)]</code></p>
+<h3 id="kubeschema--mode"><a class="doc-anchor" href="#kubeschema--mode">§</a><code>#[kube(schema = "mode")]</code></h3>
+<p>Defines whether the <code>JsonSchema</code> of the top level generated type should be used when generating a <code>CustomResourceDefinition</code>.</p>
+<p>Legal values:</p>
+<ul>
+<li><code>"derived"</code>: A <code>JsonSchema</code> implementation is automatically derived</li>
+<li><code>"manual"</code>: <code>JsonSchema</code> is not derived, but used when creating the <code>CustomResourceDefinition</code> object</li>
+<li><code>"disabled"</code>: No <code>JsonSchema</code> is used</li>
+</ul>
+<p>This can be used to provide a completely custom schema, or to interact with third-party custom resources
+where you are not responsible for installing the <code>CustomResourceDefinition</code>.</p>
+<p>Defaults to <code>"derived"</code>.</p>
+<p>NOTE: <code>CustomResourceDefinition</code>s require a schema. If <code>schema = "disabled"</code> then
+<code>Self::crd()</code> will not be installable into the cluster as-is.</p>
+<h3 id="kubescale"><a class="doc-anchor" href="#kubescale">§</a><code>#[kube(scale(...))]</code></h3>
+<p>Allow customizing the scale struct for the <a href="https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#subresources">scale subresource</a>.
+It should be noted, that the status subresource must also be enabled to use the scale subresource. This is because
+the <code>statusReplicasPath</code> only accepts JSONPaths under <code>.status</code>.</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[kube(scale(
+    spec_replicas_path = <span class="string">".spec.replicas"</span>,
+    status_replica_path = <span class="string">".status.replicas"</span>,
+    label_selector_path = <span class="string">".spec.labelSelector"
+</span>))]</span></code></pre></div>
+<p>The deprecated way of customizing the scale subresource using a raw JSON string is still
+support for backwards-compatibility.</p>
+<h3 id="kubeprintcolumn--rjson"><a class="doc-anchor" href="#kubeprintcolumn--rjson">§</a><code>#[kube(printcolumn = r#"json"#)]</code></h3>
+<p>Allows adding straight json to <a href="https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#additional-printer-columns">printcolumns</a>.</p>
+<h3 id="kubeshortname--sn"><a class="doc-anchor" href="#kubeshortname--sn">§</a><code>#[kube(shortname = "sn")]</code></h3>
+<p>Add a single shortname to the generated crd.</p>
+<h3 id="kubecategory--apps"><a class="doc-anchor" href="#kubecategory--apps">§</a><code>#[kube(category = "apps")]</code></h3>
+<p>Add a single category to <code>crd.spec.names.categories</code>.</p>
+<h3 id="kubeselectable--fieldselectorpath"><a class="doc-anchor" href="#kubeselectable--fieldselectorpath">§</a><code>#[kube(selectable = "fieldSelectorPath")]</code></h3>
+<p>Adds a Kubernetes &gt;=1.30 <code>selectableFields</code> property (<a href="https://github.com/kubernetes/enhancements/blob/master/keps/sig-api-machinery/4358-custom-resource-field-selectors/README.md">KEP-4358</a>) to the schema.
+Unlocks <code>kubectl get kind --field-selector fieldSelectorPath</code>.</p>
+<h3 id="kubedoc--description"><a class="doc-anchor" href="#kubedoc--description">§</a><code>#[kube(doc = "description")]</code></h3>
+<p>Sets the description of the schema in the generated CRD. If not specified
+<code>Auto-generated derived type for {customResourceName} via CustomResource</code> will be used instead.</p>
+<h3 id="kubeannotationannotation_key-annotation_value"><a class="doc-anchor" href="#kubeannotationannotation_key-annotation_value">§</a><code>#[kube(annotation("ANNOTATION_KEY", "ANNOTATION_VALUE"))]</code></h3>
+<p>Add a single annotation to the generated CRD.</p>
+<h3 id="kubelabellabel_key-label_value"><a class="doc-anchor" href="#kubelabellabel_key-label_value">§</a><code>#[kube(label("LABEL_KEY", "LABEL_VALUE"))]</code></h3>
+<p>Add a single label to the generated CRD.</p>
+<h3 id="kubestorage--true"><a class="doc-anchor" href="#kubestorage--true">§</a><code>#[kube(storage = true)]</code></h3>
+<p>Sets the <code>storage</code> property to <code>true</code> or <code>false</code>.</p>
+<h3 id="kubeserved--true"><a class="doc-anchor" href="#kubeserved--true">§</a><code>#[kube(served = true)]</code></h3>
+<p>Sets the <code>served</code> property to <code>true</code> or <code>false</code>.</p>
+<h3 id="kubedeprecated--warning"><a class="doc-anchor" href="#kubedeprecated--warning">§</a><code>#[kube(deprecated [= "warning"])]</code></h3>
+<p>Sets the <code>deprecated</code> property to <code>true</code>.</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[kube(deprecated)]</span></code></pre></div>
+<p>Aditionally, you can provide a <code>deprecationWarning</code> using the following example.</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[kube(deprecated = <span class="string">"Replaced by other CRD"</span>)]</span></code></pre></div>
+<h3 id="kubevalidation--rulenewself--oldselfmessagefield-is-immutable"><a class="doc-anchor" href="#kubevalidation--rulenewself--oldselfmessagefield-is-immutable">§</a><code>#[kube(validation = Rule::new("self == oldSelf").message("field is immutable"))]</code></h3>
+<p>Inject a top level CEL validation rule for the top level generated struct.
+This attribute is for resources deriving <a href="derive.KubeSchema.html" title="derive kube::KubeSchema"><code>KubeSchema</code></a> instead of [<code>schemars::JsonSchema</code>].</p>
+<h3 id="example-with-all-properties"><a class="doc-anchor" href="#example-with-all-properties">§</a>Example with all properties</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>serde::{Serialize, Deserialize};
+<span class="kw">use </span>kube_derive::CustomResource;
+<span class="kw">use </span>schemars::JsonSchema;
+
+<span class="attr">#[derive(CustomResource, Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
+#[kube(
+    group = <span class="string">"clux.dev"</span>,
+    version = <span class="string">"v1"</span>,
+    kind = <span class="string">"Foo"</span>,
+    root = <span class="string">"FooCrd"</span>,
+    namespaced,
+    doc = <span class="string">"Custom resource representing a Foo"</span>,
+    status = <span class="string">"FooStatus"</span>,
+    derive = <span class="string">"PartialEq"</span>,
+    singular = <span class="string">"foot"</span>,
+    plural = <span class="string">"feetz"</span>,
+    shortname = <span class="string">"f"</span>,
+    scale = <span class="string">r#"{"specReplicasPath":".spec.replicas", "statusReplicasPath":".status.replicas"}"#</span>,
+    printcolumn = <span class="string">r#"{"name":"Spec", "type":"string", "description":"name of foo", "jsonPath":".spec.name"}"#</span>,
+    selectable = <span class="string">"spec.replicasCount"
+</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
+</span><span class="kw">struct </span>FooSpec {
+    <span class="attr">#[schemars(length(min = <span class="number">3</span>))]
+    </span>data: String,
+    replicas_count: i32
+}
+
+<span class="attr">#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
+</span><span class="kw">struct </span>FooStatus {
+    replicas: i32
+}</code></pre></div>
+<h2 id="enums"><a class="doc-anchor" href="#enums">§</a>Enums</h2>
+<p>Kubernetes requires that the generated <a href="https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#specifying-a-structural-schema">schema is “structural”</a>.
+This means that the structure of the schema must not depend on the particular values. For enums this imposes a few limitations:</p>
+<ul>
+<li>Only <a href="https://serde.rs/enum-representations.html#externally-tagged">externally tagged enums</a> are supported</li>
+<li>Unit variants may not be mixed with struct or tuple variants (<code>enum Foo { Bar, Baz {}, Qux() }</code> is invalid, for example)</li>
+</ul>
+<p>If these restrictions are not followed then <code>YourCrd::crd()</code> may panic, or the Kubernetes API may reject the CRD definition.</p>
+<h2 id="generated-code"><a class="doc-anchor" href="#generated-code">§</a>Generated code</h2>
+<p>The example above will <strong>roughly</strong> generate:</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
+</span><span class="kw">pub struct </span>FooCrd {
+    api_version: String,
+    kind: String,
+    metadata: ObjectMeta,
+    spec: FooSpec,
+    status: <span class="prelude-ty">Option</span>&lt;FooStatus&gt;,
+}
+<span class="kw">impl </span>kube::Resource <span class="kw">for </span>FooCrd { .. }
+
+<span class="kw">impl </span>FooCrd {
+    <span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span>str, spec: FooSpec) -&gt; <span class="self">Self </span>{ .. }
+    <span class="kw">pub fn </span>crd() -&gt; CustomResourceDefinition { .. }
+}</code></pre></div>
+<h2 id="customizing-schemas"><a class="doc-anchor" href="#customizing-schemas">§</a>Customizing Schemas</h2>
+<p>Should you need to customize the schemas, you can use:</p>
+<ul>
+<li><a href="https://graham.cool/schemars/examples/3-schemars_attrs/">Serde/Schemars Attributes</a> (no need to duplicate serde renames)</li>
+<li><a href="https://graham.cool/schemars/examples/7-custom_serialization/"><code>#[schemars(schema_with = "func")]</code></a> (e.g. like in the <a href="https://github.com/kube-rs/kube/blob/main/examples/crd_derive.rs"><code>crd_derive</code> example</a>)</li>
+<li><code>impl JsonSchema</code> on a type / newtype around external type. See <a href="https://github.com/kube-rs/kube/issues/129#issuecomment-750852916">#129</a></li>
+<li><a href="https://github.com/jprochazk/garde"><code>#[garde(...)]</code> field attributes for client-side validation</a> (see <a href="https://github.com/kube-rs/kube/blob/main/examples/crd_api.rs"><code>crd_api</code> example</a>)</li>
+</ul>
+<p>You might need to override parts of the schemas (for fields in question) when you are:</p>
+<ul>
+<li><strong>using complex enums</strong>: enums do not currently generate <a href="https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#specifying-a-structural-schema">structural schemas</a>, so kubernetes won’t support them by default</li>
+<li><strong>customizing <a href="https://kubernetes.io/docs/reference/using-api/server-side-apply/#merge-strategy">merge-strategies</a></strong> (e.g. like in the <a href="https://github.com/kube-rs/kube/blob/main/examples/crd_derive_schema.rs"><code>crd_derive_schema</code> example</a>)</li>
+</ul>
+<p>See <a href="https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation">kubernetes openapi validation</a> for the format of the OpenAPI v3 schemas.</p>
+<p>If you have to override a lot, <a href="#kubeschema--mode">you can opt-out of schema-generation entirely</a></p>
+<h2 id="advanced-features"><a class="doc-anchor" href="#advanced-features">§</a>Advanced Features</h2>
+<ul>
+<li><strong>embedding k8s-openapi types</strong> can be done by enabling the <code>schemars</code> feature of <code>k8s-openapi</code> from <a href="https://github.com/Arnavion/k8s-openapi/blob/master/CHANGELOG.md#v0130-2021-08-09"><code>0.13.0</code></a></li>
+<li><strong>adding validation</strong> via <a href="https://github.com/Keats/validator">validator crate</a> is supported from <code>schemars</code> &gt;= <a href="https://github.com/GREsau/schemars/blob/master/CHANGELOG.md#085---2021-09-20"><code>0.8.5</code></a></li>
+<li><strong>generating rust code from schemas</strong> can be done via <a href="https://github.com/kube-rs/kopium">kopium</a> and is supported on stable crds (&gt; 1.16 kubernetes)</li>
+</ul>
+<h3 id="schema-validation"><a class="doc-anchor" href="#schema-validation">§</a>Schema Validation</h3>
+<p>There are two main ways of doing validation; <strong>server-side</strong> (embedding validation attributes into the schema for the apiserver to respect), and <strong>client-side</strong> (provides <code>validate()</code> methods in your code).</p>
+<p>Client side validation of structs can be achieved by hooking up <code>#[garde]</code> attributes in your struct and is a replacement of the now unmaintained <a href="https://github.com/Keats/validator/issues/201"><code>validator</code></a> crate.
+Server-side validation require mutation of your generated schema, and can in the basic cases be achieved through the use of <code>schemars</code>’s <a href="https://graham.cool/schemars/deriving/attributes/#supported-validator-attributes">validation attributes</a>.
+For complete control, <a href="https://github.com/kube-rs/kube/blob/e01187e13ba364ccecec452e023316a62fb13e04/examples/crd_derive.rs#L37-L38">parts of the schema can be overridden</a> to support more advanced <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-beta/">Kubernetes specific validation rules</a>.</p>
+<p>When using <code>garde</code> directly, you must add it to your dependencies (with the <code>derive</code> feature).</p>
+<h4 id="validation-caveats"><a class="doc-anchor" href="#validation-caveats">§</a>Validation Caveats</h4>
+<p>Make sure your validation rules are static and handled by <code>schemars</code>:</p>
+<ul>
+<li>validations from <code>#[garde(custom(my_func))]</code> will not show up in the schema.</li>
+<li>similarly; <a href="https://github.com/GREsau/schemars/pull/78">nested / must_match / credit_card were unhandled by schemars at time of writing</a></li>
+<li>encoding validations specified through garde (i.e. #[garde(ascii)]), are currently not supported by schemars</li>
+<li>to validate required attributes client-side, garde requires a custom validation function (<code>#[garde(custom(my_required_check))]</code>)</li>
+<li>when using garde, fields that should not be validated need to be explictly skipped through the <code>#[garde(skip)]</code> attr</li>
+</ul>
+<p>For sanity, you should review the generated schema before sending it to kubernetes.</p>
+<h3 id="versioning"><a class="doc-anchor" href="#versioning">§</a>Versioning</h3>
+<p>Note that any changes to your struct / validation rules / serialization attributes will require you to re-apply the
+generated schema to kubernetes, so that the apiserver can validate against the right version of your structs.</p>
+<p><strong>Backwards compatibility</strong> between schema versions is <strong>recommended</strong> unless you are in a controlled environment
+where you can migrate manually. I.e. if you add new properties behind options, and simply mark old fields as deprecated,
+then you can safely roll schema out changes <strong>without bumping</strong> the version.</p>
+<p>If you need <strong>multiple versions</strong>, then you need:</p>
+<ul>
+<li>one <strong>module</strong> for <strong>each version</strong> of your types (e.g. <code>v1::MyCrd</code> and <code>v2::MyCrd</code>)</li>
+<li>use the <a href="https://docs.rs/kube/latest/kube/core/crd/fn.merge_crds.html"><code>merge_crds</code></a> fn to combine crds</li>
+<li>roll out new schemas utilizing conversion webhooks / manual conversions / or allow kubectl to do its best</li>
+</ul>
+<p>See the <a href="https://github.com/kube-rs/kube/blob/main/examples/crd_derive_multi.rs">crd_derive_multi</a> example to see
+how this upgrade flow works without special logic.</p>
+<p>The <strong>upgrade flow</strong> with <strong>breaking changes</strong> involves:</p>
+<ol>
+<li>upgrade version marked as <code>storage</code> (from v1 to v2)</li>
+<li>read instances from the older <code>Api&lt;v1::MyCrd&gt;</code></li>
+<li>perform conversion in memory and write them to the new <code>Api&lt;v2::MyCrd&gt;</code>.</li>
+<li>remove support for old version</li>
+</ol>
+<p>If you need to maintain support for the old version for some time, then you have to repeat or continuously
+run steps 2 and 3. I.e. you probably need a <strong>conversion webhook</strong>.</p>
+<p><strong>NB</strong>: kube does currently <a href="https://github.com/kube-rs/kube/issues/865">not implement conversion webhooks yet</a>.</p>
+<h3 id="debugging"><a class="doc-anchor" href="#debugging">§</a>Debugging</h3>
+<p>Try <code>cargo-expand</code> to see your own macro expansion.</p>
+<h2 id="installation"><a class="doc-anchor" href="#installation">§</a>Installation</h2>
+<p>Enable the <code>derive</code> feature on the <code>kube</code> crate:</p>
+<div class="example-wrap"><pre class="language-toml"><code>kube = { version = &quot;...&quot;, features = [&quot;derive&quot;] }</code></pre></div><h3 id="runtime-dependencies"><a class="doc-anchor" href="#runtime-dependencies">§</a>Runtime dependencies</h3>
+<p>Due to <a href="https://github.com/rust-lang/rust/issues/54363">rust-lang/rust#54363</a>, we cannot be resilient against crate renames within our generated code.
+It’s therefore <strong>required</strong> that you have the following crates in scope, not renamed:</p>
+<ul>
+<li><code>serde_json</code></li>
+<li><code>k8s_openapi</code></li>
+<li><code>schemars</code> (by default, unless <code>schema</code> feature disabled)</li>
+</ul>
+<p>You are ultimately responsible for maintaining the versions and feature flags of these libraries.</p>
+</div></details></section></div></main></body></html>

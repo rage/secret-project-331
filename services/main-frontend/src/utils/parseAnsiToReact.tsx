@@ -54,7 +54,7 @@ export const parseAnsiToReact = (text: string): React.ReactNode[] => {
       if (Object.keys(currentStyles).length > 0) {
         parts.push(
           // eslint-disable-next-line react/forbid-dom-props
-          <span key={lastIndex} style={currentStyles}>
+          <span key={lastIndex} style={{ ...currentStyles }}>
             {textContent}
           </span>,
         )
@@ -78,7 +78,7 @@ export const parseAnsiToReact = (text: string): React.ReactNode[] => {
     if (Object.keys(currentStyles).length > 0) {
       parts.push(
         // eslint-disable-next-line react/forbid-dom-props
-        <span key={lastIndex} style={currentStyles}>
+        <span key={lastIndex} style={{ ...currentStyles }}>
           {textContent}
         </span>,
       )

@@ -129,6 +129,10 @@ async-trait = "0.1.89"
 tokio-util = "0.7.16"
 # Asynchronous streams using async & await notation
 async-stream = "0.3.6"
+# Kubernetes client and async controller runtime
+kube = { version = "2.0.1", features = ["runtime", "derive", "client"] }
+# Bindings for the Kubernetes client API
+k8s-openapi = { version = "0.26.0", features = ["v1_30"] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

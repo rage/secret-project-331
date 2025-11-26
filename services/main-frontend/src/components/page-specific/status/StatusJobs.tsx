@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { CheckCircle, Clock, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -77,29 +78,64 @@ const StatusJobs: React.FC = () => {
                 `}
               >
                 <td>{job.name}</td>
-                <td
-                  className={css`
-                    color: ${baseTheme.colors.green[600]};
-                    font-weight: ${(job.succeeded ?? 0) > 0 ? "600" : "normal"};
-                  `}
-                >
-                  {job.succeeded ?? 0}
+                <td>
+                  <div
+                    className={css`
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                    `}
+                  >
+                    {(job.succeeded ?? 0) > 0 && (
+                      <CheckCircle size={16} color={baseTheme.colors.green[600]} />
+                    )}
+                    <span
+                      className={css`
+                        color: ${baseTheme.colors.green[600]};
+                        font-weight: ${(job.succeeded ?? 0) > 0 ? "600" : "normal"};
+                      `}
+                    >
+                      {job.succeeded ?? 0}
+                    </span>
+                  </div>
                 </td>
-                <td
-                  className={css`
-                    color: ${baseTheme.colors.red[600]};
-                    font-weight: ${hasFailures ? "600" : "normal"};
-                  `}
-                >
-                  {job.failed ?? 0}
+                <td>
+                  <div
+                    className={css`
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                    `}
+                  >
+                    {hasFailures && <XmarkCircle size={16} color={baseTheme.colors.red[600]} />}
+                    <span
+                      className={css`
+                        color: ${baseTheme.colors.red[600]};
+                        font-weight: ${hasFailures ? "600" : "normal"};
+                      `}
+                    >
+                      {job.failed ?? 0}
+                    </span>
+                  </div>
                 </td>
-                <td
-                  className={css`
-                    color: ${baseTheme.colors.blue[700]};
-                    font-weight: ${isActive ? "600" : "normal"};
-                  `}
-                >
-                  {job.active ?? 0}
+                <td>
+                  <div
+                    className={css`
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                    `}
+                  >
+                    {isActive && <Clock size={16} color={baseTheme.colors.blue[700]} />}
+                    <span
+                      className={css`
+                        color: ${baseTheme.colors.blue[700]};
+                        font-weight: ${isActive ? "600" : "normal"};
+                      `}
+                    >
+                      {job.active ?? 0}
+                    </span>
+                  </div>
                 </td>
               </tr>
             )

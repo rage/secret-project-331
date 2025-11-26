@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { CheckCircle, ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -82,6 +83,11 @@ const StatusDeployments: React.FC = () => {
                       gap: 0.5rem;
                     `}
                   >
+                    {isHealthy ? (
+                      <CheckCircle size={16} color={baseTheme.colors.green[600]} />
+                    ) : (
+                      <ExclamationTriangle size={16} color={baseTheme.colors.red[600]} />
+                    )}
                     <span
                       className={css`
                         font-weight: 600;

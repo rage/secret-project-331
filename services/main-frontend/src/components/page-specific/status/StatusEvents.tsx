@@ -1,4 +1,10 @@
 import { css } from "@emotion/css"
+import {
+  CheckCircle,
+  ExclamationTriangle,
+  InfoCircle,
+  XmarkCircle,
+} from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -163,7 +169,26 @@ const StatusEvents: React.FC = () => {
                     : ""}
                 `}
               >
-                <td>{event.type_ || t("status-normal")}</td>
+                <td>
+                  <div
+                    className={css`
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                    `}
+                  >
+                    {event.type_ === "Error" && (
+                      <XmarkCircle size={16} color={baseTheme.colors.red[600]} />
+                    )}
+                    {event.type_ === "Warning" && (
+                      <ExclamationTriangle size={16} color={baseTheme.colors.yellow[700]} />
+                    )}
+                    {(!event.type_ || event.type_ === "Normal") && (
+                      <InfoCircle size={16} color={baseTheme.colors.blue[600]} />
+                    )}
+                    <span>{event.type_ || t("status-normal")}</span>
+                  </div>
+                </td>
                 <td>{event.reason || "-"}</td>
                 <td>
                   {event.involved_object_kind && event.involved_object_name

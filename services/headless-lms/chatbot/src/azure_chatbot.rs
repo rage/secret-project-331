@@ -338,7 +338,7 @@ impl LLMRequest {
 
         let mut api_chat_messages: Vec<APIMessage> = conversation_messages
             .into_iter()
-            .map(|x| APIMessage::try_from(x))
+            .map(APIMessage::try_from)
             .collect::<Result<Vec<_>, ChatbotError>>()?;
 
         // put new user message into the messages list
@@ -460,7 +460,7 @@ impl LLMRequest {
                 .await?;
         let api_messages: Vec<APIMessage> = conversation_messages
             .into_iter()
-            .map(|x| APIMessage::try_from(x))
+            .map(APIMessage::try_from)
             .collect::<Result<Vec<_>, ChatbotError>>()?;
         self.messages.extend(api_messages);
         Ok(self)
@@ -726,14 +726,14 @@ pub async fn parse_tool<'a>(
                     "The LLM response was supposed to contain function calls, but no function calls were found"
                 ));
             }
-            let mut assistant_tool_calls_msg = Vec::new();
+            let mut assistant_tool_calls = Vec::new();
             let mut tool_result_msgs = Vec::new();
 
             for (name, id, args) in function_name_id_args.iter() {
                 // created and args parsed before above tool msg append
-                let tool = call_chatbot_tool(conn, &name, &args, user_context).await?;
+                let tool = call_chatbot_tool(conn, name, args, user_context).await?;
 
-                assistant_tool_calls_msg.push(APIToolCall {
+                assistant_tool_calls.push(APIToolCall {
                     function: APITool {
                         name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
@@ -750,12 +750,14 @@ pub async fn parse_tool<'a>(
                     }),
                 })
             }
+            // insert all tool calls made by the bot as one message into the messages
             messages.push(APIMessage {
                 role: MessageRole::Assistant,
                 fields: APIMessageKind::ToolCall(APIMessageToolCall {
-                    tool_calls: assistant_tool_calls_msg,
+                    tool_calls: assistant_tool_calls,
                 }),
             });
+            // add tool call output messages to the messages
             messages.extend(tool_result_msgs);
             break;
         }
@@ -764,7 +766,7 @@ pub async fn parse_tool<'a>(
         for choice in &response_chunk.choices {
             if Some("tool_calls".to_string()) == choice.finish_reason {
                 // the stream is finished for now because of "tool_calls"
-                // so if we're still streaming smóme func call, finish it and store it
+                // so if we're still streaming some func call, finish it and store it
                 if let Some((name, id)) = &currently_streamed_function_name_id {
                     // we have streamed some func call and args so let's join the args
                     // and save the call
@@ -776,11 +778,13 @@ pub async fn parse_tool<'a>(
                     ));
                     currently_streamed_function_args.clear();
                     currently_streamed_function_name_id = None;
+                    // after this chunk, there is assumed to be a chunk that just has
+                    // content "[DONE]", we'll process the func calls at that point.
                 }
             }
             if let Some(delta) = &choice.delta {
                 if let Some(tool_calls) = &delta.tool_calls {
-                    // this chunk has tool call info
+                    // this chunk has tool call data
                     for call in tool_calls {
                         if let (Some(name), Some(id)) = (&call.function.name, &call.id) {
                             // if this chunk has a tool name and id, then a new call is made.
@@ -897,7 +901,6 @@ pub async fn parse_and_stream_to_user<'a>(
                         yield Bytes::from("\n");
                     }
                     if let Some(context) = &delta.context {
-                        let citation_message_id = response_message.id.clone();
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {
                             let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
@@ -925,7 +928,7 @@ pub async fn parse_and_stream_to_user<'a>(
                                     created_at: Utc::now(),
                                     updated_at: Utc::now(),
                                     deleted_at: None,
-                                    conversation_message_id: citation_message_id,
+                                    conversation_message_id: response_message.id,
                                     conversation_id: response_message.conversation_id,
                                     course_material_chapter_number,
                                     title: cit.title.clone(),
@@ -979,7 +982,6 @@ pub async fn send_chat_request_and_parse_stream(
     .await?;
 
     let mut next_message_order_number = new_message_order_number + 1;
-    //let mut tool_msgs = vec![];
     let mut max_iterations_left = 15;
 
     loop {
@@ -990,8 +992,6 @@ pub async fn send_chat_request_and_parse_stream(
                 "Maximum tool call iterations exceeded. The LLM may be stuck in a loop."
             ));
         }
-
-        println!("!!!!!!!!!!!!!!!!!!!!{:?}", chat_request);
 
         let response_type =
             make_request_and_stream(chat_request.clone(), &model.deployment_name, app_config)

@@ -30,7 +30,7 @@ pub struct ChatbotConversationMessageRow {
     pub tool_output_id: Option<Uuid>,
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConversationMessage {
     pub id: Uuid,
@@ -88,38 +88,6 @@ impl ChatbotConversationMessage {
         }
     }
 }
-/* impl ChatbotConversationMessage {
-    /// Create a ChatbotConversationMessage from an APIMessage to save it into the DB.
-    /// Notice that the insert operation ignores some of the fields, like timestamps.
-    /// The try_from doesn't set the correct order_number field value.
-    pub fn from_api_message(
-        message: APIMessage,
-        conversation_id: Uuid,
-        order_number: i32,
-    ) -> Result<Self, ChatbotError> {
-        let res = match message.fields {
-            APIMessageKind::Text(msg) => ChatbotConversationMessage {
-                message_role: message.role,
-                message: Some(msg.content),
-                conversation_id,
-                order_number,
-                ..Default::default()
-            },
-            APIMessageKind::ToolCall(msg) => ChatbotConversationMessage {
-                message_role: message.role,
-                message: None,
-                tool_call_fields: msg
-                    .tool_calls
-                    .iter()
-                    .map(|x| ToolCallFields::try_from(x.to_owned()))
-                    .collect()?,
-                ..Default::default()
-            },
-            APIMessageKind::ToolResponse(msg) => {}
-        };
-        Result::Ok(res)
-    }
-} */
 
 pub async fn insert(
     conn: &mut PgConnection,

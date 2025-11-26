@@ -70,7 +70,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ToolCal
 
 pub async fn get_by_message_id(
     conn: &mut PgConnection,
-    id: Uuid,
+    msg_id: Uuid,
 ) -> ModelResult<Vec<ToolCallFields>> {
     let res = sqlx::query_as!(
         ToolCallFields,
@@ -79,7 +79,7 @@ pub async fn get_by_message_id(
         WHERE message_id = $1
         AND deleted_at IS NULL
         "#,
-        id
+        msg_id
     )
     .fetch_all(conn)
     .await?;
@@ -89,7 +89,7 @@ pub async fn get_by_message_id(
 pub async fn delete_all_by_message_id(
     conn: &mut PgConnection,
     msg_id: Uuid,
-) -> ModelResult<ToolCallFields> {
+) -> ModelResult<Vec<ToolCallFields>> {
     let res = sqlx::query_as!(
         ToolCallFields,
         r#"
@@ -98,7 +98,7 @@ pub async fn delete_all_by_message_id(
         WHERE message_id = $1
         RETURNING *
         "#,
-        id
+        msg_id
     )
     .fetch_all(conn)
     .await?;

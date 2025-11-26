@@ -473,16 +473,6 @@ impl LLMRequest {
         conversation_id: Uuid,
         mut order_number: i32,
     ) -> anyhow::Result<(Self, i32)> {
-        /* let converted_messages: Vec<ChatbotConversationMessage> = new_msgs
-        .iter()
-        .map(|m| {
-            chatbot_conversation_message_from_api_message(
-                m.to_owned(),
-                conversation_id,
-                order_number,
-            )
-        })
-        .collect(); */
         for m in new_msgs {
             let converted_msg = chatbot_conversation_message_from_api_message(
                 m.to_owned(),
@@ -876,9 +866,7 @@ pub async fn parse_and_stream_to_user<'a>(
             let mut full_response_text = full_response_text.lock().await;
 
             if json_str.trim() == "[DONE]" {
-                println!("STREAmning response is done");
                 let full_response_as_string = full_response_text.join("");
-                println!("{:?}", full_response_as_string);
                 let estimated_cost = estimate_tokens(&full_response_as_string);
                 trace!(
                     "End of chatbot response stream. Estimated cost: {}. Response: {}",

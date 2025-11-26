@@ -4,7 +4,7 @@ CREATE TABLE chatbot_conversation_message_tool_calls (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   message_id UUID REFERENCES chatbot_conversation_messages NOT NULL,
   tool_name VARCHAR(255) NOT NULL,
-  tool_arguments VARCHAR(255) NOT NULL,
+  tool_arguments VARCHAR(32376) NOT NULL,
   tool_call_id VARCHAR(255) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -21,13 +21,11 @@ COMMENT ON COLUMN chatbot_conversation_message_tool_calls.created_at IS 'Timesta
 COMMENT ON COLUMN chatbot_conversation_message_tool_calls.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN chatbot_conversation_message_tool_calls.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
-
-
 CREATE TABLE chatbot_conversation_message_tool_outputs (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   message_id UUID REFERENCES chatbot_conversation_messages NOT NULL,
   tool_name VARCHAR(255) NOT NULL,
-  tool_output VARCHAR(255) NOT NULL,
+  tool_output VARCHAR(32376) NOT NULL,
   tool_call_id VARCHAR(255) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -62,13 +60,12 @@ SET NOT NULL,
 ALTER TABLE chatbot_conversation_messages
 ADD COLUMN tool_output_id UUID REFERENCES chatbot_conversation_message_tool_outputs CONSTRAINT is_tool_result_message CHECK (
     (
-      message_role = 'tool'::message_role
-      AND tool_output_id IS NOT NULL
-      AND message IS NULL
-    )
-    OR (
       message_role <> 'tool'::message_role
       AND tool_output_id IS NULL
+    )
+    OR (
+      message_role = 'tool'::message_role
+      AND message IS NULL
     )
   );
 ALTER TABLE chatbot_conversation_messages

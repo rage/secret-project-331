@@ -14,6 +14,8 @@
   "aria-label-option-index": "Option {{index}}",
   "body": "Body",
   "button-add-example": "Add example",
+  "choose-n-limit-reached_one": "You have already chosen {{count}} option. Please remove a choice to choose another option.",
+  "choose-n-limit-reached_other": "You have already chosen {{count}} options. Please remove a choice to choose another option.",
   "choose-quiz-item-option-direction-help-text": "Choose the direction the quiz item options will be used to lay out in the widget",
   "column": "Column",
   "correct-answer": "Correct answer",

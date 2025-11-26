@@ -7,7 +7,7 @@ import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMateria
 import { Term } from "@/shared-module/common/bindings"
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
-const LATEX_CITE_REGEX = /\\cite{(.*?)}/g
+const LATEX_CITE_REGEX = /\\cite(?:\[([^\]]*)\])?(?:\[([^\]]*)\])?{(.*?)}/g
 const HTML_ESCAPED_AMPERSAND = "&amp;"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 const REGEX_MODE = "gm"
@@ -53,9 +53,26 @@ const parseCitation = (data: string) => {
   const converted = data.replace(
     LATEX_CITE_REGEX,
 
-    (_, citationId) =>
+    (_, prenote, postnote, citationId) => {
+      let actualPrenote = prenote
+      let actualPostnote = postnote
+
+      if (prenote && postnote === undefined) {
+        actualPostnote = prenote
+        actualPrenote = undefined
+      }
+
+      const prenoteAttr = actualPrenote
+        ? // eslint-disable-next-line i18next/no-literal-string
+          ` data-citation-prenote="${actualPrenote.replace(/"/g, "&quot;").replace(/~/g, "&nbsp;")}"`
+        : ""
+      const postnoteAttr = actualPostnote
+        ? // eslint-disable-next-line i18next/no-literal-string
+          ` data-citation-postnote="${actualPostnote.replace(/"/g, "&quot;").replace(/~/g, "&nbsp;")}"`
+        : ""
       // eslint-disable-next-line i18next/no-literal-string
-      `<span data-citation-id="${citationId}"></span>`,
+      return `<span data-citation-id="${citationId}"${prenoteAttr}${postnoteAttr}></span>`
+    },
   )
   return converted
 }

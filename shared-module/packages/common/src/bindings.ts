@@ -2418,6 +2418,63 @@ export interface UserInfoPayload {
   email_communication_consent: boolean
 }
 
+export interface CronJobInfo {
+  name: string
+  schedule: string
+  last_schedule_time: string | null
+}
+
+export interface DeploymentInfo {
+  name: string
+  replicas: number
+  ready_replicas: number
+}
+
+export interface EventInfo {
+  name: string
+  reason: string | null
+  message: string | null
+  type_: string | null
+  first_timestamp: string | null
+  last_timestamp: string | null
+  count: number | null
+  involved_object_kind: string | null
+  involved_object_name: string | null
+}
+
+export interface IngressInfo {
+  name: string
+  hosts: Array<string>
+  paths: Array<string>
+  class_name: string | null
+}
+
+export interface JobInfo {
+  name: string
+  succeeded: number | null
+  failed: number | null
+  active: number | null
+}
+
+export interface PodInfo {
+  name: string
+  phase: string
+  ready: boolean | null
+}
+
+export interface ServiceInfo {
+  name: string
+  cluster_ip: string | null
+  ports: Array<ServicePortInfo>
+}
+
+export interface ServicePortInfo {
+  name: string | null
+  port: number
+  target_port: string | null
+  protocol: string | null
+}
+
 export interface Pagination {
   page: number | undefined
   limit: number | undefined

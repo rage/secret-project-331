@@ -2,14 +2,18 @@ import { mainFrontendClient } from "../../mainFrontendClient"
 
 import {
   CertificateGridRow,
+  CertificateUpdateRequest,
   CompletionGridRow,
   CourseUserInfo,
+  GeneratedCertificate,
   ProgressOverview,
 } from "@/shared-module/common/bindings"
 import {
   isCertificateGridRow,
+  isCertificateUpdateRequest,
   isCompletionGridRow,
   isCourseUserInfo,
+  isGeneratedCertificate,
   isProgressOverview,
 } from "@/shared-module/common/bindings.guard"
 import { validateResponse } from "@/shared-module/common/utils/fetching"
@@ -41,4 +45,17 @@ export const getCompletions = async (courseId: string): Promise<CompletionGridRo
 export const getCertificates = async (courseId: string): Promise<CertificateGridRow[]> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}/students/certificates`)
   return validateResponse(response, isCertificateGridRowArray)
+}
+
+export const getCertificate = async (certificateId: string) => {
+  const response = await mainFrontendClient.get(`/certificates/generated/${certificateId}`)
+  return validateResponse(response, isGeneratedCertificate)
+}
+
+export const updateCertificate = async (
+  certificateId: string,
+  payload: CertificateUpdateRequest,
+) => {
+  const response = await mainFrontendClient.put(`/certificates/generated/${certificateId}`, payload)
+  return validateResponse(response, isGeneratedCertificate)
 }

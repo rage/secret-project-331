@@ -2,15 +2,16 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { CellContext, ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
-import { getCertificates } from "@/services/backend/courses/students"
-import { CertificateGridRow } from "@/shared-module/common/bindings"
+import { getCertificates, updateCertificate } from "@/services/backend/courses/students"
+import { CertificateGridRow, CertificateUpdateRequest } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 const iconBtnStyle = css`
   display: inline-flex;
@@ -43,8 +44,40 @@ const actionsCellInner = css`
   padding-right: 0;
   width: 100%;
 `
+
+export const EditCertificateModal = ({ certificateId, currentDate, onClose, onSaved }) => {
+  const [dateIssued, setDateIssued] = useState(currentDate?.substring(0, 10))
+
+  const save = async () => {
+    const payload: CertificateUpdateRequest = {
+      date_issued: new Date(dateIssued).toISOString(),
+    }
+    const updated = await updateCertificate(certificateId, payload)
+    onSaved(updated)
+  }
+
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        <input
+          type="date"
+          value={dateIssued ?? ""}
+          onChange={(e) => setDateIssued(e.target.value)}
+        />
+
+        <button onClick={save}>Save</button>
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  )
+}
+
 export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ courseId }) => {
   const { t } = useTranslation()
+  const [editData, setEditData] = useState<{
+    id: string
+    date: string | null
+  } | null>(null)
 
   const query = useQuery({
     queryKey: ["certificates-tab", courseId],
@@ -60,6 +93,8 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
   if (query.isError) {
     return <ErrorBanner error={query.error} />
   }
+
+  console.log("TEST", query)
 
   const columns: ColumnDef<CertificateGridRow, unknown>[] = [
     { header: t("label-student"), accessorKey: "student" },
@@ -91,7 +126,12 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
         }
 
         const handleEdit = () => {
-          console.log("Edit certificate for:", row.original.student)
+          if (row.original.certificate === "Course Certificate") {
+            setEditData({
+              id: row.original.certificate_id!,
+              date: row.original.date_issued,
+            })
+          }
         }
 
         return (
@@ -165,6 +205,45 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
             />
           </div>
         </div>
+      )}
+
+      {editData && (
+        <StandardDialog
+          open={true}
+          onClose={() => setEditData(null)}
+          title="Edit date issued"
+          buttons={[
+            {
+              children: "Cancel",
+              variant: "secondary",
+              onClick: () => setEditData(null),
+            },
+            {
+              children: "Update",
+              variant: "primary",
+              onClick: async () => {
+                // Convert YYYY-MM-DD → ISO string
+                const iso = new Date(editData.date ?? "").toISOString()
+
+                const payload: CertificateUpdateRequest = {
+                  date_issued: iso,
+                }
+
+                await updateCertificate(editData.id, payload)
+                setEditData(null)
+                query.refetch()
+              },
+            },
+          ]}
+        >
+          <input
+            type="date"
+            value={editData.date?.substring(0, 10) ?? ""}
+            onChange={(e) =>
+              setEditData((prev) => (prev ? { ...prev, date: e.target.value } : prev))
+            }
+          />
+        </StandardDialog>
       )}
 
       {/* TABLE */}

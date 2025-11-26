@@ -109,6 +109,15 @@ export interface ReferenceProps {
   data: Reference[]
 }
 
+export function formatCitationText(
+  citeNumber: number,
+  prenote: string | undefined,
+  postnote: string | undefined,
+): string {
+  const citationBrackets = `[${citeNumber}${postnote ? `, ${postnote}` : ""}]`
+  return prenote ? `${prenote} ${citationBrackets}` : citationBrackets
+}
+
 const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   const { t } = useTranslation()
   const [active] = useState<string>()
@@ -137,13 +146,19 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
         } else if (reference && citeOrder.includes(reference.id)) {
           citeNumber = citeOrder.indexOf(reference.id) + 1
         }
+
+        const citationContent = formatCitationText(
+          citeNumber,
+          node.dataset.citationPrenote,
+          node.dataset.citationPostnote,
+        )
         return createPortal(
           <TooltipNTrigger
             variant="references"
             href={"#ref-" + citeNumber}
             tooltipContent={reference.text}
           >
-            [{citeNumber}]
+            {citationContent}
           </TooltipNTrigger>,
           node,
           idx,

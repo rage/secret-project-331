@@ -4,9 +4,13 @@ import { useLink } from "react-aria"
 
 const StyledAnchor = styled.a`
   text-decoration: none;
+  line-height: normal;
+  display: inline-block;
 
   &:focus {
     text-decoration: underline;
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
   }
 
   &:hover {

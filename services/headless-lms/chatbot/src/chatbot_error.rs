@@ -35,7 +35,7 @@ All the information in the error is meant to be seen by the user. The type of er
 ### Usage without source error
 
 ```no_run
-# use headless_lms_utils::prelude::*;
+# use headless_lms_chatbot::prelude::*;
 # fn random_function() -> UtilResult<()> {
 #    let erroneous_condition = 1 == 1;
 if erroneous_condition {
@@ -54,7 +54,7 @@ if erroneous_condition {
 Used when calling a function that returns an error that cannot be automatically converted to an ChatbotError. (See `impl From<X>` implementations on this struct.)
 
 ```no_run
-# use headless_lms_utils::prelude::*;
+# use headless_lms_chatbot::prelude::*;
 # fn some_function_returning_an_error() -> UtilResult<()> {
 #    return Err(ChatbotError::new(
 #        ChatbotErrorType::Other,

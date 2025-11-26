@@ -157,6 +157,7 @@ fn models(target: &mut File) {
         flagged_answers::ReportReason,
 
         generated_certificates::GeneratedCertificate,
+        generated_certificates::CertificateUpdateRequest,
         glossary::Term,
         glossary::TermUpdate,
 

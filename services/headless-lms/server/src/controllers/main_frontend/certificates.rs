@@ -3,6 +3,8 @@ use actix_multipart::form::{MultipartForm, tempfile::TempFile};
 use chrono::Utc;
 use headless_lms_certificates as certificates;
 use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
+use headless_lms_models::generated_certificates::CertificateUpdateRequest;
+
 use models::{
     certificate_configurations::{
         CertificateTextAnchor, DatabaseCertificateConfiguration, PaperSize,
@@ -491,6 +493,51 @@ pub async fn delete_certificate_configuration(
         .authorized_ok(web::Json(true))
 }
 
+#[instrument(skip(pool))]
+pub async fn update_generated_certificate(
+    certificate_id: web::Path<Uuid>,
+    payload: web::Json<CertificateUpdateRequest>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<GeneratedCertificate>> {
+    let mut conn = pool.acquire().await?;
+
+    // Teacher can edit certificates for a course
+    // (We lookup the course via requirements->course_module->course_id)
+    let cert = models::generated_certificates::get_by_id(&mut conn, *certificate_id).await?;
+
+    // find course_id for authorization
+    let req = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+        &mut conn,
+        cert.certificate_configuration_id,
+    ).await?;
+
+    let course_module_id = req.course_module_ids
+        .first()
+        .ok_or_else(|| ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Certificate has no associated course module",
+            None,
+        ))?;
+
+
+
+    let course_module = models::course_modules::get_by_id(&mut conn, *course_module_id).await?;
+    let course_id = course_module.course_id;
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let updated = models::generated_certificates::update_date_issued(
+        &mut conn,
+        *certificate_id,
+        payload.date_issued,
+    ).await?;
+
+    token.authorized_ok(web::Json(updated))
+}
+
+
+
 /**
 Add a route for each controller in this module.
 
@@ -504,6 +551,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/get-by-configuration-id/{certificate_configuration_id}",
             web::get().to(get_generated_certificate),
+        )
+        .route(
+            "/generated/{certificate_id}",
+            web::put().to(update_generated_certificate),
         )
         .route(
             "/{certificate_verification_id}",

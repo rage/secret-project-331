@@ -12,7 +12,7 @@ use headless_lms_utils::error::backend_error::BackendError;
 /**
 Used as the result types for all of chatbot.
 */
-pub type UtilResult<T> = Result<T, ChatbotError>;
+pub type ChatbotResult<T> = Result<T, ChatbotError>;
 
 /// The type of [ChatbotError] that occured.
 #[derive(Debug)]
@@ -36,7 +36,7 @@ All the information in the error is meant to be seen by the user. The type of er
 
 ```no_run
 # use headless_lms_chatbot::prelude::*;
-# fn random_function() -> UtilResult<()> {
+# fn random_function() -> ChatbotResult<()> {
 #    let erroneous_condition = 1 == 1;
 if erroneous_condition {
     return Err(ChatbotError::new(
@@ -55,7 +55,7 @@ Used when calling a function that returns an error that cannot be automatically 
 
 ```no_run
 # use headless_lms_chatbot::prelude::*;
-# fn some_function_returning_an_error() -> UtilResult<()> {
+# fn some_function_returning_an_error() -> ChatbotResult<()> {
 #    return Err(ChatbotError::new(
 #        ChatbotErrorType::Other,
 #        "File not found".to_string(),
@@ -63,7 +63,7 @@ Used when calling a function that returns an error that cannot be automatically 
 #    ));
 # }
 #
-# fn random_function() -> UtilResult<()> {
+# fn random_function() -> ChatbotResult<()> {
 #    let erroneous_condition = 1 == 1;
 some_function_returning_an_error().map_err(|original_error| {
     ChatbotError::new(

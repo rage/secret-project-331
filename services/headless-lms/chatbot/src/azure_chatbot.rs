@@ -28,7 +28,7 @@ use tokio_util::io::StreamReader;
 use tracing::trace;
 use url::Url;
 
-use crate::chatbot_error::{ChatbotError, ChatbotErrorType};
+use crate::chatbot_error::{ChatbotError, ChatbotErrorType, ChatbotResult};
 use crate::chatbot_tools::ChatbotTool;
 use crate::chatbot_tools::course_progress::call_chatbot_tool;
 use crate::llm_utils::{
@@ -129,7 +129,7 @@ pub struct ResponseChunk {
 
 impl TryFrom<ChatbotConversationMessage> for APIMessage {
     type Error = ChatbotError;
-    fn try_from(message: ChatbotConversationMessage) -> Result<Self, Self::Error> {
+    fn try_from(message: ChatbotConversationMessage) -> ChatbotResult<Self> {
         let res = match message.message_role {
             MessageRole::Assistant => {
                 if !message.tool_call_fields.is_empty() {
@@ -341,7 +341,7 @@ impl LLMRequest {
         let mut api_chat_messages: Vec<APIMessage> = conversation_messages
             .into_iter()
             .map(APIMessage::try_from)
-            .collect::<Result<Vec<_>, ChatbotError>>()?;
+            .collect::<ChatbotResult<Vec<_>>>()?;
 
         // put new user message into the messages list
         api_chat_messages.push(new_message.clone().try_into()?);
@@ -463,7 +463,7 @@ impl LLMRequest {
         let api_messages: Vec<APIMessage> = conversation_messages
             .into_iter()
             .map(APIMessage::try_from)
-            .collect::<Result<Vec<_>, ChatbotError>>()?;
+            .collect::<ChatbotResult<Vec<_>>>()?;
         self.messages.extend(api_messages);
         Ok(self)
     }

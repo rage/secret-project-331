@@ -1,6 +1,6 @@
 use crate::{
     azure_chatbot::{LLMRequest, ToolCallType},
-    chatbot_error::ChatbotError,
+    chatbot_error::ChatbotResult,
     prelude::*,
 };
 use core::default::Default;
@@ -34,7 +34,7 @@ pub fn chatbot_conversation_message_from_api_message(
     message: APIMessage,
     conversation_id: Uuid,
     order_number: i32,
-) -> Result<ChatbotConversationMessage, ChatbotError> {
+) -> ChatbotResult<ChatbotConversationMessage> {
     let res = match message.fields {
         APIMessageKind::Text(msg) => ChatbotConversationMessage {
             message_role: message.role,

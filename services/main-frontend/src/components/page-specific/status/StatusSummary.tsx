@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { CheckCircle, ExclamationTriangle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -290,19 +291,33 @@ const StatusSummary: React.FC = () => {
             margin: 0 0 0.5rem 0;
             font-size: 1.2rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
           `}
         >
-          {t("status-system-health")}:{" "}
-          <span
-            className={css`
-              text-transform: uppercase;
-            `}
-          >
-            {summary.overallHealth === "healthy"
-              ? t("status-healthy")
-              : summary.overallHealth === "warning"
-                ? t("status-warning")
-                : t("status-error")}
+          {summary.overallHealth === "healthy" && (
+            <CheckCircle size={24} color={baseTheme.colors.green[600]} />
+          )}
+          {summary.overallHealth === "warning" && (
+            <ExclamationTriangle size={24} color={baseTheme.colors.yellow[700]} />
+          )}
+          {summary.overallHealth === "error" && (
+            <XmarkCircle size={24} color={baseTheme.colors.red[600]} />
+          )}
+          <span>
+            {t("status-system-health")}:{" "}
+            <span
+              className={css`
+                text-transform: uppercase;
+              `}
+            >
+              {summary.overallHealth === "healthy"
+                ? t("status-healthy")
+                : summary.overallHealth === "warning"
+                  ? t("status-warning")
+                  : t("status-error")}
+            </span>
           </span>
         </h3>
         <p

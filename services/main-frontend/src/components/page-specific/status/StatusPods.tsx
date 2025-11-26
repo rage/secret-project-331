@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { CheckCircle, Clock, Question, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -75,57 +76,82 @@ const StatusPods: React.FC = () => {
           <tbody>
             {pods.map((pod) => {
               const isHealthy = pod.ready === true && pod.phase === "Running"
-              const isFailed = pod.phase === "Failed" || pod.ready === false
+              const isFailed = pod.phase === "Failed"
               const isPending = pod.phase === "Pending"
+              const isSucceeded = pod.phase === "Succeeded"
               return (
                 <tr
                   key={pod.name}
                   className={css`
                     ${isFailed ? `background-color: ${baseTheme.colors.red[100]};` : ""}
                     ${isPending ? `background-color: ${baseTheme.colors.yellow[100]};` : ""}
+                    ${isSucceeded ? `background-color: ${baseTheme.colors.clear[200]};` : ""}
                   `}
                 >
                   <td>{pod.name}</td>
                   <td>
-                    <span
+                    <div
                       className={css`
-                        padding: 0.25rem 0.5rem;
-                        border-radius: 4px;
-                        font-size: 0.85rem;
-                        font-weight: 600;
-                        background-color: ${isHealthy
-                          ? baseTheme.colors.green[100]
-                          : isFailed
-                            ? baseTheme.colors.red[100]
-                            : isPending
-                              ? baseTheme.colors.yellow[100]
-                              : baseTheme.colors.clear[300]};
-                        color: ${isHealthy
-                          ? baseTheme.colors.green[700]
-                          : isFailed
-                            ? baseTheme.colors.red[700]
-                            : isPending
-                              ? baseTheme.colors.yellow[700]
-                              : baseTheme.colors.gray[600]};
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
                       `}
                     >
-                      {pod.phase}
-                    </span>
+                      {isHealthy && <CheckCircle size={16} color={baseTheme.colors.green[600]} />}
+                      {isFailed && <XmarkCircle size={16} color={baseTheme.colors.red[600]} />}
+                      {isPending && <Clock size={16} color={baseTheme.colors.yellow[700]} />}
+                      {isSucceeded && <CheckCircle size={16} color={baseTheme.colors.green[600]} />}
+                      {!isHealthy && !isFailed && !isPending && !isSucceeded && (
+                        <Question size={16} color={baseTheme.colors.gray[500]} />
+                      )}
+                      <span
+                        className={css`
+                          padding: 0.25rem 0.5rem;
+                          border-radius: 4px;
+                          font-size: 0.85rem;
+                          font-weight: 600;
+                          background-color: ${isHealthy
+                            ? baseTheme.colors.green[100]
+                            : isFailed
+                              ? baseTheme.colors.red[100]
+                              : isPending
+                                ? baseTheme.colors.yellow[100]
+                                : isSucceeded
+                                  ? baseTheme.colors.green[100]
+                                  : baseTheme.colors.clear[300]};
+                          color: ${isHealthy
+                            ? baseTheme.colors.green[700]
+                            : isFailed
+                              ? baseTheme.colors.red[700]
+                              : isPending
+                                ? baseTheme.colors.yellow[700]
+                                : isSucceeded
+                                  ? baseTheme.colors.green[700]
+                                  : baseTheme.colors.gray[600]};
+                        `}
+                      >
+                        {pod.phase}
+                      </span>
+                    </div>
                   </td>
                   <td>
-                    <span
+                    <div
                       className={css`
-                        font-size: 1.2rem;
-                        color: ${pod.ready === true
-                          ? baseTheme.colors.green[600]
-                          : pod.ready === false
-                            ? baseTheme.colors.red[600]
-                            : baseTheme.colors.yellow[600]};
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
                       `}
                     >
-                      {/* eslint-disable-next-line i18next/no-literal-string */}
-                      {pod.ready === true ? "✓" : pod.ready === false ? "✗" : "?"}
-                    </span>
+                      {pod.ready === true ? (
+                        <CheckCircle size={20} color={baseTheme.colors.green[600]} />
+                      ) : pod.phase === "Succeeded" ? (
+                        <CheckCircle size={20} color={baseTheme.colors.gray[400]} />
+                      ) : pod.ready === false ? (
+                        <XmarkCircle size={20} color={baseTheme.colors.red[600]} />
+                      ) : (
+                        <Question size={20} color={baseTheme.colors.yellow[600]} />
+                      )}
+                    </div>
                   </td>
                   <td>
                     <Button

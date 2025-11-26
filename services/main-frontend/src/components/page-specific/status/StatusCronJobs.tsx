@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { CheckCircle, Clock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -64,8 +65,32 @@ const StatusCronJobs: React.FC = () => {
           {cronJobs.map((cronJob) => (
             <tr key={cronJob.name}>
               <td>{cronJob.name}</td>
-              <td>{cronJob.schedule}</td>
-              <td>{cronJob.last_schedule_time || t("status-never")}</td>
+              <td>
+                <div
+                  className={css`
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                  `}
+                >
+                  <Clock size={16} color={baseTheme.colors.blue[600]} />
+                  <span>{cronJob.schedule}</span>
+                </div>
+              </td>
+              <td>
+                <div
+                  className={css`
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                  `}
+                >
+                  {cronJob.last_schedule_time && (
+                    <CheckCircle size={16} color={baseTheme.colors.green[600]} />
+                  )}
+                  <span>{cronJob.last_schedule_time || t("status-never")}</span>
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>

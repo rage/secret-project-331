@@ -395,9 +395,8 @@ pub fn prepare_llm_messages(
 
 #[cfg(test)]
 mod tests {
-    use crate::llm_utils::{APIMessageKind, APIMessageText};
-
     use super::*;
+    use crate::llm_utils::{APIMessageKind, APIMessageText};
     use serde_json::json;
 
     const TEST_BLOCK_NAME: &str = "test/block";

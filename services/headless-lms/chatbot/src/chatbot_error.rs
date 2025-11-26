@@ -164,16 +164,6 @@ impl From<url::ParseError> for ChatbotError {
     }
 }
 
-/* impl From<std::path::StripPrefixError> for ChatbotError {
-    fn from(source: std::path::StripPrefixError) -> Self {
-        ChatbotError::new(
-            ChatbotErrorType::StripPrefix,
-            source.to_string(),
-            Some(source.into()),
-        )
-    }
-} */
-
 impl From<tokio::io::Error> for ChatbotError {
     fn from(source: tokio::io::Error) -> Self {
         ChatbotError::new(

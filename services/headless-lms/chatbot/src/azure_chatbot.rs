@@ -485,7 +485,6 @@ impl LLMRequest {
             self.messages.push(m);
             order_number += 1;
         }
-
         Ok((self, order_number))
     }
 }
@@ -694,7 +693,6 @@ pub async fn make_request_and_stream<'a>(
             }
         }
     }
-
     Err(Error::msg(
         "The response received from Azure had an unexpected shape and couldn't be parsed"
             .to_string(),
@@ -868,9 +866,8 @@ pub async fn parse_and_stream_to_user<'a>(
             if !line.starts_with("data: ") {
                 continue;
             }
-            let json_str = line.trim_start_matches("data: ");
             let mut full_response_text = full_response_text.lock().await;
-
+            let json_str = line.trim_start_matches("data: ");
             if json_str.trim() == "[DONE]" {
                 let full_response_as_string = full_response_text.join("");
                 let estimated_cost = estimate_tokens(&full_response_as_string);

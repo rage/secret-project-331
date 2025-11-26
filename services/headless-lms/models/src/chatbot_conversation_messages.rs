@@ -194,9 +194,7 @@ RETURNING
     }
 
     let res = ChatbotConversationMessage::from_row(msg, tool_output, input.tool_call_fields);
-
     tx.commit().await?;
-
     Ok(res)
 }
 
@@ -275,7 +273,6 @@ RETURNING
     .await?;
 
     let res = message_row_to_message(&mut tx, row).await?;
-
     tx.commit().await?;
     Ok(res)
 }

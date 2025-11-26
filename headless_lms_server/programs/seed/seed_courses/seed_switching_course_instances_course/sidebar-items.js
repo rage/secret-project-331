@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["seed_switching_course_instances_course"]};

@@ -31,6 +31,7 @@ test("partner block tests", async ({ page }) => {
   // wait for image to upload
   await getImgByURLPrefixAndSuffix(page, "http://project-331.local/api/v0/files/", ".svg").waitFor()
   await page.getByRole("button", { name: "Save", exact: true }).click()
+  await page.getByText("Content saved successfully!").waitFor()
 
   await page.goto("http://project-331.local/org/uh-cs/courses/giveaway")
 

@@ -387,7 +387,7 @@ export async function waitToBeVisible({
   }
 }
 
-async function waitToBeStable(waitForThisToBeStable: Locator[]): Promise<void> {
+export async function waitToBeStable(waitForThisToBeStable: Locator[]): Promise<void> {
   for (const locator of waitForThisToBeStable) {
     await scrollLocatorsParentIframeToViewIfNeeded(locator)
     const elementHandle = await locator.elementHandle()

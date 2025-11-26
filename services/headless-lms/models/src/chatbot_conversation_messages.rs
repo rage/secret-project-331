@@ -222,6 +222,7 @@ SELECT
     tool_output_id
 FROM chatbot_conversation_messages
 WHERE conversation_id = $1
+AND deleted_at IS NULL
         "#,
         conversation_id
     )

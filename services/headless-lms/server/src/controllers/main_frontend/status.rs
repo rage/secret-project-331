@@ -565,7 +565,7 @@ fn parse_and_validate_tail(tail_str: Option<&String>) -> i64 {
     const DEFAULT_TAIL_LINES: i64 = 1000;
     const MAX_TAIL_LINES: i64 = 10_000;
 
-    let tail = match tail_str {
+    match tail_str {
         Some(s) => match s.parse::<u64>() {
             Ok(val) => {
                 let clamped = val.min(MAX_TAIL_LINES as u64);
@@ -574,8 +574,7 @@ fn parse_and_validate_tail(tail_str: Option<&String>) -> i64 {
             Err(_) => DEFAULT_TAIL_LINES,
         },
         None => DEFAULT_TAIL_LINES,
-    };
-    tail
+    }
 }
 
 async fn get_pod_logs(
@@ -587,8 +586,10 @@ async fn get_pod_logs(
     let client = Client::try_default().await?;
     let pods: Api<Pod> = Api::namespaced(client, ns);
 
-    let mut log_params = LogParams::default();
-    log_params.tail_lines = Some(tail_lines);
+    let mut log_params = LogParams {
+        tail_lines: Some(tail_lines),
+        ..Default::default()
+    };
     if let Some(container_name) = container {
         log_params.container = Some(container_name.to_string());
     }

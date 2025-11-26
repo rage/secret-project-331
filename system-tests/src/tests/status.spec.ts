@@ -48,7 +48,7 @@ test("Status page displays Kubernetes information", async ({ page }) => {
   })
 
   await test.step("Check that Jobs section is displayed", async () => {
-    await expect(page.getByRole("heading", { name: "Jobs" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Jobs", exact: true })).toBeVisible()
     // Wait for the jobs table to load
     await page
       .locator("text=/Name|Succeeded|Failed|Active|No jobs found/")

@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE generated_certificates\n        SET created_at = $1,\n            updated_at = NOW()\n        WHERE id = $2\n          AND deleted_at IS NULL\n        RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "name_on_certificate",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "verification_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "certificate_configuration_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "dc6fce5d47a3ec2e06c3877b494fda7dd886a2d94abef7a18d5f2c98c11d60f4"
+}

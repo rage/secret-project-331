@@ -141,9 +141,10 @@ ORDER BY
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateGridRow {
     pub student: String,
-    pub certificate: String, // "Course Certificate" | "No Certificate"
-    pub date_issued: Option<DateTime<Utc>>, // NULL if no certificate
-    pub verification_id: Option<String>, // NULL if no certificate
+    pub certificate: String,
+    pub date_issued: Option<DateTime<Utc>>,
+    pub verification_id: Option<String>,
+    pub certificate_id: Option<Uuid>,
 }
 
 /// Returns one row per enrolled student with their overall course certificate info.
@@ -164,6 +165,7 @@ user_certs AS (
   -- one latest certificate per user for this course
   SELECT DISTINCT ON (gc.user_id)
     gc.user_id,
+    gc.id,
     gc.created_at AS latest_issued_at,
     gc.verification_id
   FROM generated_certificates gc
@@ -185,14 +187,18 @@ SELECT
     THEN '(Missing name)'
     ELSE TRIM(ud.first_name) || ' ' || TRIM(ud.last_name)
   END AS "student!",
+
   /* non-null */
   CASE
     WHEN uc.user_id IS NOT NULL THEN 'Course Certificate'
     ELSE 'No Certificate'
   END AS "certificate!",
+
   /* nullable */
   uc.latest_issued_at AS "date_issued?",
-  uc.verification_id  AS "verification_id?"
+  uc.verification_id  AS "verification_id?",
+  uc.id               AS "certificate_id?"
+
 FROM enrolled e
 JOIN users u ON u.id = e.user_id
 LEFT JOIN user_details ud ON ud.user_id = u.id

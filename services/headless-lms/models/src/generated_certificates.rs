@@ -125,3 +125,53 @@ WHERE verification_id = $1
 fn generate_verification_id() -> String {
     utils::strings::generate_easily_writable_random_string(15)
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CertificateUpdateRequest {
+    pub date_issued: DateTime<Utc>,
+}
+
+pub async fn update_date_issued(
+    conn: &mut PgConnection,
+    certificate_id: Uuid,
+    new_date: DateTime<Utc>,
+) -> ModelResult<GeneratedCertificate> {
+    let res = sqlx::query_as!(
+        GeneratedCertificate,
+        r#"
+        UPDATE generated_certificates
+        SET created_at = $1,
+            updated_at = NOW()
+        WHERE id = $2
+          AND deleted_at IS NULL
+        RETURNING *
+        "#,
+        new_date,
+        certificate_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn get_by_id(
+    conn: &mut PgConnection,
+    certificate_id: Uuid,
+) -> ModelResult<GeneratedCertificate> {
+    let res = sqlx::query_as!(
+        GeneratedCertificate,
+        r#"
+        SELECT *
+        FROM generated_certificates
+        WHERE id = $1
+          AND deleted_at IS NULL
+        "#,
+        certificate_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}

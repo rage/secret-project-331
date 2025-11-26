@@ -1154,6 +1154,10 @@ export interface GeneratedCertificate {
   certificate_configuration_id: string
 }
 
+export interface CertificateUpdateRequest {
+  date_issued: string
+}
+
 export interface Term {
   id: string
   term: string
@@ -1436,6 +1440,7 @@ export interface CertificateGridRow {
   certificate: string
   date_issued: string | null
   verification_id: string | null
+  certificate_id: string | null
 }
 
 export interface UserMarketingConsent {

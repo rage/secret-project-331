@@ -19,7 +19,7 @@
 <a href=#19 id=19 data-nosnippet>19</a>    domain::models_requests::{<span class="self">self</span>, JwtKey},
 <a href=#20 id=20 data-nosnippet>20</a>    programs::seed::{
 <a href=#21 id=21 data-nosnippet>21</a>        seed_courses::{
-<a href=#22 id=22 data-nosnippet>22</a>            CommonCourseData, seed_chatbot::seed_chatbot_course,
+<a href=#22 id=22 data-nosnippet>22</a>            CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
 <a href=#23 id=23 data-nosnippet>23</a>            seed_course_with_peer_review::seed_peer_review_course,
 <a href=#24 id=24 data-nosnippet>24</a>            seed_peer_review_course_without_submissions, seed_sample_course,
 <a href=#25 id=25 data-nosnippet>25</a>            seed_switching_course_instances_course,
@@ -405,8 +405,8 @@
 <a href=#405 id=405 data-nosnippet>405</a>
 <a href=#406 id=406 data-nosnippet>406</a>    <span class="kw">let </span>_closed_course_id = seed_peer_review_course_without_submissions(
 <a href=#407 id=407 data-nosnippet>407</a>        Uuid::parse_str(<span class="string">"16159801-cf70-4f9c-9cba-2110c3bd4622"</span>)<span class="question-mark">?</span>,
-<a href=#408 id=408 data-nosnippet>408</a>        <span class="string">"Accessibility course"</span>,
-<a href=#409 id=409 data-nosnippet>409</a>        <span class="string">"accessibility-course"</span>,
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="string">"Peer review accessibility course"</span>,
+<a href=#409 id=409 data-nosnippet>409</a>        <span class="string">"peer-review-accessibility-course"</span>,
 <a href=#410 id=410 data-nosnippet>410</a>        uh_data.clone(),
 <a href=#411 id=411 data-nosnippet>411</a>    )
 <a href=#412 id=412 data-nosnippet>412</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -439,5 +439,13 @@
 <a href=#439 id=439 data-nosnippet>439</a>    )
 <a href=#440 id=440 data-nosnippet>440</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#441 id=441 data-nosnippet>441</a>
-<a href=#442 id=442 data-nosnippet>442</a>    <span class="prelude-val">Ok</span>(uh_mathstat_id)
-<a href=#443 id=443 data-nosnippet>443</a>}</code></pre></div></section></main></body></html>
+<a href=#442 id=442 data-nosnippet>442</a>    <span class="kw">let </span>_accessibility_course_id = seed_accessibility_course(
+<a href=#443 id=443 data-nosnippet>443</a>        Uuid::parse_str(<span class="string">"f1a2b3c4-d5e6-7890-abcd-ef1234567890"</span>)<span class="question-mark">?</span>,
+<a href=#444 id=444 data-nosnippet>444</a>        <span class="string">"Accessibility course"</span>,
+<a href=#445 id=445 data-nosnippet>445</a>        <span class="string">"accessibility-course"</span>,
+<a href=#446 id=446 data-nosnippet>446</a>        uh_data.clone(),
+<a href=#447 id=447 data-nosnippet>447</a>    )
+<a href=#448 id=448 data-nosnippet>448</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#449 id=449 data-nosnippet>449</a>
+<a href=#450 id=450 data-nosnippet>450</a>    <span class="prelude-val">Ok</span>(uh_mathstat_id)
+<a href=#451 id=451 data-nosnippet>451</a>}</code></pre></div></section></main></body></html>

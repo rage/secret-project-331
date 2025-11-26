@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["seed_cs_course_material","seed_peer_review_course_without_submissions","seed_sample_course","seed_switching_course_instances_course"],"mod":["seed_chatbot","seed_course_with_peer_review","seed_glossary"],"struct":["CommonCourseData"]};
+window.SIDEBAR_ITEMS = {"fn":["seed_cs_course_material","seed_peer_review_course_without_submissions","seed_sample_course","seed_switching_course_instances_course"],"mod":["seed_accessibility_course","seed_chatbot","seed_course_with_peer_review","seed_glossary"],"struct":["CommonCourseData"]};

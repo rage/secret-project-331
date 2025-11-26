@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
 import { CheckCircle, Clock, Question, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useStatusPodLogs } from "../../../hooks/useStatusPodLogs"
 import { useStatusPods } from "../../../hooks/useStatusPods"
+import { parseAnsiToReact } from "../../../utils/parseAnsiToReact"
 
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -17,11 +18,18 @@ const StatusPods: React.FC = () => {
   const { data: pods, isLoading, error } = useStatusPods()
   const [selectedPod, setSelectedPod] = useState<string | null>(null)
   const [tail, setTail] = useState<number>(100)
+  const logsContainerRef = useRef<HTMLDivElement>(null)
   const {
     data: logs,
     isLoading: logsLoading,
     error: logsError,
   } = useStatusPodLogs(selectedPod, undefined, tail)
+
+  useEffect(() => {
+    if (logs && logsContainerRef.current) {
+      logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight
+    }
+  }, [logs])
 
   if (isLoading) {
     return <Spinner />
@@ -223,14 +231,16 @@ const StatusPods: React.FC = () => {
             </div>
 
             <div
+              ref={logsContainerRef}
               className={css`
                 border: 1px solid ${baseTheme.colors.clear[300]};
                 border-radius: 4px;
                 padding: 1rem;
-                background-color: ${baseTheme.colors.gray[700]};
-                color: ${baseTheme.colors.gray[300]};
+                background-color: #1e1e1e;
+                color: #d4d4d4;
                 font-family: ${monospaceFont};
                 font-size: 12px;
+                line-height: 1.4;
                 max-height: 600px;
                 overflow-y: auto;
                 white-space: pre-wrap;
@@ -239,7 +249,7 @@ const StatusPods: React.FC = () => {
             >
               {logsLoading && <Spinner />}
               {logsError && <ErrorBanner error={logsError} />}
-              {logs && <div>{logs}</div>}
+              {logs && <div>{parseAnsiToReact(logs)}</div>}
             </div>
           </div>
         </StandardDialog>

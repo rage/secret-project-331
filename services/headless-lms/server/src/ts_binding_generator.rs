@@ -362,6 +362,17 @@ fn controllers(target: &mut File) {
             status::ServicePortInfo,
         };
     }
+
+    // domain
+    {
+        use domain::*;
+        export! {
+            target,
+
+            system_health::HealthStatus,
+            system_health::SystemHealthStatus,
+        };
+    }
 }
 
 fn utils(target: &mut File) {

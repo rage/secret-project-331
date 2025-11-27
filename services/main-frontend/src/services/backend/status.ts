@@ -10,6 +10,7 @@ import {
   PodDisruptionBudgetInfo,
   PodInfo,
   ServiceInfo,
+  SystemHealthStatus,
 } from "@/shared-module/common/bindings"
 import {
   isCronJobInfo,
@@ -20,6 +21,7 @@ import {
   isPodDisruptionBudgetInfo,
   isPodInfo,
   isServiceInfo,
+  isSystemHealthStatus,
 } from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
@@ -88,4 +90,9 @@ export const fetchPodLogs = async (
 export const fetchSystemHealth = async (): Promise<boolean> => {
   const response = await healthzClient.get<boolean>("/system")
   return response.data
+}
+
+export const fetchSystemHealthDetailed = async (): Promise<SystemHealthStatus> => {
+  const response = await mainFrontendClient.get("/status/health")
+  return validateResponse(response, isSystemHealthStatus)
 }

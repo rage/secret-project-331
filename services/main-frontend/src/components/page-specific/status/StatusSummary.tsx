@@ -8,8 +8,9 @@ import { useStatusEvents } from "../../../hooks/useStatusEvents"
 import { useStatusPodDisruptionBudgets } from "../../../hooks/useStatusPodDisruptionBudgets"
 import { useStatusPods } from "../../../hooks/useStatusPods"
 import { useSystemHealth } from "../../../hooks/useSystemHealth"
+import { useSystemHealthDetailed } from "../../../hooks/useSystemHealthDetailed"
 
-import { DeploymentInfo, EventInfo, PodInfo } from "@/shared-module/common/bindings"
+import { EventInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -23,54 +24,21 @@ const StatusSummary: React.FC = () => {
     error: deploymentsError,
   } = useStatusDeployments()
   const { data: events, isLoading: eventsLoading, error: eventsError } = useStatusEvents()
-  const { data: pdbs, isLoading: pdbsLoading, error: pdbsError } = useStatusPodDisruptionBudgets()
+  const { data: _pdbs, isLoading: pdbsLoading } = useStatusPodDisruptionBudgets()
   const {
     data: systemHealthStatus,
     isLoading: systemHealthLoading,
     error: systemHealthError,
   } = useSystemHealth()
+  const {
+    data: systemHealthDetailed,
+    isLoading: systemHealthDetailedLoading,
+    error: systemHealthDetailedError,
+  } = useSystemHealthDetailed()
 
   const summary = useMemo(() => {
     if (!pods || !deployments || !events) {
       return null
-    }
-
-    const podMatchesDeployment = (pod: PodInfo, deployment: DeploymentInfo): boolean => {
-      if (!deployment.selector_labels || Object.keys(deployment.selector_labels).length === 0) {
-        return false
-      }
-      if (!pod.labels) {
-        return false
-      }
-      return Object.entries(deployment.selector_labels).every(
-        ([key, value]) => pod.labels[key] === value,
-      )
-    }
-
-    const isDeploymentCoveredByPdb = (
-      deployment: DeploymentInfo,
-    ): { covered: boolean; disruptionsAllowed: number } => {
-      if (!pdbs || pdbs.length === 0) {
-        return { covered: false, disruptionsAllowed: 0 }
-      }
-      const matchingPdb = pdbs.find((pdb) => {
-        if (!pdb.selector_labels || Object.keys(pdb.selector_labels).length === 0) {
-          return false
-        }
-        if (!deployment.selector_labels) {
-          return false
-        }
-        return Object.entries(pdb.selector_labels).every(
-          ([key, value]) => deployment.selector_labels[key] === value,
-        )
-      })
-      if (matchingPdb) {
-        return {
-          covered: true,
-          disruptionsAllowed: matchingPdb.disruptions_allowed || 0,
-        }
-      }
-      return { covered: false, disruptionsAllowed: 0 }
     }
 
     // Categorize pods more accurately
@@ -91,12 +59,6 @@ const StatusSummary: React.FC = () => {
     ).length
     const unhealthyDeployments = activeDeployments.filter(
       (d) => d.ready_replicas !== d.replicas,
-    ).length
-    const criticalDeployments = activeDeployments.filter(
-      (d) => d.ready_replicas === 0 && d.replicas > 0,
-    ).length
-    const degradedDeployments = activeDeployments.filter(
-      (d) => d.ready_replicas > 0 && d.ready_replicas < d.replicas,
     ).length
     const totalActiveDeployments = activeDeployments.length
 
@@ -186,138 +148,13 @@ const StatusSummary: React.FC = () => {
       })
       .slice(0, 5)
 
-    // Improved health detection logic
     // eslint-disable-next-line i18next/no-literal-string
-    let overallHealth: "healthy" | "warning" | "error" = "healthy"
-    const healthIssues: string[] = []
-
-    const hasActualFailures = failedPods.length > 0 || crashedPods.length > 0
-    const hasOnlyPendingPods = pendingPods.length > 0 && !hasActualFailures
-
-    // Critical issues (error state)
-    // Note: crashedPods are Running but not ready - this is a heuristic that may include
-    // pods legitimately starting up, but without restart counts we can't distinguish
-    // true crash loops from slow startups. This may cause false positives during deployments.
-    if (failedPods.length > 0) {
-      // eslint-disable-next-line i18next/no-literal-string
-      overallHealth = "error"
-      healthIssues.push(
-        t("status-failed-pods-count", {
-          count: failedPods.length,
-          defaultValue: `${failedPods.length} failed pod(s)`,
-        }),
-      )
-    }
-    if (crashedPods.length > 0) {
-      // Running pods that aren't ready (may be crash loops or slow startups)
-      // eslint-disable-next-line i18next/no-literal-string
-      overallHealth = "error"
-      healthIssues.push(
-        t("status-crashed-pods-count", {
-          count: crashedPods.length,
-          defaultValue: `${crashedPods.length} crashed pod(s)`,
-        }),
-      )
-    }
-    if (criticalDeployments > 0) {
-      const criticalDeploymentList = activeDeployments.filter(
-        (d) => d.ready_replicas === 0 && d.replicas > 0,
-      )
-      const hasUnprotectedCritical = criticalDeploymentList.some((d) => {
-        const pdbCoverage = isDeploymentCoveredByPdb(d)
-        if (pdbCoverage.covered && pdbCoverage.disruptionsAllowed > 0) {
-          return false
-        }
-        const deploymentPendingPods = pods.filter(
-          (p) => p.phase === "Pending" && podMatchesDeployment(p, d),
-        )
-        const deploymentRunningPods = pods.filter(
-          (p) => p.phase === "Running" && podMatchesDeployment(p, d),
-        )
-        return !(deploymentPendingPods.length > 0 && deploymentRunningPods.length > 0)
-      })
-      if (hasUnprotectedCritical) {
-        // Deployment has 0 ready replicas, no PDB protection, and no recovery in progress
-        // eslint-disable-next-line i18next/no-literal-string
-        overallHealth = "error"
-        healthIssues.push(
-          t("status-critical-deployments-count", {
-            count: criticalDeployments,
-            defaultValue: `${criticalDeployments} deployment(s) completely down`,
-          }),
-        )
-      }
-    }
-    if (degradedDeployments > 0) {
-      // Deployment has some ready replicas but not all
-      // eslint-disable-next-line i18next/no-literal-string
-      overallHealth = "error"
-      healthIssues.push(
-        t("status-degraded-deployments-count", {
-          count: degradedDeployments,
-          defaultValue: `${degradedDeployments} deployment(s) degraded`,
-        }),
-      )
-    }
-    if (recentErrors.length > 0) {
-      // eslint-disable-next-line i18next/no-literal-string
-      overallHealth = "error"
-      healthIssues.push(
-        t("status-recent-errors-count", {
-          count: recentErrors.length,
-          defaultValue: `${recentErrors.length} recent error(s)`,
-        }),
-      )
-    }
-
-    // Warning issues (only if not already in error state)
-
-    if (overallHealth !== "error") {
-      if (unhealthyDeployments > 0 && hasOnlyPendingPods) {
-        // Deployment is unhealthy but only due to pending pods (likely scaling/rolling out)
-        // eslint-disable-next-line i18next/no-literal-string
-        overallHealth = "warning"
-        healthIssues.push(
-          t("status-unhealthy-deployments-count", {
-            count: unhealthyDeployments,
-            defaultValue: `${unhealthyDeployments} unhealthy deployment(s)`,
-          }),
-        )
-      }
-      if (degradedDeployments > 0 && !hasActualFailures) {
-        // Some replicas are ready but not all, without actual failures
-        // eslint-disable-next-line i18next/no-literal-string
-        overallHealth = "warning"
-        healthIssues.push(
-          t("status-degraded-deployments-count", {
-            count: degradedDeployments,
-            defaultValue: `${degradedDeployments} deployment(s) degraded`,
-          }),
-        )
-      }
-      const pendingThreshold = totalActivePods <= 3 ? 1 : totalActivePods * 0.1
-      if (pendingPods.length > 0 && pendingPods.length >= pendingThreshold) {
-        // Significant number of pods pending (at least 1 if <=3 pods, or >10% if more)
-        // eslint-disable-next-line i18next/no-literal-string
-        overallHealth = "warning"
-        healthIssues.push(
-          t("status-pending-pods-count", {
-            count: pendingPods.length,
-            defaultValue: `${pendingPods.length} pending pod(s)`,
-          }),
-        )
-      }
-      if (recentWarnings.length > 0) {
-        // eslint-disable-next-line i18next/no-literal-string
-        overallHealth = "warning"
-        healthIssues.push(
-          t("status-recent-warnings-count", {
-            count: recentWarnings.length,
-            defaultValue: `${recentWarnings.length} recent warning(s)`,
-          }),
-        )
-      }
-    }
+    const defaultHealth: "healthy" | "warning" | "error" = "healthy"
+    const overallHealth = (systemHealthDetailed?.status || defaultHealth) as
+      | "healthy"
+      | "warning"
+      | "error"
+    const healthIssues = systemHealthDetailed?.issues || []
 
     return {
       totalPods: totalActivePods,
@@ -334,20 +171,26 @@ const StatusSummary: React.FC = () => {
       overallHealth,
       healthIssues,
     }
-  }, [pods, deployments, events, pdbs, t])
+  }, [pods, deployments, events, systemHealthDetailed])
 
-  if (podsLoading || deploymentsLoading || eventsLoading || pdbsLoading) {
+  if (
+    podsLoading ||
+    deploymentsLoading ||
+    eventsLoading ||
+    pdbsLoading ||
+    systemHealthDetailedLoading
+  ) {
     return <Spinner />
   }
 
-  if (podsError || deploymentsError || eventsError || pdbsError) {
+  if (podsError || deploymentsError || eventsError || systemHealthDetailedError) {
     return (
       <div>
         {podsError && <ErrorBanner error={podsError} />}
         {deploymentsError && <ErrorBanner error={deploymentsError} />}
         {eventsError && <ErrorBanner error={eventsError} />}
-        {pdbsError && <ErrorBanner error={pdbsError} />}
         {systemHealthError && <ErrorBanner error={systemHealthError} />}
+        {systemHealthDetailedError && <ErrorBanner error={systemHealthDetailedError} />}
       </div>
     )
   }

@@ -2446,6 +2446,8 @@ export interface EventInfo {
   involved_object_name: string | null
 }
 
+export type HealthStatus = "healthy" | "warning" | "error"
+
 export interface IngressInfo {
   name: string
   hosts: Array<string>
@@ -2487,6 +2489,11 @@ export interface ServicePortInfo {
   port: number
   target_port: string | null
   protocol: string | null
+}
+
+export interface SystemHealthStatus {
+  status: HealthStatus
+  issues: Array<string>
 }
 
 export interface Pagination {

@@ -747,10 +747,8 @@ pub async fn check_system_health(ns: &str) -> Result<bool> {
         return Ok(false);
     }
 
-    if !critical_deployments.is_empty() {
-        if has_actual_failures || pending_pods.is_empty() {
-            return Ok(false);
-        }
+    if !critical_deployments.is_empty() && (has_actual_failures || pending_pods.is_empty()) {
+        return Ok(false);
     }
 
     if !degraded_deployments.is_empty() && has_actual_failures {

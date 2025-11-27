@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    INSERT INTO peer_or_self_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    processing_strategy,\n    points_are_all_or_nothing,\n    review_instructions\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (id) DO\nUPDATE\nSET course_id = excluded.course_id,\n  exercise_id = excluded.exercise_id,\n  peer_reviews_to_give = excluded.peer_reviews_to_give,\n  peer_reviews_to_receive = excluded.peer_reviews_to_receive,\n  accepting_threshold = excluded.accepting_threshold,\n  processing_strategy = excluded.processing_strategy,\n  points_are_all_or_nothing = excluded.points_are_all_or_nothing,\n  review_instructions = excluded.review_instructions\nRETURNING id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  processing_strategy AS \"processing_strategy:_\",\n  points_are_all_or_nothing,\n  review_instructions\n",
+  "query": "\n    INSERT INTO peer_or_self_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    processing_strategy,\n    points_are_all_or_nothing,\n    review_instructions,\n    reset_answer_if_zero_points_from_review\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO\nUPDATE\nSET course_id = excluded.course_id,\n  exercise_id = excluded.exercise_id,\n  peer_reviews_to_give = excluded.peer_reviews_to_give,\n  peer_reviews_to_receive = excluded.peer_reviews_to_receive,\n  accepting_threshold = excluded.accepting_threshold,\n  processing_strategy = excluded.processing_strategy,\n  points_are_all_or_nothing = excluded.points_are_all_or_nothing,\n  reset_answer_if_zero_points_from_review = excluded.reset_answer_if_zero_points_from_review,\n  review_instructions = excluded.review_instructions\nRETURNING id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  processing_strategy AS \"processing_strategy:_\",\n  points_are_all_or_nothing,\n  review_instructions,\n  reset_answer_if_zero_points_from_review\n",
   "describe": {
     "columns": [
       {
@@ -58,6 +58,11 @@
         "ordinal": 8,
         "name": "review_instructions",
         "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 9,
+        "name": "reset_answer_if_zero_points_from_review",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -81,7 +86,8 @@
           }
         },
         "Bool",
-        "Jsonb"
+        "Jsonb",
+        "Bool"
       ]
     },
     "nullable": [
@@ -93,8 +99,9 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
-  "hash": "e410ef993eeeb7c28e4f268a5e1c86cc0b2cf0469e84764bc1219da28320dc53"
+  "hash": "32d6ec8f99e5454e39ec5112758d96316be46a64e22e9c233906e028bc671039"
 }

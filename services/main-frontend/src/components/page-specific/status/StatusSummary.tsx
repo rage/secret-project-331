@@ -23,7 +23,7 @@ const StatusSummary: React.FC = () => {
     error: deploymentsError,
   } = useStatusDeployments()
   const { data: events, isLoading: eventsLoading, error: eventsError } = useStatusEvents()
-  const { data: _pdbs, isLoading: pdbsLoading } = useStatusPodDisruptionBudgets()
+  const { data: _pdbs, isLoading: pdbsLoading, error: pdbsError } = useStatusPodDisruptionBudgets()
   const {
     data: systemHealthDetailed,
     isLoading: systemHealthDetailedLoading,
@@ -177,12 +177,13 @@ const StatusSummary: React.FC = () => {
     return <Spinner />
   }
 
-  if (podsError || deploymentsError || eventsError || systemHealthDetailedError) {
+  if (podsError || deploymentsError || eventsError || pdbsError || systemHealthDetailedError) {
     return (
       <div>
         {podsError && <ErrorBanner error={podsError} />}
         {deploymentsError && <ErrorBanner error={deploymentsError} />}
         {eventsError && <ErrorBanner error={eventsError} />}
+        {pdbsError && <ErrorBanner error={pdbsError} />}
         {systemHealthDetailedError && <ErrorBanner error={systemHealthDetailedError} />}
       </div>
     )

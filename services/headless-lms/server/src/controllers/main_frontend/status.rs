@@ -9,6 +9,7 @@ use crate::{
     },
     prelude::*,
 };
+use sqlx::Executor;
 use std::collections::HashMap;
 
 pub use system_health::{

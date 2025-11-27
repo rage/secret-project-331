@@ -103,20 +103,32 @@ test("Reject and reset submission", async () => {
 
     // Student1 peer reviews Student2 and Teachers answers
     await showNextToastsInfinitely(student1Page)
-    await student1Page.getByRole("button", { name: "Start peer review" }).click()
-    await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("button", { name: "Submit" })
+      .getByRole("button", { name: "Start peer review" })
       .click()
-    await student1Page.getByText("Operation successful!").waitFor()
-    await hideToasts(student1Page)
-    await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
+    await student1Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("radio", { name: "Strongly agree" })
+      .click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
       .getByRole("button", { name: "Submit" })
       .click()
     await expect(student1Page.getByText("Operation successful!")).toBeVisible()
+    await hideToasts(student1Page)
+
+    await showNextToastsInfinitely(student1Page)
+    await student1Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("radio", { name: "Strongly agree" })
+      .click()
+    await student1Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("button", { name: "Submit" })
+      .click()
+    await expect(student1Page.getByText("Operation successful!")).toBeVisible()
+    await hideToasts(student1Page)
 
     await expect(
       student1Page.getByRole("heading", { name: "Waiting for peer reviews" }),
@@ -124,21 +136,36 @@ test("Reject and reset submission", async () => {
 
     // Student2 peer reviews Student1 and Teachers answers
     await showNextToastsInfinitely(student2Page)
-    await student2Page.getByRole("button", { name: "Start peer review" }).click()
-    await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
     await student2Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("button", { name: "Submit" })
+      .getByRole("button", { name: "Start peer review" })
       .click()
-    await student2Page.getByText("Operation successful!").waitFor()
-    await hideToasts(student2Page)
-    await showNextToastsInfinitely(student2Page)
-    await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
+    await student2Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("radio", { name: "Strongly disagree" })
+      .click()
     await student2Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
       .getByRole("button", { name: "Submit" })
       .click()
     await expect(student2Page.getByText("Operation successful!")).toBeVisible()
+    await hideToasts(student2Page)
+
+    await showNextToastsInfinitely(student2Page)
+    await student2Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("radio", { name: "Strongly disagree" })
+      .click()
+    await student2Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("radio", { name: "Strongly disagree" })
+      .click()
+    await student2Page
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("button", { name: "Submit" })
+      .click()
+    await expect(student2Page.getByText("Operation successful!")).toBeVisible()
+    await hideToasts(student2Page)
 
     await expect(
       student2Page
@@ -148,20 +175,32 @@ test("Reject and reset submission", async () => {
 
     // Teacher peer reviews Student1 and Student2 answers
     await showNextToastsInfinitely(teacherPage)
-    await teacherPage.getByRole("button", { name: "Start peer review" }).click()
-    await teacherPage.getByRole("radio", { name: "Strongly disagree" }).click()
     await teacherPage
       .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("button", { name: "Submit" })
+      .getByRole("button", { name: "Start peer review" })
       .click()
-    await teacherPage.getByText("Operation successful!").waitFor()
-    await hideToasts(teacherPage)
-    await teacherPage.getByRole("radio", { name: "Strongly disagree" }).click()
+    await teacherPage
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("radio", { name: "Strongly disagree" })
+      .click()
     await teacherPage
       .getByLabel("Exercise:Simple multiple choice with peer review")
       .getByRole("button", { name: "Submit" })
       .click()
     await expect(teacherPage.getByText("Operation successful!")).toBeVisible()
+    await hideToasts(teacherPage)
+
+    await showNextToastsInfinitely(teacherPage)
+    await teacherPage
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("radio", { name: "Strongly disagree" })
+      .click()
+    await teacherPage
+      .getByLabel("Exercise:Simple multiple choice with peer review")
+      .getByRole("button", { name: "Submit" })
+      .click()
+    await expect(teacherPage.getByText("Operation successful!")).toBeVisible()
+    await hideToasts(teacherPage)
 
     await expect(
       teacherPage

@@ -9,6 +9,7 @@ import { useStatusPodDisruptionBudgets } from "../../../hooks/useStatusPodDisrup
 import { useStatusPods } from "../../../hooks/useStatusPods"
 import { useSystemHealth } from "../../../hooks/useSystemHealth"
 
+import { DeploymentInfo, EventInfo, PodInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -34,10 +35,7 @@ const StatusSummary: React.FC = () => {
       return null
     }
 
-    const podMatchesDeployment = (
-      pod: (typeof pods)[number],
-      deployment: (typeof deployments)[number],
-    ): boolean => {
+    const podMatchesDeployment = (pod: PodInfo, deployment: DeploymentInfo): boolean => {
       if (!deployment.selector_labels || Object.keys(deployment.selector_labels).length === 0) {
         return false
       }
@@ -50,7 +48,7 @@ const StatusSummary: React.FC = () => {
     }
 
     const isDeploymentCoveredByPdb = (
-      deployment: (typeof deployments)[number],
+      deployment: DeploymentInfo,
     ): { covered: boolean; disruptionsAllowed: number } => {
       if (!pdbs || pdbs.length === 0) {
         return { covered: false, disruptionsAllowed: 0 }
@@ -117,7 +115,7 @@ const StatusSummary: React.FC = () => {
     }
 
     // Filter out common non-critical events
-    const isCriticalEvent = (event: (typeof events)[0]): boolean => {
+    const isCriticalEvent = (event: EventInfo): boolean => {
       const reason = event.reason?.toLowerCase() || ""
       const message = event.message?.toLowerCase() || ""
 

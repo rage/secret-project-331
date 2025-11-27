@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { useStatusDeployments } from "../../../hooks/useStatusDeployments"
 import { useStatusEvents } from "../../../hooks/useStatusEvents"
 import { useStatusPods } from "../../../hooks/useStatusPods"
+import { useSystemHealth } from "../../../hooks/useSystemHealth"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -20,6 +21,11 @@ const StatusSummary: React.FC = () => {
     error: deploymentsError,
   } = useStatusDeployments()
   const { data: events, isLoading: eventsLoading, error: eventsError } = useStatusEvents()
+  const {
+    data: systemHealthStatus,
+    isLoading: systemHealthLoading,
+    error: systemHealthError,
+  } = useSystemHealth()
 
   const summary = useMemo(() => {
     if (!pods || !deployments || !events) {
@@ -286,6 +292,7 @@ const StatusSummary: React.FC = () => {
         {podsError && <ErrorBanner error={podsError} />}
         {deploymentsError && <ErrorBanner error={deploymentsError} />}
         {eventsError && <ErrorBanner error={eventsError} />}
+        {systemHealthError && <ErrorBanner error={systemHealthError} />}
       </div>
     )
   }
@@ -371,6 +378,61 @@ const StatusSummary: React.FC = () => {
                 ? t("status-some-issues-detected")
                 : t("status-critical-issues-detected")}
         </p>
+        {!systemHealthLoading && systemHealthStatus !== undefined && (
+          <div
+            className={css`
+              margin-top: 0.75rem;
+              padding-top: 0.75rem;
+              border-top: 1px solid
+                ${summary.overallHealth === "healthy"
+                  ? baseTheme.colors.green[300]
+                  : summary.overallHealth === "warning"
+                    ? baseTheme.colors.yellow[300]
+                    : baseTheme.colors.red[300]};
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              font-size: 0.85rem;
+            `}
+          >
+            {systemHealthStatus ? (
+              <CheckCircle size={16} color={baseTheme.colors.green[600]} />
+            ) : (
+              <XmarkCircle size={16} color={baseTheme.colors.red[600]} />
+            )}
+            <span
+              className={css`
+                color: ${systemHealthStatus
+                  ? baseTheme.colors.green[700]
+                  : baseTheme.colors.red[700]};
+                font-weight: 500;
+              `}
+            >
+              {systemHealthStatus
+                ? t("status-system-health-endpoint-healthy", {
+                    defaultValue: "System health endpoint: Healthy",
+                  })
+                : t("status-system-health-endpoint-unhealthy", {
+                    defaultValue: "System health endpoint: Unhealthy",
+                  })}
+            </span>
+          </div>
+        )}
+        {systemHealthError && (
+          <div
+            className={css`
+              margin-top: 0.75rem;
+              padding-top: 0.75rem;
+              border-top: 1px solid ${baseTheme.colors.red[300]};
+              font-size: 0.85rem;
+              color: ${baseTheme.colors.red[700]};
+            `}
+          >
+            {t("status-system-health-endpoint-error", {
+              defaultValue: "System health endpoint: Error",
+            })}
+          </div>
+        )}
       </div>
 
       {/* Pods Stats */}

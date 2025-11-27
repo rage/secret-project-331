@@ -5,6 +5,7 @@ use crate::{
     prelude::*,
 };
 use anyhow::Result;
+use chrono::{DateTime, Duration, Utc};
 use k8s_openapi::api::{
     apps::v1::Deployment,
     batch::v1::{CronJob, Job},
@@ -93,11 +94,11 @@ pub struct IngressInfo {
     pub class_name: Option<String>,
 }
 
-fn get_namespace() -> String {
+pub fn get_namespace() -> String {
     std::env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string())
 }
 
-async fn get_pods(ns: &str) -> Result<Vec<PodInfo>> {
+pub async fn get_pods(ns: &str) -> Result<Vec<PodInfo>> {
     let client = Client::try_default().await?;
     let lp = ListParams::default();
     let pods: Api<Pod> = Api::namespaced(client, ns);
@@ -131,7 +132,7 @@ async fn get_pods(ns: &str) -> Result<Vec<PodInfo>> {
     Ok(pods_info)
 }
 
-async fn get_deployments(ns: &str) -> Result<Vec<DeploymentInfo>> {
+pub async fn get_deployments(ns: &str) -> Result<Vec<DeploymentInfo>> {
     let client = Client::try_default().await?;
     let lp = ListParams::default();
     let deployments: Api<Deployment> = Api::namespaced(client, ns);
@@ -271,7 +272,7 @@ async fn get_services(ns: &str) -> Result<Vec<ServiceInfo>> {
     Ok(services_info)
 }
 
-async fn get_events(ns: &str) -> Result<Vec<EventInfo>> {
+pub async fn get_events(ns: &str) -> Result<Vec<EventInfo>> {
     let client = Client::try_default().await?;
     let lp = ListParams::default();
     let events: Api<Event> = Api::namespaced(client, ns);
@@ -644,6 +645,123 @@ pub async fn pod_logs(
             .content_type("text/plain; charset=utf-8")
             .body(logs),
     )
+}
+
+pub fn is_critical_event(event: &EventInfo) -> bool {
+    let reason = event.reason.as_deref().unwrap_or("").to_lowercase();
+    let message = event.message.as_deref().unwrap_or("").to_lowercase();
+
+    let ignored_reasons = [
+        "scheduled",
+        "pulled",
+        "created",
+        "started",
+        "killing",
+        "unhealthy",
+    ];
+
+    if ignored_reasons.iter().any(|r| reason.contains(r)) {
+        return false;
+    }
+
+    let critical_reasons = [
+        "failed",
+        "backoff",
+        "crashloop",
+        "imagepullbackoff",
+        "errimagepull",
+        "invalid",
+    ];
+
+    critical_reasons
+        .iter()
+        .any(|r| reason.contains(r) || message.contains(r))
+}
+
+pub fn is_recent_event(event: &EventInfo) -> bool {
+    let one_hour_ago = Utc::now() - Duration::hours(1);
+
+    let check_timestamp = |ts_str: &str| -> bool {
+        if let Ok(parsed) =
+            DateTime::parse_from_str(&ts_str.replace(" UTC", "Z"), "%Y-%m-%d %H:%M:%S%Z")
+        {
+            parsed.with_timezone(&Utc) > one_hour_ago
+        } else {
+            false
+        }
+    };
+
+    if let Some(ts) = &event.last_timestamp {
+        if check_timestamp(ts) {
+            return true;
+        }
+    }
+
+    if let Some(ts) = &event.first_timestamp {
+        if check_timestamp(ts) {
+            return true;
+        }
+    }
+
+    false
+}
+
+pub async fn check_system_health(ns: &str) -> Result<bool> {
+    let pods = get_pods(ns).await?;
+    let deployments = get_deployments(ns).await?;
+    let events = get_events(ns).await?;
+
+    let failed_pods: Vec<_> = pods.iter().filter(|p| p.phase == "Failed").collect();
+    let pending_pods: Vec<_> = pods.iter().filter(|p| p.phase == "Pending").collect();
+    let crashed_pods: Vec<_> = pods
+        .iter()
+        .filter(|p| p.phase == "Running" && p.ready == Some(false))
+        .collect();
+
+    let has_actual_failures = !failed_pods.is_empty() || !crashed_pods.is_empty();
+
+    let active_deployments: Vec<_> = deployments.iter().filter(|d| d.replicas > 0).collect();
+
+    let critical_deployments: Vec<_> = active_deployments
+        .iter()
+        .filter(|d| d.ready_replicas == 0 && d.replicas > 0)
+        .collect();
+
+    let degraded_deployments: Vec<_> = active_deployments
+        .iter()
+        .filter(|d| d.ready_replicas > 0 && d.ready_replicas < d.replicas)
+        .collect();
+
+    let recent_errors: Vec<_> = events
+        .iter()
+        .filter(|e| {
+            e.type_.as_deref() == Some("Error") && is_recent_event(e) && is_critical_event(e)
+        })
+        .collect();
+
+    if !failed_pods.is_empty() {
+        return Ok(false);
+    }
+
+    if !crashed_pods.is_empty() {
+        return Ok(false);
+    }
+
+    if !critical_deployments.is_empty() {
+        if has_actual_failures || pending_pods.is_empty() {
+            return Ok(false);
+        }
+    }
+
+    if !degraded_deployments.is_empty() && has_actual_failures {
+        return Ok(false);
+    }
+
+    if !recent_errors.is_empty() {
+        return Ok(false);
+    }
+
+    Ok(true)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

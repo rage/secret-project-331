@@ -1,3 +1,4 @@
+import { healthzClient } from "../healthzClient"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import {
@@ -74,5 +75,10 @@ export const fetchPodLogs = async (
       responseType: "text",
     },
   )
+  return response.data
+}
+
+export const fetchSystemHealth = async (): Promise<boolean> => {
+  const response = await healthzClient.get<boolean>("/system")
   return response.data
 }

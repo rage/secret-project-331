@@ -14,7 +14,7 @@ test("Status page displays Kubernetes information", async ({ page }) => {
   })
 
   await test.step("Check that system health summary is displayed", async () => {
-    await expect(page.getByText("System Health")).toBeVisible()
+    await expect(page.getByText("System Health").first()).toBeVisible()
     // The health status should be one of: Healthy, Warning, or Error
     const healthStatus = page.locator("text=/Healthy|Warning|Error/").first()
     await expect(healthStatus).toBeVisible()

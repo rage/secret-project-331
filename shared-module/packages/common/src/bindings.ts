@@ -2431,6 +2431,7 @@ export interface DeploymentInfo {
   name: string
   replicas: number
   ready_replicas: number
+  selector_labels: Record<string, string>
 }
 
 export interface EventInfo {
@@ -2444,6 +2445,8 @@ export interface EventInfo {
   involved_object_kind: string | null
   involved_object_name: string | null
 }
+
+export type HealthStatus = "healthy" | "warning" | "error"
 
 export interface IngressInfo {
   name: string
@@ -2459,10 +2462,20 @@ export interface JobInfo {
   active: number | null
 }
 
+export interface PodDisruptionBudgetInfo {
+  name: string
+  current_healthy: number
+  desired_healthy: number
+  disruptions_allowed: number
+  expected_pods: number
+  selector_labels: Record<string, string>
+}
+
 export interface PodInfo {
   name: string
   phase: string
   ready: boolean | null
+  labels: Record<string, string>
 }
 
 export interface ServiceInfo {
@@ -2476,6 +2489,11 @@ export interface ServicePortInfo {
   port: number
   target_port: string | null
   protocol: string | null
+}
+
+export interface SystemHealthStatus {
+  status: HealthStatus
+  issues: Array<string>
 }
 
 export interface Pagination {

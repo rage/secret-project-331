@@ -1,3 +1,4 @@
+import { healthzClient } from "../healthzClient"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import {
@@ -6,8 +7,10 @@ import {
   EventInfo,
   IngressInfo,
   JobInfo,
+  PodDisruptionBudgetInfo,
   PodInfo,
   ServiceInfo,
+  SystemHealthStatus,
 } from "@/shared-module/common/bindings"
 import {
   isCronJobInfo,
@@ -15,8 +18,10 @@ import {
   isEventInfo,
   isIngressInfo,
   isJobInfo,
+  isPodDisruptionBudgetInfo,
   isPodInfo,
   isServiceInfo,
+  isSystemHealthStatus,
 } from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
@@ -55,6 +60,11 @@ export const fetchIngresses = async (): Promise<IngressInfo[]> => {
   return validateResponse(response, isArray(isIngressInfo))
 }
 
+export const fetchPodDisruptionBudgets = async (): Promise<PodDisruptionBudgetInfo[]> => {
+  const response = await mainFrontendClient.get("/status/pod-disruption-budgets")
+  return validateResponse(response, isArray(isPodDisruptionBudgetInfo))
+}
+
 export const fetchPodLogs = async (
   podName: string,
   container?: string,
@@ -75,4 +85,14 @@ export const fetchPodLogs = async (
     },
   )
   return response.data
+}
+
+export const fetchSystemHealth = async (): Promise<boolean> => {
+  const response = await healthzClient.get<boolean>("/system")
+  return response.data
+}
+
+export const fetchSystemHealthDetailed = async (): Promise<SystemHealthStatus> => {
+  const response = await mainFrontendClient.get("/status/health")
+  return validateResponse(response, isSystemHealthStatus)
 }

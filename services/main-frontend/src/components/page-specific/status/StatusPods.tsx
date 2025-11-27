@@ -183,13 +183,6 @@ const StatusPods: React.FC = () => {
           onClose={() => setSelectedPod(null)}
           title={`${t("status-logs")}: ${selectedPod}`}
           width="wide"
-          buttons={[
-            {
-              variant: "secondary",
-              onClick: () => setSelectedPod(null),
-              children: t("status-close"),
-            },
-          ]}
         >
           <div
             className={css`

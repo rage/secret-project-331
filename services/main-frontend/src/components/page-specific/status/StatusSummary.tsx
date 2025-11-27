@@ -5,8 +5,11 @@ import { useTranslation } from "react-i18next"
 
 import { useStatusDeployments } from "../../../hooks/useStatusDeployments"
 import { useStatusEvents } from "../../../hooks/useStatusEvents"
+import { useStatusPodDisruptionBudgets } from "../../../hooks/useStatusPodDisruptionBudgets"
 import { useStatusPods } from "../../../hooks/useStatusPods"
+import { useSystemHealthDetailed } from "../../../hooks/useSystemHealthDetailed"
 
+import { EventInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -20,6 +23,12 @@ const StatusSummary: React.FC = () => {
     error: deploymentsError,
   } = useStatusDeployments()
   const { data: events, isLoading: eventsLoading, error: eventsError } = useStatusEvents()
+  const { data: _pdbs, isLoading: pdbsLoading, error: pdbsError } = useStatusPodDisruptionBudgets()
+  const {
+    data: systemHealthDetailed,
+    isLoading: systemHealthDetailedLoading,
+    error: systemHealthDetailedError,
+  } = useSystemHealthDetailed()
 
   const summary = useMemo(() => {
     if (!pods || !deployments || !events) {
@@ -27,12 +36,11 @@ const StatusSummary: React.FC = () => {
     }
 
     // Categorize pods more accurately
-    const runningPods = pods.filter((p) => p.phase === "Running")
     const readyPods = pods.filter((p) => p.ready === true && p.phase === "Running")
     const failedPods = pods.filter((p) => p.phase === "Failed")
     const pendingPods = pods.filter((p) => p.phase === "Pending")
-    const succeededPods = pods.filter((p) => p.phase === "Succeeded") // Job pods that completed successfully
-    const crashedPods = pods.filter((p) => p.phase === "Running" && p.ready === false) // Running but not ready (likely crash loop)
+    const succeededPods = pods.filter((p) => p.phase === "Succeeded")
+    const crashedPods = pods.filter((p) => p.phase === "Running" && p.ready === false)
 
     // Only count pods that should be running (exclude succeeded job pods from health checks)
     const activePods = pods.filter((p) => p.phase !== "Succeeded")
@@ -63,7 +71,7 @@ const StatusSummary: React.FC = () => {
     }
 
     // Filter out common non-critical events
-    const isCriticalEvent = (event: (typeof events)[0]): boolean => {
+    const isCriticalEvent = (event: EventInfo): boolean => {
       const reason = event.reason?.toLowerCase() || ""
       const message = event.message?.toLowerCase() || ""
 
@@ -80,8 +88,6 @@ const StatusSummary: React.FC = () => {
         "started",
         // eslint-disable-next-line i18next/no-literal-string
         "killing",
-        // eslint-disable-next-line i18next/no-literal-string
-        "unhealthy", // Sometimes this is just a health check, not critical
       ]
 
       if (ignoredReasons.some((r) => reason.includes(r))) {
@@ -136,92 +142,13 @@ const StatusSummary: React.FC = () => {
       })
       .slice(0, 5)
 
-    // Improved health detection logic
     // eslint-disable-next-line i18next/no-literal-string
-    let overallHealth: "healthy" | "warning" | "error" = "healthy"
-    const healthIssues: string[] = []
-
-    // Critical issues (error state)
-    if (failedPods.length > 0) {
-      // eslint-disable-next-line i18next/no-literal-string
-      overallHealth = "error"
-      healthIssues.push(
-        t("status-failed-pods-count", {
-          count: failedPods.length,
-          defaultValue: `${failedPods.length} failed pod(s)`,
-        }),
-      )
-    }
-    if (crashedPods.length > 0) {
-      // eslint-disable-next-line i18next/no-literal-string
-      overallHealth = "error"
-      healthIssues.push(
-        t("status-crashed-pods-count", {
-          count: crashedPods.length,
-          defaultValue: `${crashedPods.length} crashed pod(s)`,
-        }),
-      )
-    }
-    if (unhealthyDeployments > 0) {
-      // eslint-disable-next-line i18next/no-literal-string
-      overallHealth = "error"
-      healthIssues.push(
-        t("status-unhealthy-deployments-count", {
-          count: unhealthyDeployments,
-          defaultValue: `${unhealthyDeployments} unhealthy deployment(s)`,
-        }),
-      )
-    }
-    if (recentErrors.length > 0) {
-      // eslint-disable-next-line i18next/no-literal-string
-      overallHealth = "error"
-      healthIssues.push(
-        t("status-recent-errors-count", {
-          count: recentErrors.length,
-          defaultValue: `${recentErrors.length} recent error(s)`,
-        }),
-      )
-    }
-
-    // Warning issues (only if not already in error state)
-
-    if (overallHealth !== "error") {
-      if (pendingPods.length > 0 && pendingPods.length > totalActivePods * 0.1) {
-        // More than 10% of pods pending
-        // eslint-disable-next-line i18next/no-literal-string
-        overallHealth = "warning"
-        healthIssues.push(
-          t("status-pending-pods-count", {
-            count: pendingPods.length,
-            defaultValue: `${pendingPods.length} pending pod(s)`,
-          }),
-        )
-      }
-      if (readyPods.length < runningPods.length && runningPods.length > 0) {
-        // Some running pods are not ready
-        const notReadyCount = runningPods.length - readyPods.length
-        if (notReadyCount > 0) {
-          // eslint-disable-next-line i18next/no-literal-string
-          overallHealth = "warning"
-          healthIssues.push(
-            t("status-pods-not-ready-count", {
-              count: notReadyCount,
-              defaultValue: `${notReadyCount} pod(s) not ready`,
-            }),
-          )
-        }
-      }
-      if (recentWarnings.length > 0) {
-        // eslint-disable-next-line i18next/no-literal-string
-        overallHealth = "warning"
-        healthIssues.push(
-          t("status-recent-warnings-count", {
-            count: recentWarnings.length,
-            defaultValue: `${recentWarnings.length} recent warning(s)`,
-          }),
-        )
-      }
-    }
+    const defaultHealth: "healthy" | "warning" | "error" = "healthy"
+    const overallHealth = (systemHealthDetailed?.status || defaultHealth) as
+      | "healthy"
+      | "warning"
+      | "error"
+    const healthIssues = systemHealthDetailed?.issues || []
 
     return {
       totalPods: totalActivePods,
@@ -238,18 +165,26 @@ const StatusSummary: React.FC = () => {
       overallHealth,
       healthIssues,
     }
-  }, [pods, deployments, events])
+  }, [pods, deployments, events, systemHealthDetailed])
 
-  if (podsLoading || deploymentsLoading || eventsLoading) {
+  if (
+    podsLoading ||
+    deploymentsLoading ||
+    eventsLoading ||
+    pdbsLoading ||
+    systemHealthDetailedLoading
+  ) {
     return <Spinner />
   }
 
-  if (podsError || deploymentsError || eventsError) {
+  if (podsError || deploymentsError || eventsError || pdbsError || systemHealthDetailedError) {
     return (
       <div>
         {podsError && <ErrorBanner error={podsError} />}
         {deploymentsError && <ErrorBanner error={deploymentsError} />}
         {eventsError && <ErrorBanner error={eventsError} />}
+        {pdbsError && <ErrorBanner error={pdbsError} />}
+        {systemHealthDetailedError && <ErrorBanner error={systemHealthDetailedError} />}
       </div>
     )
   }
@@ -471,7 +406,7 @@ const StatusSummary: React.FC = () => {
           <div
             className={css`
               font-size: 0.9rem;
-              color: ${baseTheme.colors.yellow[700]};
+              color: ${baseTheme.colors.gray[700]};
               margin-bottom: 0.5rem;
               font-weight: 600;
             `}
@@ -482,7 +417,7 @@ const StatusSummary: React.FC = () => {
             className={css`
               font-size: 2rem;
               font-weight: 600;
-              color: ${baseTheme.colors.yellow[700]};
+              color: ${baseTheme.colors.gray[700]};
             `}
           >
             {summary.recentWarnings.length}

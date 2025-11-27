@@ -27,12 +27,11 @@ const StatusSummary: React.FC = () => {
     }
 
     // Categorize pods more accurately
-    const runningPods = pods.filter((p) => p.phase === "Running")
     const readyPods = pods.filter((p) => p.ready === true && p.phase === "Running")
     const failedPods = pods.filter((p) => p.phase === "Failed")
     const pendingPods = pods.filter((p) => p.phase === "Pending")
-    const succeededPods = pods.filter((p) => p.phase === "Succeeded") // Job pods that completed successfully
-    const crashedPods = pods.filter((p) => p.phase === "Running" && p.ready === false) // Running but not ready (likely crash loop)
+    const succeededPods = pods.filter((p) => p.phase === "Succeeded")
+    const crashedPods = pods.filter((p) => p.phase === "Running" && p.ready === false)
 
     // Only count pods that should be running (exclude succeeded job pods from health checks)
     const activePods = pods.filter((p) => p.phase !== "Succeeded")
@@ -45,6 +44,12 @@ const StatusSummary: React.FC = () => {
     ).length
     const unhealthyDeployments = activeDeployments.filter(
       (d) => d.ready_replicas !== d.replicas,
+    ).length
+    const criticalDeployments = activeDeployments.filter(
+      (d) => d.ready_replicas === 0 && d.replicas > 0,
+    ).length
+    const degradedDeployments = activeDeployments.filter(
+      (d) => d.ready_replicas > 0 && d.ready_replicas < d.replicas,
     ).length
     const totalActiveDeployments = activeDeployments.length
 
@@ -141,7 +146,13 @@ const StatusSummary: React.FC = () => {
     let overallHealth: "healthy" | "warning" | "error" = "healthy"
     const healthIssues: string[] = []
 
+    const hasActualFailures = failedPods.length > 0 || crashedPods.length > 0
+    const hasOnlyPendingPods = pendingPods.length > 0 && !hasActualFailures
+
     // Critical issues (error state)
+    // Note: crashedPods are Running but not ready - this is a heuristic that may include
+    // pods legitimately starting up, but without restart counts we can't distinguish
+    // true crash loops from slow startups. This may cause false positives during deployments.
     if (failedPods.length > 0) {
       // eslint-disable-next-line i18next/no-literal-string
       overallHealth = "error"
@@ -153,6 +164,7 @@ const StatusSummary: React.FC = () => {
       )
     }
     if (crashedPods.length > 0) {
+      // Running pods that aren't ready (may be crash loops or slow startups)
       // eslint-disable-next-line i18next/no-literal-string
       overallHealth = "error"
       healthIssues.push(
@@ -162,13 +174,28 @@ const StatusSummary: React.FC = () => {
         }),
       )
     }
-    if (unhealthyDeployments > 0) {
+    if (criticalDeployments > 0) {
+      if (hasActualFailures || pendingPods.length === 0) {
+        // Deployment has 0 ready replicas and either has failures or no pending pods
+        // eslint-disable-next-line i18next/no-literal-string
+        overallHealth = "error"
+        healthIssues.push(
+          t("status-critical-deployments-count", {
+            count: criticalDeployments,
+            defaultValue: `${criticalDeployments} deployment(s) completely down`,
+          }),
+        )
+      }
+      // If only pending pods exist, this will be handled as a warning below
+    }
+    if (degradedDeployments > 0 && hasActualFailures) {
+      // Deployment has some ready replicas but not all, and has actual pod failures
       // eslint-disable-next-line i18next/no-literal-string
       overallHealth = "error"
       healthIssues.push(
-        t("status-unhealthy-deployments-count", {
-          count: unhealthyDeployments,
-          defaultValue: `${unhealthyDeployments} unhealthy deployment(s)`,
+        t("status-degraded-deployments-count", {
+          count: degradedDeployments,
+          defaultValue: `${degradedDeployments} deployment(s) degraded`,
         }),
       )
     }
@@ -186,8 +213,31 @@ const StatusSummary: React.FC = () => {
     // Warning issues (only if not already in error state)
 
     if (overallHealth !== "error") {
-      if (pendingPods.length > 0 && pendingPods.length > totalActivePods * 0.1) {
-        // More than 10% of pods pending
+      if (unhealthyDeployments > 0 && hasOnlyPendingPods) {
+        // Deployment is unhealthy but only due to pending pods (likely scaling/rolling out)
+        // eslint-disable-next-line i18next/no-literal-string
+        overallHealth = "warning"
+        healthIssues.push(
+          t("status-unhealthy-deployments-count", {
+            count: unhealthyDeployments,
+            defaultValue: `${unhealthyDeployments} unhealthy deployment(s)`,
+          }),
+        )
+      }
+      if (degradedDeployments > 0 && !hasActualFailures) {
+        // Some replicas are ready but not all, without actual failures
+        // eslint-disable-next-line i18next/no-literal-string
+        overallHealth = "warning"
+        healthIssues.push(
+          t("status-degraded-deployments-count", {
+            count: degradedDeployments,
+            defaultValue: `${degradedDeployments} deployment(s) degraded`,
+          }),
+        )
+      }
+      const pendingThreshold = totalActivePods <= 3 ? 1 : totalActivePods * 0.1
+      if (pendingPods.length > 0 && pendingPods.length >= pendingThreshold) {
+        // Significant number of pods pending (at least 1 if <=3 pods, or >10% if more)
         // eslint-disable-next-line i18next/no-literal-string
         overallHealth = "warning"
         healthIssues.push(
@@ -196,20 +246,6 @@ const StatusSummary: React.FC = () => {
             defaultValue: `${pendingPods.length} pending pod(s)`,
           }),
         )
-      }
-      if (readyPods.length < runningPods.length && runningPods.length > 0) {
-        // Some running pods are not ready
-        const notReadyCount = runningPods.length - readyPods.length
-        if (notReadyCount > 0) {
-          // eslint-disable-next-line i18next/no-literal-string
-          overallHealth = "warning"
-          healthIssues.push(
-            t("status-pods-not-ready-count", {
-              count: notReadyCount,
-              defaultValue: `${notReadyCount} pod(s) not ready`,
-            }),
-          )
-        }
       }
       if (recentWarnings.length > 0) {
         // eslint-disable-next-line i18next/no-literal-string
@@ -238,7 +274,7 @@ const StatusSummary: React.FC = () => {
       overallHealth,
       healthIssues,
     }
-  }, [pods, deployments, events])
+  }, [pods, deployments, events, t])
 
   if (podsLoading || deploymentsLoading || eventsLoading) {
     return <Spinner />

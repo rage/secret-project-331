@@ -70,61 +70,62 @@
 <a href=#70 id=70 data-nosnippet>70</a>        <span class="kw">let </span>_reset = models::exercises::reset_exercises_for_selected_users(
 <a href=#71 id=71 data-nosnippet>71</a>            <span class="kw-2">&amp;mut </span>tx,
 <a href=#72 id=72 data-nosnippet>72</a>            <span class="kw-2">&amp;</span>users_and_exercises,
-<a href=#73 id=73 data-nosnippet>73</a>            user.id,
+<a href=#73 id=73 data-nosnippet>73</a>            <span class="prelude-val">Some</span>(user.id),
 <a href=#74 id=74 data-nosnippet>74</a>            course_id,
-<a href=#75 id=75 data-nosnippet>75</a>        )
-<a href=#76 id=76 data-nosnippet>76</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#77 id=77 data-nosnippet>77</a>
-<a href=#78 id=78 data-nosnippet>78</a>        tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#79 id=79 data-nosnippet>79</a>        <span class="macro">info!</span>(<span class="string">"Teacher took the following action: RejectAndReset."</span>,);
-<a href=#80 id=80 data-nosnippet>80</a>
-<a href=#81 id=81 data-nosnippet>81</a>        <span class="kw">return </span>token.authorized_ok(web::Json(<span class="prelude-val">None</span>));
-<a href=#82 id=82 data-nosnippet>82</a>    } <span class="kw">else </span>{
-<a href=#83 id=83 data-nosnippet>83</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
-<a href=#84 id=84 data-nosnippet>84</a>            ControllerErrorType::BadRequest,
-<a href=#85 id=85 data-nosnippet>85</a>            <span class="string">"Invalid query"</span>.to_string(),
-<a href=#86 id=86 data-nosnippet>86</a>            <span class="prelude-val">None</span>,
-<a href=#87 id=87 data-nosnippet>87</a>        ));
-<a href=#88 id=88 data-nosnippet>88</a>    }
-<a href=#89 id=89 data-nosnippet>89</a>
-<a href=#90 id=90 data-nosnippet>90</a>    <span class="macro">info!</span>(
-<a href=#91 id=91 data-nosnippet>91</a>        <span class="string">"Teacher took the following action: {:?}. Points given: {:?}."</span>,
-<a href=#92 id=92 data-nosnippet>92</a>        <span class="kw-2">&amp;</span>action, points_given
-<a href=#93 id=93 data-nosnippet>93</a>    );
-<a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a>    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#96 id=96 data-nosnippet>96</a>
-<a href=#97 id=97 data-nosnippet>97</a>    <span class="kw">let </span>_res = models::teacher_grading_decisions::add_teacher_grading_decision(
-<a href=#98 id=98 data-nosnippet>98</a>        <span class="kw-2">&amp;mut </span>tx,
-<a href=#99 id=99 data-nosnippet>99</a>        user_exercise_state_id,
-<a href=#100 id=100 data-nosnippet>100</a>        <span class="kw-2">*</span>action,
-<a href=#101 id=101 data-nosnippet>101</a>        points_given,
-<a href=#102 id=102 data-nosnippet>102</a>        <span class="prelude-val">Some</span>(user.id),
-<a href=#103 id=103 data-nosnippet>103</a>        justification.clone(),
-<a href=#104 id=104 data-nosnippet>104</a>        hidden,
-<a href=#105 id=105 data-nosnippet>105</a>    )
-<a href=#106 id=106 data-nosnippet>106</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">let </span>new_user_exercise_state =
-<a href=#109 id=109 data-nosnippet>109</a>        user_exercise_state_updater::update_user_exercise_state(<span class="kw-2">&amp;mut </span>tx, user_exercise_state_id)
-<a href=#110 id=110 data-nosnippet>110</a>            .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#111 id=111 data-nosnippet>111</a>
-<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = new_user_exercise_state.course_id {
-<a href=#113 id=113 data-nosnippet>113</a>        <span class="comment">// Since the teacher just reviewed the submission we should mark possible peer review queue entries so that they won't be given to others to review. Receiving peer reviews for this answer now would not make much sense.
-<a href=#114 id=114 data-nosnippet>114</a>        </span>models::peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
-<a href=#115 id=115 data-nosnippet>115</a>            <span class="kw-2">&amp;mut </span>tx,
-<a href=#116 id=116 data-nosnippet>116</a>            new_user_exercise_state.user_id,
-<a href=#117 id=117 data-nosnippet>117</a>            new_user_exercise_state.exercise_id,
-<a href=#118 id=118 data-nosnippet>118</a>            course_id,
-<a href=#119 id=119 data-nosnippet>119</a>        )
-<a href=#120 id=120 data-nosnippet>120</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#121 id=121 data-nosnippet>121</a>    }
-<a href=#122 id=122 data-nosnippet>122</a>
-<a href=#123 id=123 data-nosnippet>123</a>    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#124 id=124 data-nosnippet>124</a>
-<a href=#125 id=125 data-nosnippet>125</a>    token.authorized_ok(web::Json(<span class="prelude-val">Some</span>(new_user_exercise_state)))
-<a href=#126 id=126 data-nosnippet>126</a>}
-<a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-<a href=#129 id=129 data-nosnippet>129</a>    cfg.route(<span class="string">""</span>, web::post().to(create_teacher_grading_decision));
-<a href=#130 id=130 data-nosnippet>130</a>}</code></pre></div></section></main></body></html>
+<a href=#75 id=75 data-nosnippet>75</a>            <span class="prelude-val">Some</span>(<span class="string">"reset-by-staff"</span>.to_string()),
+<a href=#76 id=76 data-nosnippet>76</a>        )
+<a href=#77 id=77 data-nosnippet>77</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a>        tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#80 id=80 data-nosnippet>80</a>        <span class="macro">info!</span>(<span class="string">"Teacher took the following action: RejectAndReset."</span>,);
+<a href=#81 id=81 data-nosnippet>81</a>
+<a href=#82 id=82 data-nosnippet>82</a>        <span class="kw">return </span>token.authorized_ok(web::Json(<span class="prelude-val">None</span>));
+<a href=#83 id=83 data-nosnippet>83</a>    } <span class="kw">else </span>{
+<a href=#84 id=84 data-nosnippet>84</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+<a href=#85 id=85 data-nosnippet>85</a>            ControllerErrorType::BadRequest,
+<a href=#86 id=86 data-nosnippet>86</a>            <span class="string">"Invalid query"</span>.to_string(),
+<a href=#87 id=87 data-nosnippet>87</a>            <span class="prelude-val">None</span>,
+<a href=#88 id=88 data-nosnippet>88</a>        ));
+<a href=#89 id=89 data-nosnippet>89</a>    }
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a>    <span class="macro">info!</span>(
+<a href=#92 id=92 data-nosnippet>92</a>        <span class="string">"Teacher took the following action: {:?}. Points given: {:?}."</span>,
+<a href=#93 id=93 data-nosnippet>93</a>        <span class="kw-2">&amp;</span>action, points_given
+<a href=#94 id=94 data-nosnippet>94</a>    );
+<a href=#95 id=95 data-nosnippet>95</a>
+<a href=#96 id=96 data-nosnippet>96</a>    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#97 id=97 data-nosnippet>97</a>
+<a href=#98 id=98 data-nosnippet>98</a>    <span class="kw">let </span>_res = models::teacher_grading_decisions::add_teacher_grading_decision(
+<a href=#99 id=99 data-nosnippet>99</a>        <span class="kw-2">&amp;mut </span>tx,
+<a href=#100 id=100 data-nosnippet>100</a>        user_exercise_state_id,
+<a href=#101 id=101 data-nosnippet>101</a>        <span class="kw-2">*</span>action,
+<a href=#102 id=102 data-nosnippet>102</a>        points_given,
+<a href=#103 id=103 data-nosnippet>103</a>        <span class="prelude-val">Some</span>(user.id),
+<a href=#104 id=104 data-nosnippet>104</a>        justification.clone(),
+<a href=#105 id=105 data-nosnippet>105</a>        hidden,
+<a href=#106 id=106 data-nosnippet>106</a>    )
+<a href=#107 id=107 data-nosnippet>107</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#108 id=108 data-nosnippet>108</a>
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="kw">let </span>new_user_exercise_state =
+<a href=#110 id=110 data-nosnippet>110</a>        user_exercise_state_updater::update_user_exercise_state(<span class="kw-2">&amp;mut </span>tx, user_exercise_state_id)
+<a href=#111 id=111 data-nosnippet>111</a>            .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#112 id=112 data-nosnippet>112</a>
+<a href=#113 id=113 data-nosnippet>113</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = new_user_exercise_state.course_id {
+<a href=#114 id=114 data-nosnippet>114</a>        <span class="comment">// Since the teacher just reviewed the submission we should mark possible peer review queue entries so that they won't be given to others to review. Receiving peer reviews for this answer now would not make much sense.
+<a href=#115 id=115 data-nosnippet>115</a>        </span>models::peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
+<a href=#116 id=116 data-nosnippet>116</a>            <span class="kw-2">&amp;mut </span>tx,
+<a href=#117 id=117 data-nosnippet>117</a>            new_user_exercise_state.user_id,
+<a href=#118 id=118 data-nosnippet>118</a>            new_user_exercise_state.exercise_id,
+<a href=#119 id=119 data-nosnippet>119</a>            course_id,
+<a href=#120 id=120 data-nosnippet>120</a>        )
+<a href=#121 id=121 data-nosnippet>121</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#122 id=122 data-nosnippet>122</a>    }
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a>    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#125 id=125 data-nosnippet>125</a>
+<a href=#126 id=126 data-nosnippet>126</a>    token.authorized_ok(web::Json(<span class="prelude-val">Some</span>(new_user_exercise_state)))
+<a href=#127 id=127 data-nosnippet>127</a>}
+<a href=#128 id=128 data-nosnippet>128</a>
+<a href=#129 id=129 data-nosnippet>129</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+<a href=#130 id=130 data-nosnippet>130</a>    cfg.route(<span class="string">""</span>, web::post().to(create_teacher_grading_decision));
+<a href=#131 id=131 data-nosnippet>131</a>}</code></pre></div></section></main></body></html>

@@ -4,18 +4,20 @@
 <a href=#4 id=4 data-nosnippet>4</a>
 <a href=#5 id=5 data-nosnippet>5</a></span><span class="kw">use </span>sqlx::Executor;
 <a href=#6 id=6 data-nosnippet>6</a>
-<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
-<a href=#8 id=8 data-nosnippet>8</a>
-<a href=#9 id=9 data-nosnippet>9</a><span class="doccomment">/**
-<a href=#10 id=10 data-nosnippet>10</a>POST `/api/v0/healthz` Tells whether the server is healthy.
-<a href=#11 id=11 data-nosnippet>11</a>*/
-<a href=#12 id=12 data-nosnippet>12</a></span><span class="kw">pub async fn </span>healthz(pool: web::Data&lt;PgPool&gt;) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
-<a href=#13 id=13 data-nosnippet>13</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#14 id=14 data-nosnippet>14</a>    <span class="kw">let </span>token = skip_authorize();
-<a href=#15 id=15 data-nosnippet>15</a>    <span class="kw">let </span>_res = conn.execute(<span class="string">"SELECT 1"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#16 id=16 data-nosnippet>16</a>    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
-<a href=#17 id=17 data-nosnippet>17</a>}
-<a href=#18 id=18 data-nosnippet>18</a>
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-<a href=#20 id=20 data-nosnippet>20</a>    cfg.route(<span class="string">""</span>, web::get().to(healthz));
-<a href=#21 id=21 data-nosnippet>21</a>}</code></pre></div></section></main></body></html>
+<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span><span class="kw">crate</span>::controllers::main_frontend::status::system_health;
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<a href=#9 id=9 data-nosnippet>9</a>
+<a href=#10 id=10 data-nosnippet>10</a><span class="doccomment">/**
+<a href=#11 id=11 data-nosnippet>11</a>GET `/api/v0/healthz` Tells whether the server is healthy (database connectivity).
+<a href=#12 id=12 data-nosnippet>12</a>*/
+<a href=#13 id=13 data-nosnippet>13</a></span><span class="kw">pub async fn </span>healthz(pool: web::Data&lt;PgPool&gt;) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+<a href=#14 id=14 data-nosnippet>14</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#15 id=15 data-nosnippet>15</a>    <span class="kw">let </span>token = skip_authorize();
+<a href=#16 id=16 data-nosnippet>16</a>    <span class="kw">let </span>_res = conn.execute(<span class="string">"SELECT 1"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#17 id=17 data-nosnippet>17</a>    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
+<a href=#18 id=18 data-nosnippet>18</a>}
+<a href=#19 id=19 data-nosnippet>19</a>
+<a href=#20 id=20 data-nosnippet>20</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+<a href=#21 id=21 data-nosnippet>21</a>    cfg.route(<span class="string">""</span>, web::get().to(healthz))
+<a href=#22 id=22 data-nosnippet>22</a>        .route(<span class="string">"/system"</span>, web::get().to(system_health));
+<a href=#23 id=23 data-nosnippet>23</a>}</code></pre></div></section></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_cronjobs","get_deployments","get_events","get_ingresses","get_jobs","get_pod_disruption_budgets","get_pod_logs","get_pods","get_services"]};

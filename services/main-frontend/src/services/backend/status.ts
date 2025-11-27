@@ -7,6 +7,7 @@ import {
   EventInfo,
   IngressInfo,
   JobInfo,
+  PodDisruptionBudgetInfo,
   PodInfo,
   ServiceInfo,
 } from "@/shared-module/common/bindings"
@@ -16,6 +17,7 @@ import {
   isEventInfo,
   isIngressInfo,
   isJobInfo,
+  isPodDisruptionBudgetInfo,
   isPodInfo,
   isServiceInfo,
 } from "@/shared-module/common/bindings.guard"
@@ -54,6 +56,11 @@ export const fetchEvents = async (): Promise<EventInfo[]> => {
 export const fetchIngresses = async (): Promise<IngressInfo[]> => {
   const response = await mainFrontendClient.get("/status/ingresses")
   return validateResponse(response, isArray(isIngressInfo))
+}
+
+export const fetchPodDisruptionBudgets = async (): Promise<PodDisruptionBudgetInfo[]> => {
+  const response = await mainFrontendClient.get("/status/pod-disruption-budgets")
+  return validateResponse(response, isArray(isPodDisruptionBudgetInfo))
 }
 
 export const fetchPodLogs = async (

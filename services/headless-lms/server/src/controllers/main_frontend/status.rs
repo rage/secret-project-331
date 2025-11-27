@@ -11,6 +11,7 @@ use k8s_openapi::api::{
     batch::v1::{CronJob, Job},
     core::v1::{Event, Pod, Service},
     networking::v1::Ingress,
+    policy::v1::PodDisruptionBudget,
 };
 use kube::{
     Api, Client,
@@ -27,6 +28,7 @@ pub struct PodInfo {
     pub name: String,
     pub phase: String,
     pub ready: Option<bool>,
+    pub labels: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -35,6 +37,7 @@ pub struct DeploymentInfo {
     pub name: String,
     pub replicas: i32,
     pub ready_replicas: i32,
+    pub selector_labels: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -94,6 +97,17 @@ pub struct IngressInfo {
     pub class_name: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PodDisruptionBudgetInfo {
+    pub name: String,
+    pub current_healthy: i32,
+    pub desired_healthy: i32,
+    pub disruptions_allowed: i32,
+    pub expected_pods: i32,
+    pub selector_labels: HashMap<String, String>,
+}
+
 pub fn get_namespace() -> String {
     std::env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string())
 }
@@ -126,7 +140,19 @@ pub async fn get_pods(ns: &str) -> Result<Vec<PodInfo>> {
                         .map(|c| c.status == "True")
                 })
             });
-            PodInfo { name, phase, ready }
+            let labels: HashMap<String, String> = p
+                .metadata
+                .labels
+                .clone()
+                .unwrap_or_default()
+                .into_iter()
+                .collect();
+            PodInfo {
+                name,
+                phase,
+                ready,
+                labels,
+            }
         })
         .collect();
     Ok(pods_info)
@@ -152,10 +178,18 @@ pub async fn get_deployments(ns: &str) -> Result<Vec<DeploymentInfo>> {
                 .as_ref()
                 .and_then(|s| s.ready_replicas)
                 .unwrap_or(0);
+            let selector_labels: HashMap<String, String> = d
+                .spec
+                .as_ref()
+                .and_then(|s| s.selector.match_labels.clone())
+                .unwrap_or_default()
+                .into_iter()
+                .collect();
             DeploymentInfo {
                 name,
                 replicas,
                 ready_replicas,
+                selector_labels,
             }
         })
         .collect();
@@ -314,6 +348,46 @@ pub async fn get_events(ns: &str) -> Result<Vec<EventInfo>> {
         })
         .collect();
     Ok(events_info)
+}
+
+pub async fn get_pod_disruption_budgets(ns: &str) -> Result<Vec<PodDisruptionBudgetInfo>> {
+    let client = Client::try_default().await?;
+    let lp = ListParams::default();
+    let pdbs: Api<PodDisruptionBudget> = Api::namespaced(client, ns);
+    let pdb_list = pdbs.list(&lp).await?;
+    let pdbs_info: Vec<PodDisruptionBudgetInfo> = pdb_list
+        .iter()
+        .map(|pdb| {
+            let name = pdb
+                .metadata
+                .name
+                .as_deref()
+                .unwrap_or("<unnamed>")
+                .to_string();
+            let status = pdb.status.as_ref();
+            let current_healthy = status.map(|s| s.current_healthy).unwrap_or(0);
+            let desired_healthy = status.map(|s| s.desired_healthy).unwrap_or(0);
+            let disruptions_allowed = status.map(|s| s.disruptions_allowed).unwrap_or(0);
+            let expected_pods = status.map(|s| s.expected_pods).unwrap_or(0);
+            let selector_labels: HashMap<String, String> = pdb
+                .spec
+                .as_ref()
+                .and_then(|s| s.selector.as_ref())
+                .and_then(|s| s.match_labels.clone())
+                .unwrap_or_default()
+                .into_iter()
+                .collect();
+            PodDisruptionBudgetInfo {
+                name,
+                current_healthy,
+                desired_healthy,
+                disruptions_allowed,
+                expected_pods,
+                selector_labels,
+            }
+        })
+        .collect();
+    Ok(pdbs_info)
 }
 
 async fn get_ingresses(ns: &str) -> Result<Vec<IngressInfo>> {
@@ -562,6 +636,34 @@ pub async fn ingresses(
     token.authorized_ok(web::Json(ingresses))
 }
 
+/**
+GET `/api/v0/main-frontend/status/pod-disruption-budgets`
+
+Returns the status of all PodDisruptionBudgets in the current namespace.
+*/
+pub async fn pod_disruption_budgets(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PodDisruptionBudgetInfo>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Action::Administrate,
+        Some(user.id),
+        Resource::GlobalPermissions,
+    )
+    .await?;
+    let ns = get_namespace();
+    let pdbs = get_pod_disruption_budgets(&ns).await.map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            e.to_string(),
+            None,
+        )
+    })?;
+    token.authorized_ok(web::Json(pdbs))
+}
+
 fn parse_and_validate_tail(tail_str: Option<&String>) -> i64 {
     const DEFAULT_TAIL_LINES: i64 = 1000;
     const MAX_TAIL_LINES: i64 = 10_000;
@@ -651,14 +753,7 @@ pub fn is_critical_event(event: &EventInfo) -> bool {
     let reason = event.reason.as_deref().unwrap_or("").to_lowercase();
     let message = event.message.as_deref().unwrap_or("").to_lowercase();
 
-    let ignored_reasons = [
-        "scheduled",
-        "pulled",
-        "created",
-        "started",
-        "killing",
-        "unhealthy",
-    ];
+    let ignored_reasons = ["scheduled", "pulled", "created", "started", "killing"];
 
     if ignored_reasons.iter().any(|r| reason.contains(r)) {
         return false;
@@ -706,19 +801,63 @@ pub fn is_recent_event(event: &EventInfo) -> bool {
     false
 }
 
+fn pod_matches_deployment(pod: &PodInfo, deployment: &DeploymentInfo) -> bool {
+    if deployment.selector_labels.is_empty() {
+        return false;
+    }
+    deployment
+        .selector_labels
+        .iter()
+        .all(|(k, v)| pod.labels.get(k) == Some(v))
+}
+
+fn count_deployment_pods_by_phase(
+    pods: &[PodInfo],
+    deployment: &DeploymentInfo,
+    phase: &str,
+) -> usize {
+    pods.iter()
+        .filter(|p| p.phase == phase && pod_matches_deployment(p, deployment))
+        .count()
+}
+
+fn is_deployment_covered_by_pdb<'a>(
+    deployment: &DeploymentInfo,
+    pdbs: &'a [PodDisruptionBudgetInfo],
+) -> Option<&'a PodDisruptionBudgetInfo> {
+    pdbs.iter().find(|pdb| {
+        if pdb.selector_labels.is_empty() {
+            return false;
+        }
+        pdb.selector_labels
+            .iter()
+            .all(|(k, v)| deployment.selector_labels.get(k) == Some(v))
+    })
+}
+
 pub async fn check_system_health(ns: &str) -> Result<bool> {
-    let pods = get_pods(ns).await?;
-    let deployments = get_deployments(ns).await?;
-    let events = get_events(ns).await?;
+    let pods = match get_pods(ns).await {
+        Ok(p) => p,
+        Err(_) => return Ok(false),
+    };
+    let deployments = match get_deployments(ns).await {
+        Ok(d) => d,
+        Err(_) => return Ok(false),
+    };
+    let events = match get_events(ns).await {
+        Ok(e) => e,
+        Err(_) => return Ok(false),
+    };
+    let pdbs = match get_pod_disruption_budgets(ns).await {
+        Ok(p) => p,
+        Err(_) => return Ok(false),
+    };
 
     let failed_pods: Vec<_> = pods.iter().filter(|p| p.phase == "Failed").collect();
-    let pending_pods: Vec<_> = pods.iter().filter(|p| p.phase == "Pending").collect();
     let crashed_pods: Vec<_> = pods
         .iter()
         .filter(|p| p.phase == "Running" && p.ready == Some(false))
         .collect();
-
-    let has_actual_failures = !failed_pods.is_empty() || !crashed_pods.is_empty();
 
     let active_deployments: Vec<_> = deployments.iter().filter(|d| d.replicas > 0).collect();
 
@@ -747,11 +886,25 @@ pub async fn check_system_health(ns: &str) -> Result<bool> {
         return Ok(false);
     }
 
-    if !critical_deployments.is_empty() && (has_actual_failures || pending_pods.is_empty()) {
-        return Ok(false);
+    if !critical_deployments.is_empty() {
+        let has_unprotected_critical =
+            critical_deployments
+                .iter()
+                .any(|d| match is_deployment_covered_by_pdb(d, &pdbs) {
+                    Some(pdb) if pdb.disruptions_allowed > 0 => false,
+                    _ => {
+                        let pending_count = count_deployment_pods_by_phase(&pods, d, "Pending");
+                        let running_count = count_deployment_pods_by_phase(&pods, d, "Running");
+                        !(pending_count > 0 && running_count > 0)
+                    }
+                });
+
+        if has_unprotected_critical {
+            return Ok(false);
+        }
     }
 
-    if !degraded_deployments.is_empty() && has_actual_failures {
+    if !degraded_deployments.is_empty() {
         return Ok(false);
     }
 
@@ -770,5 +923,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/services", web::get().to(services))
         .route("/events", web::get().to(events))
         .route("/ingresses", web::get().to(ingresses))
+        .route(
+            "/pod-disruption-budgets",
+            web::get().to(pod_disruption_budgets),
+        )
         .route("/pods/{pod_name}/logs", web::get().to(pod_logs));
 }

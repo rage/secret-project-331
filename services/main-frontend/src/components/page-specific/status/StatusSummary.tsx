@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { useStatusDeployments } from "../../../hooks/useStatusDeployments"
 import { useStatusEvents } from "../../../hooks/useStatusEvents"
+import { useStatusPodDisruptionBudgets } from "../../../hooks/useStatusPodDisruptionBudgets"
 import { useStatusPods } from "../../../hooks/useStatusPods"
 import { useSystemHealth } from "../../../hooks/useSystemHealth"
 
@@ -21,6 +22,7 @@ const StatusSummary: React.FC = () => {
     error: deploymentsError,
   } = useStatusDeployments()
   const { data: events, isLoading: eventsLoading, error: eventsError } = useStatusEvents()
+  const { data: pdbs, isLoading: pdbsLoading, error: pdbsError } = useStatusPodDisruptionBudgets()
   const {
     data: systemHealthStatus,
     isLoading: systemHealthLoading,
@@ -30,6 +32,47 @@ const StatusSummary: React.FC = () => {
   const summary = useMemo(() => {
     if (!pods || !deployments || !events) {
       return null
+    }
+
+    const podMatchesDeployment = (
+      pod: (typeof pods)[number],
+      deployment: (typeof deployments)[number],
+    ): boolean => {
+      if (!deployment.selector_labels || Object.keys(deployment.selector_labels).length === 0) {
+        return false
+      }
+      if (!pod.labels) {
+        return false
+      }
+      return Object.entries(deployment.selector_labels).every(
+        ([key, value]) => pod.labels[key] === value,
+      )
+    }
+
+    const isDeploymentCoveredByPdb = (
+      deployment: (typeof deployments)[number],
+    ): { covered: boolean; disruptionsAllowed: number } => {
+      if (!pdbs || pdbs.length === 0) {
+        return { covered: false, disruptionsAllowed: 0 }
+      }
+      const matchingPdb = pdbs.find((pdb) => {
+        if (!pdb.selector_labels || Object.keys(pdb.selector_labels).length === 0) {
+          return false
+        }
+        if (!deployment.selector_labels) {
+          return false
+        }
+        return Object.entries(pdb.selector_labels).every(
+          ([key, value]) => deployment.selector_labels[key] === value,
+        )
+      })
+      if (matchingPdb) {
+        return {
+          covered: true,
+          disruptionsAllowed: matchingPdb.disruptions_allowed || 0,
+        }
+      }
+      return { covered: false, disruptionsAllowed: 0 }
     }
 
     // Categorize pods more accurately
@@ -91,8 +134,6 @@ const StatusSummary: React.FC = () => {
         "started",
         // eslint-disable-next-line i18next/no-literal-string
         "killing",
-        // eslint-disable-next-line i18next/no-literal-string
-        "unhealthy", // Sometimes this is just a health check, not critical
       ]
 
       if (ignoredReasons.some((r) => reason.includes(r))) {
@@ -181,8 +222,24 @@ const StatusSummary: React.FC = () => {
       )
     }
     if (criticalDeployments > 0) {
-      if (hasActualFailures || pendingPods.length === 0) {
-        // Deployment has 0 ready replicas and either has failures or no pending pods
+      const criticalDeploymentList = activeDeployments.filter(
+        (d) => d.ready_replicas === 0 && d.replicas > 0,
+      )
+      const hasUnprotectedCritical = criticalDeploymentList.some((d) => {
+        const pdbCoverage = isDeploymentCoveredByPdb(d)
+        if (pdbCoverage.covered && pdbCoverage.disruptionsAllowed > 0) {
+          return false
+        }
+        const deploymentPendingPods = pods.filter(
+          (p) => p.phase === "Pending" && podMatchesDeployment(p, d),
+        )
+        const deploymentRunningPods = pods.filter(
+          (p) => p.phase === "Running" && podMatchesDeployment(p, d),
+        )
+        return !(deploymentPendingPods.length > 0 && deploymentRunningPods.length > 0)
+      })
+      if (hasUnprotectedCritical) {
+        // Deployment has 0 ready replicas, no PDB protection, and no recovery in progress
         // eslint-disable-next-line i18next/no-literal-string
         overallHealth = "error"
         healthIssues.push(
@@ -192,10 +249,9 @@ const StatusSummary: React.FC = () => {
           }),
         )
       }
-      // If only pending pods exist, this will be handled as a warning below
     }
-    if (degradedDeployments > 0 && hasActualFailures) {
-      // Deployment has some ready replicas but not all, and has actual pod failures
+    if (degradedDeployments > 0) {
+      // Deployment has some ready replicas but not all
       // eslint-disable-next-line i18next/no-literal-string
       overallHealth = "error"
       healthIssues.push(
@@ -280,18 +336,19 @@ const StatusSummary: React.FC = () => {
       overallHealth,
       healthIssues,
     }
-  }, [pods, deployments, events, t])
+  }, [pods, deployments, events, pdbs, t])
 
-  if (podsLoading || deploymentsLoading || eventsLoading) {
+  if (podsLoading || deploymentsLoading || eventsLoading || pdbsLoading) {
     return <Spinner />
   }
 
-  if (podsError || deploymentsError || eventsError) {
+  if (podsError || deploymentsError || eventsError || pdbsError) {
     return (
       <div>
         {podsError && <ErrorBanner error={podsError} />}
         {deploymentsError && <ErrorBanner error={deploymentsError} />}
         {eventsError && <ErrorBanner error={eventsError} />}
+        {pdbsError && <ErrorBanner error={pdbsError} />}
         {systemHealthError && <ErrorBanner error={systemHealthError} />}
       </div>
     )

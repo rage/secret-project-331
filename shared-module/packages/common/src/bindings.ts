@@ -2431,6 +2431,7 @@ export interface DeploymentInfo {
   name: string
   replicas: number
   ready_replicas: number
+  selector_labels: Record<string, string>
 }
 
 export interface EventInfo {
@@ -2459,10 +2460,20 @@ export interface JobInfo {
   active: number | null
 }
 
+export interface PodDisruptionBudgetInfo {
+  name: string
+  current_healthy: number
+  desired_healthy: number
+  disruptions_allowed: number
+  expected_pods: number
+  selector_labels: Record<string, string>
+}
+
 export interface PodInfo {
   name: string
   phase: string
   ready: boolean | null
+  labels: Record<string, string>
 }
 
 export interface ServiceInfo {

@@ -356,6 +356,7 @@ fn controllers(target: &mut File) {
             status::EventInfo,
             status::IngressInfo,
             status::JobInfo,
+            status::PodDisruptionBudgetInfo,
             status::PodInfo,
             status::ServiceInfo,
             status::ServicePortInfo,

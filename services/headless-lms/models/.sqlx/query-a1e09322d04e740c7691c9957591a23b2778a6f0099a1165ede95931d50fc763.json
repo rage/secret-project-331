@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT * FROM chatbot_configurations_models\nWHERE id = $1\nAND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "model",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "thinking",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "deployment_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "default_model",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "a1e09322d04e740c7691c9957591a23b2778a6f0099a1165ede95931d50fc763"
+}

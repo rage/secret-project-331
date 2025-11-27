@@ -18,6 +18,7 @@ pub mod pagination;
 pub mod prelude;
 pub mod strings;
 pub mod tmc;
+pub mod url_encoding;
 pub mod url_to_oembed_endpoint;
 
 #[macro_use]
@@ -218,7 +219,7 @@ impl AzureConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: "".to_string(),
-            api_endpoint: Url::from_str(&base_url)?.join("/api/v0/mock-azure/test")?,
+            api_endpoint: Url::parse(&base_url)?.join("/api/v0/mock-azure/test/")?,
         });
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),

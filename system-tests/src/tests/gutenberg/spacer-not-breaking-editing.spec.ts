@@ -20,11 +20,12 @@ test.describe(() => {
   }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-    await page.getByRole("link", { name: "Manage course 'Glossary Tooltip'" }).click()
+    await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
     await page.getByRole("tab", { name: "Pages" }).click()
     await page
-      .getByRole("row", { name: "Glossary /chapter-1 Edit page Dropdown menu" })
+      .getByRole("row", { name: "The Basics /chapter-1" })
       .getByRole("button", { name: "Edit page" })
+      .first()
       .click()
 
     await page.getByRole("button", { name: "Add block" }).waitFor()

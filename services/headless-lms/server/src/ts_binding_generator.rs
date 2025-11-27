@@ -57,6 +57,9 @@ fn models(target: &mut File) {
         chapters::UserCourseInstanceChapterProgress,
         chatbot_configurations::ChatbotConfiguration,
         chatbot_configurations::NewChatbotConf,
+        chatbot_configurations::VerbosityLevel,
+        chatbot_configurations::ReasoningEffortLevel,
+        chatbot_configurations_models::ChatbotConfigurationModel,
         chatbot_conversation_messages::ChatbotConversationMessage,
         chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
         chatbot_conversations::ChatbotConversation,
@@ -332,6 +335,7 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
+            chatbot_models::CourseInfo,
             certificates::CertificateConfigurationUpdate,
             courses::GetFeedbackQuery,
             courses::CopyCourseRequest,
@@ -347,6 +351,14 @@ fn controllers(target: &mut File) {
             user_details::BulkUserDetailsRequest,
             user_details::UserDetailsRequest,
             user_details::UserInfoPayload,
+            status::CronJobInfo,
+            status::DeploymentInfo,
+            status::EventInfo,
+            status::IngressInfo,
+            status::JobInfo,
+            status::PodInfo,
+            status::ServiceInfo,
+            status::ServicePortInfo,
         };
     }
 }

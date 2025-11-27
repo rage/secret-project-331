@@ -1,6 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { hideToasts, showNextToastsInfinitely } from "@/utils/notificationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -101,17 +102,15 @@ test("Reject and reset submission", async () => {
     //Student1 gets a bad review from both so the submission will be moved to manual review
 
     // Student1 peer reviews Student2 and Teachers answers
-    await student1Page
-      .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("button", { name: "Start peer review" })
-      .click()
+    await showNextToastsInfinitely(student1Page)
+    await student1Page.getByRole("button", { name: "Start peer review" }).click()
     await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
       .getByRole("button", { name: "Submit" })
       .click()
-    await expect(student1Page.getByText("Operation successful!")).toBeVisible()
-
+    await student1Page.getByText("Operation successful!").waitFor()
+    await hideToasts(student1Page)
     await student1Page.getByRole("radio", { name: "Strongly agree" }).click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
@@ -124,24 +123,17 @@ test("Reject and reset submission", async () => {
     ).toBeVisible()
 
     // Student2 peer reviews Student1 and Teachers answers
-    await student2Page
-      .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("button", { name: "Start peer review" })
-      .click()
-    await student2Page
-      .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
+    await showNextToastsInfinitely(student2Page)
+    await student2Page.getByRole("button", { name: "Start peer review" }).click()
+    await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
     await student2Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
       .getByRole("button", { name: "Submit" })
       .click()
-    await expect(student2Page.getByText("Operation successful!")).toBeVisible()
-
-    await student2Page
-      .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
+    await student2Page.getByText("Operation successful!").waitFor()
+    await hideToasts(student2Page)
+    await showNextToastsInfinitely(student2Page)
+    await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
     await student2Page
       .getByLabel("Exercise:Simple multiple choice with peer review")
       .getByRole("button", { name: "Submit" })
@@ -155,24 +147,16 @@ test("Reject and reset submission", async () => {
     ).toBeVisible()
 
     // Teacher peer reviews Student1 and Student2 answers
-    await teacherPage
-      .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("button", { name: "Start peer review" })
-      .click()
-    await teacherPage
-      .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
+    await showNextToastsInfinitely(teacherPage)
+    await teacherPage.getByRole("button", { name: "Start peer review" }).click()
+    await teacherPage.getByRole("radio", { name: "Strongly disagree" }).click()
     await teacherPage
       .getByLabel("Exercise:Simple multiple choice with peer review")
       .getByRole("button", { name: "Submit" })
       .click()
-    await expect(teacherPage.getByText("Operation successful!")).toBeVisible()
-
-    await teacherPage
-      .getByLabel("Exercise:Simple multiple choice with peer review")
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
+    await teacherPage.getByText("Operation successful!").waitFor()
+    await hideToasts(teacherPage)
+    await teacherPage.getByRole("radio", { name: "Strongly disagree" }).click()
     await teacherPage
       .getByLabel("Exercise:Simple multiple choice with peer review")
       .getByRole("button", { name: "Submit" })

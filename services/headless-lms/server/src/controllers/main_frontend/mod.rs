@@ -7,6 +7,7 @@ This documents all endpoints. Select a module below for a category.
 
 pub mod certificates;
 pub mod chapters;
+pub mod chatbot_models;
 pub mod chatbots;
 pub mod code_giveaways;
 pub mod course_instances;
@@ -30,6 +31,7 @@ pub mod playground_views;
 pub mod proposed_edits;
 pub mod regradings;
 pub mod roles;
+pub mod status;
 pub mod teacher_grading_decisions;
 pub mod user_details;
 pub mod users;
@@ -71,5 +73,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 .configure(teacher_grading_decisions::_add_routes),
         )
         .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes))
-        .service(web::scope("/chatbots").configure(chatbots::_add_routes));
+        .service(web::scope("/chatbots").configure(chatbots::_add_routes))
+        .service(web::scope("/chatbot-models").configure(chatbot_models::_add_routes))
+        .service(web::scope("/status").configure(status::_add_routes));
 }

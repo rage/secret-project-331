@@ -199,15 +199,20 @@ export interface ChatbotConfiguration {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
+  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  response_max_tokens: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
@@ -219,21 +224,41 @@ export interface NewChatbotConf {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
+  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  response_max_tokens: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
   default_chatbot: boolean
   chatbotconf_id: string | null
+}
+
+export type VerbosityLevel = "low" | "medium" | "high"
+
+export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+
+export interface ChatbotConfigurationModel {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  model: string
+  thinking: boolean
+  default_model: boolean
+  deployment_name: string
 }
 
 export interface ChatbotConversationMessage {
@@ -2266,6 +2291,10 @@ export interface CourseMaterialPeerOrSelfReviewDataWithToken {
   token: string | null
 }
 
+export interface CourseInfo {
+  course_id: string
+}
+
 export interface CertificateConfigurationUpdate {
   course_module_id: string
   course_instance_id: string | null
@@ -2390,6 +2419,63 @@ export interface UserInfoPayload {
   last_name: string
   country: string
   email_communication_consent: boolean
+}
+
+export interface CronJobInfo {
+  name: string
+  schedule: string
+  last_schedule_time: string | null
+}
+
+export interface DeploymentInfo {
+  name: string
+  replicas: number
+  ready_replicas: number
+}
+
+export interface EventInfo {
+  name: string
+  reason: string | null
+  message: string | null
+  type_: string | null
+  first_timestamp: string | null
+  last_timestamp: string | null
+  count: number | null
+  involved_object_kind: string | null
+  involved_object_name: string | null
+}
+
+export interface IngressInfo {
+  name: string
+  hosts: Array<string>
+  paths: Array<string>
+  class_name: string | null
+}
+
+export interface JobInfo {
+  name: string
+  succeeded: number | null
+  failed: number | null
+  active: number | null
+}
+
+export interface PodInfo {
+  name: string
+  phase: string
+  ready: boolean | null
+}
+
+export interface ServiceInfo {
+  name: string
+  cluster_ip: string | null
+  ports: Array<ServicePortInfo>
+}
+
+export interface ServicePortInfo {
+  name: string | null
+  port: number
+  target_port: string | null
+  protocol: string | null
 }
 
 export interface Pagination {

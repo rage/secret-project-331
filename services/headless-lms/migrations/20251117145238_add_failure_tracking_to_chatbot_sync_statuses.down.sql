@@ -1,0 +1,1 @@
+ALTER TABLE chatbot_page_sync_statuses DROP COLUMN consecutive_failures;

@@ -183,10 +183,8 @@ pub async fn check_system_health_detailed(ns: &str) -> Result<SystemHealthStatus
     let mut status = HealthStatus::Healthy;
     let mut issues = Vec::new();
 
-    if !pdb_issues.is_empty() {
-        if status == HealthStatus::Healthy {
-            status = HealthStatus::Warning;
-        }
+    if !pdb_issues.is_empty() && status == HealthStatus::Healthy {
+        status = HealthStatus::Warning;
     }
     issues.append(&mut pdb_issues);
 
@@ -227,13 +225,11 @@ pub async fn check_system_health_detailed(ns: &str) -> Result<SystemHealthStatus
         issues.push(format!("{} recent error(s)", recent_errors.len()));
     }
 
-    if !degraded_deployments.is_empty() {
-        if status == HealthStatus::Error {
-            issues.push(format!(
-                "{} deployment(s) degraded",
-                degraded_deployments.len()
-            ));
-        }
+    if !degraded_deployments.is_empty() && status == HealthStatus::Error {
+        issues.push(format!(
+            "{} deployment(s) degraded",
+            degraded_deployments.len()
+        ));
     }
 
     if status != HealthStatus::Error {

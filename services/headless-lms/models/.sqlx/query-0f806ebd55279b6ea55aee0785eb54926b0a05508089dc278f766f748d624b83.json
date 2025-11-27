@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT erl.reset_by, erl.reason\nFROM exercise_reset_logs erl\nLEFT JOIN exercise_slide_submissions es\n  ON es.user_id = erl.reset_for\n  AND es.exercise_id = erl.exercise_id\n  AND es.created_at > erl.reset_at\nWHERE erl.reset_for = $1\n  AND erl.exercise_id = $2\n  AND es.id IS NULL\nORDER BY erl.reset_at DESC\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "reset_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "reason",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true
+    ]
+  },
+  "hash": "0f806ebd55279b6ea55aee0785eb54926b0a05508089dc278f766f748d624b83"
+}

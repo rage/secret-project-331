@@ -6,6 +6,7 @@ use super::{
 };
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
+use tracing::warn;
 
 pub fn is_critical_event(event: &EventInfo) -> bool {
     let reason = event.reason.as_deref().unwrap_or("").to_lowercase();
@@ -126,7 +127,24 @@ pub async fn check_system_health_detailed(ns: &str) -> Result<SystemHealthStatus
             });
         }
     };
-    let pdbs = (get_pod_disruption_budgets(ns).await).unwrap_or_default();
+    let (pdbs, mut pdb_issues) = match get_pod_disruption_budgets(ns).await {
+        Ok(pdbs) => (pdbs, Vec::new()),
+        Err(e) => {
+            warn!(
+                namespace = ns,
+                operation = "get_pod_disruption_budgets",
+                error = %e,
+                "Failed to fetch Pod Disruption Budgets"
+            );
+            (
+                Vec::new(),
+                vec![format!(
+                    "Pod Disruption Budget check unavailable (namespace: {}, error: {})",
+                    ns, e
+                )],
+            )
+        }
+    };
 
     let active_pods: Vec<_> = pods.iter().filter(|p| p.phase != "Succeeded").collect();
     let failed_pods: Vec<_> = pods.iter().filter(|p| p.phase == "Failed").collect();
@@ -165,6 +183,13 @@ pub async fn check_system_health_detailed(ns: &str) -> Result<SystemHealthStatus
     let mut status = HealthStatus::Healthy;
     let mut issues = Vec::new();
 
+    if !pdb_issues.is_empty() {
+        if status == HealthStatus::Healthy {
+            status = HealthStatus::Warning;
+        }
+    }
+    issues.append(&mut pdb_issues);
+
     if !failed_pods.is_empty() {
         status = HealthStatus::Error;
         issues.push(format!("{} failed pod(s)", failed_pods.len()));
@@ -197,24 +222,25 @@ pub async fn check_system_health_detailed(ns: &str) -> Result<SystemHealthStatus
         }
     }
 
-    if !degraded_deployments.is_empty() {
-        status = HealthStatus::Error;
-        issues.push(format!(
-            "{} deployment(s) degraded",
-            degraded_deployments.len()
-        ));
-    }
-
     if !recent_errors.is_empty() {
         status = HealthStatus::Error;
         issues.push(format!("{} recent error(s)", recent_errors.len()));
+    }
+
+    if !degraded_deployments.is_empty() {
+        if status == HealthStatus::Error {
+            issues.push(format!(
+                "{} deployment(s) degraded",
+                degraded_deployments.len()
+            ));
+        }
     }
 
     if status != HealthStatus::Error {
         let has_actual_failures = !failed_pods.is_empty() || !crashed_pods.is_empty();
         let has_only_pending_pods = !pending_pods.is_empty() && !has_actual_failures;
 
-        if !degraded_deployments.is_empty() && !has_actual_failures {
+        if !degraded_deployments.is_empty() {
             status = HealthStatus::Warning;
             issues.push(format!(
                 "{} deployment(s) degraded",

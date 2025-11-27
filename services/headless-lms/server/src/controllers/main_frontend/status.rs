@@ -9,7 +9,6 @@ use crate::{
     },
     prelude::*,
 };
-use sqlx::Executor;
 use std::collections::HashMap;
 
 pub use system_health::{
@@ -332,7 +331,7 @@ pub async fn health(
 }
 
 /**
-GET `/api/v0/healthz/system` Returns a boolean indicating whether the system is healthy.
+GET `/api/v0/main-frontend/status/system-health` Returns a boolean indicating whether the system is healthy.
 
 Uses the same underlying checking logic as the detailed health endpoint.
 Unauthenticated users get a boolean. Authenticated admins get error details on failure.

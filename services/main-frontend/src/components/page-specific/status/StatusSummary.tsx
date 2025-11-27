@@ -7,7 +7,6 @@ import { useStatusDeployments } from "../../../hooks/useStatusDeployments"
 import { useStatusEvents } from "../../../hooks/useStatusEvents"
 import { useStatusPodDisruptionBudgets } from "../../../hooks/useStatusPodDisruptionBudgets"
 import { useStatusPods } from "../../../hooks/useStatusPods"
-import { useSystemHealth } from "../../../hooks/useSystemHealth"
 import { useSystemHealthDetailed } from "../../../hooks/useSystemHealthDetailed"
 
 import { EventInfo } from "@/shared-module/common/bindings"
@@ -25,11 +24,6 @@ const StatusSummary: React.FC = () => {
   } = useStatusDeployments()
   const { data: events, isLoading: eventsLoading, error: eventsError } = useStatusEvents()
   const { data: _pdbs, isLoading: pdbsLoading } = useStatusPodDisruptionBudgets()
-  const {
-    data: systemHealthStatus,
-    isLoading: systemHealthLoading,
-    error: systemHealthError,
-  } = useSystemHealth()
   const {
     data: systemHealthDetailed,
     isLoading: systemHealthDetailedLoading,
@@ -189,7 +183,6 @@ const StatusSummary: React.FC = () => {
         {podsError && <ErrorBanner error={podsError} />}
         {deploymentsError && <ErrorBanner error={deploymentsError} />}
         {eventsError && <ErrorBanner error={eventsError} />}
-        {systemHealthError && <ErrorBanner error={systemHealthError} />}
         {systemHealthDetailedError && <ErrorBanner error={systemHealthDetailedError} />}
       </div>
     )
@@ -276,61 +269,6 @@ const StatusSummary: React.FC = () => {
                 ? t("status-some-issues-detected")
                 : t("status-critical-issues-detected")}
         </p>
-        {!systemHealthLoading && systemHealthStatus !== undefined && (
-          <div
-            className={css`
-              margin-top: 0.75rem;
-              padding-top: 0.75rem;
-              border-top: 1px solid
-                ${summary.overallHealth === "healthy"
-                  ? baseTheme.colors.green[300]
-                  : summary.overallHealth === "warning"
-                    ? baseTheme.colors.yellow[300]
-                    : baseTheme.colors.red[300]};
-              display: flex;
-              align-items: center;
-              gap: 0.5rem;
-              font-size: 0.85rem;
-            `}
-          >
-            {systemHealthStatus ? (
-              <CheckCircle size={16} color={baseTheme.colors.green[600]} />
-            ) : (
-              <XmarkCircle size={16} color={baseTheme.colors.red[600]} />
-            )}
-            <span
-              className={css`
-                color: ${systemHealthStatus
-                  ? baseTheme.colors.green[700]
-                  : baseTheme.colors.red[700]};
-                font-weight: 500;
-              `}
-            >
-              {systemHealthStatus
-                ? t("status-system-health-endpoint-healthy", {
-                    defaultValue: "System health endpoint: Healthy",
-                  })
-                : t("status-system-health-endpoint-unhealthy", {
-                    defaultValue: "System health endpoint: Unhealthy",
-                  })}
-            </span>
-          </div>
-        )}
-        {systemHealthError && (
-          <div
-            className={css`
-              margin-top: 0.75rem;
-              padding-top: 0.75rem;
-              border-top: 1px solid ${baseTheme.colors.red[300]};
-              font-size: 0.85rem;
-              color: ${baseTheme.colors.red[700]};
-            `}
-          >
-            {t("status-system-health-endpoint-error", {
-              defaultValue: "System health endpoint: Error",
-            })}
-          </div>
-        )}
       </div>
 
       {/* Pods Stats */}
@@ -467,7 +405,7 @@ const StatusSummary: React.FC = () => {
           <div
             className={css`
               font-size: 0.9rem;
-              color: ${baseTheme.colors.yellow[700]};
+              color: ${baseTheme.colors.gray[700]};
               margin-bottom: 0.5rem;
               font-weight: 600;
             `}
@@ -478,7 +416,7 @@ const StatusSummary: React.FC = () => {
             className={css`
               font-size: 2rem;
               font-weight: 600;
-              color: ${baseTheme.colors.yellow[700]};
+              color: ${baseTheme.colors.gray[700]};
             `}
           >
             {summary.recentWarnings.length}

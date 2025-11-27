@@ -354,6 +354,14 @@ fn controllers(target: &mut File) {
             user_details::BulkUserDetailsRequest,
             user_details::UserDetailsRequest,
             user_details::UserInfoPayload,
+            status::CronJobInfo,
+            status::DeploymentInfo,
+            status::EventInfo,
+            status::IngressInfo,
+            status::JobInfo,
+            status::PodInfo,
+            status::ServiceInfo,
+            status::ServicePortInfo,
         };
     }
 }

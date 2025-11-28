@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { withViewportSize } from "../../utils/viewportUtils"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 
@@ -30,51 +31,104 @@ test.describe("Flip card accessibility", () => {
       const frontContent = page.getByText("Front side content")
       await expect(frontContent).toBeVisible()
       const backContent = page.getByText("Back side content")
-      await expect(backContent).toBeVisible()
+      await expect(backContent).toBeHidden()
     })
 
     await test.step("Can flip card with keyboard", async () => {
+      const frontContent = page.getByText("Front side content")
+      const backContent = page.getByText("Back side content")
+
       await flipButton.focus()
       await expect(flipButton).toBeFocused()
+      await expect(frontContent).toBeVisible()
+      await expect(backContent).toBeHidden()
+
       await page.keyboard.press(" ")
       await expect(flipButton).toHaveAttribute("aria-pressed", "true")
+      await expect(frontContent).toBeHidden()
+      await expect(backContent).toBeVisible()
 
       await page.keyboard.press(" ")
       await expect(flipButton).toHaveAttribute("aria-pressed", "false")
+      await expect(frontContent).toBeVisible()
+      await expect(backContent).toBeHidden()
     })
 
     await test.step("Can flip card with Enter key", async () => {
+      const frontContent = page.getByText("Front side content")
+      const backContent = page.getByText("Back side content")
+
       await flipButton.focus()
       await page.keyboard.press("Enter")
       await expect(flipButton).toHaveAttribute("aria-pressed", "true")
+      await expect(frontContent).toBeHidden()
+      await expect(backContent).toBeVisible()
 
       await page.keyboard.press("Enter")
       await expect(flipButton).toHaveAttribute("aria-pressed", "false")
+      await expect(frontContent).toBeVisible()
+      await expect(backContent).toBeHidden()
     })
 
-    await test.step("Card fits on 320px wide screen", async () => {
-      await page.setViewportSize({ width: 320, height: 800 })
+    await test.step("Can flip card by clicking anywhere on the card", async () => {
+      const frontContent = page.getByText("Front side content")
+      const backContent = page.getByText("Back side content")
       const cardContainer = page.locator('[style*="perspective"]').first()
-      await expect(cardContainer).toBeVisible()
 
-      const cardWidth = await cardContainer.boundingBox()
-      expect(cardWidth?.width).toBeLessThanOrEqual(320)
+      await expect(frontContent).toBeVisible()
+      await expect(backContent).toBeHidden()
+
+      await cardContainer.click({ position: { x: 50, y: 50 } })
+      await expect(flipButton).toHaveAttribute("aria-pressed", "true")
+      await expect(frontContent).toBeHidden()
+      await expect(backContent).toBeVisible()
+
+      await cardContainer.click({ position: { x: 100, y: 100 } })
+      await expect(flipButton).toHaveAttribute("aria-pressed", "false")
+      await expect(frontContent).toBeVisible()
+      await expect(backContent).toBeHidden()
     })
 
-    await test.step("Button text has sufficient contrast", async () => {
-      await page.setViewportSize({ width: 1280, height: 800 })
-      const buttonStyles = await flipButton.evaluate((el) => {
-        const styles = window.getComputedStyle(el)
-        return {
-          color: styles.color,
-          backgroundColor: styles.backgroundColor,
-        }
-      })
+    await test.step("Button works from back side", async () => {
+      const frontContent = page.getByText("Front side content")
+      const backContent = page.getByText("Back side content")
 
-      expect(buttonStyles.color).toBeTruthy()
-      expect(buttonStyles.backgroundColor).toBeTruthy()
+      await flipButton.click()
+      await expect(flipButton).toHaveAttribute("aria-pressed", "true")
+      await expect(frontContent).toBeHidden()
+      await expect(backContent).toBeVisible()
+
+      await flipButton.click()
+      await expect(flipButton).toHaveAttribute("aria-pressed", "false")
+      await expect(frontContent).toBeVisible()
+      await expect(backContent).toBeHidden()
     })
 
     await accessibilityCheck(page, "Flip card after interactions")
+
+    await test.step("Button text has sufficient contrast", async () => {
+      await withViewportSize(page, { width: 1280, height: 800 }, async () => {
+        const buttonStyles = await flipButton.evaluate((el) => {
+          const styles = window.getComputedStyle(el)
+          return {
+            color: styles.color,
+            backgroundColor: styles.backgroundColor,
+          }
+        })
+
+        expect(buttonStyles.color).toBeTruthy()
+        expect(buttonStyles.backgroundColor).toBeTruthy()
+      })
+    })
+
+    await test.step("Card fits on 320px wide screen", async () => {
+      await withViewportSize(page, { width: 320, height: 800 }, async () => {
+        const cardContainer = page.locator('[style*="perspective"]').first()
+        await expect(cardContainer).toBeVisible()
+
+        const cardWidth = await cardContainer.boundingBox()
+        expect(cardWidth?.width).toBeLessThanOrEqual(320)
+      })
+    })
   })
 })

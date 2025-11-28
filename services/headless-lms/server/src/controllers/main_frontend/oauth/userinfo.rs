@@ -21,7 +21,7 @@ use std::collections::HashSet;
 /// - Returns `sub` always; `first_name`/`last_name` with `profile`; `email` with `email`
 ///
 /// Follows OIDC Core §5.3.
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, req))]
 pub async fn user_info(
     pool: web::Data<sqlx::PgPool>,
     req: actix_web::HttpRequest,
@@ -70,6 +70,10 @@ pub async fn user_info(
     // ---- Look up token by digest ----
     let digest = token_digest_sha256(raw_token);
     let access = OAuthAccessToken::find_valid(&mut conn, digest).await?;
+
+    // Add non-secret fields to the span for observability
+    tracing::Span::current().record("token_type", format!("{:?}", access.token_type));
+    tracing::Span::current().record("client_id", access.client_id.to_string());
 
     // ---- Enforce scheme/token_type consistency ----
     match access.token_type {

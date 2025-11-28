@@ -36,7 +36,7 @@ use sqlx::PgPool;
 /// ```http
 /// HTTP/1.1 200 OK
 /// ```
-#[instrument(skip(pool))]
+#[instrument(skip(pool, form))]
 pub async fn revoke(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<RevokeQuery>,
@@ -50,6 +50,9 @@ pub async fn revoke(
     // This means we should return 200 OK even for invalid client_id/client_secret to prevent
     // enumeration attacks. However, we still need to validate for legitimate revocations.
     let client_result = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await;
+
+    // Add non-secret fields to the span for observability
+    tracing::Span::current().record("client_id", &form.client_id);
 
     // If client not found or secret invalid, return 200 OK per RFC 7009 (but don't actually revoke)
     let client = match client_result {
@@ -82,12 +85,21 @@ pub async fn revoke(
     // Hash the provided token to get digest
     // We'll recalculate it as needed since Digest doesn't implement Copy
 
+    // Normalize token_type_hint: only recognize "access_token" and "refresh_token",
+    // treat any other value as None (no hint)
+    let hint = form.token_type_hint.as_deref().and_then(|h| {
+        match h {
+            "access_token" | "refresh_token" => Some(h),
+            _ => None, // Unknown hints are ignored
+        }
+    });
+    if let Some(h) = hint {
+        tracing::Span::current().record("token_type_hint", h);
+    }
+
     // Determine which token type to try first based on hint
-    let try_access_first = form
-        .token_type_hint
-        .as_deref()
-        .map(|h| h == "access_token")
-        .unwrap_or(true); // Default to trying access token first if no hint
+    // Default to trying access token first if no hint or hint is "access_token"
+    let try_access_first = hint.is_none() || hint == Some("access_token");
 
     // Try to revoke as access token first (if hint is "access_token" or no hint)
     if try_access_first {
@@ -108,8 +120,8 @@ pub async fn revoke(
         }
     }
 
-    // Try to revoke as refresh token (if hint is "refresh_token" or access token not found)
-    if form.token_type_hint.as_deref() == Some("refresh_token") || !try_access_first {
+    // Try to revoke as refresh token (if hint is explicitly "refresh_token")
+    if hint == Some("refresh_token") {
         let token_digest = token_digest_sha256(&form.token);
         // Try to find the refresh token
         if let Ok(refresh_token) = OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {

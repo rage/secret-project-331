@@ -62,6 +62,10 @@ pub async fn authorize(
             )
         })?;
 
+    // Add non-secret fields to the span for observability
+    tracing::Span::current().record("client_id", &query.client_id);
+    tracing::Span::current().record("response_type", &query.response_type);
+
     if !client.redirect_uris.contains(&query.redirect_uri) {
         return Err(oauth_invalid_request(
             "redirect_uri does not match client",

@@ -85,7 +85,7 @@ use sqlx::PgPool;
 /// HTTP/1.1 401 Unauthorized
 /// WWW-Authenticate: DPoP error="use_dpop_proof", error_description="Missing DPoP header"
 /// ```
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, form))]
 pub async fn token(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<TokenQuery>,
@@ -101,6 +101,9 @@ pub async fn token(
     let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
         .await
         .map_err(|_| oauth_invalid_client("invalid client_id"))?;
+
+    // Add non-secret fields to the span for observability
+    tracing::Span::current().record("client_id", &form.client_id);
 
     if client.is_confidential() {
         match client.client_secret {
@@ -121,6 +124,7 @@ pub async fn token(
 
     // Check if client allows this grant type
     let grant_kind = form.grant.kind();
+    tracing::Span::current().record("grant_type", format!("{:?}", grant_kind));
     if !client.allows_grant(grant_kind) {
         return Err(ControllerError::new(
             ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -161,6 +165,7 @@ pub async fn token(
     } else {
         TokenType::Bearer
     };
+    tracing::Span::current().record("token_type", format!("{:?}", issued_token_type));
 
     let token_pair = generate_token_pair();
     let access_token = token_pair.access_token.clone();

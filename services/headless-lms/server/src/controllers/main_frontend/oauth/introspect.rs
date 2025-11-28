@@ -84,7 +84,7 @@ use sqlx::PgPool;
 ///   "active": false
 /// }
 /// ```
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, form))]
 pub async fn introspect(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<IntrospectQuery>,
@@ -98,6 +98,9 @@ pub async fn introspect(
     // and the introspection result, even if the client authentication failed or
     // the token is invalid."
     let client_result = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await;
+
+    // Add non-secret fields to the span for observability
+    tracing::Span::current().record("client_id", &form.client_id);
 
     // If client not found or secret invalid, return active: false per RFC 7662
     let client = match client_result {
@@ -188,6 +191,10 @@ pub async fn introspect(
             );
         }
     };
+
+    // Add token type to span for observability
+    tracing::Span::current().record("token_type", format!("{:?}", access_token.token_type));
+    tracing::Span::current().record("token_active", "true");
 
     // Build response with token metadata
     let base_url = app_conf.base_url.trim_end_matches('/');

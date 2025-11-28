@@ -31,12 +31,20 @@ use std::collections::HashSet;
 ///
 /// Follows:
 /// - [RFC 6749 Section 3.1](https://datatracker.ietf.org/doc/html/rfc6749#section-3.1) — Authorization Endpoint
+///   - Supports both GET (query parameters) and POST (form-encoded body) methods
 /// - [RFC 7636 (PKCE)](https://datatracker.ietf.org/doc/html/rfc7636) — Proof Key for Code Exchange
 /// - [OpenID Connect Core 1.0 Section 3](https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint)
 ///
-/// # Example
+/// # Examples
 /// ```http
 /// GET /api/v0/main-frontend/oauth/authorize?response_type=code&client_id=test-client-id&redirect_uri=http://localhost&scope=openid%20profile%20email&state=random123&nonce=secure_nonce_abc&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256 HTTP/1.1
+/// ```
+///
+/// ```http
+/// POST /api/v0/main-frontend/oauth/authorize HTTP/1.1
+/// Content-Type: application/x-www-form-urlencoded
+///
+/// response_type=code&client_id=test-client-id&redirect_uri=http://localhost&scope=openid%20profile%20email&state=random123&nonce=secure_nonce_abc&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256
 /// ```
 ///
 /// Successful redirect:
@@ -137,5 +145,6 @@ pub async fn authorize(
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/authorize", web::get().to(authorize));
+    cfg.route("/authorize", web::get().to(authorize))
+        .route("/authorize", web::post().to(authorize));
 }

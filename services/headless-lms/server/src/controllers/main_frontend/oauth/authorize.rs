@@ -5,6 +5,7 @@ use crate::domain::oauth::pkce::parse_authorize_pkce;
 use crate::domain::oauth::redirects::{
     build_authorize_qs, build_consent_redirect, build_login_redirect, redirect_with_code,
 };
+use crate::domain::rate_limit_middleware_builder::build_rate_limiting_middleware;
 use crate::prelude::*;
 use actix_web::web;
 use chrono::{Duration, Utc};
@@ -17,6 +18,7 @@ use models::{
 };
 use sqlx::PgPool;
 use std::collections::HashSet;
+use std::time::Duration as StdDuration;
 
 /// Handles the `/authorize` endpoint for OAuth 2.0 and OpenID Connect with PKCE and DPoP support.
 ///
@@ -145,6 +147,21 @@ pub async fn authorize(
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/authorize", web::get().to(authorize))
-        .route("/authorize", web::post().to(authorize));
+    cfg.service(
+        web::resource("/authorize")
+            .wrap(build_rate_limiting_middleware(
+                StdDuration::from_secs(60),
+                30,
+            ))
+            .wrap(build_rate_limiting_middleware(
+                StdDuration::from_secs(60 * 60),
+                200,
+            ))
+            .wrap(build_rate_limiting_middleware(
+                StdDuration::from_secs(60 * 60 * 24),
+                1000,
+            ))
+            .route(web::get().to(authorize))
+            .route(web::post().to(authorize)),
+    );
 }

@@ -125,7 +125,7 @@ impl<'r> Decode<'r, Postgres> for Digest {
 
 impl<'q> Encode<'q, Postgres> for Digest {
     fn encode_by_ref(&self, buf: &mut PgArgumentBuffer) -> Result<IsNull, BoxDynError> {
-        <&[u8] as Encode<Postgres>>::encode_by_ref(&&self.as_slice()[..], buf)
+        <&[u8] as Encode<Postgres>>::encode_by_ref(self.as_slice(), buf)
     }
 }
 

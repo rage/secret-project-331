@@ -287,7 +287,7 @@ impl OAuthRefreshTokens {
 
         // Insert new access token
         OAuthAccessToken::insert(
-            &mut **tx,
+            tx,
             NewAccessTokenParams {
                 digest: params.new_access_token_digest,
                 user_id: Some(old_token.user_id),
@@ -318,7 +318,7 @@ impl OAuthRefreshTokens {
     ) -> ModelResult<()> {
         // Insert access token
         OAuthAccessToken::insert(
-            &mut **tx,
+            tx,
             NewAccessTokenParams {
                 digest: params.access_token_digest,
                 user_id: Some(params.user_id),

@@ -88,11 +88,11 @@ impl OAuthClient {
     }
 
     pub fn allows_pkce_method(&self, m: PkceMethod) -> bool {
-        self.pkce_methods_allowed.iter().any(|&x| x == m)
+        self.pkce_methods_allowed.contains(&m)
     }
 
     pub fn allows_grant(&self, g: GrantTypeName) -> bool {
-        self.allowed_grant_types.iter().any(|&x| x == g)
+        self.allowed_grant_types.contains(&g)
     }
 }
 

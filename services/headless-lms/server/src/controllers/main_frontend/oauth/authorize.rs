@@ -8,7 +8,6 @@ use crate::domain::oauth::redirects::{
 use crate::prelude::*;
 use actix_web::web;
 use chrono::{Duration, Utc};
-use headless_lms_utils::ApplicationConfiguration;
 use itertools::Itertools;
 use models::{
     library::oauth::{generate_access_token, token_digest_sha256},

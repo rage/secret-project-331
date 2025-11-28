@@ -206,8 +206,8 @@ pub fn verify_token_pkce(
                 .into());
             }
 
-            let verifier_str = provided_verifier
-                .ok_or_else(|| PkceFlowError::InvalidRequest("code_verifier required"))?;
+            let verifier_str =
+                provided_verifier.ok_or(PkceFlowError::InvalidRequest("code_verifier required"))?;
             let verifier = CodeVerifier::new(verifier_str)
                 .map_err(|_| PkceFlowError::InvalidRequest("invalid code_verifier"))?;
 

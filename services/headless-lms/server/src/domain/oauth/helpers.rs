@@ -47,7 +47,7 @@ pub fn oauth_invalid_grant(desc: &'static str) -> ControllerError {
     )
 }
 
-pub fn scope_has_openid(scope: &Vec<String>) -> bool {
+pub fn scope_has_openid(scope: &[String]) -> bool {
     scope.iter().any(|s| s == "openid")
 }
 

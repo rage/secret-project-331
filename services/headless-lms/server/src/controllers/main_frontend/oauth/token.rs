@@ -142,7 +142,7 @@ pub async fn token(
     }
 
     // DPoP vs Bearer selection
-    let dpop_jkt_opt = if let Some(_) = req.headers().get("DPoP") {
+    let dpop_jkt_opt = if req.headers().get("DPoP").is_some() {
         Some(
             verify_dpop_from_actix(
                 &mut conn,

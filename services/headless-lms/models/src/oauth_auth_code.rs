@@ -6,6 +6,18 @@ use uuid::Uuid;
 
 use crate::library::oauth::pkce::PkceMethod;
 
+/// **INTERNAL/DATABASE-ONLY MODEL - DO NOT EXPOSE TO CLIENTS**
+///
+/// This struct is a database model that contains a `Digest` field, which contains raw bytes
+/// and uses custom (de)serialization. This model must **never** be serialized into external
+/// API payloads or returned directly to clients.
+///
+/// For external-facing responses, use DTOs such as `TokenResponse`, `UserInfoResponse`, or
+/// an explicit redacting wrapper that strips or converts `Digest` fields to safe types (e.g., strings).
+///
+/// **Rationale**: The `Digest` type contains sensitive raw bytes and uses custom serialization
+/// that is not suitable for external APIs. Exposing this model directly could leak internal
+/// implementation details or cause serialization issues.
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct OAuthAuthCode {
     pub digest: Digest,

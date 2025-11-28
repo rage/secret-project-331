@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            UPDATE oauth_auth_codes\n               SET used = true\n             WHERE digest = $1\n               AND used = false\n               AND expires_at > now()\n            RETURNING\n              digest                   as \"digest: _\",\n              user_id,\n              client_id,\n              redirect_uri,\n              scopes,\n              jti,\n              nonce,\n              code_challenge,\n              code_challenge_method    as \"code_challenge_method: PkceMethod\",\n              dpop_jkt,\n              used,\n              expires_at,\n              metadata\n            ",
+  "query": "\n            UPDATE oauth_auth_codes\n               SET used = true\n             WHERE digest = $1\n               AND client_id = $2\n               AND used = false\n               AND expires_at > now()\n            RETURNING\n              digest                   as \"digest: _\",\n              user_id,\n              client_id,\n              redirect_uri,\n              scopes,\n              jti,\n              nonce,\n              code_challenge,\n              code_challenge_method    as \"code_challenge_method: PkceMethod\",\n              dpop_jkt,\n              used,\n              expires_at,\n              metadata\n            ",
   "describe": {
     "columns": [
       {
@@ -81,7 +81,8 @@
     ],
     "parameters": {
       "Left": [
-        "Bytea"
+        "Bytea",
+        "Uuid"
       ]
     },
     "nullable": [
@@ -100,5 +101,5 @@
       false
     ]
   },
-  "hash": "cba8b9913a1502ac8feaf3f089912d6b577ed3803d3f133c502fdefc02867fac"
+  "hash": "1d89e9a288380f04db6e142942db948c0d43cc419985da3cef6876c13d9b71a4"
 }

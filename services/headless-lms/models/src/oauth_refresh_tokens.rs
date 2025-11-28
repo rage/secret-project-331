@@ -195,6 +195,7 @@ impl OAuthRefreshTokens {
     pub async fn consume_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         digest: Digest,
+        client_id: Uuid,
     ) -> ModelResult<OAuthRefreshTokens> {
         let row = sqlx::query_as!(
             OAuthRefreshTokens,
@@ -202,6 +203,7 @@ impl OAuthRefreshTokens {
             UPDATE oauth_refresh_tokens
                SET revoked = true
              WHERE digest = $1
+               AND client_id = $2
                AND revoked = false
                AND expires_at > now()
             RETURNING
@@ -217,7 +219,8 @@ impl OAuthRefreshTokens {
               revoked,
               rotated_from       as "rotated_from: _"
             "#,
-            digest.as_bytes()
+            digest.as_bytes(),
+            client_id
         )
         .fetch_one(&mut **tx)
         .await?;

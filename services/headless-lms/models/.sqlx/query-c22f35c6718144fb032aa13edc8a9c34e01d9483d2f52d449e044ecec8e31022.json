@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            UPDATE oauth_refresh_tokens\n               SET revoked = true\n             WHERE digest = $1\n               AND revoked = false\n               AND expires_at > now()\n            RETURNING\n              digest             as \"digest: _\",\n              user_id,\n              client_id,\n              expires_at,\n              scopes,\n              audience,\n              jti,\n              dpop_jkt,\n              metadata,\n              revoked,\n              rotated_from       as \"rotated_from: _\"\n            ",
+  "query": "\n            UPDATE oauth_refresh_tokens\n               SET revoked = true\n             WHERE digest = $1\n               AND client_id = $2\n               AND revoked = false\n               AND expires_at > now()\n            RETURNING\n              digest             as \"digest: _\",\n              user_id,\n              client_id,\n              expires_at,\n              scopes,\n              audience,\n              jti,\n              dpop_jkt,\n              metadata,\n              revoked,\n              rotated_from       as \"rotated_from: _\"\n            ",
   "describe": {
     "columns": [
       {
@@ -61,7 +61,8 @@
     ],
     "parameters": {
       "Left": [
-        "Bytea"
+        "Bytea",
+        "Uuid"
       ]
     },
     "nullable": [
@@ -78,5 +79,5 @@
       true
     ]
   },
-  "hash": "2ee6f566a7598367ce77e4d40011f38222e8e76a4221daa7fa8f980f62dd45e4"
+  "hash": "c22f35c6718144fb032aa13edc8a9c34e01d9483d2f52d449e044ecec8e31022"
 }

@@ -113,6 +113,7 @@ impl OAuthAuthCode {
     pub async fn consume_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         digest: Digest,
+        client_id: Uuid,
     ) -> ModelResult<OAuthAuthCode> {
         let auth_code = sqlx::query_as!(
             OAuthAuthCode,
@@ -120,50 +121,7 @@ impl OAuthAuthCode {
             UPDATE oauth_auth_codes
                SET used = true
              WHERE digest = $1
-               AND used = false
-               AND expires_at > now()
-            RETURNING
-              digest                   as "digest: _",
-              user_id,
-              client_id,
-              redirect_uri,
-              scopes,
-              jti,
-              nonce,
-              code_challenge,
-              code_challenge_method    as "code_challenge_method: PkceMethod",
-              dpop_jkt,
-              used,
-              expires_at,
-              metadata
-            "#,
-            digest.as_bytes()
-        )
-        .fetch_one(&mut **tx)
-        .await?;
-
-        Ok(auth_code)
-    }
-
-    /// Consume an authorization code with redirect URI check within an existing transaction.
-    ///
-    /// # Transaction Requirements
-    /// This method must be called within an existing database transaction.
-    /// The caller is responsible for managing the transaction (begin, commit, rollback).
-    ///
-    /// Returns the consumed code data.
-    pub async fn consume_with_redirect_in_transaction(
-        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-        digest: Digest,
-        redirect_uri: &str,
-    ) -> ModelResult<OAuthAuthCode> {
-        let auth_code = sqlx::query_as!(
-            OAuthAuthCode,
-            r#"
-            UPDATE oauth_auth_codes
-               SET used = true
-             WHERE digest = $1
-               AND redirect_uri = $2
+               AND client_id = $2
                AND used = false
                AND expires_at > now()
             RETURNING
@@ -182,6 +140,54 @@ impl OAuthAuthCode {
               metadata
             "#,
             digest.as_bytes(),
+            client_id
+        )
+        .fetch_one(&mut **tx)
+        .await?;
+
+        Ok(auth_code)
+    }
+
+    /// Consume an authorization code with redirect URI check within an existing transaction.
+    ///
+    /// # Transaction Requirements
+    /// This method must be called within an existing database transaction.
+    /// The caller is responsible for managing the transaction (begin, commit, rollback).
+    ///
+    /// Returns the consumed code data.
+    pub async fn consume_with_redirect_in_transaction(
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        digest: Digest,
+        client_id: Uuid,
+        redirect_uri: &str,
+    ) -> ModelResult<OAuthAuthCode> {
+        let auth_code = sqlx::query_as!(
+            OAuthAuthCode,
+            r#"
+            UPDATE oauth_auth_codes
+               SET used = true
+             WHERE digest = $1
+               AND client_id = $2
+               AND redirect_uri = $3
+               AND used = false
+               AND expires_at > now()
+            RETURNING
+              digest                   as "digest: _",
+              user_id,
+              client_id,
+              redirect_uri,
+              scopes,
+              jti,
+              nonce,
+              code_challenge,
+              code_challenge_method    as "code_challenge_method: PkceMethod",
+              dpop_jkt,
+              used,
+              expires_at,
+              metadata
+            "#,
+            digest.as_bytes(),
+            client_id,
             redirect_uri
         )
         .fetch_one(&mut **tx)

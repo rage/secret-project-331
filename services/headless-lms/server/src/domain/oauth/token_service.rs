@@ -69,16 +69,23 @@ pub async fn process_token_grant(
             code_verifier,
         } => {
             let code_digest = token_digest_sha256(code);
+            // Consume with client_id check in WHERE clause to prevent DoS attacks
             let code_row = if let Some(ref_uri) = redirect_uri {
-                OAuthAuthCode::consume_with_redirect_in_transaction(&mut tx, code_digest, ref_uri)
-                    .await
-                    .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?
+                OAuthAuthCode::consume_with_redirect_in_transaction(
+                    &mut tx,
+                    code_digest,
+                    request.client.id,
+                    ref_uri,
+                )
+                .await
+                .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?
             } else {
-                OAuthAuthCode::consume_in_transaction(&mut tx, code_digest)
+                OAuthAuthCode::consume_in_transaction(&mut tx, code_digest, request.client.id)
                     .await
                     .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?
             };
 
+            // PKCE verification happens after client_id check (enforced in SQL)
             verify_token_pkce(
                 request.client,
                 code_row.code_challenge.as_deref(),
@@ -86,12 +93,6 @@ pub async fn process_token_grant(
                 code_verifier.as_deref(),
             )
             .map_err(|_| TokenGrantError::PkceVerificationFailed)?;
-
-            if code_row.client_id != request.client.id {
-                return Err(TokenGrantError::InvalidGrant(
-                    "invalid authorization code".into(),
-                ));
-            }
 
             OAuthRefreshTokens::issue_tokens_from_auth_code_in_transaction(
                 &mut tx,
@@ -121,15 +122,11 @@ pub async fn process_token_grant(
         }
         TokenGrant::RefreshToken { refresh_token, .. } => {
             let presented = token_digest_sha256(refresh_token);
-            let old = OAuthRefreshTokens::consume_in_transaction(&mut tx, presented)
-                .await
-                .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?;
-
-            if old.client_id != request.client.id {
-                return Err(TokenGrantError::InvalidGrant(
-                    "invalid refresh_token".into(),
-                ));
-            }
+            // Consume with client_id check in WHERE clause to prevent DoS attacks
+            let old =
+                OAuthRefreshTokens::consume_in_transaction(&mut tx, presented, request.client.id)
+                    .await
+                    .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?;
 
             if let Some(expected_jkt) = old.dpop_jkt.as_deref() {
                 let presented_jkt = request.dpop_jkt.ok_or_else(|| {

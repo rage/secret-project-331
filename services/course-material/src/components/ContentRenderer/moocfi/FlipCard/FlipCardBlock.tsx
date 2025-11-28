@@ -115,6 +115,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
         >
           <div
             ref={frontContentRef}
+            data-testid="flip-card-front"
             aria-hidden={isFlipped}
             {...(isFlipped && { inert: true })}
             className={css`
@@ -222,6 +223,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
           </div>
           <div
             ref={backContentRef}
+            data-testid="flip-card-back"
             aria-hidden={!isFlipped}
             {...(!isFlipped && { inert: true })}
             className={css`

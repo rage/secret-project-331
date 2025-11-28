@@ -168,10 +168,10 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
                   &::after {
                     content: "";
                     position: absolute;
-                    bottom: -100%;
-                    right: -100%;
-                    left: 0;
-                    top: 0;
+                    left: -1000px;
+                    top: -1000px;
+                    right: -10px;
+                    bottom: -10px;
                     z-index: -1;
                   }
 
@@ -274,10 +274,10 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
                   &::after {
                     content: "";
                     position: absolute;
-                    bottom: -100%;
-                    right: -100%;
-                    left: 0;
-                    top: 0;
+                    left: -1000px;
+                    top: -1000px;
+                    right: -10px;
+                    bottom: -10px;
                     z-index: -1;
                   }
 

@@ -3,8 +3,12 @@ import { expect, test } from "@playwright/test"
 import { resetClientAuthorization } from "../../../utils/oauth/authorizedClients"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
-import { BASE, STUDENT_STORAGE_STATE } from "../../../utils/oauth/constants"
-import { USER_EMAIL, USER_PASSWORD } from "../../../utils/oauth/constants"
+import {
+  BASE,
+  STUDENT_STORAGE_STATE,
+  USER_EMAIL,
+  USER_PASSWORD,
+} from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"

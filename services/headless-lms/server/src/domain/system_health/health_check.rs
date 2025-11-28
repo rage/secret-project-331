@@ -167,7 +167,15 @@ pub async fn check_system_health_detailed(
 
     let degraded_deployments: Vec<_> = active_deployments
         .iter()
-        .filter(|d| d.ready_replicas > 0 && d.ready_replicas < d.replicas)
+        .filter(|d| {
+            if d.ready_replicas >= d.replicas {
+                return false;
+            }
+            match is_deployment_covered_by_pdb(d, &pdbs) {
+                Some(pdb) => pdb.disruptions_allowed <= 0 && d.ready_replicas < d.replicas,
+                None => d.ready_replicas == 0,
+            }
+        })
         .collect();
 
     let recent_errors: Vec<_> = events
@@ -265,7 +273,15 @@ pub async fn check_system_health_detailed(
 
         let unhealthy_deployments: Vec<_> = active_deployments
             .iter()
-            .filter(|d| d.ready_replicas != d.replicas)
+            .filter(|d| {
+                if d.ready_replicas >= d.replicas {
+                    return false;
+                }
+                match is_deployment_covered_by_pdb(d, &pdbs) {
+                    Some(pdb) => pdb.disruptions_allowed <= 0 && d.ready_replicas < d.replicas,
+                    None => d.ready_replicas == 0,
+                }
+            })
             .collect();
         if !unhealthy_deployments.is_empty() && has_only_pending_pods {
             status = HealthStatus::Warning;

@@ -10,8 +10,9 @@ use headless_lms_utils::ApplicationConfiguration;
 /// - Reads the configured ID Token signing public key (RS256).
 /// - Exposes it in JWKS format for clients to validate ID tokens.
 ///
-/// Follows [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517) and
-/// [OIDC Core §10](https://openid.net/specs/openid-connect-core-1_0.html#RotateSigKeys).
+/// Follows [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517).
+///
+/// Note: Currently exposes a single signing key. Key rotation (OIDC Core §10) is not implemented.
 ///
 /// # Example
 /// ```http

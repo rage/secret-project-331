@@ -125,7 +125,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
                 width: 54px;
                 height: 42px;
                 background: ${baseTheme.colors.clear[100]};
-                box-shadow: 0 4px 0px 0px ${baseTheme.colors.gray[300]};
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -174,7 +174,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
                 width: 54px;
                 height: 42px;
                 background: ${baseTheme.colors.clear[100]};
-                box-shadow: 0 4px 0px 0px ${baseTheme.colors.gray[300]};
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -228,19 +228,17 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             }
           }
 
-          ${isFocusVisible
-            ? `
+          ${isFocusVisible &&
+          `
             outline: 2px solid ${baseTheme.colors.blue[500]};
             outline-offset: 2px;
             border-radius: 10px;
-          `
-            : ""}
+          `}
 
-          ${isPressed
-            ? `
-            transform: scale(0.98);
+          ${isPressed &&
           `
-            : ""}
+            transform: scale(0.98);
+          `}
         `}
         aria-label={t("button-text-flip")}
       />

@@ -6,6 +6,7 @@ use super::{
 };
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
+use sqlx::{Executor, PgPool};
 use tracing::warn;
 
 pub fn is_critical_event(event: &EventInfo) -> bool {
@@ -94,12 +95,15 @@ fn is_deployment_covered_by_pdb<'a>(
     })
 }
 
-pub async fn check_system_health(ns: &str) -> Result<bool> {
-    let health = check_system_health_detailed(ns).await?;
+pub async fn check_system_health(ns: &str, pool: Option<&PgPool>) -> Result<bool> {
+    let health = check_system_health_detailed(ns, pool).await?;
     Ok(health.status == HealthStatus::Healthy)
 }
 
-pub async fn check_system_health_detailed(ns: &str) -> Result<SystemHealthStatus> {
+pub async fn check_system_health_detailed(
+    ns: &str,
+    pool: Option<&PgPool>,
+) -> Result<SystemHealthStatus> {
     let pods = match get_pods(ns).await {
         Ok(p) => p,
         Err(e) => {
@@ -182,6 +186,21 @@ pub async fn check_system_health_detailed(ns: &str) -> Result<SystemHealthStatus
 
     let mut status = HealthStatus::Healthy;
     let mut issues = Vec::new();
+
+    if let Some(pool) = pool {
+        match pool.acquire().await {
+            Ok(mut conn) => {
+                if let Err(e) = conn.execute("SELECT 1").await {
+                    status = HealthStatus::Error;
+                    issues.push(format!("Database connectivity check failed: {}", e));
+                }
+            }
+            Err(e) => {
+                status = HealthStatus::Error;
+                issues.push(format!("Database connection pool check failed: {}", e));
+            }
+        }
+    }
 
     if !pdb_issues.is_empty() && status == HealthStatus::Healthy {
         status = HealthStatus::Warning;

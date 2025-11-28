@@ -21,7 +21,9 @@ test.describe("Flip card accessibility", () => {
 
     await accessibilityCheck(page, "Flip card initial state")
 
-    const flipButton = page.getByRole("button", { name: /flip/i })
+    const flipButton = page
+      .getByRole("button", { name: /flip/i })
+      .filter({ has: page.locator("[aria-pressed]") })
 
     await test.step("Flip button has aria-pressed attribute", async () => {
       await expect(flipButton).toHaveAttribute("aria-pressed", "false")

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { ReplayArrowLeftRight } from "@vectopus/atlas-icons-react"
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useButton, useFocusRing, useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -41,19 +41,42 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
 
   const { hoverProps, isHovered } = useHover({})
 
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const { buttonProps, isPressed } = useButton(
+  const frontButtonRef = useRef<HTMLButtonElement>(null)
+  const { buttonProps: frontButtonProps, isPressed: isFrontPressed } = useButton(
     {
       onPress: () => setIsFlipped(!isFlipped),
       "aria-pressed": isFlipped,
     },
-    buttonRef,
+    frontButtonRef,
   )
-  const { focusProps, isFocusVisible } = useFocusRing()
+  const { focusProps: frontFocusProps, isFocusVisible: isFrontFocusVisible } = useFocusRing()
+
+  const backButtonRef = useRef<HTMLButtonElement>(null)
+  const { buttonProps: backButtonProps, isPressed: isBackPressed } = useButton(
+    {
+      onPress: () => setIsFlipped(!isFlipped),
+      "aria-pressed": isFlipped,
+    },
+    backButtonRef,
+  )
+  const { focusProps: backFocusProps, isFocusVisible: isBackFocusVisible } = useFocusRing()
+
+  // Move focus to the button on the visible side when the card flips
+  useEffect(() => {
+    if (isFlipped) {
+      // Card is flipped, focus the back button
+      backButtonRef.current?.focus()
+    } else {
+      // Card is not flipped, focus the front button
+      frontButtonRef.current?.focus()
+    }
+  }, [isFlipped])
 
   return (
     <div
       ref={cardRef}
+      role="group"
+      aria-roledescription={t("flip-card-roledescription")}
       className={css`
         position: relative;
         background-color: transparent;
@@ -92,6 +115,8 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
         >
           <div
             ref={frontContentRef}
+            aria-hidden={isFlipped}
+            {...(isFlipped && { inert: true })}
             className={css`
               position: absolute;
               width: 100%;
@@ -114,34 +139,91 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             `}
           >
             <ContentRenderer data={[frontCard]} isExam={false} />
-            <div
-              className={css`
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-                z-index: 1;
-                backface-visibility: hidden;
-                border-radius: 10px;
-                width: 54px;
-                height: 42px;
-                background: ${baseTheme.colors.clear[100]};
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: ${baseTheme.colors.gray[700]};
-                border: 2px solid ${baseTheme.colors.gray[600]};
-                pointer-events: none;
-                font-size: 9px;
-              `}
-            >
-              <div>{t("button-text-flip")}</div>
-              <ReplayArrowLeftRight size={16} />
-            </div>
+            {!isFlipped ? (
+              <button
+                ref={frontButtonRef}
+                {...frontButtonProps}
+                {...frontFocusProps}
+                className={css`
+                  position: absolute;
+                  bottom: 10px;
+                  right: 10px;
+                  z-index: 1;
+                  backface-visibility: hidden;
+                  border-radius: 10px;
+                  width: 54px;
+                  height: 42px;
+                  background: ${baseTheme.colors.clear[100]};
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  color: ${baseTheme.colors.gray[700]};
+                  border: 2px solid ${baseTheme.colors.gray[600]};
+                  cursor: pointer;
+                  padding: 0;
+                  font-size: 9px;
+
+                  &::after {
+                    content: "";
+                    position: absolute;
+                    bottom: -100%;
+                    right: -100%;
+                    left: 0;
+                    top: 0;
+                    z-index: -1;
+                  }
+
+                  ${isFrontFocusVisible &&
+                  `
+                    outline: 2px solid ${baseTheme.colors.blue[500]};
+                    outline-offset: 2px;
+                    border-radius: 10px;
+                  `}
+
+                  ${isFrontPressed &&
+                  `
+                    transform: scale(0.98);
+                  `}
+                `}
+                aria-label={t("button-text-flip-to-back")}
+              >
+                <div>{t("button-text-flip")}</div>
+                <ReplayArrowLeftRight size={16} />
+              </button>
+            ) : (
+              <div
+                className={css`
+                  position: absolute;
+                  bottom: 10px;
+                  right: 10px;
+                  z-index: 1;
+                  backface-visibility: hidden;
+                  border-radius: 10px;
+                  width: 54px;
+                  height: 42px;
+                  background: ${baseTheme.colors.clear[100]};
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  color: ${baseTheme.colors.gray[700]};
+                  border: 2px solid ${baseTheme.colors.gray[600]};
+                  pointer-events: none;
+                  font-size: 9px;
+                `}
+              >
+                <div>{t("button-text-flip")}</div>
+                <ReplayArrowLeftRight size={16} />
+              </div>
+            )}
           </div>
           <div
             ref={backContentRef}
+            aria-hidden={!isFlipped}
+            {...(!isFlipped && { inert: true })}
             className={css`
               position: absolute;
               width: 100%;
@@ -163,85 +245,89 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             `}
           >
             <ContentRenderer data={[backCard]} isExam={false} />
-            <div
-              className={css`
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-                z-index: 1;
-                backface-visibility: hidden;
-                border-radius: 10px;
-                width: 54px;
-                height: 42px;
-                background: ${baseTheme.colors.clear[100]};
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: ${baseTheme.colors.gray[700]};
-                border: 2px solid ${baseTheme.colors.gray[600]};
-                pointer-events: none;
-                font-size: 9px;
-              `}
-            >
-              <div>{t("button-text-flip")}</div>
-              <ReplayArrowLeftRight size={16} />
-            </div>
+            {isFlipped ? (
+              <button
+                ref={backButtonRef}
+                {...backButtonProps}
+                {...backFocusProps}
+                className={css`
+                  position: absolute;
+                  bottom: 10px;
+                  right: 10px;
+                  z-index: 1;
+                  backface-visibility: hidden;
+                  border-radius: 10px;
+                  width: 54px;
+                  height: 42px;
+                  background: ${baseTheme.colors.clear[100]};
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  color: ${baseTheme.colors.gray[700]};
+                  border: 2px solid ${baseTheme.colors.gray[600]};
+                  cursor: pointer;
+                  padding: 0;
+                  font-size: 9px;
+
+                  &::after {
+                    content: "";
+                    position: absolute;
+                    bottom: -100%;
+                    right: -100%;
+                    left: 0;
+                    top: 0;
+                    z-index: -1;
+                  }
+
+                  ${isBackFocusVisible &&
+                  `
+                    outline: 2px solid ${baseTheme.colors.blue[500]};
+                    outline-offset: 2px;
+                    border-radius: 10px;
+                  `}
+
+                  ${isBackPressed &&
+                  `
+                    transform: scale(0.98);
+                  `}
+                `}
+                aria-label={t("button-text-flip-to-front")}
+              >
+                <div>{t("button-text-flip")}</div>
+                <ReplayArrowLeftRight size={16} />
+              </button>
+            ) : (
+              <div
+                className={css`
+                  position: absolute;
+                  bottom: 10px;
+                  right: 10px;
+                  z-index: 1;
+                  backface-visibility: hidden;
+                  border-radius: 10px;
+                  width: 54px;
+                  height: 42px;
+                  background: ${baseTheme.colors.clear[100]};
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  color: ${baseTheme.colors.gray[700]};
+                  border: 2px solid ${baseTheme.colors.gray[600]};
+                  pointer-events: none;
+                  font-size: 9px;
+                `}
+              >
+                <div>{t("button-text-flip")}</div>
+                <ReplayArrowLeftRight size={16} />
+              </div>
+            )}
           </div>
         </div>
       </ImageInteractivityContext.Provider>
-      <button
-        ref={buttonRef}
-        {...buttonProps}
-        {...focusProps}
-        className={css`
-          position: absolute;
-          bottom: 10px;
-          right: 10px;
-          z-index: 10;
-          border-radius: 10px;
-          width: 54px;
-          height: 42px;
-          background: transparent;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-
-          &::after {
-            content: "";
-            position: absolute;
-            right: 10px;
-            bottom: 10px;
-            width: calc(100vw + 54px);
-            height: calc(100vh + 42px);
-            max-width: calc(${size}px + 64px);
-            max-height: calc(${size}px + 52px);
-
-            ${respondToOrLarger.xxs} {
-              width: calc(${size}px + 64px);
-              height: calc(${size}px + 52px);
-            }
-          }
-
-          ${isFocusVisible &&
-          `
-            outline: 2px solid ${baseTheme.colors.blue[500]};
-            outline-offset: 2px;
-            border-radius: 10px;
-          `}
-
-          ${isPressed &&
-          `
-            transform: scale(0.98);
-          `}
-        `}
-        aria-label={t("button-text-flip")}
-      />
     </div>
   )
 }

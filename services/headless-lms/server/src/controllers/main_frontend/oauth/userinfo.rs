@@ -68,7 +68,8 @@ pub async fn user_info(
     };
 
     // ---- Look up token by digest ----
-    let digest = token_digest_sha256(raw_token);
+    let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+    let digest = token_digest_sha256(raw_token, token_hmac_key);
     let access = OAuthAccessToken::find_valid(&mut conn, digest).await?;
 
     // Add non-secret fields to the span for observability

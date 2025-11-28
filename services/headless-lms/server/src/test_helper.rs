@@ -32,8 +32,7 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
             oauth_server_configuration: headless_lms_utils::OAuthServerConfiguration {
                 rsa_public_key: "temp-change-when-needed".into(),
                 rsa_private_key: "test-change".into(),
-                oauth_token_pepper_1: "pippuri".into(),
-                oauth_token_pepper_id: 1,
+                oauth_token_hmac_key: "pippuri".into(),
                 dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
                     "test-key".into(),
                 ))),

@@ -213,8 +213,8 @@ impl AzureConfiguration {
 pub struct OAuthServerConfiguration {
     pub rsa_public_key: String,
     pub rsa_private_key: String,
-    pub oauth_token_pepper_1: String,
-    pub oauth_token_pepper_id: i16,
+    /// Secret key for HMAC-SHA-256 hashing of OAuth tokens (access tokens, refresh tokens, auth codes).
+    pub oauth_token_hmac_key: String,
     /// Secret key for signing DPoP nonces (HMAC).
     pub dpop_nonce_key: Arc<SecretBox<String>>,
 }
@@ -223,8 +223,7 @@ impl PartialEq for OAuthServerConfiguration {
     fn eq(&self, other: &Self) -> bool {
         self.rsa_public_key == other.rsa_public_key
             && self.rsa_private_key == other.rsa_private_key
-            && self.oauth_token_pepper_1 == other.oauth_token_pepper_1
-            && self.oauth_token_pepper_id == other.oauth_token_pepper_id
+            && self.oauth_token_hmac_key == other.oauth_token_hmac_key
             && self.dpop_nonce_key.expose_secret() == other.dpop_nonce_key.expose_secret()
     }
 }
@@ -238,12 +237,8 @@ impl OAuthServerConfiguration {
             env::var("OAUTH_RSA_PUBLIC_PEM").context("OAUTH_RSA_PUBLIC_KEY must be defined")?;
         let rsa_private_key =
             env::var("OAUTH_RSA_PRIVATE_PEM").context("OAUTH_RSA_PRIVATE_KEY must be defined")?;
-        let oauth_token_pepper_1 =
-            env::var("OAUTH_TOKEN_PEPPER_1").context("OAUTH_TOKEN_PEPPER_1 must be defined")?;
-        let oauth_token_pepper_id: i16 = env::var("OAUTH_TOKEN_PEPPER_ID")
-            .context("OAUTH_TOKEN_PEPPER_ID must be defined")?
-            .parse()
-            .context("OAUTH_TOKEN_PEPPER_ID must be a valid i16")?;
+        let oauth_token_hmac_key =
+            env::var("OAUTH_TOKEN_HMAC_KEY").context("OAUTH_TOKEN_HMAC_KEY must be defined")?;
         let dpop_nonce_key = Arc::new(SecretBox::new(Box::new(
             env::var("OAUTH_DPOP_NONCE_KEY").context("OAUTH_DPOP_NONCE_KEY must be defined")?,
         )));
@@ -251,8 +246,7 @@ impl OAuthServerConfiguration {
         Ok(Self {
             rsa_public_key,
             rsa_private_key,
-            oauth_token_pepper_1,
-            oauth_token_pepper_id,
+            oauth_token_hmac_key,
             dpop_nonce_key,
         })
     }

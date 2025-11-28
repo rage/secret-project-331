@@ -128,11 +128,14 @@ pub async fn introspect(
     };
 
     // Validate client secret for confidential clients
+    let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
     let client_valid = if client.is_confidential() {
         match &client.client_secret {
             Some(secret) => {
-                let provided_secret_digest =
-                    token_digest_sha256(&form.client_secret.clone().unwrap_or_default());
+                let provided_secret_digest = token_digest_sha256(
+                    &form.client_secret.clone().unwrap_or_default(),
+                    token_hmac_key,
+                );
                 secret.constant_eq(&provided_secret_digest)
             }
             None => false,
@@ -163,7 +166,7 @@ pub async fn introspect(
     }
 
     // Hash the provided token to get digest
-    let token_digest = token_digest_sha256(&form.token);
+    let token_digest = token_digest_sha256(&form.token, token_hmac_key);
 
     // Look up the access token (only access tokens are supported)
     let access_token_result = OAuthAccessToken::find_valid(&mut conn, token_digest).await;

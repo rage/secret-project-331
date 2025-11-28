@@ -24,14 +24,14 @@ pub struct TokenPair {
 }
 
 /// Generate a new token pair (access token and refresh token) with their digests.
-pub fn generate_token_pair() -> TokenPair {
+pub fn generate_token_pair(key: &str) -> TokenPair {
     let access_token = headless_lms_models::library::oauth::tokens::generate_access_token();
     let refresh_token = headless_lms_models::library::oauth::tokens::generate_access_token();
     TokenPair {
         access_token: access_token.clone(),
         refresh_token: refresh_token.clone(),
-        access_digest: token_digest_sha256(&access_token),
-        refresh_digest: token_digest_sha256(&refresh_token),
+        access_digest: token_digest_sha256(&access_token, key),
+        refresh_digest: token_digest_sha256(&refresh_token, key),
     }
 }
 
@@ -43,6 +43,7 @@ pub struct TokenGrantRequest<'a> {
     pub refresh_expires_at: DateTime<Utc>,
     pub issued_token_type: TokenType,
     pub dpop_jkt: Option<&'a str>,
+    pub token_hmac_key: &'a str,
 }
 
 pub struct TokenGrantResult {
@@ -68,7 +69,7 @@ pub async fn process_token_grant(
             redirect_uri,
             code_verifier,
         } => {
-            let code_digest = token_digest_sha256(code);
+            let code_digest = token_digest_sha256(code, request.token_hmac_key);
             // Consume with client_id check in WHERE clause to prevent DoS attacks
             let code_row = if let Some(ref_uri) = redirect_uri {
                 OAuthAuthCode::consume_with_redirect_in_transaction(
@@ -121,7 +122,7 @@ pub async fn process_token_grant(
             })
         }
         TokenGrant::RefreshToken { refresh_token, .. } => {
-            let presented = token_digest_sha256(refresh_token);
+            let presented = token_digest_sha256(refresh_token, request.token_hmac_key);
             // Consume with client_id check in WHERE clause to prevent DoS attacks
             let old =
                 OAuthRefreshTokens::consume_in_transaction(&mut tx, presented, request.client.id)

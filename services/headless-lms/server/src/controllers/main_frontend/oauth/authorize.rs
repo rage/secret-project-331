@@ -8,6 +8,7 @@ use crate::domain::oauth::redirects::{
 use crate::prelude::*;
 use actix_web::web;
 use chrono::{Duration, Utc};
+use headless_lms_utils::ApplicationConfiguration;
 use itertools::Itertools;
 use models::{
     library::oauth::{generate_access_token, token_digest_sha256},
@@ -48,6 +49,7 @@ pub async fn authorize(
     pool: web::Data<PgPool>,
     OAuthValidated(query): OAuthValidated<AuthorizeQuery>,
     user: Option<AuthUser>,
+    app_conf: web::Data<headless_lms_utils::ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
@@ -100,7 +102,8 @@ pub async fn authorize(
             } else {
                 let code = generate_access_token();
                 let expires_at = Utc::now() + Duration::minutes(10);
-                let code_digest = token_digest_sha256(&code);
+                let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+                let code_digest = token_digest_sha256(&code, token_hmac_key);
 
                 let new_auth_code_params = NewAuthCodeParams {
                     digest: &code_digest,

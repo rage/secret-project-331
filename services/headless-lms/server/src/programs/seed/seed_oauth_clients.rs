@@ -14,7 +14,7 @@ pub struct SeedOAuthClientsResult {
 pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedOAuthClientsResult> {
     info!("Inserting OAuth Clients");
     let secret =
-        Digest::from_str("b644133604bf99632137be3e9230c4056bd32eb2f404020d70adcde88353c760")
+        Digest::from_str("396b544a35b29f7d613452a165dcaebf4d71b80e981e687e91ce6d9ba9679cb2")
             .unwrap(); // "very-secret"
     let mut conn = db_pool.acquire().await?;
     let redirect_uris = vec!["http://127.0.0.1:8765/callback".to_string()];

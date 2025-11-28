@@ -2058,6 +2058,7 @@ dependencies = [
  "futures",
  "headless-lms-utils",
  "hex",
+ "hmac",
  "itertools 0.14.0",
  "lettre",
  "mockito",

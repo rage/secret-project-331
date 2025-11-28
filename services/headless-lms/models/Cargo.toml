@@ -26,6 +26,8 @@ uuid = { version = "1.18.1", features = ["serde", "v4", "v5"] }
 serde = { version = "1.0.228", features = ["derive"] }
 # Pure Rust implementation of the SHA-2 hash function family.
 sha2 = "0.10.9"
+# Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
+hmac = "0.12.1"
 # Date and time library for Rus
 chrono = { version = "0.4.42", features = ["serde"] }
 # A JSON serialization file format

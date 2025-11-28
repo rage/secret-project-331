@@ -108,8 +108,10 @@ pub async fn token(
     if client.is_confidential() {
         match client.client_secret {
             Some(ref secret) => {
+                let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
                 if !secret.constant_eq(&token_digest_sha256(
                     &form.client_secret.clone().unwrap_or_default(),
+                    token_hmac_key,
                 )) {
                     return Err(oauth_invalid_client("invalid client secret"));
                 }
@@ -167,7 +169,8 @@ pub async fn token(
     };
     tracing::Span::current().record("token_type", format!("{:?}", issued_token_type));
 
-    let token_pair = generate_token_pair();
+    let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+    let token_pair = generate_token_pair(token_hmac_key);
     let access_token = token_pair.access_token.clone();
     let refresh_token = token_pair.refresh_token.clone();
     let refresh_token_expires_at = Utc::now() + refresh_ttl;
@@ -181,6 +184,7 @@ pub async fn token(
         refresh_expires_at: refresh_token_expires_at,
         issued_token_type,
         dpop_jkt: dpop_jkt_opt.as_deref(),
+        token_hmac_key,
     };
 
     let TokenGrantResult {

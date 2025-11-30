@@ -1,14 +1,19 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import type { CellContext, ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 import { getCertificates, updateCertificate } from "@/services/backend/courses/students"
-import { CertificateGridRow, CertificateUpdateRequest } from "@/shared-module/common/bindings"
+import {
+  CertificateGridRow,
+  CertificateUpdateRequest,
+  GeneratedCertificate,
+} from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
@@ -52,6 +57,14 @@ type EditCertificateModalProps = {
   onSaved: (updated: CertificateGridRow) => void
 }
 
+const convertToGridRow = (g: GeneratedCertificate): CertificateGridRow => ({
+  student: g.student ?? "",
+  certificate: g.certificate ?? "",
+  date_issued: g.date_issued ?? null,
+  certificate_id: g.certificate_id ?? "",
+  verification_id: g.verification_id ?? "",
+})
+
 export const EditCertificateModal: React.FC<EditCertificateModalProps> = ({
   certificateId,
   currentDate,
@@ -66,7 +79,7 @@ export const EditCertificateModal: React.FC<EditCertificateModalProps> = ({
       date_issued: new Date(dateIssued ?? "").toISOString(),
     }
     const updated = await updateCertificate(certificateId, payload)
-    onSaved(updated)
+    onSaved(convertToGridRow(updated))
   }
 
   return (
@@ -181,15 +194,28 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
           onClose={closePopup}
           title={t("view_certificate")}
           showCloseButton={true}
+          isDismissable={true}
           noPadding={true}
+          className={css`
+            width: auto !important;
+            max-width: 95vw !important;
+            max-height: 95vh !important;
+            padding: 0;
+          `}
         >
           <img
             src={popupUrl}
             alt={t("certificate")}
             className={css`
-              max-width: 90vw;
-              max-height: 85vh;
               display: block;
+
+              width: auto;
+              height: auto;
+
+              max-width: 90vw;
+              max-height: 80vh;
+
+              object-fit: contain;
             `}
           />
         </StandardDialog>
@@ -200,29 +226,13 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
           open={true}
           onClose={() => setEditData(null)}
           title={t("edit-date-issued")}
-          buttons={[
-            {
-              children: t("button-text-cancel"),
-              variant: "secondary",
-              onClick: () => setEditData(null),
-            },
-            {
-              children: t("button-text-update"),
-              variant: "primary",
-              onClick: async () => {
-                // Convert YYYY-MM-DD → ISO string
-                const iso = new Date(editData.date ?? "").toISOString()
-
-                const payload: CertificateUpdateRequest = {
-                  date_issued: iso,
-                }
-
-                await updateCertificate(editData.id, payload)
-                setEditData(null)
-                query.refetch()
-              },
-            },
-          ]}
+          showCloseButton={true}
+          isDismissable={true}
+          noPadding={false}
+          className={css`
+            width: 360px !important; /* narrower dialog */
+            max-width: 90vw !important; /* prevent overflow on small screens */
+          `}
         >
           <input
             type="date"
@@ -231,6 +241,34 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
               setEditData((prev) => (prev ? { ...prev, date: e.target.value } : prev))
             }
           />
+
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 0.75rem;
+              margin-top: 1rem;
+            `}
+          >
+            <Button
+              fullWidth
+              size="medium"
+              variant="primary"
+              onClick={async () => {
+                const iso = new Date(editData.date ?? "").toISOString()
+                const payload: CertificateUpdateRequest = { date_issued: iso }
+                await updateCertificate(editData.id, payload)
+                setEditData(null)
+                query.refetch()
+              }}
+            >
+              {t("button-text-update")}
+            </Button>
+
+            <Button fullWidth size="medium" variant="secondary" onClick={() => setEditData(null)}>
+              {t("button-text-cancel")}
+            </Button>
+          </div>
         </StandardDialog>
       )}
 

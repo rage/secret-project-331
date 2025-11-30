@@ -35,6 +35,12 @@ impl CompletionRegisteredBuilder {
     }
 }
 
+impl Default for CompletionRegisteredBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Builder for seeding a single course_module_completion row.
 #[derive(Debug, Clone)]
 pub struct CompletionBuilder {

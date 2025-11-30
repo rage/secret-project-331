@@ -8,11 +8,7 @@ import { useTranslation } from "react-i18next"
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 import { getCertificates, updateCertificate } from "@/services/backend/courses/students"
-import {
-  CertificateGridRow,
-  CertificateUpdateRequest,
-  GeneratedCertificate,
-} from "@/shared-module/common/bindings"
+import { CertificateGridRow, CertificateUpdateRequest } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -50,54 +46,6 @@ const actionsCellInner = css`
   width: 100%;
 `
 
-type EditCertificateModalProps = {
-  certificateId: string
-  currentDate: string | null
-  onClose: () => void
-  onSaved: (updated: CertificateGridRow) => void
-}
-
-const convertToGridRow = (g: GeneratedCertificate): CertificateGridRow => ({
-  student: g.student ?? "",
-  certificate: g.certificate ?? "",
-  date_issued: g.date_issued ?? null,
-  certificate_id: g.certificate_id ?? "",
-  verification_id: g.verification_id ?? "",
-})
-
-export const EditCertificateModal: React.FC<EditCertificateModalProps> = ({
-  certificateId,
-  currentDate,
-  onClose,
-  onSaved,
-}) => {
-  const [dateIssued, setDateIssued] = useState(currentDate?.substring(0, 10))
-  const { t } = useTranslation()
-
-  const save = async () => {
-    const payload: CertificateUpdateRequest = {
-      date_issued: new Date(dateIssued ?? "").toISOString(),
-    }
-    const updated = await updateCertificate(certificateId, payload)
-    onSaved(convertToGridRow(updated))
-  }
-
-  return (
-    <div className="modal">
-      <div className="modal-content">
-        <input
-          type="date"
-          value={dateIssued ?? ""}
-          onChange={(e) => setDateIssued(e.target.value)}
-        />
-
-        <button onClick={save}>{t("button-text-save")}</button>
-        <button onClick={onClose}>{t("button-text-close")}</button>
-      </div>
-    </div>
-  )
-}
-
 export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ courseId }) => {
   const { t } = useTranslation()
   const [editData, setEditData] = useState<{
@@ -108,10 +56,10 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
   const query = useQuery({
     queryKey: ["certificates-tab", courseId],
     queryFn: () => getCertificates(courseId!),
-    // Run only after we have courseId
     enabled: !!courseId,
   })
 
+  const rows = (query.data ?? []) as CertificateGridRow[]
   const [popupUrl, setPopupUrl] = React.useState<string | null>(null)
   const closePopup = () => setPopupUrl(null)
 
@@ -182,8 +130,6 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
       },
     },
   ]
-
-  const rows = (query.data ?? []) as CertificateGridRow[]
 
   return (
     <>

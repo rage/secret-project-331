@@ -97,14 +97,18 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
   console.log("TEST", query)
 
   const columns: ColumnDef<CertificateGridRow, unknown>[] = [
+    // eslint-disable-next-line i18next/no-literal-string
     { header: t("label-student"), accessorKey: "student" },
+    // eslint-disable-next-line i18next/no-literal-string
     { header: t("certificate"), accessorKey: "certificate" },
     {
       header: t("date-issued"),
+      // eslint-disable-next-line i18next/no-literal-string
       accessorKey: "date_issued",
       cell: ({ getValue }) => {
         const value = getValue<string | null>()
         if (!value) {
+          // eslint-disable-next-line i18next/no-literal-string
           return "—"
         }
         const d = new Date(value)
@@ -113,6 +117,7 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     },
     {
       header: t("actions"),
+      // eslint-disable-next-line i18next/no-literal-string
       id: "actions",
       size: 80,
       meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },
@@ -121,6 +126,7 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
 
         const handleView = () => {
           if (certificate === "Course Certificate" && verification_id) {
+            // eslint-disable-next-line i18next/no-literal-string
             setPopupUrl(`/api/v0/main-frontend/certificates/${verification_id}`)
           }
         }

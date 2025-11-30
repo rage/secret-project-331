@@ -2,8 +2,8 @@ use crate::{controllers::helpers::file_uploading, prelude::*};
 use actix_multipart::form::{MultipartForm, tempfile::TempFile};
 use chrono::Utc;
 use headless_lms_certificates as certificates;
-use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
 use headless_lms_models::generated_certificates::CertificateUpdateRequest;
+use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
 
 use models::{
     certificate_configurations::{
@@ -512,15 +512,13 @@ pub async fn update_generated_certificate(
         cert.certificate_configuration_id,
     ).await?;
 
-    let course_module_id = req.course_module_ids
-        .first()
-        .ok_or_else(|| ControllerError::new(
+    let course_module_id = req.course_module_ids.first().ok_or_else(|| {
+        ControllerError::new(
             ControllerErrorType::BadRequest,
             "Certificate has no associated course module",
             None,
-        ))?;
-
-
+        )
+    })?;
 
     let course_module = models::course_modules::get_by_id(&mut conn, *course_module_id).await?;
     let course_id = course_module.course_id;
@@ -531,12 +529,11 @@ pub async fn update_generated_certificate(
         &mut conn,
         *certificate_id,
         payload.date_issued,
-    ).await?;
+    )
+    .await?;
 
     token.authorized_ok(web::Json(updated))
 }
-
-
 
 /**
 Add a route for each controller in this module.

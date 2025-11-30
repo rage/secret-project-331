@@ -45,12 +45,25 @@ const actionsCellInner = css`
   width: 100%;
 `
 
-export const EditCertificateModal = ({ certificateId, currentDate, onClose, onSaved }) => {
+type EditCertificateModalProps = {
+  certificateId: string
+  currentDate: string | null
+  onClose: () => void
+  onSaved: (updated: CertificateGridRow) => void
+}
+
+export const EditCertificateModal: React.FC<EditCertificateModalProps> = ({
+  certificateId,
+  currentDate,
+  onClose,
+  onSaved,
+}) => {
   const [dateIssued, setDateIssued] = useState(currentDate?.substring(0, 10))
+  const { t } = useTranslation()
 
   const save = async () => {
     const payload: CertificateUpdateRequest = {
-      date_issued: new Date(dateIssued).toISOString(),
+      date_issued: new Date(dateIssued ?? "").toISOString(),
     }
     const updated = await updateCertificate(certificateId, payload)
     onSaved(updated)
@@ -65,8 +78,8 @@ export const EditCertificateModal = ({ certificateId, currentDate, onClose, onSa
           onChange={(e) => setDateIssued(e.target.value)}
         />
 
-        <button onClick={save}>Save</button>
-        <button onClick={onClose}>Close</button>
+        <button onClick={save}>{t("button-text-save")}</button>
+        <button onClick={onClose}>{t("button-text-close")}</button>
       </div>
     </div>
   )
@@ -81,7 +94,9 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
 
   const query = useQuery({
     queryKey: ["certificates-tab", courseId],
-    queryFn: () => getCertificates(courseId),
+    queryFn: () => getCertificates(courseId!),
+    // Run only after we have courseId
+    enabled: !!courseId,
   })
 
   const [popupUrl, setPopupUrl] = React.useState<string | null>(null)
@@ -161,71 +176,38 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     <>
       {/* POPUP */}
       {popupUrl && (
-        <div
-          className={css`
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-          `}
-          onClick={closePopup}
+        <StandardDialog
+          open={true}
+          onClose={closePopup}
+          title={t("view_certificate")}
+          showCloseButton={true}
+          noPadding={true}
         >
-          <div
+          <img
+            src={popupUrl}
+            alt={t("certificate")}
             className={css`
-              position: relative;
-              background: white;
-              padding: 12px;
-              border-radius: 8px;
-              max-width: 95vw;
-              max-height: 95vh;
+              max-width: 90vw;
+              max-height: 85vh;
+              display: block;
             `}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className={css`
-                position: absolute;
-                top: 8px;
-                right: 8px;
-                background: #fff;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                cursor: pointer;
-                padding: 4px 8px;
-              `}
-              onClick={closePopup}
-            >
-              ✕
-            </button>
-
-            <img
-              src={popupUrl}
-              alt="Certificate"
-              className={css`
-                max-width: 90vw;
-                max-height: 85vh;
-                display: block;
-              `}
-            />
-          </div>
-        </div>
+          />
+        </StandardDialog>
       )}
 
       {editData && (
         <StandardDialog
           open={true}
           onClose={() => setEditData(null)}
-          title="Edit date issued"
+          title={t("edit-date-issued")}
           buttons={[
             {
-              children: "Cancel",
+              children: t("button-text-cancel"),
               variant: "secondary",
               onClick: () => setEditData(null),
             },
             {
-              children: "Update",
+              children: t("button-text-update"),
               variant: "primary",
               onClick: async () => {
                 // Convert YYYY-MM-DD → ISO string

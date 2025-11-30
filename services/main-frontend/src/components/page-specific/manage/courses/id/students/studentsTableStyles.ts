@@ -76,7 +76,7 @@ export const tableCenteredInner = css`
   margin-left: auto;
   margin-right: auto;
   min-width: 900px;
-  max-width: 90vw; // Optional: sets table max width to 90% of viewport
+  max-width: 90vw;
 `
 
 export const tableRoundedWrap = css`
@@ -151,15 +151,16 @@ export const COMPLETIONS_LEAF_MIN_WIDTH = 80
 export const padX = (px: number) => ({ paddingLeft: px, paddingRight: px })
 
 export const cellBase = css`
-  whiteSpace: "nowrap",
-  verticalAlign: "middle",
+  white-space: nowrap;
+  vertical-align: middle;
 `
 
 export const actionCellFixed = css`
-  width: 80,
-  minWidth: 80,
-  maxWidth: 80,
-  ...padX(4),
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  padding-left: 4px;
+  padding-right: 4px;
 `
 
 export const contentCell = (w?: number, minW?: number) => css`

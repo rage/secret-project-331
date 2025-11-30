@@ -2,7 +2,13 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Agree, NeitherAgreeNorDisagree, StronglyDisagree } from "./LikertSvgs"
+import {
+  Agree,
+  Disagree,
+  NeitherAgreeNorDisagree,
+  StronglyAgree,
+  StronglyDisagree,
+} from "./LikertSvgs"
 
 import { headingFont } from "@/shared-module/common/styles"
 
@@ -71,7 +77,7 @@ const Likert: React.FC<LikertProps> = ({ question, content, index }) => {
     },
     {
       text: t("likert-scale-disagree"),
-      svg: Agree,
+      svg: Disagree,
     },
     {
       text: t("likert-scale-neither-agree-nor-disagree"),
@@ -83,7 +89,7 @@ const Likert: React.FC<LikertProps> = ({ question, content, index }) => {
     },
     {
       text: t("likert-scale-strongly-agree"),
-      svg: StronglyDisagree,
+      svg: StronglyAgree,
     },
   ]
 

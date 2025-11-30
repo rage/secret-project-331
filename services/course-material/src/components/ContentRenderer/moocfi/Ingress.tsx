@@ -1,11 +1,10 @@
 import { css } from "@emotion/css"
-import React, { useContext } from "react"
+import React from "react"
 
 import { BlockRendererProps } from ".."
-import { GlossaryContext } from "../../../contexts/GlossaryContext"
-import { parseText } from "../../ContentRenderer/util/textParsing"
 
-import { headingFont, primaryFont } from "@/shared-module/common/styles"
+import ParsedText from "@/components/ParsedText"
+import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface IngressBlockAttributes {
@@ -16,7 +15,8 @@ interface IngressBlockAttributes {
 const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockAttributes>>> = (
   props,
 ) => {
-  const { terms } = useContext(GlossaryContext)
+  const textColor = baseTheme.colors.gray[700]
+
   return (
     <div
       className={css`
@@ -25,32 +25,36 @@ const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockA
       `}
     >
       {props.data.attributes.title && (
-        <h2
-          className={css`
-            color: #1a2333;
-            font-weight: 700;
-            font-size: 3.5rem;
-            line-height: 4.375rem;
-            margin-bottom: 1rem;
-            letter-spacing: -1;
-            font-family: ${headingFont};
-          `}
-          dangerouslySetInnerHTML={{
-            __html: parseText(props.data.attributes.title, terms).parsedText,
+        <ParsedText
+          text={props.data.attributes.title}
+          tag="h2"
+          tagProps={{
+            className: css`
+              color: ${textColor};
+              font-weight: 700;
+              font-size: 3.5rem;
+              line-height: 4.375rem;
+              margin-bottom: 1rem;
+              letter-spacing: -1;
+              font-family: ${headingFont};
+            `,
           }}
+          useWrapperElement={true}
         />
       )}
-      <h3
-        className={css`
-          color: #1a2333;
-          font-weight: normal;
-          font-size: 1.75rem;
-          line-height: 1.35;
-          font-family: ${primaryFont};
-        `}
-        dangerouslySetInnerHTML={{
-          __html: parseText(props.data.attributes.subtitle, terms).parsedText,
+      <ParsedText
+        text={props.data.attributes.subtitle}
+        tag="h3"
+        tagProps={{
+          className: css`
+            color: ${textColor};
+            font-weight: normal;
+            font-size: 1.75rem;
+            line-height: 1.35;
+            font-family: ${primaryFont};
+          `,
         }}
+        useWrapperElement={true}
       />
     </div>
   )

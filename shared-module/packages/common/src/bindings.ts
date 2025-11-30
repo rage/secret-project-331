@@ -1007,7 +1007,7 @@ export interface CourseMaterialExercise {
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
-  should_show_reset_message: boolean
+  should_show_reset_message: string | null
 }
 
 export interface Exercise {
@@ -1066,12 +1066,13 @@ export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending
 
 export interface ExerciseResetLog {
   id: string
-  reset_by: string
+  reset_by: string | null
   reset_by_first_name: string | null
   reset_by_last_name: string | null
   reset_for: string
   exercise_id: string
   exercise_name: string
+  reason: string | null
   course_id: string
   reset_at: string
   created_at: string
@@ -1768,6 +1769,7 @@ export interface CmsPeerOrSelfReviewConfig {
   accepting_threshold: number
   processing_strategy: PeerReviewProcessingStrategy
   points_are_all_or_nothing: boolean
+  reset_answer_if_zero_points_from_review: boolean
   review_instructions: unknown | null
 }
 
@@ -1797,6 +1799,7 @@ export interface PeerOrSelfReviewConfig {
   processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
   points_are_all_or_nothing: boolean
+  reset_answer_if_zero_points_from_review: boolean
   review_instructions: unknown | null
 }
 
@@ -2467,6 +2470,81 @@ export interface UserInfoPayload {
   last_name: string
   country: string
   email_communication_consent: boolean
+}
+
+export interface CronJobInfo {
+  name: string
+  schedule: string
+  last_schedule_time: string | null
+}
+
+export interface DeploymentInfo {
+  name: string
+  replicas: number
+  ready_replicas: number
+  selector_labels: Record<string, string>
+}
+
+export interface EventInfo {
+  name: string
+  reason: string | null
+  message: string | null
+  type_: string | null
+  first_timestamp: string | null
+  last_timestamp: string | null
+  count: number | null
+  involved_object_kind: string | null
+  involved_object_name: string | null
+}
+
+export type HealthStatus = "healthy" | "warning" | "error"
+
+export interface IngressInfo {
+  name: string
+  hosts: Array<string>
+  paths: Array<string>
+  class_name: string | null
+}
+
+export interface JobInfo {
+  name: string
+  succeeded: number | null
+  failed: number | null
+  active: number | null
+}
+
+export interface PodDisruptionBudgetInfo {
+  name: string
+  current_healthy: number
+  desired_healthy: number
+  disruptions_allowed: number
+  expected_pods: number
+  selector_labels: Record<string, string>
+}
+
+export interface PodInfo {
+  name: string
+  phase: string
+  ready: boolean | null
+  labels: Record<string, string>
+}
+
+export interface ServiceInfo {
+  name: string
+  cluster_ip: string | null
+  ports: Array<ServicePortInfo>
+}
+
+export interface ServicePortInfo {
+  name: string | null
+  port: number
+  target_port: string | null
+  protocol: string | null
+}
+
+export interface SystemHealthStatus {
+  status: HealthStatus
+  issues: Array<string>
 }
 
 export interface Pagination {

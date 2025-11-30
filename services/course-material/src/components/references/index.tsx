@@ -5,8 +5,7 @@ import React, { ReactPortal, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
-import TooltipNTrigger from "./TooltipNTrigger"
-
+import TooltipNTrigger from "@/components/TooltipNTrigger"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 const openAnimation = keyframes`
@@ -110,6 +109,15 @@ export interface ReferenceProps {
   data: Reference[]
 }
 
+export function formatCitationText(
+  citeNumber: number,
+  prenote: string | undefined,
+  postnote: string | undefined,
+): string {
+  const citationBrackets = `[${citeNumber}${postnote ? `, ${postnote}` : ""}]`
+  return prenote ? `${prenote} ${citationBrackets}` : citationBrackets
+}
+
 const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   const { t } = useTranslation()
   const [active] = useState<string>()
@@ -138,8 +146,20 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
         } else if (reference && citeOrder.includes(reference.id)) {
           citeNumber = citeOrder.indexOf(reference.id) + 1
         }
+
+        const citationContent = formatCitationText(
+          citeNumber,
+          node.dataset.citationPrenote,
+          node.dataset.citationPostnote,
+        )
         return createPortal(
-          <TooltipNTrigger reference={reference} citeNumber={citeNumber} />,
+          <TooltipNTrigger
+            variant="references"
+            href={"#ref-" + citeNumber}
+            tooltipContent={reference.text}
+          >
+            {citationContent}
+          </TooltipNTrigger>,
           node,
           idx,
         )

@@ -26,5 +26,6 @@ patches:
     target:
       version: v1
       kind: Role
+      name: tmc-role
   - path: main-frontend/patch-env.yml
   - path: headless-lms/env-local-patch.secret.yml

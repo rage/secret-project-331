@@ -221,8 +221,9 @@ pub async fn reset_exercises_for_selected_users(
     let reset_results = models::exercises::reset_exercises_for_selected_users(
         &mut conn,
         &users_and_exercises,
-        user.id,
+        Some(user.id),
         *course_id,
+        Some("reset-by-staff".to_string()),
     )
     .await?;
 

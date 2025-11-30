@@ -24,10 +24,10 @@ spec:
           command: ["bin/run", "chatbot-syncer"]
           resources:
             requests:
-              memory: 100Mi
+              memory: 200Mi
               cpu: 20m
             limits:
-              memory: 300Mi
+              memory: 500Mi
               cpu: 200m
           envFrom:
             - secretRef:
@@ -44,10 +44,10 @@ spec:
               ./wait-for-db-migrations.sh
           resources:
             requests:
-              memory: 100Mi
+              memory: 200Mi
               cpu: 20m
             limits:
-              memory: 300Mi
+              memory: 500Mi
               cpu: 200m
           envFrom:
             - secretRef:

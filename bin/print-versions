@@ -57,6 +57,24 @@ function print_is_installed() {
   printf "%-15s ${color}%s${RESET_EVERYTHING}\n" "$program_name:" "$installed_version"
 }
 
+function print_kubernetes_version() {
+  installed_version="unknown"
+  color=$RED
+  set +e
+  if command -v kubectl &> /dev/null; then
+    if version_output=$(kubectl version 2> /dev/null); then
+      installed_version=$(echo "$version_output" | grep "Server Version:" | grep -oE 'GitVersion:"v[0-9]+\.[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+      if [ -n "$installed_version" ]; then
+        color=$GREEN
+      else
+        installed_version="unknown"
+      fi
+    fi
+  fi
+  set -e
+  printf "%-15s ${color}%s${RESET_EVERYTHING}\n" "Kubernetes:" "$installed_version"
+}
+
 echo "--------[ Rust ]--------"
 print_version "Rust" rustc --version
 print_version "Cargo version" cargo --version
@@ -77,6 +95,7 @@ print_version "Skaffold" skaffold version
 print_version "Kubectl" kubectl version -o yaml
 print_version "Kustomize" kustomize version --short
 print_version "Minikube" minikube version
+print_kubernetes_version
 print_version "Stern" stern --version
 print_is_installed "Kubectx" kubectx
 

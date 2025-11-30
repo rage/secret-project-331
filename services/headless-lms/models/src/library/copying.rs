@@ -1152,7 +1152,9 @@ INSERT INTO chatbot_configurations (
     daily_tokens_per_user,
     weekly_tokens_per_user,
     default_chatbot,
-    enabled_to_students
+    enabled_to_students,
+    model_id,
+    thinking_model
   )
 SELECT
   uuid_generate_v5($1, id::text),
@@ -1172,7 +1174,9 @@ SELECT
   daily_tokens_per_user,
   weekly_tokens_per_user,
   default_chatbot,
-  enabled_to_students
+  enabled_to_students,
+  model_id,
+  thinking_model
 FROM chatbot_configurations
 WHERE course_id = $2
   AND deleted_at IS NULL;

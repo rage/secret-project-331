@@ -17,7 +17,9 @@ test("User can add missing country information", async ({ page }) => {
     // the course instance selection is sometimes prompted before the country
     // so we will await both simultaneously
     const countryPrompt = async () => {
-      await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
+      await expect(
+        page.locator("div").filter({ hasText: /^Fill missing information$/ }),
+      ).toBeVisible()
       await page.getByRole("button", { name: "Select a country Where do you" }).click()
       await page.getByRole("option", { name: "Andorra" }).click()
       await page.getByRole("button", { name: "Save" }).click()

@@ -1,15 +1,13 @@
 import { css } from "@emotion/css"
-import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
-import { parseText } from "../../../util/textParsing"
 
 import { useImageInteractivity } from "./ImageInteractivityContext"
 
+import ParsedText from "@/components/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExtraAttributes {
@@ -36,8 +34,6 @@ const ImageBlock: React.FC<
     aspectRatio,
     scale,
   } = data.attributes
-
-  const { terms } = useContext(GlossaryContext)
 
   const renderImage = () => (
     <>
@@ -102,17 +98,19 @@ const ImageBlock: React.FC<
           {disableInteractivity ? renderImage() : <>{renderImage()}</>}
         </div>
       </figure>
-      <figcaption
-        className={css`
-          caption-side: bottom;
-          text-align: center;
-          font-size: 0.8125rem;
-          margin-top: 0.5rem;
-          margin-bottom: 0.8125rem;
-        `}
-        dangerouslySetInnerHTML={{
-          __html: parseText(caption ?? "", terms).parsedText,
+      <ParsedText
+        text={caption ?? ""}
+        tag="figcaption"
+        tagProps={{
+          className: css`
+            caption-side: bottom;
+            text-align: center;
+            font-size: 0.8125rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.8125rem;
+          `,
         }}
+        useWrapperElement={true}
       />
     </div>
   )

@@ -67,29 +67,21 @@ impl OAuthValidate for IntrospectQuery {
             ));
         }
 
-        // Validate token_type_hint if provided
-        if let Some(ref hint) = self.token_type_hint {
-            if hint != "access_token" && hint != "refresh_token" {
-                return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                        error_description:
-                            "token_type_hint must be 'access_token' or 'refresh_token'".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "Invalid token_type_hint",
-                    None::<anyhow::Error>,
-                ));
+        // RFC 7662 §2.1: "The resource server MAY ignore the hint."
+        // Normalize token_type_hint: only recognize "access_token" and "refresh_token",
+        // treat any other value as None (ignore unknown hints)
+        let token_type_hint = self.token_type_hint.as_deref().and_then(|h| {
+            match h {
+                "access_token" | "refresh_token" => Some(h.to_string()),
+                _ => None, // Unknown hints are ignored per RFC 7662
             }
-        }
+        });
 
         Ok(IntrospectParams {
             client_id: client_id.to_string(),
             client_secret: self.client_secret.clone(),
             token: token.to_string(),
-            token_type_hint: self.token_type_hint.clone(),
+            token_type_hint,
         })
     }
 }

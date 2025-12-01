@@ -23,7 +23,6 @@ pub enum PkceMethod {
 }
 
 impl PkceMethod {
-    #[inline]
     pub fn parse(s: &str) -> Option<Self> {
         match s {
             "plain" => Some(Self::Plain),

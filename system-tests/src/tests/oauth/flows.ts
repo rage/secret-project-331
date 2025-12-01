@@ -48,7 +48,6 @@ test.describe("OAuth flow (login during flow)", () => {
     await consent.approve()
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
 
-    // --- DPoP flow ---
     const key = await createDPoPKey()
     const tok = await exchangeCodeForToken(code, { kind: "dpop", key }, codeVerifier)
     const userinfo = await callUserInfo(tok.access_token, { kind: "dpop", key })
@@ -79,7 +78,6 @@ test.describe("OAuth flow (login during flow)", () => {
     await consent.approve()
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
 
-    // --- Bearer flow ---
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
     const userinfo = await callUserInfo(tok.access_token, { kind: "bearer" })
 

@@ -39,7 +39,6 @@ test.describe("OIDC discovery and JWKS", () => {
     )
   })
 
-  // ---------- Small utils ----------
   const b64urlRe = /^[A-Za-z0-9_-]+$/
   const isB64Url = (s: unknown) => typeof s === "string" && s.length > 0 && b64urlRe.test(s)
 

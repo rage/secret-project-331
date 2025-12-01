@@ -34,7 +34,6 @@ pub struct Digest(SecretBox<[u8; Self::LEN]>);
 impl Digest {
     pub const LEN: usize = 32;
 
-    #[inline]
     pub fn new(bytes: [u8; Self::LEN]) -> Self {
         Self(SecretBox::new(Box::new(bytes)))
     }
@@ -48,12 +47,10 @@ impl Digest {
         Ok(Self::new(arr))
     }
 
-    #[inline]
     pub fn as_bytes(&self) -> &[u8; Self::LEN] {
         self.0.expose_secret()
     }
 
-    #[inline]
     pub fn as_slice(&self) -> &[u8] {
         &self.0.expose_secret()[..]
     }
@@ -100,8 +97,6 @@ impl From<Digest> for Vec<u8> {
     }
 }
 
-// --- Serde: compact binary via serde_bytes ---------------------------------
-
 impl Serialize for Digest {
     fn serialize<S: Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
         ser.serialize_bytes(self.as_slice())
@@ -113,8 +108,6 @@ impl<'de> Deserialize<'de> for Digest {
         Digest::from_slice(&bytes).map_err(serde::de::Error::custom)
     }
 }
-
-// --- SQLx integration ------------------------------------------------------
 
 impl<'r> Decode<'r, Postgres> for Digest {
     fn decode(value: PgValueRef<'r>) -> Result<Self, BoxDynError> {

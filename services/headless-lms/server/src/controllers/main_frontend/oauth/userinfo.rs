@@ -30,7 +30,6 @@ pub async fn user_info(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    // ---- Parse Authorization header ----
     let auth = req
         .headers()
         .get("Authorization")
@@ -67,7 +66,6 @@ pub async fn user_info(
         ));
     };
 
-    // ---- Look up token by digest ----
     let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
     let digest = token_digest_sha256(raw_token, token_hmac_key);
     let access = OAuthAccessToken::find_valid(&mut conn, digest).await?;
@@ -76,7 +74,6 @@ pub async fn user_info(
     tracing::Span::current().record("token_type", format!("{:?}", access.token_type));
     tracing::Span::current().record("client_id", access.client_id.to_string());
 
-    // ---- Enforce scheme/token_type consistency ----
     match access.token_type {
         TokenType::Bearer => {
             // Bearer tokens must use the Bearer scheme
@@ -154,7 +151,6 @@ pub async fn user_info(
         }
     }
 
-    // ---- Ensure token is for a user ----
     let user_id = match access.user_id {
         Some(u) => u,
         None => {
@@ -172,7 +168,6 @@ pub async fn user_info(
         }
     };
 
-    // ---- Fetch user and scopes ----
     let user = user_details::get_user_details_by_user_id(&mut conn, user_id).await?;
     let scopes: HashSet<String> = HashSet::from_iter(access.scopes.into_iter());
 

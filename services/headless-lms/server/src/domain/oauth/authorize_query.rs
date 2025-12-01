@@ -226,10 +226,6 @@ mod tests {
         );
     }
 
-    // -------------------------
-    // New tests for PKCE fields
-    // -------------------------
-
     #[test]
     fn authorize_pkce_fields_passthrough() {
         let q = AuthorizeQuery {

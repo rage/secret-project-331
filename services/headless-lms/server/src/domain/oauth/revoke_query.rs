@@ -12,7 +12,7 @@ pub struct RevokeQuery {
     pub client_id: Option<String>,
     pub client_secret: Option<String>,
     /// The token to be revoked (required).
-    pub token: String,
+    pub token: Option<String>,
 
     /// Hint about the type of the token being revoked (optional).
     /// Valid values: "access_token" or "refresh_token".
@@ -50,7 +50,8 @@ impl OAuthValidate for RevokeQuery {
             ));
         }
 
-        if self.token.is_empty() {
+        let token = self.token.as_deref().unwrap_or_default();
+        if token.is_empty() {
             return Err(ControllerError::new(
                 ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::InvalidRequest.as_str().into(),
@@ -77,7 +78,7 @@ impl OAuthValidate for RevokeQuery {
         Ok(RevokeParams {
             client_id: client_id.to_string(),
             client_secret: self.client_secret.clone(),
-            token: self.token.clone(),
+            token: token.to_string(),
             token_type_hint,
         })
     }

@@ -1,10 +1,14 @@
+import { css } from "@emotion/css"
 import React, { memo, useRef } from "react"
+import { useFocusRing, useFocusWithin } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { getEditableHoverStyles, getEditingStyles } from "../styles"
 
 import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import { baseTheme } from "@/shared-module/common/styles"
 
 interface EditableParagraphProps {
   id: string
@@ -24,6 +28,7 @@ const EditableParagraphContent = memo(
     contentEditableRef,
     handleInput,
     initialContent,
+    ariaLabel,
   }: {
     textColor?: string
     backgroundColor?: string
@@ -31,14 +36,26 @@ const EditableParagraphContent = memo(
     contentEditableRef: React.RefObject<HTMLParagraphElement>
     handleInput: (e: React.FormEvent<HTMLParagraphElement>) => void
     initialContent: string | null
+    ariaLabel: string
   }) => {
+    const { isFocusVisible, focusProps } = useFocusRing()
+
     return (
       <p
         ref={contentEditableRef}
-        className={`${getEditingStyles(textColor, backgroundColor, fontSize)} ${getEditableHoverStyles(true)}`}
+        className={`${getEditingStyles(textColor, backgroundColor, fontSize)} ${getEditableHoverStyles(true)} ${css`
+          ${isFocusVisible &&
+          `
+            outline: 2px solid ${baseTheme.colors.green[500]};
+            outline-offset: 2px;
+          `}
+        `}`}
         contentEditable
+        aria-label={ariaLabel}
+        aria-multiline="true"
         onInput={handleInput}
         suppressContentEditableWarning
+        {...focusProps}
       >
         {initialContent}
       </p>
@@ -66,6 +83,8 @@ const EditableParagraph: React.FC<EditableParagraphProps> = ({
   fontSize,
   setEdits,
 }) => {
+  const { t } = useTranslation()
+  const containerRef = useRef<HTMLDivElement>(null)
   const { contentEditableRef, handleInput } = useParagraphEditing({
     id,
     editing: true,
@@ -78,15 +97,26 @@ const EditableParagraph: React.FC<EditableParagraphProps> = ({
   // Use a ref to the initial content to avoid re-renders
   const initialContentRef = useRef(content)
 
+  const { focusWithinProps } = useFocusWithin({})
+
   return (
-    <EditableParagraphContent
-      textColor={textColor}
-      backgroundColor={backgroundColor}
-      fontSize={fontSize}
-      contentEditableRef={contentEditableRef as React.RefObject<HTMLParagraphElement>}
-      handleInput={handleInput}
-      initialContent={initialContentRef.current}
-    />
+    <div
+      ref={containerRef}
+      {...focusWithinProps}
+      className={css`
+        position: relative;
+      `}
+    >
+      <EditableParagraphContent
+        textColor={textColor}
+        backgroundColor={backgroundColor}
+        fontSize={fontSize}
+        contentEditableRef={contentEditableRef as React.RefObject<HTMLParagraphElement>}
+        handleInput={handleInput}
+        initialContent={initialContentRef.current}
+        ariaLabel={t("edit-paragraph")}
+      />
+    </div>
   )
 }
 

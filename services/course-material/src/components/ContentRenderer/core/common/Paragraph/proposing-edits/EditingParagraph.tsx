@@ -1,5 +1,7 @@
+import { css } from "@emotion/css"
 import { useAtom, useSetAtom } from "jotai"
-import React from "react"
+import React, { useRef } from "react"
+import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { ParagraphAttributes } from "../../../../../../../types/GutenbergBlockAttributes"
@@ -9,6 +11,7 @@ import EditableParagraph from "./EditableParagraph"
 import PreviewableParagraph from "./PreviewableParagraph"
 import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
+import { baseTheme } from "@/shared-module/common/styles"
 import {
   blockEditsAtom,
   currentlyOpenFeedbackDialogAtom,
@@ -33,8 +36,9 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
   const { textColor, backgroundColor, fontSize, content, dropCap, align } = data.attributes
 
   const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
-  const [selectedBlockId] = useAtom(selectedBlockIdAtom)
+  const [selectedBlockId, setSelectedBlockId] = useAtom(selectedBlockIdAtom)
   const setEdits = useSetAtom(blockEditsAtom)
+  const editButtonRef = useRef<HTMLButtonElement>(null)
 
   // Get the edited content even when not actively editing this paragraph
   const { editedContent } = useParagraphEditing({
@@ -47,6 +51,18 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
   })
 
   const hasChanges = content !== editedContent
+
+  const handleEditClick = () => {
+    setSelectedBlockId(id)
+  }
+
+  const { buttonProps: editButtonProps } = useButton(
+    {
+      onPress: handleEditClick,
+      "aria-label": t("click-to-edit"),
+    },
+    editButtonRef,
+  )
 
   if (selectedBlockId === id) {
     return (
@@ -74,24 +90,72 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
       />
     )
   } else {
-    // No changes, render the regular paragraph with hover styles
+    // No changes, render the regular paragraph with hover styles and edit button
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault()
+        handleEditClick()
+      }
+    }
+
     return (
-      <p
-        className={`${getParagraphStyles(
-          textColor,
-          backgroundColor,
-          fontSize,
-          true,
-          dropCap,
-          align,
-        )} ${getEditableHoverStyles(false)}`}
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
-        role="button"
-        tabIndex={0}
-        title={t("click-to-edit")}
+      <div
+        className={css`
+          position: relative;
+          &:hover .edit-button,
+          &:focus-within .edit-button {
+            opacity: 1;
+          }
+        `}
       >
-        {content}
-      </p>
+        <div
+          className={`${getParagraphStyles(
+            textColor,
+            backgroundColor,
+            fontSize,
+            true,
+            dropCap,
+            align,
+          )} ${getEditableHoverStyles(false)}`}
+          onClick={handleEditClick}
+          onKeyDown={handleKeyDown}
+          role="button"
+          tabIndex={0}
+          aria-label={t("click-to-edit")}
+        >
+          {content}
+        </div>
+        <button
+          ref={editButtonRef}
+          {...editButtonProps}
+          className={css`
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            background-color: ${baseTheme.colors.blue[500]};
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+
+            &:hover {
+              background-color: ${baseTheme.colors.blue[600]};
+            }
+
+            &:focus {
+              opacity: 1;
+              outline: 2px solid ${baseTheme.colors.blue[700]};
+              outline-offset: 2px;
+            }
+          `}
+        >
+          {t("edit")}
+        </button>
+      </div>
     )
   }
 }

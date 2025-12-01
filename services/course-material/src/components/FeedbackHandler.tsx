@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
 import { useAtom } from "jotai"
-import React from "react"
+import React, { useCallback, useEffect, useRef } from "react"
+import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materialFeedbackStore"
+import { getModifierKey } from "../utils/platformDetection"
 
 import EditProposalDialog from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
@@ -22,11 +24,53 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection] = useAtom(selectionAtom)
+  const feedbackButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleGiveFeedbackClick = () => {
     // eslint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type")
   }
+
+  const focusDialog = useCallback(() => {
+    if (type === "proposed-edits") {
+      // Focus the dialog content
+      const dialogElement = document.getElementById("feedback-dialog-content")
+      if (dialogElement) {
+        dialogElement.focus()
+      }
+    }
+  }, [type])
+
+  // Apply keyboard listener to document
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const modifierKey = getModifierKey()
+      const isModifierPressed = modifierKey === "Meta" ? e.metaKey : e.ctrlKey
+
+      if (isModifierPressed && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault()
+        if (type === "proposed-edits") {
+          focusDialog()
+        } else {
+          // eslint-disable-next-line i18next/no-literal-string
+          setCurrentlyOpenFeedbackDialog("proposed-edits")
+        }
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown)
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [type, setCurrentlyOpenFeedbackDialog, focusDialog])
+
+  const { buttonProps } = useButton(
+    {
+      onPress: handleGiveFeedbackClick,
+      "aria-label": t("give-feedback"),
+    },
+    feedbackButtonRef,
+  )
 
   const showFeedbackButton = type === null && !selection.text
 
@@ -42,7 +86,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
             z-index: 1100;
           `}
         >
-          <Button variant="primary" size="medium" onClick={handleGiveFeedbackClick}>
+          <Button ref={feedbackButtonRef} variant="primary" size="medium" {...buttonProps}>
             {t("give-feedback")}
           </Button>
         </div>

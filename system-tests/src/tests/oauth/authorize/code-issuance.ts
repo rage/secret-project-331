@@ -31,15 +31,13 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       // Override state
       const urlWithCustomState = url.replace(`state=${urlState}`, `state=${state}`)
       await page.goto(urlWithCustomState)
-      // Handle consent if it appears
-      try {
-        await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+      // Wait for either consent page or callback
+      await page.waitForURL(/(\/oauth_authorize_scopes|\/callback)/, { timeout: 10000 })
+      if (page.url().includes("/oauth_authorize_scopes")) {
         const consent = new ConsentPage(page, ["openid"])
         await consent.approve()
-      } catch {
-        // Consent already granted, proceed to callback
+        await page.waitForURL(/callback/, { timeout: 10000 })
       }
-      await page.waitForURL(/callback/, { timeout: 10000 })
       const code = await assertAndExtractCodeFromCallbackUrl(page, state)
       expect(code).toBeTruthy()
     } finally {
@@ -64,16 +62,13 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       })
       await page.goto(first.url)
 
-      // Handle consent if it appears
-      try {
-        await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+      // Wait for either consent page or callback
+      await page.waitForURL(/(\/oauth_authorize_scopes|\/callback)/, { timeout: 10000 })
+      if (page.url().includes("/oauth_authorize_scopes")) {
         const consent1 = new ConsentPage(page, scopes)
         await consent1.approve()
-      } catch {
-        // Consent already granted, proceed to callback
+        await page.waitForURL(/callback/, { timeout: 10000 })
       }
-
-      await page.waitForURL(/callback/, { timeout: 10000 })
       const code1 = await assertAndExtractCodeFromCallbackUrl(page, first.state)
 
       // Second request
@@ -85,16 +80,13 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       })
       await page.goto(second.url)
 
-      // Handle consent if it appears (shouldn't since scopes already granted)
-      try {
-        await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+      // Wait for either consent page or callback
+      await page.waitForURL(/(\/oauth_authorize_scopes|\/callback)/, { timeout: 10000 })
+      if (page.url().includes("/oauth_authorize_scopes")) {
         const consent2 = new ConsentPage(page, scopes)
         await consent2.approve()
-      } catch {
-        // Consent already granted, proceed to callback
+        await page.waitForURL(/callback/, { timeout: 10000 })
       }
-
-      await page.waitForURL(/callback/, { timeout: 10000 })
       const code2 = await assertAndExtractCodeFromCallbackUrl(page, second.state)
 
       expect(code1).not.toBe(code2)

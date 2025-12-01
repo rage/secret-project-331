@@ -60,7 +60,8 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
       await page.goto(urlWithSpecialState)
       const consent = new ConsentPage(page, ["openid"])
       await consent.approve()
-      // State should be preserved in callback
+      // Wait for callback to finish loading, then extract state
+      await assertAndExtractCodeFromCallbackUrl(page, specialState)
       const callbackUrl = new URL(page.url())
       const callbackState = callbackUrl.searchParams.get("state")
       expect(callbackState).toBe(specialState)
@@ -89,8 +90,6 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
       const codeChallenge = generateCodeChallenge(codeVerifier)
       params.set("code_challenge", codeChallenge)
       params.set("code_challenge_method", "S256")
-      const url = `${REDIRECT_URI}?${params.toString()}`
-      // Correct construction for authorize endpoint
       const authUrl = `${AUTHORIZE}?${params.toString()}`
 
       await page.goto(authUrl)

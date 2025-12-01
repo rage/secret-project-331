@@ -28,7 +28,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 sha2 = "0.10.9"
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
 hmac = "0.12.1"
-# Date and time library for Rus
+# Date and time library for Rust
 chrono = { version = "0.4.42", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.145"

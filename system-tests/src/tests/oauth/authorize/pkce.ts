@@ -90,7 +90,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     })
     await page.goto(url)
     // Should proceed to login or consent, not error
-    await page.waitForTimeout(2000)
+    await page.waitForURL(/(\/login|\/oauth_authorize_scopes)/, { timeout: 10000 })
     const currentUrl = page.url()
     expect(currentUrl.includes("/login") || currentUrl.includes("/oauth_authorize_scopes")).toBe(
       true,

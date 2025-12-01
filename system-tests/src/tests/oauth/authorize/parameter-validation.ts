@@ -122,8 +122,8 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     const urlWithUnknown = `${url}&unknown_param=should_be_ignored&another_unknown=value`
     await page.goto(urlWithUnknown)
     // Should not error, should proceed to login/consent/callback
-    // We'll just verify it doesn't error immediately
-    await page.waitForTimeout(2000)
+    // Wait for navigation to one of the expected routes
+    await page.waitForURL(/(\/callback|\/login|\/oauth_authorize_scopes)/, { timeout: 10000 })
     // If we got redirected to callback or login, that's fine (unknown params ignored)
     const currentUrl = page.url()
     expect(
@@ -195,7 +195,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     })
     await page.goto(url)
     // Should proceed to login or consent, not error
-    await page.waitForTimeout(2000)
+    await page.waitForURL(/(\/login|\/oauth_authorize_scopes)/, { timeout: 10000 })
     const currentUrl = page.url()
     expect(currentUrl.includes("/login") || currentUrl.includes("/oauth_authorize_scopes")).toBe(
       true,

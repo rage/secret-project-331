@@ -128,7 +128,8 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
     await performLogin(page, USER_EMAIL, USER_PASSWORD)
     // After login, PKCE parameters should be preserved in the authorize URL
     // (They'll be in the URL if we go to consent, or in the code if scopes are already granted)
-    await page.waitForTimeout(2000)
+    // Wait for navigation to one of the expected routes
+    await page.waitForURL(/(\/authorize|\/oauth_authorize_scopes|\/callback)/, { timeout: 10000 })
     const afterLoginUrl = page.url()
     // Should either be on consent page (with PKCE params in URL) or callback (PKCE stored in code)
     expect(

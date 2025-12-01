@@ -64,7 +64,6 @@ const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: Progr
       <input
         type="range"
         ref={progressBarRef}
-        defaultValue="0"
         min={0}
         max={duration || 0}
         value={timeProgress}

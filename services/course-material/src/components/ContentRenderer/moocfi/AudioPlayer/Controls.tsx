@@ -1,7 +1,8 @@
 import { css, cx } from "@emotion/css"
 import { RefObject, useCallback, useEffect, useRef, useState } from "react"
+import { useButton, useFocusRing } from "react-aria"
+import { useTranslation } from "react-i18next"
 
-// icons
 import FastForward from "../../../../img/audio-player/fast-forward.svg"
 import HighVolume from "../../../../img/audio-player/high-volume.svg"
 import LowVolume from "../../../../img/audio-player/low-volume.svg"
@@ -35,16 +36,72 @@ interface ControlsProps {
   progressBarRef: RefObject<HTMLInputElement | null>
   duration: number
   setTimeProgress: (T: number) => void
+  playPauseButtonRef?: RefObject<HTMLButtonElement | null>
 }
 
-const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: ControlsProps) => {
+const Controls = ({
+  audioRef,
+  progressBarRef,
+  duration,
+  setTimeProgress,
+  playPauseButtonRef,
+}: ControlsProps) => {
+  const { t } = useTranslation()
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [volume, setVolume] = useState<number>(60)
   const [muteVolume, setMuteVolume] = useState<boolean>(false)
 
-  const togglePlayPause = () => {
-    setIsPlaying((prev) => !prev)
-  }
+  const rewindButtonRef = useRef<HTMLButtonElement | null>(null)
+  const fastForwardButtonRef = useRef<HTMLButtonElement | null>(null)
+  const muteButtonRef = useRef<HTMLButtonElement | null>(null)
+  const fallbackPlayPauseRef = useRef<HTMLButtonElement | null>(null)
+  const actualPlayPauseRef = playPauseButtonRef || fallbackPlayPauseRef
+
+  const { buttonProps: playPauseButtonProps } = useButton(
+    {
+      onPress: () => setIsPlaying((prev) => !prev),
+      "aria-label": isPlaying ? t("audio-player-pause") : t("audio-player-play"),
+    },
+    actualPlayPauseRef,
+  )
+  const { focusProps: playPauseFocusProps, isFocusVisible: isPlayPauseFocusVisible } =
+    useFocusRing()
+
+  const { buttonProps: rewindButtonProps } = useButton(
+    {
+      onPress: () => {
+        if (audioRef?.current) {
+          audioRef.current.currentTime -= 15
+        }
+      },
+      "aria-label": t("audio-player-rewind"),
+    },
+    rewindButtonRef,
+  )
+  const { focusProps: rewindFocusProps, isFocusVisible: isRewindFocusVisible } = useFocusRing()
+
+  const { buttonProps: fastForwardButtonProps } = useButton(
+    {
+      onPress: () => {
+        if (audioRef?.current) {
+          audioRef.current.currentTime += 15
+        }
+      },
+      "aria-label": t("audio-player-fast-forward"),
+    },
+    fastForwardButtonRef,
+  )
+  const { focusProps: fastForwardFocusProps, isFocusVisible: isFastForwardFocusVisible } =
+    useFocusRing()
+
+  const { buttonProps: muteButtonProps } = useButton(
+    {
+      onPress: () => setMuteVolume((prev) => !prev),
+      "aria-label": muteVolume ? t("audio-player-unmute") : t("audio-player-mute"),
+    },
+    muteButtonRef,
+  )
+  const { focusProps: muteFocusProps, isFocusVisible: isMuteFocusVisible } = useFocusRing()
 
   const playAnimationRef = useRef(0)
 
@@ -77,18 +134,6 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
     }
   }, [isPlaying, audioRef, audioRef?.current?.readyState, repeat])
 
-  const skipForward = () => {
-    if (audioRef?.current) {
-      audioRef.current.currentTime += 15
-    }
-  }
-
-  const skipBackward = () => {
-    if (audioRef?.current) {
-      audioRef.current.currentTime -= 15
-    }
-  }
-
   useEffect(() => {
     if (audioRef?.current) {
       audioRef.current.volume = volume / 100
@@ -107,6 +152,8 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
       `}
     >
       <div
+        role="toolbar"
+        aria-label={t("audio-player-dialog-label")}
         className={css`
           display: flex;
           align-items: center;
@@ -122,17 +169,65 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
           }
         `}
       >
-        <button onClick={skipBackward}>
+        <button
+          {...rewindButtonProps}
+          {...rewindFocusProps}
+          ref={rewindButtonRef}
+          className={css`
+            ${isRewindFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
+          `}
+        >
           <Rewind />
         </button>
 
-        <button onClick={togglePlayPause}>{isPlaying ? <Pause /> : <Play />}</button>
-        <button onClick={skipForward}>
+        <button
+          {...playPauseButtonProps}
+          {...playPauseFocusProps}
+          ref={actualPlayPauseRef}
+          aria-label={isPlaying ? t("audio-player-pause") : t("audio-player-play")}
+          className={css`
+            ${isPlayPauseFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
+          `}
+        >
+          {isPlaying ? <Pause /> : <Play />}
+        </button>
+        <button
+          {...fastForwardButtonProps}
+          {...fastForwardFocusProps}
+          ref={fastForwardButtonRef}
+          className={css`
+            ${isFastForwardFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
+          `}
+        >
           <FastForward />
         </button>
       </div>
       <div className={cx(styledVolume, styledRangeInput)}>
-        <button className="volume" onClick={() => setMuteVolume((prev) => !prev)}>
+        <button
+          {...muteButtonProps}
+          {...muteFocusProps}
+          ref={muteButtonRef}
+          aria-label={muteVolume ? t("audio-player-unmute") : t("audio-player-mute")}
+          className={css`
+            ${isMuteFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
+          `}
+        >
           {muteVolume || volume < 1 ? (
             <MuteVolume />
           ) : volume < 33 ? (
@@ -149,6 +244,11 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
           max={100}
           value={volume}
           onChange={(e) => setVolume(Number(e.target.value))}
+          aria-label={t("audio-player-volume")}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={volume}
+          aria-valuetext={`${volume}%`}
           className={css`
             background: linear-gradient(
               to right,

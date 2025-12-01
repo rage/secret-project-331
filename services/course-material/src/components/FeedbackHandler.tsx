@@ -11,7 +11,7 @@ import EditProposalDialog from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTooltip from "./FeedbackTooltip"
 import FeedbackTypeDialog from "./FeedbackTypeDialog"
-import SelectionListener from "./SelectionListener"
+import SelectionListener, { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 import Button from "@/shared-module/common/components/Button"
 
@@ -34,7 +34,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
   const focusDialog = useCallback(() => {
     if (type === "proposed-edits") {
       // Focus the dialog content
-      const dialogElement = document.getElementById("feedback-dialog-content")
+      const dialogElement = document.getElementById(FEEDBACK_DIALOG_CONTENT_ID)
       if (dialogElement) {
         dialogElement.focus()
       }

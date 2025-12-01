@@ -91,13 +91,6 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
     )
   } else {
     // No changes, render the regular paragraph with hover styles and edit button
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault()
-        handleEditClick()
-      }
-    }
-
     return (
       <div
         className={css`
@@ -117,18 +110,13 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
             dropCap,
             align,
           )} ${getEditableHoverStyles(false)}`}
-          onClick={handleEditClick}
-          onKeyDown={handleKeyDown}
-          role="button"
-          tabIndex={0}
-          aria-label={t("click-to-edit")}
         >
           {content}
         </div>
         <button
           ref={editButtonRef}
           {...editButtonProps}
-          className={css`
+          className={`edit-button ${css`
             position: absolute;
             top: 0;
             right: 0;
@@ -151,7 +139,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
               outline: 2px solid ${baseTheme.colors.blue[700]};
               outline-offset: 2px;
             }
-          `}
+          `}`}
         >
           {t("edit")}
         </button>

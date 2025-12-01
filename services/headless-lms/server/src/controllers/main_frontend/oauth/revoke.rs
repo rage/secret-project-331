@@ -116,107 +116,197 @@ pub async fn revoke(
         tracing::Span::current().record("token_type_hint", h);
     }
 
-    // Determine which token type to try first based on hint
-    // Default to trying access token first if no hint or hint is "access_token"
-    let try_access_first = hint.is_none() || hint == Some("access_token");
+    // RFC 7009: Try both token types. Attempt the hinted type first (if present),
+    // then always try the other type if the first lookup reports "not found".
+    let mut found_token = false;
 
-    // Try to revoke as access token first (if hint is "access_token" or no hint)
-    if try_access_first {
-        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-        // Try to find the access token
-        match OAuthAccessToken::find_valid(&mut conn, token_digest).await {
-            Ok(access_token) => {
-                // Verify the token belongs to the authenticated client
-                // RFC 7009 says we should return 200 OK even if it doesn't match (to prevent enumeration)
-                // but we should still check to ensure proper revocation
-                if access_token.client_id == client.id {
-                    // Revoke the access token (delete it) - recalculate digest since it was moved
-                    let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-                    let _ = OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await;
-                }
-
-                // Always return 200 OK per RFC 7009
-                return server_token.authorized_ok(HttpResponse::Ok().finish());
-            }
-            Err(err) => {
-                match err.error_type() {
-                    // Token not found - continue to try refresh token or return 200 OK
-                    ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
-                        // Continue to try refresh token below
+    // Try the hinted type first (if hint is present), then try the other type
+    match hint {
+        Some("access_token") => {
+            // Try access token first
+            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+            match OAuthAccessToken::find_valid(&mut conn, token_digest).await {
+                Ok(access_token) => {
+                    // Verify the token belongs to the authenticated client before revoking
+                    if access_token.client_id == client.id {
+                        // Recalculate digest since it was moved
+                        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                        OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                     }
-                    // Database/storage failures - return 5xx per RFC 7009
-                    _ => {
-                        return Err(ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "Failed to look up access token due to storage error".to_string(),
-                            Some(err.into()),
-                        ));
+                    found_token = true;
+                }
+                Err(err) => {
+                    match err.error_type() {
+                        // Token not found - continue to try refresh token
+                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
+                            // Try refresh token below
+                        }
+                        // Database/storage failures - return 5xx per RFC 7009
+                        _ => {
+                            return Err(ControllerError::new(
+                                ControllerErrorType::InternalServerError,
+                                "Failed to look up access token due to storage error".to_string(),
+                                Some(err.into()),
+                            ));
+                        }
                     }
                 }
             }
-        }
-    }
-
-    // Try to revoke as refresh token (if hint is explicitly "refresh_token")
-    if hint == Some("refresh_token") {
-        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-        // Try to find the refresh token
-        match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
-            Ok(refresh_token) => {
-                // Verify the token belongs to the authenticated client
-                // Similar to access tokens, we check but don't fail if it doesn't match
-                if refresh_token.client_id == client.id {
-                    // Revoke the refresh token (mark as revoked) - recalculate digest since it was moved
-                    let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-                    let _ = OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await;
-                }
-
-                // Always return 200 OK per RFC 7009
-                return server_token.authorized_ok(HttpResponse::Ok().finish());
-            }
-            Err(err) => {
-                match err.error_type() {
-                    // Token not found - continue to try access token or return 200 OK
-                    ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
-                        // Continue below
+            // If not found, try refresh token
+            if !found_token {
+                let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
+                    Ok(refresh_token) => {
+                        // Verify the token belongs to the authenticated client before revoking
+                        if refresh_token.client_id == client.id {
+                            // Recalculate digest since it was moved
+                            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                            OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
+                        }
+                        found_token = true;
                     }
-                    // Database/storage failures - return 5xx per RFC 7009
-                    _ => {
-                        return Err(ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "Failed to look up refresh token due to storage error".to_string(),
-                            Some(err.into()),
-                        ));
+                    Err(err) => {
+                        match err.error_type() {
+                            // Token not found - return 200 OK per RFC 7009
+                            ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
+                                // Continue to return 200 OK below
+                            }
+                            // Database/storage failures - return 5xx per RFC 7009
+                            _ => {
+                                return Err(ControllerError::new(
+                                    ControllerErrorType::InternalServerError,
+                                    "Failed to look up refresh token due to storage error"
+                                        .to_string(),
+                                    Some(err.into()),
+                                ));
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-
-    // If we tried access token first and it wasn't found, try refresh token
-    if try_access_first {
-        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-        match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
-            Ok(refresh_token) => {
-                if refresh_token.client_id == client.id {
-                    // Recalculate digest since it was moved
-                    let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-                    let _ = OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await;
+        Some("refresh_token") => {
+            // Try refresh token first
+            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+            match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
+                Ok(refresh_token) => {
+                    // Verify the token belongs to the authenticated client before revoking
+                    if refresh_token.client_id == client.id {
+                        // Recalculate digest since it was moved
+                        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                        OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
+                    }
+                    found_token = true;
+                }
+                Err(err) => {
+                    match err.error_type() {
+                        // Token not found - continue to try access token
+                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
+                            // Try access token below
+                        }
+                        // Database/storage failures - return 5xx per RFC 7009
+                        _ => {
+                            return Err(ControllerError::new(
+                                ControllerErrorType::InternalServerError,
+                                "Failed to look up refresh token due to storage error".to_string(),
+                                Some(err.into()),
+                            ));
+                        }
+                    }
                 }
             }
-            Err(err) => {
-                match err.error_type() {
-                    // Token not found - return 200 OK per RFC 7009
-                    ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
-                        // Continue to return 200 OK below
+            // If not found, try access token
+            if !found_token {
+                let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                match OAuthAccessToken::find_valid(&mut conn, token_digest).await {
+                    Ok(access_token) => {
+                        // Verify the token belongs to the authenticated client before revoking
+                        if access_token.client_id == client.id {
+                            // Recalculate digest since it was moved
+                            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                            OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
+                        }
+                        found_token = true;
                     }
-                    // Database/storage failures - return 5xx per RFC 7009
-                    _ => {
-                        return Err(ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "Failed to look up refresh token due to storage error".to_string(),
-                            Some(err.into()),
-                        ));
+                    Err(err) => {
+                        match err.error_type() {
+                            // Token not found - return 200 OK per RFC 7009
+                            ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
+                                // Continue to return 200 OK below
+                            }
+                            // Database/storage failures - return 5xx per RFC 7009
+                            _ => {
+                                return Err(ControllerError::new(
+                                    ControllerErrorType::InternalServerError,
+                                    "Failed to look up access token due to storage error"
+                                        .to_string(),
+                                    Some(err.into()),
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        _ => {
+            // No hint: try access token first, then refresh token
+            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+            match OAuthAccessToken::find_valid(&mut conn, token_digest).await {
+                Ok(access_token) => {
+                    // Verify the token belongs to the authenticated client before revoking
+                    if access_token.client_id == client.id {
+                        // Recalculate digest since it was moved
+                        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                        OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
+                    }
+                    found_token = true;
+                }
+                Err(err) => {
+                    match err.error_type() {
+                        // Token not found - continue to try refresh token
+                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
+                            // Try refresh token below
+                        }
+                        // Database/storage failures - return 5xx per RFC 7009
+                        _ => {
+                            return Err(ControllerError::new(
+                                ControllerErrorType::InternalServerError,
+                                "Failed to look up access token due to storage error".to_string(),
+                                Some(err.into()),
+                            ));
+                        }
+                    }
+                }
+            }
+            // If not found, try refresh token
+            if !found_token {
+                let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
+                    Ok(refresh_token) => {
+                        // Verify the token belongs to the authenticated client before revoking
+                        if refresh_token.client_id == client.id {
+                            // Recalculate digest since it was moved
+                            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                            OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
+                        }
+                        found_token = true;
+                    }
+                    Err(err) => {
+                        match err.error_type() {
+                            // Token not found - return 200 OK per RFC 7009
+                            ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
+                                // Continue to return 200 OK below
+                            }
+                            // Database/storage failures - return 5xx per RFC 7009
+                            _ => {
+                                return Err(ControllerError::new(
+                                    ControllerErrorType::InternalServerError,
+                                    "Failed to look up refresh token due to storage error"
+                                        .to_string(),
+                                    Some(err.into()),
+                                ));
+                            }
+                        }
                     }
                 }
             }

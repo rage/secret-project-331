@@ -221,11 +221,6 @@ pub async fn introspect(
         }),
     };
 
-    // RFC 7662: If username is not set, don't include it
-    if response.username.is_none() {
-        response.username = None;
-    }
-
     server_token.authorized_ok(
         HttpResponse::Ok()
             .insert_header(("Cache-Control", "no-store"))

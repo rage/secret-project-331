@@ -20,16 +20,18 @@ use sqlx::PgPool;
 use std::collections::HashSet;
 use std::time::Duration as StdDuration;
 
-/// Handles the `/authorize` endpoint for OAuth 2.0 and OpenID Connect with PKCE and DPoP support.
+/// Handles the `/authorize` endpoint for OAuth 2.0 and OpenID Connect with PKCE support.
 ///
 /// This endpoint:
 /// - Validates the incoming authorization request parameters.
 /// - Verifies the client, redirect URI, and requested scopes.
 /// - Enforces PKCE requirements (`code_challenge` and `code_challenge_method`) for public clients or clients configured with `require_pkce = true`.
-/// - Optionally stores a DPoP key thumbprint (`dpop_jkt`) for sender-constrained tokens.
 /// - If the user is logged in and has already granted the requested scopes, issues an authorization code and redirects back to the client.
 /// - If the user is logged in but missing consent for some scopes, redirects them to the consent screen.
 /// - If the user is not logged in, redirects them to the login page.
+///
+/// Note: DPoP (Demonstrating Proof-of-Possession) is not used at this endpoint. DPoP binding
+/// occurs at the `/token` endpoint when exchanging authorization codes for access tokens.
 ///
 /// Follows:
 /// - [RFC 6749 Section 3.1](https://datatracker.ietf.org/doc/html/rfc6749#section-3.1) — Authorization Endpoint
@@ -127,7 +129,7 @@ pub async fn authorize(
                     nonce: query.nonce.as_deref(),
                     code_challenge: query.code_challenge.as_deref(),
                     code_challenge_method: parsed_pkce_method,
-                    dpop_jkt: None,
+                    dpop_jkt: None, // DPoP binding occurs at /token endpoint, not at /authorize
                     expires_at,
                     metadata: serde_json::Map::new(),
                 };

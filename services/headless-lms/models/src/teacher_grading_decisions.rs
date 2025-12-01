@@ -24,6 +24,7 @@ pub enum TeacherDecisionType {
     ZeroPoints,
     CustomPoints,
     SuspectedPlagiarism,
+    RejectAndReset,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

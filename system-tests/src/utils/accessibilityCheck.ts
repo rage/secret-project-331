@@ -1,4 +1,6 @@
+/* eslint-disable playwright/no-conditional-in-test */
 import { AxeBuilder } from "@axe-core/playwright"
+import { test } from "@playwright/test"
 import { CheckResult } from "axe-core"
 import { Console } from "console"
 import { Page } from "playwright"
@@ -9,73 +11,82 @@ export default async function accessibilityCheck(
   contextName: string,
   axeSkip?: string[],
 ): Promise<void> {
-  // collect console.logs with all the console.group groupings
-  const outputStream = new StoringStream()
-  const customConsole = new Console(outputStream)
-  const results = await new AxeBuilder({ page }).analyze()
-  let resultsFiltered = []
+  await test.step(`Accessibility checks (${contextName})`, async () => {
+    // collect console.logs with all the console.group groupings
+    const outputStream = new StoringStream()
+    const customConsole = new Console(outputStream)
+    const results = await new AxeBuilder({ page }).analyze()
+    let resultsFiltered = []
 
-  if (!axeSkip) {
-    axeSkip = []
-  }
-  // Getting false positives on this one
-  axeSkip.push("scrollable-region-focusable")
-  if (axeSkip && Array.isArray(axeSkip)) {
-    resultsFiltered = results.violations.filter((violation) => {
-      if (axeSkip && axeSkip.find((skippable) => skippable === violation.id)) {
-        return
-      } else {
-        return violation
-      }
-    })
-  } else {
-    resultsFiltered = results.violations
-  }
-  if (resultsFiltered.length === 0) {
-    return
-  }
-  customConsole.error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}.`)
-  customConsole.error()
-  // https://www.deque.com/axe/core-documentation/api-documentation/#results-object
-  resultsFiltered.forEach((violation, n) => {
-    customConsole.group(`Violation ${n + 1}\n-----------`)
-    customConsole.error(`Rule: ${violation.id}`)
-    customConsole.error(`Description: ${violation.description}`)
-    customConsole.error(`Impact: ${violation.impact}`)
-    customConsole.error(`Help: ${violation.help}`)
-    customConsole.error(`Help URL: ${violation.helpUrl}`)
-    customConsole.group("Affected DOM nodes:")
-    violation.nodes // nodes is an array of all elements the rule tested
-      .filter((o) => o.impact !== null) // the check passed for this element if impact is null
-      .forEach((node, n) => {
-        customConsole.group(`Affected DOM node ${n + 1}`)
-        customConsole.error(`Impact: ${node.impact}`)
-        customConsole.error(`Node HTML: ${node.html}`)
-        customConsole.error(`Target: ${node.target}`)
-        if (node.any.length > 0) {
-          customConsole.group("At least one of these need to pass:")
-          displayChecksForNodes(node.any, customConsole)
-          customConsole.groupEnd()
+    if (!axeSkip) {
+      axeSkip = []
+    }
+    // Getting false positives on this one
+    axeSkip.push("scrollable-region-focusable")
+    if (axeSkip && Array.isArray(axeSkip)) {
+      resultsFiltered = results.violations.filter((violation) => {
+        // For react-aria overlays (modals, popovers, etc.) the content is supposed not be directly inside landmarks
+        if (
+          violation.nodes.some((node) => node.html.includes("data-overlay-container")) &&
+          violation.id === "region"
+        ) {
+          return
         }
-        if (node.all.length > 0) {
-          customConsole.group("All of these need to pass:")
-          displayChecksForNodes(node.all, customConsole)
-          customConsole.groupEnd()
+        if (axeSkip && axeSkip.find((skippable) => skippable === violation.id)) {
+          return
+        } else {
+          return violation
         }
-        if (node.none.length > 0) {
-          customConsole.group("None of these can pass:")
-          displayChecksForNodes(node.all, customConsole)
-          customConsole.groupEnd()
-        }
-        customConsole.error()
-        customConsole.groupEnd()
       })
-    customConsole.groupEnd()
-    customConsole.error("\n")
-    customConsole.groupEnd()
-  })
+    } else {
+      resultsFiltered = results.violations
+    }
+    if (resultsFiltered.length === 0) {
+      return
+    }
+    customConsole.error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}.`)
+    customConsole.error()
+    // https://www.deque.com/axe/core-documentation/api-documentation/#results-object
+    resultsFiltered.forEach((violation, n) => {
+      customConsole.group(`Violation ${n + 1}\n-----------`)
+      customConsole.error(`Rule: ${violation.id}`)
+      customConsole.error(`Description: ${violation.description}`)
+      customConsole.error(`Impact: ${violation.impact}`)
+      customConsole.error(`Help: ${violation.help}`)
+      customConsole.error(`Help URL: ${violation.helpUrl}`)
+      customConsole.group("Affected DOM nodes:")
+      violation.nodes // nodes is an array of all elements the rule tested
+        .filter((o) => o.impact !== null) // the check passed for this element if impact is null
+        .forEach((node, n) => {
+          customConsole.group(`Affected DOM node ${n + 1}`)
+          customConsole.error(`Impact: ${node.impact}`)
+          customConsole.error(`Node HTML: ${node.html}`)
+          customConsole.error(`Target: ${node.target}`)
+          if (node.any.length > 0) {
+            customConsole.group("At least one of these need to pass:")
+            displayChecksForNodes(node.any, customConsole)
+            customConsole.groupEnd()
+          }
+          if (node.all.length > 0) {
+            customConsole.group("All of these need to pass:")
+            displayChecksForNodes(node.all, customConsole)
+            customConsole.groupEnd()
+          }
+          if (node.none.length > 0) {
+            customConsole.group("None of these can pass:")
+            displayChecksForNodes(node.none, customConsole)
+            customConsole.groupEnd()
+          }
+          customConsole.error()
+          customConsole.groupEnd()
+        })
+      customConsole.groupEnd()
+      customConsole.error("\n")
+      customConsole.groupEnd()
+    })
 
-  throw new Error(outputStream.chunks.join(""))
+    throw new Error(outputStream.chunks.join(""))
+  })
 }
 
 function displayChecksForNodes(nodes: CheckResult[], stdErrConsole: Console): void {

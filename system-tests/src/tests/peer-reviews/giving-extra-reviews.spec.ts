@@ -85,6 +85,8 @@ test.describe("Students should be able to give extra peer reviews to receive pri
       await adminPage
         .getByTestId("course-status-card")
         .filter({ hasText: "Peer review Course" })
+        .filter({ hasNotText: "Accessibility" })
+        .first()
         .getByRole("button", { name: "Course status summary" })
         .click()
 

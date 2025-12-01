@@ -220,15 +220,20 @@ export interface ChatbotConfiguration {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
+  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  response_max_tokens: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
@@ -240,20 +245,41 @@ export interface NewChatbotConf {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
+  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  response_max_tokens: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
   default_chatbot: boolean
+  chatbotconf_id: string | null
+}
+
+export type VerbosityLevel = "low" | "medium" | "high"
+
+export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+
+export interface ChatbotConfigurationModel {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  model: string
+  thinking: boolean
+  default_model: boolean
+  deployment_name: string
 }
 
 export interface ChatbotConversationMessage {
@@ -978,6 +1004,7 @@ export interface CourseMaterialExercise {
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
+  should_show_reset_message: string | null
 }
 
 export interface Exercise {
@@ -1036,12 +1063,13 @@ export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending
 
 export interface ExerciseResetLog {
   id: string
-  reset_by: string
+  reset_by: string | null
   reset_by_first_name: string | null
   reset_by_last_name: string | null
   reset_for: string
   exercise_id: string
   exercise_name: string
+  reason: string | null
   course_id: string
   reset_at: string
   created_at: string
@@ -1717,6 +1745,7 @@ export interface CmsPeerOrSelfReviewConfig {
   accepting_threshold: number
   processing_strategy: PeerReviewProcessingStrategy
   points_are_all_or_nothing: boolean
+  reset_answer_if_zero_points_from_review: boolean
   review_instructions: unknown | null
 }
 
@@ -1746,6 +1775,7 @@ export interface PeerOrSelfReviewConfig {
   processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
   points_are_all_or_nothing: boolean
+  reset_answer_if_zero_points_from_review: boolean
   review_instructions: unknown | null
 }
 
@@ -2098,6 +2128,7 @@ export type TeacherDecisionType =
   | "ZeroPoints"
   | "CustomPoints"
   | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export interface TeacherGradingDecision {
   id: string
@@ -2287,6 +2318,10 @@ export interface CourseMaterialPeerOrSelfReviewDataWithToken {
   token: string | null
 }
 
+export interface CourseInfo {
+  course_id: string
+}
+
 export interface CertificateConfigurationUpdate {
   course_module_id: string
   course_instance_id: string | null
@@ -2411,6 +2446,81 @@ export interface UserInfoPayload {
   last_name: string
   country: string
   email_communication_consent: boolean
+}
+
+export interface CronJobInfo {
+  name: string
+  schedule: string
+  last_schedule_time: string | null
+}
+
+export interface DeploymentInfo {
+  name: string
+  replicas: number
+  ready_replicas: number
+  selector_labels: Record<string, string>
+}
+
+export interface EventInfo {
+  name: string
+  reason: string | null
+  message: string | null
+  type_: string | null
+  first_timestamp: string | null
+  last_timestamp: string | null
+  count: number | null
+  involved_object_kind: string | null
+  involved_object_name: string | null
+}
+
+export interface IngressInfo {
+  name: string
+  hosts: Array<string>
+  paths: Array<string>
+  class_name: string | null
+}
+
+export interface JobInfo {
+  name: string
+  succeeded: number | null
+  failed: number | null
+  active: number | null
+}
+
+export interface PodDisruptionBudgetInfo {
+  name: string
+  current_healthy: number
+  desired_healthy: number
+  disruptions_allowed: number
+  expected_pods: number
+  selector_labels: Record<string, string>
+}
+
+export interface PodInfo {
+  name: string
+  phase: string
+  ready: boolean | null
+  labels: Record<string, string>
+}
+
+export interface ServiceInfo {
+  name: string
+  cluster_ip: string | null
+  ports: Array<ServicePortInfo>
+}
+
+export interface ServicePortInfo {
+  name: string | null
+  port: number
+  target_port: string | null
+  protocol: string | null
+}
+
+export type HealthStatus = "healthy" | "warning" | "error"
+
+export interface SystemHealthStatus {
+  status: HealthStatus
+  issues: Array<string>
 }
 
 export interface Pagination {

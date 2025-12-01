@@ -142,6 +142,10 @@ pkcs8 = "0.10"
 dpop-verifier = { version = "4.4.0", features = ["actix-web"]}
 # Easy-to-use secret management library.
 secrecy = { version = "0.10.3", features = ["serde"] }
+# Kubernetes client and async controller runtime
+kube = { version = "2.0.1", features = ["runtime", "derive", "client"] }
+# Bindings for the Kubernetes client API
+k8s-openapi = { version = "0.26.0", features = ["v1_30"] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

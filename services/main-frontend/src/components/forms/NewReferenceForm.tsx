@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { NewMaterialReference } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface NewReferenceFormProps {
   onCreateNewReference: (form: NewMaterialReference[]) => void
@@ -62,7 +63,31 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
     }
   })
 
-  const citationLabelsThatWillChange = useCitataionLabelsThatWillChange(references)
+  const detection = React.useMemo(() => {
+    if (!references?.trim()) {
+      return { items: [], error: null as null | Error }
+    }
+    try {
+      return { items: detectCitationLabelsThatWillChange(references), error: null }
+    } catch (e) {
+      return { items: [], error: e instanceof Error ? e : new Error(t("error-title")) }
+    }
+  }, [references, t])
+
+  React.useEffect(() => {
+    if (detection.error && errorMessage === "") {
+      setErrorMessage(detection.error.message)
+    } else if (
+      !detection.error &&
+      errorMessage !== "" &&
+      errorMessage !== t("reference-parsing-error")
+    ) {
+      // Clear detection errors when they're resolved, but keep submit errors
+      setErrorMessage("")
+    }
+  }, [detection.error, errorMessage, setErrorMessage, t])
+
+  const citationLabelsThatWillChange = detection.items
 
   return (
     <form
@@ -85,11 +110,12 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         autoResize
       />
       {errorMessage && <ErrorText> {errorMessage} </ErrorText>}
-      {citationLabelsThatWillChange.map((c) => (
-        <ErrorText key={c.original}>
-          {t("reference-parsing-error-label-change", { original: c.original, safe: c.safe })}
-        </ErrorText>
-      ))}
+      {citationLabelsThatWillChange &&
+        citationLabelsThatWillChange.map((c) => (
+          <ErrorText key={c.original}>
+            {t("reference-parsing-error-label-change", { original: c.original, safe: c.safe })}
+          </ErrorText>
+        ))}
       <br />
       <Button
         variant="primary"
@@ -111,7 +137,7 @@ export function safeParseReferences(references: string): typeof Cite {
 }
 
 /// Can be used to detect if citation.js will change the citation key to a safe version
-export function useCitataionLabelsThatWillChange(
+export function detectCitationLabelsThatWillChange(
   references: string,
 ): { original: string; safe: string }[] {
   const safeCite = safeParseReferences(references)
@@ -135,4 +161,4 @@ export function areCitationsValid(references: string): boolean {
   }
 }
 
-export default NewReferenceForm
+export default withErrorBoundary(NewReferenceForm)

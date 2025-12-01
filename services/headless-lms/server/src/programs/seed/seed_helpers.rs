@@ -23,8 +23,8 @@ use headless_lms_utils::{
 use once_cell::sync::OnceCell;
 use serde_json::Value;
 use sqlx::PgConnection;
-use std::collections::HashMap;
 use std::sync::Arc;
+use std::{collections::HashMap, vec};
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
@@ -120,6 +120,20 @@ pub fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
         inner_blocks: vec![],
     }
 }
+
+pub fn chatbot_block(block: Uuid, chatbot_conf_id: Uuid, course_id: Uuid) -> GutenbergBlock {
+    GutenbergBlock {
+        client_id: block,
+        name: "moocfi/chatbot".to_string(),
+        is_valid: true,
+        attributes: attributes! {
+            "chatbotConfigurationId": chatbot_conf_id,
+            "courseId": course_id,
+        },
+        inner_blocks: vec![],
+    }
+}
+
 pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/heading".to_string(),
@@ -128,6 +142,30 @@ pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
         attributes: attributes! {
             "content": content,
             "level": level,
+        },
+        inner_blocks: vec![],
+    }
+}
+
+pub fn list(block: Uuid, ordered: bool, inner_blocks: Vec<GutenbergBlock>) -> GutenbergBlock {
+    GutenbergBlock {
+        name: "core/list".to_string(),
+        client_id: block,
+        is_valid: true,
+        attributes: attributes! {
+            "ordered": ordered,
+        },
+        inner_blocks,
+    }
+}
+
+pub fn list_item(block: Uuid, content: &str) -> GutenbergBlock {
+    GutenbergBlock {
+        name: "core/list-item".to_string(),
+        client_id: block,
+        is_valid: true,
+        attributes: attributes! {
+            "content": content,
         },
         inner_blocks: vec![],
     }
@@ -189,6 +227,9 @@ pub fn create_best_exercise(
             )],
         )],
         block_id,
+        Some(false),
+        None,
+        None,
     );
     (
         exercise_block,
@@ -204,6 +245,9 @@ pub fn example_exercise_flexible(
     exercise_name: String,
     exercise_slides: Vec<(Uuid, Vec<(Uuid, String, Value, Value)>)>,
     client_id: Uuid,
+    needs_peer_review: Option<bool>,
+    peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
+    peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -267,11 +311,11 @@ pub fn example_exercise_flexible(
         max_tries_per_slide: None,
         limit_number_of_tries: false,
         deadline: None,
-        needs_peer_review: false,
+        needs_peer_review: needs_peer_review.unwrap_or(false),
         needs_self_review: false,
         use_course_default_peer_or_self_review_config: false,
-        peer_or_self_review_config: None,
-        peer_or_self_review_questions: None,
+        peer_or_self_review_config,
+        peer_or_self_review_questions,
     };
     (block, exercise, slides, tasks)
 }
@@ -611,6 +655,7 @@ pub async fn create_best_peer_review(
             processing_strategy,
             points_are_all_or_nothing,
             review_instructions: None,
+            reset_answer_if_zero_points_from_review: false,
         },
     )
     .await?;

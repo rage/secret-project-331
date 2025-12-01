@@ -118,14 +118,15 @@ pub async fn revoke(
 
     // RFC 7009: Try both token types. Attempt the hinted type first (if present),
     // then always try the other type if the first lookup reports "not found".
-    let mut found_token = false;
 
     // Try the hinted type first (if hint is present), then try the other type
     match hint {
         Some("access_token") => {
             // Try access token first
             let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-            match OAuthAccessToken::find_valid(&mut conn, token_digest).await {
+            let access_token_found = match OAuthAccessToken::find_valid(&mut conn, token_digest)
+                .await
+            {
                 Ok(access_token) => {
                     // Verify the token belongs to the authenticated client before revoking
                     if access_token.client_id == client.id {
@@ -133,14 +134,12 @@ pub async fn revoke(
                         let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                         OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                     }
-                    found_token = true;
+                    true
                 }
                 Err(err) => {
                     match err.error_type() {
                         // Token not found - continue to try refresh token
-                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
-                            // Try refresh token below
-                        }
+                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => false,
                         // Database/storage failures - return 5xx per RFC 7009
                         _ => {
                             return Err(ControllerError::new(
@@ -151,9 +150,9 @@ pub async fn revoke(
                         }
                     }
                 }
-            }
+            };
             // If not found, try refresh token
-            if !found_token {
+            if !access_token_found {
                 let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                 match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
                     Ok(refresh_token) => {
@@ -163,7 +162,6 @@ pub async fn revoke(
                             let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                             OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
                         }
-                        found_token = true;
                     }
                     Err(err) => {
                         match err.error_type() {
@@ -188,7 +186,9 @@ pub async fn revoke(
         Some("refresh_token") => {
             // Try refresh token first
             let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-            match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
+            let refresh_token_found = match OAuthRefreshTokens::find_valid(&mut conn, token_digest)
+                .await
+            {
                 Ok(refresh_token) => {
                     // Verify the token belongs to the authenticated client before revoking
                     if refresh_token.client_id == client.id {
@@ -196,14 +196,12 @@ pub async fn revoke(
                         let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                         OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
                     }
-                    found_token = true;
+                    true
                 }
                 Err(err) => {
                     match err.error_type() {
                         // Token not found - continue to try access token
-                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
-                            // Try access token below
-                        }
+                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => false,
                         // Database/storage failures - return 5xx per RFC 7009
                         _ => {
                             return Err(ControllerError::new(
@@ -214,9 +212,9 @@ pub async fn revoke(
                         }
                     }
                 }
-            }
+            };
             // If not found, try access token
-            if !found_token {
+            if !refresh_token_found {
                 let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                 match OAuthAccessToken::find_valid(&mut conn, token_digest).await {
                     Ok(access_token) => {
@@ -226,7 +224,6 @@ pub async fn revoke(
                             let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                             OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                         }
-                        found_token = true;
                     }
                     Err(err) => {
                         match err.error_type() {
@@ -251,7 +248,9 @@ pub async fn revoke(
         _ => {
             // No hint: try access token first, then refresh token
             let token_digest = token_digest_sha256(&form.token, token_hmac_key);
-            match OAuthAccessToken::find_valid(&mut conn, token_digest).await {
+            let access_token_found = match OAuthAccessToken::find_valid(&mut conn, token_digest)
+                .await
+            {
                 Ok(access_token) => {
                     // Verify the token belongs to the authenticated client before revoking
                     if access_token.client_id == client.id {
@@ -259,14 +258,12 @@ pub async fn revoke(
                         let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                         OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                     }
-                    found_token = true;
+                    true
                 }
                 Err(err) => {
                     match err.error_type() {
                         // Token not found - continue to try refresh token
-                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
-                            // Try refresh token below
-                        }
+                        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => false,
                         // Database/storage failures - return 5xx per RFC 7009
                         _ => {
                             return Err(ControllerError::new(
@@ -277,9 +274,9 @@ pub async fn revoke(
                         }
                     }
                 }
-            }
+            };
             // If not found, try refresh token
-            if !found_token {
+            if !access_token_found {
                 let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                 match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
                     Ok(refresh_token) => {
@@ -289,7 +286,6 @@ pub async fn revoke(
                             let token_digest = token_digest_sha256(&form.token, token_hmac_key);
                             OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
                         }
-                        found_token = true;
                     }
                     Err(err) => {
                         match err.error_type() {

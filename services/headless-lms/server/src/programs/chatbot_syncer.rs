@@ -4,6 +4,7 @@ use std::{
     time::Duration,
 };
 
+use chrono::Utc;
 use dotenv::dotenv;
 use sqlx::{PgConnection, PgPool};
 use url::Url;
@@ -30,16 +31,28 @@ use headless_lms_models::{
 use headless_lms_utils::{
     ApplicationConfiguration,
     document_schema_processor::{GutenbergBlock, remove_sensitive_attributes},
+    url_encoding::url_encode,
 };
 
 const SYNC_INTERVAL_SECS: u64 = 10;
 const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
+const FAILURE_COOLDOWN_SECS: i64 = 300;
+const MAX_CONSECUTIVE_FAILURES: i32 = 5;
 
 pub async fn main() -> anyhow::Result<()> {
     initialize_environment()?;
     let config = initialize_configuration().await?;
     if config.app_configuration.azure_configuration.is_none() {
         warn!("Azure configuration not provided. Not running chatbot syncer.");
+        // Sleep indefinitely to prevent the program from exiting. This only happens in development.
+        loop {
+            tokio::time::sleep(Duration::from_secs(u64::MAX)).await;
+        }
+    }
+    if config.app_configuration.test_chatbot {
+        warn!(
+            "Using mock azure configuration, this must be a test/dev environment. Not running chatbot syncer."
+        );
         // Sleep indefinitely to prevent the program from exiting. This only happens in development.
         loop {
             tokio::time::sleep(Duration::from_secs(u64::MAX)).await;
@@ -169,12 +182,55 @@ async fn sync_pages(
     let mut any_changes = false;
 
     for (course_id, statuses) in sync_statuses.iter() {
+        let page_ids: Vec<Uuid> = statuses.iter().map(|s| s.page_id).collect();
+        let public_pages_set: HashSet<Uuid> =
+            headless_lms_models::pages::get_by_ids_and_visibility(
+                conn,
+                &page_ids,
+                PageVisibility::Public,
+            )
+            .await?
+            .into_iter()
+            .map(|p| p.id)
+            .collect();
+
         let outdated_statuses: Vec<_> = statuses
             .iter()
             .filter(|status| {
-                latest_histories
+                if !public_pages_set.contains(&status.page_id) {
+                    return false;
+                }
+
+                let is_outdated = latest_histories
                     .get(&status.page_id)
-                    .is_some_and(|history| status.synced_page_revision_id != Some(history.id))
+                    .is_some_and(|history| status.synced_page_revision_id != Some(history.id));
+
+                if !is_outdated {
+                    return false;
+                }
+
+                if status.consecutive_failures >= MAX_CONSECUTIVE_FAILURES {
+                    debug!(
+                        "Skipping page {} due to permanent failure ({} consecutive failures). Manual intervention required.",
+                        status.page_id, status.consecutive_failures
+                    );
+                    return false;
+                }
+
+                if let Some(error_msg) = &status.error_message {
+                    if !error_msg.is_empty() {
+                        let error_age_seconds = (Utc::now() - status.updated_at).num_seconds();
+                        if error_age_seconds < FAILURE_COOLDOWN_SECS {
+                            debug!(
+                                "Skipping page {} due to recent failure ({} seconds ago, {} consecutive failures): {}",
+                                status.page_id, error_age_seconds, status.consecutive_failures, error_msg
+                            );
+                            return false;
+                        }
+                    }
+                }
+
+                true
             })
             .collect();
 
@@ -188,9 +244,15 @@ async fn sync_pages(
             outdated_statuses.len(),
             course_id
         );
+        for status in &outdated_statuses {
+            info!(
+                "Page id: {}, synced page revision id: {:?}.",
+                status.page_id, status.synced_page_revision_id
+            );
+        }
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-        let mut pages = headless_lms_models::pages::get_by_ids_and_visibility(
+        let pages = headless_lms_models::pages::get_by_ids_and_visibility(
             conn,
             &page_ids,
             PageVisibility::Public,
@@ -204,19 +266,34 @@ async fn sync_pages(
                 blob_client,
                 &base_url,
                 &config.app_configuration,
+                &latest_histories,
+            )
+            .await?;
+        } else {
+            info!("No pages to sync for course id: {}.", course_id);
+        }
+
+        let hidden_page_ids: Vec<Uuid> = statuses
+            .iter()
+            .filter(|status| {
+                !public_pages_set.contains(&status.page_id)
+                    && status.synced_page_revision_id.is_some()
+            })
+            .map(|s| s.page_id)
+            .collect();
+
+        if !hidden_page_ids.is_empty() {
+            info!(
+                "Clearing sync statuses for {} hidden pages: {:?}",
+                hidden_page_ids.len(),
+                hidden_page_ids
+            );
+            headless_lms_models::chatbot_page_sync_statuses::clear_sync_statuses(
+                conn,
+                &hidden_page_ids,
             )
             .await?;
         }
-
-        let deleted_pages = headless_lms_models::pages::get_by_ids_deleted_and_visibility(
-            conn,
-            &page_ids,
-            PageVisibility::Public,
-        )
-        .await?;
-        pages.extend(deleted_pages);
-
-        update_sync_statuses(conn, &pages, &latest_histories).await?;
 
         delete_old_files(conn, *course_id, blob_client).await?;
     }
@@ -258,6 +335,7 @@ async fn sync_pages_batch(
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
+    latest_histories: &HashMap<Uuid, PageHistory>,
 ) -> anyhow::Result<()> {
     let course_id = pages
         .first()
@@ -306,10 +384,22 @@ async fn sync_pages_batch(
                 }
             }
             Err(e) => {
+                let error_msg = format!("Sync failed: LLM processing error: {}", e);
                 warn!(
                     "Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.",
-                    page.id, e
+                    page.id, error_msg
                 );
+                if let Err(db_err) =
+                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                        conn, page.id, &error_msg,
+                    )
+                    .await
+                {
+                    warn!(
+                        "Failed to record sync error for page {}: {:?}",
+                        page.id, db_err
+                    );
+                }
                 // Fallback to original content
                 serde_json::to_string(&sanitized_blocks)?
             }
@@ -330,8 +420,11 @@ async fn sync_pages_batch(
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
-        metadata.insert("url".to_string(), page_url.to_string().into());
-        metadata.insert("title".to_string(), page.title.to_string().into());
+        // Azure Blob Storage metadata values must be ASCII-only. URL-encode values that may
+        // contain non-ASCII characters (e.g., Finnish characters like ä, ö) to ensure they
+        // are ASCII-compatible. We decode the url and the title before we save them in our database.
+        metadata.insert("url".to_string(), url_encode(page_url.as_ref()));
+        metadata.insert("title".to_string(), url_encode(&page.title));
         metadata.insert(
             "course_id".to_string(),
             page.course_id.unwrap_or(Uuid::nil()).to_string().into(),
@@ -344,20 +437,18 @@ async fn sync_pages_batch(
         if let Some(c) = chapter {
             metadata.insert(
                 "chunk_context".to_string(),
-                format!(
+                url_encode(&format!(
                     "This chunk is a snippet from page {} from chapter {}: {} of the course {}.",
                     page.title, c.chapter_number, c.name, course.name,
-                )
-                .into(),
+                )),
             );
         } else {
             metadata.insert(
                 "chunk_context".to_string(),
-                format!(
+                url_encode(&format!(
                     "This chunk is a snippet from page {} of the course {}.",
                     page.title, course.name,
-                )
-                .into(),
+                )),
             );
         }
 
@@ -365,29 +456,45 @@ async fn sync_pages_batch(
             .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
             .await
         {
+            let error_msg = format!("Sync failed: Upload error: {}", e);
             warn!("Failed to upload file {}: {:?}", blob_path, e);
+            if let Err(db_err) =
+                headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                    conn, page.id, &error_msg,
+                )
+                .await
+            {
+                warn!(
+                    "Failed to record upload error for page {}: {:?}",
+                    page.id, db_err
+                );
+            }
+        } else if let Some(history_id) = latest_histories.get(&page.id) {
+            let mut page_revision_map = HashMap::new();
+            page_revision_map.insert(page.id, history_id.id);
+            if let Err(e) =
+                headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
+                    conn,
+                    page_revision_map,
+                )
+                .await
+            {
+                let error_msg = format!("Sync failed: Status update error: {}", e);
+                warn!("Failed to update sync status for page {}: {:?}", page.id, e);
+                if let Err(db_err) =
+                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                        conn, page.id, &error_msg,
+                    )
+                    .await
+                {
+                    warn!(
+                        "Failed to record status update error for page {}: {:?}",
+                        page.id, db_err
+                    );
+                }
+            }
         }
     }
-
-    Ok(())
-}
-
-/// Update sync statuses for pages after syncing
-async fn update_sync_statuses(
-    conn: &mut PgConnection,
-    pages: &[Page],
-    latest_histories: &HashMap<Uuid, PageHistory>,
-) -> anyhow::Result<()> {
-    let page_revision_map: HashMap<Uuid, Uuid> = pages
-        .iter()
-        .map(|page| (page.id, latest_histories[&page.id].id))
-        .collect();
-
-    headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
-        conn,
-        page_revision_map,
-    )
-    .await?;
 
     Ok(())
 }
@@ -401,7 +508,8 @@ fn generate_blob_path(page: &Page) -> anyhow::Result<String> {
     Ok(format!("courses/{}/pages/{}.md", course_id, page.id))
 }
 
-/// Deletes files from blob storage that are no longer associated with any page.
+/// Deletes files from blob storage that are no longer associated with any public page.
+/// This includes files for deleted pages, hidden pages, and any other pages that are no longer public.
 async fn delete_old_files(
     conn: &mut PgConnection,
     course_id: Uuid,

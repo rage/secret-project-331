@@ -204,7 +204,7 @@ pub async fn introspect(
     let base_url = app_conf.base_url.trim_end_matches('/');
     let issuer = format!("{}/api/v0/main-frontend/oauth", base_url);
 
-    let mut response = IntrospectResponse {
+    let response = IntrospectResponse {
         active: true,
         scope: Some(access_token.scopes.join(" ")),
         client_id: Some(token_client.client_id.clone()),

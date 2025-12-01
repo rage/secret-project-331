@@ -254,7 +254,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                 </div>
 
                 <ExerciseTaskIframe
-                  exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
+                  exerciseTaskId={course_material_exercise_task.id}
                   key={course_material_exercise_task.id}
                   postThisStateToIFrame={{
                     // eslint-disable-next-line i18next/no-literal-string

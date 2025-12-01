@@ -120,6 +120,8 @@ const config = [
         JSX: true,
         WindowEventMap: true,
         RequestInit: true,
+        IntersectionObserverInit: true,
+        IntersectionObserverCallback: true,
       },
     },
     settings: {
@@ -274,6 +276,8 @@ const config = [
               "sx",
               "component",
               "align",
+              "slot",
+              "tag",
             ],
           },
           words: {
@@ -373,6 +377,8 @@ const config = [
               "useTransition",
               "createPopper",
               "closest",
+              "querySelectorAll",
+              "getAttribute",
             ],
           },
           "object-properties": {

@@ -13,3 +13,4 @@ pub mod oauth;
 pub mod rate_limit_middleware_builder;
 pub mod request_id;
 pub mod request_span_middleware;
+pub mod system_health;

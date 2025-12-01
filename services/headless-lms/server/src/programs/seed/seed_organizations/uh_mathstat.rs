@@ -3,6 +3,7 @@ use std::sync::Arc;
 use headless_lms_models::{
     PKeyPolicy,
     chatbot_configurations::{self, NewChatbotConf},
+    chatbot_configurations_models::{self, NewChatbotConfigurationModel},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -18,7 +19,9 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_peer_review_course_without_submissions, seed_sample_course,
+            CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
+            seed_course_with_peer_review::seed_peer_review_course,
+            seed_peer_review_course_without_submissions, seed_sample_course,
             seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
@@ -340,26 +343,32 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let llm = chatbot_configurations_models::insert(
+        &mut conn,
+        NewChatbotConfigurationModel {
+            id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
+            model: "mock-gpt".to_string(),
+            thinking: false,
+            default_model: true,
+            deployment_name: "mock-gpt".to_string(),
+        },
+    )
+    .await?;
+
     chatbot_configurations::insert(
         &mut conn,
+        PKeyPolicy::Generate,
         NewChatbotConf {
             course_id: chatbot_course_id,
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
             prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't ever use a shortened version of your own name, don't babble; either get to the point straight away or tell jokes.".to_string(),
             initial_message: "Oh... It's you.".to_string(),
-            weekly_tokens_per_user: 3000,
-            daily_tokens_per_user: 1000,
-            temperature: 0.5,
-            top_p: 1.0,
-            frequency_penalty: 0.0,
-            presence_penalty: 0.0,
-            response_max_tokens: 500,
-            use_azure_search: false,
-            maintain_azure_search_index: false,
-            hide_citations: false,
-            use_semantic_reranking: false,
+            use_azure_search: true,
             default_chatbot: true,
+            model_id: llm.id,
+            thinking_model: llm.thinking,
+            ..Default::default()
         },
     )
     .await?;
@@ -396,8 +405,8 @@ pub async fn seed_organization_uh_mathstat(
 
     let _closed_course_id = seed_peer_review_course_without_submissions(
         Uuid::parse_str("16159801-cf70-4f9c-9cba-2110c3bd4622")?,
-        "Accessibility course",
-        "accessibility-course",
+        "Peer review accessibility course",
+        "peer-review-accessibility-course",
         uh_data.clone(),
     )
     .await?;
@@ -409,6 +418,32 @@ pub async fn seed_organization_uh_mathstat(
         uh_data.clone(),
         false,
         seed_users_result,
+    )
+    .await?;
+
+    let _advanced_chatbot_id = seed_chatbot_course(
+        Uuid::parse_str("ced2f632-25ba-4e93-8e38-8df53ef7ab41")?,
+        "Advanced Chatbot course",
+        "advanced-chatbot-course",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
+    let _seed_reject_and_reset_submission_peer_review_course = seed_peer_review_course(
+        Uuid::parse_str("5158f2c6-98d9-4be9-b372-528f2c736dd7")?,
+        "Reject and reset submission with peer reviews course",
+        "reject-and-reset-submission-with-peer-reviews-course",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
+    let _accessibility_course_id = seed_accessibility_course(
+        Uuid::parse_str("f1a2b3c4-d5e6-7890-abcd-ef1234567890")?,
+        "Accessibility course",
+        "accessibility-course",
+        uh_data.clone(),
     )
     .await?;
 

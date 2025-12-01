@@ -1,12 +1,10 @@
 import { css } from "@emotion/css"
-import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import InnerBlocks from "../../../util/InnerBlocks"
-import { parseText } from "../../../util/textParsing"
 
+import ParsedText from "@/components/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExtraAttributes {
@@ -15,7 +13,6 @@ interface ExtraAttributes {
 
 const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>> = (props) => {
   const { citation, value, align } = props.data.attributes
-  const { terms } = useContext(GlossaryContext)
 
   const styleLeftDefault = css`
     padding: 0.4rem 1rem;
@@ -51,14 +48,16 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
           {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}
           <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         </div>
-        <cite
-          className={css`
-            font-style: normal;
-            font-size: 0.8125rem;
-          `}
-          dangerouslySetInnerHTML={{
-            __html: parseText(citation, terms).parsedText,
+        <ParsedText
+          text={citation}
+          tag="cite"
+          tagProps={{
+            className: css`
+              font-style: normal;
+              font-size: 0.8125rem;
+            `,
           }}
+          useWrapperElement={true}
         />
       </blockquote>
     </>

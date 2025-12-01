@@ -78,6 +78,7 @@ pub async fn test_config() -> ServerConfig {
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
             azure_configuration: None,
+            test_chatbot: false,
             tmc_account_creation_origin: None,
             oauth_server_configuration: headless_lms_utils::OAuthServerConfiguration {
                 rsa_public_key: "temp-change-when-needed".into(),

@@ -686,7 +686,7 @@ pub async fn parse_tool<'a>(
                 tool_result_msgs.push(APIMessage {
                     role: MessageRole::Tool,
                     fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
-                        content: tool.output(),
+                        content: tool.get_tool_output(),
                         name: name.to_owned(),
                         tool_call_id: id.to_owned(),
                     }),

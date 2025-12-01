@@ -29,6 +29,23 @@ pub trait ChatbotTool {
     /// Output the result of the tool call in LLM-readable form
     fn output(&self) -> String;
 
+    /// Additional instructions for the LLM on how to describe and
+    /// communicate the tool output. Just-in-time prompt.
+    fn output_description_instructions(&self) -> Option<&str>;
+
+    fn get_tool_output(&self) -> String {
+        let output = self.output();
+        let instructions = self.output_description_instructions();
+
+        if let Some(i) = instructions {
+            format!(
+                "Result: [output]{output}[/output] \n\nInstructions for describing the output: [instructions]{i}[/instructions]"
+            )
+        } else {
+            output
+        }
+    }
+
     /// Get parsed arguments
     fn get_arguments(&self) -> &Self::Arguments;
 

@@ -53,7 +53,6 @@ test.describe("/userinfo endpoint - DPoP Token Validation", () => {
   test("DPoP token used with Bearer scheme -> invalid_token error", async ({ page }) => {
     const { accessToken } = await getDPoPToken(page)
 
-    // Try to use DPoP token with Bearer scheme
     const response = await fetch(USERINFO, {
       method: "GET",
       headers: {
@@ -69,12 +68,10 @@ test.describe("/userinfo endpoint - DPoP Token Validation", () => {
   test("DPoP token without DPoP header -> invalid_dpop_proof error", async ({ page }) => {
     const { accessToken } = await getDPoPToken(page)
 
-    // Try to use DPoP token without DPoP header
     const response = await fetch(USERINFO, {
       method: "GET",
       headers: {
         Authorization: `DPoP ${accessToken}`,
-        // Missing DPoP header
         Accept: "application/json",
       },
     })

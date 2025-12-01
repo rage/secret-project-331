@@ -109,7 +109,6 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
   test("refresh token rotation - old token revoked after use", async ({ page }) => {
     const refreshToken1 = await getRefreshToken(page)
 
-    // Use refresh token to get new tokens
     const body = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken1,
@@ -130,7 +129,6 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     expect(data.refresh_token).toBeTruthy()
     const refreshToken2 = data.refresh_token
 
-    // Old refresh token should not work anymore
     const body2 = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken1,
@@ -149,7 +147,6 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     const data2 = await response2.json()
     expect(data2.error).toBe("invalid_grant")
 
-    // New refresh token should work
     const body3 = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken2,
@@ -172,10 +169,8 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
   test("revoked refresh token -> invalid_grant error", async ({ page }) => {
     const refreshToken = await getRefreshToken(page)
 
-    // Revoke the refresh token
     await revokeToken({ token: refreshToken })
 
-    // Try to use revoked refresh token
     const body = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken,

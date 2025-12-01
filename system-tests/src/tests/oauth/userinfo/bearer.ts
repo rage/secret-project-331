@@ -83,14 +83,11 @@ test.describe("/userinfo endpoint - Bearer Token Validation", () => {
   test("revoked Bearer token -> invalid_token error", async ({ page }) => {
     const accessToken = await getBearerToken(page)
 
-    // Verify token works initially
     const userinfo1 = await callUserInfo(accessToken, { kind: "bearer" })
     expect(userinfo1.sub).toBeTruthy()
 
-    // Revoke the token
     await revokeToken({ token: accessToken })
 
-    // Attempt to use revoked token
     const response = await fetch(USERINFO, {
       method: "GET",
       headers: {
@@ -104,7 +101,6 @@ test.describe("/userinfo endpoint - Bearer Token Validation", () => {
   test("Bearer token used with DPoP scheme -> invalid_token error", async ({ page }) => {
     const accessToken = await getBearerToken(page)
 
-    // Try to use Bearer token with DPoP scheme
     const response = await fetch(USERINFO, {
       method: "GET",
       headers: {
@@ -120,7 +116,6 @@ test.describe("/userinfo endpoint - Bearer Token Validation", () => {
   test("Basic auth scheme -> invalid_token error (unsupported)", async ({ page }) => {
     const accessToken = await getBearerToken(page)
 
-    // Try to use Basic scheme (unsupported)
     const response = await fetch(USERINFO, {
       method: "GET",
       headers: {
@@ -136,7 +131,6 @@ test.describe("/userinfo endpoint - Bearer Token Validation", () => {
   test("no scheme in Authorization -> invalid_token error", async ({ page }) => {
     const accessToken = await getBearerToken(page)
 
-    // Try without scheme
     const response = await fetch(USERINFO, {
       method: "GET",
       headers: {

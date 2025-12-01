@@ -206,14 +206,11 @@ test.describe("Token Introspection (RFC 7662)", () => {
   test("revoked token -> returns active: false", async ({ page }) => {
     const accessToken = await getBearerToken(page)
 
-    // Verify token is active initially
     const response1 = await introspectToken(accessToken)
     expect(response1.active).toBe(true)
 
-    // Revoke the token
     await revokeToken({ token: accessToken })
 
-    // Introspect revoked token
     const response2 = await introspectToken(accessToken)
     expect(response2.active).toBe(false)
   })
@@ -260,7 +257,6 @@ test.describe("Token Introspection (RFC 7662)", () => {
   test("token_type_hint parameter is accepted but ignored", async ({ page }) => {
     const accessToken = await getBearerToken(page)
 
-    // Introspect with token_type_hint
     const body = new URLSearchParams({
       token: accessToken,
       token_type_hint: "access_token",

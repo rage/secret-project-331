@@ -101,11 +101,9 @@ test.describe("Token Revocation (RFC 7009)", () => {
   test("revokes access token successfully", async ({ page }) => {
     const accessToken = await getAccessToken(page)
 
-    // Revoke the token
     const response = await revokeToken({ token: accessToken })
     expect(response.status).toBe(200)
 
-    // Verify token is revoked (attempt to use it fails)
     const userinfoResp = await fetch(USERINFO, {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
@@ -116,11 +114,9 @@ test.describe("Token Revocation (RFC 7009)", () => {
   test("revokes refresh token successfully", async ({ page }) => {
     const refreshToken = await getRefreshToken(page)
 
-    // Revoke the refresh token
     const response = await revokeToken({ token: refreshToken })
     expect(response.status).toBe(200)
 
-    // Verify refresh token is revoked (attempt to refresh fails)
     const body = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken,
@@ -145,7 +141,6 @@ test.describe("Token Revocation (RFC 7009)", () => {
     })
     expect(response.status).toBe(200)
 
-    // Verify token is revoked
     const userinfoResp = await fetch(USERINFO, {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
@@ -162,7 +157,6 @@ test.describe("Token Revocation (RFC 7009)", () => {
     })
     expect(response.status).toBe(200)
 
-    // Verify refresh token is revoked
     const body = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken,
@@ -181,11 +175,9 @@ test.describe("Token Revocation (RFC 7009)", () => {
   test("revokes token without token_type_hint (tries access first)", async ({ page }) => {
     const accessToken = await getAccessToken(page)
 
-    // Revoke without hint - should try access token first
     const response = await revokeToken({ token: accessToken })
     expect(response.status).toBe(200)
 
-    // Verify token is revoked
     const userinfoResp = await fetch(USERINFO, {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
@@ -220,11 +212,9 @@ test.describe("Token Revocation (RFC 7009)", () => {
   test("returns 200 OK for already revoked token", async ({ page }) => {
     const accessToken = await getAccessToken(page)
 
-    // Revoke once
     const response1 = await revokeToken({ token: accessToken })
     expect(response1.status).toBe(200)
 
-    // Try to revoke again
     const response2 = await revokeToken({ token: accessToken })
     // RFC 7009 requires 200 OK even if already revoked
     expect(response2.status).toBe(200)
@@ -242,7 +232,6 @@ test.describe("Token Revocation (RFC 7009)", () => {
       },
       body: body.toString(),
     })
-    // Should return error for missing required parameter
     expect(response.status).toBe(400)
   })
 
@@ -258,14 +247,12 @@ test.describe("Token Revocation (RFC 7009)", () => {
       },
       body: body.toString(),
     })
-    // Should return error for missing required parameter (invalid_client)
     expect(response.status).toBe(401)
   })
 
   test("ignores unknown parameters (RFC 7009 §2.1)", async ({ page }) => {
     const accessToken = await getAccessToken(page)
 
-    // Include unknown parameter (and required client_secret for confidential client)
     const body = new URLSearchParams({
       token: accessToken,
       client_id: TEST_CLIENT_ID,
@@ -280,10 +267,8 @@ test.describe("Token Revocation (RFC 7009)", () => {
       },
       body: body.toString(),
     })
-    // Should still process correctly
     expect(response.status).toBe(200)
 
-    // Verify token was actually revoked
     const userinfoResp = await fetch(USERINFO, {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
@@ -294,15 +279,12 @@ test.describe("Token Revocation (RFC 7009)", () => {
   test("revoked access token cannot be used for userinfo", async ({ page }) => {
     const accessToken = await getAccessToken(page)
 
-    // Verify token works initially
     const userinfo1 = await callUserInfo(accessToken, { kind: "bearer" })
     expect(userinfo1.sub).toBeTruthy()
 
-    // Revoke the token
     const response = await revokeToken({ token: accessToken })
     expect(response.status).toBe(200)
 
-    // Attempt to use revoked token
     const userinfoResp = await fetch(USERINFO, {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
@@ -313,11 +295,9 @@ test.describe("Token Revocation (RFC 7009)", () => {
   test("revoked refresh token cannot be used for token refresh", async ({ page }) => {
     const refreshToken = await getRefreshToken(page)
 
-    // Revoke the refresh token
     const response = await revokeToken({ token: refreshToken })
     expect(response.status).toBe(200)
 
-    // Attempt to exchange refresh token
     const body = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken,

@@ -48,13 +48,11 @@ test.describe("/token endpoint - Client Authentication", () => {
   test("confidential client without client_secret -> invalid_client error", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 
-    // Try to exchange without client_secret
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
       redirect_uri: REDIRECT_URI,
       client_id: TEST_CLIENT_ID,
-      // Missing client_secret
       code_verifier: codeVerifier,
     })
     const response = await fetch(TOKEN, {
@@ -73,7 +71,6 @@ test.describe("/token endpoint - Client Authentication", () => {
   test("confidential client with wrong client_secret -> invalid_client error", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 
-    // Try to exchange with wrong client_secret
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
@@ -98,7 +95,6 @@ test.describe("/token endpoint - Client Authentication", () => {
   test("confidential client with correct client_secret -> succeed", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 
-    // Exchange with correct client_secret
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
     expect(tok.access_token).toBeTruthy()
   })

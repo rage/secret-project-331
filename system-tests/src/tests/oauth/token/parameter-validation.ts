@@ -99,7 +99,6 @@ test.describe("/token endpoint - Parameter Validation", () => {
     await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
 
-    // Exchange with unknown parameters
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
@@ -118,7 +117,6 @@ test.describe("/token endpoint - Parameter Validation", () => {
       },
       body: body.toString(),
     })
-    // Should still succeed
     expect(response.status).toBe(200)
     const data = await response.json()
     expect(data.access_token).toBeTruthy()

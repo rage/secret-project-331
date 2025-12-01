@@ -145,6 +145,10 @@ pub async fn user_info(
                 Some(raw_token),
             )
             .await?;
+            // Verify JKT (JWK thumbprint) binding: the DPoP proof's key must match the token's bound key
+            // Note: DpopError::AthMismatch is used here because the external dpop_verifier crate
+            // doesn't provide a JktMismatch variant. This check verifies JKT binding, not ATH (access token hash).
+            // TODO: Change this after dpop_verifier is updated to provide a JktMismatch variant.
             if presented_jkt != bound_jkt {
                 return Err(DpopError::AthMismatch.into());
             }

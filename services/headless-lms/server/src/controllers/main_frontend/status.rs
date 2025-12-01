@@ -9,7 +9,6 @@ use crate::{
     },
     prelude::*,
 };
-use sqlx::Executor;
 use std::collections::HashMap;
 
 pub use system_health::{
@@ -321,13 +320,15 @@ pub async fn health(
     )
     .await?;
     let ns = get_namespace();
-    let health_status = check_system_health_detailed(&ns).await.map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            e.to_string(),
-            None,
-        )
-    })?;
+    let health_status = check_system_health_detailed(&ns, Some(&pool))
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                e.to_string(),
+                None,
+            )
+        })?;
     token.authorized_ok(web::Json(health_status))
 }
 
@@ -341,20 +342,16 @@ pub async fn system_health(
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<bool>> {
-    let mut conn = pool.acquire().await?;
     let ns = get_namespace();
+    let kubernetes_health = check_system_health_detailed(&ns, Some(&pool)).await;
 
-    let db_check = conn.execute("SELECT 1").await;
-    let kubernetes_health = check_system_health_detailed(&ns).await;
-
-    let is_healthy = db_check.is_ok()
-        && matches!(
-            kubernetes_health,
-            Ok(SystemHealthStatus {
-                status: HealthStatus::Healthy,
-                ..
-            })
-        );
+    let is_healthy = matches!(
+        kubernetes_health,
+        Ok(SystemHealthStatus {
+            status: HealthStatus::Healthy,
+            ..
+        })
+    );
 
     if is_healthy {
         let token = skip_authorize();
@@ -362,6 +359,7 @@ pub async fn system_health(
     }
 
     if let Some(user) = user {
+        let mut conn = pool.acquire().await?;
         authorize(
             &mut conn,
             Action::Administrate,
@@ -370,10 +368,9 @@ pub async fn system_health(
         )
         .await?;
 
-        let error_msg = match (db_check, kubernetes_health) {
-            (Err(e), _) => format!("Database connectivity check failed: {}", e),
-            (_, Err(e)) => format!("System health check failed: {}", e),
-            (_, Ok(health_status)) => {
+        let error_msg = match kubernetes_health {
+            Err(e) => format!("System health check failed: {}", e),
+            Ok(health_status) => {
                 if health_status.issues.is_empty() {
                     "System is unhealthy".to_string()
                 } else {

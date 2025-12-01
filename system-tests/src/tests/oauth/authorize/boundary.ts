@@ -13,9 +13,6 @@ import {
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /authorize endpoint - Boundary Conditions
-// ============================================================================
 test.describe("/authorize endpoint - Boundary Conditions", () => {
   test("very long state parameter -> should work", async ({ browser }) => {
     const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })

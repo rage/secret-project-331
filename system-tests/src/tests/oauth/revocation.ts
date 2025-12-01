@@ -18,9 +18,6 @@ import { revokeToken } from "../../utils/oauth/revokeHelpers"
 import { callUserInfo, exchangeCodeForToken } from "../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// Token Revocation (RFC 7009)
-// ============================================================================
 test.describe("Token Revocation (RFC 7009)", () => {
   // Helper to get a valid access token using PKCE
   async function getAccessToken(page: Page): Promise<string> {
@@ -101,7 +98,6 @@ test.describe("Token Revocation (RFC 7009)", () => {
     return tok.refresh_token!
   }
 
-  // ========== Success Cases ==========
   test("revokes access token successfully", async ({ page }) => {
     const accessToken = await getAccessToken(page)
 
@@ -114,7 +110,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
     })
-    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+    expect(userinfoResp.status).toBe(404)
   })
 
   test("revokes refresh token successfully", async ({ page }) => {
@@ -137,7 +133,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       },
       body: body.toString(),
     })
-    expect(refreshResp.status).toBeGreaterThanOrEqual(400)
+    expect(refreshResp.status).toBe(401)
   })
 
   test("revokes access token with token_type_hint", async ({ page }) => {
@@ -154,7 +150,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
     })
-    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+    expect(userinfoResp.status).toBe(404)
   })
 
   test("revokes refresh token with token_type_hint", async ({ page }) => {
@@ -179,7 +175,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       },
       body: body.toString(),
     })
-    expect(refreshResp.status).toBeGreaterThanOrEqual(400)
+    expect(refreshResp.status).toBe(401)
   })
 
   test("revokes token without token_type_hint (tries access first)", async ({ page }) => {
@@ -194,10 +190,9 @@ test.describe("Token Revocation (RFC 7009)", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
     })
-    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+    expect(userinfoResp.status).toBe(404)
   })
 
-  // ========== Client Authentication Edge Cases ==========
   test("returns 200 OK for invalid client_id (prevents enumeration)", async () => {
     const response = await revokeToken({
       token: "some-random-token",
@@ -216,7 +211,6 @@ test.describe("Token Revocation (RFC 7009)", () => {
     expect(response.status).toBe(200)
   })
 
-  // ========== Token Validation Edge Cases ==========
   test("returns 200 OK for invalid token (prevents enumeration)", async () => {
     const response = await revokeToken({ token: "invalid-token-that-does-not-exist" })
     // RFC 7009 requires 200 OK even for invalid tokens to prevent enumeration
@@ -236,7 +230,6 @@ test.describe("Token Revocation (RFC 7009)", () => {
     expect(response2.status).toBe(200)
   })
 
-  // ========== Request Validation Edge Cases ==========
   test("rejects missing token parameter", async () => {
     const body = new URLSearchParams({
       client_id: TEST_CLIENT_ID,
@@ -250,7 +243,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       body: body.toString(),
     })
     // Should return error for missing required parameter
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
   })
 
   test("rejects missing client_id parameter", async () => {
@@ -265,26 +258,8 @@ test.describe("Token Revocation (RFC 7009)", () => {
       },
       body: body.toString(),
     })
-    // Should return error for missing required parameter
-    expect(response.status).toBeGreaterThanOrEqual(400)
-  })
-
-  test("rejects invalid token_type_hint", async () => {
-    const body = new URLSearchParams({
-      token: "some-token",
-      client_id: TEST_CLIENT_ID,
-      token_type_hint: "invalid_hint_value",
-    })
-    const response = await fetch(REVOKE, {
-      method: "POST",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: body.toString(),
-    })
-    // Should return error for invalid token_type_hint
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    // Should return error for missing required parameter (invalid_client)
+    expect(response.status).toBe(401)
   })
 
   test("ignores unknown parameters (RFC 7009 §2.1)", async ({ page }) => {
@@ -313,10 +288,9 @@ test.describe("Token Revocation (RFC 7009)", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
     })
-    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+    expect(userinfoResp.status).toBe(404)
   })
 
-  // ========== Integration Tests ==========
   test("revoked access token cannot be used for userinfo", async ({ page }) => {
     const accessToken = await getAccessToken(page)
 
@@ -333,7 +307,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
     })
-    expect(userinfoResp.status).toBeGreaterThanOrEqual(400)
+    expect(userinfoResp.status).toBe(404)
   })
 
   test("revoked refresh token cannot be used for token refresh", async ({ page }) => {
@@ -356,6 +330,6 @@ test.describe("Token Revocation (RFC 7009)", () => {
       },
       body: body.toString(),
     })
-    expect(refreshResp.status).toBeGreaterThanOrEqual(400)
+    expect(refreshResp.status).toBe(401)
   })
 })

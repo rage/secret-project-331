@@ -8,9 +8,6 @@ import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oaut
 import { callUserInfo, exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /userinfo endpoint - Scope-Based Claims
-// ============================================================================
 test.describe("/userinfo endpoint - Scope-Based Claims", () => {
   async function getTokenWithScopes(page: Page, scopes: string[]): Promise<string> {
     const codeVerifier = generateCodeVerifier()

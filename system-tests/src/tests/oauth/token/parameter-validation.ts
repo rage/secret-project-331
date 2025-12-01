@@ -15,9 +15,6 @@ import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oaut
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /token endpoint - Parameter Validation
-// ============================================================================
 test.describe("/token endpoint - Parameter Validation", () => {
   test("missing client_id -> invalid_client error", async () => {
     const body = new URLSearchParams({
@@ -32,7 +29,7 @@ test.describe("/token endpoint - Parameter Validation", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(401)
     const data = await response.json()
     expect(data.error).toBe("invalid_client")
   })
@@ -50,7 +47,7 @@ test.describe("/token endpoint - Parameter Validation", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_request")
   })
@@ -69,7 +66,7 @@ test.describe("/token endpoint - Parameter Validation", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("unsupported_grant_type")
   })

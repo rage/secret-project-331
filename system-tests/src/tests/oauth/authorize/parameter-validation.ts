@@ -4,9 +4,6 @@ import { AUTHORIZE, REDIRECT_URI, TEST_CLIENT_ID } from "../../../utils/oauth/co
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /authorize endpoint - Parameter Validation
-// ============================================================================
 test.describe("/authorize endpoint - Parameter Validation", () => {
   const validState = "test-state-123"
 

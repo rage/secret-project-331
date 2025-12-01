@@ -14,9 +14,6 @@ import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oaut
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /authorize endpoint - Authorization Code Issuance
-// ============================================================================
 test.describe("/authorize endpoint - Authorization Code Issuance", () => {
   test("code issued with state parameter if provided", async ({ browser }) => {
     const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })

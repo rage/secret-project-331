@@ -18,9 +18,6 @@ import { generateCodeChallenge, generateCodeVerifier } from "../../utils/oauth/p
 import { callUserInfo, exchangeCodeForToken } from "../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// OAuth flow (login during flow)
-// ============================================================================
 test.describe("OAuth flow (login during flow)", () => {
   test("DPoP: prompts for scopes, logs in, approves, exchanges code, and hits userinfo", async ({
     page,
@@ -85,9 +82,6 @@ test.describe("OAuth flow (login during flow)", () => {
   })
 })
 
-// ============================================================================
-// OAuth flow (already logged in via storage state)
-// ============================================================================
 test.describe("OAuth flow (already logged in via storage state)", () => {
   let ctx: BrowserContext
   let page: Page

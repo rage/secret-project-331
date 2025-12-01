@@ -232,15 +232,15 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         web::resource("/token")
             .wrap(build_rate_limiting_middleware(
                 StdDuration::from_secs(60),
-                30,
+                100,
             ))
             .wrap(build_rate_limiting_middleware(
                 StdDuration::from_secs(60 * 60),
-                200,
+                500,
             ))
             .wrap(build_rate_limiting_middleware(
                 StdDuration::from_secs(60 * 60 * 24),
-                1000,
+                2000,
             ))
             .route(web::post().to(token)),
     );

@@ -14,9 +14,6 @@ import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /authorize endpoint - User Authentication State
-// ============================================================================
 test.describe("/authorize endpoint - User Authentication State", () => {
   test("not logged in -> redirect to /login?return_to=...", async ({ page }) => {
     const codeVerifier = generateCodeVerifier()

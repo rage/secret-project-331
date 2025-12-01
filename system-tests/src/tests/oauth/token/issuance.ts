@@ -15,9 +15,6 @@ import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oaut
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /token endpoint - Token Issuance
-// ============================================================================
 test.describe("/token endpoint - Token Issuance", () => {
   test("access token issued with correct format", async ({ page }) => {
     const codeVerifier = generateCodeVerifier()

@@ -9,9 +9,6 @@ import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oaut
 import { callUserInfo, exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /userinfo endpoint - DPoP Token Validation
-// ============================================================================
 test.describe("/userinfo endpoint - DPoP Token Validation", () => {
   async function getDPoPToken(page: Page): Promise<{
     accessToken: string

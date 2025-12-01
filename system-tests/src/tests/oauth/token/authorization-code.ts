@@ -15,9 +15,6 @@ import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oaut
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /token endpoint - Authorization Code Grant
-// ============================================================================
 test.describe("/token endpoint - Authorization Code Grant", () => {
   async function getValidAuthCode(page: Page): Promise<{ code: string; codeVerifier: string }> {
     const codeVerifier = generateCodeVerifier()
@@ -63,7 +60,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_request")
   })
@@ -84,7 +81,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_request")
   })
@@ -105,7 +102,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_grant")
   })
@@ -134,7 +131,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_grant")
   })
@@ -161,7 +158,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_grant")
   })
@@ -187,7 +184,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_grant")
   })

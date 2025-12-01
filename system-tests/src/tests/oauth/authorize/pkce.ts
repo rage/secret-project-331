@@ -5,9 +5,6 @@ import { navigateAndWaitForOAuthError } from "../../../utils/oauth/errorHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /authorize endpoint - PKCE Validation
-// ============================================================================
 test.describe("/authorize endpoint - PKCE Validation", () => {
   test("client requires PKCE, missing code_challenge -> invalid_request error redirect", async ({
     page,

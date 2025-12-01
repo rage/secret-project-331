@@ -15,9 +15,6 @@ import { revokeToken } from "../../../utils/oauth/revokeHelpers"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /token endpoint - Refresh Token Grant
-// ============================================================================
 test.describe("/token endpoint - Refresh Token Grant", () => {
   async function getRefreshToken(page: Page): Promise<string> {
     const codeVerifier = generateCodeVerifier()
@@ -64,7 +61,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_request")
   })
@@ -84,7 +81,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_request")
   })
@@ -104,7 +101,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_grant")
   })
@@ -148,7 +145,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
       },
       body: body2.toString(),
     })
-    expect(response2.status).toBeGreaterThanOrEqual(400)
+    expect(response2.status).toBe(400)
     const data2 = await response2.json()
     expect(data2.error).toBe("invalid_grant")
 
@@ -193,7 +190,7 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_grant")
   })

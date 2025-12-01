@@ -9,9 +9,7 @@ import {
   USERINFO,
   WELL_KNOWN,
 } from "../../utils/oauth/constants"
-// ============================================================================
-// OIDC Discovery and JWKS
-// ============================================================================
+
 test.describe("OIDC discovery and JWKS", () => {
   test("well-known configuration exposes expected fields and values", async () => {
     const resp = await fetch(WELL_KNOWN, { method: "GET", headers: { Accept: "application/json" } })

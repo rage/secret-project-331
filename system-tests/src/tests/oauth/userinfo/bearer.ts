@@ -9,9 +9,6 @@ import { revokeToken } from "../../../utils/oauth/revokeHelpers"
 import { callUserInfo, exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /userinfo endpoint - Bearer Token Validation
-// ============================================================================
 test.describe("/userinfo endpoint - Bearer Token Validation", () => {
   async function getBearerToken(page: Page): Promise<string> {
     const codeVerifier = generateCodeVerifier()
@@ -80,12 +77,7 @@ test.describe("/userinfo endpoint - Bearer Token Validation", () => {
         Accept: "application/json",
       },
     })
-    // Invalid tokens might return 404 or 401 depending on implementation
-    expect(response.status).toBeGreaterThanOrEqual(400)
-    if (response.status === 401) {
-      const data = await response.json()
-      expect(data.error).toBe("invalid_token")
-    }
+    expect(response.status).toBe(404)
   })
 
   test("revoked Bearer token -> invalid_token error", async ({ page }) => {
@@ -106,12 +98,7 @@ test.describe("/userinfo endpoint - Bearer Token Validation", () => {
         Accept: "application/json",
       },
     })
-    // Revoked tokens might return 404 or 401 depending on implementation
-    expect(response.status).toBeGreaterThanOrEqual(400)
-    if (response.status === 401) {
-      const data = await response.json()
-      expect(data.error).toBe("invalid_token")
-    }
+    expect(response.status).toBe(404)
   })
 
   test("Bearer token used with DPoP scheme -> invalid_token error", async ({ page }) => {

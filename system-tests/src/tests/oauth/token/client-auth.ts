@@ -15,9 +15,6 @@ import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oaut
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// /token endpoint - Client Authentication
-// ============================================================================
 test.describe("/token endpoint - Client Authentication", () => {
   async function getValidAuthCode(page: Page): Promise<{ code: string; codeVerifier: string }> {
     const codeVerifier = generateCodeVerifier()
@@ -68,7 +65,7 @@ test.describe("/token endpoint - Client Authentication", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(401)
     const data = await response.json()
     expect(data.error).toBe("invalid_client")
   })
@@ -93,7 +90,7 @@ test.describe("/token endpoint - Client Authentication", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(401)
     const data = await response.json()
     expect(data.error).toBe("invalid_client")
   })
@@ -122,7 +119,7 @@ test.describe("/token endpoint - Client Authentication", () => {
       },
       body: body.toString(),
     })
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(401)
     const data = await response.json()
     expect(data.error).toBe("invalid_client")
   })

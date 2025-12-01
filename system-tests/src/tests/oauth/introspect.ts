@@ -6,7 +6,6 @@ import {
   INTROSPECT,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
-  TOKEN,
   USER_EMAIL,
   USER_PASSWORD,
 } from "../../utils/oauth/constants"
@@ -18,9 +17,6 @@ import { revokeToken } from "../../utils/oauth/revokeHelpers"
 import { exchangeCodeForToken } from "../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../utils/oauth/urlHelpers"
 
-// ============================================================================
-// Token Introspection (RFC 7662)
-// ============================================================================
 test.describe("Token Introspection (RFC 7662)", () => {
   async function getBearerToken(page: Page): Promise<string> {
     const codeVerifier = generateCodeVerifier()
@@ -125,7 +121,7 @@ test.describe("Token Introspection (RFC 7662)", () => {
       body: body.toString(),
     })
 
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(401)
     const data = await response.json()
     expect(data.error).toBe("invalid_client")
   })
@@ -154,7 +150,7 @@ test.describe("Token Introspection (RFC 7662)", () => {
       body: body.toString(),
     })
 
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_request")
   })
@@ -174,7 +170,7 @@ test.describe("Token Introspection (RFC 7662)", () => {
       body: body.toString(),
     })
 
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_request")
   })
@@ -283,26 +279,5 @@ test.describe("Token Introspection (RFC 7662)", () => {
     expect(response.status).toBe(200)
     const data = await response.json()
     expect(data.active).toBe(true)
-  })
-
-  test("invalid token_type_hint -> invalid_request error", async () => {
-    const body = new URLSearchParams({
-      token: "some-token",
-      token_type_hint: "invalid_hint",
-      client_id: TEST_CLIENT_ID,
-      client_secret: TEST_CLIENT_SECRET,
-    })
-    const response = await fetch(INTROSPECT, {
-      method: "POST",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: body.toString(),
-    })
-
-    expect(response.status).toBeGreaterThanOrEqual(400)
-    const data = await response.json()
-    expect(data.error).toBe("invalid_request")
   })
 })

@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{
@@ -29,8 +28,9 @@ use tracing::trace;
 use url::Url;
 
 use crate::chatbot_error::{ChatbotError, ChatbotErrorType, ChatbotResult};
-use crate::chatbot_tools::ChatbotTool;
-use crate::chatbot_tools::course_progress::call_chatbot_tool;
+use crate::chatbot_tools::{
+    AzureLLMToolDefinition, ChatbotTool, call_chatbot_tool, get_chatbot_tools,
+};
 use crate::llm_utils::{
     APIMessage, APIMessageKind, APIMessageText, APIMessageToolCall, APIMessageToolResponse,
     APITool, APIToolCall, chatbot_conversation_message_from_api_message, estimate_tokens,
@@ -222,64 +222,6 @@ pub struct NonThinkingParams {
 pub enum LLMRequestParams {
     Thinking(ThinkingParams),
     NonThinking(NonThinkingParams),
-}
-
-/// A tool definition that is sent to the LLM. A tool that the LLM can call
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct AzureLLMToolDefinition {
-    #[serde(rename = "type")]
-    pub tool_type: LLMToolType,
-    pub function: LLMTool,
-}
-
-/// Content of a tool defintion that is sent to the LLM
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMTool {
-    pub name: String,
-    pub description: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parameters: Option<LLMToolParams>,
-}
-
-/// Parameters that an AzureLLMToolDefinition accepts
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMToolParams {
-    #[serde(rename = "type")]
-    pub tool_type: LLMToolParamType,
-    pub properties: HashMap<String, LLMToolParamProperties>,
-    pub required: Vec<String>,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMToolParamProperties {
-    #[serde(rename = "type")]
-    pub param_type: String,
-    pub description: String,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum LLMToolParamType {
-    Object,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum LLMToolType {
-    Function,
-}
-
-pub fn get_chatbot_tools() -> Vec<AzureLLMToolDefinition> {
-    vec![
-        AzureLLMToolDefinition {
-            tool_type: LLMToolType::Function,
-            function: LLMTool {
-                name: "course_progress".to_string(),
-                description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
-                parameters: None
-            }
-        }
-    ]
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

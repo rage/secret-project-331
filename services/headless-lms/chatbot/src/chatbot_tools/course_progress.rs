@@ -3,10 +3,10 @@ use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
-    chatbot_tools::{ChatbotTool, ToolProperties},
+    chatbot_tools::{AzureLLMToolDefinition, ChatbotTool, LLMTool, LLMToolType, ToolProperties},
 };
 
-type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
+pub type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
 
 impl ChatbotTool for CourseProgressTool {
     type State = CourseProgressState;
@@ -100,6 +100,17 @@ impl ChatbotTool for CourseProgressTool {
     fn get_arguments(&self) -> &Self::Arguments {
         &self.arguments
     }
+
+    fn get_tool_definition() -> AzureLLMToolDefinition {
+        AzureLLMToolDefinition {
+            tool_type: LLMToolType::Function,
+            function: LLMTool {
+                name: "course_progress".to_string(),
+                description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
+                parameters: None
+            }
+        }
+    }
 }
 
 #[derive(serde::Serialize)]
@@ -108,33 +119,6 @@ pub struct CourseProgressArguments {}
 pub struct CourseProgressState {
     course_name: String,
     progress: Vec<UserCourseProgress>,
-}
-
-pub async fn call_chatbot_tool(
-    conn: &mut PgConnection,
-    fn_name: &str,
-    fn_args: &str,
-    user_context: &ChatbotUserContext,
-) -> anyhow::Result<impl ChatbotTool> {
-    let output = match fn_name {
-        // if the function took arguments, this is how:
-        /* "foo" => {
-            let args: Value = serde_json::from_str(fn_args).map_err(|e| {
-                anyhow::anyhow!("Failed to parse LLm function call arguments: {}", e)
-            })?;
-            let fooname = args["fooname"].as_str().ok_or_else(|| anyhow::anyhow!("Required parameter 'fooname' is missing"))?;
-            foo(fooname).await
-        } */
-        "course_progress" => {
-            CourseProgressTool::new(conn, fn_args.to_string(), user_context).await?
-        }
-        _ => {
-            return Err(anyhow::Error::msg(
-                "Incorrect or unknown function name".to_string(),
-            ));
-        }
-    };
-    anyhow::Ok(output)
 }
 
 fn push_exercises_scores_progress(

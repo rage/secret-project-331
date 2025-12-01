@@ -1,6 +1,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { RefObject } from "react"
+import { useTranslation } from "react-i18next"
 
 import { styledRangeInput } from "./RangeComponentStyle"
 
@@ -29,6 +30,8 @@ interface ProgressBarProps {
 }
 
 const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: ProgressBarProps) => {
+  const { t } = useTranslation()
+
   const handleProgressChange = () => {
     if (audioRef?.current && progressBarRef?.current) {
       audioRef.current.currentTime = Number(progressBarRef.current.value)
@@ -46,11 +49,35 @@ const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: Progr
     return "00:00"
   }
 
+  const currentTimeFormatted = formatTime(timeProgress)
+  const durationFormatted = formatTime(duration)
+  const ariaValueText = t("audio-player-seek-value-text", {
+    currentTime: currentTimeFormatted,
+    duration: durationFormatted,
+  })
+
   return (
     <ProgressBarWrapper className={cx(styledRangeInput)}>
-      <span className={cx(time)}>{formatTime(timeProgress)}</span>
-      <input type="range" ref={progressBarRef} defaultValue="0" onChange={handleProgressChange} />
-      <span className={cx(time)}>{formatTime(duration)}</span>
+      <span className={cx(time)} aria-hidden="true">
+        {currentTimeFormatted}
+      </span>
+      <input
+        type="range"
+        ref={progressBarRef}
+        defaultValue="0"
+        min={0}
+        max={duration || 0}
+        value={timeProgress}
+        onChange={handleProgressChange}
+        aria-label={t("audio-player-seek")}
+        aria-valuemin={0}
+        aria-valuemax={duration || 0}
+        aria-valuenow={timeProgress}
+        aria-valuetext={ariaValueText}
+      />
+      <span className={cx(time)} aria-hidden="true">
+        {durationFormatted}
+      </span>
     </ProgressBarWrapper>
   )
 }

@@ -113,12 +113,15 @@ pub async fn process_token_grant(
             .await
             .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
 
+            // Determine if ID token should be issued based on presence of "openid" scope
+            let has_openid = code_row.scopes.iter().any(|s| s == "openid");
+
             Ok(TokenGrantResult {
                 user_id: code_row.user_id,
                 scopes: code_row.scopes,
                 nonce: code_row.nonce.clone(),
                 access_expires_at: request.access_expires_at,
-                issue_id_token: true,
+                issue_id_token: has_openid,
             })
         }
         TokenGrant::RefreshToken { refresh_token, .. } => {

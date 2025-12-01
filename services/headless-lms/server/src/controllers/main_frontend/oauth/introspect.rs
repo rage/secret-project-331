@@ -197,6 +197,9 @@ pub async fn introspect(
     tracing::Span::current().record("token_type", format!("{:?}", access_token.token_type));
     tracing::Span::current().record("token_active", "true");
 
+    // Fetch the client that originally issued the token (not the introspecting client)
+    let token_client = OAuthClient::find_by_id(&mut conn, access_token.client_id).await?;
+
     // Build response with token metadata
     let base_url = app_conf.base_url.trim_end_matches('/');
     let issuer = format!("{}/api/v0/main-frontend/oauth", base_url);
@@ -204,7 +207,7 @@ pub async fn introspect(
     let mut response = IntrospectResponse {
         active: true,
         scope: Some(access_token.scopes.join(" ")),
-        client_id: Some(client.client_id.clone()),
+        client_id: Some(token_client.client_id.clone()),
         username: access_token.user_id.map(|id| id.to_string()),
         exp: Some(access_token.expires_at.timestamp()),
         iat: Some(access_token.created_at.timestamp()),

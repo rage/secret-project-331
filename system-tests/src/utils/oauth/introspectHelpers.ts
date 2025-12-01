@@ -1,3 +1,5 @@
+import { expect } from "@playwright/test"
+
 import { INTROSPECT, TEST_CLIENT_ID, TEST_CLIENT_SECRET } from "./constants"
 
 export interface IntrospectResponse {
@@ -51,9 +53,8 @@ export async function introspectToken(
     body: body.toString(),
   })
 
-  if (!response.ok) {
-    throw new Error(`Introspection failed: ${response.status} ${response.statusText}`)
-  }
+  expect(response.ok).toBe(true)
+  expect(response.status).toBeLessThan(400)
 
   return response.json()
 }

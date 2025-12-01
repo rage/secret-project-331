@@ -97,10 +97,8 @@ test.describe("Token Revocation (RFC 7009)", () => {
 
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    if (!tok.refresh_token) {
-      throw new Error("Expected refresh_token but got none")
-    }
-    return tok.refresh_token
+    expect(tok.refresh_token).toBeTruthy()
+    return tok.refresh_token!
   }
 
   // ========== Success Cases ==========

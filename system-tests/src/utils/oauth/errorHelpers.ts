@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test"
+import { expect, Page } from "@playwright/test"
 
 import { REDIRECT_URI } from "./constants"
 
@@ -32,19 +32,17 @@ export async function extractOAuthErrorFromRedirect(
   const error_description = finalUrl.searchParams.get("error_description")
   const state = finalUrl.searchParams.get("state")
 
-  if (!error) {
-    throw new Error(`Expected OAuth error in redirect URL, got: ${finalUrl.toString()}`)
-  }
+  expect(error).toBeTruthy()
 
-  const result: OAuthError = { error }
+  const result: OAuthError = { error: error! }
   if (error_description) {
     result.error_description = error_description
   }
   if (state) {
     result.state = state
   }
-  if (expectedState && state !== expectedState) {
-    throw new Error(`Expected state "${expectedState}", got "${state}"`)
+  if (expectedState) {
+    expect(state).toBe(expectedState)
   }
 
   return result

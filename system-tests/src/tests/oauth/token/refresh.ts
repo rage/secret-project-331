@@ -46,10 +46,8 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    if (!tok.refresh_token) {
-      throw new Error("Expected refresh_token but got none")
-    }
-    return tok.refresh_token
+    expect(tok.refresh_token).toBeTruthy()
+    return tok.refresh_token!
   }
 
   test("missing refresh_token parameter -> invalid_request error", async () => {

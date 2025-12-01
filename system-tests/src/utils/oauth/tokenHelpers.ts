@@ -50,11 +50,19 @@ export async function exchangeCodeForToken(code: string, mode: AuthMode, codeVer
     }
   }
 
-  if (resp.status >= 400) {
-    throw new Error(`Token endpoint error ${resp.status}: ${JSON.stringify(data)}`)
-  }
+  expect(resp.status).toBeLessThan(400)
   expect(data.access_token).toBeTruthy()
   return data as { access_token: string; refresh_token?: string; token_type?: string }
+}
+
+interface UserInfoResponse {
+  sub: string
+  [key: string]: unknown
+}
+
+interface DPoPErrorResponse {
+  error?: string
+  [key: string]: unknown
 }
 
 export async function callUserInfo(accessToken: string, mode: AuthMode) {
@@ -69,32 +77,26 @@ export async function callUserInfo(accessToken: string, mode: AuthMode) {
   }
 
   let resp = await fetch(USERINFO, { method: "GET", headers })
-  const text = await resp.text()
-  let json
-  try {
-    json = JSON.parse(text)
-  } catch {
-    throw new Error(`userinfo response not JSON: status=${resp.status} body=${text}`)
-  }
+  let text = await resp.text()
 
   // Handle DPoP nonce requirement
-  if (resp.status === 401 && mode.kind === "dpop" && json.error === "use_dpop_nonce") {
-    const dpopNonce = resp.headers.get("DPoP-Nonce")
-    if (dpopNonce) {
-      // Retry with the nonce
-      const ath = toB64Url(crypto.createHash("sha256").update(accessToken, "utf8").digest())
-      headers.DPoP = await makeDPoP("GET", USERINFO, mode.key, ath, dpopNonce)
-      resp = await fetch(USERINFO, { method: "GET", headers })
-      const retryText = await resp.text()
-      try {
-        json = JSON.parse(retryText)
-      } catch {
-        throw new Error(`userinfo response not JSON: status=${resp.status} body=${retryText}`)
+  if (resp.status === 401 && mode.kind === "dpop") {
+    const initialJson = JSON.parse(text) as DPoPErrorResponse
+    if (initialJson.error === "use_dpop_nonce") {
+      const dpopNonce = resp.headers.get("DPoP-Nonce")
+      if (dpopNonce) {
+        // Retry with the nonce
+        const ath = toB64Url(crypto.createHash("sha256").update(accessToken, "utf8").digest())
+        headers.DPoP = await makeDPoP("GET", USERINFO, mode.key, ath, dpopNonce)
+        resp = await fetch(USERINFO, { method: "GET", headers })
+        text = await resp.text()
       }
     }
   }
 
   expect(resp.status).toBe(200)
+  expect(() => JSON.parse(text)).not.toThrow()
+  const json = JSON.parse(text) as UserInfoResponse
   expect(json.sub).toBeTruthy()
   return json
 }

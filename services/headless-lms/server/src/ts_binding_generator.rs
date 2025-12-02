@@ -359,9 +359,21 @@ fn controllers(target: &mut File) {
             status::EventInfo,
             status::IngressInfo,
             status::JobInfo,
+            status::PodDisruptionBudgetInfo,
             status::PodInfo,
             status::ServiceInfo,
             status::ServicePortInfo,
+        };
+    }
+
+    // domain
+    {
+        use crate::domain::*;
+        export! {
+            target,
+
+            system_health::HealthStatus,
+            system_health::SystemHealthStatus,
         };
     }
 }

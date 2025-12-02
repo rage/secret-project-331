@@ -86,6 +86,7 @@
   "label-points-are-all-or-nothing": "Points are all or nothing",
   "label-question": "Question",
   "label-repeat-background-x": "Repeat background horizontally",
+  "label-reset-answer-if-zero": "Automatically reset the answer if the review results in zero points",
   "label-template-name": "Template name",
   "label-title": "Title",
   "label-weight": "Weight",

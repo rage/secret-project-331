@@ -7,7 +7,9 @@ use crate::{
     },
     prelude::*,
 };
-use headless_lms_models::flagged_answers::FlaggedAnswer;
+use headless_lms_models::{
+    ModelError, ModelErrorType, flagged_answers::FlaggedAnswer, peer_or_self_review_configs,
+};
 use models::{
     exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::CourseMaterialExercise,
@@ -305,14 +307,48 @@ async fn submit_peer_or_self_review(
         )
         .await?;
         if let Some(receiver_user_exercise_state) = receiver_user_exercise_state {
+            let mut tx = conn.begin().await?;
+
             models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
-            &mut conn,
+            &mut tx,
             &exercise,
             giver_user_exercise_state,
             receiver_user_exercise_state,
             payload.0,
         )
         .await?;
+
+            // Get updater receiver state after possible update above
+            let updated_receiver_state = user_exercise_states::get_user_exercise_state_if_exists(
+                &mut tx,
+                exercise_slide_submission.user_id,
+                exercise.id,
+                CourseOrExamId::Course(receiver_course_id),
+            )
+            .await?
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Receiver exercise state not found".to_string(),
+                    None,
+                )
+            })?;
+
+            let peer_or_self_review_config =
+                peer_or_self_review_configs::get_by_exercise_or_course_id(
+                    &mut tx,
+                    &exercise,
+                    exercise.get_course_id()?,
+                )
+                .await?;
+
+            let _ = models::library::peer_or_self_reviewing::reset_exercise_if_needed_if_zero_points_from_review(
+                &mut tx,
+                &peer_or_self_review_config,
+                &updated_receiver_state,
+            ).await?;
+
+            tx.commit().await?;
         } else {
             warn!(
                 "No user exercise state found for receiver's exercise slide submission id: {}",

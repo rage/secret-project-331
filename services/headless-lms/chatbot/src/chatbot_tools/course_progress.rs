@@ -128,7 +128,7 @@ impl ChatbotTool for CourseProgressTool {
     }
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct CourseProgressArguments {}
 
 pub struct CourseProgressState {

@@ -1,6 +1,6 @@
 use crate::{
-    chatbot_conversation_message_tool_calls::{self, ToolCallFields},
-    chatbot_conversation_message_tool_outputs::{self, ToolOutput},
+    chatbot_conversation_message_tool_calls::{self, ChatbotConversationMessageToolCall},
+    chatbot_conversation_message_tool_outputs::{self, ChatbotConversationMessageToolOutput},
     prelude::*,
 };
 
@@ -43,8 +43,8 @@ pub struct ChatbotConversationMessage {
     pub message_is_complete: bool,
     pub used_tokens: i32,
     pub order_number: i32,
-    pub tool_output: Option<ToolOutput>,
-    pub tool_call_fields: Vec<ToolCallFields>,
+    pub tool_output: Option<ChatbotConversationMessageToolOutput>,
+    pub tool_call_fields: Vec<ChatbotConversationMessageToolCall>,
 }
 
 impl Default for ChatbotConversationMessage {
@@ -69,8 +69,8 @@ impl Default for ChatbotConversationMessage {
 impl ChatbotConversationMessage {
     pub fn from_row(
         r: ChatbotConversationMessageRow,
-        o: Option<ToolOutput>,
-        c: Vec<ToolCallFields>,
+        o: Option<ChatbotConversationMessageToolOutput>,
+        c: Vec<ChatbotConversationMessageToolCall>,
     ) -> Self {
         ChatbotConversationMessage {
             id: r.id,

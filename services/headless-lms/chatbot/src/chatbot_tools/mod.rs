@@ -33,6 +33,7 @@ pub trait ChatbotTool {
     /// communicate the tool output. Just-in-time prompt.
     fn output_description_instructions(&self) -> Option<&str>;
 
+    /// Get and format tool output and instructions for LLM
     fn get_tool_output(&self) -> String {
         let output = self.output();
         let instructions = self.output_description_instructions();

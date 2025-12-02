@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ToolOutput {
+pub struct ChatbotConversationMessageToolOutput {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -13,7 +13,7 @@ pub struct ToolOutput {
     pub tool_call_id: String,
 }
 
-impl Default for ToolOutput {
+impl Default for ChatbotConversationMessageToolOutput {
     fn default() -> Self {
         Self {
             id: Uuid::nil(),
@@ -30,11 +30,11 @@ impl Default for ToolOutput {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    input: ToolOutput,
+    input: ChatbotConversationMessageToolOutput,
     msg_id: Uuid,
-) -> ModelResult<ToolOutput> {
+) -> ModelResult<ChatbotConversationMessageToolOutput> {
     let res = sqlx::query_as!(
-        ToolOutput,
+        ChatbotConversationMessageToolOutput,
         r#"
         INSERT INTO chatbot_conversation_message_tool_outputs (
           message_id,
@@ -53,9 +53,12 @@ pub async fn insert(
     Ok(res)
 }
 
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ToolOutput> {
+pub async fn get_by_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ChatbotConversationMessageToolOutput> {
     let res = sqlx::query_as!(
-        ToolOutput,
+        ChatbotConversationMessageToolOutput,
         r#"
         SELECT * FROM chatbot_conversation_message_tool_outputs
         WHERE id = $1
@@ -68,9 +71,12 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ToolOut
     Ok(res)
 }
 
-pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<ToolOutput> {
+pub async fn delete(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ChatbotConversationMessageToolOutput> {
     let res = sqlx::query_as!(
-        ToolOutput,
+        ChatbotConversationMessageToolOutput,
         r#"
         UPDATE chatbot_conversation_message_tool_outputs
         SET deleted_at = NOW()

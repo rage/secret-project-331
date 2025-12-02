@@ -21,7 +21,7 @@
       {
         "ordinal": 3,
         "name": "tool_arguments",
-        "type_info": "Varchar"
+        "type_info": "Jsonb"
       },
       {
         "ordinal": 4,
@@ -48,7 +48,7 @@
       "Left": [
         "Uuid",
         "Varchar",
-        "Varchar",
+        "Jsonb",
         "Varchar"
       ]
     },

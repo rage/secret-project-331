@@ -2,18 +2,18 @@ use crate::prelude::*;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ToolCallFields {
+pub struct ChatbotConversationMessageToolCall {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub message_id: Uuid,
     pub tool_name: String,
-    pub tool_arguments: String,
+    pub tool_arguments: serde_json::Value,
     pub tool_call_id: String,
 }
 
-impl Default for ToolCallFields {
+impl Default for ChatbotConversationMessageToolCall {
     fn default() -> Self {
         Self {
             id: Uuid::nil(),
@@ -30,11 +30,11 @@ impl Default for ToolCallFields {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    input: ToolCallFields,
+    input: ChatbotConversationMessageToolCall,
     msg_id: Uuid,
-) -> ModelResult<ToolCallFields> {
+) -> ModelResult<ChatbotConversationMessageToolCall> {
     let res = sqlx::query_as!(
-        ToolCallFields,
+        ChatbotConversationMessageToolCall,
         r#"
         INSERT INTO chatbot_conversation_message_tool_calls (
           message_id,
@@ -53,9 +53,12 @@ pub async fn insert(
     Ok(res)
 }
 
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ToolCallFields> {
+pub async fn get_by_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ChatbotConversationMessageToolCall> {
     let res = sqlx::query_as!(
-        ToolCallFields,
+        ChatbotConversationMessageToolCall,
         r#"
         SELECT * FROM chatbot_conversation_message_tool_calls
         WHERE id = $1
@@ -71,9 +74,9 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ToolCal
 pub async fn get_by_message_id(
     conn: &mut PgConnection,
     msg_id: Uuid,
-) -> ModelResult<Vec<ToolCallFields>> {
+) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
     let res = sqlx::query_as!(
-        ToolCallFields,
+        ChatbotConversationMessageToolCall,
         r#"
         SELECT * FROM chatbot_conversation_message_tool_calls
         WHERE message_id = $1
@@ -89,9 +92,9 @@ pub async fn get_by_message_id(
 pub async fn delete_all_by_message_id(
     conn: &mut PgConnection,
     msg_id: Uuid,
-) -> ModelResult<Vec<ToolCallFields>> {
+) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
     let res = sqlx::query_as!(
-        ToolCallFields,
+        ChatbotConversationMessageToolCall,
         r#"
         UPDATE chatbot_conversation_message_tool_calls
         SET deleted_at = NOW()

@@ -5,8 +5,8 @@ use crate::{
 };
 use core::default::Default;
 use headless_lms_models::{
-    chatbot_conversation_message_tool_calls::ToolCallFields,
-    chatbot_conversation_message_tool_outputs::ToolOutput,
+    chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
+    chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
     chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
 };
 use headless_lms_utils::ApplicationConfiguration;
@@ -49,8 +49,8 @@ pub fn chatbot_conversation_message_from_api_message(
             let tool_call_fields = msg
                 .tool_calls
                 .iter()
-                .map(|x| ToolCallFields::from(x.to_owned()))
-                .collect();
+                .map(|x| ChatbotConversationMessageToolCall::try_from(x.to_owned()))
+                .collect::<ChatbotResult<Vec<_>>>()?;
             let estimated_tokens: i32 = msg
                 .tool_calls
                 .iter()
@@ -74,7 +74,7 @@ pub fn chatbot_conversation_message_from_api_message(
             message_is_complete: true,
             message: None,
             used_tokens: 0,
-            tool_output: Some(ToolOutput::from(msg)),
+            tool_output: Some(ChatbotConversationMessageToolOutput::from(msg)),
             ..Default::default()
         },
     };
@@ -110,8 +110,8 @@ pub struct APIMessageToolResponse {
     pub content: String,
 }
 
-impl From<ToolOutput> for APIMessageToolResponse {
-    fn from(value: ToolOutput) -> Self {
+impl From<ChatbotConversationMessageToolOutput> for APIMessageToolResponse {
+    fn from(value: ChatbotConversationMessageToolOutput) -> Self {
         APIMessageToolResponse {
             tool_call_id: value.tool_call_id,
             name: value.tool_name,
@@ -120,9 +120,9 @@ impl From<ToolOutput> for APIMessageToolResponse {
     }
 }
 
-impl From<APIMessageToolResponse> for ToolOutput {
+impl From<APIMessageToolResponse> for ChatbotConversationMessageToolOutput {
     fn from(value: APIMessageToolResponse) -> Self {
-        ToolOutput {
+        ChatbotConversationMessageToolOutput {
             tool_name: value.name,
             tool_output: value.content,
             tool_call_id: value.tool_call_id,
@@ -140,11 +140,11 @@ pub struct APIToolCall {
     pub tool_type: ToolCallType,
 }
 
-impl From<ToolCallFields> for APIToolCall {
-    fn from(value: ToolCallFields) -> Self {
+impl From<ChatbotConversationMessageToolCall> for APIToolCall {
+    fn from(value: ChatbotConversationMessageToolCall) -> Self {
         APIToolCall {
             function: APITool {
-                arguments: value.tool_arguments,
+                arguments: value.tool_arguments.to_string(),
                 name: value.tool_name,
             },
             id: value.tool_call_id,
@@ -153,14 +153,15 @@ impl From<ToolCallFields> for APIToolCall {
     }
 }
 
-impl From<APIToolCall> for ToolCallFields {
-    fn from(value: APIToolCall) -> Self {
-        ToolCallFields {
+impl TryFrom<APIToolCall> for ChatbotConversationMessageToolCall {
+    type Error = ChatbotError;
+    fn try_from(value: APIToolCall) -> ChatbotResult<Self> {
+        Ok(ChatbotConversationMessageToolCall {
             tool_name: value.function.name,
-            tool_arguments: value.function.arguments,
+            tool_arguments: serde_json::from_str(&value.function.arguments)?,
             tool_call_id: value.id,
             ..Default::default()
-        }
+        })
     }
 }
 

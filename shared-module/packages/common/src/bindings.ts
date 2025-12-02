@@ -274,8 +274,8 @@ export interface ChatbotConversationMessage {
   message_is_complete: boolean
   used_tokens: number
   order_number: number
-  tool_output: ToolOutput | null
-  tool_call_fields: Array<ToolCallFields>
+  tool_output: ChatbotConversationMessageToolOutput | null
+  tool_call_fields: Array<ChatbotConversationMessageToolCall>
 }
 
 export type MessageRole = "assistant" | "user" | "tool" | "system"
@@ -294,18 +294,18 @@ export interface ChatbotConversationMessageCitation {
   citation_number: number
 }
 
-export interface ToolCallFields {
+export interface ChatbotConversationMessageToolCall {
   id: string
   created_at: string
   updated_at: string
   deleted_at: string | null
   message_id: string
   tool_name: string
-  tool_arguments: string
+  tool_arguments: unknown
   tool_call_id: string
 }
 
-export interface ToolOutput {
+export interface ChatbotConversationMessageToolOutput {
   id: string
   created_at: string
   updated_at: string

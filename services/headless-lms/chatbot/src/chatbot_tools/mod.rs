@@ -15,7 +15,7 @@ pub trait ChatbotTool {
     type Arguments: Serialize;
 
     /// Parse the LLM-generated function arguments and clean them
-    fn parse_arguments(args_string: impl Into<Option<String>>) -> Self::Arguments;
+    fn parse_arguments(args_string: Option<String>) -> Self::Arguments;
 
     /// Create a new instance after parsing arguments
     fn from_db_and_arguments(
@@ -57,7 +57,7 @@ pub trait ChatbotTool {
     /// Create a new instance from connection, args and context
     fn new(
         conn: &mut PgConnection,
-        args_string: impl Into<Option<String>>,
+        args_string: Option<String>,
         user_context: &ChatbotUserContext,
     ) -> impl std::future::Future<Output = Result<Self, ModelError>> + Send
     where

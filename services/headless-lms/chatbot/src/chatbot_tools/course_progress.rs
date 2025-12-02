@@ -12,7 +12,7 @@ impl ChatbotTool for CourseProgressTool {
     type State = CourseProgressState;
     type Arguments = CourseProgressArguments;
 
-    fn parse_arguments(_args_string: impl Into<Option<String>>) -> Self::Arguments {
+    fn parse_arguments(_args_string: Option<String>) -> Self::Arguments {
         CourseProgressArguments {}
     }
 
@@ -106,7 +106,7 @@ impl ChatbotTool for CourseProgressTool {
 
     fn output_description_instructions(&self) -> Option<&str> {
         Some(
-            "Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.",
+            "Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question.",
         )
     }
 

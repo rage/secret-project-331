@@ -61,7 +61,7 @@ pub async fn insert_batch(
     conn: &mut PgConnection,
     input: Vec<ChatbotConversationMessageToolCall>,
     msg_id: Uuid,
-) -> ModelResult<ChatbotConversationMessageToolCall> {
+) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
     let tool_names: Vec<String> = input.iter().map(|i| i.tool_name.to_owned()).collect();
     let tool_args: Vec<Value> = input.iter().map(|i| i.tool_arguments.to_owned()).collect();
     let tool_ids: Vec<String> = input.iter().map(|i| i.tool_call_id.to_owned()).collect();
@@ -86,7 +86,7 @@ RETURNING *
         &tool_args,
         &tool_ids,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

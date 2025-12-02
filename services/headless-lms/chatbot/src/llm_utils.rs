@@ -26,59 +26,125 @@ pub struct APIMessage {
     pub fields: APIMessageKind,
 }
 
-// todo should be a method??
-/// Create a ChatbotConversationMessage from an APIMessage to save it into the DB.
-/// Notice that the insert operation ignores some of the fields, like timestamps.
-/// The try_from doesn't set the correct order_number field value.
-pub fn chatbot_conversation_message_from_api_message(
-    message: APIMessage,
-    conversation_id: Uuid,
-    order_number: i32,
-) -> ChatbotResult<ChatbotConversationMessage> {
-    let res = match message.fields {
-        APIMessageKind::Text(msg) => ChatbotConversationMessage {
-            message_role: message.role,
-            conversation_id,
-            order_number,
-            message_is_complete: true,
-            used_tokens: estimate_tokens(&msg.content),
-            message: Some(msg.content),
-            ..Default::default()
-        },
-        APIMessageKind::ToolCall(msg) => {
-            let tool_call_fields = msg
-                .tool_calls
-                .iter()
-                .map(|x| ChatbotConversationMessageToolCall::try_from(x.to_owned()))
-                .collect::<ChatbotResult<Vec<_>>>()?;
-            let estimated_tokens: i32 = msg
-                .tool_calls
-                .iter()
-                .map(|x| estimate_tokens(&x.function.arguments))
-                .sum();
-            ChatbotConversationMessage {
-                message_role: message.role,
+impl APIMessage {
+    /// Create a ChatbotConversationMessage from an APIMessage to save it into the DB.
+    /// Notice that the insert operation ignores some of the fields, like timestamps.
+    /// The try_from doesn't set the correct order_number field value.
+    pub fn to_chatbot_conversation_message(
+        &self,
+        conversation_id: Uuid,
+        order_number: i32,
+    ) -> ChatbotResult<ChatbotConversationMessage> {
+        let res = match self.fields.clone() {
+            APIMessageKind::Text(msg) => ChatbotConversationMessage {
+                message_role: self.role,
+                conversation_id,
+                order_number,
+                message_is_complete: true,
+                used_tokens: estimate_tokens(&msg.content),
+                message: Some(msg.content),
+                ..Default::default()
+            },
+            APIMessageKind::ToolCall(msg) => {
+                let tool_call_fields = msg
+                    .tool_calls
+                    .iter()
+                    .map(|x| ChatbotConversationMessageToolCall::try_from(x.to_owned()))
+                    .collect::<ChatbotResult<Vec<_>>>()?;
+                let estimated_tokens: i32 = msg
+                    .tool_calls
+                    .iter()
+                    .map(|x| estimate_tokens(&x.function.arguments))
+                    .sum();
+                ChatbotConversationMessage {
+                    message_role: self.role,
+                    conversation_id,
+                    order_number,
+                    message_is_complete: true,
+                    message: None,
+                    tool_call_fields,
+                    used_tokens: estimated_tokens,
+                    ..Default::default()
+                }
+            }
+            APIMessageKind::ToolResponse(msg) => ChatbotConversationMessage {
+                message_role: self.role,
                 conversation_id,
                 order_number,
                 message_is_complete: true,
                 message: None,
-                tool_call_fields,
-                used_tokens: estimated_tokens,
+                used_tokens: 0,
+                tool_output: Some(ChatbotConversationMessageToolOutput::from(msg)),
                 ..Default::default()
+            },
+        };
+        Result::Ok(res)
+    }
+}
+
+impl TryFrom<ChatbotConversationMessage> for APIMessage {
+    type Error = ChatbotError;
+    fn try_from(message: ChatbotConversationMessage) -> ChatbotResult<Self> {
+        let res = match message.message_role {
+            MessageRole::Assistant => {
+                if !message.tool_call_fields.is_empty() {
+                    APIMessage {
+                        role: message.message_role,
+                        fields: APIMessageKind::ToolCall(APIMessageToolCall {
+                            tool_calls: message
+                                .tool_call_fields
+                                .iter()
+                                .map(|f| APIToolCall::from(f.clone()))
+                                .collect(),
+                        }),
+                    }
+                } else if let Some(msg) = message.message {
+                    APIMessage {
+                        role: message.message_role,
+                        fields: APIMessageKind::Text(APIMessageText { content: msg }),
+                    }
+                } else {
+                    return Err(ChatbotError::new(
+                        ChatbotErrorType::InvalidMessageShape,
+                        "A 'role: assistant' type ChatbotConversationMessage must have either tool_call_fields or a text message.",
+                        None,
+                    ));
+                }
             }
-        }
-        APIMessageKind::ToolResponse(msg) => ChatbotConversationMessage {
-            message_role: message.role,
-            conversation_id,
-            order_number,
-            message_is_complete: true,
-            message: None,
-            used_tokens: 0,
-            tool_output: Some(ChatbotConversationMessageToolOutput::from(msg)),
-            ..Default::default()
-        },
-    };
-    Result::Ok(res)
+            MessageRole::Tool => {
+                if let Some(tool_output) = message.tool_output {
+                    APIMessage {
+                        role: message.message_role,
+                        fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
+                            tool_call_id: tool_output.tool_call_id,
+                            name: tool_output.tool_name,
+                            content: tool_output.tool_output,
+                        }),
+                    }
+                } else {
+                    return Err(ChatbotError::new(
+                        ChatbotErrorType::InvalidMessageShape,
+                        "A 'role: tool' type ChatbotConversationMessage must have field tool_output.",
+                        None,
+                    ));
+                }
+            }
+            MessageRole::User => APIMessage {
+                role: message.message_role,
+                fields: APIMessageKind::Text(APIMessageText {
+                    content: message.message.unwrap_or_default(),
+                }),
+            },
+            MessageRole::System => {
+                return Err(ChatbotError::new(
+                    ChatbotErrorType::InvalidMessageShape,
+                    "A 'role: system' type ChatbotConversationMessage cannot be saved into the database.",
+                    None,
+                ));
+            }
+        };
+        Result::Ok(res)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

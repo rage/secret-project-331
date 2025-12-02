@@ -17,7 +17,6 @@ use headless_lms_models::chatbot_conversation_messages::{
 };
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::ApplicationConfiguration;
-use headless_lms_utils::prelude::BackendError;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -27,14 +26,13 @@ use tokio_util::io::StreamReader;
 use tracing::trace;
 use url::Url;
 
-use crate::chatbot_error::{ChatbotError, ChatbotErrorType, ChatbotResult};
+use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::{
-    AzureLLMToolDefinition, ChatbotTool, call_chatbot_tool, get_chatbot_tools,
+    AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
 use crate::llm_utils::{
     APIMessage, APIMessageKind, APIMessageText, APIMessageToolCall, APIMessageToolResponse,
-    APITool, APIToolCall, chatbot_conversation_message_from_api_message, estimate_tokens,
-    make_streaming_llm_request,
+    APITool, APIToolCall, estimate_tokens, make_streaming_llm_request,
 };
 use headless_lms_utils::url_encoding::url_decode;
 
@@ -125,71 +123,6 @@ pub struct ResponseChunk {
     pub model: String,
     pub object: String,
     pub system_fingerprint: Option<String>,
-}
-
-impl TryFrom<ChatbotConversationMessage> for APIMessage {
-    type Error = ChatbotError;
-    fn try_from(message: ChatbotConversationMessage) -> ChatbotResult<Self> {
-        let res = match message.message_role {
-            MessageRole::Assistant => {
-                if !message.tool_call_fields.is_empty() {
-                    APIMessage {
-                        role: message.message_role,
-                        fields: APIMessageKind::ToolCall(APIMessageToolCall {
-                            tool_calls: message
-                                .tool_call_fields
-                                .iter()
-                                .map(|f| APIToolCall::from(f.clone()))
-                                .collect(),
-                        }),
-                    }
-                } else if let Some(msg) = message.message {
-                    APIMessage {
-                        role: message.message_role,
-                        fields: APIMessageKind::Text(APIMessageText { content: msg }),
-                    }
-                } else {
-                    return Err(ChatbotError::new(
-                        ChatbotErrorType::InvalidMessageShape,
-                        "A 'role: assistant' type ChatbotConversationMessage must have either tool_call_fields or a text message.",
-                        None,
-                    ));
-                }
-            }
-            MessageRole::Tool => {
-                if let Some(tool_output) = message.tool_output {
-                    APIMessage {
-                        role: message.message_role,
-                        fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
-                            tool_call_id: tool_output.tool_call_id,
-                            name: tool_output.tool_name,
-                            content: tool_output.tool_output,
-                        }),
-                    }
-                } else {
-                    return Err(ChatbotError::new(
-                        ChatbotErrorType::InvalidMessageShape,
-                        "A 'role: tool' type ChatbotConversationMessage must have field tool_output.",
-                        None,
-                    ));
-                }
-            }
-            MessageRole::User => APIMessage {
-                role: message.message_role,
-                fields: APIMessageKind::Text(APIMessageText {
-                    content: message.message.unwrap_or_default(),
-                }),
-            },
-            MessageRole::System => {
-                return Err(ChatbotError::new(
-                    ChatbotErrorType::InvalidMessageShape,
-                    "A 'role: system' type ChatbotConversationMessage cannot be saved into the database.",
-                    None,
-                ));
-            }
-        };
-        Result::Ok(res)
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -352,7 +285,7 @@ impl LLMRequest {
         };
 
         let tools = if configuration.use_tools {
-            get_chatbot_tools()
+            get_chatbot_tool_definitions()
         } else {
             Vec::new()
         };
@@ -418,11 +351,7 @@ impl LLMRequest {
         mut order_number: i32,
     ) -> anyhow::Result<(Self, i32)> {
         for m in new_msgs {
-            let converted_msg = chatbot_conversation_message_from_api_message(
-                m.to_owned(),
-                conversation_id,
-                order_number,
-            )?;
+            let converted_msg = m.to_chatbot_conversation_message(conversation_id, order_number)?;
             chatbot_conversation_messages::insert(conn, converted_msg).await?;
             self.messages.push(m);
             order_number += 1;
@@ -672,8 +601,7 @@ pub async fn parse_tool<'a>(
             let mut tool_result_msgs = Vec::new();
 
             for (name, id, args) in function_name_id_args.iter() {
-                // created and args parsed before above tool msg append
-                let tool = call_chatbot_tool(conn, name, args, user_context).await?;
+                let tool = get_chatbot_tool(conn, name, args, user_context).await?;
 
                 assistant_tool_calls.push(APIToolCall {
                     function: APITool {

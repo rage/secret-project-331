@@ -119,13 +119,13 @@ pub enum LLMToolType {
 }
 
 /// Get a vec of AzureLLMToolDefinitions for all available chatbot tools
-pub fn get_chatbot_tools() -> Vec<AzureLLMToolDefinition> {
+pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
     vec![CourseProgressTool::get_tool_definition()]
 }
 
 /// Call a chatbot tool with LLM-provided function (tool) name and arguments.
 /// User context and db connection are needed for some tools.
-pub async fn call_chatbot_tool(
+pub async fn get_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
     fn_args: &str,

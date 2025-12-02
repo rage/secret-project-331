@@ -76,9 +76,7 @@ impl ChatbotTool for CourseProgressTool {
                     module.score_maximum,
                     module.score_required,
                     "module",
-                ) + &format!(
-                    "To pass the course, it's required to pass the base module. The following modules are additional to the course and to complete them, it's required to first complete the base module. \n"
-                )
+                ) + "To pass the course, it's required to pass the base module. The following modules are additional to the course and to complete them, it's required to first complete the base module. \n"
             } else {
                 // If the `progress` vec is empty, then:
                 "There is no progress information for this user on this course. ".to_string()
@@ -154,11 +152,11 @@ fn push_exercises_scores_progress(
         }
         if let Some(b) = score_maximum {
             if total_exercises.is_some() {
-                res += &format!(" and ");
+                res += " and ";
             }
             res += &format!("{b} exercise points");
         }
-        res += &format!(". ");
+        res += ". ";
     }
 
     if attempted_exercises_required.is_some() || score_required.is_some() {
@@ -169,11 +167,11 @@ fn push_exercises_scores_progress(
         }
         if let Some(b) = score_required {
             if attempted_exercises_required.is_some() {
-                res += &format!(" and ");
+                res += " and ";
             }
             res += &format!("gain {b} exercise points");
         }
-        res += &format!(". ");
+        res += ". ";
     }
 
     if let Some(b) = attempted_exercises {

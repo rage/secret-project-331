@@ -36,13 +36,15 @@ pub async fn insert(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolOutput,
         r#"
-        INSERT INTO chatbot_conversation_message_tool_outputs (
-          message_id,
-          tool_name,
-          tool_output,
-          tool_call_id
-        ) VALUES ($1, $2, $3, $4) RETURNING *
-                "#,
+INSERT INTO chatbot_conversation_message_tool_outputs (
+    message_id,
+    tool_name,
+    tool_output,
+    tool_call_id
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING *
+        "#,
         msg_id,
         input.tool_name,
         input.tool_output,
@@ -60,9 +62,10 @@ pub async fn get_by_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolOutput,
         r#"
-        SELECT * FROM chatbot_conversation_message_tool_outputs
-        WHERE id = $1
-        AND deleted_at IS NULL
+SELECT *
+FROM chatbot_conversation_message_tool_outputs
+WHERE id = $1
+  AND deleted_at IS NULL
         "#,
         id
     )
@@ -78,10 +81,10 @@ pub async fn delete(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolOutput,
         r#"
-        UPDATE chatbot_conversation_message_tool_outputs
-        SET deleted_at = NOW()
-        WHERE id = $1
-        RETURNING *
+UPDATE chatbot_conversation_message_tool_outputs
+SET deleted_at = NOW()
+WHERE id = $1
+RETURNING *
         "#,
         id
     )

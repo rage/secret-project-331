@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO chatbot_conversation_message_tool_calls (\n          message_id,\n          tool_name,\n          tool_arguments,\n          tool_call_id\n        ) SELECT $1,\n            UNNEST($2::VARCHAR(255)[]),\n            UNNEST($3::JSONB[]),\n            UNNEST($4::VARCHAR(255)[])\n        RETURNING *\n                ",
+  "query": "\nINSERT INTO chatbot_conversation_message_tool_calls (\n    message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -47,9 +47,9 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "VarcharArray",
-        "JsonbArray",
-        "VarcharArray"
+        "Varchar",
+        "Jsonb",
+        "Varchar"
       ]
     },
     "nullable": [
@@ -63,5 +63,5 @@
       true
     ]
   },
-  "hash": "99eaf326efd1ead95e304f7a0f9bd0e6fa5f4d75d1ab8ec1edfae518e1d9be09"
+  "hash": "4c5843fa704a7f93226647a0a4fecef06cbe69fc7c46a210588835f6799212e6"
 }

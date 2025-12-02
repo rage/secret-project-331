@@ -38,13 +38,15 @@ pub async fn insert(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-        INSERT INTO chatbot_conversation_message_tool_calls (
-          message_id,
-          tool_name,
-          tool_arguments,
-          tool_call_id
-        ) VALUES ($1, $2, $3, $4) RETURNING *
-                "#,
+INSERT INTO chatbot_conversation_message_tool_calls (
+    message_id,
+    tool_name,
+    tool_arguments,
+    tool_call_id
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING *
+        "#,
         msg_id,
         input.tool_name,
         input.tool_arguments,
@@ -67,17 +69,18 @@ pub async fn insert_batch(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-        INSERT INTO chatbot_conversation_message_tool_calls (
-          message_id,
-          tool_name,
-          tool_arguments,
-          tool_call_id
-        ) SELECT $1,
-            UNNEST($2::VARCHAR(255)[]),
-            UNNEST($3::JSONB[]),
-            UNNEST($4::VARCHAR(255)[])
-        RETURNING *
-                "#,
+INSERT INTO chatbot_conversation_message_tool_calls (
+    message_id,
+    tool_name,
+    tool_arguments,
+    tool_call_id
+  )
+SELECT $1,
+  UNNEST($2::VARCHAR(255) []),
+  UNNEST($3::JSONB []),
+  UNNEST($4::VARCHAR(255) [])
+RETURNING *
+        "#,
         msg_id,
         &tool_names,
         &tool_args,
@@ -95,9 +98,10 @@ pub async fn get_by_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-        SELECT * FROM chatbot_conversation_message_tool_calls
-        WHERE id = $1
-        AND deleted_at IS NULL
+SELECT *
+FROM chatbot_conversation_message_tool_calls
+WHERE id = $1
+  AND deleted_at IS NULL
         "#,
         id
     )
@@ -113,9 +117,10 @@ pub async fn get_by_message_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-        SELECT * FROM chatbot_conversation_message_tool_calls
-        WHERE message_id = $1
-        AND deleted_at IS NULL
+SELECT *
+FROM chatbot_conversation_message_tool_calls
+WHERE message_id = $1
+  AND deleted_at IS NULL
         "#,
         msg_id
     )
@@ -131,10 +136,10 @@ pub async fn delete_all_by_message_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-        UPDATE chatbot_conversation_message_tool_calls
-        SET deleted_at = NOW()
-        WHERE message_id = $1
-        RETURNING *
+UPDATE chatbot_conversation_message_tool_calls
+SET deleted_at = NOW()
+WHERE message_id = $1
+RETURNING *
         "#,
         msg_id
     )

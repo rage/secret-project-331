@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE chatbot_conversation_message_tool_outputs\n        SET deleted_at = NOW()\n        WHERE id = $1\n        RETURNING *\n        ",
+  "query": "\nINSERT INTO chatbot_conversation_message_tool_calls (\n    message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id\n  )\nSELECT $1,\n  UNNEST($2::VARCHAR(255) []),\n  UNNEST($3::JSONB []),\n  UNNEST($4::VARCHAR(255) [])\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -20,8 +20,8 @@
       },
       {
         "ordinal": 3,
-        "name": "tool_output",
-        "type_info": "Varchar"
+        "name": "tool_arguments",
+        "type_info": "Jsonb"
       },
       {
         "ordinal": 4,
@@ -46,7 +46,10 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "VarcharArray",
+        "JsonbArray",
+        "VarcharArray"
       ]
     },
     "nullable": [
@@ -60,5 +63,5 @@
       true
     ]
   },
-  "hash": "fb08c1b64904368a53e283b7bff056b7736ff26b643b9c1174b720682f58b56c"
+  "hash": "2526f29bcb73cf721845bdc0c54f5dc25dc66f72b6cb1f401e5b302be9d93f86"
 }

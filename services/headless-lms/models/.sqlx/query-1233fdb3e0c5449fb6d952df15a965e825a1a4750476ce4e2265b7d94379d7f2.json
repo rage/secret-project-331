@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT * FROM chatbot_conversation_message_tool_calls\n        WHERE id = $1\n        AND deleted_at IS NULL\n        ",
+  "query": "\nINSERT INTO chatbot_conversation_message_tool_outputs (\n    message_id,\n    tool_name,\n    tool_output,\n    tool_call_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -20,8 +20,8 @@
       },
       {
         "ordinal": 3,
-        "name": "tool_arguments",
-        "type_info": "Jsonb"
+        "name": "tool_output",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 4,
@@ -46,7 +46,10 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar"
       ]
     },
     "nullable": [
@@ -60,5 +63,5 @@
       true
     ]
   },
-  "hash": "bb61255abdd7dd27c35047fe3865a3347f244e3ed1cda46fbc688472c18c1d82"
+  "hash": "1233fdb3e0c5449fb6d952df15a965e825a1a4750476ce4e2265b7d94379d7f2"
 }

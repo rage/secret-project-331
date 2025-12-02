@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT * FROM chatbot_conversation_message_tool_outputs\n        WHERE id = $1\n        AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM chatbot_conversation_message_tool_calls\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -20,8 +20,8 @@
       },
       {
         "ordinal": 3,
-        "name": "tool_output",
-        "type_info": "Varchar"
+        "name": "tool_arguments",
+        "type_info": "Jsonb"
       },
       {
         "ordinal": 4,
@@ -60,5 +60,5 @@
       true
     ]
   },
-  "hash": "e85c76a018b5123d05bc8f0e8124ff3f4bb24f9a06bfd03eab7b9445a64a5a7f"
+  "hash": "045b4804c9e563b4a08783f5ccfaacd293fbb9fae5f4a4e11133eda821629a40"
 }

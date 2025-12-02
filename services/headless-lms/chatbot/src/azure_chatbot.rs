@@ -671,7 +671,7 @@ pub async fn parse_tool<'a>(
                                 ));
                                 currently_streamed_function_args.clear();
                             }
-                            // set the tool name nad id from this chunk to currently_streamed
+                            // set the tool name and id from this chunk to currently_streamed
                             // and save any arguments to currently_streamed_function_args
                             // until the stream is complete or a new call is made.
                             currently_streamed_function_name_id =

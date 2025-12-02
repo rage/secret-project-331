@@ -12,7 +12,7 @@ impl ChatbotTool for CourseProgressTool {
     type State = CourseProgressState;
     type Arguments = CourseProgressArguments;
 
-    fn parse_arguments(_args_string: String) -> Self::Arguments {
+    fn parse_arguments(_args_string: impl Into<Option<String>>) -> Self::Arguments {
         CourseProgressArguments {}
     }
 

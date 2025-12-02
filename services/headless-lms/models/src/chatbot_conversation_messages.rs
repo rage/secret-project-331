@@ -180,10 +180,10 @@ RETURNING
         sqlx::query_as!(
             ChatbotConversationMessageRow,
             r#"
-        UPDATE chatbot_conversation_messages
-        SET tool_output_id = $1
-        WHERE id = $2
-        "#,
+UPDATE chatbot_conversation_messages
+SET tool_output_id = $1
+WHERE id = $2
+            "#,
             tool_output_id,
             msg.id,
         )

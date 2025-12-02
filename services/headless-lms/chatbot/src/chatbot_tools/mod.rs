@@ -15,7 +15,7 @@ pub trait ChatbotTool {
     type Arguments: Serialize;
 
     /// Parse the LLM-generated function arguments and clean them
-    fn parse_arguments(args_string: String) -> Self::Arguments;
+    fn parse_arguments(args_string: impl Into<Option<String>>) -> Self::Arguments;
 
     /// Create a new instance after parsing arguments
     fn from_db_and_arguments(
@@ -57,7 +57,7 @@ pub trait ChatbotTool {
     /// Create a new instance from connection, args and context
     fn new(
         conn: &mut PgConnection,
-        args_string: String,
+        args_string: impl Into<Option<String>>,
         user_context: &ChatbotUserContext,
     ) -> impl std::future::Future<Output = Result<Self, ModelError>> + Send
     where
@@ -128,13 +128,11 @@ pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
 pub async fn get_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
-    fn_args: &str,
+    _fn_args: &str, // used in the future in other tool
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<impl ChatbotTool> {
     let output = match fn_name {
-        "course_progress" => {
-            CourseProgressTool::new(conn, fn_args.to_string(), user_context).await?
-        }
+        "course_progress" => CourseProgressTool::new(conn, None, user_context).await?,
         _ => {
             return Err(anyhow::Error::msg(
                 "Incorrect or unknown function name".to_string(),

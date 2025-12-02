@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO chatbot_conversation_message_tool_outputs (\n          message_id,\n          tool_name,\n          tool_output,\n          tool_call_id\n        ) VALUES ($1, $2, $3, $4) RETURNING *\n                ",
+  "query": "\nUPDATE chatbot_conversation_message_tool_outputs\nSET deleted_at = NOW()\nWHERE id = $1\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -46,10 +46,7 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Varchar",
-        "Varchar",
-        "Varchar"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -63,5 +60,5 @@
       true
     ]
   },
-  "hash": "3cb9e9e3aaea6630369bb7bbc697d7bd915e854450440fe2363505d9d48bedf1"
+  "hash": "bc57a27ecc0684791a5cade958600da650715216f70cadcc9580197f4354ca4b"
 }

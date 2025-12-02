@@ -1,0 +1,67 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO chatbot_conversation_message_tool_calls (\n          message_id,\n          tool_name,\n          tool_arguments,\n          tool_call_id\n        ) SELECT $1,\n            UNNEST($2::VARCHAR(255)[]),\n            UNNEST($3::JSONB[]),\n            UNNEST($4::VARCHAR(255)[])\n        RETURNING *\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "message_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "tool_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "tool_arguments",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "tool_call_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "VarcharArray",
+        "JsonbArray",
+        "VarcharArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "99eaf326efd1ead95e304f7a0f9bd0e6fa5f4d75d1ab8ec1edfae518e1d9be09"
+}

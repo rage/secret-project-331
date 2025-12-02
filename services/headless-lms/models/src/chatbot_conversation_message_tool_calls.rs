@@ -1,3 +1,5 @@
+use serde_json::Value;
+
 use crate::prelude::*;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
@@ -9,7 +11,7 @@ pub struct ChatbotConversationMessageToolCall {
     pub deleted_at: Option<DateTime<Utc>>,
     pub message_id: Uuid,
     pub tool_name: String,
-    pub tool_arguments: serde_json::Value,
+    pub tool_arguments: Value,
     pub tool_call_id: String,
 }
 
@@ -47,6 +49,39 @@ pub async fn insert(
         input.tool_name,
         input.tool_arguments,
         input.tool_call_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn insert_batch(
+    conn: &mut PgConnection,
+    input: Vec<ChatbotConversationMessageToolCall>,
+    msg_id: Uuid,
+) -> ModelResult<ChatbotConversationMessageToolCall> {
+    let tool_names: Vec<String> = input.iter().map(|i| i.tool_name.to_owned()).collect();
+    let tool_args: Vec<Value> = input.iter().map(|i| i.tool_arguments.to_owned()).collect();
+    let tool_ids: Vec<String> = input.iter().map(|i| i.tool_call_id.to_owned()).collect();
+
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageToolCall,
+        r#"
+        INSERT INTO chatbot_conversation_message_tool_calls (
+          message_id,
+          tool_name,
+          tool_arguments,
+          tool_call_id
+        ) SELECT $1,
+            UNNEST($2::VARCHAR(255)[]),
+            UNNEST($3::JSONB[]),
+            UNNEST($4::VARCHAR(255)[])
+        RETURNING *
+                "#,
+        msg_id,
+        &tool_names,
+        &tool_args,
+        &tool_ids,
     )
     .fetch_one(conn)
     .await?;

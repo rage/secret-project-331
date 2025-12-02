@@ -136,14 +136,12 @@ RETURNING
             if msg.message.is_some() {
                 (None, None)
             } else if !input.tool_call_fields.is_empty() {
-                for fields in &input.tool_call_fields {
-                    chatbot_conversation_message_tool_calls::insert(
-                        &mut tx,
-                        fields.clone(),
-                        msg.id,
-                    )
-                    .await?;
-                }
+                chatbot_conversation_message_tool_calls::insert_batch(
+                    &mut tx,
+                    input.tool_call_fields.to_owned(),
+                    msg.id,
+                )
+                .await?;
                 (None, None)
             } else {
                 return ModelResult::Err(ModelError::new(

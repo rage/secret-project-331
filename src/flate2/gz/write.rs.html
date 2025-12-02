@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/flate2-1.1.2/src/gz/write.rs`."><title>write.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flate2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">flate2/gz/</div>write.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::cmp;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/flate2-1.1.4/src/gz/write.rs`."><title>write.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flate2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">flate2/gz/</div>write.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::cmp;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>std::io;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -477,13 +477,13 @@
 <a href=#477 id=477 data-nosnippet>477</a>    <span class="attr">#[test]
 <a href=#478 id=478 data-nosnippet>478</a>    </span><span class="kw">fn </span>decode_writer_one_chunk() {
 <a href=#479 id=479 data-nosnippet>479</a>        <span class="kw">let </span><span class="kw-2">mut </span>e = GzEncoder::new(Vec::new(), Compression::default());
-<a href=#480 id=480 data-nosnippet>480</a>        e.write(STR.as_ref()).unwrap();
+<a href=#480 id=480 data-nosnippet>480</a>        e.write_all(STR.as_ref()).unwrap();
 <a href=#481 id=481 data-nosnippet>481</a>        <span class="kw">let </span>bytes = e.finish().unwrap();
 <a href=#482 id=482 data-nosnippet>482</a>
 <a href=#483 id=483 data-nosnippet>483</a>        <span class="kw">let </span><span class="kw-2">mut </span>writer = Vec::new();
 <a href=#484 id=484 data-nosnippet>484</a>        <span class="kw">let </span><span class="kw-2">mut </span>decoder = GzDecoder::new(writer);
 <a href=#485 id=485 data-nosnippet>485</a>        <span class="kw">let </span>n = decoder.write(<span class="kw-2">&amp;</span>bytes[..]).unwrap();
-<a href=#486 id=486 data-nosnippet>486</a>        decoder.write(<span class="kw-2">&amp;</span>bytes[n..]).unwrap();
+<a href=#486 id=486 data-nosnippet>486</a>        decoder.write_all(<span class="kw-2">&amp;</span>bytes[n..]).unwrap();
 <a href=#487 id=487 data-nosnippet>487</a>        decoder.try_finish().unwrap();
 <a href=#488 id=488 data-nosnippet>488</a>        writer = decoder.finish().unwrap();
 <a href=#489 id=489 data-nosnippet>489</a>        <span class="kw">let </span>return_string = String::from_utf8(writer).expect(<span class="string">"String parsing error"</span>);
@@ -493,7 +493,7 @@
 <a href=#493 id=493 data-nosnippet>493</a>    <span class="attr">#[test]
 <a href=#494 id=494 data-nosnippet>494</a>    </span><span class="kw">fn </span>decode_writer_partial_header() {
 <a href=#495 id=495 data-nosnippet>495</a>        <span class="kw">let </span><span class="kw-2">mut </span>e = GzEncoder::new(Vec::new(), Compression::default());
-<a href=#496 id=496 data-nosnippet>496</a>        e.write(STR.as_ref()).unwrap();
+<a href=#496 id=496 data-nosnippet>496</a>        e.write_all(STR.as_ref()).unwrap();
 <a href=#497 id=497 data-nosnippet>497</a>        <span class="kw">let </span>bytes = e.finish().unwrap();
 <a href=#498 id=498 data-nosnippet>498</a>
 <a href=#499 id=499 data-nosnippet>499</a>        <span class="kw">let </span><span class="kw-2">mut </span>writer = Vec::new();
@@ -501,7 +501,7 @@
 <a href=#501 id=501 data-nosnippet>501</a>        <span class="macro">assert_eq!</span>(decoder.write(<span class="kw-2">&amp;</span>bytes[..<span class="number">5</span>]).unwrap(), <span class="number">5</span>);
 <a href=#502 id=502 data-nosnippet>502</a>        <span class="kw">let </span>n = decoder.write(<span class="kw-2">&amp;</span>bytes[<span class="number">5</span>..]).unwrap();
 <a href=#503 id=503 data-nosnippet>503</a>        <span class="kw">if </span>n &lt; bytes.len() - <span class="number">5 </span>{
-<a href=#504 id=504 data-nosnippet>504</a>            decoder.write(<span class="kw-2">&amp;</span>bytes[n + <span class="number">5</span>..]).unwrap();
+<a href=#504 id=504 data-nosnippet>504</a>            decoder.write_all(<span class="kw-2">&amp;</span>bytes[n + <span class="number">5</span>..]).unwrap();
 <a href=#505 id=505 data-nosnippet>505</a>        }
 <a href=#506 id=506 data-nosnippet>506</a>        writer = decoder.finish().unwrap();
 <a href=#507 id=507 data-nosnippet>507</a>        <span class="kw">let </span>return_string = String::from_utf8(writer).expect(<span class="string">"String parsing error"</span>);
@@ -522,7 +522,7 @@
 <a href=#522 id=522 data-nosnippet>522</a>        <span class="macro">assert_eq!</span>(decoder.write(<span class="kw-2">&amp;</span>bytes[..<span class="number">12</span>]).unwrap(), <span class="number">12</span>);
 <a href=#523 id=523 data-nosnippet>523</a>        <span class="kw">let </span>n = decoder.write(<span class="kw-2">&amp;</span>bytes[<span class="number">12</span>..]).unwrap();
 <a href=#524 id=524 data-nosnippet>524</a>        <span class="kw">if </span>n &lt; bytes.len() - <span class="number">12 </span>{
-<a href=#525 id=525 data-nosnippet>525</a>            decoder.write(<span class="kw-2">&amp;</span>bytes[n + <span class="number">12</span>..]).unwrap();
+<a href=#525 id=525 data-nosnippet>525</a>            decoder.write_all(<span class="kw-2">&amp;</span>bytes[n + <span class="number">12</span>..]).unwrap();
 <a href=#526 id=526 data-nosnippet>526</a>        }
 <a href=#527 id=527 data-nosnippet>527</a>        <span class="macro">assert_eq!</span>(
 <a href=#528 id=528 data-nosnippet>528</a>            decoder.header().unwrap().filename().unwrap(),
@@ -547,7 +547,7 @@
 <a href=#547 id=547 data-nosnippet>547</a>        <span class="macro">assert_eq!</span>(decoder.write(<span class="kw-2">&amp;</span>bytes[..<span class="number">12</span>]).unwrap(), <span class="number">12</span>);
 <a href=#548 id=548 data-nosnippet>548</a>        <span class="kw">let </span>n = decoder.write(<span class="kw-2">&amp;</span>bytes[<span class="number">12</span>..]).unwrap();
 <a href=#549 id=549 data-nosnippet>549</a>        <span class="kw">if </span>n &lt; bytes.len() - <span class="number">12 </span>{
-<a href=#550 id=550 data-nosnippet>550</a>            decoder.write(<span class="kw-2">&amp;</span>bytes[n + <span class="number">12</span>..]).unwrap();
+<a href=#550 id=550 data-nosnippet>550</a>            decoder.write_all(<span class="kw-2">&amp;</span>bytes[n + <span class="number">12</span>..]).unwrap();
 <a href=#551 id=551 data-nosnippet>551</a>        }
 <a href=#552 id=552 data-nosnippet>552</a>        <span class="macro">assert_eq!</span>(
 <a href=#553 id=553 data-nosnippet>553</a>            decoder.header().unwrap().comment().unwrap(),
@@ -561,13 +561,13 @@
 <a href=#561 id=561 data-nosnippet>561</a>    <span class="attr">#[test]
 <a href=#562 id=562 data-nosnippet>562</a>    </span><span class="kw">fn </span>decode_writer_exact_header() {
 <a href=#563 id=563 data-nosnippet>563</a>        <span class="kw">let </span><span class="kw-2">mut </span>e = GzEncoder::new(Vec::new(), Compression::default());
-<a href=#564 id=564 data-nosnippet>564</a>        e.write(STR.as_ref()).unwrap();
+<a href=#564 id=564 data-nosnippet>564</a>        e.write_all(STR.as_ref()).unwrap();
 <a href=#565 id=565 data-nosnippet>565</a>        <span class="kw">let </span>bytes = e.finish().unwrap();
 <a href=#566 id=566 data-nosnippet>566</a>
 <a href=#567 id=567 data-nosnippet>567</a>        <span class="kw">let </span><span class="kw-2">mut </span>writer = Vec::new();
 <a href=#568 id=568 data-nosnippet>568</a>        <span class="kw">let </span><span class="kw-2">mut </span>decoder = GzDecoder::new(writer);
 <a href=#569 id=569 data-nosnippet>569</a>        <span class="macro">assert_eq!</span>(decoder.write(<span class="kw-2">&amp;</span>bytes[..<span class="number">10</span>]).unwrap(), <span class="number">10</span>);
-<a href=#570 id=570 data-nosnippet>570</a>        decoder.write(<span class="kw-2">&amp;</span>bytes[<span class="number">10</span>..]).unwrap();
+<a href=#570 id=570 data-nosnippet>570</a>        decoder.write_all(<span class="kw-2">&amp;</span>bytes[<span class="number">10</span>..]).unwrap();
 <a href=#571 id=571 data-nosnippet>571</a>        writer = decoder.finish().unwrap();
 <a href=#572 id=572 data-nosnippet>572</a>        <span class="kw">let </span>return_string = String::from_utf8(writer).expect(<span class="string">"String parsing error"</span>);
 <a href=#573 id=573 data-nosnippet>573</a>        <span class="macro">assert_eq!</span>(return_string, STR);
@@ -576,14 +576,14 @@
 <a href=#576 id=576 data-nosnippet>576</a>    <span class="attr">#[test]
 <a href=#577 id=577 data-nosnippet>577</a>    </span><span class="kw">fn </span>decode_writer_partial_crc() {
 <a href=#578 id=578 data-nosnippet>578</a>        <span class="kw">let </span><span class="kw-2">mut </span>e = GzEncoder::new(Vec::new(), Compression::default());
-<a href=#579 id=579 data-nosnippet>579</a>        e.write(STR.as_ref()).unwrap();
+<a href=#579 id=579 data-nosnippet>579</a>        e.write_all(STR.as_ref()).unwrap();
 <a href=#580 id=580 data-nosnippet>580</a>        <span class="kw">let </span>bytes = e.finish().unwrap();
 <a href=#581 id=581 data-nosnippet>581</a>
 <a href=#582 id=582 data-nosnippet>582</a>        <span class="kw">let </span><span class="kw-2">mut </span>writer = Vec::new();
 <a href=#583 id=583 data-nosnippet>583</a>        <span class="kw">let </span><span class="kw-2">mut </span>decoder = GzDecoder::new(writer);
 <a href=#584 id=584 data-nosnippet>584</a>        <span class="kw">let </span>l = bytes.len() - <span class="number">5</span>;
 <a href=#585 id=585 data-nosnippet>585</a>        <span class="kw">let </span>n = decoder.write(<span class="kw-2">&amp;</span>bytes[..l]).unwrap();
-<a href=#586 id=586 data-nosnippet>586</a>        decoder.write(<span class="kw-2">&amp;</span>bytes[n..]).unwrap();
+<a href=#586 id=586 data-nosnippet>586</a>        decoder.write_all(<span class="kw-2">&amp;</span>bytes[n..]).unwrap();
 <a href=#587 id=587 data-nosnippet>587</a>        writer = decoder.finish().unwrap();
 <a href=#588 id=588 data-nosnippet>588</a>        <span class="kw">let </span>return_string = String::from_utf8(writer).expect(<span class="string">"String parsing error"</span>);
 <a href=#589 id=589 data-nosnippet>589</a>        <span class="macro">assert_eq!</span>(return_string, STR);
@@ -594,7 +594,7 @@
 <a href=#594 id=594 data-nosnippet>594</a>    </span><span class="attr">#[test]
 <a href=#595 id=595 data-nosnippet>595</a>    </span><span class="kw">fn </span>decode_multi_writer() {
 <a href=#596 id=596 data-nosnippet>596</a>        <span class="kw">let </span><span class="kw-2">mut </span>e = GzEncoder::new(Vec::new(), Compression::default());
-<a href=#597 id=597 data-nosnippet>597</a>        e.write(STR.as_ref()).unwrap();
+<a href=#597 id=597 data-nosnippet>597</a>        e.write_all(STR.as_ref()).unwrap();
 <a href=#598 id=598 data-nosnippet>598</a>        <span class="kw">let </span>bytes = e.finish().unwrap().repeat(<span class="number">2</span>);
 <a href=#599 id=599 data-nosnippet>599</a>
 <a href=#600 id=600 data-nosnippet>600</a>        <span class="kw">let </span><span class="kw-2">mut </span>writer = Vec::new();
@@ -617,7 +617,7 @@
 <a href=#617 id=617 data-nosnippet>617</a>    </span><span class="kw">fn </span>decode_extra_data() {
 <a href=#618 id=618 data-nosnippet>618</a>        <span class="kw">let </span>compressed = {
 <a href=#619 id=619 data-nosnippet>619</a>            <span class="kw">let </span><span class="kw-2">mut </span>e = GzEncoder::new(Vec::new(), Compression::default());
-<a href=#620 id=620 data-nosnippet>620</a>            e.write(STR.as_ref()).unwrap();
+<a href=#620 id=620 data-nosnippet>620</a>            e.write_all(STR.as_ref()).unwrap();
 <a href=#621 id=621 data-nosnippet>621</a>            <span class="kw">let </span><span class="kw-2">mut </span>b = e.finish().unwrap();
 <a href=#622 id=622 data-nosnippet>622</a>            b.push(<span class="string">b'x'</span>);
 <a href=#623 id=623 data-nosnippet>623</a>            b

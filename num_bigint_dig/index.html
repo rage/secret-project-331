@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Big integer (signed version: `BigInt`, unsigned version: `BigUint`)."><title>num_bigint_dig - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="num_bigint_dig" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../num_bigint_dig/index.html">num_<wbr>bigint_<wbr>dig</a><span class="version">0.8.4</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#compatibility" title="Compatibility">Compatibility</a></li><li><a href="#no_std-compatibility" title="`no_std` compatibility"><code>no_std</code> compatibility</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>num_bigint_dig</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/num_bigint_dig/lib.rs.html#15-269">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Big integer (signed version: <code>BigInt</code>, unsigned version: <code>BigUint</code>).</p>
+<p>A <code>BigUint</code> is represented as a vector of <code>BigDigit</code>s.
+A <code>BigInt</code> is a combination of <code>BigUint</code> and <code>Sign</code>.</p>
+<p>Common numerical operations are overloaded, so we can treat them
+the same way we treat other numbers.</p>
+<h3 id="example"><a class="doc-anchor" href="#example">§</a>Example</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">extern crate </span>num_bigint_dig <span class="kw">as </span>num_bigint;
+<span class="kw">extern crate </span>num_traits;
+
+<span class="kw">use </span>num_bigint::BigUint;
+<span class="kw">use </span>num_traits::{Zero, One};
+<span class="kw">use </span>std::mem::replace;
+
+<span class="comment">// Calculate large fibonacci numbers.
+</span><span class="kw">fn </span>fib(n: usize) -&gt; BigUint {
+    <span class="kw">let </span><span class="kw-2">mut </span>f0: BigUint = Zero::zero();
+    <span class="kw">let </span><span class="kw-2">mut </span>f1: BigUint = One::one();
+    <span class="kw">for _ in </span><span class="number">0</span>..n {
+        <span class="kw">let </span>f2 = f0 + <span class="kw-2">&amp;</span>f1;
+        <span class="comment">// This is a low cost way of swapping f0 with f1 and f1 with f2.
+        </span>f0 = replace(<span class="kw-2">&amp;mut </span>f1, f2);
+    }
+    f0
+}
+
+<span class="comment">// This is a very large number.
+//println!("fib(1000) = {}", fib(1000));</span></code></pre></div>
+<p>It’s easy to generate large random numbers:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>
+<span class="kw">extern crate </span>rand;
+<span class="kw">extern crate </span>num_bigint_dig <span class="kw">as </span>bigint;
+
+<span class="kw">use </span>bigint::{ToBigInt, RandBigInt};
+
+<span class="kw">let </span><span class="kw-2">mut </span>rng = rand::thread_rng();
+<span class="kw">let </span>a = rng.gen_bigint(<span class="number">1000</span>);
+
+<span class="kw">let </span>low = -<span class="number">10000</span>.to_bigint().unwrap();
+<span class="kw">let </span>high = <span class="number">10000</span>.to_bigint().unwrap();
+<span class="kw">let </span>b = rng.gen_bigint_range(<span class="kw-2">&amp;</span>low, <span class="kw-2">&amp;</span>high);
+
+<span class="comment">// Probably an even larger number.
+//println!("{}", a * b);
+</span></code></pre></div>
+<h3 id="compatibility"><a class="doc-anchor" href="#compatibility">§</a>Compatibility</h3>
+<p>The <code>num-bigint-dig</code> crate is tested for rustc 1.56 and greater.</p>
+<h3 id="no_std-compatibility"><a class="doc-anchor" href="#no_std-compatibility">§</a><code>no_std</code> compatibility</h3>
+<p>This crate is compatible with <code>no_std</code> environments.</p>
+<p>Note however that it still requires the <code>alloc</code> crate, so the user should
+ensure that they set a <code>global_allocator</code>.</p>
+<p>To use in no_std environment, add the crate as such in your <code>Cargo.toml</code>
+file:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+num-bigint-dig = { version = &quot;0.8&quot;, default-features=false }</code></pre></div>
+<p>Every features should be compatible with no_std environment, so feel free to
+add features like <code>prime</code>, <code>i128</code>, etc…</p>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt><code>pub use crate::<a class="mod" href="traits/index.html" title="mod num_bigint_dig::traits">traits</a>::*;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="algorithms/index.html" title="mod num_bigint_dig::algorithms">algorithms</a></dt><dt><a class="mod" href="prime/index.html" title="mod num_bigint_dig::prime">prime</a></dt><dd>Implements probabilistic prime checkers.</dd><dt><a class="mod" href="traits/index.html" title="mod num_bigint_dig::traits">traits</a></dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.BigInt.html" title="struct num_bigint_dig::BigInt">BigInt</a></dt><dd>A big signed integer type.</dd><dt><a class="struct" href="struct.BigUint.html" title="struct num_bigint_dig::BigUint">BigUint</a></dt><dd>A big unsigned integer type.</dd><dt><a class="struct" href="struct.ParseBigIntError.html" title="struct num_bigint_dig::ParseBigIntError">Parse<wbr>BigInt<wbr>Error</a></dt><dt><a class="struct" href="struct.RandomBits.html" title="struct num_bigint_dig::RandomBits">Random<wbr>Bits</a></dt><dd>A random distribution for <code>BigUint</code> and <code>BigInt</code> values of a particular bit size.</dd><dt><a class="struct" href="struct.UniformBigInt.html" title="struct num_bigint_dig::UniformBigInt">Uniform<wbr>BigInt</a></dt><dd>The back-end implementing rand’s <code>UniformSampler</code> for <code>BigInt</code>.</dd><dt><a class="struct" href="struct.UniformBigUint.html" title="struct num_bigint_dig::UniformBigUint">Uniform<wbr>BigUint</a></dt><dd>The back-end implementing rand’s <code>UniformSampler</code> for <code>BigUint</code>.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Sign.html" title="enum num_bigint_dig::Sign">Sign</a></dt><dd>A Sign is a <code>BigInt</code>’s composing element.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.VEC_SIZE.html" title="constant num_bigint_dig::VEC_SIZE">VEC_<wbr>SIZE</a></dt></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.IntoBigInt.html" title="trait num_bigint_dig::IntoBigInt">Into<wbr>BigInt</a></dt><dd>A generic trait for converting a value to a <code>BigInt</code>, consuming the value.</dd><dt><a class="trait" href="trait.IntoBigUint.html" title="trait num_bigint_dig::IntoBigUint">Into<wbr>BigUint</a></dt><dd>A generic trait for converting a value to a <code>BigUint</code>, and consuming the value.</dd><dt><a class="trait" href="trait.RandBigInt.html" title="trait num_bigint_dig::RandBigInt">Rand<wbr>BigInt</a></dt><dt><a class="trait" href="trait.RandPrime.html" title="trait num_bigint_dig::RandPrime">Rand<wbr>Prime</a></dt><dd>A generic trait for generating random primes.</dd><dt><a class="trait" href="trait.ToBigInt.html" title="trait num_bigint_dig::ToBigInt">ToBig<wbr>Int</a></dt><dd>A generic trait for converting a value to a <code>BigInt</code>.</dd><dt><a class="trait" href="trait.ToBigUint.html" title="trait num_bigint_dig::ToBigUint">ToBig<wbr>Uint</a></dt><dd>A generic trait for converting a value to a <code>BigUint</code>.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.negate_sign.html" title="fn num_bigint_dig::negate_sign">negate_<wbr>sign</a></dt><dd>Negates the sign of BigInt.</dd></dl></section></div></main></body></html>

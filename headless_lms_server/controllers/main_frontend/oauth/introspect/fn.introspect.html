@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662)."><title>introspect in headless_lms_server::controllers::main_frontend::oauth::introspect - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../headless_lms_server/index.html">headless_<wbr>lms_<wbr>server</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">introspect</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#security-features" title="Security Features">Security Features</a></li><li><a href="#request-parameters" title="Request Parameters">Request Parameters</a></li><li><a href="#response" title="Response">Response</a></li><li><a href="#example" title="Example">Example</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In headless_<wbr>lms_<wbr>server::<wbr>controllers::<wbr>main_<wbr>frontend::<wbr>oauth::<wbr>introspect</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../index.html">headless_lms_server</a>::<wbr><a href="../../../index.html">controllers</a>::<wbr><a href="../../index.html">main_frontend</a>::<wbr><a href="../index.html">oauth</a>::<wbr><a href="index.html">introspect</a></div><h1>Function <span class="fn">introspect</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../../src/headless_lms_server/controllers/main_frontend/oauth/introspect.rs.html#86-229">Source</a> </span></div><pre class="rust item-decl"><code>pub async fn introspect(
+    pool: <a class="struct" href="../../../../prelude/web/struct.Data.html" title="struct headless_lms_server::prelude::web::Data">Data</a>&lt;<a class="type" href="../../../../prelude/type.PgPool.html" title="type headless_lms_server::prelude::PgPool">PgPool</a>&gt;,
+    __arg1: <a class="struct" href="../../../../domain/oauth/oauth_validated/struct.OAuthValidated.html" title="struct headless_lms_server::domain::oauth::oauth_validated::OAuthValidated">OAuthValidated</a>&lt;<a class="struct" href="../../../../domain/oauth/introspect_query/struct.IntrospectQuery.html" title="struct headless_lms_server::domain::oauth::introspect_query::IntrospectQuery">IntrospectQuery</a>&gt;,
+    app_conf: <a class="struct" href="../../../../prelude/web/struct.Data.html" title="struct headless_lms_server::prelude::web::Data">Data</a>&lt;<a class="struct" href="../../../../prelude/struct.ApplicationConfiguration.html" title="struct headless_lms_server::prelude::ApplicationConfiguration">ApplicationConfiguration</a>&gt;,
+) -&gt; <a class="type" href="../../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../../prelude/struct.HttpResponse.html" title="struct headless_lms_server::prelude::HttpResponse">HttpResponse</a>&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Handles the <code>/introspect</code> endpoint for OAuth 2.0 token introspection (RFC 7662).</p>
+<p>This endpoint allows resource servers to query the authorization server about
+the active state and metadata of an access token.</p>
+<h4 id="security-features"><a class="doc-anchor" href="#security-features">§</a>Security Features</h4>
+<ul>
+<li>Client authentication is required (client_id and client_secret for confidential clients)</li>
+<li>Returns <code>active: false</code> for invalid/expired tokens or authentication failures
+to prevent token enumeration attacks</li>
+<li>Always returns 200 OK, even for invalid tokens (per RFC 7662)</li>
+</ul>
+<h4 id="request-parameters"><a class="doc-anchor" href="#request-parameters">§</a>Request Parameters</h4>
+<ul>
+<li><code>token</code> (required): The token to be introspected</li>
+<li><code>token_type_hint</code> (optional): Hint about token type (“access_token” or “refresh_token”)</li>
+<li><code>client_id</code> (required): Client identifier</li>
+<li><code>client_secret</code> (required for confidential clients): Client secret</li>
+</ul>
+<h4 id="response"><a class="doc-anchor" href="#response">§</a>Response</h4>
+<p>Returns a JSON object with:</p>
+<ul>
+<li><code>active</code> (bool, required): Whether the token is active</li>
+<li>Additional fields only present if <code>active: true</code>:
+<ul>
+<li><code>scope</code>: Space-separated list of scopes</li>
+<li><code>client_id</code>: Client identifier</li>
+<li><code>username</code>/<code>sub</code>: User identifier (if token has user)</li>
+<li><code>exp</code>: Expiration timestamp (Unix time)</li>
+<li><code>iat</code>: Issued at timestamp (Unix time)</li>
+<li><code>aud</code>: Audience</li>
+<li><code>iss</code>: Issuer</li>
+<li><code>jti</code>: JWT ID</li>
+<li><code>token_type</code>: “Bearer” or “DPoP”</li>
+</ul>
+</li>
+</ul>
+<p>Follows <a href="https://datatracker.ietf.org/doc/html/rfc7662">RFC 7662 — OAuth 2.0 Token Introspection</a>.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2><div class="example-wrap"><pre class="language-http"><code>POST /api/v0/main-frontend/oauth/introspect HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+token=ACCESS_TOKEN&amp;client_id=test-client-id&amp;client_secret=test-secret</code></pre></div>
+<p>Successful response:</p>
+<div class="example-wrap"><pre class="language-http"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+  &quot;active&quot;: true,
+  &quot;scope&quot;: &quot;openid profile email&quot;,
+  &quot;client_id&quot;: &quot;test-client-id&quot;,
+  &quot;sub&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;username&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;exp&quot;: 1735689600,
+  &quot;iat&quot;: 1735686000,
+  &quot;iss&quot;: &quot;https://example.com/api/v0/main-frontend/oauth&quot;,
+  &quot;jti&quot;: &quot;123e4567-e89b-12d3-a456-426614174000&quot;,
+  &quot;token_type&quot;: &quot;Bearer&quot;
+}</code></pre></div>
+<p>Inactive token response:</p>
+<div class="example-wrap"><pre class="language-http"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+  &quot;active&quot;: false
+}</code></pre></div></div></details></section></div></main></body></html>

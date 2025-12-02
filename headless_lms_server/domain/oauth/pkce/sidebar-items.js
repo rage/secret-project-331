@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["VERIFIER_MAX_LEN","VERIFIER_MIN_LEN"],"enum":["PkceError","PkceMethod"],"fn":["constant_time_eq","parse_authorize_pkce","validate_verifier","verify_token_pkce"],"struct":["CodeChallenge","CodeVerifier"]};

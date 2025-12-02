@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["authorize_query","authorized_client","claims","consent_deny_query","consent_query","consent_response","dpop","errors","helpers","hmac_sha256","introspect_query","introspect_response","jwks","oauth_validate","oauth_validated","oidc","pkce","redirects","revoke_query","token_query","token_response","token_service","userinfo_response"]};

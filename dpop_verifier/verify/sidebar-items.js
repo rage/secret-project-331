@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["NonceMode"],"fn":["verify_proof"],"struct":["ClientBinding","DpopVerifier","HmacConfig","VerifiedDpop","VerifyOptions"]};

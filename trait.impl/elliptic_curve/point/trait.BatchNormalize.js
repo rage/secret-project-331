@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["primeorder",[["impl&lt;const N: <a class=\"primitive\" href=\"https://doc.rust-lang.org/1.87.0/std/primitive.usize.html\">usize</a>, C&gt; <a class=\"trait\" href=\"elliptic_curve/point/trait.BatchNormalize.html\" title=\"trait elliptic_curve::point::BatchNormalize\">BatchNormalize</a>&lt;[<a class=\"struct\" href=\"primeorder/struct.ProjectivePoint.html\" title=\"struct primeorder::ProjectivePoint\">ProjectivePoint</a>&lt;C&gt;; <a class=\"primitive\" href=\"https://doc.rust-lang.org/1.87.0/std/primitive.array.html\">N</a>]&gt; for <a class=\"struct\" href=\"primeorder/struct.ProjectivePoint.html\" title=\"struct primeorder::ProjectivePoint\">ProjectivePoint</a>&lt;C&gt;<div class=\"where\">where\n    Self: <a class=\"trait\" href=\"primeorder/trait.Double.html\" title=\"trait primeorder::Double\">Double</a>,\n    C: <a class=\"trait\" href=\"primeorder/trait.PrimeCurveParams.html\" title=\"trait primeorder::PrimeCurveParams\">PrimeCurveParams</a>,\n    C::<a class=\"associatedtype\" href=\"primeorder/trait.PrimeCurveParams.html#associatedtype.FieldElement\" title=\"type primeorder::PrimeCurveParams::FieldElement\">FieldElement</a>: <a class=\"trait\" href=\"elliptic_curve/ops/trait.Invert.html\" title=\"trait elliptic_curve::ops::Invert\">Invert</a>&lt;Output = <a class=\"struct\" href=\"subtle/struct.CtOption.html\" title=\"struct subtle::CtOption\">CtOption</a>&lt;C::<a class=\"associatedtype\" href=\"primeorder/trait.PrimeCurveParams.html#associatedtype.FieldElement\" title=\"type primeorder::PrimeCurveParams::FieldElement\">FieldElement</a>&gt;&gt;,</div>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1593]}

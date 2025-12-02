@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["next_prime","probably_prime","probably_prime_lucas","probably_prime_miller_rabin"]};

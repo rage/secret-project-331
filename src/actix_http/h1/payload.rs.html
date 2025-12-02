@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/actix-http-3.11.1/src/h1/payload.rs`."><title>payload.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">actix_http/h1/</div>payload.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Payload stream
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/actix-http-3.11.2/src/h1/payload.rs`."><title>payload.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">actix_http/h1/</div>payload.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Payload stream
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>std::{
 <a href=#4 id=4 data-nosnippet>4</a>    cell::RefCell,
@@ -200,83 +200,151 @@
 <a href=#200 id=200 data-nosnippet>200</a>    <span class="attr">#[inline]
 <a href=#201 id=201 data-nosnippet>201</a>    </span><span class="kw">fn </span>set_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, err: PayloadError) {
 <a href=#202 id=202 data-nosnippet>202</a>        <span class="self">self</span>.err = <span class="prelude-val">Some</span>(err);
-<a href=#203 id=203 data-nosnippet>203</a>    }
-<a href=#204 id=204 data-nosnippet>204</a>
-<a href=#205 id=205 data-nosnippet>205</a>    <span class="attr">#[inline]
-<a href=#206 id=206 data-nosnippet>206</a>    </span><span class="kw">fn </span>feed_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-<a href=#207 id=207 data-nosnippet>207</a>        <span class="self">self</span>.eof = <span class="bool-val">true</span>;
-<a href=#208 id=208 data-nosnippet>208</a>    }
-<a href=#209 id=209 data-nosnippet>209</a>
-<a href=#210 id=210 data-nosnippet>210</a>    <span class="attr">#[inline]
-<a href=#211 id=211 data-nosnippet>211</a>    </span><span class="kw">fn </span>feed_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) {
-<a href=#212 id=212 data-nosnippet>212</a>        <span class="self">self</span>.len += data.len();
-<a href=#213 id=213 data-nosnippet>213</a>        <span class="self">self</span>.items.push_back(data);
-<a href=#214 id=214 data-nosnippet>214</a>        <span class="self">self</span>.need_read = <span class="self">self</span>.len &lt; MAX_BUFFER_SIZE;
-<a href=#215 id=215 data-nosnippet>215</a>        <span class="self">self</span>.wake();
-<a href=#216 id=216 data-nosnippet>216</a>    }
-<a href=#217 id=217 data-nosnippet>217</a>
-<a href=#218 id=218 data-nosnippet>218</a>    <span class="attr">#[cfg(test)]
-<a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-<a href=#220 id=220 data-nosnippet>220</a>        <span class="self">self</span>.len
-<a href=#221 id=221 data-nosnippet>221</a>    }
-<a href=#222 id=222 data-nosnippet>222</a>
-<a href=#223 id=223 data-nosnippet>223</a>    <span class="kw">fn </span>poll_next(
-<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-<a href=#225 id=225 data-nosnippet>225</a>        cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>&gt;,
-<a href=#226 id=226 data-nosnippet>226</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt;&gt; {
-<a href=#227 id=227 data-nosnippet>227</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <span class="self">self</span>.items.pop_front() {
-<a href=#228 id=228 data-nosnippet>228</a>            <span class="self">self</span>.len -= data.len();
-<a href=#229 id=229 data-nosnippet>229</a>            <span class="self">self</span>.need_read = <span class="self">self</span>.len &lt; MAX_BUFFER_SIZE;
-<a href=#230 id=230 data-nosnippet>230</a>
-<a href=#231 id=231 data-nosnippet>231</a>            <span class="kw">if </span><span class="self">self</span>.need_read &amp;&amp; !<span class="self">self</span>.eof {
-<a href=#232 id=232 data-nosnippet>232</a>                <span class="self">self</span>.register(cx);
-<a href=#233 id=233 data-nosnippet>233</a>            }
-<a href=#234 id=234 data-nosnippet>234</a>            <span class="self">self</span>.wake_io();
-<a href=#235 id=235 data-nosnippet>235</a>            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(data)))
-<a href=#236 id=236 data-nosnippet>236</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(err) = <span class="self">self</span>.err.take() {
-<a href=#237 id=237 data-nosnippet>237</a>            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)))
-<a href=#238 id=238 data-nosnippet>238</a>        } <span class="kw">else if </span><span class="self">self</span>.eof {
-<a href=#239 id=239 data-nosnippet>239</a>            Poll::Ready(<span class="prelude-val">None</span>)
-<a href=#240 id=240 data-nosnippet>240</a>        } <span class="kw">else </span>{
-<a href=#241 id=241 data-nosnippet>241</a>            <span class="self">self</span>.need_read = <span class="bool-val">true</span>;
-<a href=#242 id=242 data-nosnippet>242</a>            <span class="self">self</span>.register(cx);
-<a href=#243 id=243 data-nosnippet>243</a>            <span class="self">self</span>.wake_io();
-<a href=#244 id=244 data-nosnippet>244</a>            Poll::Pending
-<a href=#245 id=245 data-nosnippet>245</a>        }
-<a href=#246 id=246 data-nosnippet>246</a>    }
-<a href=#247 id=247 data-nosnippet>247</a>
-<a href=#248 id=248 data-nosnippet>248</a>    <span class="kw">fn </span>unread_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) {
-<a href=#249 id=249 data-nosnippet>249</a>        <span class="self">self</span>.len += data.len();
-<a href=#250 id=250 data-nosnippet>250</a>        <span class="self">self</span>.items.push_front(data);
-<a href=#251 id=251 data-nosnippet>251</a>    }
-<a href=#252 id=252 data-nosnippet>252</a>}
-<a href=#253 id=253 data-nosnippet>253</a>
-<a href=#254 id=254 data-nosnippet>254</a><span class="attr">#[cfg(test)]
-<a href=#255 id=255 data-nosnippet>255</a></span><span class="kw">mod </span>tests {
-<a href=#256 id=256 data-nosnippet>256</a>    <span class="kw">use </span>actix_utils::future::poll_fn;
-<a href=#257 id=257 data-nosnippet>257</a>    <span class="kw">use </span>static_assertions::{assert_impl_all, assert_not_impl_any};
-<a href=#258 id=258 data-nosnippet>258</a>
-<a href=#259 id=259 data-nosnippet>259</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#260 id=260 data-nosnippet>260</a>
-<a href=#261 id=261 data-nosnippet>261</a>    <span class="macro">assert_impl_all!</span>(Payload: Unpin);
-<a href=#262 id=262 data-nosnippet>262</a>    <span class="macro">assert_not_impl_any!</span>(Payload: Send, Sync);
-<a href=#263 id=263 data-nosnippet>263</a>
-<a href=#264 id=264 data-nosnippet>264</a>    <span class="macro">assert_impl_all!</span>(Inner: Unpin, Send, Sync);
+<a href=#203 id=203 data-nosnippet>203</a>        <span class="self">self</span>.wake();
+<a href=#204 id=204 data-nosnippet>204</a>    }
+<a href=#205 id=205 data-nosnippet>205</a>
+<a href=#206 id=206 data-nosnippet>206</a>    <span class="attr">#[inline]
+<a href=#207 id=207 data-nosnippet>207</a>    </span><span class="kw">fn </span>feed_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+<a href=#208 id=208 data-nosnippet>208</a>        <span class="self">self</span>.eof = <span class="bool-val">true</span>;
+<a href=#209 id=209 data-nosnippet>209</a>        <span class="self">self</span>.wake();
+<a href=#210 id=210 data-nosnippet>210</a>    }
+<a href=#211 id=211 data-nosnippet>211</a>
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="attr">#[inline]
+<a href=#213 id=213 data-nosnippet>213</a>    </span><span class="kw">fn </span>feed_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) {
+<a href=#214 id=214 data-nosnippet>214</a>        <span class="self">self</span>.len += data.len();
+<a href=#215 id=215 data-nosnippet>215</a>        <span class="self">self</span>.items.push_back(data);
+<a href=#216 id=216 data-nosnippet>216</a>        <span class="self">self</span>.need_read = <span class="self">self</span>.len &lt; MAX_BUFFER_SIZE;
+<a href=#217 id=217 data-nosnippet>217</a>        <span class="self">self</span>.wake();
+<a href=#218 id=218 data-nosnippet>218</a>    }
+<a href=#219 id=219 data-nosnippet>219</a>
+<a href=#220 id=220 data-nosnippet>220</a>    <span class="attr">#[cfg(test)]
+<a href=#221 id=221 data-nosnippet>221</a>    </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+<a href=#222 id=222 data-nosnippet>222</a>        <span class="self">self</span>.len
+<a href=#223 id=223 data-nosnippet>223</a>    }
+<a href=#224 id=224 data-nosnippet>224</a>
+<a href=#225 id=225 data-nosnippet>225</a>    <span class="kw">fn </span>poll_next(
+<a href=#226 id=226 data-nosnippet>226</a>        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+<a href=#227 id=227 data-nosnippet>227</a>        cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>&gt;,
+<a href=#228 id=228 data-nosnippet>228</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt;&gt; {
+<a href=#229 id=229 data-nosnippet>229</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <span class="self">self</span>.items.pop_front() {
+<a href=#230 id=230 data-nosnippet>230</a>            <span class="self">self</span>.len -= data.len();
+<a href=#231 id=231 data-nosnippet>231</a>            <span class="self">self</span>.need_read = <span class="self">self</span>.len &lt; MAX_BUFFER_SIZE;
+<a href=#232 id=232 data-nosnippet>232</a>
+<a href=#233 id=233 data-nosnippet>233</a>            <span class="kw">if </span><span class="self">self</span>.need_read &amp;&amp; !<span class="self">self</span>.eof {
+<a href=#234 id=234 data-nosnippet>234</a>                <span class="self">self</span>.register(cx);
+<a href=#235 id=235 data-nosnippet>235</a>            }
+<a href=#236 id=236 data-nosnippet>236</a>            <span class="self">self</span>.wake_io();
+<a href=#237 id=237 data-nosnippet>237</a>            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(data)))
+<a href=#238 id=238 data-nosnippet>238</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(err) = <span class="self">self</span>.err.take() {
+<a href=#239 id=239 data-nosnippet>239</a>            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)))
+<a href=#240 id=240 data-nosnippet>240</a>        } <span class="kw">else if </span><span class="self">self</span>.eof {
+<a href=#241 id=241 data-nosnippet>241</a>            Poll::Ready(<span class="prelude-val">None</span>)
+<a href=#242 id=242 data-nosnippet>242</a>        } <span class="kw">else </span>{
+<a href=#243 id=243 data-nosnippet>243</a>            <span class="self">self</span>.need_read = <span class="bool-val">true</span>;
+<a href=#244 id=244 data-nosnippet>244</a>            <span class="self">self</span>.register(cx);
+<a href=#245 id=245 data-nosnippet>245</a>            <span class="self">self</span>.wake_io();
+<a href=#246 id=246 data-nosnippet>246</a>            Poll::Pending
+<a href=#247 id=247 data-nosnippet>247</a>        }
+<a href=#248 id=248 data-nosnippet>248</a>    }
+<a href=#249 id=249 data-nosnippet>249</a>
+<a href=#250 id=250 data-nosnippet>250</a>    <span class="kw">fn </span>unread_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) {
+<a href=#251 id=251 data-nosnippet>251</a>        <span class="self">self</span>.len += data.len();
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="self">self</span>.items.push_front(data);
+<a href=#253 id=253 data-nosnippet>253</a>    }
+<a href=#254 id=254 data-nosnippet>254</a>}
+<a href=#255 id=255 data-nosnippet>255</a>
+<a href=#256 id=256 data-nosnippet>256</a><span class="attr">#[cfg(test)]
+<a href=#257 id=257 data-nosnippet>257</a></span><span class="kw">mod </span>tests {
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="kw">use </span>std::{task::Poll, time::Duration};
+<a href=#259 id=259 data-nosnippet>259</a>
+<a href=#260 id=260 data-nosnippet>260</a>    <span class="kw">use </span>actix_rt::time::timeout;
+<a href=#261 id=261 data-nosnippet>261</a>    <span class="kw">use </span>actix_utils::future::poll_fn;
+<a href=#262 id=262 data-nosnippet>262</a>    <span class="kw">use </span>futures_util::{FutureExt, StreamExt};
+<a href=#263 id=263 data-nosnippet>263</a>    <span class="kw">use </span>static_assertions::{assert_impl_all, assert_not_impl_any};
+<a href=#264 id=264 data-nosnippet>264</a>    <span class="kw">use </span>tokio::sync::oneshot;
 <a href=#265 id=265 data-nosnippet>265</a>
-<a href=#266 id=266 data-nosnippet>266</a>    <span class="attr">#[actix_rt::test]
-<a href=#267 id=267 data-nosnippet>267</a>    </span><span class="kw">async fn </span>test_unread_data() {
-<a href=#268 id=268 data-nosnippet>268</a>        <span class="kw">let </span>(<span class="kw">_</span>, <span class="kw-2">mut </span>payload) = Payload::create(<span class="bool-val">false</span>);
-<a href=#269 id=269 data-nosnippet>269</a>
-<a href=#270 id=270 data-nosnippet>270</a>        payload.unread_data(Bytes::from(<span class="string">"data"</span>));
-<a href=#271 id=271 data-nosnippet>271</a>        <span class="macro">assert!</span>(!payload.is_empty());
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="macro">assert_eq!</span>(payload.len(), <span class="number">4</span>);
-<a href=#273 id=273 data-nosnippet>273</a>
-<a href=#274 id=274 data-nosnippet>274</a>        <span class="macro">assert_eq!</span>(
-<a href=#275 id=275 data-nosnippet>275</a>            Bytes::from(<span class="string">"data"</span>),
-<a href=#276 id=276 data-nosnippet>276</a>            poll_fn(|cx| Pin::new(<span class="kw-2">&amp;mut </span>payload).poll_next(cx))
-<a href=#277 id=277 data-nosnippet>277</a>                .<span class="kw">await
-<a href=#278 id=278 data-nosnippet>278</a>                </span>.unwrap()
-<a href=#279 id=279 data-nosnippet>279</a>                .unwrap()
-<a href=#280 id=280 data-nosnippet>280</a>        );
-<a href=#281 id=281 data-nosnippet>281</a>    }
-<a href=#282 id=282 data-nosnippet>282</a>}</code></pre></div></section></main></body></html>
+<a href=#266 id=266 data-nosnippet>266</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#267 id=267 data-nosnippet>267</a>
+<a href=#268 id=268 data-nosnippet>268</a>    <span class="macro">assert_impl_all!</span>(Payload: Unpin);
+<a href=#269 id=269 data-nosnippet>269</a>    <span class="macro">assert_not_impl_any!</span>(Payload: Send, Sync);
+<a href=#270 id=270 data-nosnippet>270</a>
+<a href=#271 id=271 data-nosnippet>271</a>    <span class="macro">assert_impl_all!</span>(Inner: Unpin, Send, Sync);
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>    <span class="kw">const </span>WAKE_TIMEOUT: Duration = Duration::from_secs(<span class="number">2</span>);
+<a href=#274 id=274 data-nosnippet>274</a>
+<a href=#275 id=275 data-nosnippet>275</a>    <span class="kw">fn </span>prepare_waking_test(
+<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw-2">mut </span>payload: Payload,
+<a href=#277 id=277 data-nosnippet>277</a>        expected: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;(), ()&gt;&gt;,
+<a href=#278 id=278 data-nosnippet>278</a>    ) -&gt; (oneshot::Receiver&lt;()&gt;, actix_rt::task::JoinHandle&lt;()&gt;) {
+<a href=#279 id=279 data-nosnippet>279</a>        <span class="kw">let </span>(tx, rx) = oneshot::channel();
+<a href=#280 id=280 data-nosnippet>280</a>
+<a href=#281 id=281 data-nosnippet>281</a>        <span class="kw">let </span>handle = actix_rt::spawn(<span class="kw">async move </span>{
+<a href=#282 id=282 data-nosnippet>282</a>            <span class="comment">// Make sure to poll once to set the waker
+<a href=#283 id=283 data-nosnippet>283</a>            </span>poll_fn(|cx| {
+<a href=#284 id=284 data-nosnippet>284</a>                <span class="macro">assert!</span>(payload.poll_next_unpin(cx).is_pending());
+<a href=#285 id=285 data-nosnippet>285</a>                Poll::Ready(())
+<a href=#286 id=286 data-nosnippet>286</a>            })
+<a href=#287 id=287 data-nosnippet>287</a>            .<span class="kw">await</span>;
+<a href=#288 id=288 data-nosnippet>288</a>            tx.send(()).unwrap();
+<a href=#289 id=289 data-nosnippet>289</a>
+<a href=#290 id=290 data-nosnippet>290</a>            <span class="comment">// actix-rt is single-threaded, so this won't race with `rx.await`
+<a href=#291 id=291 data-nosnippet>291</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>pend_once = <span class="bool-val">false</span>;
+<a href=#292 id=292 data-nosnippet>292</a>            poll_fn(|<span class="kw">_</span>| {
+<a href=#293 id=293 data-nosnippet>293</a>                <span class="kw">if </span>pend_once {
+<a href=#294 id=294 data-nosnippet>294</a>                    Poll::Ready(())
+<a href=#295 id=295 data-nosnippet>295</a>                } <span class="kw">else </span>{
+<a href=#296 id=296 data-nosnippet>296</a>                    <span class="comment">// Return pending without storing wakers, we already did on the previous
+<a href=#297 id=297 data-nosnippet>297</a>                    // `poll_fn`, now this task will only continue if the `sender` wakes us
+<a href=#298 id=298 data-nosnippet>298</a>                    </span>pend_once = <span class="bool-val">true</span>;
+<a href=#299 id=299 data-nosnippet>299</a>                    Poll::Pending
+<a href=#300 id=300 data-nosnippet>300</a>                }
+<a href=#301 id=301 data-nosnippet>301</a>            })
+<a href=#302 id=302 data-nosnippet>302</a>            .<span class="kw">await</span>;
+<a href=#303 id=303 data-nosnippet>303</a>
+<a href=#304 id=304 data-nosnippet>304</a>            <span class="kw">let </span>got = payload.next().now_or_never().unwrap();
+<a href=#305 id=305 data-nosnippet>305</a>            <span class="kw">match </span>expected {
+<a href=#306 id=306 data-nosnippet>306</a>                <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(got.unwrap().is_ok()),
+<a href=#307 id=307 data-nosnippet>307</a>                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(got.unwrap().is_err()),
+<a href=#308 id=308 data-nosnippet>308</a>                <span class="prelude-val">None </span>=&gt; <span class="macro">assert!</span>(got.is_none()),
+<a href=#309 id=309 data-nosnippet>309</a>            }
+<a href=#310 id=310 data-nosnippet>310</a>        });
+<a href=#311 id=311 data-nosnippet>311</a>        (rx, handle)
+<a href=#312 id=312 data-nosnippet>312</a>    }
+<a href=#313 id=313 data-nosnippet>313</a>
+<a href=#314 id=314 data-nosnippet>314</a>    <span class="attr">#[actix_rt::test]
+<a href=#315 id=315 data-nosnippet>315</a>    </span><span class="kw">async fn </span>wake_on_error() {
+<a href=#316 id=316 data-nosnippet>316</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>sender, payload) = Payload::create(<span class="bool-val">false</span>);
+<a href=#317 id=317 data-nosnippet>317</a>        <span class="kw">let </span>(rx, handle) = prepare_waking_test(payload, <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(())));
+<a href=#318 id=318 data-nosnippet>318</a>
+<a href=#319 id=319 data-nosnippet>319</a>        rx.<span class="kw">await</span>.unwrap();
+<a href=#320 id=320 data-nosnippet>320</a>        sender.set_error(PayloadError::Incomplete(<span class="prelude-val">None</span>));
+<a href=#321 id=321 data-nosnippet>321</a>        timeout(WAKE_TIMEOUT, handle).<span class="kw">await</span>.unwrap().unwrap();
+<a href=#322 id=322 data-nosnippet>322</a>    }
+<a href=#323 id=323 data-nosnippet>323</a>
+<a href=#324 id=324 data-nosnippet>324</a>    <span class="attr">#[actix_rt::test]
+<a href=#325 id=325 data-nosnippet>325</a>    </span><span class="kw">async fn </span>wake_on_eof() {
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>sender, payload) = Payload::create(<span class="bool-val">false</span>);
+<a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">let </span>(rx, handle) = prepare_waking_test(payload, <span class="prelude-val">None</span>);
+<a href=#328 id=328 data-nosnippet>328</a>
+<a href=#329 id=329 data-nosnippet>329</a>        rx.<span class="kw">await</span>.unwrap();
+<a href=#330 id=330 data-nosnippet>330</a>        sender.feed_eof();
+<a href=#331 id=331 data-nosnippet>331</a>        timeout(WAKE_TIMEOUT, handle).<span class="kw">await</span>.unwrap().unwrap();
+<a href=#332 id=332 data-nosnippet>332</a>    }
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="attr">#[actix_rt::test]
+<a href=#335 id=335 data-nosnippet>335</a>    </span><span class="kw">async fn </span>test_unread_data() {
+<a href=#336 id=336 data-nosnippet>336</a>        <span class="kw">let </span>(<span class="kw">_</span>, <span class="kw-2">mut </span>payload) = Payload::create(<span class="bool-val">false</span>);
+<a href=#337 id=337 data-nosnippet>337</a>
+<a href=#338 id=338 data-nosnippet>338</a>        payload.unread_data(Bytes::from(<span class="string">"data"</span>));
+<a href=#339 id=339 data-nosnippet>339</a>        <span class="macro">assert!</span>(!payload.is_empty());
+<a href=#340 id=340 data-nosnippet>340</a>        <span class="macro">assert_eq!</span>(payload.len(), <span class="number">4</span>);
+<a href=#341 id=341 data-nosnippet>341</a>
+<a href=#342 id=342 data-nosnippet>342</a>        <span class="macro">assert_eq!</span>(
+<a href=#343 id=343 data-nosnippet>343</a>            Bytes::from(<span class="string">"data"</span>),
+<a href=#344 id=344 data-nosnippet>344</a>            poll_fn(|cx| Pin::new(<span class="kw-2">&amp;mut </span>payload).poll_next(cx))
+<a href=#345 id=345 data-nosnippet>345</a>                .<span class="kw">await
+<a href=#346 id=346 data-nosnippet>346</a>                </span>.unwrap()
+<a href=#347 id=347 data-nosnippet>347</a>                .unwrap()
+<a href=#348 id=348 data-nosnippet>348</a>        );
+<a href=#349 id=349 data-nosnippet>349</a>    }
+<a href=#350 id=350 data-nosnippet>350</a>}</code></pre></div></section></main></body></html>

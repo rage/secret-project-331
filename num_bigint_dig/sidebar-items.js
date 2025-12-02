@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["VEC_SIZE"],"enum":["Sign"],"fn":["negate_sign"],"mod":["algorithms","prime","traits"],"struct":["BigInt","BigUint","ParseBigIntError","RandomBits","UniformBigInt","UniformBigUint"],"trait":["IntoBigInt","IntoBigUint","RandBigInt","RandPrime","ToBigInt","ToBigUint"]};

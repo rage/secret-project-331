@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Algorithm"],"fn":["dangerous_insecure_decode","dangerous_insecure_decode_with_validation","dangerous_unsafe_decode","decode","decode_header","encode"],"mod":["crypto","errors"],"struct":["DecodingKey","EncodingKey","Header","TokenData","Validation"]};
+window.SIDEBAR_ITEMS = {"enum":["Algorithm"],"fn":["decode","decode_header","encode","get_current_timestamp"],"mod":["crypto","errors","jwk"],"struct":["DecodingKey","EncodingKey","Header","TokenData","Validation"]};

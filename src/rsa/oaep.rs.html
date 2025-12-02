@@ -1,0 +1,588 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rsa-0.9.8/src/oaep.rs`."><title>oaep.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rsa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rsa/</div>oaep.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Encryption and Decryption using [OAEP padding](https://datatracker.ietf.org/doc/html/rfc8017#section-7.1).
+<a href=#2 id=2 data-nosnippet>2</a>//!
+<a href=#3 id=3 data-nosnippet>3</a>//! # Usage
+<a href=#4 id=4 data-nosnippet>4</a>//!
+<a href=#5 id=5 data-nosnippet>5</a>//! See [code example in the toplevel rustdoc](../index.html#oaep-encryption).
+<a href=#6 id=6 data-nosnippet>6</a>
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">mod </span>decrypting_key;
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">mod </span>encrypting_key;
+<a href=#9 id=9 data-nosnippet>9</a>
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">pub use </span><span class="self">self</span>::{decrypting_key::DecryptingKey, encrypting_key::EncryptingKey};
+<a href=#11 id=11 data-nosnippet>11</a>
+<a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span>alloc::boxed::Box;
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span>alloc::string::{String, ToString};
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">use </span>alloc::vec::Vec;
+<a href=#15 id=15 data-nosnippet>15</a><span class="kw">use </span>core::fmt;
+<a href=#16 id=16 data-nosnippet>16</a>
+<a href=#17 id=17 data-nosnippet>17</a><span class="kw">use </span>digest::{Digest, DynDigest, FixedOutputReset};
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>num_bigint::BigUint;
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>rand_core::CryptoRngCore;
+<a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>zeroize::Zeroizing;
+<a href=#21 id=21 data-nosnippet>21</a>
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span><span class="kw">crate</span>::algorithms::oaep::<span class="kw-2">*</span>;
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span><span class="kw">crate</span>::algorithms::pad::{uint_to_be_pad, uint_to_zeroizing_be_pad};
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span><span class="kw">crate</span>::algorithms::rsa::{rsa_decrypt_and_check, rsa_encrypt};
+<a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span><span class="kw">crate</span>::key::{<span class="self">self</span>, RsaPrivateKey, RsaPublicKey};
+<a href=#27 id=27 data-nosnippet>27</a><span class="kw">use </span><span class="kw">crate</span>::traits::{PaddingScheme, PublicKeyParts};
+<a href=#28 id=28 data-nosnippet>28</a>
+<a href=#29 id=29 data-nosnippet>29</a><span class="doccomment">/// Encryption and Decryption using [OAEP padding](https://datatracker.ietf.org/doc/html/rfc8017#section-7.1).
+<a href=#30 id=30 data-nosnippet>30</a>///
+<a href=#31 id=31 data-nosnippet>31</a>/// - `digest` is used to hash the label. The maximum possible plaintext length is `m = k - 2 * h_len - 2`,
+<a href=#32 id=32 data-nosnippet>32</a>///   where `k` is the size of the RSA modulus.
+<a href=#33 id=33 data-nosnippet>33</a>/// - `mgf_digest` specifies the hash function that is used in the [MGF1](https://datatracker.ietf.org/doc/html/rfc8017#appendix-B.2).
+<a href=#34 id=34 data-nosnippet>34</a>/// - `label` is optional data that can be associated with the message.
+<a href=#35 id=35 data-nosnippet>35</a>///
+<a href=#36 id=36 data-nosnippet>36</a>/// The two hash functions can, but don't need to be the same.
+<a href=#37 id=37 data-nosnippet>37</a>///
+<a href=#38 id=38 data-nosnippet>38</a>/// A prominent example is the [`AndroidKeyStore`](https://developer.android.com/guide/topics/security/cryptography#oaep-mgf1-digest).
+<a href=#39 id=39 data-nosnippet>39</a>/// It uses SHA-1 for `mgf_digest` and a user-chosen SHA flavour for `digest`.
+<a href=#40 id=40 data-nosnippet>40</a></span><span class="kw">pub struct </span>Oaep {
+<a href=#41 id=41 data-nosnippet>41</a>    <span class="doccomment">/// Digest type to use.
+<a href=#42 id=42 data-nosnippet>42</a>    </span><span class="kw">pub </span>digest: Box&lt;<span class="kw">dyn </span>DynDigest + Send + Sync&gt;,
+<a href=#43 id=43 data-nosnippet>43</a>
+<a href=#44 id=44 data-nosnippet>44</a>    <span class="doccomment">/// Digest to use for Mask Generation Function (MGF).
+<a href=#45 id=45 data-nosnippet>45</a>    </span><span class="kw">pub </span>mgf_digest: Box&lt;<span class="kw">dyn </span>DynDigest + Send + Sync&gt;,
+<a href=#46 id=46 data-nosnippet>46</a>
+<a href=#47 id=47 data-nosnippet>47</a>    <span class="doccomment">/// Optional label.
+<a href=#48 id=48 data-nosnippet>48</a>    </span><span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#49 id=49 data-nosnippet>49</a>}
+<a href=#50 id=50 data-nosnippet>50</a>
+<a href=#51 id=51 data-nosnippet>51</a><span class="kw">impl </span>Oaep {
+<a href=#52 id=52 data-nosnippet>52</a>    <span class="doccomment">/// Create a new OAEP `PaddingScheme`, using `T` as the hash function for both the default (empty) label and for MGF1.
+<a href=#53 id=53 data-nosnippet>53</a>    ///
+<a href=#54 id=54 data-nosnippet>54</a>    /// # Example
+<a href=#55 id=55 data-nosnippet>55</a>    /// ```
+<a href=#56 id=56 data-nosnippet>56</a>    /// use sha1::Sha1;
+<a href=#57 id=57 data-nosnippet>57</a>    /// use sha2::Sha256;
+<a href=#58 id=58 data-nosnippet>58</a>    /// use rsa::{BigUint, RsaPublicKey, Oaep, };
+<a href=#59 id=59 data-nosnippet>59</a>    /// use base64ct::{Base64, Encoding};
+<a href=#60 id=60 data-nosnippet>60</a>    ///
+<a href=#61 id=61 data-nosnippet>61</a>    /// let n = Base64::decode_vec("ALHgDoZmBQIx+jTmgeeHW6KsPOrj11f6CvWsiRleJlQpW77AwSZhd21ZDmlTKfaIHBSUxRUsuYNh7E2SHx8rkFVCQA2/gXkZ5GK2IUbzSTio9qXA25MWHvVxjMfKSL8ZAxZyKbrG94FLLszFAFOaiLLY8ECs7g+dXOriYtBwLUJK+lppbd+El+8ZA/zH0bk7vbqph5pIoiWggxwdq3mEz4LnrUln7r6dagSQzYErKewY8GADVpXcq5mfHC1xF2DFBub7bFjMVM5fHq7RK+pG5xjNDiYITbhLYrbVv3X0z75OvN0dY49ITWjM7xyvMWJXVJS7sJlgmCCL6RwWgP8PhcE=").unwrap();
+<a href=#62 id=62 data-nosnippet>62</a>    /// let e = Base64::decode_vec("AQAB").unwrap();
+<a href=#63 id=63 data-nosnippet>63</a>    ///
+<a href=#64 id=64 data-nosnippet>64</a>    /// let mut rng = rand::thread_rng(); // rand@0.8
+<a href=#65 id=65 data-nosnippet>65</a>    /// let key = RsaPublicKey::new(BigUint::from_bytes_be(&amp;n), BigUint::from_bytes_be(&amp;e)).unwrap();
+<a href=#66 id=66 data-nosnippet>66</a>    /// let padding = Oaep::new::&lt;Sha256&gt;();
+<a href=#67 id=67 data-nosnippet>67</a>    /// let encrypted_data = key.encrypt(&amp;mut rng, padding, b"secret").unwrap();
+<a href=#68 id=68 data-nosnippet>68</a>    /// ```
+<a href=#69 id=69 data-nosnippet>69</a>    </span><span class="kw">pub fn </span>new&lt;T: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync&gt;() -&gt; <span class="self">Self </span>{
+<a href=#70 id=70 data-nosnippet>70</a>        <span class="self">Self </span>{
+<a href=#71 id=71 data-nosnippet>71</a>            digest: Box::new(T::new()),
+<a href=#72 id=72 data-nosnippet>72</a>            mgf_digest: Box::new(T::new()),
+<a href=#73 id=73 data-nosnippet>73</a>            label: <span class="prelude-val">None</span>,
+<a href=#74 id=74 data-nosnippet>74</a>        }
+<a href=#75 id=75 data-nosnippet>75</a>    }
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="doccomment">/// Create a new OAEP `PaddingScheme` with an associated `label`, using `T` as the hash function for both the label and for MGF1.
+<a href=#78 id=78 data-nosnippet>78</a>    </span><span class="kw">pub fn </span>new_with_label&lt;T: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync, S: AsRef&lt;str&gt;&gt;(
+<a href=#79 id=79 data-nosnippet>79</a>        label: S,
+<a href=#80 id=80 data-nosnippet>80</a>    ) -&gt; <span class="self">Self </span>{
+<a href=#81 id=81 data-nosnippet>81</a>        <span class="self">Self </span>{
+<a href=#82 id=82 data-nosnippet>82</a>            digest: Box::new(T::new()),
+<a href=#83 id=83 data-nosnippet>83</a>            mgf_digest: Box::new(T::new()),
+<a href=#84 id=84 data-nosnippet>84</a>            label: <span class="prelude-val">Some</span>(label.as_ref().to_string()),
+<a href=#85 id=85 data-nosnippet>85</a>        }
+<a href=#86 id=86 data-nosnippet>86</a>    }
+<a href=#87 id=87 data-nosnippet>87</a>
+<a href=#88 id=88 data-nosnippet>88</a>    <span class="doccomment">/// Create a new OAEP `PaddingScheme`, using `T` as the hash function for the default (empty) label, and `U` as the hash function for MGF1.
+<a href=#89 id=89 data-nosnippet>89</a>    /// If a label is needed use `PaddingScheme::new_oaep_with_label` or `PaddingScheme::new_oaep_with_mgf_hash_with_label`.
+<a href=#90 id=90 data-nosnippet>90</a>    ///
+<a href=#91 id=91 data-nosnippet>91</a>    /// # Example
+<a href=#92 id=92 data-nosnippet>92</a>    /// ```
+<a href=#93 id=93 data-nosnippet>93</a>    /// use sha1::Sha1;
+<a href=#94 id=94 data-nosnippet>94</a>    /// use sha2::Sha256;
+<a href=#95 id=95 data-nosnippet>95</a>    /// use rsa::{BigUint, RsaPublicKey, Oaep, };
+<a href=#96 id=96 data-nosnippet>96</a>    /// use base64ct::{Base64, Encoding};
+<a href=#97 id=97 data-nosnippet>97</a>    ///
+<a href=#98 id=98 data-nosnippet>98</a>    /// let n = Base64::decode_vec("ALHgDoZmBQIx+jTmgeeHW6KsPOrj11f6CvWsiRleJlQpW77AwSZhd21ZDmlTKfaIHBSUxRUsuYNh7E2SHx8rkFVCQA2/gXkZ5GK2IUbzSTio9qXA25MWHvVxjMfKSL8ZAxZyKbrG94FLLszFAFOaiLLY8ECs7g+dXOriYtBwLUJK+lppbd+El+8ZA/zH0bk7vbqph5pIoiWggxwdq3mEz4LnrUln7r6dagSQzYErKewY8GADVpXcq5mfHC1xF2DFBub7bFjMVM5fHq7RK+pG5xjNDiYITbhLYrbVv3X0z75OvN0dY49ITWjM7xyvMWJXVJS7sJlgmCCL6RwWgP8PhcE=").unwrap();
+<a href=#99 id=99 data-nosnippet>99</a>    /// let e = Base64::decode_vec("AQAB").unwrap();
+<a href=#100 id=100 data-nosnippet>100</a>    ///
+<a href=#101 id=101 data-nosnippet>101</a>    /// let mut rng = rand::thread_rng(); // rand@0.8
+<a href=#102 id=102 data-nosnippet>102</a>    /// let key = RsaPublicKey::new(BigUint::from_bytes_be(&amp;n), BigUint::from_bytes_be(&amp;e)).unwrap();
+<a href=#103 id=103 data-nosnippet>103</a>    /// let padding = Oaep::new_with_mgf_hash::&lt;Sha256, Sha1&gt;();
+<a href=#104 id=104 data-nosnippet>104</a>    /// let encrypted_data = key.encrypt(&amp;mut rng, padding, b"secret").unwrap();
+<a href=#105 id=105 data-nosnippet>105</a>    /// ```
+<a href=#106 id=106 data-nosnippet>106</a>    </span><span class="kw">pub fn </span>new_with_mgf_hash&lt;
+<a href=#107 id=107 data-nosnippet>107</a>        T: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync,
+<a href=#108 id=108 data-nosnippet>108</a>        U: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync,
+<a href=#109 id=109 data-nosnippet>109</a>    &gt;() -&gt; <span class="self">Self </span>{
+<a href=#110 id=110 data-nosnippet>110</a>        <span class="self">Self </span>{
+<a href=#111 id=111 data-nosnippet>111</a>            digest: Box::new(T::new()),
+<a href=#112 id=112 data-nosnippet>112</a>            mgf_digest: Box::new(U::new()),
+<a href=#113 id=113 data-nosnippet>113</a>            label: <span class="prelude-val">None</span>,
+<a href=#114 id=114 data-nosnippet>114</a>        }
+<a href=#115 id=115 data-nosnippet>115</a>    }
+<a href=#116 id=116 data-nosnippet>116</a>
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="doccomment">/// Create a new OAEP `PaddingScheme` with an associated `label`, using `T` as the hash function for the label, and `U` as the hash function for MGF1.
+<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="kw">pub fn </span>new_with_mgf_hash_and_label&lt;
+<a href=#119 id=119 data-nosnippet>119</a>        T: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync,
+<a href=#120 id=120 data-nosnippet>120</a>        U: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync,
+<a href=#121 id=121 data-nosnippet>121</a>        S: AsRef&lt;str&gt;,
+<a href=#122 id=122 data-nosnippet>122</a>    &gt;(
+<a href=#123 id=123 data-nosnippet>123</a>        label: S,
+<a href=#124 id=124 data-nosnippet>124</a>    ) -&gt; <span class="self">Self </span>{
+<a href=#125 id=125 data-nosnippet>125</a>        <span class="self">Self </span>{
+<a href=#126 id=126 data-nosnippet>126</a>            digest: Box::new(T::new()),
+<a href=#127 id=127 data-nosnippet>127</a>            mgf_digest: Box::new(U::new()),
+<a href=#128 id=128 data-nosnippet>128</a>            label: <span class="prelude-val">Some</span>(label.as_ref().to_string()),
+<a href=#129 id=129 data-nosnippet>129</a>        }
+<a href=#130 id=130 data-nosnippet>130</a>    }
+<a href=#131 id=131 data-nosnippet>131</a>}
+<a href=#132 id=132 data-nosnippet>132</a>
+<a href=#133 id=133 data-nosnippet>133</a><span class="kw">impl </span>PaddingScheme <span class="kw">for </span>Oaep {
+<a href=#134 id=134 data-nosnippet>134</a>    <span class="kw">fn </span>decrypt&lt;Rng: CryptoRngCore&gt;(
+<a href=#135 id=135 data-nosnippet>135</a>        <span class="kw-2">mut </span><span class="self">self</span>,
+<a href=#136 id=136 data-nosnippet>136</a>        rng: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Rng&gt;,
+<a href=#137 id=137 data-nosnippet>137</a>        priv_key: <span class="kw-2">&amp;</span>RsaPrivateKey,
+<a href=#138 id=138 data-nosnippet>138</a>        ciphertext: <span class="kw-2">&amp;</span>[u8],
+<a href=#139 id=139 data-nosnippet>139</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+<a href=#140 id=140 data-nosnippet>140</a>        decrypt(
+<a href=#141 id=141 data-nosnippet>141</a>            rng,
+<a href=#142 id=142 data-nosnippet>142</a>            priv_key,
+<a href=#143 id=143 data-nosnippet>143</a>            ciphertext,
+<a href=#144 id=144 data-nosnippet>144</a>            <span class="kw-2">&amp;mut *</span><span class="self">self</span>.digest,
+<a href=#145 id=145 data-nosnippet>145</a>            <span class="kw-2">&amp;mut *</span><span class="self">self</span>.mgf_digest,
+<a href=#146 id=146 data-nosnippet>146</a>            <span class="self">self</span>.label,
+<a href=#147 id=147 data-nosnippet>147</a>        )
+<a href=#148 id=148 data-nosnippet>148</a>    }
+<a href=#149 id=149 data-nosnippet>149</a>
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">fn </span>encrypt&lt;Rng: CryptoRngCore&gt;(
+<a href=#151 id=151 data-nosnippet>151</a>        <span class="kw-2">mut </span><span class="self">self</span>,
+<a href=#152 id=152 data-nosnippet>152</a>        rng: <span class="kw-2">&amp;mut </span>Rng,
+<a href=#153 id=153 data-nosnippet>153</a>        pub_key: <span class="kw-2">&amp;</span>RsaPublicKey,
+<a href=#154 id=154 data-nosnippet>154</a>        msg: <span class="kw-2">&amp;</span>[u8],
+<a href=#155 id=155 data-nosnippet>155</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+<a href=#156 id=156 data-nosnippet>156</a>        encrypt(
+<a href=#157 id=157 data-nosnippet>157</a>            rng,
+<a href=#158 id=158 data-nosnippet>158</a>            pub_key,
+<a href=#159 id=159 data-nosnippet>159</a>            msg,
+<a href=#160 id=160 data-nosnippet>160</a>            <span class="kw-2">&amp;mut *</span><span class="self">self</span>.digest,
+<a href=#161 id=161 data-nosnippet>161</a>            <span class="kw-2">&amp;mut *</span><span class="self">self</span>.mgf_digest,
+<a href=#162 id=162 data-nosnippet>162</a>            <span class="self">self</span>.label,
+<a href=#163 id=163 data-nosnippet>163</a>        )
+<a href=#164 id=164 data-nosnippet>164</a>    }
+<a href=#165 id=165 data-nosnippet>165</a>}
+<a href=#166 id=166 data-nosnippet>166</a>
+<a href=#167 id=167 data-nosnippet>167</a><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Oaep {
+<a href=#168 id=168 data-nosnippet>168</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#169 id=169 data-nosnippet>169</a>        f.debug_struct(<span class="string">"OAEP"</span>)
+<a href=#170 id=170 data-nosnippet>170</a>            .field(<span class="string">"digest"</span>, <span class="kw-2">&amp;</span><span class="string">"..."</span>)
+<a href=#171 id=171 data-nosnippet>171</a>            .field(<span class="string">"mgf_digest"</span>, <span class="kw-2">&amp;</span><span class="string">"..."</span>)
+<a href=#172 id=172 data-nosnippet>172</a>            .field(<span class="string">"label"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.label)
+<a href=#173 id=173 data-nosnippet>173</a>            .finish()
+<a href=#174 id=174 data-nosnippet>174</a>    }
+<a href=#175 id=175 data-nosnippet>175</a>}
+<a href=#176 id=176 data-nosnippet>176</a>
+<a href=#177 id=177 data-nosnippet>177</a><span class="doccomment">/// Encrypts the given message with RSA and the padding scheme from
+<a href=#178 id=178 data-nosnippet>178</a>/// [PKCS#1 OAEP].
+<a href=#179 id=179 data-nosnippet>179</a>///
+<a href=#180 id=180 data-nosnippet>180</a>/// The message must be no longer than the length of the public modulus minus
+<a href=#181 id=181 data-nosnippet>181</a>/// `2 + (2 * hash.size())`.
+<a href=#182 id=182 data-nosnippet>182</a>///
+<a href=#183 id=183 data-nosnippet>183</a>/// [PKCS#1 OAEP]: https://datatracker.ietf.org/doc/html/rfc8017#section-7.1
+<a href=#184 id=184 data-nosnippet>184</a></span><span class="attr">#[inline]
+<a href=#185 id=185 data-nosnippet>185</a></span><span class="kw">fn </span>encrypt&lt;R: CryptoRngCore + <span class="question-mark">?</span>Sized&gt;(
+<a href=#186 id=186 data-nosnippet>186</a>    rng: <span class="kw-2">&amp;mut </span>R,
+<a href=#187 id=187 data-nosnippet>187</a>    pub_key: <span class="kw-2">&amp;</span>RsaPublicKey,
+<a href=#188 id=188 data-nosnippet>188</a>    msg: <span class="kw-2">&amp;</span>[u8],
+<a href=#189 id=189 data-nosnippet>189</a>    digest: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>DynDigest,
+<a href=#190 id=190 data-nosnippet>190</a>    mgf_digest: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>DynDigest,
+<a href=#191 id=191 data-nosnippet>191</a>    label: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#192 id=192 data-nosnippet>192</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+<a href=#193 id=193 data-nosnippet>193</a>    key::check_public(pub_key)<span class="question-mark">?</span>;
+<a href=#194 id=194 data-nosnippet>194</a>
+<a href=#195 id=195 data-nosnippet>195</a>    <span class="kw">let </span>em = oaep_encrypt(rng, msg, digest, mgf_digest, label, pub_key.size())<span class="question-mark">?</span>;
+<a href=#196 id=196 data-nosnippet>196</a>
+<a href=#197 id=197 data-nosnippet>197</a>    <span class="kw">let </span>int = Zeroizing::new(BigUint::from_bytes_be(<span class="kw-2">&amp;</span>em));
+<a href=#198 id=198 data-nosnippet>198</a>    uint_to_be_pad(rsa_encrypt(pub_key, <span class="kw-2">&amp;</span>int)<span class="question-mark">?</span>, pub_key.size())
+<a href=#199 id=199 data-nosnippet>199</a>}
+<a href=#200 id=200 data-nosnippet>200</a>
+<a href=#201 id=201 data-nosnippet>201</a><span class="doccomment">/// Encrypts the given message with RSA and the padding scheme from
+<a href=#202 id=202 data-nosnippet>202</a>/// [PKCS#1 OAEP].
+<a href=#203 id=203 data-nosnippet>203</a>///
+<a href=#204 id=204 data-nosnippet>204</a>/// The message must be no longer than the length of the public modulus minus
+<a href=#205 id=205 data-nosnippet>205</a>/// `2 + (2 * hash.size())`.
+<a href=#206 id=206 data-nosnippet>206</a>///
+<a href=#207 id=207 data-nosnippet>207</a>/// [PKCS#1 OAEP]: https://datatracker.ietf.org/doc/html/rfc8017#section-7.1
+<a href=#208 id=208 data-nosnippet>208</a></span><span class="kw">fn </span>encrypt_digest&lt;R: CryptoRngCore + <span class="question-mark">?</span>Sized, D: Digest, MGD: Digest + FixedOutputReset&gt;(
+<a href=#209 id=209 data-nosnippet>209</a>    rng: <span class="kw-2">&amp;mut </span>R,
+<a href=#210 id=210 data-nosnippet>210</a>    pub_key: <span class="kw-2">&amp;</span>RsaPublicKey,
+<a href=#211 id=211 data-nosnippet>211</a>    msg: <span class="kw-2">&amp;</span>[u8],
+<a href=#212 id=212 data-nosnippet>212</a>    label: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#213 id=213 data-nosnippet>213</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+<a href=#214 id=214 data-nosnippet>214</a>    key::check_public(pub_key)<span class="question-mark">?</span>;
+<a href=#215 id=215 data-nosnippet>215</a>
+<a href=#216 id=216 data-nosnippet>216</a>    <span class="kw">let </span>em = oaep_encrypt_digest::&lt;<span class="kw">_</span>, D, MGD&gt;(rng, msg, label, pub_key.size())<span class="question-mark">?</span>;
+<a href=#217 id=217 data-nosnippet>217</a>
+<a href=#218 id=218 data-nosnippet>218</a>    <span class="kw">let </span>int = Zeroizing::new(BigUint::from_bytes_be(<span class="kw-2">&amp;</span>em));
+<a href=#219 id=219 data-nosnippet>219</a>    uint_to_be_pad(rsa_encrypt(pub_key, <span class="kw-2">&amp;</span>int)<span class="question-mark">?</span>, pub_key.size())
+<a href=#220 id=220 data-nosnippet>220</a>}
+<a href=#221 id=221 data-nosnippet>221</a>
+<a href=#222 id=222 data-nosnippet>222</a><span class="doccomment">/// Decrypts a plaintext using RSA and the padding scheme from [PKCS#1 OAEP].
+<a href=#223 id=223 data-nosnippet>223</a>///
+<a href=#224 id=224 data-nosnippet>224</a>/// If an `rng` is passed, it uses RSA blinding to avoid timing side-channel attacks.
+<a href=#225 id=225 data-nosnippet>225</a>///
+<a href=#226 id=226 data-nosnippet>226</a>/// Note that whether this function returns an error or not discloses secret
+<a href=#227 id=227 data-nosnippet>227</a>/// information. If an attacker can cause this function to run repeatedly and
+<a href=#228 id=228 data-nosnippet>228</a>/// learn whether each instance returned an error then they can decrypt and
+<a href=#229 id=229 data-nosnippet>229</a>/// forge signatures as if they had the private key.
+<a href=#230 id=230 data-nosnippet>230</a>///
+<a href=#231 id=231 data-nosnippet>231</a>/// See `decrypt_session_key` for a way of solving this problem.
+<a href=#232 id=232 data-nosnippet>232</a>///
+<a href=#233 id=233 data-nosnippet>233</a>/// [PKCS#1 OAEP]: https://datatracker.ietf.org/doc/html/rfc8017#section-7.1
+<a href=#234 id=234 data-nosnippet>234</a></span><span class="attr">#[inline]
+<a href=#235 id=235 data-nosnippet>235</a></span><span class="kw">fn </span>decrypt&lt;R: CryptoRngCore + <span class="question-mark">?</span>Sized&gt;(
+<a href=#236 id=236 data-nosnippet>236</a>    rng: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>R&gt;,
+<a href=#237 id=237 data-nosnippet>237</a>    priv_key: <span class="kw-2">&amp;</span>RsaPrivateKey,
+<a href=#238 id=238 data-nosnippet>238</a>    ciphertext: <span class="kw-2">&amp;</span>[u8],
+<a href=#239 id=239 data-nosnippet>239</a>    digest: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>DynDigest,
+<a href=#240 id=240 data-nosnippet>240</a>    mgf_digest: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>DynDigest,
+<a href=#241 id=241 data-nosnippet>241</a>    label: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#242 id=242 data-nosnippet>242</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+<a href=#243 id=243 data-nosnippet>243</a>    key::check_public(priv_key)<span class="question-mark">?</span>;
+<a href=#244 id=244 data-nosnippet>244</a>
+<a href=#245 id=245 data-nosnippet>245</a>    <span class="kw">if </span>ciphertext.len() != priv_key.size() {
+<a href=#246 id=246 data-nosnippet>246</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Decryption);
+<a href=#247 id=247 data-nosnippet>247</a>    }
+<a href=#248 id=248 data-nosnippet>248</a>
+<a href=#249 id=249 data-nosnippet>249</a>    <span class="kw">let </span>em = rsa_decrypt_and_check(priv_key, rng, <span class="kw-2">&amp;</span>BigUint::from_bytes_be(ciphertext))<span class="question-mark">?</span>;
+<a href=#250 id=250 data-nosnippet>250</a>    <span class="kw">let </span><span class="kw-2">mut </span>em = uint_to_zeroizing_be_pad(em, priv_key.size())<span class="question-mark">?</span>;
+<a href=#251 id=251 data-nosnippet>251</a>
+<a href=#252 id=252 data-nosnippet>252</a>    oaep_decrypt(<span class="kw-2">&amp;mut </span>em, digest, mgf_digest, label, priv_key.size())
+<a href=#253 id=253 data-nosnippet>253</a>}
+<a href=#254 id=254 data-nosnippet>254</a>
+<a href=#255 id=255 data-nosnippet>255</a><span class="doccomment">/// Decrypts a plaintext using RSA and the padding scheme from [PKCS#1 OAEP].
+<a href=#256 id=256 data-nosnippet>256</a>///
+<a href=#257 id=257 data-nosnippet>257</a>/// If an `rng` is passed, it uses RSA blinding to avoid timing side-channel attacks.
+<a href=#258 id=258 data-nosnippet>258</a>///
+<a href=#259 id=259 data-nosnippet>259</a>/// Note that whether this function returns an error or not discloses secret
+<a href=#260 id=260 data-nosnippet>260</a>/// information. If an attacker can cause this function to run repeatedly and
+<a href=#261 id=261 data-nosnippet>261</a>/// learn whether each instance returned an error then they can decrypt and
+<a href=#262 id=262 data-nosnippet>262</a>/// forge signatures as if they had the private key.
+<a href=#263 id=263 data-nosnippet>263</a>///
+<a href=#264 id=264 data-nosnippet>264</a>/// See `decrypt_session_key` for a way of solving this problem.
+<a href=#265 id=265 data-nosnippet>265</a>///
+<a href=#266 id=266 data-nosnippet>266</a>/// [PKCS#1 OAEP]: https://datatracker.ietf.org/doc/html/rfc8017#section-7.1
+<a href=#267 id=267 data-nosnippet>267</a></span><span class="attr">#[inline]
+<a href=#268 id=268 data-nosnippet>268</a></span><span class="kw">fn </span>decrypt_digest&lt;R: CryptoRngCore + <span class="question-mark">?</span>Sized, D: Digest, MGD: Digest + FixedOutputReset&gt;(
+<a href=#269 id=269 data-nosnippet>269</a>    rng: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>R&gt;,
+<a href=#270 id=270 data-nosnippet>270</a>    priv_key: <span class="kw-2">&amp;</span>RsaPrivateKey,
+<a href=#271 id=271 data-nosnippet>271</a>    ciphertext: <span class="kw-2">&amp;</span>[u8],
+<a href=#272 id=272 data-nosnippet>272</a>    label: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#273 id=273 data-nosnippet>273</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+<a href=#274 id=274 data-nosnippet>274</a>    key::check_public(priv_key)<span class="question-mark">?</span>;
+<a href=#275 id=275 data-nosnippet>275</a>
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="kw">if </span>ciphertext.len() != priv_key.size() {
+<a href=#277 id=277 data-nosnippet>277</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Decryption);
+<a href=#278 id=278 data-nosnippet>278</a>    }
+<a href=#279 id=279 data-nosnippet>279</a>
+<a href=#280 id=280 data-nosnippet>280</a>    <span class="kw">let </span>em = rsa_decrypt_and_check(priv_key, rng, <span class="kw-2">&amp;</span>BigUint::from_bytes_be(ciphertext))<span class="question-mark">?</span>;
+<a href=#281 id=281 data-nosnippet>281</a>    <span class="kw">let </span><span class="kw-2">mut </span>em = uint_to_zeroizing_be_pad(em, priv_key.size())<span class="question-mark">?</span>;
+<a href=#282 id=282 data-nosnippet>282</a>
+<a href=#283 id=283 data-nosnippet>283</a>    oaep_decrypt_digest::&lt;D, MGD&gt;(<span class="kw-2">&amp;mut </span>em, label, priv_key.size())
+<a href=#284 id=284 data-nosnippet>284</a>}
+<a href=#285 id=285 data-nosnippet>285</a>
+<a href=#286 id=286 data-nosnippet>286</a><span class="attr">#[cfg(test)]
+<a href=#287 id=287 data-nosnippet>287</a></span><span class="kw">mod </span>tests {
+<a href=#288 id=288 data-nosnippet>288</a>    <span class="kw">use </span><span class="kw">crate</span>::key::{RsaPrivateKey, RsaPublicKey};
+<a href=#289 id=289 data-nosnippet>289</a>    <span class="kw">use </span><span class="kw">crate</span>::oaep::{DecryptingKey, EncryptingKey, Oaep};
+<a href=#290 id=290 data-nosnippet>290</a>    <span class="kw">use </span><span class="kw">crate</span>::traits::PublicKeyParts;
+<a href=#291 id=291 data-nosnippet>291</a>    <span class="kw">use </span><span class="kw">crate</span>::traits::{Decryptor, RandomizedDecryptor, RandomizedEncryptor};
+<a href=#292 id=292 data-nosnippet>292</a>
+<a href=#293 id=293 data-nosnippet>293</a>    <span class="kw">use </span>alloc::string::String;
+<a href=#294 id=294 data-nosnippet>294</a>    <span class="kw">use </span>digest::{Digest, DynDigest, FixedOutputReset};
+<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">use </span>num_bigint::BigUint;
+<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">use </span>num_traits::FromPrimitive;
+<a href=#297 id=297 data-nosnippet>297</a>    <span class="kw">use </span>rand_chacha::{
+<a href=#298 id=298 data-nosnippet>298</a>        rand_core::{RngCore, SeedableRng},
+<a href=#299 id=299 data-nosnippet>299</a>        ChaCha8Rng,
+<a href=#300 id=300 data-nosnippet>300</a>    };
+<a href=#301 id=301 data-nosnippet>301</a>    <span class="kw">use </span>sha1::Sha1;
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">use </span>sha2::{Sha224, Sha256, Sha384, Sha512};
+<a href=#303 id=303 data-nosnippet>303</a>    <span class="kw">use </span>sha3::{Sha3_256, Sha3_384, Sha3_512};
+<a href=#304 id=304 data-nosnippet>304</a>
+<a href=#305 id=305 data-nosnippet>305</a>    <span class="kw">fn </span>get_private_key() -&gt; RsaPrivateKey {
+<a href=#306 id=306 data-nosnippet>306</a>        <span class="comment">// -----BEGIN RSA PRIVATE KEY-----
+<a href=#307 id=307 data-nosnippet>307</a>        // MIIEpAIBAAKCAQEA05e4TZikwmE47RtpWoEG6tkdVTvwYEG2LT/cUKBB4iK49FKW
+<a href=#308 id=308 data-nosnippet>308</a>        // icG4LF5xVU9d1p+i9LYVjPDb61eBGg/DJ+HyjnT+dNO8Fmweq9wbi1e5NMqL5bAL
+<a href=#309 id=309 data-nosnippet>309</a>        // TymXW8yZrK9BW1m7KKZ4K7QaLDwpdrPBjbre9i8AxrsiZkAJUJbAzGDSL+fvmH11
+<a href=#310 id=310 data-nosnippet>310</a>        // xqgbENlr8pICivEQ3HzBu8Q9Iq2rN5oM1dgHjMeA/1zWIJ3qNMkiz3hPdxfkKNdb
+<a href=#311 id=311 data-nosnippet>311</a>        // WuyP8w5fAUFRB2bi4KuNRzyE6HELK5gifD2wlTN600UvGeK5v7zN2BSKv2d2+lUn
+<a href=#312 id=312 data-nosnippet>312</a>        // debnWVbkUimuWpxGlJurHmIvDkj1ZSSoTtNIOwIDAQABAoIBAQDE5wxokWLJTGYI
+<a href=#313 id=313 data-nosnippet>313</a>        // KBkbUrTYOSEV30hqmtvoMeRY1zlYMg3Bt1VFbpNwHpcC12+wuS+Q4B0f4kgVMoH+
+<a href=#314 id=314 data-nosnippet>314</a>        // eaqXY6kvrmnY1+zRRN4p+hNb0U+Vc+NJ5FAx47dpgvWDADgmxVLomjl8Gga9IWNI
+<a href=#315 id=315 data-nosnippet>315</a>        // hjDZLowrtkPXq+9wDaldaFyUFImkb1S1MW9itdLDp/G70TTLNzU6RGg/3J2V02RY
+<a href=#316 id=316 data-nosnippet>316</a>        // 3iL2xEBX/nSgpDbEMI9z9NpC81xHrBanE41IOvyR5B3DoRJzguDA9RGbAiG0/GOd
+<a href=#317 id=317 data-nosnippet>317</a>        // a5w4F3pt6bUm69iMONeYLAf5ig79h31Qiq4nW5RpFcAuLhEG0XXXTsZ3f16A0SwF
+<a href=#318 id=318 data-nosnippet>318</a>        // PZx74eNBAoGBAPgnu/OkGHfHzFmuv0LtSynDLe/LjtloY9WwkKBaiTDdYkohydz5
+<a href=#319 id=319 data-nosnippet>319</a>        // g4Vo/foN9luEYqXyrJE9bFb5dVMr2OePsHvUBcqZpIS89Z8Bm73cs5M/K85wYwC0
+<a href=#320 id=320 data-nosnippet>320</a>        // 97EQEgxd+QGBWQZ8NdowYaVshjWlK1QnOzEnG0MR8Hld9gIeY1XhpC5hAoGBANpI
+<a href=#321 id=321 data-nosnippet>321</a>        // F84Aid028q3mo/9BDHPsNL8bT2vaOEMb/t4RzvH39u+nDl+AY6Ox9uFylv+xX+76
+<a href=#322 id=322 data-nosnippet>322</a>        // CRKgMluNH9ZaVZ5xe1uWHsNFBy4OxSA9A0QdKa9NZAVKBFB0EM8dp457YRnZCexm
+<a href=#323 id=323 data-nosnippet>323</a>        // 5q1iW/mVsnmks8W+fYlc18W5xMSX/ecwkW/NtOQbAoGAHabpz4AhKFbodSLrWbzv
+<a href=#324 id=324 data-nosnippet>324</a>        // CUt4NroVFKdjnoodjfujfwJFF2SYMV5jN9LG3lVCxca43ulzc1tqka33Nfv8TBcg
+<a href=#325 id=325 data-nosnippet>325</a>        // WHuKQZ5ASVgm5VwU1wgDMSoQOve07MWy/yZTccTc1zA0ihDXgn3bfR/NnaVh2wlh
+<a href=#326 id=326 data-nosnippet>326</a>        // CkuI92eyW1494hztc7qlmqECgYEA1zenyOQ9ChDIW/ABGIahaZamNxsNRrDFMl3j
+<a href=#327 id=327 data-nosnippet>327</a>        // AD+cxHSRU59qC32CQH8ShRy/huHzTaPX2DZ9EEln76fnrS4Ey7uLH0rrFl1XvT6K
+<a href=#328 id=328 data-nosnippet>328</a>        // /timJgLvMEvXTx/xBtUdRN2fUqXtI9odbSyCtOYFL+zVl44HJq2UzY4pVRDrNcxs
+<a href=#329 id=329 data-nosnippet>329</a>        // SUkQJqsCgYBSaNfPBzR5rrstLtTdZrjImRW1LRQeDEky9WsMDtCTYUGJTsTSfVO8
+<a href=#330 id=330 data-nosnippet>330</a>        // hkU82MpbRVBFIYx+GWIJwcZRcC7OCQoV48vMJllxMAAjqG/p00rVJ+nvA7et/nNu
+<a href=#331 id=331 data-nosnippet>331</a>        // BoB0er/UmDm4Ly/97EO9A0PKMOE5YbMq9s3t3RlWcsdrU7dvw+p2+A==
+<a href=#332 id=332 data-nosnippet>332</a>        // -----END RSA PRIVATE KEY-----
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>        </span>RsaPrivateKey::from_components(
+<a href=#335 id=335 data-nosnippet>335</a>            BigUint::parse_bytes(<span class="string">b"00d397b84d98a4c26138ed1b695a8106ead91d553bf06041b62d3fdc50a041e222b8f4529689c1b82c5e71554f5dd69fa2f4b6158cf0dbeb57811a0fc327e1f28e74fe74d3bc166c1eabdc1b8b57b934ca8be5b00b4f29975bcc99acaf415b59bb28a6782bb41a2c3c2976b3c18dbadef62f00c6bb226640095096c0cc60d22fe7ef987d75c6a81b10d96bf292028af110dc7cc1bbc43d22adab379a0cd5d8078cc780ff5cd6209dea34c922cf784f7717e428d75b5aec8ff30e5f0141510766e2e0ab8d473c84e8710b2b98227c3db095337ad3452f19e2b9bfbccdd8148abf6776fa552775e6e75956e45229ae5a9c46949bab1e622f0e48f56524a84ed3483b"</span>, <span class="number">16</span>).unwrap(),
+<a href=#336 id=336 data-nosnippet>336</a>            BigUint::from_u64(<span class="number">65537</span>).unwrap(),
+<a href=#337 id=337 data-nosnippet>337</a>            BigUint::parse_bytes(<span class="string">b"00c4e70c689162c94c660828191b52b4d8392115df486a9adbe831e458d73958320dc1b755456e93701e9702d76fb0b92f90e01d1fe248153281fe79aa9763a92fae69d8d7ecd144de29fa135bd14f9573e349e45031e3b76982f583003826c552e89a397c1a06bd2163488630d92e8c2bb643d7abef700da95d685c941489a46f54b5316f62b5d2c3a7f1bbd134cb37353a44683fdc9d95d36458de22f6c44057fe74a0a436c4308f73f4da42f35c47ac16a7138d483afc91e41dc3a1127382e0c0f5119b0221b4fc639d6b9c38177a6de9b526ebd88c38d7982c07f98a0efd877d508aae275b946915c02e2e1106d175d74ec6777f5e80d12c053d9c7be1e341"</span>, <span class="number">16</span>).unwrap(),
+<a href=#338 id=338 data-nosnippet>338</a>            <span class="macro">vec!</span>[
+<a href=#339 id=339 data-nosnippet>339</a>                BigUint::parse_bytes(<span class="string">b"00f827bbf3a41877c7cc59aebf42ed4b29c32defcb8ed96863d5b090a05a8930dd624a21c9dcf9838568fdfa0df65b8462a5f2ac913d6c56f975532bd8e78fb07bd405ca99a484bcf59f019bbddcb3933f2bce706300b4f7b110120c5df9018159067c35da3061a56c8635a52b54273b31271b4311f0795df6021e6355e1a42e61"</span>,<span class="number">16</span>).unwrap(),
+<a href=#340 id=340 data-nosnippet>340</a>                BigUint::parse_bytes(<span class="string">b"00da4817ce0089dd36f2ade6a3ff410c73ec34bf1b4f6bda38431bfede11cef1f7f6efa70e5f8063a3b1f6e17296ffb15feefa0912a0325b8d1fd65a559e717b5b961ec345072e0ec5203d03441d29af4d64054a04507410cf1da78e7b6119d909ec66e6ad625bf995b279a4b3c5be7d895cd7c5b9c4c497fde730916fcdb4e41b"</span>, <span class="number">16</span>).unwrap()
+<a href=#341 id=341 data-nosnippet>341</a>            ],
+<a href=#342 id=342 data-nosnippet>342</a>        ).unwrap()
+<a href=#343 id=343 data-nosnippet>343</a>    }
+<a href=#344 id=344 data-nosnippet>344</a>
+<a href=#345 id=345 data-nosnippet>345</a>    <span class="attr">#[test]
+<a href=#346 id=346 data-nosnippet>346</a>    </span><span class="kw">fn </span>test_encrypt_decrypt_oaep() {
+<a href=#347 id=347 data-nosnippet>347</a>        <span class="kw">let </span>priv_key = get_private_key();
+<a href=#348 id=348 data-nosnippet>348</a>        do_test_encrypt_decrypt_oaep::&lt;Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#349 id=349 data-nosnippet>349</a>        do_test_encrypt_decrypt_oaep::&lt;Sha224&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#350 id=350 data-nosnippet>350</a>        do_test_encrypt_decrypt_oaep::&lt;Sha256&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#351 id=351 data-nosnippet>351</a>        do_test_encrypt_decrypt_oaep::&lt;Sha384&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#352 id=352 data-nosnippet>352</a>        do_test_encrypt_decrypt_oaep::&lt;Sha512&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#353 id=353 data-nosnippet>353</a>        do_test_encrypt_decrypt_oaep::&lt;Sha3_256&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#354 id=354 data-nosnippet>354</a>        do_test_encrypt_decrypt_oaep::&lt;Sha3_384&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#355 id=355 data-nosnippet>355</a>        do_test_encrypt_decrypt_oaep::&lt;Sha3_512&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#356 id=356 data-nosnippet>356</a>
+<a href=#357 id=357 data-nosnippet>357</a>        do_test_oaep_with_different_hashes::&lt;Sha1, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#358 id=358 data-nosnippet>358</a>        do_test_oaep_with_different_hashes::&lt;Sha224, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#359 id=359 data-nosnippet>359</a>        do_test_oaep_with_different_hashes::&lt;Sha256, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#360 id=360 data-nosnippet>360</a>        do_test_oaep_with_different_hashes::&lt;Sha384, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#361 id=361 data-nosnippet>361</a>        do_test_oaep_with_different_hashes::&lt;Sha512, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#362 id=362 data-nosnippet>362</a>        do_test_oaep_with_different_hashes::&lt;Sha3_256, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#363 id=363 data-nosnippet>363</a>        do_test_oaep_with_different_hashes::&lt;Sha3_384, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#364 id=364 data-nosnippet>364</a>        do_test_oaep_with_different_hashes::&lt;Sha3_512, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#365 id=365 data-nosnippet>365</a>    }
+<a href=#366 id=366 data-nosnippet>366</a>
+<a href=#367 id=367 data-nosnippet>367</a>    <span class="kw">fn </span>get_label(rng: <span class="kw-2">&amp;mut </span>ChaCha8Rng) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+<a href=#368 id=368 data-nosnippet>368</a>        <span class="kw">const </span>GEN_ASCII_STR_CHARSET: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>] = <span class="string">b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
+<a href=#369 id=369 data-nosnippet>369</a>                abcdefghijklmnopqrstuvwxyz\
+<a href=#370 id=370 data-nosnippet>370</a>                0123456789=+"</span>;
+<a href=#371 id=371 data-nosnippet>371</a>
+<a href=#372 id=372 data-nosnippet>372</a>        <span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0u8</span>; <span class="number">32</span>];
+<a href=#373 id=373 data-nosnippet>373</a>        rng.fill_bytes(<span class="kw-2">&amp;mut </span>buf);
+<a href=#374 id=374 data-nosnippet>374</a>        <span class="kw">if </span>buf[<span class="number">0</span>] &lt; (<span class="number">1 </span>&lt;&lt; <span class="number">7</span>) {
+<a href=#375 id=375 data-nosnippet>375</a>            <span class="kw">for </span>v <span class="kw">in </span>buf.iter_mut() {
+<a href=#376 id=376 data-nosnippet>376</a>                <span class="kw-2">*</span>v = GEN_ASCII_STR_CHARSET[(<span class="kw-2">*</span>v &gt;&gt; <span class="number">2</span>) <span class="kw">as </span>usize];
+<a href=#377 id=377 data-nosnippet>377</a>            }
+<a href=#378 id=378 data-nosnippet>378</a>            <span class="prelude-val">Some</span>(core::str::from_utf8(<span class="kw-2">&amp;</span>buf).unwrap().to_string())
+<a href=#379 id=379 data-nosnippet>379</a>        } <span class="kw">else </span>{
+<a href=#380 id=380 data-nosnippet>380</a>            <span class="prelude-val">None
+<a href=#381 id=381 data-nosnippet>381</a>        </span>}
+<a href=#382 id=382 data-nosnippet>382</a>    }
+<a href=#383 id=383 data-nosnippet>383</a>
+<a href=#384 id=384 data-nosnippet>384</a>    <span class="kw">fn </span>do_test_encrypt_decrypt_oaep&lt;D: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync&gt;(
+<a href=#385 id=385 data-nosnippet>385</a>        prk: <span class="kw-2">&amp;</span>RsaPrivateKey,
+<a href=#386 id=386 data-nosnippet>386</a>    ) {
+<a href=#387 id=387 data-nosnippet>387</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = ChaCha8Rng::from_seed([<span class="number">42</span>; <span class="number">32</span>]);
+<a href=#388 id=388 data-nosnippet>388</a>
+<a href=#389 id=389 data-nosnippet>389</a>        <span class="kw">let </span>k = prk.size();
+<a href=#390 id=390 data-nosnippet>390</a>
+<a href=#391 id=391 data-nosnippet>391</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..<span class="number">8 </span>{
+<a href=#392 id=392 data-nosnippet>392</a>            <span class="kw">let </span><span class="kw-2">mut </span>input = <span class="macro">vec!</span>[<span class="number">0u8</span>; i * <span class="number">8</span>];
+<a href=#393 id=393 data-nosnippet>393</a>            rng.fill_bytes(<span class="kw-2">&amp;mut </span>input);
+<a href=#394 id=394 data-nosnippet>394</a>
+<a href=#395 id=395 data-nosnippet>395</a>            <span class="kw">if </span>input.len() &gt; k - <span class="number">11 </span>{
+<a href=#396 id=396 data-nosnippet>396</a>                input = input[<span class="number">0</span>..k - <span class="number">11</span>].to_vec();
+<a href=#397 id=397 data-nosnippet>397</a>            }
+<a href=#398 id=398 data-nosnippet>398</a>            <span class="kw">let </span>label = get_label(<span class="kw-2">&amp;mut </span>rng);
+<a href=#399 id=399 data-nosnippet>399</a>
+<a href=#400 id=400 data-nosnippet>400</a>            <span class="kw">let </span>pub_key: RsaPublicKey = prk.into();
+<a href=#401 id=401 data-nosnippet>401</a>
+<a href=#402 id=402 data-nosnippet>402</a>            <span class="kw">let </span>ciphertext = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>label) = label {
+<a href=#403 id=403 data-nosnippet>403</a>                <span class="kw">let </span>padding = Oaep::new_with_label::&lt;D, <span class="kw">_</span>&gt;(label);
+<a href=#404 id=404 data-nosnippet>404</a>                pub_key.encrypt(<span class="kw-2">&amp;mut </span>rng, padding, <span class="kw-2">&amp;</span>input).unwrap()
+<a href=#405 id=405 data-nosnippet>405</a>            } <span class="kw">else </span>{
+<a href=#406 id=406 data-nosnippet>406</a>                <span class="kw">let </span>padding = Oaep::new::&lt;D&gt;();
+<a href=#407 id=407 data-nosnippet>407</a>                pub_key.encrypt(<span class="kw-2">&amp;mut </span>rng, padding, <span class="kw-2">&amp;</span>input).unwrap()
+<a href=#408 id=408 data-nosnippet>408</a>            };
+<a href=#409 id=409 data-nosnippet>409</a>
+<a href=#410 id=410 data-nosnippet>410</a>            <span class="macro">assert_ne!</span>(input, ciphertext);
+<a href=#411 id=411 data-nosnippet>411</a>            <span class="kw">let </span>blind: bool = rng.next_u32() &lt; (<span class="number">1 </span>&lt;&lt; <span class="number">31</span>);
+<a href=#412 id=412 data-nosnippet>412</a>
+<a href=#413 id=413 data-nosnippet>413</a>            <span class="kw">let </span>padding = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>label) = label {
+<a href=#414 id=414 data-nosnippet>414</a>                Oaep::new_with_label::&lt;D, <span class="kw">_</span>&gt;(label)
+<a href=#415 id=415 data-nosnippet>415</a>            } <span class="kw">else </span>{
+<a href=#416 id=416 data-nosnippet>416</a>                Oaep::new::&lt;D&gt;()
+<a href=#417 id=417 data-nosnippet>417</a>            };
+<a href=#418 id=418 data-nosnippet>418</a>
+<a href=#419 id=419 data-nosnippet>419</a>            <span class="kw">let </span>plaintext = <span class="kw">if </span>blind {
+<a href=#420 id=420 data-nosnippet>420</a>                prk.decrypt(padding, <span class="kw-2">&amp;</span>ciphertext).unwrap()
+<a href=#421 id=421 data-nosnippet>421</a>            } <span class="kw">else </span>{
+<a href=#422 id=422 data-nosnippet>422</a>                prk.decrypt_blinded(<span class="kw-2">&amp;mut </span>rng, padding, <span class="kw-2">&amp;</span>ciphertext).unwrap()
+<a href=#423 id=423 data-nosnippet>423</a>            };
+<a href=#424 id=424 data-nosnippet>424</a>
+<a href=#425 id=425 data-nosnippet>425</a>            <span class="macro">assert_eq!</span>(input, plaintext);
+<a href=#426 id=426 data-nosnippet>426</a>        }
+<a href=#427 id=427 data-nosnippet>427</a>    }
+<a href=#428 id=428 data-nosnippet>428</a>
+<a href=#429 id=429 data-nosnippet>429</a>    <span class="kw">fn </span>do_test_oaep_with_different_hashes&lt;
+<a href=#430 id=430 data-nosnippet>430</a>        D: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync,
+<a href=#431 id=431 data-nosnippet>431</a>        U: <span class="lifetime">'static </span>+ Digest + DynDigest + Send + Sync,
+<a href=#432 id=432 data-nosnippet>432</a>    &gt;(
+<a href=#433 id=433 data-nosnippet>433</a>        prk: <span class="kw-2">&amp;</span>RsaPrivateKey,
+<a href=#434 id=434 data-nosnippet>434</a>    ) {
+<a href=#435 id=435 data-nosnippet>435</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = ChaCha8Rng::from_seed([<span class="number">42</span>; <span class="number">32</span>]);
+<a href=#436 id=436 data-nosnippet>436</a>
+<a href=#437 id=437 data-nosnippet>437</a>        <span class="kw">let </span>k = prk.size();
+<a href=#438 id=438 data-nosnippet>438</a>
+<a href=#439 id=439 data-nosnippet>439</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..<span class="number">8 </span>{
+<a href=#440 id=440 data-nosnippet>440</a>            <span class="kw">let </span><span class="kw-2">mut </span>input = <span class="macro">vec!</span>[<span class="number">0u8</span>; i * <span class="number">8</span>];
+<a href=#441 id=441 data-nosnippet>441</a>            rng.fill_bytes(<span class="kw-2">&amp;mut </span>input);
+<a href=#442 id=442 data-nosnippet>442</a>
+<a href=#443 id=443 data-nosnippet>443</a>            <span class="kw">if </span>input.len() &gt; k - <span class="number">11 </span>{
+<a href=#444 id=444 data-nosnippet>444</a>                input = input[<span class="number">0</span>..k - <span class="number">11</span>].to_vec();
+<a href=#445 id=445 data-nosnippet>445</a>            }
+<a href=#446 id=446 data-nosnippet>446</a>            <span class="kw">let </span>label = get_label(<span class="kw-2">&amp;mut </span>rng);
+<a href=#447 id=447 data-nosnippet>447</a>
+<a href=#448 id=448 data-nosnippet>448</a>            <span class="kw">let </span>pub_key: RsaPublicKey = prk.into();
+<a href=#449 id=449 data-nosnippet>449</a>
+<a href=#450 id=450 data-nosnippet>450</a>            <span class="kw">let </span>ciphertext = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>label) = label {
+<a href=#451 id=451 data-nosnippet>451</a>                <span class="kw">let </span>padding = Oaep::new_with_mgf_hash_and_label::&lt;D, U, <span class="kw">_</span>&gt;(label);
+<a href=#452 id=452 data-nosnippet>452</a>                pub_key.encrypt(<span class="kw-2">&amp;mut </span>rng, padding, <span class="kw-2">&amp;</span>input).unwrap()
+<a href=#453 id=453 data-nosnippet>453</a>            } <span class="kw">else </span>{
+<a href=#454 id=454 data-nosnippet>454</a>                <span class="kw">let </span>padding = Oaep::new_with_mgf_hash::&lt;D, U&gt;();
+<a href=#455 id=455 data-nosnippet>455</a>                pub_key.encrypt(<span class="kw-2">&amp;mut </span>rng, padding, <span class="kw-2">&amp;</span>input).unwrap()
+<a href=#456 id=456 data-nosnippet>456</a>            };
+<a href=#457 id=457 data-nosnippet>457</a>
+<a href=#458 id=458 data-nosnippet>458</a>            <span class="macro">assert_ne!</span>(input, ciphertext);
+<a href=#459 id=459 data-nosnippet>459</a>            <span class="kw">let </span>blind: bool = rng.next_u32() &lt; (<span class="number">1 </span>&lt;&lt; <span class="number">31</span>);
+<a href=#460 id=460 data-nosnippet>460</a>
+<a href=#461 id=461 data-nosnippet>461</a>            <span class="kw">let </span>padding = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>label) = label {
+<a href=#462 id=462 data-nosnippet>462</a>                Oaep::new_with_mgf_hash_and_label::&lt;D, U, <span class="kw">_</span>&gt;(label)
+<a href=#463 id=463 data-nosnippet>463</a>            } <span class="kw">else </span>{
+<a href=#464 id=464 data-nosnippet>464</a>                Oaep::new_with_mgf_hash::&lt;D, U&gt;()
+<a href=#465 id=465 data-nosnippet>465</a>            };
+<a href=#466 id=466 data-nosnippet>466</a>
+<a href=#467 id=467 data-nosnippet>467</a>            <span class="kw">let </span>plaintext = <span class="kw">if </span>blind {
+<a href=#468 id=468 data-nosnippet>468</a>                prk.decrypt(padding, <span class="kw-2">&amp;</span>ciphertext).unwrap()
+<a href=#469 id=469 data-nosnippet>469</a>            } <span class="kw">else </span>{
+<a href=#470 id=470 data-nosnippet>470</a>                prk.decrypt_blinded(<span class="kw-2">&amp;mut </span>rng, padding, <span class="kw-2">&amp;</span>ciphertext).unwrap()
+<a href=#471 id=471 data-nosnippet>471</a>            };
+<a href=#472 id=472 data-nosnippet>472</a>
+<a href=#473 id=473 data-nosnippet>473</a>            <span class="macro">assert_eq!</span>(input, plaintext);
+<a href=#474 id=474 data-nosnippet>474</a>        }
+<a href=#475 id=475 data-nosnippet>475</a>    }
+<a href=#476 id=476 data-nosnippet>476</a>
+<a href=#477 id=477 data-nosnippet>477</a>    <span class="attr">#[test]
+<a href=#478 id=478 data-nosnippet>478</a>    </span><span class="kw">fn </span>test_decrypt_oaep_invalid_hash() {
+<a href=#479 id=479 data-nosnippet>479</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = ChaCha8Rng::from_seed([<span class="number">42</span>; <span class="number">32</span>]);
+<a href=#480 id=480 data-nosnippet>480</a>        <span class="kw">let </span>priv_key = get_private_key();
+<a href=#481 id=481 data-nosnippet>481</a>        <span class="kw">let </span>pub_key: RsaPublicKey = (<span class="kw-2">&amp;</span>priv_key).into();
+<a href=#482 id=482 data-nosnippet>482</a>        <span class="kw">let </span>ciphertext = pub_key
+<a href=#483 id=483 data-nosnippet>483</a>            .encrypt(<span class="kw-2">&amp;mut </span>rng, Oaep::new::&lt;Sha1&gt;(), <span class="string">"a_plain_text"</span>.as_bytes())
+<a href=#484 id=484 data-nosnippet>484</a>            .unwrap();
+<a href=#485 id=485 data-nosnippet>485</a>        <span class="macro">assert!</span>(
+<a href=#486 id=486 data-nosnippet>486</a>            priv_key
+<a href=#487 id=487 data-nosnippet>487</a>                .decrypt_blinded(
+<a href=#488 id=488 data-nosnippet>488</a>                    <span class="kw-2">&amp;mut </span>rng,
+<a href=#489 id=489 data-nosnippet>489</a>                    Oaep::new_with_label::&lt;Sha1, <span class="kw">_</span>&gt;(<span class="string">"label"</span>),
+<a href=#490 id=490 data-nosnippet>490</a>                    <span class="kw-2">&amp;</span>ciphertext,
+<a href=#491 id=491 data-nosnippet>491</a>                )
+<a href=#492 id=492 data-nosnippet>492</a>                .is_err(),
+<a href=#493 id=493 data-nosnippet>493</a>            <span class="string">"decrypt should have failed on hash verification"
+<a href=#494 id=494 data-nosnippet>494</a>        </span>);
+<a href=#495 id=495 data-nosnippet>495</a>    }
+<a href=#496 id=496 data-nosnippet>496</a>
+<a href=#497 id=497 data-nosnippet>497</a>    <span class="attr">#[test]
+<a href=#498 id=498 data-nosnippet>498</a>    </span><span class="kw">fn </span>test_encrypt_decrypt_oaep_traits() {
+<a href=#499 id=499 data-nosnippet>499</a>        <span class="kw">let </span>priv_key = get_private_key();
+<a href=#500 id=500 data-nosnippet>500</a>        do_test_encrypt_decrypt_oaep_traits::&lt;Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#501 id=501 data-nosnippet>501</a>        do_test_encrypt_decrypt_oaep_traits::&lt;Sha224&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#502 id=502 data-nosnippet>502</a>        do_test_encrypt_decrypt_oaep_traits::&lt;Sha256&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#503 id=503 data-nosnippet>503</a>        do_test_encrypt_decrypt_oaep_traits::&lt;Sha384&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#504 id=504 data-nosnippet>504</a>        do_test_encrypt_decrypt_oaep_traits::&lt;Sha512&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#505 id=505 data-nosnippet>505</a>        do_test_encrypt_decrypt_oaep_traits::&lt;Sha3_256&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#506 id=506 data-nosnippet>506</a>        do_test_encrypt_decrypt_oaep_traits::&lt;Sha3_384&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#507 id=507 data-nosnippet>507</a>        do_test_encrypt_decrypt_oaep_traits::&lt;Sha3_512&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#508 id=508 data-nosnippet>508</a>
+<a href=#509 id=509 data-nosnippet>509</a>        do_test_oaep_with_different_hashes_traits::&lt;Sha1, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#510 id=510 data-nosnippet>510</a>        do_test_oaep_with_different_hashes_traits::&lt;Sha224, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#511 id=511 data-nosnippet>511</a>        do_test_oaep_with_different_hashes_traits::&lt;Sha256, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#512 id=512 data-nosnippet>512</a>        do_test_oaep_with_different_hashes_traits::&lt;Sha384, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#513 id=513 data-nosnippet>513</a>        do_test_oaep_with_different_hashes_traits::&lt;Sha512, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#514 id=514 data-nosnippet>514</a>        do_test_oaep_with_different_hashes_traits::&lt;Sha3_256, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#515 id=515 data-nosnippet>515</a>        do_test_oaep_with_different_hashes_traits::&lt;Sha3_384, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#516 id=516 data-nosnippet>516</a>        do_test_oaep_with_different_hashes_traits::&lt;Sha3_512, Sha1&gt;(<span class="kw-2">&amp;</span>priv_key);
+<a href=#517 id=517 data-nosnippet>517</a>    }
+<a href=#518 id=518 data-nosnippet>518</a>
+<a href=#519 id=519 data-nosnippet>519</a>    <span class="kw">fn </span>do_test_encrypt_decrypt_oaep_traits&lt;D: Digest + FixedOutputReset&gt;(prk: <span class="kw-2">&amp;</span>RsaPrivateKey) {
+<a href=#520 id=520 data-nosnippet>520</a>        do_test_oaep_with_different_hashes_traits::&lt;D, D&gt;(prk);
+<a href=#521 id=521 data-nosnippet>521</a>    }
+<a href=#522 id=522 data-nosnippet>522</a>
+<a href=#523 id=523 data-nosnippet>523</a>    <span class="kw">fn </span>do_test_oaep_with_different_hashes_traits&lt;D: Digest, MGD: Digest + FixedOutputReset&gt;(
+<a href=#524 id=524 data-nosnippet>524</a>        prk: <span class="kw-2">&amp;</span>RsaPrivateKey,
+<a href=#525 id=525 data-nosnippet>525</a>    ) {
+<a href=#526 id=526 data-nosnippet>526</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = ChaCha8Rng::from_seed([<span class="number">42</span>; <span class="number">32</span>]);
+<a href=#527 id=527 data-nosnippet>527</a>
+<a href=#528 id=528 data-nosnippet>528</a>        <span class="kw">let </span>k = prk.size();
+<a href=#529 id=529 data-nosnippet>529</a>
+<a href=#530 id=530 data-nosnippet>530</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..<span class="number">8 </span>{
+<a href=#531 id=531 data-nosnippet>531</a>            <span class="kw">let </span><span class="kw-2">mut </span>input = <span class="macro">vec!</span>[<span class="number">0u8</span>; i * <span class="number">8</span>];
+<a href=#532 id=532 data-nosnippet>532</a>            rng.fill_bytes(<span class="kw-2">&amp;mut </span>input);
+<a href=#533 id=533 data-nosnippet>533</a>
+<a href=#534 id=534 data-nosnippet>534</a>            <span class="kw">if </span>input.len() &gt; k - <span class="number">11 </span>{
+<a href=#535 id=535 data-nosnippet>535</a>                input = input[<span class="number">0</span>..k - <span class="number">11</span>].to_vec();
+<a href=#536 id=536 data-nosnippet>536</a>            }
+<a href=#537 id=537 data-nosnippet>537</a>            <span class="kw">let </span>label = get_label(<span class="kw-2">&amp;mut </span>rng);
+<a href=#538 id=538 data-nosnippet>538</a>
+<a href=#539 id=539 data-nosnippet>539</a>            <span class="kw">let </span>pub_key: RsaPublicKey = prk.into();
+<a href=#540 id=540 data-nosnippet>540</a>
+<a href=#541 id=541 data-nosnippet>541</a>            <span class="kw">let </span>ciphertext = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>label) = label {
+<a href=#542 id=542 data-nosnippet>542</a>                <span class="kw">let </span>encrypting_key =
+<a href=#543 id=543 data-nosnippet>543</a>                    EncryptingKey::&lt;D, MGD&gt;::new_with_label(pub_key, label.clone());
+<a href=#544 id=544 data-nosnippet>544</a>                encrypting_key.encrypt_with_rng(<span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;</span>input).unwrap()
+<a href=#545 id=545 data-nosnippet>545</a>            } <span class="kw">else </span>{
+<a href=#546 id=546 data-nosnippet>546</a>                <span class="kw">let </span>encrypting_key = EncryptingKey::&lt;D, MGD&gt;::new(pub_key);
+<a href=#547 id=547 data-nosnippet>547</a>                encrypting_key.encrypt_with_rng(<span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;</span>input).unwrap()
+<a href=#548 id=548 data-nosnippet>548</a>            };
+<a href=#549 id=549 data-nosnippet>549</a>
+<a href=#550 id=550 data-nosnippet>550</a>            <span class="macro">assert_ne!</span>(input, ciphertext);
+<a href=#551 id=551 data-nosnippet>551</a>            <span class="kw">let </span>blind: bool = rng.next_u32() &lt; (<span class="number">1 </span>&lt;&lt; <span class="number">31</span>);
+<a href=#552 id=552 data-nosnippet>552</a>
+<a href=#553 id=553 data-nosnippet>553</a>            <span class="kw">let </span>decrypting_key = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>label) = label {
+<a href=#554 id=554 data-nosnippet>554</a>                DecryptingKey::&lt;D, MGD&gt;::new_with_label(prk.clone(), label.clone())
+<a href=#555 id=555 data-nosnippet>555</a>            } <span class="kw">else </span>{
+<a href=#556 id=556 data-nosnippet>556</a>                DecryptingKey::&lt;D, MGD&gt;::new(prk.clone())
+<a href=#557 id=557 data-nosnippet>557</a>            };
+<a href=#558 id=558 data-nosnippet>558</a>
+<a href=#559 id=559 data-nosnippet>559</a>            <span class="kw">let </span>plaintext = <span class="kw">if </span>blind {
+<a href=#560 id=560 data-nosnippet>560</a>                decrypting_key.decrypt(<span class="kw-2">&amp;</span>ciphertext).unwrap()
+<a href=#561 id=561 data-nosnippet>561</a>            } <span class="kw">else </span>{
+<a href=#562 id=562 data-nosnippet>562</a>                decrypting_key
+<a href=#563 id=563 data-nosnippet>563</a>                    .decrypt_with_rng(<span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;</span>ciphertext)
+<a href=#564 id=564 data-nosnippet>564</a>                    .unwrap()
+<a href=#565 id=565 data-nosnippet>565</a>            };
+<a href=#566 id=566 data-nosnippet>566</a>
+<a href=#567 id=567 data-nosnippet>567</a>            <span class="macro">assert_eq!</span>(input, plaintext);
+<a href=#568 id=568 data-nosnippet>568</a>        }
+<a href=#569 id=569 data-nosnippet>569</a>    }
+<a href=#570 id=570 data-nosnippet>570</a>
+<a href=#571 id=571 data-nosnippet>571</a>    <span class="attr">#[test]
+<a href=#572 id=572 data-nosnippet>572</a>    </span><span class="kw">fn </span>test_decrypt_oaep_invalid_hash_traits() {
+<a href=#573 id=573 data-nosnippet>573</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = ChaCha8Rng::from_seed([<span class="number">42</span>; <span class="number">32</span>]);
+<a href=#574 id=574 data-nosnippet>574</a>        <span class="kw">let </span>priv_key = get_private_key();
+<a href=#575 id=575 data-nosnippet>575</a>        <span class="kw">let </span>pub_key: RsaPublicKey = (<span class="kw-2">&amp;</span>priv_key).into();
+<a href=#576 id=576 data-nosnippet>576</a>        <span class="kw">let </span>encrypting_key = EncryptingKey::&lt;Sha1&gt;::new(pub_key);
+<a href=#577 id=577 data-nosnippet>577</a>        <span class="kw">let </span>decrypting_key = DecryptingKey::&lt;Sha1&gt;::new_with_label(priv_key, <span class="string">"label"</span>);
+<a href=#578 id=578 data-nosnippet>578</a>        <span class="kw">let </span>ciphertext = encrypting_key
+<a href=#579 id=579 data-nosnippet>579</a>            .encrypt_with_rng(<span class="kw-2">&amp;mut </span>rng, <span class="string">"a_plain_text"</span>.as_bytes())
+<a href=#580 id=580 data-nosnippet>580</a>            .unwrap();
+<a href=#581 id=581 data-nosnippet>581</a>        <span class="macro">assert!</span>(
+<a href=#582 id=582 data-nosnippet>582</a>            decrypting_key
+<a href=#583 id=583 data-nosnippet>583</a>                .decrypt_with_rng(<span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;</span>ciphertext)
+<a href=#584 id=584 data-nosnippet>584</a>                .is_err(),
+<a href=#585 id=585 data-nosnippet>585</a>            <span class="string">"decrypt should have failed on hash verification"
+<a href=#586 id=586 data-nosnippet>586</a>        </span>);
+<a href=#587 id=587 data-nosnippet>587</a>    }
+<a href=#588 id=588 data-nosnippet>588</a>}</code></pre></div></section></main></body></html>

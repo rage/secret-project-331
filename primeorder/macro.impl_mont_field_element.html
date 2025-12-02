@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implements a field element type whose internal representation is in Montgomery form, providing a combination of trait impls and inherent impls which are `const fn` where possible."><title>impl_mont_field_element in primeorder - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="primeorder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../primeorder/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../primeorder/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg" alt="logo"></a><h2><a href="../primeorder/index.html">primeorder</a><span class="version">0.13.6</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">impl_<wbr>mont_<wbr>field_<wbr>element</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#inherent-impls" title="Inherent impls">Inherent impls</a></li><li><a href="#trait-impls" title="Trait impls">Trait impls</a><ul><li><a href="#ops" title="Ops">Ops</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate primeorder</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">primeorder</a></div><h1>Macro <span class="macro">impl_mont_field_element</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/primeorder/field.rs.html#48-268">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! impl_mont_field_element {
+    (
+        $curve:tt,
+        $fe:tt,
+        $bytes:ty,
+        $uint:ty,
+        $modulus:expr,
+        $arr:ty,
+        $from_mont:ident,
+        $to_mont:ident,
+        $add:ident,
+        $sub:ident,
+        $mul:ident,
+        $neg:ident,
+        $square:ident
+    ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implements a field element type whose internal representation is in
+Montgomery form, providing a combination of trait impls and inherent impls
+which are <code>const fn</code> where possible.</p>
+<p>Accepts a set of <code>const fn</code> arithmetic operation functions as arguments.</p>
+<h2 id="inherent-impls"><a class="doc-anchor" href="#inherent-impls">§</a>Inherent impls</h2>
+<ul>
+<li><code>const ZERO: Self</code></li>
+<li><code>const ONE: Self</code> (multiplicative identity)</li>
+<li><code>pub fn from_bytes</code></li>
+<li><code>pub fn from_slice</code></li>
+<li><code>pub fn from_uint</code></li>
+<li><code>fn from_uint_unchecked</code></li>
+<li><code>pub fn to_bytes</code></li>
+<li><code>pub fn to_canonical</code></li>
+<li><code>pub fn is_odd</code></li>
+<li><code>pub fn is_zero</code></li>
+<li><code>pub fn double</code></li>
+</ul>
+<p>NOTE: field implementations must provide their own inherent impls of
+the following methods in order for the code generated by this macro to
+compile:</p>
+<ul>
+<li><code>pub fn invert</code></li>
+<li><code>pub fn sqrt</code></li>
+</ul>
+<h2 id="trait-impls"><a class="doc-anchor" href="#trait-impls">§</a>Trait impls</h2>
+<ul>
+<li><code>AsRef&lt;$arr&gt;</code></li>
+<li><code>ConditionallySelectable</code></li>
+<li><code>ConstantTimeEq</code></li>
+<li><code>ConstantTimeGreater</code></li>
+<li><code>ConstantTimeLess</code></li>
+<li><code>Default</code></li>
+<li><code>DefaultIsZeroes</code></li>
+<li><code>Eq</code></li>
+<li><code>Field</code></li>
+<li><code>PartialEq</code></li>
+</ul>
+<h3 id="ops"><a class="doc-anchor" href="#ops">§</a>Ops</h3>
+<ul>
+<li><code>Add</code></li>
+<li><code>AddAssign</code></li>
+<li><code>Sub</code></li>
+<li><code>SubAssign</code></li>
+<li><code>Mul</code></li>
+<li><code>MulAssign</code></li>
+<li><code>Neg</code></li>
+</ul>
+</div></details></section></div></main></body></html>

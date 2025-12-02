@@ -64,6 +64,27 @@ export interface SpecRequest {
   upload_url: string | null
 }
 
+export interface ConsentQuery {
+  client_id: string
+  redirect_uri: string
+  response_type: string
+  scope: string
+  state: string
+  nonce: string
+  code_challenge: string | null
+  code_challenge_method: string | null
+}
+
+export interface ConsentResponse {
+  redirect_uri: string
+}
+
+export interface ConsentDenyQuery {
+  client_id: string
+  redirect_uri: string
+  state: string
+}
+
 export interface CertificateAllRequirements {
   certificate_configuration_id: string
   course_module_ids: Array<string>
@@ -1434,6 +1455,12 @@ export interface Organization {
   hidden: boolean
 }
 
+export interface AuthorizedClientInfo {
+  client_id: string
+  client_name: string
+  scopes: Array<string>
+}
+
 export interface PageAudioFile {
   id: string
   page_id: string
@@ -2446,8 +2473,6 @@ export interface EventInfo {
   involved_object_name: string | null
 }
 
-export type HealthStatus = "healthy" | "warning" | "error"
-
 export interface IngressInfo {
   name: string
   hosts: Array<string>
@@ -2490,6 +2515,8 @@ export interface ServicePortInfo {
   target_port: string | null
   protocol: string | null
 }
+
+export type HealthStatus = "healthy" | "warning" | "error"
 
 export interface SystemHealthStatus {
   status: HealthStatus

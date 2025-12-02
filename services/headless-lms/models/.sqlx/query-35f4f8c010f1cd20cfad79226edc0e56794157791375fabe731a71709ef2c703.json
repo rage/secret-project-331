@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n              digest             as \"digest: _\",\n              user_id,\n              client_id,\n              expires_at,\n              scopes,\n              audience,\n              jti,\n              dpop_jkt,\n              metadata,\n              revoked,\n              rotated_from       as \"rotated_from: _\"\n            FROM oauth_refresh_tokens\n            WHERE digest = $1\n              AND expires_at > now()\n              AND revoked = false\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest: _",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "scopes",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "audience",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 6,
+        "name": "jti",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "dpop_jkt",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "metadata",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 9,
+        "name": "revoked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "rotated_from: _",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "35f4f8c010f1cd20cfad79226edc0e56794157791375fabe731a71709ef2c703"
+}

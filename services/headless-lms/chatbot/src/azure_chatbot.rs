@@ -254,10 +254,7 @@ impl LLMRequest {
             // text content.
             api_chat_messages = api_chat_messages
                 .into_iter()
-                .filter(|m| match m.fields {
-                    APIMessageKind::ToolCall(_) => false,
-                    _ => true,
-                })
+                .filter(|m| !matches!(m.fields, APIMessageKind::ToolCall(_)))
                 .map(|m| match m.fields {
                     APIMessageKind::ToolResponse(r) => APIMessage {
                         role: MessageRole::Assistant,

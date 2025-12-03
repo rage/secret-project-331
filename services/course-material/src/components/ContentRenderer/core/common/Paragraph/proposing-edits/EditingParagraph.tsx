@@ -19,9 +19,9 @@ import {
 } from "@/stores/materialFeedbackStore"
 
 const editButtonStyles = css`
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
+  display: inline-block;
+  margin-left: 0.5rem;
+  vertical-align: baseline;
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
   background-color: ${baseTheme.colors.blue[500]};
@@ -86,7 +86,6 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
   const { buttonProps: editButtonProps } = useButton(
     {
       onPress: handleEditClick,
-      "aria-label": t("click-to-edit"),
     },
     editButtonRef,
   )
@@ -118,13 +117,27 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
     return (
       <div
         className={css`
-          position: relative;
+          margin: 1.25rem 0;
+          padding: 0.25rem;
+          border-radius: 3px;
+          transition:
+            background-color 0.2s ease,
+            box-shadow 0.2s ease;
 
-          &:has(.edit-button:hover) p {
+          &:has(p:hover),
+          &:has(.edit-button:hover) {
             background-color: rgba(121, 247, 96, 0.05);
             box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
-            border-radius: 3px;
-            transition: background-color 0.2s ease;
+          }
+
+          p {
+            display: inline;
+            margin: 0;
+
+            &:hover {
+              background-color: transparent;
+              box-shadow: none;
+            }
           }
         `}
       >
@@ -152,13 +165,17 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
     return (
       <div
         className={css`
-          position: relative;
+          margin: 1.25rem 0;
+          padding: 0.25rem;
+          border-radius: 3px;
+          transition:
+            background-color 0.2s ease,
+            box-shadow 0.2s ease;
 
-          &:has(.edit-button:hover) > div {
+          &:has(> div:hover),
+          &:has(.edit-button:hover) {
             background-color: rgba(121, 247, 96, 0.05);
             box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
-            border-radius: 3px;
-            transition: background-color 0.2s ease;
           }
         `}
       >
@@ -170,7 +187,15 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
             true,
             dropCap,
             align,
-          )} ${getEditableHoverStyles(false)}`}
+          )} ${getEditableHoverStyles(false)} ${css`
+            display: inline;
+            margin: 0;
+
+            &:hover {
+              background-color: transparent;
+              box-shadow: none;
+            }
+          `}`}
         >
           {content}
         </div>

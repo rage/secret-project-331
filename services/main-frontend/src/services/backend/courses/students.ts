@@ -5,12 +5,10 @@ import {
   CertificateUpdateRequest,
   CompletionGridRow,
   CourseUserInfo,
-  GeneratedCertificate,
   ProgressOverview,
 } from "@/shared-module/common/bindings"
 import {
   isCertificateGridRow,
-  isCertificateUpdateRequest,
   isCompletionGridRow,
   isCourseUserInfo,
   isGeneratedCertificate,

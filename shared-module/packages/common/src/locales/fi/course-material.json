@@ -49,7 +49,6 @@
   "clear-selection": "Tyhjennä valinnat",
   "click-on-any-paragraph-to-edit": "Ehdottaaksesi muutoksia kurssimateriaaliin, klikkaa mitä tahansa kappaletta. Voit sen jälkeen kirjoittaa muutoksesi suoraan sisältöön. Kun olet lähettänyt muutoksesi, kurssin henkilökunta tarkistaa ne ennen kuin ne julkaistaan.",
   "click-on-paragraph-to-make-it-editable": "Klikkaa kappaletta tehdäksesi siitä muokattavan!",
-  "click-to-edit": "Klikkaa muokataksesi",
   "close": "Sulje",
   "closed": "Suljettu!",
   "commenting-on-selection": "Kommentoimassa: {{selection}}",

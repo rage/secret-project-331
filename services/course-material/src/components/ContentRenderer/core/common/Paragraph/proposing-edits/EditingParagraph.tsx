@@ -119,6 +119,13 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
       <div
         className={css`
           position: relative;
+
+          &:has(.edit-button:hover) p {
+            background-color: rgba(121, 247, 96, 0.05);
+            box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
+            border-radius: 3px;
+            transition: background-color 0.2s ease;
+          }
         `}
       >
         <PreviewableParagraph
@@ -146,6 +153,13 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
       <div
         className={css`
           position: relative;
+
+          &:has(.edit-button:hover) > div {
+            background-color: rgba(121, 247, 96, 0.05);
+            box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
+            border-radius: 3px;
+            transition: background-color 0.2s ease;
+          }
         `}
       >
         <div

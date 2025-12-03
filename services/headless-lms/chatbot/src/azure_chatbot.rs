@@ -248,6 +248,25 @@ impl LLMRequest {
                 "vector_simple_hybrid"
             };
 
+            // if there are data sources, the message history might contain incompatible
+            // tool call and result messages. Remove tool call messages and turn tool
+            // response messages into role=assistant messages with the tool output as
+            // text content.
+            api_chat_messages = api_chat_messages
+                .into_iter()
+                .filter(|m| match m.fields {
+                    APIMessageKind::ToolCall(_) => false,
+                    _ => true,
+                })
+                .map(|m| match m.fields {
+                    APIMessageKind::ToolResponse(r) => APIMessage {
+                        role: MessageRole::Assistant,
+                        fields: APIMessageKind::Text(APIMessageText { content: r.content }),
+                    },
+                    _ => m,
+                })
+                .collect();
+
             vec![DataSource {
                 data_type: "azure_search".to_string(),
                 parameters: DataSourceParameters {

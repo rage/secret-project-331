@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            DELETE FROM oauth_access_tokens\n            WHERE digest = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "df641aa48d42797d77309d7b935a45799af1f6645a3df37d49ace433d5a53689"
+}

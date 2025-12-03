@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
-import React, { memo, useRef } from "react"
+import { useSetAtom } from "jotai"
+import React, { memo, useEffect, useRef } from "react"
 import { useFocusRing, useFocusWithin } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -9,6 +10,7 @@ import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
+import { selectedBlockIdAtom } from "@/stores/materialFeedbackStore"
 
 interface EditableParagraphProps {
   id: string
@@ -17,6 +19,7 @@ interface EditableParagraphProps {
   backgroundColor?: string
   fontSize?: string
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
+  editButtonRef: React.RefObject<HTMLButtonElement | null>
 }
 
 // The inner component that won't re-render during typing
@@ -82,9 +85,11 @@ const EditableParagraph: React.FC<EditableParagraphProps> = ({
   backgroundColor,
   fontSize,
   setEdits,
+  editButtonRef,
 }) => {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
+  const setSelectedBlockId = useSetAtom(selectedBlockIdAtom)
   const { contentEditableRef, handleInput } = useParagraphEditing({
     id,
     editing: true,
@@ -98,6 +103,23 @@ const EditableParagraph: React.FC<EditableParagraphProps> = ({
   const initialContentRef = useRef(content)
 
   const { focusWithinProps } = useFocusWithin({})
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault()
+        setSelectedBlockId(null)
+      }
+    }
+
+    const editableElement = contentEditableRef.current
+    if (editableElement) {
+      editableElement.addEventListener("keydown", handleKeyDown)
+      return () => {
+        editableElement.removeEventListener("keydown", handleKeyDown)
+      }
+    }
+  }, [setSelectedBlockId, contentEditableRef])
 
   return (
     <div

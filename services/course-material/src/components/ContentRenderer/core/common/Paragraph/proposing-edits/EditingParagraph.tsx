@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useAtom, useSetAtom } from "jotai"
-import React, { useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -17,6 +17,32 @@ import {
   currentlyOpenFeedbackDialogAtom,
   selectedBlockIdAtom,
 } from "@/stores/materialFeedbackStore"
+
+const editButtonStyles = css`
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  background-color: ${baseTheme.colors.blue[500]};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+
+  &:hover {
+    background-color: ${baseTheme.colors.blue[600]};
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: 2px solid ${baseTheme.colors.blue[700]};
+    outline-offset: 2px;
+    opacity: 1;
+  }
+`
 
 interface EditingParagraphProps {
   data: {
@@ -39,6 +65,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
   const [selectedBlockId, setSelectedBlockId] = useAtom(selectedBlockIdAtom)
   const setEdits = useSetAtom(blockEditsAtom)
   const editButtonRef = useRef<HTMLButtonElement>(null)
+  const wasEditingRef = useRef(false)
 
   // Get the edited content even when not actively editing this paragraph
   const { editedContent } = useParagraphEditing({
@@ -64,6 +91,16 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
     editButtonRef,
   )
 
+  useEffect(() => {
+    const isCurrentlyEditing = selectedBlockId === id
+    if (wasEditingRef.current && !isCurrentlyEditing && editButtonRef.current) {
+      requestAnimationFrame(() => {
+        editButtonRef.current?.focus()
+      })
+    }
+    wasEditingRef.current = isCurrentlyEditing
+  }, [selectedBlockId, id])
+
   if (selectedBlockId === id) {
     return (
       <EditableParagraph
@@ -73,21 +110,35 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         backgroundColor={backgroundColor ?? undefined}
         fontSize={fontSize ?? undefined}
         setEdits={setEdits}
+        editButtonRef={editButtonRef as React.RefObject<HTMLButtonElement | null>}
       />
     )
   } else if (hasChanges) {
     // Only show the PreviewableParagraph with diff if there are actual changes
     return (
-      <PreviewableParagraph
-        id={id}
-        content={content ?? null}
-        textColor={textColor ?? undefined}
-        backgroundColor={backgroundColor ?? undefined}
-        fontSize={fontSize ?? undefined}
-        align={align ?? undefined}
-        setEdits={setEdits}
-        editedContent={editedContent}
-      />
+      <div
+        className={css`
+          position: relative;
+        `}
+      >
+        <PreviewableParagraph
+          id={id}
+          content={content ?? null}
+          textColor={textColor ?? undefined}
+          backgroundColor={backgroundColor ?? undefined}
+          fontSize={fontSize ?? undefined}
+          align={align ?? undefined}
+          setEdits={setEdits}
+          editedContent={editedContent}
+        />
+        <button
+          ref={editButtonRef}
+          {...editButtonProps}
+          className={`edit-button ${editButtonStyles}`}
+        >
+          {t("edit")}
+        </button>
+      </div>
     )
   } else {
     // No changes, render the regular paragraph with edit button
@@ -112,30 +163,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         <button
           ref={editButtonRef}
           {...editButtonProps}
-          className={`edit-button ${css`
-            position: absolute;
-            top: 0;
-            right: 0;
-            opacity: 1;
-            transition: opacity 0.2s ease;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            background-color: ${baseTheme.colors.blue[500]};
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-
-            &:hover {
-              background-color: ${baseTheme.colors.blue[600]};
-            }
-
-            &:focus {
-              opacity: 1;
-              outline: 2px solid ${baseTheme.colors.blue[700]};
-              outline-offset: 2px;
-            }
-          `}`}
+          className={`edit-button ${editButtonStyles}`}
         >
           {t("edit")}
         </button>

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\n\nFROM chatbot_configurations\nWHERE maintain_azure_search_index = true\nAND deleted_at IS NULL\n",
+  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = true\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\n",
   "describe": {
     "columns": [
       {
@@ -120,11 +120,16 @@
       },
       {
         "ordinal": 23,
-        "name": "default_chatbot",
+        "name": "use_tools",
         "type_info": "Bool"
       },
       {
         "ordinal": 24,
+        "name": "default_chatbot",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 25,
         "name": "verbosity: VerbosityLevel",
         "type_info": {
           "Custom": {
@@ -140,7 +145,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 26,
         "name": "reasoning_effort: ReasoningEffortLevel",
         "type_info": {
           "Custom": {
@@ -158,7 +163,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -186,8 +193,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "690f0b2ab77a6f45a1029356880d84f91119b80bd4c1b8c74101b869dd349a6c"
+  "hash": "2962e8e524043bed872eabbcbf43cba1d6a22807842a064aa19d3e3004027a97"
 }

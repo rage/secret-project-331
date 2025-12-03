@@ -251,6 +251,7 @@
   "enable-generating-certificates": "Salli sertifikaattien luonti",
   "enable-generating-new-certificates": "Salli uusien sertifikaattien luonti",
   "enable-module-completion-certificates": "Anna oppilaan generoida sertifikaatti moduulin suorituksesta",
+  "enable-tool-use": "Käytä työkaluja",
   "enabled-to-students": "Opiskelijoiden käytettävissä",
   "end-date": "Päättymispäivä",
   "end-date-must-be-after-start": "Päättymispäivän on oltava aloituspäivän jälkeen",

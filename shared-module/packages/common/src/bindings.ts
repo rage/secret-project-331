@@ -238,6 +238,7 @@ export interface ChatbotConfiguration {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  use_tools: boolean
   default_chatbot: boolean
 }
 
@@ -263,6 +264,7 @@ export interface NewChatbotConf {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  use_tools: boolean
   default_chatbot: boolean
   chatbotconf_id: string | null
 }
@@ -289,11 +291,15 @@ export interface ChatbotConversationMessage {
   deleted_at: string | null
   conversation_id: string
   message: string | null
-  is_from_chatbot: boolean
+  message_role: MessageRole
   message_is_complete: boolean
   used_tokens: number
   order_number: number
+  tool_output: ChatbotConversationMessageToolOutput | null
+  tool_call_fields: Array<ChatbotConversationMessageToolCall>
 }
+
+export type MessageRole = "assistant" | "user" | "tool" | "system"
 
 export interface ChatbotConversationMessageCitation {
   id: string
@@ -307,6 +313,28 @@ export interface ChatbotConversationMessageCitation {
   content: string
   document_url: string
   citation_number: number
+}
+
+export interface ChatbotConversationMessageToolCall {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  message_id: string
+  tool_name: string
+  tool_arguments: unknown
+  tool_call_id: string
+}
+
+export interface ChatbotConversationMessageToolOutput {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  message_id: string
+  tool_name: string
+  tool_output: string
+  tool_call_id: string
 }
 
 export interface ChatbotConversation {

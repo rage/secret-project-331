@@ -60,12 +60,12 @@ impl CompletionBuilder {
     pub fn new(user_id: Uuid) -> Self {
         Self {
             user_id,
-            email: Some(format!("{}@example.com", user_id)), // satisfies NOT NULL
-            grade: None,                                     // nullable in DB
-            passed: Some(true),                              // NOT NULL
-            completion_date: Some(chrono::Utc::now()),       // NOT NULL
-            completion_language: Some("en-US".to_string()),  // MUST match xx-YY
-            eligible_for_ects: Some(true),                   // NOT NULL
+            email: Some(format!("{}@example.com", user_id)),
+            grade: None,
+            passed: Some(true),
+            completion_date: Some(chrono::Utc::now()),
+            completion_language: Some("en-US".to_string()),
+            eligible_for_ects: Some(true),
             prerequisite_modules_completed: Some(false),
             needs_to_be_reviewed: Some(false),
             register: None,

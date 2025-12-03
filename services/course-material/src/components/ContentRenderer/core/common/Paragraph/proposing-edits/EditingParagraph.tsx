@@ -90,15 +90,11 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
       />
     )
   } else {
-    // No changes, render the regular paragraph with hover styles and edit button
+    // No changes, render the regular paragraph with edit button
     return (
       <div
         className={css`
           position: relative;
-          &:hover .edit-button,
-          &:focus-within .edit-button {
-            opacity: 1;
-          }
         `}
       >
         <div
@@ -120,7 +116,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
             position: absolute;
             top: 0;
             right: 0;
-            opacity: 0;
+            opacity: 1;
             transition: opacity 0.2s ease;
             padding: 0.25rem 0.5rem;
             font-size: 0.75rem;

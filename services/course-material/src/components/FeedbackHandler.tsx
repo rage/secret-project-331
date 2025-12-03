@@ -33,7 +33,6 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
 
   const focusDialog = useCallback(() => {
     if (type === "proposed-edits") {
-      // Focus the dialog content
       const dialogElement = document.getElementById(FEEDBACK_DIALOG_CONTENT_ID)
       if (dialogElement) {
         dialogElement.focus()
@@ -41,7 +40,6 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
     }
   }, [type])
 
-  // Apply keyboard listener to document
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const modifierKey = getModifierKey()
@@ -49,12 +47,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
 
       if (isModifierPressed && e.shiftKey && e.key.toLowerCase() === "i") {
         e.preventDefault()
-        if (type === "proposed-edits") {
-          focusDialog()
-        } else {
-          // eslint-disable-next-line i18next/no-literal-string
-          setCurrentlyOpenFeedbackDialog("proposed-edits")
-        }
+        focusDialog()
       }
     }
 
@@ -62,7 +55,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
     return () => {
       document.removeEventListener("keydown", handleKeyDown)
     }
-  }, [type, setCurrentlyOpenFeedbackDialog, focusDialog])
+  }, [focusDialog])
 
   const { buttonProps } = useButton(
     {

@@ -258,95 +258,48 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
 
         <div
           className={css`
-            padding: 0.75rem;
-            background-color: ${baseTheme.colors.gray[100]};
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            border: 1px solid ${baseTheme.colors.gray[200]};
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+
+            ${respondToOrLarger.xxs} {
+              flex-direction: row;
+              justify-content: ${leftButton ? "space-between" : "flex-end"};
+              align-items: center;
+            }
           `}
         >
-          <div
+          {leftButton}
+          <span
             className={css`
-              font-size: 0.75rem;
-              font-weight: 600;
-              color: ${baseTheme.colors.gray[700]};
-              margin-bottom: 0.5rem;
-            `}
-          >
-            {t("keyboard-shortcuts")}
-          </div>
-          <div
-            className={css`
-              display: flex;
-              flex-direction: column;
+              display: inline-flex;
+              align-items: center;
               gap: 0.25rem;
               font-size: 0.75rem;
               color: ${baseTheme.colors.gray[600]};
-            `}
-          >
-            <div
-              className={css`
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-              `}
-            >
-              <kbd
-                className={css`
-                  background-color: white;
-                  border: 1px solid ${baseTheme.colors.gray[300]};
-                  border-radius: 3px;
-                  padding: 0.125rem 0.375rem;
-                  font-family: monospace;
-                  font-size: 0.75rem;
-                `}
-                // eslint-disable-next-line i18next/no-literal-string
-              >
-                F6
-              </kbd>
-              <span>{t("navigate-between-content-and-dialog")}</span>
-            </div>
-            <div
-              className={css`
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-              `}
-            >
-              <kbd
-                className={css`
-                  background-color: white;
-                  border: 1px solid ${baseTheme.colors.gray[300]};
-                  border-radius: 3px;
-                  padding: 0.125rem 0.375rem;
-                  font-family: monospace;
-                  font-size: 0.75rem;
-                `}
-              >
-                {dialogShortcut}
-              </kbd>
-              <span>{t("focus-dialog")}</span>
-            </div>
-          </div>
-        </div>
 
-        {leftButton && (
-          <div
-            className={css`
-              display: flex;
-              flex-direction: column;
-              gap: 1rem;
-              margin-top: 0.5rem;
-
-              ${respondToOrLarger.xxs} {
-                flex-direction: row;
-                justify-content: flex-end;
+              @media (hover: none) and (pointer: coarse) {
+                display: none;
               }
             `}
           >
-            {leftButton}
-          </div>
-        )}
+            <kbd
+              className={css`
+                background-color: white;
+                border: 1px solid ${baseTheme.colors.gray[300]};
+                border-radius: 3px;
+                padding: 0.125rem 0.375rem;
+                font-family: monospace;
+                font-size: 0.75rem;
+              `}
+            >
+              {dialogShortcut}
+            </kbd>
+            <span>{t("focus-dialog")}</span>
+          </span>
+        </div>
       </div>
     </div>
   )

@@ -64,6 +64,27 @@ export interface SpecRequest {
   upload_url: string | null
 }
 
+export interface ConsentQuery {
+  client_id: string
+  redirect_uri: string
+  response_type: string
+  scope: string
+  state: string
+  nonce: string
+  code_challenge: string | null
+  code_challenge_method: string | null
+}
+
+export interface ConsentResponse {
+  redirect_uri: string
+}
+
+export interface ConsentDenyQuery {
+  client_id: string
+  redirect_uri: string
+  state: string
+}
+
 export interface CertificateAllRequirements {
   certificate_configuration_id: string
   course_module_ids: Array<string>
@@ -1460,6 +1481,12 @@ export interface Organization {
   organization_image_url: string | null
   deleted_at: string | null
   hidden: boolean
+}
+
+export interface AuthorizedClientInfo {
+  client_id: string
+  client_name: string
+  scopes: Array<string>
 }
 
 export interface PageAudioFile {

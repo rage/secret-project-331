@@ -5,6 +5,7 @@ resources:
   - course-material/deployment.yml
   - example-exercise/deployment.yml
   - headless-lms/deployment.yml
+  - headless-lms/rbac.yml
   - main-frontend/deployment.yml
   - quizzes/deployment.yml
   - tmc/deployment.yml

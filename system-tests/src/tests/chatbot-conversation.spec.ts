@@ -160,11 +160,7 @@ test.describe("Test chatbot chat box", () => {
 
     await test.step("look at references", async () => {
       await student1Page.getByRole("button", { name: "Show references" }).click()
-      await accessibilityCheck(
-        student1Page,
-        "Default Chatbot Conversation With Citations / View",
-        [],
-      )
+      await accessibilityCheck(student1Page, "Block Chatbot Conversation With Citations / View", [])
 
       await student1Page.getByLabel("Citation 1").first().click()
       await waitForAnimationsToEnd(

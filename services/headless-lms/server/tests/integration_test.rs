@@ -83,6 +83,14 @@ pub async fn test_config() -> ServerConfig {
             test_chatbot: false,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
+            oauth_server_configuration: headless_lms_utils::OAuthServerConfiguration {
+                rsa_public_key: "temp-change-when-needed".into(),
+                rsa_private_key: "test-change".into(),
+                oauth_token_hmac_key: "pippuri".into(),
+                dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
+                    "test-key".into(),
+                ))),
+            },
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"

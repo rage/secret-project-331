@@ -4,10 +4,11 @@ Handlers for HTTP requests to `/api/v0/healthz`.
 
 use sqlx::Executor;
 
+use crate::controllers::main_frontend::status::system_health;
 use crate::prelude::*;
 
 /**
-POST `/api/v0/healthz` Tells whether the server is healthy.
+GET `/api/v0/healthz` Tells whether the server is healthy (database connectivity).
 */
 pub async fn healthz(pool: web::Data<PgPool>) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
@@ -17,5 +18,6 @@ pub async fn healthz(pool: web::Data<PgPool>) -> ControllerResult<web::Json<bool
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("", web::get().to(healthz));
+    cfg.route("", web::get().to(healthz))
+        .route("/system", web::get().to(system_health));
 }

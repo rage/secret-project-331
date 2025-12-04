@@ -24,6 +24,10 @@ sqlx.workspace = true
 uuid = { version = "1.18.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
+# Pure Rust implementation of the SHA-2 hash function family.
+sha2 = "0.10.9"
+# Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
+hmac = "0.12.1"
 # Date and time library for Rust
 chrono = { version = "0.4.42", features = ["serde"] }
 # A JSON serialization file format
@@ -55,6 +59,14 @@ lettre = "0.11.18"
 # Random number generators and other randomness functionality.
 rand = "0.9.2"
 # Flexible concrete Error type built on std::error::Error
+# Zero value on drop for security
+zeroize = { version = "1.8.1", features = ["derive"] }
+# Constant-time cryptographic operations for security. (Not O(1), but always the the longest time)
+subtle = "2.6.1"
+# for hex/base64 helpers
+hex = "0.4"
+base64 = "0.22"
+serde_bytes = "0.11"
 anyhow = "1.0.100"
 # HTTP client for Rust
 reqwest = { version = "0.12.23", features = ["json"] }

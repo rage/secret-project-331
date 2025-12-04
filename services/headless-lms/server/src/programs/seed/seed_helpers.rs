@@ -655,6 +655,7 @@ pub async fn create_best_peer_review(
             processing_strategy,
             points_are_all_or_nothing,
             review_instructions: None,
+            reset_answer_if_zero_points_from_review: false,
         },
     )
     .await?;

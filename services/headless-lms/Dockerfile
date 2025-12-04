@@ -18,7 +18,7 @@ USER user
 
 ENV CARGO_HOME=/home/user/.cargo \
   PATH=/home/user/.cargo/bin:$PATH
-
+ENV SQLX_OFFLINE 1
 # compile dependencies
 COPY --chown=user --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --recipe-path recipe.json

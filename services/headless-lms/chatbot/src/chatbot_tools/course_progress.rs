@@ -1,9 +1,10 @@
-use headless_lms_models::{ModelError, user_exercise_states::UserCourseProgress};
+use headless_lms_models::user_exercise_states::UserCourseProgress;
 use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_tools::{AzureLLMToolDefinition, ChatbotTool, LLMTool, LLMToolType, ToolProperties},
+    prelude::ChatbotResult,
 };
 
 pub type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
@@ -12,8 +13,8 @@ impl ChatbotTool for CourseProgressTool {
     type State = CourseProgressState;
     type Arguments = CourseProgressArguments;
 
-    fn parse_arguments(_args_string: Option<String>) -> Self::Arguments {
-        CourseProgressArguments {}
+    fn parse_arguments(_args_string: String) -> ChatbotResult<Self::Arguments> {
+        Ok(CourseProgressArguments {})
     }
 
     /// Create a CourseProgressTool instance
@@ -21,7 +22,7 @@ impl ChatbotTool for CourseProgressTool {
         conn: &mut PgConnection,
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
-    ) -> Result<Self, ModelError> {
+    ) -> ChatbotResult<Self> {
         let progress = headless_lms_models::user_exercise_states::get_user_course_progress(
             conn,
             user_context.course_id,
@@ -104,9 +105,9 @@ impl ChatbotTool for CourseProgressTool {
         res
     }
 
-    fn output_description_instructions(&self) -> Option<&str> {
+    fn output_description_instructions(&self) -> Option<String> {
         Some(
-            "Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question.",
+            "Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.".to_string(),
         )
     }
 
@@ -145,7 +146,7 @@ fn push_exercises_scores_progress(
 ) -> String {
     let mut res = "".to_string();
     if total_exercises.is_some() || score_maximum.is_some() {
-        res += &format!("On this {course_or_module}, there are a total of ");
+        res += &format!("On this {course_or_module}, there are available a total of ");
 
         if let Some(a) = total_exercises {
             res += &format!("{a} exercises");
@@ -244,7 +245,10 @@ mod tests {
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
 
-        let expected_output = "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are a total of 11 exercises and 5 exercise points. To pass this course, it's required to attempt 10 exercises and gain 4 exercise points. The user has attempted 4 exercises. To pass this course, they need to attempt 6 more exercises. The user has gained 3.3 points. To pass this course, the user needs to gain 0.7 more points. \n[/output] \n\nInstructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.[/instructions]".to_string();
+        let expected_output = "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 11 exercises and 5 exercise points. To pass this course, it's required to attempt 10 exercises and gain 4 exercise points. The user has attempted 4 exercises. To pass this course, they need to attempt 6 more exercises. The user has gained 3.3 points. To pass this course, the user needs to gain 0.7 more points.
+        [/output]
+
+        Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -267,7 +271,7 @@ mod tests {
                 course_module_id: Uuid::nil(),
                 course_module_name: "Advanced Chatbot Course".to_string(),
                 course_module_order_number: 1,
-                score_given: 8.0,
+                score_given: 8.056,
                 score_required: Some(8),
                 score_maximum: Some(10),
                 total_exercises: Some(5),
@@ -278,7 +282,7 @@ mod tests {
                 course_module_id: Uuid::nil(),
                 course_module_name: "First extra module".to_string(),
                 course_module_order_number: 2,
-                score_given: 3.9,
+                score_given: 3.94,
                 score_required: Some(5),
                 score_maximum: Some(6),
                 total_exercises: Some(6),
@@ -301,7 +305,15 @@ mod tests {
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
 
-        let expected_output = "Result: [output]The user is completing a course called Advanced Chatbot Course. The user's progress on the base course module called Advanced Chatbot Course is the following: On this module, there are a total of 5 exercises and 10 exercise points. To pass this module, it's required to attempt 5 exercises and gain 8 exercise points. The user has attempted 5 exercises. They have attempted enough exercises to pass this module if they have also received enough points. The user has gained 8.0 points. The user has gained enough points to pass this module. \nTo pass the course, it's required to pass the base module. The following modules are additional to the course and to complete them, it's required to first complete the base module. \nThe user's progress on the course module called First extra module is the following: On this module, there are a total of 6 exercises and 6 exercise points. To pass this module, it's required to attempt 5 exercises and gain 5 exercise points. The user has attempted 4 exercises. To pass this module, they need to attempt 1 more exercises. The user has gained 3.9 points. To pass this module, the user needs to gain 1.1 more points. \nThe user's progress on the course module called Second extra module is the following: On this module, there are a total of 6 exercises and 5 exercise points. To pass this module, it's required to attempt 5 exercises and gain 4 exercise points. The user has not attempted any exercises. To pass this module, they need to attempt 5 more exercises. The user has gained 0.0 points. To pass this module, the user needs to gain 4.0 more points. \nThe user's progress on the course module called Chatbot advanced topics is the following: On this module, there are a total of 2 exercises. The user has attempted 2 exercises. The user has gained 2.0 points. \n[/output] \n\nInstructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.[/instructions]".to_string();
+        let expected_output = "Result: [output]The user is completing a course called Advanced Chatbot Course. The course has one base module, and additional modules. The base module can be completed on its own. It's required to complete the base module before completing the additional modules.
+        The user's progress on the base course module called Advanced Chatbot Course is the following: On this module, there are available a total of 5 exercises and 10 exercise points. To pass this module, it's required to attempt 5 exercises and gain 8 exercise points. The user has attempted 5 exercises. They have attempted enough exercises to pass this module if they have also received enough points. The user has gained 8.0 points. The user has gained enough points to pass this module.
+        The following modules are additional to the course and to complete them, it's required to first complete the base module.
+        The user's progress on the course module called First extra module is the following: On this module, there are available a total of 6 exercises and 6 exercise points. To pass this module, it's required to attempt 5 exercises and gain 5 exercise points. The user has attempted 4 exercises. To pass this module, they need to attempt 1 more exercises. The user has gained 3.9 points. To pass this module, the user needs to gain 1.1 more points.
+        The user's progress on the course module called Second extra module is the following: On this module, there are available a total of 6 exercises and 5 exercise points. To pass this module, it's required to attempt 5 exercises and gain 4 exercise points. The user has not attempted any exercises. To pass this module, they need to attempt 5 more exercises. The user has gained 0.0 points. To pass this module, the user needs to gain 4.0 more points.
+        The user's progress on the course module called Chatbot advanced topics is the following: On this module, there are available a total of 2 exercises. The user has attempted 2 exercises. The user has gained 2.0 points.
+        [/output]
+
+        Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -313,8 +325,27 @@ mod tests {
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
 
-        let expected_output = "Result: [output]The user is completing a course called Advanced Chatbot Course. There is no progress information for this user on this course. [/output] \n\nInstructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.[/instructions]".to_string();
+        let expected_output = "Result: [output]The user is completing a course called Advanced Chatbot Course. There is no progress information for this user on this course. [/output]
+
+        Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
+    }
+
+    #[test]
+    fn test_course_progress_output_no_course_points_exercises() {
+        let progress = vec![UserCourseProgress {
+            course_module_id: Uuid::nil(),
+            course_module_name: "Example base module".to_string(),
+            course_module_order_number: 1,
+            score_given: 0.0,
+            score_required: None,
+            score_maximum: Some(0),
+            total_exercises: Some(0),
+            attempted_exercises: None,
+            attempted_exercises_required: None,
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let _output = tool.get_tool_output();
     }
 }

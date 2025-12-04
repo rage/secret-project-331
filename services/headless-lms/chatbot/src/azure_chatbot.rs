@@ -41,6 +41,8 @@ use crate::search_filter::SearchFilter;
 
 const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
+/// Context about the user and course for a chatbot interaction.
+/// Passed to tool implementations so they can access user-specific data.
 pub struct ChatbotUserContext {
     pub user_id: Uuid,
     pub course_id: Uuid,

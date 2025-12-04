@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
-use headless_lms_models::ModelError;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 
 use crate::{
-    azure_chatbot::ChatbotUserContext, chatbot_tools::course_progress::CourseProgressTool,
+    azure_chatbot::ChatbotUserContext,
+    chatbot_tools::course_progress::CourseProgressTool,
+    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
 pub mod course_progress;
@@ -15,14 +16,14 @@ pub trait ChatbotTool {
     type Arguments: Serialize;
 
     /// Parse the LLM-generated function arguments and clean them
-    fn parse_arguments(args_string: Option<String>) -> Self::Arguments;
+    fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments>;
 
     /// Create a new instance after parsing arguments
     fn from_db_and_arguments(
         conn: &mut PgConnection,
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
-    ) -> impl std::future::Future<Output = Result<Self, ModelError>> + Send
+    ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
     where
         Self: Sized;
 
@@ -31,7 +32,7 @@ pub trait ChatbotTool {
 
     /// Additional instructions for the LLM on how to describe and
     /// communicate the tool output. Just-in-time prompt.
-    fn output_description_instructions(&self) -> Option<&str>;
+    fn output_description_instructions(&self) -> Option<String>;
 
     /// Get and format tool output and instructions for LLM
     fn get_tool_output(&self) -> String {
@@ -57,14 +58,16 @@ pub trait ChatbotTool {
     /// Create a new instance from connection, args and context
     fn new(
         conn: &mut PgConnection,
-        args_string: Option<String>,
+        args_string: String,
         user_context: &ChatbotUserContext,
-    ) -> impl std::future::Future<Output = Result<Self, ModelError>> + Send
+    ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
     where
         Self: Sized,
     {
-        let parsed = Self::parse_arguments(args_string);
-        Self::from_db_and_arguments(conn, parsed, user_context)
+        async {
+            let parsed = Self::parse_arguments(args_string)?;
+            Self::from_db_and_arguments(conn, parsed, user_context).await
+        }
     }
 }
 
@@ -123,21 +126,23 @@ pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
     vec![CourseProgressTool::get_tool_definition()]
 }
 
-/// Call a chatbot tool with LLM-provided function (tool) name and arguments.
-/// User context and db connection are needed for some tools.
+/// Create a chatbot tool with LLM-provided arguments by matching the tool call
+/// made by the LLM. User context and db connection are needed for some tools.
 pub async fn get_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
     _fn_args: &str, // used in the future in other tool
     user_context: &ChatbotUserContext,
-) -> anyhow::Result<impl ChatbotTool> {
-    let output = match fn_name {
-        "course_progress" => CourseProgressTool::new(conn, None, user_context).await?,
+) -> ChatbotResult<impl ChatbotTool> {
+    let tool = match fn_name {
+        "course_progress" => CourseProgressTool::new(conn, "".to_string(), user_context).await?,
         _ => {
-            return Err(anyhow::Error::msg(
+            return Err(ChatbotError::new(
+                ChatbotErrorType::InvalidToolName,
                 "Incorrect or unknown function name".to_string(),
+                None,
             ));
         }
     };
-    anyhow::Ok(output)
+    Result::Ok(tool)
 }

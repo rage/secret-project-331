@@ -5,6 +5,7 @@ Contains error and result types for all the chatbot functions.
 use std::fmt::Display;
 
 use backtrace::Backtrace;
+use headless_lms_models::ModelError;
 use tracing_error::SpanTrace;
 
 use headless_lms_utils::error::backend_error::BackendError;
@@ -18,6 +19,9 @@ pub type ChatbotResult<T> = Result<T, ChatbotError>;
 #[derive(Debug)]
 pub enum ChatbotErrorType {
     InvalidMessageShape,
+    InvalidToolName,
+    InvalidToolArguments,
+    ChatbotModelError,
     UrlParse,
     TokioIo,
     SerdeJson,
@@ -187,5 +191,15 @@ impl From<serde_json::Error> for ChatbotError {
 impl From<anyhow::Error> for ChatbotError {
     fn from(err: anyhow::Error) -> ChatbotError {
         Self::new(ChatbotErrorType::Other, err.to_string(), Some(err))
+    }
+}
+
+impl From<ModelError> for ChatbotError {
+    fn from(err: ModelError) -> ChatbotError {
+        Self::new(
+            ChatbotErrorType::ChatbotModelError,
+            err.to_string(),
+            Some(err.into()),
+        )
     }
 }

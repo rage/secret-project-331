@@ -335,7 +335,7 @@ impl TmcClient {
         let res = self
             .request_with_headers(
                 reqwest::Method::GET,
-                &format!("{}/current", TMC_API_URL),
+                &format!("{}/current?show_user_fields=1", TMC_API_URL),
                 TMCRequestAuth::UseUserToken(tmc_access_token.clone()),
                 None,
             )
@@ -370,7 +370,7 @@ impl TmcClient {
         let res = self
             .request_with_headers(
                 reqwest::Method::GET,
-                &format!("{}/{}", TMC_API_URL, upstream_id),
+                &format!("{}/{}?show_user_fields=1", TMC_API_URL, upstream_id),
                 TMCRequestAuth::UseAdminToken,
                 None,
             )

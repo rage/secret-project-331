@@ -98,9 +98,11 @@ pub mod url_redirections;
 pub mod user_course_exercise_service_variables;
 pub mod user_course_settings;
 pub mod user_details;
+pub mod user_email_codes;
 pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
 pub mod user_exercise_task_states;
+pub mod user_passwords;
 pub mod user_research_consents;
 pub mod users;
 

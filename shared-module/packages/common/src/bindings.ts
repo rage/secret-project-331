@@ -696,11 +696,14 @@ export interface EmailTemplate {
   subject: string | null
   exercise_completions_threshold: number | null
   points_threshold: number | null
-  course_instance_id: string
+  course_instance_id: string | null
+  language: string | null
 }
 
 export interface EmailTemplateNew {
   name: string
+  language: string | null
+  content: unknown | null
 }
 
 export interface EmailTemplateUpdate {

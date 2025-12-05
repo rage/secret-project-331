@@ -71,8 +71,6 @@ percent-encoding = "2.3.2"
 ipnet = "2.11.0"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.100"
-# Easy-to-use secret management library.
-secrecy = { version = "0.10.3", features = ["serde"] }
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.1.2"
 # higher level HTTP client library
@@ -90,6 +88,8 @@ redis = { version = "0.32.6", features = [
   "tokio-comp",
   "connection-manager",
 ] }
+# Secret value wrapper to avoid leaking secrets in logs and memory
+secrecy.workspace = true
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

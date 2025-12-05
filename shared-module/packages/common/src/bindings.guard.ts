@@ -1428,7 +1428,10 @@ export function isEmailTemplate(obj: unknown): obj is EmailTemplate {
             typeof typedObj["exercise_completions_threshold"] === "number") &&
         (typedObj["points_threshold"] === null ||
             typeof typedObj["points_threshold"] === "number") &&
-        typeof typedObj["course_instance_id"] === "string"
+        (typedObj["course_instance_id"] === null ||
+            typeof typedObj["course_instance_id"] === "string") &&
+        (typedObj["language"] === null ||
+            typeof typedObj["language"] === "string")
     )
 }
 
@@ -1438,7 +1441,9 @@ export function isEmailTemplateNew(obj: unknown): obj is EmailTemplateNew {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["name"] === "string"
+        typeof typedObj["name"] === "string" &&
+        (typedObj["language"] === null ||
+            typeof typedObj["language"] === "string")
     )
 }
 

@@ -71,7 +71,10 @@ test("Reject and reset submission", async () => {
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
       .getByRole("button", { name: "Submit" })
       .click()
-    await student2Page.getByText("Good job!").waitFor()
+    await student2Page
+      .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
+      .getByText("Good job!")
+      .waitFor()
 
     await expect(
       student2Page
@@ -92,7 +95,10 @@ test("Reject and reset submission", async () => {
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
       .getByRole("button", { name: "Submit" })
       .click()
-    await teacherPage.getByText("Good job!").waitFor()
+    await teacherPage
+      .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
+      .getByText("Good job!")
+      .waitFor()
 
     await expect(
       teacherPage
@@ -241,7 +247,11 @@ test("Reject and reset submission", async () => {
       .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
       .getByRole("button", { name: "Submit" })
       .click()
-    await expect(student1Page.getByText("Good job!")).toBeVisible()
+    await expect(
+      student1Page
+        .getByRole("region", { name: "Exercise: Simple multiple choice with peer review" })
+        .getByText("Good job!"),
+    ).toBeVisible()
 
     // Student2 still has reviews preserved
     await student2Page.goto(

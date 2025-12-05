@@ -63,8 +63,6 @@ rand = "0.9.2"
 zeroize = { version = "1.8.1", features = ["derive"] }
 # Constant-time cryptographic operations for security. (Not O(1), but always the the longest time)
 subtle = "2.6.1"
-# Easy-to-use secret management library.
-secrecy = { version = "0.10.3", features = ["serde"] }
 # for hex/base64 helpers
 hex = "0.4"
 base64 = "0.22"
@@ -72,6 +70,10 @@ serde_bytes = "0.11"
 anyhow = "1.0.100"
 # HTTP client for Rust
 reqwest = { version = "0.12.23", features = ["json"] }
+# Secret value wrapper to avoid leaking secrets in logs and memory
+secrecy.workspace = true
+# Password hashing using Argon2id
+argon2 = "0.5.3"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

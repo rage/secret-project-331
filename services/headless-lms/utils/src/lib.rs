@@ -25,12 +25,12 @@ pub mod url_to_oembed_endpoint;
 extern crate tracing;
 
 use anyhow::Context;
-use secrecy::{ExposeSecret, SecretBox};
+use secrecy::{ExposeSecret, SecretBox, SecretString};
 use std::sync::Arc;
 use std::{env, str::FromStr};
 use url::Url;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,
@@ -38,6 +38,7 @@ pub struct ApplicationConfiguration {
     pub development_uuid_login: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub tmc_account_creation_origin: Option<String>,
+    pub tmc_admin_access_token: SecretString,
     pub oauth_server_configuration: OAuthServerConfiguration,
 }
 
@@ -62,6 +63,17 @@ impl ApplicationConfiguration {
                 .context("TMC_ACCOUNT_CREATION_ORIGIN must be defined")?,
         );
 
+        let tmc_admin_access_token = SecretString::new(
+            std::env::var("TMC_ACCESS_TOKEN")
+                .unwrap_or_else(|_| {
+                    if test_mode {
+                        "mock-access-token".to_string()
+                    } else {
+                        panic!("TMC_ACCESS_TOKEN must be defined in production")
+                    }
+                })
+                .into(),
+        );
         let oauth_server_configuration = OAuthServerConfiguration::try_from_env()
             .context("Failed to load OAuth server configuration")?;
 
@@ -72,6 +84,7 @@ impl ApplicationConfiguration {
             development_uuid_login,
             azure_configuration,
             tmc_account_creation_origin,
+            tmc_admin_access_token,
             oauth_server_configuration,
         })
     }

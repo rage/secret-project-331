@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import MainFrontendBreadCrumbs from "../../components/MainFrontendBreadCrumbs"
@@ -23,6 +23,9 @@ interface OrganizationPageProps {
 const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
   const organizationQuery = useOrganizationQueryBySlug(query.organizationSlug)
+
+  const coursesSectionHeadingId = useId()
+  const examsSectionHeadingId = useId()
 
   return (
     <>
@@ -76,30 +79,35 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
         )}
         {organizationQuery.isSuccess && (
           <>
-            <h2
-              className={css`
-                font-size: clamp(26px, 3.6vw, 36px);
-                margin-bottom: 10px;
-              `}
-            >
-              {t("course-list")}
-            </h2>
-            {/* TODO: Implement perPage dropdown? */}
-            <CourseList
-              organizationId={organizationQuery.data.id}
-              organizationSlug={query.organizationSlug}
-            />
+            <section aria-labelledby={coursesSectionHeadingId}>
+              <h2
+                id={coursesSectionHeadingId}
+                className={css`
+                  font-size: clamp(26px, 3.6vw, 36px);
+                  margin-bottom: 10px;
+                `}
+              >
+                {t("course-list")}
+              </h2>
+              {/* TODO: Implement perPage dropdown? */}
+              <CourseList
+                organizationId={organizationQuery.data.id}
+                organizationSlug={query.organizationSlug}
+              />
+            </section>
 
             {/* TODO: We should render ExamList once we can filter away exams etc. */}
             <OnlyRenderIfPermissions
               action={{ type: "create_courses_or_exams" }}
               resource={{ id: organizationQuery.data.id, type: "organization" }}
             >
-              <h2>{t("exam-list")}</h2>
-              <ExamList
-                organizationId={organizationQuery.data.id}
-                organizationSlug={query.organizationSlug}
-              />
+              <section aria-labelledby={examsSectionHeadingId}>
+                <h2 id={examsSectionHeadingId}>{t("exam-list")}</h2>
+                <ExamList
+                  organizationId={organizationQuery.data.id}
+                  organizationSlug={query.organizationSlug}
+                />
+              </section>
             </OnlyRenderIfPermissions>
           </>
         )}

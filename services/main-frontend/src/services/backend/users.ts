@@ -20,7 +20,7 @@ import {
   isResearchFormQuestionAnswer,
   isUserResearchConsent,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isArray, isBoolean, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export async function getCourseInstanceEnrollmentsInfo(
   userId: string,
@@ -56,6 +56,40 @@ export const getUserResetExerciseLogs = async (
 ): Promise<Array<ExerciseResetLog>> => {
   const response = await mainFrontendClient.get(`/users/${userId}/user-reset-exercise-logs`)
   return validateResponse(response, isArray(isExerciseResetLog))
+}
+
+export const sendResetPasswordLink = async (email: string, language: string): Promise<boolean> => {
+  const response = await mainFrontendClient.post(`/users/send-reset-password-email`, {
+    email,
+    language,
+  })
+  return validateResponse(response, isBoolean)
+}
+
+export const fetchResetPasswordTokenStatus = async (token: string): Promise<boolean> => {
+  const res = await mainFrontendClient.post(`/users/reset-password-token-status`, { token })
+  return validateResponse(res, isBoolean)
+}
+
+export const postPasswordReset = async (token: string, new_password: string): Promise<boolean> => {
+  const response = await mainFrontendClient.post(`/users/reset-password`, {
+    token,
+    new_password,
+  })
+
+  return validateResponse(response, isBoolean)
+}
+
+export const postPasswordChange = async (
+  old_password: string,
+  new_password: string,
+): Promise<boolean> => {
+  const response = await mainFrontendClient.post(`/users/change-password`, {
+    old_password,
+    new_password,
+  })
+
+  return validateResponse(response, isBoolean)
 }
 
 export const getAuthorizedClientInfos = async (): Promise<AuthorizedClientInfo[]> => {

@@ -1,6 +1,11 @@
 # Built from DockerfileBase.dockerfile
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as chef
-RUN chown -R user /app
+
+# Make /app writable for the non-root user
+USER root
+RUN mkdir -p /app && chown user:user /app
+
+WORKDIR /app
 USER user
 
 FROM chef AS planner

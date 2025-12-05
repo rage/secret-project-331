@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["cache_user","load_user"],"struct":["AuthToken","TmcUser"]};
+window.SIDEBAR_ITEMS = {"fn":["cache_user","load_user","token_to_cache_key"],"struct":["TmcUser","UserFromTMCAccessToken"]};

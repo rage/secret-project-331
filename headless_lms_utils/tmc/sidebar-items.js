@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["TMC_API_URL"],"struct":["NewUserInfo","TmcClient"]};
+window.SIDEBAR_ITEMS = {"constant":["TMC_API_URL"],"enum":["TMCRequestAuth"],"struct":["NewUserInfo","TMCUser","TMCUserField","TMCUserResponse","TmcClient","TmcDeleteAccountResponse","TmcUserInfo"]};

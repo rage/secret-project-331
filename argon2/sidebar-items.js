@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ARGON2D_IDENT","ARGON2ID_IDENT","ARGON2I_IDENT","MAX_PWD_LEN","MAX_SALT_LEN","MAX_SECRET_LEN","MIN_SALT_LEN","RECOMMENDED_SALT_LEN"],"enum":["Algorithm","Error","Version"],"struct":["Argon2","AssociatedData","Block","KeyId","Params","ParamsBuilder","PasswordHash"],"trait":["PasswordHasher","PasswordVerifier"],"type":["Result"]};

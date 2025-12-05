@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="RustCrypto: Argon2"><title>argon2 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="argon2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../argon2/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../argon2/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></a><h2><a href="../argon2/index.html">argon2</a><span class="version">0.5.3</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#rustcrypto-argon2" title="RustCrypto: Argon2">RustCrypto: Argon2</a></li><li><a href="#about" title="About">About</a><ul><li><a href="#minimum-supported-rust-version" title="Minimum Supported Rust Version">Minimum Supported Rust Version</a></li><li><a href="#semver-policy" title="SemVer Policy">SemVer Policy</a></li><li><a href="#license" title="License">License</a></li><li><a href="#usage" title="Usage">Usage</a></li></ul></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>argon2</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/argon2/lib.rs.html#1-696">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="rustcrypto-argon2"><a class="doc-anchor" href="#rustcrypto-argon2">§</a>RustCrypto: Argon2</h2>
+<p><a href="https://crates.io/crates/argon2"><img src="https://buildstats.info/crate/argon2" alt="crate" /></a>
+<a href="https://docs.rs/argon2/"><img src="https://docs.rs/argon2/badge.svg" alt="Docs" /></a>
+<a href="https://github.com/RustCrypto/password-hashes/actions?query=workflow%3Aargon2"><img src="https://github.com/RustCrypto/password-hashes/workflows/argon2/badge.svg?branch=master&amp;event=push" alt="Build Status" /></a>
+<img src="https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg" alt="Apache2/MIT licensed" />
+<img src="https://img.shields.io/badge/rustc-1.65+-blue.svg" alt="Rust Version" />
+<a href="https://rustcrypto.zulipchat.com/#narrow/stream/260046-password-hashes"><img src="https://img.shields.io/badge/zulip-join_chat-blue.svg" alt="Project Chat" /></a></p>
+<p>Pure Rust implementation of the <a href="https://en.wikipedia.org/wiki/Argon2">Argon2</a> password hashing function.</p>
+<p><a href="https://docs.rs/argon2/">Documentation</a></p>
+<h2 id="about"><a class="doc-anchor" href="#about">§</a>About</h2>
+<p>Argon2 is a memory-hard <a href="https://en.wikipedia.org/wiki/Key_derivation_function">key derivation function</a> chosen as the winner of
+the <a href="https://www.password-hashing.net/">Password Hashing Competition</a> in July 2015.</p>
+<p>It implements the following three algorithmic variants:</p>
+<ul>
+<li><strong>Argon2d</strong>: maximizes resistance to GPU cracking attacks</li>
+<li><strong>Argon2i</strong>: optimized to resist side-channel attacks</li>
+<li><strong>Argon2id</strong>: (default) hybrid version combining both Argon2i and Argon2d</li>
+</ul>
+<p>Support is provided for embedded (i.e. <code>no_std</code>) environments, including
+ones without <code>alloc</code> support.</p>
+<h3 id="minimum-supported-rust-version"><a class="doc-anchor" href="#minimum-supported-rust-version">§</a>Minimum Supported Rust Version</h3>
+<p>Rust <strong>1.65</strong> or higher.</p>
+<p>Minimum supported Rust version can be changed in the future, but it will be
+done with a minor version bump.</p>
+<h3 id="semver-policy"><a class="doc-anchor" href="#semver-policy">§</a>SemVer Policy</h3>
+<ul>
+<li>All on-by-default features of this library are covered by SemVer</li>
+<li>MSRV is considered exempt from SemVer as noted above</li>
+</ul>
+<h3 id="license"><a class="doc-anchor" href="#license">§</a>License</h3>
+<p>Licensed under either of:</p>
+<ul>
+<li><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></li>
+<li><a href="http://opensource.org/licenses/MIT">MIT license</a></li>
+</ul>
+<p>at your option.</p>
+<h4 id="contribution"><a class="doc-anchor" href="#contribution">§</a>Contribution</h4>
+<p>Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.</p>
+<h3 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h3><h4 id="password-hashing"><a class="doc-anchor" href="#password-hashing">§</a>Password Hashing</h4>
+<p>This API hashes a password to a “PHC string” suitable for the purposes of
+password-based authentication. Do not use this API to derive cryptographic
+keys: see the “key derivation” usage example below.</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>argon2::{
+    password_hash::{
+        rand_core::OsRng,
+        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
+    },
+    Argon2
+};
+
+<span class="kw">let </span>password = <span class="string">b"hunter42"</span>; <span class="comment">// Bad password; don't actually use!
+</span><span class="kw">let </span>salt = SaltString::generate(<span class="kw-2">&amp;mut </span>OsRng);
+
+<span class="comment">// Argon2 with default params (Argon2id v19)
+</span><span class="kw">let </span>argon2 = Argon2::default();
+
+<span class="comment">// Hash password to PHC string ($argon2id$v=19$...)
+</span><span class="kw">let </span>password_hash = argon2.hash_password(password, <span class="kw-2">&amp;</span>salt)<span class="question-mark">?</span>.to_string();
+
+<span class="comment">// Verify password against PHC string.
+//
+// NOTE: hash params from `parsed_hash` are used instead of what is configured in the
+// `Argon2` instance.
+</span><span class="kw">let </span>parsed_hash = PasswordHash::new(<span class="kw-2">&amp;</span>password_hash)<span class="question-mark">?</span>;
+<span class="macro">assert!</span>(Argon2::default().verify_password(password, <span class="kw-2">&amp;</span>parsed_hash).is_ok());</code></pre></div>
+<h4 id="key-derivation"><a class="doc-anchor" href="#key-derivation">§</a>Key Derivation</h4>
+<p>This API is useful for transforming a password into cryptographic keys for
+e.g. password-based encryption.</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>argon2::Argon2;
+
+<span class="kw">let </span>password = <span class="string">b"hunter42"</span>; <span class="comment">// Bad password; don't actually use!
+</span><span class="kw">let </span>salt = <span class="string">b"example salt"</span>; <span class="comment">// Salt should be unique per password
+
+</span><span class="kw">let </span><span class="kw-2">mut </span>output_key_material = [<span class="number">0u8</span>; <span class="number">32</span>]; <span class="comment">// Can be any desired size
+</span>Argon2::default().hash_password_into(password, salt, <span class="kw-2">&amp;mut </span>output_key_material)<span class="question-mark">?</span>;</code></pre></div>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.password_hash"><code>pub use <a class="mod" href="../password_hash/index.html" title="mod password_hash">password_hash</a>;</code></dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Argon2.html" title="struct argon2::Argon2">Argon2</a></dt><dd>Argon2 context.</dd><dt><a class="struct" href="struct.AssociatedData.html" title="struct argon2::AssociatedData">Associated<wbr>Data</a></dt><dd>Associated data</dd><dt><a class="struct" href="struct.Block.html" title="struct argon2::Block">Block</a></dt><dd>Structure for the (1 KiB) memory block implemented as 128 64-bit words.</dd><dt><a class="struct" href="struct.KeyId.html" title="struct argon2::KeyId">KeyId</a></dt><dd>Key identifier</dd><dt><a class="struct" href="struct.Params.html" title="struct argon2::Params">Params</a></dt><dd>Argon2 password hash parameters.</dd><dt><a class="struct" href="struct.ParamsBuilder.html" title="struct argon2::ParamsBuilder">Params<wbr>Builder</a></dt><dd>Builder for Argon2 <a href="struct.Params.html" title="struct argon2::Params"><code>Params</code></a>.</dd><dt><a class="struct" href="struct.PasswordHash.html" title="struct argon2::PasswordHash">Password<wbr>Hash</a></dt><dd>Password hash.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Algorithm.html" title="enum argon2::Algorithm">Algorithm</a></dt><dd>Argon2 primitive type: variants of the algorithm.</dd><dt><a class="enum" href="enum.Error.html" title="enum argon2::Error">Error</a></dt><dd>Error type.</dd><dt><a class="enum" href="enum.Version.html" title="enum argon2::Version">Version</a></dt><dd>Version of the algorithm.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.ARGON2D_IDENT.html" title="constant argon2::ARGON2D_IDENT">ARGO<wbr>N2D_<wbr>IDENT</a></dt><dd>Argon2d algorithm identifier</dd><dt><a class="constant" href="constant.ARGON2ID_IDENT.html" title="constant argon2::ARGON2ID_IDENT">ARGO<wbr>N2ID_<wbr>IDENT</a></dt><dd>Argon2id algorithm identifier</dd><dt><a class="constant" href="constant.ARGON2I_IDENT.html" title="constant argon2::ARGON2I_IDENT">ARGO<wbr>N2I_<wbr>IDENT</a></dt><dd>Argon2i algorithm identifier</dd><dt><a class="constant" href="constant.MAX_PWD_LEN.html" title="constant argon2::MAX_PWD_LEN">MAX_<wbr>PWD_<wbr>LEN</a></dt><dd>Maximum password length in bytes.</dd><dt><a class="constant" href="constant.MAX_SALT_LEN.html" title="constant argon2::MAX_SALT_LEN">MAX_<wbr>SALT_<wbr>LEN</a></dt><dd>Maximum salt length in bytes.</dd><dt><a class="constant" href="constant.MAX_SECRET_LEN.html" title="constant argon2::MAX_SECRET_LEN">MAX_<wbr>SECRET_<wbr>LEN</a></dt><dd>Maximum secret key length in bytes.</dd><dt><a class="constant" href="constant.MIN_SALT_LEN.html" title="constant argon2::MIN_SALT_LEN">MIN_<wbr>SALT_<wbr>LEN</a></dt><dd>Minimum salt length in bytes.</dd><dt><a class="constant" href="constant.RECOMMENDED_SALT_LEN.html" title="constant argon2::RECOMMENDED_SALT_LEN">RECOMMENDED_<wbr>SALT_<wbr>LEN</a></dt><dd>Recommended salt length for password hashing in bytes.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.PasswordHasher.html" title="trait argon2::PasswordHasher">Password<wbr>Hasher</a></dt><dd>Trait for password hashing functions.</dd><dt><a class="trait" href="trait.PasswordVerifier.html" title="trait argon2::PasswordVerifier">Password<wbr>Verifier</a></dt><dd>Trait for password verification.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.Result.html" title="type argon2::Result">Result</a></dt><dd>Result with argon2’s <a href="enum.Error.html" title="enum argon2::Error"><code>Error</code></a> type.</dd></dl></section></div></main></body></html>

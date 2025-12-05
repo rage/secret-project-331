@@ -3,7 +3,7 @@
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a>*/
 <a href=#5 id=5 data-nosnippet>5</a></span><span class="kw">use </span><span class="kw">crate</span>::controllers::helpers::file_uploading;
-<a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span><span class="kw">crate</span>::domain::langs::token::AuthToken;
+<a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span><span class="kw">crate</span>::domain::langs::token::UserFromTMCAccessToken;
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
 <a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>actix_multipart::form::MultipartForm;
@@ -25,7 +25,7 @@
 <a href=#25 id=25 data-nosnippet>25</a></span><span class="attr">#[instrument(skip(pool))]
 <a href=#26 id=26 data-nosnippet>26</a></span><span class="kw">async fn </span>get_courses(
 <a href=#27 id=27 data-nosnippet>27</a>    pool: web::Data&lt;PgPool&gt;,
-<a href=#28 id=28 data-nosnippet>28</a>    user: AuthToken,
+<a href=#28 id=28 data-nosnippet>28</a>    user: UserFromTMCAccessToken,
 <a href=#29 id=29 data-nosnippet>29</a>) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;api::Course&gt;&gt;&gt; {
 <a href=#30 id=30 data-nosnippet>30</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#31 id=31 data-nosnippet>31</a>
@@ -57,7 +57,7 @@
 <a href=#57 id=57 data-nosnippet>57</a></span><span class="attr">#[instrument(skip(pool))]
 <a href=#58 id=58 data-nosnippet>58</a></span><span class="kw">async fn </span>get_course(
 <a href=#59 id=59 data-nosnippet>59</a>    pool: web::Data&lt;PgPool&gt;,
-<a href=#60 id=60 data-nosnippet>60</a>    user: AuthToken,
+<a href=#60 id=60 data-nosnippet>60</a>    user: UserFromTMCAccessToken,
 <a href=#61 id=61 data-nosnippet>61</a>    course: web::Path&lt;Uuid&gt;,
 <a href=#62 id=62 data-nosnippet>62</a>) -&gt; ControllerResult&lt;web::Json&lt;api::Course&gt;&gt; {
 <a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -87,7 +87,7 @@
 <a href=#87 id=87 data-nosnippet>87</a></span><span class="attr">#[instrument(skip(pool))]
 <a href=#88 id=88 data-nosnippet>88</a></span><span class="kw">async fn </span>get_course_exercises(
 <a href=#89 id=89 data-nosnippet>89</a>    pool: web::Data&lt;PgPool&gt;,
-<a href=#90 id=90 data-nosnippet>90</a>    user: AuthToken,
+<a href=#90 id=90 data-nosnippet>90</a>    user: UserFromTMCAccessToken,
 <a href=#91 id=91 data-nosnippet>91</a>    course: web::Path&lt;Uuid&gt;,
 <a href=#92 id=92 data-nosnippet>92</a>) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;api::ExerciseSlide&gt;&gt;&gt; {
 <a href=#93 id=93 data-nosnippet>93</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -165,7 +165,7 @@
 <a href=#165 id=165 data-nosnippet>165</a></span><span class="attr">#[instrument(skip(pool))]
 <a href=#166 id=166 data-nosnippet>166</a></span><span class="kw">async fn </span>get_exercise(
 <a href=#167 id=167 data-nosnippet>167</a>    pool: web::Data&lt;PgPool&gt;,
-<a href=#168 id=168 data-nosnippet>168</a>    user: AuthToken,
+<a href=#168 id=168 data-nosnippet>168</a>    user: UserFromTMCAccessToken,
 <a href=#169 id=169 data-nosnippet>169</a>    exercise_id: web::Path&lt;Uuid&gt;,
 <a href=#170 id=170 data-nosnippet>170</a>) -&gt; ControllerResult&lt;web::Json&lt;api::ExerciseSlide&gt;&gt; {
 <a href=#171 id=171 data-nosnippet>171</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -234,7 +234,7 @@
 <a href=#234 id=234 data-nosnippet>234</a>    jwt_key: web::Data&lt;JwtKey&gt;,
 <a href=#235 id=235 data-nosnippet>235</a>    exercise_id: web::Path&lt;Uuid&gt;,
 <a href=#236 id=236 data-nosnippet>236</a>    submission: MultipartForm&lt;SubmissionForm&gt;,
-<a href=#237 id=237 data-nosnippet>237</a>    user: AuthToken,
+<a href=#237 id=237 data-nosnippet>237</a>    user: UserFromTMCAccessToken,
 <a href=#238 id=238 data-nosnippet>238</a>    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
 <a href=#239 id=239 data-nosnippet>239</a>) -&gt; ControllerResult&lt;web::Json&lt;api::ExerciseTaskSubmissionResult&gt;&gt; {
 <a href=#240 id=240 data-nosnippet>240</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -325,7 +325,7 @@
 <a href=#325 id=325 data-nosnippet>325</a><span class="kw">async fn </span>get_submission_grading(
 <a href=#326 id=326 data-nosnippet>326</a>    pool: web::Data&lt;PgPool&gt;,
 <a href=#327 id=327 data-nosnippet>327</a>    submission_id: web::Path&lt;Uuid&gt;,
-<a href=#328 id=328 data-nosnippet>328</a>    user: AuthToken,
+<a href=#328 id=328 data-nosnippet>328</a>    user: UserFromTMCAccessToken,
 <a href=#329 id=329 data-nosnippet>329</a>) -&gt; ControllerResult&lt;web::Json&lt;api::ExerciseTaskSubmissionStatus&gt;&gt; {
 <a href=#330 id=330 data-nosnippet>330</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#331 id=331 data-nosnippet>331</a>    <span class="kw">let </span>token = authorize(

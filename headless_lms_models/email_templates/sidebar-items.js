@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["delete_email_template","get_email_template","get_email_templates","insert_email_template","update_email_template"],"struct":["EmailTemplate","EmailTemplateNew","EmailTemplateUpdate"]};
+window.SIDEBAR_ITEMS = {"fn":["delete_email_template","get_email_template","get_email_templates","get_generic_email_template_by_name_and_language","insert_email_template","update_email_template"],"struct":["EmailTemplate","EmailTemplateNew","EmailTemplateUpdate"]};

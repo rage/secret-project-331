@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["BATCH_SIZE"],"fn":["mail_sender","main","send_message"],"static":["DB_URL","EMAIL_RELAY","MOOCFI_EMAIL"]};
+window.SIDEBAR_ITEMS = {"constant":["BATCH_SIZE","FRONTEND_BASE_URL"],"fn":["apply_email_template_replacements","insert_placeholders","mail_sender","main","send_message"],"static":["DB_URL","SMTP_FROM","SMTP_HOST","SMTP_PASS","SMTP_USER"]};

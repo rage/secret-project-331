@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_unused_user_email_code_with_user_id","insert_user_email_code","is_reset_user_email_code_valid","mark_user_email_code_used"],"struct":["UserEmailCode"]};

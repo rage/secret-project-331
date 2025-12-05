@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes"],"mod":["users_by_upstream_id"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes"],"mod":["users","users_by_upstream_id"]};

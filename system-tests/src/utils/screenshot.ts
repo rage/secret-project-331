@@ -1,7 +1,6 @@
 /* eslint-disable playwright/no-wait-for-timeout */
 
 import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
-import { stat } from "fs/promises"
 
 import accessibilityCheck from "./accessibilityCheck"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"

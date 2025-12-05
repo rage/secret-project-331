@@ -322,13 +322,6 @@ export async function takeScreenshotAndComparetoSnapshot(
     return
   }
   const pathToImage = testInfo.snapshotPath(screenshotName)
-  let newScreenshot = false
-  try {
-    const _statRes = await stat(pathToImage)
-  } catch (_e) {
-    newScreenshot = true
-  }
-
   const originalUpdateSnapshotsSetting = testInfo.config.updateSnapshots
 
   try {
@@ -337,12 +330,7 @@ export async function takeScreenshotAndComparetoSnapshot(
       // If the screenshot y coordinate is not stable, we'll have to restore the scroll position before updating the screenshot so that the screenshot does not change on every run.
       testInfo.config.updateSnapshots = "missing"
     }
-
-    if (isPage(screenshotTarget)) {
-      await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
-    } else {
-      await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
-    }
+    await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
   } catch (_e: unknown) {
     await page.waitForTimeout(100)
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
@@ -351,30 +339,20 @@ export async function takeScreenshotAndComparetoSnapshot(
       pathToImage,
       useCoordinatesFromTheBottomForSavingYCoordinates ?? false,
     )
-
-    if (isPage(screenshotTarget)) {
-      await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
-    } else {
-      await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
-    }
+    await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
   } finally {
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
   }
-  if (
-    testInfo.config.updateSnapshots === "all" ||
-    newScreenshot ||
-    process.env.UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION !== undefined
-  ) {
-    // When updating snapshots, optimize the new image so that it does not take extra space in version control.
-    await ensureImageHasBeenOptimized(pathToImage)
-    const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
-    if (savedYCoordinate === null) {
-      await savePageYCoordinateToImage(
-        pathToImage,
-        page,
-        useCoordinatesFromTheBottomForSavingYCoordinates,
-      )
-    }
+
+  // When updating snapshots, optimize the new image so that it does not take extra space in version control.
+  await ensureImageHasBeenOptimized(pathToImage)
+  const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
+  if (savedYCoordinate === null) {
+    await savePageYCoordinateToImage(
+      pathToImage,
+      page,
+      useCoordinatesFromTheBottomForSavingYCoordinates,
+    )
   }
 }
 
@@ -474,5 +452,9 @@ async function scrollToSavedImageCoordinate(
 
       totalTries++
     } while (yCoordinateRightNTimes < 3)
+  } else {
+    console.warn(
+      `No saved y coordinate found for image "${pathToImage}". Cannot restore scroll position. (saved y coordinate: ${savedYCoordinate}, UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION: ${process.env.UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION})`,
+    )
   }
 }

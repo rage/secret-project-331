@@ -335,7 +335,7 @@
 <a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">let </span>res = <span class="self">self
 <a href=#336 id=336 data-nosnippet>336</a>            </span>.request_with_headers(
 <a href=#337 id=337 data-nosnippet>337</a>                reqwest::Method::GET,
-<a href=#338 id=338 data-nosnippet>338</a>                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/current"</span>, TMC_API_URL),
+<a href=#338 id=338 data-nosnippet>338</a>                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/current?show_user_fields=1"</span>, TMC_API_URL),
 <a href=#339 id=339 data-nosnippet>339</a>                TMCRequestAuth::UseUserToken(tmc_access_token.clone()),
 <a href=#340 id=340 data-nosnippet>340</a>                <span class="prelude-val">None</span>,
 <a href=#341 id=341 data-nosnippet>341</a>            )
@@ -370,7 +370,7 @@
 <a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">let </span>res = <span class="self">self
 <a href=#371 id=371 data-nosnippet>371</a>            </span>.request_with_headers(
 <a href=#372 id=372 data-nosnippet>372</a>                reqwest::Method::GET,
-<a href=#373 id=373 data-nosnippet>373</a>                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}"</span>, TMC_API_URL, upstream_id),
+<a href=#373 id=373 data-nosnippet>373</a>                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}?show_user_fields=1"</span>, TMC_API_URL, upstream_id),
 <a href=#374 id=374 data-nosnippet>374</a>                TMCRequestAuth::UseAdminToken,
 <a href=#375 id=375 data-nosnippet>375</a>                <span class="prelude-val">None</span>,
 <a href=#376 id=376 data-nosnippet>376</a>            )

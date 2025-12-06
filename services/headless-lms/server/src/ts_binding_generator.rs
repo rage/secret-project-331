@@ -58,6 +58,10 @@ fn models(target: &mut File) {
         chapters::DatabaseChapter,
         chapters::NewChapter,
         chapters::UserCourseInstanceChapterProgress,
+        chapters::ChapterAvailability,
+        chapters::UserChapterProgress,
+        chapters::CourseUserInfo,
+
         chatbot_configurations::ChatbotConfiguration,
         chatbot_configurations::NewChatbotConf,
         chatbot_configurations::VerbosityLevel,
@@ -156,6 +160,7 @@ fn models(target: &mut File) {
         flagged_answers::ReportReason,
 
         generated_certificates::GeneratedCertificate,
+        generated_certificates::CertificateUpdateRequest,
         glossary::Term,
         glossary::TermUpdate,
 
@@ -192,6 +197,9 @@ fn models(target: &mut File) {
         library::progressing::UserCourseModuleCompletion,
         library::progressing::UserModuleCompletionStatus,
         library::progressing::UserWithModuleCompletions,
+        library::students_view::ProgressOverview,
+        library::students_view::CompletionGridRow,
+        library::students_view::CertificateGridRow,
 
         marketing_consents::UserMarketingConsent,
         material_references::MaterialReference,

@@ -1,0 +1,57 @@
+-[ RECORD 1 ]--------+-------------------------------------
+user_id              | 00e249d8-345f-4eff-aedb-7bdc4c44c1d5
+chapter_id           | 53f804cf-6299-5c64-9139-20b333481a75
+chapter_number       | 1
+chapter_name         | The Basics
+points_obtained!     | 1.699999988079071
+exercises_attempted! | 2
+-[ RECORD 2 ]--------+-------------------------------------
+user_id              | 00e249d8-345f-4eff-aedb-7bdc4c44c1d5
+chapter_id           | cc4e5780-6cfb-5169-881e-05c63dc01750
+chapter_number       | 2
+chapter_name         | The intermediaries
+points_obtained!     | 0.800000011920929
+exercises_attempted! | 1
+-[ RECORD 3 ]--------+-------------------------------------
+user_id              | 3524d694-7fa8-4e73-aa1a-de9a20fd514b
+chapter_id           | 53f804cf-6299-5c64-9139-20b333481a75
+chapter_number       | 1
+chapter_name         | The Basics
+points_obtained!     | 1.699999988079071
+exercises_attempted! | 2
+-[ RECORD 4 ]--------+-------------------------------------
+user_id              | 3524d694-7fa8-4e73-aa1a-de9a20fd514b
+chapter_id           | cc4e5780-6cfb-5169-881e-05c63dc01750
+chapter_number       | 2
+chapter_name         | The intermediaries
+points_obtained!     | 0.800000011920929
+exercises_attempted! | 1
+-[ RECORD 5 ]--------+-------------------------------------
+user_id              | 8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc
+chapter_id           | 53f804cf-6299-5c64-9139-20b333481a75
+chapter_number       | 1
+chapter_name         | The Basics
+points_obtained!     | 1.699999988079071
+exercises_attempted! | 2
+-[ RECORD 6 ]--------+-------------------------------------
+user_id              | 8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc
+chapter_id           | cc4e5780-6cfb-5169-881e-05c63dc01750
+chapter_number       | 2
+chapter_name         | The intermediaries
+points_obtained!     | 0.800000011920929
+exercises_attempted! | 1
+-[ RECORD 7 ]--------+-------------------------------------
+user_id              | fbeb9286-3dd8-4896-a6b8-3faffa3fabd6
+chapter_id           | 53f804cf-6299-5c64-9139-20b333481a75
+chapter_number       | 1
+chapter_name         | The Basics
+points_obtained!     | 1.699999988079071
+exercises_attempted! | 2
+-[ RECORD 8 ]--------+-------------------------------------
+user_id              | fbeb9286-3dd8-4896-a6b8-3faffa3fabd6
+chapter_id           | cc4e5780-6cfb-5169-881e-05c63dc01750
+chapter_number       | 2
+chapter_name         | The intermediaries
+points_obtained!     | 0.800000011920929
+exercises_attempted! | 1
+

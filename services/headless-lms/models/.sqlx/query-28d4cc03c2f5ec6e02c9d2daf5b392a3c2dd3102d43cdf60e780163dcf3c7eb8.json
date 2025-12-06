@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH enrolled AS (\n  SELECT DISTINCT user_id\n  FROM course_instance_enrollments\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n),\nuser_certs AS (\n  -- one latest certificate per user for this course\n  SELECT DISTINCT ON (gc.user_id)\n    gc.user_id,\n    gc.id,\n    gc.created_at AS latest_issued_at,\n    gc.verification_id\n  FROM generated_certificates gc\n  JOIN certificate_configuration_to_requirements cctr\n    ON gc.certificate_configuration_id = cctr.certificate_configuration_id\n   AND cctr.deleted_at IS NULL\n  JOIN course_modules cm\n    ON cm.id = cctr.course_module_id\n   AND cm.deleted_at IS NULL\n  WHERE cm.course_id = $1\n    AND gc.deleted_at IS NULL\n  ORDER BY gc.user_id, gc.created_at DESC\n)\nSELECT\n  /* non-null */\n  CASE\n    WHEN ud.first_name IS NULL OR TRIM(ud.first_name) = ''\n      OR ud.last_name  IS NULL OR TRIM(ud.last_name)  = ''\n    THEN '(Missing name)'\n    ELSE TRIM(ud.first_name) || ' ' || TRIM(ud.last_name)\n  END AS \"student!\",\n\n  /* non-null */\n  CASE\n    WHEN uc.user_id IS NOT NULL THEN 'Course Certificate'\n    ELSE 'No Certificate'\n  END AS \"certificate!\",\n\n  /* nullable */\n  uc.latest_issued_at AS \"date_issued?\",\n  uc.verification_id  AS \"verification_id?\",\n  uc.id               AS \"certificate_id?\"\n\nFROM enrolled e\nJOIN users u ON u.id = e.user_id\nLEFT JOIN user_details ud ON ud.user_id = u.id\nLEFT JOIN user_certs uc ON uc.user_id = e.user_id\nORDER BY\n  COALESCE(NULLIF(LOWER(TRIM(ud.last_name)),  ''), 'zzzzzz'),\n  COALESCE(NULLIF(LOWER(TRIM(ud.first_name)), ''), 'zzzzzz')\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "student!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "certificate!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "date_issued?",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "verification_id?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "certificate_id?",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "28d4cc03c2f5ec6e02c9d2daf5b392a3c2dd3102d43cdf60e780163dcf3c7eb8"
+}

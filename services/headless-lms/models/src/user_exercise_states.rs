@@ -1229,6 +1229,37 @@ WHERE course_id = ANY($1)
     .fetch(conn)
 }
 
+pub async fn get_all_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE course_id = $1
+  AND deleted_at IS NULL
+"#,
+        course_id,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod tests {
     use chrono::TimeZone;

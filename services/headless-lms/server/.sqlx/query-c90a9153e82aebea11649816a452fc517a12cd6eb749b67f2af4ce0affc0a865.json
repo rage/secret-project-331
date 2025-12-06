@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id FROM course_module_completions\n               WHERE course_id=$1 AND course_module_id=$2 AND user_id=$3\n                 AND completion_granter_user_id IS NULL AND deleted_at IS NULL",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c90a9153e82aebea11649816a452fc517a12cd6eb749b67f2af4ce0affc0a865"
+}

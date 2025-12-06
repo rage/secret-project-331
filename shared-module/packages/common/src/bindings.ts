@@ -212,6 +212,30 @@ export interface UserCourseInstanceChapterProgress {
   attempted_exercises: number | null
 }
 
+export interface ChapterAvailability {
+  chapter_id: string
+  chapter_number: number
+  chapter_name: string
+  exercises_available: number
+  points_available: number
+}
+
+export interface UserChapterProgress {
+  user_id: string
+  chapter_id: string
+  chapter_number: number
+  chapter_name: string
+  points_obtained: number
+  exercises_attempted: number
+}
+
+export interface CourseUserInfo {
+  name: string
+  user_id: string
+  email: string | null
+  course_instance: string
+}
+
 export interface ChatbotConfiguration {
   id: string
   created_at: string
@@ -1155,6 +1179,10 @@ export interface GeneratedCertificate {
   certificate_configuration_id: string
 }
 
+export interface CertificateUpdateRequest {
+  date_issued: string
+}
+
 export interface Term {
   id: string
   term: string
@@ -1415,6 +1443,29 @@ export interface UserWithModuleCompletions {
   first_name: string | null
   last_name: string | null
   user_id: string
+}
+
+export interface ProgressOverview {
+  user_details: Array<UserDetail>
+  chapters: Array<DatabaseChapter>
+  user_exercise_states: Array<UserExerciseState>
+  chapter_availability: Array<ChapterAvailability>
+  user_chapter_progress: Array<UserChapterProgress>
+}
+
+export interface CompletionGridRow {
+  student: string
+  module: string | null
+  grade: string
+  status: string
+}
+
+export interface CertificateGridRow {
+  student: string
+  certificate: string
+  date_issued: string | null
+  verification_id: string | null
+  certificate_id: string | null
 }
 
 export interface UserMarketingConsent {

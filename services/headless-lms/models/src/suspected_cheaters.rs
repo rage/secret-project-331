@@ -1,3 +1,4 @@
+use crate::course_modules;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -17,8 +18,7 @@ pub struct SuspectedCheaters {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ThresholdData {
-    pub points: i32,
-    pub duration_seconds: Option<i32>,
+    pub duration_seconds: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -32,12 +32,11 @@ pub struct DeletedSuspectedCheater {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Threshold {
     pub id: Uuid,
-    pub course_id: Uuid,
+    pub course_module_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub points: i32,
-    pub duration_seconds: Option<i32>,
+    pub duration_seconds: i32,
 }
 
 pub async fn insert(
@@ -70,27 +69,25 @@ pub async fn insert(
 pub async fn insert_thresholds(
     conn: &mut PgConnection,
     course_id: Uuid,
-    duration_seconds: Option<i32>,
-    points: i32,
+    duration_seconds: i32,
 ) -> ModelResult<Threshold> {
+    let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
+
     let threshold = sqlx::query_as!(
         Threshold,
         "
         INSERT INTO cheater_thresholds (
-            course_id,
-            duration_seconds,
-            points
+            course_module_id,
+            duration_seconds
         )
-        VALUES ($1, $2, $3)
-        ON CONFLICT (course_id)
+        VALUES ($1, $2)
+        ON CONFLICT (course_module_id)
         DO UPDATE SET
-            duration_seconds = EXCLUDED.duration_seconds,
-            points = EXCLUDED.points
+            duration_seconds = EXCLUDED.duration_seconds
         RETURNING *
         ",
-        course_id,
+        default_module.id,
         duration_seconds,
-        points,
     )
     .fetch_one(conn)
     .await?;
@@ -98,44 +95,26 @@ pub async fn insert_thresholds(
     Ok(threshold)
 }
 
-pub async fn update_thresholds_by_point(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    points: i32,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-      UPDATE cheater_thresholds
-      SET points = $2
-      WHERE course_id = $1
-    ",
-        course_id,
-        points
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
 pub async fn get_thresholds_by_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Threshold> {
+    let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
+
     let thresholds = sqlx::query_as!(
         Threshold,
         "
       SELECT id,
-      course_id,
+      course_module_id,
       duration_seconds,
-      points,
       created_at,
       updated_at,
       deleted_at
       FROM cheater_thresholds
-      WHERE course_id = $1
+      WHERE course_module_id = $1
       AND deleted_at IS NULL;
     ",
-        course_id
+        default_module.id
     )
     .fetch_one(conn)
     .await?;
@@ -209,4 +188,100 @@ WHERE course_id = $1
     .fetch_all(conn)
     .await?;
     Ok(cheaters)
+}
+
+pub async fn insert_thresholds_by_module_id(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    duration_seconds: i32,
+) -> ModelResult<Threshold> {
+    let threshold = sqlx::query_as!(
+        Threshold,
+        "
+        INSERT INTO cheater_thresholds (
+            course_module_id,
+            duration_seconds
+        )
+        VALUES ($1, $2)
+        ON CONFLICT (course_module_id)
+        DO UPDATE SET
+            duration_seconds = EXCLUDED.duration_seconds,
+            deleted_at = NULL
+        RETURNING *
+        ",
+        course_module_id,
+        duration_seconds,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(threshold)
+}
+
+pub async fn get_thresholds_by_module_id(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<Option<Threshold>> {
+    let threshold = sqlx::query_as!(
+        Threshold,
+        "
+      SELECT id,
+      course_module_id,
+      duration_seconds,
+      created_at,
+      updated_at,
+      deleted_at
+      FROM cheater_thresholds
+      WHERE course_module_id = $1
+      AND deleted_at IS NULL;
+    ",
+        course_module_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(threshold)
+}
+
+pub async fn get_all_thresholds_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Threshold>> {
+    let thresholds = sqlx::query_as!(
+        Threshold,
+        "
+      SELECT ct.id,
+      ct.course_module_id,
+      ct.duration_seconds,
+      ct.created_at,
+      ct.updated_at,
+      ct.deleted_at
+      FROM cheater_thresholds ct
+      JOIN course_modules cm ON ct.course_module_id = cm.id
+      WHERE cm.course_id = $1
+      AND ct.deleted_at IS NULL
+      AND cm.deleted_at IS NULL;
+    ",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(thresholds)
+}
+
+pub async fn delete_threshold_for_module(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+        UPDATE cheater_thresholds
+        SET deleted_at = NOW()
+        WHERE course_module_id = $1
+        AND deleted_at IS NULL
+        ",
+        course_module_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

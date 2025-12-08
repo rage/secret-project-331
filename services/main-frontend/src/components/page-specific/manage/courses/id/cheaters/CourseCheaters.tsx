@@ -1,21 +1,29 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
 import { Gear } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { postNewThreshold } from "../../../../../../services/backend/courses"
+import {
+  deleteThresholdForModule,
+  fetchCourseStructure,
+  getAllThresholds,
+  postThresholdForModule,
+} from "../../../../../../services/backend/courses"
 
 import CourseCheatersTabs from "./CourseCheatersTabs"
 
-import { ThresholdData } from "@/shared-module/common/bindings"
+import { CourseModule, ThresholdData } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
+import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
@@ -36,36 +44,71 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
     }
   }, [router.query.archive])
 
-  const [points, setPoints] = useState<number>()
-  const [duration, setDuration] = useState<number>()
+  const courseStructureQuery = useQuery({
+    queryKey: [`course-structure-${courseId}`],
+    queryFn: () => fetchCourseStructure(courseId),
+  })
 
-  const handleCreateNewThreshold = async () => {
-    if (!points) {
-      console.log("Invalid Threshold")
-      return
+  const thresholdsQuery = useQuery({
+    queryKey: [`course-thresholds-${courseId}`],
+    queryFn: () => getAllThresholds(courseId),
+  })
+
+  const savedThresholds = useMemo(() => {
+    if (!thresholdsQuery.data) {
+      return new Map<string, number | undefined>()
+    }
+    const thresholdsMap = new Map<string, number | undefined>()
+    thresholdsQuery.data.forEach((t: { course_module_id: string; duration_seconds: number }) => {
+      thresholdsMap.set(t.course_module_id, t.duration_seconds / 3600)
+    })
+    return thresholdsMap
+  }, [thresholdsQuery.data])
+
+  const [moduleThresholds, setModuleThresholds] = useState<Map<string, number | undefined>>(
+    () => new Map(),
+  )
+
+  const handleUpdateThreshold = async (moduleId: string, durationHours: number | undefined) => {
+    if (durationHours === undefined) {
+      // Delete threshold if value is empty
+      return deleteThresholdForModuleMutation.mutate(moduleId)
     }
 
-    let convertedDuration
-
-    if (duration) {
-      //Convert duration from hours to seconds
-      convertedDuration = duration * 3600
-    }
-
+    const convertedDuration = durationHours * 3600
     const threshold = {
-      points: points,
-      duration_seconds: convertedDuration ?? 0,
+      duration_seconds: convertedDuration,
     }
 
-    return postThresholdMutation.mutate(threshold)
+    return postThresholdForModuleMutation.mutate({ moduleId, threshold })
   }
 
-  const postThresholdMutation = useToastMutation(
-    (threshold: ThresholdData) => postNewThreshold(courseId, threshold),
+  const postThresholdForModuleMutation = useToastMutation(
+    ({ moduleId, threshold }: { moduleId: string; threshold: ThresholdData }) =>
+      postThresholdForModule(moduleId, threshold),
     {
       notify: true,
       successMessage: t("threshold-added-successfully"),
       method: "POST",
+    },
+    {
+      onSuccess: () => {
+        thresholdsQuery.refetch()
+      },
+    },
+  )
+
+  const deleteThresholdForModuleMutation = useToastMutation(
+    (moduleId: string) => deleteThresholdForModule(moduleId),
+    {
+      notify: true,
+      successMessage: t("threshold-removed-successfully"),
+      method: "DELETE",
+    },
+    {
+      onSuccess: () => {
+        thresholdsQuery.refetch()
+      },
     },
   )
 
@@ -104,15 +147,9 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
             margin-bottom: 0.625rem;
           }
 
-          .points-threshold {
-            width: 10rem;
-            margin-bottom: 1.25rem;
-            margin-right: 1.25rem;
-          }
-
           .duration-threshold {
             width: 10rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 0;
           }
 
           .threshold-btn {
@@ -120,59 +157,197 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           }
         `}
       >
+        {courseStructureQuery.isError && (
+          <ErrorBanner variant="readOnly" error={courseStructureQuery.error} />
+        )}
+        {thresholdsQuery.isError && (
+          <ErrorBanner variant="readOnly" error={thresholdsQuery.error} />
+        )}
+        {postThresholdForModuleMutation.isError && (
+          <ErrorBanner variant="readOnly" error={postThresholdForModuleMutation.error} />
+        )}
+        {(courseStructureQuery.isLoading || thresholdsQuery.isLoading) && (
+          <Spinner variant="medium" />
+        )}
         <Header>
           <h5 className="heading">
-            <Gear size={16} weight="bold" />
+            <Gear size={16} weight="bold" aria-hidden="true" />
             {t("configure-threshold")}
           </h5>
           <p className="description">{t("configure-threshold-description")}</p>
         </Header>
-        <div
-          className={css`
-            display: flex;
-            margin-top: 1rem;
-          `}
-        >
-          <TextField
-            className="points-threshold"
-            type="number"
-            label={t("points")}
-            placeholder={t("points")}
-            value={points?.toString() ?? ""}
-            onChangeByValue={(value: string) => {
-              const parsed = parseInt(value)
-              if (isNaN(parsed)) {
-                setPoints(undefined)
-                return
-              }
-              setPoints(parsed)
-            }}
-          />
-          <TextField
-            className="duration-threshold"
-            type="number"
-            label={t("duration-in-hours")}
-            placeholder={t("duration")}
-            value={duration?.toString() ?? ""}
-            onChangeByValue={(value: string) => {
-              const parsed = parseInt(value)
-              if (isNaN(parsed)) {
-                setDuration(undefined)
-                return
-              }
-              setDuration(parsed)
-            }}
-          />
-        </div>
-        <Button
-          className="threshold-btn"
-          variant="primary"
-          size="medium"
-          disabled={(!points && !duration) || postThresholdMutation.isPending}
-          onClick={handleCreateNewThreshold}
-        >
-          {t("set-threshold")}
-        </Button>
+        {courseStructureQuery.data && (
+          <div
+            className={css`
+              margin-top: 1rem;
+            `}
+          >
+            <table
+              className={css`
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 1rem;
+
+                th {
+                  text-align: left;
+                  padding: 0.75rem;
+                  border-bottom: 1px solid ${baseTheme.colors.gray[200]};
+                  font-weight: 600;
+                  color: ${baseTheme.colors.gray[700]};
+                }
+
+                th:first-of-type {
+                  width: 30%;
+                }
+
+                th:nth-of-type(2) {
+                  width: 30%;
+                }
+
+                th:last-of-type {
+                  width: 40%;
+                  min-width: 150px;
+                }
+
+                td {
+                  padding: 0.75rem;
+                  border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+                  vertical-align: middle;
+                }
+
+                td:last-of-type {
+                  min-width: 150px;
+                }
+
+                tr:last-child td {
+                  border-bottom: none;
+                }
+              `}
+              aria-label={t("configure-threshold")}
+            >
+              <caption
+                className={css`
+                  text-align: left;
+                  font-weight: 600;
+                  margin-bottom: 0.5rem;
+                  caption-side: top;
+                `}
+              >
+                {t("configure-threshold")}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">{t("module")}</th>
+                  <th scope="col" id="duration-header">
+                    {t("duration-in-hours")}
+                  </th>
+                  <th scope="col">{t("actions")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {courseStructureQuery.data.modules
+                  .sort((a: CourseModule, b: CourseModule) => a.order_number - b.order_number)
+                  .map((module: CourseModule) => {
+                    const savedDurationHours = savedThresholds.get(module.id)
+                    const isEdited = moduleThresholds.has(module.id)
+                    const editedDurationHours = moduleThresholds.get(module.id)
+                    const durationHours = isEdited ? editedDurationHours : savedDurationHours
+                    const isDefault = module.name === null
+                    const moduleName = module.name ?? t("default-module")
+                    const hasValue = durationHours !== undefined
+                    const hasSavedValue = savedDurationHours !== undefined
+                    const isRemoving =
+                      hasSavedValue && isEdited && editedDurationHours === undefined
+                    const isSaved =
+                      !isEdited ||
+                      (hasValue &&
+                        hasSavedValue &&
+                        Math.abs((durationHours ?? 0) - (savedDurationHours ?? 0)) < 0.01) ||
+                      (!hasValue && !hasSavedValue)
+                    // eslint-disable-next-line i18next/no-literal-string
+                    const inputId = `duration-input-${module.id}`
+                    // eslint-disable-next-line i18next/no-literal-string
+                    const labelId = `${inputId}-label`
+                    return (
+                      <tr key={module.id}>
+                        <td>{isDefault ? <strong>{moduleName}</strong> : moduleName}</td>
+                        <td>
+                          <span
+                            id={labelId}
+                            className={css`
+                              position: absolute;
+                              width: 1px;
+                              height: 1px;
+                              padding: 0;
+                              margin: -1px;
+                              overflow: hidden;
+                              clip-path: inset(50%);
+                              white-space: nowrap;
+                              border-width: 0;
+                            `}
+                          >
+                            {moduleName}
+                          </span>
+                          <div
+                            className={css`
+                              display: inline-block;
+                              vertical-align: middle;
+                            `}
+                          >
+                            <TextField
+                              id={inputId}
+                              className="duration-threshold"
+                              type="number"
+                              aria-labelledby={`duration-header ${labelId}`}
+                              value={durationHours?.toString() ?? ""}
+                              onChangeByValue={(value: string) => {
+                                const parsed = parseInt(value)
+                                if (isNaN(parsed)) {
+                                  setModuleThresholds((prev) => {
+                                    const next = new Map(prev)
+                                    next.set(module.id, undefined)
+                                    return next
+                                  })
+                                  return
+                                }
+                                setModuleThresholds((prev) => {
+                                  const next = new Map(prev)
+                                  next.set(module.id, parsed)
+                                  return next
+                                })
+                              }}
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <Button
+                            variant={isSaved ? "secondary" : isRemoving ? "reject" : "primary"}
+                            size="medium"
+                            disabled={
+                              (!hasValue && !hasSavedValue) ||
+                              postThresholdForModuleMutation.isPending ||
+                              deleteThresholdForModuleMutation.isPending ||
+                              isSaved
+                            }
+                            onClick={() => handleUpdateThreshold(module.id, durationHours)}
+                            className={css`
+                              min-width: 140px;
+                            `}
+                          >
+                            {isSaved
+                              ? t("saved")
+                              : isRemoving
+                                ? t("remove-threshold")
+                                : t("set-threshold")}
+                          </Button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
       {}
       <TabLinkNavigation>

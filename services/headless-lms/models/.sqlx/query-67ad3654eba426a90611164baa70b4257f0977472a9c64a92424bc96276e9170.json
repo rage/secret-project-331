@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ud.country AS \"country?\",\n  COUNT(DISTINCT cie.user_id) AS \"count!\"\nFROM course_instance_enrollments cie\n  JOIN user_details ud ON ud.user_id = cie.user_id\nWHERE cie.course_id = $1\n  AND cie.deleted_at IS NULL\n  AND NOT cie.user_id = ANY($2)\nGROUP BY ud.country\nORDER BY COUNT(DISTINCT cie.user_id) DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "country?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      true,
+      null
+    ]
+  },
+  "hash": "67ad3654eba426a90611164baa70b4257f0977472a9c64a92424bc96276e9170"
+}

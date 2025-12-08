@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import styles from "./StudentsPage.module.css"
+import * as styles from "./StudentsPageStyles"
 import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from "./StudentsTableTabs"
 import { ProgressTabContent } from "./tabs/ProgressTab"
 
@@ -124,7 +124,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
                     tab === TAB_COMPLETIONS && styles.tabCompletions,
                     activeTab === tab && styles.tabActive,
                   )}
-                  onClick={() => goTab(tab)} // URL-syncing click
+                  onClick={() => goTab(tab)}
                 >
                   {tab}
                 </button>
@@ -133,7 +133,6 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
           </div>
         </div>
 
-        {/* TABLE SECTION */}
         <div className={tableSection}>{tabContentMap[activeTab]}</div>
       </div>
     </BreakFromCentered>

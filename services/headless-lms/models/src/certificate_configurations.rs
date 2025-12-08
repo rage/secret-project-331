@@ -634,3 +634,19 @@ WHERE id = $1
     .await?;
     Ok(())
 }
+
+pub async fn get_first_configuration_id(conn: &mut PgConnection) -> ModelResult<Option<Uuid>> {
+    let row = sqlx::query!(
+        r#"
+        SELECT id
+        FROM certificate_configurations
+        WHERE deleted_at IS NULL
+        ORDER BY created_at
+        LIMIT 1
+        "#,
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(row.map(|r| r.id))
+}

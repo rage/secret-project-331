@@ -95,7 +95,7 @@ pub async fn check_and_insert_suspected_cheaters(
         if let Some(default_completion) = default_completion {
             let duration =
                 (completion.completion_date - default_completion.completion_date).num_seconds();
-            duration.max(0) as i64
+            duration.max(0)
         } else {
             0
         }

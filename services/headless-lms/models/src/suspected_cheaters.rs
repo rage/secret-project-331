@@ -83,7 +83,8 @@ pub async fn insert_thresholds(
         VALUES ($1, $2)
         ON CONFLICT (course_module_id)
         DO UPDATE SET
-            duration_seconds = EXCLUDED.duration_seconds
+            duration_seconds = EXCLUDED.duration_seconds,
+            deleted_at = NULL
         RETURNING *
         ",
         default_module.id,

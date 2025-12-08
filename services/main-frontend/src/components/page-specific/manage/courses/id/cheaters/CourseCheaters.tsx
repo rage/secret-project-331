@@ -356,7 +356,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           isActive={!archive}
           // countHook={createPendingChangeRequestCountHook(courseId)}
         >
-          {t("suspected-student")}
+          {t("suspected-students")}
         </TabLink>
         <TabLink
           url={{ pathname: router.pathname, query: { ...router.query, archive: true } }}

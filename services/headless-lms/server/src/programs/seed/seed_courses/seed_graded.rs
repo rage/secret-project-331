@@ -13,7 +13,6 @@ use anyhow::{Context, Result};
 use chrono::Utc;
 use headless_lms_models::course_instance_enrollments;
 use headless_lms_models::roles::UserRole;
-use sqlx::Row;
 use tracing::info;
 use uuid::Uuid;
 
@@ -128,18 +127,18 @@ pub async fn seed_graded_course(
             .await?;
     }
 
-    let cert_config_id_opt = sqlx::query(
+    let cert_config_id_opt = sqlx::query!(
         r#"
         SELECT id
         FROM certificate_configurations
         WHERE deleted_at IS NULL
         ORDER BY created_at
         LIMIT 1
-        "#,
+    "#,
     )
-    .map(|row: sqlx::postgres::PgRow| row.get::<Uuid, _>("id"))
     .fetch_optional(&mut *conn)
-    .await?;
+    .await?
+    .map(|row| row.id);
 
     let cert_config_id = cert_config_id_opt
         .context("No certificate_configurations found; cannot seed graded course certificates")?;

@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use sqlx::query_scalar;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct StudyRegistryRegistrar {
@@ -78,6 +79,28 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelResult<Uuid> {
+    if let Some(id) =
+        query_scalar!(r#"SELECT id FROM study_registry_registrars ORDER BY created_at LIMIT 1"#)
+            .fetch_optional(conn)
+            .await?
+    {
+        return Ok(id);
+    }
+
+    let id = query_scalar!(
+        r#"
+        INSERT INTO study_registry_registrars (id, created_at, updated_at, name, secret_key)
+        VALUES (gen_random_uuid(), now(), now(), 'Default Registrar', encode(gen_random_bytes(32), 'hex'))
+        RETURNING id
+        "#
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(id)
 }
 
 #[cfg(test)]

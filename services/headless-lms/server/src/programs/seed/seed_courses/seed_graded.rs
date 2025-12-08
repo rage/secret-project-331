@@ -8,6 +8,7 @@ use crate::programs::seed::builder::module::{
 use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
+use headless_lms_models::study_registry_registrars::get_or_create_default_registrar;
 
 use anyhow::{Context, Result};
 use chrono::Utc;
@@ -18,28 +19,6 @@ use uuid::Uuid;
 
 use super::super::seed_users::SeedUsersResult;
 
-async fn get_or_create_default_registrar(conn: &mut sqlx::PgConnection) -> anyhow::Result<Uuid> {
-    if let Some(id) = sqlx::query_scalar::<_, Uuid>(
-        r#"SELECT id FROM study_registry_registrars ORDER BY created_at LIMIT 1"#,
-    )
-    .fetch_optional(&mut *conn)
-    .await?
-    {
-        return Ok(id);
-    }
-
-    let id = sqlx::query_scalar::<_, Uuid>(
-        r#"
-        INSERT INTO study_registry_registrars (id, created_at, updated_at, name, secret_key)
-        VALUES (gen_random_uuid(), now(), now(), 'Default Registrar', encode(gen_random_bytes(32), 'hex'))
-        RETURNING id
-        "#,
-    )
-    .fetch_one(&mut *conn)
-    .await?;
-
-    Ok(id)
-}
 
 pub async fn seed_graded_course(
     course_id: Uuid,

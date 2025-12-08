@@ -91,7 +91,7 @@ pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelRe
         LIMIT 1
         "#,
     )
-    .fetch_optional(conn)
+    .fetch_optional(&mut *conn)
     .await?;
 
     if let Some(row) = existing {
@@ -118,7 +118,7 @@ pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelRe
         RETURNING id
         "#,
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *conn)
     .await?;
 
     Ok(inserted.id)

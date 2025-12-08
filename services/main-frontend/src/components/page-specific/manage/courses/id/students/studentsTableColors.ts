@@ -1,5 +1,3 @@
-// studentsTableColors.ts
-
 const colorPairsTemplate = [
   ["#dde2f0ff", "#dde2f0ff"],
   ["#ffffffff", "#ffffffff"],

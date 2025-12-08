@@ -1,4 +1,3 @@
-// StudentsTableTabs.tsx
 export { UserTabContent } from "./tabs/UserTab"
 export { CertificatesTabContent } from "./tabs/CertificatesTab"
 export { CompletionsTabContent } from "./tabs/CompletionsTab"

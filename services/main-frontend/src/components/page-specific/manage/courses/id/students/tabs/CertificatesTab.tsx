@@ -70,8 +70,6 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     return <ErrorBanner error={query.error} />
   }
 
-  console.log("TEST", query)
-
   const columns: ColumnDef<CertificateGridRow, unknown>[] = [
     // eslint-disable-next-line i18next/no-literal-string
     { header: t("label-student"), accessorKey: "student" },

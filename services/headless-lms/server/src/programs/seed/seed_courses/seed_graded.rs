@@ -8,17 +8,17 @@ use crate::programs::seed::builder::module::{
 use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
-use headless_lms_models::study_registry_registrars::get_or_create_default_registrar;
-
 use anyhow::{Context, Result};
 use chrono::Utc;
+use headless_lms_models::certificate_configuration_to_requirements::link_configuration_to_module_if_missing;
+use headless_lms_models::certificate_configurations::get_first_configuration_id;
 use headless_lms_models::course_instance_enrollments;
 use headless_lms_models::roles::UserRole;
+use headless_lms_models::study_registry_registrars::get_or_create_default_registrar;
 use tracing::info;
 use uuid::Uuid;
 
 use super::super::seed_users::SeedUsersResult;
-
 
 pub async fn seed_graded_course(
     course_id: Uuid,
@@ -106,43 +106,12 @@ pub async fn seed_graded_course(
             .await?;
     }
 
-    let cert_config_id_opt = sqlx::query!(
-        r#"
-        SELECT id
-        FROM certificate_configurations
-        WHERE deleted_at IS NULL
-        ORDER BY created_at
-        LIMIT 1
-    "#,
-    )
-    .fetch_optional(&mut *conn)
-    .await?
-    .map(|row| row.id);
+    let cert_config_id_opt = get_first_configuration_id(&mut conn).await?;
 
     let cert_config_id = cert_config_id_opt
         .context("No certificate_configurations found; cannot seed graded course certificates")?;
 
-    // Link configuration to our module if not already linked
-    sqlx::query(
-        r#"
-        INSERT INTO certificate_configuration_to_requirements (
-            certificate_configuration_id,
-            course_module_id
-        )
-        SELECT $1, $2
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM certificate_configuration_to_requirements
-            WHERE certificate_configuration_id = $1
-              AND course_module_id = $2
-              AND deleted_at IS NULL
-        )
-        "#,
-    )
-    .bind(cert_config_id)
-    .bind(last_module.id)
-    .execute(&mut *conn)
-    .await?;
+    link_configuration_to_module_if_missing(&mut conn, cert_config_id, last_module.id).await?;
 
     // Now that the module has a configuration, generate certificates for the demo users
     for uid in example_normal_user_ids.iter() {

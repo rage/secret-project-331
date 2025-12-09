@@ -65,6 +65,10 @@ reviews:
         All UPDATE queries that set `deleted_at = now()` MUST include `AND deleted_at IS NULL` in the WHERE clause to prevent overwriting timestamps for already-deleted records.
         Example: `UPDATE table SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL`
 
+        Most tables have the `deleted_at` field. When fetching data, always include `AND deleted_at IS NULL` in the WHERE clause to prevent fetching deleted records. Example: `SELECT * FROM table WHERE id = $1 AND deleted_at IS NULL`. The exceptions to this rule are:
+        1. The table has no `deleted_at` field (rare)
+        2. The function name implies the function returns also non-deleted records
+
     - path: "**/*.rs"
       instructions: >
         No unwraps at all in non-test code. Avoid also .expect() calls outside of tests, with the exception when the program is starting up so that it would crash immediately for example when an environment variable is not set.

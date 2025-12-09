@@ -1,5 +1,7 @@
 import { css } from "@emotion/css"
 
+import { primaryFont } from "@/shared-module/common/styles"
+
 export const headerTopRow = css`
   display: flex;
   align-items: flex-start;
@@ -46,7 +48,7 @@ export const headerControlsSection = css`
 `
 
 export const title = css`
-  font-family: "Inter", sans-serif;
+  font-family: ${primaryFont};
   font-weight: 500;
   font-size: 24px;
   line-height: 29px;
@@ -55,7 +57,7 @@ export const title = css`
 `
 
 export const chatbotInfo = css`
-  font-family: "Inter", sans-serif;
+  font-family: ${primaryFont};
   font-size: 14px;
   font-weight: 400;
   line-height: 140%;
@@ -99,7 +101,7 @@ export const searchInput = css`
   border-radius: 4px;
   padding-left: 36px;
   font-size: 14px;
-  font-family: "Inter", sans-serif;
+  font-family: ${primaryFont};
   color: #1a2333;
   background: #fff;
 `
@@ -131,7 +133,7 @@ export const tab = css`
   display: flex;
   align-items: center;
   font-size: 14px;
-  font-family: "Inter", sans-serif;
+  font-family: ${primaryFont};
   font-weight: 400;
   color: #1a2333;
   background: transparent;
@@ -160,7 +162,7 @@ export const container = css`
   background: #fff;
   border: 1px solid #ced1d7;
   border-radius: 8px 8px 0 0;
-  font-family: "Inter", sans-serif;
+  font-family: ${primaryFont};
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

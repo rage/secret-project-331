@@ -135,7 +135,7 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
                   `}
                 `}
               >
-                <CloseIcon />
+                <CloseIcon aria-hidden="true" />
               </button>
             </div>
           </div>

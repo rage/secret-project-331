@@ -181,7 +181,7 @@ const Controls = ({
             `}
           `}
         >
-          <Rewind />
+          <Rewind aria-hidden="true" />
         </button>
 
         <button
@@ -197,7 +197,7 @@ const Controls = ({
             `}
           `}
         >
-          {isPlaying ? <Pause /> : <Play />}
+          {isPlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
         </button>
         <button
           {...fastForwardButtonProps}
@@ -211,7 +211,7 @@ const Controls = ({
             `}
           `}
         >
-          <FastForward />
+          <FastForward aria-hidden="true" />
         </button>
       </div>
       <div className={cx(styledVolume, styledRangeInput)}>
@@ -229,13 +229,13 @@ const Controls = ({
           `}
         >
           {muteVolume || volume < 1 ? (
-            <MuteVolume />
+            <MuteVolume aria-hidden="true" />
           ) : volume < 33 ? (
-            <LowVolume />
+            <LowVolume aria-hidden="true" />
           ) : volume < 66 ? (
-            <MedVolume />
+            <MedVolume aria-hidden="true" />
           ) : (
-            <HighVolume />
+            <HighVolume aria-hidden="true" />
           )}
         </button>
         <input

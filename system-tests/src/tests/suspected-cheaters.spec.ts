@@ -43,7 +43,7 @@ test.describe("Teacher can set threshold for course", () => {
     // Teacher set thresholds
     await teacherPage.goto(CHEATER_EDITOR_PAGE)
 
-    await teacherPage.getByText("Configure completion time thresholds").waitFor()
+    await teacherPage.getByText("Configure completion time thresholds").first().waitFor()
     await teacherPage
       .getByRole("spinbutton", { name: /Minimum completion time \(hours\)/ })
       .first()

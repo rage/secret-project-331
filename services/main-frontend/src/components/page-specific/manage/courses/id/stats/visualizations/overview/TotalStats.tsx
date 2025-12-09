@@ -75,7 +75,7 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
   const { t, i18n } = useTranslation()
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
-  const [rangeMode, setRangeMode] = React.useState<"total" | "custom">(TOTAL_RANGE)
+  const [rangeMode, setRangeMode] = useState<"total" | "custom">(TOTAL_RANGE)
 
   const totalUsersNormal = useTotalUsersStartedCourseQuery(courseId, {
     enabled: rangeMode === TOTAL_RANGE,
@@ -87,8 +87,7 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
     enabled: rangeMode === TOTAL_RANGE,
   })
 
-  const customEnabled = rangeMode === CUSTOM_RANGE && startDate && endDate
-
+  const customEnabled = rangeMode === CUSTOM_RANGE && startDate && endDate && startDate <= endDate
   const totalUsersCustom = useTotalUsersStartedCourseQueryCustomTimePeriod(
     courseId,
     startDate ?? "",
@@ -157,11 +156,13 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
               >
                 <DatePickerField
                   label={t("stats-start-date")}
-                  onChangeByValue={(value) => setStartDate?.(value)}
+                  value={startDate ?? ""}
+                  onChangeByValue={(value) => setStartDate(value)}
                 />
                 <DatePickerField
                   label={t("stats-end-date")}
-                  onChangeByValue={(value) => setEndDate?.(value)}
+                  value={endDate ?? ""}
+                  onChangeByValue={(value) => setEndDate(value)}
                 />
               </div>
             )}

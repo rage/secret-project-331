@@ -368,17 +368,21 @@ SELECT DATE_TRUNC($5, user_start) AS "period",
 FROM (
     SELECT u.user_id,
       MIN(u.created_at) AS user_start,
-      MIN(e.created_at) AS first_submission
+      (
+        SELECT MIN(e.created_at)
+        FROM exercise_slide_submissions e
+        WHERE e.user_id = u.user_id
+          AND e.course_id = $1
+          AND e.deleted_at IS NULL
+      ) AS first_submission
     FROM user_course_settings u
-      JOIN exercise_slide_submissions e ON u.user_id = e.user_id
-      AND e.course_id = $1
-      AND e.deleted_at IS NULL
     WHERE u.current_course_id = $1
       AND u.deleted_at IS NULL
       AND NOT u.user_id = ANY($2)
       AND u.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
     GROUP BY u.user_id
   ) AS timings
+WHERE first_submission IS NOT NULL
 GROUP BY "period"
 ORDER BY "period"
         "#,
@@ -1136,6 +1140,7 @@ ORDER BY "period"
 /// - For Year granularity: number of years
 /// - For Month granularity: number of months
 /// - For Day granularity: number of days
+///
 /// Get first exercise submission counts grouped by course module,
 /// with specified time granularity (year/month/day) and time window.
 ///

@@ -1,8 +1,7 @@
-import React from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import CompletionsByCountry from "../../visualizations/country/CompletionsByCountry"
-import FirstExerciseSubmissionsByModule from "../../visualizations/country/FirstExerciseSubmissionsByModule"
 import StudentsByCountry from "../../visualizations/country/StudentsByCountry"
 import StudentsByCountryTotals from "../../visualizations/country/StudentsByCountryTotals"
 
@@ -17,9 +16,9 @@ const CountryStatsTab: React.FC<CountryStatsTabProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const { t: tCountries } = useTranslation("countries")
 
-  const [selectedCountry, setSelectedCountry] = React.useState<string>("")
+  const [selectedCountry, setSelectedCountry] = useState<string>("")
 
-  const countriesOptions = React.useMemo(
+  const countriesOptions = useMemo(
     () =>
       Object.entries(countries).map(([code]) => ({
         value: code,
@@ -40,7 +39,6 @@ const CountryStatsTab: React.FC<CountryStatsTabProps> = ({ courseId }) => {
       <StudentsByCountry courseId={courseId} selectedCountry={selectedCountry} />
       <CompletionsByCountry courseId={courseId} selectedCountry={selectedCountry} />
       <StudentsByCountryTotals courseId={courseId} />
-      <FirstExerciseSubmissionsByModule courseId={courseId} />
     </>
   )
 }

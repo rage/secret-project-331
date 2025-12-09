@@ -413,7 +413,7 @@ export const useStudentsByCountryQuery = (
         timeWindow,
         assertNotNullOrUndefined(country),
       ),
-    enabled: !!courseId,
+    enabled: !!courseId && !!country,
     ...options,
   })
 }
@@ -441,7 +441,7 @@ export const useStudentCompletionsByCountryQuery = (
         timeWindow,
         assertNotNullOrUndefined(country),
       ),
-    enabled: !!courseId,
+    enabled: !!courseId && !!country,
     ...options,
   })
 }

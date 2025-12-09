@@ -11,6 +11,9 @@ CREATE TABLE chatbot_conversation_message_tool_calls (
   deleted_at TIMESTAMP WITH TIME ZONE
 );
 
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON chatbot_conversation_message_tool_calls FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
 COMMENT ON TABLE chatbot_conversation_message_tool_calls IS 'Contains tool calls made by the chatbot in a conversation. Each row is associated with a chatbot_conversation_messages row that has the role "assistant" in a many (tool calls) to one (message) relationship.';
 COMMENT ON COLUMN chatbot_conversation_message_tool_calls.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN chatbot_conversation_message_tool_calls.message_id IS 'The chatbot_conversation_message that this row belongs to.';
@@ -31,6 +34,9 @@ CREATE TABLE chatbot_conversation_message_tool_outputs (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE
 );
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON chatbot_conversation_message_tool_outputs FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 COMMENT ON TABLE chatbot_conversation_message_tool_outputs IS 'The results from a chatbot tool call. Associated one-to-one with chatbot_conversation_messages row with the role "tool".';
 COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.id IS 'A unique, stable identifier for the record.';

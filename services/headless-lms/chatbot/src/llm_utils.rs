@@ -29,7 +29,8 @@ pub struct APIMessage {
 impl APIMessage {
     /// Create a ChatbotConversationMessage from an APIMessage to save it into the DB.
     /// Notice that the insert operation ignores some of the fields, like timestamps.
-    /// The try_from doesn't set the correct order_number field value.
+    /// `to_chatbot_conversation_message` doesn't set the correct order_number field
+    /// value.
     pub fn to_chatbot_conversation_message(
         &self,
         conversation_id: Uuid,

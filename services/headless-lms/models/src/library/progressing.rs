@@ -1147,7 +1147,7 @@ mod tests {
         .await
         .unwrap();
 
-        course_module_completions::insert(
+        let completion = course_module_completions::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
             &NewCourseModuleCompletion {
@@ -1166,10 +1166,14 @@ mod tests {
         )
         .await
         .unwrap();
-        suspected_cheaters::insert_thresholds(tx.as_mut(), course, 259200)
-            .await
-            .unwrap();
-        update_automatic_completion_status_and_grant_if_eligible(tx.as_mut(), &course_module, user)
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(tx.as_mut(), user, course, &thresholds, completion)
             .await
             .unwrap();
 
@@ -1177,6 +1181,7 @@ mod tests {
             suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
                 .await
                 .unwrap();
+        assert_eq!(cheaters.len(), 1);
         assert_eq!(cheaters[0].user_id, user);
     }
 

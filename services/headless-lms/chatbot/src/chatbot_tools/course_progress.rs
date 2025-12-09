@@ -1,10 +1,14 @@
-use headless_lms_models::user_exercise_states::UserCourseProgress;
+use headless_lms_models::{
+    course_modules::{CompletionPolicy, CourseModule},
+    user_exercise_states::UserCourseProgress,
+};
+use headless_lms_utils::prelude::BackendError;
 use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_tools::{AzureLLMToolDefinition, ChatbotTool, LLMTool, LLMToolType, ToolProperties},
-    prelude::ChatbotResult,
+    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
 pub type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
@@ -23,12 +27,16 @@ impl ChatbotTool for CourseProgressTool {
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
-        let progress = headless_lms_models::user_exercise_states::get_user_course_progress(
+        let user_progress = headless_lms_models::user_exercise_states::get_user_course_progress(
             conn,
             user_context.course_id,
             user_context.user_id,
         )
         .await?;
+        let modules =
+            headless_lms_models::course_modules::get_by_course_id(conn, user_context.course_id)
+                .await?;
+        let progress = progress_info(user_progress, modules)?;
         Result::Ok(CourseProgressTool {
             state: CourseProgressState {
                 course_name: user_context.course_name.clone(),
@@ -46,36 +54,38 @@ impl ChatbotTool for CourseProgressTool {
 
         // If `progress` has one value, then this course has only one (default) module
         if progress.len() == 1 {
-            let module = &progress[0];
+            let first = &progress[0];
+            let module_progress = &first.progress;
             res += "Their progress on this course is the following: ";
 
             res += &push_exercises_scores_progress(
-                module.attempted_exercises,
-                module.total_exercises,
-                module.attempted_exercises_required,
-                module.score_given,
-                module.score_maximum,
-                module.score_required,
+                module_progress.attempted_exercises,
+                module_progress.total_exercises,
+                module_progress.attempted_exercises_required,
+                module_progress.score_given,
+                module_progress.score_maximum,
+                module_progress.score_required,
                 "course",
             );
         } else {
             // If there are multiple modules in this course, then each module has its
             // own progress
-            progress.sort_by_key(|m| m.course_module_order_number);
+            progress.sort_by_key(|m| m.order_number);
             let first_mod = progress.first();
 
             // the first in the sorted list is the base module
-            let s = if let Some(module) = first_mod {
-                let m_name = &module.course_module_name;
+            let s = if let Some(first) = first_mod {
+                let module_progress = &first.progress;
+                let m_name = &module_progress.course_module_name;
                 format!(
                     "The user's progress on the base course module called {m_name} is the following: "
                 ) + &push_exercises_scores_progress(
-                    module.attempted_exercises,
-                    module.total_exercises,
-                    module.attempted_exercises_required,
-                    module.score_given,
-                    module.score_maximum,
-                    module.score_required,
+                    module_progress.attempted_exercises,
+                    module_progress.total_exercises,
+                    module_progress.attempted_exercises_required,
+                    module_progress.score_given,
+                    module_progress.score_maximum,
+                    module_progress.score_required,
                     "module",
                 ) + "To pass the course, it's required to pass the base module. The following modules are additional to the course and to complete them, it's required to first complete the base module. \n"
             } else {
@@ -86,18 +96,19 @@ impl ChatbotTool for CourseProgressTool {
 
             // skip first because we processed it earlier and add the progress for
             // each module
-            for module in progress.iter().skip(1) {
-                let m_name = &module.course_module_name;
+            for progress_info in progress.iter().skip(1) {
+                let module_progress = &progress_info.progress;
+                let m_name = &module_progress.course_module_name;
                 res.push_str(&format!(
                     "The user's progress on the course module called {m_name} is the following: "
                 ));
                 res += &push_exercises_scores_progress(
-                    module.attempted_exercises,
-                    module.total_exercises,
-                    module.attempted_exercises_required,
-                    module.score_given,
-                    module.score_maximum,
-                    module.score_required,
+                    module_progress.attempted_exercises,
+                    module_progress.total_exercises,
+                    module_progress.attempted_exercises_required,
+                    module_progress.score_given,
+                    module_progress.score_maximum,
+                    module_progress.score_required,
                     "module",
                 );
             }
@@ -132,7 +143,14 @@ pub struct CourseProgressArguments {}
 
 pub struct CourseProgressState {
     course_name: String,
-    progress: Vec<UserCourseProgress>,
+    progress: Vec<CourseProgressInfo>,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct CourseProgressInfo {
+    order_number: i32,
+    progress: UserCourseProgress,
+    completion_policy: CompletionPolicy,
 }
 
 fn push_exercises_scores_progress(
@@ -146,6 +164,14 @@ fn push_exercises_scores_progress(
 ) -> String {
     let mut res = "".to_string();
     if total_exercises.is_some() || score_maximum.is_some() {
+        if let (Some(a), Some(b)) = (total_exercises, score_maximum) {
+            if a == 0 && b == 0 {
+                res += &format!(
+                    "This {course_or_module} has no exercises and no points. It cannot be completed by doing exercises. The user should look for information about completing the {course_or_module} in the course material or contact the teacher.\n"
+                );
+                return res;
+            }
+        }
         res += &format!("On this {course_or_module}, there are available a total of ");
 
         if let Some(a) = total_exercises {
@@ -211,14 +237,38 @@ fn push_exercises_scores_progress(
     res + "\n"
 }
 
+fn progress_info(
+    user_progress: Vec<UserCourseProgress>,
+    modules: Vec<CourseModule>,
+) -> ChatbotResult<Vec<CourseProgressInfo>> {
+    user_progress
+        .into_iter()
+        .map(|u| {
+            let module = modules
+                .iter()
+                .find(|x| x.order_number == u.course_module_order_number);
+            if let Some(m) = module {
+                Ok(CourseProgressInfo {
+                    order_number: u.course_module_order_number,
+                    progress: u,
+                    completion_policy: m.completion_policy.to_owned(),
+                })
+            } else {
+                Err(ChatbotError::new(ChatbotErrorType::Other, "C", None))
+            }
+        })
+        .collect::<ChatbotResult<Vec<CourseProgressInfo>>>()
+}
+
 #[cfg(test)]
 mod tests {
+    use headless_lms_models::course_modules::AutomaticCompletionRequirements;
     use uuid::Uuid;
 
     use super::*;
 
     impl CourseProgressTool {
-        fn new_mock(course_name: String, progress: Vec<UserCourseProgress>) -> Self {
+        fn new_mock(course_name: String, progress: Vec<CourseProgressInfo>) -> Self {
             CourseProgressTool {
                 state: CourseProgressState {
                     course_name,
@@ -231,16 +281,25 @@ mod tests {
 
     #[test]
     fn test_course_progress_output_only_base_module() {
-        let progress = vec![UserCourseProgress {
-            course_module_id: Uuid::nil(),
-            course_module_name: "Example base module".to_string(),
-            course_module_order_number: 1,
-            score_given: 3.3,
-            score_required: Some(4),
-            score_maximum: Some(5),
-            total_exercises: Some(11),
-            attempted_exercises: Some(4),
-            attempted_exercises_required: Some(10),
+        let progress = vec![CourseProgressInfo {
+            order_number: 1,
+            progress: UserCourseProgress {
+                course_module_id: Uuid::nil(),
+                course_module_name: "Example base module".to_string(),
+                course_module_order_number: 1,
+                score_given: 3.3,
+                score_required: Some(4),
+                score_maximum: Some(5),
+                total_exercises: Some(11),
+                attempted_exercises: Some(4),
+                attempted_exercises_required: Some(10),
+            },
+            completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                course_module_id: Uuid::nil(),
+                number_of_exercises_attempted_treshold: Some(10),
+                number_of_points_treshold: Some(4),
+                requires_exam: false,
+            }),
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -256,49 +315,85 @@ mod tests {
     #[test]
     fn test_course_progress_output_many_modules() {
         let progress = vec![
-            UserCourseProgress {
-                course_module_id: Uuid::nil(),
-                course_module_name: "Second extra module".to_string(),
-                course_module_order_number: 3,
-                score_given: 0.0,
-                score_required: Some(4),
-                score_maximum: Some(5),
-                total_exercises: Some(6),
-                attempted_exercises: None,
-                attempted_exercises_required: Some(5),
+            CourseProgressInfo {
+                order_number: 3,
+                progress: UserCourseProgress {
+                    course_module_id: Uuid::nil(),
+                    course_module_name: "Second extra module".to_string(),
+                    course_module_order_number: 3,
+                    score_given: 0.0,
+                    score_required: Some(4),
+                    score_maximum: Some(5),
+                    total_exercises: Some(6),
+                    attempted_exercises: None,
+                    attempted_exercises_required: Some(5),
+                },
+                completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                    course_module_id: Uuid::nil(),
+                    number_of_exercises_attempted_treshold: Some(5),
+                    number_of_points_treshold: Some(4),
+                    requires_exam: false,
+                }),
             },
-            UserCourseProgress {
-                course_module_id: Uuid::nil(),
-                course_module_name: "Advanced Chatbot Course".to_string(),
-                course_module_order_number: 1,
-                score_given: 8.056,
-                score_required: Some(8),
-                score_maximum: Some(10),
-                total_exercises: Some(5),
-                attempted_exercises: Some(5),
-                attempted_exercises_required: Some(5),
+            CourseProgressInfo {
+                order_number: 1,
+                progress: UserCourseProgress {
+                    course_module_id: Uuid::nil(),
+                    course_module_name: "Advanced Chatbot Course".to_string(),
+                    course_module_order_number: 1,
+                    score_given: 8.056,
+                    score_required: Some(8),
+                    score_maximum: Some(10),
+                    total_exercises: Some(5),
+                    attempted_exercises: Some(5),
+                    attempted_exercises_required: Some(5),
+                },
+                completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                    course_module_id: Uuid::nil(),
+                    number_of_exercises_attempted_treshold: Some(5),
+                    number_of_points_treshold: Some(8),
+                    requires_exam: false,
+                }),
             },
-            UserCourseProgress {
-                course_module_id: Uuid::nil(),
-                course_module_name: "First extra module".to_string(),
-                course_module_order_number: 2,
-                score_given: 3.94,
-                score_required: Some(5),
-                score_maximum: Some(6),
-                total_exercises: Some(6),
-                attempted_exercises: Some(4),
-                attempted_exercises_required: Some(5),
+            CourseProgressInfo {
+                order_number: 2,
+                progress: UserCourseProgress {
+                    course_module_id: Uuid::nil(),
+                    course_module_name: "First extra module".to_string(),
+                    course_module_order_number: 2,
+                    score_given: 3.94,
+                    score_required: Some(5),
+                    score_maximum: Some(6),
+                    total_exercises: Some(6),
+                    attempted_exercises: Some(4),
+                    attempted_exercises_required: Some(5),
+                },
+                completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                    course_module_id: Uuid::nil(),
+                    number_of_exercises_attempted_treshold: Some(5),
+                    number_of_points_treshold: Some(5),
+                    requires_exam: false,
+                }),
             },
-            UserCourseProgress {
-                course_module_id: Uuid::nil(),
-                course_module_name: "Chatbot advanced topics".to_string(),
-                course_module_order_number: 4,
-                score_given: 2.0,
-                score_required: None,
-                score_maximum: None,
-                total_exercises: Some(2),
-                attempted_exercises: Some(2),
-                attempted_exercises_required: None,
+            CourseProgressInfo {
+                order_number: 4,
+                progress: UserCourseProgress {
+                    course_module_id: Uuid::nil(),
+                    course_module_name: "Chatbot advanced topics".to_string(),
+                    course_module_order_number: 4,
+                    score_given: 2.0,
+                    score_required: None,
+                    score_maximum: None,
+                    total_exercises: Some(2),
+                    attempted_exercises: Some(2),
+                    attempted_exercises_required: None,
+                },
+                completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                    course_module_id: Uuid::nil(),
+                    number_of_exercises_attempted_treshold: None,
+                    number_of_points_treshold: None,
+                    requires_exam: false,
+                }),
             },
         ];
 
@@ -320,7 +415,7 @@ mod tests {
 
     #[test]
     fn test_course_progress_output_no_progress() {
-        let progress: Vec<UserCourseProgress> = vec![];
+        let progress: Vec<CourseProgressInfo> = vec![];
 
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -334,16 +429,133 @@ mod tests {
 
     #[test]
     fn test_course_progress_output_no_course_points_exercises() {
-        let progress = vec![UserCourseProgress {
-            course_module_id: Uuid::nil(),
-            course_module_name: "Example base module".to_string(),
-            course_module_order_number: 1,
-            score_given: 0.0,
-            score_required: None,
-            score_maximum: Some(0),
-            total_exercises: Some(0),
-            attempted_exercises: None,
-            attempted_exercises_required: None,
+        let progress = vec![CourseProgressInfo {
+            order_number: 1,
+            progress: UserCourseProgress {
+                course_module_id: Uuid::nil(),
+                course_module_name: "Example base module".to_string(),
+                course_module_order_number: 1,
+                score_given: 0.0,
+                score_required: None,
+                score_maximum: Some(0),
+                total_exercises: Some(0),
+                attempted_exercises: None,
+                attempted_exercises_required: None,
+            },
+            completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                course_module_id: Uuid::nil(),
+                number_of_exercises_attempted_treshold: None,
+                number_of_points_treshold: None,
+                requires_exam: false,
+            }),
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let output = tool.get_tool_output();
+
+        let expected_output = "Result: [output]The user is completing a course called Advanced Chatbot Course. This course has no exercises and no points. It cannot be completed by doing exercises. The user should look for information about completing the course in the course material or contact the teacher.
+        [/output]
+
+        Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.[/instructions]".to_string();
+
+        assert_eq!(output, expected_output);
+    }
+
+    #[test]
+    fn test_course_progress_output_cant_be_completed() {
+        let progress = vec![CourseProgressInfo {
+            order_number: 1,
+            progress: UserCourseProgress {
+                course_module_id: Uuid::nil(),
+                course_module_name: "Example base module".to_string(),
+                course_module_order_number: 1,
+                score_given: 0.0,
+                score_required: Some(9),
+                score_maximum: Some(10),
+                total_exercises: Some(10),
+                attempted_exercises: None,
+                attempted_exercises_required: Some(10),
+            },
+            // cannot be completed automatically
+            completion_policy: CompletionPolicy::Manual,
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let _output = tool.get_tool_output();
+    }
+
+    #[test]
+    fn test_course_progress_output_exercises_required_none() {
+        let progress = vec![CourseProgressInfo {
+            order_number: 1,
+            progress: UserCourseProgress {
+                course_module_id: Uuid::nil(),
+                course_module_name: "Example base module".to_string(),
+                course_module_order_number: 1,
+                score_given: 0.0,
+                score_required: Some(9),
+                score_maximum: Some(10),
+                total_exercises: Some(10),
+                attempted_exercises: None,
+                attempted_exercises_required: None,
+            },
+            completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                course_module_id: Uuid::nil(),
+                number_of_exercises_attempted_treshold: None,
+                number_of_points_treshold: Some(9),
+                requires_exam: false,
+            }),
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let _output = tool.get_tool_output();
+    }
+
+    #[test]
+    fn test_course_progress_output_pts_required_none() {
+        let progress = vec![CourseProgressInfo {
+            order_number: 1,
+            progress: UserCourseProgress {
+                course_module_id: Uuid::nil(),
+                course_module_name: "Example base module".to_string(),
+                course_module_order_number: 1,
+                score_given: 0.0,
+                score_required: None,
+                score_maximum: Some(10),
+                total_exercises: Some(10),
+                attempted_exercises: None,
+                attempted_exercises_required: Some(10),
+            },
+            completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                course_module_id: Uuid::nil(),
+                number_of_exercises_attempted_treshold: Some(10),
+                number_of_points_treshold: None,
+                requires_exam: false,
+            }),
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let _output = tool.get_tool_output();
+    }
+
+    #[test]
+    fn test_course_progress_output_exam_required() {
+        let progress = vec![CourseProgressInfo {
+            order_number: 1,
+            progress: UserCourseProgress {
+                course_module_id: Uuid::nil(),
+                course_module_name: "Example base module".to_string(),
+                course_module_order_number: 1,
+                score_given: 0.0,
+                score_required: Some(9),
+                score_maximum: Some(10),
+                total_exercises: Some(10),
+                attempted_exercises: None,
+                attempted_exercises_required: Some(10),
+            },
+            completion_policy: CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                course_module_id: Uuid::nil(),
+                number_of_exercises_attempted_treshold: Some(10),
+                number_of_points_treshold: Some(9),
+                // requires exam!
+                requires_exam: true,
+            }),
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let _output = tool.get_tool_output();

@@ -166,6 +166,9 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
         {postThresholdForModuleMutation.isError && (
           <ErrorBanner variant="readOnly" error={postThresholdForModuleMutation.error} />
         )}
+        {deleteThresholdForModuleMutation.isError && (
+          <ErrorBanner variant="readOnly" error={deleteThresholdForModuleMutation.error} />
+        )}
         {(courseStructureQuery.isLoading || thresholdsQuery.isLoading) && (
           <Spinner variant="medium" />
         )}

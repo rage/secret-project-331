@@ -50,6 +50,7 @@ test.describe("Teacher can set threshold for course", () => {
       .fill("48")
 
     await teacherPage.getByRole("button", { name: "Save threshold" }).first().click()
+    await teacherPage.getByText("Threshold saved successfully").waitFor()
 
     // Student 1 navigates to exercise and answers
     await answerExercise(student1Page, TEST_PAGE, "a")

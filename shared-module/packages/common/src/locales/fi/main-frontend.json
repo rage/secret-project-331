@@ -968,7 +968,6 @@
   "text-visible-when-feedback-given": "Teksti näkyvillä kun palaute oli annettu",
   "this-field-required": "Tämä kenttä on vaadittu",
   "threshold-added-successfully": "Kynnysarvo lisätty onnistuneesti",
-  "threshold-created-successfully": "Kynnysarvo luotu onnistuneesti",
   "threshold-must-be-non-negative": "Kynnysarvon tulee olla ei-negatiivinen",
   "tick-the-box-if-you-want-email-after-credits-have-been-registered": "Jos haluat sähköpostiviestin kun suoritus on kirjattu, täytä ruutu 'Opintosuorituksista lähetetään ilmoitus sähköpostiini (sisältää arvosanan)'.",
   "time-granularity": "Ajan tarkkuus",

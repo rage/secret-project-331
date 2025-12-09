@@ -1,4 +1,3 @@
-// services/headless-lms/server/src/programs/seed/builder/certificate.rs
 use anyhow::{Context, Result};
 use sqlx::PgConnection;
 use uuid::Uuid;

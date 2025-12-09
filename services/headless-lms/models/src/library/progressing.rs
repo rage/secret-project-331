@@ -1236,7 +1236,7 @@ mod tests {
         )
         .await
         .unwrap();
-        suspected_cheaters::insert_thresholds(tx.as_mut(), course, 172800)
+        suspected_cheaters::insert_thresholds_by_module_id(tx.as_mut(), course_module.id, 172800)
             .await
             .unwrap();
         update_automatic_completion_status_and_grant_if_eligible(tx.as_mut(), &course_module, user)

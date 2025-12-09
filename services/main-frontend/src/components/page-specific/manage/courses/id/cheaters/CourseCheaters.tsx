@@ -65,6 +65,15 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
     return thresholdsMap
   }, [thresholdsQuery.data])
 
+  const sortedModules = useMemo(() => {
+    if (!courseStructureQuery.data?.modules) {
+      return []
+    }
+    return [...courseStructureQuery.data.modules].sort(
+      (a: CourseModule, b: CourseModule) => a.order_number - b.order_number,
+    )
+  }, [courseStructureQuery.data?.modules])
+
   const [moduleThresholds, setModuleThresholds] = useState<Map<string, number | undefined>>(
     () => new Map(),
   )
@@ -248,105 +257,102 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
                 </tr>
               </thead>
               <tbody>
-                {courseStructureQuery.data.modules
-                  .sort((a: CourseModule, b: CourseModule) => a.order_number - b.order_number)
-                  .map((module: CourseModule) => {
-                    const savedDurationHours = savedThresholds.get(module.id)
-                    const isEdited = moduleThresholds.has(module.id)
-                    const editedDurationHours = moduleThresholds.get(module.id)
-                    const durationHours = isEdited ? editedDurationHours : savedDurationHours
-                    const isDefault = module.name === null
-                    const moduleName = module.name ?? t("default-module")
-                    const hasValue = durationHours !== undefined
-                    const hasSavedValue = savedDurationHours !== undefined
-                    const isRemoving =
-                      hasSavedValue && isEdited && editedDurationHours === undefined
-                    const isSaved =
-                      !isEdited ||
-                      (hasValue &&
-                        hasSavedValue &&
-                        Math.abs((durationHours ?? 0) - (savedDurationHours ?? 0)) < 0.01) ||
-                      (!hasValue && !hasSavedValue)
-                    // eslint-disable-next-line i18next/no-literal-string
-                    const inputId = `duration-input-${module.id}`
-                    // eslint-disable-next-line i18next/no-literal-string
-                    const labelId = `${inputId}-label`
-                    return (
-                      <tr key={module.id}>
-                        <td>{isDefault ? <strong>{moduleName}</strong> : moduleName}</td>
-                        <td>
-                          <span
-                            id={labelId}
-                            className={css`
-                              position: absolute;
-                              width: 1px;
-                              height: 1px;
-                              padding: 0;
-                              margin: -1px;
-                              overflow: hidden;
-                              clip-path: inset(50%);
-                              white-space: nowrap;
-                              border-width: 0;
-                            `}
-                          >
-                            {moduleName}
-                          </span>
-                          <div
-                            className={css`
-                              display: inline-block;
-                              vertical-align: middle;
-                            `}
-                          >
-                            <TextField
-                              id={inputId}
-                              className="duration-threshold"
-                              type="number"
-                              aria-labelledby={`duration-header ${labelId}`}
-                              value={durationHours?.toString() ?? ""}
-                              onChangeByValue={(value: string) => {
-                                const parsed = parseInt(value)
-                                if (isNaN(parsed)) {
-                                  setModuleThresholds((prev) => {
-                                    const next = new Map(prev)
-                                    next.set(module.id, undefined)
-                                    return next
-                                  })
-                                  return
-                                }
+                {sortedModules.map((module: CourseModule) => {
+                  const savedDurationHours = savedThresholds.get(module.id)
+                  const isEdited = moduleThresholds.has(module.id)
+                  const editedDurationHours = moduleThresholds.get(module.id)
+                  const durationHours = isEdited ? editedDurationHours : savedDurationHours
+                  const isDefault = module.name === null
+                  const moduleName = module.name ?? t("default-module")
+                  const hasValue = durationHours !== undefined
+                  const hasSavedValue = savedDurationHours !== undefined
+                  const isRemoving = hasSavedValue && isEdited && editedDurationHours === undefined
+                  const isSaved =
+                    !isEdited ||
+                    (hasValue &&
+                      hasSavedValue &&
+                      Math.abs((durationHours ?? 0) - (savedDurationHours ?? 0)) < 0.01) ||
+                    (!hasValue && !hasSavedValue)
+                  // eslint-disable-next-line i18next/no-literal-string
+                  const inputId = `duration-input-${module.id}`
+                  // eslint-disable-next-line i18next/no-literal-string
+                  const labelId = `${inputId}-label`
+                  return (
+                    <tr key={module.id}>
+                      <td>{isDefault ? <strong>{moduleName}</strong> : moduleName}</td>
+                      <td>
+                        <span
+                          id={labelId}
+                          className={css`
+                            position: absolute;
+                            width: 1px;
+                            height: 1px;
+                            padding: 0;
+                            margin: -1px;
+                            overflow: hidden;
+                            clip-path: inset(50%);
+                            white-space: nowrap;
+                            border-width: 0;
+                          `}
+                        >
+                          {moduleName}
+                        </span>
+                        <div
+                          className={css`
+                            display: inline-block;
+                            vertical-align: middle;
+                          `}
+                        >
+                          <TextField
+                            id={inputId}
+                            className="duration-threshold"
+                            type="number"
+                            aria-labelledby={`duration-header ${labelId}`}
+                            value={durationHours?.toString() ?? ""}
+                            onChangeByValue={(value: string) => {
+                              const parsed = parseInt(value)
+                              if (isNaN(parsed)) {
                                 setModuleThresholds((prev) => {
                                   const next = new Map(prev)
-                                  next.set(module.id, parsed)
+                                  next.set(module.id, undefined)
                                   return next
                                 })
-                              }}
-                            />
-                          </div>
-                        </td>
-                        <td>
-                          <Button
-                            variant={isSaved ? "secondary" : isRemoving ? "reject" : "primary"}
-                            size="medium"
-                            disabled={
-                              (!hasValue && !hasSavedValue) ||
-                              postThresholdForModuleMutation.isPending ||
-                              deleteThresholdForModuleMutation.isPending ||
-                              isSaved
-                            }
-                            onClick={() => handleUpdateThreshold(module.id, durationHours)}
-                            className={css`
-                              min-width: 140px;
-                            `}
-                          >
-                            {isSaved
-                              ? t("saved")
-                              : isRemoving
-                                ? t("remove-threshold")
-                                : t("set-threshold")}
-                          </Button>
-                        </td>
-                      </tr>
-                    )
-                  })}
+                                return
+                              }
+                              setModuleThresholds((prev) => {
+                                const next = new Map(prev)
+                                next.set(module.id, parsed)
+                                return next
+                              })
+                            }}
+                          />
+                        </div>
+                      </td>
+                      <td>
+                        <Button
+                          variant={isSaved ? "secondary" : isRemoving ? "reject" : "primary"}
+                          size="medium"
+                          disabled={
+                            (!hasValue && !hasSavedValue) ||
+                            postThresholdForModuleMutation.isPending ||
+                            deleteThresholdForModuleMutation.isPending ||
+                            isSaved
+                          }
+                          onClick={() => handleUpdateThreshold(module.id, durationHours)}
+                          className={css`
+                            min-width: 140px;
+                          `}
+                        >
+                          {isSaved
+                            ? t("saved")
+                            : isRemoving
+                              ? t("remove-threshold")
+                              : t("set-threshold")}
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

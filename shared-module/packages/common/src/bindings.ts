@@ -1178,6 +1178,7 @@ export interface GeneratedCertificate {
 
 export interface CertificateUpdateRequest {
   date_issued: string
+  name_on_certificate: string | null
 }
 
 export interface Term {

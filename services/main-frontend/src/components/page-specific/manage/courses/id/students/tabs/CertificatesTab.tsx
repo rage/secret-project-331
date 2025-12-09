@@ -51,6 +51,7 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
   const [editData, setEditData] = useState<{
     id: string
     date: string | null
+    name_on_certificate: string
   } | null>(null)
 
   const query = useQuery({
@@ -110,6 +111,7 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
             setEditData({
               id: row.original.certificate_id!,
               date: row.original.date_issued,
+              name_on_certificate: "",
             })
           }
         }
@@ -169,23 +171,65 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
         <StandardDialog
           open={true}
           onClose={() => setEditData(null)}
-          title={t("edit-date-issued")}
+          title={t("edit-certificate")}
           showCloseButton={true}
           isDismissable={true}
           noPadding={false}
           className={css`
-            width: 360px !important; /* narrower dialog */
-            max-width: 90vw !important; /* prevent overflow on small screens */
+            width: 360px !important;
+            max-width: 90vw !important;
           `}
         >
-          <input
-            type="date"
-            value={editData.date?.substring(0, 10) ?? ""}
-            onChange={(e) =>
-              setEditData((prev) => (prev ? { ...prev, date: e.target.value } : prev))
-            }
-          />
+          {/* NAME FIELD */}
+          <label
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+              margin-bottom: 1rem;
+              font-size: 14px;
+            `}
+          >
+            {t("name-on-certificate")}
+            <input
+              type="text"
+              placeholder={t("name-on-certificate")}
+              value={editData.name_on_certificate}
+              onChange={(e) =>
+                setEditData((prev) =>
+                  prev ? { ...prev, name_on_certificate: e.target.value } : prev,
+                )
+              }
+              className={css`
+                height: 32px;
+                padding: 4px 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+              `}
+            />
+          </label>
 
+          {/* DATE FIELD */}
+          <label
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+              margin-bottom: 1rem;
+              font-size: 14px;
+            `}
+          >
+            {t("date-issued")}
+            <input
+              type="date"
+              value={editData.date?.substring(0, 10) ?? ""}
+              onChange={(e) =>
+                setEditData((prev) => (prev ? { ...prev, date: e.target.value } : prev))
+              }
+            />
+          </label>
+
+          {/* ACTION BUTTONS */}
           <div
             className={css`
               display: flex;
@@ -200,7 +244,15 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
               variant="primary"
               onClick={async () => {
                 const iso = new Date(editData.date ?? "").toISOString()
-                const payload: CertificateUpdateRequest = { date_issued: iso }
+
+                const payload: CertificateUpdateRequest = {
+                  date_issued: iso,
+                  name_on_certificate:
+                    editData.name_on_certificate?.trim() === ""
+                      ? null
+                      : editData.name_on_certificate,
+                }
+
                 await updateCertificate(editData.id, payload)
                 setEditData(null)
                 query.refetch()

@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    SELECT\n        ud.first_name,\n        ud.last_name,\n        u.id AS user_id,\n        ud.email AS \"email?\",\n        ci.name AS course_instance\n    FROM course_instance_enrollments AS cie\n    JOIN users              AS u  ON u.id = cie.user_id\n    LEFT JOIN user_details  AS ud ON ud.user_id = u.id\n    JOIN course_instances   AS ci ON ci.id = cie.course_instance_id\n    WHERE cie.course_id = $1\n        AND cie.deleted_at IS NULL\n    ORDER BY 1, user_id\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "email?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_instance",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "124e09750e08df617af26cb7fb526ab786660da2de677bb518cbf9bed326bcb3"
+}

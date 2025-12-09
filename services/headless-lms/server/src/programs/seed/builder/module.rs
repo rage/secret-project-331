@@ -127,7 +127,7 @@ impl CompletionBuilder {
         course_module_id: Uuid,
         default_registrar_id: Option<Uuid>,
     ) -> anyhow::Result<()> {
-        let inserted_id_opt = course_module_completions::insert_if_missing(
+        let completion_id = course_module_completions::insert_seed_row(
             conn,
             course_id,
             course_module_id,
@@ -141,21 +141,9 @@ impl CompletionBuilder {
             self.prerequisite_modules_completed,
             self.needs_to_be_reviewed,
         )
-        .await
-        .context("insert_if_missing")?;
+        .await?;
 
-        let completion_id = if let Some(id) = inserted_id_opt {
-            id
-        } else {
-            course_module_completions::find_existing(
-                conn,
-                course_id,
-                course_module_id,
-                self.user_id,
-            )
-            .await?
-        };
-
+        // Mark registration attempt (seed always sets this)
         course_module_completions::update_registration_attempt(conn, completion_id)
             .await
             .ok();

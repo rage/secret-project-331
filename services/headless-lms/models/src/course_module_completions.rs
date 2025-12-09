@@ -137,6 +137,48 @@ RETURNING *
     Ok(res)
 }
 
+pub async fn insert_seed_row(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_module_id: Uuid,
+    user_id: Uuid,
+    completion_date: Option<DateTime<Utc>>,
+    completion_language: Option<&str>,
+    eligible_for_ects: Option<bool>,
+    email: Option<&str>,
+    grade: Option<i32>,
+    passed: Option<bool>,
+    prerequisite_modules_completed: Option<bool>,
+    needs_to_be_reviewed: Option<bool>,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        r#"
+        INSERT INTO course_module_completions (
+            course_id, course_module_id, user_id, completion_date,
+            completion_language, eligible_for_ects, email, grade, passed,
+            prerequisite_modules_completed, needs_to_be_reviewed
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        RETURNING id
+        "#,
+        course_id,
+        course_module_id,
+        user_id,
+        completion_date,
+        completion_language,
+        eligible_for_ects,
+        email,
+        grade,
+        passed,
+        prerequisite_modules_completed,
+        needs_to_be_reviewed,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res.id)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModuleCompletion> {
     let res = sqlx::query_as!(
         CourseModuleCompletion,
@@ -732,56 +774,6 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
-}
-
-pub async fn insert_if_missing(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    course_module_id: Uuid,
-    user_id: Uuid,
-    completion_date: Option<DateTime<Utc>>,
-    completion_language: Option<&str>,
-    eligible_for_ects: Option<bool>,
-    email: Option<&str>,
-    grade: Option<i32>,
-    passed: Option<bool>,
-    prerequisite_modules_completed: Option<bool>,
-    needs_to_be_reviewed: Option<bool>,
-) -> ModelResult<Option<Uuid>> {
-    let row = sqlx::query!(
-        r#"
-        INSERT INTO course_module_completions (
-            course_id, course_module_id, user_id, completion_date,
-            completion_language, eligible_for_ects, email, grade, passed,
-            prerequisite_modules_completed, needs_to_be_reviewed
-        )
-        SELECT $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
-        WHERE NOT EXISTS (
-            SELECT 1 FROM course_module_completions
-            WHERE course_id = $1
-              AND course_module_id = $2
-              AND user_id = $3
-              AND completion_granter_user_id IS NULL
-              AND deleted_at IS NULL
-        )
-        RETURNING id
-        "#,
-        course_id,
-        course_module_id,
-        user_id,
-        completion_date,
-        completion_language,
-        eligible_for_ects,
-        email,
-        grade,
-        passed,
-        prerequisite_modules_completed,
-        needs_to_be_reviewed,
-    )
-    .fetch_optional(conn)
-    .await?;
-
-    Ok(row.map(|r| r.id))
 }
 
 pub async fn find_existing(

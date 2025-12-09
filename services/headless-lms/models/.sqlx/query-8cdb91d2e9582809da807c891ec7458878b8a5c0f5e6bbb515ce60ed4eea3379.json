@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE generated_certificates\n        SET created_at = $1,\n            updated_at = NOW()\n        WHERE id = $2\n          AND deleted_at IS NULL\n        RETURNING *\n        ",
+  "query": "\n        UPDATE generated_certificates\n        SET\n            created_at = COALESCE($1, created_at),\n            name_on_certificate = COALESCE($2, name_on_certificate),\n            updated_at = NOW()\n        WHERE id = $3\n          AND deleted_at IS NULL\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -47,6 +47,7 @@
     "parameters": {
       "Left": [
         "Timestamptz",
+        "Varchar",
         "Uuid"
       ]
     },
@@ -61,5 +62,5 @@
       false
     ]
   },
-  "hash": "dc6fce5d47a3ec2e06c3877b494fda7dd886a2d94abef7a18d5f2c98c11d60f4"
+  "hash": "8cdb91d2e9582809da807c891ec7458878b8a5c0f5e6bbb515ce60ed4eea3379"
 }

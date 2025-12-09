@@ -502,8 +502,6 @@ pub async fn update_generated_certificate(
 ) -> ControllerResult<web::Json<GeneratedCertificate>> {
     let mut conn = pool.acquire().await?;
 
-    // Teacher can edit certificates for a course
-    // (We lookup the course via requirements->course_module->course_id)
     let cert = models::generated_certificates::get_by_id(&mut conn, *certificate_id).await?;
 
     // find course_id for authorization
@@ -525,10 +523,11 @@ pub async fn update_generated_certificate(
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    let updated = models::generated_certificates::update_date_issued(
+    let updated = models::generated_certificates::update_certificate(
         &mut conn,
         *certificate_id,
-        payload.date_issued,
+        Some(payload.date_issued),
+        payload.name_on_certificate.clone(),
     )
     .await?;
 

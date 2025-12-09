@@ -124,63 +124,38 @@ impl CompletionBuilder {
         course_module_id: Uuid,
         default_registrar_id: Option<Uuid>,
     ) -> anyhow::Result<()> {
-        let inserted_row: Option<PgRow> = sqlx::query(
-            r#"
-            INSERT INTO course_module_completions (
-                course_id, course_module_id, user_id, completion_date,
-                completion_language, eligible_for_ects, email, grade, passed,
-                prerequisite_modules_completed, needs_to_be_reviewed
-            )
-            SELECT $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
-            WHERE NOT EXISTS (
-            SELECT 1 FROM course_module_completions
-            WHERE course_id=$1 AND course_module_id=$2 AND user_id=$3
-                AND completion_granter_user_id IS NULL AND deleted_at IS NULL
-            )
-            RETURNING id
-            "#,
+        let inserted_id_opt = course_module_completions::insert_if_missing(
+            conn,
+            course_id,
+            course_module_id,
+            self.user_id,
+            self.completion_date,
+            self.completion_language.as_deref(),
+            self.eligible_for_ects,
+            self.email.as_deref(),
+            self.grade,
+            self.passed,
+            self.prerequisite_modules_completed,
+            self.needs_to_be_reviewed,
         )
-        .bind(course_id)
-        .bind(course_module_id)
-        .bind(self.user_id)
-        .bind(self.completion_date)
-        .bind(self.completion_language.as_deref())
-        .bind(self.eligible_for_ects)
-        .bind(self.email.as_deref())
-        .bind(self.grade)
-        .bind(self.passed)
-        .bind(self.prerequisite_modules_completed)
-        .bind(self.needs_to_be_reviewed)
-        .fetch_optional(&mut *conn)
         .await
-        .context("inserting course_module_completion")?;
+        .context("insert_if_missing")?;
 
-        let completion_id: Uuid = if let Some(row) = inserted_row {
-            row.try_get::<Uuid, _>("id")?
+        let completion_id = if let Some(id) = inserted_id_opt {
+            id
         } else {
-            sqlx::query(
-                r#"
-                SELECT id FROM course_module_completions
-                WHERE course_id=$1 AND course_module_id=$2 AND user_id=$3
-                AND completion_granter_user_id IS NULL AND deleted_at IS NULL
-                "#,
+            course_module_completions::find_existing(
+                conn,
+                course_id,
+                course_module_id,
+                self.user_id,
             )
-            .bind(course_id)
-            .bind(course_module_id)
-            .bind(self.user_id)
-            .map(|row: PgRow| row.try_get::<Uuid, _>("id").unwrap())
-            .fetch_one(&mut *conn)
             .await?
         };
 
-        let _ = sqlx::query(
-            "UPDATE course_module_completions
-            SET completion_registration_attempt_date = now()
-            WHERE id=$1",
-        )
-        .bind(completion_id)
-        .execute(&mut *conn)
-        .await;
+        course_module_completions::update_registration_attempt(conn, completion_id)
+            .await
+            .ok();
 
         if let Some(r) = &self.register {
             let registrar_id = if let Some(id) = r.registrar_id {
@@ -192,25 +167,17 @@ impl CompletionBuilder {
             };
 
             if let Some(student_number) = &r.real_student_number {
-                sqlx::query(
-                    r#"
-                    INSERT INTO course_module_completion_registered_to_study_registries (
-                        course_id, course_module_completion_id, course_module_id,
-                        study_registry_registrar_id, user_id, real_student_number
-                    )
-                    VALUES ($1,$2,$3,$4,$5,$6)
-                    ON CONFLICT DO NOTHING
-                    "#,
+                course_module_completion_registered_to_study_registries::insert_record(
+                    conn,
+                    course_id,
+                    completion_id,
+                    course_module_id,
+                    registrar_id,
+                    self.user_id,
+                    student_number,
                 )
-                .bind(course_id)
-                .bind(completion_id)
-                .bind(course_module_id)
-                .bind(registrar_id)
-                .bind(self.user_id)
-                .bind(student_number)
-                .execute(&mut *conn)
                 .await
-                .context("inserting registry record")?;
+                .context("insert registry record")?;
             }
         }
 

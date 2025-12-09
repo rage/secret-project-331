@@ -733,3 +733,97 @@ WHERE id = $1
     .await?;
     Ok(())
 }
+
+pub async fn insert_if_missing(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_module_id: Uuid,
+    user_id: Uuid,
+    completion_date: Option<DateTime<Utc>>,
+    completion_language: Option<&str>,
+    eligible_for_ects: Option<bool>,
+    email: Option<&str>,
+    grade: Option<i32>,
+    passed: Option<bool>,
+    prerequisite_modules_completed: Option<bool>,
+    needs_to_be_reviewed: Option<bool>,
+) -> ModelResult<Option<Uuid>> {
+    let row = sqlx::query!(
+        r#"
+        INSERT INTO course_module_completions (
+            course_id, course_module_id, user_id, completion_date,
+            completion_language, eligible_for_ects, email, grade, passed,
+            prerequisite_modules_completed, needs_to_be_reviewed
+        )
+        SELECT $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+        WHERE NOT EXISTS (
+            SELECT 1 FROM course_module_completions
+            WHERE course_id = $1
+              AND course_module_id = $2
+              AND user_id = $3
+              AND completion_granter_user_id IS NULL
+              AND deleted_at IS NULL
+        )
+        RETURNING id
+        "#,
+        course_id,
+        course_module_id,
+        user_id,
+        completion_date,
+        completion_language,
+        eligible_for_ects,
+        email,
+        grade,
+        passed,
+        prerequisite_modules_completed,
+        needs_to_be_reviewed,
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(row.map(|r| r.id))
+}
+
+pub async fn find_existing(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_module_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Uuid> {
+    let row = sqlx::query!(
+        r#"
+        SELECT id
+        FROM course_module_completions
+        WHERE course_id = $1
+          AND course_module_id = $2
+          AND user_id = $3
+          AND completion_granter_user_id IS NULL
+          AND deleted_at IS NULL
+        "#,
+        course_id,
+        course_module_id,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(row.id)
+}
+
+pub async fn update_registration_attempt(
+    conn: &mut PgConnection,
+    completion_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+        UPDATE course_module_completions
+        SET completion_registration_attempt_date = now()
+        WHERE id = $1
+        "#,
+        completion_id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}

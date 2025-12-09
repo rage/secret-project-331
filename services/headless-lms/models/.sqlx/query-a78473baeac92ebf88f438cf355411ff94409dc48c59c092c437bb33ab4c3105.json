@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO oauth_access_tokens\n              (digest, user_id, client_id, scopes, audience, token_type, dpop_jkt, metadata, expires_at)\n            VALUES\n              ($1,    $2,     $3,       $4,     $5,       $6,         $7,       $8,       $9)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        {
+          "Custom": {
+            "name": "token_type",
+            "kind": {
+              "Enum": [
+                "Bearer",
+                "DPoP"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Jsonb",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a78473baeac92ebf88f438cf355411ff94409dc48c59c092c437bb33ab4c3105"
+}

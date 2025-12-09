@@ -657,6 +657,7 @@ pub async fn delete_exercises_by_page_id(
 UPDATE exercises
 SET deleted_at = now()
 WHERE page_id = $1
+AND deleted_at IS NULL
 RETURNING id;
         ",
         page_id

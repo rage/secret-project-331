@@ -41,7 +41,7 @@ pub trait ChatbotTool {
 
         if let Some(i) = instructions {
             format!(
-                "Result: [output]{output}[/output] \n\nInstructions for describing the output: [instructions]{i}[/instructions]"
+                "Result: [output]{output}[/output]\n\nInstructions for describing the output: [instructions]{i}[/instructions]"
             )
         } else {
             output

@@ -178,6 +178,7 @@ pub async fn delete_by_id(conn: &mut PgConnection, code_id: Uuid) -> ModelResult
 UPDATE code_giveaway_codes
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING *
         "#,
         code_id

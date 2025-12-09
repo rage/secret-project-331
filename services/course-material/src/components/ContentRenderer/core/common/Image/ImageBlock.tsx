@@ -1,4 +1,6 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
+import "react"
 import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
@@ -13,6 +15,12 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 interface ExtraAttributes {
   align?: string
 }
+
+const StyledZoomWrapper = styled.div`
+  [data-rmiz-ghost] {
+    display: none;
+  }
+`
 
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
@@ -72,10 +80,6 @@ const ImageBlock: React.FC<
         `
         float: ${align};
         margin-right: 1em;`}
-
-        [data-rmiz-ghost] {
-          display: none;
-        }
       `}
     >
       <figure
@@ -115,7 +119,13 @@ const ImageBlock: React.FC<
     </div>
   )
 
-  return disableInteractivity ? imageContent : <Zoom>{imageContent}</Zoom>
+  return disableInteractivity ? (
+    imageContent
+  ) : (
+    <StyledZoomWrapper>
+      <Zoom>{imageContent}</Zoom>
+    </StyledZoomWrapper>
+  )
 }
 
 export default withErrorBoundary(ImageBlock)

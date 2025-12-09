@@ -50,10 +50,10 @@ export const QUIZ_TITLE_STYLE = `
 
 export const TWO_DIMENSIONAL_BUTTON_SELECTED = `
   background: #f1f4f9;
-  border-color: #718dbf;
+  border-color: #3d5a8f;
   box-shadow:
     rgba(45, 35, 66, 0) 0 4px 8px,
     rgba(45, 35, 66, 0) 0 7px 13px -3px,
-    #718dbf 0 -2px 0 inset;
+    #3d5a8f 0 -2px 0 inset;
   color: #4c5868;
 `

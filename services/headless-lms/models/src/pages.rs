@@ -1688,6 +1688,7 @@ pub async fn upsert_peer_or_self_review_configs(
         processing_strategy,
         accepting_threshold,
         points_are_all_or_nothing,
+        reset_answer_if_zero_points_from_review,
         review_instructions,
         deleted_at
       ) ",
@@ -1723,6 +1724,7 @@ pub async fn upsert_peer_or_self_review_configs(
                 .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push_bind(pr.points_are_all_or_nothing)
+                .push_bind(pr.reset_answer_if_zero_points_from_review)
                 .push_bind(pr.review_instructions.clone())
                 .push("NULL");
         });
@@ -1770,6 +1772,7 @@ SELECT id as "id!",
   processing_strategy AS "processing_strategy!: _",
   accepting_threshold "accepting_threshold!",
   points_are_all_or_nothing "points_are_all_or_nothing!",
+  reset_answer_if_zero_points_from_review,
   review_instructions
 FROM peer_or_self_review_configs
 WHERE id IN (
@@ -2192,6 +2195,7 @@ pub async fn delete_page_and_exercises(
 UPDATE pages
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING id,
   created_at,
   updated_at,
@@ -3603,6 +3607,7 @@ mod test {
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
             points_are_all_or_nothing: false,
+            reset_answer_if_zero_points_from_review: false,
             review_instructions: None,
         };
         let prq = CmsPeerOrSelfReviewQuestion {
@@ -3655,6 +3660,7 @@ mod test {
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
             points_are_all_or_nothing: true,
+            reset_answer_if_zero_points_from_review: false,
             review_instructions: None,
         };
         let prq = CmsPeerOrSelfReviewQuestion {

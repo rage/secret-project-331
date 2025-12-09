@@ -107,6 +107,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
 UPDATE exercise_repositories
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 ",
         id
     )

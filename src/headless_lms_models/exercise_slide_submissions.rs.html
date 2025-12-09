@@ -951,11 +951,12 @@
 <a href=#951 id=951 data-nosnippet>951</a>UPDATE exercise_slide_submissions
 <a href=#952 id=952 data-nosnippet>952</a>SET deleted_at = now()
 <a href=#953 id=953 data-nosnippet>953</a>WHERE exam_id = $1 AND user_id = $2
-<a href=#954 id=954 data-nosnippet>954</a>    "</span>,
-<a href=#955 id=955 data-nosnippet>955</a>        exam_id,
-<a href=#956 id=956 data-nosnippet>956</a>        user_id,
-<a href=#957 id=957 data-nosnippet>957</a>    )
-<a href=#958 id=958 data-nosnippet>958</a>    .execute(<span class="kw-2">&amp;mut *</span>conn)
-<a href=#959 id=959 data-nosnippet>959</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#960 id=960 data-nosnippet>960</a>    <span class="prelude-val">Ok</span>(())
-<a href=#961 id=961 data-nosnippet>961</a>}</code></pre></div></section></main></body></html>
+<a href=#954 id=954 data-nosnippet>954</a>AND deleted_at IS NULL
+<a href=#955 id=955 data-nosnippet>955</a>    "</span>,
+<a href=#956 id=956 data-nosnippet>956</a>        exam_id,
+<a href=#957 id=957 data-nosnippet>957</a>        user_id,
+<a href=#958 id=958 data-nosnippet>958</a>    )
+<a href=#959 id=959 data-nosnippet>959</a>    .execute(<span class="kw-2">&amp;mut *</span>conn)
+<a href=#960 id=960 data-nosnippet>960</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#961 id=961 data-nosnippet>961</a>    <span class="prelude-val">Ok</span>(())
+<a href=#962 id=962 data-nosnippet>962</a>}</code></pre></div></section></main></body></html>

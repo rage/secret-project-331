@@ -107,61 +107,62 @@
 <a href=#107 id=107 data-nosnippet>107</a>UPDATE exercise_repositories
 <a href=#108 id=108 data-nosnippet>108</a>SET deleted_at = now()
 <a href=#109 id=109 data-nosnippet>109</a>WHERE id = $1
-<a href=#110 id=110 data-nosnippet>110</a>"</span>,
-<a href=#111 id=111 data-nosnippet>111</a>        id
-<a href=#112 id=112 data-nosnippet>112</a>    )
-<a href=#113 id=113 data-nosnippet>113</a>    .execute(conn)
-<a href=#114 id=114 data-nosnippet>114</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#115 id=115 data-nosnippet>115</a>    <span class="prelude-val">Ok</span>(())
-<a href=#116 id=116 data-nosnippet>116</a>}
-<a href=#117 id=117 data-nosnippet>117</a>
-<a href=#118 id=118 data-nosnippet>118</a><span class="kw">pub async fn </span>get_for_course_or_exam(
-<a href=#119 id=119 data-nosnippet>119</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#120 id=120 data-nosnippet>120</a>    id: CourseOrExamId,
-<a href=#121 id=121 data-nosnippet>121</a>) -&gt; ModelResult&lt;Vec&lt;ExerciseRepository&gt;&gt; {
-<a href=#122 id=122 data-nosnippet>122</a>    <span class="kw">let </span>(course_id, exam_id) = id.to_course_and_exam_ids();
-<a href=#123 id=123 data-nosnippet>123</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#124 id=124 data-nosnippet>124</a>        ExerciseRepository,
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="string">r#"
-<a href=#126 id=126 data-nosnippet>126</a>SELECT id,
-<a href=#127 id=127 data-nosnippet>127</a>  url,
-<a href=#128 id=128 data-nosnippet>128</a>  course_id,
-<a href=#129 id=129 data-nosnippet>129</a>  exam_id,
-<a href=#130 id=130 data-nosnippet>130</a>  status AS "status: ExerciseRepositoryStatus",
-<a href=#131 id=131 data-nosnippet>131</a>  error_message
-<a href=#132 id=132 data-nosnippet>132</a>FROM exercise_repositories
-<a href=#133 id=133 data-nosnippet>133</a>WHERE (
-<a href=#134 id=134 data-nosnippet>134</a>    course_id = $1
-<a href=#135 id=135 data-nosnippet>135</a>    OR exam_id = $2
-<a href=#136 id=136 data-nosnippet>136</a>  )
-<a href=#137 id=137 data-nosnippet>137</a>  AND deleted_at IS NULL
-<a href=#138 id=138 data-nosnippet>138</a>"#</span>,
-<a href=#139 id=139 data-nosnippet>139</a>        course_id,
-<a href=#140 id=140 data-nosnippet>140</a>        exam_id
-<a href=#141 id=141 data-nosnippet>141</a>    )
-<a href=#142 id=142 data-nosnippet>142</a>    .fetch_all(conn)
-<a href=#143 id=143 data-nosnippet>143</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#144 id=144 data-nosnippet>144</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#145 id=145 data-nosnippet>145</a>}
-<a href=#146 id=146 data-nosnippet>146</a>
-<a href=#147 id=147 data-nosnippet>147</a><span class="attr">#[derive(Debug, Deserialize)]
-<a href=#148 id=148 data-nosnippet>148</a></span><span class="kw">pub struct </span>ExerciseRepositoryUpdate {
-<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">pub </span>url: String,
-<a href=#150 id=150 data-nosnippet>150</a>}
-<a href=#151 id=151 data-nosnippet>151</a>
-<a href=#152 id=152 data-nosnippet>152</a><span class="kw">pub async fn </span>update(
-<a href=#153 id=153 data-nosnippet>153</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#154 id=154 data-nosnippet>154</a>    id: Uuid,
-<a href=#155 id=155 data-nosnippet>155</a>    update: <span class="kw-2">&amp;</span>ExerciseRepositoryUpdate,
-<a href=#156 id=156 data-nosnippet>156</a>) -&gt; ModelResult&lt;()&gt; {
-<a href=#157 id=157 data-nosnippet>157</a>    <span class="macro">sqlx::query!</span>(
-<a href=#158 id=158 data-nosnippet>158</a>        <span class="string">"
-<a href=#159 id=159 data-nosnippet>159</a>UPDATE exercise_repositories SET url = $1 WHERE id = $2
-<a href=#160 id=160 data-nosnippet>160</a>"</span>,
-<a href=#161 id=161 data-nosnippet>161</a>        update.url,
-<a href=#162 id=162 data-nosnippet>162</a>        id
-<a href=#163 id=163 data-nosnippet>163</a>    )
-<a href=#164 id=164 data-nosnippet>164</a>    .execute(conn)
-<a href=#165 id=165 data-nosnippet>165</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#166 id=166 data-nosnippet>166</a>    <span class="prelude-val">Ok</span>(())
-<a href=#167 id=167 data-nosnippet>167</a>}</code></pre></div></section></main></body></html>
+<a href=#110 id=110 data-nosnippet>110</a>AND deleted_at IS NULL
+<a href=#111 id=111 data-nosnippet>111</a>"</span>,
+<a href=#112 id=112 data-nosnippet>112</a>        id
+<a href=#113 id=113 data-nosnippet>113</a>    )
+<a href=#114 id=114 data-nosnippet>114</a>    .execute(conn)
+<a href=#115 id=115 data-nosnippet>115</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#116 id=116 data-nosnippet>116</a>    <span class="prelude-val">Ok</span>(())
+<a href=#117 id=117 data-nosnippet>117</a>}
+<a href=#118 id=118 data-nosnippet>118</a>
+<a href=#119 id=119 data-nosnippet>119</a><span class="kw">pub async fn </span>get_for_course_or_exam(
+<a href=#120 id=120 data-nosnippet>120</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#121 id=121 data-nosnippet>121</a>    id: CourseOrExamId,
+<a href=#122 id=122 data-nosnippet>122</a>) -&gt; ModelResult&lt;Vec&lt;ExerciseRepository&gt;&gt; {
+<a href=#123 id=123 data-nosnippet>123</a>    <span class="kw">let </span>(course_id, exam_id) = id.to_course_and_exam_ids();
+<a href=#124 id=124 data-nosnippet>124</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#125 id=125 data-nosnippet>125</a>        ExerciseRepository,
+<a href=#126 id=126 data-nosnippet>126</a>        <span class="string">r#"
+<a href=#127 id=127 data-nosnippet>127</a>SELECT id,
+<a href=#128 id=128 data-nosnippet>128</a>  url,
+<a href=#129 id=129 data-nosnippet>129</a>  course_id,
+<a href=#130 id=130 data-nosnippet>130</a>  exam_id,
+<a href=#131 id=131 data-nosnippet>131</a>  status AS "status: ExerciseRepositoryStatus",
+<a href=#132 id=132 data-nosnippet>132</a>  error_message
+<a href=#133 id=133 data-nosnippet>133</a>FROM exercise_repositories
+<a href=#134 id=134 data-nosnippet>134</a>WHERE (
+<a href=#135 id=135 data-nosnippet>135</a>    course_id = $1
+<a href=#136 id=136 data-nosnippet>136</a>    OR exam_id = $2
+<a href=#137 id=137 data-nosnippet>137</a>  )
+<a href=#138 id=138 data-nosnippet>138</a>  AND deleted_at IS NULL
+<a href=#139 id=139 data-nosnippet>139</a>"#</span>,
+<a href=#140 id=140 data-nosnippet>140</a>        course_id,
+<a href=#141 id=141 data-nosnippet>141</a>        exam_id
+<a href=#142 id=142 data-nosnippet>142</a>    )
+<a href=#143 id=143 data-nosnippet>143</a>    .fetch_all(conn)
+<a href=#144 id=144 data-nosnippet>144</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#145 id=145 data-nosnippet>145</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#146 id=146 data-nosnippet>146</a>}
+<a href=#147 id=147 data-nosnippet>147</a>
+<a href=#148 id=148 data-nosnippet>148</a><span class="attr">#[derive(Debug, Deserialize)]
+<a href=#149 id=149 data-nosnippet>149</a></span><span class="kw">pub struct </span>ExerciseRepositoryUpdate {
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">pub </span>url: String,
+<a href=#151 id=151 data-nosnippet>151</a>}
+<a href=#152 id=152 data-nosnippet>152</a>
+<a href=#153 id=153 data-nosnippet>153</a><span class="kw">pub async fn </span>update(
+<a href=#154 id=154 data-nosnippet>154</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#155 id=155 data-nosnippet>155</a>    id: Uuid,
+<a href=#156 id=156 data-nosnippet>156</a>    update: <span class="kw-2">&amp;</span>ExerciseRepositoryUpdate,
+<a href=#157 id=157 data-nosnippet>157</a>) -&gt; ModelResult&lt;()&gt; {
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="macro">sqlx::query!</span>(
+<a href=#159 id=159 data-nosnippet>159</a>        <span class="string">"
+<a href=#160 id=160 data-nosnippet>160</a>UPDATE exercise_repositories SET url = $1 WHERE id = $2
+<a href=#161 id=161 data-nosnippet>161</a>"</span>,
+<a href=#162 id=162 data-nosnippet>162</a>        update.url,
+<a href=#163 id=163 data-nosnippet>163</a>        id
+<a href=#164 id=164 data-nosnippet>164</a>    )
+<a href=#165 id=165 data-nosnippet>165</a>    .execute(conn)
+<a href=#166 id=166 data-nosnippet>166</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#167 id=167 data-nosnippet>167</a>    <span class="prelude-val">Ok</span>(())
+<a href=#168 id=168 data-nosnippet>168</a>}</code></pre></div></section></main></body></html>

@@ -69,11 +69,12 @@
 <a href=#69 id=69 data-nosnippet>69</a>UPDATE privacy_links
 <a href=#70 id=70 data-nosnippet>70</a>SET deleted_at = now()
 <a href=#71 id=71 data-nosnippet>71</a>WHERE course_id = $1
-<a href=#72 id=72 data-nosnippet>72</a>RETURNING *
-<a href=#73 id=73 data-nosnippet>73</a>  "#</span>,
-<a href=#74 id=74 data-nosnippet>74</a>        course_id
-<a href=#75 id=75 data-nosnippet>75</a>    )
-<a href=#76 id=76 data-nosnippet>76</a>    .fetch_one(conn)
-<a href=#77 id=77 data-nosnippet>77</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#78 id=78 data-nosnippet>78</a>    <span class="prelude-val">Ok</span>(deleted)
-<a href=#79 id=79 data-nosnippet>79</a>}</code></pre></div></section></main></body></html>
+<a href=#72 id=72 data-nosnippet>72</a>AND deleted_at IS NULL
+<a href=#73 id=73 data-nosnippet>73</a>RETURNING *
+<a href=#74 id=74 data-nosnippet>74</a>  "#</span>,
+<a href=#75 id=75 data-nosnippet>75</a>        course_id
+<a href=#76 id=76 data-nosnippet>76</a>    )
+<a href=#77 id=77 data-nosnippet>77</a>    .fetch_one(conn)
+<a href=#78 id=78 data-nosnippet>78</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="prelude-val">Ok</span>(deleted)
+<a href=#80 id=80 data-nosnippet>80</a>}</code></pre></div></section></main></body></html>

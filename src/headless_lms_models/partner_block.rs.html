@@ -68,29 +68,30 @@
 <a href=#68 id=68 data-nosnippet>68</a>UPDATE partners_blocks
 <a href=#69 id=69 data-nosnippet>69</a>SET deleted_at = now()
 <a href=#70 id=70 data-nosnippet>70</a>WHERE course_id = $1
-<a href=#71 id=71 data-nosnippet>71</a>RETURNING *
-<a href=#72 id=72 data-nosnippet>72</a>  "#</span>,
-<a href=#73 id=73 data-nosnippet>73</a>        course_id
-<a href=#74 id=74 data-nosnippet>74</a>    )
-<a href=#75 id=75 data-nosnippet>75</a>    .fetch_one(conn)
-<a href=#76 id=76 data-nosnippet>76</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#77 id=77 data-nosnippet>77</a>    <span class="prelude-val">Ok</span>(deleted)
-<a href=#78 id=78 data-nosnippet>78</a>}
-<a href=#79 id=79 data-nosnippet>79</a>
-<a href=#80 id=80 data-nosnippet>80</a><span class="kw">pub async fn </span>check_if_course_exists(
-<a href=#81 id=81 data-nosnippet>81</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#82 id=82 data-nosnippet>82</a>    course_id: Uuid,
-<a href=#83 id=83 data-nosnippet>83</a>) -&gt; <span class="prelude-ty">Result</span>&lt;bool, sqlx::Error&gt; {
-<a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">let </span>exists = <span class="macro">sqlx::query!</span>(
-<a href=#85 id=85 data-nosnippet>85</a>        <span class="string">r#"
-<a href=#86 id=86 data-nosnippet>86</a>        SELECT 1 AS exists
-<a href=#87 id=87 data-nosnippet>87</a>        FROM partners_blocks
-<a href=#88 id=88 data-nosnippet>88</a>        WHERE course_id = $1
-<a href=#89 id=89 data-nosnippet>89</a>        LIMIT 1
-<a href=#90 id=90 data-nosnippet>90</a>        "#</span>,
-<a href=#91 id=91 data-nosnippet>91</a>        course_id
-<a href=#92 id=92 data-nosnippet>92</a>    )
-<a href=#93 id=93 data-nosnippet>93</a>    .fetch_optional(conn)
-<a href=#94 id=94 data-nosnippet>94</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#95 id=95 data-nosnippet>95</a>    <span class="prelude-val">Ok</span>(exists.is_some())
-<a href=#96 id=96 data-nosnippet>96</a>}</code></pre></div></section></main></body></html>
+<a href=#71 id=71 data-nosnippet>71</a>AND deleted_at IS NULL
+<a href=#72 id=72 data-nosnippet>72</a>RETURNING *
+<a href=#73 id=73 data-nosnippet>73</a>  "#</span>,
+<a href=#74 id=74 data-nosnippet>74</a>        course_id
+<a href=#75 id=75 data-nosnippet>75</a>    )
+<a href=#76 id=76 data-nosnippet>76</a>    .fetch_one(conn)
+<a href=#77 id=77 data-nosnippet>77</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#78 id=78 data-nosnippet>78</a>    <span class="prelude-val">Ok</span>(deleted)
+<a href=#79 id=79 data-nosnippet>79</a>}
+<a href=#80 id=80 data-nosnippet>80</a>
+<a href=#81 id=81 data-nosnippet>81</a><span class="kw">pub async fn </span>check_if_course_exists(
+<a href=#82 id=82 data-nosnippet>82</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#83 id=83 data-nosnippet>83</a>    course_id: Uuid,
+<a href=#84 id=84 data-nosnippet>84</a>) -&gt; <span class="prelude-ty">Result</span>&lt;bool, sqlx::Error&gt; {
+<a href=#85 id=85 data-nosnippet>85</a>    <span class="kw">let </span>exists = <span class="macro">sqlx::query!</span>(
+<a href=#86 id=86 data-nosnippet>86</a>        <span class="string">r#"
+<a href=#87 id=87 data-nosnippet>87</a>        SELECT 1 AS exists
+<a href=#88 id=88 data-nosnippet>88</a>        FROM partners_blocks
+<a href=#89 id=89 data-nosnippet>89</a>        WHERE course_id = $1
+<a href=#90 id=90 data-nosnippet>90</a>        LIMIT 1
+<a href=#91 id=91 data-nosnippet>91</a>        "#</span>,
+<a href=#92 id=92 data-nosnippet>92</a>        course_id
+<a href=#93 id=93 data-nosnippet>93</a>    )
+<a href=#94 id=94 data-nosnippet>94</a>    .fetch_optional(conn)
+<a href=#95 id=95 data-nosnippet>95</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#96 id=96 data-nosnippet>96</a>    <span class="prelude-val">Ok</span>(exists.is_some())
+<a href=#97 id=97 data-nosnippet>97</a>}</code></pre></div></section></main></body></html>

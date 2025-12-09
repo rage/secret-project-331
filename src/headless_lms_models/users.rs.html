@@ -259,13 +259,19 @@
 <a href=#259 id=259 data-nosnippet>259</a>    <span class="macro">sqlx::query!</span>(<span class="string">"DELETE FROM user_details WHERE user_id = $1"</span>, id,)
 <a href=#260 id=260 data-nosnippet>260</a>        .execute(<span class="kw-2">&amp;mut *</span>tx)
 <a href=#261 id=261 data-nosnippet>261</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#262 id=262 data-nosnippet>262</a>    <span class="macro">sqlx::query!</span>(<span class="string">"UPDATE users set deleted_at = now() WHERE id = $1"</span>, id,)
-<a href=#263 id=263 data-nosnippet>263</a>        .execute(<span class="kw-2">&amp;mut *</span>tx)
-<a href=#264 id=264 data-nosnippet>264</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#265 id=265 data-nosnippet>265</a>    <span class="macro">sqlx::query!</span>(<span class="string">"UPDATE roles set deleted_at = now() WHERE user_id = $1"</span>, id,)
-<a href=#266 id=266 data-nosnippet>266</a>        .execute(<span class="kw-2">&amp;mut *</span>tx)
-<a href=#267 id=267 data-nosnippet>267</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#268 id=268 data-nosnippet>268</a>    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#269 id=269 data-nosnippet>269</a>    <span class="macro">info!</span>(<span class="string">"Deletion succeeded"</span>);
-<a href=#270 id=270 data-nosnippet>270</a>    <span class="prelude-val">Ok</span>(())
-<a href=#271 id=271 data-nosnippet>271</a>}</code></pre></div></section></main></body></html>
+<a href=#262 id=262 data-nosnippet>262</a>    <span class="macro">sqlx::query!</span>(
+<a href=#263 id=263 data-nosnippet>263</a>        <span class="string">"UPDATE users set deleted_at = now() WHERE id = $1 AND deleted_at IS NULL"</span>,
+<a href=#264 id=264 data-nosnippet>264</a>        id,
+<a href=#265 id=265 data-nosnippet>265</a>    )
+<a href=#266 id=266 data-nosnippet>266</a>    .execute(<span class="kw-2">&amp;mut *</span>tx)
+<a href=#267 id=267 data-nosnippet>267</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#268 id=268 data-nosnippet>268</a>    <span class="macro">sqlx::query!</span>(
+<a href=#269 id=269 data-nosnippet>269</a>        <span class="string">"UPDATE roles set deleted_at = now() WHERE user_id = $1 AND deleted_at IS NULL"</span>,
+<a href=#270 id=270 data-nosnippet>270</a>        id,
+<a href=#271 id=271 data-nosnippet>271</a>    )
+<a href=#272 id=272 data-nosnippet>272</a>    .execute(<span class="kw-2">&amp;mut *</span>tx)
+<a href=#273 id=273 data-nosnippet>273</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#274 id=274 data-nosnippet>274</a>    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#275 id=275 data-nosnippet>275</a>    <span class="macro">info!</span>(<span class="string">"Deletion succeeded"</span>);
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="prelude-val">Ok</span>(())
+<a href=#277 id=277 data-nosnippet>277</a>}</code></pre></div></section></main></body></html>

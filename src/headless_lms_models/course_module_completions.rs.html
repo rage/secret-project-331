@@ -726,10 +726,11 @@
 <a href=#726 id=726 data-nosnippet>726</a>UPDATE course_module_completions
 <a href=#727 id=727 data-nosnippet>727</a>SET deleted_at = now()
 <a href=#728 id=728 data-nosnippet>728</a>WHERE id = $1
-<a href=#729 id=729 data-nosnippet>729</a>        "</span>,
-<a href=#730 id=730 data-nosnippet>730</a>        id,
-<a href=#731 id=731 data-nosnippet>731</a>    )
-<a href=#732 id=732 data-nosnippet>732</a>    .execute(conn)
-<a href=#733 id=733 data-nosnippet>733</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#734 id=734 data-nosnippet>734</a>    <span class="prelude-val">Ok</span>(())
-<a href=#735 id=735 data-nosnippet>735</a>}</code></pre></div></section></main></body></html>
+<a href=#729 id=729 data-nosnippet>729</a>AND deleted_at IS NULL
+<a href=#730 id=730 data-nosnippet>730</a>        "</span>,
+<a href=#731 id=731 data-nosnippet>731</a>        id,
+<a href=#732 id=732 data-nosnippet>732</a>    )
+<a href=#733 id=733 data-nosnippet>733</a>    .execute(conn)
+<a href=#734 id=734 data-nosnippet>734</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#735 id=735 data-nosnippet>735</a>    <span class="prelude-val">Ok</span>(())
+<a href=#736 id=736 data-nosnippet>736</a>}</code></pre></div></section></main></body></html>

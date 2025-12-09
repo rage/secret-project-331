@@ -74,3 +74,27 @@ reviews:
         No unwraps at all in non-test code. Avoid also .expect() calls outside of tests, with the exception when the program is starting up so that it would crash immediately for example when an environment variable is not set.
 
         No sql queries in code that is not within the models crate. If one needs to fetch data from the database, instead add a new function to the models crate and call that one.
+
+    - path: "services/headless-lms/migrations/**/*.sql"
+      instructions: >
+        New database tables should include the `created_at`, `updated_at`, and `deleted_at` fields, a trigger for automatically updating the updated_at field, and a comment for explaining what the table is for. If one of these columns are omitted, the table comment should tell why that decision was made.
+
+        ```sql
+        CREATE TABLE table_templates (
+          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+          created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          deleted_at TIMESTAMP WITH TIME ZONE
+        );
+        CREATE TRIGGER set_timestamp BEFORE
+        UPDATE ON table_templates FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+        COMMENT ON TABLE table_templates IS 'An example';
+        COMMENT ON COLUMN table_templates.id IS 'A unique, stable identifier for the record.';
+        COMMENT ON COLUMN table_templates.created_at IS 'Timestamp when the record was created.';
+        COMMENT ON COLUMN table_templates.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+        COMMENT ON COLUMN table_templates.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+        ```
+
+        When you come up with the table name, make sure to make it plural.
+
+        The table, and all columns should have a comment explaining what they are for. The comment should be short and to the point don't repeat obvious things like the column name or the data type in the name. Don't add unnecessary words like "The column for the".

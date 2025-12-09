@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test.describe.only("Audio player accessibility", () => {
+test.describe("Audio player accessibility", () => {
   test("Can upload audio files to pages", async ({ page }) => {
     await page.goto("http://project-331.local/")
     await page.getByRole("link", { name: "All organizations" }).click()

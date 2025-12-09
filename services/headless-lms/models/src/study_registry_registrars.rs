@@ -102,16 +102,10 @@ pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelRe
     let inserted = sqlx::query!(
         r#"
         INSERT INTO study_registry_registrars (
-            id,
-            created_at,
-            updated_at,
             name,
             secret_key
         )
         VALUES (
-            gen_random_uuid(),
-            now(),
-            now(),
             'Default Registrar',
             encode(gen_random_bytes(32), 'hex')
         )

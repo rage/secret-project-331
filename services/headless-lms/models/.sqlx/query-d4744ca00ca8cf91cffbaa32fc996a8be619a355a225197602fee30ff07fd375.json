@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE privacy_links\nSET deleted_at = now()\nWHERE course_id = $1\nRETURNING *\n  ",
+  "query": "\nUPDATE privacy_links\nSET deleted_at = now()\nWHERE course_id = $1\nAND deleted_at IS NULL\nRETURNING *\n  ",
   "describe": {
     "columns": [
       {
@@ -54,5 +54,5 @@
       false
     ]
   },
-  "hash": "d55f807296b716b717599120ce0cf78aaa34d727c09a57b821491d3feb88fb6d"
+  "hash": "d4744ca00ca8cf91cffbaa32fc996a8be619a355a225197602fee30ff07fd375"
 }

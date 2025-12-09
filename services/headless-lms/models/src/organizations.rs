@@ -177,7 +177,7 @@ pub async fn update_name_and_hidden(
 }
 
 pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1")
+    sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL")
         .bind(id)
         .execute(conn)
         .await?;

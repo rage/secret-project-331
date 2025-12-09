@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE peer_or_self_review_configs\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id\n    ",
+  "query": "\nUPDATE peer_or_self_review_configs\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING id\n    ",
   "describe": {
     "columns": [
       {
@@ -18,5 +18,5 @@
       false
     ]
   },
-  "hash": "fab4cf475d4a0c303a0e481e6aac367795398a494bab15ea968837fc63ce4e00"
+  "hash": "85c82d8016887c21f638451c1745183b5abd314ed2068c7245f5c6b9d2fa5fbe"
 }

@@ -5,28 +5,32 @@
 <h3 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h3><h4 id="usage-when-inserting-to-a-database"><a class="doc-anchor" href="#usage-when-inserting-to-a-database">§</a>Usage when inserting to a database</h4>
 <p>By calling <code>.into_uuid()</code> function implemented by <code>PKeyPolicy&lt;Uuid&gt;</code>, this enum can be used with
 SQLX queries while letting the caller dictate how the primary key should be decided.</p>
-
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">async fn </span>insert(
-    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<div class="example-wrap"><pre class="language-no_check"><code># use headless_lms_models::{ModelResult, PKeyPolicy};
+# use uuid::Uuid;
+# use sqlx::PgConnection;
+async fn insert(
+    conn: &amp;mut PgConnection,
     pkey_policy: PKeyPolicy&lt;Uuid&gt;,
 ) -&gt; ModelResult&lt;Uuid&gt; {
-    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">"INSERT INTO organizations (id) VALUES ($1) RETURNING id"</span>,
+    let res = sqlx::query!(
+        &quot;INSERT INTO organizations (id) VALUES ($1) RETURNING id&quot;,
         pkey_policy.into_uuid(),
     )
     .fetch_one(conn)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res.id)
+    .await?;
+    Ok(res.id)
 }
 
-<span class="comment">// Insert using generated id.
-</span><span class="kw">let </span>foo_1_id = insert(conn, PKeyPolicy::Generate).<span class="kw">await</span>.unwrap();
+# async fn random_function(conn: &amp;mut PgConnection) -&gt; ModelResult&lt;()&gt; {
+// Insert using generated id.
+let foo_1_id = insert(conn, PKeyPolicy::Generate).await.unwrap();
 
-<span class="comment">// Insert using fixed id.
-</span><span class="kw">let </span>uuid = Uuid::parse_str(<span class="string">"8fce44cf-738e-4fc9-8d8e-47c350fd3a7f"</span>).unwrap();
-<span class="kw">let </span>foo_2_id = insert(conn, PKeyPolicy::Fixed(uuid)).<span class="kw">await</span>.unwrap();
-<span class="macro">assert_eq!</span>(foo_2_id, uuid);</code></pre></div>
-<h4 id="usage-in-a-higher-order-function"><a class="doc-anchor" href="#usage-in-a-higher-order-function">§</a>Usage in a higher-order function.</h4>
+// Insert using fixed id.
+let uuid = Uuid::parse_str(&quot;8fce44cf-738e-4fc9-8d8e-47c350fd3a7f&quot;).unwrap();
+let foo_2_id = insert(conn, PKeyPolicy::Fixed(uuid)).await.unwrap();
+assert_eq!(foo_2_id, uuid);
+# Ok(())
+# }</code></pre></div><h4 id="usage-in-a-higher-order-function"><a class="doc-anchor" href="#usage-in-a-higher-order-function">§</a>Usage in a higher-order function.</h4>
 <p>When <code>PKeyPolicy</code> is used with a higher-order function, an arbitrary struct can be provided
 instead. The data can be mapped further by calling the <code>.map()</code> or <code>.map_ref()</code> methods.</p>
 

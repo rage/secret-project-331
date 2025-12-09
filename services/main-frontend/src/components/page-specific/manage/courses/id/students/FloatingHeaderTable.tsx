@@ -43,11 +43,9 @@ type ColMeta = {
 }
 
 function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): ColMeta | undefined {
-  // ColumnDef allows arbitrary 'meta'; we narrow it safely
   return (colDef as ColumnDef<T, unknown> & { meta?: ColMeta })?.meta
 }
 
-// --- CONSTANTS ---
 const chapterHeaderStart = 2 // upper headers (groups) start index
 const subHeaderStart = 3 // lower headers (points/attempts) start index
 
@@ -60,7 +58,6 @@ type FloatingHeaderTableProps<T extends object> = {
   progressMode?: boolean
 }
 
-// --- COMPONENT ---
 export function FloatingHeaderTable<T extends object>({
   columns,
   data,
@@ -100,10 +97,8 @@ export function FloatingHeaderTable<T extends object>({
     [wrapRect.left, wrapRect.width],
   )
 
-  // For the wrap container, swap the old conditional css with classes:
   const wrapClass = bottomVisible ? wrapHiddenX : wrapAutoX
 
-  // ---------- Helpers ----------
   const applyStickyTransform = useCallback((x: number) => {
     if (x === latestScrollLeftRef.current) {
       return
@@ -228,16 +223,11 @@ export function FloatingHeaderTable<T extends object>({
     [colorHeaders],
   )
 
-  // --- EFFECTS (condensed) ---
-
   // 1) Measurements + observers (init + keep in sync)
-  //    - Keeps wrapRect, contentWidth, and col widths fresh
   useEffect(() => {
-    // initial pass
     measureWrapRect()
     measureContentWidth()
 
-    // ResizeObserver on the scroll wrap to catch content width + layout changes
     const ro = new ResizeObserver(() => {
       // keep viewport & content in sync
       measureWrapRect()
@@ -252,7 +242,6 @@ export function FloatingHeaderTable<T extends object>({
     // Window resize (viewport changes)
     const onWinResize = () => {
       measureWrapRect()
-      // headers can reflow after resize → rAF ensures layout is settled
       requestAnimationFrame(measureColWidths)
     }
     window.addEventListener("resize", onWinResize)
@@ -266,11 +255,9 @@ export function FloatingHeaderTable<T extends object>({
       window.removeEventListener("resize", onWinResize)
       window.removeEventListener("scroll", handleWindowScroll)
     }
-    // helpers are stable via useCallback; no need to depend on frequently-changing state
   }, [measureWrapRect, measureContentWidth, measureColWidths, handleWindowScroll])
 
   // 2) Scroll sync wiring (wrap ↔ trailer) + init positions
-  //    - Rebind only when trailer appears/disappears or handlers change
   useEffect(() => {
     const wrap = wrapRef.current
     const trailer = trailerRef.current
@@ -298,13 +285,9 @@ export function FloatingHeaderTable<T extends object>({
   }, [onWrapScroll, onTrailerScroll, applyStickyTransform, showTrailer, bottomVisible])
 
   // 3) Render-time layout work (merged):
-  //    a) After data/columns render: measure leaf widths (rAF, lets layout settle)
-  //    b) When sticky is visible: clone & freeze the header (pixel-perfect widths)
   useLayoutEffect(() => {
-    // (a) measure leaf widths next frame (only when data/columns change)
     const rafId = requestAnimationFrame(measureColWidths)
 
-    // (b) sticky header clone (only when visible and refs are ready)
     const srcTable = tableRef.current
     const dstTable = stickyTableRef.current
     if (showSticky && srcTable && dstTable) {
@@ -368,11 +351,8 @@ export function FloatingHeaderTable<T extends object>({
     }
 
     return () => cancelAnimationFrame(rafId)
-    // Re-run when we need fresh leaf widths (columns/data) or when sticky visibility toggles,
-    // or when the content width changes enough to affect table width.
   }, [measureColWidths, showSticky, columns, data, contentWidth])
 
-  // ---------- Render helpers ----------
   const renderDockedTrailer = () => (
     <div className={dockedTrailerCss}>
       <div ref={trailerRef} className={cx(topScrollbarWrap, trailerWrapCss)}>
@@ -509,7 +489,6 @@ export function FloatingHeaderTable<T extends object>({
                         colIdx >= chapterHeaderStart &&
                         header.colSpan === 2
 
-                      // ---- build a dynamic class (no inline styles) ----
                       return css`
                         min-width: ${minW}px;
                         width: ${typeof computedWidth === "number" ? `${computedWidth}px` : "auto"};
@@ -587,13 +566,11 @@ export function FloatingHeaderTable<T extends object>({
                   removeRight && noRightBorder,
                   removeLeft && noLeftBorder,
                   (() => {
-                    // --- compute dynamic values (just like before) ---
                     const meta = getMeta<T>(cell.column.columnDef)
                     const computedWidth =
                       typeof meta?.width === "number" ? meta.width : colWidths[i]
                     const minW = typeof meta?.minWidth === "number" ? meta.minWidth : undefined
 
-                    // pick bg color for colored columns (keeps your previous visual)
                     const bgClass = bg
                       ? css`
                           background: ${bg};
@@ -636,7 +613,6 @@ export function FloatingHeaderTable<T extends object>({
     </tbody>
   )
 
-  // ---------- Render ----------
   return (
     <div className={cx(tableOuterScroll, rootRelative)}>
       {showSticky && renderStickyHeader()}

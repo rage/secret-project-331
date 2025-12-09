@@ -4312,9 +4312,7 @@ export function isThresholdData(obj: unknown): obj is ThresholdData {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["points"] === "number" &&
-        (typedObj["duration_seconds"] === null ||
-            typeof typedObj["duration_seconds"] === "number")
+        typeof typedObj["duration_seconds"] === "number"
     )
 }
 

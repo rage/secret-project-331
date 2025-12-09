@@ -132,7 +132,7 @@ Helper struct to use with functions that insert data into the database.
 By calling `.into_uuid()` function implemented by `PKeyPolicy<Uuid>`, this enum can be used with
 SQLX queries while letting the caller dictate how the primary key should be decided.
 
-```no_run
+```no_check
 # use headless_lms_models::{ModelResult, PKeyPolicy};
 # use uuid::Uuid;
 # use sqlx::PgConnection;

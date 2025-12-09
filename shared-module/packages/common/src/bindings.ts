@@ -2118,8 +2118,7 @@ export interface SuspectedCheaters {
 }
 
 export interface ThresholdData {
-  points: number
-  duration_seconds: number | null
+  duration_seconds: number
 }
 
 export interface NewTeacherGradingDecision {

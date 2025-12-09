@@ -526,7 +526,7 @@ pub async fn update_generated_certificate(
     let updated = models::generated_certificates::update_certificate(
         &mut conn,
         *certificate_id,
-        Some(payload.date_issued),
+        payload.date_issued,
         payload.name_on_certificate.clone(),
     )
     .await?;

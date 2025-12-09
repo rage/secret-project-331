@@ -136,31 +136,47 @@ pub struct CertificateUpdateRequest {
 pub async fn update_certificate(
     conn: &mut PgConnection,
     certificate_id: Uuid,
-    date_issued: Option<DateTime<Utc>>,
+    date_issued: DateTime<Utc>,
     name_on_certificate: Option<String>,
 ) -> ModelResult<GeneratedCertificate> {
-    let res = sqlx::query_as!(
-        GeneratedCertificate,
-        r#"
-        UPDATE generated_certificates
-        SET
-            created_at = COALESCE($1, created_at),
-            name_on_certificate = COALESCE($2, name_on_certificate),
-            updated_at = NOW()
-        WHERE id = $3
-          AND deleted_at IS NULL
-        RETURNING *
-        "#,
-        date_issued,
-        name_on_certificate,
-        certificate_id
-    )
-    .fetch_one(conn)
-    .await?;
+    let updated = if let Some(name) = name_on_certificate {
+        sqlx::query_as!(
+            GeneratedCertificate,
+            r#"
+            UPDATE generated_certificates
+            SET created_at = $1,
+                name_on_certificate = $2,
+                updated_at = NOW()
+            WHERE id = $3
+              AND deleted_at IS NULL
+            RETURNING *
+            "#,
+            date_issued,
+            name,
+            certificate_id
+        )
+        .fetch_one(conn)
+        .await?
+    } else {
+        sqlx::query_as!(
+            GeneratedCertificate,
+            r#"
+            UPDATE generated_certificates
+            SET created_at = $1,
+                updated_at = NOW()
+            WHERE id = $2
+              AND deleted_at IS NULL
+            RETURNING *
+            "#,
+            date_issued,
+            certificate_id
+        )
+        .fetch_one(conn)
+        .await?
+    };
 
-    Ok(res)
+    Ok(updated)
 }
-
 
 pub async fn get_by_id(
     conn: &mut PgConnection,

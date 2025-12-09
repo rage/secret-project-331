@@ -60,11 +60,10 @@ pub async fn get_completions_grid_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<CompletionGridRow>> {
-    let rows = sqlx::query_as!(
-        CompletionGridRow,
+    let rows_raw = sqlx::query!(
         r#"
 WITH modules AS (
-  SELECT id AS module_id, name, order_number
+  SELECT id AS module_id, name AS module_name, order_number
   FROM course_modules
   WHERE course_id = $1
     AND deleted_at IS NULL
@@ -75,14 +74,14 @@ enrolled AS (
   WHERE course_id = $1
     AND deleted_at IS NULL
 ),
-recent_cmc AS (
+latest_cmc AS (
   SELECT DISTINCT ON (cmc.user_id, cmc.course_module_id)
-         cmc.id,
-         cmc.user_id,
-         cmc.course_module_id,
-         cmc.grade,
-         cmc.passed,
-         cmc.completion_date
+    cmc.id,
+    cmc.user_id,
+    cmc.course_module_id,
+    cmc.grade,
+    cmc.passed,
+    cmc.completion_date
   FROM course_module_completions cmc
   WHERE cmc.course_id = $1
     AND cmc.deleted_at IS NULL
@@ -95,44 +94,57 @@ cmcr AS (
     AND deleted_at IS NULL
 )
 SELECT
-  /* non-null */
-  CASE
-    WHEN ud.first_name IS NULL OR TRIM(ud.first_name) = ''
-      OR ud.last_name  IS NULL OR TRIM(ud.last_name)  = ''
-    THEN '(Missing name)'
-    ELSE TRIM(ud.first_name) || ' ' || TRIM(ud.last_name)
-  END AS "student!",
-  /* nullable */
-  m.name AS "module?",
-  /* non-null */
-  CASE
-    WHEN r.grade IS NOT NULL THEN r.grade::text
-    WHEN r.passed IS TRUE     THEN 'Passed'
-    WHEN r.passed IS FALSE    THEN 'Failed'
-    ELSE '-'
-  END AS "grade!",
-  /* non-null */
-  CASE
-    WHEN r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)
-      THEN 'Registered'
-    ELSE '-'
-  END AS "status!"
+  ud.first_name,
+  ud.last_name,
+  m.module_name,
+  r.grade,
+  r.passed,
+  (r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)) AS is_registered
 FROM modules m
 CROSS JOIN enrolled e
 JOIN users u ON u.id = e.user_id
 LEFT JOIN user_details ud ON ud.user_id = u.id
-LEFT JOIN recent_cmc r
+LEFT JOIN latest_cmc r
   ON r.user_id = e.user_id
  AND r.course_module_id = m.module_id
-ORDER BY
-  COALESCE(NULLIF(LOWER(TRIM(ud.last_name)),  ''), 'zzzzzz'),
-  COALESCE(NULLIF(LOWER(TRIM(ud.first_name)), ''), 'zzzzzz'),
-  m.order_number, m.name NULLS LAST
-    "#,
+"#,
         course_id
     )
     .fetch_all(conn)
     .await?;
+
+    let rows = rows_raw
+        .into_iter()
+        .map(|r| {
+            let first = r.first_name.unwrap_or_default().trim().to_string();
+            let last = r.last_name.unwrap_or_default().trim().to_string();
+
+            let student = if first.is_empty() && last.is_empty() {
+                "(Missing name)".to_string()
+            } else {
+                format!("{first} {last}").trim().to_string()
+            };
+
+            let grade = match (r.grade, r.passed) {
+                (Some(g), _) => g.to_string(),
+                (None, true) => "Passed".to_string(),
+                (None, false) => "Failed".to_string(),
+            };
+
+            let status = if r.is_registered.unwrap_or(false) {
+                "Registered".to_string()
+            } else {
+                "-".to_string()
+            };
+
+            CompletionGridRow {
+                student,
+                module: r.module_name,
+                grade,
+                status,
+            }
+        })
+        .collect();
 
     Ok(rows)
 }

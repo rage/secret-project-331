@@ -175,3 +175,54 @@ pub async fn get_by_id(
 
     Ok(res)
 }
+
+pub async fn find_existing(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    config_id: Uuid,
+) -> ModelResult<Option<Uuid>> {
+    let row = sqlx::query!(
+        r#"
+        SELECT id
+        FROM generated_certificates
+        WHERE user_id = $1
+          AND certificate_configuration_id = $2
+          AND deleted_at IS NULL
+        "#,
+        user_id,
+        config_id
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(row.map(|r| r.id))
+}
+
+pub async fn insert_raw(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    config_id: Uuid,
+    name: &str,
+    verification_id: &str,
+) -> ModelResult<Uuid> {
+    let row = sqlx::query!(
+        r#"
+        INSERT INTO generated_certificates (
+            user_id,
+            certificate_configuration_id,
+            name_on_certificate,
+            verification_id
+        )
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        "#,
+        user_id,
+        config_id,
+        name,
+        verification_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(row.id)
+}

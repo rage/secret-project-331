@@ -41,7 +41,7 @@ spec:
             - |
               echo Waiting for postgres to be available
               timeout 120 ./wait-for-db.sh
-              ./wait-for-db-migrations.sh
+              ./wait-for-db-migrations.sh exercise_services
           resources:
             requests:
               memory: 200Mi

@@ -7,7 +7,10 @@ use sqlx::PgConnection;
 
 use crate::programs::seed::builder::{chapter::ChapterBuilder, context::SeedContext};
 use chrono::{DateTime, Utc};
-use sqlx::{Row, postgres::PgRow};
+use headless_lms_models::{
+    course_module_completion_registered_to_study_registries, course_module_completions,
+};
+
 use uuid::Uuid;
 
 #[derive(Debug, Clone)]

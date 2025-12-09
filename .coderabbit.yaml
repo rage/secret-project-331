@@ -55,3 +55,18 @@ reviews:
         For calling the React hooks useMemo and useEffect, don't use the React. prefix.
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
+
+    - path: "services/headless-lms/models/src/**/*.rs"
+      instructions: >
+        All sql queries should be written with the macros from the sqlx crate. Macros end with an exclamation mark. Example good functions: query!, query_as!, query_scalar!, query_file!, etc. Example bad functions: query, query_as, query_scalar, query_file, etc.
+
+        If a transaction is started it should be committed or rolled back before the transaction goes out of scope. Example: `let mut tx = conn.begin().await?; ... tx.commit().await?;`
+
+        All UPDATE queries that set `deleted_at = now()` MUST include `AND deleted_at IS NULL` in the WHERE clause to prevent overwriting timestamps for already-deleted records.
+        Example: `UPDATE table SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL`
+
+    - path: "**/*.rs"
+      instructions: >
+        No unwraps at all in non-test code. Avoid also .expect() calls outside of tests, with the exception when the program is starting up so that it would crash immediately for example when an environment variable is not set.
+
+        No sql queries in code that is not within the models crate. If one needs to fetch data from the database, instead add a new function to the models crate and call that one.

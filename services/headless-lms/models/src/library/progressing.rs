@@ -97,7 +97,10 @@ pub async fn check_and_insert_suspected_cheaters(
                 (completion.completion_date - default_completion.completion_date).num_seconds();
             duration.max(0)
         } else {
-            0
+            // No default completion exists yet, fall back to calculating duration from enrollment time.
+            course_instances::get_student_duration(conn, completion.user_id, course_id)
+                .await?
+                .unwrap_or(0)
         }
     };
 

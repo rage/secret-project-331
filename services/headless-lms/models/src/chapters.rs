@@ -702,29 +702,49 @@ pub async fn fetch_course_users(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<CourseUserInfo>> {
-    let rows = sqlx::query_as!(
-        CourseUserInfo,
+    let rows_raw = sqlx::query!(
         r#"
-SELECT
-  COALESCE(
-    NULLIF(TRIM(COALESCE(ud.first_name, '') || ' ' || COALESCE(ud.last_name, '')), ''),
-    '(Missing Name)'
-  )                            AS "name!",
-  u.id                         AS user_id,
-  ud.email                     AS email,
-  COALESCE(ci.name, 'Default instance') AS "course_instance!"
-FROM course_instance_enrollments AS cie
-JOIN users              AS u  ON u.id = cie.user_id
-LEFT JOIN user_details  AS ud ON ud.user_id = u.id
-JOIN course_instances   AS ci ON ci.id = cie.course_instance_id
-WHERE cie.course_id = $1
-  AND cie.deleted_at IS NULL
-ORDER BY 1, user_id
-        "#,
+    SELECT
+        ud.first_name,
+        ud.last_name,
+        u.id AS user_id,
+        ud.email AS "email?",
+        ci.name AS course_instance
+    FROM course_instance_enrollments AS cie
+    JOIN users              AS u  ON u.id = cie.user_id
+    LEFT JOIN user_details  AS ud ON ud.user_id = u.id
+    JOIN course_instances   AS ci ON ci.id = cie.course_instance_id
+    WHERE cie.course_id = $1
+        AND cie.deleted_at IS NULL
+    ORDER BY 1, user_id
+    "#,
         course_id
     )
-    .fetch_all(&mut *conn)
+    .fetch_all(conn)
     .await?;
+
+    let rows = rows_raw
+        .into_iter()
+        .map(|r| {
+            let first = r.first_name.unwrap_or_default().trim().to_string();
+            let last = r.last_name.unwrap_or_default().trim().to_string();
+
+            let name = if first.is_empty() && last.is_empty() {
+                "(Missing name)".to_string()
+            } else {
+                format!("{} {}", first, last).trim().to_string()
+            };
+
+            CourseUserInfo {
+                name,
+                user_id: r.user_id,
+                email: r.email,
+                course_instance: r
+                    .course_instance
+                    .unwrap_or_else(|| "Default instance".to_string()),
+            }
+        })
+        .collect();
 
     Ok(rows)
 }

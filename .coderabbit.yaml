@@ -77,6 +77,9 @@ reviews:
 
     - path: "services/headless-lms/migrations/**/*.sql"
       instructions: >
+        Once you want to change something in the database, don't edit any migrations that were not created in your current pull request as previous migration have already been applied to production. Create new migrations with bin/sqlx-migrate-add.
+
+        When creating new tables, follow these rules:
         New database tables should include the `created_at`, `updated_at`, and `deleted_at` fields, a trigger for automatically updating the updated_at field, and a comment for explaining what the table is for. If one of these columns are omitted, the table comment should tell why that decision was made.
 
         ```sql

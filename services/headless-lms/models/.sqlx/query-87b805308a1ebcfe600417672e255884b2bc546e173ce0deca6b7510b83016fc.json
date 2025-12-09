@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE playground_examples\nSET deleted_at = now()\nWHERE id = $1\nRETURNING *;\n  ",
+  "query": "\nUPDATE code_giveaway_codes\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -25,23 +25,23 @@
       },
       {
         "ordinal": 4,
-        "name": "name",
-        "type_info": "Varchar"
+        "name": "code_giveaway_id",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 5,
-        "name": "url",
-        "type_info": "Varchar"
+        "name": "code_given_to_user_id",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 6,
-        "name": "width",
-        "type_info": "Int4"
+        "name": "added_by_user_id",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 7,
-        "name": "data",
-        "type_info": "Jsonb"
+        "name": "code",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -55,10 +55,10 @@
       false,
       true,
       false,
-      false,
+      true,
       false,
       false
     ]
   },
-  "hash": "b39dda257f5f1f2db1905fdb6616a93c5d587d89c51ca1c1ca67152d7677de65"
+  "hash": "87b805308a1ebcfe600417672e255884b2bc546e173ce0deca6b7510b83016fc"
 }

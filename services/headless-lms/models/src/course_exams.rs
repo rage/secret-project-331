@@ -62,6 +62,7 @@ UPDATE course_exams
 SET deleted_at = now()
 WHERE course_id = $1
   AND exam_id = $2
+  AND deleted_at IS NULL
         ",
         course_id,
         exam_id,

@@ -173,6 +173,7 @@ pub async fn delete_email_template(
 UPDATE email_templates
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING *
   "#,
         email_template_id

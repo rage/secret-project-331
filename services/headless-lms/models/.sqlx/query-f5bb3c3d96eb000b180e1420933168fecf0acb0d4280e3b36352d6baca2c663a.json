@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nRETURNING id;\n        ",
+  "query": "\nUPDATE user_exercise_slide_states\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING id\n    ",
   "describe": {
     "columns": [
       {
@@ -11,12 +11,12 @@
     ],
     "parameters": {
       "Left": [
-        "UuidArray"
+        "Uuid"
       ]
     },
     "nullable": [
       false
     ]
   },
-  "hash": "f75a47ca2444e4cbaade9a44f7104ede569c4660c573e5fa4034805f1597c361"
+  "hash": "f5bb3c3d96eb000b180e1420933168fecf0acb0d4280e3b36352d6baca2c663a"
 }

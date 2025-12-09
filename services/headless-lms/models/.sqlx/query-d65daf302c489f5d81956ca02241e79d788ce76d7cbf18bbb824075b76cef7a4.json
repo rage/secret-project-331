@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE page_audio_files\nSET deleted_at = now()\nWHERE id = $1\nRETURNING path\n      ",
+  "query": "\nUPDATE file_uploads\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING path\n",
   "describe": {
     "columns": [
       {
@@ -18,5 +18,5 @@
       false
     ]
   },
-  "hash": "3dfdeb92c9da05c6b03789eefdb20cb433a82a8e72cd0d0d85eebe6eba92e7b0"
+  "hash": "d65daf302c489f5d81956ca02241e79d788ce76d7cbf18bbb824075b76cef7a4"
 }

@@ -43,6 +43,7 @@ pub async fn delete_and_fetch_path(conn: &mut PgConnection, id: Uuid) -> ModelRe
 UPDATE file_uploads
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING path
 ",
         id

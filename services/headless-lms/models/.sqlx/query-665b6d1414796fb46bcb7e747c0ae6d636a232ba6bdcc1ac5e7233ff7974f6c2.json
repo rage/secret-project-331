@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chapters\nSET deleted_at = now()\nWHERE id = $1\nRETURNING *;\n",
+  "query": "\nUPDATE chapters\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING *;\n",
   "describe": {
     "columns": [
       {
@@ -96,5 +96,5 @@
       true
     ]
   },
-  "hash": "37dfaa87dd74a4c1f409cd120e6997847616214878ae8a66b326699fa8633ad3"
+  "hash": "665b6d1414796fb46bcb7e747c0ae6d636a232ba6bdcc1ac5e7233ff7974f6c2"
 }

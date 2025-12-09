@@ -69,6 +69,7 @@ pub async fn delete_privacy_link(
 UPDATE privacy_links
 SET deleted_at = now()
 WHERE course_id = $1
+AND deleted_at IS NULL
 RETURNING *
   "#,
         course_id

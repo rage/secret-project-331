@@ -951,6 +951,7 @@ pub async fn delete_exercise_submissions_with_exam_id_and_user_id(
 UPDATE exercise_slide_submissions
 SET deleted_at = now()
 WHERE exam_id = $1 AND user_id = $2
+AND deleted_at IS NULL
     ",
         exam_id,
         user_id,

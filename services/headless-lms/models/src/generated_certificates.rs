@@ -130,24 +130,29 @@ fn generate_verification_id() -> String {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateUpdateRequest {
     pub date_issued: DateTime<Utc>,
+    pub name_on_certificate: Option<String>,
 }
 
-pub async fn update_date_issued(
+pub async fn update_certificate(
     conn: &mut PgConnection,
     certificate_id: Uuid,
-    new_date: DateTime<Utc>,
+    date_issued: Option<DateTime<Utc>>,
+    name_on_certificate: Option<String>,
 ) -> ModelResult<GeneratedCertificate> {
     let res = sqlx::query_as!(
         GeneratedCertificate,
         r#"
         UPDATE generated_certificates
-        SET created_at = $1,
+        SET
+            created_at = COALESCE($1, created_at),
+            name_on_certificate = COALESCE($2, name_on_certificate),
             updated_at = NOW()
-        WHERE id = $2
+        WHERE id = $3
           AND deleted_at IS NULL
         RETURNING *
         "#,
-        new_date,
+        date_issued,
+        name_on_certificate,
         certificate_id
     )
     .fetch_one(conn)
@@ -155,6 +160,7 @@ pub async fn update_date_issued(
 
     Ok(res)
 }
+
 
 pub async fn get_by_id(
     conn: &mut PgConnection,

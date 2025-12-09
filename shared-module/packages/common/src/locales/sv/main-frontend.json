@@ -927,7 +927,6 @@
   "text-visible-when-feedback-given": "Text synlig när feedbacken gavs",
   "this-field-required": "Detta fält är obligatoriskt",
   "threshold-added-successfully": "Tröskel framgångsrikt tillagd",
-  "threshold-created-successfully": "Tröskel framgångsrikt skapad",
   "threshold-must-be-non-negative": "Tröskeln måste vara icke-negativ",
   "tick-the-box-if-you-want-email-after-credits-have-been-registered": "Om du vill ha ett e-postmeddelande när poängen har registrerats, kryssa i rutan 'Ett meddelande om avslutade studier kommer att skickas till min e-post (inklusive betyg)'",
   "time-granularity": "Tidsgranularitet",

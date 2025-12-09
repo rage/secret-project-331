@@ -7,7 +7,7 @@ use chrono::Utc;
 use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::{
     partner_block::PartnersBlock,
-    suspected_cheaters::{SuspectedCheaters, ThresholdData},
+    suspected_cheaters::{SuspectedCheaters, Threshold},
 };
 use rand::Rng;
 use std::sync::Arc;
@@ -1477,32 +1477,23 @@ async fn get_all_suspected_cheaters(
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/threshold - post course threshold information.
+ GET /api/v0/main-frontend/courses/${course.id}/thresholds - get all thresholds for all modules in a course.
 */
 #[instrument(skip(pool))]
-async fn insert_threshold(
-    pool: web::Data<PgPool>,
-    params: web::Path<Uuid>,
-    payload: web::Json<ThresholdData>,
+async fn get_all_thresholds(
     user: AuthUser,
-) -> ControllerResult<web::Json<()>> {
+    params: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<Threshold>>> {
     let mut conn = pool.acquire().await?;
-
     let course_id = params.into_inner();
-    let new_threshold = payload.0;
-    let duration: Option<i32> = new_threshold.duration_seconds;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::suspected_cheaters::insert_thresholds(
-        &mut conn,
-        course_id,
-        duration,
-        new_threshold.points,
-    )
-    .await?;
+    let thresholds =
+        models::suspected_cheaters::get_all_thresholds_for_course(&mut conn, course_id).await?;
 
-    token.authorized_ok(web::Json(()))
+    token.authorized_ok(web::Json(thresholds))
 }
 
 /**
@@ -1844,7 +1835,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/teacher-reset-course-progress-for-themselves",
             web::delete().to(teacher_reset_course_progress_for_themselves),
         )
-        .route("/{course_id}/threshold", web::post().to(insert_threshold))
+        .route("/{course_id}/thresholds", web::get().to(get_all_thresholds))
         .route(
             "/{course_id}/suspected-cheaters",
             web::get().to(get_all_suspected_cheaters),

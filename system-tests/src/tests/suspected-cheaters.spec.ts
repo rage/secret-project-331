@@ -43,10 +43,14 @@ test.describe("Teacher can set threshold for course", () => {
     // Teacher set thresholds
     await teacherPage.goto(CHEATER_EDITOR_PAGE)
 
-    await teacherPage.fill('[label="Points"]', "1")
-    await teacherPage.fill(`input[label="Duration (in hours)"]`, "48")
+    await teacherPage.getByText("Configure completion time thresholds").first().waitFor()
+    await teacherPage
+      .getByRole("spinbutton", { name: /Minimum completion time \(hours\)/ })
+      .first()
+      .fill("48")
 
-    await teacherPage.getByText("Set threshold").click()
+    await teacherPage.getByRole("button", { name: "Save threshold" }).first().click()
+    await teacherPage.getByText("Threshold saved successfully").waitFor()
 
     // Student 1 navigates to exercise and answers
     await answerExercise(student1Page, TEST_PAGE, "a")
@@ -74,8 +78,8 @@ test.describe("Teacher can set threshold for course", () => {
 
     // Check if the cheaters table is rightly populated
     await teacherPage.reload()
-    await teacherPage.getByText("Student id").waitFor()
-    await teacherPage.getByText("Duration").first().waitFor({ state: "visible" })
+    await teacherPage.getByRole("columnheader", { name: "Student ID" }).waitFor()
+    await teacherPage.getByRole("columnheader", { name: "Completion time", exact: true }).waitFor()
     await teacherPage
       .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
       .first()
@@ -94,14 +98,14 @@ test.describe("Teacher can set threshold for course", () => {
     // Navigate cheater's view and delete a suspected cheater
     await teacherPage.goto(CHEATER_EDITOR_PAGE)
     await teacherPage.getByText("Clear suspicion", { exact: true }).first().click()
-    await teacherPage.getByText("Deleted cheaters").first().click()
+    await teacherPage.getByRole("tab", { name: "Archived" }).click()
     await teacherPage
       .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
       .first()
       .waitFor({ state: "visible" })
 
     // Teacher approve a suspected cheater
-    await teacherPage.getByText("Suspected student").click()
+    await teacherPage.getByRole("tab", { name: "Suspected students" }).click()
     await teacherPage.getByText("Confirm cheating", { exact: true }).click()
 
     // Ensure Congratulation block is not shown for suspected cheaters after teacher approves it

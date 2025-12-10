@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["TMC_API_URL"],"enum":["TMCRequestAuth"],"struct":["NewUserInfo","TMCUser","TMCUserField","TMCUserResponse","TmcClient","TmcDeleteAccountResponse","TmcUserInfo"]};
+window.SIDEBAR_ITEMS = {"constant":["TMC_API_URL"],"enum":["TMCRequestAuth"],"fn":["format_tmc_errors","parse_tmc_error_response"],"struct":["NewUserInfo","TMCUser","TMCUserField","TMCUserResponse","TmcClient","TmcDeleteAccountResponse","TmcUserInfo"]};

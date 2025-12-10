@@ -18,7 +18,7 @@ interface DeleteUserAccountProps {
   email: string
 }
 
-type Step = "password" | "verifyCode"
+type Step = "password" | "verifyCode" | "accountDeleted"
 
 const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const { t } = useTranslation()
@@ -66,11 +66,24 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
           queryClient.removeQueries()
           loginStateContext.refresh()
           // eslint-disable-next-line i18next/no-literal-string
-          router.push("/login")
+          setStep("accountDeleted")
         }
       },
     },
   )
+
+  const handleRedirectToLogin = () => {
+    // eslint-disable-next-line i18next/no-literal-string
+    router.push("/login")
+  }
+
+  const handleCloseDialog = () => {
+    if (step === "accountDeleted") {
+      handleRedirectToLogin()
+    } else {
+      setOpenDialog(false)
+    }
+  }
 
   return (
     <>
@@ -80,11 +93,11 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
       <StandardDialog
         open={openDialog}
-        title={t("title-delete-account")}
+        title={step === "accountDeleted" ? t("account-deleted") : t("title-delete-account")}
         showCloseButton
         // eslint-disable-next-line i18next/no-literal-string
         aria-modal="true"
-        onClose={() => setOpenDialog(false)}
+        onClose={handleCloseDialog}
       >
         {error && <ErrorBanner error={error} />}
 
@@ -105,6 +118,16 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
             onResend={() => sendEmailCodeMutation.mutateAsync(password)}
             credentialsError={credentialsError}
           />
+        )}
+
+        {step === "accountDeleted" && (
+          <>
+            <h3>{t("account-deleted")}</h3>
+            <p>{t("account-deleted-description")}</p>
+            <Button variant="primary" size="medium" onClick={handleRedirectToLogin}>
+              {t("button-text-back")}
+            </Button>
+          </>
         )}
       </StandardDialog>
     </>

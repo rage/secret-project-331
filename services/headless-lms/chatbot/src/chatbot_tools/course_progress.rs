@@ -81,7 +81,7 @@ impl ChatbotTool for CourseProgressTool {
                 let module_progress = &progress_info.progress;
                 let m_name = &module_progress.course_module_name;
                 format!(
-                    "The user's progress on the base course module called {m_name} is the following: "
+                    "The course has one base module, and additional modules. The user's progress on the base course module called {m_name} is the following: "
                 ) + &push_exercises_scores_progress(
                     module_progress.attempted_exercises,
                     module_progress.total_exercises,
@@ -185,7 +185,7 @@ fn push_exercises_scores_progress(
                     res += &format!("Passing an exam is required for completion. ");
                 } else {
                     res += &format!(
-                        "The user should look for information about completing the {course_or_module} in the course material or contact the teacher.\n"
+                        "The user should look for information about completing the {course_or_module} in the course material or contact the teacher. \n"
                     );
                 }
                 return res;
@@ -206,7 +206,7 @@ fn push_exercises_scores_progress(
     }
     if score_required.is_none() && attempted_exercises_required.is_none() {
         res += &format!(
-            "It's not required to complete exercises or gain points to pass this {course_or_module}. " // TODOOOOO
+            "It's not required to attempt exercises or gain points to pass this {course_or_module}. " // TODOOOOO
         );
     }
 
@@ -238,10 +238,10 @@ fn push_exercises_scores_progress(
         res += ". ";
     }
 
-    if attempted_exercises_required.is_some() {
-        if let Some(b) = attempted_exercises {
-            res += &format!("The user has attempted {b} exercises. ");
-        } else {
+    if let Some(b) = attempted_exercises {
+        res += &format!("The user has attempted {b} exercises. ");
+    } else {
+        if attempted_exercises_required.is_some() {
             res += "The user has not attempted any exercises. ";
         }
     }
@@ -265,7 +265,11 @@ fn push_exercises_scores_progress(
     }
 
     if let Some(e) = score_required {
-        res += &format!("The user has gained {:.1} points. ", score_given);
+        res += &format!(
+            "The user has gained {:.1} points. ",
+            // round down to one digit
+            (score_given * 10.0).floor() / 10.0
+        );
         let left = e as f32 - score_given;
         if left <= 0 as f32 {
             res += &format!("The user has gained enough points to {pass}. ")
@@ -276,7 +280,7 @@ fn push_exercises_scores_progress(
             )
         }
     }
-    res
+    res + "\n"
 }
 
 /// Combine UserCourseProgress with the CompletionPolicy from an associated CourseModule.
@@ -348,7 +352,7 @@ mod tests {
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 11 exercises and 5 exercise points. To pass this course, it's required to attempt 10 exercises and gain 4 exercise points. The user has attempted 4 exercises. To pass this course, they need to attempt 6 more exercises. The user has gained 3.3 points. To pass this course, the user needs to gain 0.7 more points. [/output]
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 11 exercises and 5 exercise points. To pass this course, it's required to attempt 10 exercises and gain 4 exercise points. The user has attempted 4 exercises. To pass this course, they need to attempt 6 more exercises. The user has gained 3.3 points. To pass this course, the user needs to gain 0.7 more points. \n[/output]
 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 
@@ -428,12 +432,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. The course has one base module, and additional modules. The base module can be completed on its own. It's required to complete the base module before completing the additional modules.
-The user's progress on the base course module called Advanced Chatbot Course is the following: On this module, there are available a total of 5 exercises and 10 exercise points. To pass this module, it's required to attempt 5 exercises and gain 8 exercise points. The user has attempted 5 exercises. They have attempted enough exercises to pass this module if they have also received enough points. The user has gained 8.0 points. The user has gained enough points to pass this module.
-The following modules are additional to the course and to complete them, it's required to first complete the base module.
-The user's progress on the course module called First extra module is the following: On this module, there are available a total of 6 exercises and 6 exercise points. To pass this module, it's required to attempt 5 exercises and gain 5 exercise points. The user has attempted 4 exercises. To pass this module, they need to attempt 1 more exercises. The user has gained 3.9 points. To pass this module, the user needs to gain 1.1 more points.
-The user's progress on the course module called Second extra module is the following: On this module, there are available a total of 6 exercises and 5 exercise points. To pass this module, it's required to attempt 5 exercises and gain 4 exercise points. The user has not attempted any exercises. To pass this module, they need to attempt 5 more exercises. The user has gained 0.0 points. To pass this module, the user needs to gain 4.0 more points.
-The user's progress on the course module called Chatbot advanced topics is the following: On this module, there are available a total of 2 exercises. The user has attempted 2 exercises. The user has gained 2.0 points. [/output]
+"Result: [output]The user is completing a course called Advanced Chatbot Course. The course has one base module, and additional modules. The user's progress on the base course module called Advanced Chatbot Course is the following: On this module, there are available a total of 5 exercises and 10 exercise points. To pass this module, it's required to attempt 5 exercises and gain 8 exercise points. The user has attempted 5 exercises. They have attempted enough exercises to pass this module if they have also received enough points. The user has gained 8.0 points. The user has gained enough points to pass this module. \nTo pass the course, it's required to pass the base module. The following modules are additional to the course and to complete them, it's required to first complete the base module. \nThe user's progress on the course module called First extra module is the following: On this module, there are available a total of 6 exercises and 6 exercise points. To pass this module, it's required to attempt 5 exercises and gain 5 exercise points. The user has attempted 4 exercises. To pass this module, they need to attempt 1 more exercises. The user has gained 3.9 points. To pass this module, the user needs to gain 1.1 more points. \nThe user's progress on the course module called Second extra module is the following: On this module, there are available a total of 6 exercises and 5 exercise points. To pass this module, it's required to attempt 5 exercises and gain 4 exercise points. The user has not attempted any exercises. To pass this module, they need to attempt 5 more exercises. The user has gained 0.0 points. To pass this module, the user needs to gain 4.0 more points. \nThe user's progress on the course module called Chatbot advanced topics is the following: On this module, there are available a total of 2 exercises. It's not required to attempt exercises or gain points to pass this module. The user has attempted 2 exercises. \n[/output]
 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 
@@ -450,7 +449,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. There is no progress information for this user on this course. [/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullent points. Only give information that is relevant to the user's question.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -477,7 +476,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. This course has no exercises and no points. It cannot be completed by doing exercises. The user should look for information about completing the course in the course material or contact the teacher. [/output]
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: This course has no exercises and no points. It cannot be completed by doing exercises. The user should look for information about completing the course in the course material or contact the teacher. \n[/output]
 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 
@@ -508,7 +507,7 @@ Instructions for describing the output: [instructions]Describe this information 
 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. This course is graded by a teacher and can't be automatically passed by completing exercises. The user should look for information about completing the course in the course material or contact the teacher.
-To pass this course, it's required to attempt 10 exercises and gain 9 exercise points. The user has not attempted any exercises. To pass this course, they need to attempt 10 more exercises. The user has gained 0.0 points. To pass this course, the user needs to gain 9.0 more points. [/output]
+To pass this course, it's required to attempt 10 exercises and gain 9 exercise points. The user has not attempted any exercises. To pass this course, they need to attempt 10 more exercises. The user has gained 0.0 points. To pass this course, the user needs to gain 9.0 more points. \n[/output]
 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 
@@ -537,7 +536,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to gain 9 exercise points. The user has gained 0.0 points. To pass this course, the user needs to gain 9.0 more points. [/output]
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to gain 9 exercise points. The user has gained 0.0 points. To pass this course, the user needs to gain 9.0 more points. \n[/output]
 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 
@@ -566,7 +565,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to attempt 10 exercises. The user has not attempted any exercises. To pass this course, they need to attempt 10 more exercises. [/output]
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to attempt 10 exercises. The user has not attempted any exercises. To pass this course, they need to attempt 10 more exercises. \n[/output]
 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 
@@ -595,7 +594,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. To attempt the required exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has not attempted any exercises. To attempt the exam, they need to attempt 10 more exercises. The user has gained 0.0 points. To attempt the exam, the user needs to gain 9.0 more points. [/output]
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. To attempt the required exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has not attempted any exercises. To attempt the exam, they need to attempt 10 more exercises. The user has gained 0.0 points. To attempt the exam, the user needs to gain 9.0 more points. \n[/output]
 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 

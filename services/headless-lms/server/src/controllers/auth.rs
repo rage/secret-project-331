@@ -592,9 +592,8 @@ pub async fn send_delete_user_email_code(
         .await
         .map_err(|e| {
             anyhow::anyhow!(
-                "Account deletion email template not configured. Missing template 'delete-user-email' for language '{}': {:?}",
-                language,
-                e
+                "Account deletion email template not configured. Missing template 'delete-user-email' for language '{}'",
+                language
             )
         })?;
 

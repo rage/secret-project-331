@@ -259,6 +259,9 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!("DELETE FROM user_details WHERE user_id = $1", id,)
         .execute(&mut *tx)
         .await?;
+    sqlx::query!("DELETE FROM user_passwords WHERE user_id = $1", id,)
+        .execute(&mut *tx)
+        .await?;
     sqlx::query!(
         "UPDATE users set deleted_at = now() WHERE id = $1 AND deleted_at IS NULL",
         id,

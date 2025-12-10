@@ -222,18 +222,14 @@ fn push_exercises_scores_progress(
             res += &format!("gain {b} exercise points");
         }
         res += ".";
-    } else {
-        if requires_exam {
-            res += " The user can attempt the exam regardless of their progress on the course."
-        }
+    } else if requires_exam {
+        res += " The user can attempt the exam regardless of their progress on the course."
     }
 
     if let Some(b) = attempted_exercises {
         res += &format!(" The user has attempted {b} exercises.");
-    } else {
-        if attempted_exercises_required.is_some() {
-            res += " The user has not attempted any exercises.";
-        }
+    } else if attempted_exercises_required.is_some() {
+        res += " The user has not attempted any exercises.";
     }
     let attempted_exercises_n = attempted_exercises.unwrap_or(0);
 

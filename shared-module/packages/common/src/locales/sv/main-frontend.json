@@ -613,6 +613,7 @@
   "message-update-failed": "Något gick fel, kunde inte slutföra uppdateringen",
   "message-update-succesful": "Uppdatering framgångsrik",
   "message-you-have-not-selected-an-action-for-every-change-yet": "Du har ännu inte valt en åtgärd för varje förändring.",
+  "message-your-account-has-been-deleted": "Ditt konto har tagits bort.",
   "message-your-email-has-been-verified": "Din e-post har verifierats.",
   "minutes": "minuter",
   "mode-duplicate": "Duplicera",

@@ -66,7 +66,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
           queryClient.removeQueries()
           loginStateContext.refresh()
           // eslint-disable-next-line i18next/no-literal-string
-          setStep("accountDeleted")
+          router.push("/account-deleted")
         }
       },
       onError: () => {
@@ -123,16 +123,6 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
             onResend={() => sendEmailCodeMutation.mutateAsync(password)}
             credentialsError={credentialsError}
           />
-        )}
-
-        {step === "accountDeleted" && (
-          <>
-            <h3>{t("account-deleted")}</h3>
-            <p>{t("account-deleted-description")}</p>
-            <Button variant="primary" size="medium" onClick={handleRedirectToLogin}>
-              {t("button-text-back")}
-            </Button>
-          </>
         )}
       </StandardDialog>
     </>

@@ -637,6 +637,7 @@
   "message-update-failed": "Something went wrong, couldn't complete updating",
   "message-update-succesful": "Update succesful",
   "message-you-have-not-selected-an-action-for-every-change-yet": "You have not selected an action for every change yet.",
+  "message-your-account-has-been-deleted": "Your account has been deleted.",
   "message-your-email-has-been-verified": "Your email has been verified.",
   "minutes": "minutes",
   "mode-duplicate": "Duplicate",

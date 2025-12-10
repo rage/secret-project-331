@@ -58,3 +58,4 @@ sqlx = { version = "0.8.6", features = [
 
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream = { version = "0.1.17", features = [ "io-util" ] }
+secrecy = { version = "0.10.3", features = ["serde"] }

@@ -1196,19 +1196,25 @@ async fn copy_cheater_thresholds(
     new_course_id: Uuid,
     old_course_id: Uuid,
 ) -> ModelResult<()> {
+    let old_default_module =
+        crate::course_modules::get_default_by_course_id(tx, old_course_id).await?;
+    let new_default_module =
+        crate::course_modules::get_default_by_course_id(tx, new_course_id).await?;
+
     sqlx::query!(
         "
-INSERT INTO cheater_thresholds (id, course_id, points, duration_seconds)
+INSERT INTO cheater_thresholds (id, course_module_id, duration_seconds)
 SELECT
   uuid_generate_v5($1, id::text),
-  $1,
-  points,
+  $2,
   duration_seconds
 FROM cheater_thresholds
-WHERE course_id = $2;
+WHERE course_module_id = $3
+  AND deleted_at IS NULL;
         ",
         new_course_id,
-        old_course_id
+        new_default_module.id,
+        old_default_module.id
     )
     .execute(&mut *tx)
     .await?;

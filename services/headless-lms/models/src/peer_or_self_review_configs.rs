@@ -279,6 +279,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
 UPDATE peer_or_self_review_configs
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING id
     ",
         id

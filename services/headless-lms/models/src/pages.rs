@@ -2195,6 +2195,7 @@ pub async fn delete_page_and_exercises(
 UPDATE pages
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING id,
   created_at,
   updated_at,

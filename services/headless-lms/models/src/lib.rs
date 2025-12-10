@@ -100,9 +100,11 @@ pub mod url_redirections;
 pub mod user_course_exercise_service_variables;
 pub mod user_course_settings;
 pub mod user_details;
+pub mod user_email_codes;
 pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
 pub mod user_exercise_task_states;
+pub mod user_passwords;
 pub mod user_research_consents;
 pub mod users;
 
@@ -132,7 +134,7 @@ Helper struct to use with functions that insert data into the database.
 By calling `.into_uuid()` function implemented by `PKeyPolicy<Uuid>`, this enum can be used with
 SQLX queries while letting the caller dictate how the primary key should be decided.
 
-```no_run
+```no_check
 # use headless_lms_models::{ModelResult, PKeyPolicy};
 # use uuid::Uuid;
 # use sqlx::PgConnection;

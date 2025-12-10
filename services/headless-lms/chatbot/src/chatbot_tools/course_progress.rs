@@ -310,7 +310,7 @@ fn progress_info(
                     requires_exam,
                 })
             } else {
-                Err(ChatbotError::new(ChatbotErrorType::Other, "C", None))
+                Err(ChatbotError::new(ChatbotErrorType::Other, "There was an error fetching the user's course progress information. Couldn't match course modules to user's per-module progress info.", None))
             }
         })
         .collect::<ChatbotResult<Vec<CourseProgressInfo>>>()
@@ -587,7 +587,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 course_module_id: Uuid::nil(),
                 course_module_name: "Example base module".to_string(),
                 course_module_order_number: 1,
-                score_given: 0.0,
+                score_given: 0.0780006,
                 score_required: Some(9),
                 score_maximum: Some(10),
                 total_exercises: Some(10),
@@ -645,7 +645,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 course_module_id: Uuid::nil(),
                 course_module_name: "Example base module".to_string(),
                 course_module_order_number: 1,
-                score_given: 9.780006,
+                score_given: 9.0,
                 score_required: None,
                 score_maximum: Some(10),
                 total_exercises: Some(10),

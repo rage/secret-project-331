@@ -31,13 +31,11 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const [password, setPassword] = useState("")
 
   const [credentialsError, setCredentialsError] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
 
   const sendEmailCodeMutation = useToastMutation(
     async (password: string) => {
       const result = await sendEmailCode(email, password, i18n.language)
-      setError(null)
       setCredentialsError(!result)
       return result
     },
@@ -49,13 +47,15 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
           setStep("verifyCode")
         }
       },
+      onError: () => {
+        setCredentialsError(false)
+      },
     },
   )
 
   const deleteAccountMutation = useToastMutation(
     async (code: string) => {
       const result = await deleteUserAccount(code)
-      setError(null)
       setCredentialsError(!result)
       return result
     },
@@ -68,6 +68,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
           // eslint-disable-next-line i18next/no-literal-string
           setStep("accountDeleted")
         }
+      },
+      onError: () => {
+        setCredentialsError(false)
       },
     },
   )
@@ -99,7 +102,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
         aria-modal="true"
         onClose={handleCloseDialog}
       >
-        {error && <ErrorBanner error={error} />}
+        {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
+          <ErrorBanner error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
+        )}
 
         {step === "password" && (
           <VerifyPasswordForm

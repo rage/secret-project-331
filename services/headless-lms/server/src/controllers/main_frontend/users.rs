@@ -187,21 +187,19 @@ pub async fn send_reset_password_email(
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
 
-    let reset_template =
-        match models::email_templates::get_generic_email_template_by_name_and_language(
-            &mut conn,
-            "reset-password-email",
+    let reset_template = models::email_templates::get_generic_email_template_by_name_and_language(
+        &mut conn,
+        "reset-password-email",
+        language,
+    )
+    .await
+    .map_err(|e| {
+        anyhow::anyhow!(
+            "Password reset email template not configured. Missing template 'reset-password-email' for language '{}': {:?}",
             language,
+            e
         )
-        .await
-        {
-            Ok(t) => t,
-            Err(e) => {
-                warn!("No reset-password-email template available: {:?}", e);
-                // Preserve email-privacy posture: return success regardless.
-                return token.authorized_ok(web::Json(true));
-            }
-        };
+    })?;
 
     let user = match models::users::get_by_email(&mut conn, email).await {
         Ok(user) => Some(user),

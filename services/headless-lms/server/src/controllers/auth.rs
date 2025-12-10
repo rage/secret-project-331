@@ -584,20 +584,19 @@ pub async fn send_delete_user_email_code(
         let language = &payload.language;
 
         // Get user deletion email template
-        let delete_template =
-            match models::email_templates::get_generic_email_template_by_name_and_language(
-                &mut conn,
-                "delete-user-email",
+        let delete_template = models::email_templates::get_generic_email_template_by_name_and_language(
+            &mut conn,
+            "delete-user-email",
+            language,
+        )
+        .await
+        .map_err(|e| {
+            anyhow::anyhow!(
+                "Account deletion email template not configured. Missing template 'delete-user-email' for language '{}': {:?}",
                 language,
+                e
             )
-            .await
-            {
-                Ok(t) => t,
-                Err(e) => {
-                    warn!("No delete-user-email-code template available: {:?}", e);
-                    return token.authorized_ok(web::Json(false));
-                }
-            };
+        })?;
 
         let user = models::users::get_by_id(&mut conn, auth_user.id).await?;
 

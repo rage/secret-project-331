@@ -345,22 +345,6 @@ impl LLMRequest {
         ))
     }
 
-    pub async fn update_messages_from_db(
-        mut self,
-        conn: &mut PgConnection,
-        conversation_id: Uuid,
-    ) -> anyhow::Result<Self> {
-        let conversation_messages =
-            models::chatbot_conversation_messages::get_by_conversation_id(conn, conversation_id)
-                .await?;
-        let api_messages: Vec<APIMessage> = conversation_messages
-            .into_iter()
-            .map(APIMessage::try_from)
-            .collect::<ChatbotResult<Vec<_>>>()?;
-        self.messages.extend(api_messages);
-        Ok(self)
-    }
-
     pub async fn update_messages_to_db(
         mut self,
         conn: &mut PgConnection,

@@ -455,15 +455,6 @@ impl TmcClient {
             )
             .await?;
 
-        if !res.status().is_success() {
-            error!("Failed to get user from TMC with status {}", res.status());
-            return Err(UtilError::new(
-                UtilErrorType::Other,
-                "Failed to get current user from TMC".to_string(),
-                None,
-            ));
-        }
-
         debug!("Received response from TMC, parsing user data");
         let tmc_user: TMCUser = self
             .deserialize_response_with_tmc_error_check(res, "current user from TMC by access token")
@@ -494,15 +485,6 @@ impl TmcClient {
                 None,
             )
             .await?;
-
-        if !res.status().is_success() {
-            error!("Failed to get user from TMC with status {}", res.status());
-            return Err(UtilError::new(
-                UtilErrorType::Other,
-                "Failed to get user from TMC".to_string(),
-                None,
-            ));
-        }
 
         debug!("Received response from TMC, parsing user data");
         let tmc_user: TMCUser = self

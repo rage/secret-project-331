@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
+import { AxiosError } from "axios"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -10,6 +11,7 @@ import { useTranslation } from "react-i18next"
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 
 import { fetchCountryFromIP } from "@/services/backend/user-details"
+import { ErrorResponse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -118,12 +120,11 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
-  const { register, formState, watch, reset, handleSubmit, trigger, control } = useForm<FormFields>(
-    {
+  const { register, formState, watch, reset, handleSubmit, trigger, control, setError } =
+    useForm<FormFields>({
       // eslint-disable-next-line i18next/no-literal-string
       mode: "onChange",
-    },
-  )
+    })
 
   const preFillCountry = useQuery({
     queryKey: [`users-ip-country`],
@@ -143,6 +144,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { errors, isValid, isSubmitting } = formState
 
   const [confirmEmailPageVisible, setConfirmEmailPageVisible] = useState(false)
+  const [emailAlreadyTakenError, setEmailAlreadyTakenError] = useState<string | null>(null)
 
   const { t, i18n } = useTranslation()
 
@@ -202,6 +204,31 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
       trigger("password_confirmation")
     }
   }, [password, passwordConfirmation, trigger])
+
+  useEffect(() => {
+    if (createAccountMutation.isError && createAccountMutation.error) {
+      const error = createAccountMutation.error as AxiosError<ErrorResponse>
+      const status = error.response?.status
+      const errorMessage = error.response?.data?.message || ""
+
+      if (
+        status === 400 &&
+        errorMessage.toLowerCase().includes("email") &&
+        (errorMessage.toLowerCase().includes("already been taken") ||
+          errorMessage.toLowerCase().includes("has already been taken"))
+      ) {
+        setEmailAlreadyTakenError(t("email-already-taken"))
+        setError("email", {
+          type: "manual",
+          message: t("email-already-taken-field-error"),
+        })
+      } else {
+        setEmailAlreadyTakenError(null)
+      }
+    } else {
+      setEmailAlreadyTakenError(null)
+    }
+  }, [createAccountMutation.isError, createAccountMutation.error, setError, t])
 
   const { t: tCountries } = useTranslation("countries")
   const countriesNames = Object.entries(countries).map(([code]) => ({
@@ -371,7 +398,43 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
           {t("sign-in-if-you-have-an-account")}
         </a>
       </span>
-      {createAccountMutation.isError && (
+      {emailAlreadyTakenError && (
+        <div
+          className={css`
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: ${baseTheme.colors.red[100]};
+            border-left: 4px solid ${baseTheme.colors.red[500]};
+            border-radius: 4px;
+          `}
+        >
+          <p
+            className={css`
+              margin: 0;
+              color: ${baseTheme.colors.red[700]};
+              font-weight: 500;
+            `}
+          >
+            {emailAlreadyTakenError}
+          </p>
+          <a
+            href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}
+            className={css`
+              display: inline-block;
+              margin-top: 0.5rem;
+              color: ${baseTheme.colors.blue[600]};
+              text-decoration: none;
+              font-weight: 500;
+              &:hover {
+                text-decoration: underline;
+              }
+            `}
+          >
+            {t("sign-in-if-you-have-an-account")}
+          </a>
+        </div>
+      )}
+      {createAccountMutation.isError && !emailAlreadyTakenError && (
         <ErrorBanner variant={"text"} error={createAccountMutation.error} />
       )}
     </Wrapper>

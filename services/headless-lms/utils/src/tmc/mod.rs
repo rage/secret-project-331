@@ -2,7 +2,7 @@ use reqwest::Client;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use tracing::{debug, error, info};
+use tracing::{debug, info};
 use url::Url;
 use uuid::Uuid;
 

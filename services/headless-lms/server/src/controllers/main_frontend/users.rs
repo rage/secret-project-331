@@ -193,7 +193,7 @@ pub async fn send_reset_password_email(
         language,
     )
     .await
-    .map_err(|e| {
+    .map_err(|_e| {
         anyhow::anyhow!(
             "Password reset email template not configured. Missing template 'reset-password-email' for language '{}'",
             language

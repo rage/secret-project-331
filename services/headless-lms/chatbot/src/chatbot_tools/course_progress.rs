@@ -206,7 +206,7 @@ fn push_exercises_scores_progress(
     }
     if score_required.is_none() && attempted_exercises_required.is_none() {
         res += &format!(
-            " It's not required to attempt exercises or gain points to pass this {course_or_module}." // TODOOOOO
+            " It's not required to attempt exercises or gain points to pass this {course_or_module}."
         );
     }
 
@@ -236,6 +236,10 @@ fn push_exercises_scores_progress(
             res += &format!("gain {b} exercise points");
         }
         res += ".";
+    } else {
+        if requires_exam {
+            res += " The user can attempt the exam regardless of their progress on the course."
+        }
     }
 
     if let Some(b) = attempted_exercises {
@@ -257,7 +261,7 @@ fn push_exercises_scores_progress(
         let left = c - attempted_exercises_n;
         if left <= 0 {
             res += &format!(
-                " They have attempted enough exercises to {pass} if they have also received enough points."
+                " They meet the criteria to {pass} if they have also received enough points."
             );
         } else {
             res += &format!(" To {pass}, they need to attempt {left} more exercises.");
@@ -432,7 +436,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. The course has one base module, and additional modules. The user's progress on the base course module called Advanced Chatbot Course is the following: On this module, there are available a total of 5 exercises and 10 exercise points. To pass this module, it's required to attempt 5 exercises and gain 8 exercise points. The user has attempted 5 exercises. They have attempted enough exercises to pass this module if they have also received enough points. The user has gained 8.0 points. The user has gained enough points to pass this module.
+"Result: [output]The user is completing a course called Advanced Chatbot Course. The course has one base module, and additional modules. The user's progress on the base course module called Advanced Chatbot Course is the following: On this module, there are available a total of 5 exercises and 10 exercise points. To pass this module, it's required to attempt 5 exercises and gain 8 exercise points. The user has attempted 5 exercises. They meet the criteria to pass this module if they have also received enough points. The user has gained 8.0 points. The user has gained enough points to pass this module.
 To pass the course, it's required to pass the base module. The following modules are additional to the course and to complete them, it's required to first complete the base module.
 The user's progress on the course module called First extra module is the following: On this module, there are available a total of 6 exercises and 6 exercise points. To pass this module, it's required to attempt 5 exercises and gain 5 exercise points. The user has attempted 4 exercises. To pass this module, they need to attempt 1 more exercises. The user has gained 3.9 points. To pass this module, the user needs to gain 1.1 more points.
 The user's progress on the course module called Second extra module is the following: On this module, there are available a total of 6 exercises and 5 exercise points. To pass this module, it's required to attempt 5 exercises and gain 4 exercise points. The user has not attempted any exercises. To pass this module, they need to attempt 5 more exercises. The user has gained 0.0 points. To pass this module, the user needs to gain 4.0 more points.
@@ -598,6 +602,64 @@ Instructions for describing the output: [instructions]Describe this information 
 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. To attempt the required exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has not attempted any exercises. To attempt the exam, they need to attempt 10 more exercises. The user has gained 0.0 points. To attempt the exam, the user needs to gain 9.0 more points.\n[/output]
+
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+
+        assert_eq!(output, expected_output);
+    }
+
+    #[test]
+    fn test_course_progress_output_exam_required_can_do_exam() {
+        let progress = vec![CourseProgressInfo {
+            order_number: 1,
+            progress: UserCourseProgress {
+                course_module_id: Uuid::nil(),
+                course_module_name: "Example base module".to_string(),
+                course_module_order_number: 1,
+                score_given: 9.00006,
+                score_required: Some(9),
+                score_maximum: Some(10),
+                total_exercises: Some(10),
+                attempted_exercises: Some(10),
+                attempted_exercises_required: Some(10),
+            },
+            automatic_completion: true,
+            requires_exam: true,
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let output = tool.get_tool_output();
+
+        let expected_output =
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. To attempt the required exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has attempted 10 exercises. They meet the criteria to attempt the exam if they have also received enough points. The user has gained 9.0 points. The user has gained enough points to attempt the exam.\n[/output]
+
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+
+        assert_eq!(output, expected_output);
+    }
+
+    #[test]
+    fn test_course_progress_output_exam_only_required() {
+        let progress = vec![CourseProgressInfo {
+            order_number: 1,
+            progress: UserCourseProgress {
+                course_module_id: Uuid::nil(),
+                course_module_name: "Example base module".to_string(),
+                course_module_order_number: 1,
+                score_given: 9.780006,
+                score_required: None,
+                score_maximum: Some(10),
+                total_exercises: Some(10),
+                attempted_exercises: Some(10),
+                attempted_exercises_required: None,
+            },
+            automatic_completion: true,
+            requires_exam: true,
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let output = tool.get_tool_output();
+
+        let expected_output =
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. It's not required to attempt exercises or gain points to pass this course. To pass this course, it's required to complete an exam. The user can attempt the exam regardless of their progress on the course. The user has attempted 10 exercises.\n[/output]
 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 

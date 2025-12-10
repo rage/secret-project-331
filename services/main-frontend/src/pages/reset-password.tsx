@@ -1,5 +1,6 @@
 import i18n from "i18next"
 import { useRouter } from "next/router"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -20,6 +21,8 @@ const ResetPassword: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const router = useRouter()
   const uncheckedReturnTo = useQueryParameter("return_to")
+  const [emailSent, setEmailSent] = useState(false)
+  const [sentEmail, setSentEmail] = useState<string>("")
   const {
     handleSubmit,
     formState: { errors },
@@ -30,11 +33,31 @@ const ResetPassword: React.FC<React.PropsWithChildren<unknown>> = () => {
     (data: SubmitEmailFormFields) => sendResetPasswordLink(data.email, i18n.language),
     { method: "POST", notify: true },
     {
-      onSuccess: () => {
-        router.push("/")
+      onSuccess: (_, variables) => {
+        setSentEmail(variables.email)
+        setEmailSent(true)
       },
     },
   )
+
+  if (emailSent) {
+    return (
+      <>
+        <h3>{t("password-reset-email-sent")}</h3>
+        <p>{t("password-reset-email-sent-description", { email: sentEmail })}</p>
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={() => {
+            const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+            router.push(returnTo)
+          }}
+        >
+          {t("button-text-back")}
+        </Button>
+      </>
+    )
+  }
 
   return (
     <>

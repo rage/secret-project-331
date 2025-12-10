@@ -17,7 +17,10 @@ use anyhow::Error;
 use anyhow::anyhow;
 use headless_lms_models::ModelResult;
 use headless_lms_models::{user_email_codes, user_passwords, users};
-use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
+use headless_lms_utils::{
+    prelude::UtilErrorType,
+    tmc::{NewUserInfo, TmcClient},
+};
 use rand::Rng;
 use secrecy::SecretString;
 use std::time::Duration;
@@ -107,7 +110,28 @@ pub async fn signup(
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
     if user.is_none() {
-        let upstream_id = post_new_user_to_tmc(&user_details, &tmc_client, &app_conf).await?;
+        let upstream_id = tmc_client
+            .post_new_user_to_tmc(
+                NewUserInfo {
+                    first_name: user_details.first_name.clone(),
+                    last_name: user_details.last_name.clone(),
+                    email: user_details.email.clone(),
+                    password: user_details.password.clone(),
+                    password_confirmation: user_details.password_confirmation.clone(),
+                    language: user_details.language.clone(),
+                },
+                app_conf.as_ref(),
+            )
+            .await
+            .map_err(|e| {
+                let error_message = e.message().to_string();
+                let error_type = match e.error_type() {
+                    UtilErrorType::TmcHttpError => ControllerErrorType::InternalServerError,
+                    UtilErrorType::TmcErrorResponse => ControllerErrorType::BadRequest,
+                    _ => ControllerErrorType::InternalServerError,
+                };
+                ControllerError::new(error_type, error_message, Some(anyhow!(e)))
+            })?;
         let password_secret = SecretString::new(user_details.password.into());
 
         let user = models::users::insert_with_upstream_id_and_moocfi_id(
@@ -560,20 +584,18 @@ pub async fn send_delete_user_email_code(
         let language = &payload.language;
 
         // Get user deletion email template
-        let delete_template =
-            match models::email_templates::get_generic_email_template_by_name_and_language(
-                &mut conn,
-                "delete-user-email",
-                language,
+        let delete_template = models::email_templates::get_generic_email_template_by_name_and_language(
+            &mut conn,
+            "delete-user-email",
+            language,
+        )
+        .await
+        .map_err(|_e| {
+            anyhow::anyhow!(
+                "Account deletion email template not configured. Missing template 'delete-user-email' for language '{}'",
+                language
             )
-            .await
-            {
-                Ok(t) => t,
-                Err(e) => {
-                    warn!("No delete-user-email-code template available: {:?}", e);
-                    return token.authorized_ok(web::Json(false));
-                }
-            };
+        })?;
 
         let user = models::users::get_by_id(&mut conn, auth_user.id).await?;
 
@@ -673,30 +695,6 @@ pub async fn delete_user_account(
     } else {
         return token.authorized_ok(web::Json(false));
     }
-}
-
-/// Posts new user account to tmc.mooc.fi.
-///
-/// Based on implementation from <https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts>
-pub async fn post_new_user_to_tmc(
-    user_details: &CreateAccountDetails,
-    tmc_client: &web::Data<TmcClient>,
-    app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<i32> {
-    let upstream_id = tmc_client
-        .post_new_user_to_tmc(
-            NewUserInfo {
-                first_name: user_details.first_name.clone(),
-                last_name: user_details.last_name.clone(),
-                email: user_details.email.clone(),
-                password: user_details.password.clone(),
-                password_confirmation: user_details.password_confirmation.clone(),
-                language: user_details.language.clone(),
-            },
-            app_conf,
-        )
-        .await?;
-    Ok(upstream_id)
 }
 
 pub async fn update_user_information_to_tmc(

@@ -95,3 +95,7 @@ export function exerciseSubmissionsRoute(exerciseId: string) {
 export function submissionGradingRoute(submissionId: string) {
   return `/submissions/${submissionId}/grading/`
 }
+
+export function accountDeletedRoute() {
+  return "/account-deleted"
+}

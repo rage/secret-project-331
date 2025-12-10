@@ -632,6 +632,7 @@
   "message-update-failed": "Jotakin meni pieleen, päivitys ei onnistunut",
   "message-update-succesful": "Päivitys onnistui",
   "message-you-have-not-selected-an-action-for-every-change-yet": "Et ole vielä valinnut toimintoa jokaiselle muutokselle.",
+  "message-your-account-has-been-deleted": "Käyttäjätunnuksesi on poistettu.",
   "message-your-email-has-been-verified": "Sähköpostiosoitteesi on varmistettu.",
   "minutes": "minuuttia",
   "mode-duplicate": "Kopioi",

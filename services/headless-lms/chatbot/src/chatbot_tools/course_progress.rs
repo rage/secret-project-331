@@ -240,29 +240,28 @@ fn push_exercises_scores_progress(
     };
 
     if let Some(c) = attempted_exercises_required {
-        let left = c - attempted_exercises_n;
-        if left <= 0 {
+        let ex_left = c - attempted_exercises_n;
+        if ex_left <= 0 {
             res += &format!(
                 " They meet the criteria to {pass} if they have also received enough points."
             );
         } else {
-            res += &format!(" To {pass}, they need to attempt {left} more exercises.");
+            res += &format!(" To {pass}, they need to attempt {ex_left} more exercises.");
         }
     }
 
     if let Some(e) = score_required {
-        res += &format!(
-            " The user has gained {:.1} points.",
-            // round down to one digit
-            (score_given * 10.0).floor() / 10.0
-        );
-        let left = e as f32 - score_given;
-        if left <= 0 as f32 {
+        // round down to one digit
+        let score = (score_given * 10.0).floor() / 10.0;
+        res += &format!(" The user has gained {:.1} points.", score);
+
+        let pts_left = e as f32 - score;
+        if pts_left <= 0 as f32 {
             res += &format!(" The user has gained enough points to {pass}.")
         } else {
             res += &format!(
                 " To {pass}, the user needs to gain {:.1} more points.",
-                left
+                pts_left
             )
         }
     }

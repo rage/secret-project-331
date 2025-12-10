@@ -13,12 +13,13 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { deleteUserAccount, sendEmailCode } from "@/shared-module/common/services/backend/auth"
+import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
 
 interface DeleteUserAccountProps {
   email: string
 }
 
-type Step = "password" | "verifyCode" | "accountDeleted"
+type Step = "password" | "verifyCode"
 
 const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const { t } = useTranslation()
@@ -65,8 +66,8 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
         if (result) {
           queryClient.removeQueries()
           loginStateContext.refresh()
-          // eslint-disable-next-line i18next/no-literal-string
-          router.push("/account-deleted")
+
+          router.push(accountDeletedRoute())
         }
       },
       onError: () => {
@@ -74,19 +75,6 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
       },
     },
   )
-
-  const handleRedirectToLogin = () => {
-    // eslint-disable-next-line i18next/no-literal-string
-    router.push("/login")
-  }
-
-  const handleCloseDialog = () => {
-    if (step === "accountDeleted") {
-      handleRedirectToLogin()
-    } else {
-      setOpenDialog(false)
-    }
-  }
 
   return (
     <>
@@ -96,11 +84,11 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
       <StandardDialog
         open={openDialog}
-        title={step === "accountDeleted" ? t("account-deleted") : t("title-delete-account")}
+        title={t("title-delete-account")}
         showCloseButton
         // eslint-disable-next-line i18next/no-literal-string
         aria-modal="true"
-        onClose={handleCloseDialog}
+        onClose={() => setOpenDialog(false)}
       >
         {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
           <ErrorBanner error={sendEmailCodeMutation.error || deleteAccountMutation.error} />

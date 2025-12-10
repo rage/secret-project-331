@@ -234,9 +234,9 @@ fn push_exercises_scores_progress(
     let attempted_exercises_n = attempted_exercises.unwrap_or(0);
 
     let pass = if requires_exam {
-        "attempt the exam"
+        "attempt the exam".to_string()
     } else {
-        &format!("pass this {course_or_module}")
+        format!("pass this {course_or_module}")
     };
 
     if let Some(c) = attempted_exercises_required {

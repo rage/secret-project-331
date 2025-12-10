@@ -36,7 +36,7 @@ impl ChatbotTool for CourseProgressTool {
         let modules =
             headless_lms_models::course_modules::get_by_course_id(conn, user_context.course_id)
                 .await?;
-        let progress = progress_info(user_progress, modules)?;
+        let progress = progress_info(user_progress, modules, &user_context.course_name)?;
         Result::Ok(CourseProgressTool {
             state: CourseProgressState {
                 course_name: user_context.course_name.clone(),
@@ -60,12 +60,7 @@ impl ChatbotTool for CourseProgressTool {
             res += "Their progress on this course is the following:";
 
             res += &push_exercises_scores_progress(
-                module_progress.attempted_exercises,
-                module_progress.total_exercises,
-                module_progress.attempted_exercises_required,
-                module_progress.score_given,
-                module_progress.score_maximum,
-                module_progress.score_required,
+                module_progress,
                 progress_info.automatic_completion,
                 progress_info.requires_exam,
                 "course",
@@ -83,12 +78,7 @@ impl ChatbotTool for CourseProgressTool {
                 format!(
                     "The course has one base module, and additional modules. The user's progress on the base course module called {m_name} is the following:"
                 ) + &push_exercises_scores_progress(
-                    module_progress.attempted_exercises,
-                    module_progress.total_exercises,
-                    module_progress.attempted_exercises_required,
-                    module_progress.score_given,
-                    module_progress.score_maximum,
-                    module_progress.score_required,
+                    module_progress,
                     progress_info.automatic_completion,
                     progress_info.requires_exam,
                     "module",
@@ -108,12 +98,7 @@ impl ChatbotTool for CourseProgressTool {
                     "The user's progress on the course module called {m_name} is the following:"
                 ));
                 res += &push_exercises_scores_progress(
-                    module_progress.attempted_exercises,
-                    module_progress.total_exercises,
-                    module_progress.attempted_exercises_required,
-                    module_progress.score_given,
-                    module_progress.score_maximum,
-                    module_progress.score_required,
+                    module_progress,
                     progress_info.automatic_completion,
                     progress_info.requires_exam,
                     "module",
@@ -163,16 +148,18 @@ pub struct CourseProgressInfo {
 }
 
 fn push_exercises_scores_progress(
-    attempted_exercises: Option<i32>,
-    total_exercises: Option<u32>,
-    attempted_exercises_required: Option<i32>,
-    score_given: f32,
-    score_maximum: Option<u32>,
-    score_required: Option<i32>,
+    module_progress: &UserCourseProgress,
     automatic_completion: bool,
     requires_exam: bool,
     course_or_module: &str,
 ) -> String {
+    let attempted_exercises = module_progress.attempted_exercises;
+    let total_exercises = module_progress.total_exercises;
+    let attempted_exercises_required = module_progress.attempted_exercises_required;
+    let score_given = module_progress.score_given;
+    let score_maximum = module_progress.score_maximum;
+    let score_required = module_progress.score_required;
+
     let mut res = "".to_string();
     if total_exercises.is_some() || score_maximum.is_some() {
         if let (Some(a), Some(b)) = (total_exercises, score_maximum) {
@@ -181,8 +168,7 @@ fn push_exercises_scores_progress(
                     " This {course_or_module} has no exercises and no points. It cannot be completed by doing exercises."
                 );
                 if requires_exam {
-                    // is ok?
-                    res += &format!(" Passing an exam is required for completion.");
+                    res += " Passing an exam is required for completion.";
                 } else {
                     res += &format!(
                         " The user should look for information about completing the {course_or_module} in the course material or contact the teacher.\n"
@@ -291,6 +277,7 @@ fn push_exercises_scores_progress(
 fn progress_info(
     user_progress: Vec<UserCourseProgress>,
     modules: Vec<CourseModule>,
+    course_name: &str,
 ) -> ChatbotResult<Vec<CourseProgressInfo>> {
     user_progress
         .into_iter()
@@ -310,7 +297,7 @@ fn progress_info(
                     requires_exam,
                 })
             } else {
-                Err(ChatbotError::new(ChatbotErrorType::Other, "There was an error fetching the user's course progress information. Couldn't match course modules to user's per-module progress info.", None))
+                Err(ChatbotError::new(ChatbotErrorType::Other, format!("There was an error fetching the user's course progress information. Couldn't find course module {} of course {}.", u.course_module_name, course_name), None))
             }
         })
         .collect::<ChatbotResult<Vec<CourseProgressInfo>>>()

@@ -52,6 +52,11 @@
         "ordinal": 9,
         "name": "course_instance_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "language",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -74,7 +79,8 @@
       true,
       true,
       true,
-      false
+      true,
+      true
     ]
   },
   "hash": "8418000fb3d50f52e42766c3884416520d434ea9588248e26c3b4fbfb1abae90"

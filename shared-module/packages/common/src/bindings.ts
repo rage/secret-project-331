@@ -64,6 +64,27 @@ export interface SpecRequest {
   upload_url: string | null
 }
 
+export interface ConsentQuery {
+  client_id: string
+  redirect_uri: string
+  response_type: string
+  scope: string
+  state: string
+  nonce: string
+  code_challenge: string | null
+  code_challenge_method: string | null
+}
+
+export interface ConsentResponse {
+  redirect_uri: string
+}
+
+export interface ConsentDenyQuery {
+  client_id: string
+  redirect_uri: string
+  state: string
+}
+
 export interface CertificateAllRequirements {
   certificate_configuration_id: string
   course_module_ids: Array<string>
@@ -675,11 +696,14 @@ export interface EmailTemplate {
   subject: string | null
   exercise_completions_threshold: number | null
   points_threshold: number | null
-  course_instance_id: string
+  course_instance_id: string | null
+  language: string | null
 }
 
 export interface EmailTemplateNew {
   name: string
+  language: string | null
+  content: unknown | null
 }
 
 export interface EmailTemplateUpdate {
@@ -1159,6 +1183,11 @@ export interface CountResult {
   count: number
 }
 
+export interface StudentsByCountryTotalsResult {
+  country: string | null
+  count: number
+}
+
 export interface CustomViewExerciseSubmissions {
   exercise_tasks: CustomViewExerciseTasks
   exercises: Array<Exercise>
@@ -1432,6 +1461,12 @@ export interface Organization {
   organization_image_url: string | null
   deleted_at: string | null
   hidden: boolean
+}
+
+export interface AuthorizedClientInfo {
+  client_id: string
+  client_name: string
+  scopes: Array<string>
 }
 
 export interface PageAudioFile {
@@ -2083,8 +2118,7 @@ export interface SuspectedCheaters {
 }
 
 export interface ThresholdData {
-  points: number
-  duration_seconds: number | null
+  duration_seconds: number
 }
 
 export interface NewTeacherGradingDecision {
@@ -2446,8 +2480,6 @@ export interface EventInfo {
   involved_object_name: string | null
 }
 
-export type HealthStatus = "healthy" | "warning" | "error"
-
 export interface IngressInfo {
   name: string
   hosts: Array<string>
@@ -2490,6 +2522,8 @@ export interface ServicePortInfo {
   target_port: string | null
   protocol: string | null
 }
+
+export type HealthStatus = "healthy" | "warning" | "error"
 
 export interface SystemHealthStatus {
   status: HealthStatus

@@ -34,6 +34,9 @@ fn domain(target: &mut File) {
         error::ErrorData,
         error::ErrorResponse,
         models_requests::SpecRequest,
+        oauth::consent_query::ConsentQuery,
+        oauth::consent_response::ConsentResponse,
+        oauth::consent_deny_query::ConsentDenyQuery,
     };
 }
 
@@ -159,6 +162,7 @@ fn models(target: &mut File) {
         library::course_stats::AverageMetric,
         library::course_stats::CohortActivity,
         library::course_stats::CountResult,
+        library::course_stats::StudentsByCountryTotalsResult,
         library::custom_view_exercises::CustomViewExerciseSubmissions,
         library::custom_view_exercises::CustomViewExerciseTaskGrading,
         library::custom_view_exercises::CustomViewExerciseTaskSpec,
@@ -195,6 +199,8 @@ fn models(target: &mut File) {
         material_references::NewMaterialReference,
 
         organizations::Organization,
+
+        oauth_user_client_scopes::AuthorizedClientInfo,
 
         page_audio_files::PageAudioFile,
         page_history::HistoryChangeReason,
@@ -365,7 +371,7 @@ fn controllers(target: &mut File) {
 
     // domain
     {
-        use domain::*;
+        use crate::domain::*;
         export! {
             target,
 

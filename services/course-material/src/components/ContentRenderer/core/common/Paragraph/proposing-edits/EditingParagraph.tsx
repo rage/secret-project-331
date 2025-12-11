@@ -77,7 +77,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
     isEditingEnabled: type === "proposed-edits",
   })
 
-  const hasChanges = content !== editedContent
+  const hasChanges = (content ?? null) !== editedContent
 
   const handleEditClick = () => {
     setSelectedBlockId(id)

@@ -109,7 +109,6 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         backgroundColor={backgroundColor ?? undefined}
         fontSize={fontSize ?? undefined}
         setEdits={setEdits}
-        editButtonRef={editButtonRef as React.RefObject<HTMLButtonElement | null>}
       />
     )
   } else if (hasChanges) {

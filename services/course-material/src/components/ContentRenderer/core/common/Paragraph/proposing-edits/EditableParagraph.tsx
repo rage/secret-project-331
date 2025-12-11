@@ -19,7 +19,6 @@ interface EditableParagraphProps {
   backgroundColor?: string
   fontSize?: string
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
-  editButtonRef: React.RefObject<HTMLButtonElement | null>
 }
 
 // The inner component that won't re-render during typing
@@ -85,7 +84,6 @@ const EditableParagraph: React.FC<EditableParagraphProps> = ({
   backgroundColor,
   fontSize,
   setEdits,
-  editButtonRef,
 }) => {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)

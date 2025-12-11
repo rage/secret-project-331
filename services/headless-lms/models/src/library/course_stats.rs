@@ -368,17 +368,21 @@ SELECT DATE_TRUNC($5, user_start) AS "period",
 FROM (
     SELECT u.user_id,
       MIN(u.created_at) AS user_start,
-      MIN(e.created_at) AS first_submission
+      (
+        SELECT MIN(e.created_at)
+        FROM exercise_slide_submissions e
+        WHERE e.user_id = u.user_id
+          AND e.course_id = $1
+          AND e.deleted_at IS NULL
+      ) AS first_submission
     FROM user_course_settings u
-      JOIN exercise_slide_submissions e ON u.user_id = e.user_id
-      AND e.course_id = $1
-      AND e.deleted_at IS NULL
     WHERE u.current_course_id = $1
       AND u.deleted_at IS NULL
       AND NOT u.user_id = ANY($2)
       AND u.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
     GROUP BY u.user_id
   ) AS timings
+WHERE first_submission IS NOT NULL
 GROUP BY "period"
 ORDER BY "period"
         "#,
@@ -1009,4 +1013,474 @@ period
     }
 
     Ok(grouped_results)
+}
+
+/// Get student signup counts by country with specified time granularity.
+pub async fn student_enrollments_by_country(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
+    country: String,
+) -> ModelResult<Vec<CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT DATE_TRUNC($6, cie.created_at) AS "period",
+       COUNT(DISTINCT cie.user_id) AS "count!"
+FROM course_instance_enrollments cie
+JOIN user_details ud ON ud.user_id = cie.user_id
+WHERE cie.course_id = $1
+  AND cie.deleted_at IS NULL
+  AND NOT cie.user_id = ANY($2)
+  AND cie.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+  AND ud.country = $5
+GROUP BY "period"
+ORDER BY "period"
+        "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        country,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct StudentsByCountryTotalsResult {
+    pub country: Option<String>,
+    pub count: i64,
+}
+
+pub async fn students_by_country_totals(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<StudentsByCountryTotalsResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+
+    let rows = sqlx::query_as!(
+        StudentsByCountryTotalsResult,
+        r#"
+SELECT ud.country AS "country?",
+  COUNT(DISTINCT cie.user_id) AS "count!"
+FROM course_instance_enrollments cie
+  JOIN user_details ud ON ud.user_id = cie.user_id
+WHERE cie.course_id = $1
+  AND cie.deleted_at IS NULL
+  AND NOT cie.user_id = ANY($2)
+GROUP BY ud.country
+ORDER BY COUNT(DISTINCT cie.user_id) ASC
+        "#,
+        course_id,
+        &exclude_user_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(rows)
+}
+
+/// Get student completion counts by country with specified time granularity.
+pub async fn student_completions_by_country(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
+    country: String,
+) -> ModelResult<Vec<CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT DATE_TRUNC($6, cmc.created_at) AS "period",
+       COUNT(DISTINCT cmc.user_id) AS "count!"
+FROM course_module_completions cmc
+JOIN user_details ud ON ud.user_id = cmc.user_id
+WHERE cmc.course_id = $1
+  AND cmc.prerequisite_modules_completed = TRUE
+  AND cmc.needs_to_be_reviewed = FALSE
+  AND cmc.passed = TRUE
+  AND cmc.deleted_at IS NULL
+  AND NOT cmc.user_id = ANY($2)
+  AND cmc.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+  AND ud.country = $5
+GROUP BY "period"
+ORDER BY "period"
+        "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        country,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Get first exercise submission counts with specified time granularity, grouped by module.
+///
+/// Returns a HashMap where keys are module IDs and values are vectors of submission counts
+/// over time for that module.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+///
+/// Get first exercise submission counts grouped by course module,
+/// with specified time granularity (year/month/day) and time window.
+///
+/// Returns:
+///   HashMap<module_id, Vec<CountResult>>
+///
+/// A CountResult contains:
+///   period: DateTime<Utc>
+///   count: i64
+pub async fn first_exercise_submissions_by_module(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let results = sqlx::query!(
+        r#"
+WITH first_submissions AS (
+    SELECT
+        ess.user_id,
+        MIN(ess.created_at) AS first_submission,
+        ch.course_module_id AS module_id
+    FROM exercise_slide_submissions ess
+    JOIN exercises ex ON ex.id = ess.exercise_id
+    JOIN chapters ch ON ch.id = ex.chapter_id
+    WHERE ess.course_id = $1
+      AND ess.deleted_at IS NULL
+      AND NOT ess.user_id = ANY($2)
+      AND ess.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+      AND ch.course_module_id IS NOT NULL
+    GROUP BY ess.user_id, ch.course_module_id
+)
+SELECT
+    module_id AS "module_id!",
+    DATE_TRUNC($5, first_submission) AS "period",
+    COUNT(user_id) AS "count!"
+FROM first_submissions
+GROUP BY module_id, period
+ORDER BY module_id, period
+        "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by module_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.module_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get course completion counts for a custom date range.
+///
+/// - Groups by day (`DATE(created_at)`)
+pub async fn course_completions_history_by_custom_time_period(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    start_date: &str,
+    end_date: &str,
+) -> ModelResult<Vec<CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+
+    let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid start_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid end_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT
+    DATE_TRUNC('day',created_at) AS "period",
+    COUNT(DISTINCT user_id) AS "count!"
+FROM course_module_completions
+WHERE course_id = $1
+  AND prerequisite_modules_completed = TRUE
+  AND needs_to_be_reviewed = FALSE
+  AND passed = TRUE
+  AND deleted_at IS NULL
+  AND NOT user_id = ANY($2)
+  AND created_at >= $3
+  AND created_at <= $4
+GROUP BY period
+ORDER BY period
+        "#,
+        course_id,
+        &exclude_user_ids,
+        start_dt,
+        end_dt,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Get unique users starting counts with custom time period, grouped daily.
+pub async fn unique_users_starting_history_by_custom_time_period(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    start_date: &str,
+    end_date: &str,
+) -> ModelResult<Vec<CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+
+    let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid start_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid end_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT
+    DATE_TRUNC('day',u.created_at) AS "period",
+    COUNT(DISTINCT u.user_id) AS "count!"
+FROM user_course_settings u
+WHERE u.current_course_id = $1
+  AND u.deleted_at IS NULL
+  AND NOT (u.user_id = ANY($2))
+  AND u.created_at >= $3
+  AND u.created_at <= $4
+GROUP BY period
+ORDER BY period
+        "#,
+        course_id,
+        &exclude_user_ids,
+        start_dt,
+        end_dt,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Total unique users who started the course in a custom time period.
+pub async fn get_total_users_started_course_custom_time_period(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    start_date: &str,
+    end_date: &str,
+) -> ModelResult<CountResult> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+
+    let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid start_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid end_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT
+    NULL::timestamptz AS "period",
+    COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id = $1
+  AND deleted_at IS NULL
+  AND user_id != ALL($2)
+  AND created_at >= $3
+  AND created_at <= $4
+        "#,
+        course_id,
+        &exclude_user_ids,
+        start_dt,
+        end_dt,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Total unique users who completed the course in a custom time period.
+pub async fn get_total_users_completed_course_custom_time_period(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    start_date: &str,
+    end_date: &str,
+) -> ModelResult<CountResult> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+
+    let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid start_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid end_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT
+    NULL::timestamptz AS "period",
+    COUNT(DISTINCT user_id) AS "count!"
+FROM course_module_completions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND user_id != ALL($2)
+  AND created_at >= $3
+  AND created_at <= $4
+        "#,
+        course_id,
+        &exclude_user_ids,
+        start_dt,
+        end_dt,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Total unique users who returned at least one exercise in a custom time period.
+pub async fn get_total_users_returned_exercises_custom_time_period(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    start_date: &str,
+    end_date: &str,
+) -> ModelResult<CountResult> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+
+    let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid start_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid end_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT
+    NULL::timestamptz AS "period",
+    COUNT(DISTINCT user_id) AS "count!"
+FROM exercise_slide_submissions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND user_id != ALL($2)
+  AND created_at >= $3
+  AND created_at <= $4
+        "#,
+        course_id,
+        &exclude_user_ids,
+        start_dt,
+        end_dt,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
 }

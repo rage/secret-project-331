@@ -162,6 +162,7 @@ fn models(target: &mut File) {
         library::course_stats::AverageMetric,
         library::course_stats::CohortActivity,
         library::course_stats::CountResult,
+        library::course_stats::StudentsByCountryTotalsResult,
         library::custom_view_exercises::CustomViewExerciseSubmissions,
         library::custom_view_exercises::CustomViewExerciseTaskGrading,
         library::custom_view_exercises::CustomViewExerciseTaskSpec,

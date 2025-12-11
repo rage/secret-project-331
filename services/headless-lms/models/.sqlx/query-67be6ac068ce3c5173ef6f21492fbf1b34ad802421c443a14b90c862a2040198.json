@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC($6, cmc.created_at) AS \"period\",\n       COUNT(DISTINCT cmc.user_id) AS \"count!\"\nFROM course_module_completions cmc\nJOIN user_details ud ON ud.user_id = cmc.user_id\nWHERE cmc.course_id = $1\n  AND cmc.prerequisite_modules_completed = TRUE\n  AND cmc.needs_to_be_reviewed = FALSE\n  AND cmc.passed = TRUE\n  AND cmc.deleted_at IS NULL\n  AND NOT cmc.user_id = ANY($2)\n  AND cmc.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL\n  AND ud.country = $5\nGROUP BY \"period\"\nORDER BY \"period\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "67be6ac068ce3c5173ef6f21492fbf1b34ad802421c443a14b90c862a2040198"
+}

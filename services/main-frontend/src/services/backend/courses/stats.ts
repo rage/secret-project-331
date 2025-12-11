@@ -4,12 +4,14 @@ import {
   AverageMetric,
   CohortActivity,
   CountResult,
+  StudentsByCountryTotalsResult,
   TimeGranularity,
 } from "@/shared-module/common/bindings"
 import {
   isAverageMetric,
   isCohortActivity,
   isCountResult,
+  isStudentsByCountryTotalsResult,
 } from "@/shared-module/common/bindings.guard"
 import { isArray, isObjectMap, validateResponse } from "@/shared-module/common/utils/fetching"
 
@@ -199,4 +201,106 @@ export const getUsersReturningExercisesHistoryByInstance = async (
     `/courses/${courseId}/stats/by-instance/users-returning-exercises-history/${granularity}/${timeWindow}`,
   )
   return validateResponse(response, isObjectMap(isArray(isCountResult)))
+}
+
+export const getStudentEnrollmentsByCountry = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  country: string,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/student-enrollments-by-country/${granularity}/${timeWindow}/${country}`,
+  )
+
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getStudentCompletionsByCountry = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  country: string,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/student-completions-by-country/${granularity}/${timeWindow}/${country}`,
+  )
+
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getStudentsByCountryTotals = async (
+  courseId: string,
+): Promise<StudentsByCountryTotalsResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/students-by-country-totals`,
+  )
+  return validateResponse(response, isArray(isStudentsByCountryTotalsResult))
+}
+
+export const getFirstExerciseSubmissionsByModule = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+): Promise<Record<string, CountResult[]>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/by-module/first-submissions/${granularity}/${timeWindow}`,
+  )
+  return validateResponse(response, isObjectMap(isArray(isCountResult)))
+}
+
+export const getCourseCompletionsHistoryForCustomTimePeriod = async (
+  courseId: string,
+  startDate: string,
+  endDate: string,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/completions-history/custom-time-period/${startDate}/${endDate}`,
+  )
+
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getUniqueUsersStartingHistoryCustomTimePeriod = async (
+  courseId: string,
+  startDate: string,
+  endDate: string,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/users-starting-history/custom-time-period/${startDate}/${endDate}`,
+  )
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getTotalUsersStartedCourseCustomTimePeriod = async (
+  courseId: string,
+  startDate: string,
+  endDate: string,
+): Promise<CountResult> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/total-users-started-course/custom-time-period/${startDate}/${endDate}`,
+  )
+  return validateResponse(response, isCountResult)
+}
+
+export const getTotalUsersCompletedCourseCustomTimePeriod = async (
+  courseId: string,
+  startDate: string,
+  endDate: string,
+): Promise<CountResult> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/total-users-completed/custom-time-period/${startDate}/${endDate}`,
+  )
+  return validateResponse(response, isCountResult)
+}
+
+export const getTotalUsersReturnedExercisesCustomTimePeriod = async (
+  courseId: string,
+  startDate: string,
+  endDate: string,
+): Promise<CountResult> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/total-users-returned-exercises/custom-time-period/${startDate}/${endDate}`,
+  )
+  return validateResponse(response, isCountResult)
 }

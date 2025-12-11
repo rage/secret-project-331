@@ -40,7 +40,7 @@ const AverageTimeToSubmit: React.FC<React.PropsWithChildren<AverageTimeToSubmitP
     <LineChart
       data={data?.map((item) => ({
         period: item.period,
-        count: item.average ?? 0,
+        count: (item.average ?? 0) / 60,
       }))}
       isLoading={isLoading}
       error={error}

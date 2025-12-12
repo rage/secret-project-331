@@ -183,6 +183,8 @@ test.describe("Test chatbot chat box", () => {
       await scrollToYCoordinate(student1Page, 0)
       await citation1.click()
       const textInPopover = student1Page.getByText("Mock test page content")
+      // eslint-disable-next-line playwright/no-wait-for-timeout
+      await student1Page.waitForTimeout(100)
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: student1Page,
         headless,

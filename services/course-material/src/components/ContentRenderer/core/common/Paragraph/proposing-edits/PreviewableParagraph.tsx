@@ -1,6 +1,5 @@
 import { diffWords } from "diff"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import { getEditableHoverStyles, getParagraphStyles } from "../styles"
 
@@ -30,7 +29,6 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
   setEdits,
   editedContent: propEditedContent,
 }) => {
-  const { t } = useTranslation()
   const { editedContent: hookEditedContent } = useParagraphEditing({
     id,
     editing: true,
@@ -70,7 +68,6 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
       role="button"
       tabIndex={0}
-      title={t("click-to-edit")}
     >
       {diffChanges.length > 0 ? <DiffFormatter changes={diffChanges} /> : content}
     </p>

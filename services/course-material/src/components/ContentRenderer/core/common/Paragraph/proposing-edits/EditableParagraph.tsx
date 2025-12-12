@@ -54,7 +54,6 @@ const EditableParagraphContent = memo(
         `}`}
         contentEditable
         aria-label={ariaLabel}
-        aria-multiline="true"
         onInput={handleInput}
         suppressContentEditableWarning
         {...focusProps}

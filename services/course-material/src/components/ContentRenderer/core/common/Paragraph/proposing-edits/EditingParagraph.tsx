@@ -24,23 +24,20 @@ const editButtonStyles = css`
   vertical-align: baseline;
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
-  background-color: ${baseTheme.colors.blue[500]};
-  color: white;
+  background-color: ${baseTheme.colors.green[700]};
+  color: ${baseTheme.colors.primary[100]};
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  opacity: 0.8;
-  transition: opacity 0.3s;
+  transition: background-color 0.3s;
 
   &:hover {
-    background-color: ${baseTheme.colors.blue[600]};
-    opacity: 1;
+    background-color: ${baseTheme.colors.green[700]};
   }
 
   &:focus {
-    outline: 2px solid ${baseTheme.colors.blue[700]};
+    outline: 2px solid ${baseTheme.colors.green[600]};
     outline-offset: 2px;
-    opacity: 1;
   }
 `
 

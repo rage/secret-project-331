@@ -1,15 +1,5 @@
 import { css } from "@emotion/css"
-import {
-  JSX,
-  memo,
-  ReactPortal,
-  RefObject,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
+import { JSX, memo, RefObject, useContext, useLayoutEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
 import ParsedTextRenderer from "./ParsedTextRenderer"
@@ -66,51 +56,64 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const internalRef = useRef<HTMLSpanElement>(null)
   const containerRef = props.useWrapperElement === false ? props.wrapperRef : internalRef
   const [readyForPortal, setReadyForPortal] = useState(false)
+  const [glossaryTargets, setGlossaryTargets] = useState<
+    Array<{ node: HTMLElement; glossaryId: string }>
+  >([])
 
   useLayoutEffect(() => {
     setReadyForPortal(true)
   }, [])
 
-  const portals = useMemo(() => {
+  useLayoutEffect(() => {
     if (!readyForPortal || !containerRef.current) {
-      return null
+      setGlossaryTargets((prev) => (prev.length === 0 ? prev : []))
+      return
     }
 
     const glossaryNodes = Array.from(
       containerRef.current.querySelectorAll<HTMLElement>("[data-glossary-id]"),
     )
 
-    if (glossaryNodes.length === 0) {
-      return null
-    }
+    const nextTargets = glossaryNodes.flatMap((node) => {
+      const glossaryId = node.getAttribute("data-glossary-id")
+      return glossaryId ? [{ node, glossaryId }] : []
+    })
 
-    return glossaryNodes
-      .map((node, idx): ReactPortal | null => {
-        const glossaryId = node.getAttribute("data-glossary-id")
-        if (!glossaryId) {
-          return null
-        }
-
-        const term = terms.find((t) => t.id === glossaryId)
-        if (!term) {
-          return null
-        }
-
-        return createPortal(
-          <TooltipNTrigger
-            key={`glossary-${glossaryId}-${idx}`}
-            variant="glossary"
-            className={glossaryTermStyle}
-            tooltipContent={term.definition}
-          >
-            {term.term}
-          </TooltipNTrigger>,
-          node,
-          idx,
+    setGlossaryTargets((prev) => {
+      if (
+        prev.length === nextTargets.length &&
+        prev.every(
+          (p, idx) =>
+            p.node === nextTargets[idx]?.node && p.glossaryId === nextTargets[idx]?.glossaryId,
         )
-      })
-      .filter((portal): portal is ReactPortal => portal !== null)
-  }, [terms, readyForPortal, containerRef])
+      ) {
+        return prev
+      }
+      return nextTargets
+    })
+  }, [readyForPortal, props.text, props.options, props.useWrapperElement, terms, containerRef])
+
+  const portals = glossaryTargets
+    .map(({ node, glossaryId }, idx) => {
+      const term = terms.find((t) => t.id === glossaryId)
+      if (!term) {
+        return null
+      }
+
+      return createPortal(
+        <TooltipNTrigger
+          variant="glossary"
+          className={glossaryTermStyle}
+          tooltipContent={term.definition}
+        >
+          {term.term}
+        </TooltipNTrigger>,
+        node,
+        // eslint-disable-next-line i18next/no-literal-string
+        `glossary-${glossaryId}-${idx}`,
+      )
+    })
+    .filter((portal): portal is NonNullable<typeof portal> => portal !== null)
 
   const content =
     props.useWrapperElement === false ? (

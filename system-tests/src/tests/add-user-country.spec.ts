@@ -5,7 +5,7 @@ import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 test("User can add missing country information", async ({ page }) => {
   await test.step("Pop-up form for existing user who is missing country info", async () => {
     await page.goto(
-      "http://project-331.local/login?return_to=%2Forg%2Fuh-cs%2Fcourses%2Fadvanced-course-instance-management",
+      "http://project-331.local/login?return_to=%2Forg%2Fuh-mathstat%2Fcourses%2Faccessibility-course",
     )
     await page
       .getByRole("textbox", { name: "Email (Required)" })
@@ -44,7 +44,7 @@ test("User can add missing country information", async ({ page }) => {
 
   await test.step("Add country when creating a new user and see that pop-up form doesn't show", async () => {
     await page.goto(
-      "http://project-331.local/signup?return_to=%2Forg%2Fuh-cs%2Fcourses%2Fadvanced-course-instance-management&lang=en-US",
+      "http://project-331.local/signup?return_to=%2Forg%2Fuh-mathstat%2Fcourses%2Faccessibility-course&lang=en-US",
     )
     await page.getByRole("textbox", { name: "First name (Required)" }).fill("Test")
     await page.getByRole("textbox", { name: "Last name (Required)" }).fill("User")

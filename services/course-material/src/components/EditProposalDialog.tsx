@@ -17,7 +17,7 @@ import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
@@ -291,7 +291,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
                 border: 1px solid ${baseTheme.colors.gray[300]};
                 border-radius: 3px;
                 padding: 0.125rem 0.375rem;
-                font-family: monospace;
+                font-family: ${monospaceFont};
                 font-size: 0.75rem;
               `}
             >

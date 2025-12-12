@@ -8,7 +8,7 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 const TEST_PAGE =
   "http://project-331.local/org/uh-mathstat/courses/accessibility-course/chapter-1/flip-card"
 
-test.describe.only("Flip card accessibility", () => {
+test.describe("Flip card accessibility", () => {
   test.use({
     storageState: "src/states/user@example.com.json",
   })
@@ -85,31 +85,30 @@ test.describe.only("Flip card accessibility", () => {
     await test.step("Can flip card by clicking anywhere on the card (pseudo-content trick)", async () => {
       const frontContent = page.getByTestId("flip-card-front")
       const backContent = page.getByTestId("flip-card-back")
-      const cardContainer = page.locator('[style*="perspective"]').first()
 
       await expect(frontContent).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
 
-      await cardContainer.click({ position: { x: 50, y: 50 } })
+      await frontContent.click({ position: { x: 50, y: 50 } })
       const flipButton = getFlipButton(true)
       await expect(flipButton).toHaveAttribute("aria-pressed", "true")
       await expect(frontContent).toHaveAttribute("aria-hidden", "true")
       await expect(backContent).toHaveAttribute("aria-hidden", "false")
 
-      await cardContainer.click({ position: { x: 100, y: 100 } })
+      await backContent.click({ position: { x: 100, y: 100 } })
       const flipButton2 = getFlipButton(false)
       await expect(flipButton2).toHaveAttribute("aria-pressed", "false")
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
 
-      await cardContainer.click({ position: { x: 200, y: 150 } })
+      await frontContent.click({ position: { x: 200, y: 150 } })
       const flipButton3 = getFlipButton(true)
       await expect(flipButton3).toHaveAttribute("aria-pressed", "true")
       await expect(frontContent).toHaveAttribute("aria-hidden", "true")
       await expect(backContent).toHaveAttribute("aria-hidden", "false")
 
-      await cardContainer.click({ position: { x: 10, y: 10 } })
+      await backContent.click({ position: { x: 10, y: 10 } })
       const flipButton4 = getFlipButton(false)
       await expect(flipButton4).toHaveAttribute("aria-pressed", "false")
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
@@ -180,10 +179,10 @@ test.describe.only("Flip card accessibility", () => {
 
     await test.step("Card fits on 320px wide screen", async () => {
       await withViewportSize(page, { width: 320, height: 800 }, async () => {
-        const cardContainer = page.locator('[style*="perspective"]').first()
-        await expect(cardContainer).toBeVisible()
+        const frontContent = page.getByTestId("flip-card-front")
+        await expect(frontContent).toBeVisible()
 
-        const cardWidth = await cardContainer.boundingBox()
+        const cardWidth = await frontContent.boundingBox()
         expect(cardWidth?.width).toBeLessThanOrEqual(320)
       })
     })

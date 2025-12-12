@@ -109,9 +109,15 @@ impl ChatbotTool for CourseProgressTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some(
-            "Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.".to_string(),
+        if self.state.progress.len() > 1 {
+            Some(
+            "Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the user asks something like 'how to pass the course', describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.".to_string(),
         )
+        } else {
+            Some(
+            "Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.".to_string(),
+        )
+        }
     }
 
     fn get_arguments(&self) -> &Self::Arguments {
@@ -207,7 +213,7 @@ fn push_exercises_scores_progress(
 
     if attempted_exercises_required.is_some() || score_required.is_some() {
         if requires_exam {
-            res += " To attempt the required exam, it's required to ";
+            res += " To be qualified to take the exam, it's required to ";
         } else {
             res += &format!(" To pass this {course_or_module}, it's required to ");
         }
@@ -234,7 +240,7 @@ fn push_exercises_scores_progress(
     let attempted_exercises_n = attempted_exercises.unwrap_or(0);
 
     let pass = if requires_exam {
-        "attempt the exam".to_string()
+        "be qualified to take the exam".to_string()
     } else {
         format!("pass this {course_or_module}")
     };
@@ -340,7 +346,7 @@ mod tests {
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 11 exercises and 5 exercise points. To pass this course, it's required to attempt 10 exercises and gain 4 exercise points. The user has attempted 4 exercises. To pass this course, they need to attempt 6 more exercises. The user has gained 3.3 points. To pass this course, the user needs to gain 0.7 more points.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -424,7 +430,7 @@ The user's progress on the course module called First extra module is the follow
 The user's progress on the course module called Second extra module is the following: On this module, there are available a total of 6 exercises and 5 exercise points. To pass this module, it's required to attempt 5 exercises and gain 4 exercise points. The user has not attempted any exercises. To pass this module, they need to attempt 5 more exercises. The user has gained 0.0 points. To pass this module, the user needs to gain 4.0 more points.
 The user's progress on the course module called Chatbot advanced topics is the following: On this module, there are available a total of 2 exercises. It's not required to attempt exercises or gain points to pass this module. The user has attempted 2 exercises.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the user asks something like 'how to pass the course', describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -439,7 +445,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. There is no progress information for this user on this course. [/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -468,7 +474,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: This course has no exercises and no points. It cannot be completed by doing exercises. The user should look for information about completing the course in the course material or contact the teacher.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -498,7 +504,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. This course is graded by a teacher and can't be automatically passed by completing exercises. The user should look for information about completing the course in the course material or contact the teacher. To pass this course, it's required to attempt 10 exercises and gain 9 exercise points. The user has not attempted any exercises. To pass this course, they need to attempt 10 more exercises. The user has gained 0.0 points. To pass this course, the user needs to gain 9.0 more points.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -527,7 +533,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to gain 9 exercise points. The user has gained 0.0 points. To pass this course, the user needs to gain 9.0 more points.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -556,7 +562,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to attempt 10 exercises. The user has not attempted any exercises. To pass this course, they need to attempt 10 more exercises.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -583,9 +589,9 @@ Instructions for describing the output: [instructions]Describe this information 
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. To attempt the required exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has not attempted any exercises. To attempt the exam, they need to attempt 10 more exercises. The user has gained 0.0 points. To attempt the exam, the user needs to gain 9.0 more points.\n[/output]
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. To be qualified to take the exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has not attempted any exercises. To be qualified to take the exam, they need to attempt 10 more exercises. The user has gained 0.0 points. To be qualified to take the exam, the user needs to gain 9.0 more points.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -612,9 +618,9 @@ Instructions for describing the output: [instructions]Describe this information 
         let output = tool.get_tool_output();
 
         let expected_output =
-"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. To attempt the required exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has attempted 10 exercises. They meet the criteria to attempt the exam if they have also received enough points. The user has gained 9.0 points. The user has gained enough points to attempt the exam.\n[/output]
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. To be qualified to take the exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has attempted 10 exercises. They meet the criteria to be qualified to take the exam if they have also received enough points. The user has gained 9.0 points. The user has gained enough points to be qualified to take the exam.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }
@@ -643,7 +649,7 @@ Instructions for describing the output: [instructions]Describe this information 
         let expected_output =
 "Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. It's not required to attempt exercises or gain points to pass this course. To pass this course, it's required to complete an exam. The user can attempt the exam regardless of their progress on the course. The user has attempted 10 exercises.\n[/output]
 
-Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. If the course has multiple modules and the user asks something like 'how to pass the course', by default describe the passing criteria and requirements of the base module. Encourage the user to ask further questions about other modules if needed.[/instructions]".to_string();
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
     }

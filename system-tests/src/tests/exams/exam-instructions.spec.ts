@@ -50,9 +50,7 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
   await page.getByRole("textbox", { name: "List text" }).nth(1).fill("Two")
 
   await page.locator(`button:text-is("Save")`).click()
-
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(200)
+  await page.getByText("Operation successful!").waitFor()
 
   await page.goto("http://project-331.local/org/uh-cs")
 

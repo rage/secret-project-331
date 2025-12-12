@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    DATE_TRUNC('day',u.created_at) AS \"period\",\n    COUNT(DISTINCT u.user_id) AS \"count!\"\nFROM user_course_settings u\nWHERE u.current_course_id = $1\n  AND u.deleted_at IS NULL\n  AND NOT (u.user_id = ANY($2))\n  AND u.created_at >= $3\n  AND u.created_at <= $4\nGROUP BY period\nORDER BY period\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "6cd853100298f2340606b45842e1dd916fb1927f3af856069487bacfa65e107c"
+}

@@ -1,0 +1,106 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE oauth_auth_codes\n               SET used = true\n             WHERE digest = $1\n               AND client_id = $2\n               AND redirect_uri = $3\n               AND used = false\n               AND expires_at > now()\n            RETURNING\n              digest                   as \"digest: _\",\n              user_id,\n              client_id,\n              redirect_uri,\n              scopes,\n              jti,\n              nonce,\n              code_challenge,\n              code_challenge_method    as \"code_challenge_method: PkceMethod\",\n              dpop_jkt,\n              used,\n              expires_at,\n              metadata\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest: _",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "redirect_uri",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "scopes",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "jti",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "nonce",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "code_challenge",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "code_challenge_method: PkceMethod",
+        "type_info": {
+          "Custom": {
+            "name": "pkce_method",
+            "kind": {
+              "Enum": [
+                "plain",
+                "S256"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "dpop_jkt",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "used",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 11,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "metadata",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "18af2aec9ecad4eda3bc3eba6764e56609cc8c1a6770fb289f6171541ab520f0"
+}

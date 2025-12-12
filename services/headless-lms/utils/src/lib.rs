@@ -25,10 +25,12 @@ pub mod url_to_oembed_endpoint;
 extern crate tracing;
 
 use anyhow::Context;
+use secrecy::{ExposeSecret, SecretBox, SecretString};
+use std::sync::Arc;
 use std::{env, str::FromStr};
 use url::Url;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,
@@ -36,6 +38,8 @@ pub struct ApplicationConfiguration {
     pub development_uuid_login: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub tmc_account_creation_origin: Option<String>,
+    pub tmc_admin_access_token: SecretString,
+    pub oauth_server_configuration: OAuthServerConfiguration,
 }
 
 impl ApplicationConfiguration {
@@ -59,6 +63,20 @@ impl ApplicationConfiguration {
                 .context("TMC_ACCOUNT_CREATION_ORIGIN must be defined")?,
         );
 
+        let tmc_admin_access_token = SecretString::new(
+            std::env::var("TMC_ACCESS_TOKEN")
+                .unwrap_or_else(|_| {
+                    if test_mode {
+                        "mock-access-token".to_string()
+                    } else {
+                        panic!("TMC_ACCESS_TOKEN must be defined in production")
+                    }
+                })
+                .into(),
+        );
+        let oauth_server_configuration = OAuthServerConfiguration::try_from_env()
+            .context("Failed to load OAuth server configuration")?;
+
         Ok(Self {
             base_url,
             test_mode,
@@ -66,6 +84,8 @@ impl ApplicationConfiguration {
             development_uuid_login,
             azure_configuration,
             tmc_account_creation_origin,
+            tmc_admin_access_token,
+            oauth_server_configuration,
         })
     }
 }
@@ -239,5 +259,48 @@ impl AzureConfiguration {
             search_config,
             blob_storage_config,
         }))
+    }
+}
+
+#[derive(Clone)]
+pub struct OAuthServerConfiguration {
+    pub rsa_public_key: String,
+    pub rsa_private_key: String,
+    /// Secret key for HMAC-SHA-256 hashing of OAuth tokens (access tokens, refresh tokens, auth codes).
+    pub oauth_token_hmac_key: String,
+    /// Secret key for signing DPoP nonces (HMAC).
+    pub dpop_nonce_key: Arc<SecretBox<String>>,
+}
+
+impl PartialEq for OAuthServerConfiguration {
+    fn eq(&self, other: &Self) -> bool {
+        self.rsa_public_key == other.rsa_public_key
+            && self.rsa_private_key == other.rsa_private_key
+            && self.oauth_token_hmac_key == other.oauth_token_hmac_key
+            && self.dpop_nonce_key.expose_secret() == other.dpop_nonce_key.expose_secret()
+    }
+}
+
+impl OAuthServerConfiguration {
+    /// Attempts to create an OAuthServerConfiguration.
+    /// Return `Ok(Some(OAuthConfiguration))` if all configurations are set.
+    /// Return `Err` if any is not set.
+    pub fn try_from_env() -> anyhow::Result<Self> {
+        let rsa_public_key =
+            env::var("OAUTH_RSA_PUBLIC_PEM").context("OAUTH_RSA_PUBLIC_KEY must be defined")?;
+        let rsa_private_key =
+            env::var("OAUTH_RSA_PRIVATE_PEM").context("OAUTH_RSA_PRIVATE_KEY must be defined")?;
+        let oauth_token_hmac_key =
+            env::var("OAUTH_TOKEN_HMAC_KEY").context("OAUTH_TOKEN_HMAC_KEY must be defined")?;
+        let dpop_nonce_key = Arc::new(SecretBox::new(Box::new(
+            env::var("OAUTH_DPOP_NONCE_KEY").context("OAUTH_DPOP_NONCE_KEY must be defined")?,
+        )));
+
+        Ok(Self {
+            rsa_public_key,
+            rsa_private_key,
+            oauth_token_hmac_key,
+            dpop_nonce_key,
+        })
     }
 }

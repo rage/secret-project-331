@@ -1,7 +1,9 @@
 use headless_lms_models::course_module_completions::CourseModuleCompletion;
+use headless_lms_models::suspected_cheaters::ThresholdData;
 use models::{
     course_modules::{self, CourseModule},
     library::progressing::{CompletionRegistrationLink, UserCompletionInformation},
+    suspected_cheaters,
 };
 
 use crate::prelude::*;
@@ -144,6 +146,67 @@ async fn get_best_course_module_completion_for_user(
 }
 
 /**
+ POST /api/v0/main-frontend/course-modules/${course_module_id}/threshold - post threshold for a specific course module.
+*/
+#[instrument(skip(pool))]
+async fn insert_threshold_for_module(
+    pool: web::Data<PgPool>,
+    params: web::Path<Uuid>,
+    payload: web::Json<ThresholdData>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let course_module_id = params.into_inner();
+    let new_threshold = payload.0;
+
+    let course_module = course_modules::get_by_id(&mut conn, course_module_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .await?;
+
+    suspected_cheaters::insert_thresholds_by_module_id(
+        &mut conn,
+        course_module_id,
+        new_threshold.duration_seconds,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+ DELETE /api/v0/main-frontend/course-modules/${course_module_id}/threshold - delete threshold for a specific course module.
+*/
+#[instrument(skip(pool))]
+async fn delete_threshold_for_module(
+    pool: web::Data<PgPool>,
+    params: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let course_module_id = params.into_inner();
+
+    let course_module = course_modules::get_by_id(&mut conn, course_module_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .await?;
+
+    suspected_cheaters::delete_threshold_for_module(&mut conn, course_module_id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -167,5 +230,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_module_id}/course-module-completion",
             web::get().to(get_best_course_module_completion_for_user),
+        )
+        .route(
+            "/{course_module_id}/threshold",
+            web::post().to(insert_threshold_for_module),
+        )
+        .route(
+            "/{course_module_id}/threshold",
+            web::delete().to(delete_threshold_for_module),
         );
 }

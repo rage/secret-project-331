@@ -3,7 +3,9 @@ pub mod seed_certificate_fonts;
 pub mod seed_courses;
 pub mod seed_exercise_services;
 pub mod seed_file_storage;
+pub mod seed_generic_emails;
 pub mod seed_helpers;
+pub mod seed_oauth_clients;
 pub mod seed_organizations;
 pub mod seed_playground_examples;
 pub mod seed_roles;
@@ -12,7 +14,10 @@ pub mod seed_users;
 
 use std::{env, process::Command, sync::Arc, time::Duration};
 
-use crate::{domain::models_requests::JwtKey, setup_tracing};
+use crate::{
+    domain::models_requests::JwtKey, programs::seed::seed_oauth_clients::seed_oauth_clients,
+    setup_tracing,
+};
 
 use anyhow::Context;
 use futures::try_join;
@@ -78,7 +83,12 @@ pub async fn main() -> anyhow::Result<()> {
         )),
         run_parallelly(seed_certificate_fonts::seed_certificate_fonts(
             db_pool.clone()
-        ))
+        )),
+        run_parallelly(seed_generic_emails::seed_generic_emails(
+            db_pool.clone(),
+            seed_users_result
+        )),
+        run_parallelly(seed_oauth_clients(db_pool.clone()))
     )?;
 
     Ok(())

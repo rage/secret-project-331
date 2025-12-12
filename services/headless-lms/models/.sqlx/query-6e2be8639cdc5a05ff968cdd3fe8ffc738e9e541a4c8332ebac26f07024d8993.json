@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE cheater_thresholds\n        SET deleted_at = NOW()\n        WHERE course_module_id = $1\n        AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6e2be8639cdc5a05ff968cdd3fe8ffc738e9e541a4c8332ebac26f07024d8993"
+}

@@ -1,6 +1,11 @@
 # Built from DockerfileBase.dockerfile
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as chef
-RUN chown -R user /app
+
+# Make /app writable for the non-root user
+USER root
+RUN mkdir -p /app && chown user:user /app
+
+WORKDIR /app
 USER user
 
 FROM chef AS planner
@@ -13,7 +18,7 @@ USER user
 
 ENV CARGO_HOME=/home/user/.cargo \
   PATH=/home/user/.cargo/bin:$PATH
-
+ENV SQLX_OFFLINE 1
 # compile dependencies
 COPY --chown=user --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --recipe-path recipe.json

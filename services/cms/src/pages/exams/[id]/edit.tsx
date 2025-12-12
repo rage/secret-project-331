@@ -3,10 +3,11 @@ import React, { useState } from "react"
 
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
 
-import { ExamInstructions, ExamInstructionsUpdate } from "@/shared-module/common/bindings"
+import { ExamInstructionsUpdate } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
@@ -31,19 +32,23 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
     gcTime: 0,
     queryFn: async () => {
       const res = await fetchExamsInstructions(examsId)
-      // Only works when gCTime is set to 0
       setNeedToRunMigrationsAndValidations(true)
       return res
     },
   })
 
-  const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {
-    const res = await updateExamsInstructions(examsId, {
-      ...instructions,
-    })
-    await getExamsInstructions.refetch()
-    return res
-  }
+  const saveMutation = useToastMutation(
+    (instructions: ExamInstructionsUpdate) => updateExamsInstructions(examsId, instructions),
+    {
+      notify: true,
+      method: "PUT",
+    },
+    {
+      onSuccess: () => {
+        getExamsInstructions.refetch()
+      },
+    },
+  )
 
   if (getExamsInstructions.isError) {
     return <ErrorBanner variant={"readOnly"} error={getExamsInstructions.error} />
@@ -56,7 +61,7 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
   return (
     <ExamsInstructionsGutenbergEditor
       data={getExamsInstructions.data}
-      handleSave={handleSave}
+      saveMutation={saveMutation}
       needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
       setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
     />

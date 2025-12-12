@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-deliver
+  labels:
+    app: email-deliver
+    deploymentType: with-init-container
+    needs-db: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-deliver
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: email-deliver
+    spec:
+      containers:
+        - name: email-deliver
+          image: headless-lms
+          command: ["bin/run", "email-deliver"]
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
+              cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
+      initContainers:
+        - name: headless-lms-wait-for-db
+          image: headless-lms
+          command:
+            - bash
+            - "-c"
+            - |
+              echo Waiting for postgres to be available
+              timeout 120 ./wait-for-db.sh
+              # Need to also wait for user_details because migrations can take a moment to run, and the emailer depends on this table
+              ./wait-for-db-migrations.sh user_details
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
+              cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets

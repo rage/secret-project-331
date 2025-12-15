@@ -59,12 +59,12 @@ async fn get_exercise(
         let user_enrollment =
             models::exams::get_enrollment(&mut conn, exam_id, user_id.unwrap()).await?;
 
-        if let Some(enrollment) = user_enrollment {
-            if let Some(show_answers) = enrollment.show_exercise_answers {
-                if enrollment.is_teacher_testing && show_answers {
-                    should_clear_grading_information = false;
-                }
-            }
+        if let Some(enrollment) = user_enrollment
+            && let Some(show_answers) = enrollment.show_exercise_answers
+            && enrollment.is_teacher_testing
+            && show_answers
+        {
+            should_clear_grading_information = false;
         }
     }
 

@@ -4,18 +4,6 @@ use models::oauth_user_client_scopes::{AuthorizedClientInfo, OAuthUserClientScop
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use serde::{Deserialize, Serialize};
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct AuthorizedClient {
-    pub client_id: Uuid,     // DB uuid (oauth_clients.id)
-    pub client_name: String, // human-readable name from oauth_clients.client_id
-    pub scopes: Vec<String>,
-}
-
 #[instrument(skip(pool, auth_user))]
 pub async fn get_authorized_clients(
     pool: web::Data<PgPool>,

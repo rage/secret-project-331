@@ -359,20 +359,18 @@ pub async fn can_user_view_chapter(
     course_id: Option<Uuid>,
     chapter_id: Option<Uuid>,
 ) -> Result<bool, ControllerError> {
-    if let Some(course_id) = course_id {
-        if let Some(chapter_id) = chapter_id {
-            if !models::chapters::is_open(&mut *conn, chapter_id).await? {
-                if user_id.is_none() {
-                    return Ok(false);
-                }
-                // If the user has been granted access to view the material, then they can see the unopened chapters too
-                // This is important because sometimes teachers wish to test unopened chapters with real students
-                let permission =
-                    authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await;
-
-                return Ok(permission.is_ok());
-            }
+    if let Some(course_id) = course_id
+        && let Some(chapter_id) = chapter_id
+        && !models::chapters::is_open(&mut *conn, chapter_id).await?
+    {
+        if user_id.is_none() {
+            return Ok(false);
         }
+        // If the user has been granted access to view the material, then they can see the unopened chapters too
+        // This is important because sometimes teachers wish to test unopened chapters with real students
+        let permission = authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await;
+
+        return Ok(permission.is_ok());
     }
     Ok(true)
 }

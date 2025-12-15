@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import { UseMutationResult, useQuery } from "@tanstack/react-query"
+import { useMutation, UseMutationResult, useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
@@ -16,7 +16,7 @@ import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supporte
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import { fetchNextPageRoutingData } from "../../services/backend/pages"
+import { fetchNextPageRoutingData, previewPageUpdate } from "../../services/backend/pages"
 import { modifyBlocks, removeUncommonSpacesFromBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -25,12 +25,7 @@ import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
-import {
-  CmsPageUpdate,
-  ContentManagementPage,
-  GutenbergBlock,
-  Page,
-} from "@/shared-module/common/bindings"
+import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -110,6 +105,11 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   )
   const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
   const [currentlySaving, setCurrentlySaving] = useState(false)
+
+  const previewMutation = useMutation({
+    mutationFn: (dataToSave: CmsPageUpdate) => previewPageUpdate(data.id, dataToSave),
+  })
+
   const handleOnSave = async () => {
     setCurrentlySaving(true)
     const dataToSave = normalizeDocument({
@@ -127,6 +127,35 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           )
       }
     }
+
+    try {
+      const preview = await previewMutation.mutateAsync(dataToSave)
+      if (preview.exercises_to_be_deleted.length > 0) {
+        setCurrentlySaving(false)
+        const exerciseCount = preview.exercises_to_be_deleted.length
+        const exerciseNames = preview.exercises_to_be_deleted
+          .map((e: { name: string }) => e.name)
+          .filter((name: string) => name)
+          .join(", ")
+        const exerciseText = exerciseCount === 1 ? t("exercise") : t("exercises")
+        const namesText = exerciseNames ? `: ${exerciseNames}` : ""
+        const message = t("saving-will-delete-exercises-warning", {
+          count: exerciseCount,
+          exercises: exerciseText,
+          names: namesText,
+        })
+        const confirmed = await confirm(message)
+        if (!confirmed) {
+          return
+        }
+        setCurrentlySaving(true)
+      }
+    } catch (error) {
+      console.error("Failed to preview page update:", error)
+      setCurrentlySaving(false)
+      return
+    }
+
     saveMutation.mutate(dataToSave, {
       onSuccess: (data) => {
         if (!isGutenbergBlockArray(data.page.content)) {
@@ -215,7 +244,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             pointer-events: auto;
           `}
           onClick={handleOnSave}
-          disabled={currentContentStateSaved || currentlySaving}
+          disabled={currentContentStateSaved || currentlySaving || previewMutation.isPending}
         >
           {t("save")}
         </Button>
@@ -233,7 +262,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
               contentDispatch({ type: "setContent", payload: savedContent })
             }
           }}
-          disabled={currentContentStateSaved || currentlySaving}
+          disabled={currentContentStateSaved || currentlySaving || previewMutation.isPending}
         >
           {t("reset")}
         </Button>

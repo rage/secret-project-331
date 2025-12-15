@@ -5,6 +5,7 @@ use models::{
     page_history::HistoryChangeReason,
     pages::{
         CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
+        PageUpdatePreview,
     },
 };
 
@@ -113,6 +114,29 @@ async fn update_page(
 }
 
 /**
+POST `/api/v0/cms/pages/:page_id/preview` - Preview what would be deleted when updating a page.
+
+Request: `POST /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/preview`
+Body: Same as PUT /api/v0/cms/pages/:page_id (CmsPageUpdate)
+
+Returns information about exercises that would be deleted if the update is applied.
+*/
+#[instrument(skip(pool))]
+async fn preview_page_update(
+    page_id: web::Path<Uuid>,
+    payload: web::Json<CmsPageUpdate>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PageUpdatePreview>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+
+    let cms_page_update = payload.0;
+    let preview = models::pages::preview_page_update(&mut conn, *page_id, cms_page_update).await?;
+    token.authorized_ok(web::Json(preview))
+}
+
+/**
 GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
 */
 #[instrument(skip(pool))]
@@ -140,5 +164,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{page_id}/page-navigation",
             web::get().to(get_page_navigation),
         )
+        .route("/{page_id}/preview", web::post().to(preview_page_update))
         .route("/{page_id}", web::put().to(update_page));
 }

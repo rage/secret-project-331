@@ -1,4 +1,4 @@
-use std::collections::{HashMap, hash_map};
+use std::collections::{HashMap, HashSet, hash_map};
 
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
@@ -191,6 +191,12 @@ pub struct ContentManagementPage {
     pub peer_or_self_review_configs: Vec<CmsPeerOrSelfReviewConfig>,
     pub peer_or_self_review_questions: Vec<CmsPeerOrSelfReviewQuestion>,
     pub organization_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PageUpdatePreview {
+    pub exercises_to_be_deleted: Vec<CmsPageExercise>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -795,28 +801,30 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     })
 }
 
-pub async fn get_page_with_exercises(
+async fn get_cms_page_exercises_with_review_data(
     conn: &mut PgConnection,
     page_id: Uuid,
-) -> ModelResult<ContentManagementPage> {
-    let page = get_page(&mut *conn, page_id).await?;
-
+) -> ModelResult<(
+    Vec<CmsPageExercise>,
+    HashMap<Uuid, CmsPeerOrSelfReviewConfig>,
+    HashMap<Uuid, Vec<CmsPeerOrSelfReviewQuestion>>,
+)> {
     let peer_or_self_review_configs =
-        crate::peer_or_self_review_configs::get_peer_reviews_by_page_id(conn, page.id)
+        crate::peer_or_self_review_configs::get_peer_reviews_by_page_id(conn, page_id)
             .await?
             .into_iter()
             .flat_map(|pr| (pr.exercise_id.map(|id| (id, pr))))
             .collect::<HashMap<_, _>>();
 
     let peer_or_self_review_questions =
-        crate::peer_or_self_review_questions::get_by_page_id(conn, page.id)
+        crate::peer_or_self_review_questions::get_by_page_id(conn, page_id)
             .await?
             .into_iter()
             .into_group_map_by(|prq| prq.peer_or_self_review_config_id)
             .into_iter()
             .collect::<HashMap<_, _>>();
 
-    let exercises = crate::exercises::get_exercises_by_page_id(&mut *conn, page.id)
+    let exercises = crate::exercises::get_exercises_by_page_id(&mut *conn, page_id)
         .await?
         .into_iter()
         .map(|exercise| {
@@ -838,6 +846,22 @@ pub async fn get_page_with_exercises(
             ))
         })
         .collect::<ModelResult<Vec<_>>>()?;
+
+    Ok((
+        exercises,
+        peer_or_self_review_configs,
+        peer_or_self_review_questions,
+    ))
+}
+
+pub async fn get_page_with_exercises(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<ContentManagementPage> {
+    let page = get_page(&mut *conn, page_id).await?;
+
+    let (exercises, peer_or_self_review_configs, peer_or_self_review_questions) =
+        get_cms_page_exercises_with_review_data(&mut *conn, page.id).await?;
 
     let exercise_slides: Vec<CmsPageExerciseSlide> =
         crate::exercise_slides::get_exercise_slides_by_exercise_ids(
@@ -1097,6 +1121,27 @@ pub struct PageUpdateArgs {
     pub retain_ids: bool,
     pub history_change_reason: HistoryChangeReason,
     pub is_exam_page: bool,
+}
+
+pub async fn preview_page_update(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    cms_page_update: CmsPageUpdate,
+) -> ModelResult<PageUpdatePreview> {
+    let (current_cms_exercises, _, _) =
+        get_cms_page_exercises_with_review_data(&mut *conn, page_id).await?;
+
+    let update_exercise_ids: HashSet<Uuid> =
+        cms_page_update.exercises.iter().map(|e| e.id).collect();
+
+    let exercises_to_be_deleted: Vec<CmsPageExercise> = current_cms_exercises
+        .into_iter()
+        .filter(|exercise| !update_exercise_ids.contains(&exercise.id))
+        .collect();
+
+    Ok(PageUpdatePreview {
+        exercises_to_be_deleted,
+    })
 }
 
 pub async fn update_page(

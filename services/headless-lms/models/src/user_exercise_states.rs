@@ -186,15 +186,50 @@ GROUP BY chapters.course_module_id
     Ok(res)
 }
 
+pub async fn get_course_metrics_open_chapters(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseExerciseMetrics>> {
+    let res = sqlx::query_as!(
+        CourseExerciseMetrics,
+        r"
+SELECT chapters.course_module_id,
+  COUNT(exercises.id) AS total_exercises,
+  SUM(exercises.score_maximum) AS score_maximum
+FROM courses c
+  LEFT JOIN exercises ON (c.id = exercises.course_id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE exercises.deleted_at IS NULL
+  AND c.id = $1
+  AND chapters.course_module_id IS NOT NULL
+  AND chapters.opens_at < now()
+GROUP BY chapters.course_module_id
+        ",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_course_metrics_indexed_by_module_id(
     conn: &mut PgConnection,
     course_id: Uuid,
+    only_open_chapters: bool,
 ) -> ModelResult<HashMap<Uuid, CourseExerciseMetrics>> {
-    let res = get_course_metrics(conn, course_id)
-        .await?
-        .into_iter()
-        .map(|x| (x.course_module_id, x))
-        .collect();
+    let res = if only_open_chapters {
+        get_course_metrics_open_chapters(conn, course_id)
+            .await?
+            .into_iter()
+            .map(|x| (x.course_module_id, x))
+            .collect()
+    } else {
+        get_course_metrics(conn, course_id)
+            .await?
+            .into_iter()
+            .map(|x| (x.course_module_id, x))
+            .collect()
+    };
     Ok(res)
 }
 
@@ -260,16 +295,54 @@ GROUP BY chapters.course_module_id;
     Ok(res)
 }
 
+pub async fn get_user_course_metrics_only_open_chapters(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<UserCourseMetrics>> {
+    let res = sqlx::query_as!(
+        UserCourseMetrics,
+        r"
+SELECT chapters.course_module_id,
+  COUNT(ues.exercise_id) AS attempted_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
+FROM user_exercise_states AS ues
+  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE ues.course_id = $1
+  AND ues.activity_progress IN ('completed', 'submitted')
+  AND ues.user_id = $2
+  AND ues.deleted_at IS NULL
+  AND chapters.opens_at < now()
+GROUP BY chapters.course_module_id;
+        ",
+        course_id,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_user_course_metrics_indexed_by_module_id(
     conn: &mut PgConnection,
     course_id: Uuid,
     user_id: Uuid,
+    only_open_chapters: bool,
 ) -> ModelResult<HashMap<Uuid, UserCourseMetrics>> {
-    let res = get_user_course_metrics(conn, course_id, user_id)
-        .await?
-        .into_iter()
-        .map(|x| (x.course_module_id, x))
-        .collect();
+    let res = if only_open_chapters {
+        get_user_course_metrics_only_open_chapters(conn, course_id, user_id)
+            .await?
+            .into_iter()
+            .map(|x| (x.course_module_id, x))
+            .collect()
+    } else {
+        get_user_course_metrics(conn, course_id, user_id)
+            .await?
+            .into_iter()
+            .map(|x| (x.course_module_id, x))
+            .collect()
+    };
     Ok(res)
 }
 
@@ -306,10 +379,13 @@ pub async fn get_user_course_progress(
     conn: &mut PgConnection,
     course_id: Uuid,
     user_id: Uuid,
+    only_open_chapters: bool,
 ) -> ModelResult<Vec<UserCourseProgress>> {
-    let course_metrics = get_course_metrics_indexed_by_module_id(&mut *conn, course_id).await?;
+    let course_metrics =
+        get_course_metrics_indexed_by_module_id(&mut *conn, course_id, only_open_chapters).await?;
     let user_metrics =
-        get_user_course_metrics_indexed_by_module_id(conn, course_id, user_id).await?;
+        get_user_course_metrics_indexed_by_module_id(conn, course_id, user_id, only_open_chapters)
+            .await?;
     let course_name = courses::get_course(conn, course_id).await?.name;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
@@ -1234,7 +1310,13 @@ mod tests {
     use chrono::TimeZone;
 
     use super::*;
-    use crate::test_helper::*;
+    use crate::{
+        chapters::NewChapter,
+        exercise_slides, exercises,
+        library::content_management::create_new_chapter,
+        pages::{NewPage, insert_page},
+        test_helper::*,
+    };
 
     mod getting_single_module_course_metrics {
         use super::*;
@@ -1289,5 +1371,175 @@ mod tests {
         assert_eq!(metric.score_given, 1.0);
         assert_eq!(metric.score_maximum, Some(10));
         assert_eq!(metric.total_exercises, Some(4));
+    }
+
+    #[tokio::test]
+    async fn get_user_course_progress_open_closed_chapters() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page);
+        // insert another chapter
+        let (new_chapter, _) = create_new_chapter(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewChapter {
+                name: "best chapter 2".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                deadline: None,
+                opens_at: Some(
+                    DateTime::parse_from_str(
+                        // chapter is not open yet
+                        "2983 Apr 13 12:09:14 +0000",
+                        "%Y %b %d %H:%M:%S %z",
+                    )
+                    .unwrap()
+                    .to_utc(),
+                ),
+                course_module_id: Some(course_module.id),
+            },
+            user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+
+        // insert a page with an exercise to the not-open chapter
+        let page = insert_page(
+            tx.as_mut(),
+            NewPage {
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                content: vec![],
+                url_path: "/page2".to_string(),
+                title: "title".to_string(),
+                course_id: Some(course),
+                exam_id: None,
+                chapter_id: Some(new_chapter.id),
+                front_page_of_chapter_id: Some(new_chapter.id),
+                content_search_language: None,
+            },
+            user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+        let ex = exercises::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            course,
+            "ex 1",
+            page.id,
+            new_chapter.id,
+            1,
+        )
+        .await
+        .unwrap();
+        exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, ex, 1)
+            .await
+            .unwrap();
+
+        // test if the progresses are different
+        let progress_all = get_user_course_progress(tx.as_mut(), course, user, false)
+            .await
+            .unwrap();
+        let progress_open_chapters = get_user_course_progress(tx.as_mut(), course, user, true)
+            .await
+            .unwrap();
+
+        assert_ne!(progress_all, progress_open_chapters);
+        assert_eq!(
+            progress_all[1].course_module_id,
+            progress_open_chapters[1].course_module_id
+        );
+        assert_eq!(progress_all[1].total_exercises, Some(1));
+        assert_eq!(progress_open_chapters[1].total_exercises, None);
+    }
+
+    #[tokio::test]
+    async fn get_user_course_progress_filter_out_closed_module() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+        // insert another chapter
+        let (new_chapter, _) = create_new_chapter(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewChapter {
+                name: "best chapter".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                deadline: None,
+                opens_at: Some(
+                    DateTime::parse_from_str(
+                        // chapter is not open yet
+                        "2983 Apr 13 12:09:14 +0000",
+                        "%Y %b %d %H:%M:%S %z",
+                    )
+                    .unwrap()
+                    .to_utc(),
+                ),
+                course_module_id: Some(course_module.id),
+            },
+            user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+
+        // insert a page with an exercise to the not-open chapter
+        let page = insert_page(
+            tx.as_mut(),
+            NewPage {
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                content: vec![],
+                url_path: "/page2".to_string(),
+                title: "title".to_string(),
+                course_id: Some(course),
+                exam_id: None,
+                chapter_id: Some(new_chapter.id),
+                front_page_of_chapter_id: Some(new_chapter.id),
+                content_search_language: None,
+            },
+            user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+        let ex = exercises::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            course,
+            "ex 1",
+            page.id,
+            new_chapter.id,
+            1,
+        )
+        .await
+        .unwrap();
+        exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, ex, 1)
+            .await
+            .unwrap();
+
+        // test if the progresses are different
+        let progress_all = get_user_course_progress(tx.as_mut(), course, user, false)
+            .await
+            .unwrap();
+        let progress_open_chapters = get_user_course_progress(tx.as_mut(), course, user, true)
+            .await
+            .unwrap();
+
+        assert_eq!(progress_all, progress_open_chapters);
+        assert_eq!(progress_all.len(), 2);
+        assert_eq!(progress_open_chapters.len(), 1);
+        assert_eq!(progress_all[1].total_exercises, Some(1));
+        // todo now makw it filter out modules with no open chapters
     }
 }

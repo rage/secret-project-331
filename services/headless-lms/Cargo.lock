@@ -2178,6 +2178,7 @@ dependencies = [
  "headless-lms-utils",
  "icu",
  "icu_provider",
+ "icu_provider_adapters",
  "icu_provider_blob",
  "once_cell",
  "quick-xml 0.38.4",
@@ -3047,6 +3048,16 @@ dependencies = [
  "zerofrom",
  "zerotrie",
  "zerovec",
+]
+
+[[package]]
+name = "icu_provider_adapters"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37dafa75fcb2ca73939cf7e7f4967d30be122b5e1d10f2b344e0addca8fa9446"
+dependencies = [
+ "icu_locale",
+ "icu_provider",
 ]
 
 [[package]]

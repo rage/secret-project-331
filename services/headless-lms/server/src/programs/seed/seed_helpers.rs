@@ -316,6 +316,7 @@ pub fn example_exercise_flexible(
         use_course_default_peer_or_self_review_config: false,
         peer_or_self_review_config,
         peer_or_self_review_questions,
+        created_at: Utc::now(),
     };
     (block, exercise, slides, tasks)
 }
@@ -363,6 +364,7 @@ pub fn quizzes_exercise(
         use_course_default_peer_or_self_review_config: true,
         peer_or_self_review_config: None,
         peer_or_self_review_questions: None,
+        created_at: Utc::now(),
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,
@@ -421,6 +423,7 @@ pub fn tmc_exercise(
         use_course_default_peer_or_self_review_config: true,
         peer_or_self_review_config: None,
         peer_or_self_review_questions: None,
+        created_at: Utc::now(),
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,

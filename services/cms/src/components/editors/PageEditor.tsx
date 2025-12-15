@@ -25,6 +25,8 @@ import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
+import ExerciseDeletionWarning from "./ExerciseDeletionWarning"
+
 import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -132,19 +134,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       const preview = await previewMutation.mutateAsync(dataToSave)
       if (preview.exercises_to_be_deleted.length > 0) {
         setCurrentlySaving(false)
-        const exerciseCount = preview.exercises_to_be_deleted.length
-        const exerciseNames = preview.exercises_to_be_deleted
-          .map((e: { name: string }) => e.name)
-          .filter((name: string) => name)
-          .join(", ")
-        const exerciseText = exerciseCount === 1 ? t("exercise") : t("exercises")
-        const namesText = exerciseNames ? `: ${exerciseNames}` : ""
-        const message = t("saving-will-delete-exercises-warning", {
-          count: exerciseCount,
-          exercises: exerciseText,
-          names: namesText,
-        })
-        const confirmed = await confirm(message)
+
+        const warningMessage = (
+          <ExerciseDeletionWarning exercises={preview.exercises_to_be_deleted} />
+        )
+
+        const confirmed = await confirm(warningMessage, t("confirm-deletion"))
         if (!confirmed) {
           return
         }

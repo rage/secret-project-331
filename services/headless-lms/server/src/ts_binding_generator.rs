@@ -228,6 +228,7 @@ fn models(target: &mut File) {
         pages::PageSearchResult,
         pages::PageWithExercises,
         pages::SearchRequest,
+        pages::PageUpdatePreview,
         partner_block::PartnerBlockNew,
         partner_block::PartnersBlock,
         peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,

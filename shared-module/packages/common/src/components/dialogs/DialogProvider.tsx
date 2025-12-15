@@ -181,6 +181,19 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
  *   "Enter name",
  *   "default value",
  * ) // returns string | null
+ *
+ * // You can also pass JSX/ReactNode for richer content:
+ * const confirmed = await confirm(
+ *   <div>
+ *     <p>This will delete <strong>3 exercises</strong>:</p>
+ *     <ul>
+ *       <li>Exercise 1</li>
+ *       <li>Exercise 2</li>
+ *     </ul>
+ *     <p>Are you sure?</p>
+ *   </div>,
+ *   "Confirm deletion"
+ * )
  * ```
  */
 export const useDialog = () => {

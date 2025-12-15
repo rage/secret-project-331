@@ -975,6 +975,7 @@ pub struct CmsPageExercise {
     pub peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
     pub peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
     pub use_course_default_peer_or_self_review_config: bool,
+    pub created_at: DateTime<Utc>,
 }
 
 impl CmsPageExercise {
@@ -997,6 +998,7 @@ impl CmsPageExercise {
                 .use_course_default_peer_or_self_review_config,
             peer_or_self_review_config,
             peer_or_self_review_questions,
+            created_at: exercise.created_at,
         }
     }
 }
@@ -3570,6 +3572,7 @@ mod test {
             peer_or_self_review_config: None,
             peer_or_self_review_questions: None,
             use_course_default_peer_or_self_review_config: false,
+            created_at: Utc::now(),
         };
         let e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),

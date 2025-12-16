@@ -210,11 +210,11 @@ WHERE id = $2;
     for (page_id, content) in pages_contents {
         if let Value::Array(mut blocks) = content {
             for block in blocks.iter_mut() {
-                if let Some(content) = block["attributes"]["content"].as_str() {
-                    if content.contains("<a href=") {
-                        block["attributes"]["content"] =
-                            Value::String(content.replace(&parent_course.slug, &new_course.slug));
-                    }
+                if let Some(content) = block["attributes"]["content"].as_str()
+                    && content.contains("<a href=")
+                {
+                    block["attributes"]["content"] =
+                        Value::String(content.replace(&parent_course.slug, &new_course.slug));
                 }
             }
             sqlx::query!(

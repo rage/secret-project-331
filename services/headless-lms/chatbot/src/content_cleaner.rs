@@ -269,12 +269,11 @@ fn split_oversized_block(
         } else {
             // Safety: if we can't make progress, break to avoid infinite loop
             // Push remaining content if any
-            if start < block_json.len() {
-                if let Some(remaining) = block_json.get(start..) {
-                    if !remaining.is_empty() {
-                        chunks.push(remaining.to_string());
-                    }
-                }
+            if start < block_json.len()
+                && let Some(remaining) = block_json.get(start..)
+                && !remaining.is_empty()
+            {
+                chunks.push(remaining.to_string());
             }
             break;
         }

@@ -337,7 +337,6 @@ pub async fn get_by_course_id_only_with_open_chapters(
         "
 SELECT *
 FROM course_modules as cm
-
 WHERE EXISTS (
   SELECT 1
   FROM chapters as ch

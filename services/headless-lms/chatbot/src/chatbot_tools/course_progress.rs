@@ -197,7 +197,7 @@ fn push_exercises_scores_progress(
         }
         res += ".";
     }
-    if score_required.is_none() && attempted_exercises_required.is_none() {
+    if automatic_completion && score_required.is_none() && attempted_exercises_required.is_none() {
         res += &format!(
             " It's not required to attempt exercises or gain points to pass this {course_or_module}."
         );
@@ -259,7 +259,6 @@ fn push_exercises_scores_progress(
 
     // round down to one digit
     let score = (score_given * 10.0).floor() / 10.0;
-    // option_f32_to_f32_two_decimals_with_none_as_zero
     res += &format!(" The user has gained {:.1} points.", score);
     if let Some(e) = score_required {
         let pts_left = e as f32 - score;

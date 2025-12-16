@@ -202,6 +202,7 @@ FROM courses c
 WHERE exercises.deleted_at IS NULL
   AND c.id = $1
   AND chapters.course_module_id IS NOT NULL
+  AND chapters.deleted_at IS NULL
   AND ((chapters.opens_at < now()) OR chapters.opens_at IS NULL)
 GROUP BY chapters.course_module_id
         ",
@@ -313,6 +314,7 @@ WHERE ues.course_id = $1
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL
+  AND chapters.deleted_at IS NULL
   AND ((chapters.opens_at < now()) OR chapters.opens_at IS NULL)
 GROUP BY chapters.course_module_id;
         ",

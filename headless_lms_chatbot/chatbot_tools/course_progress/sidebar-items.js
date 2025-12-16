@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["progress_info","push_exercises_scores_progress"],"struct":["CourseProgressArguments","CourseProgressInfo","CourseProgressState"],"type":["CourseProgressTool"]};

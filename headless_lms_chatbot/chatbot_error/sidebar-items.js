@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ChatbotErrorType"],"struct":["ChatbotError"],"type":["ChatbotResult"]};

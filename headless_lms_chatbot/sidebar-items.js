@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["azure_blob_storage","azure_chatbot","azure_datasources","azure_search_index","azure_search_indexer","azure_skillset","content_cleaner","llm_utils","prelude","search_filter"]};
+window.SIDEBAR_ITEMS = {"mod":["azure_blob_storage","azure_chatbot","azure_datasources","azure_search_index","azure_search_indexer","azure_skillset","chatbot_error","chatbot_tools","content_cleaner","llm_utils","prelude","search_filter"]};

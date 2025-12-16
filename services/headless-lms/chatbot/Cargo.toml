@@ -20,6 +20,8 @@ futures-util = "0.3.31"
 tokio.workspace = true
 # Utilities for working with Tokio.
 tokio-util = "0.7.17"
+# Utilities to work with `Stream` and `tokio`.
+tokio-stream.workspace = true
 # higher level HTTP client library
 reqwest = { version = "0.12.25", features = [
   "brotli",
@@ -55,3 +57,7 @@ azure_core = "0.21.0"
 url = "2.5.7"
 # A crate for safe and ergonomic pin-projection.
 pin-project = "1.1.10"
+# Utilities for enriching errors with `tracing`.
+tracing-error = "0.2.1"
+#  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
+backtrace = "0.3.76"

@@ -1,6 +1,10 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
-use crate::llm_utils::{APIMessage, MessageRole, estimate_tokens, make_blocking_llm_request};
+use crate::llm_utils::{
+    APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
+};
 use crate::prelude::*;
+use anyhow::Error;
+use headless_lms_models::chatbot_conversation_messages::MessageRole;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
 use tracing::{debug, error, info, instrument, warn};
@@ -45,10 +49,12 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = APIMessage {
         role: MessageRole::System,
-        content: SYSTEM_PROMPT.to_string(),
+        fields: APIMessageKind::Text(APIMessageText {
+            content: SYSTEM_PROMPT.to_string(),
+        }),
     };
 
-    let system_message_tokens = estimate_tokens(&system_message.content);
+    let system_message_tokens = estimate_tokens(SYSTEM_PROMPT);
     let safe_token_limit = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
     let max_content_tokens = (safe_token_limit - system_message_tokens).max(1);
 
@@ -348,7 +354,7 @@ async fn process_block_chunk(
         }
     };
 
-    let cleaned_content = completion
+    match &completion
         .choices
         .first()
         .ok_or_else(|| {
@@ -356,10 +362,13 @@ async fn process_block_chunk(
             anyhow::anyhow!("No content returned from LLM")
         })?
         .message
-        .content
-        .clone();
-
-    Ok(cleaned_content)
+        .fields
+    {
+        APIMessageKind::Text(msg) => Ok(msg.content.clone()),
+        _ => Err(Error::msg(
+            "Didn't receive a text LLM response in content cleaner, this shouldn't happen!",
+        )),
+    }
 }
 
 /// Prepare messages for the LLM request
@@ -371,10 +380,12 @@ pub fn prepare_llm_messages(
         system_message.clone(),
         APIMessage {
             role: MessageRole::User,
-            content: format!(
-                "{}\n\n{}{}\n{}",
-                USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
-            ),
+            fields: APIMessageKind::Text(APIMessageText {
+                content: format!(
+                    "{}\n\n{}{}\n{}",
+                    USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
+                ),
+            }),
         },
     ];
 
@@ -384,6 +395,7 @@ pub fn prepare_llm_messages(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::llm_utils::{APIMessageKind, APIMessageText};
     use serde_json::json;
 
     const TEST_BLOCK_NAME: &str = "test/block";
@@ -458,17 +470,27 @@ mod tests {
         let blocks_json = blocks_to_json_string(&blocks)?;
         let system_message = APIMessage {
             role: MessageRole::System,
-            content: "System prompt".to_string(),
+            fields: APIMessageKind::Text(APIMessageText {
+                content: "System prompt".to_string(),
+            }),
         };
 
         let messages = prepare_llm_messages(&blocks_json, &system_message)?;
 
         assert_eq!(messages.len(), 2);
+        let msg1_content = match &messages[0].fields {
+            APIMessageKind::Text(msg) => &msg.content,
+            _ => "",
+        };
+        let msg2_content = match &messages[1].fields {
+            APIMessageKind::Text(msg) => &msg.content,
+            _ => "",
+        };
         assert_eq!(messages[0].role, MessageRole::System);
-        assert_eq!(messages[0].content, "System prompt");
+        assert_eq!(msg1_content, "System prompt");
         assert_eq!(messages[1].role, MessageRole::User);
-        assert!(messages[1].content.contains(JSON_BEGIN_MARKER));
-        assert!(messages[1].content.contains("Test content"));
+        assert!(msg2_content.contains(JSON_BEGIN_MARKER));
+        assert!(msg2_content.contains("Test content"));
 
         Ok(())
     }

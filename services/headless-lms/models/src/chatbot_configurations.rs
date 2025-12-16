@@ -49,6 +49,7 @@ pub struct ChatbotConfiguration {
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
     pub use_semantic_reranking: bool,
+    pub use_tools: bool,
     pub default_chatbot: bool,
 }
 
@@ -80,6 +81,7 @@ impl Default for ChatbotConfiguration {
             maintain_azure_search_index: false,
             hide_citations: false,
             use_semantic_reranking: false,
+            use_tools: false,
             default_chatbot: false,
         }
     }
@@ -109,6 +111,7 @@ pub struct NewChatbotConf {
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
     pub use_semantic_reranking: bool,
+    pub use_tools: bool,
     pub default_chatbot: bool,
     pub chatbotconf_id: Option<Uuid>,
 }
@@ -138,6 +141,7 @@ impl Default for NewChatbotConf {
             maintain_azure_search_index: chatbot_conf.maintain_azure_search_index,
             hide_citations: chatbot_conf.hide_citations,
             use_semantic_reranking: chatbot_conf.use_semantic_reranking,
+            use_tools: chatbot_conf.use_tools,
             default_chatbot: chatbot_conf.default_chatbot,
             chatbotconf_id: None,
         }
@@ -172,6 +176,7 @@ SELECT
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
+    use_tools,
     default_chatbot,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
@@ -216,10 +221,11 @@ INSERT INTO chatbot_configurations (
     reasoning_effort,
     response_max_tokens,
     use_azure_search,
+    use_tools,
     maintain_azure_search_index,
     default_chatbot
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
 RETURNING
     id,
     created_at,
@@ -244,6 +250,7 @@ RETURNING
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
+    use_tools,
     default_chatbot,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
@@ -268,6 +275,7 @@ RETURNING
         input.reasoning_effort as ReasoningEffortLevel,
         input.response_max_tokens,
         input.use_azure_search,
+        input.use_tools,
         maintain_azure_search_index,
         input.default_chatbot
     )
@@ -306,8 +314,9 @@ SET
     thinking_model = $18,
     max_completion_tokens = $19,
     verbosity = $20,
-    reasoning_effort = $21
-WHERE id = $22
+    reasoning_effort = $21,
+    use_tools = $22
+WHERE id = $23
 RETURNING
     id,
     created_at,
@@ -334,7 +343,8 @@ RETURNING
     use_semantic_reranking,
     default_chatbot,
     verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    use_tools
 "#,
         input.enabled_to_students,
         input.chatbot_name,
@@ -357,6 +367,7 @@ RETURNING
         input.max_completion_tokens,
         input.verbosity as VerbosityLevel,
         input.reasoning_effort as ReasoningEffortLevel,
+        input.use_tools,
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -410,6 +421,7 @@ SELECT
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
+    use_tools,
     default_chatbot,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
@@ -455,6 +467,7 @@ SELECT
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
+    use_tools,
     default_chatbot,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
@@ -501,6 +514,7 @@ SELECT
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
+    use_tools,
     default_chatbot,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
@@ -568,6 +582,7 @@ RETURNING
     maintain_azure_search_index,
     hide_citations,
     use_semantic_reranking,
+    use_tools,
     default_chatbot,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"

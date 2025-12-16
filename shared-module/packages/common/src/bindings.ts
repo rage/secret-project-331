@@ -1211,6 +1211,11 @@ export interface CountResult {
   count: number
 }
 
+export interface StudentsByCountryTotalsResult {
+  country: string | null
+  count: number
+}
+
 export interface CustomViewExerciseSubmissions {
   exercise_tasks: CustomViewExerciseTasks
   exercises: Array<Exercise>

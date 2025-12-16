@@ -1,12 +1,13 @@
-use anyhow::{Context, Result};
 use reqwest::Client;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use tracing::{debug, info};
 use url::Url;
 use uuid::Uuid;
 
 use crate::ApplicationConfiguration;
+use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct TmcClient {
@@ -69,8 +70,93 @@ enum TMCRequestAuth {
 
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
 
+fn format_tmc_errors(errors: &serde_json::Value) -> String {
+    let mut error_messages = Vec::new();
+
+    if let Some(errors_obj) = errors.as_object() {
+        for (field, field_errors) in errors_obj {
+            if let Some(error_array) = field_errors.as_array() {
+                for error_msg in error_array {
+                    if let Some(msg) = error_msg.as_str() {
+                        let field_name = match field.as_str() {
+                            "login" => "username",
+                            _ => field,
+                        };
+                        error_messages.push(format!("{}: {}", field_name, msg));
+                    }
+                }
+            } else if let Some(msg) = field_errors.as_str() {
+                error_messages.push(format!("{}: {}", field, msg));
+            }
+        }
+    }
+
+    if error_messages.is_empty() {
+        errors.to_string()
+    } else {
+        error_messages.join(", ")
+    }
+}
+
+fn parse_tmc_error_response(error_text: &str, status: Option<reqwest::StatusCode>) -> String {
+    if let Ok(error_json) = serde_json::from_str::<serde_json::Value>(error_text) {
+        if let Some(errors) = error_json.get("errors") {
+            return format_tmc_errors(errors);
+        } else if let Some(message) = error_json.get("message").and_then(|m| m.as_str()) {
+            return message.to_string();
+        }
+    }
+
+    if let Some(status) = status {
+        format!("Request failed with status {}: {}", status, error_text)
+    } else {
+        format!("Request failed: {}", error_text)
+    }
+}
+
 impl TmcClient {
-    pub fn new_from_env() -> Result<Self> {
+    fn check_if_tmc_error_response(response_text: &str) -> Option<UtilError> {
+        if let Ok(error_json) = serde_json::from_str::<serde_json::Value>(response_text)
+            && (error_json.get("errors").is_some()
+                || error_json.get("success") == Some(&serde_json::Value::Bool(false)))
+        {
+            let error_message = parse_tmc_error_response(response_text, None);
+            return Some(UtilError::new(
+                UtilErrorType::TmcErrorResponse,
+                error_message,
+                None,
+            ));
+        }
+        None
+    }
+
+    async fn deserialize_response_with_tmc_error_check<T: serde::de::DeserializeOwned>(
+        &self,
+        response: reqwest::Response,
+        error_context: &str,
+    ) -> UtilResult<T> {
+        let response_text = response.text().await.map_err(|e| {
+            UtilError::new(
+                UtilErrorType::DeserializationError,
+                format!("Failed to read TMC response body: {}", error_context),
+                Some(e.into()),
+            )
+        })?;
+
+        serde_json::from_str(&response_text).map_err(|e| {
+            if let Some(tmc_error) = Self::check_if_tmc_error_response(&response_text) {
+                tmc_error
+            } else {
+                UtilError::new(
+                    UtilErrorType::DeserializationError,
+                    format!("Failed to parse {}: {}", error_context, e),
+                    Some(e.into()),
+                )
+            }
+        })
+    }
+
+    pub fn new_from_env() -> UtilResult<Self> {
         let is_dev =
             cfg!(debug_assertions) || std::env::var("APP_ENV").map_or(true, |v| v == "development");
 
@@ -93,17 +179,31 @@ impl TmcClient {
 
         if !is_dev {
             if admin_access_token.trim().is_empty() {
-                anyhow::bail!("TMC_ACCESS_TOKEN cannot be empty");
+                return Err(UtilError::new(
+                    UtilErrorType::Other,
+                    "TMC_ACCESS_TOKEN cannot be empty".to_string(),
+                    None,
+                ));
             }
             if ratelimit_api_key.trim().is_empty() {
-                anyhow::bail!("RATELIMIT_PROTECTION_SAFE_API_KEY cannot be empty");
+                return Err(UtilError::new(
+                    UtilErrorType::Other,
+                    "RATELIMIT_PROTECTION_SAFE_API_KEY cannot be empty".to_string(),
+                    None,
+                ));
             }
         }
 
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(15))
             .build()
-            .context("Failed to build HTTP client")?;
+            .map_err(|e| {
+                UtilError::new(
+                    UtilErrorType::Other,
+                    "Failed to build HTTP client".to_string(),
+                    Some(e.into()),
+                )
+            })?;
 
         Ok(Self {
             client,
@@ -118,7 +218,7 @@ impl TmcClient {
         url: &str,
         tmc_request_auth: TMCRequestAuth,
         body: Option<serde_json::Value>,
-    ) -> Result<reqwest::Response> {
+    ) -> UtilResult<reqwest::Response> {
         let mut builder = self
             .client
             .request(method, url)
@@ -143,10 +243,13 @@ impl TmcClient {
             builder = builder.json(&json_body);
         }
 
-        let res = builder
-            .send()
-            .await
-            .context("Failed to send HTTP request")?;
+        let res = builder.send().await.map_err(|e| {
+            UtilError::new(
+                UtilErrorType::TmcHttpError,
+                "Failed to send HTTP request".to_string(),
+                Some(e.into()),
+            )
+        })?;
 
         if res.status().is_success() {
             Ok(res)
@@ -169,10 +272,12 @@ impl TmcClient {
             }
             tracing::debug!("Response body: {}", error_text);
 
-            Err(anyhow::anyhow!(
-                "Request failed with status {}: {}",
-                status,
-                error_text
+            let error_message = parse_tmc_error_response(&error_text, Some(status));
+
+            Err(UtilError::new(
+                UtilErrorType::TmcHttpError,
+                error_message,
+                None,
             ))
         }
     }
@@ -183,7 +288,7 @@ impl TmcClient {
         last_name: String,
         email: Option<String>,
         user_upstream_id: String,
-    ) -> Result<()> {
+    ) -> UtilResult<()> {
         let mut user_obj = serde_json::Map::new();
         let mut user_field_obj = serde_json::Map::new();
 
@@ -229,7 +334,7 @@ impl TmcClient {
         &self,
         user_info: NewUserInfo,
         app_conf: &ApplicationConfiguration,
-    ) -> Result<i32> {
+    ) -> UtilResult<i32> {
         let payload = json!({
             "user": {
                 "email": user_info.email,
@@ -256,7 +361,9 @@ impl TmcClient {
             )
             .await?;
 
-        let body: TMCUserResponse = response.json().await?;
+        let body: TMCUserResponse = self
+            .deserialize_response_with_tmc_error_check(response, "TMC user response")
+            .await?;
         Ok(body.id)
     }
 
@@ -264,7 +371,7 @@ impl TmcClient {
         &self,
         user_upstream_id: String,
         user_id: Uuid,
-    ) -> Result<()> {
+    ) -> UtilResult<()> {
         let url = format!(
             "{}/{}/set_password_managed_by_courses_mooc_fi",
             TMC_API_URL, user_upstream_id
@@ -284,9 +391,17 @@ impl TmcClient {
         .map(|_| ())
     }
 
-    pub async fn get_user_from_tmc_with_email(&self, email: String) -> Result<TmcUserInfo> {
-        let mut url = Url::parse(TMC_API_URL).unwrap();
-        url.path_segments_mut().unwrap().push("get_user_with_email");
+    pub async fn get_user_from_tmc_with_email(&self, email: String) -> UtilResult<TmcUserInfo> {
+        let mut url = Url::parse(TMC_API_URL)?;
+        url.path_segments_mut()
+            .map_err(|_| {
+                UtilError::new(
+                    UtilErrorType::UrlParse,
+                    "Failed to get path segments from URL".to_string(),
+                    None,
+                )
+            })?
+            .push("get_user_with_email");
         url.query_pairs_mut().append_pair("email", &email);
 
         let res = self
@@ -298,15 +413,14 @@ impl TmcClient {
             )
             .await?;
 
-        let user: TmcUserInfo = res
-            .json()
-            .await
-            .context("Failed to parse TMC user from JSON")?;
+        let user: TmcUserInfo = self
+            .deserialize_response_with_tmc_error_check(res, "TMC user from JSON")
+            .await?;
 
         Ok(user)
     }
 
-    pub async fn delete_user_from_tmc(&self, user_upstream_id: String) -> Result<bool> {
+    pub async fn delete_user_from_tmc(&self, user_upstream_id: String) -> UtilResult<bool> {
         let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
 
         let res = self
@@ -318,10 +432,9 @@ impl TmcClient {
             )
             .await?;
 
-        let body: TmcDeleteAccountResponse = res
-            .json()
-            .await
-            .context("Failed to parse delete response from TMC")?;
+        let body: TmcDeleteAccountResponse = self
+            .deserialize_response_with_tmc_error_check(res, "delete response from TMC")
+            .await?;
 
         Ok(body.success)
     }
@@ -329,7 +442,7 @@ impl TmcClient {
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token(
         &self,
         tmc_access_token: &SecretString,
-    ) -> anyhow::Result<TMCUser> {
+    ) -> UtilResult<TMCUser> {
         info!("Getting user details from tmc.mooc.fi");
 
         let res = self
@@ -339,16 +452,12 @@ impl TmcClient {
                 TMCRequestAuth::UseUserToken(tmc_access_token.clone()),
                 None,
             )
-            .await
-            .context("Failed to get user from TMC")?;
-
-        if !res.status().is_success() {
-            error!("Failed to get user from TMC with status {}", res.status());
-            return Err(anyhow::anyhow!("Failed to get current user from TMC"));
-        }
+            .await?;
 
         debug!("Received response from TMC, parsing user data");
-        let tmc_user: TMCUser = res.json().await.context("Unexpected response from TMC")?;
+        let tmc_user: TMCUser = self
+            .deserialize_response_with_tmc_error_check(res, "current user from TMC by access token")
+            .await?;
 
         debug!(
             "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
@@ -364,7 +473,7 @@ impl TmcClient {
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(
         &self,
         upstream_id: &i32,
-    ) -> anyhow::Result<TMCUser> {
+    ) -> UtilResult<TMCUser> {
         info!("Getting user details from tmc.mooc.fi");
 
         let res = self
@@ -374,16 +483,12 @@ impl TmcClient {
                 TMCRequestAuth::UseAdminToken,
                 None,
             )
-            .await
-            .context("Failed to get user from TMC")?;
-
-        if !res.status().is_success() {
-            error!("Failed to get user from TMC with status {}", res.status());
-            return Err(anyhow::anyhow!("Failed to get user from TMC"));
-        }
+            .await?;
 
         debug!("Received response from TMC, parsing user data");
-        let tmc_user: TMCUser = res.json().await.context("Unexpected response from TMC")?;
+        let tmc_user: TMCUser = self
+            .deserialize_response_with_tmc_error_check(res, "user from TMC by upstream ID")
+            .await?;
 
         Ok(tmc_user)
     }

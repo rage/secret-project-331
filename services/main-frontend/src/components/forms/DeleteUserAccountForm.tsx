@@ -13,6 +13,7 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { deleteUserAccount, sendEmailCode } from "@/shared-module/common/services/backend/auth"
+import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
 
 interface DeleteUserAccountProps {
   email: string
@@ -31,13 +32,11 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const [password, setPassword] = useState("")
 
   const [credentialsError, setCredentialsError] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
 
   const sendEmailCodeMutation = useToastMutation(
     async (password: string) => {
       const result = await sendEmailCode(email, password, i18n.language)
-      setError(null)
       setCredentialsError(!result)
       return result
     },
@@ -49,13 +48,15 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
           setStep("verifyCode")
         }
       },
+      onError: () => {
+        setCredentialsError(false)
+      },
     },
   )
 
   const deleteAccountMutation = useToastMutation(
     async (code: string) => {
       const result = await deleteUserAccount(code)
-      setError(null)
       setCredentialsError(!result)
       return result
     },
@@ -65,9 +66,12 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
         if (result) {
           queryClient.removeQueries()
           loginStateContext.refresh()
-          // eslint-disable-next-line i18next/no-literal-string
-          router.push("/login")
+
+          router.push(accountDeletedRoute())
         }
+      },
+      onError: () => {
+        setCredentialsError(false)
       },
     },
   )
@@ -86,7 +90,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
         aria-modal="true"
         onClose={() => setOpenDialog(false)}
       >
-        {error && <ErrorBanner error={error} />}
+        {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
+          <ErrorBanner error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
+        )}
 
         {step === "password" && (
           <VerifyPasswordForm

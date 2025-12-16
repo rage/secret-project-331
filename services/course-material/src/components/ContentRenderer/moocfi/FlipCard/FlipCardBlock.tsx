@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
-import { ReplayArrowLeftRight } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useRef, useState } from "react"
-import { useButton, useFocusRing, useHover } from "react-aria"
+import { useHover, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer, { BlockRendererProps } from "../.."
 import { ImageInteractivityContext } from "../../core/common/Image/ImageInteractivityContext"
+
+import FlipButton from "./FlipButton"
 
 import { Block } from "@/services/backend"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -42,32 +43,13 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
   const { hoverProps, isHovered } = useHover({})
 
   const frontButtonRef = useRef<HTMLButtonElement>(null)
-  const { buttonProps: frontButtonProps, isPressed: isFrontPressed } = useButton(
-    {
-      onPress: () => setIsFlipped(!isFlipped),
-      "aria-pressed": isFlipped,
-    },
-    frontButtonRef,
-  )
-  const { focusProps: frontFocusProps, isFocusVisible: isFrontFocusVisible } = useFocusRing()
-
   const backButtonRef = useRef<HTMLButtonElement>(null)
-  const { buttonProps: backButtonProps, isPressed: isBackPressed } = useButton(
-    {
-      onPress: () => setIsFlipped(!isFlipped),
-      "aria-pressed": isFlipped,
-    },
-    backButtonRef,
-  )
-  const { focusProps: backFocusProps, isFocusVisible: isBackFocusVisible } = useFocusRing()
 
   // Move focus to the button on the visible side when the card flips
   useEffect(() => {
     if (isFlipped) {
-      // Card is flipped, focus the back button
       backButtonRef.current?.focus()
     } else {
-      // Card is not flipped, focus the front button
       frontButtonRef.current?.focus()
     }
   }, [isFlipped])
@@ -139,86 +121,16 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
               transform: rotateX(0deg);
             `}
           >
+            <VisuallyHidden>
+              {t("flip-card-roledescription")}. {t("flip-card-front-side")}.
+            </VisuallyHidden>
             <ContentRenderer data={[frontCard]} isExam={false} />
-            {!isFlipped ? (
-              <button
+            {!isFlipped && (
+              <FlipButton
                 ref={frontButtonRef}
-                {...frontButtonProps}
-                {...frontFocusProps}
-                className={css`
-                  position: absolute;
-                  bottom: 10px;
-                  right: 10px;
-                  z-index: 1;
-                  backface-visibility: hidden;
-                  border-radius: 10px;
-                  width: 54px;
-                  height: 42px;
-                  background: ${baseTheme.colors.clear[100]};
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  color: ${baseTheme.colors.gray[700]};
-                  border: 2px solid ${baseTheme.colors.gray[600]};
-                  cursor: pointer;
-                  padding: 0;
-                  font-size: 9px;
-
-                  &::after {
-                    content: "";
-                    position: absolute;
-                    left: -1000px;
-                    top: -1000px;
-                    right: -10px;
-                    bottom: -10px;
-                    z-index: -1;
-                  }
-
-                  ${isFrontFocusVisible &&
-                  `
-                    outline: 2px solid ${baseTheme.colors.blue[500]};
-                    outline-offset: 2px;
-                    border-radius: 10px;
-                  `}
-
-                  ${isFrontPressed &&
-                  `
-                    transform: scale(0.98);
-                  `}
-                `}
-                aria-label={t("button-text-flip-to-back")}
-              >
-                <div>{t("button-text-flip")}</div>
-                <ReplayArrowLeftRight size={16} />
-              </button>
-            ) : (
-              <div
-                className={css`
-                  position: absolute;
-                  bottom: 10px;
-                  right: 10px;
-                  z-index: 1;
-                  backface-visibility: hidden;
-                  border-radius: 10px;
-                  width: 54px;
-                  height: 42px;
-                  background: ${baseTheme.colors.clear[100]};
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  color: ${baseTheme.colors.gray[700]};
-                  border: 2px solid ${baseTheme.colors.gray[600]};
-                  pointer-events: none;
-                  font-size: 9px;
-                `}
-              >
-                <div>{t("button-text-flip")}</div>
-                <ReplayArrowLeftRight size={16} />
-              </div>
+                onPress={() => setIsFlipped(!isFlipped)}
+                ariaLabel={t("button-text-flip-to-back")}
+              />
             )}
           </div>
           <div
@@ -246,86 +158,16 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
               justify-content: center;
             `}
           >
+            <VisuallyHidden>
+              {t("flip-card-roledescription")}. {t("flip-card-back-side")}.
+            </VisuallyHidden>
             <ContentRenderer data={[backCard]} isExam={false} />
-            {isFlipped ? (
-              <button
+            {isFlipped && (
+              <FlipButton
                 ref={backButtonRef}
-                {...backButtonProps}
-                {...backFocusProps}
-                className={css`
-                  position: absolute;
-                  bottom: 10px;
-                  right: 10px;
-                  z-index: 1;
-                  backface-visibility: hidden;
-                  border-radius: 10px;
-                  width: 54px;
-                  height: 42px;
-                  background: ${baseTheme.colors.clear[100]};
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  color: ${baseTheme.colors.gray[700]};
-                  border: 2px solid ${baseTheme.colors.gray[600]};
-                  cursor: pointer;
-                  padding: 0;
-                  font-size: 9px;
-
-                  &::after {
-                    content: "";
-                    position: absolute;
-                    left: -1000px;
-                    top: -1000px;
-                    right: -10px;
-                    bottom: -10px;
-                    z-index: -1;
-                  }
-
-                  ${isBackFocusVisible &&
-                  `
-                    outline: 2px solid ${baseTheme.colors.blue[500]};
-                    outline-offset: 2px;
-                    border-radius: 10px;
-                  `}
-
-                  ${isBackPressed &&
-                  `
-                    transform: scale(0.98);
-                  `}
-                `}
-                aria-label={t("button-text-flip-to-front")}
-              >
-                <div>{t("button-text-flip")}</div>
-                <ReplayArrowLeftRight size={16} />
-              </button>
-            ) : (
-              <div
-                className={css`
-                  position: absolute;
-                  bottom: 10px;
-                  right: 10px;
-                  z-index: 1;
-                  backface-visibility: hidden;
-                  border-radius: 10px;
-                  width: 54px;
-                  height: 42px;
-                  background: ${baseTheme.colors.clear[100]};
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  color: ${baseTheme.colors.gray[700]};
-                  border: 2px solid ${baseTheme.colors.gray[600]};
-                  pointer-events: none;
-                  font-size: 9px;
-                `}
-              >
-                <div>{t("button-text-flip")}</div>
-                <ReplayArrowLeftRight size={16} />
-              </div>
+                onPress={() => setIsFlipped(!isFlipped)}
+                ariaLabel={t("button-text-flip-to-front")}
+              />
             )}
           </div>
         </div>

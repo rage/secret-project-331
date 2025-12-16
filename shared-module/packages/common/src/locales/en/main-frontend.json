@@ -263,6 +263,7 @@
   "enable-generating-certificates": "Enable generating certificates",
   "enable-generating-new-certificates": "Enable generating new certificates",
   "enable-module-completion-certificates": "Allow students to generate a certificate for completing the module",
+  "enable-tool-use": "Use tools",
   "enabled-to-students": "Enabled to students",
   "end-date": "End date",
   "end-date-must-be-after-start": "End date must be after start date",

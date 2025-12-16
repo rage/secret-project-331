@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
+  "query": "\nSELECT *\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -114,5 +114,5 @@
       false
     ]
   },
-  "hash": "ba80d6c169114f014329cd993a14f8d0b9fad33463300fef05164d9368875355"
+  "hash": "280b4ad5764a80724bf6a30dee68f3c587c9af51d8ae0ff0ad3c5a59f2cc20f8"
 }

@@ -342,6 +342,7 @@ WHERE EXISTS (
   FROM chapters as ch
   WHERE ch.course_module_id = cm.id
     AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)
+    AND ch.deleted_at IS NULL
 )
   AND cm.course_id = $1
   AND cm.deleted_at IS NULL

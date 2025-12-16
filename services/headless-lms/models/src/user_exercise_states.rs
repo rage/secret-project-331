@@ -202,7 +202,7 @@ FROM courses c
 WHERE exercises.deleted_at IS NULL
   AND c.id = $1
   AND chapters.course_module_id IS NOT NULL
-  AND chapters.opens_at < now()
+  AND ((chapters.opens_at < now()) OR chapters.opens_at IS NULL)
 GROUP BY chapters.course_module_id
         ",
         course_id
@@ -313,7 +313,7 @@ WHERE ues.course_id = $1
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL
-  AND chapters.opens_at < now()
+  AND ((chapters.opens_at < now()) OR chapters.opens_at IS NULL)
 GROUP BY chapters.course_module_id;
         ",
         course_id,
@@ -387,7 +387,11 @@ pub async fn get_user_course_progress(
         get_user_course_metrics_indexed_by_module_id(conn, course_id, user_id, only_open_chapters)
             .await?;
     let course_name = courses::get_course(conn, course_id).await?.name;
-    let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
+    let course_modules = if only_open_chapters {
+        course_modules::get_by_course_id_only_with_open_chapters(conn, course_id).await?
+    } else {
+        course_modules::get_by_course_id(conn, course_id).await?
+    };
     merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
 }
 
@@ -1376,12 +1380,14 @@ mod tests {
     #[tokio::test]
     async fn get_user_course_progress_open_closed_chapters() {
         insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page);
-        // insert another chapter
+        // creating a new course inserts one empty default module.
+        // there will be one empty module and one module with two chapters
+        // one of which is open
         let (new_chapter, _) = create_new_chapter(
             tx.as_mut(),
             PKeyPolicy::Generate,
             &NewChapter {
-                name: "best chapter 2".to_string(),
+                name: "best chapter 1".to_string(),
                 color: None,
                 course_id: course,
                 chapter_number: 2,
@@ -1413,7 +1419,7 @@ mod tests {
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
                 content: vec![],
-                url_path: "/page2".to_string(),
+                url_path: "/page1".to_string(),
                 title: "title".to_string(),
                 course_id: Some(course),
                 exam_id: None,
@@ -1441,28 +1447,97 @@ mod tests {
         exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, ex, 1)
             .await
             .unwrap();
+        // another chapter
+        let (new_chapter2, _) = create_new_chapter(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewChapter {
+                name: "best chapter 2".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 3,
+                front_page_id: None,
+                deadline: None,
+                opens_at: Some(
+                    DateTime::parse_from_str(
+                        // chapter is open yet
+                        "1983 Apr 13 12:09:14 +0000",
+                        "%Y %b %d %H:%M:%S %z",
+                    )
+                    .unwrap()
+                    .to_utc(),
+                ),
+                course_module_id: Some(course_module.id),
+            },
+            user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
 
-        // test if the progresses are different
+        // insert a page with an exercise to the not-open chapter
+        let page2 = insert_page(
+            tx.as_mut(),
+            NewPage {
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                content: vec![],
+                url_path: "/page2".to_string(),
+                title: "title".to_string(),
+                course_id: Some(course),
+                exam_id: None,
+                chapter_id: Some(new_chapter2.id),
+                front_page_of_chapter_id: Some(new_chapter2.id),
+                content_search_language: None,
+            },
+            user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+        let ex = exercises::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            course,
+            "ex 1",
+            page2.id,
+            new_chapter2.id,
+            1,
+        )
+        .await
+        .unwrap();
+        exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, ex, 1)
+            .await
+            .unwrap();
+
+        // should list all modules and exercises
         let progress_all = get_user_course_progress(tx.as_mut(), course, user, false)
             .await
             .unwrap();
+        // should only list modules with chapters and the exercises from open chapters
         let progress_open_chapters = get_user_course_progress(tx.as_mut(), course, user, true)
             .await
             .unwrap();
 
         assert_ne!(progress_all, progress_open_chapters);
+        assert_eq!(progress_all.len(), 2);
+        assert_eq!(progress_open_chapters.len(), 1);
         assert_eq!(
             progress_all[1].course_module_id,
-            progress_open_chapters[1].course_module_id
+            progress_open_chapters[0].course_module_id
         );
-        assert_eq!(progress_all[1].total_exercises, Some(1));
-        assert_eq!(progress_open_chapters[1].total_exercises, None);
+        assert_eq!(progress_all[1].total_exercises, Some(2));
+        assert_eq!(progress_open_chapters[0].total_exercises, Some(1));
     }
 
     #[tokio::test]
     async fn get_user_course_progress_filter_out_closed_module() {
         insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-        // insert another chapter
+        // creating a new course inserts one empty default module.
+        // there will be one other module with one closed chapter only
         let (new_chapter, _) = create_new_chapter(
             tx.as_mut(),
             PKeyPolicy::Generate,
@@ -1528,18 +1603,20 @@ mod tests {
             .await
             .unwrap();
 
-        // test if the progresses are different
+        // should list one empty module and one module with only one chapter
+        // which is closed
         let progress_all = get_user_course_progress(tx.as_mut(), course, user, false)
             .await
             .unwrap();
-        let progress_open_chapters = get_user_course_progress(tx.as_mut(), course, user, true)
-            .await
-            .unwrap();
+        // should be empty
+        let progress_open_chapters_modules =
+            get_user_course_progress(tx.as_mut(), course, user, true)
+                .await
+                .unwrap();
 
-        assert_eq!(progress_all, progress_open_chapters);
+        assert_ne!(progress_all, progress_open_chapters_modules);
         assert_eq!(progress_all.len(), 2);
-        assert_eq!(progress_open_chapters.len(), 1);
+        assert_eq!(progress_open_chapters_modules.len(), 0);
         assert_eq!(progress_all[1].total_exercises, Some(1));
-        // todo now makw it filter out modules with no open chapters
     }
 }

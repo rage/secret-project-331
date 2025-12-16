@@ -259,6 +259,7 @@ fn push_exercises_scores_progress(
 
     // round down to one digit
     let score = (score_given * 10.0).floor() / 10.0;
+    // option_f32_to_f32_two_decimals_with_none_as_zero
     res += &format!(" The user has gained {:.1} points.", score);
     if let Some(e) = score_required {
         let pts_left = e as f32 - score;

@@ -169,20 +169,21 @@ fn push_exercises_scores_progress(
 
     let mut res = "".to_string();
     if total_exercises.is_some() || score_maximum.is_some() {
-        if let (Some(a), Some(b)) = (total_exercises, score_maximum) {
-            if a == 0 && b == 0 {
+        if let (Some(a), Some(b)) = (total_exercises, score_maximum)
+            && a == 0
+            && b == 0
+        {
+            res += &format!(
+                " This {course_or_module} has no exercises and no points. It cannot be completed by doing exercises."
+            );
+            if requires_exam {
+                res += " Passing an exam is required for completion.";
+            } else {
                 res += &format!(
-                    " This {course_or_module} has no exercises and no points. It cannot be completed by doing exercises."
+                    " The user should look for information about completing the {course_or_module} in the course material or contact the teacher.\n"
                 );
-                if requires_exam {
-                    res += " Passing an exam is required for completion.";
-                } else {
-                    res += &format!(
-                        " The user should look for information about completing the {course_or_module} in the course material or contact the teacher.\n"
-                    );
-                }
-                return res;
             }
+            return res;
         }
         res += &format!(" On this {course_or_module}, there are available a total of ");
 

@@ -654,35 +654,34 @@ pub async fn parse_tool<'a>(
                     // content "[DONE]", we'll process the func calls at that point.
                 }
             }
-            if let Some(delta) = &choice.delta {
-                if let Some(tool_calls) = &delta.tool_calls {
-                    // this chunk has tool call data
-                    for call in tool_calls {
-                        if let (Some(name), Some(id)) = (&call.function.name, &call.id) {
-                            // if this chunk has a tool name and id, then a new call is made.
-                            // if there is previously streamed args, then their streaming is
-                            // complete, let's join and save them before processing this new
-                            // call.
-                            if let Some((name_prev, id_prev)) = currently_streamed_function_name_id
-                            {
-                                let fn_args = currently_streamed_function_args.join("");
-                                function_name_id_args.push((
-                                    name_prev.to_owned(),
-                                    id_prev.to_owned(),
-                                    fn_args,
-                                ));
-                                currently_streamed_function_args.clear();
-                            }
-                            // set the tool name and id from this chunk to currently_streamed
-                            // and save any arguments to currently_streamed_function_args
-                            // until the stream is complete or a new call is made.
-                            currently_streamed_function_name_id =
-                                Some((name.to_owned(), id.to_owned()));
-                        };
-                        // always save any streamed function args. it can be an empty string
-                        // but that's ok.
-                        currently_streamed_function_args.push(call.function.arguments.clone());
-                    }
+            if let Some(delta) = &choice.delta
+                && let Some(tool_calls) = &delta.tool_calls
+            {
+                // this chunk has tool call data
+                for call in tool_calls {
+                    if let (Some(name), Some(id)) = (&call.function.name, &call.id) {
+                        // if this chunk has a tool name and id, then a new call is made.
+                        // if there is previously streamed args, then their streaming is
+                        // complete, let's join and save them before processing this new
+                        // call.
+                        if let Some((name_prev, id_prev)) = currently_streamed_function_name_id {
+                            let fn_args = currently_streamed_function_args.join("");
+                            function_name_id_args.push((
+                                name_prev.to_owned(),
+                                id_prev.to_owned(),
+                                fn_args,
+                            ));
+                            currently_streamed_function_args.clear();
+                        }
+                        // set the tool name and id from this chunk to currently_streamed
+                        // and save any arguments to currently_streamed_function_args
+                        // until the stream is complete or a new call is made.
+                        currently_streamed_function_name_id =
+                            Some((name.to_owned(), id.to_owned()));
+                    };
+                    // always save any streamed function args. it can be an empty string
+                    // but that's ok.
+                    currently_streamed_function_args.push(call.function.arguments.clone());
                 }
             }
         }

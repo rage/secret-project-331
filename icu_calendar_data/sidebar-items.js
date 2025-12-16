@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_calendar_chinese_v1","impl_calendar_dangi_v1","impl_calendar_hijri_simulated_mecca_v1","impl_calendar_japanese_extended_v1","impl_calendar_japanese_modern_v1","impl_calendar_week_v1","make_provider"]};
+window.SIDEBAR_ITEMS = {"macro":["impl_calendar_japanese_extended_v1","impl_calendar_japanese_modern_v1","impl_calendar_week_v1","make_provider"]};

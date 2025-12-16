@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/derive_more-impl-2.0.1/src/unwrap.rs`."><title>unwrap.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more_impl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">derive_more_impl/</div>unwrap.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::utils::{AttrParams, DeriveType, State};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/derive_more-impl-2.1.0/src/unwrap.rs`."><title>unwrap.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more_impl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">derive_more_impl/</div>unwrap.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::utils::{AttrParams, DeriveType, State};
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>convert_case::{Case, Casing};
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>proc_macro2::TokenStream;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>quote::{format_ident, quote};
@@ -118,53 +118,54 @@
 <a href=#118 id=118 data-nosnippet>118</a>    }
 <a href=#119 id=119 data-nosnippet>119</a>
 <a href=#120 id=120 data-nosnippet>120</a>    <span class="kw">let </span>imp = <span class="macro">quote!</span> {
-<a href=#121 id=121 data-nosnippet>121</a>        <span class="attr">#[allow(unreachable_code)] </span><span class="comment">// omit warnings for `!` and other unreachable types
-<a href=#122 id=122 data-nosnippet>122</a>        </span><span class="attr">#[automatically_derived]
-<a href=#123 id=123 data-nosnippet>123</a>        </span><span class="kw">impl </span>#imp_generics #enum_name #type_generics #where_clause {
-<a href=#124 id=124 data-nosnippet>124</a>            #(#funcs)*
-<a href=#125 id=125 data-nosnippet>125</a>        }
-<a href=#126 id=126 data-nosnippet>126</a>    };
-<a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a>    <span class="prelude-val">Ok</span>(imp)
-<a href=#129 id=129 data-nosnippet>129</a>}
-<a href=#130 id=130 data-nosnippet>130</a>
-<a href=#131 id=131 data-nosnippet>131</a><span class="kw">fn </span>get_field_info(fields: <span class="kw-2">&amp;</span>Fields) -&gt; (TokenStream, TokenStream, Vec&lt;<span class="kw-2">&amp;</span>Type&gt;) {
-<a href=#132 id=132 data-nosnippet>132</a>    <span class="kw">match </span>fields {
-<a href=#133 id=133 data-nosnippet>133</a>        Fields::Named(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"cannot unwrap anonymous records"</span>),
-<a href=#134 id=134 data-nosnippet>134</a>        Fields::Unnamed(<span class="kw-2">ref </span>fields) =&gt; {
-<a href=#135 id=135 data-nosnippet>135</a>            <span class="kw">let </span>(idents, types) = fields
-<a href=#136 id=136 data-nosnippet>136</a>                .unnamed
-<a href=#137 id=137 data-nosnippet>137</a>                .iter()
-<a href=#138 id=138 data-nosnippet>138</a>                .enumerate()
-<a href=#139 id=139 data-nosnippet>139</a>                .map(|(n, it)| (<span class="macro">format_ident!</span>(<span class="string">"field_{n}"</span>), <span class="kw-2">&amp;</span>it.ty))
-<a href=#140 id=140 data-nosnippet>140</a>                .unzip::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;&gt;();
-<a href=#141 id=141 data-nosnippet>141</a>            (<span class="macro">quote!</span> { (#(#idents),<span class="kw-2">*</span>) }, <span class="macro">quote!</span> { (#(#idents),<span class="kw-2">*</span>) }, types)
-<a href=#142 id=142 data-nosnippet>142</a>        }
-<a href=#143 id=143 data-nosnippet>143</a>        Fields::Unit =&gt; (<span class="macro">quote!</span> {}, <span class="macro">quote!</span> { () }, <span class="macro">vec!</span>[]),
-<a href=#144 id=144 data-nosnippet>144</a>    }
-<a href=#145 id=145 data-nosnippet>145</a>}
-<a href=#146 id=146 data-nosnippet>146</a>
-<a href=#147 id=147 data-nosnippet>147</a><span class="kw">fn </span>failed_block(state: <span class="kw-2">&amp;</span>State, enum_name: <span class="kw-2">&amp;</span>Ident, fn_name: <span class="kw-2">&amp;</span>Ident) -&gt; TokenStream {
-<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">let </span>arms = state
-<a href=#149 id=149 data-nosnippet>149</a>        .variant_states
-<a href=#150 id=150 data-nosnippet>150</a>        .iter()
-<a href=#151 id=151 data-nosnippet>151</a>        .map(|it| it.variant.unwrap())
-<a href=#152 id=152 data-nosnippet>152</a>        .map(|variant| {
-<a href=#153 id=153 data-nosnippet>153</a>            <span class="kw">let </span>data_pattern = <span class="kw">match </span>variant.fields {
-<a href=#154 id=154 data-nosnippet>154</a>                Fields::Named(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span> { {..} },
-<a href=#155 id=155 data-nosnippet>155</a>                Fields::Unnamed(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span> { (..) },
-<a href=#156 id=156 data-nosnippet>156</a>                Fields::Unit =&gt; <span class="macro">quote!</span> {},
-<a href=#157 id=157 data-nosnippet>157</a>            };
-<a href=#158 id=158 data-nosnippet>158</a>            <span class="kw">let </span>variant_ident = <span class="kw-2">&amp;</span>variant.ident;
-<a href=#159 id=159 data-nosnippet>159</a>            <span class="kw">let </span>panic_msg = <span class="macro">format!</span>(
-<a href=#160 id=160 data-nosnippet>160</a>                <span class="string">"called `{enum_name}::{fn_name}()` on a `{enum_name}::{variant_ident}` value"
-<a href=#161 id=161 data-nosnippet>161</a>            </span>);
-<a href=#162 id=162 data-nosnippet>162</a>            <span class="macro">quote!</span> { #enum_name :: #variant_ident #data_pattern =&gt; <span class="macro">panic!</span>(#panic_msg) }
-<a href=#163 id=163 data-nosnippet>163</a>        });
-<a href=#164 id=164 data-nosnippet>164</a>
-<a href=#165 id=165 data-nosnippet>165</a>    <span class="macro">quote!</span> {
-<a href=#166 id=166 data-nosnippet>166</a>        <span class="kw">match </span>val {
-<a href=#167 id=167 data-nosnippet>167</a>            #(#arms),*
-<a href=#168 id=168 data-nosnippet>168</a>        }
-<a href=#169 id=169 data-nosnippet>169</a>    }
-<a href=#170 id=170 data-nosnippet>170</a>}</code></pre></div></section></main></body></html>
+<a href=#121 id=121 data-nosnippet>121</a>        <span class="attr">#[allow(deprecated)] </span><span class="comment">// omit warnings on deprecated fields/variants
+<a href=#122 id=122 data-nosnippet>122</a>        </span><span class="attr">#[allow(unreachable_code)] </span><span class="comment">// omit warnings for `!` and other unreachable types
+<a href=#123 id=123 data-nosnippet>123</a>        </span><span class="attr">#[automatically_derived]
+<a href=#124 id=124 data-nosnippet>124</a>        </span><span class="kw">impl </span>#imp_generics #enum_name #type_generics #where_clause {
+<a href=#125 id=125 data-nosnippet>125</a>            #(#funcs)*
+<a href=#126 id=126 data-nosnippet>126</a>        }
+<a href=#127 id=127 data-nosnippet>127</a>    };
+<a href=#128 id=128 data-nosnippet>128</a>
+<a href=#129 id=129 data-nosnippet>129</a>    <span class="prelude-val">Ok</span>(imp)
+<a href=#130 id=130 data-nosnippet>130</a>}
+<a href=#131 id=131 data-nosnippet>131</a>
+<a href=#132 id=132 data-nosnippet>132</a><span class="kw">fn </span>get_field_info(fields: <span class="kw-2">&amp;</span>Fields) -&gt; (TokenStream, TokenStream, Vec&lt;<span class="kw-2">&amp;</span>Type&gt;) {
+<a href=#133 id=133 data-nosnippet>133</a>    <span class="kw">match </span>fields {
+<a href=#134 id=134 data-nosnippet>134</a>        Fields::Named(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"cannot unwrap anonymous records"</span>),
+<a href=#135 id=135 data-nosnippet>135</a>        Fields::Unnamed(<span class="kw-2">ref </span>fields) =&gt; {
+<a href=#136 id=136 data-nosnippet>136</a>            <span class="kw">let </span>(idents, types) = fields
+<a href=#137 id=137 data-nosnippet>137</a>                .unnamed
+<a href=#138 id=138 data-nosnippet>138</a>                .iter()
+<a href=#139 id=139 data-nosnippet>139</a>                .enumerate()
+<a href=#140 id=140 data-nosnippet>140</a>                .map(|(n, it)| (<span class="macro">format_ident!</span>(<span class="string">"field_{n}"</span>), <span class="kw-2">&amp;</span>it.ty))
+<a href=#141 id=141 data-nosnippet>141</a>                .unzip::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#142 id=142 data-nosnippet>142</a>            (<span class="macro">quote!</span> { (#(#idents),<span class="kw-2">*</span>) }, <span class="macro">quote!</span> { (#(#idents),<span class="kw-2">*</span>) }, types)
+<a href=#143 id=143 data-nosnippet>143</a>        }
+<a href=#144 id=144 data-nosnippet>144</a>        Fields::Unit =&gt; (<span class="macro">quote!</span> {}, <span class="macro">quote!</span> { () }, <span class="macro">vec!</span>[]),
+<a href=#145 id=145 data-nosnippet>145</a>    }
+<a href=#146 id=146 data-nosnippet>146</a>}
+<a href=#147 id=147 data-nosnippet>147</a>
+<a href=#148 id=148 data-nosnippet>148</a><span class="kw">fn </span>failed_block(state: <span class="kw-2">&amp;</span>State, enum_name: <span class="kw-2">&amp;</span>Ident, fn_name: <span class="kw-2">&amp;</span>Ident) -&gt; TokenStream {
+<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">let </span>arms = state
+<a href=#150 id=150 data-nosnippet>150</a>        .variant_states
+<a href=#151 id=151 data-nosnippet>151</a>        .iter()
+<a href=#152 id=152 data-nosnippet>152</a>        .map(|it| it.variant.unwrap())
+<a href=#153 id=153 data-nosnippet>153</a>        .map(|variant| {
+<a href=#154 id=154 data-nosnippet>154</a>            <span class="kw">let </span>data_pattern = <span class="kw">match </span>variant.fields {
+<a href=#155 id=155 data-nosnippet>155</a>                Fields::Named(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span> { {..} },
+<a href=#156 id=156 data-nosnippet>156</a>                Fields::Unnamed(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span> { (..) },
+<a href=#157 id=157 data-nosnippet>157</a>                Fields::Unit =&gt; <span class="macro">quote!</span> {},
+<a href=#158 id=158 data-nosnippet>158</a>            };
+<a href=#159 id=159 data-nosnippet>159</a>            <span class="kw">let </span>variant_ident = <span class="kw-2">&amp;</span>variant.ident;
+<a href=#160 id=160 data-nosnippet>160</a>            <span class="kw">let </span>panic_msg = <span class="macro">format!</span>(
+<a href=#161 id=161 data-nosnippet>161</a>                <span class="string">"called `{enum_name}::{fn_name}()` on a `{enum_name}::{variant_ident}` value"
+<a href=#162 id=162 data-nosnippet>162</a>            </span>);
+<a href=#163 id=163 data-nosnippet>163</a>            <span class="macro">quote!</span> { #enum_name :: #variant_ident #data_pattern =&gt; <span class="macro">panic!</span>(#panic_msg) }
+<a href=#164 id=164 data-nosnippet>164</a>        });
+<a href=#165 id=165 data-nosnippet>165</a>
+<a href=#166 id=166 data-nosnippet>166</a>    <span class="macro">quote!</span> {
+<a href=#167 id=167 data-nosnippet>167</a>        <span class="kw">match </span>val {
+<a href=#168 id=168 data-nosnippet>168</a>            #(#arms),*
+<a href=#169 id=169 data-nosnippet>169</a>        }
+<a href=#170 id=170 data-nosnippet>170</a>    }
+<a href=#171 id=171 data-nosnippet>171</a>}</code></pre></div></section></main></body></html>

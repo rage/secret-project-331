@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Better reference counted strings"><title>arcstr - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="arcstr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate arcstr</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../arcstr/index.html">arcstr</a><span class="version">1.2.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#better-reference-counted-strings" title="Better reference counted strings">Better reference counted strings</a><ul><li><a href="#feature-overview" title="Feature overview">Feature overview</a></li></ul></li></ul><h3><a href="#macros">Crate Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>arcstr</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/arcstr/lib.rs.html#1-111">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="better-reference-counted-strings"><a class="doc-anchor" href="#better-reference-counted-strings">§</a>Better reference counted strings</h2>
+<p>This crate defines <a href="struct.ArcStr.html" title="struct arcstr::ArcStr"><code>ArcStr</code></a>, a type similar to <code>Arc&lt;str&gt;</code>, but with a
+number of new features and functionality. There’s a list of
+<a href="struct.ArcStr.html#benefits-of-arcstr-over-arcstr">benefits</a> in the <code>ArcStr</code> documentation comment which covers some
+of the reasons you might want to use it over other alternatives.</p>
+<p>Additionally, if the <code>substr</code> feature is enabled (and it is by default), we
+provide a <a href="struct.Substr.html" title="struct arcstr::Substr"><code>Substr</code></a> type which is essentially a <code>(ArcStr, Range&lt;usize&gt;)</code>
+with better ergonomics and more functionality, which represents a shared
+slice of a “parent” <code>ArcStr</code> (note that in reality, <code>u32</code> is used for the
+index type, but this is not exposed in the API, and can be transparently
+changed via a cargo feature).</p>
+<h3 id="feature-overview"><a class="doc-anchor" href="#feature-overview">§</a>Feature overview</h3>
+<p>A quick tour of the distinguishing features:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>arcstr::ArcStr;
+
+<span class="comment">// Works in const:
+</span><span class="kw">const </span>MY_ARCSTR: ArcStr = <span class="macro">arcstr::literal!</span>(<span class="string">"amazing constant"</span>);
+<span class="macro">assert_eq!</span>(MY_ARCSTR, <span class="string">"amazing constant"</span>);
+
+<span class="comment">// `arcstr::literal!` input can come from `include_str!` too:
+</span><span class="kw">const </span>MY_ARCSTR: ArcStr = <span class="macro">arcstr::literal!</span>(<span class="macro">include_str!</span>(<span class="string">"my-best-files.txt"</span>));</code></pre></div>
+<p>Or, you can define the literals in normal expressions. Note that these
+literals are essentially <a href="struct.ArcStr.html#what-does-zero-cost-literals-mean">“Zero Cost”</a>. Specifically, below we
+not only avoid allocating any heap memory to instantiate <code>wow</code> or any of
+the clones, we also don’t have to perform any atomic reads or writes.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>arcstr::ArcStr;
+
+<span class="kw">let </span>wow: ArcStr = <span class="macro">arcstr::literal!</span>(<span class="string">"Wow!"</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"Wow!"</span>, wow);
+<span class="comment">// This line is probably not something you want to do regularly,
+// but causes no extra allocations, nor performs any atomic reads
+// nor writes.
+</span><span class="kw">let </span>wowzers = wow.clone().clone().clone().clone();
+
+<span class="comment">// At some point in the future, we can get a `&amp;'static str` out of one
+// of the literal `ArcStr`s too. Note that this returns `None` for
+// a dynamically allocated `ArcStr`:
+</span><span class="kw">let </span>static_str: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; = ArcStr::as_static(<span class="kw-2">&amp;</span>wowzers);
+<span class="macro">assert_eq!</span>(static_str, <span class="prelude-val">Some</span>(<span class="string">"Wow!"</span>));</code></pre></div>
+<p>Of course, this is in addition to the typical functionality you might find in a
+non-borrowed string type (with the caveat that there is explicitly no way to
+mutate <code>ArcStr</code>).</p>
+<p>It’s an open TODO to update this “feature tour” to include <code>Substr</code>.</p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.format.html" title="macro arcstr::format">format</a></dt><dd>Conceptually equivalent to <code>ArcStr::from(format!("...", args...))</code>.</dd><dt><a class="macro" href="macro.literal.html" title="macro arcstr::literal">literal</a></dt><dd>Create a const <a href="struct.ArcStr.html" title="struct arcstr::ArcStr"><code>ArcStr</code></a> from a string literal. The
+resulting <code>ArcStr</code> require no heap allocation, can be freely cloned and used
+interchangeably with <code>ArcStr</code>s from the heap, and are effectively “free”.</dd><dt><a class="macro" href="macro.literal_substr.html" title="macro arcstr::literal_substr">literal_<wbr>substr</a></dt><dd><code>feature = "substr"</code>: Create a <code>const</code> <a href="struct.Substr.html" title="struct arcstr::Substr"><code>Substr</code></a>.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ArcStr.html" title="struct arcstr::ArcStr">ArcStr</a></dt><dd>A better atomically-reference counted string type.</dd><dt><a class="struct" href="struct.Substr.html" title="struct arcstr::Substr">Substr</a></dt><dd>A low-cost string type representing a view into an <a href="struct.ArcStr.html" title="struct arcstr::ArcStr"><code>ArcStr</code></a>.</dd></dl></section></div></main></body></html>

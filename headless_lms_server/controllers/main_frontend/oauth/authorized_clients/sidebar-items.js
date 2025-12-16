@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_authorized_client","get_authorized_clients"],"struct":["AuthorizedClient"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_authorized_client","get_authorized_clients"]};

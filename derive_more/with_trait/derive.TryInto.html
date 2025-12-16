@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="What `#[derive(TryInto)]` generates"><title>TryInto in derive_more::with_trait - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../derive_more/index.html">derive_<wbr>more</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">TryInto</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#what-derivetryinto-generates" title="What `#[derive(TryInto)]` generates">What <code>#[derive(TryInto)]</code> generates</a><ul><li><a href="#example-usage" title="Example usage">Example usage</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In derive_<wbr>more::<wbr>with_<wbr>trait</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">derive_more</a>::<wbr><a href="index.html">with_trait</a></div><h1>Derive Macro <span class="derive">TryInto</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/derive_more_impl/lib.rs.html#103">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(TryInto)]
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="What `#[derive(TryInto)]` generates"><title>TryInto in derive_more::with_trait - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">TryInto</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../derive_more/index.html">derive_<wbr>more</a><span class="version">2.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">TryInto</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#what-derivetryinto-generates" title="What `#[derive(TryInto)]` generates">What <code>#[derive(TryInto)]</code> generates</a><ul><li><a href="#example-usage" title="Example usage">Example usage</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#custom-error" title="Custom error">Custom error</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In derive_<wbr>more::<wbr>with_<wbr>trait</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">derive_more</a>::<wbr><a href="index.html">with_trait</a></div><h1>Derive Macro <span class="derive">TryInto</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/derive_more_impl/lib.rs.html#95">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(TryInto)]
 {
     <span class="comment">// Attributes available to this derive:</span>
     #[try_into]
@@ -40,8 +40,7 @@ variants you want to derive <code>TryInto</code> for.</p>
 
 <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>.to_string(), String::try_from(mixed_string.clone()).unwrap());
 
-<span class="macro">assert!</span>(u32::try_from(mixed_string).is_err());</code></pre></div>
-<h3 id="structs"><a class="doc-anchor" href="#structs">§</a>Structs</h3>
+<span class="macro">assert!</span>(u32::try_from(mixed_string).is_err());</code></pre></div><h3 id="structs"><a class="doc-anchor" href="#structs">§</a>Structs</h3>
 <p>Deriving <code>TryInto</code> for structs is not supported because there is no failing
 mode. Use <code>#[derive(Into)]</code> instead. <code>TryInto</code> will automatically get a
 blanket implementation through <code>TryFrom</code>, automatically derived from <code>From</code>,
@@ -135,5 +134,52 @@ For instance, when deriving <code>TryInto</code> for an enum link this:</p>
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(derive_more::TryIntoError::new(value, <span class="string">"Unit"</span>, <span class="string">"()"</span>)),
         }
     }
+}</code></pre></div><h3 id="custom-error"><a class="doc-anchor" href="#custom-error">§</a>Custom error</h3>
+<p>The <code>#[try_into(error(&lt;ty&gt;[, &lt;conv&gt;]))]</code> attribute can be used to convert the <code>TryIntoError</code> type
+into a custom error type.</p>
+<p>If the conversion function is not provided, the custom error type must implement
+<code>From&lt;derive_more::TryIntoError&lt;T&gt;&gt;</code>.
+The conversion function could be provided in the following forms:</p>
+<ul>
+<li>function (like <code>CustomError::new</code>);</li>
+<li>closure (like <code>|e| CustomError::new(e)</code>);</li>
+<li>function call (like <code>CustomError::factory()</code>).</li>
+</ul>
+<p>This, however, doesn’t support custom error with generic parameters, such as
+<code>struct CustomError&lt;T&gt;(derive_more::TryIntoError&lt;T&gt;)</code> (newtype wrapper around <code>derive_more::TryIntoError</code>).</p>
+<p>Given the following enum:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>CustomError(String);
+
+<span class="kw">impl</span>&lt;T&gt; From&lt;derive_more::TryIntoError&lt;T&gt;&gt; <span class="kw">for </span>CustomError {
+    <span class="kw">fn </span>from(value: derive_more::TryIntoError&lt;T&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(value.to_string())
+    }
+}
+
+<span class="attr">#[derive(TryInto, Clone, Debug)]
+#[try_into(error(CustomError))]
+</span><span class="kw">enum </span>MixedData {
+    Int(u32),
+    String(String),
 }</code></pre></div>
-</div></details></section></div></main></body></html>
+<p>Code like this is generated:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>derive_more::core::convert::TryFrom&lt;MixedData&gt; <span class="kw">for </span>(u32) {
+    <span class="kw">type </span>Error = CustomError;
+    <span class="kw">fn </span>try_from(value: MixedData) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CustomError&gt; {
+        <span class="kw">match </span>value {
+            MixedData::Int(v) =&gt; <span class="prelude-val">Ok</span>(v),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(derive_more::TryIntoError::new(value, <span class="string">"Int"</span>, <span class="string">"u32"</span>).into()),
+        }
+    }
+}
+<span class="kw">impl </span>derive_more::core::convert::TryFrom&lt;MixedData&gt; <span class="kw">for </span>(String) {
+    <span class="kw">type </span>Error = CustomError;
+    <span class="kw">fn </span>try_from(value: MixedData) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CustomError&gt; {
+        <span class="kw">match </span>value {
+            MixedData::String(v) =&gt; <span class="prelude-val">Ok</span>(v),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(derive_more::TryIntoError::new(value, <span class="string">"String"</span>, <span class="string">"String"</span>).into()),
+        }
+    }
+}</code></pre></div></div></details></section></div></main></body></html>

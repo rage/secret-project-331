@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csv-1.3.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">csv/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">/*!
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csv-1.4.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">csv/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">/*!
 <a href=#2 id=2 data-nosnippet>2</a>The `csv` crate provides a fast and flexible CSV reader and writer, with
 <a href=#3 id=3 data-nosnippet>3</a>support for Serde.
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -137,7 +137,7 @@
 <a href=#137 id=137 data-nosnippet>137</a>
 <a href=#138 id=138 data-nosnippet>138</a></span><span class="kw">use </span>std::result;
 <a href=#139 id=139 data-nosnippet>139</a>
-<a href=#140 id=140 data-nosnippet>140</a><span class="kw">use </span>serde::{Deserialize, Deserializer};
+<a href=#140 id=140 data-nosnippet>140</a><span class="kw">use </span>serde_core::{Deserialize, Deserializer};
 <a href=#141 id=141 data-nosnippet>141</a>
 <a href=#142 id=142 data-nosnippet>142</a><span class="kw">pub use crate</span>::{
 <a href=#143 id=143 data-nosnippet>143</a>    byte_record::{ByteRecord, ByteRecordIter, Position},
@@ -166,180 +166,145 @@
 <a href=#166 id=166 data-nosnippet>166</a><span class="kw">mod </span>writer;
 <a href=#167 id=167 data-nosnippet>167</a>
 <a href=#168 id=168 data-nosnippet>168</a><span class="doccomment">/// The quoting style to use when writing CSV data.
-<a href=#169 id=169 data-nosnippet>169</a></span><span class="attr">#[derive(Clone, Copy, Debug)]
-<a href=#170 id=170 data-nosnippet>170</a></span><span class="kw">pub enum </span>QuoteStyle {
-<a href=#171 id=171 data-nosnippet>171</a>    <span class="doccomment">/// This puts quotes around every field. Always.
-<a href=#172 id=172 data-nosnippet>172</a>    </span>Always,
-<a href=#173 id=173 data-nosnippet>173</a>    <span class="doccomment">/// This puts quotes around fields only when necessary.
-<a href=#174 id=174 data-nosnippet>174</a>    ///
-<a href=#175 id=175 data-nosnippet>175</a>    /// They are necessary when fields contain a quote, delimiter or record
-<a href=#176 id=176 data-nosnippet>176</a>    /// terminator. Quotes are also necessary when writing an empty record
-<a href=#177 id=177 data-nosnippet>177</a>    /// (which is indistinguishable from a record with one empty field).
-<a href=#178 id=178 data-nosnippet>178</a>    ///
-<a href=#179 id=179 data-nosnippet>179</a>    /// This is the default.
-<a href=#180 id=180 data-nosnippet>180</a>    </span>Necessary,
-<a href=#181 id=181 data-nosnippet>181</a>    <span class="doccomment">/// This puts quotes around all fields that are non-numeric. Namely, when
-<a href=#182 id=182 data-nosnippet>182</a>    /// writing a field that does not parse as a valid float or integer, then
-<a href=#183 id=183 data-nosnippet>183</a>    /// quotes will be used even if they aren't strictly necessary.
-<a href=#184 id=184 data-nosnippet>184</a>    </span>NonNumeric,
-<a href=#185 id=185 data-nosnippet>185</a>    <span class="doccomment">/// This *never* writes quotes, even if it would produce invalid CSV data.
-<a href=#186 id=186 data-nosnippet>186</a>    </span>Never,
-<a href=#187 id=187 data-nosnippet>187</a>    <span class="doccomment">/// Hints that destructuring should not be exhaustive.
-<a href=#188 id=188 data-nosnippet>188</a>    ///
-<a href=#189 id=189 data-nosnippet>189</a>    /// This enum may grow additional variants, so this makes sure clients
-<a href=#190 id=190 data-nosnippet>190</a>    /// don't count on exhaustive matching. (Otherwise, adding a new variant
-<a href=#191 id=191 data-nosnippet>191</a>    /// could break existing code.)
-<a href=#192 id=192 data-nosnippet>192</a>    </span><span class="attr">#[doc(hidden)]
-<a href=#193 id=193 data-nosnippet>193</a>    </span>__Nonexhaustive,
-<a href=#194 id=194 data-nosnippet>194</a>}
-<a href=#195 id=195 data-nosnippet>195</a>
-<a href=#196 id=196 data-nosnippet>196</a><span class="kw">impl </span>QuoteStyle {
-<a href=#197 id=197 data-nosnippet>197</a>    <span class="kw">fn </span>to_core(<span class="self">self</span>) -&gt; csv_core::QuoteStyle {
-<a href=#198 id=198 data-nosnippet>198</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#199 id=199 data-nosnippet>199</a>            QuoteStyle::Always =&gt; csv_core::QuoteStyle::Always,
-<a href=#200 id=200 data-nosnippet>200</a>            QuoteStyle::Necessary =&gt; csv_core::QuoteStyle::Necessary,
-<a href=#201 id=201 data-nosnippet>201</a>            QuoteStyle::NonNumeric =&gt; csv_core::QuoteStyle::NonNumeric,
-<a href=#202 id=202 data-nosnippet>202</a>            QuoteStyle::Never =&gt; csv_core::QuoteStyle::Never,
-<a href=#203 id=203 data-nosnippet>203</a>            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
-<a href=#204 id=204 data-nosnippet>204</a>        }
-<a href=#205 id=205 data-nosnippet>205</a>    }
-<a href=#206 id=206 data-nosnippet>206</a>}
-<a href=#207 id=207 data-nosnippet>207</a>
-<a href=#208 id=208 data-nosnippet>208</a><span class="kw">impl </span>Default <span class="kw">for </span>QuoteStyle {
-<a href=#209 id=209 data-nosnippet>209</a>    <span class="kw">fn </span>default() -&gt; QuoteStyle {
-<a href=#210 id=210 data-nosnippet>210</a>        QuoteStyle::Necessary
-<a href=#211 id=211 data-nosnippet>211</a>    }
-<a href=#212 id=212 data-nosnippet>212</a>}
-<a href=#213 id=213 data-nosnippet>213</a>
-<a href=#214 id=214 data-nosnippet>214</a><span class="doccomment">/// A record terminator.
-<a href=#215 id=215 data-nosnippet>215</a>///
-<a href=#216 id=216 data-nosnippet>216</a>/// Use this to specify the record terminator while parsing CSV. The default is
-<a href=#217 id=217 data-nosnippet>217</a>/// CRLF, which treats `\r`, `\n` or `\r\n` as a single record terminator.
-<a href=#218 id=218 data-nosnippet>218</a></span><span class="attr">#[derive(Clone, Copy, Debug)]
-<a href=#219 id=219 data-nosnippet>219</a></span><span class="kw">pub enum </span>Terminator {
-<a href=#220 id=220 data-nosnippet>220</a>    <span class="doccomment">/// Parses `\r`, `\n` or `\r\n` as a single record terminator.
-<a href=#221 id=221 data-nosnippet>221</a>    </span>CRLF,
-<a href=#222 id=222 data-nosnippet>222</a>    <span class="doccomment">/// Parses the byte given as a record terminator.
-<a href=#223 id=223 data-nosnippet>223</a>    </span>Any(u8),
-<a href=#224 id=224 data-nosnippet>224</a>    <span class="doccomment">/// Hints that destructuring should not be exhaustive.
-<a href=#225 id=225 data-nosnippet>225</a>    ///
-<a href=#226 id=226 data-nosnippet>226</a>    /// This enum may grow additional variants, so this makes sure clients
-<a href=#227 id=227 data-nosnippet>227</a>    /// don't count on exhaustive matching. (Otherwise, adding a new variant
-<a href=#228 id=228 data-nosnippet>228</a>    /// could break existing code.)
-<a href=#229 id=229 data-nosnippet>229</a>    </span><span class="attr">#[doc(hidden)]
-<a href=#230 id=230 data-nosnippet>230</a>    </span>__Nonexhaustive,
-<a href=#231 id=231 data-nosnippet>231</a>}
-<a href=#232 id=232 data-nosnippet>232</a>
-<a href=#233 id=233 data-nosnippet>233</a><span class="kw">impl </span>Terminator {
-<a href=#234 id=234 data-nosnippet>234</a>    <span class="doccomment">/// Convert this to the csv_core type of the same name.
-<a href=#235 id=235 data-nosnippet>235</a>    </span><span class="kw">fn </span>to_core(<span class="self">self</span>) -&gt; csv_core::Terminator {
-<a href=#236 id=236 data-nosnippet>236</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#237 id=237 data-nosnippet>237</a>            Terminator::CRLF =&gt; csv_core::Terminator::CRLF,
-<a href=#238 id=238 data-nosnippet>238</a>            Terminator::Any(b) =&gt; csv_core::Terminator::Any(b),
-<a href=#239 id=239 data-nosnippet>239</a>            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
-<a href=#240 id=240 data-nosnippet>240</a>        }
-<a href=#241 id=241 data-nosnippet>241</a>    }
-<a href=#242 id=242 data-nosnippet>242</a>}
-<a href=#243 id=243 data-nosnippet>243</a>
-<a href=#244 id=244 data-nosnippet>244</a><span class="kw">impl </span>Default <span class="kw">for </span>Terminator {
-<a href=#245 id=245 data-nosnippet>245</a>    <span class="kw">fn </span>default() -&gt; Terminator {
-<a href=#246 id=246 data-nosnippet>246</a>        Terminator::CRLF
-<a href=#247 id=247 data-nosnippet>247</a>    }
-<a href=#248 id=248 data-nosnippet>248</a>}
-<a href=#249 id=249 data-nosnippet>249</a>
-<a href=#250 id=250 data-nosnippet>250</a><span class="doccomment">/// The whitespace preservation behaviour when reading CSV data.
-<a href=#251 id=251 data-nosnippet>251</a></span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
-<a href=#252 id=252 data-nosnippet>252</a></span><span class="kw">pub enum </span>Trim {
-<a href=#253 id=253 data-nosnippet>253</a>    <span class="doccomment">/// Preserves fields and headers. This is the default.
-<a href=#254 id=254 data-nosnippet>254</a>    </span><span class="prelude-val">None</span>,
-<a href=#255 id=255 data-nosnippet>255</a>    <span class="doccomment">/// Trim whitespace from headers.
-<a href=#256 id=256 data-nosnippet>256</a>    </span>Headers,
-<a href=#257 id=257 data-nosnippet>257</a>    <span class="doccomment">/// Trim whitespace from fields, but not headers.
-<a href=#258 id=258 data-nosnippet>258</a>    </span>Fields,
-<a href=#259 id=259 data-nosnippet>259</a>    <span class="doccomment">/// Trim whitespace from fields and headers.
-<a href=#260 id=260 data-nosnippet>260</a>    </span>All,
-<a href=#261 id=261 data-nosnippet>261</a>    <span class="doccomment">/// Hints that destructuring should not be exhaustive.
-<a href=#262 id=262 data-nosnippet>262</a>    ///
-<a href=#263 id=263 data-nosnippet>263</a>    /// This enum may grow additional variants, so this makes sure clients
-<a href=#264 id=264 data-nosnippet>264</a>    /// don't count on exhaustive matching. (Otherwise, adding a new variant
-<a href=#265 id=265 data-nosnippet>265</a>    /// could break existing code.)
-<a href=#266 id=266 data-nosnippet>266</a>    </span><span class="attr">#[doc(hidden)]
-<a href=#267 id=267 data-nosnippet>267</a>    </span>__Nonexhaustive,
-<a href=#268 id=268 data-nosnippet>268</a>}
-<a href=#269 id=269 data-nosnippet>269</a>
-<a href=#270 id=270 data-nosnippet>270</a><span class="kw">impl </span>Trim {
-<a href=#271 id=271 data-nosnippet>271</a>    <span class="kw">fn </span>should_trim_fields(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="self">self </span>== <span class="kw-2">&amp;</span>Trim::Fields || <span class="self">self </span>== <span class="kw-2">&amp;</span>Trim::All
-<a href=#273 id=273 data-nosnippet>273</a>    }
-<a href=#274 id=274 data-nosnippet>274</a>
-<a href=#275 id=275 data-nosnippet>275</a>    <span class="kw">fn </span>should_trim_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#276 id=276 data-nosnippet>276</a>        <span class="self">self </span>== <span class="kw-2">&amp;</span>Trim::Headers || <span class="self">self </span>== <span class="kw-2">&amp;</span>Trim::All
-<a href=#277 id=277 data-nosnippet>277</a>    }
-<a href=#278 id=278 data-nosnippet>278</a>}
-<a href=#279 id=279 data-nosnippet>279</a>
-<a href=#280 id=280 data-nosnippet>280</a><span class="kw">impl </span>Default <span class="kw">for </span>Trim {
-<a href=#281 id=281 data-nosnippet>281</a>    <span class="kw">fn </span>default() -&gt; Trim {
-<a href=#282 id=282 data-nosnippet>282</a>        Trim::None
-<a href=#283 id=283 data-nosnippet>283</a>    }
-<a href=#284 id=284 data-nosnippet>284</a>}
-<a href=#285 id=285 data-nosnippet>285</a>
-<a href=#286 id=286 data-nosnippet>286</a><span class="doccomment">/// A custom Serde deserializer for possibly invalid `Option&lt;T&gt;` fields.
+<a href=#169 id=169 data-nosnippet>169</a></span><span class="attr">#[derive(Clone, Copy, Debug, Default)]
+<a href=#170 id=170 data-nosnippet>170</a>#[non_exhaustive]
+<a href=#171 id=171 data-nosnippet>171</a></span><span class="kw">pub enum </span>QuoteStyle {
+<a href=#172 id=172 data-nosnippet>172</a>    <span class="doccomment">/// This puts quotes around every field. Always.
+<a href=#173 id=173 data-nosnippet>173</a>    </span>Always,
+<a href=#174 id=174 data-nosnippet>174</a>    <span class="doccomment">/// This puts quotes around fields only when necessary.
+<a href=#175 id=175 data-nosnippet>175</a>    ///
+<a href=#176 id=176 data-nosnippet>176</a>    /// They are necessary when fields contain a quote, delimiter or record
+<a href=#177 id=177 data-nosnippet>177</a>    /// terminator. Quotes are also necessary when writing an empty record
+<a href=#178 id=178 data-nosnippet>178</a>    /// (which is indistinguishable from a record with one empty field).
+<a href=#179 id=179 data-nosnippet>179</a>    ///
+<a href=#180 id=180 data-nosnippet>180</a>    /// This is the default.
+<a href=#181 id=181 data-nosnippet>181</a>    </span><span class="attr">#[default]
+<a href=#182 id=182 data-nosnippet>182</a>    </span>Necessary,
+<a href=#183 id=183 data-nosnippet>183</a>    <span class="doccomment">/// This puts quotes around all fields that are non-numeric. Namely, when
+<a href=#184 id=184 data-nosnippet>184</a>    /// writing a field that does not parse as a valid float or integer, then
+<a href=#185 id=185 data-nosnippet>185</a>    /// quotes will be used even if they aren't strictly necessary.
+<a href=#186 id=186 data-nosnippet>186</a>    </span>NonNumeric,
+<a href=#187 id=187 data-nosnippet>187</a>    <span class="doccomment">/// This *never* writes quotes, even if it would produce invalid CSV data.
+<a href=#188 id=188 data-nosnippet>188</a>    </span>Never,
+<a href=#189 id=189 data-nosnippet>189</a>}
+<a href=#190 id=190 data-nosnippet>190</a>
+<a href=#191 id=191 data-nosnippet>191</a><span class="kw">impl </span>QuoteStyle {
+<a href=#192 id=192 data-nosnippet>192</a>    <span class="kw">fn </span>to_core(<span class="self">self</span>) -&gt; csv_core::QuoteStyle {
+<a href=#193 id=193 data-nosnippet>193</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#194 id=194 data-nosnippet>194</a>            QuoteStyle::Always =&gt; csv_core::QuoteStyle::Always,
+<a href=#195 id=195 data-nosnippet>195</a>            QuoteStyle::Necessary =&gt; csv_core::QuoteStyle::Necessary,
+<a href=#196 id=196 data-nosnippet>196</a>            QuoteStyle::NonNumeric =&gt; csv_core::QuoteStyle::NonNumeric,
+<a href=#197 id=197 data-nosnippet>197</a>            QuoteStyle::Never =&gt; csv_core::QuoteStyle::Never,
+<a href=#198 id=198 data-nosnippet>198</a>        }
+<a href=#199 id=199 data-nosnippet>199</a>    }
+<a href=#200 id=200 data-nosnippet>200</a>}
+<a href=#201 id=201 data-nosnippet>201</a>
+<a href=#202 id=202 data-nosnippet>202</a><span class="doccomment">/// A record terminator.
+<a href=#203 id=203 data-nosnippet>203</a>///
+<a href=#204 id=204 data-nosnippet>204</a>/// Use this to specify the record terminator while parsing CSV. The default is
+<a href=#205 id=205 data-nosnippet>205</a>/// CRLF, which treats `\r`, `\n` or `\r\n` as a single record terminator.
+<a href=#206 id=206 data-nosnippet>206</a></span><span class="attr">#[derive(Clone, Copy, Debug, Default)]
+<a href=#207 id=207 data-nosnippet>207</a>#[non_exhaustive]
+<a href=#208 id=208 data-nosnippet>208</a></span><span class="kw">pub enum </span>Terminator {
+<a href=#209 id=209 data-nosnippet>209</a>    <span class="doccomment">/// Parses `\r`, `\n` or `\r\n` as a single record terminator.
+<a href=#210 id=210 data-nosnippet>210</a>    </span><span class="attr">#[default]
+<a href=#211 id=211 data-nosnippet>211</a>    </span>CRLF,
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="doccomment">/// Parses the byte given as a record terminator.
+<a href=#213 id=213 data-nosnippet>213</a>    </span>Any(u8),
+<a href=#214 id=214 data-nosnippet>214</a>}
+<a href=#215 id=215 data-nosnippet>215</a>
+<a href=#216 id=216 data-nosnippet>216</a><span class="kw">impl </span>Terminator {
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="doccomment">/// Convert this to the csv_core type of the same name.
+<a href=#218 id=218 data-nosnippet>218</a>    </span><span class="kw">fn </span>to_core(<span class="self">self</span>) -&gt; csv_core::Terminator {
+<a href=#219 id=219 data-nosnippet>219</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#220 id=220 data-nosnippet>220</a>            Terminator::CRLF =&gt; csv_core::Terminator::CRLF,
+<a href=#221 id=221 data-nosnippet>221</a>            Terminator::Any(b) =&gt; csv_core::Terminator::Any(b),
+<a href=#222 id=222 data-nosnippet>222</a>        }
+<a href=#223 id=223 data-nosnippet>223</a>    }
+<a href=#224 id=224 data-nosnippet>224</a>}
+<a href=#225 id=225 data-nosnippet>225</a>
+<a href=#226 id=226 data-nosnippet>226</a><span class="doccomment">/// The whitespace preservation behaviour when reading CSV data.
+<a href=#227 id=227 data-nosnippet>227</a></span><span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
+<a href=#228 id=228 data-nosnippet>228</a>#[non_exhaustive]
+<a href=#229 id=229 data-nosnippet>229</a></span><span class="kw">pub enum </span>Trim {
+<a href=#230 id=230 data-nosnippet>230</a>    <span class="doccomment">/// Preserves fields and headers. This is the default.
+<a href=#231 id=231 data-nosnippet>231</a>    </span><span class="attr">#[default]
+<a href=#232 id=232 data-nosnippet>232</a>    </span><span class="prelude-val">None</span>,
+<a href=#233 id=233 data-nosnippet>233</a>    <span class="doccomment">/// Trim whitespace from headers.
+<a href=#234 id=234 data-nosnippet>234</a>    </span>Headers,
+<a href=#235 id=235 data-nosnippet>235</a>    <span class="doccomment">/// Trim whitespace from fields, but not headers.
+<a href=#236 id=236 data-nosnippet>236</a>    </span>Fields,
+<a href=#237 id=237 data-nosnippet>237</a>    <span class="doccomment">/// Trim whitespace from fields and headers.
+<a href=#238 id=238 data-nosnippet>238</a>    </span>All,
+<a href=#239 id=239 data-nosnippet>239</a>}
+<a href=#240 id=240 data-nosnippet>240</a>
+<a href=#241 id=241 data-nosnippet>241</a><span class="kw">impl </span>Trim {
+<a href=#242 id=242 data-nosnippet>242</a>    <span class="kw">fn </span>should_trim_fields(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#243 id=243 data-nosnippet>243</a>        <span class="self">self </span>== <span class="kw-2">&amp;</span>Trim::Fields || <span class="self">self </span>== <span class="kw-2">&amp;</span>Trim::All
+<a href=#244 id=244 data-nosnippet>244</a>    }
+<a href=#245 id=245 data-nosnippet>245</a>
+<a href=#246 id=246 data-nosnippet>246</a>    <span class="kw">fn </span>should_trim_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#247 id=247 data-nosnippet>247</a>        <span class="self">self </span>== <span class="kw-2">&amp;</span>Trim::Headers || <span class="self">self </span>== <span class="kw-2">&amp;</span>Trim::All
+<a href=#248 id=248 data-nosnippet>248</a>    }
+<a href=#249 id=249 data-nosnippet>249</a>}
+<a href=#250 id=250 data-nosnippet>250</a>
+<a href=#251 id=251 data-nosnippet>251</a><span class="doccomment">/// A custom Serde deserializer for possibly invalid `Option&lt;T&gt;` fields.
+<a href=#252 id=252 data-nosnippet>252</a>///
+<a href=#253 id=253 data-nosnippet>253</a>/// When deserializing CSV data, it is sometimes desirable to simply ignore
+<a href=#254 id=254 data-nosnippet>254</a>/// fields with invalid data. For example, there might be a field that is
+<a href=#255 id=255 data-nosnippet>255</a>/// usually a number, but will occasionally contain garbage data that causes
+<a href=#256 id=256 data-nosnippet>256</a>/// number parsing to fail.
+<a href=#257 id=257 data-nosnippet>257</a>///
+<a href=#258 id=258 data-nosnippet>258</a>/// You might be inclined to use, say, `Option&lt;i32&gt;` for fields such at this.
+<a href=#259 id=259 data-nosnippet>259</a>/// By default, however, `Option&lt;i32&gt;` will either capture *empty* fields with
+<a href=#260 id=260 data-nosnippet>260</a>/// `None` or valid numeric fields with `Some(the_number)`. If the field is
+<a href=#261 id=261 data-nosnippet>261</a>/// non-empty and not a valid number, then deserialization will return an error
+<a href=#262 id=262 data-nosnippet>262</a>/// instead of using `None`.
+<a href=#263 id=263 data-nosnippet>263</a>///
+<a href=#264 id=264 data-nosnippet>264</a>/// This function allows you to override this default behavior. Namely, if
+<a href=#265 id=265 data-nosnippet>265</a>/// `Option&lt;T&gt;` is deserialized with non-empty but invalid data, then the value
+<a href=#266 id=266 data-nosnippet>266</a>/// will be `None` and the error will be ignored.
+<a href=#267 id=267 data-nosnippet>267</a>///
+<a href=#268 id=268 data-nosnippet>268</a>/// # Example
+<a href=#269 id=269 data-nosnippet>269</a>///
+<a href=#270 id=270 data-nosnippet>270</a>/// This example shows how to parse CSV records with numerical data, even if
+<a href=#271 id=271 data-nosnippet>271</a>/// some numerical data is absent or invalid. Without the
+<a href=#272 id=272 data-nosnippet>272</a>/// `serde(deserialize_with = "...")` annotations, this example would return
+<a href=#273 id=273 data-nosnippet>273</a>/// an error.
+<a href=#274 id=274 data-nosnippet>274</a>///
+<a href=#275 id=275 data-nosnippet>275</a>/// ```
+<a href=#276 id=276 data-nosnippet>276</a>/// use std::error::Error;
+<a href=#277 id=277 data-nosnippet>277</a>///
+<a href=#278 id=278 data-nosnippet>278</a>/// #[derive(Debug, serde::Deserialize, Eq, PartialEq)]
+<a href=#279 id=279 data-nosnippet>279</a>/// struct Row {
+<a href=#280 id=280 data-nosnippet>280</a>///     #[serde(deserialize_with = "csv::invalid_option")]
+<a href=#281 id=281 data-nosnippet>281</a>///     a: Option&lt;i32&gt;,
+<a href=#282 id=282 data-nosnippet>282</a>///     #[serde(deserialize_with = "csv::invalid_option")]
+<a href=#283 id=283 data-nosnippet>283</a>///     b: Option&lt;i32&gt;,
+<a href=#284 id=284 data-nosnippet>284</a>///     #[serde(deserialize_with = "csv::invalid_option")]
+<a href=#285 id=285 data-nosnippet>285</a>///     c: Option&lt;i32&gt;,
+<a href=#286 id=286 data-nosnippet>286</a>/// }
 <a href=#287 id=287 data-nosnippet>287</a>///
-<a href=#288 id=288 data-nosnippet>288</a>/// When deserializing CSV data, it is sometimes desirable to simply ignore
-<a href=#289 id=289 data-nosnippet>289</a>/// fields with invalid data. For example, there might be a field that is
-<a href=#290 id=290 data-nosnippet>290</a>/// usually a number, but will occasionally contain garbage data that causes
-<a href=#291 id=291 data-nosnippet>291</a>/// number parsing to fail.
-<a href=#292 id=292 data-nosnippet>292</a>///
-<a href=#293 id=293 data-nosnippet>293</a>/// You might be inclined to use, say, `Option&lt;i32&gt;` for fields such at this.
-<a href=#294 id=294 data-nosnippet>294</a>/// By default, however, `Option&lt;i32&gt;` will either capture *empty* fields with
-<a href=#295 id=295 data-nosnippet>295</a>/// `None` or valid numeric fields with `Some(the_number)`. If the field is
-<a href=#296 id=296 data-nosnippet>296</a>/// non-empty and not a valid number, then deserialization will return an error
-<a href=#297 id=297 data-nosnippet>297</a>/// instead of using `None`.
-<a href=#298 id=298 data-nosnippet>298</a>///
-<a href=#299 id=299 data-nosnippet>299</a>/// This function allows you to override this default behavior. Namely, if
-<a href=#300 id=300 data-nosnippet>300</a>/// `Option&lt;T&gt;` is deserialized with non-empty but invalid data, then the value
-<a href=#301 id=301 data-nosnippet>301</a>/// will be `None` and the error will be ignored.
-<a href=#302 id=302 data-nosnippet>302</a>///
-<a href=#303 id=303 data-nosnippet>303</a>/// # Example
-<a href=#304 id=304 data-nosnippet>304</a>///
-<a href=#305 id=305 data-nosnippet>305</a>/// This example shows how to parse CSV records with numerical data, even if
-<a href=#306 id=306 data-nosnippet>306</a>/// some numerical data is absent or invalid. Without the
-<a href=#307 id=307 data-nosnippet>307</a>/// `serde(deserialize_with = "...")` annotations, this example would return
-<a href=#308 id=308 data-nosnippet>308</a>/// an error.
-<a href=#309 id=309 data-nosnippet>309</a>///
-<a href=#310 id=310 data-nosnippet>310</a>/// ```
-<a href=#311 id=311 data-nosnippet>311</a>/// use std::error::Error;
-<a href=#312 id=312 data-nosnippet>312</a>///
-<a href=#313 id=313 data-nosnippet>313</a>/// #[derive(Debug, serde::Deserialize, Eq, PartialEq)]
-<a href=#314 id=314 data-nosnippet>314</a>/// struct Row {
-<a href=#315 id=315 data-nosnippet>315</a>///     #[serde(deserialize_with = "csv::invalid_option")]
-<a href=#316 id=316 data-nosnippet>316</a>///     a: Option&lt;i32&gt;,
-<a href=#317 id=317 data-nosnippet>317</a>///     #[serde(deserialize_with = "csv::invalid_option")]
-<a href=#318 id=318 data-nosnippet>318</a>///     b: Option&lt;i32&gt;,
-<a href=#319 id=319 data-nosnippet>319</a>///     #[serde(deserialize_with = "csv::invalid_option")]
-<a href=#320 id=320 data-nosnippet>320</a>///     c: Option&lt;i32&gt;,
-<a href=#321 id=321 data-nosnippet>321</a>/// }
-<a href=#322 id=322 data-nosnippet>322</a>///
-<a href=#323 id=323 data-nosnippet>323</a>/// # fn main() { example().unwrap(); }
-<a href=#324 id=324 data-nosnippet>324</a>/// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-<a href=#325 id=325 data-nosnippet>325</a>///     let data = "\
-<a href=#326 id=326 data-nosnippet>326</a>/// a,b,c
-<a href=#327 id=327 data-nosnippet>327</a>/// 5,\"\",xyz
-<a href=#328 id=328 data-nosnippet>328</a>/// ";
-<a href=#329 id=329 data-nosnippet>329</a>///     let mut rdr = csv::Reader::from_reader(data.as_bytes());
-<a href=#330 id=330 data-nosnippet>330</a>///     if let Some(result) = rdr.deserialize().next() {
-<a href=#331 id=331 data-nosnippet>331</a>///         let record: Row = result?;
-<a href=#332 id=332 data-nosnippet>332</a>///         assert_eq!(record, Row { a: Some(5), b: None, c: None });
-<a href=#333 id=333 data-nosnippet>333</a>///         Ok(())
-<a href=#334 id=334 data-nosnippet>334</a>///     } else {
-<a href=#335 id=335 data-nosnippet>335</a>///         Err(From::from("expected at least one record but got none"))
-<a href=#336 id=336 data-nosnippet>336</a>///     }
-<a href=#337 id=337 data-nosnippet>337</a>/// }
-<a href=#338 id=338 data-nosnippet>338</a>/// ```
-<a href=#339 id=339 data-nosnippet>339</a></span><span class="kw">pub fn </span>invalid_option&lt;<span class="lifetime">'de</span>, D, T&gt;(de: D) -&gt; result::Result&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, D::Error&gt;
-<a href=#340 id=340 data-nosnippet>340</a><span class="kw">where
-<a href=#341 id=341 data-nosnippet>341</a>    </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
-<a href=#342 id=342 data-nosnippet>342</a>    <span class="prelude-ty">Option</span>&lt;T&gt;: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
-<a href=#343 id=343 data-nosnippet>343</a>{
-<a href=#344 id=344 data-nosnippet>344</a>    <span class="prelude-ty">Option</span>::&lt;T&gt;::deserialize(de).or_else(|<span class="kw">_</span>| <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
-<a href=#345 id=345 data-nosnippet>345</a>}</code></pre></div></section></main></body></html>
+<a href=#288 id=288 data-nosnippet>288</a>/// # fn main() { example().unwrap(); }
+<a href=#289 id=289 data-nosnippet>289</a>/// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+<a href=#290 id=290 data-nosnippet>290</a>///     let data = "\
+<a href=#291 id=291 data-nosnippet>291</a>/// a,b,c
+<a href=#292 id=292 data-nosnippet>292</a>/// 5,\"\",xyz
+<a href=#293 id=293 data-nosnippet>293</a>/// ";
+<a href=#294 id=294 data-nosnippet>294</a>///     let mut rdr = csv::Reader::from_reader(data.as_bytes());
+<a href=#295 id=295 data-nosnippet>295</a>///     if let Some(result) = rdr.deserialize().next() {
+<a href=#296 id=296 data-nosnippet>296</a>///         let record: Row = result?;
+<a href=#297 id=297 data-nosnippet>297</a>///         assert_eq!(record, Row { a: Some(5), b: None, c: None });
+<a href=#298 id=298 data-nosnippet>298</a>///         Ok(())
+<a href=#299 id=299 data-nosnippet>299</a>///     } else {
+<a href=#300 id=300 data-nosnippet>300</a>///         Err(From::from("expected at least one record but got none"))
+<a href=#301 id=301 data-nosnippet>301</a>///     }
+<a href=#302 id=302 data-nosnippet>302</a>/// }
+<a href=#303 id=303 data-nosnippet>303</a>/// ```
+<a href=#304 id=304 data-nosnippet>304</a></span><span class="kw">pub fn </span>invalid_option&lt;<span class="lifetime">'de</span>, D, T&gt;(de: D) -&gt; result::Result&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, D::Error&gt;
+<a href=#305 id=305 data-nosnippet>305</a><span class="kw">where
+<a href=#306 id=306 data-nosnippet>306</a>    </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
+<a href=#307 id=307 data-nosnippet>307</a>    <span class="prelude-ty">Option</span>&lt;T&gt;: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+<a href=#308 id=308 data-nosnippet>308</a>{
+<a href=#309 id=309 data-nosnippet>309</a>    <span class="prelude-ty">Option</span>::&lt;T&gt;::deserialize(de).or_else(|<span class="kw">_</span>| <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
+<a href=#310 id=310 data-nosnippet>310</a>}</code></pre></div></section></main></body></html>

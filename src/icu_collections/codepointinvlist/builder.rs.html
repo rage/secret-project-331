@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_collections-2.0.0/src/codepointinvlist/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_collections/codepointinvlist/</div>builder.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_collections-2.1.1/src/codepointinvlist/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_collections/codepointinvlist/</div>builder.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 <a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
 <a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -32,7 +32,7 @@
 <a href=#32 id=32 data-nosnippet>32</a>            .into_iter()
 <a href=#33 id=33 data-nosnippet>33</a>            .map(PotentialCodePoint::from_u24)
 <a href=#34 id=34 data-nosnippet>34</a>            .collect();
-<a href=#35 id=35 data-nosnippet>35</a>        <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// by invariant
+<a href=#35 id=35 data-nosnippet>35</a>        <span class="attr">#[expect(clippy::unwrap_used)] </span><span class="comment">// by invariant
 <a href=#36 id=36 data-nosnippet>36</a>        </span>CodePointInversionList::try_from_inversion_list(inv_list).unwrap()
 <a href=#37 id=37 data-nosnippet>37</a>    }
 <a href=#38 id=38 data-nosnippet>38</a>
@@ -51,7 +51,7 @@
 <a href=#51 id=51 data-nosnippet>51</a>        <span class="kw">let </span>end_pos_check = (end_ind % <span class="number">2 </span>== <span class="number">0</span>) == add;
 <a href=#52 id=52 data-nosnippet>52</a>        <span class="kw">let </span>start_eq_end = start_ind == end_ind;
 <a href=#53 id=53 data-nosnippet>53</a>
-<a href=#54 id=54 data-nosnippet>54</a>        <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// all indices are binary search results
+<a href=#54 id=54 data-nosnippet>54</a>        <span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// all indices are binary search results
 <a href=#55 id=55 data-nosnippet>55</a>        </span><span class="kw">if </span>start_eq_end &amp;&amp; start_pos_check &amp;&amp; end_res.is_err() {
 <a href=#56 id=56 data-nosnippet>56</a>            <span class="self">self</span>.intervals.splice(start_ind..end_ind, [start, end]);
 <a href=#57 id=57 data-nosnippet>57</a>        } <span class="kw">else </span>{
@@ -182,7 +182,7 @@
 <a href=#182 id=182 data-nosnippet>182</a>    /// ```
 <a href=#183 id=183 data-nosnippet>183</a>    </span><span class="attr">#[allow(unused_assignments)]
 <a href=#184 id=184 data-nosnippet>184</a>    </span><span class="kw">pub fn </span>add_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, set: <span class="kw-2">&amp;</span>CodePointInversionList) {
-<a href=#185 id=185 data-nosnippet>185</a>        <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// chunks
+<a href=#185 id=185 data-nosnippet>185</a>        <span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// chunks
 <a href=#186 id=186 data-nosnippet>186</a>        </span>set.as_inversion_list()
 <a href=#187 id=187 data-nosnippet>187</a>            .as_ule_slice()
 <a href=#188 id=188 data-nosnippet>188</a>            .chunks(<span class="number">2</span>)
@@ -203,7 +203,7 @@
 <a href=#203 id=203 data-nosnippet>203</a>            <span class="kw">return</span>;
 <a href=#204 id=204 data-nosnippet>204</a>        }
 <a href=#205 id=205 data-nosnippet>205</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>last) = <span class="self">self</span>.intervals.last() {
-<a href=#206 id=206 data-nosnippet>206</a>            <span class="attr">#[allow(clippy::indexing_slicing)]
+<a href=#206 id=206 data-nosnippet>206</a>            <span class="attr">#[expect(clippy::indexing_slicing)]
 <a href=#207 id=207 data-nosnippet>207</a>            </span><span class="comment">// by invariant, if we have a last we have a (different) first
 <a href=#208 id=208 data-nosnippet>208</a>            </span><span class="kw">if </span>start &lt;= <span class="self">self</span>.intervals[<span class="number">0</span>] &amp;&amp; end &gt;= last {
 <a href=#209 id=209 data-nosnippet>209</a>                <span class="self">self</span>.intervals.clear();
@@ -267,7 +267,7 @@
 <a href=#267 id=267 data-nosnippet>267</a>    /// builder.remove_set(&amp;set); // removes 'A'..='E'
 <a href=#268 id=268 data-nosnippet>268</a>    /// let check = builder.build();
 <a href=#269 id=269 data-nosnippet>269</a>    /// assert_eq!(check.iter_chars().next(), Some('F'));
-<a href=#270 id=270 data-nosnippet>270</a>    </span><span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// chunks
+<a href=#270 id=270 data-nosnippet>270</a>    </span><span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// chunks
 <a href=#271 id=271 data-nosnippet>271</a>    </span><span class="kw">pub fn </span>remove_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, set: <span class="kw-2">&amp;</span>CodePointInversionList) {
 <a href=#272 id=272 data-nosnippet>272</a>        set.as_inversion_list()
 <a href=#273 id=273 data-nosnippet>273</a>            .as_ule_slice()
@@ -350,7 +350,7 @@
 <a href=#350 id=350 data-nosnippet>350</a>    /// assert!(check.contains('A'));
 <a href=#351 id=351 data-nosnippet>351</a>    /// assert!(!check.contains('G'));
 <a href=#352 id=352 data-nosnippet>352</a>    /// ```
-<a href=#353 id=353 data-nosnippet>353</a>    </span><span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// chunks
+<a href=#353 id=353 data-nosnippet>353</a>    </span><span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// chunks
 <a href=#354 id=354 data-nosnippet>354</a>    </span><span class="kw">pub fn </span>retain_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, set: <span class="kw-2">&amp;</span>CodePointInversionList) {
 <a href=#355 id=355 data-nosnippet>355</a>        <span class="kw">let </span><span class="kw-2">mut </span>prev = <span class="number">0</span>;
 <a href=#356 id=356 data-nosnippet>356</a>        <span class="kw">for </span>pair <span class="kw">in </span>set.as_inversion_list().as_ule_slice().chunks(<span class="number">2</span>) {
@@ -424,7 +424,7 @@
 <a href=#424 id=424 data-nosnippet>424</a>    /// ```
 <a href=#425 id=425 data-nosnippet>425</a>    </span><span class="kw">pub fn </span>complement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
 <a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">if </span>!<span class="self">self</span>.intervals.is_empty() {
-<a href=#427 id=427 data-nosnippet>427</a>            <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// by invariant
+<a href=#427 id=427 data-nosnippet>427</a>            <span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// by invariant
 <a href=#428 id=428 data-nosnippet>428</a>            </span><span class="kw">if </span><span class="self">self</span>.intervals[<span class="number">0</span>] == <span class="number">0 </span>{
 <a href=#429 id=429 data-nosnippet>429</a>                <span class="self">self</span>.intervals.drain(<span class="number">0</span>..<span class="number">1</span>);
 <a href=#430 id=430 data-nosnippet>430</a>            } <span class="kw">else </span>{

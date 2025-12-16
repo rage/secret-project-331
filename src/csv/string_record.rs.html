@@ -1,11 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csv-1.3.1/src/string_record.rs`."><title>string_record.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">csv/</div>string_record.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::{
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csv-1.4.0/src/string_record.rs`."><title>string_record.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">csv/</div>string_record.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::{
 <a href=#2 id=2 data-nosnippet>2</a>    fmt, io,
 <a href=#3 id=3 data-nosnippet>3</a>    iter::FromIterator,
 <a href=#4 id=4 data-nosnippet>4</a>    ops::{<span class="self">self</span>, Range},
 <a href=#5 id=5 data-nosnippet>5</a>    result, str,
 <a href=#6 id=6 data-nosnippet>6</a>};
 <a href=#7 id=7 data-nosnippet>7</a>
-<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>serde::de::Deserialize;
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>serde_core::de::Deserialize;
 <a href=#9 id=9 data-nosnippet>9</a>
 <a href=#10 id=10 data-nosnippet>10</a><span class="kw">use crate</span>::{
 <a href=#11 id=11 data-nosnippet>11</a>    byte_record::{ByteRecord, ByteRecordIter, Position},
@@ -49,7 +49,7 @@
 <a href=#49 id=49 data-nosnippet>49</a>    }
 <a href=#50 id=50 data-nosnippet>50</a>}
 <a href=#51 id=51 data-nosnippet>51</a>
-<a href=#52 id=52 data-nosnippet>52</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsRef&lt;[u8]&gt;&gt; PartialEq&lt;Vec&lt;T&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>StringRecord {
+<a href=#52 id=52 data-nosnippet>52</a><span class="kw">impl</span>&lt;T: AsRef&lt;[u8]&gt;&gt; PartialEq&lt;Vec&lt;T&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span>StringRecord {
 <a href=#53 id=53 data-nosnippet>53</a>    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Vec&lt;T&gt;) -&gt; bool {
 <a href=#54 id=54 data-nosnippet>54</a>        <span class="self">self</span>.<span class="number">0</span>.iter_eq(other)
 <a href=#55 id=55 data-nosnippet>55</a>    }
@@ -61,7 +61,7 @@
 <a href=#61 id=61 data-nosnippet>61</a>    }
 <a href=#62 id=62 data-nosnippet>62</a>}
 <a href=#63 id=63 data-nosnippet>63</a>
-<a href=#64 id=64 data-nosnippet>64</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsRef&lt;[u8]&gt;&gt; PartialEq&lt;[T]&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>StringRecord {
+<a href=#64 id=64 data-nosnippet>64</a><span class="kw">impl</span>&lt;T: AsRef&lt;[u8]&gt;&gt; PartialEq&lt;[T]&gt; <span class="kw">for </span><span class="kw-2">&amp;</span>StringRecord {
 <a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>[T]) -&gt; bool {
 <a href=#66 id=66 data-nosnippet>66</a>        <span class="self">self</span>.<span class="number">0</span>.iter_eq(other)
 <a href=#67 id=67 data-nosnippet>67</a>    }
@@ -311,7 +311,7 @@
 <a href=#311 id=311 data-nosnippet>311</a>    /// }
 <a href=#312 id=312 data-nosnippet>312</a>    /// ```
 <a href=#313 id=313 data-nosnippet>313</a>    </span><span class="attr">#[inline]
-<a href=#314 id=314 data-nosnippet>314</a>    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StringRecordIter {
+<a href=#314 id=314 data-nosnippet>314</a>    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StringRecordIter&lt;<span class="lifetime">'_</span>&gt; {
 <a href=#315 id=315 data-nosnippet>315</a>        <span class="self">self</span>.into_iter()
 <a href=#316 id=316 data-nosnippet>316</a>    }
 <a href=#317 id=317 data-nosnippet>317</a>
@@ -664,7 +664,7 @@
 <a href=#664 id=664 data-nosnippet>664</a><span class="kw">impl</span>&lt;T: AsRef&lt;str&gt;&gt; From&lt;Vec&lt;T&gt;&gt; <span class="kw">for </span>StringRecord {
 <a href=#665 id=665 data-nosnippet>665</a>    <span class="attr">#[inline]
 <a href=#666 id=666 data-nosnippet>666</a>    </span><span class="kw">fn </span>from(xs: Vec&lt;T&gt;) -&gt; StringRecord {
-<a href=#667 id=667 data-nosnippet>667</a>        StringRecord::from_iter(xs.into_iter())
+<a href=#667 id=667 data-nosnippet>667</a>        StringRecord::from_iter(xs)
 <a href=#668 id=668 data-nosnippet>668</a>    }
 <a href=#669 id=669 data-nosnippet>669</a>}
 <a href=#670 id=670 data-nosnippet>670</a>

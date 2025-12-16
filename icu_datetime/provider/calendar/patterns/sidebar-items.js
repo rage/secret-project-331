@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["FullLongMediumShort"],"struct":["GenericLengthPatterns","LengthPatterns"]};

@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Create a provider that returns data from one of two child providers based on the marker."><title>ForkByMarkerProvider in icu_provider_adapters::fork - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider_adapters" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">ForkByMarkerProvider</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../icu_provider_adapters/index.html">icu_<wbr>provider_<wbr>adapters</a><span class="version">2.1.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Fork<wbr>ByMarker<wbr>Provider</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#aliased-type">Aliased Type</a></h3><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.new" title="new">new</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In icu_<wbr>provider_<wbr>adapters::<wbr>fork</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">icu_provider_adapters</a>::<wbr><a href="index.html">fork</a></div><h1>Type Alias <span class="type">Fork<wbr>ByMarker<wbr>Provider</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/icu_provider_adapters/fork/mod.rs.html#140">Source</a> </span></div><pre class="rust item-decl"><code>pub type ForkByMarkerProvider&lt;P0, P1&gt; = <a class="struct" href="struct.ForkByErrorProvider.html" title="struct icu_provider_adapters::fork::ForkByErrorProvider">ForkByErrorProvider</a>&lt;P0, P1, <a class="struct" href="predicates/struct.MarkerNotFoundPredicate.html" title="struct icu_provider_adapters::fork::predicates::MarkerNotFoundPredicate">MarkerNotFoundPredicate</a>&gt;;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Create a provider that returns data from one of two child providers based on the marker.</p>
+<p>The result of the first provider that supports a particular <a href="../../icu_provider/marker_full/struct.DataMarkerInfo.html" title="struct icu_provider::marker_full::DataMarkerInfo"><code>DataMarkerInfo</code></a> will be returned,
+even if the request failed for other reasons (such as an unsupported language). Therefore,
+you should add child providers that support disjoint sets of markers.</p>
+<p><a href="type.ForkByMarkerProvider.html" title="type icu_provider_adapters::fork::ForkByMarkerProvider"><code>ForkByMarkerProvider</code></a> does not support forking between <a href="../../icu_provider/data_provider/trait.DataProvider.html" title="trait icu_provider::data_provider::DataProvider"><code>DataProvider</code></a>s. However, it
+supports forking between <a href="../../icu_provider/buf/trait.BufferProvider.html" title="trait icu_provider::buf::BufferProvider"><code>BufferProvider</code></a>, and <a href="../../icu_provider/data_provider/trait.DynamicDataProvider.html" title="trait icu_provider::data_provider::DynamicDataProvider"><code>DynamicDataProvider</code></a>.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>Normal usage:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu_locale::langid;
+<span class="kw">use </span>icu_provider::hello_world::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu_provider_adapters::fork::ForkByMarkerProvider;
+
+<span class="kw">struct </span>DummyBufferProvider;
+<span class="kw">impl </span>DynamicDataProvider&lt;BufferMarker&gt; <span class="kw">for </span>DummyBufferProvider {
+    <span class="kw">fn </span>load_data(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        marker: DataMarkerInfo,
+        req: DataRequest,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;DataResponse&lt;BufferMarker&gt;, DataError&gt; {
+        <span class="prelude-val">Err</span>(DataErrorKind::MarkerNotFound.with_req(marker, req))
+    }
+}
+
+<span class="kw">let </span>forking_provider = ForkByMarkerProvider::new(
+    DummyBufferProvider,
+    HelloWorldProvider.into_json_provider(),
+);
+
+<span class="kw">let </span>provider = forking_provider.as_deserializing();
+
+<span class="kw">let </span>german_hello_world: DataResponse&lt;HelloWorldV1&gt; = provider
+    .load(DataRequest {
+        id: DataIdentifierBorrowed::for_locale(<span class="kw-2">&amp;</span><span class="macro">langid!</span>(<span class="string">"de"</span>).into()),
+        ..Default::default()
+    })
+    .expect(<span class="string">"Loading should succeed"</span>);
+
+<span class="macro">assert_eq!</span>(<span class="string">"Hallo Welt"</span>, german_hello_world.payload.get().message);</code></pre></div>
+<p>Stops at the first provider supporting a marker, even if the locale is not supported:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu_locale::{subtags::language, langid};
+<span class="kw">use </span>icu_provider::hello_world::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu_provider_adapters::filter::FilterDataProvider;
+<span class="kw">use </span>icu_provider_adapters::fork::ForkByMarkerProvider;
+
+<span class="kw">let </span>forking_provider = ForkByMarkerProvider::new(
+    FilterDataProvider::new(
+        HelloWorldProvider.into_json_provider(),
+        <span class="string">"Chinese"
+    </span>)
+    .with_filter(|id| id.locale.language == <span class="macro">language!</span>(<span class="string">"zh"</span>)),
+    FilterDataProvider::new(
+        HelloWorldProvider.into_json_provider(),
+        <span class="string">"German"
+    </span>)
+    .with_filter(|id| id.locale.language == <span class="macro">language!</span>(<span class="string">"de"</span>)),
+);
+
+<span class="kw">let </span>provider: <span class="kw-2">&amp;</span><span class="kw">dyn </span>DataProvider&lt;HelloWorldV1&gt; =
+    <span class="kw-2">&amp;</span>forking_provider.as_deserializing();
+
+<span class="comment">// Chinese is the first provider, so this succeeds
+</span><span class="kw">let </span>chinese_hello_world = provider
+    .load(DataRequest {
+        id: DataIdentifierBorrowed::for_locale(<span class="kw-2">&amp;</span><span class="macro">langid!</span>(<span class="string">"zh"</span>).into()),
+        ..Default::default()
+    })
+    .expect(<span class="string">"Loading should succeed"</span>);
+
+<span class="macro">assert_eq!</span>(<span class="string">"你好世界"</span>, chinese_hello_world.payload.get().message);
+
+<span class="comment">// German is shadowed by Chinese, so this fails
+</span>provider
+    .load(DataRequest {
+        id: DataIdentifierBorrowed::for_locale(<span class="kw-2">&amp;</span><span class="macro">langid!</span>(<span class="string">"de"</span>).into()),
+        ..Default::default()
+    })
+    .expect_err(<span class="string">"Should stop at the first provider, even though the second has data"</span>);</code></pre></div></div></details><h2 id="aliased-type" class="section-header">Aliased Type<a href="#aliased-type" class="anchor">§</a></h2><pre class="rust item-decl"><code>pub struct ForkByMarkerProvider&lt;P0, P1&gt;(<span class="comment">/* private fields */</span>);</code></pre><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-ForkByErrorProvider%3CP0,+P1,+MarkerNotFoundPredicate%3E" class="impl"><a class="src rightside" href="../../src/icu_provider_adapters/fork/mod.rs.html#142-149">Source</a><a href="#impl-ForkByErrorProvider%3CP0,+P1,+MarkerNotFoundPredicate%3E" class="anchor">§</a><h3 class="code-header">impl&lt;P0, P1&gt; <a class="type" href="type.ForkByMarkerProvider.html" title="type icu_provider_adapters::fork::ForkByMarkerProvider">ForkByMarkerProvider</a>&lt;P0, P1&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.new" class="method"><a class="src rightside" href="../../src/icu_provider_adapters/fork/mod.rs.html#146-148">Source</a><h4 class="code-header">pub fn <a href="#method.new" class="fn">new</a>(p0: P0, p1: P1) -&gt; Self</h4></section></summary><div class="docblock"><p>A provider that returns data from one of two child providers based on the marker.</p>
+<p>See <a href="type.ForkByMarkerProvider.html" title="type icu_provider_adapters::fork::ForkByMarkerProvider"><code>ForkByMarkerProvider</code></a>.</p>
+</div></details></div></details></div><script src="../../type.impl/icu_provider_adapters/fork/struct.ForkByErrorProvider.js" data-self-path="icu_provider_adapters::fork::ForkByMarkerProvider" async></script></section></div></main></body></html>

@@ -1,1 +1,0 @@
-searchState.loadedDescShard("unicode_bidi_mirroring", 0, "This library implements Unicode Bidi Mirroring property …\nThe Unicode version.\nReturns a bidi mirrored character.\nChecks that character is bidi mirrored.")

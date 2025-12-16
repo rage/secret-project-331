@@ -1,1 +1,0 @@
-searchState.loadedDescShard("webpki_roots", 0, "A compiled-in copy of the root certificates trusted by …")

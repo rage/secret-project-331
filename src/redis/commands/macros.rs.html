@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/redis-0.32.7/src/commands/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/commands/</div>macros.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Generate implementation for function skeleton, we use this for `AsyncTypedCommands` because we want to be able to handle having a return type specified or unspecified with a fallback
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/redis-1.0.1/src/commands/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/commands/</div>macros.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Generate implementation for function skeleton, we use this for `AsyncTypedCommands` because we want to be able to handle having a return type specified or unspecified with a fallback
 <a href=#2 id=2 data-nosnippet>2</a></span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="macro">macro_rules!</span> implement_command_async {
 <a href=#4 id=4 data-nosnippet>4</a>	<span class="comment">// If the return type is `Generic`, then we require the user to specify the return type
@@ -102,7 +102,7 @@
 <a href=#102 id=102 data-nosnippet>102</a>
 <a href=#103 id=103 data-nosnippet>103</a>        <span class="doccomment">/// Incrementally iterate the keys space for keys matching a pattern.
 <a href=#104 id=104 data-nosnippet>104</a>        </span><span class="attr">#[inline]
-<a href=#105 id=105 data-nosnippet>105</a>        </span><span class="kw">fn </span>scan_match&lt;P: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pattern: P) -&gt; <span class="macro-nonterminal">$ret </span>{
+<a href=#105 id=105 data-nosnippet>105</a>        </span><span class="kw">fn </span>scan_match&lt;P: ToSingleRedisArg, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pattern: P) -&gt; <span class="macro-nonterminal">$ret </span>{
 <a href=#106 id=106 data-nosnippet>106</a>            <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
 <a href=#107 id=107 data-nosnippet>107</a>            c.cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
 <a href=#108 id=108 data-nosnippet>108</a>            <span class="macro-nonterminal">$iter</span>(c, <span class="self">self</span>)
@@ -110,7 +110,7 @@
 <a href=#110 id=110 data-nosnippet>110</a>
 <a href=#111 id=111 data-nosnippet>111</a>        <span class="doccomment">/// Incrementally iterate hash fields and associated values.
 <a href=#112 id=112 data-nosnippet>112</a>        </span><span class="attr">#[inline]
-<a href=#113 id=113 data-nosnippet>113</a>        </span><span class="kw">fn </span>hscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="macro-nonterminal">$ret </span>{
+<a href=#113 id=113 data-nosnippet>113</a>        </span><span class="kw">fn </span>hscan&lt;K: ToSingleRedisArg, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="macro-nonterminal">$ret </span>{
 <a href=#114 id=114 data-nosnippet>114</a>            <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"HSCAN"</span>);
 <a href=#115 id=115 data-nosnippet>115</a>            c.arg(key).cursor_arg(<span class="number">0</span>);
 <a href=#116 id=116 data-nosnippet>116</a>            <span class="macro-nonterminal">$iter</span>(c, <span class="self">self</span>)
@@ -119,7 +119,7 @@
 <a href=#119 id=119 data-nosnippet>119</a>        <span class="doccomment">/// Incrementally iterate hash fields and associated values for
 <a href=#120 id=120 data-nosnippet>120</a>        /// field names matching a pattern.
 <a href=#121 id=121 data-nosnippet>121</a>        </span><span class="attr">#[inline]
-<a href=#122 id=122 data-nosnippet>122</a>        </span><span class="kw">fn </span>hscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;(
+<a href=#122 id=122 data-nosnippet>122</a>        </span><span class="kw">fn </span>hscan_match&lt;K: ToSingleRedisArg, P: ToSingleRedisArg, RV: FromRedisValue&gt;(
 <a href=#123 id=123 data-nosnippet>123</a>            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
 <a href=#124 id=124 data-nosnippet>124</a>            key: K,
 <a href=#125 id=125 data-nosnippet>125</a>            pattern: P,
@@ -131,7 +131,7 @@
 <a href=#131 id=131 data-nosnippet>131</a>
 <a href=#132 id=132 data-nosnippet>132</a>        <span class="doccomment">/// Incrementally iterate set elements.
 <a href=#133 id=133 data-nosnippet>133</a>        </span><span class="attr">#[inline]
-<a href=#134 id=134 data-nosnippet>134</a>        </span><span class="kw">fn </span>sscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="macro-nonterminal">$ret </span>{
+<a href=#134 id=134 data-nosnippet>134</a>        </span><span class="kw">fn </span>sscan&lt;K: ToSingleRedisArg, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="macro-nonterminal">$ret </span>{
 <a href=#135 id=135 data-nosnippet>135</a>            <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SSCAN"</span>);
 <a href=#136 id=136 data-nosnippet>136</a>            c.arg(key).cursor_arg(<span class="number">0</span>);
 <a href=#137 id=137 data-nosnippet>137</a>            <span class="macro-nonterminal">$iter</span>(c, <span class="self">self</span>)
@@ -139,7 +139,7 @@
 <a href=#139 id=139 data-nosnippet>139</a>
 <a href=#140 id=140 data-nosnippet>140</a>        <span class="doccomment">/// Incrementally iterate set elements for elements matching a pattern.
 <a href=#141 id=141 data-nosnippet>141</a>        </span><span class="attr">#[inline]
-<a href=#142 id=142 data-nosnippet>142</a>        </span><span class="kw">fn </span>sscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;(
+<a href=#142 id=142 data-nosnippet>142</a>        </span><span class="kw">fn </span>sscan_match&lt;K: ToSingleRedisArg, P: ToSingleRedisArg, RV: FromRedisValue&gt;(
 <a href=#143 id=143 data-nosnippet>143</a>            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
 <a href=#144 id=144 data-nosnippet>144</a>            key: K,
 <a href=#145 id=145 data-nosnippet>145</a>            pattern: P,
@@ -151,7 +151,7 @@
 <a href=#151 id=151 data-nosnippet>151</a>
 <a href=#152 id=152 data-nosnippet>152</a>        <span class="doccomment">/// Incrementally iterate sorted set elements.
 <a href=#153 id=153 data-nosnippet>153</a>        </span><span class="attr">#[inline]
-<a href=#154 id=154 data-nosnippet>154</a>        </span><span class="kw">fn </span>zscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="macro-nonterminal">$ret </span>{
+<a href=#154 id=154 data-nosnippet>154</a>        </span><span class="kw">fn </span>zscan&lt;K: ToSingleRedisArg, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="macro-nonterminal">$ret </span>{
 <a href=#155 id=155 data-nosnippet>155</a>            <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"ZSCAN"</span>);
 <a href=#156 id=156 data-nosnippet>156</a>            c.arg(key).cursor_arg(<span class="number">0</span>);
 <a href=#157 id=157 data-nosnippet>157</a>            <span class="macro-nonterminal">$iter</span>(c, <span class="self">self</span>)
@@ -159,7 +159,7 @@
 <a href=#159 id=159 data-nosnippet>159</a>
 <a href=#160 id=160 data-nosnippet>160</a>        <span class="doccomment">/// Incrementally iterate sorted set elements for elements matching a pattern.
 <a href=#161 id=161 data-nosnippet>161</a>        </span><span class="attr">#[inline]
-<a href=#162 id=162 data-nosnippet>162</a>        </span><span class="kw">fn </span>zscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;(
+<a href=#162 id=162 data-nosnippet>162</a>        </span><span class="kw">fn </span>zscan_match&lt;K: ToSingleRedisArg, P: ToSingleRedisArg, RV: FromRedisValue&gt;(
 <a href=#163 id=163 data-nosnippet>163</a>            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
 <a href=#164 id=164 data-nosnippet>164</a>            key: K,
 <a href=#165 id=165 data-nosnippet>165</a>            pattern: P,
@@ -311,7 +311,7 @@
 <a href=#311 id=311 data-nosnippet>311</a>            }
 <a href=#312 id=312 data-nosnippet>312</a>
 <a href=#313 id=313 data-nosnippet>313</a>			<span class="doccomment">/// Get a value from Redis and convert it to an `Option&lt;isize&gt;`.
-<a href=#314 id=314 data-nosnippet>314</a>			</span><span class="kw">fn </span>get_int&lt;K: ToRedisArgs&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; RedisResult&lt;<span class="prelude-ty">Option</span>&lt;isize&gt;&gt; {
+<a href=#314 id=314 data-nosnippet>314</a>			</span><span class="kw">fn </span>get_int&lt;K: ToSingleRedisArg&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; RedisResult&lt;<span class="prelude-ty">Option</span>&lt;isize&gt;&gt; {
 <a href=#315 id=315 data-nosnippet>315</a>        		cmd(<span class="string">"GET"</span>).arg(key).query(<span class="self">self</span>)
 <a href=#316 id=316 data-nosnippet>316</a>    		}
 <a href=#317 id=317 data-nosnippet>317</a>
@@ -345,7 +345,7 @@
 <a href=#345 id=345 data-nosnippet>345</a>			}
 <a href=#346 id=346 data-nosnippet>346</a>
 <a href=#347 id=347 data-nosnippet>347</a>			<span class="doccomment">/// Get a value from Redis and convert it to an `Option&lt;isize&gt;`.
-<a href=#348 id=348 data-nosnippet>348</a>			</span><span class="kw">fn </span>get_int&lt;<span class="macro-nonterminal">$lifetime</span>, K: ToRedisArgs + Send + Sync + <span class="macro-nonterminal">$lifetime</span>&gt;(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$lifetime </span><span class="kw-2">mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="macro-nonterminal">$lifetime</span>, <span class="prelude-ty">Option</span>&lt;isize&gt;&gt; {
+<a href=#348 id=348 data-nosnippet>348</a>			</span><span class="kw">fn </span>get_int&lt;<span class="macro-nonterminal">$lifetime</span>, K: ToSingleRedisArg + Send + Sync + <span class="macro-nonterminal">$lifetime</span>&gt;(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$lifetime </span><span class="kw-2">mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="macro-nonterminal">$lifetime</span>, <span class="prelude-ty">Option</span>&lt;isize&gt;&gt; {
 <a href=#349 id=349 data-nosnippet>349</a>				Box::pin(<span class="kw">async move </span>{ cmd(<span class="string">"GET"</span>).arg(key).query_async(<span class="self">self</span>).<span class="kw">await </span>})
 <a href=#350 id=350 data-nosnippet>350</a>    		}
 <a href=#351 id=351 data-nosnippet>351</a>

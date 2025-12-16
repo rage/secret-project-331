@@ -1,1 +1,0 @@
-searchState.loadedDescShard("async_trait", 0, "github crates-io docs-rs")

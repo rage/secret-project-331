@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["records"],"struct":["IxdtfParser","TimeZoneParser"]};
+window.SIDEBAR_ITEMS = {"struct":["IxdtfParser","TimeZoneParser"]};

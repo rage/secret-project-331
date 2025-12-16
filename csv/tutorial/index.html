@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A tutorial for handling CSV data in Rust."><title>csv::tutorial - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../csv/index.html">csv</a><span class="version">1.3.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module tutorial</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#table-of-contents" title="Table of contents">Table of contents</a></li><li><a href="#setup" title="Setup">Setup</a></li><li><a href="#basic-error-handling" title="Basic error handling">Basic error handling</a><ul><li><a href="#switch-to-recoverable-errors" title="Switch to recoverable errors">Switch to recoverable errors</a></li></ul></li><li><a href="#reading-csv" title="Reading CSV">Reading CSV</a><ul><li><a href="#reading-headers" title="Reading headers">Reading headers</a></li><li><a href="#delimiters-quotes-and-variable-length-records" title="Delimiters, quotes and variable length records">Delimiters, quotes and variable length records</a></li><li><a href="#reading-with-serde" title="Reading with Serde">Reading with Serde</a></li><li><a href="#handling-invalid-data-with-serde" title="Handling invalid data with Serde">Handling invalid data with Serde</a></li></ul></li><li><a href="#writing-csv" title="Writing CSV">Writing CSV</a><ul><li><a href="#writing-tab-separated-values" title="Writing tab separated values">Writing tab separated values</a></li><li><a href="#writing-with-serde" title="Writing with Serde">Writing with Serde</a></li></ul></li><li><a href="#pipelining" title="Pipelining">Pipelining</a><ul><li><a href="#filter-by-search" title="Filter by search">Filter by search</a></li><li><a href="#filter-by-population-count" title="Filter by population count">Filter by population count</a></li></ul></li><li><a href="#performance" title="Performance">Performance</a><ul><li><a href="#amortizing-allocations" title="Amortizing allocations">Amortizing allocations</a></li><li><a href="#serde-and-zero-allocation" title="Serde and zero allocation">Serde and zero allocation</a></li><li><a href="#csv-parsing-without-the-standard-library" title="CSV parsing without the standard library">CSV parsing without the standard library</a></li></ul></li><li><a href="#closing-thoughts" title="Closing thoughts">Closing thoughts</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate csv</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">csv</a></div><h1>Module <span>tutorial</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/csv/tutorial.rs.html#1-2477">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A tutorial for handling CSV data in Rust.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A tutorial for handling CSV data in Rust."><title>csv::tutorial - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module tutorial</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../csv/index.html">csv</a><span class="version">1.4.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module tutorial</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#table-of-contents" title="Table of contents">Table of contents</a></li><li><a href="#setup" title="Setup">Setup</a></li><li><a href="#basic-error-handling" title="Basic error handling">Basic error handling</a><ul><li><a href="#switch-to-recoverable-errors" title="Switch to recoverable errors">Switch to recoverable errors</a></li></ul></li><li><a href="#reading-csv" title="Reading CSV">Reading CSV</a><ul><li><a href="#reading-headers" title="Reading headers">Reading headers</a></li><li><a href="#delimiters-quotes-and-variable-length-records" title="Delimiters, quotes and variable length records">Delimiters, quotes and variable length records</a></li><li><a href="#reading-with-serde" title="Reading with Serde">Reading with Serde</a></li><li><a href="#handling-invalid-data-with-serde" title="Handling invalid data with Serde">Handling invalid data with Serde</a></li></ul></li><li><a href="#writing-csv" title="Writing CSV">Writing CSV</a><ul><li><a href="#writing-tab-separated-values" title="Writing tab separated values">Writing tab separated values</a></li><li><a href="#writing-with-serde" title="Writing with Serde">Writing with Serde</a></li></ul></li><li><a href="#pipelining" title="Pipelining">Pipelining</a><ul><li><a href="#filter-by-search" title="Filter by search">Filter by search</a></li><li><a href="#filter-by-population-count" title="Filter by population count">Filter by population count</a></li></ul></li><li><a href="#performance" title="Performance">Performance</a><ul><li><a href="#amortizing-allocations" title="Amortizing allocations">Amortizing allocations</a></li><li><a href="#serde-and-zero-allocation" title="Serde and zero allocation">Serde and zero allocation</a></li><li><a href="#csv-parsing-without-the-standard-library" title="CSV parsing without the standard library">CSV parsing without the standard library</a></li></ul></li><li><a href="#closing-thoughts" title="Closing thoughts">Closing thoughts</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate csv</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">csv</a></div><h1>Module <span>tutorial</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/csv/tutorial.rs.html#1-2455">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A tutorial for handling CSV data in Rust.</p>
 <p>This tutorial will cover basic CSV reading and writing, automatic
 (de)serialization with Serde, CSV transformations and performance.</p>
 <p>This tutorial is targeted at beginner Rust programmers. Experienced Rust
@@ -447,41 +447,23 @@ StringRecord([&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot
 StringRecord([&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])
 StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])</code></pre></div>
 <p>If you ever need to access the header record directly, then you can use the
-<a href="../struct.Reader.html#method.headers"><code>Reader::header</code></a>
+<a href="../struct.Reader.html#method.headers"><code>Reader::headers</code></a>
 method like so:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-read-headers-02.rs
 </span><span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
-    {
-        <span class="comment">// We nest this call in its own scope because of lifetimes.
-        </span><span class="kw">let </span>headers = rdr.headers()<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, headers);
-    }
+    <span class="kw">let </span>headers = rdr.headers()<span class="question-mark">?</span>;
+    <span class="macro">println!</span>(<span class="string">"{:?}"</span>, headers);
     <span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
         <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
-    <span class="comment">// We can ask for the headers at any time. There's no need to nest this
-    // call in its own scope because we never try to borrow the reader again.
+    <span class="comment">// We can ask for the headers at any time.
     </span><span class="kw">let </span>headers = rdr.headers()<span class="question-mark">?</span>;
     <span class="macro">println!</span>(<span class="string">"{:?}"</span>, headers);
     <span class="prelude-val">Ok</span>(())
-}</code></pre></div>
-<p>One interesting thing to note in this example is that we put the call to
-<code>rdr.headers()</code> in its own scope. We do this because <code>rdr.headers()</code> returns
-a <em>borrow</em> of the reader’s internal header state. The nested scope in this
-code allows the borrow to end before we try to iterate over the records. If
-we didn’t nest the call to <code>rdr.headers()</code> in its own scope, then the code
-wouldn’t compile because we cannot borrow the reader’s headers at the same time
-that we try to borrow the reader to iterate over its records.</p>
-<p>Another way of solving this problem is to <em>clone</em> the header record:</p>
-
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">let </span>headers = rdr.headers()<span class="question-mark">?</span>.clone();</code></pre></div>
-<p>This converts it from a borrow of the CSV reader to a new owned value. This
-makes the code a bit easier to read, but at the cost of copying the header
-record into a new allocation.</p>
-<h3 id="delimiters-quotes-and-variable-length-records"><a class="doc-anchor" href="#delimiters-quotes-and-variable-length-records">§</a>Delimiters, quotes and variable length records</h3>
+}</code></pre></div><h3 id="delimiters-quotes-and-variable-length-records"><a class="doc-anchor" href="#delimiters-quotes-and-variable-length-records">§</a>Delimiters, quotes and variable length records</h3>
 <p>In this section we’ll temporarily depart from our <code>uspop.csv</code> data set and
 show how to read some CSV data that is a little less clean. This CSV data
 uses <code>;</code> as a delimiter, escapes quotes with <code>\"</code> (instead of <code>""</code>) and has
@@ -872,10 +854,10 @@ control the output format.</p>
     <span class="comment">// Since we're writing records manually, we must explicitly write our
     // header record. A header record is written the same way that other
     // records are written.
-    </span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
+    </span>wtr.write_record([<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
 
     <span class="comment">// A CSV writer maintains an internal buffer, so it's important
     // to flush the buffer when you're done.
@@ -932,7 +914,7 @@ on success or returns a <code>csv::Error</code> on failure.</li>
 <p>Now, let’s apply our new found understanding of the type signature of
 <code>write_record</code>. If you recall, in our previous example, we used it like so:</p>
 
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"field 1"</span>, <span class="string">"field 2"</span>, <span class="string">"etc"</span>])<span class="question-mark">?</span>;</code></pre></div>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>wtr.write_record([<span class="string">"field 1"</span>, <span class="string">"field 2"</span>, <span class="string">"etc"</span>])<span class="question-mark">?</span>;</code></pre></div>
 <p>So how do the types match up? Well, the type of each of our fields in this
 code is <code>&amp;'static str</code> (which is the type of a string literal in Rust). Since
 we put them in a slice literal, the type of our parameter is
@@ -943,6 +925,8 @@ strings satisfy the <code>AsRef&lt;[u8]&gt;</code> bound, this ends up being a l
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// A slice of byte strings.
 </span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">b"a"</span>, <span class="string">b"b"</span>, <span class="string">b"c"</span>]);
+<span class="comment">// An array of byte strings.
+</span>wtr.write_record([<span class="string">b"a"</span>, <span class="string">b"b"</span>, <span class="string">b"c"</span>]);
 <span class="comment">// A vector.
 </span>wtr.write_record(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]);
 <span class="comment">// A string record.
@@ -964,10 +948,10 @@ of <code>stdout</code>:</p>
     <span class="kw">let </span>file_path = get_first_arg()<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::Writer::from_path(file_path)<span class="question-mark">?</span>;
 
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
 
     wtr.flush()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
@@ -987,8 +971,7 @@ of <code>stdout</code>:</p>
         <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
-}</code></pre></div>
-<h3 id="writing-tab-separated-values"><a class="doc-anchor" href="#writing-tab-separated-values">§</a>Writing tab separated values</h3>
+}</code></pre></div><h3 id="writing-tab-separated-values"><a class="doc-anchor" href="#writing-tab-separated-values">§</a>Writing tab separated values</h3>
 <p>In the previous section, we saw how to write some simple CSV data to <code>stdout</code>
 that looked like this:</p>
 <div class="example-wrap"><pre class="language-text"><code>City,State,Population,Latitude,Longitude
@@ -1013,10 +996,10 @@ Here’s an example:</p>
         .quote_style(csv::QuoteStyle::NonNumeric)
         .from_writer(io::stdout());
 
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
+    wtr.write_record([<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
 
     wtr.flush()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
@@ -1046,7 +1029,7 @@ into CSV records using Serde. In this section, we’ll learn how to use it.</p>
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::Writer::from_writer(io::stdout());
 
     <span class="comment">// We still need to write headers manually.
-    </span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
+    </span>wtr.write_record([<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
 
     <span class="comment">// But now we can write records by providing a normal Rust value.
     //
@@ -1217,7 +1200,7 @@ rows with a field that matches the query.</p>
     // `query` to `wtr`.
     </span><span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="kw">if </span>record.iter().any(|field| field == <span class="kw-2">&amp;</span>query) {
+        <span class="kw">if </span>record.iter().any(|field| field == query) {
             wtr.write_record(<span class="kw-2">&amp;</span>record)<span class="question-mark">?</span>;
         }
     }
@@ -1371,13 +1354,11 @@ aren’t already there:</p>
         // indicate which type we want to deserialize our record into.
         </span><span class="kw">let </span>record: Record = result<span class="question-mark">?</span>;
 
-        <span class="comment">// `map_or` is a combinator on `Option`. It take two parameters:
-        // a value to use when the `Option` is `None` (i.e., the record has
-        // no population count) and a closure that returns another value of
-        // the same type when the `Option` is `Some`. In this case, we test it
-        // against our minimum population count that we got from the command
-        // line.
-        </span><span class="kw">if </span>record.population.map_or(<span class="bool-val">false</span>, |pop| pop &gt;= minimum_pop) {
+        <span class="comment">// `is_some_and` is a combinator on `Option`. It takes a closure that
+        // returns `bool` when the `Option` is `Some`. When the `Option` is
+        // `None`, `false` is always returned. In this case, we test it against
+        // our minimum population count that we got from the command line.
+        </span><span class="kw">if </span>record.population.is_some_and(|pop| pop &gt;= minimum_pop) {
             wtr.serialize(record)<span class="question-mark">?</span>;
         }
     }

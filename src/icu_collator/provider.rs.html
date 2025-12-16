@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_collator-2.0.0/src/provider.rs`."><title>provider.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_collator/</div>provider.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_collator-2.1.1/src/provider.rs`."><title>provider.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_collator/</div>provider.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 <a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
 <a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -21,7 +21,7 @@
 <a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">use </span>icu_collections::char16trie::Char16TrieIterator;
 <a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>icu_collections::codepointtrie::CodePointTrie;
 <a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
-<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>zerovec::ule::AsULE;
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>zerovec::ule::{AsULE, RawBytesULE};
 <a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>zerovec::ZeroVec;
 <a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>zerovec::{zeroslice, ZeroSlice};
 <a href=#27 id=27 data-nosnippet>27</a>
@@ -209,7 +209,7 @@
 <a href=#209 id=209 data-nosnippet>209</a>
 <a href=#210 id=210 data-nosnippet>210</a><span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; CollationData&lt;<span class="lifetime">'data</span>&gt; {
 <a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ce32_for_char(<span class="kw-2">&amp;</span><span class="self">self</span>, c: char) -&gt; CollationElement32 {
-<a href=#212 id=212 data-nosnippet>212</a>        CollationElement32::new(<span class="self">self</span>.trie.get32(c <span class="kw">as </span>u32))
+<a href=#212 id=212 data-nosnippet>212</a>        CollationElement32::new(<span class="self">self</span>.trie.get(c))
 <a href=#213 id=213 data-nosnippet>213</a>    }
 <a href=#214 id=214 data-nosnippet>214</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_ce32(<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>, index: usize) -&gt; CollationElement32 {
 <a href=#215 id=215 data-nosnippet>215</a>        CollationElement32::new(<span class="kw">if let </span><span class="prelude-val">Some</span>(u) = <span class="self">self</span>.ce32s.get(index) {
@@ -245,7 +245,7 @@
 <a href=#245 id=245 data-nosnippet>245</a>        index: usize,
 <a href=#246 id=246 data-nosnippet>246</a>    ) -&gt; (CollationElement32, <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u16&gt;) {
 <a href=#247 id=247 data-nosnippet>247</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(slice) = <span class="self">self</span>.contexts.get_subslice(index..<span class="self">self</span>.contexts.len()) {
-<a href=#248 id=248 data-nosnippet>248</a>            <span class="attr">#[allow(clippy::unwrap_used)]
+<a href=#248 id=248 data-nosnippet>248</a>            <span class="attr">#[expect(clippy::unwrap_used)]
 <a href=#249 id=249 data-nosnippet>249</a>            </span><span class="kw">if </span>slice.len() &gt;= <span class="number">2 </span>{
 <a href=#250 id=250 data-nosnippet>250</a>                <span class="comment">// `unwrap` must succeed due to the length check above.
 <a href=#251 id=251 data-nosnippet>251</a>                </span><span class="kw">let </span>first = slice.get(<span class="number">0</span>).unwrap();
@@ -521,40 +521,109 @@
 <a href=#521 id=521 data-nosnippet>521</a>    }
 <a href=#522 id=522 data-nosnippet>522</a>}
 <a href=#523 id=523 data-nosnippet>523</a>
-<a href=#524 id=524 data-nosnippet>524</a><span class="doccomment">/// Special primaries associated with the root collation
+<a href=#524 id=524 data-nosnippet>524</a><span class="doccomment">/// Root-associated additional data that doesn't change in tailorings
 <a href=#525 id=525 data-nosnippet>525</a>///
-<a href=#526 id=526 data-nosnippet>526</a>/// &lt;div class="stab unstable"&gt;
-<a href=#527 id=527 data-nosnippet>527</a>/// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
-<a href=#528 id=528 data-nosnippet>528</a>/// including in SemVer minor releases. While the serde representation of data structs is guaranteed
-<a href=#529 id=529 data-nosnippet>529</a>/// to be stable, their Rust representation might not be. Use with caution.
-<a href=#530 id=530 data-nosnippet>530</a>/// &lt;/div&gt;
-<a href=#531 id=531 data-nosnippet>531</a></span><span class="attr">#[derive(Debug, PartialEq, Clone, yoke::Yokeable, zerofrom::ZeroFrom)]
-<a href=#532 id=532 data-nosnippet>532</a>#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake))]
-<a href=#533 id=533 data-nosnippet>533</a>#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_collator::provider))]
-<a href=#534 id=534 data-nosnippet>534</a>#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
-<a href=#535 id=535 data-nosnippet>535</a></span><span class="kw">pub struct </span>CollationSpecialPrimaries&lt;<span class="lifetime">'data</span>&gt; {
-<a href=#536 id=536 data-nosnippet>536</a>    <span class="doccomment">/// The primaries corresponding to `MaxVariable`
-<a href=#537 id=537 data-nosnippet>537</a>    /// character classes packed so that each fits in
-<a href=#538 id=538 data-nosnippet>538</a>    /// 16 bits. Length must match the number of enum
-<a href=#539 id=539 data-nosnippet>539</a>    /// variants in `MaxVariable`, currently 4.
-<a href=#540 id=540 data-nosnippet>540</a>    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
-<a href=#541 id=541 data-nosnippet>541</a>    </span><span class="kw">pub </span>last_primaries: ZeroVec&lt;<span class="lifetime">'data</span>, u16&gt;,
-<a href=#542 id=542 data-nosnippet>542</a>    <span class="doccomment">/// The high 8 bits of the numeric primary
-<a href=#543 id=543 data-nosnippet>543</a>    </span><span class="kw">pub </span>numeric_primary: u8,
-<a href=#544 id=544 data-nosnippet>544</a>}
-<a href=#545 id=545 data-nosnippet>545</a>
-<a href=#546 id=546 data-nosnippet>546</a><span class="macro">icu_provider::data_struct!</span>(
-<a href=#547 id=547 data-nosnippet>547</a>    CollationSpecialPrimaries&lt;<span class="lifetime">'_</span>&gt;,
-<a href=#548 id=548 data-nosnippet>548</a>    <span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
-<a href=#549 id=549 data-nosnippet>549</a></span>);
-<a href=#550 id=550 data-nosnippet>550</a>
-<a href=#551 id=551 data-nosnippet>551</a><span class="kw">impl </span>CollationSpecialPrimaries&lt;<span class="lifetime">'_</span>&gt; {
-<a href=#552 id=552 data-nosnippet>552</a>    <span class="attr">#[allow(clippy::unwrap_used)]
-<a href=#553 id=553 data-nosnippet>553</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>last_primary_for_group(<span class="kw-2">&amp;</span><span class="self">self</span>, max_variable: MaxVariable) -&gt; u32 {
-<a href=#554 id=554 data-nosnippet>554</a>        <span class="comment">// `unwrap` is OK, because `Collator::try_new` validates the length.
-<a href=#555 id=555 data-nosnippet>555</a>        //
-<a href=#556 id=556 data-nosnippet>556</a>        // Minus one to generate the right lower 16 bits from the high 16 bits.
-<a href=#557 id=557 data-nosnippet>557</a>        // See parse.cpp in genrb and getLastPrimaryForGroup in ICU4C.
-<a href=#558 id=558 data-nosnippet>558</a>        </span>(u32::from(<span class="self">self</span>.last_primaries.get(max_variable <span class="kw">as </span>usize).unwrap()) &lt;&lt; <span class="number">16</span>) - <span class="number">1
-<a href=#559 id=559 data-nosnippet>559</a>    </span>}
-<a href=#560 id=560 data-nosnippet>560</a>}</code></pre></div></section></main></body></html>
+<a href=#526 id=526 data-nosnippet>526</a>/// These are the fields that logically belong to the root data but
+<a href=#527 id=527 data-nosnippet>527</a>/// don't belong to the tailoring data and that are on this separate
+<a href=#528 id=528 data-nosnippet>528</a>/// struct, since we have the same struct for a tailoring and the
+<a href=#529 id=529 data-nosnippet>529</a>/// bulk of the root.
+<a href=#530 id=530 data-nosnippet>530</a>///
+<a href=#531 id=531 data-nosnippet>531</a>/// As a practical matter, this struct happens to only carry
+<a href=#532 id=532 data-nosnippet>532</a>/// information about what concrete numeric values for primary
+<a href=#533 id=533 data-nosnippet>533</a>/// weights are special in particular ways. In principle, when the
+<a href=#534 id=534 data-nosnippet>534</a>/// root data is built, the root builder is allowed to assign the
+<a href=#535 id=535 data-nosnippet>535</a>/// numeric values as it sees fit, which is why these aren't
+<a href=#536 id=536 data-nosnippet>536</a>/// hard-coded.
+<a href=#537 id=537 data-nosnippet>537</a>///
+<a href=#538 id=538 data-nosnippet>538</a>/// Note: In 2.0.0 and prior, this struct was loaded only if
+<a href=#539 id=539 data-nosnippet>539</a>/// it was known at collator construction time (based on options)
+<a href=#540 id=540 data-nosnippet>540</a>/// that the data here was going to be needed. With the introduction
+<a href=#541 id=541 data-nosnippet>541</a>/// of collation keys and the decision not to introduce a collator
+<a href=#542 id=542 data-nosnippet>542</a>/// key generator object separate from the collator, this struct
+<a href=#543 id=543 data-nosnippet>543</a>/// is now always loaded.
+<a href=#544 id=544 data-nosnippet>544</a>///
+<a href=#545 id=545 data-nosnippet>545</a>/// &lt;div class="stab unstable"&gt;
+<a href=#546 id=546 data-nosnippet>546</a>/// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
+<a href=#547 id=547 data-nosnippet>547</a>/// including in SemVer minor releases. While the serde representation of data structs is guaranteed
+<a href=#548 id=548 data-nosnippet>548</a>/// to be stable, their Rust representation might not be. Use with caution.
+<a href=#549 id=549 data-nosnippet>549</a>/// &lt;/div&gt;
+<a href=#550 id=550 data-nosnippet>550</a></span><span class="attr">#[derive(Debug, PartialEq, Clone, yoke::Yokeable, zerofrom::ZeroFrom)]
+<a href=#551 id=551 data-nosnippet>551</a>#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake))]
+<a href=#552 id=552 data-nosnippet>552</a>#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_collator::provider))]
+<a href=#553 id=553 data-nosnippet>553</a>#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+<a href=#554 id=554 data-nosnippet>554</a></span><span class="kw">pub struct </span>CollationSpecialPrimaries&lt;<span class="lifetime">'data</span>&gt; {
+<a href=#555 id=555 data-nosnippet>555</a>    <span class="doccomment">/// The primaries corresponding to `MaxVariable`
+<a href=#556 id=556 data-nosnippet>556</a>    /// character classes packed so that each fits in
+<a href=#557 id=557 data-nosnippet>557</a>    /// 16 bits. Length must match the number of enum
+<a href=#558 id=558 data-nosnippet>558</a>    /// variants in `MaxVariable`, currently 4.
+<a href=#559 id=559 data-nosnippet>559</a>    ///
+<a href=#560 id=560 data-nosnippet>560</a>    /// This is potentially followed by 256 bits
+<a href=#561 id=561 data-nosnippet>561</a>    /// (packed in 16 u16s) to classify every possible
+<a href=#562 id=562 data-nosnippet>562</a>    /// byte into compressible or non-compressible.
+<a href=#563 id=563 data-nosnippet>563</a>    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+<a href=#564 id=564 data-nosnippet>564</a>    </span><span class="kw">pub </span>last_primaries: ZeroVec&lt;<span class="lifetime">'data</span>, u16&gt;,
+<a href=#565 id=565 data-nosnippet>565</a>    <span class="doccomment">/// The high 8 bits of the numeric primary
+<a href=#566 id=566 data-nosnippet>566</a>    </span><span class="kw">pub </span>numeric_primary: u8,
+<a href=#567 id=567 data-nosnippet>567</a>}
+<a href=#568 id=568 data-nosnippet>568</a>
+<a href=#569 id=569 data-nosnippet>569</a><span class="attr">#[derive(Debug, PartialEq, Clone, yoke::Yokeable, zerofrom::ZeroFrom)]
+<a href=#570 id=570 data-nosnippet>570</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CollationSpecialPrimariesValidated&lt;<span class="lifetime">'data</span>&gt; {
+<a href=#571 id=571 data-nosnippet>571</a>    <span class="doccomment">/// The primaries corresponding to `MaxVariable`
+<a href=#572 id=572 data-nosnippet>572</a>    /// character classes packed so that each fits in
+<a href=#573 id=573 data-nosnippet>573</a>    /// 16 bits. Length must match the number of enum
+<a href=#574 id=574 data-nosnippet>574</a>    /// variants in `MaxVariable`, currently 4.
+<a href=#575 id=575 data-nosnippet>575</a>    </span><span class="kw">pub </span>last_primaries: ZeroVec&lt;<span class="lifetime">'data</span>, u16&gt;,
+<a href=#576 id=576 data-nosnippet>576</a>    <span class="doccomment">/// The high 8 bits of the numeric primary
+<a href=#577 id=577 data-nosnippet>577</a>    </span><span class="kw">pub </span>numeric_primary: u8,
+<a href=#578 id=578 data-nosnippet>578</a>    <span class="doccomment">/// 256 bits (packed in 16 u16s) to classify every possible
+<a href=#579 id=579 data-nosnippet>579</a>    /// byte into compressible or non-compressible.
+<a href=#580 id=580 data-nosnippet>580</a>    </span><span class="kw">pub </span>compressible_bytes: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[&lt;u16 <span class="kw">as </span>AsULE&gt;::ULE; <span class="number">16</span>],
+<a href=#581 id=581 data-nosnippet>581</a>}
+<a href=#582 id=582 data-nosnippet>582</a>
+<a href=#583 id=583 data-nosnippet>583</a><span class="kw">impl </span>CollationSpecialPrimariesValidated&lt;<span class="lifetime">'static</span>&gt; {
+<a href=#584 id=584 data-nosnippet>584</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>HARDCODED_COMPRESSIBLE_BYTES_FALLBACK: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[&lt;u16 <span class="kw">as </span>AsULE&gt;::ULE; <span class="number">16</span>] = <span class="kw-2">&amp;</span>[
+<a href=#585 id=585 data-nosnippet>585</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#586 id=586 data-nosnippet>586</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#587 id=587 data-nosnippet>587</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#588 id=588 data-nosnippet>588</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#589 id=589 data-nosnippet>589</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#590 id=590 data-nosnippet>590</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#591 id=591 data-nosnippet>591</a>        RawBytesULE(<span class="number">0b1111_1111_1111_1110u16</span>.to_le_bytes()),
+<a href=#592 id=592 data-nosnippet>592</a>        RawBytesULE(<span class="number">0b1111_1111_1111_1111u16</span>.to_le_bytes()),
+<a href=#593 id=593 data-nosnippet>593</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0001u16</span>.to_le_bytes()),
+<a href=#594 id=594 data-nosnippet>594</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#595 id=595 data-nosnippet>595</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#596 id=596 data-nosnippet>596</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#597 id=597 data-nosnippet>597</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#598 id=598 data-nosnippet>598</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#599 id=599 data-nosnippet>599</a>        RawBytesULE(<span class="number">0b0000_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#600 id=600 data-nosnippet>600</a>        RawBytesULE(<span class="number">0b0100_0000_0000_0000u16</span>.to_le_bytes()),
+<a href=#601 id=601 data-nosnippet>601</a>    ];
+<a href=#602 id=602 data-nosnippet>602</a>}
+<a href=#603 id=603 data-nosnippet>603</a>
+<a href=#604 id=604 data-nosnippet>604</a><span class="macro">icu_provider::data_struct!</span>(
+<a href=#605 id=605 data-nosnippet>605</a>    CollationSpecialPrimaries&lt;<span class="lifetime">'_</span>&gt;,
+<a href=#606 id=606 data-nosnippet>606</a>    <span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+<a href=#607 id=607 data-nosnippet>607</a></span>);
+<a href=#608 id=608 data-nosnippet>608</a>
+<a href=#609 id=609 data-nosnippet>609</a><span class="kw">impl </span>CollationSpecialPrimariesValidated&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#610 id=610 data-nosnippet>610</a>    <span class="attr">#[expect(clippy::unwrap_used)]
+<a href=#611 id=611 data-nosnippet>611</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>last_primary_for_group(<span class="kw-2">&amp;</span><span class="self">self</span>, max_variable: MaxVariable) -&gt; u32 {
+<a href=#612 id=612 data-nosnippet>612</a>        <span class="comment">// `unwrap` is OK, because `Collator::try_new` validates the length.
+<a href=#613 id=613 data-nosnippet>613</a>        //
+<a href=#614 id=614 data-nosnippet>614</a>        // Minus one to generate the right lower 16 bits from the high 16 bits.
+<a href=#615 id=615 data-nosnippet>615</a>        // See parse.cpp in genrb and getLastPrimaryForGroup in ICU4C.
+<a href=#616 id=616 data-nosnippet>616</a>        </span>(u32::from(<span class="self">self</span>.last_primaries.get(max_variable <span class="kw">as </span>usize).unwrap()) &lt;&lt; <span class="number">16</span>) - <span class="number">1
+<a href=#617 id=617 data-nosnippet>617</a>    </span>}
+<a href=#618 id=618 data-nosnippet>618</a>
+<a href=#619 id=619 data-nosnippet>619</a>    <span class="attr">#[allow(dead_code)]
+<a href=#620 id=620 data-nosnippet>620</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_compressible(<span class="kw-2">&amp;</span><span class="self">self</span>, b: u8) -&gt; bool {
+<a href=#621 id=621 data-nosnippet>621</a>        <span class="comment">// Indexing slicing OK by construction and pasting this
+<a href=#622 id=622 data-nosnippet>622</a>        // into Compiler Explorer shows that the panic
+<a href=#623 id=623 data-nosnippet>623</a>        // is optimized away.
+<a href=#624 id=624 data-nosnippet>624</a>        </span><span class="attr">#[expect(clippy::indexing_slicing)]
+<a href=#625 id=625 data-nosnippet>625</a>        </span><span class="kw">let </span>field = u16::from_unaligned(<span class="self">self</span>.compressible_bytes[usize::from(b &gt;&gt; <span class="number">4</span>)]);
+<a href=#626 id=626 data-nosnippet>626</a>        <span class="kw">let </span>mask = <span class="number">1 </span>&lt;&lt; (b &amp; <span class="number">0b1111</span>);
+<a href=#627 id=627 data-nosnippet>627</a>        (field &amp; mask) != <span class="number">0
+<a href=#628 id=628 data-nosnippet>628</a>    </span>}
+<a href=#629 id=629 data-nosnippet>629</a>}</code></pre></div></section></main></body></html>

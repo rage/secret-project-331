@@ -1,1 +1,0 @@
-searchState.loadedDescShard("icu_casemap_data", 0, "Data for the <code>icu_casemap</code> crate\nImplement <code>DataProvider&lt;CaseMapUnfoldV1&gt;</code> on the given …\nImplement <code>DataProvider&lt;CaseMapV1&gt;</code> on the given struct …\nMarks a type as a data provider. You can then use macros …")

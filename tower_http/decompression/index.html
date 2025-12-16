@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Middleware that decompresses request and response bodies."><title>tower_http::decompression - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tower_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module decompression</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../tower_http/index.html">tower_<wbr>http</a><span class="version">0.6.8</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module decompression</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#request" title="Request">Request</a></li><li><a href="#response" title="Response">Response</a></li></ul></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate tower_<wbr>http</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">tower_http</a></div><h1>Module <span>decompression</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/tower_http/decompression/mod.rs.html#1-255">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Middleware that decompresses request and response bodies.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2><h5 id="request"><a class="doc-anchor" href="#request">§</a>Request</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>flate2::{write::GzEncoder, Compression};
+<span class="kw">use </span>http::{header, HeaderValue, Request, Response};
+<span class="kw">use </span>http_body_util::{Full, BodyExt};
+<span class="kw">use </span>std::{error::Error, io::Write};
+<span class="kw">use </span>tower::{Service, ServiceBuilder, service_fn, ServiceExt};
+<span class="kw">use </span>tower_http::{BoxError, decompression::{DecompressionBody, RequestDecompressionLayer}};
+
+<span class="comment">// A request encoded with gzip coming from some HTTP client.
+</span><span class="kw">let </span><span class="kw-2">mut </span>encoder = GzEncoder::new(Vec::new(), Compression::default());
+encoder.write_all(<span class="string">b"Hello?"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>request = Request::builder()
+    .header(header::CONTENT_ENCODING, <span class="string">"gzip"</span>)
+    .body(Full::from(encoder.finish()<span class="question-mark">?</span>))<span class="question-mark">?</span>;
+
+<span class="comment">// Our HTTP server
+</span><span class="kw">let </span><span class="kw-2">mut </span>server = ServiceBuilder::new()
+    <span class="comment">// Automatically decompress request bodies.
+    </span>.layer(RequestDecompressionLayer::new())
+    .service(service_fn(handler));
+
+<span class="comment">// Send the request, with the gzip encoded body, to our server.
+</span><span class="kw">let </span>_response = server.ready().<span class="kw">await</span><span class="question-mark">?</span>.call(request).<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// Handler receives request whose body is decoded when read
+</span><span class="kw">async fn </span>handler(
+    <span class="kw-2">mut </span>req: Request&lt;DecompressionBody&lt;Full&lt;Bytes&gt;&gt;&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Response&lt;Full&lt;Bytes&gt;&gt;, BoxError&gt;{
+    <span class="kw">let </span>data = req.into_body().collect().<span class="kw">await</span><span class="question-mark">?</span>.to_bytes();
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>data[..], <span class="string">b"Hello?"</span>);
+    <span class="prelude-val">Ok</span>(Response::new(Full::from(<span class="string">"Hello, World!"</span>)))
+}</code></pre></div><h5 id="response"><a class="doc-anchor" href="#response">§</a>Response</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>http::{Request, Response};
+<span class="kw">use </span>http_body_util::{Full, BodyExt};
+<span class="kw">use </span>std::convert::Infallible;
+<span class="kw">use </span>tower::{Service, ServiceExt, ServiceBuilder, service_fn};
+<span class="kw">use </span>tower_http::{compression::Compression, decompression::DecompressionLayer, BoxError};
+
+<span class="comment">// Some opaque service that applies compression.
+</span><span class="kw">let </span>service = Compression::new(service_fn(handle));
+
+<span class="comment">// Our HTTP client.
+</span><span class="kw">let </span><span class="kw-2">mut </span>client = ServiceBuilder::new()
+    <span class="comment">// Automatically decompress response bodies.
+    </span>.layer(DecompressionLayer::new())
+    .service(service);
+
+<span class="comment">// Call the service.
+//
+// `DecompressionLayer` takes care of setting `Accept-Encoding`.
+</span><span class="kw">let </span>request = Request::new(Full::&lt;Bytes&gt;::default());
+
+<span class="kw">let </span>response = client
+    .ready()
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.call(request)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// Read the body
+</span><span class="kw">let </span>body = response.into_body();
+<span class="kw">let </span>bytes = body.collect().<span class="kw">await</span><span class="question-mark">?</span>.to_bytes().to_vec();
+<span class="kw">let </span>body = String::from_utf8(bytes).map_err(Into::&lt;BoxError&gt;::into)<span class="question-mark">?</span>;
+
+<span class="macro">assert_eq!</span>(body, <span class="string">"Hello, World!"</span>);</code></pre></div></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Decompression.html" title="struct tower_http::decompression::Decompression">Decompression</a></dt><dd>Decompresses response bodies of the underlying service.</dd><dt><a class="struct" href="struct.DecompressionBody.html" title="struct tower_http::decompression::DecompressionBody">Decompression<wbr>Body</a></dt><dd>Response body of <a href="struct.RequestDecompression.html" title="struct tower_http::decompression::RequestDecompression"><code>RequestDecompression</code></a> and <a href="struct.Decompression.html" title="struct tower_http::decompression::Decompression"><code>Decompression</code></a>.</dd><dt><a class="struct" href="struct.DecompressionLayer.html" title="struct tower_http::decompression::DecompressionLayer">Decompression<wbr>Layer</a></dt><dd>Decompresses response bodies of the underlying service.</dd><dt><a class="struct" href="struct.RequestDecompression.html" title="struct tower_http::decompression::RequestDecompression">Request<wbr>Decompression</a></dt><dd>Decompresses request bodies and calls its underlying service.</dd><dt><a class="struct" href="struct.RequestDecompressionFuture.html" title="struct tower_http::decompression::RequestDecompressionFuture">Request<wbr>Decompression<wbr>Future</a></dt><dd>Response future of [<code>RequestDecompression</code>]</dd><dt><a class="struct" href="struct.RequestDecompressionLayer.html" title="struct tower_http::decompression::RequestDecompressionLayer">Request<wbr>Decompression<wbr>Layer</a></dt><dd>Decompresses request bodies and calls its underlying service.</dd><dt><a class="struct" href="struct.ResponseFuture.html" title="struct tower_http::decompression::ResponseFuture">Response<wbr>Future</a></dt><dd>Response future of <a href="struct.Decompression.html" title="struct tower_http::decompression::Decompression"><code>Decompression</code></a>.</dd></dl></section></div></main></body></html>

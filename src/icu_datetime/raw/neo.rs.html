@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_datetime-2.0.0/src/raw/neo.rs`."><title>neo.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_datetime/raw/</div>neo.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_datetime-2.1.1/src/raw/neo.rs`."><title>neo.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_datetime/raw/</div>neo.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 <a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
 <a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -177,7 +177,7 @@
 <a href=#177 id=177 data-nosnippet>177</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
 <a href=#178 id=178 data-nosnippet>178</a>        input: <span class="kw-2">&amp;</span>DateTimeInputUnchecked,
 <a href=#179 id=179 data-nosnippet>179</a>        options: RawOptions,
-<a href=#180 id=180 data-nosnippet>180</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;DatePatternDataBorrowed&gt; {
+<a href=#180 id=180 data-nosnippet>180</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;DatePatternDataBorrowed&lt;<span class="lifetime">'_</span>&gt;&gt; {
 <a href=#181 id=181 data-nosnippet>181</a>        <span class="kw">let </span>payload = <span class="self">self</span>.payload.get_option()<span class="question-mark">?</span>;
 <a href=#182 id=182 data-nosnippet>182</a>        <span class="kw">let </span>year_style = options.year_style.unwrap_or_default();
 <a href=#183 id=183 data-nosnippet>183</a>        <span class="kw">let </span>variant = <span class="kw">match </span>(
@@ -339,7 +339,7 @@
 <a href=#339 id=339 data-nosnippet>339</a>        input: <span class="kw-2">&amp;</span>DateTimeInputUnchecked,
 <a href=#340 id=340 data-nosnippet>340</a>        options: RawOptions,
 <a href=#341 id=341 data-nosnippet>341</a>        prefs: RawPreferences,
-<a href=#342 id=342 data-nosnippet>342</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;TimePatternDataBorrowed&gt; {
+<a href=#342 id=342 data-nosnippet>342</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;TimePatternDataBorrowed&lt;<span class="lifetime">'_</span>&gt;&gt; {
 <a href=#343 id=343 data-nosnippet>343</a>        <span class="kw">let </span>payload = <span class="self">self</span>.payload.get_option()<span class="question-mark">?</span>;
 <a href=#344 id=344 data-nosnippet>344</a>        <span class="kw">let </span>time_precision = options.time_precision.unwrap_or_default();
 <a href=#345 id=345 data-nosnippet>345</a>        <span class="kw">let </span>(variant, subsecond_digits) = input.resolve_time_precision(time_precision);
@@ -383,7 +383,7 @@
 <a href=#383 id=383 data-nosnippet>383</a>    }
 <a href=#384 id=384 data-nosnippet>384</a>
 <a href=#385 id=385 data-nosnippet>385</a>    <span class="doccomment">/// Borrows a resolved pattern based on the given datetime
-<a href=#386 id=386 data-nosnippet>386</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>select(<span class="kw-2">&amp;</span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>DateTimeInputUnchecked) -&gt; ZonePatternDataBorrowed {
+<a href=#386 id=386 data-nosnippet>386</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>select(<span class="kw-2">&amp;</span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>DateTimeInputUnchecked) -&gt; ZonePatternDataBorrowed&lt;<span class="lifetime">'_</span>&gt; {
 <a href=#387 id=387 data-nosnippet>387</a>        <span class="kw">let </span><span class="self">Self</span>::SinglePatternItem(<span class="kw">_</span>, pattern_item) = <span class="self">self</span>;
 <a href=#388 id=388 data-nosnippet>388</a>        ZonePatternDataBorrowed::SinglePatternItem(pattern_item)
 <a href=#389 id=389 data-nosnippet>389</a>    }
@@ -400,379 +400,381 @@
 <a href=#400 id=400 data-nosnippet>400</a>}
 <a href=#401 id=401 data-nosnippet>401</a>
 <a href=#402 id=402 data-nosnippet>402</a><span class="kw">impl </span>DateTimeZonePatternSelectionData {
-<a href=#403 id=403 data-nosnippet>403</a>    <span class="attr">#[allow(clippy::too_many_arguments)] </span><span class="comment">// private function with lots of generics
-<a href=#404 id=404 data-nosnippet>404</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_new_with_skeleton(
-<a href=#405 id=405 data-nosnippet>405</a>        date_provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BoundDataProvider&lt;ErasedPackedPatterns&gt; + <span class="question-mark">?</span>Sized),
-<a href=#406 id=406 data-nosnippet>406</a>        time_provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BoundDataProvider&lt;ErasedPackedPatterns&gt; + <span class="question-mark">?</span>Sized),
-<a href=#407 id=407 data-nosnippet>407</a>        glue_provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BoundDataProvider&lt;DatetimePatternsGlueV1&gt; + <span class="question-mark">?</span>Sized),
-<a href=#408 id=408 data-nosnippet>408</a>        prefs: DateTimeFormatterPreferences,
-<a href=#409 id=409 data-nosnippet>409</a>        skeleton: CompositeFieldSet,
-<a href=#410 id=410 data-nosnippet>410</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt; {
-<a href=#411 id=411 data-nosnippet>411</a>        <span class="kw">match </span>skeleton {
-<a href=#412 id=412 data-nosnippet>412</a>            CompositeFieldSet::Date(field_set) =&gt; {
-<a href=#413 id=413 data-nosnippet>413</a>                <span class="kw">let </span>options = field_set.to_raw_options();
-<a href=#414 id=414 data-nosnippet>414</a>                <span class="kw">let </span>selection = DatePatternSelectionData::try_new_with_skeleton(
-<a href=#415 id=415 data-nosnippet>415</a>                    date_provider,
-<a href=#416 id=416 data-nosnippet>416</a>                    prefs,
-<a href=#417 id=417 data-nosnippet>417</a>                    field_set.id_str(),
-<a href=#418 id=418 data-nosnippet>418</a>                )<span class="question-mark">?</span>;
-<a href=#419 id=419 data-nosnippet>419</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#420 id=420 data-nosnippet>420</a>                    options,
-<a href=#421 id=421 data-nosnippet>421</a>                    prefs: Default::default(), <span class="comment">// not used: no time
-<a href=#422 id=422 data-nosnippet>422</a>                    </span>date: selection,
-<a href=#423 id=423 data-nosnippet>423</a>                    time: TimePatternSelectionData::none(),
-<a href=#424 id=424 data-nosnippet>424</a>                    zone: <span class="prelude-val">None</span>,
-<a href=#425 id=425 data-nosnippet>425</a>                    glue: <span class="prelude-val">None</span>,
-<a href=#426 id=426 data-nosnippet>426</a>                })
-<a href=#427 id=427 data-nosnippet>427</a>            }
-<a href=#428 id=428 data-nosnippet>428</a>            CompositeFieldSet::CalendarPeriod(field_set) =&gt; {
-<a href=#429 id=429 data-nosnippet>429</a>                <span class="kw">let </span>options = field_set.to_raw_options();
-<a href=#430 id=430 data-nosnippet>430</a>                <span class="kw">let </span>selection = DatePatternSelectionData::try_new_with_skeleton(
-<a href=#431 id=431 data-nosnippet>431</a>                    date_provider,
-<a href=#432 id=432 data-nosnippet>432</a>                    prefs,
-<a href=#433 id=433 data-nosnippet>433</a>                    field_set.id_str(),
-<a href=#434 id=434 data-nosnippet>434</a>                )<span class="question-mark">?</span>;
-<a href=#435 id=435 data-nosnippet>435</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#436 id=436 data-nosnippet>436</a>                    options,
-<a href=#437 id=437 data-nosnippet>437</a>                    prefs: Default::default(), <span class="comment">// not used: no time
-<a href=#438 id=438 data-nosnippet>438</a>                    </span>date: selection,
-<a href=#439 id=439 data-nosnippet>439</a>                    time: TimePatternSelectionData::none(),
-<a href=#440 id=440 data-nosnippet>440</a>                    zone: <span class="prelude-val">None</span>,
-<a href=#441 id=441 data-nosnippet>441</a>                    glue: <span class="prelude-val">None</span>,
-<a href=#442 id=442 data-nosnippet>442</a>                })
-<a href=#443 id=443 data-nosnippet>443</a>            }
-<a href=#444 id=444 data-nosnippet>444</a>            CompositeFieldSet::Time(field_set) =&gt; {
-<a href=#445 id=445 data-nosnippet>445</a>                <span class="kw">let </span>options = field_set.to_raw_options();
-<a href=#446 id=446 data-nosnippet>446</a>                <span class="kw">let </span>selection = TimePatternSelectionData::try_new_with_skeleton(
-<a href=#447 id=447 data-nosnippet>447</a>                    time_provider,
-<a href=#448 id=448 data-nosnippet>448</a>                    prefs,
-<a href=#449 id=449 data-nosnippet>449</a>                    field_set,
-<a href=#450 id=450 data-nosnippet>450</a>                )<span class="question-mark">?</span>;
-<a href=#451 id=451 data-nosnippet>451</a>                <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
-<a href=#452 id=452 data-nosnippet>452</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#453 id=453 data-nosnippet>453</a>                    options,
-<a href=#454 id=454 data-nosnippet>454</a>                    prefs,
-<a href=#455 id=455 data-nosnippet>455</a>                    date: DatePatternSelectionData::none(),
-<a href=#456 id=456 data-nosnippet>456</a>                    time: selection,
-<a href=#457 id=457 data-nosnippet>457</a>                    zone: <span class="prelude-val">None</span>,
-<a href=#458 id=458 data-nosnippet>458</a>                    glue: <span class="prelude-val">None</span>,
-<a href=#459 id=459 data-nosnippet>459</a>                })
-<a href=#460 id=460 data-nosnippet>460</a>            }
-<a href=#461 id=461 data-nosnippet>461</a>            CompositeFieldSet::Zone(field_set) =&gt; {
-<a href=#462 id=462 data-nosnippet>462</a>                <span class="kw">let </span>selection = ZonePatternSelectionData::new_with_skeleton(field_set);
-<a href=#463 id=463 data-nosnippet>463</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#464 id=464 data-nosnippet>464</a>                    options: RawOptions {
-<a href=#465 id=465 data-nosnippet>465</a>                        length: <span class="prelude-val">None</span>,
-<a href=#466 id=466 data-nosnippet>466</a>                        date_fields: <span class="prelude-val">None</span>,
-<a href=#467 id=467 data-nosnippet>467</a>                        year_style: <span class="prelude-val">None</span>,
-<a href=#468 id=468 data-nosnippet>468</a>                        alignment: <span class="prelude-val">None</span>,
-<a href=#469 id=469 data-nosnippet>469</a>                        time_precision: <span class="prelude-val">None</span>,
-<a href=#470 id=470 data-nosnippet>470</a>                    },
-<a href=#471 id=471 data-nosnippet>471</a>                    prefs: Default::default(), <span class="comment">// not used: no time
-<a href=#472 id=472 data-nosnippet>472</a>                    </span>date: DatePatternSelectionData::none(),
-<a href=#473 id=473 data-nosnippet>473</a>                    time: TimePatternSelectionData::none(),
-<a href=#474 id=474 data-nosnippet>474</a>                    zone: <span class="prelude-val">Some</span>(selection),
-<a href=#475 id=475 data-nosnippet>475</a>                    glue: <span class="prelude-val">None</span>,
-<a href=#476 id=476 data-nosnippet>476</a>                })
-<a href=#477 id=477 data-nosnippet>477</a>            }
-<a href=#478 id=478 data-nosnippet>478</a>            CompositeFieldSet::DateTime(field_set) =&gt; {
-<a href=#479 id=479 data-nosnippet>479</a>                <span class="kw">let </span>options = field_set.to_raw_options();
-<a href=#480 id=480 data-nosnippet>480</a>                <span class="comment">// TODO(#5387): load the patterns for custom hour cycles here
-<a href=#481 id=481 data-nosnippet>481</a>                </span><span class="kw">if let </span>(<span class="prelude-val">Some</span>(attributes), <span class="prelude-val">None</span>) = (field_set.id_str(), prefs.hour_cycle) {
-<a href=#482 id=482 data-nosnippet>482</a>                    <span class="comment">// Try loading an overlap pattern.
-<a href=#483 id=483 data-nosnippet>483</a>                    // Note: Overlap patterns are loaded from the date skeleton pattern provider
-<a href=#484 id=484 data-nosnippet>484</a>                    // and then stored as a TimePatternSelectionData.
-<a href=#485 id=485 data-nosnippet>485</a>                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(overlap) = TimePatternSelectionData::try_new_overlap_with_skeleton(
-<a href=#486 id=486 data-nosnippet>486</a>                        date_provider,
-<a href=#487 id=487 data-nosnippet>487</a>                        prefs,
-<a href=#488 id=488 data-nosnippet>488</a>                        attributes,
-<a href=#489 id=489 data-nosnippet>489</a>                        options,
-<a href=#490 id=490 data-nosnippet>490</a>                    )
-<a href=#491 id=491 data-nosnippet>491</a>                    .allow_identifier_not_found()<span class="question-mark">?
-<a href=#492 id=492 data-nosnippet>492</a>                    </span>{
-<a href=#493 id=493 data-nosnippet>493</a>                        <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
-<a href=#494 id=494 data-nosnippet>494</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#495 id=495 data-nosnippet>495</a>                            options,
-<a href=#496 id=496 data-nosnippet>496</a>                            prefs,
-<a href=#497 id=497 data-nosnippet>497</a>                            date: DatePatternSelectionData::none(),
-<a href=#498 id=498 data-nosnippet>498</a>                            time: overlap,
-<a href=#499 id=499 data-nosnippet>499</a>                            zone: <span class="prelude-val">None</span>,
-<a href=#500 id=500 data-nosnippet>500</a>                            glue: <span class="prelude-val">None</span>,
-<a href=#501 id=501 data-nosnippet>501</a>                        });
-<a href=#502 id=502 data-nosnippet>502</a>                    }
-<a href=#503 id=503 data-nosnippet>503</a>                }
-<a href=#504 id=504 data-nosnippet>504</a>                <span class="kw">let </span>date = DatePatternSelectionData::try_new_with_skeleton(
-<a href=#505 id=505 data-nosnippet>505</a>                    date_provider,
-<a href=#506 id=506 data-nosnippet>506</a>                    prefs,
-<a href=#507 id=507 data-nosnippet>507</a>                    field_set.to_date_field_set().id_str(),
-<a href=#508 id=508 data-nosnippet>508</a>                )<span class="question-mark">?</span>;
-<a href=#509 id=509 data-nosnippet>509</a>                <span class="kw">let </span>time = TimePatternSelectionData::try_new_with_skeleton(
-<a href=#510 id=510 data-nosnippet>510</a>                    time_provider,
-<a href=#511 id=511 data-nosnippet>511</a>                    prefs,
-<a href=#512 id=512 data-nosnippet>512</a>                    field_set.to_time_field_set(),
-<a href=#513 id=513 data-nosnippet>513</a>                )<span class="question-mark">?</span>;
-<a href=#514 id=514 data-nosnippet>514</a>                <span class="kw">let </span>glue = <span class="self">Self</span>::load_glue(glue_provider, prefs, options, GlueType::DateTime)<span class="question-mark">?</span>;
-<a href=#515 id=515 data-nosnippet>515</a>                <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
-<a href=#516 id=516 data-nosnippet>516</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#517 id=517 data-nosnippet>517</a>                    options,
-<a href=#518 id=518 data-nosnippet>518</a>                    prefs,
-<a href=#519 id=519 data-nosnippet>519</a>                    date,
-<a href=#520 id=520 data-nosnippet>520</a>                    time,
-<a href=#521 id=521 data-nosnippet>521</a>                    zone: <span class="prelude-val">None</span>,
-<a href=#522 id=522 data-nosnippet>522</a>                    glue: <span class="prelude-val">Some</span>(glue),
-<a href=#523 id=523 data-nosnippet>523</a>                })
-<a href=#524 id=524 data-nosnippet>524</a>            }
-<a href=#525 id=525 data-nosnippet>525</a>            CompositeFieldSet::DateZone(combo) =&gt; {
-<a href=#526 id=526 data-nosnippet>526</a>                <span class="kw">let </span>options = combo.dt().to_raw_options();
-<a href=#527 id=527 data-nosnippet>527</a>                <span class="kw">let </span>date = DatePatternSelectionData::try_new_with_skeleton(
-<a href=#528 id=528 data-nosnippet>528</a>                    date_provider,
-<a href=#529 id=529 data-nosnippet>529</a>                    prefs,
-<a href=#530 id=530 data-nosnippet>530</a>                    combo.dt().id_str(),
-<a href=#531 id=531 data-nosnippet>531</a>                )<span class="question-mark">?</span>;
-<a href=#532 id=532 data-nosnippet>532</a>                <span class="kw">let </span>zone = ZonePatternSelectionData::new_with_skeleton(combo.z());
-<a href=#533 id=533 data-nosnippet>533</a>                <span class="kw">let </span>glue = <span class="self">Self</span>::load_glue(glue_provider, prefs, options, GlueType::DateZone)<span class="question-mark">?</span>;
-<a href=#534 id=534 data-nosnippet>534</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#535 id=535 data-nosnippet>535</a>                    options,
-<a href=#536 id=536 data-nosnippet>536</a>                    prefs: Default::default(), <span class="comment">// not used: no time
-<a href=#537 id=537 data-nosnippet>537</a>                    </span>date,
-<a href=#538 id=538 data-nosnippet>538</a>                    time: TimePatternSelectionData::none(),
-<a href=#539 id=539 data-nosnippet>539</a>                    zone: <span class="prelude-val">Some</span>(zone),
-<a href=#540 id=540 data-nosnippet>540</a>                    glue: <span class="prelude-val">Some</span>(glue),
-<a href=#541 id=541 data-nosnippet>541</a>                })
-<a href=#542 id=542 data-nosnippet>542</a>            }
-<a href=#543 id=543 data-nosnippet>543</a>            CompositeFieldSet::TimeZone(combo) =&gt; {
-<a href=#544 id=544 data-nosnippet>544</a>                <span class="kw">let </span>options = combo.dt().to_raw_options();
-<a href=#545 id=545 data-nosnippet>545</a>                <span class="kw">let </span>time = TimePatternSelectionData::try_new_with_skeleton(
-<a href=#546 id=546 data-nosnippet>546</a>                    time_provider,
-<a href=#547 id=547 data-nosnippet>547</a>                    prefs,
-<a href=#548 id=548 data-nosnippet>548</a>                    combo.dt(),
-<a href=#549 id=549 data-nosnippet>549</a>                )<span class="question-mark">?</span>;
-<a href=#550 id=550 data-nosnippet>550</a>                <span class="kw">let </span>zone = ZonePatternSelectionData::new_with_skeleton(combo.z());
-<a href=#551 id=551 data-nosnippet>551</a>                <span class="kw">let </span>glue = <span class="self">Self</span>::load_glue(glue_provider, prefs, options, GlueType::TimeZone)<span class="question-mark">?</span>;
-<a href=#552 id=552 data-nosnippet>552</a>                <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
-<a href=#553 id=553 data-nosnippet>553</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#554 id=554 data-nosnippet>554</a>                    options,
-<a href=#555 id=555 data-nosnippet>555</a>                    prefs,
-<a href=#556 id=556 data-nosnippet>556</a>                    date: DatePatternSelectionData::none(),
-<a href=#557 id=557 data-nosnippet>557</a>                    time,
-<a href=#558 id=558 data-nosnippet>558</a>                    zone: <span class="prelude-val">Some</span>(zone),
-<a href=#559 id=559 data-nosnippet>559</a>                    glue: <span class="prelude-val">Some</span>(glue),
-<a href=#560 id=560 data-nosnippet>560</a>                })
-<a href=#561 id=561 data-nosnippet>561</a>            }
-<a href=#562 id=562 data-nosnippet>562</a>            CompositeFieldSet::DateTimeZone(combo) =&gt; {
-<a href=#563 id=563 data-nosnippet>563</a>                <span class="kw">let </span>options = combo.dt().to_raw_options();
-<a href=#564 id=564 data-nosnippet>564</a>                <span class="kw">let </span>date = DatePatternSelectionData::try_new_with_skeleton(
-<a href=#565 id=565 data-nosnippet>565</a>                    date_provider,
-<a href=#566 id=566 data-nosnippet>566</a>                    prefs,
-<a href=#567 id=567 data-nosnippet>567</a>                    combo.dt().to_date_field_set().id_str(),
-<a href=#568 id=568 data-nosnippet>568</a>                )<span class="question-mark">?</span>;
-<a href=#569 id=569 data-nosnippet>569</a>                <span class="kw">let </span>time = TimePatternSelectionData::try_new_with_skeleton(
-<a href=#570 id=570 data-nosnippet>570</a>                    time_provider,
-<a href=#571 id=571 data-nosnippet>571</a>                    prefs,
-<a href=#572 id=572 data-nosnippet>572</a>                    combo.dt().to_time_field_set(),
-<a href=#573 id=573 data-nosnippet>573</a>                )<span class="question-mark">?</span>;
-<a href=#574 id=574 data-nosnippet>574</a>                <span class="kw">let </span>zone = ZonePatternSelectionData::new_with_skeleton(combo.z());
-<a href=#575 id=575 data-nosnippet>575</a>                <span class="kw">let </span>glue = <span class="self">Self</span>::load_glue(glue_provider, prefs, options, GlueType::DateTimeZone)<span class="question-mark">?</span>;
-<a href=#576 id=576 data-nosnippet>576</a>                <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
-<a href=#577 id=577 data-nosnippet>577</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-<a href=#578 id=578 data-nosnippet>578</a>                    options,
-<a href=#579 id=579 data-nosnippet>579</a>                    prefs,
-<a href=#580 id=580 data-nosnippet>580</a>                    date,
-<a href=#581 id=581 data-nosnippet>581</a>                    time,
-<a href=#582 id=582 data-nosnippet>582</a>                    zone: <span class="prelude-val">Some</span>(zone),
-<a href=#583 id=583 data-nosnippet>583</a>                    glue: <span class="prelude-val">Some</span>(glue),
-<a href=#584 id=584 data-nosnippet>584</a>                })
-<a href=#585 id=585 data-nosnippet>585</a>            }
-<a href=#586 id=586 data-nosnippet>586</a>        }
-<a href=#587 id=587 data-nosnippet>587</a>    }
-<a href=#588 id=588 data-nosnippet>588</a>
-<a href=#589 id=589 data-nosnippet>589</a>    <span class="kw">fn </span>load_glue(
-<a href=#590 id=590 data-nosnippet>590</a>        provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BoundDataProvider&lt;DatetimePatternsGlueV1&gt; + <span class="question-mark">?</span>Sized),
-<a href=#591 id=591 data-nosnippet>591</a>        prefs: DateTimeFormatterPreferences,
-<a href=#592 id=592 data-nosnippet>592</a>        options: RawOptions,
-<a href=#593 id=593 data-nosnippet>593</a>        glue_type: GlueType,
-<a href=#594 id=594 data-nosnippet>594</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;DataPayload&lt;DatetimePatternsGlueV1&gt;, DataError&gt; {
-<a href=#595 id=595 data-nosnippet>595</a>        <span class="kw">let </span>locale = provider
-<a href=#596 id=596 data-nosnippet>596</a>            .bound_marker()
-<a href=#597 id=597 data-nosnippet>597</a>            .make_locale(prefs.locale_preferences);
-<a href=#598 id=598 data-nosnippet>598</a>        provider
-<a href=#599 id=599 data-nosnippet>599</a>            .load_bound(DataRequest {
-<a href=#600 id=600 data-nosnippet>600</a>                id: DataIdentifierBorrowed::for_marker_attributes_and_locale(
-<a href=#601 id=601 data-nosnippet>601</a>                    marker_attrs::pattern_marker_attr_for_glue(
-<a href=#602 id=602 data-nosnippet>602</a>                        <span class="comment">// According to UTS 35, use the date length here: use the glue
-<a href=#603 id=603 data-nosnippet>603</a>                        // pattern "whose type matches the type of the date pattern"
-<a href=#604 id=604 data-nosnippet>604</a>                        </span><span class="kw">match </span>options.length() {
-<a href=#605 id=605 data-nosnippet>605</a>                            Length::Long =&gt; marker_attrs::PatternLength::Long,
-<a href=#606 id=606 data-nosnippet>606</a>                            Length::Medium =&gt; marker_attrs::PatternLength::Medium,
-<a href=#607 id=607 data-nosnippet>607</a>                            Length::Short =&gt; marker_attrs::PatternLength::Short,
-<a href=#608 id=608 data-nosnippet>608</a>                        },
-<a href=#609 id=609 data-nosnippet>609</a>                        glue_type,
-<a href=#610 id=610 data-nosnippet>610</a>                    ),
-<a href=#611 id=611 data-nosnippet>611</a>                    <span class="kw-2">&amp;</span>locale,
-<a href=#612 id=612 data-nosnippet>612</a>                ),
-<a href=#613 id=613 data-nosnippet>613</a>                ..Default::default()
-<a href=#614 id=614 data-nosnippet>614</a>            })
-<a href=#615 id=615 data-nosnippet>615</a>            .map(|r| r.payload)
-<a href=#616 id=616 data-nosnippet>616</a>    }
-<a href=#617 id=617 data-nosnippet>617</a>
-<a href=#618 id=618 data-nosnippet>618</a>    <span class="doccomment">/// Returns an iterator over the pattern items that may need to be loaded.
-<a href=#619 id=619 data-nosnippet>619</a>    </span><span class="attr">#[inline]
-<a href=#620 id=620 data-nosnippet>620</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pattern_items_for_data_loading(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PatternItem&gt; + <span class="lifetime">'_ </span>{
-<a href=#621 id=621 data-nosnippet>621</a>        <span class="kw">let </span><span class="self">Self </span>{
-<a href=#622 id=622 data-nosnippet>622</a>            date, time, zone, ..
-<a href=#623 id=623 data-nosnippet>623</a>        } = <span class="self">self</span>;
-<a href=#624 id=624 data-nosnippet>624</a>        <span class="kw">let </span>date_items = date
-<a href=#625 id=625 data-nosnippet>625</a>            .pattern_items_for_data_loading(<span class="self">self</span>.options)
-<a href=#626 id=626 data-nosnippet>626</a>            .into_iter()
-<a href=#627 id=627 data-nosnippet>627</a>            .flatten();
-<a href=#628 id=628 data-nosnippet>628</a>        <span class="kw">let </span>time_items = time
-<a href=#629 id=629 data-nosnippet>629</a>            .pattern_items_for_data_loading(<span class="self">self</span>.options)
-<a href=#630 id=630 data-nosnippet>630</a>            .into_iter()
-<a href=#631 id=631 data-nosnippet>631</a>            .flatten();
-<a href=#632 id=632 data-nosnippet>632</a>        <span class="kw">let </span>zone_items = zone.iter().flat_map(|x| x.pattern_items_for_data_loading());
-<a href=#633 id=633 data-nosnippet>633</a>        date_items.chain(time_items).chain(zone_items)
-<a href=#634 id=634 data-nosnippet>634</a>    }
-<a href=#635 id=635 data-nosnippet>635</a>
-<a href=#636 id=636 data-nosnippet>636</a>    <span class="doccomment">/// Borrows a resolved pattern based on the given datetime
-<a href=#637 id=637 data-nosnippet>637</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>select(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>DateTimeInputUnchecked) -&gt; DateTimeZonePatternDataBorrowed {
-<a href=#638 id=638 data-nosnippet>638</a>        DateTimeZonePatternDataBorrowed {
-<a href=#639 id=639 data-nosnippet>639</a>            date: <span class="self">self</span>.date.select(input, <span class="self">self</span>.options),
-<a href=#640 id=640 data-nosnippet>640</a>            time: <span class="self">self</span>.time.select(input, <span class="self">self</span>.options, <span class="self">self</span>.prefs),
-<a href=#641 id=641 data-nosnippet>641</a>            zone: <span class="self">self</span>.zone.as_ref().map(|zone| zone.select(input)),
-<a href=#642 id=642 data-nosnippet>642</a>            glue: <span class="self">self</span>.glue.as_ref().map(|glue| glue.get()),
-<a href=#643 id=643 data-nosnippet>643</a>        }
-<a href=#644 id=644 data-nosnippet>644</a>    }
-<a href=#645 id=645 data-nosnippet>645</a>
-<a href=#646 id=646 data-nosnippet>646</a>    <span class="doccomment">/// Converts one of these into a corresponding [`builder::FieldSetBuilder`]
-<a href=#647 id=647 data-nosnippet>647</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_builder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; builder::FieldSetBuilder {
-<a href=#648 id=648 data-nosnippet>648</a>        <span class="kw">let </span>time_precision = <span class="kw">if </span><span class="self">self</span>.time.payload.is_payload() {
-<a href=#649 id=649 data-nosnippet>649</a>            <span class="prelude-val">Some</span>(<span class="self">self</span>.options.time_precision.unwrap_or_default())
-<a href=#650 id=650 data-nosnippet>650</a>        } <span class="kw">else </span>{
-<a href=#651 id=651 data-nosnippet>651</a>            <span class="prelude-val">None
-<a href=#652 id=652 data-nosnippet>652</a>        </span>};
-<a href=#653 id=653 data-nosnippet>653</a>        <span class="kw">let </span>zone_style = <span class="self">self</span>.zone.as_ref().map(|zone| {
-<a href=#654 id=654 data-nosnippet>654</a>            <span class="kw">let </span>ZonePatternSelectionData::SinglePatternItem(field_set, <span class="kw">_</span>) = zone;
-<a href=#655 id=655 data-nosnippet>655</a>            field_set.to_zone_style()
-<a href=#656 id=656 data-nosnippet>656</a>        });
-<a href=#657 id=657 data-nosnippet>657</a>        builder::FieldSetBuilder {
-<a href=#658 id=658 data-nosnippet>658</a>            length: <span class="self">self</span>.options.length,
-<a href=#659 id=659 data-nosnippet>659</a>            date_fields: <span class="self">self</span>.options.date_fields,
-<a href=#660 id=660 data-nosnippet>660</a>            time_precision,
-<a href=#661 id=661 data-nosnippet>661</a>            zone_style,
-<a href=#662 id=662 data-nosnippet>662</a>            alignment: <span class="self">self</span>.options.alignment,
-<a href=#663 id=663 data-nosnippet>663</a>            year_style: <span class="self">self</span>.options.year_style,
-<a href=#664 id=664 data-nosnippet>664</a>        }
-<a href=#665 id=665 data-nosnippet>665</a>    }
-<a href=#666 id=666 data-nosnippet>666</a>}
-<a href=#667 id=667 data-nosnippet>667</a>
-<a href=#668 id=668 data-nosnippet>668</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DateTimeZonePatternDataBorrowed&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#669 id=669 data-nosnippet>669</a>    <span class="attr">#[inline]
-<a href=#670 id=670 data-nosnippet>670</a>    </span><span class="kw">fn </span>date_pattern(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DatePatternDataBorrowed&lt;<span class="lifetime">'a</span>&gt;&gt; {
-<a href=#671 id=671 data-nosnippet>671</a>        <span class="self">self</span>.date
-<a href=#672 id=672 data-nosnippet>672</a>    }
-<a href=#673 id=673 data-nosnippet>673</a>
-<a href=#674 id=674 data-nosnippet>674</a>    <span class="attr">#[inline]
-<a href=#675 id=675 data-nosnippet>675</a>    </span><span class="kw">fn </span>time_pattern(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TimePatternDataBorrowed&lt;<span class="lifetime">'a</span>&gt;&gt; {
-<a href=#676 id=676 data-nosnippet>676</a>        <span class="self">self</span>.time
-<a href=#677 id=677 data-nosnippet>677</a>    }
-<a href=#678 id=678 data-nosnippet>678</a>
-<a href=#679 id=679 data-nosnippet>679</a>    <span class="attr">#[inline]
-<a href=#680 id=680 data-nosnippet>680</a>    </span><span class="kw">fn </span>zone_pattern(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ZonePatternDataBorrowed&lt;<span class="lifetime">'a</span>&gt;&gt; {
-<a href=#681 id=681 data-nosnippet>681</a>        <span class="self">self</span>.zone
-<a href=#682 id=682 data-nosnippet>682</a>    }
-<a href=#683 id=683 data-nosnippet>683</a>
-<a href=#684 id=684 data-nosnippet>684</a>    <span class="attr">#[inline]
-<a href=#685 id=685 data-nosnippet>685</a>    </span><span class="kw">fn </span>glue_pattern(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ZeroSlice&lt;GenericPatternItem&gt;&gt; {
-<a href=#686 id=686 data-nosnippet>686</a>        <span class="self">self</span>.glue.map(|glue| glue.pattern.items.as_slice())
-<a href=#687 id=687 data-nosnippet>687</a>    }
-<a href=#688 id=688 data-nosnippet>688</a>
-<a href=#689 id=689 data-nosnippet>689</a>    <span class="attr">#[inline]
-<a href=#690 id=690 data-nosnippet>690</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>metadata(<span class="self">self</span>) -&gt; PatternMetadata {
-<a href=#691 id=691 data-nosnippet>691</a>        <span class="kw">match </span>(<span class="self">self</span>.date, <span class="self">self</span>.time) {
-<a href=#692 id=692 data-nosnippet>692</a>            (<span class="prelude-val">Some</span>(DatePatternDataBorrowed::Resolved(pb, <span class="kw">_</span>)), <span class="prelude-val">None</span>) =&gt; pb.metadata,
-<a href=#693 id=693 data-nosnippet>693</a>            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(TimePatternDataBorrowed::Resolved(pb, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>))) =&gt; pb.metadata,
-<a href=#694 id=694 data-nosnippet>694</a>            (
-<a href=#695 id=695 data-nosnippet>695</a>                <span class="prelude-val">Some</span>(DatePatternDataBorrowed::Resolved(date, <span class="kw">_</span>)),
-<a href=#696 id=696 data-nosnippet>696</a>                <span class="prelude-val">Some</span>(TimePatternDataBorrowed::Resolved(time, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)),
-<a href=#697 id=697 data-nosnippet>697</a>            ) =&gt; PatternMetadata::merge_date_and_time_metadata(date.metadata, time.metadata),
-<a href=#698 id=698 data-nosnippet>698</a>            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; Default::default(),
-<a href=#699 id=699 data-nosnippet>699</a>        }
-<a href=#700 id=700 data-nosnippet>700</a>    }
-<a href=#701 id=701 data-nosnippet>701</a>
-<a href=#702 id=702 data-nosnippet>702</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_items(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PatternItem&gt; + <span class="lifetime">'a </span>{
-<a href=#703 id=703 data-nosnippet>703</a>        <span class="kw">let </span>glue_pattern_slice = <span class="kw">match </span><span class="self">self</span>.glue_pattern() {
-<a href=#704 id=704 data-nosnippet>704</a>            <span class="prelude-val">Some</span>(glue) =&gt; glue.as_ule_slice(),
-<a href=#705 id=705 data-nosnippet>705</a>            <span class="prelude-val">None </span>=&gt; runtime::ZERO_ONE_TWO_SLICE.as_ule_slice(),
-<a href=#706 id=706 data-nosnippet>706</a>        };
-<a href=#707 id=707 data-nosnippet>707</a>        glue_pattern_slice
-<a href=#708 id=708 data-nosnippet>708</a>            .iter()
-<a href=#709 id=709 data-nosnippet>709</a>            .map(
-<a href=#710 id=710 data-nosnippet>710</a>                <span class="kw">move </span>|generic_item_ule| <span class="kw">match </span>generic_item_ule.as_pattern_item_ule() {
-<a href=#711 id=711 data-nosnippet>711</a>                    <span class="prelude-val">Ok</span>(pattern_item_ule) =&gt; ItemsAndOptions {
-<a href=#712 id=712 data-nosnippet>712</a>                        items: ZeroSlice::from_ule_slice(core::slice::from_ref(pattern_item_ule)),
-<a href=#713 id=713 data-nosnippet>713</a>                        ..Default::default()
-<a href=#714 id=714 data-nosnippet>714</a>                    },
-<a href=#715 id=715 data-nosnippet>715</a>                    <span class="prelude-val">Err</span>(<span class="number">1</span>) =&gt; <span class="self">self
-<a href=#716 id=716 data-nosnippet>716</a>                        </span>.date_pattern()
-<a href=#717 id=717 data-nosnippet>717</a>                        .map(|p| p.items_and_options())
-<a href=#718 id=718 data-nosnippet>718</a>                        .unwrap_or(ItemsAndOptions::new_empty()),
-<a href=#719 id=719 data-nosnippet>719</a>                    <span class="prelude-val">Err</span>(<span class="number">0</span>) =&gt; <span class="self">self
-<a href=#720 id=720 data-nosnippet>720</a>                        </span>.time_pattern()
-<a href=#721 id=721 data-nosnippet>721</a>                        .map(|p| p.items_and_options())
-<a href=#722 id=722 data-nosnippet>722</a>                        .unwrap_or(ItemsAndOptions::new_empty()),
-<a href=#723 id=723 data-nosnippet>723</a>                    <span class="prelude-val">Err</span>(<span class="number">2</span>) =&gt; <span class="self">self
-<a href=#724 id=724 data-nosnippet>724</a>                        </span>.zone_pattern()
-<a href=#725 id=725 data-nosnippet>725</a>                        .map(|p| p.items_and_options())
-<a href=#726 id=726 data-nosnippet>726</a>                        .unwrap_or(ItemsAndOptions::new_empty()),
-<a href=#727 id=727 data-nosnippet>727</a>                    <span class="kw">_ </span>=&gt; ItemsAndOptions::new_empty(),
-<a href=#728 id=728 data-nosnippet>728</a>                },
-<a href=#729 id=729 data-nosnippet>729</a>            )
-<a href=#730 id=730 data-nosnippet>730</a>            .flat_map(|items_and_options| items_and_options.iter_items())
-<a href=#731 id=731 data-nosnippet>731</a>    }
-<a href=#732 id=732 data-nosnippet>732</a>
-<a href=#733 id=733 data-nosnippet>733</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_pattern(<span class="self">self</span>) -&gt; DateTimePattern {
-<a href=#734 id=734 data-nosnippet>734</a>        <span class="kw">let </span>pattern = <span class="self">self</span>.iter_items().collect::&lt;runtime::Pattern&gt;();
-<a href=#735 id=735 data-nosnippet>735</a>        DateTimePattern::from(pattern)
-<a href=#736 id=736 data-nosnippet>736</a>    }
-<a href=#737 id=737 data-nosnippet>737</a>}
-<a href=#738 id=738 data-nosnippet>738</a>
-<a href=#739 id=739 data-nosnippet>739</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ItemsAndOptions&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#740 id=740 data-nosnippet>740</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_items(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PatternItem&gt; + <span class="lifetime">'a </span>{
-<a href=#741 id=741 data-nosnippet>741</a>        <span class="self">self</span>.items.iter().map(<span class="kw">move </span>|<span class="kw-2">mut </span>pattern_item| {
-<a href=#742 id=742 data-nosnippet>742</a>            <span class="attr">#[allow(clippy::single_match)] </span><span class="comment">// need `ref mut`, which doesn't work in `if let`?
-<a href=#743 id=743 data-nosnippet>743</a>            </span><span class="kw">match </span><span class="kw-2">&amp;mut </span>pattern_item {
-<a href=#744 id=744 data-nosnippet>744</a>                PatternItem::Field(<span class="kw-2">ref mut </span>field) =&gt; {
-<a href=#745 id=745 data-nosnippet>745</a>                    <span class="kw">let </span>alignment = <span class="self">self</span>.alignment.unwrap_or_default();
-<a href=#746 id=746 data-nosnippet>746</a>                    <span class="kw">if </span><span class="macro">matches!</span>(alignment, Alignment::Column)
-<a href=#747 id=747 data-nosnippet>747</a>                        &amp;&amp; field.length == FieldLength::One
-<a href=#748 id=748 data-nosnippet>748</a>                        &amp;&amp; <span class="macro">matches!</span>(
-<a href=#749 id=749 data-nosnippet>749</a>                            field.symbol,
-<a href=#750 id=750 data-nosnippet>750</a>                            FieldSymbol::Month(<span class="kw">_</span>)
-<a href=#751 id=751 data-nosnippet>751</a>                                | FieldSymbol::Day(<span class="kw">_</span>)
-<a href=#752 id=752 data-nosnippet>752</a>                                | FieldSymbol::Week(<span class="kw">_</span>)
-<a href=#753 id=753 data-nosnippet>753</a>                                | FieldSymbol::Hour(<span class="kw">_</span>)
-<a href=#754 id=754 data-nosnippet>754</a>                        )
-<a href=#755 id=755 data-nosnippet>755</a>                    {
-<a href=#756 id=756 data-nosnippet>756</a>                        field.length = FieldLength::Two;
-<a href=#757 id=757 data-nosnippet>757</a>                    }
-<a href=#758 id=758 data-nosnippet>758</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(hour_cycle) = <span class="self">self</span>.hour_cycle {
-<a href=#759 id=759 data-nosnippet>759</a>                        <span class="kw">if let </span>FieldSymbol::Hour(<span class="kw">_</span>) = field.symbol {
-<a href=#760 id=760 data-nosnippet>760</a>                            field.symbol = FieldSymbol::Hour(hour_cycle);
-<a href=#761 id=761 data-nosnippet>761</a>                        }
-<a href=#762 id=762 data-nosnippet>762</a>                    }
-<a href=#763 id=763 data-nosnippet>763</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(subsecond_digits) = <span class="self">self</span>.subsecond_digits {
-<a href=#764 id=764 data-nosnippet>764</a>                        <span class="kw">if </span><span class="macro">matches!</span>(
-<a href=#765 id=765 data-nosnippet>765</a>                            field.symbol,
-<a href=#766 id=766 data-nosnippet>766</a>                            FieldSymbol::Second(fields::Second::Second)
-<a href=#767 id=767 data-nosnippet>767</a>                                | FieldSymbol::DecimalSecond(<span class="kw">_</span>)
-<a href=#768 id=768 data-nosnippet>768</a>                        ) {
-<a href=#769 id=769 data-nosnippet>769</a>                            field.symbol = FieldSymbol::from_subsecond_digits(subsecond_digits);
-<a href=#770 id=770 data-nosnippet>770</a>                        }
-<a href=#771 id=771 data-nosnippet>771</a>                    }
-<a href=#772 id=772 data-nosnippet>772</a>                }
-<a href=#773 id=773 data-nosnippet>773</a>                <span class="kw">_ </span>=&gt; (),
-<a href=#774 id=774 data-nosnippet>774</a>            }
-<a href=#775 id=775 data-nosnippet>775</a>            pattern_item
-<a href=#776 id=776 data-nosnippet>776</a>        })
-<a href=#777 id=777 data-nosnippet>777</a>    }
-<a href=#778 id=778 data-nosnippet>778</a>}</code></pre></div></section></main></body></html>
+<a href=#403 id=403 data-nosnippet>403</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_new_with_skeleton(
+<a href=#404 id=404 data-nosnippet>404</a>        date_provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BoundDataProvider&lt;ErasedPackedPatterns&gt; + <span class="question-mark">?</span>Sized),
+<a href=#405 id=405 data-nosnippet>405</a>        time_provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BoundDataProvider&lt;ErasedPackedPatterns&gt; + <span class="question-mark">?</span>Sized),
+<a href=#406 id=406 data-nosnippet>406</a>        glue_provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BoundDataProvider&lt;DatetimePatternsGlueV1&gt; + <span class="question-mark">?</span>Sized),
+<a href=#407 id=407 data-nosnippet>407</a>        prefs: DateTimeFormatterPreferences,
+<a href=#408 id=408 data-nosnippet>408</a>        skeleton: CompositeFieldSet,
+<a href=#409 id=409 data-nosnippet>409</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt; {
+<a href=#410 id=410 data-nosnippet>410</a>        <span class="kw">match </span>skeleton {
+<a href=#411 id=411 data-nosnippet>411</a>            CompositeFieldSet::Date(field_set) =&gt; {
+<a href=#412 id=412 data-nosnippet>412</a>                <span class="kw">let </span>options = field_set.to_raw_options();
+<a href=#413 id=413 data-nosnippet>413</a>                <span class="kw">let </span>selection = DatePatternSelectionData::try_new_with_skeleton(
+<a href=#414 id=414 data-nosnippet>414</a>                    date_provider,
+<a href=#415 id=415 data-nosnippet>415</a>                    prefs,
+<a href=#416 id=416 data-nosnippet>416</a>                    field_set.id_str(),
+<a href=#417 id=417 data-nosnippet>417</a>                )<span class="question-mark">?</span>;
+<a href=#418 id=418 data-nosnippet>418</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#419 id=419 data-nosnippet>419</a>                    options,
+<a href=#420 id=420 data-nosnippet>420</a>                    prefs: Default::default(), <span class="comment">// not used: no time
+<a href=#421 id=421 data-nosnippet>421</a>                    </span>date: selection,
+<a href=#422 id=422 data-nosnippet>422</a>                    time: TimePatternSelectionData::none(),
+<a href=#423 id=423 data-nosnippet>423</a>                    zone: <span class="prelude-val">None</span>,
+<a href=#424 id=424 data-nosnippet>424</a>                    glue: <span class="prelude-val">None</span>,
+<a href=#425 id=425 data-nosnippet>425</a>                })
+<a href=#426 id=426 data-nosnippet>426</a>            }
+<a href=#427 id=427 data-nosnippet>427</a>            CompositeFieldSet::CalendarPeriod(field_set) =&gt; {
+<a href=#428 id=428 data-nosnippet>428</a>                <span class="kw">let </span>options = field_set.to_raw_options();
+<a href=#429 id=429 data-nosnippet>429</a>                <span class="kw">let </span>selection = DatePatternSelectionData::try_new_with_skeleton(
+<a href=#430 id=430 data-nosnippet>430</a>                    date_provider,
+<a href=#431 id=431 data-nosnippet>431</a>                    prefs,
+<a href=#432 id=432 data-nosnippet>432</a>                    field_set.id_str(),
+<a href=#433 id=433 data-nosnippet>433</a>                )<span class="question-mark">?</span>;
+<a href=#434 id=434 data-nosnippet>434</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#435 id=435 data-nosnippet>435</a>                    options,
+<a href=#436 id=436 data-nosnippet>436</a>                    prefs: Default::default(), <span class="comment">// not used: no time
+<a href=#437 id=437 data-nosnippet>437</a>                    </span>date: selection,
+<a href=#438 id=438 data-nosnippet>438</a>                    time: TimePatternSelectionData::none(),
+<a href=#439 id=439 data-nosnippet>439</a>                    zone: <span class="prelude-val">None</span>,
+<a href=#440 id=440 data-nosnippet>440</a>                    glue: <span class="prelude-val">None</span>,
+<a href=#441 id=441 data-nosnippet>441</a>                })
+<a href=#442 id=442 data-nosnippet>442</a>            }
+<a href=#443 id=443 data-nosnippet>443</a>            CompositeFieldSet::Time(field_set) =&gt; {
+<a href=#444 id=444 data-nosnippet>444</a>                <span class="kw">let </span>options = field_set.to_raw_options();
+<a href=#445 id=445 data-nosnippet>445</a>                <span class="kw">let </span>selection = TimePatternSelectionData::try_new_with_skeleton(
+<a href=#446 id=446 data-nosnippet>446</a>                    time_provider,
+<a href=#447 id=447 data-nosnippet>447</a>                    prefs,
+<a href=#448 id=448 data-nosnippet>448</a>                    field_set,
+<a href=#449 id=449 data-nosnippet>449</a>                )<span class="question-mark">?</span>;
+<a href=#450 id=450 data-nosnippet>450</a>                <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
+<a href=#451 id=451 data-nosnippet>451</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#452 id=452 data-nosnippet>452</a>                    options,
+<a href=#453 id=453 data-nosnippet>453</a>                    prefs,
+<a href=#454 id=454 data-nosnippet>454</a>                    date: DatePatternSelectionData::none(),
+<a href=#455 id=455 data-nosnippet>455</a>                    time: selection,
+<a href=#456 id=456 data-nosnippet>456</a>                    zone: <span class="prelude-val">None</span>,
+<a href=#457 id=457 data-nosnippet>457</a>                    glue: <span class="prelude-val">None</span>,
+<a href=#458 id=458 data-nosnippet>458</a>                })
+<a href=#459 id=459 data-nosnippet>459</a>            }
+<a href=#460 id=460 data-nosnippet>460</a>            CompositeFieldSet::Zone(field_set) =&gt; {
+<a href=#461 id=461 data-nosnippet>461</a>                <span class="kw">let </span>selection = ZonePatternSelectionData::new_with_skeleton(field_set);
+<a href=#462 id=462 data-nosnippet>462</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#463 id=463 data-nosnippet>463</a>                    options: RawOptions {
+<a href=#464 id=464 data-nosnippet>464</a>                        length: <span class="prelude-val">None</span>,
+<a href=#465 id=465 data-nosnippet>465</a>                        date_fields: <span class="prelude-val">None</span>,
+<a href=#466 id=466 data-nosnippet>466</a>                        year_style: <span class="prelude-val">None</span>,
+<a href=#467 id=467 data-nosnippet>467</a>                        alignment: <span class="prelude-val">None</span>,
+<a href=#468 id=468 data-nosnippet>468</a>                        time_precision: <span class="prelude-val">None</span>,
+<a href=#469 id=469 data-nosnippet>469</a>                    },
+<a href=#470 id=470 data-nosnippet>470</a>                    prefs: Default::default(), <span class="comment">// not used: no time
+<a href=#471 id=471 data-nosnippet>471</a>                    </span>date: DatePatternSelectionData::none(),
+<a href=#472 id=472 data-nosnippet>472</a>                    time: TimePatternSelectionData::none(),
+<a href=#473 id=473 data-nosnippet>473</a>                    zone: <span class="prelude-val">Some</span>(selection),
+<a href=#474 id=474 data-nosnippet>474</a>                    glue: <span class="prelude-val">None</span>,
+<a href=#475 id=475 data-nosnippet>475</a>                })
+<a href=#476 id=476 data-nosnippet>476</a>            }
+<a href=#477 id=477 data-nosnippet>477</a>            CompositeFieldSet::DateTime(field_set) =&gt; {
+<a href=#478 id=478 data-nosnippet>478</a>                <span class="kw">let </span>options = field_set.to_raw_options();
+<a href=#479 id=479 data-nosnippet>479</a>                <span class="comment">// TODO(#5387): load the patterns for custom hour cycles here
+<a href=#480 id=480 data-nosnippet>480</a>                </span><span class="kw">if let </span>(<span class="prelude-val">Some</span>(attributes), <span class="prelude-val">None</span>) = (field_set.id_str(), prefs.hour_cycle) {
+<a href=#481 id=481 data-nosnippet>481</a>                    <span class="comment">// Try loading an overlap pattern.
+<a href=#482 id=482 data-nosnippet>482</a>                    // Note: Overlap patterns are loaded from the date skeleton pattern provider
+<a href=#483 id=483 data-nosnippet>483</a>                    // and then stored as a TimePatternSelectionData.
+<a href=#484 id=484 data-nosnippet>484</a>                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(overlap) = TimePatternSelectionData::try_new_overlap_with_skeleton(
+<a href=#485 id=485 data-nosnippet>485</a>                        date_provider,
+<a href=#486 id=486 data-nosnippet>486</a>                        prefs,
+<a href=#487 id=487 data-nosnippet>487</a>                        attributes,
+<a href=#488 id=488 data-nosnippet>488</a>                        options,
+<a href=#489 id=489 data-nosnippet>489</a>                    )
+<a href=#490 id=490 data-nosnippet>490</a>                    .allow_identifier_not_found()<span class="question-mark">?
+<a href=#491 id=491 data-nosnippet>491</a>                    </span>{
+<a href=#492 id=492 data-nosnippet>492</a>                        <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
+<a href=#493 id=493 data-nosnippet>493</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#494 id=494 data-nosnippet>494</a>                            options,
+<a href=#495 id=495 data-nosnippet>495</a>                            prefs,
+<a href=#496 id=496 data-nosnippet>496</a>                            date: DatePatternSelectionData::none(),
+<a href=#497 id=497 data-nosnippet>497</a>                            time: overlap,
+<a href=#498 id=498 data-nosnippet>498</a>                            zone: <span class="prelude-val">None</span>,
+<a href=#499 id=499 data-nosnippet>499</a>                            glue: <span class="prelude-val">None</span>,
+<a href=#500 id=500 data-nosnippet>500</a>                        });
+<a href=#501 id=501 data-nosnippet>501</a>                    }
+<a href=#502 id=502 data-nosnippet>502</a>                }
+<a href=#503 id=503 data-nosnippet>503</a>                <span class="kw">let </span>date = DatePatternSelectionData::try_new_with_skeleton(
+<a href=#504 id=504 data-nosnippet>504</a>                    date_provider,
+<a href=#505 id=505 data-nosnippet>505</a>                    prefs,
+<a href=#506 id=506 data-nosnippet>506</a>                    field_set.to_date_field_set().id_str(),
+<a href=#507 id=507 data-nosnippet>507</a>                )<span class="question-mark">?</span>;
+<a href=#508 id=508 data-nosnippet>508</a>                <span class="kw">let </span>time = TimePatternSelectionData::try_new_with_skeleton(
+<a href=#509 id=509 data-nosnippet>509</a>                    time_provider,
+<a href=#510 id=510 data-nosnippet>510</a>                    prefs,
+<a href=#511 id=511 data-nosnippet>511</a>                    field_set.to_time_field_set(),
+<a href=#512 id=512 data-nosnippet>512</a>                )<span class="question-mark">?</span>;
+<a href=#513 id=513 data-nosnippet>513</a>                <span class="kw">let </span>glue = <span class="self">Self</span>::load_glue(glue_provider, prefs, options, GlueType::DateTime)<span class="question-mark">?</span>;
+<a href=#514 id=514 data-nosnippet>514</a>                <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
+<a href=#515 id=515 data-nosnippet>515</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#516 id=516 data-nosnippet>516</a>                    options,
+<a href=#517 id=517 data-nosnippet>517</a>                    prefs,
+<a href=#518 id=518 data-nosnippet>518</a>                    date,
+<a href=#519 id=519 data-nosnippet>519</a>                    time,
+<a href=#520 id=520 data-nosnippet>520</a>                    zone: <span class="prelude-val">None</span>,
+<a href=#521 id=521 data-nosnippet>521</a>                    glue: <span class="prelude-val">Some</span>(glue),
+<a href=#522 id=522 data-nosnippet>522</a>                })
+<a href=#523 id=523 data-nosnippet>523</a>            }
+<a href=#524 id=524 data-nosnippet>524</a>            CompositeFieldSet::DateZone(combo) =&gt; {
+<a href=#525 id=525 data-nosnippet>525</a>                <span class="kw">let </span>options = combo.dt().to_raw_options();
+<a href=#526 id=526 data-nosnippet>526</a>                <span class="kw">let </span>date = DatePatternSelectionData::try_new_with_skeleton(
+<a href=#527 id=527 data-nosnippet>527</a>                    date_provider,
+<a href=#528 id=528 data-nosnippet>528</a>                    prefs,
+<a href=#529 id=529 data-nosnippet>529</a>                    combo.dt().id_str(),
+<a href=#530 id=530 data-nosnippet>530</a>                )<span class="question-mark">?</span>;
+<a href=#531 id=531 data-nosnippet>531</a>                <span class="kw">let </span>zone = ZonePatternSelectionData::new_with_skeleton(combo.z());
+<a href=#532 id=532 data-nosnippet>532</a>                <span class="kw">let </span>glue = <span class="self">Self</span>::load_glue(glue_provider, prefs, options, GlueType::DateZone)<span class="question-mark">?</span>;
+<a href=#533 id=533 data-nosnippet>533</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#534 id=534 data-nosnippet>534</a>                    options,
+<a href=#535 id=535 data-nosnippet>535</a>                    prefs: Default::default(), <span class="comment">// not used: no time
+<a href=#536 id=536 data-nosnippet>536</a>                    </span>date,
+<a href=#537 id=537 data-nosnippet>537</a>                    time: TimePatternSelectionData::none(),
+<a href=#538 id=538 data-nosnippet>538</a>                    zone: <span class="prelude-val">Some</span>(zone),
+<a href=#539 id=539 data-nosnippet>539</a>                    glue: <span class="prelude-val">Some</span>(glue),
+<a href=#540 id=540 data-nosnippet>540</a>                })
+<a href=#541 id=541 data-nosnippet>541</a>            }
+<a href=#542 id=542 data-nosnippet>542</a>            CompositeFieldSet::TimeZone(combo) =&gt; {
+<a href=#543 id=543 data-nosnippet>543</a>                <span class="kw">let </span>options = combo.dt().to_raw_options();
+<a href=#544 id=544 data-nosnippet>544</a>                <span class="kw">let </span>time = TimePatternSelectionData::try_new_with_skeleton(
+<a href=#545 id=545 data-nosnippet>545</a>                    time_provider,
+<a href=#546 id=546 data-nosnippet>546</a>                    prefs,
+<a href=#547 id=547 data-nosnippet>547</a>                    combo.dt(),
+<a href=#548 id=548 data-nosnippet>548</a>                )<span class="question-mark">?</span>;
+<a href=#549 id=549 data-nosnippet>549</a>                <span class="kw">let </span>zone = ZonePatternSelectionData::new_with_skeleton(combo.z());
+<a href=#550 id=550 data-nosnippet>550</a>                <span class="kw">let </span>glue = <span class="self">Self</span>::load_glue(glue_provider, prefs, options, GlueType::TimeZone)<span class="question-mark">?</span>;
+<a href=#551 id=551 data-nosnippet>551</a>                <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
+<a href=#552 id=552 data-nosnippet>552</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#553 id=553 data-nosnippet>553</a>                    options,
+<a href=#554 id=554 data-nosnippet>554</a>                    prefs,
+<a href=#555 id=555 data-nosnippet>555</a>                    date: DatePatternSelectionData::none(),
+<a href=#556 id=556 data-nosnippet>556</a>                    time,
+<a href=#557 id=557 data-nosnippet>557</a>                    zone: <span class="prelude-val">Some</span>(zone),
+<a href=#558 id=558 data-nosnippet>558</a>                    glue: <span class="prelude-val">Some</span>(glue),
+<a href=#559 id=559 data-nosnippet>559</a>                })
+<a href=#560 id=560 data-nosnippet>560</a>            }
+<a href=#561 id=561 data-nosnippet>561</a>            CompositeFieldSet::DateTimeZone(combo) =&gt; {
+<a href=#562 id=562 data-nosnippet>562</a>                <span class="kw">let </span>options = combo.dt().to_raw_options();
+<a href=#563 id=563 data-nosnippet>563</a>                <span class="kw">let </span>date = DatePatternSelectionData::try_new_with_skeleton(
+<a href=#564 id=564 data-nosnippet>564</a>                    date_provider,
+<a href=#565 id=565 data-nosnippet>565</a>                    prefs,
+<a href=#566 id=566 data-nosnippet>566</a>                    combo.dt().to_date_field_set().id_str(),
+<a href=#567 id=567 data-nosnippet>567</a>                )<span class="question-mark">?</span>;
+<a href=#568 id=568 data-nosnippet>568</a>                <span class="kw">let </span>time = TimePatternSelectionData::try_new_with_skeleton(
+<a href=#569 id=569 data-nosnippet>569</a>                    time_provider,
+<a href=#570 id=570 data-nosnippet>570</a>                    prefs,
+<a href=#571 id=571 data-nosnippet>571</a>                    combo.dt().to_time_field_set(),
+<a href=#572 id=572 data-nosnippet>572</a>                )<span class="question-mark">?</span>;
+<a href=#573 id=573 data-nosnippet>573</a>                <span class="kw">let </span>zone = ZonePatternSelectionData::new_with_skeleton(combo.z());
+<a href=#574 id=574 data-nosnippet>574</a>                <span class="kw">let </span>glue = <span class="self">Self</span>::load_glue(glue_provider, prefs, options, GlueType::DateTimeZone)<span class="question-mark">?</span>;
+<a href=#575 id=575 data-nosnippet>575</a>                <span class="kw">let </span>prefs = RawPreferences::from_prefs(prefs);
+<a href=#576 id=576 data-nosnippet>576</a>                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+<a href=#577 id=577 data-nosnippet>577</a>                    options,
+<a href=#578 id=578 data-nosnippet>578</a>                    prefs,
+<a href=#579 id=579 data-nosnippet>579</a>                    date,
+<a href=#580 id=580 data-nosnippet>580</a>                    time,
+<a href=#581 id=581 data-nosnippet>581</a>                    zone: <span class="prelude-val">Some</span>(zone),
+<a href=#582 id=582 data-nosnippet>582</a>                    glue: <span class="prelude-val">Some</span>(glue),
+<a href=#583 id=583 data-nosnippet>583</a>                })
+<a href=#584 id=584 data-nosnippet>584</a>            }
+<a href=#585 id=585 data-nosnippet>585</a>        }
+<a href=#586 id=586 data-nosnippet>586</a>    }
+<a href=#587 id=587 data-nosnippet>587</a>
+<a href=#588 id=588 data-nosnippet>588</a>    <span class="kw">fn </span>load_glue(
+<a href=#589 id=589 data-nosnippet>589</a>        provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BoundDataProvider&lt;DatetimePatternsGlueV1&gt; + <span class="question-mark">?</span>Sized),
+<a href=#590 id=590 data-nosnippet>590</a>        prefs: DateTimeFormatterPreferences,
+<a href=#591 id=591 data-nosnippet>591</a>        options: RawOptions,
+<a href=#592 id=592 data-nosnippet>592</a>        glue_type: GlueType,
+<a href=#593 id=593 data-nosnippet>593</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;DataPayload&lt;DatetimePatternsGlueV1&gt;, DataError&gt; {
+<a href=#594 id=594 data-nosnippet>594</a>        <span class="kw">let </span>locale = provider
+<a href=#595 id=595 data-nosnippet>595</a>            .bound_marker()
+<a href=#596 id=596 data-nosnippet>596</a>            .make_locale(prefs.locale_preferences);
+<a href=#597 id=597 data-nosnippet>597</a>        provider
+<a href=#598 id=598 data-nosnippet>598</a>            .load_bound(DataRequest {
+<a href=#599 id=599 data-nosnippet>599</a>                id: DataIdentifierBorrowed::for_marker_attributes_and_locale(
+<a href=#600 id=600 data-nosnippet>600</a>                    marker_attrs::pattern_marker_attr_for_glue(
+<a href=#601 id=601 data-nosnippet>601</a>                        <span class="comment">// According to UTS 35, use the date length here: use the glue
+<a href=#602 id=602 data-nosnippet>602</a>                        // pattern "whose type matches the type of the date pattern"
+<a href=#603 id=603 data-nosnippet>603</a>                        </span><span class="kw">match </span>options.length() {
+<a href=#604 id=604 data-nosnippet>604</a>                            Length::Long =&gt; marker_attrs::PatternLength::Long,
+<a href=#605 id=605 data-nosnippet>605</a>                            Length::Medium =&gt; marker_attrs::PatternLength::Medium,
+<a href=#606 id=606 data-nosnippet>606</a>                            Length::Short =&gt; marker_attrs::PatternLength::Short,
+<a href=#607 id=607 data-nosnippet>607</a>                        },
+<a href=#608 id=608 data-nosnippet>608</a>                        glue_type,
+<a href=#609 id=609 data-nosnippet>609</a>                    ),
+<a href=#610 id=610 data-nosnippet>610</a>                    <span class="kw-2">&amp;</span>locale,
+<a href=#611 id=611 data-nosnippet>611</a>                ),
+<a href=#612 id=612 data-nosnippet>612</a>                ..Default::default()
+<a href=#613 id=613 data-nosnippet>613</a>            })
+<a href=#614 id=614 data-nosnippet>614</a>            .map(|r| r.payload)
+<a href=#615 id=615 data-nosnippet>615</a>    }
+<a href=#616 id=616 data-nosnippet>616</a>
+<a href=#617 id=617 data-nosnippet>617</a>    <span class="doccomment">/// Returns an iterator over the pattern items that may need to be loaded.
+<a href=#618 id=618 data-nosnippet>618</a>    </span><span class="attr">#[inline]
+<a href=#619 id=619 data-nosnippet>619</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pattern_items_for_data_loading(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PatternItem&gt; + <span class="lifetime">'_ </span>{
+<a href=#620 id=620 data-nosnippet>620</a>        <span class="kw">let </span><span class="self">Self </span>{
+<a href=#621 id=621 data-nosnippet>621</a>            date, time, zone, ..
+<a href=#622 id=622 data-nosnippet>622</a>        } = <span class="self">self</span>;
+<a href=#623 id=623 data-nosnippet>623</a>        <span class="kw">let </span>date_items = date
+<a href=#624 id=624 data-nosnippet>624</a>            .pattern_items_for_data_loading(<span class="self">self</span>.options)
+<a href=#625 id=625 data-nosnippet>625</a>            .into_iter()
+<a href=#626 id=626 data-nosnippet>626</a>            .flatten();
+<a href=#627 id=627 data-nosnippet>627</a>        <span class="kw">let </span>time_items = time
+<a href=#628 id=628 data-nosnippet>628</a>            .pattern_items_for_data_loading(<span class="self">self</span>.options)
+<a href=#629 id=629 data-nosnippet>629</a>            .into_iter()
+<a href=#630 id=630 data-nosnippet>630</a>            .flatten();
+<a href=#631 id=631 data-nosnippet>631</a>        <span class="kw">let </span>zone_items = zone.iter().flat_map(|x| x.pattern_items_for_data_loading());
+<a href=#632 id=632 data-nosnippet>632</a>        date_items.chain(time_items).chain(zone_items)
+<a href=#633 id=633 data-nosnippet>633</a>    }
+<a href=#634 id=634 data-nosnippet>634</a>
+<a href=#635 id=635 data-nosnippet>635</a>    <span class="doccomment">/// Borrows a resolved pattern based on the given datetime
+<a href=#636 id=636 data-nosnippet>636</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>select(
+<a href=#637 id=637 data-nosnippet>637</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
+<a href=#638 id=638 data-nosnippet>638</a>        input: <span class="kw-2">&amp;</span>DateTimeInputUnchecked,
+<a href=#639 id=639 data-nosnippet>639</a>    ) -&gt; DateTimeZonePatternDataBorrowed&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#640 id=640 data-nosnippet>640</a>        DateTimeZonePatternDataBorrowed {
+<a href=#641 id=641 data-nosnippet>641</a>            date: <span class="self">self</span>.date.select(input, <span class="self">self</span>.options),
+<a href=#642 id=642 data-nosnippet>642</a>            time: <span class="self">self</span>.time.select(input, <span class="self">self</span>.options, <span class="self">self</span>.prefs),
+<a href=#643 id=643 data-nosnippet>643</a>            zone: <span class="self">self</span>.zone.as_ref().map(|zone| zone.select(input)),
+<a href=#644 id=644 data-nosnippet>644</a>            glue: <span class="self">self</span>.glue.as_ref().map(|glue| glue.get()),
+<a href=#645 id=645 data-nosnippet>645</a>        }
+<a href=#646 id=646 data-nosnippet>646</a>    }
+<a href=#647 id=647 data-nosnippet>647</a>
+<a href=#648 id=648 data-nosnippet>648</a>    <span class="doccomment">/// Converts one of these into a corresponding [`builder::FieldSetBuilder`]
+<a href=#649 id=649 data-nosnippet>649</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_builder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; builder::FieldSetBuilder {
+<a href=#650 id=650 data-nosnippet>650</a>        <span class="kw">let </span>time_precision = <span class="kw">if </span><span class="self">self</span>.time.payload.is_payload() {
+<a href=#651 id=651 data-nosnippet>651</a>            <span class="prelude-val">Some</span>(<span class="self">self</span>.options.time_precision.unwrap_or_default())
+<a href=#652 id=652 data-nosnippet>652</a>        } <span class="kw">else </span>{
+<a href=#653 id=653 data-nosnippet>653</a>            <span class="prelude-val">None
+<a href=#654 id=654 data-nosnippet>654</a>        </span>};
+<a href=#655 id=655 data-nosnippet>655</a>        <span class="kw">let </span>zone_style = <span class="self">self</span>.zone.as_ref().map(|zone| {
+<a href=#656 id=656 data-nosnippet>656</a>            <span class="kw">let </span>ZonePatternSelectionData::SinglePatternItem(field_set, <span class="kw">_</span>) = zone;
+<a href=#657 id=657 data-nosnippet>657</a>            field_set.to_zone_style()
+<a href=#658 id=658 data-nosnippet>658</a>        });
+<a href=#659 id=659 data-nosnippet>659</a>        builder::FieldSetBuilder {
+<a href=#660 id=660 data-nosnippet>660</a>            length: <span class="self">self</span>.options.length,
+<a href=#661 id=661 data-nosnippet>661</a>            date_fields: <span class="self">self</span>.options.date_fields,
+<a href=#662 id=662 data-nosnippet>662</a>            time_precision,
+<a href=#663 id=663 data-nosnippet>663</a>            zone_style,
+<a href=#664 id=664 data-nosnippet>664</a>            alignment: <span class="self">self</span>.options.alignment,
+<a href=#665 id=665 data-nosnippet>665</a>            year_style: <span class="self">self</span>.options.year_style,
+<a href=#666 id=666 data-nosnippet>666</a>        }
+<a href=#667 id=667 data-nosnippet>667</a>    }
+<a href=#668 id=668 data-nosnippet>668</a>}
+<a href=#669 id=669 data-nosnippet>669</a>
+<a href=#670 id=670 data-nosnippet>670</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DateTimeZonePatternDataBorrowed&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#671 id=671 data-nosnippet>671</a>    <span class="attr">#[inline]
+<a href=#672 id=672 data-nosnippet>672</a>    </span><span class="kw">fn </span>date_pattern(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DatePatternDataBorrowed&lt;<span class="lifetime">'a</span>&gt;&gt; {
+<a href=#673 id=673 data-nosnippet>673</a>        <span class="self">self</span>.date
+<a href=#674 id=674 data-nosnippet>674</a>    }
+<a href=#675 id=675 data-nosnippet>675</a>
+<a href=#676 id=676 data-nosnippet>676</a>    <span class="attr">#[inline]
+<a href=#677 id=677 data-nosnippet>677</a>    </span><span class="kw">fn </span>time_pattern(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TimePatternDataBorrowed&lt;<span class="lifetime">'a</span>&gt;&gt; {
+<a href=#678 id=678 data-nosnippet>678</a>        <span class="self">self</span>.time
+<a href=#679 id=679 data-nosnippet>679</a>    }
+<a href=#680 id=680 data-nosnippet>680</a>
+<a href=#681 id=681 data-nosnippet>681</a>    <span class="attr">#[inline]
+<a href=#682 id=682 data-nosnippet>682</a>    </span><span class="kw">fn </span>zone_pattern(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ZonePatternDataBorrowed&lt;<span class="lifetime">'a</span>&gt;&gt; {
+<a href=#683 id=683 data-nosnippet>683</a>        <span class="self">self</span>.zone
+<a href=#684 id=684 data-nosnippet>684</a>    }
+<a href=#685 id=685 data-nosnippet>685</a>
+<a href=#686 id=686 data-nosnippet>686</a>    <span class="attr">#[inline]
+<a href=#687 id=687 data-nosnippet>687</a>    </span><span class="kw">fn </span>glue_pattern(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ZeroSlice&lt;GenericPatternItem&gt;&gt; {
+<a href=#688 id=688 data-nosnippet>688</a>        <span class="self">self</span>.glue.map(|glue| glue.pattern.items.as_slice())
+<a href=#689 id=689 data-nosnippet>689</a>    }
+<a href=#690 id=690 data-nosnippet>690</a>
+<a href=#691 id=691 data-nosnippet>691</a>    <span class="attr">#[inline]
+<a href=#692 id=692 data-nosnippet>692</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>metadata(<span class="self">self</span>) -&gt; PatternMetadata {
+<a href=#693 id=693 data-nosnippet>693</a>        <span class="kw">match </span>(<span class="self">self</span>.date, <span class="self">self</span>.time) {
+<a href=#694 id=694 data-nosnippet>694</a>            (<span class="prelude-val">Some</span>(DatePatternDataBorrowed::Resolved(pb, <span class="kw">_</span>)), <span class="prelude-val">None</span>) =&gt; pb.metadata,
+<a href=#695 id=695 data-nosnippet>695</a>            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(TimePatternDataBorrowed::Resolved(pb, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>))) =&gt; pb.metadata,
+<a href=#696 id=696 data-nosnippet>696</a>            (
+<a href=#697 id=697 data-nosnippet>697</a>                <span class="prelude-val">Some</span>(DatePatternDataBorrowed::Resolved(date, <span class="kw">_</span>)),
+<a href=#698 id=698 data-nosnippet>698</a>                <span class="prelude-val">Some</span>(TimePatternDataBorrowed::Resolved(time, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)),
+<a href=#699 id=699 data-nosnippet>699</a>            ) =&gt; PatternMetadata::merge_date_and_time_metadata(date.metadata, time.metadata),
+<a href=#700 id=700 data-nosnippet>700</a>            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; Default::default(),
+<a href=#701 id=701 data-nosnippet>701</a>        }
+<a href=#702 id=702 data-nosnippet>702</a>    }
+<a href=#703 id=703 data-nosnippet>703</a>
+<a href=#704 id=704 data-nosnippet>704</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_items(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PatternItem&gt; + <span class="lifetime">'a </span>{
+<a href=#705 id=705 data-nosnippet>705</a>        <span class="kw">let </span>glue_pattern_slice = <span class="kw">match </span><span class="self">self</span>.glue_pattern() {
+<a href=#706 id=706 data-nosnippet>706</a>            <span class="prelude-val">Some</span>(glue) =&gt; glue.as_ule_slice(),
+<a href=#707 id=707 data-nosnippet>707</a>            <span class="prelude-val">None </span>=&gt; runtime::ZERO_ONE_TWO_SLICE.as_ule_slice(),
+<a href=#708 id=708 data-nosnippet>708</a>        };
+<a href=#709 id=709 data-nosnippet>709</a>        glue_pattern_slice
+<a href=#710 id=710 data-nosnippet>710</a>            .iter()
+<a href=#711 id=711 data-nosnippet>711</a>            .map(
+<a href=#712 id=712 data-nosnippet>712</a>                <span class="kw">move </span>|generic_item_ule| <span class="kw">match </span>generic_item_ule.as_pattern_item_ule() {
+<a href=#713 id=713 data-nosnippet>713</a>                    <span class="prelude-val">Ok</span>(pattern_item_ule) =&gt; ItemsAndOptions {
+<a href=#714 id=714 data-nosnippet>714</a>                        items: ZeroSlice::from_ule_slice(core::slice::from_ref(pattern_item_ule)),
+<a href=#715 id=715 data-nosnippet>715</a>                        ..Default::default()
+<a href=#716 id=716 data-nosnippet>716</a>                    },
+<a href=#717 id=717 data-nosnippet>717</a>                    <span class="prelude-val">Err</span>(<span class="number">1</span>) =&gt; <span class="self">self
+<a href=#718 id=718 data-nosnippet>718</a>                        </span>.date_pattern()
+<a href=#719 id=719 data-nosnippet>719</a>                        .map(|p| p.items_and_options())
+<a href=#720 id=720 data-nosnippet>720</a>                        .unwrap_or(ItemsAndOptions::new_empty()),
+<a href=#721 id=721 data-nosnippet>721</a>                    <span class="prelude-val">Err</span>(<span class="number">0</span>) =&gt; <span class="self">self
+<a href=#722 id=722 data-nosnippet>722</a>                        </span>.time_pattern()
+<a href=#723 id=723 data-nosnippet>723</a>                        .map(|p| p.items_and_options())
+<a href=#724 id=724 data-nosnippet>724</a>                        .unwrap_or(ItemsAndOptions::new_empty()),
+<a href=#725 id=725 data-nosnippet>725</a>                    <span class="prelude-val">Err</span>(<span class="number">2</span>) =&gt; <span class="self">self
+<a href=#726 id=726 data-nosnippet>726</a>                        </span>.zone_pattern()
+<a href=#727 id=727 data-nosnippet>727</a>                        .map(|p| p.items_and_options())
+<a href=#728 id=728 data-nosnippet>728</a>                        .unwrap_or(ItemsAndOptions::new_empty()),
+<a href=#729 id=729 data-nosnippet>729</a>                    <span class="kw">_ </span>=&gt; ItemsAndOptions::new_empty(),
+<a href=#730 id=730 data-nosnippet>730</a>                },
+<a href=#731 id=731 data-nosnippet>731</a>            )
+<a href=#732 id=732 data-nosnippet>732</a>            .flat_map(|items_and_options| items_and_options.iter_items())
+<a href=#733 id=733 data-nosnippet>733</a>    }
+<a href=#734 id=734 data-nosnippet>734</a>
+<a href=#735 id=735 data-nosnippet>735</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_pattern(<span class="self">self</span>) -&gt; DateTimePattern {
+<a href=#736 id=736 data-nosnippet>736</a>        <span class="kw">let </span>pattern = <span class="self">self</span>.iter_items().collect::&lt;runtime::Pattern&gt;();
+<a href=#737 id=737 data-nosnippet>737</a>        DateTimePattern::from(pattern)
+<a href=#738 id=738 data-nosnippet>738</a>    }
+<a href=#739 id=739 data-nosnippet>739</a>}
+<a href=#740 id=740 data-nosnippet>740</a>
+<a href=#741 id=741 data-nosnippet>741</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ItemsAndOptions&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#742 id=742 data-nosnippet>742</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_items(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PatternItem&gt; + <span class="lifetime">'a </span>{
+<a href=#743 id=743 data-nosnippet>743</a>        <span class="self">self</span>.items.iter().map(<span class="kw">move </span>|<span class="kw-2">mut </span>pattern_item| {
+<a href=#744 id=744 data-nosnippet>744</a>            <span class="attr">#[expect(clippy::single_match)] </span><span class="comment">// need `ref mut`, which doesn't work in `if let`?
+<a href=#745 id=745 data-nosnippet>745</a>            </span><span class="kw">match </span><span class="kw-2">&amp;mut </span>pattern_item {
+<a href=#746 id=746 data-nosnippet>746</a>                PatternItem::Field(<span class="kw-2">ref mut </span>field) =&gt; {
+<a href=#747 id=747 data-nosnippet>747</a>                    <span class="kw">let </span>alignment = <span class="self">self</span>.alignment.unwrap_or_default();
+<a href=#748 id=748 data-nosnippet>748</a>                    <span class="kw">if </span><span class="macro">matches!</span>(alignment, Alignment::Column)
+<a href=#749 id=749 data-nosnippet>749</a>                        &amp;&amp; field.length == FieldLength::One
+<a href=#750 id=750 data-nosnippet>750</a>                        &amp;&amp; <span class="macro">matches!</span>(
+<a href=#751 id=751 data-nosnippet>751</a>                            field.symbol,
+<a href=#752 id=752 data-nosnippet>752</a>                            FieldSymbol::Month(<span class="kw">_</span>)
+<a href=#753 id=753 data-nosnippet>753</a>                                | FieldSymbol::Day(<span class="kw">_</span>)
+<a href=#754 id=754 data-nosnippet>754</a>                                | FieldSymbol::Week(<span class="kw">_</span>)
+<a href=#755 id=755 data-nosnippet>755</a>                                | FieldSymbol::Hour(<span class="kw">_</span>)
+<a href=#756 id=756 data-nosnippet>756</a>                        )
+<a href=#757 id=757 data-nosnippet>757</a>                    {
+<a href=#758 id=758 data-nosnippet>758</a>                        field.length = FieldLength::Two;
+<a href=#759 id=759 data-nosnippet>759</a>                    }
+<a href=#760 id=760 data-nosnippet>760</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(hour_cycle) = <span class="self">self</span>.hour_cycle {
+<a href=#761 id=761 data-nosnippet>761</a>                        <span class="kw">if let </span>FieldSymbol::Hour(<span class="kw">_</span>) = field.symbol {
+<a href=#762 id=762 data-nosnippet>762</a>                            field.symbol = FieldSymbol::Hour(hour_cycle);
+<a href=#763 id=763 data-nosnippet>763</a>                        }
+<a href=#764 id=764 data-nosnippet>764</a>                    }
+<a href=#765 id=765 data-nosnippet>765</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(subsecond_digits) = <span class="self">self</span>.subsecond_digits {
+<a href=#766 id=766 data-nosnippet>766</a>                        <span class="kw">if </span><span class="macro">matches!</span>(
+<a href=#767 id=767 data-nosnippet>767</a>                            field.symbol,
+<a href=#768 id=768 data-nosnippet>768</a>                            FieldSymbol::Second(fields::Second::Second)
+<a href=#769 id=769 data-nosnippet>769</a>                                | FieldSymbol::DecimalSecond(<span class="kw">_</span>)
+<a href=#770 id=770 data-nosnippet>770</a>                        ) {
+<a href=#771 id=771 data-nosnippet>771</a>                            field.symbol = FieldSymbol::from_subsecond_digits(subsecond_digits);
+<a href=#772 id=772 data-nosnippet>772</a>                        }
+<a href=#773 id=773 data-nosnippet>773</a>                    }
+<a href=#774 id=774 data-nosnippet>774</a>                }
+<a href=#775 id=775 data-nosnippet>775</a>                <span class="kw">_ </span>=&gt; (),
+<a href=#776 id=776 data-nosnippet>776</a>            }
+<a href=#777 id=777 data-nosnippet>777</a>            pattern_item
+<a href=#778 id=778 data-nosnippet>778</a>        })
+<a href=#779 id=779 data-nosnippet>779</a>    }
+<a href=#780 id=780 data-nosnippet>780</a>}</code></pre></div></section></main></body></html>

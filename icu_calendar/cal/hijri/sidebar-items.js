@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TabularAlgorithmEpoch","TabularAlgorithmLeapYears"],"struct":["AstronomicalSimulation","TabularAlgorithm","UmmAlQura"]};

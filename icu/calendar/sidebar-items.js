@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AnyCalendar","AnyCalendarKind","DateError","ParseError"],"mod":["cal","preferences","provider","types","week"],"struct":["Date","Gregorian","Iso","RangeError","Ref"],"trait":["AsCalendar","Calendar","IntoAnyCalendar"]};
+window.SIDEBAR_ITEMS = {"enum":["AnyCalendar","AnyCalendarKind","DateError","ParseError"],"mod":["cal","error","options","preferences","provider","types","week"],"struct":["Date","Gregorian","Iso","RangeError","Ref"],"trait":["AsCalendar","Calendar","IntoAnyCalendar"]};

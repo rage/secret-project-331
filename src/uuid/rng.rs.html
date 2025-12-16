@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/uuid-1.18.1/src/rng.rs`."><title>rng.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">uuid/</div>rng.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![allow(dead_code, unused_imports)] </span><span class="comment">// Keeps our cfg's from becoming too convoluted in here
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/uuid-1.19.0/src/rng.rs`."><title>rng.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">uuid/</div>rng.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![allow(dead_code, unused_imports)] </span><span class="comment">// Keeps our cfg's from becoming too convoluted in here
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">trait </span>Rng {
 <a href=#4 id=4 data-nosnippet>4</a>    <span class="kw">fn </span>u128() -&gt; u128;
@@ -246,66 +246,63 @@
 <a href=#246 id=246 data-nosnippet>246</a>
 <a href=#247 id=247 data-nosnippet>247</a>        </span><span class="kw">use </span>wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 <a href=#248 id=248 data-nosnippet>248</a>
-<a href=#249 id=249 data-nosnippet>249</a>        <span class="attr">#[cfg(target_feature = <span class="string">"atomics"</span>)]
-<a href=#250 id=250 data-nosnippet>250</a>        </span><span class="kw">use </span>core::convert::TryInto;
-<a href=#251 id=251 data-nosnippet>251</a>
-<a href=#252 id=252 data-nosnippet>252</a>        <span class="comment">// Maximum buffer size allowed in `Crypto.getRandomValuesSize` is 65536 bytes.
-<a href=#253 id=253 data-nosnippet>253</a>        // See https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
-<a href=#254 id=254 data-nosnippet>254</a>        </span><span class="kw">const </span>MAX_BUFFER_SIZE: usize = <span class="number">65536</span>;
-<a href=#255 id=255 data-nosnippet>255</a>
-<a href=#256 id=256 data-nosnippet>256</a>        <span class="attr">#[cfg(not(target_feature = <span class="string">"atomics"</span>))]
-<a href=#257 id=257 data-nosnippet>257</a>        #[inline]
-<a href=#258 id=258 data-nosnippet>258</a>        </span><span class="kw">pub fn </span>fill(dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; bool {
-<a href=#259 id=259 data-nosnippet>259</a>            <span class="kw">for </span>chunk <span class="kw">in </span>dest.chunks_mut(MAX_BUFFER_SIZE) {
-<a href=#260 id=260 data-nosnippet>260</a>                <span class="kw">if </span>get_random_values(chunk).is_err() {
-<a href=#261 id=261 data-nosnippet>261</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
-<a href=#262 id=262 data-nosnippet>262</a>                }
-<a href=#263 id=263 data-nosnippet>263</a>            }
+<a href=#249 id=249 data-nosnippet>249</a>        <span class="comment">// Maximum buffer size allowed in `Crypto.getRandomValuesSize` is 65536 bytes.
+<a href=#250 id=250 data-nosnippet>250</a>        // See https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
+<a href=#251 id=251 data-nosnippet>251</a>        </span><span class="kw">const </span>MAX_BUFFER_SIZE: usize = <span class="number">65536</span>;
+<a href=#252 id=252 data-nosnippet>252</a>
+<a href=#253 id=253 data-nosnippet>253</a>        <span class="attr">#[cfg(not(target_feature = <span class="string">"atomics"</span>))]
+<a href=#254 id=254 data-nosnippet>254</a>        #[inline]
+<a href=#255 id=255 data-nosnippet>255</a>        </span><span class="kw">pub fn </span>fill(dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; bool {
+<a href=#256 id=256 data-nosnippet>256</a>            <span class="kw">for </span>chunk <span class="kw">in </span>dest.chunks_mut(MAX_BUFFER_SIZE) {
+<a href=#257 id=257 data-nosnippet>257</a>                <span class="kw">if </span>get_random_values(chunk).is_err() {
+<a href=#258 id=258 data-nosnippet>258</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
+<a href=#259 id=259 data-nosnippet>259</a>                }
+<a href=#260 id=260 data-nosnippet>260</a>            }
+<a href=#261 id=261 data-nosnippet>261</a>
+<a href=#262 id=262 data-nosnippet>262</a>            <span class="bool-val">true
+<a href=#263 id=263 data-nosnippet>263</a>        </span>}
 <a href=#264 id=264 data-nosnippet>264</a>
-<a href=#265 id=265 data-nosnippet>265</a>            <span class="bool-val">true
-<a href=#266 id=266 data-nosnippet>266</a>        </span>}
-<a href=#267 id=267 data-nosnippet>267</a>
-<a href=#268 id=268 data-nosnippet>268</a>        <span class="attr">#[cfg(target_feature = <span class="string">"atomics"</span>)]
-<a href=#269 id=269 data-nosnippet>269</a>        </span><span class="kw">pub fn </span>fill(dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; bool {
-<a href=#270 id=270 data-nosnippet>270</a>            <span class="comment">// getRandomValues does not work with all types of WASM memory,
-<a href=#271 id=271 data-nosnippet>271</a>            // so we initially write to browser memory to avoid exceptions.
-<a href=#272 id=272 data-nosnippet>272</a>            </span><span class="kw">let </span>buf_len = usize::min(dest.len(), MAX_BUFFER_SIZE);
-<a href=#273 id=273 data-nosnippet>273</a>            <span class="kw">let </span>buf_len_u32 = buf_len
-<a href=#274 id=274 data-nosnippet>274</a>                .try_into()
-<a href=#275 id=275 data-nosnippet>275</a>                .expect(<span class="string">"buffer length is bounded by MAX_BUFFER_SIZE"</span>);
-<a href=#276 id=276 data-nosnippet>276</a>            <span class="kw">let </span>buf = js_sys::Uint8Array::new_with_length(buf_len_u32);
-<a href=#277 id=277 data-nosnippet>277</a>            <span class="kw">for </span>chunk <span class="kw">in </span>dest.chunks_mut(buf_len) {
-<a href=#278 id=278 data-nosnippet>278</a>                <span class="kw">let </span>chunk_len = chunk
-<a href=#279 id=279 data-nosnippet>279</a>                    .len()
-<a href=#280 id=280 data-nosnippet>280</a>                    .try_into()
-<a href=#281 id=281 data-nosnippet>281</a>                    .expect(<span class="string">"chunk length is bounded by MAX_BUFFER_SIZE"</span>);
-<a href=#282 id=282 data-nosnippet>282</a>                <span class="comment">// The chunk can be smaller than buf's length, so we call to
-<a href=#283 id=283 data-nosnippet>283</a>                // JS to create a smaller view of buf without allocation.
-<a href=#284 id=284 data-nosnippet>284</a>                </span><span class="kw">let </span>sub_buf = <span class="kw">if </span>chunk_len == buf_len_u32 {
-<a href=#285 id=285 data-nosnippet>285</a>                    <span class="kw-2">&amp;</span>buf
-<a href=#286 id=286 data-nosnippet>286</a>                } <span class="kw">else </span>{
-<a href=#287 id=287 data-nosnippet>287</a>                    <span class="kw-2">&amp;</span>buf.subarray(<span class="number">0</span>, chunk_len)
-<a href=#288 id=288 data-nosnippet>288</a>                };
-<a href=#289 id=289 data-nosnippet>289</a>
-<a href=#290 id=290 data-nosnippet>290</a>                <span class="kw">if </span>get_random_values(sub_buf).is_err() {
-<a href=#291 id=291 data-nosnippet>291</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
-<a href=#292 id=292 data-nosnippet>292</a>                }
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="attr">#[cfg(target_feature = <span class="string">"atomics"</span>)]
+<a href=#266 id=266 data-nosnippet>266</a>        </span><span class="kw">pub fn </span>fill(dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; bool {
+<a href=#267 id=267 data-nosnippet>267</a>            <span class="comment">// getRandomValues does not work with all types of WASM memory,
+<a href=#268 id=268 data-nosnippet>268</a>            // so we initially write to browser memory to avoid exceptions.
+<a href=#269 id=269 data-nosnippet>269</a>            </span><span class="kw">let </span>buf_len = usize::min(dest.len(), MAX_BUFFER_SIZE);
+<a href=#270 id=270 data-nosnippet>270</a>            <span class="kw">let </span>buf_len_u32 = buf_len
+<a href=#271 id=271 data-nosnippet>271</a>                .try_into()
+<a href=#272 id=272 data-nosnippet>272</a>                .expect(<span class="string">"buffer length is bounded by MAX_BUFFER_SIZE"</span>);
+<a href=#273 id=273 data-nosnippet>273</a>            <span class="kw">let </span>buf = js_sys::Uint8Array::new_with_length(buf_len_u32);
+<a href=#274 id=274 data-nosnippet>274</a>            <span class="kw">for </span>chunk <span class="kw">in </span>dest.chunks_mut(buf_len) {
+<a href=#275 id=275 data-nosnippet>275</a>                <span class="kw">let </span>chunk_len = chunk
+<a href=#276 id=276 data-nosnippet>276</a>                    .len()
+<a href=#277 id=277 data-nosnippet>277</a>                    .try_into()
+<a href=#278 id=278 data-nosnippet>278</a>                    .expect(<span class="string">"chunk length is bounded by MAX_BUFFER_SIZE"</span>);
+<a href=#279 id=279 data-nosnippet>279</a>                <span class="comment">// The chunk can be smaller than buf's length, so we call to
+<a href=#280 id=280 data-nosnippet>280</a>                // JS to create a smaller view of buf without allocation.
+<a href=#281 id=281 data-nosnippet>281</a>                </span><span class="kw">let </span>sub_buf = <span class="kw">if </span>chunk_len == buf_len_u32 {
+<a href=#282 id=282 data-nosnippet>282</a>                    <span class="kw-2">&amp;</span>buf
+<a href=#283 id=283 data-nosnippet>283</a>                } <span class="kw">else </span>{
+<a href=#284 id=284 data-nosnippet>284</a>                    <span class="kw-2">&amp;</span>buf.subarray(<span class="number">0</span>, chunk_len)
+<a href=#285 id=285 data-nosnippet>285</a>                };
+<a href=#286 id=286 data-nosnippet>286</a>
+<a href=#287 id=287 data-nosnippet>287</a>                <span class="kw">if </span>get_random_values(sub_buf).is_err() {
+<a href=#288 id=288 data-nosnippet>288</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
+<a href=#289 id=289 data-nosnippet>289</a>                }
+<a href=#290 id=290 data-nosnippet>290</a>
+<a href=#291 id=291 data-nosnippet>291</a>                sub_buf.copy_to(chunk);
+<a href=#292 id=292 data-nosnippet>292</a>            }
 <a href=#293 id=293 data-nosnippet>293</a>
-<a href=#294 id=294 data-nosnippet>294</a>                sub_buf.copy_to(chunk);
-<a href=#295 id=295 data-nosnippet>295</a>            }
+<a href=#294 id=294 data-nosnippet>294</a>            <span class="bool-val">true
+<a href=#295 id=295 data-nosnippet>295</a>        </span>}
 <a href=#296 id=296 data-nosnippet>296</a>
-<a href=#297 id=297 data-nosnippet>297</a>            <span class="bool-val">true
-<a href=#298 id=298 data-nosnippet>298</a>        </span>}
-<a href=#299 id=299 data-nosnippet>299</a>
-<a href=#300 id=300 data-nosnippet>300</a>        <span class="attr">#[wasm_bindgen]
-<a href=#301 id=301 data-nosnippet>301</a>        </span><span class="kw">extern </span><span class="string">"C" </span>{
-<a href=#302 id=302 data-nosnippet>302</a>            <span class="comment">// Crypto.getRandomValues()
-<a href=#303 id=303 data-nosnippet>303</a>            </span><span class="attr">#[cfg(not(target_feature = <span class="string">"atomics"</span>))]
+<a href=#297 id=297 data-nosnippet>297</a>        <span class="attr">#[wasm_bindgen]
+<a href=#298 id=298 data-nosnippet>298</a>        </span><span class="kw">extern </span><span class="string">"C" </span>{
+<a href=#299 id=299 data-nosnippet>299</a>            <span class="comment">// Crypto.getRandomValues()
+<a href=#300 id=300 data-nosnippet>300</a>            </span><span class="attr">#[cfg(not(target_feature = <span class="string">"atomics"</span>))]
+<a href=#301 id=301 data-nosnippet>301</a>            #[wasm_bindgen(js_namespace = [<span class="string">"globalThis"</span>, <span class="string">"crypto"</span>]</span>, js_name = getRandomValues, catch)]
+<a href=#302 id=302 data-nosnippet>302</a>            <span class="kw">fn </span>get_random_values(buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
+<a href=#303 id=303 data-nosnippet>303</a>            <span class="attr">#[cfg(target_feature = <span class="string">"atomics"</span>)]
 <a href=#304 id=304 data-nosnippet>304</a>            #[wasm_bindgen(js_namespace = [<span class="string">"globalThis"</span>, <span class="string">"crypto"</span>]</span>, js_name = getRandomValues, catch)]
-<a href=#305 id=305 data-nosnippet>305</a>            <span class="kw">fn </span>get_random_values(buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-<a href=#306 id=306 data-nosnippet>306</a>            <span class="attr">#[cfg(target_feature = <span class="string">"atomics"</span>)]
-<a href=#307 id=307 data-nosnippet>307</a>            #[wasm_bindgen(js_namespace = [<span class="string">"globalThis"</span>, <span class="string">"crypto"</span>]</span>, js_name = getRandomValues, catch)]
-<a href=#308 id=308 data-nosnippet>308</a>            <span class="kw">fn </span>get_random_values(buf: <span class="kw-2">&amp;</span>js_sys::Uint8Array) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-<a href=#309 id=309 data-nosnippet>309</a>        }
-<a href=#310 id=310 data-nosnippet>310</a>    }
-<a href=#311 id=311 data-nosnippet>311</a>}</code></pre></div></section></main></body></html>
+<a href=#305 id=305 data-nosnippet>305</a>            <span class="kw">fn </span>get_random_values(buf: <span class="kw-2">&amp;</span>js_sys::Uint8Array) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
+<a href=#306 id=306 data-nosnippet>306</a>        }
+<a href=#307 id=307 data-nosnippet>307</a>    }
+<a href=#308 id=308 data-nosnippet>308</a>}</code></pre></div></section></main></body></html>

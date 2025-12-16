@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tikv-jemalloc-sys-0.6.0+5.3.0-1-ge13ca993e8ccb9ba9847cc330696e02839f328f7/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tikv_jemalloc_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tikv_jemalloc_sys/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Rust bindings to the `jemalloc` C library.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tikv-jemalloc-sys-0.6.1+5.3.0-1-ge13ca993e8ccb9ba9847cc330696e02839f328f7/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tikv_jemalloc_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tikv_jemalloc_sys/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Rust bindings to the `jemalloc` C library.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! `jemalloc` is a general purpose memory allocation, its documentation
 <a href=#4 id=4 data-nosnippet>4</a>//! can be found here:
@@ -387,9 +387,9 @@
 <a href=#387 id=387 data-nosnippet>387</a>    /// The behavior is _undefined_ if:
 <a href=#388 id=388 data-nosnippet>388</a>    ///
 <a href=#389 id=389 data-nosnippet>389</a>    /// * `size` is not in range `[req_size, alloc_size]`, where `req_size` is
-<a href=#390 id=390 data-nosnippet>390</a>    /// the size requested when performing the allocation, and `alloc_size` is
-<a href=#391 id=391 data-nosnippet>391</a>    /// the allocation size returned by [`nallocx`], [`sallocx`], or
-<a href=#392 id=392 data-nosnippet>392</a>    /// [`xallocx`],
+<a href=#390 id=390 data-nosnippet>390</a>    ///   the size requested when performing the allocation, and `alloc_size` is
+<a href=#391 id=391 data-nosnippet>391</a>    ///   the allocation size returned by [`nallocx`], [`sallocx`], or
+<a href=#392 id=392 data-nosnippet>392</a>    ///   [`xallocx`],
 <a href=#393 id=393 data-nosnippet>393</a>    /// * `ptr` does not match a pointer earlier returned by the memory
 <a href=#394 id=394 data-nosnippet>394</a>    ///   allocation functions of this crate, or
 <a href=#395 id=395 data-nosnippet>395</a>    /// * `ptr` is null, or
@@ -453,8 +453,8 @@
 <a href=#453 id=453 data-nosnippet>453</a>    /// Returns `0` on success, otherwise returns:
 <a href=#454 id=454 data-nosnippet>454</a>    ///
 <a href=#455 id=455 data-nosnippet>455</a>    /// * `EINVAL`: if `newp` is not null, and `newlen` is too large or too
-<a href=#456 id=456 data-nosnippet>456</a>    /// small. Alternatively, `*oldlenp` is too large or too small; in this case
-<a href=#457 id=457 data-nosnippet>457</a>    /// as much data as possible are read despite the error.
+<a href=#456 id=456 data-nosnippet>456</a>    ///   small. Alternatively, `*oldlenp` is too large or too small; in this case
+<a href=#457 id=457 data-nosnippet>457</a>    ///   as much data as possible are read despite the error.
 <a href=#458 id=458 data-nosnippet>458</a>    ///
 <a href=#459 id=459 data-nosnippet>459</a>    /// * `ENOENT`: `name` or mib specifies an unknown/invalid value.
 <a href=#460 id=460 data-nosnippet>460</a>    ///
@@ -463,7 +463,7 @@
 <a href=#463 id=463 data-nosnippet>463</a>    /// * `EAGAIN`: A memory allocation failure occurred.
 <a href=#464 id=464 data-nosnippet>464</a>    ///
 <a href=#465 id=465 data-nosnippet>465</a>    /// * `EFAULT`: An interface with side effects failed in some way not
-<a href=#466 id=466 data-nosnippet>466</a>    /// directly related to `mallctl` read/write processing.
+<a href=#466 id=466 data-nosnippet>466</a>    ///   directly related to `mallctl` read/write processing.
 <a href=#467 id=467 data-nosnippet>467</a>    ///
 <a href=#468 id=468 data-nosnippet>468</a>    /// [jemalloc_mallctl]: http://jemalloc.net/jemalloc.3.html#mallctl_namespace
 <a href=#469 id=469 data-nosnippet>469</a>    </span><span class="attr">#[cfg_attr(prefixed, link_name = <span class="string">"_rjem_mallctl"</span>)]
@@ -889,4 +889,87 @@
 <a href=#889 id=889 data-nosnippet>889</a><span class="attr">#[allow(missing_docs)]
 <a href=#890 id=890 data-nosnippet>890</a></span><span class="kw">mod </span>env;
 <a href=#891 id=891 data-nosnippet>891</a>
-<a href=#892 id=892 data-nosnippet>892</a><span class="kw">pub use </span>env::<span class="kw-2">*</span>;</code></pre></div></section></main></body></html>
+<a href=#892 id=892 data-nosnippet>892</a><span class="kw">pub use </span>env::<span class="kw-2">*</span>;
+<a href=#893 id=893 data-nosnippet>893</a>
+<a href=#894 id=894 data-nosnippet>894</a><span class="comment">// When using the `"override_allocator_on_supported_platforms"` feature flag,
+<a href=#895 id=895 data-nosnippet>895</a>// the user wants us to globally override the system allocator.
+<a href=#896 id=896 data-nosnippet>896</a>//
+<a href=#897 id=897 data-nosnippet>897</a>// However, since we build `jemalloc` as a static library (an archive), the
+<a href=#898 id=898 data-nosnippet>898</a>// linker may decide to not care about our overrides if it can't directly see
+<a href=#899 id=899 data-nosnippet>899</a>// references to the symbols, see the following link for details:
+<a href=#900 id=900 data-nosnippet>900</a>// &lt;https://maskray.me/blog/2021-06-20-symbol-processing#archive-processing&gt;
+<a href=#901 id=901 data-nosnippet>901</a>//
+<a href=#902 id=902 data-nosnippet>902</a>// This is problematic if `jemalloc_sys` is used from a library that by itself
+<a href=#903 id=903 data-nosnippet>903</a>// doesn't allocate, while invoking other shared libraries that do.
+<a href=#904 id=904 data-nosnippet>904</a>//
+<a href=#905 id=905 data-nosnippet>905</a>// Another especially problematic case would be something like the following:
+<a href=#906 id=906 data-nosnippet>906</a>//
+<a href=#907 id=907 data-nosnippet>907</a>// ```
+<a href=#908 id=908 data-nosnippet>908</a>// // Call `malloc` whose symbol is looked up statically.
+<a href=#909 id=909 data-nosnippet>909</a>// let ptr = libc::malloc(42);
+<a href=#910 id=910 data-nosnippet>910</a>//
+<a href=#911 id=911 data-nosnippet>911</a>// // But use a dynamically looked up `free`.
+<a href=#912 id=912 data-nosnippet>912</a>// let free = libc::dlsym(null_mut(), c"free".as_ptr());
+<a href=#913 id=913 data-nosnippet>913</a>// let free = transmute::&lt;*mut c_void, unsafe extern "C" fn(*mut c_void)&gt;(free);
+<a href=#914 id=914 data-nosnippet>914</a>// free(ptr);
+<a href=#915 id=915 data-nosnippet>915</a>// ```
+<a href=#916 id=916 data-nosnippet>916</a>//
+<a href=#917 id=917 data-nosnippet>917</a>// Since if the `malloc` and `free` provided by `jemalloc` end up in different
+<a href=#918 id=918 data-nosnippet>918</a>// object files in the archive (NOTE: In practice, this is unlikely to be an
+<a href=#919 id=919 data-nosnippet>919</a>// issue, since `jemalloc.c` contains all the implementations and is compiled
+<a href=#920 id=920 data-nosnippet>920</a>// as a single object file), the linker would think that only `malloc` was
+<a href=#921 id=921 data-nosnippet>921</a>// used, and would never load the `free` that we also want (and hence we'd end
+<a href=#922 id=922 data-nosnippet>922</a>// up executing jemalloc's `malloc` and the system's `free`, which is UB).
+<a href=#923 id=923 data-nosnippet>923</a>//
+<a href=#924 id=924 data-nosnippet>924</a>// To avoid this problem, we make sure that all the allocator functions are
+<a href=#925 id=925 data-nosnippet>925</a>// visible to the linker, such that it will always override all of them.
+<a href=#926 id=926 data-nosnippet>926</a>//
+<a href=#927 id=927 data-nosnippet>927</a>// We do this by referencing these symbols in `#[used]` statics, which makes
+<a href=#928 id=928 data-nosnippet>928</a>// them known to `rustc`, which will reference them in a `symbols.o` stub file
+<a href=#929 id=929 data-nosnippet>929</a>// that is later passed to the linker. See the following link for details on
+<a href=#930 id=930 data-nosnippet>930</a>// how this works:
+<a href=#931 id=931 data-nosnippet>931</a>// &lt;https://github.com/rust-lang/rust/pull/95604&gt;
+<a href=#932 id=932 data-nosnippet>932</a>
+<a href=#933 id=933 data-nosnippet>933</a></span><span class="attr">#[cfg(all(
+<a href=#934 id=934 data-nosnippet>934</a>    feature = <span class="string">"override_allocator_on_supported_platforms"</span>,
+<a href=#935 id=935 data-nosnippet>935</a>    not(target_vendor = <span class="string">"apple"</span>)
+<a href=#936 id=936 data-nosnippet>936</a>))]
+<a href=#937 id=937 data-nosnippet>937</a></span><span class="kw">mod </span>set_up_statics {
+<a href=#938 id=938 data-nosnippet>938</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#939 id=939 data-nosnippet>939</a>
+<a href=#940 id=940 data-nosnippet>940</a>    <span class="attr">#[used]
+<a href=#941 id=941 data-nosnippet>941</a>    </span><span class="kw">static </span>USED_MALLOC: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(usize) -&gt; <span class="kw-2">*mut </span>c_void = malloc;
+<a href=#942 id=942 data-nosnippet>942</a>    <span class="attr">#[used]
+<a href=#943 id=943 data-nosnippet>943</a>    </span><span class="kw">static </span>USED_CALLOC: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(usize, usize) -&gt; <span class="kw-2">*mut </span>c_void = calloc;
+<a href=#944 id=944 data-nosnippet>944</a>    <span class="attr">#[used]
+<a href=#945 id=945 data-nosnippet>945</a>    </span><span class="kw">static </span>USED_POSIX_MEMALIGN: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>c_void, usize, usize) -&gt; c_int =
+<a href=#946 id=946 data-nosnippet>946</a>        posix_memalign;
+<a href=#947 id=947 data-nosnippet>947</a>    <span class="attr">#[used]
+<a href=#948 id=948 data-nosnippet>948</a>    </span><span class="kw">static </span>USED_ALIGNED_ALLOC: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(usize, usize) -&gt; <span class="kw-2">*mut </span>c_void = aligned_alloc;
+<a href=#949 id=949 data-nosnippet>949</a>    <span class="attr">#[used]
+<a href=#950 id=950 data-nosnippet>950</a>    </span><span class="kw">static </span>USED_REALLOC: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_void, usize) -&gt; <span class="kw-2">*mut </span>c_void = realloc;
+<a href=#951 id=951 data-nosnippet>951</a>    <span class="attr">#[used]
+<a href=#952 id=952 data-nosnippet>952</a>    </span><span class="kw">static </span>USED_FREE: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_void) = free;
+<a href=#953 id=953 data-nosnippet>953</a>}
+<a href=#954 id=954 data-nosnippet>954</a>
+<a href=#955 id=955 data-nosnippet>955</a><span class="comment">// On macOS, jemalloc doesn't directly override malloc/free, but instead
+<a href=#956 id=956 data-nosnippet>956</a>// registers itself with the allocator's zone APIs in a ctor (`zone_register`
+<a href=#957 id=957 data-nosnippet>957</a>// is marked with `__attribute__((constructor))`).
+<a href=#958 id=958 data-nosnippet>958</a>//
+<a href=#959 id=959 data-nosnippet>959</a>// Similarly to above though, for the Mach-O linker to actually consider ctors
+<a href=#960 id=960 data-nosnippet>960</a>// as "used" when defined in an archive member in a static library, so we need
+<a href=#961 id=961 data-nosnippet>961</a>// to explicitly reference the function via. Rust's `#[used]`.
+<a href=#962 id=962 data-nosnippet>962</a>
+<a href=#963 id=963 data-nosnippet>963</a></span><span class="attr">#[cfg(all(
+<a href=#964 id=964 data-nosnippet>964</a>    feature = <span class="string">"override_allocator_on_supported_platforms"</span>,
+<a href=#965 id=965 data-nosnippet>965</a>    target_vendor = <span class="string">"apple"
+<a href=#966 id=966 data-nosnippet>966</a></span>))]
+<a href=#967 id=967 data-nosnippet>967</a>#[used]
+<a href=#968 id=968 data-nosnippet>968</a></span><span class="kw">static </span>USED_ZONE_REGISTER: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>() = {
+<a href=#969 id=969 data-nosnippet>969</a>    <span class="kw">extern </span><span class="string">"C" </span>{
+<a href=#970 id=970 data-nosnippet>970</a>        <span class="attr">#[cfg_attr(prefixed, link_name = <span class="string">"_rjem_je_zone_register"</span>)]
+<a href=#971 id=971 data-nosnippet>971</a>        #[cfg_attr(not(prefixed), link_name = <span class="string">"je_zone_register"</span>)]
+<a href=#972 id=972 data-nosnippet>972</a>        </span><span class="kw">fn </span>zone_register();
+<a href=#973 id=973 data-nosnippet>973</a>    }
+<a href=#974 id=974 data-nosnippet>974</a>    zone_register
+<a href=#975 id=975 data-nosnippet>975</a>};</code></pre></div></section></main></body></html>

@@ -1,1 +1,0 @@
-searchState.loadedDescShard("schemars_derive", 0, "Derive macro for <code>JsonSchema</code> trait.")

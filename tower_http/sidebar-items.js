@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["LatencyUnit"],"mod":["auth","classify","follow_redirect","map_response_body","services","trace","validate_request"],"type":["BoxError"]};
+window.SIDEBAR_ITEMS = {"enum":["CompressionLevel","LatencyUnit"],"mod":["auth","body","classify","decompression","follow_redirect","map_response_body","services","trace","validate_request"],"type":["BoxError"]};

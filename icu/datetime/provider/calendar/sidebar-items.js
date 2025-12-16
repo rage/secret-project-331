@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["day_periods","months","patterns","weekdays"],"struct":["DateLengths","DateSymbols","Eras","TimeLengths","TimeSymbols"]};

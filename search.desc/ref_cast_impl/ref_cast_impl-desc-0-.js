@@ -1,1 +1,0 @@
-searchState.loadedDescShard("ref_cast_impl", 0, "Derive the <code>RefCast</code> trait.\nDerive that makes the <code>ref_cast_custom</code> attribute able to …\nCreate a function for a RefCast-style reference cast. Call …")

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["iana","windows"],"struct":["Baked","TimeZoneVariantULE","TimezoneVariantsOffsetsV1"]};
+window.SIDEBAR_ITEMS = {"enum":["MetazoneMembershipKind","TimeZoneVariant"],"mod":["iana","windows"],"struct":["Baked","MetazoneInfo","TimeZoneVariantULE","Timestamp24","TimezonePeriods","TimezonePeriodsV1","VariantOffsets","VariantOffsetsWithMetazoneMembershipKind"],"type":["MetazoneId"]};

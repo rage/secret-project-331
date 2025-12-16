@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Using `#[derive(Error)]`"><title>Error in derive_more_impl - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="derive_more_impl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../derive_more_impl/index.html">derive_<wbr>more_<wbr>impl</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Error</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#using-deriveerror" title="Using `#[derive(Error)]`">Using <code>#[derive(Error)]</code></a><ul><li><a href="#when-and-how-does-it-derive-source" title="When and how does it derive `source()`?">When and how does it derive <code>source()</code>?</a></li><li><a href="#when-and-how-does-it-derive-provide" title="When and how does it derive `provide()`?">When and how does it derive <code>provide()</code>?</a></li><li><a href="#ignoring-fields-for-derives" title="Ignoring fields for derives">Ignoring fields for derives</a></li><li><a href="#what-works-in-no_std" title="What works in `no_std`?">What works in <code>no_std</code>?</a></li><li><a href="#example-usage" title="Example usage">Example usage</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate derive_<wbr>more_<wbr>impl</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">derive_more_impl</a></div><h1>Derive Macro <span class="derive">Error</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/derive_more_impl/lib.rs.html#187">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(Error)]
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Using `#[derive(Error)]`"><title>Error in derive_more_impl - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="derive_more_impl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Error</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../derive_more_impl/index.html">derive_<wbr>more_<wbr>impl</a><span class="version">2.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Error</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#using-deriveerror" title="Using `#[derive(Error)]`">Using <code>#[derive(Error)]</code></a><ul><li><a href="#when-and-how-does-it-derive-source" title="When and how does it derive `source()`?">When and how does it derive <code>source()</code>?</a></li><li><a href="#when-and-how-does-it-derive-provide" title="When and how does it derive `provide()`?">When and how does it derive <code>provide()</code>?</a></li><li><a href="#ignoring-fields-for-derives" title="Ignoring fields for derives">Ignoring fields for derives</a></li><li><a href="#what-works-in-no_std" title="What works in `no_std`?">What works in <code>no_std</code>?</a></li><li><a href="#optional-fields" title="`Option`al fields"><code>Option</code>al fields</a></li><li><a href="#example-usage" title="Example usage">Example usage</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate derive_<wbr>more_<wbr>impl</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">derive_more_impl</a></div><h1>Derive Macro <span class="derive">Error</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/derive_more_impl/lib.rs.html#203">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(Error)]
 {
     <span class="comment">// Attributes available to this derive:</span>
     #[error]
@@ -6,7 +6,7 @@
 </code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="using-deriveerror"><a class="doc-anchor" href="#using-deriveerror">§</a>Using <code>#[derive(Error)]</code></h2>
 <p>Deriving <code>Error</code> will generate an <code>Error</code> implementation, that contains
 (depending on the type) a <code>source()</code> and a <code>provide()</code> method. Please note,
-at the time of writing <code>provide()</code> is only supported on nightly rust. So you
+at the time of writing <code>provide()</code> is only supported on nightly Rust. So you
 have to use that to make use of it.</p>
 <p>For a struct, these methods always do the same. For an <code>enum</code> they have separate
 behaviour for each of the variants. The variant is first matched and then the
@@ -40,17 +40,43 @@ detecting <code>backtrace</code> and <code>source</code>. It’s also possible t
 ignored for one of these methods by using <code>#[error(not(backtrace))]</code> or
 <code>#[error(not(source))]</code>.</p>
 <h4 id="what-works-in-no_std"><a class="doc-anchor" href="#what-works-in-no_std">§</a>What works in <code>no_std</code>?</h4>
-<p>If you want to use the <code>Error</code> derive on <code>no_std</code> environments, then
-you need to compile with nightly, or wait until Rust 1.81 when <code>Error</code>
-in <code>core</code> is expected to be stabilized.</p>
-<p>Backtraces don’t work though, because the <code>Backtrace</code> type is only available in
-<code>std</code>.</p>
-<h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example usage</h3>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Nightly requires enabling this feature:
-// #![feature(error_generic_member_access)]
+<p><code>Error</code> derive fully works on <code>no_std</code> environments, except the <code>provide()</code>
+method usage, because the <code>Backtrace</code> type is only available in <code>std</code>.</p>
+<h4 id="optional-fields"><a class="doc-anchor" href="#optional-fields">§</a><code>Option</code>al fields</h4>
+<p>Deriving <code>source()</code> is supported naturally for <code>Option&lt;_&gt;</code>-typed fields.</p>
+<blockquote>
+<p><strong>WARNING</strong>: Field type is <strong>considered as <code>Option&lt;_&gt;</code> only syntactically</strong>,
+meaning that:</p>
+<ul>
+<li>Neither renaming <code>std::option::Option</code> would work:
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Display, Error)]
+</span><span class="kw">struct </span>Simple;
 
-// std::error::Error requires std::fmt::Debug and std::fmt::Display,
-// so we can also use derive_more::Display for fully declarative
+<span class="attr">#[derive(Debug, Display, Error)]
+#[display(<span class="string">"Oops!"</span>)]
+</span><span class="kw">struct </span>Generic(RenamedOption&lt;Simple&gt;); <span class="comment">// not recognized as `Option`
+</span><span class="kw">type </span>RenamedOption&lt;T&gt; = <span class="prelude-ty">Option</span>&lt;T&gt;;</code></pre></div></li>
+<li>Nor using any custom type named as <code>Option</code> would:
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Display, Error)]
+#[display(<span class="string">"No way!"</span>)]
+</span><span class="kw">struct </span>Generic(<span class="prelude-ty">Option</span>&lt;Simple&gt;);        <span class="comment">// cannot use `?` syntax
+</span><span class="kw">struct </span><span class="prelude-ty">Option</span>&lt;T&gt;(T);</code></pre></div></li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>TIP</strong>: If <code>std::option::Option</code> for some reason needs to be renamed,
+annotate the field with the <code>#[error(source(optional))]</code> attribute:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Display, Error)]
+</span><span class="kw">struct </span>Simple;
+
+<span class="attr">#[derive(Debug, Display, Error)]
+#[display(<span class="string">"Oops!"</span>)]
+</span><span class="kw">struct </span>Generic(<span class="attr">#[error(source(optional))] </span>RenamedOption&lt;Simple&gt;);
+<span class="kw">type </span>RenamedOption&lt;T&gt; = <span class="prelude-ty">Option</span>&lt;T&gt;;</code></pre></div></blockquote>
+<h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example usage</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// `std::error::Error` requires `std::fmt::Debug` and `std::fmt::Display`,
+// so we can also use `derive_more::Display` for fully declarative
 // error-type definitions.
 
 </span><span class="attr">#[derive(Default, Debug, Display, Error)]
@@ -61,9 +87,26 @@ in <code>core</code> is expected to be stabilized.</p>
     source: Simple,
 }
 <span class="attr">#[derive(Default, Debug, Display, Error)]
+#[display(<span class="string">"WithOptionalSource"</span>)]
+</span><span class="kw">struct </span>WithOptionalSource {
+    source: <span class="prelude-ty">Option</span>&lt;Simple&gt;,
+}
+<span class="attr">#[derive(Default, Debug, Display, Error)]
 </span><span class="kw">struct </span>WithExplicitSource {
     <span class="attr">#[error(source)]
     </span>explicit_source: Simple,
+}
+<span class="attr">#[derive(Default, Debug, Display, Error)]
+#[display(<span class="string">"WithExplicitOptionalSource"</span>)]
+</span><span class="kw">struct </span>WithExplicitOptionalSource {
+    <span class="attr">#[error(source)]
+    </span>explicit_source: <span class="prelude-ty">Option</span>&lt;Simple&gt;,
+}
+<span class="attr">#[derive(Default, Debug, Display, Error)]
+#[display(<span class="string">"WithExplicitOptionalSource"</span>)]
+</span><span class="kw">struct </span>WithExplicitRenamedOptionalSource {
+    <span class="attr">#[error(source(optional))]
+    </span>explicit_source: RenamedOption&lt;Simple&gt;,
 }
 
 <span class="attr">#[derive(Default, Debug, Display, Error)]
@@ -86,6 +129,10 @@ in <code>core</code> is expected to be stabilized.</p>
     WithSource {
         source: Simple,
     },
+    <span class="attr">#[display(<span class="string">"WithOptionalSource"</span>)]
+    </span>WithOptionalSource {
+        source: <span class="prelude-ty">Option</span>&lt;Simple&gt;,
+    },
     <span class="attr">#[from(ignore)]
     </span>WithBacktraceFromSource {
         <span class="attr">#[error(backtrace)]
@@ -100,21 +147,41 @@ in <code>core</code> is expected to be stabilized.</p>
         <span class="attr">#[error(source)]
         </span>explicit_source: WithSource,
     },
+    <span class="attr">#[display(<span class="string">"WithExplicitOptionalSource"</span>)]
+    </span>WithExplicitOptionalSource {
+        <span class="attr">#[error(source)]
+        </span>explicit_source: <span class="prelude-ty">Option</span>&lt;WithSource&gt;,
+    },
+    <span class="attr">#[display(<span class="string">"WithExplicitRenamedOptionalSource"</span>)]
+    </span>WithExplicitRenamedOptionalSource {
+        <span class="attr">#[error(source(optional))]
+        </span>explicit_source: RenamedOption&lt;WithExplicitRenamedOptionalSource&gt;,
+    },
     <span class="attr">#[from(ignore)]
     </span>WithBacktraceFromExplicitSource {
         <span class="attr">#[error(backtrace, source)]
         </span>explicit_source: WithSource,
     },
     Tuple(WithExplicitSource),
+    <span class="attr">#[display(<span class="string">"TupleOptional"</span>)]
+    </span>TupleOptional(<span class="prelude-ty">Option</span>&lt;WithExplicitSource&gt;),
     WithoutSource(<span class="attr">#[error(not(source))] </span>Tuple),
 }
 
 <span class="macro">assert!</span>(Simple.source().is_none());
 <span class="macro">assert!</span>(request_ref::&lt;Backtrace&gt;(<span class="kw-2">&amp;</span>Simple).is_none());
+
 <span class="macro">assert!</span>(WithSource::default().source().is_some());
+<span class="macro">assert!</span>(WithOptionalSource { source: <span class="prelude-val">Some</span>(Simple) }.source().is_some());
+
 <span class="macro">assert!</span>(WithExplicitSource::default().source().is_some());
+<span class="macro">assert!</span>(WithExplicitOptionalSource { explicit_source: <span class="prelude-val">Some</span>(Simple) }.source().is_some());
+<span class="macro">assert!</span>(WithExplicitRenamedOptionalSource { explicit_source: <span class="prelude-val">Some</span>(Simple) }.source().is_some());
+
 <span class="macro">assert!</span>(Tuple::default().source().is_some());
+
 <span class="macro">assert!</span>(WithoutSource::default().source().is_none());
+
 <span class="kw">let </span>with_source_and_backtrace = WithSourceAndBacktrace {
     source: Simple,
     backtrace: Backtrace::capture(),
@@ -123,8 +190,15 @@ in <code>core</code> is expected to be stabilized.</p>
 <span class="macro">assert!</span>(request_ref::&lt;Backtrace&gt;(<span class="kw-2">&amp;</span>with_source_and_backtrace).is_some());
 
 <span class="macro">assert!</span>(CompoundError::Simple.source().is_none());
+
 <span class="macro">assert!</span>(CompoundError::from(Simple).source().is_some());
+<span class="macro">assert!</span>(CompoundError::from(<span class="prelude-val">Some</span>(Simple)).source().is_some());
+
 <span class="macro">assert!</span>(CompoundError::from(WithSource::default()).source().is_some());
+<span class="macro">assert!</span>(CompoundError::from(<span class="prelude-val">Some</span>(WithSource::default())).source().is_some());
+
 <span class="macro">assert!</span>(CompoundError::from(WithExplicitSource::default()).source().is_some());
-<span class="macro">assert!</span>(CompoundError::from(Tuple::default()).source().is_none());</code></pre></div>
-</div></details></section></div></main></body></html>
+<span class="macro">assert!</span>(CompoundError::from(<span class="prelude-val">Some</span>(WithExplicitSource::default())).source().is_some());
+<span class="macro">assert!</span>(CompoundError::from(<span class="prelude-val">Some</span>(WithExplicitRenamedOptionalSource { explicit_source: <span class="prelude-val">Some</span>(Simple) })).source().is_some());
+
+<span class="macro">assert!</span>(CompoundError::from(Tuple::default()).source().is_none());</code></pre></div></div></details></section></div></main></body></html>

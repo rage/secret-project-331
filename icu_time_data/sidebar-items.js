@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_timezone_identifiers_iana_core_v1","impl_timezone_identifiers_iana_extended_v1","impl_timezone_identifiers_windows_v1","impl_timezone_variants_offsets_v1","make_provider"]};
+window.SIDEBAR_ITEMS = {"macro":["impl_timezone_identifiers_iana_core_v1","impl_timezone_identifiers_iana_extended_v1","impl_timezone_identifiers_windows_v1","impl_timezone_periods_v1","make_provider"]};

@@ -1,0 +1,209 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Using `#[derive(Eq)]` and `#[derive(PartialEq)]`"><title>PartialEq in derive_more::derive - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">PartialEq</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../derive_more/index.html">derive_<wbr>more</a><span class="version">2.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Partial<wbr>Eq</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#using-deriveeq-and-derivepartialeq" title="Using `#[derive(Eq)]` and `#[derive(PartialEq)]`">Using <code>#[derive(Eq)]</code> and <code>#[derive(PartialEq)]</code></a><ul><li><a href="#structural-equality" title="Structural equality">Structural equality</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In derive_<wbr>more::<wbr>derive</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">derive_more</a>::<wbr><a href="index.html">derive</a></div><h1>Derive Macro <span class="derive">Partial<wbr>Eq</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/derive_more_impl/lib.rs.html#95">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(PartialEq)]
+{
+    <span class="comment">// Attributes available to this derive:</span>
+    #[partial_eq]
+}
+</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="using-deriveeq-and-derivepartialeq"><a class="doc-anchor" href="#using-deriveeq-and-derivepartialeq">§</a>Using <code>#[derive(Eq)]</code> and <code>#[derive(PartialEq)]</code></h2>
+<p>Deriving <code>Eq</code>/<code>PartialEq</code> works by checking whether two values are equal according
+to their type structure.</p>
+<h3 id="structural-equality"><a class="doc-anchor" href="#structural-equality">§</a>Structural equality</h3>
+<p>Deriving <code>Eq</code>/<code>PartialEq</code> for enums/structs works in a similar way to the one in <code>std</code>,
+by comparing all the available fields, but, in the contrast:</p>
+<ol>
+<li>Does not overconstrain generic parameters.</li>
+<li>Implements <code>PartialEq::ne()</code> method as well, to propagate possible efficient
+implementations of this method from the underlying types.</li>
+</ol>
+<h4 id="structs"><a class="doc-anchor" href="#structs">§</a>Structs</h4>
+<p>For structs all the available fields are checked for equality.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">trait </span>Trait {
+    <span class="kw">type </span>Assoc;
+}
+<span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized&gt; Trait <span class="kw">for </span>T {
+    <span class="kw">type </span>Assoc = u8;
+}
+
+<span class="attr">#[derive(Debug, Eq, PartialEq)]
+</span><span class="kw">struct </span>Foo&lt;A, B, C: Trait + <span class="question-mark">?</span>Sized&gt; {
+    a: A,
+    b: PhantomData&lt;B&gt;,
+    c: C::Assoc,
+}
+
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">struct </span>NoEq;
+
+<span class="macro">assert_eq!</span>(Foo::&lt;<span class="kw">_</span>, NoEq, NoEq&gt; { a: <span class="number">3</span>, b: PhantomData, c: <span class="number">0 </span>}, Foo { a: <span class="number">3</span>, b: PhantomData, c: <span class="number">0 </span>});
+<span class="macro">assert_ne!</span>(Foo::&lt;<span class="kw">_</span>, NoEq, NoEq&gt; { a: <span class="number">3</span>, b: PhantomData, c: <span class="number">0 </span>}, Foo { a: <span class="number">0</span>, b: PhantomData, c: <span class="number">3 </span>});</code></pre></div>
+<p>This generates code equivalent to:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span>&lt;A, B, C: Trait + <span class="question-mark">?</span>Sized&gt; PartialEq <span class="kw">for </span>Foo&lt;A, B, C&gt;
+<span class="kw">where
+    </span>A: PartialEq,
+    PhantomData&lt;B&gt;: PartialEq, <span class="comment">// `B: PartialEq` is generated by `std` instead
+    </span>C::Assoc: PartialEq,       <span class="comment">// `C: PartialEq` is generated by `std` instead
+</span>{
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">match </span>(<span class="self">self</span>, other) {
+            (<span class="self">Self </span>{ a: self_0, b: self_1, c: self_2 }, <span class="self">Self </span>{ a: other_0, b: other_1, c: other_2 }) =&gt; {
+                self_0 == other_0 &amp;&amp; self_1 == other_1 &amp;&amp; self_2 == other_2
+            }
+        }
+    }
+    <span class="kw">fn </span>ne(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">match </span>(<span class="self">self</span>, other) {
+            (<span class="self">Self </span>{ a: self_0, b: self_1, c: self_2 }, <span class="self">Self </span>{ a: other_0, b: other_1, c: other_2 }) =&gt; {
+                self_0 != other_0 || self_1 != other_1 || self_2 != other_2
+            }
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;A, B, C: Trait + <span class="question-mark">?</span>Sized&gt; Eq <span class="kw">for </span>Foo&lt;A, B, C&gt;
+<span class="kw">where
+    </span><span class="self">Self</span>: PartialEq,
+    A: Eq,
+    PhantomData&lt;B&gt;: Eq, <span class="comment">// `B: Eq` is generated by `std` instead
+    </span>C::Assoc: Eq,       <span class="comment">// `C: Eq` is generated by `std` instead
+</span>{}</code></pre></div><h4 id="enums"><a class="doc-anchor" href="#enums">§</a>Enums</h4>
+<p>For enums the first check is whether these two values represent the same variant,
+and after that we check fields equality.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Eq, PartialEq)]
+</span><span class="kw">enum </span>Foo&lt;A, B, C: Trait + <span class="question-mark">?</span>Sized&gt; {
+    A(A),
+    B { b: PhantomData&lt;B&gt; },
+    C(C::Assoc),
+}
+
+<span class="macro">assert_eq!</span>(Foo::&lt;<span class="kw">_</span>, NoEq, NoEq&gt;::A(<span class="number">3</span>), Foo::A(<span class="number">3</span>));
+<span class="macro">assert_ne!</span>(Foo::&lt;<span class="kw">_</span>, NoEq, NoEq&gt;::A(<span class="number">3</span>), Foo::A(<span class="number">0</span>));
+
+<span class="macro">assert_eq!</span>(Foo::&lt;u16, NoEq, NoEq&gt;::B { b: PhantomData }, Foo::B { b: PhantomData });
+
+<span class="macro">assert_eq!</span>(Foo::&lt;i32, NoEq, NoEq&gt;::C(<span class="number">3</span>), Foo::C(<span class="number">3</span>));
+<span class="macro">assert_ne!</span>(Foo::&lt;i32, NoEq, NoEq&gt;::C(<span class="number">3</span>), Foo::C(<span class="number">0</span>));</code></pre></div>
+<p>This generates code equivalent to:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span>&lt;A, B, C: Trait + <span class="question-mark">?</span>Sized&gt; PartialEq <span class="kw">for </span>Foo&lt;A, B, C&gt;
+<span class="kw">where
+    </span>A: PartialEq,
+    PhantomData&lt;B&gt;: PartialEq, <span class="comment">// `B: PartialEq` is generated by `std` instead
+    </span>C::Assoc: PartialEq,       <span class="comment">// `C: PartialEq` is generated by `std` instead
+</span>{
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        std::mem::discriminant(<span class="self">self</span>) == std::mem::discriminant(other) &amp;&amp;
+            <span class="kw">match </span>(<span class="self">self</span>, other) {
+                (<span class="self">Self</span>::A(self_0), <span class="self">Self</span>::A(other_0)) =&gt; { self_0 == other_0 }
+                (<span class="self">Self</span>::B { b: self_0 }, <span class="self">Self</span>::B { b: other_0 }) =&gt; { self_0 == other_0 }
+                (<span class="self">Self</span>::C(self_0), <span class="self">Self</span>::C(other_0)) =&gt; { self_0 == other_0 }
+                <span class="kw">_ </span>=&gt; <span class="kw">unsafe </span>{ std::hint::unreachable_unchecked() }
+            }
+    }
+    <span class="kw">fn </span>ne(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        std::mem::discriminant(<span class="self">self</span>) != std::mem::discriminant(other) ||
+            <span class="kw">match </span>(<span class="self">self</span>, other) {
+                (<span class="self">Self</span>::A(self_0), <span class="self">Self</span>::A(other_0)) =&gt; { self_0 != other_0 }
+                (<span class="self">Self</span>::B { b: self_0 }, <span class="self">Self</span>::B { b: other_0 }) =&gt; { self_0 != other_0 }
+                (<span class="self">Self</span>::C(self_0), <span class="self">Self</span>::C(other_0)) =&gt; { self_0 != other_0 }
+                <span class="kw">_ </span>=&gt; <span class="kw">unsafe </span>{ std::hint::unreachable_unchecked() }
+            }
+    }
+}
+
+<span class="kw">impl</span>&lt;A, B, C: Trait + <span class="question-mark">?</span>Sized&gt; Eq <span class="kw">for </span>Foo&lt;A, B, C&gt;
+<span class="kw">where
+    </span><span class="self">Self</span>: PartialEq,
+    A: Eq,
+    PhantomData&lt;B&gt;: Eq, <span class="comment">// `B: Eq` is generated by `std` instead
+    </span>C::Assoc: Eq,       <span class="comment">// `C: Eq` is generated by `std` instead
+</span>{}</code></pre></div><h4 id="ignoring"><a class="doc-anchor" href="#ignoring">§</a>Ignoring</h4>
+<p>Both <code>#[eq(skip)]</code> and <code>#[partial_eq(skip)]</code> attributes could be used to ignore
+fields, a whole struct or enum variants in the expansion.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug)]
+</span><span class="kw">struct </span>NoEq; <span class="comment">// doesn't implement `Eq`/`PartialEq`
+
+</span><span class="attr">#[derive(Debug, Eq, PartialEq)]
+</span><span class="kw">struct </span>Foo {
+    num: i32,
+    <span class="comment">// This attribute is seen by both `Eq` and `PartialEq` macros,
+    // so the repetition is unnecessary.
+    </span><span class="attr">#[eq(skip)] </span><span class="comment">// or #[eq(ignore)]
+    </span>ignored: f32,
+}
+
+<span class="attr">#[derive(Debug, Eq, PartialEq)]
+</span><span class="comment">// This attribute is also seen by both `Eq` and `PartialEq` macros.
+// Makes all fields of this struct being ignored.
+</span><span class="attr">#[partial_eq(skip)] </span><span class="comment">// or #[partial_eq(ignore)]
+</span><span class="kw">struct </span>Bar(f32, NoEq);
+
+<span class="attr">#[derive(Debug, Eq, PartialEq)]
+</span><span class="kw">enum </span>Enum {
+    Foo(i32, <span class="attr">#[eq(skip)] </span>NoEq),
+    <span class="attr">#[eq(skip)]
+    </span>Bar(NoEq),
+    Baz,
+}
+
+<span class="macro">assert_eq!</span>(Foo { num: <span class="number">0</span>, ignored: <span class="number">1.0 </span>}, Foo { num: <span class="number">0</span>, ignored: <span class="number">1.0 </span>});
+<span class="macro">assert_eq!</span>(Foo { num: <span class="number">0</span>, ignored: <span class="number">1.0 </span>}, Foo { num: <span class="number">0</span>, ignored: <span class="number">2.0 </span>});
+<span class="macro">assert_ne!</span>(Foo { num: <span class="number">0</span>, ignored: <span class="number">1.0 </span>}, Foo { num: <span class="number">1</span>, ignored: <span class="number">1.0 </span>});
+
+<span class="macro">assert_eq!</span>(Bar(<span class="number">0.0</span>, NoEq), Bar(<span class="number">0.0</span>, NoEq));
+<span class="macro">assert_eq!</span>(Bar(<span class="number">0.0</span>, NoEq), Bar(<span class="number">1.0</span>, NoEq));
+
+<span class="macro">assert_eq!</span>(Enum::Foo(<span class="number">0</span>, NoEq), Enum::Foo(<span class="number">0</span>, NoEq));
+<span class="macro">assert_ne!</span>(Enum::Foo(<span class="number">0</span>, NoEq), Enum::Foo(<span class="number">1</span>, NoEq));
+
+<span class="macro">assert_eq!</span>(Enum::Bar(NoEq), Enum::Bar(NoEq));
+
+<span class="macro">assert_eq!</span>(Enum::Baz, Enum::Baz);
+
+<span class="comment">// NOTE: Different variants are still not equal despite being ignored!
+//       Ignoring a variant only ignores all its fields during comparison.
+</span><span class="macro">assert_ne!</span>(Enum::Foo(<span class="number">0</span>, NoEq), Enum::Bar(NoEq));
+<span class="macro">assert_ne!</span>(Enum::Foo(<span class="number">0</span>, NoEq), Enum::Baz);
+<span class="macro">assert_ne!</span>(Enum::Bar(NoEq), Enum::Baz);</code></pre></div>
+<p>This generates code equivalent to:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>PartialEq <span class="kw">for </span>Foo {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, __other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">match </span>(<span class="self">self</span>, __other) {
+            (<span class="self">Self </span>{ num: __self_0, .. }, <span class="self">Self </span>{ num: __other_0, .. }) =&gt; { __self_0 == __other_0 }
+        }
+    }
+    <span class="kw">fn </span>ne(<span class="kw-2">&amp;</span><span class="self">self</span>, __other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">match </span>(<span class="self">self</span>, __other) {
+            (<span class="self">Self </span>{ num: __self_0, .. }, <span class="self">Self </span>{ num: __other_0, .. }) =&gt; { __self_0 != __other_0 }
+        }
+    }
+}
+<span class="kw">impl </span>Eq <span class="kw">for </span>Foo
+<span class="kw">where
+    </span>i32: Eq,
+{}
+
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>Bar {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, __other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool { <span class="bool-val">true </span>}
+}
+<span class="kw">impl </span>Eq <span class="kw">for </span>Bar {}
+
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>Enum {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, __other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        std::mem::discriminant(<span class="self">self</span>) == std::mem::discriminant(__other) &amp;&amp;
+            <span class="kw">match </span>(<span class="self">self</span>, __other) {
+                (<span class="self">Self</span>::Foo(__self_0, <span class="kw">_</span>, ), <span class="self">Self</span>::Foo(__other_0, <span class="kw">_</span>, )) =&gt; { __self_0 == __other_0 }
+                <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
+            }
+    }
+    <span class="kw">fn </span>ne(<span class="kw-2">&amp;</span><span class="self">self</span>, __other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        std::mem::discriminant(<span class="self">self</span>) != std::mem::discriminant(__other) ||
+            <span class="kw">match </span>(<span class="self">self</span>, __other) {
+                (<span class="self">Self</span>::Foo(__self_0, <span class="kw">_</span>, ), <span class="self">Self</span>::Foo(__other_0, <span class="kw">_</span>, )) =&gt; { __self_0 != __other_0 }
+                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+        }
+    }
+}</code></pre></div></div></details></section></div></main></body></html>

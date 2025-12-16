@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="What `#[derive(Display)]` generates"><title>Pointer in derive_more::derive - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../derive_more/index.html">derive_<wbr>more</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Pointer</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#what-derivedisplay-generates" title="What `#[derive(Display)]` generates">What <code>#[derive(Display)]</code> generates</a><ul><li><a href="#the-format-of-the-format" title="The format of the format">The format of the format</a></li><li><a href="#example-usage" title="Example usage">Example usage</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In derive_<wbr>more::<wbr>derive</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">derive_more</a>::<wbr><a href="index.html">derive</a></div><h1>Derive Macro <span class="derive">Pointer</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/derive_more_impl/lib.rs.html#103">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(Pointer)]
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="What `#[derive(Display)]` generates"><title>Pointer in derive_more::derive - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Pointer</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../derive_more/index.html">derive_<wbr>more</a><span class="version">2.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Pointer</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#what-derivedisplay-generates" title="What `#[derive(Display)]` generates">What <code>#[derive(Display)]</code> generates</a><ul><li><a href="#the-format-of-the-format" title="The format of the format">The format of the format</a></li><li><a href="#example-usage" title="Example usage">Example usage</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In derive_<wbr>more::<wbr>derive</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">derive_more</a>::<wbr><a href="index.html">derive</a></div><h1>Derive Macro <span class="derive">Pointer</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/derive_more_impl/lib.rs.html#95">Source</a> </span></div><pre class="rust item-decl"><code>#[derive(Pointer)]
 {
     <span class="comment">// Attributes available to this derive:</span>
     #[pointer]
@@ -13,7 +13,10 @@ the supplied format, or an automatically inferred one.</p>
 <p>You specify the format on each variant by writing e.g. <code>#[display("my val: {}", some_val * 2)]</code>.
 For enums, you can either specify it on each variant, or on the enum as a whole.</p>
 <p>For variants that don’t have a format specified, it will simply defer to the format of the
-inner variable. If there is no such variable, or there is more than 1, an error is generated.</p>
+inner variable. If there is no such variable, or there is more than 1, an error is generated.
+The only exception are unit variants, for these the name of the variant will be used if no
+format is specified. This can be controlled with the
+<a href="#The-%60rename_all%60-attribute"><code>#[display(rename_all = "...")]</code> attribute</a>.</p>
 <h3 id="the-format-of-the-format"><a class="doc-anchor" href="#the-format-of-the-format">§</a>The format of the format</h3>
 <p>You supply a format by attaching an attribute of the syntax: <code>#[display("...", args...)]</code>.
 The format supplied is passed verbatim to <code>write!</code>.</p>
@@ -34,8 +37,7 @@ reference to the field:</p>
 }
 
 <span class="kw">let </span>a = <span class="kw-2">&amp;</span><span class="number">123</span>;
-<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, RefInt{field: <span class="kw-2">&amp;</span>a}), <span class="macro">format!</span>(<span class="string">"{a:p} {:p}"</span>, a));</code></pre></div>
-<h4 id="other-formatting-traits"><a class="doc-anchor" href="#other-formatting-traits">§</a>Other formatting traits</h4>
+<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, RefInt{field: <span class="kw-2">&amp;</span>a}), <span class="macro">format!</span>(<span class="string">"{a:p} {:p}"</span>, a));</code></pre></div><h4 id="other-formatting-traits"><a class="doc-anchor" href="#other-formatting-traits">§</a>Other formatting traits</h4>
 <p>The syntax does not change, but the name of the attribute is the snake case version of the trait.
 E.g. <code>Octal</code> -&gt; <code>octal</code>, <code>Pointer</code> -&gt; <code>pointer</code>, <code>UpperHex</code> -&gt; <code>upper_hex</code>.</p>
 <p>Note, that <code>Debug</code> has a slightly different API and semantics, described in its docs, and so,
@@ -80,8 +82,7 @@ because it’s inferred already.</p>
     a: T,
     b: U,
     c: V,
-}</code></pre></div>
-<h4 id="transparency"><a class="doc-anchor" href="#transparency">§</a>Transparency</h4>
+}</code></pre></div><h4 id="transparency"><a class="doc-anchor" href="#transparency">§</a>Transparency</h4>
 <p>If the <code>#[display("...", args...)]</code> attribute is omitted, the implementation transparently delegates to the format
 of the inner type, so all the additional <a href="https://doc.rust-lang.org/stable/std/fmt/index.html#formatting-parameters">formatting parameters</a> do work as expected:</p>
 
@@ -121,8 +122,7 @@ either with the <a href="https://doc.rust-lang.org/stable/std/macro.format_args.
 </span><span class="kw">struct </span>MyOctalInt(i32);
 
 <span class="comment">// and so, additional formatting parameters have no effect
-</span><span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{:07}"</span>, MyOctalInt(<span class="number">9</span>)), <span class="string">"11"</span>);</code></pre></div>
-<h4 id="shared-enum-format"><a class="doc-anchor" href="#shared-enum-format">§</a>Shared enum format</h4>
+</span><span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{:07}"</span>, MyOctalInt(<span class="number">9</span>)), <span class="string">"11"</span>);</code></pre></div><h4 id="shared-enum-format"><a class="doc-anchor" href="#shared-enum-format">§</a>Shared enum format</h4>
 <p>Enums can have shared top-level <code>#[display("...", args...)]</code> attribute. Depending on its contents,
 it can act either as a default format or a wrapping one.</p>
 <h5 id="wrapping-enum-format"><a class="doc-anchor" href="#wrapping-enum-format">§</a>Wrapping enum format</h5>
@@ -142,8 +142,7 @@ that’s provided (or inferred) on the variant.</p>
 
 <span class="macro">assert_eq!</span>(Enum::A(<span class="number">1</span>).to_string(), <span class="string">"Variant: A 1 &amp; A 1"</span>);
 <span class="macro">assert_eq!</span>(Enum::B { field: <span class="number">2 </span>}.to_string(), <span class="string">"Variant: 2 &amp; 2"</span>);
-<span class="macro">assert_eq!</span>(Enum::C.to_string(), <span class="string">"Variant: c &amp; c"</span>);</code></pre></div>
-<h5 id="default-enum-format"><a class="doc-anchor" href="#default-enum-format">§</a>Default enum format</h5>
+<span class="macro">assert_eq!</span>(Enum::C.to_string(), <span class="string">"Variant: c &amp; c"</span>);</code></pre></div><h5 id="default-enum-format"><a class="doc-anchor" href="#default-enum-format">§</a>Default enum format</h5>
 <p>If the shared top-level <code>#[display("...", args...)]</code> attribute contains no <code>{_variant}</code> placeholders,
 then it acts as the default one for the variants without its own format.</p>
 
@@ -159,8 +158,31 @@ then it acts as the default one for the variants without its own format.</p>
 
 <span class="macro">assert_eq!</span>(Enum::A(<span class="number">1</span>).to_string(), <span class="string">"A 1"</span>);
 <span class="macro">assert_eq!</span>(Enum::B(<span class="number">2</span>).to_string(), <span class="string">"Variant: 2 &amp; 2"</span>);
-<span class="macro">assert_eq!</span>(Enum::C.to_string(), <span class="string">"c"</span>);</code></pre></div>
-<h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example usage</h3>
+<span class="macro">assert_eq!</span>(Enum::C.to_string(), <span class="string">"c"</span>);</code></pre></div><h4 id="the-rename_all-attribute"><a class="doc-anchor" href="#the-rename_all-attribute">§</a>The <code>rename_all</code> attribute</h4>
+<p>When no format is specified, deriving <code>Display</code> uses the variant name verbatim as its format.
+To control this the <code>#[display(rename_all = "...")]</code> attribute can be placed on structs, enums and variants.</p>
+<p>The available casings are:</p>
+<ul>
+<li><code>lowercase</code></li>
+<li><code>UPPERCASE</code></li>
+<li><code>PascalCase</code></li>
+<li><code>camelCase</code></li>
+<li><code>snake_case</code></li>
+<li><code>SCREAMING_SNAKE_CASE</code></li>
+<li><code>kebab-case</code></li>
+<li><code>SCREAMING-KEBAB-CASE</code></li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Display)]
+#[display(rename_all = <span class="string">"lowercase"</span>)]
+</span><span class="kw">enum </span>Enum {
+    VariantOne,
+    <span class="attr">#[display(rename_all = <span class="string">"kebab-case"</span>)] </span><span class="comment">// overrides the top-level one
+    </span>VariantTwo
+}
+
+<span class="macro">assert_eq!</span>(Enum::VariantOne.to_string(), <span class="string">"variantone"</span>);
+<span class="macro">assert_eq!</span>(Enum::VariantTwo.to_string(), <span class="string">"variant-two"</span>);</code></pre></div><h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example usage</h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Display)]
 </span><span class="kw">struct </span>MyInt(i32);
 
@@ -239,5 +261,4 @@ then it acts as the default one for the variants without its own format.</p>
 <span class="macro">assert_eq!</span>(Unit.to_string(), <span class="string">"Unit"</span>);
 <span class="macro">assert_eq!</span>(UnitStruct {}.to_string(), <span class="string">"UnitStruct"</span>);
 <span class="macro">assert_eq!</span>(PositiveOrNegative { x: <span class="number">1 </span>}.to_string(), <span class="string">"Positive"</span>);
-<span class="macro">assert_eq!</span>(PositiveOrNegative { x: -<span class="number">1 </span>}.to_string(), <span class="string">"Negative"</span>);</code></pre></div>
-</div></details></section></div></main></body></html>
+<span class="macro">assert_eq!</span>(PositiveOrNegative { x: -<span class="number">1 </span>}.to_string(), <span class="string">"Negative"</span>);</code></pre></div></div></details></section></div></main></body></html>

@@ -1,11 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csv-1.3.1/src/writer.rs`."><title>writer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">csv/</div>writer.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::{fs::File, io, path::Path, result};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csv-1.4.0/src/writer.rs`."><title>writer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">csv/</div>writer.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::{fs::File, io, path::Path, result};
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>{
 <a href=#4 id=4 data-nosnippet>4</a>    csv_core::{
 <a href=#5 id=5 data-nosnippet>5</a>        <span class="self">self</span>, WriteResult, Writer <span class="kw">as </span>CoreWriter,
 <a href=#6 id=6 data-nosnippet>6</a>        WriterBuilder <span class="kw">as </span>CoreWriterBuilder,
 <a href=#7 id=7 data-nosnippet>7</a>    },
-<a href=#8 id=8 data-nosnippet>8</a>    serde::Serialize,
+<a href=#8 id=8 data-nosnippet>8</a>    serde_core::Serialize,
 <a href=#9 id=9 data-nosnippet>9</a>};
 <a href=#10 id=10 data-nosnippet>10</a>
 <a href=#11 id=11 data-nosnippet>11</a><span class="kw">use crate</span>::{
@@ -1216,7 +1216,7 @@
 <a href=#1216 id=1216 data-nosnippet>1216</a></span><span class="kw">mod </span>tests {
 <a href=#1217 id=1217 data-nosnippet>1217</a>    <span class="kw">use </span>std::io::{<span class="self">self</span>, Write};
 <a href=#1218 id=1218 data-nosnippet>1218</a>
-<a href=#1219 id=1219 data-nosnippet>1219</a>    <span class="kw">use </span>serde::{serde_if_integer128, Serialize};
+<a href=#1219 id=1219 data-nosnippet>1219</a>    <span class="kw">use </span>serde::Serialize;
 <a href=#1220 id=1220 data-nosnippet>1220</a>
 <a href=#1221 id=1221 data-nosnippet>1221</a>    <span class="kw">use crate</span>::{
 <a href=#1222 id=1222 data-nosnippet>1222</a>        byte_record::ByteRecord, error::ErrorKind, string_record::StringRecord,
@@ -1231,7 +1231,7 @@
 <a href=#1231 id=1231 data-nosnippet>1231</a>    <span class="attr">#[test]
 <a href=#1232 id=1232 data-nosnippet>1232</a>    </span><span class="kw">fn </span>one_record() {
 <a href=#1233 id=1233 data-nosnippet>1233</a>        <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-<a href=#1234 id=1234 data-nosnippet>1234</a>        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]).unwrap();
+<a href=#1234 id=1234 data-nosnippet>1234</a>        wtr.write_record([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]).unwrap();
 <a href=#1235 id=1235 data-nosnippet>1235</a>
 <a href=#1236 id=1236 data-nosnippet>1236</a>        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"a,b,c\n"</span>);
 <a href=#1237 id=1237 data-nosnippet>1237</a>    }
@@ -1263,7 +1263,7 @@
 <a href=#1263 id=1263 data-nosnippet>1263</a>    <span class="attr">#[test]
 <a href=#1264 id=1264 data-nosnippet>1264</a>    </span><span class="kw">fn </span>one_empty_record() {
 <a href=#1265 id=1265 data-nosnippet>1265</a>        <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-<a href=#1266 id=1266 data-nosnippet>1266</a>        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">""</span>]).unwrap();
+<a href=#1266 id=1266 data-nosnippet>1266</a>        wtr.write_record([<span class="string">""</span>]).unwrap();
 <a href=#1267 id=1267 data-nosnippet>1267</a>
 <a href=#1268 id=1268 data-nosnippet>1268</a>        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"\"\"\n"</span>);
 <a href=#1269 id=1269 data-nosnippet>1269</a>    }
@@ -1279,8 +1279,8 @@
 <a href=#1279 id=1279 data-nosnippet>1279</a>    <span class="attr">#[test]
 <a href=#1280 id=1280 data-nosnippet>1280</a>    </span><span class="kw">fn </span>two_empty_records() {
 <a href=#1281 id=1281 data-nosnippet>1281</a>        <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-<a href=#1282 id=1282 data-nosnippet>1282</a>        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">""</span>]).unwrap();
-<a href=#1283 id=1283 data-nosnippet>1283</a>        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">""</span>]).unwrap();
+<a href=#1282 id=1282 data-nosnippet>1282</a>        wtr.write_record([<span class="string">""</span>]).unwrap();
+<a href=#1283 id=1283 data-nosnippet>1283</a>        wtr.write_record([<span class="string">""</span>]).unwrap();
 <a href=#1284 id=1284 data-nosnippet>1284</a>
 <a href=#1285 id=1285 data-nosnippet>1285</a>        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"\"\"\n\"\"\n"</span>);
 <a href=#1286 id=1286 data-nosnippet>1286</a>    }
@@ -1350,7 +1350,7 @@
 <a href=#1350 id=1350 data-nosnippet>1350</a>        <span class="kw">struct </span>MarkWriteAndFlush(Vec&lt;u8&gt;);
 <a href=#1351 id=1351 data-nosnippet>1351</a>
 <a href=#1352 id=1352 data-nosnippet>1352</a>        <span class="kw">impl </span>MarkWriteAndFlush {
-<a href=#1353 id=1353 data-nosnippet>1353</a>            <span class="kw">fn </span>to_str(<span class="self">self</span>) -&gt; String {
+<a href=#1353 id=1353 data-nosnippet>1353</a>            <span class="kw">fn </span>into_string(<span class="self">self</span>) -&gt; String {
 <a href=#1354 id=1354 data-nosnippet>1354</a>                String::from_utf8(<span class="self">self</span>.<span class="number">0</span>).unwrap()
 <a href=#1355 id=1355 data-nosnippet>1355</a>            }
 <a href=#1356 id=1356 data-nosnippet>1356</a>        }
@@ -1379,7 +1379,7 @@
 <a href=#1379 id=1379 data-nosnippet>1379</a>        wtr.flush().unwrap();
 <a href=#1380 id=1380 data-nosnippet>1380</a>        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"e"</span>, <span class="string">"f"</span>])).unwrap();
 <a href=#1381 id=1381 data-nosnippet>1381</a>
-<a href=#1382 id=1382 data-nosnippet>1382</a>        <span class="kw">let </span>got = wtr.into_inner().unwrap().to_str();
+<a href=#1382 id=1382 data-nosnippet>1382</a>        <span class="kw">let </span>got = wtr.into_inner().unwrap().into_string();
 <a href=#1383 id=1383 data-nosnippet>1383</a>
 <a href=#1384 id=1384 data-nosnippet>1384</a>        <span class="comment">// As the buffer size is 4 we should write each record separately, and
 <a href=#1385 id=1385 data-nosnippet>1385</a>        // flush when explicitly called and implictly in into_inner.
@@ -1415,40 +1415,39 @@
 <a href=#1415 id=1415 data-nosnippet>1415</a>        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"42,42.5,true\n"</span>);
 <a href=#1416 id=1416 data-nosnippet>1416</a>    }
 <a href=#1417 id=1417 data-nosnippet>1417</a>
-<a href=#1418 id=1418 data-nosnippet>1418</a>    <span class="macro">serde_if_integer128!</span> {
-<a href=#1419 id=1419 data-nosnippet>1419</a>        <span class="attr">#[test]
-<a href=#1420 id=1420 data-nosnippet>1420</a>        </span><span class="kw">fn </span>serialize_no_headers_128() {
-<a href=#1421 id=1421 data-nosnippet>1421</a>            <span class="attr">#[derive(Serialize)]
-<a href=#1422 id=1422 data-nosnippet>1422</a>            </span><span class="kw">struct </span>Row {
-<a href=#1423 id=1423 data-nosnippet>1423</a>                foo: i128,
-<a href=#1424 id=1424 data-nosnippet>1424</a>                bar: f64,
-<a href=#1425 id=1425 data-nosnippet>1425</a>                baz: bool,
-<a href=#1426 id=1426 data-nosnippet>1426</a>            }
-<a href=#1427 id=1427 data-nosnippet>1427</a>
-<a href=#1428 id=1428 data-nosnippet>1428</a>            <span class="kw">let </span><span class="kw-2">mut </span>wtr =
-<a href=#1429 id=1429 data-nosnippet>1429</a>                WriterBuilder::new().has_headers(<span class="bool-val">false</span>).from_writer(<span class="macro">vec!</span>[]);
-<a href=#1430 id=1430 data-nosnippet>1430</a>            wtr.serialize(Row {
-<a href=#1431 id=1431 data-nosnippet>1431</a>                foo: <span class="number">9_223_372_036_854_775_808</span>,
-<a href=#1432 id=1432 data-nosnippet>1432</a>                bar: <span class="number">42.5</span>,
-<a href=#1433 id=1433 data-nosnippet>1433</a>                baz: <span class="bool-val">true</span>,
-<a href=#1434 id=1434 data-nosnippet>1434</a>            }).unwrap();
-<a href=#1435 id=1435 data-nosnippet>1435</a>            <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"9223372036854775808,42.5,true\n"</span>);
-<a href=#1436 id=1436 data-nosnippet>1436</a>        }
-<a href=#1437 id=1437 data-nosnippet>1437</a>    }
-<a href=#1438 id=1438 data-nosnippet>1438</a>
-<a href=#1439 id=1439 data-nosnippet>1439</a>    <span class="attr">#[test]
-<a href=#1440 id=1440 data-nosnippet>1440</a>    </span><span class="kw">fn </span>serialize_tuple() {
-<a href=#1441 id=1441 data-nosnippet>1441</a>        <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-<a href=#1442 id=1442 data-nosnippet>1442</a>        wtr.serialize((<span class="bool-val">true</span>, <span class="number">1.3</span>, <span class="string">"hi"</span>)).unwrap();
-<a href=#1443 id=1443 data-nosnippet>1443</a>        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"true,1.3,hi\n"</span>);
-<a href=#1444 id=1444 data-nosnippet>1444</a>    }
-<a href=#1445 id=1445 data-nosnippet>1445</a>
-<a href=#1446 id=1446 data-nosnippet>1446</a>    <span class="attr">#[test]
-<a href=#1447 id=1447 data-nosnippet>1447</a>    </span><span class="kw">fn </span>comment_char_is_automatically_quoted() {
-<a href=#1448 id=1448 data-nosnippet>1448</a>        <span class="kw">let </span><span class="kw-2">mut </span>wtr =
-<a href=#1449 id=1449 data-nosnippet>1449</a>            WriterBuilder::new().comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>)).from_writer(Vec::new());
-<a href=#1450 id=1450 data-nosnippet>1450</a>        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"# comment"</span>, <span class="string">"another"</span>]).unwrap();
-<a href=#1451 id=1451 data-nosnippet>1451</a>        <span class="kw">let </span>buf = wtr.into_inner().unwrap();
-<a href=#1452 id=1452 data-nosnippet>1452</a>        <span class="macro">assert_eq!</span>(String::from_utf8(buf).unwrap(), <span class="string">"\"# comment\",another\n"</span>);
-<a href=#1453 id=1453 data-nosnippet>1453</a>    }
-<a href=#1454 id=1454 data-nosnippet>1454</a>}</code></pre></div></section></main></body></html>
+<a href=#1418 id=1418 data-nosnippet>1418</a>    <span class="attr">#[test]
+<a href=#1419 id=1419 data-nosnippet>1419</a>    </span><span class="kw">fn </span>serialize_no_headers_128() {
+<a href=#1420 id=1420 data-nosnippet>1420</a>        <span class="attr">#[derive(Serialize)]
+<a href=#1421 id=1421 data-nosnippet>1421</a>        </span><span class="kw">struct </span>Row {
+<a href=#1422 id=1422 data-nosnippet>1422</a>            foo: i128,
+<a href=#1423 id=1423 data-nosnippet>1423</a>            bar: f64,
+<a href=#1424 id=1424 data-nosnippet>1424</a>            baz: bool,
+<a href=#1425 id=1425 data-nosnippet>1425</a>        }
+<a href=#1426 id=1426 data-nosnippet>1426</a>
+<a href=#1427 id=1427 data-nosnippet>1427</a>        <span class="kw">let </span><span class="kw-2">mut </span>wtr =
+<a href=#1428 id=1428 data-nosnippet>1428</a>            WriterBuilder::new().has_headers(<span class="bool-val">false</span>).from_writer(<span class="macro">vec!</span>[]);
+<a href=#1429 id=1429 data-nosnippet>1429</a>        wtr.serialize(Row {
+<a href=#1430 id=1430 data-nosnippet>1430</a>            foo: <span class="number">9_223_372_036_854_775_808</span>,
+<a href=#1431 id=1431 data-nosnippet>1431</a>            bar: <span class="number">42.5</span>,
+<a href=#1432 id=1432 data-nosnippet>1432</a>            baz: <span class="bool-val">true</span>,
+<a href=#1433 id=1433 data-nosnippet>1433</a>        })
+<a href=#1434 id=1434 data-nosnippet>1434</a>        .unwrap();
+<a href=#1435 id=1435 data-nosnippet>1435</a>        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"9223372036854775808,42.5,true\n"</span>);
+<a href=#1436 id=1436 data-nosnippet>1436</a>    }
+<a href=#1437 id=1437 data-nosnippet>1437</a>
+<a href=#1438 id=1438 data-nosnippet>1438</a>    <span class="attr">#[test]
+<a href=#1439 id=1439 data-nosnippet>1439</a>    </span><span class="kw">fn </span>serialize_tuple() {
+<a href=#1440 id=1440 data-nosnippet>1440</a>        <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
+<a href=#1441 id=1441 data-nosnippet>1441</a>        wtr.serialize((<span class="bool-val">true</span>, <span class="number">1.3</span>, <span class="string">"hi"</span>)).unwrap();
+<a href=#1442 id=1442 data-nosnippet>1442</a>        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"true,1.3,hi\n"</span>);
+<a href=#1443 id=1443 data-nosnippet>1443</a>    }
+<a href=#1444 id=1444 data-nosnippet>1444</a>
+<a href=#1445 id=1445 data-nosnippet>1445</a>    <span class="attr">#[test]
+<a href=#1446 id=1446 data-nosnippet>1446</a>    </span><span class="kw">fn </span>comment_char_is_automatically_quoted() {
+<a href=#1447 id=1447 data-nosnippet>1447</a>        <span class="kw">let </span><span class="kw-2">mut </span>wtr =
+<a href=#1448 id=1448 data-nosnippet>1448</a>            WriterBuilder::new().comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>)).from_writer(Vec::new());
+<a href=#1449 id=1449 data-nosnippet>1449</a>        wtr.write_record([<span class="string">"# comment"</span>, <span class="string">"another"</span>]).unwrap();
+<a href=#1450 id=1450 data-nosnippet>1450</a>        <span class="kw">let </span>buf = wtr.into_inner().unwrap();
+<a href=#1451 id=1451 data-nosnippet>1451</a>        <span class="macro">assert_eq!</span>(String::from_utf8(buf).unwrap(), <span class="string">"\"# comment\",another\n"</span>);
+<a href=#1452 id=1452 data-nosnippet>1452</a>    }
+<a href=#1453 id=1453 data-nosnippet>1453</a>}</code></pre></div></section></main></body></html>

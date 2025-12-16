@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ParseError"],"macro":["assert_syntax"],"mod":["parsers"],"type":["ParserResult"]};
+window.SIDEBAR_ITEMS = {"enum":["ParseError"],"macro":["assert_syntax"],"mod":["encoding","parsers","records"],"type":["ParserResult"]};

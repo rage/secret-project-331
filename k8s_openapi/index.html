@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Bindings for the Kubernetes client API, generated from the OpenAPI spec."><title>k8s_openapi - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="k8s_openapi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../k8s_openapi/index.html">k8s_<wbr>openapi</a><span class="version">0.26.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#resources" title="Resources">Resources</a></li></ul></li><li><a href="#crate-features" title="Crate features">Crate features</a></li><li><a href="#conditional-compilation" title="Conditional compilation">Conditional compilation</a></li><li><a href="#custom-resource-definitions" title="Custom resource definitions">Custom resource definitions</a></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>k8s_openapi</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/k8s_openapi/lib.rs.html#1-277">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Bindings for the Kubernetes client API, generated from the OpenAPI spec.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Bindings for the Kubernetes client API, generated from the OpenAPI spec."><title>k8s_openapi - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="k8s_openapi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate k8s_openapi</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../k8s_openapi/index.html">k8s_<wbr>openapi</a><span class="version">0.26.1</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#resources" title="Resources">Resources</a></li></ul></li><li><a href="#crate-features" title="Crate features">Crate features</a></li><li><a href="#conditional-compilation" title="Conditional compilation">Conditional compilation</a></li><li><a href="#custom-resource-definitions" title="Custom resource definitions">Custom resource definitions</a></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>k8s_<wbr>openapi</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/k8s_openapi/lib.rs.html#1-277">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Bindings for the Kubernetes client API, generated from the OpenAPI spec.</p>
 <p>Each supported version of Kubernetes is represented by a feature name (like <code>v1_9</code>). Only one such feature can be enabled at a time.</p>
 <p>These docs have been generated with the <code>v1_30</code> feature enabled. To see docs for one of the other supported versions, please generate the docs locally with <code>cargo doc --features 'v1_&lt;&gt;'</code></p>
 <h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2><h3 id="resources"><a class="doc-anchor" href="#resources">§</a>Resources</h3>
@@ -9,8 +9,7 @@
 <span class="kw">fn </span>main() {
     <span class="kw">let </span>pod_spec: api::PodSpec = Default::default();
     <span class="macro">println!</span>(<span class="string">"{pod_spec:#?}"</span>);
-}</code></pre></div>
-<h2 id="crate-features"><a class="doc-anchor" href="#crate-features">§</a>Crate features</h2>
+}</code></pre></div><h2 id="crate-features"><a class="doc-anchor" href="#crate-features">§</a>Crate features</h2>
 <p>This crate contains several <code>v1_*</code> features. Enabling one of the <code>v1_*</code> features selects which version of the Kubernetes API server this crate should target.
 For example, enabling the <code>v1_50</code> feature means the crate will only contain the API exposed by Kubernetes 1.50. It will not expose API
 that were removed in 1.50 or earlier, nor any API added in 1.51 or later.</p>
@@ -76,8 +75,7 @@ so you want your crate to fail to compile if a lower feature was enabled.</p>
 <span class="kw">let </span>pod_security_context = k8s_openapi::api::core::v1::PodSecurityContext {
     supplemental_groups_policy: ...,
     ...
-};</code></pre></div>
-</li>
+};</code></pre></div></li>
 <li>
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>pod_security_context = k8s_openapi::api::core::v1::PodSecurityContext {
     ...
@@ -85,8 +83,7 @@ so you want your crate to fail to compile if a lower feature was enabled.</p>
 
 <span class="macro">k8s_openapi::k8s_if_ge_1_31!</span> {
     pod_security_context.supplemental_groups_policy = ...;
-}</code></pre></div>
-</li>
+}</code></pre></div></li>
 </ul>
 </li>
 <li>
@@ -137,15 +134,13 @@ from the <code>DEP_K8S_OPENAPI_*_VERSION</code> env var.</p>
 <span class="kw">let </span>pod_security_context = k8s_openapi::api::core::v1::PodSecurityContext {
     supplemental_groups_policy: ...,
     ...
-};</code></pre></div>
-</li>
+};</code></pre></div></li>
 <li>
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">let </span>pod_security_context = k8s_openapi::api::core::v1::PodSecurityContext {
     <span class="attr">#[cfg(not(k8s_pod_security_context_supports_supplemental_groups_policy))]
     </span>supplemental_groups_policy: ...,
     ...
-};</code></pre></div>
-</li>
+};</code></pre></div></li>
 </ul>
 </li>
 </ol>

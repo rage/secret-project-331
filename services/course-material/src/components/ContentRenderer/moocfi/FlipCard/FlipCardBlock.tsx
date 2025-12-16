@@ -64,14 +64,20 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
         background-color: transparent;
         width: 100%;
         max-width: 100%;
-        height: auto;
+        aspect-ratio: 1;
         min-height: 200px;
         perspective: 1000px;
         margin: 0 auto;
 
+        ${respondToOrLarger.xxxs} {
+          min-height: 250px;
+        }
+
         ${respondToOrLarger.xxs} {
           max-width: ${size}px;
+          aspect-ratio: unset;
           height: ${size}px;
+          min-height: unset;
         }
       `}
       {...hoverProps}

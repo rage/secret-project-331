@@ -116,17 +116,16 @@ fn parse_tmc_error_response(error_text: &str, status: Option<reqwest::StatusCode
 
 impl TmcClient {
     fn check_if_tmc_error_response(response_text: &str) -> Option<UtilError> {
-        if let Ok(error_json) = serde_json::from_str::<serde_json::Value>(response_text) {
-            if error_json.get("errors").is_some()
-                || error_json.get("success") == Some(&serde_json::Value::Bool(false))
-            {
-                let error_message = parse_tmc_error_response(response_text, None);
-                return Some(UtilError::new(
-                    UtilErrorType::TmcErrorResponse,
-                    error_message,
-                    None,
-                ));
-            }
+        if let Ok(error_json) = serde_json::from_str::<serde_json::Value>(response_text)
+            && (error_json.get("errors").is_some()
+                || error_json.get("success") == Some(&serde_json::Value::Bool(false)))
+        {
+            let error_message = parse_tmc_error_response(response_text, None);
+            return Some(UtilError::new(
+                UtilErrorType::TmcErrorResponse,
+                error_message,
+                None,
+            ));
         }
         None
     }

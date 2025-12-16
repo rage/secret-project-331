@@ -55,18 +55,13 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
   const internalRef = useRef<HTMLSpanElement>(null)
   const containerRef = props.useWrapperElement === false ? props.wrapperRef : internalRef
-  const [readyForPortal, setReadyForPortal] = useState(false)
   const [glossaryTargets, setGlossaryTargets] = useState<
     Array<{ node: HTMLElement; glossaryId: string }>
   >([])
 
   useLayoutEffect(() => {
-    setReadyForPortal(true)
-  }, [])
-
-  useLayoutEffect(() => {
-    if (!readyForPortal || !containerRef.current) {
-      setGlossaryTargets((prev) => (prev.length === 0 ? prev : []))
+    if (!containerRef.current) {
+      setGlossaryTargets([])
       return
     }
 
@@ -79,19 +74,8 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
       return glossaryId ? [{ node, glossaryId }] : []
     })
 
-    setGlossaryTargets((prev) => {
-      if (
-        prev.length === nextTargets.length &&
-        prev.every(
-          (p, idx) =>
-            p.node === nextTargets[idx]?.node && p.glossaryId === nextTargets[idx]?.glossaryId,
-        )
-      ) {
-        return prev
-      }
-      return nextTargets
-    })
-  }, [readyForPortal, props.text, props.options, props.useWrapperElement, terms, containerRef])
+    setGlossaryTargets(nextTargets)
+  }, [props.text, props.options, props.useWrapperElement, terms, containerRef])
 
   const portals = glossaryTargets
     .map(({ node, glossaryId }, idx) => {

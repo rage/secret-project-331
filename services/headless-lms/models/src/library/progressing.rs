@@ -279,10 +279,10 @@ async fn user_has_passed_exam_for_the_course_based_on_points(
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;
-            if let Some(points) = points {
-                if points >= exam.minimum_points_treshold as f32 {
-                    return Ok(true);
-                }
+            if let Some(points) = points
+                && points >= exam.minimum_points_treshold as f32
+            {
+                return Ok(true);
             }
         }
     }

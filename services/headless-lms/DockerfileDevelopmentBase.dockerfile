@@ -95,7 +95,6 @@ RUN cargo chef cook --release --recipe-path recipe.json
 FROM rust-base
 
 # Copy the cached dependencies
-#COPY --from=chef-builder --chown=user:user /app/target /app/target
 COPY --from=chef-builder --chown=user:user /home/user/.cargo /home/user/.cargo
 
 USER root

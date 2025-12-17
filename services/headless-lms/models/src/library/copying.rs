@@ -210,11 +210,11 @@ WHERE id = $2;
     for (page_id, content) in pages_contents {
         if let Value::Array(mut blocks) = content {
             for block in blocks.iter_mut() {
-                if let Some(content) = block["attributes"]["content"].as_str() {
-                    if content.contains("<a href=") {
-                        block["attributes"]["content"] =
-                            Value::String(content.replace(&parent_course.slug, &new_course.slug));
-                    }
+                if let Some(content) = block["attributes"]["content"].as_str()
+                    && content.contains("<a href=")
+                {
+                    block["attributes"]["content"] =
+                        Value::String(content.replace(&parent_course.slug, &new_course.slug));
                 }
             }
             sqlx::query!(
@@ -1154,7 +1154,8 @@ INSERT INTO chatbot_configurations (
     default_chatbot,
     enabled_to_students,
     model_id,
-    thinking_model
+    thinking_model,
+    use_tools
   )
 SELECT
   uuid_generate_v5($1, id::text),
@@ -1176,7 +1177,8 @@ SELECT
   default_chatbot,
   enabled_to_students,
   model_id,
-  thinking_model
+  thinking_model,
+  use_tools
 FROM chatbot_configurations
 WHERE course_id = $2
   AND deleted_at IS NULL;

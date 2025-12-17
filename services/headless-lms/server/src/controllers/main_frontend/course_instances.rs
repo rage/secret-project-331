@@ -427,6 +427,7 @@ async fn get_user_progress_for_course_instance(
         &mut conn,
         course_instance.course_id,
         user_id,
+        false,
     )
     .await?;
     token.authorized_ok(web::Json(user_course_progress))

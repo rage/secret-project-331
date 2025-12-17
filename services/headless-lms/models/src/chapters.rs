@@ -89,15 +89,11 @@ impl Chapter {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
+#[derive(Default)]
 pub enum ChapterStatus {
     Open,
+    #[default]
     Closed,
-}
-
-impl Default for ChapterStatus {
-    fn default() -> Self {
-        Self::Closed
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

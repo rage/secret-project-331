@@ -89,15 +89,11 @@ impl Chapter {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
+#[derive(Default)]
 pub enum ChapterStatus {
     Open,
+    #[default]
     Closed,
-}
-
-impl Default for ChapterStatus {
-    fn default() -> Self {
-        Self::Closed
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -447,6 +443,7 @@ pub async fn delete_chapter(
 UPDATE chapters
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING *;
 "#,
         chapter_id

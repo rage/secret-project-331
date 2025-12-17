@@ -217,8 +217,8 @@ async fn sync_pages(
                     return false;
                 }
 
-                if let Some(error_msg) = &status.error_message {
-                    if !error_msg.is_empty() {
+                if let Some(error_msg) = &status.error_message
+                    && !error_msg.is_empty() {
                         let error_age_seconds = (Utc::now() - status.updated_at).num_seconds();
                         if error_age_seconds < FAILURE_COOLDOWN_SECS {
                             debug!(
@@ -228,7 +228,6 @@ async fn sync_pages(
                             return false;
                         }
                     }
-                }
 
                 true
             })

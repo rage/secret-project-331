@@ -54,55 +54,50 @@ enum GenerateDocsFor {
 
 fn process_return_type(item: &ItemFn) -> (&Type, GenerateDocsFor) {
     // should have a path return type
-    if let ReturnType::Type(_, ty) = &item.sig.output {
-        if let Type::Path(TypePath {
+    if let ReturnType::Type(_, ty) = &item.sig.output
+        && let Type::Path(TypePath {
             path: Path { segments, .. },
             ..
         }) = ty.as_ref()
+    {
+        // this is probably ControllerResult<web::Json<T>>
+        let segment = segments
+            .last()
+            .expect("return type path shouldn't be empty");
+        // this will probably contain web::Json<T> or Bytes, both the type and the inner segments for convenience
+        let mut inner = (ty.as_ref(), segments);
+
+        // extract inner segments from non-Json types, use as is otherwise
+        if segment.ident != "Json"
+            && let PathArguments::AngleBracketed(AngleBracketedGenericArguments { args, .. }) =
+                &segment.arguments
         {
-            // this is probably ControllerResult<web::Json<T>>
-            let segment = segments
-                .last()
-                .expect("return type path shouldn't be empty");
-            // this will probably contain web::Json<T> or Bytes, both the type and the inner segments for convenience
-            let mut inner = (ty.as_ref(), segments);
+            // extract inner generic (e.g. T from some::path::Result<T, E>)
+            let arg = args
+                .first()
+                .expect("return type generic list shouldn't be empty");
+            if let GenericArgument::Type(
+                ty @ Type::Path(TypePath {
+                    path: Path { segments, .. },
+                    ..
+                }),
+            ) = arg
+            {
+                inner = (ty, segments);
+            }
+        };
 
-            // extract inner segments from non-Json types, use as is otherwise
-            if segment.ident != "Json" {
-                if let PathArguments::AngleBracketed(AngleBracketedGenericArguments {
-                    args, ..
-                }) = &segment.arguments
-                {
-                    // extract inner generic (e.g. T from some::path::Result<T, E>)
-                    let arg = args
-                        .first()
-                        .expect("return type generic list shouldn't be empty");
-                    if let GenericArgument::Type(
-                        ty @ Type::Path(TypePath {
-                            path: Path { segments, .. },
-                            ..
-                        }),
-                    ) = arg
-                    {
-                        inner = (ty, segments);
-                    }
-                }
-            };
-
-            // inner type
-            if let Some(segments) = inner.1.last() {
-                if segments.ident == "Bytes" {
-                    return (inner.0, GenerateDocsFor::Ts);
-                }
-                // extract generics e.g. T from Json<T>
-                if let PathArguments::AngleBracketed(AngleBracketedGenericArguments {
-                    args, ..
-                }) = &segments.arguments
-                {
-                    if let Some(GenericArgument::Type(t)) = args.first() {
-                        return (t, GenerateDocsFor::JsonAndTs);
-                    }
-                }
+        // inner type
+        if let Some(segments) = inner.1.last() {
+            if segments.ident == "Bytes" {
+                return (inner.0, GenerateDocsFor::Ts);
+            }
+            // extract generics e.g. T from Json<T>
+            if let PathArguments::AngleBracketed(AngleBracketedGenericArguments { args, .. }) =
+                &segments.arguments
+                && let Some(GenericArgument::Type(t)) = args.first()
+            {
+                return (t, GenerateDocsFor::JsonAndTs);
             }
         }
     }

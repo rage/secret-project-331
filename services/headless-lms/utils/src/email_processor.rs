@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 static LI_START_TAG_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"<li>").expect("invalid li_start regex"));
@@ -15,7 +14,7 @@ static DOUBLE_QUOTE_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"""#).expect("invalid double_quote regex"));
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
-#[serde(tag = "name", content = "attributes")]
+#[serde(tag = "type", content = "attributes")]
 pub enum BlockAttributes {
     #[serde(rename = "core/paragraph")]
     Paragraph {
@@ -51,7 +50,7 @@ pub enum BlockAttributes {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct EmailGutenbergBlock {
     #[serde(rename = "clientId")]
-    pub client_id: Uuid,
+    pub client_id: String,
     #[serde(rename = "isValid")]
     pub is_valid: bool,
     #[serde(flatten)]
@@ -138,7 +137,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_paragraph_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::Paragraph {
                 content: String::from("testi paragraph."),
@@ -156,7 +155,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_paragraph_wrapped_in_tags_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::Paragraph {
                 content: String::from("<strong><em>testi paragraph.</em></strong>"),
@@ -174,7 +173,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_heading_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::Heading {
                 content: String::from("Email heading"),
@@ -193,7 +192,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_image_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::Image {
                 alt: String::from("Alternative title"),
@@ -213,7 +212,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_image_containing_double_quotes_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::Image {
                 alt: String::from(r#""Alternative title""#),
@@ -234,7 +233,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_unordered_list_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::List {
                 values: String::from("<li>1</li><li>2</li><li>3</li><li>4</li>"),
@@ -252,7 +251,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_unordered_list_containing_other_tags_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::List {
                 values: String::from(
@@ -272,7 +271,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_ordered_list_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::List {
                 values: String::from("<li>first</li><li>second</li><li>third</li><li>fourth</li>"),
@@ -293,7 +292,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_ordered_list_containing_other_tags_correctly_to_plain_text() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::List {
                 values: String::from(
@@ -316,7 +315,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_paragraph_correctly_to_html() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::Paragraph {
                 content: String::from("testi paragraph."),
@@ -334,7 +333,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_heading_correctly_to_html() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::Heading {
                 content: String::from("Email heading"),
@@ -353,7 +352,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_image_correctly_to_html() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::Image {
                 alt: String::from("Alternative title"),
@@ -374,7 +373,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_unordered_list_correctly_to_html() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::List {
                 values: String::from("<li>1</li><li>2</li><li>3</li><li>4</li>"),
@@ -395,7 +394,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_unordered_list_containing_other_tags_correctly_to_html() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::List {
                 values: String::from(
@@ -420,7 +419,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_ordered_list_correctly_to_html() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::List {
                 values: String::from("<li>first</li><li>second</li><li>third</li><li>fourth</li>"),
@@ -441,7 +440,7 @@ mod email_processor_tests {
     #[test]
     fn it_converts_ordered_list_containing_other_tags_correctly_to_html() {
         let input = vec![EmailGutenbergBlock {
-            client_id: Uuid::new_v4(),
+            client_id: Uuid::new_v4().to_string(),
             is_valid: true,
             attributes: BlockAttributes::List {
                 values: String::from(

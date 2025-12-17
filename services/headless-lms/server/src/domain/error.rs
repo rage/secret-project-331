@@ -253,21 +253,21 @@ impl error::ResponseError for ControllerError {
             error!("Internal server error: {}", err_string);
         }
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
-            if let Some(uri) = &data.redirect_uri {
-                if let Ok(mut url) = url::Url::parse(uri) {
-                    {
-                        let mut qp = url.query_pairs_mut();
-                        qp.append_pair("error", &data.error);
-                        qp.append_pair("error_description", &data.error_description);
-                        if let Some(state) = &data.state {
-                            qp.append_pair("state", state);
-                        }
+            if let Some(uri) = &data.redirect_uri
+                && let Ok(mut url) = url::Url::parse(uri)
+            {
+                {
+                    let mut qp = url.query_pairs_mut();
+                    qp.append_pair("error", &data.error);
+                    qp.append_pair("error_description", &data.error_description);
+                    if let Some(state) = &data.state {
+                        qp.append_pair("state", state);
                     }
-                    let loc = url.to_string();
-                    return HttpResponse::Found()
-                        .append_header(("Location", loc))
-                        .finish();
                 }
+                let loc = url.to_string();
+                return HttpResponse::Found()
+                    .append_header(("Location", loc))
+                    .finish();
             }
 
             let status = match data.error.as_str() {

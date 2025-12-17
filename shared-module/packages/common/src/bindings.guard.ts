@@ -5,7 +5,8 @@
  * Generated type guards for "bindings.ts".
  * WARNING: Do not manually change this file.
  */
-import { Action, ActionOnResource, Resource, ErrorData, ErrorResponse, SpecRequest, ConsentQuery, ConsentResponse, ConsentDenyQuery, CertificateAllRequirements, CertificateConfiguration, CertificateConfigurationAndRequirements, CertificateTextAnchor, PaperSize, Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, DatabaseChapter, NewChapter, UserCourseInstanceChapterProgress, ChapterAvailability, UserChapterProgress, CourseUserInfo, ChatbotConfiguration, NewChatbotConf, VerbosityLevel, ReasoningEffortLevel, ChatbotConfigurationModel, ChatbotConversationMessage, ChatbotConversationMessageCitation, ChatbotConversation, ChatbotConversationInfo, CodeGiveawayCode, CodeGiveaway, CodeGiveawayStatus, NewCodeGiveaway, CourseBackgroundQuestionAnswer, NewCourseBackgroundQuestionAnswer, CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers, CourseCustomPrivacyPolicyCheckboxText, CourseInstanceEnrollment, CourseInstanceEnrollmentsInfo, ChapterScore, CourseInstance, CourseInstanceForm, PointMap, Points, CourseModuleCompletion, CourseModuleCompletionWithRegistrationInfo, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, ModifiedModule, ModuleUpdates, NewCourseModule, NewModule, Course, CourseMaterialCourse, CourseBreadcrumbInfo, CourseCount, CourseStructure, CourseUpdate, NewCourse, CourseLanguageVersionNavigationInfo, EmailTemplate, EmailTemplateNew, EmailTemplateUpdate, CourseExam, Exam, ExamEnrollment, ExamInstructions, ExamInstructionsUpdate, NewExam, OrgExam, ExerciseRepository, ExerciseRepositoryStatus, CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi, ExerciseService, ExerciseServiceIframeRenderingInfo, ExerciseServiceNewOrUpdate, AnswerRequiringAttention, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmission, ExerciseSlideSubmissionAndUserExerciseState, ExerciseSlideSubmissionAndUserExerciseStateList, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour, ExerciseSlideSubmissionInfo, CourseMaterialExerciseSlide, ExerciseSlide, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy, ExerciseTaskSubmission, PeerOrSelfReviewsReceived, CourseMaterialExerciseTask, ExerciseTask, ActivityProgress, CourseMaterialExercise, Exercise, ExerciseGradingStatus, ExerciseStatus, ExerciseStatusSummaryForUser, GradingProgress, ExerciseResetLog, Feedback, FeedbackBlock, FeedbackCount, NewFeedback, FlaggedAnswer, NewFlaggedAnswer, NewFlaggedAnswerWithToken, ReportReason, GeneratedCertificate, CertificateUpdateRequest, Term, TermUpdate, AverageMetric, CohortActivity, CountResult, CustomViewExerciseSubmissions, CustomViewExerciseTaskGrading, CustomViewExerciseTaskSpec, CustomViewExerciseTaskSubmission, CustomViewExerciseTasks, CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry, TimeGranularity, AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewDataAnswerToReview, CourseMaterialPeerOrSelfReviewQuestionAnswer, CourseMaterialPeerOrSelfReviewSubmission, CompletionRegistrationLink, CourseInstanceCompletionSummary, ManualCompletionPreview, ManualCompletionPreviewUser, TeacherManualCompletion, TeacherManualCompletionRequest, UserCompletionInformation, UserCourseModuleCompletion, UserModuleCompletionStatus, UserWithModuleCompletions, ProgressOverview, CompletionGridRow, CertificateGridRow, UserMarketingConsent, MaterialReference, NewMaterialReference, Organization, AuthorizedClientInfo, PageAudioFile, HistoryChangeReason, PageHistory, PageVisitDatumSummaryByCourse, PageVisitDatumSummaryByCoursesCountries, PageVisitDatumSummaryByCourseDeviceTypes, PageVisitDatumSummaryByPages, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, ContentManagementPage, CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, IsChapterFrontPage, NewPage, Page, PageChapterAndCourseInformation, PageDetailsUpdate, PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises, SearchRequest, PartnerBlockNew, PartnersBlock, CmsPeerOrSelfReviewConfig, CmsPeerOrSelfReviewConfiguration, CourseMaterialPeerOrSelfReviewConfig, PeerOrSelfReviewConfig, PeerReviewProcessingStrategy, PeerOrSelfReviewAnswer, PeerOrSelfReviewQuestionAndAnswer, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers, CmsPeerOrSelfReviewQuestion, PeerOrSelfReviewQuestion, PeerOrSelfReviewQuestionType, PeerOrSelfReviewSubmission, PeerReviewQueueEntry, PendingRole, PlaygroundExample, PlaygroundExampleData, PrivacyLink, BlockProposal, BlockProposalAction, BlockProposalInfo, EditedBlockNoLongerExistsData, EditedBlockStillExistsData, NewProposedBlockEdit, ProposalStatus, EditProposalInfo, NewProposedPageEdits, PageProposal, ProposalCount, NewRegrading, NewRegradingIdType, Regrading, RegradingInfo, RegradingSubmissionInfo, RepositoryExercise, NewResearchForm, NewResearchFormQuestion, NewResearchFormQuestionAnswer, ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer, RoleDomain, RoleInfo, RoleUser, UserRole, StudentCountry, SuspectedCheaters, ThresholdData, NewTeacherGradingDecision, TeacherDecisionType, TeacherGradingDecision, UserCourseExerciseServiceVariable, UserCourseSettings, UserDetail, ExerciseUserCounts, ReviewingStage, UserCourseChapterExerciseProgress, UserCourseProgress, UserExerciseState, UserResearchConsent, User, UploadResult, CreateAccountDetails, Login, UserInfo, SaveCourseSettingsPayload, ChaptersWithStatus, CourseMaterialCourseModule, ExamData, ExamEnrollmentData, CourseMaterialPeerOrSelfReviewDataWithToken, CourseInfo, CertificateConfigurationUpdate, GetFeedbackQuery, CopyCourseRequest, CopyCourseMode, ExamCourseInfo, NewExerciseRepository, ExerciseServiceWithError, ExerciseSubmissions, MarkAsRead, PlaygroundViewsMessage, GetEditProposalsQuery, RoleQuery, BulkUserDetailsRequest, UserDetailsRequest, UserInfoPayload, CronJobInfo, DeploymentInfo, EventInfo, IngressInfo, JobInfo, PodDisruptionBudgetInfo, PodInfo, ServiceInfo, ServicePortInfo, HealthStatus, SystemHealthStatus, Pagination, OEmbedResponse, GutenbergBlock } from "./bindings";
+
+import { Action, ActionOnResource, Resource, ErrorData, ErrorResponse, SpecRequest, ConsentQuery, ConsentResponse, ConsentDenyQuery, CertificateAllRequirements, CertificateConfiguration, CertificateConfigurationAndRequirements, CertificateTextAnchor, PaperSize, Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, DatabaseChapter, NewChapter, UserCourseInstanceChapterProgress, ChapterAvailability, UserChapterProgress, CourseUserInfo, ChatbotConfiguration, NewChatbotConf, VerbosityLevel, ReasoningEffortLevel, ChatbotConfigurationModel, ChatbotConversationMessage, ChatbotConversationMessageCitation, ChatbotConversation, ChatbotConversationInfo, CodeGiveawayCode, CodeGiveaway, CodeGiveawayStatus, NewCodeGiveaway, CourseBackgroundQuestionAnswer, NewCourseBackgroundQuestionAnswer, CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers, CourseCustomPrivacyPolicyCheckboxText, CourseInstanceEnrollment, CourseInstanceEnrollmentsInfo, ChapterScore, CourseInstance, CourseInstanceForm, PointMap, Points, CourseModuleCompletion, CourseModuleCompletionWithRegistrationInfo, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, ModifiedModule, ModuleUpdates, NewCourseModule, NewModule, Course, CourseMaterialCourse, CourseBreadcrumbInfo, CourseCount, CourseStructure, CourseUpdate, NewCourse, CourseLanguageVersionNavigationInfo, EmailTemplate, EmailTemplateNew, EmailTemplateUpdate, CourseExam, Exam, ExamEnrollment, ExamInstructions, ExamInstructionsUpdate, NewExam, OrgExam, ExerciseRepository, ExerciseRepositoryStatus, CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi, ExerciseService, ExerciseServiceIframeRenderingInfo, ExerciseServiceNewOrUpdate, AnswerRequiringAttention, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmission, ExerciseSlideSubmissionAndUserExerciseState, ExerciseSlideSubmissionAndUserExerciseStateList, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour, ExerciseSlideSubmissionInfo, CourseMaterialExerciseSlide, ExerciseSlide, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy, ExerciseTaskSubmission, PeerOrSelfReviewsReceived, CourseMaterialExerciseTask, ExerciseTask, ActivityProgress, CourseMaterialExercise, Exercise, ExerciseGradingStatus, ExerciseStatus, ExerciseStatusSummaryForUser, GradingProgress, ExerciseResetLog, Feedback, FeedbackBlock, FeedbackCount, NewFeedback, FlaggedAnswer, NewFlaggedAnswer, NewFlaggedAnswerWithToken, ReportReason, GeneratedCertificate, CertificateUpdateRequest, Term, TermUpdate, AverageMetric, CohortActivity, CountResult, CustomViewExerciseSubmissions, CustomViewExerciseTaskGrading, CustomViewExerciseTaskSpec, CustomViewExerciseTaskSubmission, CustomViewExerciseTasks, CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry, TimeGranularity, AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewDataAnswerToReview, CourseMaterialPeerOrSelfReviewQuestionAnswer, CourseMaterialPeerOrSelfReviewSubmission, CompletionRegistrationLink, CourseInstanceCompletionSummary, ManualCompletionPreview, ManualCompletionPreviewUser, TeacherManualCompletion, TeacherManualCompletionRequest, UserCompletionInformation, UserCourseModuleCompletion, UserModuleCompletionStatus, UserWithModuleCompletions, ProgressOverview, CompletionGridRow, CertificateGridRow, UserMarketingConsent, MaterialReference, NewMaterialReference, Organization, AuthorizedClientInfo, PageAudioFile, HistoryChangeReason, PageHistory, PageVisitDatumSummaryByCourse, PageVisitDatumSummaryByCoursesCountries, PageVisitDatumSummaryByCourseDeviceTypes, PageVisitDatumSummaryByPages, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, ContentManagementPage, CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, IsChapterFrontPage, NewPage, Page, PageChapterAndCourseInformation, PageDetailsUpdate, PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises, SearchRequest, PartnerBlockNew, PartnersBlock, CmsPeerOrSelfReviewConfig, CmsPeerOrSelfReviewConfiguration, CourseMaterialPeerOrSelfReviewConfig, PeerOrSelfReviewConfig, PeerReviewProcessingStrategy, PeerOrSelfReviewAnswer, PeerOrSelfReviewQuestionAndAnswer, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers, CmsPeerOrSelfReviewQuestion, PeerOrSelfReviewQuestion, PeerOrSelfReviewQuestionType, PeerOrSelfReviewSubmission, PeerReviewQueueEntry, PendingRole, PlaygroundExample, PlaygroundExampleData, PrivacyLink, BlockProposal, BlockProposalAction, BlockProposalInfo, EditedBlockNoLongerExistsData, EditedBlockStillExistsData, NewProposedBlockEdit, ProposalStatus, EditProposalInfo, NewProposedPageEdits, PageProposal, ProposalCount, NewRegrading, NewRegradingIdType, Regrading, RegradingInfo, RegradingSubmissionInfo, RepositoryExercise, NewResearchForm, NewResearchFormQuestion, NewResearchFormQuestionAnswer, ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer, RoleDomain, RoleInfo, RoleUser, UserRole, StudentCountry, SuspectedCheaters, ThresholdData, NewTeacherGradingDecision, TeacherDecisionType, TeacherGradingDecision, UserCourseExerciseServiceVariable, UserCourseSettings, UserDetail, ExerciseUserCounts, ReviewingStage, UserCourseChapterExerciseProgress, UserCourseProgress, UserExerciseState, UserResearchConsent, User, UploadResult, CreateAccountDetails, Login, UserInfo, SaveCourseSettingsPayload, ChaptersWithStatus, CourseMaterialCourseModule, ExamData, ExamEnrollmentData, CourseMaterialPeerOrSelfReviewDataWithToken, CourseInfo, CertificateConfigurationUpdate, GetFeedbackQuery, CopyCourseRequest, CopyCourseMode, ExamCourseInfo, NewExerciseRepository, ExerciseServiceWithError, ExerciseSubmissions, MarkAsRead, PlaygroundViewsMessage, GetEditProposalsQuery, RoleQuery, BulkUserDetailsRequest, UserDetailsRequest, UserInfoPayload, CronJobInfo, DeploymentInfo, EventInfo, IngressInfo, JobInfo, PodDisruptionBudgetInfo, PodInfo, ServiceInfo, ServicePortInfo, HealthStatus, SystemHealthStatus, Pagination, OEmbedResponse, GutenbergBlock, MessageRole, ChatbotConversationMessageToolCall, ChatbotConversationMessageToolOutput, StudentsByCountryTotalsResult } from "./bindings";
 
 export function isAction(obj: unknown): obj is Action {
     const typedObj = obj as Action
@@ -576,6 +577,7 @@ export function isChatbotConfiguration(obj: unknown): obj is ChatbotConfiguratio
         typeof typedObj["maintain_azure_search_index"] === "boolean" &&
         typeof typedObj["hide_citations"] === "boolean" &&
         typeof typedObj["use_semantic_reranking"] === "boolean" &&
+        typeof typedObj["use_tools"] === "boolean" &&
         typeof typedObj["default_chatbot"] === "boolean"
     )
 }
@@ -607,6 +609,7 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
         typeof typedObj["maintain_azure_search_index"] === "boolean" &&
         typeof typedObj["hide_citations"] === "boolean" &&
         typeof typedObj["use_semantic_reranking"] === "boolean" &&
+        typeof typedObj["use_tools"] === "boolean" &&
         typeof typedObj["default_chatbot"] === "boolean" &&
         (typedObj["chatbotconf_id"] === null ||
             typeof typedObj["chatbotconf_id"] === "string")
@@ -664,10 +667,26 @@ export function isChatbotConversationMessage(obj: unknown): obj is ChatbotConver
         typeof typedObj["conversation_id"] === "string" &&
         (typedObj["message"] === null ||
             typeof typedObj["message"] === "string") &&
-        typeof typedObj["is_from_chatbot"] === "boolean" &&
+        isMessageRole(typedObj["message_role"]) as boolean &&
         typeof typedObj["message_is_complete"] === "boolean" &&
         typeof typedObj["used_tokens"] === "number" &&
-        typeof typedObj["order_number"] === "number"
+        typeof typedObj["order_number"] === "number" &&
+        (typedObj["tool_output"] === null ||
+            isChatbotConversationMessageToolOutput(typedObj["tool_output"]) as boolean) &&
+        Array.isArray(typedObj["tool_call_fields"]) &&
+        typedObj["tool_call_fields"].every((e: any) =>
+            isChatbotConversationMessageToolCall(e) as boolean
+        )
+    )
+}
+
+export function isMessageRole(obj: unknown): obj is MessageRole {
+    const typedObj = obj as MessageRole
+    return (
+        (typedObj === "assistant" ||
+            typedObj === "user" ||
+            typedObj === "tool" ||
+            typedObj === "system")
     )
 }
 
@@ -690,6 +709,41 @@ export function isChatbotConversationMessageCitation(obj: unknown): obj is Chatb
         typeof typedObj["content"] === "string" &&
         typeof typedObj["document_url"] === "string" &&
         typeof typedObj["citation_number"] === "number"
+    )
+}
+
+export function isChatbotConversationMessageToolCall(obj: unknown): obj is ChatbotConversationMessageToolCall {
+    const typedObj = obj as ChatbotConversationMessageToolCall
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["id"] === "string" &&
+        typeof typedObj["created_at"] === "string" &&
+        typeof typedObj["updated_at"] === "string" &&
+        (typedObj["deleted_at"] === null ||
+            typeof typedObj["deleted_at"] === "string") &&
+        typeof typedObj["message_id"] === "string" &&
+        typeof typedObj["tool_name"] === "string" &&
+        typeof typedObj["tool_call_id"] === "string"
+    )
+}
+
+export function isChatbotConversationMessageToolOutput(obj: unknown): obj is ChatbotConversationMessageToolOutput {
+    const typedObj = obj as ChatbotConversationMessageToolOutput
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["id"] === "string" &&
+        typeof typedObj["created_at"] === "string" &&
+        typeof typedObj["updated_at"] === "string" &&
+        (typedObj["deleted_at"] === null ||
+            typeof typedObj["deleted_at"] === "string") &&
+        typeof typedObj["message_id"] === "string" &&
+        typeof typedObj["tool_name"] === "string" &&
+        typeof typedObj["tool_output"] === "string" &&
+        typeof typedObj["tool_call_id"] === "string"
     )
 }
 
@@ -1471,7 +1525,10 @@ export function isEmailTemplate(obj: unknown): obj is EmailTemplate {
             typeof typedObj["exercise_completions_threshold"] === "number") &&
         (typedObj["points_threshold"] === null ||
             typeof typedObj["points_threshold"] === "number") &&
-        typeof typedObj["course_instance_id"] === "string"
+        (typedObj["course_instance_id"] === null ||
+            typeof typedObj["course_instance_id"] === "string") &&
+        (typedObj["language"] === null ||
+            typeof typedObj["language"] === "string")
     )
 }
 
@@ -1481,7 +1538,9 @@ export function isEmailTemplateNew(obj: unknown): obj is EmailTemplateNew {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["name"] === "string"
+        typeof typedObj["name"] === "string" &&
+        (typedObj["language"] === null ||
+            typeof typedObj["language"] === "string")
     )
 }
 
@@ -2450,6 +2509,18 @@ export function isCountResult(obj: unknown): obj is CountResult {
             typeof typedObj === "function") &&
         (typedObj["period"] === null ||
             typeof typedObj["period"] === "string") &&
+        typeof typedObj["count"] === "number"
+    )
+}
+
+export function isStudentsByCountryTotalsResult(obj: unknown): obj is StudentsByCountryTotalsResult {
+    const typedObj = obj as StudentsByCountryTotalsResult
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        (typedObj["country"] === null ||
+            typeof typedObj["country"] === "string") &&
         typeof typedObj["count"] === "number"
     )
 }
@@ -4410,9 +4481,7 @@ export function isThresholdData(obj: unknown): obj is ThresholdData {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["points"] === "number" &&
-        (typedObj["duration_seconds"] === null ||
-            typeof typedObj["duration_seconds"] === "number")
+        typeof typedObj["duration_seconds"] === "number"
     )
 }
 

@@ -5,6 +5,7 @@ import CohortProgress from "../../visualizations/user-activity/CohortProgress"
 import CourseSubmissionsByDay from "../../visualizations/user-activity/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../visualizations/user-activity/CourseSubmissionsByWeekdayAndHour"
 import CourseUsersWithSubmissionsByDay from "../../visualizations/user-activity/CourseUsersWithSubmissionsByDay"
+import FirstExerciseSubmissionsByModule from "../../visualizations/user-activity/FirstExerciseSubmissionsByModule"
 import FirstSubmissionTrends from "../../visualizations/user-activity/FirstSubmissionTrends"
 import UsersReturningExercises from "../../visualizations/user-activity/UsersReturningExercises"
 
@@ -22,6 +23,7 @@ const UserActivityTab: React.FC<UserActivityTabProps> = ({ courseId }) => {
       <UsersReturningExercises courseId={courseId} />
       <AverageTimeToSubmit courseId={courseId} />
       <CohortProgress courseId={courseId} />
+      <FirstExerciseSubmissionsByModule courseId={courseId} />
     </>
   )
 }

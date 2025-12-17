@@ -317,20 +317,20 @@ pub async fn get_ingresses(ns: &str) -> Result<Vec<IngressInfo>> {
                 .cloned();
             let mut hosts = Vec::new();
             let mut paths = Vec::new();
-            if let Some(spec) = &i.spec {
-                if let Some(rules) = &spec.rules {
-                    for rule in rules {
-                        if let Some(host) = &rule.host {
-                            hosts.push(host.clone());
-                        }
-                        if let Some(http) = &rule.http {
-                            for path in &http.paths {
-                                paths.push(format!(
-                                    "{} ({})",
-                                    path.path.as_deref().unwrap_or("/"),
-                                    path.path_type.as_str()
-                                ));
-                            }
+            if let Some(spec) = &i.spec
+                && let Some(rules) = &spec.rules
+            {
+                for rule in rules {
+                    if let Some(host) = &rule.host {
+                        hosts.push(host.clone());
+                    }
+                    if let Some(http) = &rule.http {
+                        for path in &http.paths {
+                            paths.push(format!(
+                                "{} ({})",
+                                path.path.as_deref().unwrap_or("/"),
+                                path.path_type.as_str()
+                            ));
                         }
                     }
                 }

@@ -187,27 +187,24 @@ async fn upload_field_to_storage(
 
     // Get size from content disposition if available
     // Note: This does not enforce the size of the file since the client can lie about the content length
-    if let Some(content_disposition) = field.content_disposition() {
-        if let Some(size_str) = content_disposition
+    if let Some(content_disposition) = field.content_disposition()
+        && let Some(size_str) = content_disposition
             .parameters
             .iter()
             .find_map(|p| p.as_unknown("size"))
-        {
-            if let Ok(size) = size_str.parse::<u64>() {
-                if size > size_limit as u64 {
-                    return Err(ControllerError::new(
-                        ControllerErrorType::BadRequest,
-                        format!(
-                            "File size {} exceeds limit of {} bytes for type {}",
-                            size,
-                            size_limit,
-                            mime_type.map_or("unknown".to_string(), |m| m.to_string())
-                        ),
-                        None,
-                    ));
-                }
-            }
-        }
+        && let Ok(size) = size_str.parse::<u64>()
+        && size > size_limit as u64
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            format!(
+                "File size {} exceeds limit of {} bytes for type {}",
+                size,
+                size_limit,
+                mime_type.map_or("unknown".to_string(), |m| m.to_string())
+            ),
+            None,
+        ));
     }
 
     // TODO: convert archives into a uniform format

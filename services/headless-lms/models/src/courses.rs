@@ -799,6 +799,7 @@ pub async fn delete_course(conn: &mut PgConnection, course_id: Uuid) -> ModelRes
 UPDATE courses
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING id,
   name,
   created_at,

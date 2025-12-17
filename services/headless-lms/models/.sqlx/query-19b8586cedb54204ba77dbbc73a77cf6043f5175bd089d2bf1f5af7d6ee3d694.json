@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_module_completion_registered_to_study_registries\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "19b8586cedb54204ba77dbbc73a77cf6043f5175bd089d2bf1f5af7d6ee3d694"
+}

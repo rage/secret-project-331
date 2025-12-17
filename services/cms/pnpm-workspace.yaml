@@ -5,14 +5,15 @@ linkWorkspacePackages: true
 managePackageManagerVersions: true
 
 minimumReleaseAge: 1440
+minimumReleaseAgeExclude: ["next", "react", "@next/*"]
 
 nodeVersion: 22.20.0
 
 onlyBuiltDependencies: []
 
 overrides:
-  '@babel/runtime@<7.26.10': '>=7.26.10'
-  webpack-dev-server@<=5.2.0: '>=5.2.1'
+  "@babel/runtime@<7.26.10": ">=7.26.10"
+  webpack-dev-server@<=5.2.0: ">=5.2.1"
 
 packageManagerStrictVersion: true
 

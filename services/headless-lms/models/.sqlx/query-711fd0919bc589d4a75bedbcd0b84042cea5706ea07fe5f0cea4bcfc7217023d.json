@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO cheater_thresholds (\n            course_module_id,\n            duration_seconds\n        )\n        VALUES ($1, $2)\n        ON CONFLICT (course_module_id)\n        DO UPDATE SET\n            duration_seconds = EXCLUDED.duration_seconds,\n            deleted_at = NULL\n        RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "duration_seconds",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "711fd0919bc589d4a75bedbcd0b84042cea5706ea07fe5f0cea4bcfc7217023d"
+}

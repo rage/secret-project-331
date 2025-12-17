@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH first_submissions AS (\n    SELECT\n        ess.user_id,\n        MIN(ess.created_at) AS first_submission,\n        ch.course_module_id AS module_id\n    FROM exercise_slide_submissions ess\n    JOIN exercises ex ON ex.id = ess.exercise_id\n    JOIN chapters ch ON ch.id = ex.chapter_id\n    WHERE ess.course_id = $1\n      AND ess.deleted_at IS NULL\n      AND NOT ess.user_id = ANY($2)\n      AND ess.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL\n      AND ch.course_module_id IS NOT NULL\n    GROUP BY ess.user_id, ch.course_module_id\n)\nSELECT\n    module_id AS \"module_id!\",\n    DATE_TRUNC($5, first_submission) AS \"period\",\n    COUNT(user_id) AS \"count!\"\nFROM first_submissions\nGROUP BY module_id, period\nORDER BY module_id, period\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "module_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "f57457736fa6c26e9bed4d3ccc6bba44f585c35050f02d9ae1248c30e46b3d59"
+}

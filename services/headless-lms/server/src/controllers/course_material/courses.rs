@@ -815,7 +815,7 @@ async fn get_student_countries(
         models::student_countries::get_countries(&mut conn, course_id, course_instance_id)
             .await?
             .into_iter()
-            .map(|c| (c.country_code))
+            .map(|c| c.country_code)
             .collect();
 
     let mut frequency: HashMap<String, u32> = HashMap::new();

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { useAtom } from "jotai"
-import React from "react"
+import React, { useRef } from "react"
+import { useLandmark } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { postProposedEdits } from "../services/backend"
@@ -9,13 +10,14 @@ import {
   currentlyOpenFeedbackDialogAtom,
   selectedBlockIdAtom,
 } from "../stores/materialFeedbackStore"
+import { formatKeyboardShortcut, getModifierKey } from "../utils/platformDetection"
 
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
@@ -30,6 +32,20 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [blockEdits] = useAtom(blockEditsAtom)
   const [selectedBlockId, setSelectedBlockId] = useAtom(selectedBlockIdAtom)
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  const { landmarkProps } = useLandmark(
+    {
+      // eslint-disable-next-line i18next/no-literal-string
+      role: "region",
+      "aria-label": t("improve-content-dialog"),
+    },
+    dialogRef,
+  )
+
+  const modifierKey = getModifierKey()
+  // eslint-disable-next-line i18next/no-literal-string
+  const dialogShortcut = formatKeyboardShortcut([modifierKey, "Shift", "I"])
 
   const mutation = useToastMutation(
     (block_edits: NewProposedBlockEdit[]) => {
@@ -113,6 +129,8 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
 
   return (
     <div
+      ref={dialogRef}
+      {...landmarkProps}
       className={css`
         position: fixed;
         max-width: 500px;
@@ -238,23 +256,50 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
           </div>
         )}
 
-        {leftButton && (
-          <div
-            className={css`
-              display: flex;
-              flex-direction: column;
-              gap: 1rem;
-              margin-top: 0.5rem;
+        <div
+          className={css`
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
 
-              ${respondToOrLarger.xxs} {
-                flex-direction: row;
-                justify-content: flex-end;
+            ${respondToOrLarger.xxs} {
+              flex-direction: row;
+              justify-content: ${leftButton ? "space-between" : "flex-end"};
+              align-items: center;
+            }
+          `}
+        >
+          {leftButton}
+          <span
+            className={css`
+              display: inline-flex;
+              align-items: center;
+              gap: 0.25rem;
+              font-size: 0.75rem;
+              color: ${baseTheme.colors.gray[600]};
+
+              @media (hover: none) and (pointer: coarse) {
+                display: none;
               }
             `}
           >
-            {leftButton}
-          </div>
-        )}
+            <kbd
+              className={css`
+                background-color: white;
+                border: 1px solid ${baseTheme.colors.gray[300]};
+                border-radius: 3px;
+                padding: 0.125rem 0.375rem;
+                font-family: ${monospaceFont};
+                font-size: 0.75rem;
+              `}
+            >
+              {dialogShortcut}
+            </kbd>
+            <span>{t("focus-dialog")}</span>
+          </span>
+        </div>
       </div>
     </div>
   )

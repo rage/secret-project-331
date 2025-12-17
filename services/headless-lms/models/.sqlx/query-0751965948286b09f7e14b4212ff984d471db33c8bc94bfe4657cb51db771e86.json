@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE page_audio_files\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING path\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "path",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "0751965948286b09f7e14b4212ff984d471db33c8bc94bfe4657cb51db771e86"
+}

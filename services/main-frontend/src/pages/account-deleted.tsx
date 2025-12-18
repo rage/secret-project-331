@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
 
-const AccountDeletedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
+const AccountDeletedPage: React.FC = () => {
   const { t } = useTranslation()
   return (
     <>

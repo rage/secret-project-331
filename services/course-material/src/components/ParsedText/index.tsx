@@ -45,6 +45,42 @@ const glossaryTermStyle = css`
   cursor: help;
 `
 
+type GlossaryTarget = { node: HTMLElement; glossaryId: string }
+
+// https://github.com/facebook/react/issues/31600
+const RESCAN_DELAYS_MS = [0, 50, 200] as const
+
+const scanGlossaryTargets = (container: HTMLElement | null): GlossaryTarget[] => {
+  if (!container) {
+    return []
+  }
+  const glossaryNodes = Array.from(container.querySelectorAll<HTMLElement>("[data-glossary-id]"))
+
+  return glossaryNodes.flatMap((node) => {
+    const glossaryId = node.getAttribute("data-glossary-id")
+    return glossaryId ? [{ node, glossaryId }] : []
+  })
+}
+
+const sameTargets = (a: GlossaryTarget[], b: GlossaryTarget[]) => {
+  if (a.length !== b.length) {
+    return false
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].node !== b[i].node || a[i].glossaryId !== b[i].glossaryId) {
+      return false
+    }
+  }
+  return true
+}
+
+const targetsAreUsable = (container: HTMLElement | null, targets: GlossaryTarget[]) => {
+  if (!container) {
+    return targets.length === 0
+  }
+  return targets.every(({ node }) => node.isConnected && container.contains(node))
+}
+
 /**
  * Parses HTML from Gutenberg editor (can contain glossary entries, references, LaTeX, etc.),
  * sanitizes it, and renders it. Rendering: use `tag` + `tagProps` for intrinsic elements,
@@ -55,26 +91,63 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
   const { terms } = useContext(GlossaryContext)
   const internalRef = useRef<HTMLSpanElement>(null)
   const containerRef = props.useWrapperElement === false ? props.wrapperRef : internalRef
-  const [glossaryTargets, setGlossaryTargets] = useState<
-    Array<{ node: HTMLElement; glossaryId: string }>
-  >([])
+
+  const [glossaryTargets, setGlossaryTargets] = useState<GlossaryTarget[]>([])
+
+  const timersRef = useRef<number[]>([])
 
   useLayoutEffect(() => {
-    if (!containerRef.current) {
-      setGlossaryTargets([])
-      return
+    // clear any prior timers when inputs change
+    timersRef.current.forEach((t) => window.clearTimeout(t))
+    timersRef.current = []
+
+    const initialContainer = containerRef.current
+
+    // First scan immediately (layout effect)
+    const first = scanGlossaryTargets(initialContainer)
+    setGlossaryTargets(first)
+
+    // Then a few deferred rescans to catch cases where the container/subtree
+    // is replaced shortly after the initial scan.
+    // https://github.com/facebook/react/issues/31600
+    for (const delay of RESCAN_DELAYS_MS) {
+      const id = window.setTimeout(() => {
+        const currentContainer = containerRef.current
+
+        setGlossaryTargets((prev) => {
+          const containerChanged = currentContainer !== initialContainer
+          const stale = !targetsAreUsable(currentContainer, prev)
+
+          if (!containerChanged && !stale) {
+            return prev
+          }
+
+          if (containerChanged) {
+            console.warn("ParsedText: Rescan needed - container changed", {
+              delay,
+              initialContainer,
+              currentContainer,
+            })
+          }
+          if (stale) {
+            console.warn("ParsedText: Rescan needed - targets are stale", {
+              delay,
+              prevTargetsCount: prev.length,
+            })
+          }
+
+          const next = scanGlossaryTargets(currentContainer)
+          return sameTargets(prev, next) ? prev : next
+        })
+      }, delay)
+
+      timersRef.current.push(id)
     }
 
-    const glossaryNodes = Array.from(
-      containerRef.current.querySelectorAll<HTMLElement>("[data-glossary-id]"),
-    )
-
-    const nextTargets = glossaryNodes.flatMap((node) => {
-      const glossaryId = node.getAttribute("data-glossary-id")
-      return glossaryId ? [{ node, glossaryId }] : []
-    })
-
-    setGlossaryTargets(nextTargets)
+    return () => {
+      timersRef.current.forEach((t) => window.clearTimeout(t))
+      timersRef.current = []
+    }
   }, [props.text, props.options, props.useWrapperElement, terms, containerRef])
 
   const portals = glossaryTargets

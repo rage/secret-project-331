@@ -97,8 +97,12 @@ test.describe("Test chatbot chat box", () => {
         waitForTheseToBeVisibleAndStable: [textInPopover],
         beforeScreenshot: async () => {
           // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
-          await student1Page.locator("body").press("Escape")
-          await textInPopover.waitFor({ state: "hidden" })
+          await expect(async () => {
+            await student1Page.locator("body").press("Escape")
+            await expect(textInPopover).toBeHidden({ timeout: 2000 })
+          }).toPass({
+            timeout: 15000,
+          })
           await scrollElementContainerToTop(citation1)
           await citation1.click()
           await textInPopover.waitFor()
@@ -193,8 +197,12 @@ test.describe("Test chatbot chat box", () => {
         waitForTheseToBeVisibleAndStable: [textInPopover],
         beforeScreenshot: async () => {
           // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
-          await student1Page.locator("body").press("Escape")
-          await textInPopover.waitFor({ state: "hidden" })
+          await expect(async () => {
+            await student1Page.locator("body").press("Escape")
+            await expect(textInPopover).toBeHidden({ timeout: 2000 })
+          }).toPass({
+            timeout: 15000,
+          })
           await scrollElementContainerToTop(citation1)
           await citation1.click()
           await textInPopover.waitFor()

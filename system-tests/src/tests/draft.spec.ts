@@ -115,7 +115,10 @@ test.describe("Teacher", () => {
   test("Can give students access to the draft course", async ({ page, browser }) => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-    await page.getByRole("button", { name: "Create" }).first().click()
+    await page
+      .getByRole("region", { name: "Courses:" })
+      .getByRole("button", { name: "Create", exact: true })
+      .click()
     await page.getByLabel("Name  *", { exact: true }).fill("Best draft course")
     await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
     await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")

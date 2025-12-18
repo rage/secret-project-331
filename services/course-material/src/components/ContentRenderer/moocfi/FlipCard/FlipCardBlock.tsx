@@ -164,10 +164,6 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
               justify-content: center;
             `}
           >
-            <VisuallyHidden>
-              {t("flip-card-roledescription")}. {t("flip-card-back-side")}.
-            </VisuallyHidden>
-            <ContentRenderer data={[backCard]} isExam={false} />
             {isFlipped && (
               <FlipButton
                 ref={backButtonRef}
@@ -175,6 +171,10 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
                 ariaLabel={t("button-text-flip-to-front")}
               />
             )}
+            <VisuallyHidden>
+              {t("flip-card-roledescription")}. {t("flip-card-back-side")}.
+            </VisuallyHidden>
+            <ContentRenderer data={[backCard]} isExam={false} />
           </div>
         </div>
       </ImageInteractivityContext.Provider>

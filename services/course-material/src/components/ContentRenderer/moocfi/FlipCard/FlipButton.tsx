@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { ReplayArrowLeftRight } from "@vectopus/atlas-icons-react"
 import React from "react"
-import { useButton, useFocusRing } from "react-aria"
+import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
@@ -22,13 +22,11 @@ const FlipButton: React.FC<FlipButtonProps> = ({ onPress, ariaLabel, ref }) => {
     },
     buttonRef as React.RefObject<HTMLButtonElement>,
   )
-  const { focusProps, isFocusVisible } = useFocusRing()
 
   return (
     <button
       ref={buttonRef}
       {...buttonProps}
-      {...focusProps}
       className={css`
         position: absolute;
         bottom: 10px;
@@ -60,12 +58,14 @@ const FlipButton: React.FC<FlipButtonProps> = ({ onPress, ariaLabel, ref }) => {
           z-index: -1;
         }
 
-        ${isFocusVisible &&
-        `
+        &:focus {
+          outline: none;
+        }
+
+        &:focus-visible {
           outline: 2px solid ${baseTheme.colors.blue[500]};
           outline-offset: 2px;
-          border-radius: 10px;
-        `}
+        }
 
         ${isPressed &&
         `

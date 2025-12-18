@@ -99,7 +99,7 @@ test.describe("Test chatbot chat box", () => {
           // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
           await expect(async () => {
             await student1Page.locator("body").press("Escape")
-            await textInPopover.waitFor({ state: "hidden", timeout: 2000 })
+            await expect(textInPopover).toBeHidden({ timeout: 2000 })
           }).toPass({
             timeout: 15000,
           })
@@ -199,7 +199,7 @@ test.describe("Test chatbot chat box", () => {
           // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
           await expect(async () => {
             await student1Page.locator("body").press("Escape")
-            await textInPopover.waitFor({ state: "hidden", timeout: 2000 })
+            await expect(textInPopover).toBeHidden({ timeout: 2000 })
           }).toPass({
             timeout: 15000,
           })

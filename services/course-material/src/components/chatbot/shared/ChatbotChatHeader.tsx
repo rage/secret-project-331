@@ -1,8 +1,23 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { Account, AddMessage } from "@vectopus/atlas-icons-react"
+import { Account, AddMessage, Hamburger } from "@vectopus/atlas-icons-react"
 import React from "react"
-import { Button, Heading } from "react-aria-components"
+import {
+  Button,
+  ButtonContext,
+  Dialog,
+  DialogContext,
+  Heading,
+  Menu,
+  MenuContext,
+  MenuItem,
+  MenuStateContext,
+  MenuTrigger,
+  Modal,
+  OverlayTriggerStateContext,
+  Popover,
+  PopoverContext,
+} from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
@@ -65,6 +80,10 @@ const buttonsWrapper = css`
   align-items: flex-start;
 `
 
+const menuStyle = css`
+  background: white;
+`
+
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
@@ -101,19 +120,37 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         {currentConversationInfo.data?.chatbot_name}
       </Heading>
       <div className={buttonsWrapper}>
-        <button
-          onClick={() => newConversation.mutate()}
-          disabled={newConversation.isPending}
-          className={buttonStyle}
-          aria-label={t("new-conversation")}
-        >
-          <AddMessage
-            className={css`
-              position: relative;
-              top: 0.25rem;
-            `}
-          />
-        </button>
+        <MenuTrigger>
+          <Button className={buttonStyle}>
+            <Hamburger
+              className={css`
+                position: relative;
+                top: 0.25rem;
+              `}
+            />
+          </Button>
+          <Popover>
+            <Menu className={menuStyle}>
+              <MenuItem
+                onAction={() => {
+                  if (!newConversation.isPending) {
+                    newConversation.mutate()
+                  }
+                }}
+                className={buttonStyle}
+                aria-label={t("new-conversation")}
+              >
+                <AddMessage
+                  className={css`
+                    position: relative;
+                    top: 0.25rem;
+                  `}
+                />
+              </MenuItem>
+            </Menu>
+          </Popover>
+        </MenuTrigger>
+
         {!isCourseMaterialBlock && (
           <Button slot="close" className={buttonStyle} aria-label={t("close")}>
             <DownIcon />

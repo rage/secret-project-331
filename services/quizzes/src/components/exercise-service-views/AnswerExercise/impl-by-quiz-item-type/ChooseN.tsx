@@ -119,10 +119,16 @@ const ChooseN: React.FunctionComponent<
                   ${TWO_DIMENSIONAL_BUTTON_STYLES}
                   ${isSelected && TWO_DIMENSIONAL_BUTTON_SELECTED}
 
-                  /* “Looks disabled” but stays interactive */
+                  /* "Looks disabled" but stays interactive */
                   ${visuallyMuted &&
                   css`
-                    opacity: 0.65;
+                    background-color: #f8f8f9;
+                    border-color: #d0d0d8;
+                    box-shadow:
+                      rgba(45, 35, 66, 0) 0 2px 4px,
+                      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                      #d0d0d8 0 -2px 0 inset;
+                    color: #2d3a4a;
                     cursor: not-allowed;
                   `}
                 `}

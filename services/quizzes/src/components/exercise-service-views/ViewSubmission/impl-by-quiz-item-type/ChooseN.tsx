@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
@@ -154,19 +155,13 @@ const MultipleChoiceClickableFeedback: React.FC<
                           ? "#16a34a"
                           : "#c53030"};
                     `}
-                    aria-label={
-                      shouldBeSelected === undefined
-                        ? undefined
-                        : isCorrect
-                          ? t("choose-n-selected-correct")
-                          : t("choose-n-selected-incorrect")
-                    }
                   >
                     {shouldBeSelected === undefined || isCorrect ? (
                       <CheckCircle size={20} />
                     ) : (
                       <XmarkCircle size={20} />
                     )}
+                    <VisuallyHidden>{t("choose-n-selected")}</VisuallyHidden>
                   </span>
                 )}
               </div>

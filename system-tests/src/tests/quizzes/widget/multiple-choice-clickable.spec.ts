@@ -27,9 +27,9 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
     screenshotTarget: frame,
   })
 
-  await frame.locator(`button:text("Cyan")`).click()
-  await frame.locator(`button:text("Sienna")`).click()
-  await frame.locator(`button:text("LawnGreen")`).click()
+  await frame.getByRole("button", { name: "Cyan" }).click()
+  await frame.getByRole("button", { name: "Sienna" }).click()
+  await frame.getByRole("button", { name: "LawnGreen" }).click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,

@@ -105,6 +105,11 @@ const PagesInChapterBox: React.FC<React.PropsWithChildren<PagesInChapterBoxProps
               outline-offset: 2px;
             }
 
+            &:focus-visible .chapter-parts {
+              background-color: rgb(235, 239, 242);
+              box-shadow: 0 0 0 2px ${baseTheme.colors.green[500]};
+            }
+
             :hover {
               .chapter-part-arrow {
                 visibility: visible;
@@ -112,7 +117,7 @@ const PagesInChapterBox: React.FC<React.PropsWithChildren<PagesInChapterBoxProps
             }
           `}
         >
-          <ChapterParts {...props}>
+          <ChapterParts {...props} className="chapter-parts">
             <PageNumberBox>
               <span>{props.chapterIndex}</span>
             </PageNumberBox>

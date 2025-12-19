@@ -4,8 +4,6 @@ import React from "react"
 import { BlockRendererProps } from "../.."
 import InnerBlocks from "../../util/InnerBlocks"
 
-import FlipButton from "./FlipButton"
-
 import { Block } from "@/services/backend"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -46,15 +44,6 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
           width={imageBlock.attributes.width}
           height={imageBlock.attributes.height}
         />
-        <div
-          className={css`
-            position: fixed;
-            bottom: 5px;
-            right: 5px;
-          `}
-        >
-          <FlipButton />
-        </div>
       </div>
     )
   } else {
@@ -82,7 +71,6 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
         `}
       >
         <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
-        <FlipButton />
       </div>
     )
   }

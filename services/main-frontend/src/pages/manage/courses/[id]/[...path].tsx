@@ -172,9 +172,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"course-instances"} isActive={path === "course-instances"}>
           {t("link-course-instances")}
         </TabLink>
+        {/* Uncomment this to reveal the student tab.
         <TabLink url={"students/users"} isActive={path.startsWith("students")}>
           {t("label-students")}
         </TabLink>
+        */}
         <TabLink url={"language-versions"} isActive={path === "language-versions"}>
           {t("link-language-versions")}
         </TabLink>

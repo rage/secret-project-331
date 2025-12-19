@@ -1,23 +1,9 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage, Hamburger } from "@vectopus/atlas-icons-react"
-import React from "react"
-import {
-  Button,
-  ButtonContext,
-  Dialog,
-  DialogContext,
-  Heading,
-  Menu,
-  MenuContext,
-  MenuItem,
-  MenuStateContext,
-  MenuTrigger,
-  Modal,
-  OverlayTriggerStateContext,
-  Popover,
-  PopoverContext,
-} from "react-aria-components"
+import React, { useState } from "react"
+import { useButton, useMenuTrigger } from "react-aria"
+import { Button, Heading, Menu, MenuItem, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
@@ -87,6 +73,33 @@ const menuStyle = css`
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
+  let [isOpen, setIsOpen] = useState(false)
+  let menuState = {
+    isOpen,
+    focusStrategy: false,
+    close: () => setIsOpen(false),
+    setOpen: () => setIsOpen(true),
+    open: () => setIsOpen(true),
+    toggle: () => setIsOpen(!isOpen),
+  }
+
+  // Get props for the button and menu elements
+  let ref = React.useRef(null)
+  let { menuTriggerProps, menuProps } = useMenuTrigger(
+    {},
+    {
+      isOpen,
+      // eslint-disable-next-line i18next/no-literal-string
+      focusStrategy: "first",
+      close: () => setIsOpen(false),
+      setOpen: () => setIsOpen(true),
+      open: () => setIsOpen(true),
+      toggle: () => setIsOpen(!isOpen),
+    },
+    ref,
+  )
+  let { buttonProps } = useButton(menuTriggerProps, ref)
+  let { autoFocus, ...menuProps2 } = menuProps
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -120,19 +133,22 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         {currentConversationInfo.data?.chatbot_name}
       </Heading>
       <div className={buttonsWrapper}>
-        <MenuTrigger>
-          <Button className={buttonStyle}>
-            <Hamburger
-              className={css`
-                position: relative;
-                top: 0.25rem;
-              `}
-            />
-          </Button>
-          <Popover>
-            <Menu className={menuStyle}>
-              <MenuItem
-                onAction={() => {
+        {
+          // controls the dialog. is there a slot that can prevent this?
+        }
+        <button className={buttonStyle} {...buttonProps}>
+          <Hamburger
+            className={css`
+              position: relative;
+              top: 0.25rem;
+            `}
+          />
+        </button>
+        {menuState.isOpen && (
+          <Popover triggerRef={ref} isNonModal={true}>
+            <ul className={menuStyle} {...menuProps2}>
+              <button
+                onClick={() => {
                   if (!newConversation.isPending) {
                     newConversation.mutate()
                   }
@@ -146,10 +162,10 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                     top: 0.25rem;
                   `}
                 />
-              </MenuItem>
-            </Menu>
+              </button>
+            </ul>
           </Popover>
-        </MenuTrigger>
+        )}
 
         {!isCourseMaterialBlock && (
           <Button slot="close" className={buttonStyle} aria-label={t("close")}>

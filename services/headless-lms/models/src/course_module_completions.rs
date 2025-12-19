@@ -137,41 +137,54 @@ RETURNING *
     Ok(res)
 }
 
+#[derive(Debug, Clone)]
+pub struct NewCourseModuleCompletionSeed {
+    pub course_id: Uuid,
+    pub course_module_id: Uuid,
+    pub user_id: Uuid,
+    pub completion_date: Option<DateTime<Utc>>,
+    pub completion_language: Option<String>,
+    pub eligible_for_ects: Option<bool>,
+    pub email: Option<String>,
+    pub grade: Option<i32>,
+    pub passed: Option<bool>,
+    pub prerequisite_modules_completed: Option<bool>,
+    pub needs_to_be_reviewed: Option<bool>,
+}
+
 pub async fn insert_seed_row(
     conn: &mut PgConnection,
-    course_id: Uuid,
-    course_module_id: Uuid,
-    user_id: Uuid,
-    completion_date: Option<DateTime<Utc>>,
-    completion_language: Option<&str>,
-    eligible_for_ects: Option<bool>,
-    email: Option<&str>,
-    grade: Option<i32>,
-    passed: Option<bool>,
-    prerequisite_modules_completed: Option<bool>,
-    needs_to_be_reviewed: Option<bool>,
+    seed: &NewCourseModuleCompletionSeed,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         r#"
         INSERT INTO course_module_completions (
-            course_id, course_module_id, user_id, completion_date,
-            completion_language, eligible_for_ects, email, grade, passed,
-            prerequisite_modules_completed, needs_to_be_reviewed
+            course_id,
+            course_module_id,
+            user_id,
+            completion_date,
+            completion_language,
+            eligible_for_ects,
+            email,
+            grade,
+            passed,
+            prerequisite_modules_completed,
+            needs_to_be_reviewed
         )
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
         RETURNING id
         "#,
-        course_id,
-        course_module_id,
-        user_id,
-        completion_date,
-        completion_language,
-        eligible_for_ects,
-        email,
-        grade,
-        passed,
-        prerequisite_modules_completed,
-        needs_to_be_reviewed,
+        seed.course_id,
+        seed.course_module_id,
+        seed.user_id,
+        seed.completion_date,
+        seed.completion_language.as_deref(),
+        seed.eligible_for_ects,
+        seed.email.as_deref(),
+        seed.grade,
+        seed.passed,
+        seed.prerequisite_modules_completed,
+        seed.needs_to_be_reviewed,
     )
     .fetch_one(conn)
     .await?;

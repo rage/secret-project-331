@@ -9,6 +9,7 @@ use crate::programs::seed::builder::{chapter::ChapterBuilder, context::SeedConte
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
     course_module_completion_registered_to_study_registries, course_module_completions,
+    course_module_completions::NewCourseModuleCompletionSeed,
 };
 
 use uuid::Uuid;
@@ -127,21 +128,21 @@ impl CompletionBuilder {
         course_module_id: Uuid,
         default_registrar_id: Option<Uuid>,
     ) -> anyhow::Result<()> {
-        let completion_id = course_module_completions::insert_seed_row(
-            conn,
+        let seed = NewCourseModuleCompletionSeed {
             course_id,
             course_module_id,
-            self.user_id,
-            self.completion_date,
-            self.completion_language.as_deref(),
-            self.eligible_for_ects,
-            self.email.as_deref(),
-            self.grade,
-            self.passed,
-            self.prerequisite_modules_completed,
-            self.needs_to_be_reviewed,
-        )
-        .await?;
+            user_id: self.user_id,
+            completion_date: self.completion_date,
+            completion_language: self.completion_language.clone(),
+            eligible_for_ects: self.eligible_for_ects,
+            email: self.email.clone(),
+            grade: self.grade,
+            passed: self.passed,
+            prerequisite_modules_completed: self.prerequisite_modules_completed,
+            needs_to_be_reviewed: self.needs_to_be_reviewed,
+        };
+
+        let completion_id = course_module_completions::insert_seed_row(conn, &seed).await?;
 
         // Mark registration attempt (seed always sets this)
         course_module_completions::update_registration_attempt(conn, completion_id)

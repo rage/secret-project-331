@@ -10,9 +10,12 @@ use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
 use anyhow::{Context, Result};
 use chrono::Utc;
-use headless_lms_models::certificate_configuration_to_requirements::link_configuration_to_module_if_missing;
-use headless_lms_models::certificate_configurations::get_first_configuration_id;
+use headless_lms_models::certificate_configuration_to_requirements;
+use headless_lms_models::certificate_configurations::{
+    DatabaseCertificateConfiguration, insert as insert_certificate_configuration,
+};
 use headless_lms_models::course_instance_enrollments;
+use headless_lms_models::file_uploads;
 use headless_lms_models::roles::UserRole;
 use headless_lms_models::study_registry_registrars::get_or_create_default_registrar;
 use tracing::info;
@@ -106,12 +109,58 @@ pub async fn seed_graded_course(
             .await?;
     }
 
-    let cert_config_id_opt = get_first_configuration_id(&mut conn).await?;
+    let background_svg_path = "svgs/certificate-background.svg".to_string();
 
-    let cert_config_id = cert_config_id_opt
-        .context("No certificate_configurations found; cannot seed graded course certificates")?;
+    let background_svg_file_upload_id = file_uploads::insert(
+        &mut conn,
+        &format!("background-{}.svg", last_module.id),
+        &background_svg_path,
+        "image/svg+xml",
+        None,
+    )
+    .await?;
 
-    link_configuration_to_module_if_missing(&mut conn, cert_config_id, last_module.id).await?;
+    let configuration = DatabaseCertificateConfiguration {
+        id: Uuid::new_v5(&course_id, b"graded-course-certificate-configuration"),
+        certificate_owner_name_y_pos: None,
+        certificate_owner_name_x_pos: None,
+        certificate_owner_name_font_size: None,
+        certificate_owner_name_text_color: None,
+        certificate_owner_name_text_anchor: None,
+        certificate_validate_url_y_pos: None,
+        certificate_validate_url_x_pos: None,
+        certificate_validate_url_font_size: None,
+        certificate_validate_url_text_color: None,
+        certificate_validate_url_text_anchor: None,
+        certificate_date_y_pos: None,
+        certificate_date_x_pos: None,
+        certificate_date_font_size: None,
+        certificate_date_text_color: None,
+        certificate_date_text_anchor: None,
+        certificate_locale: None,
+        paper_size: None,
+        background_svg_path,
+        background_svg_file_upload_id,
+        overlay_svg_path: None,
+        overlay_svg_file_upload_id: None,
+        render_certificate_grade: true,
+        certificate_grade_y_pos: None,
+        certificate_grade_x_pos: None,
+        certificate_grade_font_size: None,
+        certificate_grade_text_color: None,
+        certificate_grade_text_anchor: None,
+    };
+
+    let database_configuration = insert_certificate_configuration(&mut conn, &configuration)
+        .await
+        .context("insert certificate configuration")?;
+
+    certificate_configuration_to_requirements::insert(
+        &mut conn,
+        database_configuration.id,
+        Some(last_module.id),
+    )
+    .await?;
 
     // Now that the module has a configuration, generate certificates for the demo users
     for uid in example_normal_user_ids.iter() {

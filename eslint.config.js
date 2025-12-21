@@ -382,7 +382,20 @@ const config = [
             ],
           },
           "object-properties": {
-            exclude: ["type", "[A-Z_-]+", "displayName", "href", "direction", "variant", "size"],
+            exclude: [
+              "type",
+              "[A-Z_-]+",
+              "displayName",
+              "href",
+              "direction",
+              "variant",
+              "size",
+              "width",
+              "minWidth",
+              "maxWidth",
+              "boxSizing",
+              "transform",
+            ],
           },
           "class-properties": {
             exclude: ["displayName"],

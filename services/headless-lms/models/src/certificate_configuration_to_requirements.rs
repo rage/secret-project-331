@@ -107,3 +107,32 @@ RETURNING *
     .await?;
     Ok(row)
 }
+
+pub async fn link_configuration_to_module_if_missing(
+    conn: &mut PgConnection,
+    certificate_configuration_id: Uuid,
+    course_module_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+        INSERT INTO certificate_configuration_to_requirements (
+            certificate_configuration_id,
+            course_module_id
+        )
+        SELECT $1, $2
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM certificate_configuration_to_requirements
+            WHERE certificate_configuration_id = $1
+              AND course_module_id = $2
+              AND deleted_at IS NULL
+        )
+        "#,
+        certificate_configuration_id,
+        course_module_id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}

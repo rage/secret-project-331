@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT c.id AS chapter_id,\n  c.chapter_number AS chapter_number,\n  c.name AS chapter_name,\n  COALESCE(COUNT(ex.id), 0)::bigint AS \"exercises_available!\",\n  COALESCE(COUNT(ex.id), 0)::bigint AS \"points_available!\"\nFROM chapters c\n  JOIN exercises ex ON ex.chapter_id = c.id\nWHERE c.course_id = $1\n  AND c.deleted_at IS NULL\n  AND ex.deleted_at IS NULL\nGROUP BY c.id,\n  c.chapter_number,\n  c.name\nORDER BY c.chapter_number\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chapter_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "chapter_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "chapter_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "exercises_available!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "points_available!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "5b84d5666a9793f3ae30db9cca1123632c7274c9cdc12c5042b5155d7e1d71d3"
+}

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE course_module_completions\n        SET completion_registration_attempt_date = now()\n        WHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c471a84c6d1601d728c4f3fdf68dfe3fb4fe8a9ddfc58b9b0a6b68a8239be1a0"
+}

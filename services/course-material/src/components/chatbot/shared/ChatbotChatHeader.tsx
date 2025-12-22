@@ -1,16 +1,8 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage, Hamburger } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
-import { useButton, useMenuTrigger } from "react-aria"
-import {
-  Button,
-  Heading,
-  Menu,
-  MenuItem,
-  OverlayTriggerStateContext,
-  Popover,
-} from "react-aria-components"
+import React from "react"
+import { Button, Heading, Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
@@ -74,39 +66,12 @@ const buttonsWrapper = css`
 `
 
 const menuStyle = css`
-  background: white;
+  background: pink;
 `
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
-  let [isOpen, setIsOpen] = useState(false)
-  let menuState = {
-    isOpen,
-    focusStrategy: false,
-    close: () => setIsOpen(false),
-    setOpen: () => setIsOpen(true),
-    open: () => setIsOpen(true),
-    toggle: () => setIsOpen(!isOpen),
-  }
-
-  // Get props for the button and menu elements
-  let ref = React.useRef(null)
-  let { menuTriggerProps, menuProps } = useMenuTrigger(
-    {},
-    {
-      isOpen,
-      // eslint-disable-next-line i18next/no-literal-string
-      focusStrategy: "first",
-      close: () => setIsOpen(false),
-      setOpen: () => setIsOpen(true),
-      open: () => setIsOpen(true),
-      toggle: () => setIsOpen(!isOpen),
-    },
-    ref,
-  )
-  let { buttonProps } = useButton(menuTriggerProps, ref)
-  let { autoFocus, ...menuProps2 } = menuProps
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -140,19 +105,21 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         {currentConversationInfo.data?.chatbot_name}
       </Heading>
       <div className={buttonsWrapper}>
-        <button className={buttonStyle} ref={ref} {...buttonProps}>
-          <Hamburger
-            className={css`
-              position: relative;
-              top: 0.25rem;
-            `}
-          />
-        </button>
-        {menuState.isOpen && (
-          <Popover triggerRef={ref} isNonModal={true} slot={null}>
-            <ul className={menuStyle} {...menuProps2}>
-              <button
-                onClick={() => {
+        <MenuTrigger>
+          <Button className={buttonStyle}>
+            <Hamburger
+              className={css`
+                position: relative;
+
+                top: 0.25rem;
+              `}
+            />
+          </Button>
+
+          <Popover isNonModal={false}>
+            <Menu className={menuStyle}>
+              <MenuItem
+                onAction={() => {
                   if (!newConversation.isPending) {
                     newConversation.mutate()
                   }
@@ -163,13 +130,14 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                 <AddMessage
                   className={css`
                     position: relative;
+
                     top: 0.25rem;
                   `}
                 />
-              </button>
-            </ul>
+              </MenuItem>
+            </Menu>
           </Popover>
-        )}
+        </MenuTrigger>
         {!isCourseMaterialBlock && (
           <Button slot="close" className={buttonStyle} aria-label={t("close")}>
             <DownIcon />

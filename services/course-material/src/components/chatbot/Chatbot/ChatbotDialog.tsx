@@ -36,7 +36,6 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const chatbotTitleId = useId()
   let state = useContext(OverlayTriggerStateContext)
   const [shouldRender, setShouldRender] = useState(false)
-  console.log(state)
 
   useEffect(() => {
     if (state?.isOpen) {
@@ -51,13 +50,20 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   }
 
   useEffect(() => {
-    // very sus but it works
-    // remove the scroll prevention set by react-aria Modal
-    // eslint-disable-next-line i18next/no-literal-string
-    document.documentElement.style.overflow = "scroll"
-    // remove the interaction prevention set by react-aria Modal
-    // eslint-disable-next-line i18next/no-literal-string
-    document.body.querySelector("div")?.removeAttribute("inert")
+    let searchDialog: Element | null = document.body.querySelector(
+      `div[aria-label="Search dialog"]`,
+    )
+    console.log(searchDialog)
+
+    if (searchDialog === null && shouldRender) {
+      // !! this breaks the search dialog if the chatbot dialog is open
+      // remove the scroll prevention set by react-aria Modal
+      // eslint-disable-next-line i18next/no-literal-string
+      document.documentElement.style.overflow = "scroll"
+      // remove the interaction prevention set by react-aria Modal
+      // eslint-disable-next-line i18next/no-literal-string
+      document.body.querySelector("div")?.removeAttribute("inert")
+    }
   })
 
   return (

@@ -40,29 +40,29 @@ test.describe("Choose N exercise accessibility", () => {
       await page.keyboard.press(" ")
       await expect(firstButton).toHaveAttribute("aria-pressed", "true")
 
-      await page.keyboard.press("Tab")
+      await page.keyboard.press("ArrowRight")
       await expect(secondButton).toBeFocused()
       await page.keyboard.press(" ")
       await expect(secondButton).toHaveAttribute("aria-pressed", "true")
     })
 
     await test.step("All buttons remain focusable when limit is reached", async () => {
-      await page.keyboard.press("Tab")
+      await page.keyboard.press("ArrowRight")
       await expect(thirdButton).toBeFocused()
       await expect(thirdButton).toBeEnabled()
 
-      await page.keyboard.press("Shift+Tab")
+      await page.keyboard.press("ArrowLeft")
       await expect(secondButton).toBeFocused()
       await expect(secondButton).toBeEnabled()
 
-      await page.keyboard.press("Shift+Tab")
+      await page.keyboard.press("ArrowLeft")
       await expect(firstButton).toBeFocused()
       await expect(firstButton).toBeEnabled()
     })
 
     await test.step("Visible announcement when trying to select more than allowed", async () => {
-      await page.keyboard.press("Tab")
-      await page.keyboard.press("Tab")
+      await page.keyboard.press("ArrowRight")
+      await page.keyboard.press("ArrowRight")
       await expect(thirdButton).toBeFocused()
       await expect(thirdButton).toHaveAttribute("aria-pressed", "false")
 

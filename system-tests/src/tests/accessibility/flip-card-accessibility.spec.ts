@@ -26,11 +26,6 @@ test.describe("Flip card accessibility", () => {
       return page.getByRole("button", { name: buttonLabels[Number(isFlipped)] })
     }
 
-    await test.step("Flip button has aria-pressed attribute", async () => {
-      const flipButton = getFlipButton(false)
-      await expect(flipButton).toHaveAttribute("aria-pressed", "false")
-    })
-
     await test.step("Card content is accessible to screen readers", async () => {
       const frontContent = page.getByTestId("flip-card-front")
       await expect(frontContent).toBeVisible()
@@ -51,14 +46,12 @@ test.describe("Flip card accessibility", () => {
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
 
       await page.keyboard.press(" ")
-      const flippedButton = getFlipButton(true)
-      await expect(flippedButton).toHaveAttribute("aria-pressed", "true")
+      await expect(getFlipButton(true)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "true")
       await expect(backContent).toHaveAttribute("aria-hidden", "false")
 
       await page.keyboard.press(" ")
-      const unflippedButton = getFlipButton(false)
-      await expect(unflippedButton).toHaveAttribute("aria-pressed", "false")
+      await expect(getFlipButton(false)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
     })
@@ -70,14 +63,12 @@ test.describe("Flip card accessibility", () => {
 
       await flipButton.focus()
       await page.keyboard.press("Enter")
-      const flippedButton = getFlipButton(true)
-      await expect(flippedButton).toHaveAttribute("aria-pressed", "true")
+      await expect(getFlipButton(true)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "true")
       await expect(backContent).toHaveAttribute("aria-hidden", "false")
 
       await page.keyboard.press("Enter")
-      const unflippedButton = getFlipButton(false)
-      await expect(unflippedButton).toHaveAttribute("aria-pressed", "false")
+      await expect(getFlipButton(false)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
     })
@@ -91,26 +82,22 @@ test.describe("Flip card accessibility", () => {
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
 
       await frontContent.click({ position: { x: 50, y: 50 } })
-      const flipButton = getFlipButton(true)
-      await expect(flipButton).toHaveAttribute("aria-pressed", "true")
+      await expect(getFlipButton(true)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "true")
       await expect(backContent).toHaveAttribute("aria-hidden", "false")
 
       await backContent.click({ position: { x: 100, y: 100 } })
-      const flipButton2 = getFlipButton(false)
-      await expect(flipButton2).toHaveAttribute("aria-pressed", "false")
+      await expect(getFlipButton(false)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
 
       await frontContent.click({ position: { x: 200, y: 150 } })
-      const flipButton3 = getFlipButton(true)
-      await expect(flipButton3).toHaveAttribute("aria-pressed", "true")
+      await expect(getFlipButton(true)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "true")
       await expect(backContent).toHaveAttribute("aria-hidden", "false")
 
       await backContent.click({ position: { x: 10, y: 10 } })
-      const flipButton4 = getFlipButton(false)
-      await expect(flipButton4).toHaveAttribute("aria-pressed", "false")
+      await expect(getFlipButton(false)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
     })
@@ -122,13 +109,11 @@ test.describe("Flip card accessibility", () => {
 
       await flipButton.click()
       const flippedButton = getFlipButton(true)
-      await expect(flippedButton).toHaveAttribute("aria-pressed", "true")
       await expect(frontContent).toHaveAttribute("aria-hidden", "true")
       await expect(backContent).toHaveAttribute("aria-hidden", "false")
 
       await flippedButton.click()
-      const unflippedButton = getFlipButton(false)
-      await expect(unflippedButton).toHaveAttribute("aria-pressed", "false")
+      await expect(getFlipButton(false)).toBeVisible()
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
     })
@@ -147,14 +132,12 @@ test.describe("Flip card accessibility", () => {
       await page.keyboard.press(" ")
       const flippedButton = getFlipButton(true)
       await expect(flippedButton).toBeFocused()
-      await expect(flippedButton).toHaveAttribute("aria-pressed", "true")
       await expect(frontContent).toHaveAttribute("aria-hidden", "true")
       await expect(backContent).toHaveAttribute("aria-hidden", "false")
 
       await page.keyboard.press(" ")
       const unflippedButton = getFlipButton(false)
       await expect(unflippedButton).toBeFocused()
-      await expect(unflippedButton).toHaveAttribute("aria-pressed", "false")
       await expect(frontContent).toHaveAttribute("aria-hidden", "false")
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
     })

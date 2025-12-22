@@ -1,5 +1,5 @@
 # This image is used in skaffold.production.yaml to create a slim image that is used in production
-FROM eu.gcr.io/moocfi-public/project-331-node-base:latest as builder
+FROM eu.gcr.io/moocfi-public/project-331-node-cache:latest as builder
 
 RUN mkdir -p /app && chown -R node /app
 

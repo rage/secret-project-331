@@ -3,7 +3,14 @@ import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage, Hamburger } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useButton, useMenuTrigger } from "react-aria"
-import { Button, Heading, Menu, MenuItem, Popover } from "react-aria-components"
+import {
+  Button,
+  Heading,
+  Menu,
+  MenuItem,
+  OverlayTriggerStateContext,
+  Popover,
+} from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"

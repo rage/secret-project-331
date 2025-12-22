@@ -50,6 +50,16 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     }
   }
 
+  useEffect(() => {
+    // very sus but it works
+    // remove the scroll prevention set by react-aria Modal
+    // eslint-disable-next-line i18next/no-literal-string
+    document.documentElement.style.overflow = "scroll"
+    // remove the interaction prevention set by react-aria Modal
+    // eslint-disable-next-line i18next/no-literal-string
+    document.body.querySelector("div")?.removeAttribute("inert")
+  })
+
   return (
     <>
       <OpenChatbotButton hide={shouldRender} />

@@ -1,7 +1,6 @@
 import { css, keyframes } from "@emotion/css"
-import React, { useContext, useEffect, useId, useRef, useState } from "react"
-import { FocusScope } from "react-aria"
-import { Dialog, OverlayTriggerStateContext } from "react-aria-components"
+import React, { useContext, useEffect, useId, useState } from "react"
+import { Dialog, Modal, OverlayTriggerStateContext } from "react-aria-components"
 
 import ChatbotChat from "./ChatbotChat"
 import OpenChatbotButton from "./OpenChatbotButton"
@@ -35,9 +34,9 @@ const closeAnimation = keyframes`
 
 const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const chatbotTitleId = useId()
-  const dialogRef = useRef<HTMLDivElement>(null)
   let state = useContext(OverlayTriggerStateContext)
   const [shouldRender, setShouldRender] = useState(false)
+  console.log(state)
 
   useEffect(() => {
     if (state?.isOpen) {
@@ -51,51 +50,28 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     }
   }
 
-  useEffect(() => {
-    const removeListenersAbortController = new AbortController()
-    const currentRef = dialogRef.current
-    currentRef?.addEventListener(
-      "keydown",
-      (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          state?.close()
-        }
-      },
-      { signal: removeListenersAbortController.signal },
-    )
-
-    return () => {
-      removeListenersAbortController.abort()
-    }
-  }, [state])
-
   return (
     <>
       <OpenChatbotButton hide={shouldRender} />
-      <div ref={dialogRef}>
-        {shouldRender && (
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          <FocusScope restoreFocus autoFocus>
-            <Dialog
-              aria-labelledby={chatbotTitleId}
-              className={css`
-                animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
-                position: fixed;
-                bottom: 70px;
-                right: 1rem;
-                z-index: 1000;
-              `}
-              onAnimationEnd={handleAnimationEnd}
-            >
-              <ChatbotChat
-                chatbotConfigurationId={chatbotConfigurationId}
-                isCourseMaterialBlock={false}
-                chatbotTitleId={chatbotTitleId}
-              />
-            </Dialog>
-          </FocusScope>
-        )}
-      </div>
+      <Modal isOpen={shouldRender} onOpenChange={state?.toggle}>
+        <Dialog
+          aria-labelledby={chatbotTitleId}
+          className={css`
+            animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
+            position: fixed;
+            bottom: 70px;
+            right: 1rem;
+            z-index: 1000;
+          `}
+          onAnimationEnd={handleAnimationEnd}
+        >
+          <ChatbotChat
+            chatbotConfigurationId={chatbotConfigurationId}
+            isCourseMaterialBlock={false}
+            chatbotTitleId={chatbotTitleId}
+          />
+        </Dialog>
+      </Modal>
     </>
   )
 }

@@ -133,10 +133,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         {currentConversationInfo.data?.chatbot_name}
       </Heading>
       <div className={buttonsWrapper}>
-        {
-          // controls the dialog. is there a slot that can prevent this?
-        }
-        <button className={buttonStyle} {...buttonProps}>
+        <button className={buttonStyle} ref={ref} {...buttonProps}>
           <Hamburger
             className={css`
               position: relative;
@@ -145,7 +142,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           />
         </button>
         {menuState.isOpen && (
-          <Popover triggerRef={ref} isNonModal={true}>
+          <Popover triggerRef={ref} isNonModal={true} slot={null}>
             <ul className={menuStyle} {...menuProps2}>
               <button
                 onClick={() => {
@@ -166,7 +163,6 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
             </ul>
           </Popover>
         )}
-
         {!isCourseMaterialBlock && (
           <Button slot="close" className={buttonStyle} aria-label={t("close")}>
             <DownIcon />

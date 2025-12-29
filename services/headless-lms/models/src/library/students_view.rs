@@ -94,12 +94,12 @@ cmcr AS (
     AND deleted_at IS NULL
 )
 SELECT
-  ud.first_name,
-  ud.last_name,
-  m.module_name,
-  r.grade,
-  r.passed,
-  (r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)) AS is_registered
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  m.module_name AS "module_name?",
+  r.grade AS "grade?",
+  r.passed AS "passed?",
+  (r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)) AS "is_registered?"
 FROM modules m
 CROSS JOIN enrolled e
 JOIN users u ON u.id = e.user_id
@@ -127,8 +127,9 @@ LEFT JOIN latest_cmc r
 
             let grade = match (r.grade, r.passed) {
                 (Some(g), _) => g.to_string(),
-                (None, true) => "Passed".to_string(),
-                (None, false) => "Failed".to_string(),
+                (None, Some(true)) => "Passed".to_string(),
+                (None, Some(false)) => "Failed".to_string(),
+                (None, None) => "-".to_string(),
             };
 
             let status = if r.is_registered.unwrap_or(false) {

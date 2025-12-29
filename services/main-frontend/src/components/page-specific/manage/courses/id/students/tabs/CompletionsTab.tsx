@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { CellContext, ColumnDef } from "@tanstack/react-table"
+import { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -15,13 +16,13 @@ import Spinner from "@/shared-module/common/components/Spinner"
 type Props = { courseId: string; searchQuery: string }
 type RowObject = Record<string, unknown> & { student: string }
 
-const moduleKey = (name: string | null, t: (key: string) => string) =>
+const moduleKey = (name: string | null, t: TFunction) =>
   (name && name.trim().length > 0 ? name : t("default-module"))
     .toLowerCase()
     .replace(/\s+/g, "_")
     .replace(/[^a-z0-9_]/g, "_")
 
-const pivotCompletions = (rows: CompletionGridRow[], t: (key: string) => string) => {
+const pivotCompletions = (rows: CompletionGridRow[], t: TFunction) => {
   const modulesInOrder: string[] = []
   const seen = new Set<string>()
   for (const r of rows) {
@@ -57,10 +58,7 @@ const StudentCell = ({ getValue }: CellContext<RowObject, unknown>) => (
   <span className={studentEllipsis}>{String(getValue() ?? "")}</span>
 )
 
-const buildColumns = (
-  modulesInOrder: string[],
-  t: (key: string) => string,
-): ColumnDef<RowObject, unknown>[] => {
+const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObject, unknown>[] => {
   const columns: ColumnDef<RowObject, unknown>[] = [
     {
       // eslint-disable-next-line i18next/no-literal-string
@@ -125,10 +123,7 @@ const buildColumns = (
   return columns
 }
 
-export const CompletionsTabContent: React.FC<Props & { searchQuery: string }> = ({
-  courseId,
-  searchQuery,
-}) => {
+export const CompletionsTabContent: React.FC<Props> = ({ courseId, searchQuery }) => {
   const { t } = useTranslation()
   const query = useQuery({
     queryKey: ["completions-tab", courseId],

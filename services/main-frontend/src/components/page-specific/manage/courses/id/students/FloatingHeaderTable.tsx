@@ -374,6 +374,11 @@ export function FloatingHeaderTable<T extends object>({
         return (
           <tr key={headerGroup.id} className={headerRowStyle}>
             {headerGroup.headers.map((header, colIdx) => {
+              // Skip headers in second row that should span both rows (already rendered in first row)
+              if (rowIdx === 1 && header.depth === 0 && header.colSpan === 1) {
+                return null
+              }
+
               let removeRight = false
               let removeLeft = false
 

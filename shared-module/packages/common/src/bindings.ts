@@ -230,10 +230,11 @@ export interface UserChapterProgress {
 }
 
 export interface CourseUserInfo {
-  name: string
+  first_name: string | null
+  last_name: string | null
   user_id: string
   email: string | null
-  course_instance: string
+  course_instance: string | null
 }
 
 export interface ChatbotConfiguration {

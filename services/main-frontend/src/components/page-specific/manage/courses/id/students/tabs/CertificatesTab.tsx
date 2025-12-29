@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
@@ -50,7 +50,10 @@ const actionsCellInner = css`
   width: 100%;
 `
 
-export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ courseId }) => {
+export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: string }> = ({
+  courseId,
+  searchQuery,
+}) => {
   const { t } = useTranslation()
   const [editData, setEditData] = useState<{
     id: string
@@ -64,7 +67,24 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     enabled: !!courseId,
   })
 
-  const rows = (query.data ?? []) as CertificateGridRow[]
+  const allRows = useMemo(() => (query.data ?? []) as CertificateGridRow[], [query.data])
+
+  const rows = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return allRows
+    }
+    const queryLower = searchQuery.toLowerCase()
+    return allRows.filter((row) => {
+      const student = String(row.student ?? "").toLowerCase()
+      const certificate = String(row.certificate ?? "").toLowerCase()
+      const nameOnCertificate = String(row.name_on_certificate ?? "").toLowerCase()
+      return (
+        student.includes(queryLower) ||
+        certificate.includes(queryLower) ||
+        nameOnCertificate.includes(queryLower)
+      )
+    })
+  }, [allRows, searchQuery])
   const [popupUrl, setPopupUrl] = useState<string | null>(null)
   const [verificationId, setVerificationId] = useState<string | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)

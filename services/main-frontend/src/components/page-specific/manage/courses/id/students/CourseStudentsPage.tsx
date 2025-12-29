@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState, useTransition } from "react"
 import { useTranslation } from "react-i18next"
 
 import * as styles from "./StudentsPageStyles"
@@ -75,6 +75,9 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
   }, [subtabFromUrl])
 
   const [activeTab, setActiveTab] = useState<(typeof TAB_LIST)[number]>(tabFromUrl)
+  const [inputValue, setInputValue] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [_isPending, startTransition] = useTransition()
 
   useEffect(() => {
     setActiveTab(tabFromUrl)
@@ -104,10 +107,14 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
   }
 
   const tabContentMap: { [k in (typeof TAB_LIST)[number]]: React.ReactNode } = {
-    [TAB_USER]: courseId ? <UserTabContent courseId={courseId} /> : null,
-    [TAB_COMPLETIONS]: courseId ? <CompletionsTabContent courseId={courseId} /> : null,
-    [TAB_PROGRESS]: courseId ? <ProgressTabContent courseId={courseId} /> : null,
-    [TAB_CERTIFICATES]: <CertificatesTabContent courseId={courseId} />,
+    [TAB_USER]: courseId ? <UserTabContent courseId={courseId} searchQuery={searchQuery} /> : null,
+    [TAB_COMPLETIONS]: courseId ? (
+      <CompletionsTabContent courseId={courseId} searchQuery={searchQuery} />
+    ) : null,
+    [TAB_PROGRESS]: courseId ? (
+      <ProgressTabContent courseId={courseId} searchQuery={searchQuery} />
+    ) : null,
+    [TAB_CERTIFICATES]: <CertificatesTabContent courseId={courseId} searchQuery={searchQuery} />,
   }
 
   return (
@@ -130,7 +137,18 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
         <div className={styles.headerControlsSection}>
           <div className={styles.controlsRow}>
             <div className={styles.searchBoxWrap}>
-              <input className={styles.searchInput} placeholder={t("search-students")} />
+              <input
+                className={styles.searchInput}
+                placeholder={t("search-students")}
+                value={inputValue}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setInputValue(value)
+                  startTransition(() => {
+                    setSearchQuery(value)
+                  })
+                }}
+              />
               <span className={styles.searchIcon}>🔍</span>
             </div>
 

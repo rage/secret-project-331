@@ -536,11 +536,15 @@ export function isCourseUserInfo(obj: unknown): obj is CourseUserInfo {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["name"] === "string" &&
+        (typedObj["first_name"] === null ||
+            typeof typedObj["first_name"] === "string") &&
+        (typedObj["last_name"] === null ||
+            typeof typedObj["last_name"] === "string") &&
         typeof typedObj["user_id"] === "string" &&
         (typedObj["email"] === null ||
             typeof typedObj["email"] === "string") &&
-        typeof typedObj["course_instance"] === "string"
+        (typedObj["course_instance"] === null ||
+            typeof typedObj["course_instance"] === "string")
     )
 }
 

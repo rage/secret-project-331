@@ -4,7 +4,7 @@ import type { CellContext, ColumnDef } from "@tanstack/react-table"
 import React, { useMemo } from "react"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
-import { COMPLETIONS_LEAF_MIN_WIDTH, COMPLETIONS_LEAF_WIDTH, PAD } from "../studentsTableStyles"
+import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
 
 import { getCompletions } from "@/services/backend/courses/students"
 import type { CompletionGridRow } from "@/shared-module/common/bindings"
@@ -66,7 +66,12 @@ const buildColumns = (modulesInOrder: string[]): ColumnDef<RowObject, unknown>[]
       header: "Student",
       // eslint-disable-next-line i18next/no-literal-string
       accessorKey: "student",
-      meta: { sticky: true, width: 260, minWidth: 120, padLeft: PAD, padRight: PAD },
+      meta: {
+        sticky: true,
+        minWidth: 80,
+        padLeft: PAD,
+        padRight: PAD,
+      },
       cell: StudentCell,
     },
   ]
@@ -88,7 +93,6 @@ const buildColumns = (modulesInOrder: string[]): ColumnDef<RowObject, unknown>[]
           // eslint-disable-next-line i18next/no-literal-string
           accessorKey: `${mKey}__grade`,
           meta: {
-            width: COMPLETIONS_LEAF_WIDTH,
             minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
             colorPairIndex,
             subIdx: 0,
@@ -104,7 +108,6 @@ const buildColumns = (modulesInOrder: string[]): ColumnDef<RowObject, unknown>[]
           // eslint-disable-next-line i18next/no-literal-string
           accessorKey: `${mKey}__status`,
           meta: {
-            width: COMPLETIONS_LEAF_WIDTH,
             minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
             colorPairIndex,
             subIdx: 1,

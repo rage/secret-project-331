@@ -8,13 +8,33 @@ import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from ".
 import { ProgressTabContent } from "./tabs/ProgressTab"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type Props = { courseId?: string }
 
-const tableSection = css({
-  paddingLeft: "4vw",
-  paddingRight: "4vw",
-})
+const tableSection = css`
+  padding-left: 0;
+  padding-right: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+
+  ${respondToOrLarger.md} {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  ${respondToOrLarger.lg} {
+    padding-left: 2vw;
+    padding-right: 2vw;
+  }
+
+  ${respondToOrLarger.xl} {
+    padding-left: 4vw;
+    padding-right: 4vw;
+  }
+`
 
 const DOWN_SYMBOL = "▼"
 

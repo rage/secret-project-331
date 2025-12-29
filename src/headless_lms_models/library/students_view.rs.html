@@ -94,12 +94,12 @@
 <a href=#94 id=94 data-nosnippet>94</a>    AND deleted_at IS NULL
 <a href=#95 id=95 data-nosnippet>95</a>)
 <a href=#96 id=96 data-nosnippet>96</a>SELECT
-<a href=#97 id=97 data-nosnippet>97</a>  ud.first_name,
-<a href=#98 id=98 data-nosnippet>98</a>  ud.last_name,
-<a href=#99 id=99 data-nosnippet>99</a>  m.module_name,
-<a href=#100 id=100 data-nosnippet>100</a>  r.grade,
-<a href=#101 id=101 data-nosnippet>101</a>  r.passed,
-<a href=#102 id=102 data-nosnippet>102</a>  (r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)) AS is_registered
+<a href=#97 id=97 data-nosnippet>97</a>  ud.first_name AS "first_name?",
+<a href=#98 id=98 data-nosnippet>98</a>  ud.last_name AS "last_name?",
+<a href=#99 id=99 data-nosnippet>99</a>  m.module_name AS "module_name?",
+<a href=#100 id=100 data-nosnippet>100</a>  r.grade AS "grade?",
+<a href=#101 id=101 data-nosnippet>101</a>  r.passed AS "passed?",
+<a href=#102 id=102 data-nosnippet>102</a>  (r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)) AS "is_registered?"
 <a href=#103 id=103 data-nosnippet>103</a>FROM modules m
 <a href=#104 id=104 data-nosnippet>104</a>CROSS JOIN enrolled e
 <a href=#105 id=105 data-nosnippet>105</a>JOIN users u ON u.id = e.user_id
@@ -127,102 +127,106 @@
 <a href=#127 id=127 data-nosnippet>127</a>
 <a href=#128 id=128 data-nosnippet>128</a>            <span class="kw">let </span>grade = <span class="kw">match </span>(r.grade, r.passed) {
 <a href=#129 id=129 data-nosnippet>129</a>                (<span class="prelude-val">Some</span>(g), <span class="kw">_</span>) =&gt; g.to_string(),
-<a href=#130 id=130 data-nosnippet>130</a>                (<span class="prelude-val">None</span>, <span class="bool-val">true</span>) =&gt; <span class="string">"Passed"</span>.to_string(),
-<a href=#131 id=131 data-nosnippet>131</a>                (<span class="prelude-val">None</span>, <span class="bool-val">false</span>) =&gt; <span class="string">"Failed"</span>.to_string(),
-<a href=#132 id=132 data-nosnippet>132</a>            };
-<a href=#133 id=133 data-nosnippet>133</a>
-<a href=#134 id=134 data-nosnippet>134</a>            <span class="kw">let </span>status = <span class="kw">if </span>r.is_registered.unwrap_or(<span class="bool-val">false</span>) {
-<a href=#135 id=135 data-nosnippet>135</a>                <span class="string">"Registered"</span>.to_string()
-<a href=#136 id=136 data-nosnippet>136</a>            } <span class="kw">else </span>{
-<a href=#137 id=137 data-nosnippet>137</a>                <span class="string">"-"</span>.to_string()
-<a href=#138 id=138 data-nosnippet>138</a>            };
-<a href=#139 id=139 data-nosnippet>139</a>
-<a href=#140 id=140 data-nosnippet>140</a>            CompletionGridRow {
-<a href=#141 id=141 data-nosnippet>141</a>                student,
-<a href=#142 id=142 data-nosnippet>142</a>                module: r.module_name,
-<a href=#143 id=143 data-nosnippet>143</a>                grade,
-<a href=#144 id=144 data-nosnippet>144</a>                status,
-<a href=#145 id=145 data-nosnippet>145</a>            }
-<a href=#146 id=146 data-nosnippet>146</a>        })
-<a href=#147 id=147 data-nosnippet>147</a>        .collect();
-<a href=#148 id=148 data-nosnippet>148</a>
-<a href=#149 id=149 data-nosnippet>149</a>    <span class="prelude-val">Ok</span>(rows)
-<a href=#150 id=150 data-nosnippet>150</a>}
-<a href=#151 id=151 data-nosnippet>151</a>
-<a href=#152 id=152 data-nosnippet>152</a><span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow)]
-<a href=#153 id=153 data-nosnippet>153</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
-<a href=#154 id=154 data-nosnippet>154</a></span><span class="kw">pub struct </span>CertificateGridRow {
-<a href=#155 id=155 data-nosnippet>155</a>    <span class="kw">pub </span>student: String,
-<a href=#156 id=156 data-nosnippet>156</a>    <span class="kw">pub </span>certificate: String,
-<a href=#157 id=157 data-nosnippet>157</a>    <span class="kw">pub </span>date_issued: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
-<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">pub </span>verification_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">pub </span>certificate_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
-<a href=#160 id=160 data-nosnippet>160</a>}
-<a href=#161 id=161 data-nosnippet>161</a>
-<a href=#162 id=162 data-nosnippet>162</a><span class="doccomment">/// Returns one row per enrolled student with their overall course certificate info.
-<a href=#163 id=163 data-nosnippet>163</a></span><span class="kw">pub async fn </span>get_certificates_grid_by_course_id(
-<a href=#164 id=164 data-nosnippet>164</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#165 id=165 data-nosnippet>165</a>    course_id: Uuid,
-<a href=#166 id=166 data-nosnippet>166</a>) -&gt; ModelResult&lt;Vec&lt;CertificateGridRow&gt;&gt; {
-<a href=#167 id=167 data-nosnippet>167</a>    <span class="kw">let </span>rows = <span class="macro">sqlx::query_as!</span>(
-<a href=#168 id=168 data-nosnippet>168</a>        CertificateGridRow,
-<a href=#169 id=169 data-nosnippet>169</a>        <span class="string">r#"
-<a href=#170 id=170 data-nosnippet>170</a>WITH enrolled AS (
-<a href=#171 id=171 data-nosnippet>171</a>  SELECT DISTINCT user_id
-<a href=#172 id=172 data-nosnippet>172</a>  FROM course_instance_enrollments
-<a href=#173 id=173 data-nosnippet>173</a>  WHERE course_id = $1
-<a href=#174 id=174 data-nosnippet>174</a>    AND deleted_at IS NULL
-<a href=#175 id=175 data-nosnippet>175</a>),
-<a href=#176 id=176 data-nosnippet>176</a>user_certs AS (
-<a href=#177 id=177 data-nosnippet>177</a>  -- one latest certificate per user for this course
-<a href=#178 id=178 data-nosnippet>178</a>  SELECT DISTINCT ON (gc.user_id)
-<a href=#179 id=179 data-nosnippet>179</a>    gc.user_id,
-<a href=#180 id=180 data-nosnippet>180</a>    gc.id,
-<a href=#181 id=181 data-nosnippet>181</a>    gc.created_at AS latest_issued_at,
-<a href=#182 id=182 data-nosnippet>182</a>    gc.verification_id
-<a href=#183 id=183 data-nosnippet>183</a>  FROM generated_certificates gc
-<a href=#184 id=184 data-nosnippet>184</a>  JOIN certificate_configuration_to_requirements cctr
-<a href=#185 id=185 data-nosnippet>185</a>    ON gc.certificate_configuration_id = cctr.certificate_configuration_id
-<a href=#186 id=186 data-nosnippet>186</a>   AND cctr.deleted_at IS NULL
-<a href=#187 id=187 data-nosnippet>187</a>  JOIN course_modules cm
-<a href=#188 id=188 data-nosnippet>188</a>    ON cm.id = cctr.course_module_id
-<a href=#189 id=189 data-nosnippet>189</a>   AND cm.deleted_at IS NULL
-<a href=#190 id=190 data-nosnippet>190</a>  WHERE cm.course_id = $1
-<a href=#191 id=191 data-nosnippet>191</a>    AND gc.deleted_at IS NULL
-<a href=#192 id=192 data-nosnippet>192</a>  ORDER BY gc.user_id, gc.created_at DESC
-<a href=#193 id=193 data-nosnippet>193</a>)
-<a href=#194 id=194 data-nosnippet>194</a>SELECT
-<a href=#195 id=195 data-nosnippet>195</a>  /* non-null */
-<a href=#196 id=196 data-nosnippet>196</a>  CASE
-<a href=#197 id=197 data-nosnippet>197</a>    WHEN ud.first_name IS NULL OR TRIM(ud.first_name) = ''
-<a href=#198 id=198 data-nosnippet>198</a>      OR ud.last_name  IS NULL OR TRIM(ud.last_name)  = ''
-<a href=#199 id=199 data-nosnippet>199</a>    THEN '(Missing name)'
-<a href=#200 id=200 data-nosnippet>200</a>    ELSE TRIM(ud.first_name) || ' ' || TRIM(ud.last_name)
-<a href=#201 id=201 data-nosnippet>201</a>  END AS "student!",
-<a href=#202 id=202 data-nosnippet>202</a>
-<a href=#203 id=203 data-nosnippet>203</a>  /* non-null */
-<a href=#204 id=204 data-nosnippet>204</a>  CASE
-<a href=#205 id=205 data-nosnippet>205</a>    WHEN uc.user_id IS NOT NULL THEN 'Course Certificate'
-<a href=#206 id=206 data-nosnippet>206</a>    ELSE 'No Certificate'
-<a href=#207 id=207 data-nosnippet>207</a>  END AS "certificate!",
-<a href=#208 id=208 data-nosnippet>208</a>
-<a href=#209 id=209 data-nosnippet>209</a>  /* nullable */
-<a href=#210 id=210 data-nosnippet>210</a>  uc.latest_issued_at AS "date_issued?",
-<a href=#211 id=211 data-nosnippet>211</a>  uc.verification_id  AS "verification_id?",
-<a href=#212 id=212 data-nosnippet>212</a>  uc.id               AS "certificate_id?"
-<a href=#213 id=213 data-nosnippet>213</a>
-<a href=#214 id=214 data-nosnippet>214</a>FROM enrolled e
-<a href=#215 id=215 data-nosnippet>215</a>JOIN users u ON u.id = e.user_id
-<a href=#216 id=216 data-nosnippet>216</a>LEFT JOIN user_details ud ON ud.user_id = u.id
-<a href=#217 id=217 data-nosnippet>217</a>LEFT JOIN user_certs uc ON uc.user_id = e.user_id
-<a href=#218 id=218 data-nosnippet>218</a>ORDER BY
-<a href=#219 id=219 data-nosnippet>219</a>  COALESCE(NULLIF(LOWER(TRIM(ud.last_name)),  ''), 'zzzzzz'),
-<a href=#220 id=220 data-nosnippet>220</a>  COALESCE(NULLIF(LOWER(TRIM(ud.first_name)), ''), 'zzzzzz')
-<a href=#221 id=221 data-nosnippet>221</a>        "#</span>,
-<a href=#222 id=222 data-nosnippet>222</a>        course_id
-<a href=#223 id=223 data-nosnippet>223</a>    )
-<a href=#224 id=224 data-nosnippet>224</a>    .fetch_all(conn)
-<a href=#225 id=225 data-nosnippet>225</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#226 id=226 data-nosnippet>226</a>
-<a href=#227 id=227 data-nosnippet>227</a>    <span class="prelude-val">Ok</span>(rows)
-<a href=#228 id=228 data-nosnippet>228</a>}</code></pre></div></section></main></body></html>
+<a href=#130 id=130 data-nosnippet>130</a>                (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="bool-val">true</span>)) =&gt; <span class="string">"Passed"</span>.to_string(),
+<a href=#131 id=131 data-nosnippet>131</a>                (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="bool-val">false</span>)) =&gt; <span class="string">"Failed"</span>.to_string(),
+<a href=#132 id=132 data-nosnippet>132</a>                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="string">"-"</span>.to_string(),
+<a href=#133 id=133 data-nosnippet>133</a>            };
+<a href=#134 id=134 data-nosnippet>134</a>
+<a href=#135 id=135 data-nosnippet>135</a>            <span class="kw">let </span>status = <span class="kw">if </span>r.is_registered.unwrap_or(<span class="bool-val">false</span>) {
+<a href=#136 id=136 data-nosnippet>136</a>                <span class="string">"Registered"</span>.to_string()
+<a href=#137 id=137 data-nosnippet>137</a>            } <span class="kw">else </span>{
+<a href=#138 id=138 data-nosnippet>138</a>                <span class="string">"-"</span>.to_string()
+<a href=#139 id=139 data-nosnippet>139</a>            };
+<a href=#140 id=140 data-nosnippet>140</a>
+<a href=#141 id=141 data-nosnippet>141</a>            CompletionGridRow {
+<a href=#142 id=142 data-nosnippet>142</a>                student,
+<a href=#143 id=143 data-nosnippet>143</a>                module: r.module_name,
+<a href=#144 id=144 data-nosnippet>144</a>                grade,
+<a href=#145 id=145 data-nosnippet>145</a>                status,
+<a href=#146 id=146 data-nosnippet>146</a>            }
+<a href=#147 id=147 data-nosnippet>147</a>        })
+<a href=#148 id=148 data-nosnippet>148</a>        .collect();
+<a href=#149 id=149 data-nosnippet>149</a>
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="prelude-val">Ok</span>(rows)
+<a href=#151 id=151 data-nosnippet>151</a>}
+<a href=#152 id=152 data-nosnippet>152</a>
+<a href=#153 id=153 data-nosnippet>153</a><span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow)]
+<a href=#154 id=154 data-nosnippet>154</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+<a href=#155 id=155 data-nosnippet>155</a></span><span class="kw">pub struct </span>CertificateGridRow {
+<a href=#156 id=156 data-nosnippet>156</a>    <span class="kw">pub </span>student: String,
+<a href=#157 id=157 data-nosnippet>157</a>    <span class="kw">pub </span>certificate: String,
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">pub </span>date_issued: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+<a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">pub </span>verification_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#160 id=160 data-nosnippet>160</a>    <span class="kw">pub </span>certificate_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+<a href=#161 id=161 data-nosnippet>161</a>    <span class="kw">pub </span>name_on_certificate: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#162 id=162 data-nosnippet>162</a>}
+<a href=#163 id=163 data-nosnippet>163</a>
+<a href=#164 id=164 data-nosnippet>164</a><span class="doccomment">/// Returns one row per enrolled student with their overall course certificate info.
+<a href=#165 id=165 data-nosnippet>165</a></span><span class="kw">pub async fn </span>get_certificates_grid_by_course_id(
+<a href=#166 id=166 data-nosnippet>166</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#167 id=167 data-nosnippet>167</a>    course_id: Uuid,
+<a href=#168 id=168 data-nosnippet>168</a>) -&gt; ModelResult&lt;Vec&lt;CertificateGridRow&gt;&gt; {
+<a href=#169 id=169 data-nosnippet>169</a>    <span class="kw">let </span>rows = <span class="macro">sqlx::query_as!</span>(
+<a href=#170 id=170 data-nosnippet>170</a>        CertificateGridRow,
+<a href=#171 id=171 data-nosnippet>171</a>        <span class="string">r#"
+<a href=#172 id=172 data-nosnippet>172</a>WITH enrolled AS (
+<a href=#173 id=173 data-nosnippet>173</a>  SELECT DISTINCT user_id
+<a href=#174 id=174 data-nosnippet>174</a>  FROM course_instance_enrollments
+<a href=#175 id=175 data-nosnippet>175</a>  WHERE course_id = $1
+<a href=#176 id=176 data-nosnippet>176</a>    AND deleted_at IS NULL
+<a href=#177 id=177 data-nosnippet>177</a>),
+<a href=#178 id=178 data-nosnippet>178</a>user_certs AS (
+<a href=#179 id=179 data-nosnippet>179</a>  -- one latest certificate per user for this course
+<a href=#180 id=180 data-nosnippet>180</a>  SELECT DISTINCT ON (gc.user_id)
+<a href=#181 id=181 data-nosnippet>181</a>    gc.user_id,
+<a href=#182 id=182 data-nosnippet>182</a>    gc.id,
+<a href=#183 id=183 data-nosnippet>183</a>    gc.created_at AS latest_issued_at,
+<a href=#184 id=184 data-nosnippet>184</a>    gc.verification_id,
+<a href=#185 id=185 data-nosnippet>185</a>    gc.name_on_certificate
+<a href=#186 id=186 data-nosnippet>186</a>  FROM generated_certificates gc
+<a href=#187 id=187 data-nosnippet>187</a>  JOIN certificate_configuration_to_requirements cctr
+<a href=#188 id=188 data-nosnippet>188</a>    ON gc.certificate_configuration_id = cctr.certificate_configuration_id
+<a href=#189 id=189 data-nosnippet>189</a>   AND cctr.deleted_at IS NULL
+<a href=#190 id=190 data-nosnippet>190</a>  JOIN course_modules cm
+<a href=#191 id=191 data-nosnippet>191</a>    ON cm.id = cctr.course_module_id
+<a href=#192 id=192 data-nosnippet>192</a>   AND cm.deleted_at IS NULL
+<a href=#193 id=193 data-nosnippet>193</a>  WHERE cm.course_id = $1
+<a href=#194 id=194 data-nosnippet>194</a>    AND gc.deleted_at IS NULL
+<a href=#195 id=195 data-nosnippet>195</a>  ORDER BY gc.user_id, gc.created_at DESC
+<a href=#196 id=196 data-nosnippet>196</a>)
+<a href=#197 id=197 data-nosnippet>197</a>SELECT
+<a href=#198 id=198 data-nosnippet>198</a>  /* non-null */
+<a href=#199 id=199 data-nosnippet>199</a>  CASE
+<a href=#200 id=200 data-nosnippet>200</a>    WHEN ud.first_name IS NULL OR TRIM(ud.first_name) = ''
+<a href=#201 id=201 data-nosnippet>201</a>      OR ud.last_name  IS NULL OR TRIM(ud.last_name)  = ''
+<a href=#202 id=202 data-nosnippet>202</a>    THEN '(Missing name)'
+<a href=#203 id=203 data-nosnippet>203</a>    ELSE TRIM(ud.first_name) || ' ' || TRIM(ud.last_name)
+<a href=#204 id=204 data-nosnippet>204</a>  END AS "student!",
+<a href=#205 id=205 data-nosnippet>205</a>
+<a href=#206 id=206 data-nosnippet>206</a>  /* non-null */
+<a href=#207 id=207 data-nosnippet>207</a>  CASE
+<a href=#208 id=208 data-nosnippet>208</a>    WHEN uc.user_id IS NOT NULL THEN 'Course Certificate'
+<a href=#209 id=209 data-nosnippet>209</a>    ELSE 'No Certificate'
+<a href=#210 id=210 data-nosnippet>210</a>  END AS "certificate!",
+<a href=#211 id=211 data-nosnippet>211</a>
+<a href=#212 id=212 data-nosnippet>212</a>  /* nullable */
+<a href=#213 id=213 data-nosnippet>213</a>  uc.latest_issued_at AS "date_issued?",
+<a href=#214 id=214 data-nosnippet>214</a>  uc.verification_id  AS "verification_id?",
+<a href=#215 id=215 data-nosnippet>215</a>  uc.id               AS "certificate_id?",
+<a href=#216 id=216 data-nosnippet>216</a>  uc.name_on_certificate AS "name_on_certificate?"
+<a href=#217 id=217 data-nosnippet>217</a>
+<a href=#218 id=218 data-nosnippet>218</a>FROM enrolled e
+<a href=#219 id=219 data-nosnippet>219</a>JOIN users u ON u.id = e.user_id
+<a href=#220 id=220 data-nosnippet>220</a>LEFT JOIN user_details ud ON ud.user_id = u.id
+<a href=#221 id=221 data-nosnippet>221</a>LEFT JOIN user_certs uc ON uc.user_id = e.user_id
+<a href=#222 id=222 data-nosnippet>222</a>ORDER BY
+<a href=#223 id=223 data-nosnippet>223</a>  COALESCE(NULLIF(LOWER(TRIM(ud.last_name)),  ''), 'zzzzzz'),
+<a href=#224 id=224 data-nosnippet>224</a>  COALESCE(NULLIF(LOWER(TRIM(ud.first_name)), ''), 'zzzzzz')
+<a href=#225 id=225 data-nosnippet>225</a>        "#</span>,
+<a href=#226 id=226 data-nosnippet>226</a>        course_id
+<a href=#227 id=227 data-nosnippet>227</a>    )
+<a href=#228 id=228 data-nosnippet>228</a>    .fetch_all(conn)
+<a href=#229 id=229 data-nosnippet>229</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#230 id=230 data-nosnippet>230</a>
+<a href=#231 id=231 data-nosnippet>231</a>    <span class="prelude-val">Ok</span>(rows)
+<a href=#232 id=232 data-nosnippet>232</a>}</code></pre></div></section></main></body></html>

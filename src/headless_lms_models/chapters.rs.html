@@ -618,127 +618,127 @@
 <a href=#618 id=618 data-nosnippet>618</a><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 <a href=#619 id=619 data-nosnippet>619</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 <a href=#620 id=620 data-nosnippet>620</a></span><span class="kw">pub struct </span>CourseUserInfo {
-<a href=#621 id=621 data-nosnippet>621</a>    <span class="kw">pub </span>name: String,
-<a href=#622 id=622 data-nosnippet>622</a>    <span class="kw">pub </span>user_id: Uuid,
-<a href=#623 id=623 data-nosnippet>623</a>    <span class="kw">pub </span>email: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#624 id=624 data-nosnippet>624</a>    <span class="kw">pub </span>course_instance: String,
-<a href=#625 id=625 data-nosnippet>625</a>}
-<a href=#626 id=626 data-nosnippet>626</a>
-<a href=#627 id=627 data-nosnippet>627</a><span class="kw">pub async fn </span>fetch_user_chapter_progress(
-<a href=#628 id=628 data-nosnippet>628</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#629 id=629 data-nosnippet>629</a>    course_id: Uuid,
-<a href=#630 id=630 data-nosnippet>630</a>) -&gt; ModelResult&lt;Vec&lt;UserChapterProgress&gt;&gt; {
-<a href=#631 id=631 data-nosnippet>631</a>    <span class="kw">let </span>rows = <span class="macro">sqlx::query_as!</span>(
-<a href=#632 id=632 data-nosnippet>632</a>        UserChapterProgress,
-<a href=#633 id=633 data-nosnippet>633</a>        <span class="string">r#"
-<a href=#634 id=634 data-nosnippet>634</a>WITH base AS (
-<a href=#635 id=635 data-nosnippet>635</a>  SELECT ues.user_id,
-<a href=#636 id=636 data-nosnippet>636</a>    ex.chapter_id,
-<a href=#637 id=637 data-nosnippet>637</a>    ues.exercise_id,
-<a href=#638 id=638 data-nosnippet>638</a>    COALESCE(ues.score_given, 0)::double precision AS points
-<a href=#639 id=639 data-nosnippet>639</a>  FROM user_exercise_states ues
-<a href=#640 id=640 data-nosnippet>640</a>    JOIN exercises ex ON ex.id = ues.exercise_id
-<a href=#641 id=641 data-nosnippet>641</a>  WHERE ues.course_id = $1
-<a href=#642 id=642 data-nosnippet>642</a>    AND ues.deleted_at IS NULL
-<a href=#643 id=643 data-nosnippet>643</a>    AND ex.deleted_at IS NULL
-<a href=#644 id=644 data-nosnippet>644</a>)
-<a href=#645 id=645 data-nosnippet>645</a>SELECT b.user_id AS user_id,
-<a href=#646 id=646 data-nosnippet>646</a>  c.id AS chapter_id,
-<a href=#647 id=647 data-nosnippet>647</a>  c.chapter_number AS chapter_number,
-<a href=#648 id=648 data-nosnippet>648</a>  c.name AS chapter_name,
-<a href=#649 id=649 data-nosnippet>649</a>  COALESCE(SUM(b.points), 0)::double precision AS "points_obtained!",
-<a href=#650 id=650 data-nosnippet>650</a>  COALESCE(COUNT(DISTINCT b.exercise_id), 0)::bigint AS "exercises_attempted!"
-<a href=#651 id=651 data-nosnippet>651</a>FROM base b
-<a href=#652 id=652 data-nosnippet>652</a>  JOIN chapters c ON c.id = b.chapter_id
-<a href=#653 id=653 data-nosnippet>653</a>GROUP BY b.user_id,
-<a href=#654 id=654 data-nosnippet>654</a>  c.id,
-<a href=#655 id=655 data-nosnippet>655</a>  c.chapter_number,
-<a href=#656 id=656 data-nosnippet>656</a>  c.name
-<a href=#657 id=657 data-nosnippet>657</a>ORDER BY b.user_id,
-<a href=#658 id=658 data-nosnippet>658</a>  c.chapter_number
-<a href=#659 id=659 data-nosnippet>659</a>        "#</span>,
-<a href=#660 id=660 data-nosnippet>660</a>        course_id
-<a href=#661 id=661 data-nosnippet>661</a>    )
-<a href=#662 id=662 data-nosnippet>662</a>    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
-<a href=#663 id=663 data-nosnippet>663</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#664 id=664 data-nosnippet>664</a>
-<a href=#665 id=665 data-nosnippet>665</a>    <span class="prelude-val">Ok</span>(rows)
-<a href=#666 id=666 data-nosnippet>666</a>}
-<a href=#667 id=667 data-nosnippet>667</a>
-<a href=#668 id=668 data-nosnippet>668</a><span class="kw">pub async fn </span>fetch_chapter_availability(
-<a href=#669 id=669 data-nosnippet>669</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#670 id=670 data-nosnippet>670</a>    course_id: Uuid,
-<a href=#671 id=671 data-nosnippet>671</a>) -&gt; ModelResult&lt;Vec&lt;ChapterAvailability&gt;&gt; {
-<a href=#672 id=672 data-nosnippet>672</a>    <span class="kw">let </span>rows = <span class="macro">sqlx::query_as!</span>(
-<a href=#673 id=673 data-nosnippet>673</a>        ChapterAvailability,
-<a href=#674 id=674 data-nosnippet>674</a>        <span class="string">r#"
-<a href=#675 id=675 data-nosnippet>675</a>SELECT c.id AS chapter_id,
-<a href=#676 id=676 data-nosnippet>676</a>  c.chapter_number AS chapter_number,
-<a href=#677 id=677 data-nosnippet>677</a>  c.name AS chapter_name,
-<a href=#678 id=678 data-nosnippet>678</a>  COALESCE(COUNT(ex.id), 0)::bigint AS "exercises_available!",
-<a href=#679 id=679 data-nosnippet>679</a>  COALESCE(COUNT(ex.id), 0)::bigint AS "points_available!"
-<a href=#680 id=680 data-nosnippet>680</a>FROM chapters c
-<a href=#681 id=681 data-nosnippet>681</a>  JOIN exercises ex ON ex.chapter_id = c.id
-<a href=#682 id=682 data-nosnippet>682</a>WHERE c.course_id = $1
-<a href=#683 id=683 data-nosnippet>683</a>  AND c.deleted_at IS NULL
-<a href=#684 id=684 data-nosnippet>684</a>  AND ex.deleted_at IS NULL
-<a href=#685 id=685 data-nosnippet>685</a>GROUP BY c.id,
-<a href=#686 id=686 data-nosnippet>686</a>  c.chapter_number,
-<a href=#687 id=687 data-nosnippet>687</a>  c.name
-<a href=#688 id=688 data-nosnippet>688</a>ORDER BY c.chapter_number
-<a href=#689 id=689 data-nosnippet>689</a>        "#</span>,
-<a href=#690 id=690 data-nosnippet>690</a>        course_id
-<a href=#691 id=691 data-nosnippet>691</a>    )
-<a href=#692 id=692 data-nosnippet>692</a>    .fetch_all(conn)
-<a href=#693 id=693 data-nosnippet>693</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#694 id=694 data-nosnippet>694</a>
-<a href=#695 id=695 data-nosnippet>695</a>    <span class="prelude-val">Ok</span>(rows)
-<a href=#696 id=696 data-nosnippet>696</a>}
-<a href=#697 id=697 data-nosnippet>697</a>
-<a href=#698 id=698 data-nosnippet>698</a><span class="kw">pub async fn </span>fetch_course_users(
-<a href=#699 id=699 data-nosnippet>699</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#700 id=700 data-nosnippet>700</a>    course_id: Uuid,
-<a href=#701 id=701 data-nosnippet>701</a>) -&gt; ModelResult&lt;Vec&lt;CourseUserInfo&gt;&gt; {
-<a href=#702 id=702 data-nosnippet>702</a>    <span class="kw">let </span>rows_raw = <span class="macro">sqlx::query!</span>(
-<a href=#703 id=703 data-nosnippet>703</a>        <span class="string">r#"
-<a href=#704 id=704 data-nosnippet>704</a>    SELECT
-<a href=#705 id=705 data-nosnippet>705</a>        ud.first_name,
-<a href=#706 id=706 data-nosnippet>706</a>        ud.last_name,
-<a href=#707 id=707 data-nosnippet>707</a>        u.id AS user_id,
-<a href=#708 id=708 data-nosnippet>708</a>        ud.email AS "email?",
-<a href=#709 id=709 data-nosnippet>709</a>        ci.name AS course_instance
-<a href=#710 id=710 data-nosnippet>710</a>    FROM course_instance_enrollments AS cie
-<a href=#711 id=711 data-nosnippet>711</a>    JOIN users              AS u  ON u.id = cie.user_id
-<a href=#712 id=712 data-nosnippet>712</a>    LEFT JOIN user_details  AS ud ON ud.user_id = u.id
-<a href=#713 id=713 data-nosnippet>713</a>    JOIN course_instances   AS ci ON ci.id = cie.course_instance_id
-<a href=#714 id=714 data-nosnippet>714</a>    WHERE cie.course_id = $1
-<a href=#715 id=715 data-nosnippet>715</a>        AND cie.deleted_at IS NULL
-<a href=#716 id=716 data-nosnippet>716</a>    ORDER BY 1, user_id
-<a href=#717 id=717 data-nosnippet>717</a>    "#</span>,
-<a href=#718 id=718 data-nosnippet>718</a>        course_id
-<a href=#719 id=719 data-nosnippet>719</a>    )
-<a href=#720 id=720 data-nosnippet>720</a>    .fetch_all(conn)
-<a href=#721 id=721 data-nosnippet>721</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#722 id=722 data-nosnippet>722</a>
-<a href=#723 id=723 data-nosnippet>723</a>    <span class="kw">let </span>rows = rows_raw
-<a href=#724 id=724 data-nosnippet>724</a>        .into_iter()
-<a href=#725 id=725 data-nosnippet>725</a>        .map(|r| {
-<a href=#726 id=726 data-nosnippet>726</a>            <span class="kw">let </span>first = r.first_name.unwrap_or_default().trim().to_string();
-<a href=#727 id=727 data-nosnippet>727</a>            <span class="kw">let </span>last = r.last_name.unwrap_or_default().trim().to_string();
-<a href=#728 id=728 data-nosnippet>728</a>
-<a href=#729 id=729 data-nosnippet>729</a>            <span class="kw">let </span>name = <span class="kw">if </span>first.is_empty() &amp;&amp; last.is_empty() {
-<a href=#730 id=730 data-nosnippet>730</a>                <span class="string">"(Missing name)"</span>.to_string()
-<a href=#731 id=731 data-nosnippet>731</a>            } <span class="kw">else </span>{
-<a href=#732 id=732 data-nosnippet>732</a>                <span class="macro">format!</span>(<span class="string">"{} {}"</span>, first, last).trim().to_string()
-<a href=#733 id=733 data-nosnippet>733</a>            };
-<a href=#734 id=734 data-nosnippet>734</a>
-<a href=#735 id=735 data-nosnippet>735</a>            CourseUserInfo {
-<a href=#736 id=736 data-nosnippet>736</a>                name,
-<a href=#737 id=737 data-nosnippet>737</a>                user_id: r.user_id,
-<a href=#738 id=738 data-nosnippet>738</a>                email: r.email,
-<a href=#739 id=739 data-nosnippet>739</a>                course_instance: r
-<a href=#740 id=740 data-nosnippet>740</a>                    .course_instance
-<a href=#741 id=741 data-nosnippet>741</a>                    .unwrap_or_else(|| <span class="string">"Default instance"</span>.to_string()),
+<a href=#621 id=621 data-nosnippet>621</a>    <span class="kw">pub </span>first_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#622 id=622 data-nosnippet>622</a>    <span class="kw">pub </span>last_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#623 id=623 data-nosnippet>623</a>    <span class="kw">pub </span>user_id: Uuid,
+<a href=#624 id=624 data-nosnippet>624</a>    <span class="kw">pub </span>email: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#625 id=625 data-nosnippet>625</a>    <span class="kw">pub </span>course_instance: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#626 id=626 data-nosnippet>626</a>}
+<a href=#627 id=627 data-nosnippet>627</a>
+<a href=#628 id=628 data-nosnippet>628</a><span class="kw">pub async fn </span>fetch_user_chapter_progress(
+<a href=#629 id=629 data-nosnippet>629</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#630 id=630 data-nosnippet>630</a>    course_id: Uuid,
+<a href=#631 id=631 data-nosnippet>631</a>) -&gt; ModelResult&lt;Vec&lt;UserChapterProgress&gt;&gt; {
+<a href=#632 id=632 data-nosnippet>632</a>    <span class="kw">let </span>rows = <span class="macro">sqlx::query_as!</span>(
+<a href=#633 id=633 data-nosnippet>633</a>        UserChapterProgress,
+<a href=#634 id=634 data-nosnippet>634</a>        <span class="string">r#"
+<a href=#635 id=635 data-nosnippet>635</a>WITH base AS (
+<a href=#636 id=636 data-nosnippet>636</a>  SELECT ues.user_id,
+<a href=#637 id=637 data-nosnippet>637</a>    ex.chapter_id,
+<a href=#638 id=638 data-nosnippet>638</a>    ues.exercise_id,
+<a href=#639 id=639 data-nosnippet>639</a>    COALESCE(ues.score_given, 0)::double precision AS points
+<a href=#640 id=640 data-nosnippet>640</a>  FROM user_exercise_states ues
+<a href=#641 id=641 data-nosnippet>641</a>    JOIN exercises ex ON ex.id = ues.exercise_id
+<a href=#642 id=642 data-nosnippet>642</a>  WHERE ues.course_id = $1
+<a href=#643 id=643 data-nosnippet>643</a>    AND ues.deleted_at IS NULL
+<a href=#644 id=644 data-nosnippet>644</a>    AND ex.deleted_at IS NULL
+<a href=#645 id=645 data-nosnippet>645</a>)
+<a href=#646 id=646 data-nosnippet>646</a>SELECT b.user_id AS user_id,
+<a href=#647 id=647 data-nosnippet>647</a>  c.id AS chapter_id,
+<a href=#648 id=648 data-nosnippet>648</a>  c.chapter_number AS chapter_number,
+<a href=#649 id=649 data-nosnippet>649</a>  c.name AS chapter_name,
+<a href=#650 id=650 data-nosnippet>650</a>  COALESCE(SUM(b.points), 0)::double precision AS "points_obtained!",
+<a href=#651 id=651 data-nosnippet>651</a>  COALESCE(COUNT(DISTINCT b.exercise_id), 0)::bigint AS "exercises_attempted!"
+<a href=#652 id=652 data-nosnippet>652</a>FROM base b
+<a href=#653 id=653 data-nosnippet>653</a>  JOIN chapters c ON c.id = b.chapter_id
+<a href=#654 id=654 data-nosnippet>654</a>GROUP BY b.user_id,
+<a href=#655 id=655 data-nosnippet>655</a>  c.id,
+<a href=#656 id=656 data-nosnippet>656</a>  c.chapter_number,
+<a href=#657 id=657 data-nosnippet>657</a>  c.name
+<a href=#658 id=658 data-nosnippet>658</a>ORDER BY b.user_id,
+<a href=#659 id=659 data-nosnippet>659</a>  c.chapter_number
+<a href=#660 id=660 data-nosnippet>660</a>        "#</span>,
+<a href=#661 id=661 data-nosnippet>661</a>        course_id
+<a href=#662 id=662 data-nosnippet>662</a>    )
+<a href=#663 id=663 data-nosnippet>663</a>    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+<a href=#664 id=664 data-nosnippet>664</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#665 id=665 data-nosnippet>665</a>
+<a href=#666 id=666 data-nosnippet>666</a>    <span class="prelude-val">Ok</span>(rows)
+<a href=#667 id=667 data-nosnippet>667</a>}
+<a href=#668 id=668 data-nosnippet>668</a>
+<a href=#669 id=669 data-nosnippet>669</a><span class="kw">pub async fn </span>fetch_chapter_availability(
+<a href=#670 id=670 data-nosnippet>670</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#671 id=671 data-nosnippet>671</a>    course_id: Uuid,
+<a href=#672 id=672 data-nosnippet>672</a>) -&gt; ModelResult&lt;Vec&lt;ChapterAvailability&gt;&gt; {
+<a href=#673 id=673 data-nosnippet>673</a>    <span class="kw">let </span>rows = <span class="macro">sqlx::query_as!</span>(
+<a href=#674 id=674 data-nosnippet>674</a>        ChapterAvailability,
+<a href=#675 id=675 data-nosnippet>675</a>        <span class="string">r#"
+<a href=#676 id=676 data-nosnippet>676</a>SELECT c.id AS chapter_id,
+<a href=#677 id=677 data-nosnippet>677</a>  c.chapter_number AS chapter_number,
+<a href=#678 id=678 data-nosnippet>678</a>  c.name AS chapter_name,
+<a href=#679 id=679 data-nosnippet>679</a>  COALESCE(COUNT(ex.id), 0)::bigint AS "exercises_available!",
+<a href=#680 id=680 data-nosnippet>680</a>  COALESCE(COUNT(ex.id), 0)::bigint AS "points_available!"
+<a href=#681 id=681 data-nosnippet>681</a>FROM chapters c
+<a href=#682 id=682 data-nosnippet>682</a>  JOIN exercises ex ON ex.chapter_id = c.id
+<a href=#683 id=683 data-nosnippet>683</a>WHERE c.course_id = $1
+<a href=#684 id=684 data-nosnippet>684</a>  AND c.deleted_at IS NULL
+<a href=#685 id=685 data-nosnippet>685</a>  AND ex.deleted_at IS NULL
+<a href=#686 id=686 data-nosnippet>686</a>GROUP BY c.id,
+<a href=#687 id=687 data-nosnippet>687</a>  c.chapter_number,
+<a href=#688 id=688 data-nosnippet>688</a>  c.name
+<a href=#689 id=689 data-nosnippet>689</a>ORDER BY c.chapter_number
+<a href=#690 id=690 data-nosnippet>690</a>        "#</span>,
+<a href=#691 id=691 data-nosnippet>691</a>        course_id
+<a href=#692 id=692 data-nosnippet>692</a>    )
+<a href=#693 id=693 data-nosnippet>693</a>    .fetch_all(conn)
+<a href=#694 id=694 data-nosnippet>694</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#695 id=695 data-nosnippet>695</a>
+<a href=#696 id=696 data-nosnippet>696</a>    <span class="prelude-val">Ok</span>(rows)
+<a href=#697 id=697 data-nosnippet>697</a>}
+<a href=#698 id=698 data-nosnippet>698</a>
+<a href=#699 id=699 data-nosnippet>699</a><span class="kw">pub async fn </span>fetch_course_users(
+<a href=#700 id=700 data-nosnippet>700</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#701 id=701 data-nosnippet>701</a>    course_id: Uuid,
+<a href=#702 id=702 data-nosnippet>702</a>) -&gt; ModelResult&lt;Vec&lt;CourseUserInfo&gt;&gt; {
+<a href=#703 id=703 data-nosnippet>703</a>    <span class="kw">let </span>rows_raw = <span class="macro">sqlx::query!</span>(
+<a href=#704 id=704 data-nosnippet>704</a>        <span class="string">r#"
+<a href=#705 id=705 data-nosnippet>705</a>    SELECT
+<a href=#706 id=706 data-nosnippet>706</a>        ud.first_name,
+<a href=#707 id=707 data-nosnippet>707</a>        ud.last_name,
+<a href=#708 id=708 data-nosnippet>708</a>        u.id AS user_id,
+<a href=#709 id=709 data-nosnippet>709</a>        ud.email AS "email?",
+<a href=#710 id=710 data-nosnippet>710</a>        ci.name AS "course_instance?"
+<a href=#711 id=711 data-nosnippet>711</a>    FROM course_instance_enrollments AS cie
+<a href=#712 id=712 data-nosnippet>712</a>    JOIN users              AS u  ON u.id = cie.user_id
+<a href=#713 id=713 data-nosnippet>713</a>    LEFT JOIN user_details  AS ud ON ud.user_id = u.id
+<a href=#714 id=714 data-nosnippet>714</a>    JOIN course_instances   AS ci ON ci.id = cie.course_instance_id
+<a href=#715 id=715 data-nosnippet>715</a>    WHERE cie.course_id = $1
+<a href=#716 id=716 data-nosnippet>716</a>        AND cie.deleted_at IS NULL
+<a href=#717 id=717 data-nosnippet>717</a>    ORDER BY 1, user_id
+<a href=#718 id=718 data-nosnippet>718</a>    "#</span>,
+<a href=#719 id=719 data-nosnippet>719</a>        course_id
+<a href=#720 id=720 data-nosnippet>720</a>    )
+<a href=#721 id=721 data-nosnippet>721</a>    .fetch_all(conn)
+<a href=#722 id=722 data-nosnippet>722</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#723 id=723 data-nosnippet>723</a>
+<a href=#724 id=724 data-nosnippet>724</a>    <span class="kw">let </span>rows = rows_raw
+<a href=#725 id=725 data-nosnippet>725</a>        .into_iter()
+<a href=#726 id=726 data-nosnippet>726</a>        .map(|r| {
+<a href=#727 id=727 data-nosnippet>727</a>            <span class="kw">let </span>first_name = r
+<a href=#728 id=728 data-nosnippet>728</a>                .first_name
+<a href=#729 id=729 data-nosnippet>729</a>                .map(|f| f.trim().to_string())
+<a href=#730 id=730 data-nosnippet>730</a>                .filter(|f| !f.is_empty());
+<a href=#731 id=731 data-nosnippet>731</a>            <span class="kw">let </span>last_name = r
+<a href=#732 id=732 data-nosnippet>732</a>                .last_name
+<a href=#733 id=733 data-nosnippet>733</a>                .map(|l| l.trim().to_string())
+<a href=#734 id=734 data-nosnippet>734</a>                .filter(|l| !l.is_empty());
+<a href=#735 id=735 data-nosnippet>735</a>
+<a href=#736 id=736 data-nosnippet>736</a>            CourseUserInfo {
+<a href=#737 id=737 data-nosnippet>737</a>                first_name,
+<a href=#738 id=738 data-nosnippet>738</a>                last_name,
+<a href=#739 id=739 data-nosnippet>739</a>                user_id: r.user_id,
+<a href=#740 id=740 data-nosnippet>740</a>                email: r.email,
+<a href=#741 id=741 data-nosnippet>741</a>                course_instance: r.course_instance,
 <a href=#742 id=742 data-nosnippet>742</a>            }
 <a href=#743 id=743 data-nosnippet>743</a>        })
 <a href=#744 id=744 data-nosnippet>744</a>        .collect();

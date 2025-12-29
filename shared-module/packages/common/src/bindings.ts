@@ -230,10 +230,11 @@ export interface UserChapterProgress {
 }
 
 export interface CourseUserInfo {
-  name: string
+  first_name: string | null
+  last_name: string | null
   user_id: string
   email: string | null
-  course_instance: string
+  course_instance: string | null
 }
 
 export interface ChatbotConfiguration {
@@ -1500,6 +1501,7 @@ export interface CertificateGridRow {
   date_issued: string | null
   verification_id: string | null
   certificate_id: string | null
+  name_on_certificate: string | null
 }
 
 export interface UserMarketingConsent {

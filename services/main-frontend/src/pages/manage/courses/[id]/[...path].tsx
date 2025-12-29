@@ -11,6 +11,7 @@ import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLi
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import {
   dontRenderUntilQueryParametersReady,
@@ -129,6 +130,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()
 
+  const isGlobalAdminQuery = useAuthorizeMultiple([
+    { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+  ])
+  const isGlobalAdmin = (isGlobalAdminQuery.isSuccess && isGlobalAdminQuery.data?.[0]) ?? false
+
   // See if path exists, if not, default to first
   // Or should we implement 404 Not Found page and router push there or return that page?
   const pageToRender = selectPageToRender(path)
@@ -172,11 +178,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"course-instances"} isActive={path === "course-instances"}>
           {t("link-course-instances")}
         </TabLink>
-        {/* Uncomment this to reveal the student tab.
-        <TabLink url={"students/users"} isActive={path.startsWith("students")}>
-          {t("label-students")}
-        </TabLink>
-        */}
+        {isGlobalAdmin === true && (
+          <TabLink url={"students/users"} isActive={path.startsWith("students")}>
+            {t("label-students")}
+          </TabLink>
+        )}
         <TabLink url={"language-versions"} isActive={path === "language-versions"}>
           {t("link-language-versions")}
         </TabLink>
@@ -197,7 +203,9 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
             return <PageComponent courseId={courseId} />
           })()
         ) : pageToRender.type === "students" ? (
-          <CourseStudentsPage courseId={courseId} />
+          isGlobalAdmin === true ? (
+            <CourseStudentsPage courseId={courseId} />
+          ) : null
         ) : (
           <Other courseId={courseId} activeSubtab={pageToRender.subtab} />
         )}

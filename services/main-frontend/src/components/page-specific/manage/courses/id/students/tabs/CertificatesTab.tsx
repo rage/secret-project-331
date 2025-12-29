@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
@@ -11,8 +11,12 @@ import { getCertificates, updateCertificate } from "@/services/backend/courses/s
 import { CertificateGridRow, CertificateUpdateRequest } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
+import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
 
 const iconBtnStyle = css`
   display: inline-flex;
@@ -46,12 +50,15 @@ const actionsCellInner = css`
   width: 100%;
 `
 
-export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ courseId }) => {
+export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: string }> = ({
+  courseId,
+  searchQuery,
+}) => {
   const { t } = useTranslation()
   const [editData, setEditData] = useState<{
     id: string
-    date: string | null
     name_on_certificate: string
+    date: string | null
   } | null>(null)
 
   const query = useQuery({
@@ -60,9 +67,39 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     enabled: !!courseId,
   })
 
-  const rows = (query.data ?? []) as CertificateGridRow[]
-  const [popupUrl, setPopupUrl] = React.useState<string | null>(null)
-  const closePopup = () => setPopupUrl(null)
+  const allRows = useMemo(() => (query.data ?? []) as CertificateGridRow[], [query.data])
+
+  const rows = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return allRows
+    }
+    const queryLower = searchQuery.toLowerCase()
+    return allRows.filter((row) => {
+      const student = String(row.student ?? "").toLowerCase()
+      const certificate = String(row.certificate ?? "").toLowerCase()
+      const nameOnCertificate = String(row.name_on_certificate ?? "").toLowerCase()
+      return (
+        student.includes(queryLower) ||
+        certificate.includes(queryLower) ||
+        nameOnCertificate.includes(queryLower)
+      )
+    })
+  }, [allRows, searchQuery])
+  const [popupUrl, setPopupUrl] = useState<string | null>(null)
+  const [verificationId, setVerificationId] = useState<string | null>(null)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const verificationUrl = verificationId
+    ? // eslint-disable-next-line i18next/no-literal-string
+      `${window.location.origin}/certificates/validate/${verificationId}`
+    : ""
+  const copyToClipboard = useCopyToClipboard(verificationUrl)
+  const [copied, setCopied] = useState(false)
+  const closePopup = () => {
+    setPopupUrl(null)
+    setVerificationId(null)
+    setCopied(false)
+    setImageLoaded(false)
+  }
 
   if (query.isLoading) {
     return <Spinner />
@@ -76,6 +113,16 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
     { header: t("label-student"), accessorKey: "student" },
     // eslint-disable-next-line i18next/no-literal-string
     { header: t("certificate"), accessorKey: "certificate" },
+    {
+      header: t("name-on-certificate"),
+      // eslint-disable-next-line i18next/no-literal-string
+      accessorKey: "name_on_certificate",
+      cell: ({ getValue }) => {
+        const value = getValue<string | null>()
+        // eslint-disable-next-line i18next/no-literal-string
+        return value ?? "—"
+      },
+    },
     {
       header: t("date-issued"),
       // eslint-disable-next-line i18next/no-literal-string
@@ -103,15 +150,16 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
           if (certificate === "Course Certificate" && verification_id) {
             // eslint-disable-next-line i18next/no-literal-string
             setPopupUrl(`/api/v0/main-frontend/certificates/${verification_id}`)
+            setVerificationId(verification_id)
           }
         }
 
         const handleEdit = () => {
-          if (row.original.certificate === "Course Certificate") {
+          if (row.original.certificate === "Course Certificate" && row.original.certificate_id) {
             setEditData({
-              id: row.original.certificate_id!,
+              id: row.original.certificate_id,
+              name_on_certificate: row.original.name_on_certificate ?? "",
               date: row.original.date_issued,
-              name_on_certificate: "",
             })
           }
         }
@@ -133,37 +181,125 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
 
   return (
     <>
-      {/* POPUP */}
-      {popupUrl && (
+      {popupUrl && verificationId && (
         <StandardDialog
           open={true}
           onClose={closePopup}
           title={t("view_certificate")}
           showCloseButton={true}
           isDismissable={true}
-          noPadding={true}
+          noPadding={false}
           className={css`
             width: auto !important;
             max-width: 95vw !important;
             max-height: 95vh !important;
-            padding: 0;
           `}
         >
-          <img
-            src={popupUrl}
-            alt={t("certificate")}
+          <div
             className={css`
-              display: block;
-
-              width: auto;
-              height: auto;
-
-              max-width: 90vw;
-              max-height: 80vh;
-
-              object-fit: contain;
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
             `}
-          />
+          >
+            <div
+              className={css`
+                position: relative;
+                width: 800px;
+                aspect-ratio: ${imageLoaded ? "auto" : "297 / 210"};
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f5f5f5;
+                border-radius: 4px;
+              `}
+            >
+              {!imageLoaded && (
+                <div
+                  className={css`
+                    position: absolute;
+                    inset: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #999;
+                    font-size: 14px;
+                  `}
+                >
+                  <Spinner variant="medium" />
+                </div>
+              )}
+              <img
+                src={popupUrl}
+                alt={t("certificate")}
+                onLoad={() => setImageLoaded(true)}
+                className={css`
+                  display: block;
+                  width: 800px;
+                  height: auto;
+                  max-width: 90vw;
+                  max-height: 70vh;
+                  object-fit: contain;
+                  opacity: ${imageLoaded ? 1 : 0};
+                  transition: opacity 0.2s ease-in-out;
+                `}
+              />
+            </div>
+            <div
+              className={css`
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem;
+                border-top: 1px solid #e5e5e5;
+              `}
+            >
+              <label
+                htmlFor="verification-url-input"
+                className={css`
+                  font-size: 14px;
+                  font-weight: 500;
+                `}
+              >
+                {t("verification-url")}
+              </label>
+              <div
+                className={css`
+                  display: flex;
+                  gap: 0.5rem;
+                  align-items: center;
+                `}
+              >
+                <input
+                  id="verification-url-input"
+                  type="text"
+                  readOnly
+                  value={verificationUrl}
+                  className={css`
+                    flex: 1;
+                    padding: 8px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    background: #f5f5f5;
+                  `}
+                />
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  onClick={async () => {
+                    const success = await copyToClipboard()
+                    if (success) {
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    }
+                  }}
+                >
+                  {copied ? t("button-text-copied") : t("button-text-copy")}
+                </Button>
+              </div>
+            </div>
+          </div>
         </StandardDialog>
       )}
 
@@ -180,56 +316,26 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
             max-width: 90vw !important;
           `}
         >
-          {/* NAME FIELD */}
-          <label
-            className={css`
-              display: flex;
-              flex-direction: column;
-              gap: 4px;
-              margin-bottom: 1rem;
-              font-size: 14px;
-            `}
-          >
-            {t("name-on-certificate")}
-            <input
-              type="text"
-              placeholder={t("name-on-certificate")}
-              value={editData.name_on_certificate}
-              onChange={(e) =>
-                setEditData((prev) =>
-                  prev ? { ...prev, name_on_certificate: e.target.value } : prev,
-                )
-              }
-              className={css`
-                height: 32px;
-                padding: 4px 8px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-              `}
-            />
-          </label>
+          <TextField
+            type="text"
+            label={t("name-on-certificate")}
+            placeholder={t("name-on-certificate")}
+            value={editData.name_on_certificate}
+            onChange={(e) =>
+              setEditData((prev) =>
+                prev ? { ...prev, name_on_certificate: e.target.value } : prev,
+              )
+            }
+          />
 
-          {/* DATE FIELD */}
-          <label
-            className={css`
-              display: flex;
-              flex-direction: column;
-              gap: 4px;
-              margin-bottom: 1rem;
-              font-size: 14px;
-            `}
-          >
-            {t("date-issued")}
-            <input
-              type="date"
-              value={editData.date?.substring(0, 10) ?? ""}
-              onChange={(e) =>
-                setEditData((prev) => (prev ? { ...prev, date: e.target.value } : prev))
-              }
-            />
-          </label>
+          <DatePickerField
+            label={t("date-issued")}
+            value={formatDateForDateInputs(editData.date) ?? ""}
+            onChangeByValue={(value) =>
+              setEditData((prev) => (prev ? { ...prev, date: value } : prev))
+            }
+          />
 
-          {/* ACTION BUTTONS */}
           <div
             className={css`
               display: flex;
@@ -243,6 +349,10 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
               size="medium"
               variant="primary"
               onClick={async () => {
+                if (!editData) {
+                  return
+                }
+
                 const iso = new Date(editData.date ?? "").toISOString()
 
                 const payload: CertificateUpdateRequest = {
@@ -255,7 +365,7 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
 
                 await updateCertificate(editData.id, payload)
                 setEditData(null)
-                query.refetch()
+                await query.refetch()
               }}
             >
               {t("button-text-update")}
@@ -268,7 +378,6 @@ export const CertificatesTabContent: React.FC<{ courseId?: string }> = ({ course
         </StandardDialog>
       )}
 
-      {/* TABLE */}
       <FloatingHeaderTable columns={columns} data={rows} />
     </>
   )

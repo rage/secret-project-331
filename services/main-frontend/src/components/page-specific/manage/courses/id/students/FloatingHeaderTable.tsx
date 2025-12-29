@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
-import type { ColumnDef, Header } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import { colorPairs } from "./studentsTableColors"
@@ -34,6 +34,8 @@ import {
   wrapAutoX,
   wrapHiddenX,
 } from "./studentsTableStyles"
+
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type ColMeta = {
   width?: number
@@ -79,7 +81,6 @@ export function FloatingHeaderTable<T extends object>({
 
   // State
   const [showSticky, setShowSticky] = useState(false)
-  const [colWidths, setColWidths] = useState<number[]>([])
   const [wrapRect, setWrapRect] = useState({ left: 0, width: 0 })
   const [contentWidth, setContentWidth] = useState(0)
   const [showTrailer, setShowTrailer] = useState(false)
@@ -130,17 +131,6 @@ export function FloatingHeaderTable<T extends object>({
     setWrapRect({ left: rect.left, width: rect.width })
   }, [])
 
-  const measureColWidths = useCallback(() => {
-    if (!tableRef.current) {
-      return
-    }
-    const ths = tableRef.current.querySelectorAll<HTMLTableCellElement>("thead tr:first-of-type th")
-    if (!ths.length) {
-      return
-    }
-    setColWidths(Array.from(ths).map((th) => th.offsetWidth))
-  }, [])
-
   const measureContentWidth = useCallback(() => {
     if (!wrapRef.current) {
       return
@@ -158,12 +148,13 @@ export function FloatingHeaderTable<T extends object>({
     // sticky header visible when table header scrolled off top but table still on screen
     setShowSticky(rect.top < 0 && rect.bottom > 48)
 
-    // trailer visibility logic
+    // trailer visibility logic - disable on mobile (< 768px)
+    const isMobile = window.innerWidth < 768
     const tableOnScreen = rect.bottom > 0 && rect.top < vh
     const pastTop = rect.top < vh - 48
     const isBottomVisible = rect.bottom <= vh
 
-    setShowTrailer(tableOnScreen && pastTop)
+    setShowTrailer(!isMobile && tableOnScreen && pastTop)
     setBottomVisible(isBottomVisible)
   }, [])
 
@@ -232,8 +223,6 @@ export function FloatingHeaderTable<T extends object>({
       // keep viewport & content in sync
       measureWrapRect()
       measureContentWidth()
-      // columns might reflow if fonts/space change → debounce via rAF for safety
-      requestAnimationFrame(measureColWidths)
     })
     if (wrapRef.current) {
       ro.observe(wrapRef.current)
@@ -242,7 +231,6 @@ export function FloatingHeaderTable<T extends object>({
     // Window resize (viewport changes)
     const onWinResize = () => {
       measureWrapRect()
-      requestAnimationFrame(measureColWidths)
     }
     window.addEventListener("resize", onWinResize)
 
@@ -255,7 +243,7 @@ export function FloatingHeaderTable<T extends object>({
       window.removeEventListener("resize", onWinResize)
       window.removeEventListener("scroll", handleWindowScroll)
     }
-  }, [measureWrapRect, measureContentWidth, measureColWidths, handleWindowScroll])
+  }, [measureWrapRect, measureContentWidth, handleWindowScroll])
 
   // 2) Scroll sync wiring (wrap ↔ trailer) + init positions
   useEffect(() => {
@@ -286,8 +274,6 @@ export function FloatingHeaderTable<T extends object>({
 
   // 3) Render-time layout work (merged):
   useLayoutEffect(() => {
-    const rafId = requestAnimationFrame(measureColWidths)
-
     const srcTable = tableRef.current
     const dstTable = stickyTableRef.current
     if (showSticky && srcTable && dstTable) {
@@ -349,9 +335,7 @@ export function FloatingHeaderTable<T extends object>({
         }
       }
     }
-
-    return () => cancelAnimationFrame(rafId)
-  }, [measureColWidths, showSticky, columns, data, contentWidth])
+  }, [showSticky, columns, data, contentWidth])
 
   const renderDockedTrailer = () => (
     <div className={dockedTrailerCss}>
@@ -390,6 +374,11 @@ export function FloatingHeaderTable<T extends object>({
         return (
           <tr key={headerGroup.id} className={headerRowStyle}>
             {headerGroup.headers.map((header, colIdx) => {
+              // Skip headers in second row that should span both rows (already rendered in first row)
+              if (rowIdx === 1 && header.depth === 0 && header.colSpan === 1) {
+                return null
+              }
+
               let removeRight = false
               let removeLeft = false
 
@@ -445,39 +434,6 @@ export function FloatingHeaderTable<T extends object>({
                     (() => {
                       const minW = getMeta<T>(header.column?.columnDef)?.minWidth ?? 80
 
-                      const computedWidth = (() => {
-                        if (
-                          header.colSpan &&
-                          header.colSpan > 1 &&
-                          typeof header.getLeafHeaders === "function"
-                        ) {
-                          const leaves = header.getLeafHeaders() as Header<T, unknown>[]
-                          const sumLeafMeta = leaves.reduce(
-                            (acc: number, h: Header<T, unknown>) => {
-                              const leafMeta = getMeta<T>(h.column?.columnDef)
-                              const leafContentW =
-                                typeof leafMeta?.width === "number"
-                                  ? leafMeta.width
-                                  : typeof leafMeta?.minWidth === "number"
-                                    ? leafMeta.minWidth
-                                    : 0
-                              const leafTotalW = leafContentW + PAD * 2
-                              return acc + leafTotalW
-                            },
-                            0,
-                          )
-                          return sumLeafMeta > 0 ? sumLeafMeta : colWidths[colIdx]
-                        }
-                        const meta = getMeta<T>(header.column?.columnDef)
-                        if (typeof meta?.width === "number") {
-                          return meta.width
-                        }
-                        if (typeof meta?.minWidth === "number") {
-                          return meta.minWidth
-                        }
-                        return colWidths[colIdx]
-                      })()
-
                       const bg =
                         colorHeaders && !colorHeaderUnderline
                           ? getHeaderBg(rowIdx, colIdx, header)
@@ -491,13 +447,25 @@ export function FloatingHeaderTable<T extends object>({
 
                       return css`
                         min-width: ${minW}px;
-                        width: ${typeof computedWidth === "number" ? `${computedWidth}px` : "auto"};
+                        width: auto;
                         ${bg ? `background: ${bg};` : ""}
                         position: relative;
                         overflow: visible;
-                        padding-left: 16px;
-                        padding-right: 16px;
-                        ${needsPadTop ? `padding-top: 10px;` : ""}
+                        padding-left: 8px;
+                        padding-right: 8px;
+                        ${needsPadTop ? `padding-top: 6px;` : ""}
+
+                        ${respondToOrLarger.md} {
+                          padding-left: 16px;
+                          padding-right: 16px;
+                          ${needsPadTop ? `padding-top: 8px;` : ""}
+                        }
+
+                        ${respondToOrLarger.lg} {
+                          padding-left: 16px;
+                          padding-right: 16px;
+                          ${needsPadTop ? `padding-top: 10px;` : ""}
+                        }
                       `
                     })(),
                   )}
@@ -567,8 +535,6 @@ export function FloatingHeaderTable<T extends object>({
                   removeLeft && noLeftBorder,
                   (() => {
                     const meta = getMeta<T>(cell.column.columnDef)
-                    const computedWidth =
-                      typeof meta?.width === "number" ? meta.width : colWidths[i]
                     const minW = typeof meta?.minWidth === "number" ? meta.minWidth : undefined
 
                     const bgClass = bg
@@ -582,23 +548,47 @@ export function FloatingHeaderTable<T extends object>({
                       return cx(
                         bgClass,
                         css`
-                          width: 80px;
-                          min-width: 80px;
-                          max-width: 80px;
-                          padding-left: 4px;
-                          padding-right: 4px;
+                          width: 60px;
+                          min-width: 60px;
+                          max-width: 60px;
+                          padding-left: 2px;
+                          padding-right: 2px;
+
+                          ${respondToOrLarger.md} {
+                            width: 70px;
+                            min-width: 70px;
+                            max-width: 70px;
+                            padding-left: 4px;
+                            padding-right: 4px;
+                          }
+
+                          ${respondToOrLarger.lg} {
+                            width: 80px;
+                            min-width: 80px;
+                            max-width: 80px;
+                          }
                         `,
                       )
                     }
 
-                    // normal content cells: width + minWidth (if any) + PAD padding
+                    // normal content cells: auto width with minWidth constraint + responsive padding
                     return cx(
                       bgClass,
                       css`
-                        ${typeof computedWidth === "number" ? `width: ${computedWidth}px;` : ""}
+                        width: auto;
                         ${typeof minW === "number" ? `min-width: ${minW}px;` : ""}
-          padding-left: ${PAD}px;
+                        padding-left: ${PAD}px;
                         padding-right: ${PAD}px;
+
+                        ${respondToOrLarger.md} {
+                          padding-left: 12px;
+                          padding-right: 12px;
+                        }
+
+                        ${respondToOrLarger.lg} {
+                          padding-left: 16px;
+                          padding-right: 16px;
+                        }
                       `,
                     )
                   })(),

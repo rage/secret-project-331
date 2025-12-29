@@ -37,6 +37,23 @@ export const formatDateForDateTimeLocalInputs = (
 }
 
 /**
+ * Formats a given date to a string suitable for use in `<input type="date">` elements, or the `DatePickerField` component from shared module.
+ *
+ * The `<input type="date">` element expects the date string to be in the format `YYYY-MM-DD`.
+ *
+ * @param date - The date to be formatted.
+ * @returns A string representing the formatted date in the `YYYY-MM-DD` format.
+ */
+export const formatDateForDateInputs = (
+  date: Date | string | null | undefined,
+): string | undefined => {
+  if (!date) {
+    return undefined
+  }
+  return format(date, "yyyy-MM-dd")
+}
+
+/**
  * Converts a date to a human-readable string in the user's local timezone.
  *
  * This function takes a date input (Date object, string, null, or undefined) and

@@ -618,10 +618,11 @@ pub struct ChapterAvailability {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseUserInfo {
-    pub name: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
     pub user_id: Uuid,
     pub email: Option<String>,
-    pub course_instance: String,
+    pub course_instance: Option<String>,
 }
 
 pub async fn fetch_user_chapter_progress(
@@ -706,7 +707,7 @@ pub async fn fetch_course_users(
         ud.last_name,
         u.id AS user_id,
         ud.email AS "email?",
-        ci.name AS course_instance
+        ci.name AS "course_instance?"
     FROM course_instance_enrollments AS cie
     JOIN users              AS u  ON u.id = cie.user_id
     LEFT JOIN user_details  AS ud ON ud.user_id = u.id
@@ -723,22 +724,21 @@ pub async fn fetch_course_users(
     let rows = rows_raw
         .into_iter()
         .map(|r| {
-            let first = r.first_name.unwrap_or_default().trim().to_string();
-            let last = r.last_name.unwrap_or_default().trim().to_string();
-
-            let name = if first.is_empty() && last.is_empty() {
-                "(Missing name)".to_string()
-            } else {
-                format!("{} {}", first, last).trim().to_string()
-            };
+            let first_name = r
+                .first_name
+                .map(|f| f.trim().to_string())
+                .filter(|f| !f.is_empty());
+            let last_name = r
+                .last_name
+                .map(|l| l.trim().to_string())
+                .filter(|l| !l.is_empty());
 
             CourseUserInfo {
-                name,
+                first_name,
+                last_name,
                 user_id: r.user_id,
                 email: r.email,
-                course_instance: r
-                    .course_instance
-                    .unwrap_or_else(|| "Default instance".to_string()),
+                course_instance: r.course_instance,
             }
         })
         .collect();

@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { useCopyToClipboard as useCopyToClipboardBase } from "@/shared-module/common/hooks/useCopyToClipboard"
 
 /**
  * Decodes HTML entities in a string
@@ -21,78 +21,15 @@ export function replaceBrTagsWithNewlines(html: string | null | undefined): type
 }
 
 /**
- * Fallback copy method using execCommand.
- * @throws Error if copy fails
+ * Returns a callback for copying HTML content to clipboard.
+ * Processes HTML content by replacing BR tags with newlines and decoding HTML entities before copying.
+ * @param htmlContent - The HTML content to copy (will be processed before copying)
+ * @returns A function that when called attempts to copy the processed text and returns true if successful
  */
-function copyWithFallback(text: string): void {
-  const textArea = document.createElement("textarea")
-  textArea.value = text
-  document.body.appendChild(textArea)
-  textArea.select()
+export function useCopyHtmlContentToClipboard(htmlContent: string): () => Promise<boolean> {
+  const withoutNewLines = replaceBrTagsWithNewlines(htmlContent) ?? ""
+  const processedText = decodeHtmlEntities(withoutNewLines)
+  const baseCopyToClipboard = useCopyToClipboardBase(processedText)
 
-  const successful = document.execCommand("copy")
-  document.body.removeChild(textArea)
-  if (!successful) {
-    throw new Error("Copy failed")
-  }
-  console.info(`[Copy] Success using legacy method:\n${text}`)
-}
-
-/**
- * Attempts to copy text using the Clipboard API.
- * @throws Error if copy fails
- */
-async function copyWithClipboardApi(text: string): Promise<void> {
-  await navigator.clipboard.writeText(text)
-  console.info(`[Copy] Success using Clipboard API:\n${text}`)
-}
-
-/**
- * Returns a callback for copying code to clipboard.
- * @returns A function that when called attempts to copy text and returns true if successful
- */
-export function useCopyToClipboard(content: string): () => Promise<boolean> {
-  const copyToClipboard = useCallback(async (): Promise<boolean> => {
-    const withoutNewLines = replaceBrTagsWithNewlines(content) ?? ""
-    const textToCopy = decodeHtmlEntities(withoutNewLines)
-
-    try {
-      if (navigator.clipboard) {
-        try {
-          await copyWithClipboardApi(textToCopy)
-          return true
-        } catch (error) {
-          const isSecureContext = window.isSecureContext
-          const isPermissionError = error instanceof Error && error.name === "NotAllowedError"
-
-          if (!isSecureContext) {
-            console.warn(
-              "[Copy] Unable to use Clipboard API - HTTPS required. Trying legacy method.",
-            )
-          } else if (isPermissionError) {
-            console.warn(
-              `[Copy] Unable to use Clipboard API - Permission denied: ${error instanceof Error ? error.message : String(error)}. Trying legacy method.`,
-            )
-          } else {
-            console.warn(
-              `[Copy] Unable to use Clipboard API - Unknown error: ${error instanceof Error ? error.message : String(error)}. Trying legacy method.`,
-            )
-          }
-          copyWithFallback(textToCopy)
-          return true
-        }
-      } else {
-        console.warn("[Copy] Clipboard API not available. Trying legacy method.")
-        copyWithFallback(textToCopy)
-        return true
-      }
-    } catch (error) {
-      console.error(
-        `[Copy Failed] Copy operation failed. Please try selecting the text manually and using Ctrl+C/Cmd+C. Error: ${error}`,
-      )
-      return false
-    }
-  }, [content])
-
-  return copyToClipboard
+  return baseCopyToClipboard
 }

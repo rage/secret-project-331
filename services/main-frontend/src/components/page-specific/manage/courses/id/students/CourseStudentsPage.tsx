@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState, useTransition } from "react"
 import { useTranslation } from "react-i18next"
 
 import * as styles from "./StudentsPageStyles"
@@ -8,13 +8,33 @@ import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from ".
 import { ProgressTabContent } from "./tabs/ProgressTab"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type Props = { courseId?: string }
 
-const tableSection = css({
-  paddingLeft: "4vw",
-  paddingRight: "4vw",
-})
+const tableSection = css`
+  padding-left: 0;
+  padding-right: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+
+  ${respondToOrLarger.md} {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  ${respondToOrLarger.lg} {
+    padding-left: 2vw;
+    padding-right: 2vw;
+  }
+
+  ${respondToOrLarger.xl} {
+    padding-left: 4vw;
+    padding-right: 4vw;
+  }
+`
 
 const DOWN_SYMBOL = "▼"
 
@@ -55,6 +75,9 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
   }, [subtabFromUrl])
 
   const [activeTab, setActiveTab] = useState<(typeof TAB_LIST)[number]>(tabFromUrl)
+  const [inputValue, setInputValue] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [_isPending, startTransition] = useTransition()
 
   useEffect(() => {
     setActiveTab(tabFromUrl)
@@ -84,10 +107,14 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
   }
 
   const tabContentMap: { [k in (typeof TAB_LIST)[number]]: React.ReactNode } = {
-    [TAB_USER]: courseId ? <UserTabContent courseId={courseId} /> : null,
-    [TAB_COMPLETIONS]: courseId ? <CompletionsTabContent courseId={courseId} /> : null,
-    [TAB_PROGRESS]: courseId ? <ProgressTabContent courseId={courseId} /> : null,
-    [TAB_CERTIFICATES]: <CertificatesTabContent courseId={courseId} />,
+    [TAB_USER]: courseId ? <UserTabContent courseId={courseId} searchQuery={searchQuery} /> : null,
+    [TAB_COMPLETIONS]: courseId ? (
+      <CompletionsTabContent courseId={courseId} searchQuery={searchQuery} />
+    ) : null,
+    [TAB_PROGRESS]: courseId ? (
+      <ProgressTabContent courseId={courseId} searchQuery={searchQuery} />
+    ) : null,
+    [TAB_CERTIFICATES]: <CertificatesTabContent courseId={courseId} searchQuery={searchQuery} />,
   }
 
   return (
@@ -110,7 +137,18 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
         <div className={styles.headerControlsSection}>
           <div className={styles.controlsRow}>
             <div className={styles.searchBoxWrap}>
-              <input className={styles.searchInput} placeholder={t("search-students")} />
+              <input
+                className={styles.searchInput}
+                placeholder={t("search-students")}
+                value={inputValue}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setInputValue(value)
+                  startTransition(() => {
+                    setSearchQuery(value)
+                  })
+                }}
+              />
               <span className={styles.searchIcon}>🔍</span>
             </div>
 

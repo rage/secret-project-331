@@ -1,7 +1,7 @@
 {
   "name": "example-exercise",
   "version": "1.0.1",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3002 --turbopack",

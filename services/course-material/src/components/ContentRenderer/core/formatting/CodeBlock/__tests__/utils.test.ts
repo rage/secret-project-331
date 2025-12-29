@@ -1,6 +1,10 @@
 import { renderHook } from "@testing-library/react"
 
-import { decodeHtmlEntities, replaceBrTagsWithNewlines, useCopyToClipboard } from "../utils"
+import {
+  decodeHtmlEntities,
+  replaceBrTagsWithNewlines,
+  useCopyHtmlContentToClipboard,
+} from "../utils"
 
 describe("replaceBrTagsWithNewlines", () => {
   it("should return null when input is null", () => {
@@ -81,7 +85,7 @@ describe("decodeHtmlEntities", () => {
   })
 })
 
-describe("useCopyToClipboard", () => {
+describe("useCopyHtmlContentToClipboard", () => {
   const originalConsole = {
     log: console.log,
     warn: console.warn,
@@ -118,7 +122,7 @@ describe("useCopyToClipboard", () => {
   })
 
   it("should handle basic text copying", async () => {
-    const { result } = renderHook(() => useCopyToClipboard("Hello world"))
+    const { result } = renderHook(() => useCopyHtmlContentToClipboard("Hello world"))
     const copyToClipboard = result.current
 
     const success = await copyToClipboard()
@@ -129,7 +133,7 @@ describe("useCopyToClipboard", () => {
 
   it("should decode HTML entities and convert BR tags", async () => {
     const { result } = renderHook(() =>
-      useCopyToClipboard("if (x &lt; 10) {<br>  return true;<br>}"),
+      useCopyHtmlContentToClipboard("if (x &lt; 10) {<br>  return true;<br>}"),
     )
     const copyToClipboard = result.current
 
@@ -139,7 +143,9 @@ describe("useCopyToClipboard", () => {
   })
 
   it("should preserve encoded <br> tags as text", async () => {
-    const { result } = renderHook(() => useCopyToClipboard("Example: &lt;br&gt; tag<br>Next line"))
+    const { result } = renderHook(() =>
+      useCopyHtmlContentToClipboard("Example: &lt;br&gt; tag<br>Next line"),
+    )
     const copyToClipboard = result.current
 
     await copyToClipboard()
@@ -149,7 +155,7 @@ describe("useCopyToClipboard", () => {
 
   it("should preserve literal \\n sequences", async () => {
     const { result } = renderHook(() =>
-      useCopyToClipboard("console.log('\\n');<br>const x = '\\n';"),
+      useCopyHtmlContentToClipboard("console.log('\\n');<br>const x = '\\n';"),
     )
     const copyToClipboard = result.current
 
@@ -169,7 +175,7 @@ describe("useCopyToClipboard", () => {
         configurable: true,
       })
 
-      const { result } = renderHook(() => useCopyToClipboard("Test content"))
+      const { result } = renderHook(() => useCopyHtmlContentToClipboard("Test content"))
       const copyToClipboard = result.current
 
       const success = await copyToClipboard()
@@ -184,7 +190,7 @@ describe("useCopyToClipboard", () => {
         configurable: true,
       })
 
-      const { result } = renderHook(() => useCopyToClipboard("Test content"))
+      const { result } = renderHook(() => useCopyHtmlContentToClipboard("Test content"))
       const copyToClipboard = result.current
 
       const success = await copyToClipboard()
@@ -202,7 +208,7 @@ describe("useCopyToClipboard", () => {
       })
       document.execCommand = jest.fn(() => false)
 
-      const { result } = renderHook(() => useCopyToClipboard("Test content"))
+      const { result } = renderHook(() => useCopyHtmlContentToClipboard("Test content"))
       const copyToClipboard = result.current
 
       const success = await copyToClipboard()

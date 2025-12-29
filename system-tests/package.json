@@ -4,7 +4,7 @@
   "description": "",
   "keywords": [],
   "main": "index.js",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
     "create-login-states": "env LANGUAGE=en_US  pnpm exec playwright test --project setup",
     "help": "playwright --help",

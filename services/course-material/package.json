@@ -1,7 +1,7 @@
 {
   "name": "course-material",
   "version": "1.0.0",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3003 --turbopack",

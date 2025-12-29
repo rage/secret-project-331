@@ -4,7 +4,7 @@
   "description": "",
   "homepage": "https://github.com/rage/secret-project-331#readme",
   "main": "index.js",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "type": "module",
   "bugs": {
     "url": "https://github.com/rage/secret-project-331/issues"

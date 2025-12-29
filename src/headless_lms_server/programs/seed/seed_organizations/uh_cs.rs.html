@@ -22,7 +22,7 @@
 <a href=#22 id=22 data-nosnippet>22</a>    domain::models_requests::{<span class="self">self</span>, JwtKey},
 <a href=#23 id=23 data-nosnippet>23</a>    programs::seed::{
 <a href=#24 id=24 data-nosnippet>24</a>        seed_courses::{
-<a href=#25 id=25 data-nosnippet>25</a>            CommonCourseData, seed_cs_course_material, seed_glossary,
+<a href=#25 id=25 data-nosnippet>25</a>            CommonCourseData, seed_cs_course_material, seed_glossary, seed_graded_course,
 <a href=#26 id=26 data-nosnippet>26</a>            seed_peer_review_course_without_submissions, seed_sample_course,
 <a href=#27 id=27 data-nosnippet>27</a>        },
 <a href=#28 id=28 data-nosnippet>28</a>        seed_file_storage::SeedFileStorageResult,
@@ -111,438 +111,446 @@
 <a href=#111 id=111 data-nosnippet>111</a>        automatic_course_with_exam_id,
 <a href=#112 id=112 data-nosnippet>112</a>        certificates_id,
 <a href=#113 id=113 data-nosnippet>113</a>        ..,
-<a href=#114 id=114 data-nosnippet>114</a>    ) = <span class="macro">try_join!</span>(
-<a href=#115 id=115 data-nosnippet>115</a>        <span class="comment">// using these ids
-<a href=#116 id=116 data-nosnippet>116</a>        </span>run_parallelly(seed_sample_course(
-<a href=#117 id=117 data-nosnippet>117</a>            Uuid::parse_str(<span class="string">"7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5"</span>)<span class="question-mark">?</span>,
-<a href=#118 id=118 data-nosnippet>118</a>            <span class="string">"Introduction to everything"</span>,
-<a href=#119 id=119 data-nosnippet>119</a>            <span class="string">"introduction-to-everything"</span>,
-<a href=#120 id=120 data-nosnippet>120</a>            cs_data.clone(),
-<a href=#121 id=121 data-nosnippet>121</a>            <span class="bool-val">false</span>,
-<a href=#122 id=122 data-nosnippet>122</a>            seed_users_result,
-<a href=#123 id=123 data-nosnippet>123</a>        )),
-<a href=#124 id=124 data-nosnippet>124</a>        run_parallelly(seed_sample_course(
-<a href=#125 id=125 data-nosnippet>125</a>            Uuid::parse_str(<span class="string">"b39b64f3-7718-4556-ac2b-333f3ed4096f"</span>)<span class="question-mark">?</span>,
-<a href=#126 id=126 data-nosnippet>126</a>            <span class="string">"Automatic Completions"</span>,
-<a href=#127 id=127 data-nosnippet>127</a>            <span class="string">"automatic-completions"</span>,
-<a href=#128 id=128 data-nosnippet>128</a>            cs_data.clone(),
-<a href=#129 id=129 data-nosnippet>129</a>            <span class="bool-val">false</span>,
-<a href=#130 id=130 data-nosnippet>130</a>            seed_users_result,
-<a href=#131 id=131 data-nosnippet>131</a>        )),
-<a href=#132 id=132 data-nosnippet>132</a>        run_parallelly(seed_sample_course(
-<a href=#133 id=133 data-nosnippet>133</a>            Uuid::parse_str(<span class="string">"639f4d25-9376-49b5-bcca-7cba18c38565"</span>)<span class="question-mark">?</span>,
-<a href=#134 id=134 data-nosnippet>134</a>            <span class="string">"Introduction to localizing"</span>,
-<a href=#135 id=135 data-nosnippet>135</a>            <span class="string">"introduction-to-localizing"</span>,
-<a href=#136 id=136 data-nosnippet>136</a>            cs_data.clone(),
-<a href=#137 id=137 data-nosnippet>137</a>            <span class="bool-val">false</span>,
-<a href=#138 id=138 data-nosnippet>138</a>            seed_users_result,
-<a href=#139 id=139 data-nosnippet>139</a>        )),
-<a href=#140 id=140 data-nosnippet>140</a>        run_parallelly(seed_sample_course(
-<a href=#141 id=141 data-nosnippet>141</a>            Uuid::parse_str(<span class="string">"34f4e7b7-9f55-48a7-95d7-3fc3e89553b5"</span>)<span class="question-mark">?</span>,
-<a href=#142 id=142 data-nosnippet>142</a>            <span class="string">"Manual Completions"</span>,
-<a href=#143 id=143 data-nosnippet>143</a>            <span class="string">"manual-completions"</span>,
-<a href=#144 id=144 data-nosnippet>144</a>            cs_data.clone(),
-<a href=#145 id=145 data-nosnippet>145</a>            <span class="bool-val">false</span>,
-<a href=#146 id=146 data-nosnippet>146</a>            seed_users_result,
-<a href=#147 id=147 data-nosnippet>147</a>        )),
-<a href=#148 id=148 data-nosnippet>148</a>        run_parallelly(seed_sample_course(
-<a href=#149 id=149 data-nosnippet>149</a>            Uuid::parse_str(<span class="string">"260b2157-94ad-4791-91c7-f236f203c338"</span>)<span class="question-mark">?</span>,
-<a href=#150 id=150 data-nosnippet>150</a>            <span class="string">"Automatic Course with Exam"</span>,
-<a href=#151 id=151 data-nosnippet>151</a>            <span class="string">"automatic-course-with-exam"</span>,
-<a href=#152 id=152 data-nosnippet>152</a>            cs_data.clone(),
-<a href=#153 id=153 data-nosnippet>153</a>            <span class="bool-val">false</span>,
-<a href=#154 id=154 data-nosnippet>154</a>            seed_users_result,
-<a href=#155 id=155 data-nosnippet>155</a>        )),
-<a href=#156 id=156 data-nosnippet>156</a>        run_parallelly(seed_sample_course(
-<a href=#157 id=157 data-nosnippet>157</a>            Uuid::parse_str(<span class="string">"51ce5ea4-2587-407e-bea9-421309f77f69"</span>)<span class="question-mark">?</span>,
-<a href=#158 id=158 data-nosnippet>158</a>            <span class="string">"Certificates"</span>,
-<a href=#159 id=159 data-nosnippet>159</a>            <span class="string">"certificates"</span>,
-<a href=#160 id=160 data-nosnippet>160</a>            cs_data.clone(),
-<a href=#161 id=161 data-nosnippet>161</a>            <span class="bool-val">false</span>,
-<a href=#162 id=162 data-nosnippet>162</a>            seed_users_result,
-<a href=#163 id=163 data-nosnippet>163</a>        )),
-<a href=#164 id=164 data-nosnippet>164</a>        <span class="comment">// not using these ids
-<a href=#165 id=165 data-nosnippet>165</a>        </span>run_parallelly(seed_sample_course(
-<a href=#166 id=166 data-nosnippet>166</a>            Uuid::parse_str(<span class="string">"4dde368a-5e5d-4001-b8aa-13079390f818"</span>)<span class="question-mark">?</span>,
-<a href=#167 id=167 data-nosnippet>167</a>            <span class="string">"Model solutions"</span>,
-<a href=#168 id=168 data-nosnippet>168</a>            <span class="string">"model-solutions"</span>,
-<a href=#169 id=169 data-nosnippet>169</a>            cs_data.clone(),
-<a href=#170 id=170 data-nosnippet>170</a>            <span class="bool-val">false</span>,
+<a href=#114 id=114 data-nosnippet>114</a>        _graded_demo_course_id,
+<a href=#115 id=115 data-nosnippet>115</a>    ) = <span class="macro">try_join!</span>(
+<a href=#116 id=116 data-nosnippet>116</a>        <span class="comment">// using these ids
+<a href=#117 id=117 data-nosnippet>117</a>        </span>run_parallelly(seed_sample_course(
+<a href=#118 id=118 data-nosnippet>118</a>            Uuid::parse_str(<span class="string">"7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5"</span>)<span class="question-mark">?</span>,
+<a href=#119 id=119 data-nosnippet>119</a>            <span class="string">"Introduction to everything"</span>,
+<a href=#120 id=120 data-nosnippet>120</a>            <span class="string">"introduction-to-everything"</span>,
+<a href=#121 id=121 data-nosnippet>121</a>            cs_data.clone(),
+<a href=#122 id=122 data-nosnippet>122</a>            <span class="bool-val">false</span>,
+<a href=#123 id=123 data-nosnippet>123</a>            seed_users_result,
+<a href=#124 id=124 data-nosnippet>124</a>        )),
+<a href=#125 id=125 data-nosnippet>125</a>        run_parallelly(seed_sample_course(
+<a href=#126 id=126 data-nosnippet>126</a>            Uuid::parse_str(<span class="string">"b39b64f3-7718-4556-ac2b-333f3ed4096f"</span>)<span class="question-mark">?</span>,
+<a href=#127 id=127 data-nosnippet>127</a>            <span class="string">"Automatic Completions"</span>,
+<a href=#128 id=128 data-nosnippet>128</a>            <span class="string">"automatic-completions"</span>,
+<a href=#129 id=129 data-nosnippet>129</a>            cs_data.clone(),
+<a href=#130 id=130 data-nosnippet>130</a>            <span class="bool-val">false</span>,
+<a href=#131 id=131 data-nosnippet>131</a>            seed_users_result,
+<a href=#132 id=132 data-nosnippet>132</a>        )),
+<a href=#133 id=133 data-nosnippet>133</a>        run_parallelly(seed_sample_course(
+<a href=#134 id=134 data-nosnippet>134</a>            Uuid::parse_str(<span class="string">"639f4d25-9376-49b5-bcca-7cba18c38565"</span>)<span class="question-mark">?</span>,
+<a href=#135 id=135 data-nosnippet>135</a>            <span class="string">"Introduction to localizing"</span>,
+<a href=#136 id=136 data-nosnippet>136</a>            <span class="string">"introduction-to-localizing"</span>,
+<a href=#137 id=137 data-nosnippet>137</a>            cs_data.clone(),
+<a href=#138 id=138 data-nosnippet>138</a>            <span class="bool-val">false</span>,
+<a href=#139 id=139 data-nosnippet>139</a>            seed_users_result,
+<a href=#140 id=140 data-nosnippet>140</a>        )),
+<a href=#141 id=141 data-nosnippet>141</a>        run_parallelly(seed_sample_course(
+<a href=#142 id=142 data-nosnippet>142</a>            Uuid::parse_str(<span class="string">"34f4e7b7-9f55-48a7-95d7-3fc3e89553b5"</span>)<span class="question-mark">?</span>,
+<a href=#143 id=143 data-nosnippet>143</a>            <span class="string">"Manual Completions"</span>,
+<a href=#144 id=144 data-nosnippet>144</a>            <span class="string">"manual-completions"</span>,
+<a href=#145 id=145 data-nosnippet>145</a>            cs_data.clone(),
+<a href=#146 id=146 data-nosnippet>146</a>            <span class="bool-val">false</span>,
+<a href=#147 id=147 data-nosnippet>147</a>            seed_users_result,
+<a href=#148 id=148 data-nosnippet>148</a>        )),
+<a href=#149 id=149 data-nosnippet>149</a>        run_parallelly(seed_sample_course(
+<a href=#150 id=150 data-nosnippet>150</a>            Uuid::parse_str(<span class="string">"260b2157-94ad-4791-91c7-f236f203c338"</span>)<span class="question-mark">?</span>,
+<a href=#151 id=151 data-nosnippet>151</a>            <span class="string">"Automatic Course with Exam"</span>,
+<a href=#152 id=152 data-nosnippet>152</a>            <span class="string">"automatic-course-with-exam"</span>,
+<a href=#153 id=153 data-nosnippet>153</a>            cs_data.clone(),
+<a href=#154 id=154 data-nosnippet>154</a>            <span class="bool-val">false</span>,
+<a href=#155 id=155 data-nosnippet>155</a>            seed_users_result,
+<a href=#156 id=156 data-nosnippet>156</a>        )),
+<a href=#157 id=157 data-nosnippet>157</a>        run_parallelly(seed_sample_course(
+<a href=#158 id=158 data-nosnippet>158</a>            Uuid::parse_str(<span class="string">"51ce5ea4-2587-407e-bea9-421309f77f69"</span>)<span class="question-mark">?</span>,
+<a href=#159 id=159 data-nosnippet>159</a>            <span class="string">"Certificates"</span>,
+<a href=#160 id=160 data-nosnippet>160</a>            <span class="string">"certificates"</span>,
+<a href=#161 id=161 data-nosnippet>161</a>            cs_data.clone(),
+<a href=#162 id=162 data-nosnippet>162</a>            <span class="bool-val">false</span>,
+<a href=#163 id=163 data-nosnippet>163</a>            seed_users_result,
+<a href=#164 id=164 data-nosnippet>164</a>        )),
+<a href=#165 id=165 data-nosnippet>165</a>        <span class="comment">// not using these ids
+<a href=#166 id=166 data-nosnippet>166</a>        </span>run_parallelly(seed_graded_course(
+<a href=#167 id=167 data-nosnippet>167</a>            Uuid::parse_str(<span class="string">"1c9f9ba8-aaaa-4aa4-bccb-123654abcabc"</span>)<span class="question-mark">?</span>,
+<a href=#168 id=168 data-nosnippet>168</a>            <span class="string">"Graded Demo Course"</span>,
+<a href=#169 id=169 data-nosnippet>169</a>            <span class="string">"graded-demo-course"</span>,
+<a href=#170 id=170 data-nosnippet>170</a>            cs_data.clone(),
 <a href=#171 id=171 data-nosnippet>171</a>            seed_users_result,
 <a href=#172 id=172 data-nosnippet>172</a>        )),
 <a href=#173 id=173 data-nosnippet>173</a>        run_parallelly(seed_sample_course(
-<a href=#174 id=174 data-nosnippet>174</a>            Uuid::parse_str(<span class="string">"edaa1c52-15cd-458d-8ce2-1e4010641244"</span>)<span class="question-mark">?</span>,
-<a href=#175 id=175 data-nosnippet>175</a>            <span class="string">"Course Modules"</span>,
-<a href=#176 id=176 data-nosnippet>176</a>            <span class="string">"course-modules"</span>,
+<a href=#174 id=174 data-nosnippet>174</a>            Uuid::parse_str(<span class="string">"4dde368a-5e5d-4001-b8aa-13079390f818"</span>)<span class="question-mark">?</span>,
+<a href=#175 id=175 data-nosnippet>175</a>            <span class="string">"Model solutions"</span>,
+<a href=#176 id=176 data-nosnippet>176</a>            <span class="string">"model-solutions"</span>,
 <a href=#177 id=177 data-nosnippet>177</a>            cs_data.clone(),
 <a href=#178 id=178 data-nosnippet>178</a>            <span class="bool-val">false</span>,
 <a href=#179 id=179 data-nosnippet>179</a>            seed_users_result,
 <a href=#180 id=180 data-nosnippet>180</a>        )),
 <a href=#181 id=181 data-nosnippet>181</a>        run_parallelly(seed_sample_course(
-<a href=#182 id=182 data-nosnippet>182</a>            Uuid::parse_str(<span class="string">"d18b3780-563d-4326-b311-8d0e132901cd"</span>)<span class="question-mark">?</span>,
-<a href=#183 id=183 data-nosnippet>183</a>            <span class="string">"Introduction to feedback"</span>,
-<a href=#184 id=184 data-nosnippet>184</a>            <span class="string">"introduction-to-feedback"</span>,
+<a href=#182 id=182 data-nosnippet>182</a>            Uuid::parse_str(<span class="string">"edaa1c52-15cd-458d-8ce2-1e4010641244"</span>)<span class="question-mark">?</span>,
+<a href=#183 id=183 data-nosnippet>183</a>            <span class="string">"Course Modules"</span>,
+<a href=#184 id=184 data-nosnippet>184</a>            <span class="string">"course-modules"</span>,
 <a href=#185 id=185 data-nosnippet>185</a>            cs_data.clone(),
 <a href=#186 id=186 data-nosnippet>186</a>            <span class="bool-val">false</span>,
 <a href=#187 id=187 data-nosnippet>187</a>            seed_users_result,
 <a href=#188 id=188 data-nosnippet>188</a>        )),
 <a href=#189 id=189 data-nosnippet>189</a>        run_parallelly(seed_sample_course(
-<a href=#190 id=190 data-nosnippet>190</a>            Uuid::parse_str(<span class="string">"0ab2c4c5-3aad-4daa-a8fe-c26e956fde35"</span>)<span class="question-mark">?</span>,
-<a href=#191 id=191 data-nosnippet>191</a>            <span class="string">"Introduction to history"</span>,
-<a href=#192 id=192 data-nosnippet>192</a>            <span class="string">"introduction-to-history"</span>,
+<a href=#190 id=190 data-nosnippet>190</a>            Uuid::parse_str(<span class="string">"d18b3780-563d-4326-b311-8d0e132901cd"</span>)<span class="question-mark">?</span>,
+<a href=#191 id=191 data-nosnippet>191</a>            <span class="string">"Introduction to feedback"</span>,
+<a href=#192 id=192 data-nosnippet>192</a>            <span class="string">"introduction-to-feedback"</span>,
 <a href=#193 id=193 data-nosnippet>193</a>            cs_data.clone(),
 <a href=#194 id=194 data-nosnippet>194</a>            <span class="bool-val">false</span>,
 <a href=#195 id=195 data-nosnippet>195</a>            seed_users_result,
 <a href=#196 id=196 data-nosnippet>196</a>        )),
 <a href=#197 id=197 data-nosnippet>197</a>        run_parallelly(seed_sample_course(
-<a href=#198 id=198 data-nosnippet>198</a>            Uuid::parse_str(<span class="string">"cae7da38-9486-47da-9106-bff9b6a280f2"</span>)<span class="question-mark">?</span>,
-<a href=#199 id=199 data-nosnippet>199</a>            <span class="string">"Introduction to edit proposals"</span>,
-<a href=#200 id=200 data-nosnippet>200</a>            <span class="string">"introduction-to-edit-proposals"</span>,
+<a href=#198 id=198 data-nosnippet>198</a>            Uuid::parse_str(<span class="string">"0ab2c4c5-3aad-4daa-a8fe-c26e956fde35"</span>)<span class="question-mark">?</span>,
+<a href=#199 id=199 data-nosnippet>199</a>            <span class="string">"Introduction to history"</span>,
+<a href=#200 id=200 data-nosnippet>200</a>            <span class="string">"introduction-to-history"</span>,
 <a href=#201 id=201 data-nosnippet>201</a>            cs_data.clone(),
 <a href=#202 id=202 data-nosnippet>202</a>            <span class="bool-val">false</span>,
 <a href=#203 id=203 data-nosnippet>203</a>            seed_users_result,
 <a href=#204 id=204 data-nosnippet>204</a>        )),
 <a href=#205 id=205 data-nosnippet>205</a>        run_parallelly(seed_sample_course(
-<a href=#206 id=206 data-nosnippet>206</a>            Uuid::parse_str(<span class="string">"b4cb334c-11d6-4e93-8f3d-849c4abfcd67"</span>)<span class="question-mark">?</span>,
-<a href=#207 id=207 data-nosnippet>207</a>            <span class="string">"Point view for teachers"</span>,
-<a href=#208 id=208 data-nosnippet>208</a>            <span class="string">"point-view-for-teachers"</span>,
+<a href=#206 id=206 data-nosnippet>206</a>            Uuid::parse_str(<span class="string">"cae7da38-9486-47da-9106-bff9b6a280f2"</span>)<span class="question-mark">?</span>,
+<a href=#207 id=207 data-nosnippet>207</a>            <span class="string">"Introduction to edit proposals"</span>,
+<a href=#208 id=208 data-nosnippet>208</a>            <span class="string">"introduction-to-edit-proposals"</span>,
 <a href=#209 id=209 data-nosnippet>209</a>            cs_data.clone(),
 <a href=#210 id=210 data-nosnippet>210</a>            <span class="bool-val">false</span>,
 <a href=#211 id=211 data-nosnippet>211</a>            seed_users_result,
 <a href=#212 id=212 data-nosnippet>212</a>        )),
 <a href=#213 id=213 data-nosnippet>213</a>        run_parallelly(seed_sample_course(
-<a href=#214 id=214 data-nosnippet>214</a>            Uuid::parse_str(<span class="string">"1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4"</span>)<span class="question-mark">?</span>,
-<a href=#215 id=215 data-nosnippet>215</a>            <span class="string">"Advanced course instance management"</span>,
-<a href=#216 id=216 data-nosnippet>216</a>            <span class="string">"advanced-course-instance-management"</span>,
+<a href=#214 id=214 data-nosnippet>214</a>            Uuid::parse_str(<span class="string">"b4cb334c-11d6-4e93-8f3d-849c4abfcd67"</span>)<span class="question-mark">?</span>,
+<a href=#215 id=215 data-nosnippet>215</a>            <span class="string">"Point view for teachers"</span>,
+<a href=#216 id=216 data-nosnippet>216</a>            <span class="string">"point-view-for-teachers"</span>,
 <a href=#217 id=217 data-nosnippet>217</a>            cs_data.clone(),
 <a href=#218 id=218 data-nosnippet>218</a>            <span class="bool-val">false</span>,
 <a href=#219 id=219 data-nosnippet>219</a>            seed_users_result,
 <a href=#220 id=220 data-nosnippet>220</a>        )),
 <a href=#221 id=221 data-nosnippet>221</a>        run_parallelly(seed_sample_course(
-<a href=#222 id=222 data-nosnippet>222</a>            Uuid::parse_str(<span class="string">"0cf67777-0edb-480c-bdb6-13f90c136fc3"</span>)<span class="question-mark">?</span>,
-<a href=#223 id=223 data-nosnippet>223</a>            <span class="string">"Advanced exercise states"</span>,
-<a href=#224 id=224 data-nosnippet>224</a>            <span class="string">"advanced-exercise-states"</span>,
+<a href=#222 id=222 data-nosnippet>222</a>            Uuid::parse_str(<span class="string">"1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4"</span>)<span class="question-mark">?</span>,
+<a href=#223 id=223 data-nosnippet>223</a>            <span class="string">"Advanced course instance management"</span>,
+<a href=#224 id=224 data-nosnippet>224</a>            <span class="string">"advanced-course-instance-management"</span>,
 <a href=#225 id=225 data-nosnippet>225</a>            cs_data.clone(),
 <a href=#226 id=226 data-nosnippet>226</a>            <span class="bool-val">false</span>,
 <a href=#227 id=227 data-nosnippet>227</a>            seed_users_result,
 <a href=#228 id=228 data-nosnippet>228</a>        )),
-<a href=#229 id=229 data-nosnippet>229</a>        run_parallelly(seed_glossary::seed_glossary_course(
-<a href=#230 id=230 data-nosnippet>230</a>            Uuid::parse_str(<span class="string">"c218ca00-dbde-4b0c-ab98-4f075c49425a"</span>)<span class="question-mark">?</span>,
-<a href=#231 id=231 data-nosnippet>231</a>            <span class="string">"Glossary course"</span>,
-<a href=#232 id=232 data-nosnippet>232</a>            <span class="string">"glossary-course"</span>,
+<a href=#229 id=229 data-nosnippet>229</a>        run_parallelly(seed_sample_course(
+<a href=#230 id=230 data-nosnippet>230</a>            Uuid::parse_str(<span class="string">"0cf67777-0edb-480c-bdb6-13f90c136fc3"</span>)<span class="question-mark">?</span>,
+<a href=#231 id=231 data-nosnippet>231</a>            <span class="string">"Advanced exercise states"</span>,
+<a href=#232 id=232 data-nosnippet>232</a>            <span class="string">"advanced-exercise-states"</span>,
 <a href=#233 id=233 data-nosnippet>233</a>            cs_data.clone(),
-<a href=#234 id=234 data-nosnippet>234</a>            seed_users_result,
-<a href=#235 id=235 data-nosnippet>235</a>        )),
-<a href=#236 id=236 data-nosnippet>236</a>        run_parallelly(seed_sample_course(
-<a href=#237 id=237 data-nosnippet>237</a>            Uuid::parse_str(<span class="string">"a2002fc3-2c87-4aae-a5e5-9d14617aad2b"</span>)<span class="question-mark">?</span>,
-<a href=#238 id=238 data-nosnippet>238</a>            <span class="string">"Permission management"</span>,
-<a href=#239 id=239 data-nosnippet>239</a>            <span class="string">"permission-management"</span>,
-<a href=#240 id=240 data-nosnippet>240</a>            cs_data.clone(),
-<a href=#241 id=241 data-nosnippet>241</a>            <span class="bool-val">false</span>,
+<a href=#234 id=234 data-nosnippet>234</a>            <span class="bool-val">false</span>,
+<a href=#235 id=235 data-nosnippet>235</a>            seed_users_result,
+<a href=#236 id=236 data-nosnippet>236</a>        )),
+<a href=#237 id=237 data-nosnippet>237</a>        run_parallelly(seed_glossary::seed_glossary_course(
+<a href=#238 id=238 data-nosnippet>238</a>            Uuid::parse_str(<span class="string">"c218ca00-dbde-4b0c-ab98-4f075c49425a"</span>)<span class="question-mark">?</span>,
+<a href=#239 id=239 data-nosnippet>239</a>            <span class="string">"Glossary course"</span>,
+<a href=#240 id=240 data-nosnippet>240</a>            <span class="string">"glossary-course"</span>,
+<a href=#241 id=241 data-nosnippet>241</a>            cs_data.clone(),
 <a href=#242 id=242 data-nosnippet>242</a>            seed_users_result,
 <a href=#243 id=243 data-nosnippet>243</a>        )),
 <a href=#244 id=244 data-nosnippet>244</a>        run_parallelly(seed_sample_course(
-<a href=#245 id=245 data-nosnippet>245</a>            Uuid::parse_str(<span class="string">"f9579c00-d0bb-402b-affd-7db330dcb11f"</span>)<span class="question-mark">?</span>,
-<a href=#246 id=246 data-nosnippet>246</a>            <span class="string">"Redirections"</span>,
-<a href=#247 id=247 data-nosnippet>247</a>            <span class="string">"redirections"</span>,
+<a href=#245 id=245 data-nosnippet>245</a>            Uuid::parse_str(<span class="string">"a2002fc3-2c87-4aae-a5e5-9d14617aad2b"</span>)<span class="question-mark">?</span>,
+<a href=#246 id=246 data-nosnippet>246</a>            <span class="string">"Permission management"</span>,
+<a href=#247 id=247 data-nosnippet>247</a>            <span class="string">"permission-management"</span>,
 <a href=#248 id=248 data-nosnippet>248</a>            cs_data.clone(),
 <a href=#249 id=249 data-nosnippet>249</a>            <span class="bool-val">false</span>,
 <a href=#250 id=250 data-nosnippet>250</a>            seed_users_result,
 <a href=#251 id=251 data-nosnippet>251</a>        )),
 <a href=#252 id=252 data-nosnippet>252</a>        run_parallelly(seed_sample_course(
-<a href=#253 id=253 data-nosnippet>253</a>            Uuid::parse_str(<span class="string">"9da60c66-9517-46e4-b351-07d0f7aa6cd4"</span>)<span class="question-mark">?</span>,
-<a href=#254 id=254 data-nosnippet>254</a>            <span class="string">"Limited tries"</span>,
-<a href=#255 id=255 data-nosnippet>255</a>            <span class="string">"limited-tries"</span>,
+<a href=#253 id=253 data-nosnippet>253</a>            Uuid::parse_str(<span class="string">"f9579c00-d0bb-402b-affd-7db330dcb11f"</span>)<span class="question-mark">?</span>,
+<a href=#254 id=254 data-nosnippet>254</a>            <span class="string">"Redirections"</span>,
+<a href=#255 id=255 data-nosnippet>255</a>            <span class="string">"redirections"</span>,
 <a href=#256 id=256 data-nosnippet>256</a>            cs_data.clone(),
 <a href=#257 id=257 data-nosnippet>257</a>            <span class="bool-val">false</span>,
 <a href=#258 id=258 data-nosnippet>258</a>            seed_users_result,
 <a href=#259 id=259 data-nosnippet>259</a>        )),
 <a href=#260 id=260 data-nosnippet>260</a>        run_parallelly(seed_sample_course(
-<a href=#261 id=261 data-nosnippet>261</a>            Uuid::parse_str(<span class="string">"86cbc198-601c-42f4-8e0f-3e6cce49bbfc"</span>)<span class="question-mark">?</span>,
-<a href=#262 id=262 data-nosnippet>262</a>            <span class="string">"Course Structure"</span>,
-<a href=#263 id=263 data-nosnippet>263</a>            <span class="string">"course-structure"</span>,
+<a href=#261 id=261 data-nosnippet>261</a>            Uuid::parse_str(<span class="string">"9da60c66-9517-46e4-b351-07d0f7aa6cd4"</span>)<span class="question-mark">?</span>,
+<a href=#262 id=262 data-nosnippet>262</a>            <span class="string">"Limited tries"</span>,
+<a href=#263 id=263 data-nosnippet>263</a>            <span class="string">"limited-tries"</span>,
 <a href=#264 id=264 data-nosnippet>264</a>            cs_data.clone(),
 <a href=#265 id=265 data-nosnippet>265</a>            <span class="bool-val">false</span>,
 <a href=#266 id=266 data-nosnippet>266</a>            seed_users_result,
 <a href=#267 id=267 data-nosnippet>267</a>        )),
-<a href=#268 id=268 data-nosnippet>268</a>        run_parallelly(seed_peer_review_course_without_submissions(
-<a href=#269 id=269 data-nosnippet>269</a>            Uuid::parse_str(<span class="string">"c47e1cfd-a2da-4fd1-aca8-f2b2d906c4c0"</span>)<span class="question-mark">?</span>,
-<a href=#270 id=270 data-nosnippet>270</a>            <span class="string">"Peer review Course"</span>,
-<a href=#271 id=271 data-nosnippet>271</a>            <span class="string">"peer-review-course"</span>,
+<a href=#268 id=268 data-nosnippet>268</a>        run_parallelly(seed_sample_course(
+<a href=#269 id=269 data-nosnippet>269</a>            Uuid::parse_str(<span class="string">"86cbc198-601c-42f4-8e0f-3e6cce49bbfc"</span>)<span class="question-mark">?</span>,
+<a href=#270 id=270 data-nosnippet>270</a>            <span class="string">"Course Structure"</span>,
+<a href=#271 id=271 data-nosnippet>271</a>            <span class="string">"course-structure"</span>,
 <a href=#272 id=272 data-nosnippet>272</a>            cs_data.clone(),
-<a href=#273 id=273 data-nosnippet>273</a>        )),
-<a href=#274 id=274 data-nosnippet>274</a>        run_parallelly(seed_sample_course(
-<a href=#275 id=275 data-nosnippet>275</a>            Uuid::parse_str(<span class="string">"557040ea-31bc-47ae-81bd-caeec45a08d0"</span>)<span class="question-mark">?</span>,
-<a href=#276 id=276 data-nosnippet>276</a>            <span class="string">"TestMyCode"</span>,
-<a href=#277 id=277 data-nosnippet>277</a>            <span class="string">"tmc-course"</span>,
-<a href=#278 id=278 data-nosnippet>278</a>            cs_data.clone(),
-<a href=#279 id=279 data-nosnippet>279</a>            <span class="bool-val">false</span>,
-<a href=#280 id=280 data-nosnippet>280</a>            seed_users_result
+<a href=#273 id=273 data-nosnippet>273</a>            <span class="bool-val">false</span>,
+<a href=#274 id=274 data-nosnippet>274</a>            seed_users_result,
+<a href=#275 id=275 data-nosnippet>275</a>        )),
+<a href=#276 id=276 data-nosnippet>276</a>        run_parallelly(seed_peer_review_course_without_submissions(
+<a href=#277 id=277 data-nosnippet>277</a>            Uuid::parse_str(<span class="string">"c47e1cfd-a2da-4fd1-aca8-f2b2d906c4c0"</span>)<span class="question-mark">?</span>,
+<a href=#278 id=278 data-nosnippet>278</a>            <span class="string">"Peer review Course"</span>,
+<a href=#279 id=279 data-nosnippet>279</a>            <span class="string">"peer-review-course"</span>,
+<a href=#280 id=280 data-nosnippet>280</a>            cs_data.clone(),
 <a href=#281 id=281 data-nosnippet>281</a>        )),
-<a href=#282 id=282 data-nosnippet>282</a>    )<span class="question-mark">?</span>;
-<a href=#283 id=283 data-nosnippet>283</a>
-<a href=#284 id=284 data-nosnippet>284</a>    <span class="comment">// configure automatic completions
-<a href=#285 id=285 data-nosnippet>285</a>    </span><span class="kw">let </span>automatic_default_module =
-<a href=#286 id=286 data-nosnippet>286</a>        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, automatic_completions_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#287 id=287 data-nosnippet>287</a>    <span class="kw">let </span>automatic_default_module = course_modules::update_automatic_completion_status(
-<a href=#288 id=288 data-nosnippet>288</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#289 id=289 data-nosnippet>289</a>        automatic_default_module.id,
-<a href=#290 id=290 data-nosnippet>290</a>        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
-<a href=#291 id=291 data-nosnippet>291</a>            course_module_id: automatic_default_module.id,
-<a href=#292 id=292 data-nosnippet>292</a>            number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
-<a href=#293 id=293 data-nosnippet>293</a>            number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
-<a href=#294 id=294 data-nosnippet>294</a>            requires_exam: <span class="bool-val">false</span>,
-<a href=#295 id=295 data-nosnippet>295</a>        }),
-<a href=#296 id=296 data-nosnippet>296</a>    )
-<a href=#297 id=297 data-nosnippet>297</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#298 id=298 data-nosnippet>298</a>    course_modules::update_uh_course_code(
-<a href=#299 id=299 data-nosnippet>299</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#300 id=300 data-nosnippet>300</a>        automatic_default_module.id,
-<a href=#301 id=301 data-nosnippet>301</a>        <span class="prelude-val">Some</span>(<span class="string">"EXAMPLE123"</span>.to_string()),
-<a href=#302 id=302 data-nosnippet>302</a>    )
-<a href=#303 id=303 data-nosnippet>303</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#304 id=304 data-nosnippet>304</a>    <span class="kw">let </span>automatic_with_exam_default_module =
-<a href=#305 id=305 data-nosnippet>305</a>        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, automatic_course_with_exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#306 id=306 data-nosnippet>306</a>    <span class="kw">let </span>automatic_with_exam_default_module = course_modules::update_automatic_completion_status(
+<a href=#282 id=282 data-nosnippet>282</a>        run_parallelly(seed_sample_course(
+<a href=#283 id=283 data-nosnippet>283</a>            Uuid::parse_str(<span class="string">"557040ea-31bc-47ae-81bd-caeec45a08d0"</span>)<span class="question-mark">?</span>,
+<a href=#284 id=284 data-nosnippet>284</a>            <span class="string">"TestMyCode"</span>,
+<a href=#285 id=285 data-nosnippet>285</a>            <span class="string">"tmc-course"</span>,
+<a href=#286 id=286 data-nosnippet>286</a>            cs_data.clone(),
+<a href=#287 id=287 data-nosnippet>287</a>            <span class="bool-val">false</span>,
+<a href=#288 id=288 data-nosnippet>288</a>            seed_users_result
+<a href=#289 id=289 data-nosnippet>289</a>        )),
+<a href=#290 id=290 data-nosnippet>290</a>    )<span class="question-mark">?</span>;
+<a href=#291 id=291 data-nosnippet>291</a>
+<a href=#292 id=292 data-nosnippet>292</a>    <span class="comment">// configure automatic completions
+<a href=#293 id=293 data-nosnippet>293</a>    </span><span class="kw">let </span>automatic_default_module =
+<a href=#294 id=294 data-nosnippet>294</a>        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, automatic_completions_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">let </span>automatic_default_module = course_modules::update_automatic_completion_status(
+<a href=#296 id=296 data-nosnippet>296</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#297 id=297 data-nosnippet>297</a>        automatic_default_module.id,
+<a href=#298 id=298 data-nosnippet>298</a>        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+<a href=#299 id=299 data-nosnippet>299</a>            course_module_id: automatic_default_module.id,
+<a href=#300 id=300 data-nosnippet>300</a>            number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+<a href=#301 id=301 data-nosnippet>301</a>            number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+<a href=#302 id=302 data-nosnippet>302</a>            requires_exam: <span class="bool-val">false</span>,
+<a href=#303 id=303 data-nosnippet>303</a>        }),
+<a href=#304 id=304 data-nosnippet>304</a>    )
+<a href=#305 id=305 data-nosnippet>305</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#306 id=306 data-nosnippet>306</a>    course_modules::update_uh_course_code(
 <a href=#307 id=307 data-nosnippet>307</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#308 id=308 data-nosnippet>308</a>        automatic_with_exam_default_module.id,
-<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
-<a href=#310 id=310 data-nosnippet>310</a>            course_module_id: automatic_with_exam_default_module.id,
-<a href=#311 id=311 data-nosnippet>311</a>            number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
-<a href=#312 id=312 data-nosnippet>312</a>            number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
-<a href=#313 id=313 data-nosnippet>313</a>            requires_exam: <span class="bool-val">true</span>,
-<a href=#314 id=314 data-nosnippet>314</a>        }),
-<a href=#315 id=315 data-nosnippet>315</a>    )
-<a href=#316 id=316 data-nosnippet>316</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#317 id=317 data-nosnippet>317</a>    course_modules::update_uh_course_code(
-<a href=#318 id=318 data-nosnippet>318</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#319 id=319 data-nosnippet>319</a>        automatic_with_exam_default_module.id,
-<a href=#320 id=320 data-nosnippet>320</a>        <span class="prelude-val">Some</span>(<span class="string">"EXAMPLE123"</span>.to_string()),
-<a href=#321 id=321 data-nosnippet>321</a>    )
-<a href=#322 id=322 data-nosnippet>322</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#323 id=323 data-nosnippet>323</a>    open_university_registration_links::upsert(<span class="kw-2">&amp;mut </span>conn, <span class="string">"EXAMPLE123"</span>, <span class="string">"https://www.example.com"</span>)
-<a href=#324 id=324 data-nosnippet>324</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#325 id=325 data-nosnippet>325</a>
-<a href=#326 id=326 data-nosnippet>326</a>    <span class="comment">// configure manual completions
-<a href=#327 id=327 data-nosnippet>327</a>    </span><span class="kw">let </span>manual_default_module =
-<a href=#328 id=328 data-nosnippet>328</a>        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, manual_completions_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#329 id=329 data-nosnippet>329</a>    <span class="kw">let </span>manual_default_instance =
-<a href=#330 id=330 data-nosnippet>330</a>        course_instances::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, manual_completions_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#331 id=331 data-nosnippet>331</a>    library::progressing::add_manual_completions(
-<a href=#332 id=332 data-nosnippet>332</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#333 id=333 data-nosnippet>333</a>        teacher_user_id,
-<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw-2">&amp;</span>manual_default_instance,
-<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw-2">&amp;</span>TeacherManualCompletionRequest {
-<a href=#336 id=336 data-nosnippet>336</a>            course_module_id: manual_default_module.id,
-<a href=#337 id=337 data-nosnippet>337</a>            new_completions: <span class="macro">vec!</span>[TeacherManualCompletion {
-<a href=#338 id=338 data-nosnippet>338</a>                user_id: <span class="kw-2">*</span>example_normal_user_ids.first().unwrap(),
-<a href=#339 id=339 data-nosnippet>339</a>                grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
-<a href=#340 id=340 data-nosnippet>340</a>                passed: <span class="bool-val">true</span>,
-<a href=#341 id=341 data-nosnippet>341</a>                completion_date: <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">9</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap()),
-<a href=#342 id=342 data-nosnippet>342</a>            }],
-<a href=#343 id=343 data-nosnippet>343</a>            skip_duplicate_completions: <span class="bool-val">true</span>,
-<a href=#344 id=344 data-nosnippet>344</a>        },
-<a href=#345 id=345 data-nosnippet>345</a>    )
-<a href=#346 id=346 data-nosnippet>346</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#347 id=347 data-nosnippet>347</a>
-<a href=#348 id=348 data-nosnippet>348</a>    <span class="comment">// configure certification
-<a href=#349 id=349 data-nosnippet>349</a>    </span><span class="kw">let </span>certificates_default_module =
-<a href=#350 id=350 data-nosnippet>350</a>        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, certificates_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#351 id=351 data-nosnippet>351</a>    course_modules::update_automatic_completion_status(
-<a href=#352 id=352 data-nosnippet>352</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#353 id=353 data-nosnippet>353</a>        certificates_default_module.id,
-<a href=#354 id=354 data-nosnippet>354</a>        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
-<a href=#355 id=355 data-nosnippet>355</a>            course_module_id: certificates_default_module.id,
-<a href=#356 id=356 data-nosnippet>356</a>            number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
-<a href=#357 id=357 data-nosnippet>357</a>            number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
-<a href=#358 id=358 data-nosnippet>358</a>            requires_exam: <span class="bool-val">false</span>,
-<a href=#359 id=359 data-nosnippet>359</a>        }),
-<a href=#360 id=360 data-nosnippet>360</a>    )
-<a href=#361 id=361 data-nosnippet>361</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#362 id=362 data-nosnippet>362</a>    course_modules::update_certification_enabled(<span class="kw-2">&amp;mut </span>conn, certificates_default_module.id, <span class="bool-val">true</span>)
-<a href=#363 id=363 data-nosnippet>363</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#364 id=364 data-nosnippet>364</a>
-<a href=#365 id=365 data-nosnippet>365</a>    roles::insert(
-<a href=#366 id=366 data-nosnippet>366</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#367 id=367 data-nosnippet>367</a>        language_teacher_user_id,
-<a href=#368 id=368 data-nosnippet>368</a>        UserRole::Teacher,
-<a href=#369 id=369 data-nosnippet>369</a>        RoleDomain::Course(introduction_to_localizing),
-<a href=#370 id=370 data-nosnippet>370</a>    )
-<a href=#371 id=371 data-nosnippet>371</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#372 id=372 data-nosnippet>372</a>    roles::insert(
-<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#374 id=374 data-nosnippet>374</a>        course_or_exam_creator_user_id,
-<a href=#375 id=375 data-nosnippet>375</a>        UserRole::CourseOrExamCreator,
-<a href=#376 id=376 data-nosnippet>376</a>        RoleDomain::Organization(uh_cs_organization_id),
-<a href=#377 id=377 data-nosnippet>377</a>    )
-<a href=#378 id=378 data-nosnippet>378</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#379 id=379 data-nosnippet>379</a>
-<a href=#380 id=380 data-nosnippet>380</a>    <span class="macro">info!</span>(<span class="string">"inserting sample exams"</span>);
-<a href=#381 id=381 data-nosnippet>381</a>    create_exam(
-<a href=#382 id=382 data-nosnippet>382</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#383 id=383 data-nosnippet>383</a>        <span class="string">"Ongoing ends soon"</span>.to_string(),
-<a href=#384 id=384 data-nosnippet>384</a>        <span class="prelude-val">Some</span>(Utc::now()),
-<a href=#385 id=385 data-nosnippet>385</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">1</span>)),
-<a href=#386 id=386 data-nosnippet>386</a>        <span class="number">120</span>,
-<a href=#387 id=387 data-nosnippet>387</a>        uh_cs_organization_id,
-<a href=#388 id=388 data-nosnippet>388</a>        cs_intro,
-<a href=#389 id=389 data-nosnippet>389</a>        Uuid::parse_str(<span class="string">"7d6ed843-2a94-445b-8ced-ab3c67290ad0"</span>)<span class="question-mark">?</span>,
-<a href=#390 id=390 data-nosnippet>390</a>        teacher_user_id,
-<a href=#391 id=391 data-nosnippet>391</a>        <span class="number">0</span>,
-<a href=#392 id=392 data-nosnippet>392</a>        <span class="bool-val">false</span>,
-<a href=#393 id=393 data-nosnippet>393</a>    )
-<a href=#394 id=394 data-nosnippet>394</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#395 id=395 data-nosnippet>395</a>    create_exam(
-<a href=#396 id=396 data-nosnippet>396</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#397 id=397 data-nosnippet>397</a>        <span class="string">"Ongoing short timer"</span>.to_string(),
-<a href=#398 id=398 data-nosnippet>398</a>        <span class="prelude-val">Some</span>(Utc::now()),
-<a href=#399 id=399 data-nosnippet>399</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
-<a href=#400 id=400 data-nosnippet>400</a>        <span class="number">1</span>,
-<a href=#401 id=401 data-nosnippet>401</a>        uh_cs_organization_id,
-<a href=#402 id=402 data-nosnippet>402</a>        cs_intro,
-<a href=#403 id=403 data-nosnippet>403</a>        Uuid::parse_str(<span class="string">"6959e7af-6b78-4d37-b381-eef5b7aaad6c"</span>)<span class="question-mark">?</span>,
-<a href=#404 id=404 data-nosnippet>404</a>        teacher_user_id,
-<a href=#405 id=405 data-nosnippet>405</a>        <span class="number">0</span>,
-<a href=#406 id=406 data-nosnippet>406</a>        <span class="bool-val">false</span>,
-<a href=#407 id=407 data-nosnippet>407</a>    )
-<a href=#408 id=408 data-nosnippet>408</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#409 id=409 data-nosnippet>409</a>    create_exam(
-<a href=#410 id=410 data-nosnippet>410</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#411 id=411 data-nosnippet>411</a>        <span class="string">"Ongoing plenty of time"</span>.to_string(),
-<a href=#412 id=412 data-nosnippet>412</a>        <span class="prelude-val">Some</span>(Utc::now()),
-<a href=#413 id=413 data-nosnippet>413</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
-<a href=#414 id=414 data-nosnippet>414</a>        <span class="number">730</span>,
-<a href=#415 id=415 data-nosnippet>415</a>        uh_cs_organization_id,
-<a href=#416 id=416 data-nosnippet>416</a>        cs_intro,
-<a href=#417 id=417 data-nosnippet>417</a>        Uuid::parse_str(<span class="string">"8e202d37-3a26-4181-b9e4-0560b90c0ccb"</span>)<span class="question-mark">?</span>,
-<a href=#418 id=418 data-nosnippet>418</a>        teacher_user_id,
-<a href=#419 id=419 data-nosnippet>419</a>        <span class="number">0</span>,
-<a href=#420 id=420 data-nosnippet>420</a>        <span class="bool-val">false</span>,
-<a href=#421 id=421 data-nosnippet>421</a>    )
-<a href=#422 id=422 data-nosnippet>422</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#423 id=423 data-nosnippet>423</a>
-<a href=#424 id=424 data-nosnippet>424</a>    create_exam(
-<a href=#425 id=425 data-nosnippet>425</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#426 id=426 data-nosnippet>426</a>        <span class="string">"Exam for manual grading"</span>.to_string(),
-<a href=#427 id=427 data-nosnippet>427</a>        <span class="prelude-val">Some</span>(Utc::now()),
-<a href=#428 id=428 data-nosnippet>428</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
-<a href=#429 id=429 data-nosnippet>429</a>        <span class="number">1</span>,
-<a href=#430 id=430 data-nosnippet>430</a>        uh_cs_organization_id,
-<a href=#431 id=431 data-nosnippet>431</a>        cs_intro,
-<a href=#432 id=432 data-nosnippet>432</a>        Uuid::parse_str(<span class="string">"fee8bb0c-8629-477c-86eb-1785005143ae"</span>)<span class="question-mark">?</span>,
-<a href=#433 id=433 data-nosnippet>433</a>        teacher_user_id,
-<a href=#434 id=434 data-nosnippet>434</a>        <span class="number">0</span>,
-<a href=#435 id=435 data-nosnippet>435</a>        <span class="bool-val">true</span>,
-<a href=#436 id=436 data-nosnippet>436</a>    )
-<a href=#437 id=437 data-nosnippet>437</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#438 id=438 data-nosnippet>438</a>    create_exam(
-<a href=#439 id=439 data-nosnippet>439</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#440 id=440 data-nosnippet>440</a>        <span class="string">"Starting soon"</span>.to_string(),
-<a href=#441 id=441 data-nosnippet>441</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">5</span>)),
-<a href=#442 id=442 data-nosnippet>442</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::days(<span class="number">30</span>)),
-<a href=#443 id=443 data-nosnippet>443</a>        <span class="number">1</span>,
-<a href=#444 id=444 data-nosnippet>444</a>        uh_cs_organization_id,
-<a href=#445 id=445 data-nosnippet>445</a>        cs_intro,
-<a href=#446 id=446 data-nosnippet>446</a>        Uuid::parse_str(<span class="string">"65f5c3f3-b5fd-478d-8858-a45cdcb16b86"</span>)<span class="question-mark">?</span>,
-<a href=#447 id=447 data-nosnippet>447</a>        teacher_user_id,
-<a href=#448 id=448 data-nosnippet>448</a>        <span class="number">0</span>,
-<a href=#449 id=449 data-nosnippet>449</a>        <span class="bool-val">false</span>,
-<a href=#450 id=450 data-nosnippet>450</a>    )
-<a href=#451 id=451 data-nosnippet>451</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#452 id=452 data-nosnippet>452</a>    create_exam(
-<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#454 id=454 data-nosnippet>454</a>        <span class="string">"Over"</span>.to_string(),
-<a href=#455 id=455 data-nosnippet>455</a>        <span class="prelude-val">Some</span>(Utc::now() - Duration::days(<span class="number">7</span>)),
-<a href=#456 id=456 data-nosnippet>456</a>        <span class="prelude-val">Some</span>(Utc::now() - Duration::minutes(<span class="number">30</span>)),
-<a href=#457 id=457 data-nosnippet>457</a>        <span class="number">1</span>,
-<a href=#458 id=458 data-nosnippet>458</a>        uh_cs_organization_id,
-<a href=#459 id=459 data-nosnippet>459</a>        cs_intro,
-<a href=#460 id=460 data-nosnippet>460</a>        Uuid::parse_str(<span class="string">"5c4fca1f-f0d6-471f-a0fd-eac552f5fb84"</span>)<span class="question-mark">?</span>,
-<a href=#461 id=461 data-nosnippet>461</a>        teacher_user_id,
-<a href=#462 id=462 data-nosnippet>462</a>        <span class="number">0</span>,
-<a href=#463 id=463 data-nosnippet>463</a>        <span class="bool-val">false</span>,
-<a href=#464 id=464 data-nosnippet>464</a>    )
-<a href=#465 id=465 data-nosnippet>465</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#466 id=466 data-nosnippet>466</a>    <span class="kw">let </span>automatic_course_exam = create_exam(
-<a href=#467 id=467 data-nosnippet>467</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#468 id=468 data-nosnippet>468</a>        <span class="string">"Automatic course exam"</span>.to_string(),
-<a href=#469 id=469 data-nosnippet>469</a>        <span class="prelude-val">Some</span>(Utc::now()),
-<a href=#470 id=470 data-nosnippet>470</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
-<a href=#471 id=471 data-nosnippet>471</a>        <span class="number">1</span>,
-<a href=#472 id=472 data-nosnippet>472</a>        uh_cs_organization_id,
-<a href=#473 id=473 data-nosnippet>473</a>        cs_intro,
-<a href=#474 id=474 data-nosnippet>474</a>        Uuid::parse_str(<span class="string">"b2168b2f-f721-4771-a35d-ca75ca0937b1"</span>)<span class="question-mark">?</span>,
-<a href=#475 id=475 data-nosnippet>475</a>        teacher_user_id,
-<a href=#476 id=476 data-nosnippet>476</a>        <span class="number">0</span>,
-<a href=#477 id=477 data-nosnippet>477</a>        <span class="bool-val">false</span>,
-<a href=#478 id=478 data-nosnippet>478</a>    )
-<a href=#479 id=479 data-nosnippet>479</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#480 id=480 data-nosnippet>480</a>    course_exams::upsert(
-<a href=#481 id=481 data-nosnippet>481</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#482 id=482 data-nosnippet>482</a>        automatic_course_exam,
-<a href=#483 id=483 data-nosnippet>483</a>        automatic_course_with_exam_id,
-<a href=#484 id=484 data-nosnippet>484</a>    )
-<a href=#485 id=485 data-nosnippet>485</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#486 id=486 data-nosnippet>486</a>
-<a href=#487 id=487 data-nosnippet>487</a>    <span class="macro">info!</span>(<span class="string">"cs"</span>);
-<a href=#488 id=488 data-nosnippet>488</a>    <span class="kw">let </span>_cs_design = seed_cs_course_material(
-<a href=#489 id=489 data-nosnippet>489</a>        <span class="kw-2">&amp;</span>db_pool,
-<a href=#490 id=490 data-nosnippet>490</a>        uh_cs_organization_id,
-<a href=#491 id=491 data-nosnippet>491</a>        teacher_user_id,
-<a href=#492 id=492 data-nosnippet>492</a>        langs_user_id,
-<a href=#493 id=493 data-nosnippet>493</a>        base_url,
-<a href=#494 id=494 data-nosnippet>494</a>    )
-<a href=#495 id=495 data-nosnippet>495</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#496 id=496 data-nosnippet>496</a>    <span class="kw">let </span>new_course = NewCourse {
-<a href=#497 id=497 data-nosnippet>497</a>        name: <span class="string">"Introduction to Computer Science"</span>.to_string(),
-<a href=#498 id=498 data-nosnippet>498</a>        slug: <span class="string">"introduction-to-computer-science"</span>.to_string(),
-<a href=#499 id=499 data-nosnippet>499</a>        organization_id: uh_cs_organization_id,
-<a href=#500 id=500 data-nosnippet>500</a>        language_code: <span class="string">"en-US"</span>.to_string(),
-<a href=#501 id=501 data-nosnippet>501</a>        teacher_in_charge_name: <span class="string">"admin"</span>.to_string(),
-<a href=#502 id=502 data-nosnippet>502</a>        teacher_in_charge_email: <span class="string">"admin@example.com"</span>.to_string(),
-<a href=#503 id=503 data-nosnippet>503</a>        description: <span class="string">"An example course."</span>.to_string(),
-<a href=#504 id=504 data-nosnippet>504</a>        is_draft: <span class="bool-val">false</span>,
-<a href=#505 id=505 data-nosnippet>505</a>        is_test_mode: <span class="bool-val">false</span>,
-<a href=#506 id=506 data-nosnippet>506</a>        is_unlisted: <span class="bool-val">false</span>,
-<a href=#507 id=507 data-nosnippet>507</a>        copy_user_permissions: <span class="bool-val">false</span>,
-<a href=#508 id=508 data-nosnippet>508</a>        is_joinable_by_code_only: <span class="bool-val">false</span>,
-<a href=#509 id=509 data-nosnippet>509</a>        join_code: <span class="prelude-val">None</span>,
-<a href=#510 id=510 data-nosnippet>510</a>        ask_marketing_consent: <span class="bool-val">false</span>,
-<a href=#511 id=511 data-nosnippet>511</a>        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
-<a href=#512 id=512 data-nosnippet>512</a>        can_add_chatbot: <span class="bool-val">false</span>,
-<a href=#513 id=513 data-nosnippet>513</a>    };
-<a href=#514 id=514 data-nosnippet>514</a>    <span class="kw">let </span>(cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
-<a href=#515 id=515 data-nosnippet>515</a>        library::content_management::create_new_course(
-<a href=#516 id=516 data-nosnippet>516</a>            <span class="kw-2">&amp;mut </span>conn,
-<a href=#517 id=517 data-nosnippet>517</a>            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
-<a href=#518 id=518 data-nosnippet>518</a>                course_id: Uuid::parse_str(<span class="string">"06a7ccbd-8958-4834-918f-ad7b24e583fd"</span>)<span class="question-mark">?</span>,
-<a href=#519 id=519 data-nosnippet>519</a>                default_course_instance_id: Uuid::parse_str(
-<a href=#520 id=520 data-nosnippet>520</a>                    <span class="string">"48399008-6523-43c5-8fd6-59ecc731a426"</span>,
-<a href=#521 id=521 data-nosnippet>521</a>                )<span class="question-mark">?</span>,
-<a href=#522 id=522 data-nosnippet>522</a>            }),
-<a href=#523 id=523 data-nosnippet>523</a>            new_course,
-<a href=#524 id=524 data-nosnippet>524</a>            teacher_user_id,
-<a href=#525 id=525 data-nosnippet>525</a>            get_seed_spec_fetcher(),
-<a href=#526 id=526 data-nosnippet>526</a>            models_requests::fetch_service_info,
-<a href=#527 id=527 data-nosnippet>527</a>        )
-<a href=#528 id=528 data-nosnippet>528</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#529 id=529 data-nosnippet>529</a>    <span class="kw">let </span>_cs_course_instance = course_instances::insert(
-<a href=#530 id=530 data-nosnippet>530</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#531 id=531 data-nosnippet>531</a>        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">"49c618d3-926d-4287-9159-b3af1f86082d"</span>)<span class="question-mark">?</span>),
-<a href=#532 id=532 data-nosnippet>532</a>        NewCourseInstance {
-<a href=#533 id=533 data-nosnippet>533</a>            course_id: cs_course.id,
-<a href=#534 id=534 data-nosnippet>534</a>            name: <span class="prelude-val">Some</span>(<span class="string">"Non-default instance"</span>),
-<a href=#535 id=535 data-nosnippet>535</a>            description: <span class="prelude-val">Some</span>(<span class="string">"This is another non-default instance"</span>),
-<a href=#536 id=536 data-nosnippet>536</a>            support_email: <span class="prelude-val">Some</span>(<span class="string">"contact@example.com"</span>),
-<a href=#537 id=537 data-nosnippet>537</a>            teacher_in_charge_name: <span class="string">"admin"</span>,
-<a href=#538 id=538 data-nosnippet>538</a>            teacher_in_charge_email: <span class="string">"admin@example.com"</span>,
-<a href=#539 id=539 data-nosnippet>539</a>            opening_time: <span class="prelude-val">None</span>,
-<a href=#540 id=540 data-nosnippet>540</a>            closing_time: <span class="prelude-val">None</span>,
-<a href=#541 id=541 data-nosnippet>541</a>        },
-<a href=#542 id=542 data-nosnippet>542</a>    )
-<a href=#543 id=543 data-nosnippet>543</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#544 id=544 data-nosnippet>544</a>    <span class="prelude-val">Ok</span>(SeedOrganizationUhCsResult {
-<a href=#545 id=545 data-nosnippet>545</a>        uh_cs_organization_id,
-<a href=#546 id=546 data-nosnippet>546</a>        cs_intro_course_id: cs_intro,
-<a href=#547 id=547 data-nosnippet>547</a>    })
-<a href=#548 id=548 data-nosnippet>548</a>}</code></pre></div></section></main></body></html>
+<a href=#308 id=308 data-nosnippet>308</a>        automatic_default_module.id,
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="prelude-val">Some</span>(<span class="string">"EXAMPLE123"</span>.to_string()),
+<a href=#310 id=310 data-nosnippet>310</a>    )
+<a href=#311 id=311 data-nosnippet>311</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#312 id=312 data-nosnippet>312</a>    <span class="kw">let </span>automatic_with_exam_default_module =
+<a href=#313 id=313 data-nosnippet>313</a>        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, automatic_course_with_exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#314 id=314 data-nosnippet>314</a>    <span class="kw">let </span>automatic_with_exam_default_module = course_modules::update_automatic_completion_status(
+<a href=#315 id=315 data-nosnippet>315</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#316 id=316 data-nosnippet>316</a>        automatic_with_exam_default_module.id,
+<a href=#317 id=317 data-nosnippet>317</a>        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+<a href=#318 id=318 data-nosnippet>318</a>            course_module_id: automatic_with_exam_default_module.id,
+<a href=#319 id=319 data-nosnippet>319</a>            number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+<a href=#320 id=320 data-nosnippet>320</a>            number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+<a href=#321 id=321 data-nosnippet>321</a>            requires_exam: <span class="bool-val">true</span>,
+<a href=#322 id=322 data-nosnippet>322</a>        }),
+<a href=#323 id=323 data-nosnippet>323</a>    )
+<a href=#324 id=324 data-nosnippet>324</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#325 id=325 data-nosnippet>325</a>    course_modules::update_uh_course_code(
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#327 id=327 data-nosnippet>327</a>        automatic_with_exam_default_module.id,
+<a href=#328 id=328 data-nosnippet>328</a>        <span class="prelude-val">Some</span>(<span class="string">"EXAMPLE123"</span>.to_string()),
+<a href=#329 id=329 data-nosnippet>329</a>    )
+<a href=#330 id=330 data-nosnippet>330</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#331 id=331 data-nosnippet>331</a>    open_university_registration_links::upsert(<span class="kw-2">&amp;mut </span>conn, <span class="string">"EXAMPLE123"</span>, <span class="string">"https://www.example.com"</span>)
+<a href=#332 id=332 data-nosnippet>332</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="comment">// configure manual completions
+<a href=#335 id=335 data-nosnippet>335</a>    </span><span class="kw">let </span>manual_default_module =
+<a href=#336 id=336 data-nosnippet>336</a>        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, manual_completions_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#337 id=337 data-nosnippet>337</a>    <span class="kw">let </span>manual_default_instance =
+<a href=#338 id=338 data-nosnippet>338</a>        course_instances::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, manual_completions_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#339 id=339 data-nosnippet>339</a>    library::progressing::add_manual_completions(
+<a href=#340 id=340 data-nosnippet>340</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#341 id=341 data-nosnippet>341</a>        teacher_user_id,
+<a href=#342 id=342 data-nosnippet>342</a>        <span class="kw-2">&amp;</span>manual_default_instance,
+<a href=#343 id=343 data-nosnippet>343</a>        <span class="kw-2">&amp;</span>TeacherManualCompletionRequest {
+<a href=#344 id=344 data-nosnippet>344</a>            course_module_id: manual_default_module.id,
+<a href=#345 id=345 data-nosnippet>345</a>            new_completions: <span class="macro">vec!</span>[TeacherManualCompletion {
+<a href=#346 id=346 data-nosnippet>346</a>                user_id: <span class="kw-2">*</span>example_normal_user_ids.first().unwrap(),
+<a href=#347 id=347 data-nosnippet>347</a>                grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+<a href=#348 id=348 data-nosnippet>348</a>                passed: <span class="bool-val">true</span>,
+<a href=#349 id=349 data-nosnippet>349</a>                completion_date: <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">9</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap()),
+<a href=#350 id=350 data-nosnippet>350</a>            }],
+<a href=#351 id=351 data-nosnippet>351</a>            skip_duplicate_completions: <span class="bool-val">true</span>,
+<a href=#352 id=352 data-nosnippet>352</a>        },
+<a href=#353 id=353 data-nosnippet>353</a>    )
+<a href=#354 id=354 data-nosnippet>354</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#355 id=355 data-nosnippet>355</a>
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="comment">// configure certification
+<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="kw">let </span>certificates_default_module =
+<a href=#358 id=358 data-nosnippet>358</a>        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, certificates_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#359 id=359 data-nosnippet>359</a>    course_modules::update_automatic_completion_status(
+<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#361 id=361 data-nosnippet>361</a>        certificates_default_module.id,
+<a href=#362 id=362 data-nosnippet>362</a>        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+<a href=#363 id=363 data-nosnippet>363</a>            course_module_id: certificates_default_module.id,
+<a href=#364 id=364 data-nosnippet>364</a>            number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+<a href=#365 id=365 data-nosnippet>365</a>            number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+<a href=#366 id=366 data-nosnippet>366</a>            requires_exam: <span class="bool-val">false</span>,
+<a href=#367 id=367 data-nosnippet>367</a>        }),
+<a href=#368 id=368 data-nosnippet>368</a>    )
+<a href=#369 id=369 data-nosnippet>369</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#370 id=370 data-nosnippet>370</a>    course_modules::update_certification_enabled(<span class="kw-2">&amp;mut </span>conn, certificates_default_module.id, <span class="bool-val">true</span>)
+<a href=#371 id=371 data-nosnippet>371</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#372 id=372 data-nosnippet>372</a>
+<a href=#373 id=373 data-nosnippet>373</a>    roles::insert(
+<a href=#374 id=374 data-nosnippet>374</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#375 id=375 data-nosnippet>375</a>        language_teacher_user_id,
+<a href=#376 id=376 data-nosnippet>376</a>        UserRole::Teacher,
+<a href=#377 id=377 data-nosnippet>377</a>        RoleDomain::Course(introduction_to_localizing),
+<a href=#378 id=378 data-nosnippet>378</a>    )
+<a href=#379 id=379 data-nosnippet>379</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#380 id=380 data-nosnippet>380</a>    roles::insert(
+<a href=#381 id=381 data-nosnippet>381</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#382 id=382 data-nosnippet>382</a>        course_or_exam_creator_user_id,
+<a href=#383 id=383 data-nosnippet>383</a>        UserRole::CourseOrExamCreator,
+<a href=#384 id=384 data-nosnippet>384</a>        RoleDomain::Organization(uh_cs_organization_id),
+<a href=#385 id=385 data-nosnippet>385</a>    )
+<a href=#386 id=386 data-nosnippet>386</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#387 id=387 data-nosnippet>387</a>
+<a href=#388 id=388 data-nosnippet>388</a>    <span class="macro">info!</span>(<span class="string">"inserting sample exams"</span>);
+<a href=#389 id=389 data-nosnippet>389</a>    create_exam(
+<a href=#390 id=390 data-nosnippet>390</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#391 id=391 data-nosnippet>391</a>        <span class="string">"Ongoing ends soon"</span>.to_string(),
+<a href=#392 id=392 data-nosnippet>392</a>        <span class="prelude-val">Some</span>(Utc::now()),
+<a href=#393 id=393 data-nosnippet>393</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">1</span>)),
+<a href=#394 id=394 data-nosnippet>394</a>        <span class="number">120</span>,
+<a href=#395 id=395 data-nosnippet>395</a>        uh_cs_organization_id,
+<a href=#396 id=396 data-nosnippet>396</a>        cs_intro,
+<a href=#397 id=397 data-nosnippet>397</a>        Uuid::parse_str(<span class="string">"7d6ed843-2a94-445b-8ced-ab3c67290ad0"</span>)<span class="question-mark">?</span>,
+<a href=#398 id=398 data-nosnippet>398</a>        teacher_user_id,
+<a href=#399 id=399 data-nosnippet>399</a>        <span class="number">0</span>,
+<a href=#400 id=400 data-nosnippet>400</a>        <span class="bool-val">false</span>,
+<a href=#401 id=401 data-nosnippet>401</a>    )
+<a href=#402 id=402 data-nosnippet>402</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#403 id=403 data-nosnippet>403</a>    create_exam(
+<a href=#404 id=404 data-nosnippet>404</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#405 id=405 data-nosnippet>405</a>        <span class="string">"Ongoing short timer"</span>.to_string(),
+<a href=#406 id=406 data-nosnippet>406</a>        <span class="prelude-val">Some</span>(Utc::now()),
+<a href=#407 id=407 data-nosnippet>407</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="number">1</span>,
+<a href=#409 id=409 data-nosnippet>409</a>        uh_cs_organization_id,
+<a href=#410 id=410 data-nosnippet>410</a>        cs_intro,
+<a href=#411 id=411 data-nosnippet>411</a>        Uuid::parse_str(<span class="string">"6959e7af-6b78-4d37-b381-eef5b7aaad6c"</span>)<span class="question-mark">?</span>,
+<a href=#412 id=412 data-nosnippet>412</a>        teacher_user_id,
+<a href=#413 id=413 data-nosnippet>413</a>        <span class="number">0</span>,
+<a href=#414 id=414 data-nosnippet>414</a>        <span class="bool-val">false</span>,
+<a href=#415 id=415 data-nosnippet>415</a>    )
+<a href=#416 id=416 data-nosnippet>416</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#417 id=417 data-nosnippet>417</a>    create_exam(
+<a href=#418 id=418 data-nosnippet>418</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#419 id=419 data-nosnippet>419</a>        <span class="string">"Ongoing plenty of time"</span>.to_string(),
+<a href=#420 id=420 data-nosnippet>420</a>        <span class="prelude-val">Some</span>(Utc::now()),
+<a href=#421 id=421 data-nosnippet>421</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
+<a href=#422 id=422 data-nosnippet>422</a>        <span class="number">730</span>,
+<a href=#423 id=423 data-nosnippet>423</a>        uh_cs_organization_id,
+<a href=#424 id=424 data-nosnippet>424</a>        cs_intro,
+<a href=#425 id=425 data-nosnippet>425</a>        Uuid::parse_str(<span class="string">"8e202d37-3a26-4181-b9e4-0560b90c0ccb"</span>)<span class="question-mark">?</span>,
+<a href=#426 id=426 data-nosnippet>426</a>        teacher_user_id,
+<a href=#427 id=427 data-nosnippet>427</a>        <span class="number">0</span>,
+<a href=#428 id=428 data-nosnippet>428</a>        <span class="bool-val">false</span>,
+<a href=#429 id=429 data-nosnippet>429</a>    )
+<a href=#430 id=430 data-nosnippet>430</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#431 id=431 data-nosnippet>431</a>
+<a href=#432 id=432 data-nosnippet>432</a>    create_exam(
+<a href=#433 id=433 data-nosnippet>433</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#434 id=434 data-nosnippet>434</a>        <span class="string">"Exam for manual grading"</span>.to_string(),
+<a href=#435 id=435 data-nosnippet>435</a>        <span class="prelude-val">Some</span>(Utc::now()),
+<a href=#436 id=436 data-nosnippet>436</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
+<a href=#437 id=437 data-nosnippet>437</a>        <span class="number">1</span>,
+<a href=#438 id=438 data-nosnippet>438</a>        uh_cs_organization_id,
+<a href=#439 id=439 data-nosnippet>439</a>        cs_intro,
+<a href=#440 id=440 data-nosnippet>440</a>        Uuid::parse_str(<span class="string">"fee8bb0c-8629-477c-86eb-1785005143ae"</span>)<span class="question-mark">?</span>,
+<a href=#441 id=441 data-nosnippet>441</a>        teacher_user_id,
+<a href=#442 id=442 data-nosnippet>442</a>        <span class="number">0</span>,
+<a href=#443 id=443 data-nosnippet>443</a>        <span class="bool-val">true</span>,
+<a href=#444 id=444 data-nosnippet>444</a>    )
+<a href=#445 id=445 data-nosnippet>445</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#446 id=446 data-nosnippet>446</a>    create_exam(
+<a href=#447 id=447 data-nosnippet>447</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#448 id=448 data-nosnippet>448</a>        <span class="string">"Starting soon"</span>.to_string(),
+<a href=#449 id=449 data-nosnippet>449</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">5</span>)),
+<a href=#450 id=450 data-nosnippet>450</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::days(<span class="number">30</span>)),
+<a href=#451 id=451 data-nosnippet>451</a>        <span class="number">1</span>,
+<a href=#452 id=452 data-nosnippet>452</a>        uh_cs_organization_id,
+<a href=#453 id=453 data-nosnippet>453</a>        cs_intro,
+<a href=#454 id=454 data-nosnippet>454</a>        Uuid::parse_str(<span class="string">"65f5c3f3-b5fd-478d-8858-a45cdcb16b86"</span>)<span class="question-mark">?</span>,
+<a href=#455 id=455 data-nosnippet>455</a>        teacher_user_id,
+<a href=#456 id=456 data-nosnippet>456</a>        <span class="number">0</span>,
+<a href=#457 id=457 data-nosnippet>457</a>        <span class="bool-val">false</span>,
+<a href=#458 id=458 data-nosnippet>458</a>    )
+<a href=#459 id=459 data-nosnippet>459</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#460 id=460 data-nosnippet>460</a>    create_exam(
+<a href=#461 id=461 data-nosnippet>461</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#462 id=462 data-nosnippet>462</a>        <span class="string">"Over"</span>.to_string(),
+<a href=#463 id=463 data-nosnippet>463</a>        <span class="prelude-val">Some</span>(Utc::now() - Duration::days(<span class="number">7</span>)),
+<a href=#464 id=464 data-nosnippet>464</a>        <span class="prelude-val">Some</span>(Utc::now() - Duration::minutes(<span class="number">30</span>)),
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="number">1</span>,
+<a href=#466 id=466 data-nosnippet>466</a>        uh_cs_organization_id,
+<a href=#467 id=467 data-nosnippet>467</a>        cs_intro,
+<a href=#468 id=468 data-nosnippet>468</a>        Uuid::parse_str(<span class="string">"5c4fca1f-f0d6-471f-a0fd-eac552f5fb84"</span>)<span class="question-mark">?</span>,
+<a href=#469 id=469 data-nosnippet>469</a>        teacher_user_id,
+<a href=#470 id=470 data-nosnippet>470</a>        <span class="number">0</span>,
+<a href=#471 id=471 data-nosnippet>471</a>        <span class="bool-val">false</span>,
+<a href=#472 id=472 data-nosnippet>472</a>    )
+<a href=#473 id=473 data-nosnippet>473</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#474 id=474 data-nosnippet>474</a>    <span class="kw">let </span>automatic_course_exam = create_exam(
+<a href=#475 id=475 data-nosnippet>475</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#476 id=476 data-nosnippet>476</a>        <span class="string">"Automatic course exam"</span>.to_string(),
+<a href=#477 id=477 data-nosnippet>477</a>        <span class="prelude-val">Some</span>(Utc::now()),
+<a href=#478 id=478 data-nosnippet>478</a>        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
+<a href=#479 id=479 data-nosnippet>479</a>        <span class="number">1</span>,
+<a href=#480 id=480 data-nosnippet>480</a>        uh_cs_organization_id,
+<a href=#481 id=481 data-nosnippet>481</a>        cs_intro,
+<a href=#482 id=482 data-nosnippet>482</a>        Uuid::parse_str(<span class="string">"b2168b2f-f721-4771-a35d-ca75ca0937b1"</span>)<span class="question-mark">?</span>,
+<a href=#483 id=483 data-nosnippet>483</a>        teacher_user_id,
+<a href=#484 id=484 data-nosnippet>484</a>        <span class="number">0</span>,
+<a href=#485 id=485 data-nosnippet>485</a>        <span class="bool-val">false</span>,
+<a href=#486 id=486 data-nosnippet>486</a>    )
+<a href=#487 id=487 data-nosnippet>487</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#488 id=488 data-nosnippet>488</a>    course_exams::upsert(
+<a href=#489 id=489 data-nosnippet>489</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#490 id=490 data-nosnippet>490</a>        automatic_course_exam,
+<a href=#491 id=491 data-nosnippet>491</a>        automatic_course_with_exam_id,
+<a href=#492 id=492 data-nosnippet>492</a>    )
+<a href=#493 id=493 data-nosnippet>493</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#494 id=494 data-nosnippet>494</a>
+<a href=#495 id=495 data-nosnippet>495</a>    <span class="macro">info!</span>(<span class="string">"cs"</span>);
+<a href=#496 id=496 data-nosnippet>496</a>    <span class="kw">let </span>_cs_design = seed_cs_course_material(
+<a href=#497 id=497 data-nosnippet>497</a>        <span class="kw-2">&amp;</span>db_pool,
+<a href=#498 id=498 data-nosnippet>498</a>        uh_cs_organization_id,
+<a href=#499 id=499 data-nosnippet>499</a>        teacher_user_id,
+<a href=#500 id=500 data-nosnippet>500</a>        langs_user_id,
+<a href=#501 id=501 data-nosnippet>501</a>        base_url,
+<a href=#502 id=502 data-nosnippet>502</a>    )
+<a href=#503 id=503 data-nosnippet>503</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#504 id=504 data-nosnippet>504</a>    <span class="kw">let </span>new_course = NewCourse {
+<a href=#505 id=505 data-nosnippet>505</a>        name: <span class="string">"Introduction to Computer Science"</span>.to_string(),
+<a href=#506 id=506 data-nosnippet>506</a>        slug: <span class="string">"introduction-to-computer-science"</span>.to_string(),
+<a href=#507 id=507 data-nosnippet>507</a>        organization_id: uh_cs_organization_id,
+<a href=#508 id=508 data-nosnippet>508</a>        language_code: <span class="string">"en-US"</span>.to_string(),
+<a href=#509 id=509 data-nosnippet>509</a>        teacher_in_charge_name: <span class="string">"admin"</span>.to_string(),
+<a href=#510 id=510 data-nosnippet>510</a>        teacher_in_charge_email: <span class="string">"admin@example.com"</span>.to_string(),
+<a href=#511 id=511 data-nosnippet>511</a>        description: <span class="string">"An example course."</span>.to_string(),
+<a href=#512 id=512 data-nosnippet>512</a>        is_draft: <span class="bool-val">false</span>,
+<a href=#513 id=513 data-nosnippet>513</a>        is_test_mode: <span class="bool-val">false</span>,
+<a href=#514 id=514 data-nosnippet>514</a>        is_unlisted: <span class="bool-val">false</span>,
+<a href=#515 id=515 data-nosnippet>515</a>        copy_user_permissions: <span class="bool-val">false</span>,
+<a href=#516 id=516 data-nosnippet>516</a>        is_joinable_by_code_only: <span class="bool-val">false</span>,
+<a href=#517 id=517 data-nosnippet>517</a>        join_code: <span class="prelude-val">None</span>,
+<a href=#518 id=518 data-nosnippet>518</a>        ask_marketing_consent: <span class="bool-val">false</span>,
+<a href=#519 id=519 data-nosnippet>519</a>        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
+<a href=#520 id=520 data-nosnippet>520</a>        can_add_chatbot: <span class="bool-val">false</span>,
+<a href=#521 id=521 data-nosnippet>521</a>    };
+<a href=#522 id=522 data-nosnippet>522</a>    <span class="kw">let </span>(cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
+<a href=#523 id=523 data-nosnippet>523</a>        library::content_management::create_new_course(
+<a href=#524 id=524 data-nosnippet>524</a>            <span class="kw-2">&amp;mut </span>conn,
+<a href=#525 id=525 data-nosnippet>525</a>            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+<a href=#526 id=526 data-nosnippet>526</a>                course_id: Uuid::parse_str(<span class="string">"06a7ccbd-8958-4834-918f-ad7b24e583fd"</span>)<span class="question-mark">?</span>,
+<a href=#527 id=527 data-nosnippet>527</a>                default_course_instance_id: Uuid::parse_str(
+<a href=#528 id=528 data-nosnippet>528</a>                    <span class="string">"48399008-6523-43c5-8fd6-59ecc731a426"</span>,
+<a href=#529 id=529 data-nosnippet>529</a>                )<span class="question-mark">?</span>,
+<a href=#530 id=530 data-nosnippet>530</a>            }),
+<a href=#531 id=531 data-nosnippet>531</a>            new_course,
+<a href=#532 id=532 data-nosnippet>532</a>            teacher_user_id,
+<a href=#533 id=533 data-nosnippet>533</a>            get_seed_spec_fetcher(),
+<a href=#534 id=534 data-nosnippet>534</a>            models_requests::fetch_service_info,
+<a href=#535 id=535 data-nosnippet>535</a>        )
+<a href=#536 id=536 data-nosnippet>536</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#537 id=537 data-nosnippet>537</a>    <span class="kw">let </span>_cs_course_instance = course_instances::insert(
+<a href=#538 id=538 data-nosnippet>538</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#539 id=539 data-nosnippet>539</a>        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">"49c618d3-926d-4287-9159-b3af1f86082d"</span>)<span class="question-mark">?</span>),
+<a href=#540 id=540 data-nosnippet>540</a>        NewCourseInstance {
+<a href=#541 id=541 data-nosnippet>541</a>            course_id: cs_course.id,
+<a href=#542 id=542 data-nosnippet>542</a>            name: <span class="prelude-val">Some</span>(<span class="string">"Non-default instance"</span>),
+<a href=#543 id=543 data-nosnippet>543</a>            description: <span class="prelude-val">Some</span>(<span class="string">"This is another non-default instance"</span>),
+<a href=#544 id=544 data-nosnippet>544</a>            support_email: <span class="prelude-val">Some</span>(<span class="string">"contact@example.com"</span>),
+<a href=#545 id=545 data-nosnippet>545</a>            teacher_in_charge_name: <span class="string">"admin"</span>,
+<a href=#546 id=546 data-nosnippet>546</a>            teacher_in_charge_email: <span class="string">"admin@example.com"</span>,
+<a href=#547 id=547 data-nosnippet>547</a>            opening_time: <span class="prelude-val">None</span>,
+<a href=#548 id=548 data-nosnippet>548</a>            closing_time: <span class="prelude-val">None</span>,
+<a href=#549 id=549 data-nosnippet>549</a>        },
+<a href=#550 id=550 data-nosnippet>550</a>    )
+<a href=#551 id=551 data-nosnippet>551</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#552 id=552 data-nosnippet>552</a>    <span class="prelude-val">Ok</span>(SeedOrganizationUhCsResult {
+<a href=#553 id=553 data-nosnippet>553</a>        uh_cs_organization_id,
+<a href=#554 id=554 data-nosnippet>554</a>        cs_intro_course_id: cs_intro,
+<a href=#555 id=555 data-nosnippet>555</a>    })
+<a href=#556 id=556 data-nosnippet>556</a>}</code></pre></div></section></main></body></html>

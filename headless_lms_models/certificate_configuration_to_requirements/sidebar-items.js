@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_all_requirements_for_certificate_configuration","insert"],"struct":["CertificateAllRequirements","CertificateConfigurationToRequirement"]};
+window.SIDEBAR_ITEMS = {"fn":["get_all_requirements_for_certificate_configuration","insert","link_configuration_to_module_if_missing"],"struct":["CertificateAllRequirements","CertificateConfigurationToRequirement"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["chapter","context","course","exercise","id","json_source","module","page"]};
+window.SIDEBAR_ITEMS = {"mod":["certificate","chapter","context","course","exercise","id","json_source","module","page"]};

@@ -106,4 +106,33 @@
 <a href=#106 id=106 data-nosnippet>106</a>    .fetch_one(conn)
 <a href=#107 id=107 data-nosnippet>107</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#108 id=108 data-nosnippet>108</a>    <span class="prelude-val">Ok</span>(row)
-<a href=#109 id=109 data-nosnippet>109</a>}</code></pre></div></section></main></body></html>
+<a href=#109 id=109 data-nosnippet>109</a>}
+<a href=#110 id=110 data-nosnippet>110</a>
+<a href=#111 id=111 data-nosnippet>111</a><span class="kw">pub async fn </span>link_configuration_to_module_if_missing(
+<a href=#112 id=112 data-nosnippet>112</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#113 id=113 data-nosnippet>113</a>    certificate_configuration_id: Uuid,
+<a href=#114 id=114 data-nosnippet>114</a>    course_module_id: Uuid,
+<a href=#115 id=115 data-nosnippet>115</a>) -&gt; ModelResult&lt;()&gt; {
+<a href=#116 id=116 data-nosnippet>116</a>    <span class="macro">sqlx::query!</span>(
+<a href=#117 id=117 data-nosnippet>117</a>        <span class="string">r#"
+<a href=#118 id=118 data-nosnippet>118</a>        INSERT INTO certificate_configuration_to_requirements (
+<a href=#119 id=119 data-nosnippet>119</a>            certificate_configuration_id,
+<a href=#120 id=120 data-nosnippet>120</a>            course_module_id
+<a href=#121 id=121 data-nosnippet>121</a>        )
+<a href=#122 id=122 data-nosnippet>122</a>        SELECT $1, $2
+<a href=#123 id=123 data-nosnippet>123</a>        WHERE NOT EXISTS (
+<a href=#124 id=124 data-nosnippet>124</a>            SELECT 1
+<a href=#125 id=125 data-nosnippet>125</a>            FROM certificate_configuration_to_requirements
+<a href=#126 id=126 data-nosnippet>126</a>            WHERE certificate_configuration_id = $1
+<a href=#127 id=127 data-nosnippet>127</a>              AND course_module_id = $2
+<a href=#128 id=128 data-nosnippet>128</a>              AND deleted_at IS NULL
+<a href=#129 id=129 data-nosnippet>129</a>        )
+<a href=#130 id=130 data-nosnippet>130</a>        "#</span>,
+<a href=#131 id=131 data-nosnippet>131</a>        certificate_configuration_id,
+<a href=#132 id=132 data-nosnippet>132</a>        course_module_id
+<a href=#133 id=133 data-nosnippet>133</a>    )
+<a href=#134 id=134 data-nosnippet>134</a>    .execute(conn)
+<a href=#135 id=135 data-nosnippet>135</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#136 id=136 data-nosnippet>136</a>
+<a href=#137 id=137 data-nosnippet>137</a>    <span class="prelude-val">Ok</span>(())
+<a href=#138 id=138 data-nosnippet>138</a>}</code></pre></div></section></main></body></html>

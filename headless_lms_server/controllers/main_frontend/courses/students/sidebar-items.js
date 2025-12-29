@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_certificates","get_completions","get_course_users","get_progress"]};

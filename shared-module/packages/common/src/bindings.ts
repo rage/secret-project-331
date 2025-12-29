@@ -1500,6 +1500,7 @@ export interface CertificateGridRow {
   date_issued: string | null
   verification_id: string | null
   certificate_id: string | null
+  name_on_certificate: string | null
 }
 
 export interface UserMarketingConsent {

@@ -158,6 +158,7 @@ pub struct CertificateGridRow {
     pub date_issued: Option<DateTime<Utc>>,
     pub verification_id: Option<String>,
     pub certificate_id: Option<Uuid>,
+    pub name_on_certificate: Option<String>,
 }
 
 /// Returns one row per enrolled student with their overall course certificate info.
@@ -180,7 +181,8 @@ user_certs AS (
     gc.user_id,
     gc.id,
     gc.created_at AS latest_issued_at,
-    gc.verification_id
+    gc.verification_id,
+    gc.name_on_certificate
   FROM generated_certificates gc
   JOIN certificate_configuration_to_requirements cctr
     ON gc.certificate_configuration_id = cctr.certificate_configuration_id
@@ -210,7 +212,8 @@ SELECT
   /* nullable */
   uc.latest_issued_at AS "date_issued?",
   uc.verification_id  AS "verification_id?",
-  uc.id               AS "certificate_id?"
+  uc.id               AS "certificate_id?",
+  uc.name_on_certificate AS "name_on_certificate?"
 
 FROM enrolled e
 JOIN users u ON u.id = e.user_id

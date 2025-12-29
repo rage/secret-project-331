@@ -62,6 +62,9 @@ const CoursePermissions = dynamicImport<CourseManagementPagesProps>(
 const CourseStatsPage = dynamicImport<CourseManagementPagesProps>(
   () => import("@/components/page-specific/manage/courses/id/stats/CourseStatsPage"),
 )
+const CourseStudentsPage = dynamicImport<CourseManagementPagesProps>(
+  () => import("@/components/page-specific/manage/courses/id/students/CourseStudentsPage"),
+)
 
 const CourseManagementPageTabs: {
   [key: string]: TabPage
@@ -74,6 +77,7 @@ const CourseManagementPageTabs: {
   exercises: CourseExercises,
   "course-instances": CourseCourseInstances,
   "language-versions": CourseLanguageVersionsPage,
+  students: CourseStudentsPage,
   permissions: CoursePermissions,
   stats: CourseStatsPage,
 }
@@ -87,6 +91,7 @@ type PageToRender =
       type: "other"
       subtab: string
     }
+  | { type: "students"; subtab: string }
 
 function selectPageToRender(path: string): PageToRender {
   // if page is other the path format is other/subtab
@@ -98,6 +103,11 @@ function selectPageToRender(path: string): PageToRender {
         type: "other",
         subtab,
       }
+    }
+    if (path && path.startsWith("students")) {
+      const parts = path.split("/")
+      const subtab = parts.length > 1 ? parts[1] : ""
+      return { type: "students", subtab }
     }
   } catch (_e) {
     // Default to overview
@@ -162,6 +172,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"course-instances"} isActive={path === "course-instances"}>
           {t("link-course-instances")}
         </TabLink>
+        {/* Uncomment this to reveal the student tab.
+        <TabLink url={"students/users"} isActive={path.startsWith("students")}>
+          {t("label-students")}
+        </TabLink>
+        */}
         <TabLink url={"language-versions"} isActive={path === "language-versions"}>
           {t("link-language-versions")}
         </TabLink>
@@ -181,6 +196,8 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
             const PageComponent = pageToRender.component
             return <PageComponent courseId={courseId} />
           })()
+        ) : pageToRender.type === "students" ? (
+          <CourseStudentsPage courseId={courseId} />
         ) : (
           <Other courseId={courseId} activeSubtab={pageToRender.subtab} />
         )}

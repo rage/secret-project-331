@@ -81,6 +81,44 @@ AND deleted_at IS NULL
     Ok(())
 }
 
+pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelResult<Uuid> {
+    // Try to find an existing registrar
+    let existing = sqlx::query!(
+        r#"
+        SELECT id
+        FROM study_registry_registrars
+        WHERE deleted_at IS NULL
+        ORDER BY created_at
+        LIMIT 1
+        "#,
+    )
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    if let Some(row) = existing {
+        return Ok(row.id);
+    }
+
+    // Insert a new registrar
+    let inserted = sqlx::query!(
+        r#"
+        INSERT INTO study_registry_registrars (
+            name,
+            secret_key
+        )
+        VALUES (
+            'Default Registrar',
+            encode(gen_random_bytes(32), 'hex')
+        )
+        RETURNING id
+        "#,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    Ok(inserted.id)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

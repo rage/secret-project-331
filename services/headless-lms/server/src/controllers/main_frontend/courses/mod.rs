@@ -2,6 +2,7 @@
 
 pub mod chatbots;
 pub mod stats;
+pub mod students;
 
 use chrono::Utc;
 use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
@@ -1690,6 +1691,7 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/{course_id}/stats").configure(stats::_add_routes))
         .service(web::scope("/{course_id}/chatbots").configure(chatbots::_add_routes))
+        .service(web::scope("/{course_id}/students").configure(students::_add_routes))
         .route("/{course_id}", web::get().to(get_course))
         .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))

@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO course_module_completions (\n            course_id,\n            course_module_id,\n            user_id,\n            completion_date,\n            completion_language,\n            eligible_for_ects,\n            email,\n            grade,\n            passed,\n            prerequisite_modules_completed,\n            needs_to_be_reviewed\n        )\n        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)\n        RETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Varchar",
+        "Bool",
+        "Varchar",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "bf269fd4a62c26ba5e337ab41024a3c469cf6fc95a83631ed29bc65f60255eca"
+}

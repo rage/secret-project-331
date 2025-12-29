@@ -2,6 +2,8 @@ pub mod seed_accessibility_course;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
 pub mod seed_course_with_peer_review;
+pub mod seed_graded;
+pub use seed_graded::seed_graded_course;
 pub mod seed_glossary;
 pub mod seed_switching_course_instances_course;
 pub use seed_switching_course_instances_course::seed_switching_course_instances_course;

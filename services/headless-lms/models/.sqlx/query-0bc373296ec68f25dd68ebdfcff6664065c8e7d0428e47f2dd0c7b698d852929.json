@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH modules AS (\n  SELECT id AS module_id, name AS module_name, order_number\n  FROM course_modules\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n),\nenrolled AS (\n  SELECT DISTINCT user_id\n  FROM course_instance_enrollments\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n),\nlatest_cmc AS (\n  SELECT DISTINCT ON (cmc.user_id, cmc.course_module_id)\n    cmc.id,\n    cmc.user_id,\n    cmc.course_module_id,\n    cmc.grade,\n    cmc.passed,\n    cmc.completion_date\n  FROM course_module_completions cmc\n  WHERE cmc.course_id = $1\n    AND cmc.deleted_at IS NULL\n  ORDER BY cmc.user_id, cmc.course_module_id, cmc.completion_date DESC\n),\ncmcr AS (\n  SELECT course_module_completion_id\n  FROM course_module_completion_registered_to_study_registries\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n)\nSELECT\n  ud.first_name,\n  ud.last_name,\n  m.module_name,\n  r.grade,\n  r.passed,\n  (r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)) AS is_registered\nFROM modules m\nCROSS JOIN enrolled e\nJOIN users u ON u.id = e.user_id\nLEFT JOIN user_details ud ON ud.user_id = u.id\nLEFT JOIN latest_cmc r\n  ON r.user_id = e.user_id\n AND r.course_module_id = m.module_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "module_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "grade",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "passed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_registered",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      false,
+      null
+    ]
+  },
+  "hash": "0bc373296ec68f25dd68ebdfcff6664065c8e7d0428e47f2dd0c7b698d852929"
+}

@@ -143,11 +143,12 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions }) => {
                 )
               }
 
-              const icon = (
-                <span aria-hidden className={itemIcon}>
-                  {"icon" in item ? item.icon || "•" : "•"}
-                </span>
-              )
+              const icon =
+                "icon" in item && item.icon ? (
+                  <span aria-hidden className={itemIcon}>
+                    {item.icon}
+                  </span>
+                ) : null
 
               if (item.type === "link") {
                 return (

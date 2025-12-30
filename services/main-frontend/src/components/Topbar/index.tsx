@@ -201,13 +201,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
             {loginStateContext.signedIn ? (
               <>
-                {enableUserMenu && (
-                  <UserMenu
-                    currentPagePath={currentPagePath || ""}
-                    courseId={courseId}
-                    menuOptions={userMenuOptions}
-                  />
-                )}
+                {enableUserMenu && <UserMenu courseId={courseId} menuOptions={userMenuOptions} />}
 
                 {enableUserMenu && enableQuickActions && (
                   <Separator

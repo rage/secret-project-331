@@ -3,17 +3,17 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useContext, useState } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import TopBarMenuButton from "./TopBarMenuButton"
 
+import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { logout } from "@/shared-module/common/services/backend/auth"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 
 const itemRow = css`
@@ -55,24 +55,68 @@ interface MenuOption {
 }
 
 export interface UserMenuProps {
-  currentPagePath: string
   courseId?: string | null
   menuOptions?: MenuOption[]
 }
 
-const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
-  currentPagePath,
-  courseId,
-  menuOptions,
-}) => {
-  const { t, i18n } = useTranslation()
+const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ courseId, menuOptions }) => {
+  const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [isOpen, setIsOpen] = useState(false)
-  const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
   const queryClient = useQueryClient()
+  const userDetails = useUserDetails()
+
+  const displayName = useMemo(() => {
+    const data = userDetails.data
+    if (!data) {
+      return ""
+    }
+
+    const firstName = data.first_name?.trim()
+    const lastName = data.last_name?.trim()
+    const email = data.email?.trim()
+
+    if (firstName && firstName.length > 0 && lastName && lastName.length > 0) {
+      return `${firstName} ${lastName}`
+    }
+    if (firstName && firstName.length > 0) {
+      return firstName
+    }
+    if (lastName && lastName.length > 0) {
+      return lastName
+    }
+    if (email && email.length > 0) {
+      return email
+    }
+    return ""
+  }, [userDetails.data])
+
+  const displayInitial = useMemo(() => {
+    if (displayName.length > 0) {
+      return displayName[0].toUpperCase()
+    }
+    return "?"
+  }, [displayName])
+
+  const fullDisplayName = useMemo(() => {
+    if (userDetails.data) {
+      const fullName = [userDetails.data.first_name, userDetails.data.last_name]
+        .map((n) => n?.trim())
+        .filter((n) => n && n.length > 0)
+        .join(" ")
+      return fullName || displayName
+    }
+    return displayName
+  }, [userDetails.data, displayName])
+
+  const displayEmail = userDetails.data?.email || ""
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
+  }
+
+  if (!loginStateContext.signedIn) {
+    return null
   }
 
   const submitLogout = async () => {
@@ -85,10 +129,6 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
     setIsOpen(false)
   }
 
-  const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
-  const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
-
-  // Default menu items
   const defaultUserMenuItems = [
     ...(courseId
       ? [
@@ -110,18 +150,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
     },
   ] as const
 
-  const defaultGuestMenuItems = [
-    {
-      type: "link" as const,
-      href: signUpPathWithReturnTo,
-      label: t("create-new-account"),
-    },
-    { type: "link" as const, href: loginPathWithReturnTo, label: t("log-in") },
-  ] as const
-
-  // Use custom menu options if provided, otherwise use defaults
   const userMenuItems = menuOptions || defaultUserMenuItems
-  const guestMenuItems = defaultGuestMenuItems
 
   return (
     <>
@@ -147,7 +176,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
               border: 1px solid #d1d5db;
             `}
           >
-            {loginStateContext.signedIn ? "U" : "?"}
+            {displayInitial}
           </div>
 
           <span
@@ -161,12 +190,13 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
               white-space: nowrap;
               color: #111827;
               font-weight: 600;
+              font-size: 14px;
               ${respondToOrLarger.md} {
                 max-width: none;
               }
             `}
           >
-            {loginStateContext.signedIn ? "User" : "Guest"}
+            {displayName}
           </span>
         </TopBarMenuButton>
 
@@ -212,7 +242,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
                 color: #111827;
               `}
             >
-              {loginStateContext.signedIn ? "User Name" : "Guest User"}
+              {fullDisplayName}
             </div>
             <div
               className={css`
@@ -221,7 +251,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
                 margin-top: 2px;
               `}
             >
-              {loginStateContext.signedIn ? "user@example.com" : "Not signed in"}
+              {displayEmail}
             </div>
           </div>
 
@@ -233,7 +263,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
               outline: none;
             `}
           >
-            {(loginStateContext.signedIn ? userMenuItems : guestMenuItems).map((item, i) => {
+            {userMenuItems.map((item, i) => {
               if (item.type === "separator") {
                 return (
                   <Separator

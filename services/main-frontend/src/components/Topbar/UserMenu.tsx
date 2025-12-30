@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next"
 
 import TopBarMenuButton from "./TopBarMenuButton"
 
-import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { logout } from "@/shared-module/common/services/backend/auth"
@@ -28,6 +27,7 @@ const itemRow = css`
   font-weight: 500;
   color: #111827;
   outline: none;
+  cursor: pointer;
   /* kill link underlines across states */
   text-decoration: none !important;
 
@@ -47,54 +47,26 @@ const itemRow = css`
   }
 `
 
-const itemIcon = css`
-  width: 16px;
-  height: 16px;
-  display: inline-grid;
-  place-items: center;
-  opacity: 0.9;
-`
-
-const destructiveRow = css`
-  color: #dc2626;
-  font-weight: 600;
-
-  &:where([data-hovered], [data-focused]) {
-    background: #fef2f2;
-  }
-  &[data-focus-visible] {
-    box-shadow: inset 0 0 0 2px #dc2626;
-  }
-`
-
 interface MenuOption {
   type: "link" | "action" | "separator"
   label?: string
   href?: string
   onAction?: () => void
-  icon?: string
-  isDestructive?: boolean
-  requiresPermission?: boolean
-  permissionAction?: string
-  permissionResource?: string
 }
 
 export interface UserMenuProps {
-  styles?: string[]
   currentPagePath: string
   courseId?: string | null
   menuOptions?: MenuOption[]
 }
 
 const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
-  styles,
   currentPagePath,
   courseId,
   menuOptions,
 }) => {
   const { t, i18n } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
-  const [showSettings, setShowSettings] = useState<boolean>(false)
   const [isOpen, setIsOpen] = useState(false)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
   const queryClient = useQueryClient()
@@ -127,30 +99,14 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
               window.location.href = manageCourseRoute(courseId)
               setIsOpen(false)
             },
-            icon: "⚙️",
-            requiresPermission: true,
-            permissionAction: "teach",
-            permissionResource: courseId,
           },
         ]
       : []),
-    {
-      type: "action" as const,
-      label: t("settings"),
-      onAction: () => {
-        setShowSettings(true)
-        setIsOpen(false)
-      },
-      icon: "⚙️",
-    },
-    { type: "link" as const, href: "/user-settings", label: t("user-settings"), icon: "👤" },
-    { type: "separator" as const },
+    { type: "link" as const, href: "/user-settings", label: t("user-settings") },
     {
       type: "action" as const,
       label: t("log-out"),
       onAction: submitLogout,
-      isDestructive: true,
-      icon: "↪️",
     },
   ] as const
 
@@ -159,9 +115,8 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
       type: "link" as const,
       href: signUpPathWithReturnTo,
       label: t("create-new-account"),
-      icon: "👤",
     },
-    { type: "link" as const, href: loginPathWithReturnTo, label: t("log-in"), icon: "🔑" },
+    { type: "link" as const, href: loginPathWithReturnTo, label: t("log-in") },
   ] as const
 
   // Use custom menu options if provided, otherwise use defaults
@@ -170,15 +125,6 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
 
   return (
     <>
-      {/* {showSettings && (
-        <CourseSettingsModal
-          onClose={() => {
-            setShowSettings(false)
-          }}
-          manualOpen={showSettings}
-        />
-      )} */}
-
       <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
         <TopBarMenuButton
           id="topbar-user-menu"
@@ -301,49 +247,9 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
                 )
               }
 
-              if (
-                item.requiresPermission &&
-                courseId &&
-                item.permissionAction &&
-                item.permissionResource
-              ) {
-                return (
-                  <OnlyRenderIfPermissions
-                    key={item.label || `item-${i}`}
-                    action={{
-                      type: item.permissionAction as any,
-                    }}
-                    resource={{
-                      type: "course",
-                      id: item.permissionResource,
-                    }}
-                  >
-                    <MenuItem
-                      onAction={item.onAction}
-                      className={css`
-                        ${itemRow};
-                        ${item.isDestructive ? destructiveRow : ""};
-                      `}
-                    >
-                      <span aria-hidden className={itemIcon}>
-                        {item.icon}
-                      </span>
-                      <span>{item.label}</span>
-                    </MenuItem>
-                  </OnlyRenderIfPermissions>
-                )
-              }
-
-              const icon = (
-                <span aria-hidden className={itemIcon}>
-                  {item.icon}
-                </span>
-              )
-
               if (item.type === "link") {
                 return (
                   <MenuItem key={item.href || `link-${i}`} href={item.href} className={itemRow}>
-                    {icon}
                     <span>{item.label}</span>
                   </MenuItem>
                 )
@@ -353,12 +259,8 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({
                 <MenuItem
                   key={item.label || `action-${i}`}
                   onAction={item.onAction}
-                  className={css`
-                    ${itemRow};
-                    ${item.isDestructive ? destructiveRow : ""};
-                  `}
+                  className={itemRow}
                 >
-                  {icon}
                   <span>{item.label}</span>
                 </MenuItem>
               )

@@ -4,14 +4,12 @@ import { css, cx } from "@emotion/css"
 import { BlockRendererProps } from "../../.."
 
 import { ListAttributes } from "@/../types/GutenbergBlockAttributes"
-import ParsedText from "@/components/ParsedText"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper, mobileFontSizeMapper } from "@/styles/course-material/fontSizeMapper"
-import { fontSizeMapper, mobileFontSizeMapper } from "@/styles/fontSizeMapper"
 
 const LIST_BLOCK_CLASS_NAME = "course-material-list-block"
 

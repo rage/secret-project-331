@@ -4,9 +4,8 @@ import { css } from "@emotion/css"
 import { BlockRendererProps } from "../../.."
 
 import { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
-import ParsedText from "@/components/ParsedText"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExtraAttributes {

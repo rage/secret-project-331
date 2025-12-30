@@ -68,6 +68,11 @@ export function manageCourseExercisesRoute(courseId: string) {
   return `/manage/courses/${courseId}/exercises`
 }
 
+export function manageCourseStudentsRoute(courseId: string, subtab?: string) {
+  const base = `/manage/courses/${courseId}/students`
+  return subtab ? `${base}/${subtab}` : base
+}
+
 export function manageChatbotRoute(chatbotId: string) {
   return `/manage/chatbots/${chatbotId}`
 }

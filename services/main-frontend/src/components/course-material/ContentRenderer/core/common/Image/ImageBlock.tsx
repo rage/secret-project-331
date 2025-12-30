@@ -10,9 +10,7 @@ import { BlockRendererProps } from "../../.."
 import { useImageInteractivity } from "./ImageInteractivityContext"
 
 import { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
-import ParsedText from "@/components/ParsedText"
-import { parseText } from "@/components/course-material/ContentRenderer/util/textParsing"
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExtraAttributes {

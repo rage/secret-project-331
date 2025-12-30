@@ -4,13 +4,11 @@ import { css, cx } from "@emotion/css"
 import { BlockRendererProps } from "../../.."
 
 import { ListItemAttributes } from "@/../types/GutenbergBlockAttributes"
-import ParsedText from "@/components/ParsedText"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+import ParsedText from "@/components/course-material/ParsedText"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
-import { fontSizeMapper } from "@/styles/fontSizeMapper"
 
 const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListItemAttributes>>> = (
   props,

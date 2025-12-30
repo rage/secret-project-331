@@ -56,7 +56,7 @@ const getText = (
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
   exercise: Exercise,
   shouldSeeResetMessage: string | null,
-  t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
+  t: TFunction,
 ): string | null => {
   if (shouldSeeResetMessage !== null && reviewingStage === "NotStarted") {
     switch (shouldSeeResetMessage) {

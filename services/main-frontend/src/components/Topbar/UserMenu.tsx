@@ -7,16 +7,12 @@ import React, { useContext, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-// import CourseSettingsModal from "../modals/CourseSettingsModal"
-
 import TopBarMenuButton from "./TopBarMenuButton"
 
-import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { logout } from "@/shared-module/common/services/backend/auth"
-import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"

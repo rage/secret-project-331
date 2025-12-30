@@ -12,7 +12,7 @@ import { isMessageFromIframe } from "@/shared-module/common/exercise-service-pro
 import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,
-} from "@/stores/throttledRendererStore"
+} from "@/stores/course-material/throttledRendererStore"
 
 interface ExerciseTaskIframeProps {
   exerciseTaskId: string

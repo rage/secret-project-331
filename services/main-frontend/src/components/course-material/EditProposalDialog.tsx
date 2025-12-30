@@ -18,6 +18,7 @@ import {
   currentlyOpenFeedbackDialogAtom,
   selectedBlockIdAtom,
 } from "@/stores/course-material/materialFeedbackStore"
+import { formatKeyboardShortcut, getModifierKey } from "@/utils/course-material/platformDetection"
 
 interface Props {
   courseId: string

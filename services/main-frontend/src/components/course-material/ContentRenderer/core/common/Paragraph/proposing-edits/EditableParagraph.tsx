@@ -11,7 +11,7 @@ import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
-import { selectedBlockIdAtom } from "@/stores/materialFeedbackStore"
+import { selectedBlockIdAtom } from "@/stores/course-material/materialFeedbackStore"
 
 interface EditableParagraphProps {
   id: string

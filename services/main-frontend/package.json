@@ -54,7 +54,7 @@
     "next": "16.0.7",
     "papaparse": "^5.5.3",
     "react": "19.2.1",
-    "react-aria": "^3.45.0",
+    "react-aria": "^3.44.0",
     "react-aria-components": "^1.12.2",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.63.0",

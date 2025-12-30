@@ -5,7 +5,7 @@
     },
     "target": "esnext",
     "module": "esnext",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "lib": ["dom", "es2017"],
     "typeRoots": ["types", "./shared-module/types", "./node_modules/@types"],
     "moduleResolution": "node",
@@ -31,5 +31,11 @@
     ]
   },
   "exclude": ["node_modules", "src/shared-module"],
-  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ]
 }

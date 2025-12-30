@@ -1,6 +1,6 @@
 import { css, keyframes } from "@emotion/css"
 import React, { useContext, useEffect, useId, useState } from "react"
-import { Dialog, Modal, OverlayTriggerStateContext } from "react-aria-components"
+import { OverlayTriggerStateContext, Popover } from "react-aria-components"
 
 import ChatbotChat from "./ChatbotChat"
 import OpenChatbotButton from "./OpenChatbotButton"
@@ -34,60 +34,50 @@ const closeAnimation = keyframes`
 
 const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const chatbotTitleId = useId()
-  let state = useContext(OverlayTriggerStateContext)
+  let state = { ...useContext(OverlayTriggerStateContext), close: () => {} }
   const [shouldRender, setShouldRender] = useState(false)
+  console.log(state)
 
   useEffect(() => {
     if (state?.isOpen) {
       setShouldRender(true)
     }
-  }, [state?.isOpen])
-
-  const handleAnimationEnd = () => {
     if (!state?.isOpen) {
       setShouldRender(false)
     }
-  }
+  }, [state?.isOpen])
 
-  useEffect(() => {
-    let searchDialog: Element | null = document.body.querySelector(
-      `div[aria-label="Search dialog"]`,
-    )
-    console.log(searchDialog)
-
-    if (searchDialog === null && shouldRender) {
-      // !! this breaks the search dialog if the chatbot dialog is open
-      // remove the scroll prevention set by react-aria Modal
-      // eslint-disable-next-line i18next/no-literal-string
-      document.documentElement.style.overflow = "scroll"
-      // remove the interaction prevention set by react-aria Modal
-      // eslint-disable-next-line i18next/no-literal-string
-      document.body.querySelector("div")?.removeAttribute("inert")
+  /*   const handleAnimationEnd = () => {
+    if (!state?.isOpen) {
+      setShouldRender(false)
     }
-  })
+  } */
 
   return (
     <>
       <OpenChatbotButton hide={shouldRender} />
-      <Modal isOpen={shouldRender} onOpenChange={state?.toggle}>
-        <Dialog
-          aria-labelledby={chatbotTitleId}
-          className={css`
-            animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
-            position: fixed;
-            bottom: 70px;
-            right: 1rem;
-            z-index: 1000;
-          `}
-          onAnimationEnd={handleAnimationEnd}
-        >
-          <ChatbotChat
-            chatbotConfigurationId={chatbotConfigurationId}
-            isCourseMaterialBlock={false}
-            chatbotTitleId={chatbotTitleId}
-          />
-        </Dialog>
-      </Modal>
+      <Popover
+        aria-labelledby={chatbotTitleId}
+        className={css`
+          animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
+          right: 1rem;
+          width: ${CHATBOX_WIDTH_PX}px;
+          max-width: 90vw;
+          height: ${CHATBOX_HEIGHT_PX}px;
+          max-height: 90vh;
+        `}
+        //onAnimationEnd={handleAnimationEnd}
+        isNonModal={true}
+        placement="top"
+        shouldCloseOnInteractOutside={() => false}
+        offset={-60}
+      >
+        <ChatbotChat
+          chatbotConfigurationId={chatbotConfigurationId}
+          isCourseMaterialBlock={false}
+          chatbotTitleId={chatbotTitleId}
+        />
+      </Popover>
     </>
   )
 }

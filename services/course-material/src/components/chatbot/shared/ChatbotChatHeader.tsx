@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { Account, AddMessage, Hamburger } from "@vectopus/atlas-icons-react"
+import { Account, AddMessage, Hamburger, Heart } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { Button, Heading, Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -110,7 +110,6 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
             <Hamburger
               className={css`
                 position: relative;
-
                 top: 0.25rem;
               `}
             />
@@ -130,7 +129,20 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                 <AddMessage
                   className={css`
                     position: relative;
-
+                    top: 0.25rem;
+                  `}
+                />
+              </MenuItem>
+              <MenuItem
+                onAction={() => {
+                  // go to some api endpoint where download happens?
+                }}
+                className={buttonStyle}
+                //aria-label={t("download-transcript")}
+              >
+                <Heart
+                  className={css`
+                    position: relative;
                     top: 0.25rem;
                   `}
                 />

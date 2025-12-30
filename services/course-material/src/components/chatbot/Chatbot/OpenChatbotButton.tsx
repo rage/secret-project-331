@@ -38,7 +38,7 @@ const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide }) => {
   const { t } = useTranslation()
 
   return (
-    <Button className={buttonStyle(hide)} aria-label={t("open-chatbot")}>
+    <Button slot="open" className={buttonStyle(hide)} aria-label={t("open-chatbot")}>
       <AIChat
         className={css`
           position: relative;
@@ -51,4 +51,4 @@ const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide }) => {
   )
 }
 
-export default React.memo(OpenChatbotButton)
+export default OpenChatbotButton

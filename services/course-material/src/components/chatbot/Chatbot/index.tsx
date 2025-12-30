@@ -9,7 +9,7 @@ export interface ChatbotProps {
 
 const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   return (
-    <DialogTrigger defaultOpen={false}>
+    <DialogTrigger>
       <ChatbotDialog chatbotConfigurationId={chatbotConfigurationId} />
     </DialogTrigger>
   )

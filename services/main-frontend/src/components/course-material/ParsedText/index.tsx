@@ -1,10 +1,11 @@
-import ParsedTextRenderer from "./ParsedTextRenderer"
-
-import TooltipNTrigger from "@/components/TooltipNTrigger"
-import { GlossaryContext } from "@/contexts/GlossaryContext"
 import { css } from "@emotion/css"
 import { JSX, memo, RefObject, useContext, useLayoutEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
+
+import ParsedTextRenderer from "./ParsedTextRenderer"
+
+import TooltipNTrigger from "@/components/course-material/TooltipNTrigger"
+import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 
 export type Tag = keyof JSX.IntrinsicElements
 

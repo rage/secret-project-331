@@ -3,11 +3,9 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import { parseText } from "../../ContentRenderer/util/textParsing"
-import InnerBlocks from "../util/InnerBlocks"
 
-import ParsedText from "@/components/ParsedText"
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
+import ParsedText from "@/components/course-material/ParsedText"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

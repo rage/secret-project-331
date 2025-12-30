@@ -9,7 +9,7 @@ import { ImageInteractivityContext } from "../../core/common/Image/ImageInteract
 
 import FlipButton from "./FlipButton"
 
-import { Block } from "@/services/backend"
+import { Block } from "@/services/course-material/backend"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

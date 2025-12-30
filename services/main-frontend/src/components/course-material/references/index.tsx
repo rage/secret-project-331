@@ -6,7 +6,7 @@ import React, { ReactPortal, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
-import TooltipNTrigger from "@/components/TooltipNTrigger"
+import TooltipNTrigger from "@/components/course-material/TooltipNTrigger"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 const openAnimation = keyframes`

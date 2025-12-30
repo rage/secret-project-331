@@ -10,7 +10,7 @@ import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
 import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
 import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
 
-import SubmissionIFrame from "@/components/page-specific/manage/submissions/id/SubmissionIFrame"
+import SubmissionIFrame from "@/components/page-specific/submissions/id/SubmissionIFrame"
 import { createTeacherGradingDecision } from "@/services/backend/teacher-grading-decisions"
 import {
   AnswerRequiringAttentionWithTasks,

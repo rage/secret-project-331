@@ -1,5 +1,5 @@
 "use client"
-import React from "react"
+import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

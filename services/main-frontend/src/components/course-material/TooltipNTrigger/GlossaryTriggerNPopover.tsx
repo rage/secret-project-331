@@ -1,6 +1,3 @@
-import { TooltipBox } from "./TooltipBox"
-
-import { baseTheme } from "@/shared-module/common/styles"
 import styled from "@emotion/styled"
 import { FocusEvent, ReactNode, useId, useRef, useState } from "react"
 import { useHover } from "react-aria"
@@ -13,6 +10,10 @@ import {
   VisuallyHidden,
 } from "react-aria-components"
 import { useTranslation } from "react-i18next"
+
+import { TooltipBox } from "./TooltipBox"
+
+import { baseTheme } from "@/shared-module/common/styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const StyledButton = styled(ReactAriaButton)`

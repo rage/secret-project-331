@@ -11,7 +11,6 @@ import LineChart, {
 
 import { useStudentsByCountryQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface Props {
@@ -54,4 +53,4 @@ const StudentsByCountry: React.FC<Props> = ({ courseId, selectedCountry }) => {
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(StudentsByCountry))
+export default withErrorBoundary(StudentsByCountry)

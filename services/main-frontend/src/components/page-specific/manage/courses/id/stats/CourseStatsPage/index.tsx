@@ -1,7 +1,7 @@
 "use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -49,7 +49,6 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   courseId,
 }) => {
   const { t } = useTranslation()
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState(TAB_OVERVIEW)
@@ -73,6 +72,14 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
     () => courseInstances.isSuccess && courseInstances.data.length > 1,
     [courseInstances.isSuccess, courseInstances.data],
   )
+
+  const currentQuery = useMemo(() => {
+    const query: Record<string, string> = {}
+    searchParams.forEach((value, key) => {
+      query[key] = value
+    })
+    return query
+  }, [searchParams])
 
   return (
     <>
@@ -116,8 +123,8 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         )}
         <TabLink
           url={{
-            pathname: router.pathname,
-            query: { ...router.query, tab: TAB_COUNTRY_STATS },
+            pathname,
+            query: { ...currentQuery, tab: TAB_COUNTRY_STATS },
           }}
           isActive={activeTab === TAB_COUNTRY_STATS}
         >

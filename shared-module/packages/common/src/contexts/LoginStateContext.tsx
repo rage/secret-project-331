@@ -26,7 +26,7 @@ const LoginStateContext = React.createContext<LoginState>(defaultLoginState)
 
 export default LoginStateContext
 
-export const LoginStateContextProvider: React.FC = ({ children }) => {
+export const LoginStateContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
   const isLoggedIn = useQuery({ queryKey: [`logged-in`], queryFn: loggedIn })
 

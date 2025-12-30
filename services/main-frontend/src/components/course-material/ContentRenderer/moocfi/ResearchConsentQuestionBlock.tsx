@@ -2,12 +2,9 @@
 import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
-import { parseText } from "../util/textParsing"
 
-import ParsedText from "@/components/ParsedText"
-import { CheckboxContext } from "@/contexts/CheckboxContext"
+import ParsedText from "@/components/course-material/ParsedText"
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

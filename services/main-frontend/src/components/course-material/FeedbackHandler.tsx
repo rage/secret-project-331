@@ -5,9 +5,6 @@ import React, { useCallback, useEffect, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materialFeedbackStore"
-import { getModifierKey } from "../utils/platformDetection"
-
 import EditProposalDialog from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTooltip from "./FeedbackTooltip"
@@ -19,6 +16,7 @@ import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
+import { getModifierKey } from "@/utils/course-material/platformDetection"
 
 interface Props {
   courseId: string

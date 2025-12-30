@@ -5,14 +5,6 @@ import React, { useRef } from "react"
 import { useLandmark } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { postProposedEdits } from "../services/backend"
-import {
-  blockEditsAtom,
-  currentlyOpenFeedbackDialogAtom,
-  selectedBlockIdAtom,
-} from "../stores/materialFeedbackStore"
-import { formatKeyboardShortcut, getModifierKey } from "../utils/platformDetection"
-
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 import { postProposedEdits } from "@/services/course-material/backend"

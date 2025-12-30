@@ -1,10 +1,11 @@
+import React, { createElement, memo, RefObject, useContext, useMemo } from "react"
+
 import { parseText } from "../ContentRenderer/util/textParsing"
 
 import { ParsedTextProps, Tag } from "."
 
-import { GlossaryContext } from "@/contexts/GlossaryContext"
-import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
-import React, { createElement, memo, RefObject, useContext, useMemo } from "react"
+import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const ParsedTextRenderer = <T extends Tag>(
   props: ParsedTextProps<T> & { wrapperRef?: RefObject<HTMLElement | null> },

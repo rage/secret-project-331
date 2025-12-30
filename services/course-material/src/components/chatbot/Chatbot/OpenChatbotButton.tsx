@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { RefObject } from "react"
+import { AriaButtonProps } from "react-aria"
 import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -32,13 +33,21 @@ const buttonStyle = (hide: boolean) => css`
 
 interface OpenChatbotButtonProps {
   hide: boolean
+  ref: RefObject<HTMLButtonElement | null>
+  triggerProps: AriaButtonProps
 }
 
-const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide }) => {
+const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide, ref, triggerProps }) => {
   const { t } = useTranslation()
 
   return (
-    <Button slot="open" className={buttonStyle(hide)} aria-label={t("open-chatbot")}>
+    <Button
+      slot="open"
+      className={buttonStyle(hide)}
+      aria-label={t("open-chatbot")}
+      ref={ref}
+      {...triggerProps}
+    >
       <AIChat
         className={css`
           position: relative;

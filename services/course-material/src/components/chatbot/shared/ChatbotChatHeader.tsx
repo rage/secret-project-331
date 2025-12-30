@@ -71,7 +71,7 @@ const menuStyle = css`
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
+  const { currentConversationInfo, newConversation, isCourseMaterialBlock, closeChatbot } = props
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -151,7 +151,12 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           </Popover>
         </MenuTrigger>
         {!isCourseMaterialBlock && (
-          <Button slot="close" className={buttonStyle} aria-label={t("close")}>
+          <Button
+            slot="close"
+            className={buttonStyle}
+            aria-label={t("close")}
+            onPress={closeChatbot}
+          >
             <DownIcon />
           </Button>
         )}

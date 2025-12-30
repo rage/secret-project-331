@@ -11,12 +11,14 @@ import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationIn
 
 interface ChatbotDialogProps {
   chatbotConfigurationId: string
+  closeChatbot: () => void
   chatbotTitleId: string
   isCourseMaterialBlock: false
 }
 
 interface ChatbotNoDialogProps {
   chatbotConfigurationId: string
+  closeChatbot: () => void
   isCourseMaterialBlock: true
 }
 

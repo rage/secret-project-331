@@ -181,14 +181,14 @@ const Login: React.FC = () => {
             margin-bottom: 1.5rem;
           `}
         >
-          <a
+          <Link
             className={css`
               color: ${baseTheme.colors.blue[500]}!important;
             `}
-            href="https://tmc.mooc.fi/password_reset_keys/new"
+            href="/reset-password"
           >
             {t("forgot-password")}
-          </a>
+          </Link>
         </div>
         <div
           className={css`

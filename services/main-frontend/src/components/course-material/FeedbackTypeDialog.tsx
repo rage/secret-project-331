@@ -1,7 +1,8 @@
 "use client"
 import { css } from "@emotion/css"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import React from "react"
+import React, { useRef } from "react"
+import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import ImprovementExample from "./ImprovementExample"
@@ -21,6 +22,9 @@ const FeedbackTypeDialog: React.FC = () => {
   const selection = useAtomValue(selectionAtom)
   const setSelection = useSetAtom(selectionAtom)
 
+  const feedbackButtonRef = useRef<HTMLButtonElement>(null)
+  const improvementButtonRef = useRef<HTMLButtonElement>(null)
+
   // Click handlers we have in `SelectionListener` are aggressive with clearing the selction when this dialog is open. For performance, it's better to restore the selection after this dialog closes rather than checking on every update whether the
   const restoreSelectionIfNeeded = (fn: () => void) => {
     const savedSelection = selection
@@ -31,13 +35,6 @@ const FeedbackTypeDialog: React.FC = () => {
     if (savedSelection.text) {
       setTimeout(restoreSelection, 100)
       setTimeout(restoreSelection, 300)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault()
-      callback()
     }
   }
 
@@ -59,6 +56,22 @@ const FeedbackTypeDialog: React.FC = () => {
     setCurrentlyOpenFeedbackDialog(null)
   }
 
+  const { buttonProps: feedbackButtonProps } = useButton(
+    {
+      onPress: handleFeedbackClick,
+      "aria-label": t("written-feedback"),
+    },
+    feedbackButtonRef,
+  )
+
+  const { buttonProps: improvementButtonProps } = useButton(
+    {
+      onPress: handleImprovementClick,
+      "aria-label": t("improve-material"),
+    },
+    improvementButtonRef,
+  )
+
   return (
     <StandardDialog
       open={type === "select-type"}
@@ -76,8 +89,8 @@ const FeedbackTypeDialog: React.FC = () => {
         id={FEEDBACK_DIALOG_CONTENT_ID}
       >
         <button
-          onClick={handleFeedbackClick}
-          onKeyDown={(e) => handleKeyDown(e, handleFeedbackClick)}
+          ref={feedbackButtonRef}
+          {...feedbackButtonProps}
           className={css`
             display: flex;
             flex-direction: column;
@@ -152,8 +165,8 @@ const FeedbackTypeDialog: React.FC = () => {
         </button>
 
         <button
-          onClick={handleImprovementClick}
-          onKeyDown={(e) => handleKeyDown(e, handleImprovementClick)}
+          ref={improvementButtonRef}
+          {...improvementButtonProps}
           className={css`
             display: flex;
             flex-direction: column;

@@ -42,6 +42,11 @@
         "ordinal": 7,
         "name": "synced_page_revision_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "consecutive_failures",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
@@ -57,7 +62,8 @@
       false,
       false,
       true,
-      true
+      true,
+      false
     ]
   },
   "hash": "6fe90c05cb67fdfd061c784095ec304b1a1a0af2b763d1e7b81018acd093cade"

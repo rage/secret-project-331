@@ -1,14 +1,15 @@
 "use client"
 import { css } from "@emotion/css"
-import React, { useRef, useState } from "react"
-
-import CloseIcon from "../../../../../img/course-material/close.svg"
-import { AudioFile } from "../../../Page"
+import React, { useEffect, useRef, useState } from "react"
+import { useButton, useFocusRing } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import Controls from "./Controls"
 import DisplayTrack from "./DisplayTrack"
 import ProgressBar from "./ProgressBar"
 
+import { AudioFile } from "@/components/course-material/Page"
+import CloseIcon from "@/img/course-material/close.svg"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -24,12 +25,35 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
   isVisible,
   setIsVisible,
 }) => {
+  const { t } = useTranslation()
   const [timeProgress, setTimeProgress] = useState<number>(0)
   const [duration, setDuration] = useState<number>(0)
 
-  // reference
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const progressBarRef = useRef<HTMLInputElement | null>(null)
+  const dialogRef = useRef<HTMLDivElement | null>(null)
+  const playPauseButtonRef = useRef<HTMLButtonElement | null>(null)
+
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const { buttonProps: closeButtonProps } = useButton(
+    {
+      onPress: setIsVisible,
+      "aria-label": t("audio-player-close"),
+    },
+    closeButtonRef,
+  )
+  const { focusProps: closeFocusProps, isFocusVisible: isCloseFocusVisible } = useFocusRing()
+
+  useEffect(() => {
+    if (isVisible && dialogRef.current) {
+      const firstFocusable = playPauseButtonRef.current || dialogRef.current
+      if (firstFocusable) {
+        setTimeout(() => {
+          firstFocusable.focus()
+        }, 0)
+      }
+    }
+  }, [isVisible])
 
   return (
     <>
@@ -47,6 +71,10 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
           `}
         >
           <div
+            ref={dialogRef}
+            role="dialog"
+            aria-label={t("audio-player-dialog-label")}
+            tabIndex={-1}
             className={css`
               width: 100vw;
               background: #fff;
@@ -82,9 +110,13 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
                   duration,
                   setTimeProgress,
                   tracks,
+                  playPauseButtonRef,
                 }}
               />
               <button
+                {...closeButtonProps}
+                {...closeFocusProps}
+                ref={closeButtonRef}
                 className={css`
                   position: absolute;
                   height: 28px;
@@ -96,10 +128,14 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
                   display: flex;
                   align-items: center;
                   padding-left: 2px;
+                  ${isCloseFocusVisible &&
+                  css`
+                    outline: 2px solid #4a90e2;
+                    outline-offset: 2px;
+                  `}
                 `}
-                onClick={setIsVisible}
               >
-                <CloseIcon />
+                <CloseIcon aria-hidden="true" />
               </button>
             </div>
           </div>

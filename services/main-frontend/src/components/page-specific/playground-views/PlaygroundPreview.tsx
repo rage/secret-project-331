@@ -8,13 +8,12 @@ import { useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { UseParsedPrivateSpecResult } from "../../../hooks/playground/useParsedPrivateSpec"
-
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
 import { PlaygroundSettings } from "@/app/playground-tabs/page"
+import { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
 import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"

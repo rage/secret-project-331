@@ -4,10 +4,6 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { canSave } from "../../../utils/canSaveExerciseService"
-import { convertToSlug } from "../../../utils/convert"
-import { prepareExerciseServiceForBackend } from "../../../utils/prepareServiceForBackend.ts"
-
 import ExerciseServiceContainer from "@/components/page-specific/manage/exercise-services/ExerciseServiceContainer"
 import ExerciseServiceCreationModal from "@/components/page-specific/manage/exercise-services/ExerciseServiceCreationModal"
 import { addExerciseService, fetchExerciseServices } from "@/services/backend/exercise-services"
@@ -20,6 +16,9 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { canSave } from "@/utils/canSaveExerciseService"
+import { convertToSlug } from "@/utils/convert"
+import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
 
 const ExerciseServicePage: React.FC = () => {
   const { t } = useTranslation()

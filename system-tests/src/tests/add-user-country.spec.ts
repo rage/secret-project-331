@@ -5,7 +5,7 @@ import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 test("User can add missing country information", async ({ page }) => {
   await test.step("Pop-up form for existing user who is missing country info", async () => {
     await page.goto(
-      "http://project-331.local/login?return_to=%2Forg%2Fuh-cs%2Fcourses%2Fadvanced-course-instance-management",
+      "http://project-331.local/login?return_to=%2Forg%2Fuh-mathstat%2Fcourses%2Faccessibility-course",
     )
     await page
       .getByRole("textbox", { name: "Email (Required)" })
@@ -14,13 +14,18 @@ test("User can add missing country information", async ({ page }) => {
     await page.getByRole("button", { name: "Log in" }).click()
 
     // Form to fill missing country
-    await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
-    await page.getByRole("button", { name: "Select a country Where do you" }).click()
-    await page.getByRole("option", { name: "Andorra" }).click()
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Success", { exact: true })).toBeVisible()
-
-    await selectCourseInstanceIfPrompted(page)
+    // the course instance selection is sometimes prompted before the country
+    // so we will await both simultaneously
+    const countryPrompt = async () => {
+      await expect(
+        page.locator("div").filter({ hasText: /^Fill missing information$/ }),
+      ).toBeVisible()
+      await page.getByRole("button", { name: "Select a country Where do you" }).click()
+      await page.getByRole("option", { name: "Andorra" }).click()
+      await page.getByRole("button", { name: "Save" }).click()
+      await expect(page.getByText("Success", { exact: true })).toBeVisible()
+    }
+    await Promise.all([selectCourseInstanceIfPrompted(page), countryPrompt()])
 
     // Go to user setting and change users country
     await page.getByRole("button", { name: "Open menu" }).click()
@@ -39,7 +44,7 @@ test("User can add missing country information", async ({ page }) => {
 
   await test.step("Add country when creating a new user and see that pop-up form doesn't show", async () => {
     await page.goto(
-      "http://project-331.local/signup?return_to=%2Forg%2Fuh-cs%2Fcourses%2Fadvanced-course-instance-management&lang=en-US",
+      "http://project-331.local/signup?return_to=%2Forg%2Fuh-mathstat%2Fcourses%2Faccessibility-course&lang=en-US",
     )
     await page.getByRole("textbox", { name: "First name (Required)" }).fill("Test")
     await page.getByRole("textbox", { name: "Last name (Required)" }).fill("User")

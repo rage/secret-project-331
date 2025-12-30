@@ -4,8 +4,8 @@ import { t } from "i18next"
 import React from "react"
 
 import { BlockRendererProps } from "../.."
-import InnerBlocks from "../../util/InnerBlocks"
 
+import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import { fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

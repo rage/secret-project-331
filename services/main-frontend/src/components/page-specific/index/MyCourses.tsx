@@ -2,10 +2,10 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import useAllOrganizationsQuery from "../../../hooks/useAllOrganizationsQuery"
-import { getMyCourses } from "../../../services/backend/users"
 import { CourseComponent, CourseGrid } from "../org/organizationSlug/CourseCard"
 
+import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
+import { getMyCourses } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"

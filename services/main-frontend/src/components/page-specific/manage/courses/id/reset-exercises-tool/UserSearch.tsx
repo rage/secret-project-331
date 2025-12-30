@@ -3,13 +3,12 @@ import { css } from "@emotion/css"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SearchIcon from "../../../../../../shared-module/common/img/search-icon.svg"
-
 import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 
 type Props = {

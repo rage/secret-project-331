@@ -61,7 +61,7 @@ const StatsPage = () => {
         className="granularity-select"
         label={t("time-granularity")}
         value={granularity}
-        onChange={(e) => setGranularity(e.target.value as TimeGranularity)}
+        onChange={(e) => setGranularity(e.currentTarget.value as TimeGranularity)}
         options={[
           { value: YEAR_GRANULARITY, label: t("year") },
           { value: MONTH_GRANULARITY, label: t("month") },

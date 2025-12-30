@@ -125,3 +125,126 @@ WHERE verification_id = $1
 fn generate_verification_id() -> String {
     utils::strings::generate_easily_writable_random_string(15)
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CertificateUpdateRequest {
+    pub date_issued: DateTime<Utc>,
+    pub name_on_certificate: Option<String>,
+}
+
+pub async fn update_certificate(
+    conn: &mut PgConnection,
+    certificate_id: Uuid,
+    date_issued: DateTime<Utc>,
+    name_on_certificate: Option<String>,
+) -> ModelResult<GeneratedCertificate> {
+    let updated = if let Some(name) = name_on_certificate {
+        sqlx::query_as!(
+            GeneratedCertificate,
+            r#"
+            UPDATE generated_certificates
+            SET created_at = $1,
+                name_on_certificate = $2,
+                updated_at = NOW()
+            WHERE id = $3
+              AND deleted_at IS NULL
+            RETURNING *
+            "#,
+            date_issued,
+            name,
+            certificate_id
+        )
+        .fetch_one(conn)
+        .await?
+    } else {
+        sqlx::query_as!(
+            GeneratedCertificate,
+            r#"
+            UPDATE generated_certificates
+            SET created_at = $1,
+                updated_at = NOW()
+            WHERE id = $2
+              AND deleted_at IS NULL
+            RETURNING *
+            "#,
+            date_issued,
+            certificate_id
+        )
+        .fetch_one(conn)
+        .await?
+    };
+
+    Ok(updated)
+}
+
+pub async fn get_by_id(
+    conn: &mut PgConnection,
+    certificate_id: Uuid,
+) -> ModelResult<GeneratedCertificate> {
+    let res = sqlx::query_as!(
+        GeneratedCertificate,
+        r#"
+        SELECT *
+        FROM generated_certificates
+        WHERE id = $1
+          AND deleted_at IS NULL
+        "#,
+        certificate_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn find_existing(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    config_id: Uuid,
+) -> ModelResult<Option<Uuid>> {
+    let row = sqlx::query!(
+        r#"
+        SELECT id
+        FROM generated_certificates
+        WHERE user_id = $1
+          AND certificate_configuration_id = $2
+          AND deleted_at IS NULL
+        "#,
+        user_id,
+        config_id
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(row.map(|r| r.id))
+}
+
+pub async fn insert_raw(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    config_id: Uuid,
+    name: &str,
+    verification_id: &str,
+) -> ModelResult<Uuid> {
+    let row = sqlx::query!(
+        r#"
+        INSERT INTO generated_certificates (
+            user_id,
+            certificate_configuration_id,
+            name_on_certificate,
+            verification_id
+        )
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        "#,
+        user_id,
+        config_id,
+        name,
+        verification_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(row.id)
+}

@@ -4,18 +4,18 @@ import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanst
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  deleteCourse,
-  teacherResetCourseProgressForEveryone,
-  teacherResetCourseProgressForThemselves,
-} from "../../../../../../services/backend/courses"
 import ModuleCompletionReprocessButton from "../course-instances/ModuleCompletionReprocessButton"
 
 import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
-import { setJoinCourseLinkForCourse } from "@/services/backend/courses"
+import {
+  deleteCourse,
+  setJoinCourseLinkForCourse,
+  teacherResetCourseProgressForEveryone,
+  teacherResetCourseProgressForThemselves,
+} from "@/services/backend/courses"
 import { Course } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"

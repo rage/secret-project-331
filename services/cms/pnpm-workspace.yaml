@@ -5,6 +5,7 @@ linkWorkspacePackages: true
 managePackageManagerVersions: true
 
 # minimumReleaseAge: 1440
+minimumReleaseAgeExclude: ["next", "react", "@next/*"]
 
 nodeVersion: 22.20.0
 

@@ -4,6 +4,8 @@ import React, { useContext } from "react"
 import { BlockRendererProps } from ".."
 import { parseText } from "../util/textParsing"
 
+import ParsedText from "@/components/ParsedText"
+import { CheckboxContext } from "@/contexts/CheckboxContext"
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -16,8 +18,6 @@ interface CheckBoxAttributes {
 const ResearchFormCheckBoxBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<CheckBoxAttributes>>
 > = (props) => {
-  const { terms } = useContext(GlossaryContext)
-
   const { questionIdsAndAnswers, setQuestionIdsAndAnswers } = useContext(CheckboxContext)
 
   const handleChange = (value: boolean) => {
@@ -29,14 +29,20 @@ const ResearchFormCheckBoxBlock: React.FC<
   }
 
   return (
-    <>
-      <CheckBox
-        label={parseText(props.data.attributes.content, terms).parsedText}
-        labelIsRawHtml
-        checked={questionIdsAndAnswers[props.data.clientId]}
-        onChange={() => handleChange(!questionIdsAndAnswers[props.data.clientId])}
-      />
-    </>
+    <ParsedText
+      text={props.data.attributes.content}
+      useWrapperElement={true}
+      render={(rendered) => {
+        return (
+          <CheckBox
+            label={rendered.__html}
+            labelIsRawHtml
+            checked={questionIdsAndAnswers[props.data.clientId]}
+            onChange={() => handleChange(!questionIdsAndAnswers[props.data.clientId])}
+          />
+        )
+      }}
+    />
   )
 }
 

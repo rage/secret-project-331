@@ -4,8 +4,7 @@ import React from "react"
 import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import AIChat from "../../../../img/course-material/ai-chat.svg"
-
+import AIChat from "@/img/course-material/ai-chat.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const buttonStyle = (hide: boolean) => css`

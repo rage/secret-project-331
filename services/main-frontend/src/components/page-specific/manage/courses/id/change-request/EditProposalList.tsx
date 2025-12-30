@@ -2,10 +2,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { fetchEditProposalCount } from "../../../../../../services/backend/proposedEdits"
-
 import EditProposalPage from "./EditProposalPage"
 
+import { fetchEditProposalCount } from "@/services/backend/proposedEdits"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"

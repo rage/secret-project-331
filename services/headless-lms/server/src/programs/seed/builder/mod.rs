@@ -39,6 +39,7 @@
 //! # }
 //! ```
 
+pub mod certificate;
 pub mod chapter;
 pub mod context;
 pub mod course;

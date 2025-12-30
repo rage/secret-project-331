@@ -120,6 +120,8 @@ const config = [
         JSX: true,
         WindowEventMap: true,
         RequestInit: true,
+        IntersectionObserverInit: true,
+        IntersectionObserverCallback: true,
       },
     },
     settings: {
@@ -275,6 +277,7 @@ const config = [
               "component",
               "align",
               "slot",
+              "tag",
             ],
           },
           words: {
@@ -377,10 +380,25 @@ const config = [
               "useTransition",
               "createPopper",
               "closest",
+              "querySelectorAll",
+              "getAttribute",
             ],
           },
           "object-properties": {
-            exclude: ["type", "[A-Z_-]+", "displayName", "href", "direction", "variant", "size"],
+            exclude: [
+              "type",
+              "[A-Z_-]+",
+              "displayName",
+              "href",
+              "direction",
+              "variant",
+              "size",
+              "width",
+              "minWidth",
+              "maxWidth",
+              "boxSizing",
+              "transform",
+            ],
           },
           "class-properties": {
             exclude: ["displayName"],

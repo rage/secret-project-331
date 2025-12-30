@@ -4,12 +4,11 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import FailedIcon from "../../../../../img/course-material/failed-icon.svg"
-import Badge from "../../../../../img/course-material/grade-badge.svg"
-import PassedIcon from "../../../../../img/course-material/passed-icon.svg"
-
 import CongratulationsLinks from "./CongratulationsLinks"
 
+import FailedIcon from "@/img/course-material/failed-icon.svg"
+import Badge from "@/img/course-material/grade-badge.svg"
+import PassedIcon from "@/img/course-material/passed-icon.svg"
 import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
 import { baseTheme, headingFont, monospaceFont, typography } from "@/shared-module/common/styles"
 

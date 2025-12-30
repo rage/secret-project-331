@@ -3,11 +3,10 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ConfettiBg from "../../../../../img/course-material/confetti-bg.svg"
-import BackgroundImage from "../../../../../img/course-material/congratulation-bg.svg"
-
 import ModuleCard from "./ModuleCard"
 
+import ConfettiBg from "@/img/course-material/confetti-bg.svg"
+import BackgroundImage from "@/img/course-material/congratulation-bg.svg"
 import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
 import { headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

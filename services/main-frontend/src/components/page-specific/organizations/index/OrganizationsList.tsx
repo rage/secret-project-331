@@ -4,11 +4,10 @@ import axios from "axios"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
-
 import CreateOrganizationPopup from "./CreateOrganizationPopup"
 import OrganizationBanner from "./components/OrganizationBanner"
 
+import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

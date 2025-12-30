@@ -3,14 +3,13 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  deleteExerciseRepository,
-  getExerciseRepositories,
-} from "../../../../../../services/backend/exercise-repositories"
-
 import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
 import EditExerciseRepositoryForm from "./EditExerciseRepositoryForm"
 
+import {
+  deleteExerciseRepository,
+  getExerciseRepositories,
+} from "@/services/backend/exercise-repositories"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"

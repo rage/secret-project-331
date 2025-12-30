@@ -2,9 +2,9 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps, blockToRendererMap } from "../.."
-import DefaultBlock from "../../DefaultBlock"
 
 import { ColumnAttributes } from "@/../types/GutenbergBlockAttributes"
+import DefaultBlock from "@/components/course-material/ContentRenderer/DefaultBlock"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

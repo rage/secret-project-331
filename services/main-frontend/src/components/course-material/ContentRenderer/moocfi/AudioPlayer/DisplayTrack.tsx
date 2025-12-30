@@ -2,8 +2,7 @@
 import { css } from "@emotion/css"
 import { RefObject, useContext, useMemo } from "react"
 
-import { AudioFile } from "../../../Page"
-
+import { AudioFile } from "@/components/course-material/Page"
 import PageContext from "@/contexts/course-material/PageContext"
 import { headingFont } from "@/shared-module/common/styles"
 

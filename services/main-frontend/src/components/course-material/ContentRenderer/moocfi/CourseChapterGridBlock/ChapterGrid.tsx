@@ -5,10 +5,9 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../LandingPageHeroSection"
-
 import Grid from "./Grid"
 
+import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "@/components/course-material/LandingPageHeroSection"
 import useTime from "@/hooks/course-material/useTime"
 import { fetchChaptersInTheCourse } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

@@ -10,8 +10,7 @@ import {
   approveSuspectedCheaters,
   archiveSuspectedCheaters,
   fetchSuspectedCheaters,
-} from "../../../../../../services/backend/courses"
-
+} from "@/services/backend/courses"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -85,10 +84,10 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       >
         {archive ? t("deleted-cheaters-list") : t("cheaters-list")}
       </h5>
-      {suspectedCheaters.isLoading && (
+      {suspectedCheaters.isLoading && <Spinner variant={"medium"} />}
+      {suspectedCheaters.isError && (
         <ErrorBanner variant={"readOnly"} error={suspectedCheaters.error} />
       )}
-      {suspectedCheaters.isError && <Spinner variant={"medium"} />}
       {suspectedCheaters.isSuccess && suspectedCheaters.data.length ? (
         <table
           id="cheaters"
@@ -116,60 +115,100 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
               padding: 0.8rem;
             }
           `}
+          aria-label={archive ? t("deleted-cheaters-list") : t("cheaters-list")}
         >
-          <tr>
-            <th>{t("student-id")}</th>
-            <th>{t("points")}</th>
-            <th>{t("duration")}</th>
-            <th>{t("actions")}</th>
-          </tr>
-          {suspectedCheaters.data?.map(
-            ({ user_id, total_points, total_duration_seconds }, index) => {
-              const everySecondListItem = index % 2 === 1
-              return (
-                <tr
-                  key={user_id}
-                  className={css`
-                    background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
-                  `}
-                >
-                  <td>
-                    {" "}
-                    <Link
-                      href={`/manage/users/${user_id}`}
-                      className={css`
-                        text-decoration: none;
-                      `}
-                    >
-                      {user_id}
-                    </Link>
-                  </td>
-                  <td>{total_points}</td>
-                  <td>{total_duration_seconds}</td>
-                  {!archive && (
+          <caption
+            className={css`
+              text-align: left;
+              font-weight: 600;
+              margin-bottom: 0.5rem;
+              caption-side: top;
+            `}
+          >
+            {archive ? t("deleted-cheaters-list") : t("cheaters-list")}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">{t("student-id")}</th>
+              <th scope="col">{t("points")}</th>
+              <th scope="col">{t("duration")}</th>
+              {!archive && <th scope="col">{t("actions")}</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {suspectedCheaters.data?.map(
+              ({ user_id, total_points, total_duration_seconds }, index) => {
+                const everySecondListItem = index % 2 === 1
+                const durationHours = total_duration_seconds
+                  ? Math.round((total_duration_seconds / 3600) * 10) / 10
+                  : 0
+                const durationText = total_duration_seconds
+                  ? `${durationHours} ${t("hours")} (${total_duration_seconds} ${t("seconds")})`
+                  : `0 ${t("hours")}`
+                return (
+                  <tr
+                    key={user_id}
+                    className={css`
+                      background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
+                    `}
+                  >
                     <td>
-                      <Button
-                        className="threshold-btn"
-                        variant="primary"
-                        size="medium"
-                        onClick={() => handleApproval.mutate(user_id)}
+                      <Link
+                        href={{
+                          pathname: "/manage/users/[userId]",
+                          query: { userId: user_id },
+                        }}
+                        className={css`
+                          text-decoration: none;
+                        `}
+                        aria-label={`${t("student-id")}: ${user_id}`}
                       >
-                        {t("confirm-cheating")}
-                      </Button>
-                      <Button
-                        className="threshold-btn"
-                        variant="secondary"
-                        size="medium"
-                        onClick={() => handleArchive.mutate(user_id)}
-                      >
-                        {t("clear-suspicion")}
-                      </Button>
+                        {user_id}
+                      </Link>
                     </td>
-                  )}
-                </tr>
-              )
-            },
-          )}
+                    <td>{total_points}</td>
+                    <td>
+                      <span aria-label={`${t("duration")}: ${durationText}`}>
+                        {total_duration_seconds
+                          ? `${durationHours}${t("hours-short")}`
+                          : `0${t("hours-short")}`}
+                      </span>
+                    </td>
+                    {!archive && (
+                      <td>
+                        <Button
+                          className="threshold-btn"
+                          variant="primary"
+                          size="medium"
+                          onClick={() => handleApproval.mutate(user_id)}
+                          aria-label={t("confirm-cheating-for-student", {
+                            action: t("confirm-cheating"),
+                            label: t("student-id"),
+                            id: user_id,
+                          })}
+                        >
+                          {t("confirm-cheating")}
+                        </Button>
+                        <Button
+                          className="threshold-btn"
+                          variant="secondary"
+                          size="medium"
+                          onClick={() => handleArchive.mutate(user_id)}
+                          aria-label={t("confirm-cheating-for-student", {
+                            action: t("clear-suspicion"),
+                            label: t("student-id"),
+                            id: user_id,
+                          })}
+                        >
+                          {t("clear-suspicion")}
+                        </Button>
+                      </td>
+                    )}
+                  </tr>
+                )
+              },
+            )}
+          </tbody>
         </table>
       ) : (
         <div
@@ -189,7 +228,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
           `}
         >
           <div>
-            <ExclamationTriangle size={16} weight="bold" />
+            <ExclamationTriangle size={16} weight="bold" aria-hidden="true" />
             <span>{t("list-cheaters-of-cheaters-empty-state")}</span>
           </div>
         </div>

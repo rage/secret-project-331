@@ -4,12 +4,11 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchGlossary } from "../../../../../../services/backend/courses"
-
 import CreateTermForm from "./CreateTermForm"
 import TermItem from "./TermItem"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { fetchGlossary } from "@/services/backend/courses"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"

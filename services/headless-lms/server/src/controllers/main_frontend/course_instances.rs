@@ -66,7 +66,7 @@ async fn post_new_email_template(
     let new_email_template = payload.0;
     let email_template = models::email_templates::insert_email_template(
         &mut conn,
-        *course_instance_id,
+        Some(*course_instance_id),
         new_email_template,
         None,
     )
@@ -427,6 +427,7 @@ async fn get_user_progress_for_course_instance(
         &mut conn,
         course_instance.course_id,
         user_id,
+        false,
     )
     .await?;
     token.authorized_ok(web::Json(user_course_progress))

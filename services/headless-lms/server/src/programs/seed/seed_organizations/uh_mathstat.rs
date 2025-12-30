@@ -3,6 +3,7 @@ use std::sync::Arc;
 use headless_lms_models::{
     PKeyPolicy,
     chatbot_configurations::{self, NewChatbotConf},
+    chatbot_configurations_models::{self, NewChatbotConfigurationModel},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -18,7 +19,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_chatbot::seed_chatbot_course,
+            CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
+            seed_course_with_peer_review::seed_peer_review_course,
             seed_peer_review_course_without_submissions, seed_sample_course,
             seed_switching_course_instances_course,
         },
@@ -341,6 +343,18 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let llm = chatbot_configurations_models::insert(
+        &mut conn,
+        NewChatbotConfigurationModel {
+            id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
+            model: "mock-gpt".to_string(),
+            thinking: false,
+            default_model: true,
+            deployment_name: "mock-gpt".to_string(),
+        },
+    )
+    .await?;
+
     chatbot_configurations::insert(
         &mut conn,
         PKeyPolicy::Generate,
@@ -352,6 +366,8 @@ pub async fn seed_organization_uh_mathstat(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             default_chatbot: true,
+            model_id: llm.id,
+            thinking_model: llm.thinking,
             ..Default::default()
         },
     )
@@ -389,8 +405,8 @@ pub async fn seed_organization_uh_mathstat(
 
     let _closed_course_id = seed_peer_review_course_without_submissions(
         Uuid::parse_str("16159801-cf70-4f9c-9cba-2110c3bd4622")?,
-        "Accessibility course",
-        "accessibility-course",
+        "Peer review accessibility course",
+        "peer-review-accessibility-course",
         uh_data.clone(),
     )
     .await?;
@@ -411,6 +427,23 @@ pub async fn seed_organization_uh_mathstat(
         "advanced-chatbot-course",
         uh_data.clone(),
         seed_users_result,
+    )
+    .await?;
+
+    let _seed_reject_and_reset_submission_peer_review_course = seed_peer_review_course(
+        Uuid::parse_str("5158f2c6-98d9-4be9-b372-528f2c736dd7")?,
+        "Reject and reset submission with peer reviews course",
+        "reject-and-reset-submission-with-peer-reviews-course",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
+    let _accessibility_course_id = seed_accessibility_course(
+        Uuid::parse_str("f1a2b3c4-d5e6-7890-abcd-ef1234567890")?,
+        "Accessibility course",
+        "accessibility-course",
+        uh_data.clone(),
     )
     .await?;
 

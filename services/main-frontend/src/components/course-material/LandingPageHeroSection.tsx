@@ -1,16 +1,15 @@
 "use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useContext } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import DefaultSVG from "../../shared-module/common/img/hero-default-bg-image.svg"
-
-import { parseText } from "./ContentRenderer/util/textParsing"
+import ParsedText from "./ParsedText"
 
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import Button from "@/shared-module/common/components/Button"
+import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
@@ -117,7 +116,6 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   fontColor,
 }) => {
   const { t } = useTranslation()
-  const { terms } = useContext(GlossaryContext)
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
 
   // Helper function to get background image for different breakpoints
@@ -176,9 +174,11 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
     >
       {getBackgroundImageUrl("mobile") === undefined && <StyledSVG />}
       <TextBox color={fontColor}>
-        <h1
-          className={flipClassName}
-          dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }}
+        <ParsedText
+          text={title}
+          tag="h1"
+          tagProps={{ className: flipClassName }}
+          useWrapperElement={true}
         />
         <div className="hero-subtitle">{children}</div>
         <Button

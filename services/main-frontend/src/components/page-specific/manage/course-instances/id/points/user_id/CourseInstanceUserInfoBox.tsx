@@ -2,8 +2,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import KeyValueCard from "../../../../../../KeyValueCard"
-
+import KeyValueCard from "@/components/KeyValueCard"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { useUserDetails } from "@/hooks/useUserDetails"

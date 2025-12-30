@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import {
   TAB_ALL_LANGUAGES,
+  TAB_COUNTRY_STATS,
   TAB_COURSE_INSTANCES,
   TAB_OVERVIEW,
   TAB_USER_ACTIVITY,
@@ -42,6 +43,7 @@ const UserActivityTab = dynamicImport(() => import("./tabs/UserActivityTab"))
 const VisitorsTab = dynamicImport(() => import("./tabs/VisitorsTab"))
 const AllLanguagesTab = dynamicImport(() => import("./tabs/AllLanguagesTab"))
 const CourseInstancesTab = dynamicImport(() => import("./tabs/CourseInstancesTab"))
+const CountryStatsTab = dynamicImport(() => import("./tabs/CountryStatsTab"))
 
 const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -112,6 +114,15 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             {t("stats-tab-all-languages")}
           </TabLink>
         )}
+        <TabLink
+          url={{
+            pathname: router.pathname,
+            query: { ...router.query, tab: TAB_COUNTRY_STATS },
+          }}
+          isActive={activeTab === TAB_COUNTRY_STATS}
+        >
+          {t("stats-tab-country")}
+        </TabLink>
         {showCourseInstancesTab && (
           <TabLink
             url={{
@@ -131,6 +142,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {activeTab === TAB_VISITORS && <VisitorsTab courseId={courseId} />}
         {activeTab === TAB_ALL_LANGUAGES && <AllLanguagesTab courseId={courseId} />}
         {activeTab === TAB_COURSE_INSTANCES && <CourseInstancesTab courseId={courseId} />}
+        {activeTab === TAB_COUNTRY_STATS && <CountryStatsTab courseId={courseId} />}
       </TabLinkPanel>
     </>
   )

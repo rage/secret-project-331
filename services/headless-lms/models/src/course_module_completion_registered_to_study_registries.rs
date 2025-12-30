@@ -235,6 +235,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
 UPDATE course_module_completion_registered_to_study_registries
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
         ",
         id
     )
@@ -343,6 +344,41 @@ RETURNING id
     .await?;
 
     Ok(res.len() as i64)
+}
+
+pub async fn insert_record(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    completion_id: Uuid,
+    module_id: Uuid,
+    registrar_id: Uuid,
+    user_id: Uuid,
+    real_student_number: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+        INSERT INTO course_module_completion_registered_to_study_registries (
+            course_id,
+            course_module_completion_id,
+            course_module_id,
+            study_registry_registrar_id,
+            user_id,
+            real_student_number
+        )
+        VALUES ($1,$2,$3,$4,$5,$6)
+        ON CONFLICT DO NOTHING
+        "#,
+        course_id,
+        completion_id,
+        module_id,
+        registrar_id,
+        user_id,
+        real_student_number
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
 }
 
 #[cfg(test)]

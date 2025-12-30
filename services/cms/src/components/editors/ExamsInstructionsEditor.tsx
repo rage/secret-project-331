@@ -1,4 +1,5 @@
 "use client"
+import { UseMutationResult } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,11 +11,12 @@ import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsuppor
 
 import { ExamInstructions, ExamInstructionsUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 interface ExamsInstructionsEditorProps {
   data: ExamInstructions
-  handleSave: (updatedTemplate: ExamInstructionsUpdate) => Promise<ExamInstructions>
+  saveMutation: UseMutationResult<ExamInstructions, unknown, ExamInstructionsUpdate, unknown>
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
@@ -23,7 +25,7 @@ const ExamsInstructionsGutenbergEditor = dynamicImport(() => import("./Gutenberg
 
 const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamsInstructionsEditorProps>> = ({
   data,
-  handleSave,
+  saveMutation,
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
 }) => {
@@ -34,33 +36,31 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamsInstruction
       allowedExamInstructionsCoreBlocks,
     ) as BlockInstance[],
   )
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const handleOnSave = async () => {
-    setSaving(true)
-    try {
-      const res = await handleSave({
+  const handleOnSave = () => {
+    saveMutation.mutate(
+      {
         instructions: removeUnsupportedBlockType(content),
-      })
-      setContent(res.instructions as BlockInstance[])
-      setError(null)
-    } catch (e: unknown) {
-      if (!(e instanceof Error)) {
-        throw e
-      }
-      setError(e.toString())
-    } finally {
-      setSaving(false)
-    }
+      },
+      {
+        onSuccess: (res) => {
+          setContent(res.instructions as BlockInstance[])
+        },
+      },
+    )
   }
 
   return (
     <>
       <div className="editor__component">
         <div>
-          {error && <pre>{error}</pre>}
-          <Button variant="primary" size="medium" disabled={saving} onClick={handleOnSave}>
+          {saveMutation.isError && <ErrorBanner error={saveMutation.error} />}
+          <Button
+            variant="primary"
+            size="medium"
+            disabled={saveMutation.isPending}
+            onClick={handleOnSave}
+          >
             {t("save")}
           </Button>
         </div>

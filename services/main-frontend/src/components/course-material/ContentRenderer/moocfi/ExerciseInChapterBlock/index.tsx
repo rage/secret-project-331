@@ -4,12 +4,12 @@ import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import AccordionIcon from "../../../../../shared-module/common/img/accordion-arrow.svg"
 
 import ExercisesInChapter from "./ExercisesInChapter"
 
 import PageContext from "@/contexts/course-material/PageContext"
 import Spinner from "@/shared-module/common/components/Spinner"
+import AccordionIcon from "@/shared-module/common/img/accordion-arrow.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

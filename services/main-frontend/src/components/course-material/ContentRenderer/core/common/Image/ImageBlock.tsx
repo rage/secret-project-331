@@ -1,21 +1,29 @@
 "use client"
 import { css } from "@emotion/css"
-import { useContext } from "react"
+import styled from "@emotion/styled"
+import "react"
 import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
 import { BlockRendererProps } from "../../.."
-import { parseText } from "../../../util/textParsing"
 
 import { useImageInteractivity } from "./ImageInteractivityContext"
 
 import { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
+import ParsedText from "@/components/ParsedText"
+import { parseText } from "@/components/course-material/ContentRenderer/util/textParsing"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExtraAttributes {
   align?: string
 }
+
+const StyledZoomWrapper = styled.div`
+  [data-rmiz-ghost] {
+    display: none;
+  }
+`
 
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
@@ -37,8 +45,6 @@ const ImageBlock: React.FC<
     aspectRatio,
     scale,
   } = data.attributes
-
-  const { terms } = useContext(GlossaryContext)
 
   const renderImage = () => (
     <>
@@ -77,10 +83,6 @@ const ImageBlock: React.FC<
         `
         float: ${align};
         margin-right: 1em;`}
-
-        [data-rmiz-ghost] {
-          display: none;
-        }
       `}
     >
       <figure
@@ -103,22 +105,30 @@ const ImageBlock: React.FC<
           {disableInteractivity ? renderImage() : <>{renderImage()}</>}
         </div>
       </figure>
-      <figcaption
-        className={css`
-          caption-side: bottom;
-          text-align: center;
-          font-size: 0.8125rem;
-          margin-top: 0.5rem;
-          margin-bottom: 0.8125rem;
-        `}
-        dangerouslySetInnerHTML={{
-          __html: parseText(caption ?? "", terms).parsedText,
+      <ParsedText
+        text={caption ?? ""}
+        tag="figcaption"
+        tagProps={{
+          className: css`
+            caption-side: bottom;
+            text-align: center;
+            font-size: 0.8125rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.8125rem;
+          `,
         }}
+        useWrapperElement={true}
       />
     </div>
   )
 
-  return disableInteractivity ? imageContent : <Zoom>{imageContent}</Zoom>
+  return disableInteractivity ? (
+    imageContent
+  ) : (
+    <StyledZoomWrapper>
+      <Zoom>{imageContent}</Zoom>
+    </StyledZoomWrapper>
+  )
 }
 
 export default withErrorBoundary(ImageBlock)

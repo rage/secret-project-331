@@ -281,7 +281,12 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
         }
 
         return (
-          <div key={block.clientId} id={block.clientId} className={wrapperClassName}>
+          <div
+            key={block.clientId}
+            id={block.clientId}
+            className={wrapperClassName}
+            data-block-name={block.name}
+          >
             <Component
               id={block.clientId}
               data={block}

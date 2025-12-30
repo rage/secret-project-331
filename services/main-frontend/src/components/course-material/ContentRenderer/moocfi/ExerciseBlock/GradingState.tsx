@@ -3,8 +3,7 @@ import { Namespace, TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import YellowBox from "../../../YellowBox"
-
+import YellowBox from "@/components/course-material/YellowBox"
 import {
   CourseMaterialPeerOrSelfReviewConfig,
   Exercise,
@@ -17,18 +16,27 @@ interface GradingStateProps {
   reviewingStage: ReviewingStage
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null
   exercise: Exercise
+  shouldSeeResetMessage: string | null
 }
 const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   gradingProgress,
   reviewingStage,
   peerOrSelfReviewConfig,
   exercise,
+  shouldSeeResetMessage,
 }) => {
   const { t } = useTranslation()
-
   const text = useMemo(
-    () => getText(reviewingStage, gradingProgress, peerOrSelfReviewConfig, exercise, t),
-    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, t],
+    () =>
+      getText(
+        reviewingStage,
+        gradingProgress,
+        peerOrSelfReviewConfig,
+        exercise,
+        shouldSeeResetMessage,
+        t,
+      ),
+    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, shouldSeeResetMessage, t],
   )
 
   if (text === null) {
@@ -47,8 +55,19 @@ const getText = (
   gradingProgress: GradingProgress,
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
   exercise: Exercise,
-  t: TFunction<Namespace<"main-frontend">, Namespace<"main-frontend">>,
+  shouldSeeResetMessage: string | null,
+  t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
 ): string | null => {
+  if (shouldSeeResetMessage !== null && reviewingStage === "NotStarted") {
+    switch (shouldSeeResetMessage) {
+      case "reset-automatically-due-to-failed-review":
+        return t("help-text-exercise-involves-reject-and-reset-automatically")
+      case "reset-by-staff":
+        return t("help-text-exercise-involves-reject-and-reset-by-staff")
+      default:
+        return null
+    }
+  }
   if (peerOrSelfReviewConfig && reviewingStage === "NotStarted") {
     if (exercise.needs_peer_review && exercise.needs_self_review) {
       return t("help-text-exercise-involves-peer-review-and-self-review", {
@@ -71,7 +90,7 @@ const getText = (
       case "FullyGraded":
         return t("grading-fully-graded")
       case "NotReady":
-        return ""
+        return null
       case "Pending":
         return t("grading-pending")
       case "PendingManual":
@@ -91,5 +110,4 @@ const getText = (
       return null
   }
 }
-
 export default GradingState

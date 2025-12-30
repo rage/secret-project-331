@@ -5,10 +5,10 @@ import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import InnerBlocks from "../../util/InnerBlocks"
 
 import ClaimCode from "./ClaimCode"
 
+import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import { getCodeGiveawayStatus } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"

@@ -5,12 +5,11 @@ import React, { useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { useCreateCourse } from "../../hooks/useCreateCourse"
-
 import BasicCourseInfo from "./BasicCourseInfo"
 import DuplicateOptions from "./DuplicateOptions"
 import LanguageSelection from "./LanguageSelection"
 
+import { useCreateCourse } from "@/hooks/useCreateCourse"
 import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

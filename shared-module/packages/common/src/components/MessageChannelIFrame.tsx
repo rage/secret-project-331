@@ -28,6 +28,7 @@ interface MessageChannelIFrameProps {
   showBorders?: boolean
   disableSandbox?: boolean
   headingBeforeIframe?: string
+  onReady?: () => void
 }
 
 const useIframeSandboxingAttribute = (disableSandbox: boolean) => {
@@ -51,15 +52,60 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   title,
   showBorders = false,
   disableSandbox = false,
+  onReady,
 }) => {
   const { t, i18n } = useTranslation()
   const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const iframeSandboxAttribute = useIframeSandboxingAttribute(disableSandbox)
+  const hasSignaledReadyRef = useRef(false)
 
   const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
 
-  const messageChannel = useMessageChannel()
+  const [messageChannel, recreateMessageChannel] = useMessageChannel()
+  const portSentRef = useRef(false)
+  const portSentTimestampRef = useRef<number | null>(null)
+  const recoveryAttemptsRef = useRef(0)
+  const readyMessageQueueRef = useRef<MessageEvent[]>([])
+
+  const MAX_RECOVERY_ATTEMPTS = 3
+  const RECOVERY_TIMEOUT_MS = 5000
+
+  useEffect(() => {
+    portSentRef.current = false
+    portSentTimestampRef.current = null
+    recoveryAttemptsRef.current = 0
+    readyMessageQueueRef.current = []
+    setLastThingPosted(null)
+    hasSignaledReadyRef.current = false
+  }, [url])
+
+  const sendPortToIframe = (messageChannel: MessageChannel, isRecovery = false) => {
+    if (portSentRef.current && !isRecovery) {
+      return
+    }
+
+    if (!iframeRef.current) {
+      return
+    }
+
+    const contentWindow = iframeRef.current.contentWindow
+    if (!contentWindow) {
+      return
+    }
+
+    // eslint-disable-next-line i18next/no-literal-string
+    const recoveryMessage = isRecovery ? " (recovery attempt)" : ""
+    console.info(`[MessageChannelIFrame] Parent posting message port to iframe${recoveryMessage}`)
+    try {
+      // The iframe will use port 2 for communication
+      contentWindow.postMessage("communication-port", "*", [messageChannel.port2])
+      portSentRef.current = true
+      portSentTimestampRef.current = Date.now()
+    } catch (e) {
+      console.error("[MessageChannelIFrame] Posting communication port to iframe failed", e)
+    }
+  }
 
   useEffect(() => {
     if (!messageChannel) {
@@ -88,6 +134,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
 
         window.open(data.data, "_blank", "noopener,noreferrer")
       } else if (isMessageFromIframe(data)) {
+        if (!hasSignaledReadyRef.current && onReady) {
+          hasSignaledReadyRef.current = true
+          onReady()
+        }
         try {
           onMessageFromIframe(data, messageChannel.port1)
         } catch (e) {
@@ -98,13 +148,20 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       }
       console.groupEnd()
     }
-  }, [messageChannel, onMessageFromIframe])
+
+    const queuedMessages = readyMessageQueueRef.current
+    if (queuedMessages.length > 0) {
+      readyMessageQueueRef.current = []
+      queuedMessages.forEach((e) => {
+        if (e.data === "ready" && !portSentRef.current) {
+          sendPortToIframe(messageChannel)
+        }
+      })
+    }
+  }, [messageChannel, onMessageFromIframe, onReady])
 
   // Set up a temporary listener for the initial ready event
   useEffect(() => {
-    if (!messageChannel) {
-      return
-    }
     const temporaryEventHandler = (e: WindowEventMap["message"]) => {
       // Verify the source of the message. Origin can be "null" if the IFrame is
       // sandboxed without allow-same-origin, or it can be the same as window.location.origin
@@ -112,7 +169,6 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         (!disableSandbox && e.origin !== "null" && e.origin !== window.location.origin) ||
         e.source !== iframeRef.current?.contentWindow
       ) {
-        // Only log if this was a "ready" message to avoid noise from other messages
         if (e.data === "ready") {
           console.warn("[MessageChannelIFrame] Received ready message from invalid origin", {
             origin: e.origin,
@@ -124,32 +180,46 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       }
 
       if (e.data !== "ready") {
-        console.warn(`[MessageChannelIFrame] Unsupported message from IFrame: ${e.data}`)
         return
       }
 
-      if (iframeRef.current && iframeRef.current.contentWindow) {
-        console.info("[MessageChannelIFrame] Parent posting message port to iframe")
-        try {
-          // The iframe will use port 2 for communication
-          iframeRef.current.contentWindow.postMessage("communication-port", "*", [
-            messageChannel.port2,
-          ])
-        } catch (e) {
-          console.error("[MessageChannelIFrame] Posting communication port to iframe failed", e)
+      if (portSentRef.current && portSentTimestampRef.current) {
+        const timeSinceSent = Date.now() - portSentTimestampRef.current
+        if (timeSinceSent > RECOVERY_TIMEOUT_MS) {
+          if (recoveryAttemptsRef.current < MAX_RECOVERY_ATTEMPTS) {
+            console.warn(
+              `[MessageChannelIFrame] Received ready message ${timeSinceSent}ms after sending port. Initiating recovery (attempt ${recoveryAttemptsRef.current + 1}/${MAX_RECOVERY_ATTEMPTS})`,
+            )
+            recoveryAttemptsRef.current += 1
+
+            portSentRef.current = false
+            portSentTimestampRef.current = null
+            setLastThingPosted(null)
+
+            readyMessageQueueRef.current.push(e)
+            recreateMessageChannel()
+            return
+          } else {
+            console.error(
+              `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
+            )
+          }
         }
-      } else {
-        console.error(
-          "[MessageChannelIFrame] Could not send port to iframe because the target iframe content window could not be found.",
-        )
+        return
       }
-      removeEventListener("message", temporaryEventHandler)
+
+      if (messageChannel) {
+        sendPortToIframe(messageChannel)
+      } else {
+        readyMessageQueueRef.current.push(e)
+      }
     }
+
     addEventListener("message", temporaryEventHandler)
     return () => {
       removeEventListener("message", temporaryEventHandler)
     }
-  }, [disableSandbox, messageChannel])
+  }, [disableSandbox, messageChannel, recreateMessageChannel])
 
   // Keep the iframe informed of the current user interface language
   useEffect(() => {

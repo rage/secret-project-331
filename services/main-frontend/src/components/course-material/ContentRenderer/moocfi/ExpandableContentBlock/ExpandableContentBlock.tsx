@@ -3,8 +3,8 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from "../.."
-import InnerBlocks from "../../util/InnerBlocks"
 
+import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExpandableContentBlockProps {

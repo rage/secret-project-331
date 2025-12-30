@@ -759,30 +759,29 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    if let Some(course_id) = page.course_id {
-        if let Some(user_id) = user_id {
-            let instance =
-                course_instances::current_course_instance_of_user(conn, user_id, course_id).await?;
-            let settings = user_course_settings::get_user_course_settings_by_course_id(
-                conn, user_id, course_id,
-            )
-            .await?;
-            let course = courses::get_course(conn, course_id).await?;
-            let organization = Organization::from_database_organization(
-                crate::organizations::get_organization(conn, course.organization_id).await?,
-                file_store,
-                app_conf,
-            );
-            return Ok(CoursePageWithUserData {
-                page,
-                instance,
-                settings,
-                course: Some(course),
-                was_redirected,
-                is_test_mode,
-                organization: Some(organization),
-            });
-        }
+    if let Some(course_id) = page.course_id
+        && let Some(user_id) = user_id
+    {
+        let instance =
+            course_instances::current_course_instance_of_user(conn, user_id, course_id).await?;
+        let settings =
+            user_course_settings::get_user_course_settings_by_course_id(conn, user_id, course_id)
+                .await?;
+        let course = courses::get_course(conn, course_id).await?;
+        let organization = Organization::from_database_organization(
+            crate::organizations::get_organization(conn, course.organization_id).await?,
+            file_store,
+            app_conf,
+        );
+        return Ok(CoursePageWithUserData {
+            page,
+            instance,
+            settings,
+            course: Some(course),
+            was_redirected,
+            is_test_mode,
+            organization: Some(organization),
+        });
     }
     Ok(CoursePageWithUserData {
         page,
@@ -805,7 +804,7 @@ pub async fn get_page_with_exercises(
         crate::peer_or_self_review_configs::get_peer_reviews_by_page_id(conn, page.id)
             .await?
             .into_iter()
-            .flat_map(|pr| (pr.exercise_id.map(|id| (id, pr))))
+            .flat_map(|pr| pr.exercise_id.map(|id| (id, pr)))
             .collect::<HashMap<_, _>>();
 
     let peer_or_self_review_questions =
@@ -1688,6 +1687,7 @@ pub async fn upsert_peer_or_self_review_configs(
         processing_strategy,
         accepting_threshold,
         points_are_all_or_nothing,
+        reset_answer_if_zero_points_from_review,
         review_instructions,
         deleted_at
       ) ",
@@ -1723,6 +1723,7 @@ pub async fn upsert_peer_or_self_review_configs(
                 .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push_bind(pr.points_are_all_or_nothing)
+                .push_bind(pr.reset_answer_if_zero_points_from_review)
                 .push_bind(pr.review_instructions.clone())
                 .push("NULL");
         });
@@ -1770,6 +1771,7 @@ SELECT id as "id!",
   processing_strategy AS "processing_strategy!: _",
   accepting_threshold "accepting_threshold!",
   points_are_all_or_nothing "points_are_all_or_nothing!",
+  reset_answer_if_zero_points_from_review,
   review_instructions
 FROM peer_or_self_review_configs
 WHERE id IN (
@@ -2192,6 +2194,7 @@ pub async fn delete_page_and_exercises(
 UPDATE pages
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING id,
   created_at,
   updated_at,
@@ -3210,46 +3213,46 @@ pub async fn reorder_chapters(
 
     // TODO USE CHAPTER ID FOR THE LOOP
     for chapter in chapters {
-        if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
-            if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id) {
-                // to avoid conflicting chapter_number when chapter is modified
-                //Assign random number to modified chapters
-                sqlx::query!(
-                    "UPDATE chapters
+        if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id)
+            && let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id)
+        {
+            // to avoid conflicting chapter_number when chapter is modified
+            //Assign random number to modified chapters
+            sqlx::query!(
+                "UPDATE chapters
                 SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)
                 WHERE chapters.id = $1
                   AND chapters.course_id = $2
                   AND deleted_at IS NULL",
-                    matching_db_chapter.id,
-                    course_id
+                matching_db_chapter.id,
+                course_id
+            )
+            .execute(&mut *tx)
+            .await?;
+
+            // get newly modified chapter
+            let chapter_with_randomized_chapter_number =
+                get_chapter(&mut tx, matching_db_chapter.id).await?;
+            let random_chapter_number = chapter_with_randomized_chapter_number.chapter_number;
+            let pages =
+                get_chapter_pages(&mut tx, chapter_with_randomized_chapter_number.id).await?;
+
+            for page in pages {
+                let old_path = &page.url_path;
+                let new_path = old_path.replacen(
+                    &old_chapter.chapter_number.to_string(),
+                    &random_chapter_number.to_string(),
+                    1,
+                );
+
+                // update each page path associated with a random chapter number
+                sqlx::query!(
+                    "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+                    page.id,
+                    new_path
                 )
                 .execute(&mut *tx)
                 .await?;
-
-                // get newly modified chapter
-                let chapter_with_randomized_chapter_number =
-                    get_chapter(&mut tx, matching_db_chapter.id).await?;
-                let random_chapter_number = chapter_with_randomized_chapter_number.chapter_number;
-                let pages =
-                    get_chapter_pages(&mut tx, chapter_with_randomized_chapter_number.id).await?;
-
-                for page in pages {
-                    let old_path = &page.url_path;
-                    let new_path = old_path.replacen(
-                        &old_chapter.chapter_number.to_string(),
-                        &random_chapter_number.to_string(),
-                        1,
-                    );
-
-                    // update each page path associated with a random chapter number
-                    sqlx::query!(
-                        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                        page.id,
-                        new_path
-                    )
-                    .execute(&mut *tx)
-                    .await?;
-                }
             }
         }
     }
@@ -3362,18 +3365,18 @@ WHERE id = $1
     .execute(&mut *tx)
     .await?;
 
-    if let Some(course_id) = page_before_update.course_id {
-        if page_before_update.url_path != page_details_update.url_path {
-            // Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
-            crate::url_redirections::upsert(
-                &mut tx,
-                PKeyPolicy::Generate,
-                page_id,
-                &page_before_update.url_path,
-                course_id,
-            )
-            .await?;
-        }
+    if let Some(course_id) = page_before_update.course_id
+        && page_before_update.url_path != page_details_update.url_path
+    {
+        // Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
+        crate::url_redirections::upsert(
+            &mut tx,
+            PKeyPolicy::Generate,
+            page_id,
+            &page_before_update.url_path,
+            course_id,
+        )
+        .await?;
     }
 
     tx.commit().await?;
@@ -3603,6 +3606,7 @@ mod test {
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
             points_are_all_or_nothing: false,
+            reset_answer_if_zero_points_from_review: false,
             review_instructions: None,
         };
         let prq = CmsPeerOrSelfReviewQuestion {
@@ -3655,6 +3659,7 @@ mod test {
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
             points_are_all_or_nothing: true,
+            reset_answer_if_zero_points_from_review: false,
             review_instructions: None,
         };
         let prq = CmsPeerOrSelfReviewQuestion {

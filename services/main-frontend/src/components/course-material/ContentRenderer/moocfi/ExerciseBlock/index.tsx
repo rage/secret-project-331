@@ -9,8 +9,6 @@ import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } f
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import YellowBox from "../../../YellowBox"
-import UserOnWrongCourseNotification from "../../../notifications/UserOnWrongCourseNotification"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
@@ -18,6 +16,8 @@ import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
+import YellowBox from "@/components/course-material/YellowBox"
+import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
 import PageContext from "@/contexts/course-material/PageContext"
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
@@ -572,7 +572,8 @@ const ExerciseBlock: React.FC<
                 {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
               </DeadlineText>
             ))}
-          {getCourseMaterialExercise.data.peer_or_self_review_config &&
+          {(getCourseMaterialExercise.data.peer_or_self_review_config ||
+            getCourseMaterialExercise.data.should_show_reset_message) &&
             gradingState &&
             reviewingStage && (
               <GradingState
@@ -580,6 +581,7 @@ const ExerciseBlock: React.FC<
                 reviewingStage={reviewingStage}
                 peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
                 exercise={getCourseMaterialExercise.data.exercise}
+                shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message}
               />
             )}
           {/* Reviewing stage seems to be undefined at least for exams */}

@@ -21,21 +21,25 @@ dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.18.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.19.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
+# Pure Rust implementation of the SHA-2 hash function family.
+sha2 = "0.10.9"
+# Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
+hmac = "0.12.1"
 # Date and time library for Rust
 chrono = { version = "0.4.42", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.145"
 # Adds #[derive(x)] macros for more traits
-derive_more = { version = "2.0.1", features = ["full"] }
+derive_more = { version = "2.1.0", features = ["full"] }
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.14.0"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.7"
 # Application-level tracing for Rust.
-tracing = "0.1.41"
+tracing = "0.1.43"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
@@ -51,13 +55,25 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
   "uuid-impl",
 ], optional = true }
 # Email client
-lettre = "0.11.18"
+lettre = "0.11.19"
 # Random number generators and other randomness functionality.
 rand = "0.9.2"
 # Flexible concrete Error type built on std::error::Error
+# Zero value on drop for security
+zeroize = { version = "1.8.2", features = ["derive"] }
+# Constant-time cryptographic operations for security. (Not O(1), but always the the longest time)
+subtle = "2.6.1"
+# for hex/base64 helpers
+hex = "0.4"
+base64 = "0.22"
+serde_bytes = "0.11"
 anyhow = "1.0.100"
 # HTTP client for Rust
-reqwest = { version = "0.12.23", features = ["json"] }
+reqwest = { version = "0.12.25", features = ["json"] }
+# Secret value wrapper to avoid leaking secrets in logs and memory
+secrecy.workspace = true
+# Password hashing using Argon2id
+argon2 = "0.5.3"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
@@ -67,9 +83,9 @@ tracing-log = "0.2.0"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
 # Utilities for implementing and composing `tracing` subscribers.
-tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 # HTTP mocking for Rust.
-mockito = "1.7.0"
+mockito = "1.7.1"
 
 [features]
 ts_rs = ["ts-rs", "headless-lms-utils/ts_rs"]

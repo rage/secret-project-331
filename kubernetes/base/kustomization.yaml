@@ -4,6 +4,7 @@ resources:
   - cms/deployment.yml
   - example-exercise/deployment.yml
   - headless-lms/deployment.yml
+  - headless-lms/rbac.yml
   - main-frontend/deployment.yml
   - quizzes/deployment.yml
   - tmc/deployment.yml
@@ -18,3 +19,4 @@ resources:
   - headless-lms/sync-tmc-users.yml
   - headless-lms/chatbot-syncer.yml
   - headless-lms/mailchimp-syncer.yml
+  - headless-lms/email-deliver.yml

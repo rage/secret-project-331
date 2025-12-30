@@ -4,10 +4,9 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCourse } from "../../../../../../services/backend/courses"
-import { PermissionPage } from "../../../../../PermissionPage"
-
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { PermissionPage } from "@/components/PermissionPage"
+import { getCourse } from "@/services/backend/courses"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"

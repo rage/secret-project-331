@@ -4,10 +4,10 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from ".."
-import Check from "../../../../img/course-material/checkmark.svg"
 
 import PageContext from "@/contexts/course-material/PageContext"
 import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
+import Check from "@/img/course-material/checkmark.svg"
 import { Block } from "@/services/course-material/backend"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

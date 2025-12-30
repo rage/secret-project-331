@@ -4,9 +4,8 @@ import styled from "@emotion/styled"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import SettingIcon from "../../../../imgs/setting.svg"
-
 import PseudoContentLink from "@/components/PseudoContentLink"
+import SettingIcon from "@/imgs/setting.svg"
 import Language, {
   DEFAULT_FLAG_CLIP_PATH,
 } from "@/shared-module/common/components/LanguageSelection/Language"

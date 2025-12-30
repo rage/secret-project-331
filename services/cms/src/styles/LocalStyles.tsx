@@ -37,6 +37,6 @@ injectGlobal`
 ${localCss}
 `
 
-const LocalStyles: React.FC<React.PropsWithChildren<unknown>> = () => null
+const LocalStyles: React.FC = () => null
 
 export default LocalStyles

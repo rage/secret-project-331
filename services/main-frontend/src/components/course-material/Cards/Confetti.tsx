@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { Particles } from "react-tsparticles"
 
-import Tick from "../../../img/course-material/tick.svg"
+import Tick from "@/img/course-material/tick.svg"
 
 const StyledDiv = styled.div`
   position: absolute;

@@ -271,7 +271,7 @@ pub async fn get_peer_reviews_received(
 
     let peer_or_self_review_question_ids = peer_or_self_review_questions
         .iter()
-        .map(|x| (x.id))
+        .map(|x| x.id)
         .collect::<Vec<_>>();
 
     let peer_or_self_review_submissions =

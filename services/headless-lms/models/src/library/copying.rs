@@ -210,11 +210,11 @@ WHERE id = $2;
     for (page_id, content) in pages_contents {
         if let Value::Array(mut blocks) = content {
             for block in blocks.iter_mut() {
-                if let Some(content) = block["attributes"]["content"].as_str() {
-                    if content.contains("<a href=") {
-                        block["attributes"]["content"] =
-                            Value::String(content.replace(&parent_course.slug, &new_course.slug));
-                    }
+                if let Some(content) = block["attributes"]["content"].as_str()
+                    && content.contains("<a href=")
+                {
+                    block["attributes"]["content"] =
+                        Value::String(content.replace(&parent_course.slug, &new_course.slug));
                 }
             }
             sqlx::query!(
@@ -1152,7 +1152,10 @@ INSERT INTO chatbot_configurations (
     daily_tokens_per_user,
     weekly_tokens_per_user,
     default_chatbot,
-    enabled_to_students
+    enabled_to_students,
+    model_id,
+    thinking_model,
+    use_tools
   )
 SELECT
   uuid_generate_v5($1, id::text),
@@ -1172,7 +1175,10 @@ SELECT
   daily_tokens_per_user,
   weekly_tokens_per_user,
   default_chatbot,
-  enabled_to_students
+  enabled_to_students,
+  model_id,
+  thinking_model,
+  use_tools
 FROM chatbot_configurations
 WHERE course_id = $2
   AND deleted_at IS NULL;
@@ -1190,19 +1196,25 @@ async fn copy_cheater_thresholds(
     new_course_id: Uuid,
     old_course_id: Uuid,
 ) -> ModelResult<()> {
+    let old_default_module =
+        crate::course_modules::get_default_by_course_id(tx, old_course_id).await?;
+    let new_default_module =
+        crate::course_modules::get_default_by_course_id(tx, new_course_id).await?;
+
     sqlx::query!(
         "
-INSERT INTO cheater_thresholds (id, course_id, points, duration_seconds)
+INSERT INTO cheater_thresholds (id, course_module_id, duration_seconds)
 SELECT
   uuid_generate_v5($1, id::text),
-  $1,
-  points,
+  $2,
   duration_seconds
 FROM cheater_thresholds
-WHERE course_id = $2;
+WHERE course_module_id = $3
+  AND deleted_at IS NULL;
         ",
         new_course_id,
-        old_course_id
+        new_default_module.id,
+        old_default_module.id
     )
     .execute(&mut *tx)
     .await?;

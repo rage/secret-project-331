@@ -5,9 +5,16 @@ import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import useCourseInstancesQuery, {
-  invalidateCourseInstances,
-} from "../../../../../../hooks/useCourseInstancesQuery"
+import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
+import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
+import PointExportButton from "./PointExportButton"
+
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import useCourseInstancesQuery, { invalidateCourseInstances } from "@/hooks/useCourseInstancesQuery"
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
@@ -15,17 +22,7 @@ import {
   viewCourseInstanceCertificatesPageRoute,
   viewCourseInstanceCompletionsPageRoute,
   viewCourseInstancePointsPageRoute,
-} from "../../../../../../utils/routing"
-
-import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
-import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
-import PointExportButton from "./PointExportButton"
-
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+} from "@/utils/routing"
 
 const containerStyles = css`
   max-width: 1200px;

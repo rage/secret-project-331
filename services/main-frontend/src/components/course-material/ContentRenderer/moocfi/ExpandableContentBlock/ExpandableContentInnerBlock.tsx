@@ -4,8 +4,8 @@ import { MinusCircle, PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 
 import { BlockRendererProps } from "../.."
-import InnerBlocks from "../../util/InnerBlocks"
 
+import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -6,10 +6,9 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, SpringValue, useTransition } from "react-spring"
 
-import CopyIcon from "../../../../../../img/course-material/copy.svg"
+import { useCopyHtmlContentToClipboard, useCopyToClipboard } from "./utils"
 
-import { useCopyToClipboard } from "./utils"
-
+import CopyIcon from "@/img/course-material/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const COPY_STATUS = {
@@ -114,7 +113,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   const { t } = useTranslation()
   const [copyStatus, setCopyStatus] = useState<CopyStatus>(COPY_STATUS.DEFAULT)
   const [showTooltip, setShowTooltip] = useState(false)
-  const copyToClipboard = useCopyToClipboard(content)
+  const copyToClipboard = useCopyHtmlContentToClipboard(content)
 
   const buttonRef = useRef<HTMLButtonElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)

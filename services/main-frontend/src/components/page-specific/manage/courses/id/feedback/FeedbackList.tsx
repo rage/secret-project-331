@@ -2,10 +2,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { fetchFeedbackCount } from "../../../../../../services/backend/feedback"
-
 import FeedbackPage from "./FeedbackPage"
 
+import { fetchFeedbackCount } from "@/services/backend/feedback"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"

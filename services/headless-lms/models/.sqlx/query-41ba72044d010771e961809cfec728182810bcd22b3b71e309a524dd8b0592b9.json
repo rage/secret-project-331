@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO chatbot_configurations_models (id, model, thinking, deployment_name, default_model) VALUES ($1, $2, $3, $4, $5) RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "model",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "thinking",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "deployment_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "default_model",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Bool",
+        "Varchar",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "41ba72044d010771e961809cfec728182810bcd22b3b71e309a524dd8b0592b9"
+}

@@ -3,8 +3,7 @@ import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { uploadFilesFromIframe } from "../../../services/backend/playground-examples"
-
+import { uploadFilesFromIframe } from "@/services/backend/playground-examples"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,

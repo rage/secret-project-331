@@ -6,12 +6,12 @@ import React from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import DownIcon from "../../../../shared-module/common/img/down.svg"
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 type ChatbotChatHeaderProps = {

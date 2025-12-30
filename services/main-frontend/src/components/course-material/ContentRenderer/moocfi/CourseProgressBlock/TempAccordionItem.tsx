@@ -2,9 +2,8 @@
 import { css } from "@emotion/css"
 import { animated, useSpring } from "react-spring"
 
-import ArrowDown from "../../../../../shared-module/common/img/caret-arrow-down.svg"
-import ArrowUp from "../../../../../shared-module/common/img/caret-arrow-up.svg"
-
+import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
+import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 

@@ -3,8 +3,7 @@ import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "../../tables/FullWidthTable"
-
+import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { DomainCompletionStats } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

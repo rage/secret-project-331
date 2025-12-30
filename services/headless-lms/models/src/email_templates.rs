@@ -12,13 +12,16 @@ pub struct EmailTemplate {
     pub subject: Option<String>,
     pub exercise_completions_threshold: Option<i32>,
     pub points_threshold: Option<i32>,
-    pub course_instance_id: Uuid,
+    pub course_instance_id: Option<Uuid>,
+    pub language: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct EmailTemplateNew {
     pub name: String,
+    pub language: Option<String>,
+    pub content: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -48,22 +51,66 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
+pub async fn get_generic_email_template_by_name_and_language(
+    conn: &mut PgConnection,
+    name: &str,
+    language: &str,
+) -> ModelResult<EmailTemplate> {
+    let res = sqlx::query_as!(
+        EmailTemplate,
+        r#"
+SELECT *
+FROM email_templates
+WHERE name = $1
+  AND course_instance_id IS NULL
+  AND deleted_at IS NULL
+  AND (language = $2 OR language = 'en' OR language IS NULL)
+ORDER BY CASE
+    WHEN language = $2 THEN 0
+    WHEN language = 'en' THEN 1
+    WHEN language IS NULL THEN 2
+    ELSE 3
+  END
+LIMIT 1
+        "#,
+        name,
+        language
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn insert_email_template(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_instance_id: Option<Uuid>,
     email_template: EmailTemplateNew,
     subject: Option<&'_ str>,
 ) -> ModelResult<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
         "
-INSERT INTO email_templates (name, course_instance_id, subject)
-VALUES ($1, $2, $3)
+INSERT INTO email_templates (
+    name,
+    course_instance_id,
+    subject,
+    language,
+    content
+  )
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (name, language)
+WHERE course_instance_id IS NULL
+  AND deleted_at IS NULL DO
+UPDATE
+SET subject = COALESCE(EXCLUDED.subject, email_templates.subject),
+  content = COALESCE(EXCLUDED.content, email_templates.content),
+  updated_at = NOW()
 RETURNING *
 ",
         email_template.name,
         course_instance_id,
         subject,
+        email_template.language,
+        email_template.content,
     )
     .fetch_one(conn)
     .await?;
@@ -126,6 +173,7 @@ pub async fn delete_email_template(
 UPDATE email_templates
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING *
   "#,
         email_template_id

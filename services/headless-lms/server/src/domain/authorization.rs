@@ -11,6 +11,8 @@ use chrono::{DateTime, Duration, Utc};
 use futures::Future;
 use headless_lms_models::{self as models, roles::UserRole, users::User};
 use headless_lms_utils::http::REQWEST_CLIENT;
+use headless_lms_utils::tmc::TMCUser;
+use headless_lms_utils::tmc::TmcClient;
 use models::{CourseOrExamId, roles::Role};
 use oauth2::EmptyExtraTokenFields;
 use oauth2::HttpClientError;
@@ -20,8 +22,8 @@ use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
 use oauth2::TokenResponse;
 use oauth2::basic::BasicTokenType;
+use secrecy::SecretString;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use sqlx::PgConnection;
 use std::env;
 use std::pin::Pin;
@@ -31,8 +33,6 @@ pub use ts_rs::TS;
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
-
-const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
 
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -314,8 +314,9 @@ pub async fn authorize_access_to_course_material(
     Ok(token)
 }
 
-/**  Can be used to check whether user is allowed to view some course material */
-pub async fn authorize_access_to_tmc_server(
+/** Checks the Authorization header against a secret from environment variables to verify if the request originates from the TMC server. Returns an authorization token if the secret matches, otherwise an unauthorized error.
+ */
+pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
     request: &HttpRequest,
 ) -> Result<AuthorizationToken, ControllerError> {
     let tmc_server_secret_for_communicating_to_secret_project =
@@ -358,20 +359,18 @@ pub async fn can_user_view_chapter(
     course_id: Option<Uuid>,
     chapter_id: Option<Uuid>,
 ) -> Result<bool, ControllerError> {
-    if let Some(course_id) = course_id {
-        if let Some(chapter_id) = chapter_id {
-            if !models::chapters::is_open(&mut *conn, chapter_id).await? {
-                if user_id.is_none() {
-                    return Ok(false);
-                }
-                // If the user has been granted access to view the material, then they can see the unopened chapters too
-                // This is important because sometimes teachers wish to test unopened chapters with real students
-                let permission =
-                    authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await;
-
-                return Ok(permission.is_ok());
-            }
+    if let Some(course_id) = course_id
+        && let Some(chapter_id) = chapter_id
+        && !models::chapters::is_open(&mut *conn, chapter_id).await?
+    {
+        if user_id.is_none() {
+            return Ok(false);
         }
+        // If the user has been granted access to view the material, then they can see the unopened chapters too
+        // This is important because sometimes teachers wish to test unopened chapters with real students
+        let permission = authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await;
+
+        return Ok(permission.is_ok());
     }
     Ok(true)
 }
@@ -721,14 +720,31 @@ pub async fn authenticate_moocfi_user(
     client: &OAuthClient,
     email: String,
     password: String,
-) -> anyhow::Result<Option<(User, LoginToken)>> {
+    tmc_client: &TmcClient,
+) -> anyhow::Result<Option<(User, SecretString)>> {
     info!("Attempting to authenticate user with TMC");
     let token = match exchange_password_with_tmc(client, email.clone(), password).await? {
         Some(token) => token,
         None => return Ok(None),
     };
     debug!("Successfully obtained OAuth token from TMC");
-    let user = get_user_from_moocfi_by_login_token(&token, conn).await?;
+
+    let tmc_user = tmc_client
+        .get_user_from_tmc_mooc_fi_by_tmc_access_token(&token.clone())
+        .await?;
+    debug!(
+        "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
+        tmc_user.id,
+        tmc_user
+            .courses_mooc_fi_user_id
+            .map(|uuid| uuid.to_string())
+            .unwrap_or_else(|| "None (will generate new UUID)".to_string())
+    );
+    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *conn, tmc_user).await?;
+    info!(
+        "Successfully got user details from mooc.fi for user {}",
+        user.id
+    );
     info!("Successfully authenticated user {} with mooc.fi", user.id);
     Ok(Some((user, token)))
 }
@@ -749,7 +765,7 @@ pub async fn exchange_password_with_tmc(
     client: &OAuthClient,
     email: String,
     password: String,
-) -> anyhow::Result<Option<LoginToken>> {
+) -> anyhow::Result<Option<SecretString>> {
     let token_result = client
         .exchange_password(
             &ResourceOwnerUsername::new(email),
@@ -758,7 +774,9 @@ pub async fn exchange_password_with_tmc(
         .request_async(&async_http_client_with_headers)
         .await;
     match token_result {
-        Ok(token) => Ok(Some(token)),
+        Ok(token) => Ok(Some(SecretString::new(
+            token.access_token().secret().to_owned().into(),
+        ))),
         Err(RequestTokenError::ServerResponse(server_response)) => {
             let error = server_response.error();
             let error_description = server_response.error_description();
@@ -791,141 +809,19 @@ pub async fn exchange_password_with_tmc(
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct GraphQLRequest<'a> {
-    query: &'a str,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    variables: Option<serde_json::Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct MoocfiUserResponse {
-    pub data: MoocfiUserResponseData,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct MoocfiUserResponseData {
-    pub user: MoocfiUser,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct MoocfiUser {
-    pub id: Uuid,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
-    pub email: String,
-    pub upstream_id: i32,
-}
-
-pub async fn get_user_from_moocfi_by_login_token(
-    token: &LoginToken,
+pub async fn get_or_create_user_from_tmc_mooc_fi_response(
     conn: &mut PgConnection,
+    tmc_mooc_fi_user: TMCUser,
 ) -> anyhow::Result<User> {
-    info!("Getting user details from mooc.fi");
-
-    let res = REQWEST_CLIENT
-        .post(MOOCFI_GRAPHQL_URL)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .header(reqwest::header::ACCEPT, "application/json")
-        .json(&GraphQLRequest {
-            query: r#"
-{
-    user: currentUser {
-      id
-      email
-      first_name
-      last_name
-      upstream_id
-    }
-}"#,
-            variables: None,
-        })
-        .bearer_auth(token.access_token().secret())
-        .send()
-        .await
-        .context("Failed to send request to Mooc.fi")?;
-
-    if !res.status().is_success() {
-        error!(
-            "Failed to get user from mooc.fi with status {}",
-            res.status()
-        );
-        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
-    }
-
-    debug!("Received response from mooc.fi, parsing user data");
-    let current_user_response: MoocfiUserResponse = res
-        .json()
-        .await
-        .context("Unexpected response from Mooc.fi")?;
-
-    debug!(
-        "Creating or fetching user with mooc.fi id {}",
-        current_user_response.data.user.id
-    );
-    let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
-        .await?;
-    info!(
-        "Successfully got user details from mooc.fi for user {}",
-        user.id
-    );
-
-    Ok(user)
-}
-
-pub async fn get_user_from_moocfi_by_tmc_access_token_and_upstream_id(
-    conn: &mut PgConnection,
-    tmc_access_token: &str,
-    upstream_id: &i32,
-) -> anyhow::Result<User> {
-    info!("Getting user details from mooc.fi");
-    let client = reqwest::Client::default();
-
-    let res = client
-        .post(MOOCFI_GRAPHQL_URL)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .header(reqwest::header::ACCEPT, "application/json")
-        .bearer_auth(tmc_access_token)
-        .json(&GraphQLRequest {
-            query: r#"
-query ($upstreamId: Int) {
-  user(upstream_id: $upstreamId) {
-    id
-    email
-    first_name
-    last_name
-    upstream_id
-  }
-}"#,
-            variables: Some(json!({ "upstreamId": upstream_id })),
-        })
-        .send()
-        .await
-        .context("Failed to send request to Mooc.fi")?;
-    if !res.status().is_success() {
-        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
-    }
-    let current_user_response: MoocfiUserResponse = res
-        .json()
-        .await
-        .context("Unexpected response from Mooc.fi")?;
-
-    let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
-        .await?;
-    Ok(user)
-}
-
-async fn get_or_create_user_from_moocfi_response(
-    conn: &mut PgConnection,
-    moocfi_user: MoocfiUser,
-) -> anyhow::Result<User> {
-    let MoocfiUser {
-        id: moocfi_id,
-        first_name,
-        last_name,
+    let TMCUser {
+        id: upstream_id,
         email,
-        upstream_id,
-    } = moocfi_user;
+        courses_mooc_fi_user_id: moocfi_id,
+        user_field,
+        ..
+    } = tmc_mooc_fi_user;
+
+    let id = moocfi_id.unwrap_or_else(Uuid::new_v4);
 
     // fetch existing user or create new one
     let user = match models::users::find_by_upstream_id(conn, upstream_id).await? {
@@ -935,14 +831,18 @@ async fn get_or_create_user_from_moocfi_response(
                 conn,
                 &email,
                 // convert empty names to None
-                first_name
-                    .as_deref()
-                    .and_then(|n| if n.trim().is_empty() { None } else { Some(n) }),
-                last_name
-                    .as_deref()
-                    .and_then(|n| if n.trim().is_empty() { None } else { Some(n) }),
+                if user_field.first_name.trim().is_empty() {
+                    None
+                } else {
+                    Some(user_field.first_name.as_str())
+                },
+                if user_field.last_name.trim().is_empty() {
+                    None
+                } else {
+                    Some(user_field.last_name.as_str())
+                },
                 upstream_id,
-                moocfi_id,
+                id,
             )
             .await?
         }
@@ -1013,12 +913,13 @@ pub async fn authenticate_test_user(
 // Only used for testing, not to use in production.
 pub async fn authenticate_test_token(
     conn: &mut PgConnection,
-    token: &str,
+    _token: &SecretString,
     application_configuration: &ApplicationConfiguration,
 ) -> anyhow::Result<User> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
-    let user = models::users::get_by_email(conn, token).await?;
+    // TODO: this has never worked
+    let user = models::users::get_by_email(conn, "TODO").await?;
     Ok(user)
 }
 

@@ -3,12 +3,8 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  removeOrganizationImage,
-  setOrganizationImage,
-} from "../../../../services/backend/organizations"
-import UploadImageForm from "../../../forms/UploadImageForm"
-
+import UploadImageForm from "@/components/forms/UploadImageForm"
+import { removeOrganizationImage, setOrganizationImage } from "@/services/backend/organizations"
 import { Organization } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"

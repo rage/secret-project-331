@@ -4,8 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import { getCourseInstanceEnrollmentsInfo } from "../../../../../services/backend/users"
-
+import { getCourseInstanceEnrollmentsInfo } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

@@ -1,11 +1,12 @@
 "use client"
 import { css } from "@emotion/css"
-import { useContext, useMemo } from "react"
+import React, { useMemo, useRef } from "react"
 
 import { BlockRendererProps } from "../.."
 import { parseText } from "../../util/textParsing"
 
 import { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
+import ParsedText from "@/components/ParsedText"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
@@ -29,6 +30,15 @@ const TableBlock: React.FC<
   const head = data.attributes.head
   const foot = data.attributes.foot
 
+  const refsMap = useRef(new Map<string, React.RefObject<HTMLElement | null>>()).current
+
+  const getRef = (key: string) => {
+    if (!refsMap.has(key)) {
+      refsMap.set(key, React.createRef<HTMLElement>())
+    }
+    return refsMap.get(key)!
+  }
+
   const hasManyColumns = useMemo(() => {
     for (const row of body) {
       if (row.cells && row.cells.length > 5) {
@@ -40,8 +50,9 @@ const TableBlock: React.FC<
   }, [body])
   const shouldUseSmallerFont = hasManyColumns && dontAllowBlockToBeWiderThanContainerWidth
 
-  const { terms } = useContext(GlossaryContext)
   const isStriped = className === "is-style-stripes"
+
+  const captionRef = useRef<HTMLElement>(null)
 
   const fetchAlignment = (align: string | undefined) => {
     if (align) {
@@ -90,17 +101,19 @@ const TableBlock: React.FC<
               <tr key={j}>
                 {cellRows.cells &&
                   cellRows.cells.map((cell: CellAttributes, i) => (
-                    <th
-                      className={fetchAlignment(cell.align)}
+                    <ParsedText
                       key={i}
-                      colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
-                      rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
-                      dangerouslySetInnerHTML={{
-                        __html: parseText(
-                          cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
-                          terms,
-                        ).parsedText,
+                      // eslint-disable-next-line i18next/no-literal-string
+                      text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                      tag="th"
+                      tagProps={{
+                        className: fetchAlignment(cell.align),
+                        colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                        rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
+                      useWrapperElement={false}
+                      // eslint-disable-next-line i18next/no-literal-string
+                      wrapperRef={getRef(`head-${j}-${i}`)}
                     />
                   ))}
               </tr>
@@ -112,17 +125,19 @@ const TableBlock: React.FC<
             <tr key={j}>
               {cellRows.cells &&
                 cellRows.cells.map((cell: CellAttributes, i: number) => (
-                  <td
-                    className={fetchAlignment(cell.align)}
+                  <ParsedText
                     key={i}
-                    colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
-                    rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
-                    dangerouslySetInnerHTML={{
-                      __html: parseText(
-                        cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
-                        terms,
-                      ).parsedText,
+                    // eslint-disable-next-line i18next/no-literal-string
+                    text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                    tag="td"
+                    tagProps={{
+                      className: fetchAlignment(cell.align),
+                      colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                      rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                     }}
+                    useWrapperElement={false}
+                    // eslint-disable-next-line i18next/no-literal-string
+                    wrapperRef={getRef(`body-${j}-${i}`)}
                   />
                 ))}
             </tr>
@@ -134,32 +149,37 @@ const TableBlock: React.FC<
               <tr key={j}>
                 {cellRows.cells &&
                   cellRows.cells.map((cell: CellAttributes, i: number) => (
-                    <th
-                      className={fetchAlignment(cell.align)}
+                    <ParsedText
                       key={i}
-                      colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
-                      rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
-                      dangerouslySetInnerHTML={{
-                        __html: parseText(
-                          cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
-                          terms,
-                        ).parsedText,
+                      // eslint-disable-next-line i18next/no-literal-string
+                      text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                      tag="th"
+                      tagProps={{
+                        className: fetchAlignment(cell.align),
+                        colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                        rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
+                      useWrapperElement={false}
+                      // eslint-disable-next-line i18next/no-literal-string
+                      wrapperRef={getRef(`foot-${j}-${i}`)}
                     />
                   ))}
               </tr>
             ))}
           </tfoot>
         )}
-        <caption
-          className={css`
-            text-align: center;
-            font-size: 0.8125rem;
-            caption-side: bottom;
-          `}
-          dangerouslySetInnerHTML={{
-            __html: parseText(caption, terms).parsedText,
+        <ParsedText
+          text={caption}
+          tag="caption"
+          tagProps={{
+            className: css`
+              text-align: center;
+              font-size: 0.8125rem;
+              caption-side: bottom;
+            `,
           }}
+          useWrapperElement={false}
+          wrapperRef={captionRef}
         />
       </table>
     </div>

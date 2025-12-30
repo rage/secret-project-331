@@ -3,12 +3,11 @@ import { css } from "@emotion/css"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useOrganizationCourseCount } from "../../../../hooks/useOrganizationCourseCount"
-import { useOrganizationCourses } from "../../../../hooks/useOrganizationCourses"
-
 import { CourseComponent, CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
 
+import { useOrganizationCourseCount } from "@/hooks/useOrganizationCourseCount"
+import { useOrganizationCourses } from "@/hooks/useOrganizationCourses"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"

@@ -31,6 +31,8 @@ const CourseInstanceEmailTemplates: React.FC = () => {
   const handleCreateEmailTemplate = async (newName: string) => {
     const result = await postNewEmailTemplateForCourseInstance(courseInstanceId, {
       name: newName,
+      language: null,
+      content: undefined,
     })
     setShowForm(!showForm)
     window.location.assign(`/cms/email-templates/${result.id}/edit`)

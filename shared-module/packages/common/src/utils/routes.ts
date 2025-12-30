@@ -129,3 +129,7 @@ export function coursePageSectionRoute(
 ) {
   return `/org/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}#${anchor}`
 }
+
+export function accountDeletedRoute() {
+  return "/account-deleted"
+}

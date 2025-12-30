@@ -2,9 +2,8 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { removeChapterImage, setChapterImage } from "../../../../../../services/backend/chapters"
-import UploadImageForm from "../../../../../forms/UploadImageForm"
-
+import UploadImageForm from "@/components/forms/UploadImageForm"
+import { removeChapterImage, setChapterImage } from "@/services/backend/chapters"
 import { Chapter } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"

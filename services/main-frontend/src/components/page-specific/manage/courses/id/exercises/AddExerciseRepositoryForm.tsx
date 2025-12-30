@@ -3,8 +3,7 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { addExerciseRepository } from "../../../../../../services/backend/exercise-repositories"
-
+import { addExerciseRepository } from "@/services/backend/exercise-repositories"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"

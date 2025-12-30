@@ -5,12 +5,11 @@ import { isPast } from "date-fns" // Added import
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchOrganizationExams } from "../../../../services/backend/exams"
-import NewExamDialog from "../../manage/courses/id/exams/NewExamDialog"
-import { CardList } from "../../styles/styles"
-
 import ExamListItem from "./ExamListItem"
 
+import NewExamDialog from "@/components/page-specific/manage/courses/id/exams/NewExamDialog"
+import { CardList } from "@/components/page-specific/styles/styles"
+import { fetchOrganizationExams } from "@/services/backend/exams"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"

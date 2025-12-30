@@ -142,10 +142,10 @@ fn derive_new_score_given(
     {
         return input_data.current_user_exercise_state.score_given;
     }
-    if let Some(peer_or_self_review_opinion) = peer_or_self_review_opinion {
-        if input_data.exercise.needs_peer_review || input_data.exercise.needs_self_review {
-            return peer_or_self_review_opinion.score_given;
-        }
+    if let Some(peer_or_self_review_opinion) = peer_or_self_review_opinion
+        && (input_data.exercise.needs_peer_review || input_data.exercise.needs_self_review)
+    {
+        return peer_or_self_review_opinion.score_given;
     }
     // Peer reviews are not enabled, we'll just give the points according to the automated grading
     // No need to consider the UserPointsUpdateStrategy here because it's already used when updating the user_exercise_slide_state. The user_exercise_state is just taking its data from there (and other sources).
@@ -1101,6 +1101,7 @@ mod tests {
                 peer_reviews_to_receive: 2,
                 accepting_threshold: 2.1,
                 processing_strategy,
+                reset_answer_if_zero_points_from_review: false,
                 manual_review_cutoff_in_days: 21,
                 points_are_all_or_nothing: true,
                 review_instructions: None,

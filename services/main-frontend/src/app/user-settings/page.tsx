@@ -5,6 +5,14 @@ import { useQueries, useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
+import useAuthorizedClientsQuery from "../hooks/useAuthorizedClientsQuery"
+import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
+import { getCourseBreadCrumbInfo } from "../services/backend/courses"
+import { getAllResearchConsentAnswersByUserId } from "../services/backend/users"
+
+import ChangeUserPasswordForm from "@/components/forms/ChangeUserPasswordForm"
+import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
 import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
@@ -21,6 +29,7 @@ const UserSettings: React.FC = () => {
 
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
   const getUserConsent = useUserResearchConsentQuery()
+  const { listQuery, revokeMutation } = useAuthorizedClientsQuery()
 
   const getUserDetails = useQuery({
     queryKey: [`user-details`],
@@ -31,6 +40,7 @@ const UserSettings: React.FC = () => {
     queryKey: [`users-user-research-form-question-answers`],
     queryFn: () => getAllResearchConsentAnswersByUserId(),
   })
+
   const handleGeneralResearchFormButton = async () => {
     await getUserConsent.refetch()
     setOpenResearchForm(true)
@@ -72,13 +82,19 @@ const UserSettings: React.FC = () => {
         )}
         {getUserDetails.isLoading && <Spinner variant={"medium"} />}
         {getUserDetails.isSuccess && getUserDetails.data !== null && (
-          <EditUserInformationForm
-            firstName={getUserDetails.data?.first_name ?? ""}
-            lastName={getUserDetails.data?.last_name ?? ""}
-            country={getUserDetails.data?.country ?? ""}
-            emailCommunicationConsent={getUserDetails.data?.email_communication_consent ?? false}
-            email={getUserDetails.data?.email}
-          />
+          <div>
+            <EditUserInformationForm
+              firstName={getUserDetails.data?.first_name ?? ""}
+              lastName={getUserDetails.data?.last_name ?? ""}
+              country={getUserDetails.data?.country ?? ""}
+              emailCommunicationConsent={getUserDetails.data?.email_communication_consent ?? false}
+              email={getUserDetails.data?.email}
+            />
+            <ChangeUserPasswordForm />
+            {getUserDetails.data?.email && (
+              <DeleteUserAccountForm email={getUserDetails.data.email} />
+            )}
+          </div>
         )}
       </div>
       <h2
@@ -168,6 +184,52 @@ const UserSettings: React.FC = () => {
             </div>
           </div>
         )}
+        <h2
+          className={css`
+            padding-top: 1rem;
+          `}
+        >
+          {t("authorized-applications")}
+        </h2>
+
+        <div
+          className={css`
+            border-top: 1px solid ${baseTheme.colors.gray[100]};
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+          `}
+        >
+          {listQuery.isLoading && <Spinner variant="medium" />}
+          {listQuery.isError && <ErrorBanner variant="readOnly" error={listQuery.error} />}
+          {!listQuery.isLoading && listQuery.isSuccess && (
+            <div>
+              {listQuery.data.length === 0 && <p>{t("no-authorized-applications")}</p>}
+              {listQuery.data.map((client) => (
+                <div
+                  key={client.client_id}
+                  className={css`
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.5rem;
+                  `}
+                >
+                  <div>
+                    <strong>{client.client_name}</strong> <span>({client.scopes.join(", ")})</span>
+                  </div>
+                  <Button
+                    size="small"
+                    variant="secondary"
+                    onClick={() => revokeMutation.mutate(client.client_id)}
+                  >
+                    {t("revoke")}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   )

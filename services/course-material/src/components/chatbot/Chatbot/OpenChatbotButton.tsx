@@ -28,7 +28,7 @@ const buttonStyle = (hide: boolean) => css`
   &:hover {
     background-color: ${baseTheme.colors.green[400]};
   }
-  ${hide && `visibility: hidden;`}
+  ${hide && `opacity: 0;`}
 `
 
 interface OpenChatbotButtonProps {

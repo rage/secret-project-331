@@ -1,16 +1,6 @@
 import { css, keyframes } from "@emotion/css"
-import React, { useContext, useEffect, useId, useRef, useState } from "react"
-import {
-  FocusScope,
-  mergeProps,
-  OverlayProvider,
-  useModal,
-  useOverlay,
-  useOverlayPosition,
-  useOverlayTrigger,
-  usePopover,
-} from "react-aria"
-import { OverlayTriggerStateContext, Popover } from "react-aria-components"
+import React, { useEffect, useId, useRef, useState } from "react"
+import { FocusScope, mergeProps, useOverlay, useOverlayTrigger, usePopover } from "react-aria"
 
 import ChatbotChat from "./ChatbotChat"
 import OpenChatbotButton from "./OpenChatbotButton"
@@ -44,42 +34,33 @@ const closeAnimation = keyframes`
 
 const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const chatbotTitleId = useId()
+  let buttonRef = useRef<HTMLButtonElement | null>(null)
+  let popoverRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  let buttonRef = useRef(null)
+
   let state = {
     isOpen,
     setOpen: (o: boolean) => {
       setIsOpen(o)
+      if (!o) {
+        buttonRef.current?.focus()
+      }
     },
     open: () => {
       setIsOpen(true)
     },
-    close: () => {},
+    close: () => {
+      // no operation prevents close on scroll
+    },
     toggle: () => {
       setIsOpen(!isOpen)
+      if (isOpen) {
+        buttonRef.current?.focus()
+      }
     },
   }
   let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
-  console.log(state)
-
-  useEffect(() => {
-    if (state?.isOpen) {
-      setShouldRender(true)
-    }
-    if (!state?.isOpen) {
-      setShouldRender(false)
-    }
-  }, [state?.isOpen])
-
-  const handleAnimationEnd = () => {
-    console.log("on animation end")
-    if (!state?.isOpen) {
-      setShouldRender(false)
-    }
-  }
-
-  let popoverRef = useRef(null)
   let { popoverProps } = usePopover(
     {
       shouldUpdatePosition: false,
@@ -88,21 +69,40 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
       popoverRef,
       triggerRef: buttonRef,
     },
-
     state,
   )
 
-  const newPopoverprops = { ...popoverProps, style: undefined }
+  const newPopoverProps = { ...popoverProps, style: undefined }
+  let { overlayProps: overlayProps2 } = useOverlay(
+    {
+      onClose: () => {
+        state.setOpen(false)
+      },
+      isOpen: state.isOpen,
+      isDismissable: false,
+    },
+    popoverRef,
+  )
 
-  //console.log(JSON.stringify({ overlayProps, popoverProps, newPopoverprops }, undefined, 2))
+  useEffect(() => {
+    if (state?.isOpen) {
+      setShouldRender(true)
+    }
+  }, [state?.isOpen])
+
+  const handleAnimationEnd = () => {
+    if (!state?.isOpen) {
+      setShouldRender(false)
+    }
+  }
 
   return (
-    <OverlayProvider>
+    <>
       <OpenChatbotButton hide={shouldRender} triggerProps={triggerProps} ref={buttonRef} />
-      {state.isOpen && (
+      {shouldRender && (
         <FocusScope restoreFocus>
           <div
-            {...mergeProps(overlayProps, newPopoverprops)}
+            {...mergeProps(overlayProps, newPopoverProps, overlayProps2)}
             ref={popoverRef}
             aria-labelledby={chatbotTitleId}
             className={css`
@@ -128,7 +128,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
           </div>
         </FocusScope>
       )}
-    </OverlayProvider>
+    </>
   )
 }
 

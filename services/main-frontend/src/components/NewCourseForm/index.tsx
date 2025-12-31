@@ -30,10 +30,10 @@ export interface FormFields extends Omit<NewCourse, "organization_id" | "can_add
   createAsLanguageVersion: boolean
 }
 
-export const AMERICAN_ENGLISH_LANGUAGE_CODE = "en-US"
-export const FINNISH_LANGUAGE_CODE = "fi-FI"
-export const SWEDISH_LANGUAGE_CODE = "sv-SE"
-export const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
+export const ENGLISH_LANGUAGE_CODE = "en"
+export const FINNISH_LANGUAGE_CODE = "fi"
+export const SWEDISH_LANGUAGE_CODE = "sv"
+export const DEFAULT_LANGUAGE_CODE = ENGLISH_LANGUAGE_CODE
 
 export const FieldContainer = styled.div`
   margin-bottom: 1rem;

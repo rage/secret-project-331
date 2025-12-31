@@ -84,7 +84,7 @@ impl CourseBuilder {
         Self {
             name: name.into(),
             slug: slug.into(),
-            language_code: "en-US".into(),
+            language_code: "en".into(),
             can_add_chatbot: false,
             description: "Sample course.".into(),
             default_instance_name: b"default-instance",

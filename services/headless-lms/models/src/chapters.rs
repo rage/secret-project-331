@@ -764,7 +764,7 @@ mod tests {
                     name: "".to_string(),
                     slug: "course-2".to_string(),
                     organization_id: org,
-                    language_code: "en-US".to_string(),
+                    language_code: "en".to_string(),
                     teacher_in_charge_name: "Teacher".to_string(),
                     teacher_in_charge_email: "teacher@example.com".to_string(),
                     description: "".to_string(),

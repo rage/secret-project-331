@@ -2,17 +2,18 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { ArrowLeft, ArrowRight } from "@vectopus/atlas-icons-react"
+import { useAtomValue } from "jotai"
 import { maxBy, minBy } from "lodash"
-import { useCallback, useContext, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMediaQuery } from "usehooks-ts"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useHeadingData from "@/hooks/course-material/useHeadingData"
 import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
 import useShouldHideStuffFromSystemTestScreenshots from "@/shared-module/common/hooks/useShouldHideStuffForSystemTestScreenshots"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import { isElementFullyInViewport } from "@/shared-module/common/utils/dom"
+import { currentPageIdAtom, examDataAtom } from "@/state/course-material/selectors"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
 
 const HERO_SECTION_Y_OFFSET_PX = 700
@@ -108,8 +109,9 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
   const [userHasCollapsed, setUserHasCollapsed] = useState<boolean | null>(null)
   const { headings } = useHeadingData()
   const { t } = useTranslation()
-  const pageContext = useContext(PageContext)
-  const isPageChapterFrontPageQuery = useIsPageChapterFrontPage(pageContext.pageData?.id)
+  const pageId = useAtomValue(currentPageIdAtom)
+  const examData = useAtomValue(examDataAtom)
+  const isPageChapterFrontPageQuery = useIsPageChapterFrontPage(pageId || undefined)
 
   // When the we have not scrolled past the hero section and are on a large enough screen, we we will use absolute positioning to position the navigation to be just under the hero section. On narrower screens, and when we have scrolled further down the page, we will use fixed positioning to keep the navigation at a constant position.
   const fixed = screenWidthSoWideThatWeCanUseAbsolutePositioningInitially
@@ -195,7 +197,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
   if (realCollapsed === null) {
     realCollapsed = expandedNavigationWillOverlapWithContent
     if (
-      pageContext.exam !== null ||
+      examData !== null ||
       // Collapsed by default on chapter front pages
       isPageChapterFrontPageQuery.isLoading ||
       isPageChapterFrontPageQuery.data?.is_chapter_front_page === true
@@ -206,11 +208,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
 
   // More that 1 heading is required to show the headings navigation. We don't show this for pages with only one heading because all pages are supposed to have a hero section that contain one h1 heading that is included in the headings list. Showing only this heading would look weird.
   // Also, disable the headings navigation on exam pages because we don't want to distract students.
-  if (
-    headings.length <= 1 ||
-    pageContext.exam !== null ||
-    shouldHideStuffFromSystemTestScreenshots
-  ) {
+  if (headings.length <= 1 || examData !== null || shouldHideStuffFromSystemTestScreenshots) {
     return null
   }
 

@@ -1,30 +1,34 @@
 "use client"
-import React, { useContext } from "react"
+import { useAtomValue } from "jotai"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ChapterGrid from "./ChapterGrid"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { courseMaterialAtom } from "@/state/course-material"
 
 const CourseChapterGridBlock: React.FC = () => {
   const { t } = useTranslation()
-  const pageContext = useContext(PageContext)
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
 
-  if (pageContext.state !== "ready") {
+  if (courseMaterialState.status !== "ready") {
     return <Spinner variant={"small"} />
   }
 
-  if (pageContext.pageData.course_id === null) {
+  if (
+    courseMaterialState.page?.course_id === null ||
+    courseMaterialState.page?.course_id === undefined
+  ) {
     return <div>{t("error-page-without-course")}</div>
   }
 
   return (
     <BreakFromCentered sidebar={false}>
       <div>
-        <ChapterGrid courseId={pageContext.pageData.course_id} />
+        <ChapterGrid courseId={courseMaterialState.page.course_id} />
       </div>
     </BreakFromCentered>
   )

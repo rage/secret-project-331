@@ -1,11 +1,11 @@
 "use client"
 import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
+import { useAtomValue } from "jotai"
 import Link from "next/link"
 import React, { useContext, useMemo } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import { useCourseData } from "@/hooks/course-material/useCourseData"
 import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
 import Button from "@/shared-module/common/components/Button"
@@ -15,6 +15,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 export interface CourseData {
   name: string
@@ -37,7 +38,7 @@ const UserOnWrongCourseNotification: React.FC<
   React.PropsWithChildren<UserOnWrongCourseNotificationProps>
 > = ({ correctCourseId, organizationSlug: _organizationSlug, variant = "full" }) => {
   const { t } = useTranslation()
-  const pageState = useContext(PageContext)
+  const pageData = useAtomValue(currentPageDataAtom)
 
   const getCourseById = useCourseData({ courseId: correctCourseId })
 
@@ -49,7 +50,7 @@ const UserOnWrongCourseNotification: React.FC<
     error: languageNavError,
   } = useLanguageNavigation({
     currentCourseId: correctCourseId,
-    currentPageId: pageState.pageData?.id ?? null,
+    currentPageId: pageData?.id ?? null,
   })
 
   // Generate the target URL for the Link component using getLanguageUrl

@@ -1,17 +1,18 @@
 "use client"
 import styled from "@emotion/styled"
-import { useContext } from "react"
+import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 
 import ExercisesInChapter from "./ExercisesInChapter"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import Spinner from "@/shared-module/common/components/Spinner"
 import AccordionIcon from "@/shared-module/common/img/accordion-arrow.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { courseMaterialAtom } from "@/state/course-material"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 const Wrapper = styled.div`
   margin: 0 0 5rem 0;
@@ -69,14 +70,15 @@ const ExerciseInChapterBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<unknown>>
 > = () => {
   const { t } = useTranslation()
-  const pageContext = useContext(PageContext)
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
+  const pageData = useAtomValue(currentPageDataAtom)
 
-  if (pageContext.state !== "ready") {
+  if (courseMaterialState.status !== "ready") {
     return <Spinner variant={"small"} />
   }
 
-  const chapterId = pageContext.pageData.chapter_id
-  const courseInstanceId = pageContext.instance?.id
+  const chapterId = pageData?.chapter_id
+  const courseInstanceId = courseMaterialState.instance?.id
 
   if (!chapterId) {
     return <pre>{t("error-page-does-not-belong-to-chapter")}</pre>

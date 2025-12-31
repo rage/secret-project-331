@@ -2,11 +2,12 @@
 import { useQuery } from "@tanstack/react-query"
 // @ts-expect-error: No type definitions
 import cite from "citation-js"
+import { useAtomValue } from "jotai"
 import { compact } from "lodash"
-import { useContext, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import { fetchCourseReferences } from "@/services/course-material/backend"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 const BIBLIOGRAPHY = "bibliography"
 const EN_US = "en-US"
@@ -20,7 +21,7 @@ export interface Citations {
 }
 
 const useReferences = (courseId: string) => {
-  const page = useContext(PageContext)
+  const pageData = useAtomValue(currentPageDataAtom)
   const [pageRefs, setPageRefs] = useState<ReadonlyArray<Citations>>()
 
   const getCourseReferences = useQuery({
@@ -29,7 +30,7 @@ const useReferences = (courseId: string) => {
   })
 
   useEffect(() => {
-    if (!page.pageData) {
+    if (!pageData) {
       return
     }
     let attempt = 0
@@ -66,7 +67,7 @@ const useReferences = (courseId: string) => {
       }
     }
     setTimeout(callback, 10)
-  }, [getCourseReferences.data, getCourseReferences.isError, page])
+  }, [getCourseReferences.data, getCourseReferences.isError, pageData])
 
   return pageRefs
 }

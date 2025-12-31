@@ -1,10 +1,11 @@
 "use client"
 import { css } from "@emotion/css"
-import { RefObject, useContext, useMemo } from "react"
+import { useAtomValue } from "jotai"
+import { RefObject, useMemo } from "react"
 
 import { AudioFile } from "@/components/course-material/Page"
-import PageContext from "@/contexts/course-material/PageContext"
 import { headingFont } from "@/shared-module/common/styles"
+import { courseMaterialAtom } from "@/state/course-material"
 
 interface DisplayTrackProps {
   tracks: AudioFile[]
@@ -14,7 +15,7 @@ interface DisplayTrackProps {
 }
 
 const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: DisplayTrackProps) => {
-  const pageContext = useContext(PageContext)
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
   const onLoadedMetadata = () => {
     if (audioRef?.current && progressBarRef?.current) {
       const seconds = audioRef?.current?.duration
@@ -70,7 +71,7 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
                 text-overflow: ellipsis;
               `}
             >
-              {pageContext.pageData?.title}
+              {courseMaterialState.page?.title}
             </p>
           </div>
         </div>

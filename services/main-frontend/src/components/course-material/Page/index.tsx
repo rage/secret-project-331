@@ -1,8 +1,9 @@
 "use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useContext, useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
@@ -19,7 +20,6 @@ import CourseSettingsModal from "../modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
 
 import { GlossaryContext, GlossaryState } from "@/contexts/course-material/GlossaryContext"
-import PageContext from "@/contexts/course-material/PageContext"
 import useChatbotConfiguration from "@/hooks/course-material/useChatbotConfiguration"
 import useDialogStep, { DialogStep } from "@/hooks/course-material/useDialogStep"
 import useGlossary from "@/hooks/course-material/useGlossary"
@@ -35,6 +35,8 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { courseMaterialAtom } from "@/state/course-material"
+import { isMaterialPageAtom, refetchViewAtom } from "@/state/course-material/selectors"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
 
 interface Props {
@@ -58,12 +60,21 @@ const AudioNotification = styled.div`
 `
 
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
-  const pageContext = useContext(PageContext)
   const [isVisible, setIsVisible] = useState(false)
 
-  const courseId = pageContext?.pageData?.course_id
-  const pageId = pageContext?.pageData?.id
-  const isMaterialPage = Boolean(pageContext.pageData?.content && pageContext.pageData?.chapter_id)
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
+  const isMaterialPage = useAtomValue(isMaterialPageAtom)
+  const triggerRefetch = useSetAtom(refetchViewAtom)
+
+  // Use refetch atom if onRefresh is not provided
+  const handleRefresh =
+    onRefresh ||
+    (async () => {
+      await triggerRefetch()
+    })
+
+  const courseId = courseMaterialState.page?.course_id
+  const pageId = courseMaterialState.page?.id
 
   const tracks: AudioFile[] = []
 
@@ -79,13 +90,15 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   ] = useState<boolean>(false)
   const [shouldAnswerMissingInfoForm, setShouldAnswerMissingInfoForm] = useState<boolean>(false)
   const shouldChooseInstance =
-    pageContext.state === "ready" && pageContext.instance === null && pageContext.settings === null
+    courseMaterialState.status === "ready" &&
+    courseMaterialState.instance === null &&
+    courseMaterialState.settings === null
 
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = searchParams.get("show_research_form")
   const waitingForCourseSettingsToBeFilled =
-    pageContext.settings?.current_course_instance_id === null ||
-    pageContext.settings?.current_course_instance_id === undefined
+    courseMaterialState.settings?.current_course_instance_id === null ||
+    courseMaterialState.settings?.current_course_instance_id === undefined
 
   const hasCourseClosed = useHasCourseClosed()
 
@@ -153,7 +166,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const getPageAudioFiles = usePageAudioFiles(pageId, courseId, isMaterialPage)
 
   // Fetch glossary for each page seperately
-  const glossary = useGlossary(courseId, pageContext.exam, isMaterialPage)
+  const glossary = useGlossary(courseId, courseMaterialState.examData, isMaterialPage)
 
   if (glossary.isLoading) {
     return <Spinner variant={"small"} />
@@ -179,17 +192,18 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   return (
     <GlossaryContext.Provider value={glossaryState}>
       <>
-        {pageContext.settings &&
-          pageContext.settings.current_course_instance_id !== pageContext.instance?.id && (
+        {courseMaterialState.settings &&
+          courseMaterialState.settings.current_course_instance_id !==
+            courseMaterialState.instance?.id && (
             <UserOnWrongCourseNotification
-              correctCourseId={pageContext.settings?.current_course_id}
+              correctCourseId={courseMaterialState.settings?.current_course_id}
               organizationSlug={organizationSlug}
             />
           )}
         {courseId && activeStep === DialogStep.ChooseInstance && (
           <CourseSettingsModal
             onClose={() => {
-              onRefresh()
+              handleRefresh()
             }}
             shouldChooseInstance={true}
           />
@@ -266,15 +280,15 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>
             <ContentRenderer
-              data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
-              isExam={pageContext.exam !== null}
+              data={(courseMaterialState.page?.content as Array<Block<unknown>>) ?? []}
+              isExam={courseMaterialState.examData !== null}
               dontAllowBlockToBeWiderThanContainerWidth={false}
             />
           </div>
         </div>
-        {pageContext.pageData?.chapter_id && <NavigationContainer />}
-        {pageContext.pageData?.course_id && (
-          <ReferenceList courseId={pageContext.pageData.course_id} />
+        {courseMaterialState.page?.chapter_id && <NavigationContainer />}
+        {courseMaterialState.page?.course_id && (
+          <ReferenceList courseId={courseMaterialState.page.course_id} />
         )}
         {getPageAudioFiles.isSuccess && isVisible && tracks.length !== 0 && (
           <AudioPlayer

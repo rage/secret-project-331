@@ -1,5 +1,6 @@
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import styled from "@emotion/styled"
+
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 export const TooltipBox = styled.div`
   border-radius: 8px;

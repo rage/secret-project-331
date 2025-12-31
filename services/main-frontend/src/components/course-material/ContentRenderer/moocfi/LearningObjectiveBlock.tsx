@@ -1,17 +1,18 @@
 "use client"
 import styled from "@emotion/styled"
-import React, { useContext } from "react"
+import { useAtomValue } from "jotai"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from ".."
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
 import Check from "@/img/course-material/checkmark.svg"
 import { Block } from "@/services/course-material/backend"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.
@@ -78,8 +79,8 @@ const LearningObjectiveSectionBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<LearningObjectiveProps>>
 > = (props) => {
   const { t } = useTranslation()
-  const pageContext = useContext(PageContext)
-  const pageId = pageContext.pageData?.id
+  const pageData = useAtomValue(currentPageDataAtom)
+  const pageId = pageData?.id
 
   const isPageChapterFrontPageQuery = useIsPageChapterFrontPage(pageId)
 

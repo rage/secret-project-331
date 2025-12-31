@@ -1,10 +1,10 @@
 "use client"
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
-import React, { useContext, useMemo } from "react"
+import { useAtomValue } from "jotai"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import {
   fetchCourseModuleExercisesAndSubmissionsByType,
@@ -20,6 +20,11 @@ import {
 } from "@/shared-module/common/exercise-service-protocol-types"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import {
+  currentPageDataAtom,
+  materialInstanceAtom,
+  materialSettingsAtom,
+} from "@/state/course-material/selectors"
 
 interface CustomViewIframeProps {
   exerciseServiceSlug: string
@@ -34,10 +39,12 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
 }) => {
   const { t } = useTranslation()
   const userInfo = useUserInfo()
-  const pageContext = useContext(PageContext)
-  const chapterId = pageContext.pageData?.chapter_id
-  const courseInstanceId = pageContext.instance?.id
-  const courseId = pageContext.settings?.current_course_id
+  const pageData = useAtomValue(currentPageDataAtom)
+  const materialInstance = useAtomValue(materialInstanceAtom)
+  const materialSettings = useAtomValue(materialSettingsAtom)
+  const chapterId = pageData?.chapter_id
+  const courseInstanceId = materialInstance?.id
+  const courseId = materialSettings?.current_course_id
 
   const courseModuleCompletionsQuery = useQuery({
     queryKey: [`${courseInstanceId}-course-module-completions-${userInfo.data?.user_id}`],
@@ -48,7 +55,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
       ),
     enabled: !!courseInstanceId && !!userInfo.data?.user_id,
   })
-  const courseInfo = useCourseInfo(pageContext.settings?.current_course_id)
+  const courseInfo = useCourseInfo(materialSettings?.current_course_id)
 
   const moduleIdByChapter = useQuery({
     queryKey: [`course-modules-chapter-${chapterId}`],

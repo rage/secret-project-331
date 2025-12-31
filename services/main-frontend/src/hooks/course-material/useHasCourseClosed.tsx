@@ -1,13 +1,15 @@
 "use client"
 import { isAfter, parseISO } from "date-fns"
-import { useContext, useMemo } from "react"
+import { useAtomValue } from "jotai"
+import { useMemo } from "react"
 
-import PageContext from "@/contexts/course-material/PageContext"
+import { courseMaterialAtom } from "@/state/course-material"
 
 const useHasCourseClosed = () => {
-  const pageContext = useContext(PageContext)
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
 
-  const closedAtIso = pageContext.state === "ready" ? pageContext.course?.closed_at : undefined
+  const closedAtIso =
+    courseMaterialState.status === "ready" ? courseMaterialState.course?.closed_at : undefined
 
   const hasClosed = useMemo(() => {
     if (!closedAtIso) {

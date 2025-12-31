@@ -1,9 +1,8 @@
 "use client"
-import React, { useCallback, useContext } from "react"
+import { useAtomValue } from "jotai"
+import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import LayoutContext from "@/contexts/course-material/LayoutContext"
-import PageContext from "@/contexts/course-material/PageContext"
 import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LanguageSelection, {
@@ -11,6 +10,12 @@ import LanguageSelection, {
 } from "@/shared-module/common/components/LanguageSelection"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { courseMaterialAtom } from "@/state/course-material"
+import {
+  currentCourseIdAtom,
+  currentPageDataAtom,
+  materialCourseAtom,
+} from "@/state/course-material/selectors"
 
 interface LanguageNavigationControlsProps {
   placement?: "bottom-end" | "bottom-start"
@@ -23,15 +28,14 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   placement = "bottom-end",
 }) => {
   const { alert } = useDialog()
-  const layoutContext = useContext(LayoutContext)
-  const pageState = useContext(PageContext)
+  const currentCourseId = useAtomValue(currentCourseIdAtom)
+  const materialCourse = useAtomValue(materialCourseAtom)
+  const pageData = useAtomValue(currentPageDataAtom)
   const { t } = useTranslation()
-
-  const currentCourseId = (layoutContext.courseId || pageState.course?.id) ?? null
 
   const { availableLanguages, redirectToLanguage, isLoading, error } = useLanguageNavigation({
     currentCourseId,
-    currentPageId: pageState.pageData?.id ?? null,
+    currentPageId: pageData?.id ?? null,
   })
 
   const languageOptions: LanguageOption[] = availableLanguages.map((lang) => ({
@@ -71,7 +75,7 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   }
 
   // Additional safety check: verify we're actually on the only offered version
-  const currentLanguageCode = pageState.course?.language_code
+  const currentLanguageCode = materialCourse?.language_code
   const isOnOnlyOfferedVersion =
     languageOptions.length === 1 &&
     currentLanguageCode &&

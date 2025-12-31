@@ -1,10 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
+import { useAtomValue, useSetAtom } from "jotai"
+import { useHydrateAtoms } from "jotai/utils"
 import { useParams } from "next/navigation"
-import React, { useCallback, useContext, useEffect } from "react"
+import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "@/components/course-material/ContentRenderer"
@@ -12,10 +13,8 @@ import Page from "@/components/course-material/Page"
 import ExamStartBanner from "@/components/course-material/exams/ExamStartBanner"
 import ExamTimer from "@/components/course-material/exams/ExamTimer"
 import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
-import LayoutContext from "@/contexts/course-material/LayoutContext"
-import PageContext, { CoursePageDispatch } from "@/contexts/course-material/PageContext"
 import useTime from "@/hooks/course-material/useTime"
-import { Block, endExamTime, enrollInExam, fetchExam } from "@/services/course-material/backend"
+import { Block, endExamTime, enrollInExam } from "@/services/course-material/backend"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -28,59 +27,58 @@ import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styl
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { courseMaterialAtom } from "@/state/course-material"
+import { viewParamsAtom } from "@/state/course-material/params"
+import { refetchViewAtom } from "@/state/course-material/selectors"
+import { organizationSlugAtom } from "@/state/layoutAtoms"
 
 const Exam: React.FC = () => {
   const params = useParams<{ organizationSlug: string; id: string }>()
   const { t, i18n } = useTranslation()
   const examId = params.id
-  const _pageState = useContext(PageContext)
-  const pageStateDispatch = useContext(CoursePageDispatch)
   const now = useTime(5000)
   const { confirm } = useDialog()
-  const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
-  const { refetch: refetchExam } = exam
 
+  // Stable object reference for view params
+  const viewParams = useMemo(
+    () => ({
+      type: "exam" as const,
+      examId: examId,
+      isTestMode: false,
+    }),
+    [examId],
+  )
+
+  // Initialize atoms synchronously on first render
+  useHydrateAtoms(
+    useMemo(
+      () =>
+        [
+          [organizationSlugAtom, params.organizationSlug],
+          [viewParamsAtom, viewParams],
+        ] as const,
+      [params.organizationSlug, viewParams],
+    ),
+  )
+
+  // Read unified state
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
+
+  // Handle language change
   useEffect(() => {
-    if (!pageStateDispatch) {
+    if (!courseMaterialState.examData) {
       return
     }
-    if (exam.isError) {
-      pageStateDispatch({ type: "setError", payload: exam.error })
-    } else if (exam.isSuccess && exam.data.enrollment_data.tag === "EnrolledAndStarted") {
-      pageStateDispatch({
-        type: "setData",
-        payload: {
-          pageData: exam.data.enrollment_data.page,
-          organization: null,
-          instance: null,
-          settings: null,
-          exam: exam.data,
-          course: null,
-          isTest: false,
-        },
-      })
-    } else {
-      pageStateDispatch({ type: "setLoading" })
+    if (i18n.language !== courseMaterialState.examData.language) {
+      i18n.changeLanguage(courseMaterialState.examData.language)
     }
-  }, [exam.isError, exam.isSuccess, exam.data, exam.error, pageStateDispatch])
+  }, [courseMaterialState.examData, i18n])
 
-  useEffect(() => {
-    if (!exam.data) {
-      return
-    }
-    if (i18n.language !== exam.data.language) {
-      i18n.changeLanguage(exam.data.language)
-    }
-  })
-
-  const layoutContext = useContext(LayoutContext)
-  useEffect(() => {
-    layoutContext.setOrganizationSlug(params.organizationSlug)
-  }, [layoutContext, params.organizationSlug])
-
+  // Handle refresh
+  const triggerRefetch = useSetAtom(refetchViewAtom)
   const handleRefresh = useCallback(async () => {
-    await refetchExam()
-  }, [refetchExam])
+    await triggerRefetch()
+  }, [triggerRefetch])
 
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()
@@ -100,13 +98,17 @@ const Exam: React.FC = () => {
     },
   )
 
-  if (exam.isError) {
-    return <ErrorBanner variant={"readOnly"} error={exam.error} />
+  // Error handling
+  if (courseMaterialState.error) {
+    return <ErrorBanner variant={"readOnly"} error={courseMaterialState.error} />
   }
 
-  if (exam.isLoading || !exam.data) {
+  // Loading state
+  if (courseMaterialState.status === "loading" || !courseMaterialState.examData) {
     return <Spinner variant="medium" />
   }
+
+  const examData = courseMaterialState.examData
 
   const examInfo = (
     <BreakFromCentered sidebar={false}>
@@ -139,7 +141,7 @@ const Exam: React.FC = () => {
             text-transform: uppercase;
           `}
         >
-          {exam.data.name}
+          {examData.name}
         </div>
         <div
           className={css`
@@ -153,15 +155,15 @@ const Exam: React.FC = () => {
             color: #353535;
           `}
         >
-          {(exam.data.enrollment_data.tag === "NotEnrolled" ||
-            exam.data.enrollment_data.tag === "NotYetStarted") && (
+          {(examData.enrollment_data.tag === "NotEnrolled" ||
+            examData.enrollment_data.tag === "NotYetStarted") && (
             <>
               <div>
                 <HideTextInSystemTests
                   text={
-                    exam.data.starts_at
+                    examData.starts_at
                       ? t("exam-can-be-started-after", {
-                          "starts-at": humanReadableDateTime(exam.data.starts_at, i18n.language),
+                          "starts-at": humanReadableDateTime(examData.starts_at, i18n.language),
                         })
                       : t("exam-no-start-time")
                   }
@@ -173,9 +175,9 @@ const Exam: React.FC = () => {
               <div>
                 <HideTextInSystemTests
                   text={
-                    exam.data.ends_at
+                    examData.ends_at
                       ? t("exam-submissions-not-accepted-after", {
-                          "ends-at": humanReadableDateTime(exam.data.ends_at, i18n.language),
+                          "ends-at": humanReadableDateTime(examData.ends_at, i18n.language),
                         })
                       : t("exam-no-end-time")
                   }
@@ -184,7 +186,7 @@ const Exam: React.FC = () => {
                   })}
                 />
               </div>
-              <div> {t("exam-time-to-complete", { "time-minutes": exam.data.time_minutes })}</div>
+              <div> {t("exam-time-to-complete", { "time-minutes": examData.time_minutes })}</div>
             </>
           )}
         </div>
@@ -193,8 +195,8 @@ const Exam: React.FC = () => {
   )
 
   if (
-    exam.data.enrollment_data.tag === "NotEnrolled" ||
-    exam.data.enrollment_data.tag === "NotYetStarted"
+    examData.enrollment_data.tag === "NotEnrolled" ||
+    examData.enrollment_data.tag === "NotYetStarted"
   ) {
     return (
       <>
@@ -203,12 +205,12 @@ const Exam: React.FC = () => {
           <ExamStartBanner
             onStart={async () => {
               await enrollInExam(examId, false)
-              exam.refetch()
+              await handleRefresh()
             }}
-            examEnrollmentData={exam.data.enrollment_data}
-            examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
-            examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
-            timeMinutes={exam.data.time_minutes}
+            examEnrollmentData={examData.enrollment_data}
+            examHasStarted={examData.starts_at ? isPast(examData.starts_at) : false}
+            examHasEnded={examData.ends_at ? isPast(examData.ends_at) : false}
+            timeMinutes={examData.time_minutes}
           >
             <div
               id="maincontent"
@@ -217,7 +219,7 @@ const Exam: React.FC = () => {
               `}
             >
               <ContentRenderer
-                data={(exam.data.instructions as Array<Block<unknown>>) ?? []}
+                data={(examData.instructions as Array<Block<unknown>>) ?? []}
                 isExam={false}
                 dontAllowBlockToBeWiderThanContainerWidth={false}
               />
@@ -228,24 +230,24 @@ const Exam: React.FC = () => {
     )
   }
 
-  if (exam.data.enrollment_data.tag === "StudentTimeUp") {
+  if (examData.enrollment_data.tag === "StudentTimeUp") {
     return (
       <>
         {examInfo}
         <div>
           {t("exam-time-up", {
-            "ends-at": humanReadableDateTime(exam.data.ends_at, i18n.language),
+            "ends-at": humanReadableDateTime(examData.ends_at, i18n.language),
           })}
         </div>
       </>
     )
   }
 
-  if (exam.data.enrollment_data.tag === "StudentCanViewGrading") {
+  if (examData.enrollment_data.tag === "StudentCanViewGrading") {
     return (
       <>
         {examInfo}
-        {exam.data.enrollment_data.gradings.map(
+        {examData.enrollment_data.gradings.map(
           (grade) =>
             !grade[0].hidden && (
               <div
@@ -291,25 +293,30 @@ const Exam: React.FC = () => {
     )
   }
 
-  const endsAt = exam.data.ends_at
+  // Only render page if enrolled and started
+  if (examData.enrollment_data.tag !== "EnrolledAndStarted") {
+    return <Spinner variant="medium" />
+  }
+
+  const endsAt = examData.ends_at
     ? min([
-        addMinutes(exam.data.enrollment_data.enrollment.started_at, exam.data.time_minutes),
-        exam.data.ends_at,
+        addMinutes(examData.enrollment_data.enrollment.started_at, examData.time_minutes),
+        examData.ends_at,
       ])
-    : addMinutes(exam.data.enrollment_data.enrollment.started_at, exam.data.time_minutes)
+    : addMinutes(examData.enrollment_data.enrollment.started_at, examData.time_minutes)
   const secondsLeft = differenceInSeconds(endsAt, now)
 
   return (
     <>
       <ExamTimeOverModal
-        disabled={exam.data.ended}
+        disabled={examData.ended}
         secondsLeft={secondsLeft}
         onClose={handleTimeOverModalClose}
       />
       {examInfo}
 
       <ExamTimer
-        startedAt={parseISO(exam.data.enrollment_data.enrollment.started_at)}
+        startedAt={parseISO(examData.enrollment_data.enrollment.started_at)}
         endsAt={endsAt}
         secondsLeft={secondsLeft}
       />
@@ -326,7 +333,7 @@ const Exam: React.FC = () => {
           <div>{t("exam-time-running-out-soon-help-text")}</div>
         </div>
       )}
-      {exam.data.ended && (
+      {examData.ended && (
         <div
           className={css`
             background-color: ${baseTheme.colors.yellow[100]};
@@ -340,7 +347,7 @@ const Exam: React.FC = () => {
         </div>
       )}
       <Page onRefresh={handleRefresh} organizationSlug={params.organizationSlug} />
-      {!exam.data.ended && (
+      {!examData.ended && (
         <Button
           variant={"primary"}
           size={"small"}

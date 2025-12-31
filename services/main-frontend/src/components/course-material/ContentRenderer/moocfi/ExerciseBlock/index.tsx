@@ -4,6 +4,7 @@ import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
+import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -18,7 +19,6 @@ import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
 import YellowBox from "@/components/course-material/YellowBox"
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
-import PageContext from "@/contexts/course-material/PageContext"
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
@@ -41,6 +41,7 @@ import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redi
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { courseMaterialAtom } from "@/state/course-material"
 
 const FORWARD_SLASH = "/"
 
@@ -152,16 +153,17 @@ const ExerciseBlock: React.FC<
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
   const loginState = useContext(LoginStateContext)
-  const pageContext = useContext(PageContext)
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
   const showExercise =
-    Boolean(pageContext.exam?.id) || (loginState.signedIn ? !!pageContext.settings : true)
+    Boolean(courseMaterialState.examData?.id) ||
+    (loginState.signedIn ? !!courseMaterialState.settings : true)
   const [postThisStateToIFrame, dispatch] = useReducer(
     exerciseBlockPostThisStateToIFrameReducer,
     null,
   )
   const userOnWrongLanguageVersion =
-    pageContext.settings &&
-    pageContext.settings.current_course_instance_id !== pageContext.instance?.id
+    courseMaterialState.settings &&
+    courseMaterialState.settings.current_course_instance_id !== courseMaterialState.instance?.id
 
   const id = props.data.attributes.id
   const getCourseMaterialExercise = useCourseMaterialExerciseQuery(id, showExercise)
@@ -224,7 +226,7 @@ const ExerciseBlock: React.FC<
       setAnswers(answers)
 
       // if answers were empty, because page refresh
-      if (answers.size === 0 && pageContext.settings?.user_id) {
+      if (answers.size === 0 && courseMaterialState.settings?.user_id) {
         await getCourseMaterialExercise.refetch()
         const a = new Map()
         getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
@@ -272,9 +274,9 @@ const ExerciseBlock: React.FC<
     return <Spinner variant={"medium"} />
   }
 
-  const courseInstanceId = pageContext?.instance?.id
+  const courseInstanceId = courseMaterialState.instance?.id
 
-  const isExam = !!pageContext.exam
+  const isExam = !!courseMaterialState.examData
 
   const spentTries =
     getCourseMaterialExercise.data.exercise_slide_submission_counts[
@@ -712,18 +714,20 @@ const ExerciseBlock: React.FC<
                 </button>
               )}
 
-            {userOnWrongLanguageVersion && pageContext.settings && pageContext.organization && (
-              <UserOnWrongCourseNotification
-                correctCourseId={pageContext.settings.current_course_id}
-                organizationSlug={pageContext.organization?.slug}
-                variant="compact"
-              />
-            )}
+            {userOnWrongLanguageVersion &&
+              courseMaterialState.settings &&
+              courseMaterialState.organization && (
+                <UserOnWrongCourseNotification
+                  correctCourseId={courseMaterialState.settings.current_course_id}
+                  organizationSlug={courseMaterialState.organization?.slug}
+                  variant="compact"
+                />
+              )}
 
             {inSubmissionView &&
               (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
                 <div>
-                  {isExam && !pageContext.exam?.ended && (
+                  {isExam && !courseMaterialState.examData?.ended && (
                     <div
                       className={css`
                         background-color: ${baseTheme.colors.green[100]};
@@ -755,7 +759,7 @@ const ExerciseBlock: React.FC<
                       }
                     `}
                   >
-                    {!ranOutOfTries && !(isExam && pageContext.exam?.ended) && (
+                    {!ranOutOfTries && !(isExam && courseMaterialState.examData?.ended) && (
                       <button
                         className={cx(exerciseButtonStyles)}
                         onClick={() => {

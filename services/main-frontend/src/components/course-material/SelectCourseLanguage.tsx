@@ -1,11 +1,11 @@
 "use client"
 import { css } from "@emotion/css"
+import { useAtomValue } from "jotai"
 import React, { useCallback, useContext, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useCourseLanguageVersionNavigationInfos from "@/hooks/course-material/useCourseLanguageVersionNavigationInfos"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -17,6 +17,7 @@ import {
   typography,
 } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { currentPageDataAtom, materialSettingsAtom } from "@/state/course-material/selectors"
 
 export interface CourseTranslationsListProps {
   selectedLangCourseId: string
@@ -34,8 +35,8 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   currentPageId,
 }) => {
   const { t } = useTranslation("main-frontend", { lng: dialogLanguage })
-  const pageState = useContext(PageContext)
-  const currentCourseId = pageState.pageData?.course_id
+  const pageData = useAtomValue(currentPageDataAtom)
+  const currentCourseId = pageData?.course_id
   const courseLanguageVersionsQuery = useCourseLanguageVersionNavigationInfos(
     currentCourseId,
     currentPageId,

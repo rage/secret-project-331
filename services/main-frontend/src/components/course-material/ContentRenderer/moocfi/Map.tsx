@@ -2,13 +2,13 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import React, { Fragment, useContext, useEffect, useMemo, useState } from "react"
+import { useAtomValue } from "jotai"
+import React, { Fragment, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import {
   fetchStudentCountries,
   fetchStudentCountry,
@@ -20,6 +20,8 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { courseMaterialAtom } from "@/state/course-material"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 const Wrapper = styled.div`
   display: relative;
@@ -75,9 +77,10 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   const [map, setMap] = useState<SVGLineElement | null>(null)
   const { t } = useTranslation()
 
-  const pageState = useContext(PageContext)
-  const courseId = pageState.pageData?.course_id
-  const courseInstanceId = pageState.instance?.id
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
+  const pageData = useAtomValue(currentPageDataAtom)
+  const courseId = pageData?.course_id
+  const courseInstanceId = courseMaterialState.instance?.id
 
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id

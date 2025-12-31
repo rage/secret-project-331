@@ -3,10 +3,10 @@ import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import { i18n, TFunction } from "i18next"
-import React, { useContext, useMemo } from "react"
+import { useAtomValue } from "jotai"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useTime from "@/hooks/course-material/useTime"
 import {
   fetchPageNavigationData,
@@ -21,6 +21,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { courseFrontPageRoute, coursePageRoute } from "@/utils/course-material/routing"
 
 export interface NextPageProps {
@@ -98,8 +99,8 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const now = useTime()
-  const pageContext = useContext(PageContext)
-  const courseInstanceId = pageContext.instance?.id
+  const materialInstance = useAtomValue(materialInstanceAtom)
+  const courseInstanceId = materialInstance?.id
 
   const getPageRoutingData = useQuery({
     queryKey: [`pages-${chapterId}-page-routing-data`, currentPageId],

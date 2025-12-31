@@ -1,11 +1,13 @@
 "use client"
+import { useAtomValue } from "jotai"
 import { useRouter } from "next/navigation"
-import { useContext, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import useCourseLanguageVersionNavigationInfos from "./useCourseLanguageVersionNavigationInfos"
 
-import PageContext from "@/contexts/course-material/PageContext"
+import { courseMaterialAtom } from "@/state/course-material"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
 import { buildLanguageSwitchedUrl } from "@/utils/course-material/urlBuilder"
 
 function normalizeUrl(url: string): string {
@@ -13,23 +15,24 @@ function normalizeUrl(url: string): string {
 }
 
 const useSwitchCourseLanguageVersionByUserInterfaceLanguage = () => {
-  const pageState = useContext(PageContext)
-  const { pageData, course } = pageState
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
+  const currentPageData = useAtomValue(currentPageDataAtom)
+  const currentCourse = courseMaterialState.course
   const { i18n } = useTranslation()
   const router = useRouter()
   const hasRedirectedRef = useRef(false)
 
   const courseLanguageVersionsQuery = useCourseLanguageVersionNavigationInfos(
-    course?.id,
-    pageData?.id,
+    currentCourse?.id,
+    currentPageData?.id,
   )
 
   useEffect(() => {
-    if (!course?.id || !pageData?.id || !courseLanguageVersionsQuery.data) {
+    if (!currentCourse?.id || !currentPageData?.id || !courseLanguageVersionsQuery.data) {
       return
     }
 
-    const currentCourseLanguageCode = course.language_code
+    const currentCourseLanguageCode = currentCourse.language_code
     const userInterfaceLanguage = i18n.language
 
     if (!currentCourseLanguageCode || !userInterfaceLanguage) {
@@ -69,9 +72,9 @@ const useSwitchCourseLanguageVersionByUserInterfaceLanguage = () => {
       router.push(url.pathname + url.search)
     }
   }, [
-    course?.id,
-    course?.language_code,
-    pageData?.id,
+    currentCourse?.id,
+    currentCourse?.language_code,
+    currentPageData?.id,
     courseLanguageVersionsQuery.data,
     courseLanguageVersionsQuery.isLoading,
     courseLanguageVersionsQuery.error,

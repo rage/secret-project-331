@@ -1,11 +1,11 @@
-import GlossaryTriggerNPopover from "./GlossaryTriggerNPopover"
-import { TooltipBox } from "./TooltipBox"
-import { TooltipNTriggerAnchor } from "./TooltipNTriggerAnchor"
-
 import { css } from "@emotion/css"
 import React, { ReactNode } from "react"
 import { Tooltip, TooltipTrigger } from "react-aria-components"
 import { useTranslation } from "react-i18next"
+
+import GlossaryTriggerNPopover from "./GlossaryTriggerNPopover"
+import { TooltipBox } from "./TooltipBox"
+import { TooltipNTriggerAnchor } from "./TooltipNTriggerAnchor"
 
 type TooltipNTriggerProps =
   | {

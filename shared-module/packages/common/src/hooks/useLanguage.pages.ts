@@ -1,5 +1,5 @@
 import { dir } from "i18next"
-
+import { useRouter } from "next/router"
 
 import { LANGUAGE_COOKIE_KEY } from "../utils/constants"
 import { getValueFromCookieString } from "../utils/cookies"

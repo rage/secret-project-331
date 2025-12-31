@@ -1,13 +1,13 @@
 "use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useEffect, useState } from "react"
+import { useAtomValue } from "jotai"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../ContentRenderer"
 
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
-import PageContext from "@/contexts/course-material/PageContext"
 import {
   Block,
   fetchResearchFormQuestionsWithCourseId,
@@ -20,6 +20,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { currentCourseIdAtom } from "@/state/course-material/selectors"
 
 interface ResearchConsentFormProps {
   onClose: () => void
@@ -43,7 +44,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
 }) => {
   const { t } = useTranslation()
   const userId = useUserInfo().data?.user_id
-  const courseId = useContext(PageContext).pageData?.course_id
+  const courseId = useAtomValue(currentCourseIdAtom)
 
   const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<{ [key: string]: boolean }>()
   const getResearchFormQuestions = useQuery({

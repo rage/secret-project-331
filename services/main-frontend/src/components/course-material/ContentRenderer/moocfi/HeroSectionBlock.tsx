@@ -1,17 +1,18 @@
 "use client"
-import React, { useContext } from "react"
+import { useAtomValue } from "jotai"
+import React from "react"
 
 import { BlockRendererProps } from ".."
 import HeroSection, { HeroSectionProps } from "../../HeroSection"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
 const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeroSectionProps>>> = (
   props,
 ) => {
   const DEFAULT = true
-  const pageData = useContext(PageContext)?.pageData
+  const pageData = useAtomValue(currentPageDataAtom)
   const path = pageData?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
   const useDefaultTextForLabel = props.data.attributes.useDefaultTextForLabel ?? DEFAULT

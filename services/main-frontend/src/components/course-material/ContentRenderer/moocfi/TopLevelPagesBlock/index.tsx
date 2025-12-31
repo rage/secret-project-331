@@ -1,25 +1,26 @@
 "use client"
-import { useContext } from "react"
+import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 
 import TopLevelPages from "./TopLevelPage"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { currentPageDataAtom, viewStatusAtom } from "@/state/course-material/selectors"
 
 const TopLevelPageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
-  const pageContext = useContext(PageContext)
+  const viewStatus = useAtomValue(viewStatusAtom)
+  const pageData = useAtomValue(currentPageDataAtom)
 
-  if (pageContext.state !== "ready") {
+  if (viewStatus !== "ready") {
     return <Spinner variant={"medium"} />
   }
 
-  const courseId = pageContext.pageData.course_id
+  const courseId = pageData?.course_id
 
   if (!courseId) {
     return <ErrorBanner variant={"readOnly"} error={t("error-page-does-not-belong-to-chapter")} />

@@ -1,6 +1,7 @@
 "use client"
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
+import { useAtomValue } from "jotai"
 import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,7 +10,6 @@ import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 import { getLanguageName } from "./ChooseCourseLanguage"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
@@ -24,6 +24,14 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont, typography } from "@/shared-module/common/styles"
 import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
+import {
+  currentCourseIdAtom,
+  currentPageIdAtom,
+  materialInstanceAtom,
+  materialSettingsAtom,
+  viewStatusAtom,
+} from "@/state/course-material/selectors"
 
 export interface CourseSettingsModalProps {
   onClose: () => void
@@ -41,7 +49,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   const [dialogLanguage, setDialogLanguage] = useState(i18n.language)
   const { t } = useTranslation("main-frontend", { lng: dialogLanguage })
   const loginState = useContext(LoginStateContext)
-  const pageState = useContext(PageContext)
+  const pageId = useAtomValue(currentPageIdAtom)
+  const courseId = useAtomValue(currentCourseIdAtom)
+  const materialSettings = useAtomValue(materialSettingsAtom)
+  const viewStatus = useAtomValue(viewStatusAtom)
+  const materialInstance = useAtomValue(materialInstanceAtom)
   const dialogTitleId = useId()
 
   // i18n.language changes automatically when the page is loaded, need to update dialogLanguage automatically so that we can accurately detect when the user has changed the language
@@ -54,8 +66,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     })
   }, [i18n.language])
 
-  const savedOrDefaultLangCourseId =
-    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? null
+  const savedOrDefaultLangCourseId = materialSettings?.current_course_id ?? courseId ?? null
 
   const [selectedLangCourseId, setSelectedLangCourseId] = useState<string | null>(
     savedOrDefaultLangCourseId,
@@ -68,7 +79,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   }
 
   const getCourseInstances = useCourseInstances(selectedLangCourseId, {
-    enabled: open && pageState.state === "ready",
+    enabled: open && viewStatus === "ready",
   })
   sortInstances()
 
@@ -85,8 +96,8 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   }, [selectedLangCourseId])
 
   const { redirectToLanguage, availableLanguages } = useLanguageNavigation({
-    currentCourseId: pageState.pageData?.course_id ?? null,
-    currentPageId: pageState.pageData?.id ?? null,
+    currentCourseId: courseId,
+    currentPageId: pageId,
   })
 
   // Find the language code for the selected course
@@ -122,18 +133,10 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           background_question_answers: variables.backgroundQuestionAnswers,
         })
 
-        await queryClient.invalidateQueries()
+        await invalidateCourseMaterialStateQueries(queryClient, courseId)
+
         if (languageChanged && newLangcode) {
           await redirectToLanguage(newLangcode)
-        }
-
-        if (pageState.refetchPage) {
-          console.info("Refetching page because the course instance has changed")
-          await pageState.refetchPage()
-        } else {
-          console.warn(
-            "No refetching the page because there's no refetchPage function in the page context.",
-          )
         }
 
         setOpen(false)
@@ -147,7 +150,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     { notify: false },
   )
 
-  if (pageState.pageData?.course_id === null) {
+  if (courseId === null) {
     // No course id
     // eslint-disable-next-line i18next/no-literal-string
     return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
@@ -175,13 +178,13 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         >
           {t("title-course-settings")}
         </h1>
-        {pageState.pageData?.id && selectedLangCourseId && (
+        {pageId && selectedLangCourseId && (
           <SelectCourseLanguage
             selectedLangCourseId={selectedLangCourseId}
             setSelectedLangCourseId={setSelectedLangCourseId}
             setDialogLanguage={setDialogLanguage}
             dialogLanguage={dialogLanguage}
-            currentPageId={pageState.pageData.id}
+            currentPageId={pageId}
           />
         )}
         {getCourseInstances.isError && (
@@ -193,7 +196,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
             courseInstances={getCourseInstances.data}
             submitMutation={handleSubmitAndCloseMutation}
             initialSelectedInstanceId={
-              pageState.settings?.current_course_instance_id ?? pageState.instance?.id
+              materialSettings?.current_course_instance_id ?? materialInstance?.id
             }
             dialogLanguage={dialogLanguage}
             selectedLangCourseId={selectedLangCourseId}

@@ -1,18 +1,19 @@
 "use client"
+import { useAtomValue } from "jotai"
 import React, { useContext } from "react"
 
 import Congratulations from "./Congratulations"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useUserModuleCompletions from "@/hooks/course-material/useUserModuleCompletions"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { courseMaterialAtom } from "@/state/course-material"
 
 const CongratulationsBlock: React.FC = () => {
-  const pageContext = useContext(PageContext)
-  const courseInstanceId = pageContext.instance?.id
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
+  const courseInstanceId = courseMaterialState.instance?.id
   const getModuleCompletions = useUserModuleCompletions(courseInstanceId)
   const loginStateContext = useContext(LoginStateContext)
   if (!loginStateContext.signedIn) {

@@ -1,13 +1,14 @@
 "use client"
+import { useAtomValue } from "jotai"
 import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useUserModuleCompletions from "@/hooks/course-material/useUserModuleCompletions"
 import { UserCourseSettings } from "@/shared-module/common/bindings"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { courseMaterialAtom } from "@/state/course-material"
 
 interface ConditionalBlockProps {
   module_completion: string[]
@@ -17,9 +18,9 @@ interface ConditionalBlockProps {
 const ConditionalBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ConditionalBlockProps>>
 > = (props) => {
-  const pageContext = useContext(PageContext)
-  const courseInstanceId = pageContext.instance?.id
-  const userSettings: UserCourseSettings | null = pageContext.settings
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
+  const courseInstanceId = courseMaterialState.instance?.id
+  const userSettings: UserCourseSettings | null = courseMaterialState.settings
   const getModuleCompletions = useUserModuleCompletions(courseInstanceId)
 
   const completionsRequired = props.data.attributes.module_completion

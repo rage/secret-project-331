@@ -1,9 +1,9 @@
 "use client"
 import { css } from "@emotion/css"
-import { useContext, useState } from "react"
+import { useAtomValue } from "jotai"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "@/contexts/course-material/PageContext"
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import useOrganization from "@/hooks/course-material/useOrganization"
 import Button from "@/shared-module/common/components/Button"
@@ -12,13 +12,13 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
+import { materialCourseAtom } from "@/state/course-material/selectors"
 
 const ClosedCourseWarningDialog = () => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(true)
 
-  const pageContext = useContext(PageContext)
-  const course = pageContext.course
+  const course = useAtomValue(materialCourseAtom)
 
   const successorCourse = useCourseInfo(course?.closed_course_successor_id)
   const organization = useOrganization(successorCourse?.data?.organization_id)

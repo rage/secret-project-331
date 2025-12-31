@@ -173,7 +173,7 @@ const LanguageMenuWithHook: React.FC<
   const contextLanguages = languageOptions?.availableLanguages
   const availableLanguages = contextLanguages || propAvailableLanguages || []
   const redirectToLanguage = propOnLanguageChange
-  const isLanguageOverridden = !!contextLanguages
+  const areLanguagesOverridden = !!contextLanguages
 
   const currentLanguage = i18n.language || DEFAULT_LANGUAGE
   const { native: activeNative } = getLanguageLabels(currentLanguage, currentLanguage)
@@ -199,7 +199,7 @@ const LanguageMenuWithHook: React.FC<
 
   // Determine which languages to show: context/props languages or default supported languages
   const languagesToShow =
-    availableLanguages.length > 0 && (isLanguageOverridden || availableLanguages.length > 1)
+    availableLanguages.length > 0 && (areLanguagesOverridden || availableLanguages.length > 1)
       ? availableLanguages
       : SUPPORTED_LANGUAGES.map((code) => ({ code }))
 
@@ -212,10 +212,10 @@ const LanguageMenuWithHook: React.FC<
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
         ariaLabel={
-          isLanguageOverridden ? t("change-course-language") : t("change-user-interface-language")
+          areLanguagesOverridden ? t("change-course-language") : t("change-user-interface-language")
         }
         tooltipText={
-          isLanguageOverridden
+          areLanguagesOverridden
             ? `${t("change-course-language")}. ${t("course-language-note")}`
             : t("change-user-interface-language")
         }
@@ -297,7 +297,7 @@ const LanguageMenuWithHook: React.FC<
             )
           })}
         </Menu>
-        {isLanguageOverridden ? (
+        {areLanguagesOverridden ? (
           <div className={footerMessage}>{t("language-options-limited-to-course")}</div>
         ) : null}
       </Popover>

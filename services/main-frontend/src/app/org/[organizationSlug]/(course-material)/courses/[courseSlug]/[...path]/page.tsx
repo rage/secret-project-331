@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
-import React, { useCallback, useContext, useEffect, useMemo, useReducer } from "react"
+import React, { useCallback, useContext, useEffect, useMemo } from "react"
 
 import Page from "@/components/course-material/Page"
 import PageNotFound from "@/components/course-material/PageNotFound"
@@ -10,13 +10,9 @@ import CourseMaterialPageBreadcrumbs from "@/components/course-material/navigati
 import CourseTestModeNotification from "@/components/course-material/notifications/CourseTestModeNotification"
 import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
 import LayoutContext from "@/contexts/course-material/LayoutContext"
-import PageContext, {
-  CoursePageDispatch,
-  getDefaultPageState,
-} from "@/contexts/course-material/PageContext"
+import PageContext, { CoursePageDispatch } from "@/contexts/course-material/PageContext"
 import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
-import pageStateReducer from "@/reducers/course-material/pageStateReducer"
 import { fetchCoursePageByPath } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -66,31 +62,51 @@ const PagePage: React.FC = () => {
     }
   }, [languageNavigation.availableLanguages, languageOptions])
 
-  const pageStateReducerIntializer = useMemo(
-    () =>
-      getDefaultPageState(async () => {
-        await refetchGetCoursePageByPath()
-      }),
-    [refetchGetCoursePageByPath],
-  )
-  const [pageState, pageStateDispatch] = useReducer(pageStateReducer, pageStateReducerIntializer)
+  const pageState = useContext(PageContext)
+  const pageStateDispatch = useContext(CoursePageDispatch)
+
+  const {
+    title: layoutTitle,
+    setTitle: setLayoutTitle,
+    courseId: layoutCourseId,
+    setCourseId: setLayoutCourseId,
+    organizationSlug: layoutOrganizationSlug,
+    setOrganizationSlug: setLayoutOrganizationSlug,
+    setPageState: setLayoutPageState,
+  } = layoutContext
 
   useEffect(() => {
     if (getCoursePageByPath.data) {
-      if (layoutContext.title !== getCoursePageByPath.data.page.title) {
-        layoutContext.setTitle(getCoursePageByPath.data.page.title)
+      if (layoutTitle !== getCoursePageByPath.data.page.title) {
+        setLayoutTitle(getCoursePageByPath.data.page.title)
       }
-      if (layoutContext.courseId !== getCoursePageByPath.data.page.course_id) {
-        layoutContext.setCourseId(getCoursePageByPath.data.page.course_id)
+      if (layoutCourseId !== getCoursePageByPath.data.page.course_id) {
+        setLayoutCourseId(getCoursePageByPath.data.page.course_id)
       }
     }
-    if (layoutContext.organizationSlug !== organizationSlug) {
-      layoutContext.setOrganizationSlug(organizationSlug)
+    if (layoutOrganizationSlug !== organizationSlug) {
+      setLayoutOrganizationSlug(organizationSlug)
     }
-    layoutContext.setPageState(pageState)
-  }, [getCoursePageByPath.data, layoutContext, organizationSlug, pageState])
+    if (setLayoutPageState) {
+      setLayoutPageState(pageState)
+    }
+  }, [
+    getCoursePageByPath.data,
+    layoutTitle,
+    setLayoutTitle,
+    layoutCourseId,
+    setLayoutCourseId,
+    layoutOrganizationSlug,
+    setLayoutOrganizationSlug,
+    organizationSlug,
+    pageState,
+    setLayoutPageState,
+  ])
 
   useEffect(() => {
+    if (!pageStateDispatch) {
+      return
+    }
     if (getCoursePageByPath.isError) {
       pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
     } else if (getCoursePageByPath.isLoading) {
@@ -115,6 +131,7 @@ const PagePage: React.FC = () => {
     getCoursePageByPath.isError,
     getCoursePageByPath.isLoading,
     getCoursePageByPath.isSuccess,
+    pageStateDispatch,
   ])
 
   // handle if the page was redirected to a different path
@@ -155,15 +172,13 @@ const PagePage: React.FC = () => {
   }
 
   return (
-    <CoursePageDispatch.Provider value={pageStateDispatch}>
-      <PageContext.Provider value={pageState}>
-        <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
-          <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
-          {<CourseTestModeNotification isTestMode={pageState.isTest} />}
-        </PageMarginOffset>
-        <Page onRefresh={handleRefresh} organizationSlug={organizationSlug} />
-      </PageContext.Provider>
-    </CoursePageDispatch.Provider>
+    <>
+      <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
+        <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+        {<CourseTestModeNotification isTestMode={pageState.isTest} />}
+      </PageMarginOffset>
+      <Page onRefresh={handleRefresh} organizationSlug={organizationSlug} />
+    </>
   )
 }
 

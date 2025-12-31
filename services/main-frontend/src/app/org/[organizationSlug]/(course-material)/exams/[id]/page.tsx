@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
 import { useParams } from "next/navigation"
-import React, { useCallback, useContext, useEffect, useReducer } from "react"
+import React, { useCallback, useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "@/components/course-material/ContentRenderer"
@@ -13,12 +13,8 @@ import ExamStartBanner from "@/components/course-material/exams/ExamStartBanner"
 import ExamTimer from "@/components/course-material/exams/ExamTimer"
 import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
 import LayoutContext from "@/contexts/course-material/LayoutContext"
-import PageContext, {
-  CoursePageDispatch,
-  getDefaultPageState,
-} from "@/contexts/course-material/PageContext"
+import PageContext, { CoursePageDispatch } from "@/contexts/course-material/PageContext"
 import useTime from "@/hooks/course-material/useTime"
-import pageStateReducer from "@/reducers/course-material/pageStateReducer"
 import { Block, endExamTime, enrollInExam, fetchExam } from "@/services/course-material/backend"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -37,17 +33,17 @@ const Exam: React.FC = () => {
   const params = useParams<{ organizationSlug: string; id: string }>()
   const { t, i18n } = useTranslation()
   const examId = params.id
-  const [pageState, pageStateDispatch] = useReducer(
-    pageStateReducer,
-    // We don't pass a refetch function here on purpose because refetching during an exam is risky because we don't want to accidentally lose unsubmitted answers
-    getDefaultPageState(undefined),
-  )
+  const _pageState = useContext(PageContext)
+  const pageStateDispatch = useContext(CoursePageDispatch)
   const now = useTime(5000)
   const { confirm } = useDialog()
   const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
   const { refetch: refetchExam } = exam
 
   useEffect(() => {
+    if (!pageStateDispatch) {
+      return
+    }
     if (exam.isError) {
       pageStateDispatch({ type: "setError", payload: exam.error })
     } else if (exam.isSuccess && exam.data.enrollment_data.tag === "EnrolledAndStarted") {
@@ -66,7 +62,7 @@ const Exam: React.FC = () => {
     } else {
       pageStateDispatch({ type: "setLoading" })
     }
-  }, [exam.isError, exam.isSuccess, exam.data, exam.error])
+  }, [exam.isError, exam.isSuccess, exam.data, exam.error, pageStateDispatch])
 
   useEffect(() => {
     if (!exam.data) {
@@ -304,63 +300,61 @@ const Exam: React.FC = () => {
   const secondsLeft = differenceInSeconds(endsAt, now)
 
   return (
-    <CoursePageDispatch.Provider value={pageStateDispatch}>
-      <PageContext.Provider value={pageState}>
-        <ExamTimeOverModal
-          disabled={exam.data.ended}
-          secondsLeft={secondsLeft}
-          onClose={handleTimeOverModalClose}
-        />
-        {examInfo}
+    <>
+      <ExamTimeOverModal
+        disabled={exam.data.ended}
+        secondsLeft={secondsLeft}
+        onClose={handleTimeOverModalClose}
+      />
+      {examInfo}
 
-        <ExamTimer
-          startedAt={parseISO(exam.data.enrollment_data.enrollment.started_at)}
-          endsAt={endsAt}
-          secondsLeft={secondsLeft}
-        />
-        {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
-          <div
-            className={css`
-              background-color: ${baseTheme.colors.yellow[100]};
-              color: black;
-              padding: 0.7rem 1rem;
-              margin: 1rem 0;
-              border: 1px solid ${baseTheme.colors.yellow[300]};
-            `}
-          >
-            <div>{t("exam-time-running-out-soon-help-text")}</div>
-          </div>
-        )}
-        {exam.data.ended && (
-          <div
-            className={css`
-              background-color: ${baseTheme.colors.yellow[100]};
-              color: black;
-              padding: 0.7rem 1rem;
-              margin: 1rem 0;
-              border: 1px solid ${baseTheme.colors.yellow[300]};
-            `}
-          >
-            <div>{t("exam-ended-see-points-below")}</div>
-          </div>
-        )}
-        <Page onRefresh={handleRefresh} organizationSlug={params.organizationSlug} />
-        {!exam.data.ended && (
-          <Button
-            variant={"primary"}
-            size={"small"}
-            onClick={async () => {
-              const confirmation = await confirm(t("message-do-you-want-to-end-the-exam"))
-              if (confirmation) {
-                handleEndExam()
-              }
-            }}
-          >
-            {t("button-end-exam")}
-          </Button>
-        )}
-      </PageContext.Provider>
-    </CoursePageDispatch.Provider>
+      <ExamTimer
+        startedAt={parseISO(exam.data.enrollment_data.enrollment.started_at)}
+        endsAt={endsAt}
+        secondsLeft={secondsLeft}
+      />
+      {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
+        <div
+          className={css`
+            background-color: ${baseTheme.colors.yellow[100]};
+            color: black;
+            padding: 0.7rem 1rem;
+            margin: 1rem 0;
+            border: 1px solid ${baseTheme.colors.yellow[300]};
+          `}
+        >
+          <div>{t("exam-time-running-out-soon-help-text")}</div>
+        </div>
+      )}
+      {exam.data.ended && (
+        <div
+          className={css`
+            background-color: ${baseTheme.colors.yellow[100]};
+            color: black;
+            padding: 0.7rem 1rem;
+            margin: 1rem 0;
+            border: 1px solid ${baseTheme.colors.yellow[300]};
+          `}
+        >
+          <div>{t("exam-ended-see-points-below")}</div>
+        </div>
+      )}
+      <Page onRefresh={handleRefresh} organizationSlug={params.organizationSlug} />
+      {!exam.data.ended && (
+        <Button
+          variant={"primary"}
+          size={"small"}
+          onClick={async () => {
+            const confirmation = await confirm(t("message-do-you-want-to-end-the-exam"))
+            if (confirmation) {
+              handleEndExam()
+            }
+          }}
+        >
+          {t("button-end-exam")}
+        </Button>
+      )}
+    </>
   )
 }
 

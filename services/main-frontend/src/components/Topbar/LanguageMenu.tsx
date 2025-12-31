@@ -15,30 +15,19 @@ import {
   DEFAULT_LANGUAGE,
   getDir,
   SUPPORTED_LANGUAGES,
-  type SUPPORTED_LANGUAGES_KEYS,
 } from "@/shared-module/common/hooks/useLanguage"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 
 function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
 function getLanguageLabels(targetCode: string, displayLocale: string) {
-  const hasIntl = typeof Intl !== "undefined" && typeof Intl.DisplayNames === "function"
-  if (!hasIntl) {
-    return {
-      native: targetCode.toUpperCase(),
-      localized: targetCode.toUpperCase(),
-      english: targetCode.toUpperCase(),
-    }
-  }
-  const NativeNames = new Intl.DisplayNames(targetCode, { type: "language" })
-  const LocalizedNames = new Intl.DisplayNames(displayLocale, { type: "language" })
-  const EnglishNames = new Intl.DisplayNames("en", { type: "language" })
   return {
-    native: capitalizeFirst(NativeNames.of(targetCode) || targetCode.toUpperCase()),
-    localized: capitalizeFirst(LocalizedNames.of(targetCode) || targetCode.toUpperCase()),
-    english: capitalizeFirst(EnglishNames.of(targetCode) || targetCode.toUpperCase()),
+    native: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode)),
+    localized: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode, displayLocale)),
+    english: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode, "en")),
   }
 }
 
@@ -181,17 +170,13 @@ const LanguageMenuWithHook: React.FC<
   const [isOpen, setIsOpen] = useState(false)
   const languageOptions = useLanguageOptions()
 
-  // Priority: Context > Props > Empty array
   const contextLanguages = languageOptions?.availableLanguages
   const availableLanguages = contextLanguages || propAvailableLanguages || []
   const redirectToLanguage = propOnLanguageChange
   const isLanguageOverridden = !!contextLanguages
 
-  const current = (i18n.resolvedLanguage || i18n.language || DEFAULT_LANGUAGE).split("-")[0] // normalize
-  const active = SUPPORTED_LANGUAGES.includes(current as SUPPORTED_LANGUAGES_KEYS)
-    ? (current as SUPPORTED_LANGUAGES_KEYS)
-    : DEFAULT_LANGUAGE
-  const { native: activeNative } = getLanguageLabels(active, active) // button shows native name
+  const currentLanguage = i18n.language || DEFAULT_LANGUAGE
+  const { native: activeNative } = getLanguageLabels(currentLanguage, currentLanguage)
 
   const handleLanguageChange = useCallback(
     async (newLanguageCode: string) => {
@@ -219,7 +204,7 @@ const LanguageMenuWithHook: React.FC<
       : SUPPORTED_LANGUAGES.map((code) => ({ code }))
 
   // Hide menu if only one language is available and we're already on it
-  if (availableLanguages.length === 1 && availableLanguages[0].code.split("-")[0] === active) {
+  if (availableLanguages.length === 1 && availableLanguages[0].code === currentLanguage) {
     return null
   }
 
@@ -235,8 +220,8 @@ const LanguageMenuWithHook: React.FC<
             : t("change-user-interface-language")
         }
         className={triggerBtn}
-        lang={active}
-        dir={getDir(active)}
+        lang={currentLanguage}
+        dir={getDir(currentLanguage)}
       >
         <LanguageTranslation size={18} />
         <span
@@ -253,8 +238,8 @@ const LanguageMenuWithHook: React.FC<
       <Popover
         placement={placement === "bottom-end" ? "bottom end" : "bottom start"}
         offset={8}
-        lang={active}
-        dir={getDir(active)}
+        lang={currentLanguage}
+        dir={getDir(currentLanguage)}
         className={css`
           background: #fff;
           border: 1px solid #e5e7eb;
@@ -277,8 +262,8 @@ const LanguageMenuWithHook: React.FC<
         >
           {languagesToShow.map((lang) => {
             const code = lang.code
-            const { native, localized, english } = getLanguageLabels(code, active)
-            const selected = code === active
+            const { native, localized, english } = getLanguageLabels(code, currentLanguage)
+            const selected = code === currentLanguage
             const subtitle = selected ? english : localized
             return (
               <MenuItem
@@ -299,8 +284,8 @@ const LanguageMenuWithHook: React.FC<
                   </span>
                   <span
                     className={`${secondaryLine} ${selected ? selectedSubtext : ""}`}
-                    lang={selected ? "en" : active}
-                    dir={selected ? getDir("en") : getDir(active)}
+                    lang={selected ? "en" : currentLanguage}
+                    dir={selected ? getDir("en") : getDir(currentLanguage)}
                   >
                     {subtitle}
                   </span>

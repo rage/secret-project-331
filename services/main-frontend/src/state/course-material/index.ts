@@ -25,6 +25,7 @@ export type CourseMaterialState = {
   wasRedirected: boolean
 }
 
+/** Global state atom for course material pages. Provides quick access to commonly needed data such as current page, course, organization, etc. */
 export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
   const viewParams = get(viewParamsAtom)
 

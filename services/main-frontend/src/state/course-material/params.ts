@@ -8,4 +8,5 @@ export type ViewParams =
   | { type: "management"; organization: Organization; course: Course }
   | null
 
+/** Parameters defining the current view type (material, exam, or management). */
 export const viewParamsAtom = atom<ViewParams>(null)

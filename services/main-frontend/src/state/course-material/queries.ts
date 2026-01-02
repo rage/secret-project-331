@@ -18,6 +18,7 @@ const QUERY_KEYS = {
     [QUERY_KEYS.EXAM_ROOT, type, id, isTest] as const,
 } as const
 
+/** Query atom for fetching course material page data. */
 export const materialQueryAtom = atomWithQuery((get) => {
   const viewParams = get(viewParamsAtom)
   const isMaterialView = viewParams?.type === "material"
@@ -37,6 +38,7 @@ export const materialQueryAtom = atomWithQuery((get) => {
   }
 })
 
+/** Query atom for fetching exam data. */
 export const examQueryAtom = atomWithQuery((get) => {
   const viewParams = get(viewParamsAtom)
   const isExamView = viewParams?.type === "exam"

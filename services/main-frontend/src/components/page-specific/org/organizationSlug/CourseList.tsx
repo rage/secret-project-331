@@ -3,7 +3,7 @@ import { css } from "@emotion/css"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseComponent, CourseGrid } from "./CourseCard"
+import CourseCard, { CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
 
 import { useOrganizationCourseCount } from "@/hooks/useOrganizationCourseCount"
@@ -66,7 +66,7 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
 
   const courses = organizationCoursesQuery.data.map((course, n) => {
     return (
-      <CourseComponent
+      <CourseCard
         key={course.id}
         title={course.name}
         isDraft={course.is_draft}

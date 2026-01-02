@@ -1,11 +1,13 @@
 "use client"
 import { css } from "@emotion/css"
+import { LanguageTranslation } from "@vectopus/atlas-icons-react"
+import React from "react"
+import { useTranslation } from "react-i18next"
 
 import languageCodesToNamesList from "../modals/LanguageCodesToNames.json"
 
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
-import Language from "@/shared-module/common/components/LanguageSelection/Language"
-import { baseTheme } from "@/shared-module/common/styles"
+import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   // eslint-disable-next-line i18next/no-literal-string
@@ -31,33 +33,35 @@ const getLanguageName = (languageCode: string): string => {
   return nativeNameUppercase
 }
 
-const GetLanguageFlag = (langCode: string) => {
-  const LanguageComponent = Language[langCode]
+const LanguageDisplay: React.FC<{ langCode: string }> = ({ langCode }) => {
+  const { t } = useTranslation()
+  const languageName = ietfLanguageTagToHumanReadableName(langCode)
 
   return (
     <div
-      id={"language-flag"}
+      id={"language-display"}
       className={css`
-        box-sizing: border-box;
-        border: 2px solid ${baseTheme.colors.gray[200]};
-        border-radius: 50%;
-        overflow: hidden;
-        width: 30px;
-        height: 30px;
+        display: flex;
+        align-items: center;
         margin-right: 10px;
         margin-top: 3px;
       `}
     >
-      {LanguageComponent && (
-        <LanguageComponent.image
-          className={css`
-            margin-left: -8px;
-            height: 28px;
-          `}
-        />
-      )}
+      <span role="img" aria-label={t("language-icon")}>
+        <LanguageTranslation size={18} aria-hidden="true" />
+      </span>
+      <span
+        className={css`
+          font-size: 14px;
+          font-weight: 600;
+          color: #111827;
+          margin-left: 6px;
+        `}
+      >
+        {languageName}
+      </span>
     </div>
   )
 }
 
-export { useFigureOutNewLangCode, getLanguageName, GetLanguageFlag }
+export { useFigureOutNewLangCode, getLanguageName, LanguageDisplay }

@@ -1,17 +1,16 @@
 "use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import PseudoContentLink from "@/components/PseudoContentLink"
 import SettingIcon from "@/imgs/setting.svg"
-import Language, {
-  DEFAULT_FLAG_CLIP_PATH,
-} from "@/shared-module/common/components/LanguageSelection/Language"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 
 const CourseGrid = styled.div`
   margin: 0 auto;
@@ -29,7 +28,7 @@ const CourseGrid = styled.div`
   }
 `
 
-const CourseCard = styled.div`
+const StyledCourseCard = styled.div`
   margin-bottom: 5px;
 
   position: relative;
@@ -99,20 +98,16 @@ const CourseLanguageContent = styled.div`
   display: flex;
   padding: 0px 28px 0rem 1.5rem;
   align-items: center;
+  gap: 8px;
 
   position: absolute;
   bottom: 20px;
 `
 
-const LanguageLabel = styled.div`
-  font-family: ${primaryFont};
-  color: #1a2333;
-  font-size: 18px;
-`
-
 const LanguageCode = styled.div`
   font-family: ${primaryFont};
   font-weight: 450;
+  font-size: 18px;
   color: #1a2333;
 `
 
@@ -129,12 +124,13 @@ interface CourseCardProps {
 }
 
 const capitalizeFirstLetter: (language: string) => string = (language) => {
+  if (!language) {
+    return language
+  }
   return language.charAt(0).toUpperCase() + language.substring(1).toLowerCase()
 }
 
-const LANGUAGE_TEXT = "Language"
-
-const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
+const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
   title,
   isDraft,
   isUnlisted,
@@ -145,11 +141,11 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
   showManageButton,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
-  const LanguageComponent = Language[languageCode]
   const { t } = useTranslation()
+  const languageName = ietfLanguageTagToHumanReadableName(languageCode)
 
   return (
-    <CourseCard>
+    <StyledCourseCard>
       {loginStateContext.signedIn && showManageButton && (
         <a
           className={css`
@@ -191,34 +187,22 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
           <CourseDescription>{description}</CourseDescription>
         </CourseContent>
         <CourseLanguageContent>
-          <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
-          {LanguageComponent && (
-            <LanguageComponent.image
+          <span role="img" aria-label={t("language-icon")}>
+            <LanguageTranslation
               className={css`
-                width: 45px;
-                height: 45px;
-                clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
-                margin-left: 10px;
+                position: relative;
+                top: 2px;
               `}
+              size={20}
+              aria-hidden="true"
             />
-          )}
-          <LanguageCode>
-            {LanguageComponent ? (
-              capitalizeFirstLetter(LanguageComponent.humanReadableName)
-            ) : (
-              <span
-                className={css`
-                  margin-left: 1rem;
-                `}
-              >
-                {languageCode}
-              </span>
-            )}
-          </LanguageCode>
+          </span>
+          <LanguageCode>{capitalizeFirstLetter(languageName)}</LanguageCode>
         </CourseLanguageContent>
       </CourseWrapper>
-    </CourseCard>
+    </StyledCourseCard>
   )
 }
 
-export { CourseComponent, CourseGrid }
+export { CourseGrid }
+export default CourseCard

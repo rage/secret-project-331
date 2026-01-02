@@ -743,6 +743,7 @@
   "label-width": "Width",
   "laguage-code-validation-error": "Language code should follow the format aa-BB or aa-Bbbb-CC.",
   "language-code": "Language code",
+  "language-icon": "Language",
   "language-language": "Language: {{language}}",
   "language-options-limited-to-course": "Limited to the languages this course is available in.",
   "language-redirection-failed": "Language redirection failed: {{error}}",

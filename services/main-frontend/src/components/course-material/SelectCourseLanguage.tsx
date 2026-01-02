@@ -1,10 +1,11 @@
 "use client"
 import { css } from "@emotion/css"
+import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
-import React, { useCallback, useContext, useEffect, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
+import { getLanguageName, LanguageDisplay } from "./modals/ChooseCourseLanguage"
 
 import useCourseLanguageVersionNavigationInfos from "@/hooks/course-material/useCourseLanguageVersionNavigationInfos"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -17,7 +18,7 @@ import {
   typography,
 } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { currentPageDataAtom, materialSettingsAtom } from "@/state/course-material/selectors"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 export interface CourseTranslationsListProps {
   selectedLangCourseId: string
@@ -134,16 +135,19 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
       <div
         className={css`
           display: flex;
+          align-items: center;
+          gap: 0.5rem;
           height: 37px;
         `}
       >
-        {langCode && GetLanguageFlag(langCode)}
+        <LanguageTranslation size={18} />
         <select
           className={css`
             box-sizing: border-box;
             background: #ffffff;
             border: 2px solid ${baseTheme.colors.gray[200]};
             width: 119px;
+            height: 100%;
           `}
           id="changeLanguage"
           onChange={onChange}

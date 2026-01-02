@@ -134,7 +134,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
               </NavItems>
             </NavContainer>
             <Suspense fallback={<Spinner variant="large" />}>
-              <UserNavigationControls currentPagePath={pathname} courseId={courseId} />
+              <UserNavigationControls currentPagePath={pathname} />
             </Suspense>
           </NavBar>
         </PageContext.Provider>

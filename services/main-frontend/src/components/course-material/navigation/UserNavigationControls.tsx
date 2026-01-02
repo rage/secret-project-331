@@ -1,6 +1,7 @@
 "use client"
 import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
+import { useAtomValue } from "jotai"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,30 +9,48 @@ import CourseSettingsModal from "../modals/CourseSettingsModal"
 
 import Button from "@/shared-module/common/components/Button"
 import { Menu } from "@/shared-module/common/components/Navigation/NavBar"
-import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { logout } from "@/shared-module/common/services/backend/auth"
 import { baseTheme } from "@/shared-module/common/styles"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
+import { currentCourseIdAtom } from "@/state/course-material/selectors"
 
 export interface UserNavigationControlsProps {
   styles?: string[]
   currentPagePath: string
-  courseId?: string | null
 }
 
 const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationControlsProps>> = ({
   styles,
   currentPagePath,
-  courseId,
 }) => {
   const { t, i18n } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [showSettings, setShowSettings] = useState<boolean>(false)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
   const queryClient = useQueryClient()
+  const courseId = useAtomValue(currentCourseIdAtom)
+
+  const permissionCheck = useAuthorizeMultiple(
+    courseId && loginStateContext.signedIn === true
+      ? [
+          {
+            action: { type: "teach" },
+            resource: { type: "course", id: courseId },
+          },
+        ]
+      : [],
+  )
+
+  const hasPermission =
+    courseId &&
+    loginStateContext.signedIn === true &&
+    permissionCheck.isSuccess &&
+    permissionCheck.data &&
+    permissionCheck.data[0] === true
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
@@ -65,30 +84,20 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
 
       <Menu>
         <>
-          {courseId && (
-            <OnlyRenderIfPermissions
-              action={{
-                type: "teach",
-              }}
-              resource={{
-                type: "course",
-                id: courseId,
-              }}
-            >
-              <li>
-                <a href={manageCourseRoute(courseId)}>
-                  <Button
-                    className={css`
-                      color: ${baseTheme.colors.green[600]}!important;
-                    `}
-                    variant="primary"
-                    size="medium"
-                  >
-                    {t("button-text-manage-course")}
-                  </Button>
-                </a>
-              </li>
-            </OnlyRenderIfPermissions>
+          {courseId && hasPermission && (
+            <li>
+              <a href={manageCourseRoute(courseId)}>
+                <Button
+                  className={css`
+                    color: ${baseTheme.colors.green[600]}!important;
+                  `}
+                  variant="primary"
+                  size="medium"
+                >
+                  {t("button-text-manage-course")}
+                </Button>
+              </a>
+            </li>
           )}
           <li>
             <Button

@@ -218,7 +218,9 @@ const Topbar: React.FC<TopbarProps> = ({
                   />
                 )}
 
-                {enableQuickActions && <QuickActionsMenu menuOptions={quickActionsOptions} />}
+                {enableQuickActions && (
+                  <QuickActionsMenu menuOptions={quickActionsOptions} courseId={courseId} />
+                )}
               </>
             ) : (
               <div

@@ -33,8 +33,8 @@ reviews:
         - Use `fillPromptDialog` for prompt dialogs with input fields
 
         NEVER select elements by auto-generated CSS classes (e.g., `.locator(".css-xknul2-TopBar")`). Instead, use semantic selectors like data-testid attributes, role selectors,
-        text content, or accessible names. Use `page.getByTestId()`, `page.getByRole()`, `page.getByText()`,
-        or `page.getByLabel()` instead.
+        text content, or accessible names. Use `page.getByTestId()`, `page.getByRole()`,
+        `page.getByText()`, or `page.getByLabel()` instead.
 
     - path: "**/*.tsx"
       instructions: >
@@ -101,3 +101,12 @@ reviews:
         When you come up with the table name, make sure to make it plural.
 
         The table, and all columns should have a comment explaining what they are for. The comment should be short and to the point don't repeat obvious things like the column name or the data type in the name. Don't add unnecessary words like "The column for the".
+
+    - path: "**/*"
+      instructions: >
+        Avoid large banner-style comment "code fences" used to divide sections within a single file, such as lines of repeated dashes, long separator bars, or loud numbered headers
+        (for example: `// ----------------------------------------------------------------------`, `// 1. INPUT STATE`, and similar patterns).
+
+        Prefer clearer naming, smaller focused modules/files, and concise, normal comments instead of such section banners.
+
+        When reviewing, do not suggest adding new banner-style fences, and when they appear in new or modified code, suggest simplifying or removing them in favor of better structure and naming.

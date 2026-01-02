@@ -89,3 +89,10 @@ export function buildLanguageSwitchedUrl(
     pagePath: newPagePath,
   })
 }
+
+/**
+ * Normalizes URLs for comparison by ensuring consistent trailing slash handling.
+ */
+export function normalizeUrl(url: string): string {
+  return url.endsWith("/") ? url : `${url}/`
+}

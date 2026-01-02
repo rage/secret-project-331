@@ -3,19 +3,19 @@ import { useAtomValue } from "jotai"
 import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
+import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LanguageSelection, {
   LanguageOption,
 } from "@/shared-module/common/components/LanguageSelection"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import { courseMaterialAtom } from "@/state/course-material"
 import {
   currentCourseIdAtom,
   currentPageDataAtom,
   materialCourseAtom,
 } from "@/state/course-material/selectors"
+import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
 
 interface LanguageNavigationControlsProps {
   placement?: "bottom-end" | "bottom-start"
@@ -33,10 +33,11 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   const pageData = useAtomValue(currentPageDataAtom)
   const { t } = useTranslation()
 
-  const { availableLanguages, redirectToLanguage, isLoading, error } = useLanguageNavigation({
+  const { availableLanguages, isLoading, error } = useLanguageNavigation({
     currentCourseId,
     currentPageId: pageData?.id ?? null,
   })
+  const changeCourseMaterialLanguage = useChangeCourseMaterialLanguage()
 
   const languageOptions: LanguageOption[] = availableLanguages.map((lang) => ({
     tag: lang.code,
@@ -46,14 +47,15 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   const handleLanguageChange = useCallback(
     async (newLanguageCode: string) => {
       try {
-        await redirectToLanguage(newLanguageCode)
+        // Update state - the redirect will be handled by useCourseMaterialLanguageRedirection hook
+        changeCourseMaterialLanguage(newLanguageCode)
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err)
-        console.error("Language redirection failed:", errorMessage)
+        console.error("Language change failed:", errorMessage)
         alert(t("language-redirection-failed", { error: errorMessage }))
       }
     },
-    [redirectToLanguage, alert, t],
+    [changeCourseMaterialLanguage, alert, t],
   )
 
   if (error) {

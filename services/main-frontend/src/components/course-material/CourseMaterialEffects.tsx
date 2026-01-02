@@ -2,10 +2,10 @@
 
 import React from "react"
 
-import useSwitchCourseLanguageVersionByUserInterfaceLanguage from "@/hooks/course-material/useSwitchCourseLanguageVersionByUserInterfaceLanguage"
+import useCourseMaterialLanguageRedirection from "@/hooks/course-material/language/useCourseMaterialLanguageRedirection"
 
 const CourseMaterialEffects: React.FC = () => {
-  useSwitchCourseLanguageVersionByUserInterfaceLanguage()
+  useCourseMaterialLanguageRedirection()
   return null
 }
 

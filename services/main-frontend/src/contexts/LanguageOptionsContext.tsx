@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, ReactNode, useCallback, useContext, useState } from "react"
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from "react"
 
 export interface LanguageOption {
   code: string
@@ -12,12 +12,17 @@ interface LanguageOptionsContextValue {
   availableLanguages: LanguageOption[] | null
   setAvailableLanguages: (languages: LanguageOption[] | null) => void
   clearAvailableLanguages: () => void
+  onLanguageChange?: (languageCode: string) => Promise<void> | void
+  setOnLanguageChange?: (callback: (languageCode: string) => Promise<void> | void) => void
 }
 
 const LanguageOptionsContext = createContext<LanguageOptionsContextValue | undefined>(undefined)
 
 export function LanguageOptionsProvider({ children }: { children: ReactNode }) {
   const [availableLanguages, setAvailableLanguagesState] = useState<LanguageOption[] | null>(null)
+  const [onLanguageChange, setOnLanguageChangeState] = useState<
+    ((languageCode: string) => Promise<void> | void) | undefined
+  >(undefined)
 
   const setAvailableLanguages = useCallback((languages: LanguageOption[] | null) => {
     setAvailableLanguagesState(languages)
@@ -27,10 +32,32 @@ export function LanguageOptionsProvider({ children }: { children: ReactNode }) {
     setAvailableLanguagesState(null)
   }, [])
 
+  const setOnLanguageChange = useCallback(
+    (callback: (languageCode: string) => Promise<void> | void) => {
+      setOnLanguageChangeState(() => callback)
+    },
+    [],
+  )
+
+  const contextValue = useMemo(
+    () => ({
+      availableLanguages,
+      setAvailableLanguages,
+      clearAvailableLanguages,
+      onLanguageChange,
+      setOnLanguageChange,
+    }),
+    [
+      availableLanguages,
+      onLanguageChange,
+      setAvailableLanguages,
+      clearAvailableLanguages,
+      setOnLanguageChange,
+    ],
+  )
+
   return (
-    <LanguageOptionsContext.Provider
-      value={{ availableLanguages, setAvailableLanguages, clearAvailableLanguages }}
-    >
+    <LanguageOptionsContext.Provider value={contextValue}>
       {children}
     </LanguageOptionsContext.Provider>
   )

@@ -14,8 +14,10 @@ import PartnersSectionBlock from "./PartnersSection"
 import ScrollIndicator from "./ScrollIndicator"
 
 import LayoutContext from "@/contexts/course-material/LayoutContext"
-import PageContext, { getDefaultPageState } from "@/contexts/course-material/PageContext"
-import { PageState } from "@/reducers/course-material/pageStateReducer"
+import PageContext, {
+  getDefaultPageState,
+  type PageState,
+} from "@/contexts/course-material/PageContext"
 import { fetchPrivacyLink } from "@/services/course-material/backend"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
@@ -30,6 +32,7 @@ import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
 
 interface LayoutProps {
   children: ReactNode
@@ -66,13 +69,14 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
       : []
 
   const currentLanguageCode = pageState.course?.language_code
+  const changeCourseMaterialLanguage = useChangeCourseMaterialLanguage()
 
   useEffect(() => {
     if (!currentLanguageCode) {
       return
     }
     if (i18n.language !== currentLanguageCode) {
-      i18n.changeLanguage(currentLanguageCode)
+      changeCourseMaterialLanguage(currentLanguageCode)
     }
     const htmlElement = document.querySelector("html")
     if (!htmlElement || !currentLanguageCode) {
@@ -83,7 +87,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
 
       htmlElement.setAttribute("dir", getDir(currentLanguageCode))
     }, 100)
-  }, [currentLanguageCode, i18n])
+  }, [currentLanguageCode, i18n, changeCourseMaterialLanguage])
 
   const layoutContextValue = useMemo(() => {
     return {

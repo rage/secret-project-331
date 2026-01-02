@@ -172,7 +172,6 @@ const LanguageMenuWithHook: React.FC<
 
   const contextLanguages = languageOptions?.availableLanguages
   const availableLanguages = contextLanguages || propAvailableLanguages || []
-  const redirectToLanguage = propOnLanguageChange
   const areLanguagesOverridden = !!contextLanguages
 
   const currentLanguage = i18n.language || DEFAULT_LANGUAGE
@@ -181,8 +180,10 @@ const LanguageMenuWithHook: React.FC<
   const handleLanguageChange = useCallback(
     async (newLanguageCode: string) => {
       try {
-        if (redirectToLanguage) {
-          await redirectToLanguage(newLanguageCode)
+        // Prefer context callback (for course material), then prop callback, then fallback to i18n
+        const callback = languageOptions?.onLanguageChange || propOnLanguageChange
+        if (callback) {
+          await callback(newLanguageCode)
         } else {
           // Fallback to basic i18n change
           await i18n.changeLanguage(newLanguageCode)
@@ -194,7 +195,7 @@ const LanguageMenuWithHook: React.FC<
         alert(t("language-redirection-failed", { error: errorMessage }))
       }
     },
-    [redirectToLanguage, i18n, alert, t],
+    [languageOptions?.onLanguageChange, propOnLanguageChange, i18n, alert, t],
   )
 
   // Determine which languages to show: context/props languages or default supported languages

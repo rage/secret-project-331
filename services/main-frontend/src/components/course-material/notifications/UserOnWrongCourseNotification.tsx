@@ -3,11 +3,11 @@ import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
 import Link from "next/link"
-import React, { useContext, useMemo } from "react"
+import React, { useMemo } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
+import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import { useCourseData } from "@/hooks/course-material/useCourseData"
-import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -53,7 +53,6 @@ const UserOnWrongCourseNotification: React.FC<
     currentPageId: pageData?.id ?? null,
   })
 
-  // Generate the target URL for the Link component using getLanguageUrl
   const targetUrl = useMemo(() => {
     if (!getCourseById.data) {
       return "#"
@@ -75,7 +74,6 @@ const UserOnWrongCourseNotification: React.FC<
 
   const courseData = getCourseById.data
 
-  // Check if the target language is available for switching
   const targetLanguageAvailable = availableLanguages.some(
     (lang) => lang.code === courseData.language_code,
   )

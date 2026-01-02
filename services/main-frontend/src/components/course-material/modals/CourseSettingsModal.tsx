@@ -10,9 +10,9 @@ import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 import { getLanguageName } from "./ChooseCourseLanguage"
 
+import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
-import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
 import { postSaveCourseSettings } from "@/services/course-material/backend"
 import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
@@ -22,7 +22,6 @@ import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont, typography } from "@/shared-module/common/styles"
-import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
 import {
@@ -32,6 +31,7 @@ import {
   materialSettingsAtom,
   viewStatusAtom,
 } from "@/state/course-material/selectors"
+import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
 
 export interface CourseSettingsModalProps {
   onClose: () => void
@@ -95,12 +95,12 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 
-  const { redirectToLanguage, availableLanguages } = useLanguageNavigation({
+  const { availableLanguages } = useLanguageNavigation({
     currentCourseId: courseId,
     currentPageId: pageId,
   })
+  const changeCourseMaterialLanguage = useChangeCourseMaterialLanguage()
 
-  // Find the language code for the selected course
   const newLangcode = availableLanguages?.find(
     (lang) => lang.courseId === selectedLangCourseId,
   )?.code
@@ -124,9 +124,9 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   >(
     async (variables) => {
       const newLanguage = newLangcode ?? ""
-      i18n.changeLanguage(newLanguage)
-      // eslint-disable-next-line i18next/no-literal-string
-      document.cookie = `${LANGUAGE_COOKIE_KEY}=${newLanguage}; path=/; SameSite=Strict; max-age=31536000;`
+      if (newLanguage) {
+        changeCourseMaterialLanguage(newLanguage)
+      }
 
       try {
         await postSaveCourseSettings(variables.instanceId, {
@@ -135,9 +135,8 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
 
         await invalidateCourseMaterialStateQueries(queryClient, courseId)
 
-        if (languageChanged && newLangcode) {
-          await redirectToLanguage(newLangcode)
-        }
+        // The redirect will be handled by useCourseMaterialLanguageRedirection hook
+        // after changeCourseMaterialLanguage updates the atom
 
         setOpen(false)
 
@@ -151,7 +150,6 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   )
 
   if (courseId === null) {
-    // No course id
     // eslint-disable-next-line i18next/no-literal-string
     return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
   }

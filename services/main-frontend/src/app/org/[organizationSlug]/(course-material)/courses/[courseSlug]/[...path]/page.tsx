@@ -3,14 +3,14 @@
 import { useAtomValue, useSetAtom } from "jotai"
 import { useHydrateAtoms } from "jotai/utils"
 import { useParams, useRouter } from "next/navigation"
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 
 import Page from "@/components/course-material/Page"
 import PageNotFound from "@/components/course-material/PageNotFound"
 import CourseMaterialPageBreadcrumbs from "@/components/course-material/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "@/components/course-material/notifications/CourseTestModeNotification"
 import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
-import useLanguageNavigation from "@/hooks/course-material/useLanguageNavigation"
+import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -24,7 +24,9 @@ import {
   currentPageIdAtom,
   refetchViewAtom,
 } from "@/state/course-material/selectors"
+import { courseLanguagePreferenceAtom } from "@/state/courseLanguagePreference"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
+import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
 
 const PagePage: React.FC = () => {
   const router = useRouter()
@@ -47,6 +49,9 @@ const PagePage: React.FC = () => {
     [params.courseSlug, path],
   )
 
+  const setOrganizationSlug = useSetAtom(organizationSlugAtom)
+  const setViewParams = useSetAtom(viewParamsAtom)
+
   // Initialize atoms synchronously on first render
   useHydrateAtoms(
     useMemo(
@@ -59,16 +64,57 @@ const PagePage: React.FC = () => {
     ),
   )
 
+  // Update atoms when params change (e.g., after language redirect)
+  useEffect(() => {
+    setOrganizationSlug(organizationSlug)
+    setViewParams(viewParams)
+  }, [organizationSlug, viewParams, setOrganizationSlug, setViewParams])
+
   // Read unified state
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const courseId = useAtomValue(currentCourseIdAtom)
   const pageId = useAtomValue(currentPageIdAtom)
+  const setLanguagePreference = useSetAtom(courseLanguagePreferenceAtom)
 
-  // Use language navigation hook
   const languageNavigation = useLanguageNavigation({
     currentCourseId: courseId,
     currentPageId: pageId,
   })
+  const changeCourseMaterialLanguage = useChangeCourseMaterialLanguage()
+
+  // Store latest value in ref to avoid recreating handler
+  const changeLanguageRef = useRef(changeCourseMaterialLanguage)
+
+  useEffect(() => {
+    changeLanguageRef.current = changeCourseMaterialLanguage
+  }, [changeCourseMaterialLanguage])
+
+  // Reset language preference when course loads or changes
+  useEffect(() => {
+    if (courseMaterialState.status === "ready" && courseMaterialState.course?.id) {
+      // eslint-disable-next-line i18next/no-literal-string
+      setLanguagePreference("same-as-course")
+    }
+  }, [courseMaterialState.status, courseMaterialState.course?.id, setLanguagePreference])
+
+  // Set up language change handler for course material context
+  // This only updates the state - the redirect is handled by useCourseMaterialLanguageRedirection hook
+  useEffect(() => {
+    if (!languageOptions?.setOnLanguageChange) {
+      return
+    }
+    const handler = async (languageCode: string) => {
+      changeLanguageRef.current(languageCode)
+      // Don't call redirectToLanguage - let useCourseMaterialLanguageRedirection handle it
+    }
+    languageOptions.setOnLanguageChange(handler)
+    return () => {
+      if (languageOptions?.setOnLanguageChange) {
+        languageOptions.setOnLanguageChange(() => {})
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [languageOptions?.setOnLanguageChange])
 
   // Update language options context when available languages change
   useEffect(() => {
@@ -76,7 +122,6 @@ const PagePage: React.FC = () => {
       languageOptions.setAvailableLanguages(languageNavigation.availableLanguages)
     }
     return () => {
-      // Clear language options when unmounting
       if (languageOptions) {
         languageOptions.clearAvailableLanguages()
       }
@@ -106,13 +151,11 @@ const PagePage: React.FC = () => {
   // Handle scrolling to selector if window has anchor
   useScrollToSelector(path)
 
-  // Handle refresh
   const triggerRefetch = useSetAtom(refetchViewAtom)
   const handleRefresh = async () => {
     await triggerRefetch()
   }
 
-  // Error handling
   if (courseMaterialState.error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((courseMaterialState.error as any)?.response?.status === 404) {
@@ -121,7 +164,6 @@ const PagePage: React.FC = () => {
     return <ErrorBanner variant={"readOnly"} error={courseMaterialState.error} />
   }
 
-  // Loading state
   if (courseMaterialState.status === "loading") {
     return <Spinner variant={"small"} />
   }

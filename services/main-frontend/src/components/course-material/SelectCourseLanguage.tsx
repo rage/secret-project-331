@@ -5,7 +5,7 @@ import { useAtomValue } from "jotai"
 import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getLanguageName, LanguageDisplay } from "./modals/ChooseCourseLanguage"
+import { getLanguageName } from "./modals/ChooseCourseLanguage"
 
 import useCourseLanguageVersionNavigationInfos from "@/hooks/course-material/useCourseLanguageVersionNavigationInfos"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -48,7 +48,6 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
       courseLanguageVersionNavigationInfo.course_id === selectedLangCourseId,
   )?.language_code
 
-  // Gets courseId and languageCode of the chosen language
   const onChange = useCallback(
     (event: { target: { value: string } }) => {
       const changedCourseId = event.target.value

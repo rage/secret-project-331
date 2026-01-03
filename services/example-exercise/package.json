@@ -5,8 +5,7 @@
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3002 --turbopack",
-    "export": "next export",
-    "start": "NODE_ENV=production PORT=3002 node server.js"
+    "export": "next export"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",

@@ -8,7 +8,6 @@
     "dev": "next dev --turbopack",
     "export": "next export",
     "postinstall": "mkdir -p public && cp -r ./node_modules/monaco-editor/min ./public/monaco-editor",
-    "start": "NODE_ENV=production PORT=3000 node server.js",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {

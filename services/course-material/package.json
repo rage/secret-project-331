@@ -6,7 +6,6 @@
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3003 --turbopack",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3003 node server.js",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {

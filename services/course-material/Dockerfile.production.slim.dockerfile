@@ -31,4 +31,7 @@ WORKDIR /app
 
 EXPOSE 3003
 
-CMD [ "pnpm", "run", "start" ]
+ENV NODE_ENV=production
+ENV PORT=3003
+
+CMD ["node", "server.js"]

@@ -51,6 +51,33 @@ spec:
             limits:
               memory: 800Mi
               cpu: 500m
+          startupProbe:
+            httpGet:
+              path: /api/v0/health/up
+              port: 3001
+            initialDelaySeconds: 0
+            periodSeconds: 1
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /api/v0/health/up
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 20
+          readinessProbe:
+            httpGet:
+              path: /api/v0/health/up
+              port: 3001
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 10
           env:
             - name: POD_NAMESPACE
               valueFrom:

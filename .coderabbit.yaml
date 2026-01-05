@@ -69,7 +69,11 @@ reviews:
 
     - path: "**/*.rs"
       instructions: >
-        No unwraps at all in non-test code. Avoid also .expect() calls outside of tests, with the exception when the program is starting up so that it would crash immediately for example when an environment variable is not set.
+        Always prefer returning Result types whenever possible. Use proper error handling with `?`, `match`, or `if let` instead of unwrapping.
+
+        NEVER use `.unwrap()` in non-test code. If the function returns a result, return an `Err`. If you cannot return a Result, use `.expect()` ONLY when the failure would occur during application startup (e.g., reading required environment variables, initializing critical resources). This ensures the app crashes immediately before handling any requests, rather than crashing during request handling which would prevent other requests from being processed. All `.expect()` calls must include a clear explanation of why it's safe to CRASH at that point.
+
+        Tests, seed scripts, and development utilities are more lenient and can use `.unwrap()` or `.expect()` as needed.
 
         No sql queries in code that is not within the models crate. If one needs to fetch data from the database, instead add a new function to the models crate and call that one.
 

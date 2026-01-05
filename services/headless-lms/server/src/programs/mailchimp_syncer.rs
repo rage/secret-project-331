@@ -422,7 +422,7 @@ pub async fn sync_tags_from_mailchimp(
     let mailchimp_tags = match response_json.get("tags") {
         Some(tags) if tags.is_array() => tags
             .as_array()
-            .unwrap()
+            .ok_or_else(|| anyhow::anyhow!("tags field is not an array despite is_array() check"))?
             .iter()
             .filter_map(|tag| {
                 let name = tag.get("name")?.as_str()?.to_string();

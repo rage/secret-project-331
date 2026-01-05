@@ -61,3 +61,7 @@ pin-project = "1.1.10"
 tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.76"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

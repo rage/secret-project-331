@@ -691,10 +691,20 @@ FROM ins_exercises;
     .fetch_all(tx)
     .await?;
 
-    Ok(rows
-        .into_iter()
-        .map(|r| (r.copied_from.unwrap().to_string(), r.id.to_string()))
-        .collect())
+    rows.into_iter()
+        .map(|r| {
+            r.copied_from
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Database,
+                        "copied_from should always be set from INSERT statement".to_string(),
+                        None,
+                    )
+                })
+                .map(|copied_from| (copied_from.to_string(), r.id.to_string()))
+        })
+        .collect::<ModelResult<Vec<_>>>()
+        .map(|vec| vec.into_iter().collect())
 }
 
 async fn map_old_exr_ids_to_new_exr_ids_for_exams(

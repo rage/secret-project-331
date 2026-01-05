@@ -89,3 +89,7 @@ mockito = "1.7.1"
 
 [features]
 ts_rs = ["ts-rs", "headless-lms-utils/ts_rs"]
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

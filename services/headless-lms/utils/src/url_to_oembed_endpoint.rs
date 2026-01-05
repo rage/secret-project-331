@@ -62,8 +62,15 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> UtilResu
             );
         }
         if host.ends_with("vimeo.com") {
+            let base = base_url.as_ref().ok_or_else(|| {
+                UtilError::new(
+                    UtilErrorType::Other,
+                    "base_url is required for vimeo oembed".to_string(),
+                    None,
+                )
+            })?;
             return oembed_url_builder(
-                &format!("{}/api/v0/cms/gutenberg/oembed/vimeo", base_url.unwrap()),
+                &format!("{}/api/v0/cms/gutenberg/oembed/vimeo", base),
                 &format!(
                     "url={}",
                     utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
@@ -71,11 +78,15 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> UtilResu
             );
         }
         if host.ends_with("menti.com") || host.ends_with("mentimeter.com") {
+            let base = base_url.as_ref().ok_or_else(|| {
+                UtilError::new(
+                    UtilErrorType::Other,
+                    "base_url is required for mentimeter oembed".to_string(),
+                    None,
+                )
+            })?;
             return oembed_url_builder(
-                &format!(
-                    "{}/api/v0/cms/gutenberg/oembed/mentimeter",
-                    base_url.unwrap()
-                ),
+                &format!("{}/api/v0/cms/gutenberg/oembed/mentimeter", base),
                 &format!(
                     "url={}",
                     utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
@@ -83,11 +94,15 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> UtilResu
             );
         }
         if host.ends_with("thinglink.com") {
+            let base = base_url.as_ref().ok_or_else(|| {
+                UtilError::new(
+                    UtilErrorType::Other,
+                    "base_url is required for thinglink oembed".to_string(),
+                    None,
+                )
+            })?;
             return oembed_url_builder(
-                &format!(
-                    "{}/api/v0/cms/gutenberg/oembed/thinglink",
-                    base_url.unwrap()
-                ),
+                &format!("{}/api/v0/cms/gutenberg/oembed/thinglink", base),
                 &format!(
                     "url={}",
                     utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
@@ -160,7 +175,13 @@ pub fn mentimeter_oembed_response_builder(
             .unwrap_or(&"Mentimeter%20embed".to_string()),
     )
     .decode_utf8()
-    .expect("Decoding title or default value for menti embed failed")
+    .map_err(|_| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Failed to decode title parameter as UTF-8 for mentimeter embed".to_string(),
+            None,
+        )
+    })?
     .to_string();
 
     let response = OEmbedResponse {
@@ -204,7 +225,13 @@ pub fn thinglink_oembed_response_builder(
             .unwrap_or(&"Thinlink%20embed".to_string()),
     )
     .decode_utf8()
-    .expect("Decoding title or default value for thinglink embed failed")
+    .map_err(|_| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Failed to decode title parameter as UTF-8 for thinglink embed".to_string(),
+            None,
+        )
+    })?
     .to_string();
 
     let response = OEmbedResponse {
@@ -242,7 +269,13 @@ pub fn vimeo_oembed_response_builder(url: String, base_url: String) -> UtilResul
     let decoded_title =
         percent_decode_str(params.get("title").unwrap_or(&"Vimeo%20embed".to_string()))
             .decode_utf8()
-            .expect("Decoding title or default value for vimeo embed failed")
+            .map_err(|_| {
+                UtilError::new(
+                    UtilErrorType::Other,
+                    "Failed to decode title parameter as UTF-8 for vimeo embed".to_string(),
+                    None,
+                )
+            })?
             .to_string();
 
     let path = parsed_url.path();

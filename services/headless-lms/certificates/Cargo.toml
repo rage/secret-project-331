@@ -41,3 +41,7 @@ uuid = { version = "1.19.0", features = ["serde", "v4", "v5"] }
 futures = "0.3.31"
 # supports loading ICU4X data from a single serialized blob
 icu_provider_blob = "2.1.1"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

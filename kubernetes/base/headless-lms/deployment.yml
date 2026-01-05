@@ -65,19 +65,19 @@ spec:
               path: /api/v0/health/up
               port: 3001
             initialDelaySeconds: 30
-            periodSeconds: 10
+            periodSeconds: 30
             timeoutSeconds: 5
             successThreshold: 1
-            failureThreshold: 20
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /api/v0/health/up
               port: 3001
             initialDelaySeconds: 0
-            periodSeconds: 5
+            periodSeconds: 15
             timeoutSeconds: 3
             successThreshold: 1
-            failureThreshold: 10
+            failureThreshold: 3
           env:
             - name: POD_NAMESPACE
               valueFrom:

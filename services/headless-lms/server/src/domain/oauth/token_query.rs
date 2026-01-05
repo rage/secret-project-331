@@ -84,20 +84,20 @@ impl OAuthValidate for TokenQuery {
                 grant
             }
             Some(grant @ TokenGrant::RefreshToken { .. }) => {
-                if let TokenGrant::RefreshToken { refresh_token, .. } = &grant {
-                    if refresh_token.is_empty() {
-                        return Err(ControllerError::new(
-                            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                                error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                                error_description: "refresh_token is required".into(),
-                                redirect_uri: None,
-                                state: None,
-                                nonce: None,
-                            })),
-                            "Missing refresh token",
-                            None::<anyhow::Error>,
-                        ));
-                    }
+                if let TokenGrant::RefreshToken { refresh_token, .. } = &grant
+                    && refresh_token.is_empty()
+                {
+                    return Err(ControllerError::new(
+                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                            error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                            error_description: "refresh_token is required".into(),
+                            redirect_uri: None,
+                            state: None,
+                            nonce: None,
+                        })),
+                        "Missing refresh token",
+                        None::<anyhow::Error>,
+                    ));
                 }
                 grant
             }

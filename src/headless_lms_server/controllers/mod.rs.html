@@ -13,7 +13,7 @@
 <a href=#13 id=13 data-nosnippet>13</a><span class="kw">pub mod </span>course_material;
 <a href=#14 id=14 data-nosnippet>14</a><span class="kw">pub mod </span>exercise_services;
 <a href=#15 id=15 data-nosnippet>15</a><span class="kw">pub mod </span>files;
-<a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub mod </span>healthz;
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub mod </span>health;
 <a href=#17 id=17 data-nosnippet>17</a><span class="kw">pub mod </span>helpers;
 <a href=#18 id=18 data-nosnippet>18</a><span class="kw">pub mod </span>langs;
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">pub mod </span>main_frontend;
@@ -54,7 +54,7 @@
 <a href=#54 id=54 data-nosnippet>54</a>        .service(
 <a href=#55 id=55 data-nosnippet>55</a>            web::scope(<span class="string">"/other-domain-redirects"</span>).configure(other_domain_redirects::_add_routes),
 <a href=#56 id=56 data-nosnippet>56</a>        )
-<a href=#57 id=57 data-nosnippet>57</a>        .service(web::scope(<span class="string">"/healthz"</span>).configure(healthz::_add_routes))
+<a href=#57 id=57 data-nosnippet>57</a>        .service(web::scope(<span class="string">"/health"</span>).configure(health::_add_routes))
 <a href=#58 id=58 data-nosnippet>58</a>        .service(web::scope(<span class="string">"/langs"</span>).configure(langs::_add_routes))
 <a href=#59 id=59 data-nosnippet>59</a>        .service(web::scope(<span class="string">"/tmc-server"</span>).configure(tmc_server::_add_routes))
 <a href=#60 id=60 data-nosnippet>60</a>        .default_service(web::to(not_found));

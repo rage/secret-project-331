@@ -90,7 +90,13 @@ WHERE user_id = $1
                     .to_string()
             });
 
-            let parsed = PasswordHash::new(&DUMMY_HASH).unwrap();
+            let parsed = PasswordHash::new(&DUMMY_HASH).map_err(|e| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    format!("Failed to parse DUMMY_HASH: {}", e),
+                    Some(anyhow::anyhow!("Password hash error: {}", e)),
+                )
+            })?;
             let _ = Argon2::default().verify_password(b"dummy-password", &parsed);
             return Ok(false);
         }

@@ -595,13 +595,18 @@ where
     url.set_path(&format!("indexes('{}')/docs/index", index_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let index_actions: Vec<IndexAction<String>> = documents
+    let index_actions: anyhow::Result<Vec<IndexAction<String>>> = documents
         .into_iter()
-        .map(|doc| IndexAction {
-            search_action: "upload".to_string(),
-            document: serde_json::to_string(&doc).unwrap(),
+        .map(|doc| {
+            serde_json::to_string(&doc)
+                .map(|document| IndexAction {
+                    search_action: "upload".to_string(),
+                    document,
+                })
+                .map_err(|e| anyhow::anyhow!("Failed to serialize document: {}", e))
         })
         .collect();
+    let index_actions = index_actions?;
 
     let batch = IndexBatch {
         value: index_actions,

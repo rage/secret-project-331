@@ -110,8 +110,7 @@ RETURNING *;
         id
     )
     .fetch_one(&mut *conn)
-    .await
-    .unwrap();
+    .await?;
 
     Ok(PlaygroundExample {
         id: res.id,

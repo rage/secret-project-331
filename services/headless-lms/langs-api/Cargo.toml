@@ -19,3 +19,7 @@ serde_json = "1.0.145"
 thiserror = "2.0.17"
 # A library to generate and parse UUIDs.
 uuid = { version = "1.19.0", features = ["serde"] }
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

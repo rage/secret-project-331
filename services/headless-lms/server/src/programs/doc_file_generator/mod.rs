@@ -262,7 +262,7 @@ macro_rules! doc {
 pub async fn main() -> anyhow::Result<()> {
     // clear previous results
     fs::read_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/generated-docs/"))
-        .unwrap()
+        .map_err(|e| anyhow::anyhow!("Failed to read generated-docs directory: {}", e))?
         .filter_map(|file| {
             file.ok().filter(|f| {
                 f.file_name()
@@ -270,7 +270,11 @@ pub async fn main() -> anyhow::Result<()> {
                     .is_some_and(|n| n.ends_with(".json") || n.ends_with(".ts"))
             })
         })
-        .for_each(|f| fs::remove_file(f.path()).unwrap());
+        .try_for_each(|f| -> anyhow::Result<()> {
+            fs::remove_file(f.path())
+                .map_err(|e| anyhow::anyhow!("Failed to remove file {:?}: {}", f.path(), e))?;
+            Ok(())
+        })?;
 
     // write docs
     controllers();
@@ -292,16 +296,18 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 pub fn write_json<T: Serialize>(path: &str, value: T) {
-    let mut file = std::fs::File::create(path).unwrap();
+    let mut file =
+        std::fs::File::create(path).expect("Failed to create file for JSON serialization");
     let formatter = PrettyFormatter::with_indent(b"    ");
     let mut serializer = Serializer::with_formatter(&mut file, formatter);
-    serde::Serialize::serialize(&value, &mut serializer).unwrap();
+    serde::Serialize::serialize(&value, &mut serializer)
+        .expect("Failed to serialize value to JSON");
 }
 
 #[cfg(feature = "ts_rs")]
 pub fn write_ts<T: TS>(path: &str, type_name: &str) {
     let contents = format!("type {} = {}", type_name, T::inline());
-    std::fs::write(path, contents).unwrap();
+    std::fs::write(path, contents).expect("Failed to write TypeScript type definition file");
 }
 
 #[allow(non_local_definitions)]
@@ -315,7 +321,8 @@ fn controllers() {
             completion_registration_attempt_date: None,
             email: "student@example.com".to_string(),
             grade: StudyRegistryGrade::new(true, Some(4)),
-            id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
+            id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9")
+                .expect("Invalid UUID constant in doc generator"),
             user_id,
             tier: None
         }
@@ -324,5 +331,6 @@ fn controllers() {
 
 // external types, there should only be a couple in here so no macros or other fancy stuff
 fn external() {
-    std::fs::write(doc_path!("Bytes", ".ts"), "type Bytes = Blob").unwrap();
+    std::fs::write(doc_path!("Bytes", ".ts"), "type Bytes = Blob")
+        .expect("Failed to write Bytes type definition file");
 }

@@ -488,76 +488,81 @@
 <a href=#488 id=488 data-nosnippet>488</a>    }
 <a href=#489 id=489 data-nosnippet>489</a>
 <a href=#490 id=490 data-nosnippet>490</a>    models::certificate_configurations::delete(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>configuration_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#491 id=491 data-nosnippet>491</a>    token
-<a href=#492 id=492 data-nosnippet>492</a>        .expect(<span class="string">"Never None at this point"</span>)
-<a href=#493 id=493 data-nosnippet>493</a>        .authorized_ok(web::Json(<span class="bool-val">true</span>))
-<a href=#494 id=494 data-nosnippet>494</a>}
-<a href=#495 id=495 data-nosnippet>495</a>
-<a href=#496 id=496 data-nosnippet>496</a><span class="attr">#[instrument(skip(pool))]
-<a href=#497 id=497 data-nosnippet>497</a></span><span class="kw">pub async fn </span>update_generated_certificate(
-<a href=#498 id=498 data-nosnippet>498</a>    certificate_id: web::Path&lt;Uuid&gt;,
-<a href=#499 id=499 data-nosnippet>499</a>    payload: web::Json&lt;CertificateUpdateRequest&gt;,
-<a href=#500 id=500 data-nosnippet>500</a>    pool: web::Data&lt;PgPool&gt;,
-<a href=#501 id=501 data-nosnippet>501</a>    user: AuthUser,
-<a href=#502 id=502 data-nosnippet>502</a>) -&gt; ControllerResult&lt;web::Json&lt;GeneratedCertificate&gt;&gt; {
-<a href=#503 id=503 data-nosnippet>503</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#504 id=504 data-nosnippet>504</a>
-<a href=#505 id=505 data-nosnippet>505</a>    <span class="kw">let </span>cert = models::generated_certificates::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>certificate_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#506 id=506 data-nosnippet>506</a>
-<a href=#507 id=507 data-nosnippet>507</a>    <span class="comment">// find course_id for authorization
-<a href=#508 id=508 data-nosnippet>508</a>    </span><span class="kw">let </span>req = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
-<a href=#509 id=509 data-nosnippet>509</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#510 id=510 data-nosnippet>510</a>        cert.certificate_configuration_id,
-<a href=#511 id=511 data-nosnippet>511</a>    ).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#512 id=512 data-nosnippet>512</a>
-<a href=#513 id=513 data-nosnippet>513</a>    <span class="kw">let </span>course_module_id = req.course_module_ids.first().ok_or_else(|| {
-<a href=#514 id=514 data-nosnippet>514</a>        ControllerError::new(
-<a href=#515 id=515 data-nosnippet>515</a>            ControllerErrorType::BadRequest,
-<a href=#516 id=516 data-nosnippet>516</a>            <span class="string">"Certificate has no associated course module"</span>,
-<a href=#517 id=517 data-nosnippet>517</a>            <span class="prelude-val">None</span>,
-<a href=#518 id=518 data-nosnippet>518</a>        )
-<a href=#519 id=519 data-nosnippet>519</a>    })<span class="question-mark">?</span>;
-<a href=#520 id=520 data-nosnippet>520</a>
-<a href=#521 id=521 data-nosnippet>521</a>    <span class="kw">let </span>course_module = models::course_modules::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_module_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#522 id=522 data-nosnippet>522</a>    <span class="kw">let </span>course_id = course_module.course_id;
-<a href=#523 id=523 data-nosnippet>523</a>
-<a href=#524 id=524 data-nosnippet>524</a>    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#491 id=491 data-nosnippet>491</a>    <span class="kw">let </span>token = token.ok_or_else(|| {
+<a href=#492 id=492 data-nosnippet>492</a>        ControllerError::new(
+<a href=#493 id=493 data-nosnippet>493</a>            ControllerErrorType::InternalServerError,
+<a href=#494 id=494 data-nosnippet>494</a>            <span class="string">"Authorization token was not set"</span>.to_string(),
+<a href=#495 id=495 data-nosnippet>495</a>            <span class="prelude-val">None</span>,
+<a href=#496 id=496 data-nosnippet>496</a>        )
+<a href=#497 id=497 data-nosnippet>497</a>    })<span class="question-mark">?</span>;
+<a href=#498 id=498 data-nosnippet>498</a>    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
+<a href=#499 id=499 data-nosnippet>499</a>}
+<a href=#500 id=500 data-nosnippet>500</a>
+<a href=#501 id=501 data-nosnippet>501</a><span class="attr">#[instrument(skip(pool))]
+<a href=#502 id=502 data-nosnippet>502</a></span><span class="kw">pub async fn </span>update_generated_certificate(
+<a href=#503 id=503 data-nosnippet>503</a>    certificate_id: web::Path&lt;Uuid&gt;,
+<a href=#504 id=504 data-nosnippet>504</a>    payload: web::Json&lt;CertificateUpdateRequest&gt;,
+<a href=#505 id=505 data-nosnippet>505</a>    pool: web::Data&lt;PgPool&gt;,
+<a href=#506 id=506 data-nosnippet>506</a>    user: AuthUser,
+<a href=#507 id=507 data-nosnippet>507</a>) -&gt; ControllerResult&lt;web::Json&lt;GeneratedCertificate&gt;&gt; {
+<a href=#508 id=508 data-nosnippet>508</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#509 id=509 data-nosnippet>509</a>
+<a href=#510 id=510 data-nosnippet>510</a>    <span class="kw">let </span>cert = models::generated_certificates::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>certificate_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#511 id=511 data-nosnippet>511</a>
+<a href=#512 id=512 data-nosnippet>512</a>    <span class="comment">// find course_id for authorization
+<a href=#513 id=513 data-nosnippet>513</a>    </span><span class="kw">let </span>req = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+<a href=#514 id=514 data-nosnippet>514</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#515 id=515 data-nosnippet>515</a>        cert.certificate_configuration_id,
+<a href=#516 id=516 data-nosnippet>516</a>    ).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#517 id=517 data-nosnippet>517</a>
+<a href=#518 id=518 data-nosnippet>518</a>    <span class="kw">let </span>course_module_id = req.course_module_ids.first().ok_or_else(|| {
+<a href=#519 id=519 data-nosnippet>519</a>        ControllerError::new(
+<a href=#520 id=520 data-nosnippet>520</a>            ControllerErrorType::BadRequest,
+<a href=#521 id=521 data-nosnippet>521</a>            <span class="string">"Certificate has no associated course module"</span>,
+<a href=#522 id=522 data-nosnippet>522</a>            <span class="prelude-val">None</span>,
+<a href=#523 id=523 data-nosnippet>523</a>        )
+<a href=#524 id=524 data-nosnippet>524</a>    })<span class="question-mark">?</span>;
 <a href=#525 id=525 data-nosnippet>525</a>
-<a href=#526 id=526 data-nosnippet>526</a>    <span class="kw">let </span>updated = models::generated_certificates::update_certificate(
-<a href=#527 id=527 data-nosnippet>527</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#528 id=528 data-nosnippet>528</a>        <span class="kw-2">*</span>certificate_id,
-<a href=#529 id=529 data-nosnippet>529</a>        payload.date_issued,
-<a href=#530 id=530 data-nosnippet>530</a>        payload.name_on_certificate.clone(),
-<a href=#531 id=531 data-nosnippet>531</a>    )
-<a href=#532 id=532 data-nosnippet>532</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#533 id=533 data-nosnippet>533</a>
-<a href=#534 id=534 data-nosnippet>534</a>    token.authorized_ok(web::Json(updated))
-<a href=#535 id=535 data-nosnippet>535</a>}
-<a href=#536 id=536 data-nosnippet>536</a>
-<a href=#537 id=537 data-nosnippet>537</a><span class="doccomment">/**
-<a href=#538 id=538 data-nosnippet>538</a>Add a route for each controller in this module.
-<a href=#539 id=539 data-nosnippet>539</a>
-<a href=#540 id=540 data-nosnippet>540</a>The name starts with an underline in order to appear before other functions in the module documentation.
+<a href=#526 id=526 data-nosnippet>526</a>    <span class="kw">let </span>course_module = models::course_modules::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_module_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#527 id=527 data-nosnippet>527</a>    <span class="kw">let </span>course_id = course_module.course_id;
+<a href=#528 id=528 data-nosnippet>528</a>
+<a href=#529 id=529 data-nosnippet>529</a>    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#530 id=530 data-nosnippet>530</a>
+<a href=#531 id=531 data-nosnippet>531</a>    <span class="kw">let </span>updated = models::generated_certificates::update_certificate(
+<a href=#532 id=532 data-nosnippet>532</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#533 id=533 data-nosnippet>533</a>        <span class="kw-2">*</span>certificate_id,
+<a href=#534 id=534 data-nosnippet>534</a>        payload.date_issued,
+<a href=#535 id=535 data-nosnippet>535</a>        payload.name_on_certificate.clone(),
+<a href=#536 id=536 data-nosnippet>536</a>    )
+<a href=#537 id=537 data-nosnippet>537</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#538 id=538 data-nosnippet>538</a>
+<a href=#539 id=539 data-nosnippet>539</a>    token.authorized_ok(web::Json(updated))
+<a href=#540 id=540 data-nosnippet>540</a>}
 <a href=#541 id=541 data-nosnippet>541</a>
-<a href=#542 id=542 data-nosnippet>542</a>We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-<a href=#543 id=543 data-nosnippet>543</a>*/
-<a href=#544 id=544 data-nosnippet>544</a></span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-<a href=#545 id=545 data-nosnippet>545</a>    cfg.route(<span class="string">""</span>, web::post().to(update_certificate_configuration))
-<a href=#546 id=546 data-nosnippet>546</a>        .route(<span class="string">"/generate"</span>, web::post().to(generate_generated_certificate))
-<a href=#547 id=547 data-nosnippet>547</a>        .route(
-<a href=#548 id=548 data-nosnippet>548</a>            <span class="string">"/get-by-configuration-id/{certificate_configuration_id}"</span>,
-<a href=#549 id=549 data-nosnippet>549</a>            web::get().to(get_generated_certificate),
-<a href=#550 id=550 data-nosnippet>550</a>        )
-<a href=#551 id=551 data-nosnippet>551</a>        .route(
-<a href=#552 id=552 data-nosnippet>552</a>            <span class="string">"/generated/{certificate_id}"</span>,
-<a href=#553 id=553 data-nosnippet>553</a>            web::put().to(update_generated_certificate),
-<a href=#554 id=554 data-nosnippet>554</a>        )
-<a href=#555 id=555 data-nosnippet>555</a>        .route(
-<a href=#556 id=556 data-nosnippet>556</a>            <span class="string">"/{certificate_verification_id}"</span>,
-<a href=#557 id=557 data-nosnippet>557</a>            web::get().to(get_cerficate_by_verification_id),
-<a href=#558 id=558 data-nosnippet>558</a>        )
-<a href=#559 id=559 data-nosnippet>559</a>        .route(
-<a href=#560 id=560 data-nosnippet>560</a>            <span class="string">"/configuration/{certificate_configuration_id}"</span>,
-<a href=#561 id=561 data-nosnippet>561</a>            web::delete().to(delete_certificate_configuration),
-<a href=#562 id=562 data-nosnippet>562</a>        );
-<a href=#563 id=563 data-nosnippet>563</a>}</code></pre></div></section></main></body></html>
+<a href=#542 id=542 data-nosnippet>542</a><span class="doccomment">/**
+<a href=#543 id=543 data-nosnippet>543</a>Add a route for each controller in this module.
+<a href=#544 id=544 data-nosnippet>544</a>
+<a href=#545 id=545 data-nosnippet>545</a>The name starts with an underline in order to appear before other functions in the module documentation.
+<a href=#546 id=546 data-nosnippet>546</a>
+<a href=#547 id=547 data-nosnippet>547</a>We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
+<a href=#548 id=548 data-nosnippet>548</a>*/
+<a href=#549 id=549 data-nosnippet>549</a></span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+<a href=#550 id=550 data-nosnippet>550</a>    cfg.route(<span class="string">""</span>, web::post().to(update_certificate_configuration))
+<a href=#551 id=551 data-nosnippet>551</a>        .route(<span class="string">"/generate"</span>, web::post().to(generate_generated_certificate))
+<a href=#552 id=552 data-nosnippet>552</a>        .route(
+<a href=#553 id=553 data-nosnippet>553</a>            <span class="string">"/get-by-configuration-id/{certificate_configuration_id}"</span>,
+<a href=#554 id=554 data-nosnippet>554</a>            web::get().to(get_generated_certificate),
+<a href=#555 id=555 data-nosnippet>555</a>        )
+<a href=#556 id=556 data-nosnippet>556</a>        .route(
+<a href=#557 id=557 data-nosnippet>557</a>            <span class="string">"/generated/{certificate_id}"</span>,
+<a href=#558 id=558 data-nosnippet>558</a>            web::put().to(update_generated_certificate),
+<a href=#559 id=559 data-nosnippet>559</a>        )
+<a href=#560 id=560 data-nosnippet>560</a>        .route(
+<a href=#561 id=561 data-nosnippet>561</a>            <span class="string">"/{certificate_verification_id}"</span>,
+<a href=#562 id=562 data-nosnippet>562</a>            web::get().to(get_cerficate_by_verification_id),
+<a href=#563 id=563 data-nosnippet>563</a>        )
+<a href=#564 id=564 data-nosnippet>564</a>        .route(
+<a href=#565 id=565 data-nosnippet>565</a>            <span class="string">"/configuration/{certificate_configuration_id}"</span>,
+<a href=#566 id=566 data-nosnippet>566</a>            web::delete().to(delete_certificate_configuration),
+<a href=#567 id=567 data-nosnippet>567</a>        );
+<a href=#568 id=568 data-nosnippet>568</a>}</code></pre></div></section></main></body></html>

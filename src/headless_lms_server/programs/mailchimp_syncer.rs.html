@@ -422,8 +422,8 @@
 <a href=#422 id=422 data-nosnippet>422</a>    <span class="kw">let </span>mailchimp_tags = <span class="kw">match </span>response_json.get(<span class="string">"tags"</span>) {
 <a href=#423 id=423 data-nosnippet>423</a>        <span class="prelude-val">Some</span>(tags) <span class="kw">if </span>tags.is_array() =&gt; tags
 <a href=#424 id=424 data-nosnippet>424</a>            .as_array()
-<a href=#425 id=425 data-nosnippet>425</a>            .unwrap()
-<a href=#426 id=426 data-nosnippet>426</a>            .iter()
+<a href=#425 id=425 data-nosnippet>425</a>            .ok_or_else(|| <span class="macro">anyhow::anyhow!</span>(<span class="string">"tags field is not an array despite is_array() check"</span>))<span class="question-mark">?
+<a href=#426 id=426 data-nosnippet>426</a>            </span>.iter()
 <a href=#427 id=427 data-nosnippet>427</a>            .filter_map(|tag| {
 <a href=#428 id=428 data-nosnippet>428</a>                <span class="kw">let </span>name = tag.get(<span class="string">"name"</span>)<span class="question-mark">?</span>.as_str()<span class="question-mark">?</span>.to_string();
 <a href=#429 id=429 data-nosnippet>429</a>

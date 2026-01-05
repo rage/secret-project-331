@@ -595,38 +595,43 @@
 <a href=#595 id=595 data-nosnippet>595</a>    url.set_path(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"indexes('{}')/docs/index"</span>, index_name));
 <a href=#596 id=596 data-nosnippet>596</a>    url.set_query(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"api-version={}"</span>, API_VERSION)));
 <a href=#597 id=597 data-nosnippet>597</a>
-<a href=#598 id=598 data-nosnippet>598</a>    <span class="kw">let </span>index_actions: Vec&lt;IndexAction&lt;String&gt;&gt; = documents
+<a href=#598 id=598 data-nosnippet>598</a>    <span class="kw">let </span>index_actions: anyhow::Result&lt;Vec&lt;IndexAction&lt;String&gt;&gt;&gt; = documents
 <a href=#599 id=599 data-nosnippet>599</a>        .into_iter()
-<a href=#600 id=600 data-nosnippet>600</a>        .map(|doc| IndexAction {
-<a href=#601 id=601 data-nosnippet>601</a>            search_action: <span class="string">"upload"</span>.to_string(),
-<a href=#602 id=602 data-nosnippet>602</a>            document: serde_json::to_string(<span class="kw-2">&amp;</span>doc).unwrap(),
-<a href=#603 id=603 data-nosnippet>603</a>        })
-<a href=#604 id=604 data-nosnippet>604</a>        .collect();
-<a href=#605 id=605 data-nosnippet>605</a>
-<a href=#606 id=606 data-nosnippet>606</a>    <span class="kw">let </span>batch = IndexBatch {
-<a href=#607 id=607 data-nosnippet>607</a>        value: index_actions,
-<a href=#608 id=608 data-nosnippet>608</a>    };
-<a href=#609 id=609 data-nosnippet>609</a>
-<a href=#610 id=610 data-nosnippet>610</a>    <span class="kw">let </span>batch_json = serde_json::to_string(<span class="kw-2">&amp;</span>batch)<span class="question-mark">?</span>;
-<a href=#611 id=611 data-nosnippet>611</a>
-<a href=#612 id=612 data-nosnippet>612</a>    <span class="kw">let </span>response = REQWEST_CLIENT
-<a href=#613 id=613 data-nosnippet>613</a>        .post(url)
-<a href=#614 id=614 data-nosnippet>614</a>        .header(<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>)
-<a href=#615 id=615 data-nosnippet>615</a>        .header(<span class="string">"api-key"</span>, search_config.search_api_key.clone())
-<a href=#616 id=616 data-nosnippet>616</a>        .body(batch_json)
-<a href=#617 id=617 data-nosnippet>617</a>        .send()
-<a href=#618 id=618 data-nosnippet>618</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#619 id=619 data-nosnippet>619</a>
-<a href=#620 id=620 data-nosnippet>620</a>    <span class="kw">if </span>response.status().is_success() {
-<a href=#621 id=621 data-nosnippet>621</a>        <span class="macro">println!</span>(<span class="string">"Documents added successfully to index: {}"</span>, index_name);
-<a href=#622 id=622 data-nosnippet>622</a>        <span class="prelude-val">Ok</span>(())
-<a href=#623 id=623 data-nosnippet>623</a>    } <span class="kw">else </span>{
-<a href=#624 id=624 data-nosnippet>624</a>        <span class="kw">let </span>status = response.status();
-<a href=#625 id=625 data-nosnippet>625</a>        <span class="kw">let </span>error_text = response.text().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#626 id=626 data-nosnippet>626</a>        <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(
-<a href=#627 id=627 data-nosnippet>627</a>            <span class="string">"Failed to add documents to index. Status: {}. Error: {}"</span>,
-<a href=#628 id=628 data-nosnippet>628</a>            status,
-<a href=#629 id=629 data-nosnippet>629</a>            error_text
-<a href=#630 id=630 data-nosnippet>630</a>        ))
-<a href=#631 id=631 data-nosnippet>631</a>    }
-<a href=#632 id=632 data-nosnippet>632</a>}</code></pre></div></section></main></body></html>
+<a href=#600 id=600 data-nosnippet>600</a>        .map(|doc| {
+<a href=#601 id=601 data-nosnippet>601</a>            serde_json::to_string(<span class="kw-2">&amp;</span>doc)
+<a href=#602 id=602 data-nosnippet>602</a>                .map(|document| IndexAction {
+<a href=#603 id=603 data-nosnippet>603</a>                    search_action: <span class="string">"upload"</span>.to_string(),
+<a href=#604 id=604 data-nosnippet>604</a>                    document,
+<a href=#605 id=605 data-nosnippet>605</a>                })
+<a href=#606 id=606 data-nosnippet>606</a>                .map_err(|e| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Failed to serialize document: {}"</span>, e))
+<a href=#607 id=607 data-nosnippet>607</a>        })
+<a href=#608 id=608 data-nosnippet>608</a>        .collect();
+<a href=#609 id=609 data-nosnippet>609</a>    <span class="kw">let </span>index_actions = index_actions<span class="question-mark">?</span>;
+<a href=#610 id=610 data-nosnippet>610</a>
+<a href=#611 id=611 data-nosnippet>611</a>    <span class="kw">let </span>batch = IndexBatch {
+<a href=#612 id=612 data-nosnippet>612</a>        value: index_actions,
+<a href=#613 id=613 data-nosnippet>613</a>    };
+<a href=#614 id=614 data-nosnippet>614</a>
+<a href=#615 id=615 data-nosnippet>615</a>    <span class="kw">let </span>batch_json = serde_json::to_string(<span class="kw-2">&amp;</span>batch)<span class="question-mark">?</span>;
+<a href=#616 id=616 data-nosnippet>616</a>
+<a href=#617 id=617 data-nosnippet>617</a>    <span class="kw">let </span>response = REQWEST_CLIENT
+<a href=#618 id=618 data-nosnippet>618</a>        .post(url)
+<a href=#619 id=619 data-nosnippet>619</a>        .header(<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>)
+<a href=#620 id=620 data-nosnippet>620</a>        .header(<span class="string">"api-key"</span>, search_config.search_api_key.clone())
+<a href=#621 id=621 data-nosnippet>621</a>        .body(batch_json)
+<a href=#622 id=622 data-nosnippet>622</a>        .send()
+<a href=#623 id=623 data-nosnippet>623</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#624 id=624 data-nosnippet>624</a>
+<a href=#625 id=625 data-nosnippet>625</a>    <span class="kw">if </span>response.status().is_success() {
+<a href=#626 id=626 data-nosnippet>626</a>        <span class="macro">println!</span>(<span class="string">"Documents added successfully to index: {}"</span>, index_name);
+<a href=#627 id=627 data-nosnippet>627</a>        <span class="prelude-val">Ok</span>(())
+<a href=#628 id=628 data-nosnippet>628</a>    } <span class="kw">else </span>{
+<a href=#629 id=629 data-nosnippet>629</a>        <span class="kw">let </span>status = response.status();
+<a href=#630 id=630 data-nosnippet>630</a>        <span class="kw">let </span>error_text = response.text().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#631 id=631 data-nosnippet>631</a>        <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(
+<a href=#632 id=632 data-nosnippet>632</a>            <span class="string">"Failed to add documents to index. Status: {}. Error: {}"</span>,
+<a href=#633 id=633 data-nosnippet>633</a>            status,
+<a href=#634 id=634 data-nosnippet>634</a>            error_text
+<a href=#635 id=635 data-nosnippet>635</a>        ))
+<a href=#636 id=636 data-nosnippet>636</a>    }
+<a href=#637 id=637 data-nosnippet>637</a>}</code></pre></div></section></main></body></html>

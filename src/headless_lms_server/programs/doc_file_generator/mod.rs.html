@@ -262,67 +262,75 @@
 <a href=#262 id=262 data-nosnippet>262</a><span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
 <a href=#263 id=263 data-nosnippet>263</a>    <span class="comment">// clear previous results
 <a href=#264 id=264 data-nosnippet>264</a>    </span>fs::read_dir(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">"CARGO_MANIFEST_DIR"</span>), <span class="string">"/generated-docs/"</span>))
-<a href=#265 id=265 data-nosnippet>265</a>        .unwrap()
-<a href=#266 id=266 data-nosnippet>266</a>        .filter_map(|file| {
+<a href=#265 id=265 data-nosnippet>265</a>        .map_err(|e| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Failed to read generated-docs directory: {}"</span>, e))<span class="question-mark">?
+<a href=#266 id=266 data-nosnippet>266</a>        </span>.filter_map(|file| {
 <a href=#267 id=267 data-nosnippet>267</a>            file.ok().filter(|f| {
 <a href=#268 id=268 data-nosnippet>268</a>                f.file_name()
 <a href=#269 id=269 data-nosnippet>269</a>                    .to_str()
 <a href=#270 id=270 data-nosnippet>270</a>                    .is_some_and(|n| n.ends_with(<span class="string">".json"</span>) || n.ends_with(<span class="string">".ts"</span>))
 <a href=#271 id=271 data-nosnippet>271</a>            })
 <a href=#272 id=272 data-nosnippet>272</a>        })
-<a href=#273 id=273 data-nosnippet>273</a>        .for_each(|f| fs::remove_file(f.path()).unwrap());
-<a href=#274 id=274 data-nosnippet>274</a>
-<a href=#275 id=275 data-nosnippet>275</a>    <span class="comment">// write docs
-<a href=#276 id=276 data-nosnippet>276</a>    </span>controllers();
-<a href=#277 id=277 data-nosnippet>277</a>
-<a href=#278 id=278 data-nosnippet>278</a>    external();
-<a href=#279 id=279 data-nosnippet>279</a>
-<a href=#280 id=280 data-nosnippet>280</a>    <span class="macro">doc!</span>((), ex());
-<a href=#281 id=281 data-nosnippet>281</a>    <span class="macro">doc!</span>(i64, <span class="number">123</span>);
-<a href=#282 id=282 data-nosnippet>282</a>    <span class="macro">doc!</span>(bool, ex());
-<a href=#283 id=283 data-nosnippet>283</a>    <span class="macro">doc!</span>(
-<a href=#284 id=284 data-nosnippet>284</a>        Vec&lt;bool&gt;,
-<a href=#285 id=285 data-nosnippet>285</a>        <span class="macro">vec!</span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>]
-<a href=#286 id=286 data-nosnippet>286</a>    );
-<a href=#287 id=287 data-nosnippet>287</a>    <span class="macro">doc!</span>(String, ex());
-<a href=#288 id=288 data-nosnippet>288</a>    <span class="macro">doc!</span>(Uuid, ex());
-<a href=#289 id=289 data-nosnippet>289</a>    <span class="macro">doc!</span>(Vec&lt;Uuid&gt;, ex());
-<a href=#290 id=290 data-nosnippet>290</a>
-<a href=#291 id=291 data-nosnippet>291</a>    <span class="prelude-val">Ok</span>(())
-<a href=#292 id=292 data-nosnippet>292</a>}
-<a href=#293 id=293 data-nosnippet>293</a>
-<a href=#294 id=294 data-nosnippet>294</a><span class="kw">pub fn </span>write_json&lt;T: Serialize&gt;(path: <span class="kw-2">&amp;</span>str, value: T) {
-<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">let </span><span class="kw-2">mut </span>file = std::fs::File::create(path).unwrap();
-<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">let </span>formatter = PrettyFormatter::with_indent(<span class="string">b"    "</span>);
-<a href=#297 id=297 data-nosnippet>297</a>    <span class="kw">let </span><span class="kw-2">mut </span>serializer = Serializer::with_formatter(<span class="kw-2">&amp;mut </span>file, formatter);
-<a href=#298 id=298 data-nosnippet>298</a>    serde::Serialize::serialize(<span class="kw-2">&amp;</span>value, <span class="kw-2">&amp;mut </span>serializer).unwrap();
-<a href=#299 id=299 data-nosnippet>299</a>}
-<a href=#300 id=300 data-nosnippet>300</a>
-<a href=#301 id=301 data-nosnippet>301</a><span class="attr">#[cfg(feature = <span class="string">"ts_rs"</span>)]
-<a href=#302 id=302 data-nosnippet>302</a></span><span class="kw">pub fn </span>write_ts&lt;T: TS&gt;(path: <span class="kw-2">&amp;</span>str, type_name: <span class="kw-2">&amp;</span>str) {
-<a href=#303 id=303 data-nosnippet>303</a>    <span class="kw">let </span>contents = <span class="macro">format!</span>(<span class="string">"type {} = {}"</span>, type_name, T::inline());
-<a href=#304 id=304 data-nosnippet>304</a>    std::fs::write(path, contents).unwrap();
+<a href=#273 id=273 data-nosnippet>273</a>        .try_for_each(|f| -&gt; anyhow::Result&lt;()&gt; {
+<a href=#274 id=274 data-nosnippet>274</a>            fs::remove_file(f.path())
+<a href=#275 id=275 data-nosnippet>275</a>                .map_err(|e| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Failed to remove file {:?}: {}"</span>, f.path(), e))<span class="question-mark">?</span>;
+<a href=#276 id=276 data-nosnippet>276</a>            <span class="prelude-val">Ok</span>(())
+<a href=#277 id=277 data-nosnippet>277</a>        })<span class="question-mark">?</span>;
+<a href=#278 id=278 data-nosnippet>278</a>
+<a href=#279 id=279 data-nosnippet>279</a>    <span class="comment">// write docs
+<a href=#280 id=280 data-nosnippet>280</a>    </span>controllers();
+<a href=#281 id=281 data-nosnippet>281</a>
+<a href=#282 id=282 data-nosnippet>282</a>    external();
+<a href=#283 id=283 data-nosnippet>283</a>
+<a href=#284 id=284 data-nosnippet>284</a>    <span class="macro">doc!</span>((), ex());
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="macro">doc!</span>(i64, <span class="number">123</span>);
+<a href=#286 id=286 data-nosnippet>286</a>    <span class="macro">doc!</span>(bool, ex());
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="macro">doc!</span>(
+<a href=#288 id=288 data-nosnippet>288</a>        Vec&lt;bool&gt;,
+<a href=#289 id=289 data-nosnippet>289</a>        <span class="macro">vec!</span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>]
+<a href=#290 id=290 data-nosnippet>290</a>    );
+<a href=#291 id=291 data-nosnippet>291</a>    <span class="macro">doc!</span>(String, ex());
+<a href=#292 id=292 data-nosnippet>292</a>    <span class="macro">doc!</span>(Uuid, ex());
+<a href=#293 id=293 data-nosnippet>293</a>    <span class="macro">doc!</span>(Vec&lt;Uuid&gt;, ex());
+<a href=#294 id=294 data-nosnippet>294</a>
+<a href=#295 id=295 data-nosnippet>295</a>    <span class="prelude-val">Ok</span>(())
+<a href=#296 id=296 data-nosnippet>296</a>}
+<a href=#297 id=297 data-nosnippet>297</a>
+<a href=#298 id=298 data-nosnippet>298</a><span class="kw">pub fn </span>write_json&lt;T: Serialize&gt;(path: <span class="kw-2">&amp;</span>str, value: T) {
+<a href=#299 id=299 data-nosnippet>299</a>    <span class="kw">let </span><span class="kw-2">mut </span>file =
+<a href=#300 id=300 data-nosnippet>300</a>        std::fs::File::create(path).expect(<span class="string">"Failed to create file for JSON serialization"</span>);
+<a href=#301 id=301 data-nosnippet>301</a>    <span class="kw">let </span>formatter = PrettyFormatter::with_indent(<span class="string">b"    "</span>);
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">let </span><span class="kw-2">mut </span>serializer = Serializer::with_formatter(<span class="kw-2">&amp;mut </span>file, formatter);
+<a href=#303 id=303 data-nosnippet>303</a>    serde::Serialize::serialize(<span class="kw-2">&amp;</span>value, <span class="kw-2">&amp;mut </span>serializer)
+<a href=#304 id=304 data-nosnippet>304</a>        .expect(<span class="string">"Failed to serialize value to JSON"</span>);
 <a href=#305 id=305 data-nosnippet>305</a>}
 <a href=#306 id=306 data-nosnippet>306</a>
-<a href=#307 id=307 data-nosnippet>307</a><span class="attr">#[allow(non_local_definitions)]
-<a href=#308 id=308 data-nosnippet>308</a></span><span class="kw">fn </span>controllers() {
-<a href=#309 id=309 data-nosnippet>309</a>    <span class="macro">doc!</span>(
-<a href=#310 id=310 data-nosnippet>310</a>        T,
-<a href=#311 id=311 data-nosnippet>311</a>        Vec,
-<a href=#312 id=312 data-nosnippet>312</a>        StudyRegistryCompletion {
-<a href=#313 id=313 data-nosnippet>313</a>            completion_date: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
-<a href=#314 id=314 data-nosnippet>314</a>            completion_language: <span class="string">"en-US"</span>.to_string(),
-<a href=#315 id=315 data-nosnippet>315</a>            completion_registration_attempt_date: <span class="prelude-val">None</span>,
-<a href=#316 id=316 data-nosnippet>316</a>            email: <span class="string">"student@example.com"</span>.to_string(),
-<a href=#317 id=317 data-nosnippet>317</a>            grade: StudyRegistryGrade::new(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)),
-<a href=#318 id=318 data-nosnippet>318</a>            id: Uuid::parse_str(<span class="string">"633852ce-c82a-4d60-8ab5-28745163f6f9"</span>).unwrap(),
-<a href=#319 id=319 data-nosnippet>319</a>            user_id,
-<a href=#320 id=320 data-nosnippet>320</a>            tier: <span class="prelude-val">None
-<a href=#321 id=321 data-nosnippet>321</a>        </span>}
-<a href=#322 id=322 data-nosnippet>322</a>    );
-<a href=#323 id=323 data-nosnippet>323</a>}
-<a href=#324 id=324 data-nosnippet>324</a>
-<a href=#325 id=325 data-nosnippet>325</a><span class="comment">// external types, there should only be a couple in here so no macros or other fancy stuff
-<a href=#326 id=326 data-nosnippet>326</a></span><span class="kw">fn </span>external() {
-<a href=#327 id=327 data-nosnippet>327</a>    std::fs::write(<span class="macro">doc_path!</span>(<span class="string">"Bytes"</span>, <span class="string">".ts"</span>), <span class="string">"type Bytes = Blob"</span>).unwrap();
-<a href=#328 id=328 data-nosnippet>328</a>}</code></pre></div></section></main></body></html>
+<a href=#307 id=307 data-nosnippet>307</a><span class="attr">#[cfg(feature = <span class="string">"ts_rs"</span>)]
+<a href=#308 id=308 data-nosnippet>308</a></span><span class="kw">pub fn </span>write_ts&lt;T: TS&gt;(path: <span class="kw-2">&amp;</span>str, type_name: <span class="kw-2">&amp;</span>str) {
+<a href=#309 id=309 data-nosnippet>309</a>    <span class="kw">let </span>contents = <span class="macro">format!</span>(<span class="string">"type {} = {}"</span>, type_name, T::inline());
+<a href=#310 id=310 data-nosnippet>310</a>    std::fs::write(path, contents).expect(<span class="string">"Failed to write TypeScript type definition file"</span>);
+<a href=#311 id=311 data-nosnippet>311</a>}
+<a href=#312 id=312 data-nosnippet>312</a>
+<a href=#313 id=313 data-nosnippet>313</a><span class="attr">#[allow(non_local_definitions)]
+<a href=#314 id=314 data-nosnippet>314</a></span><span class="kw">fn </span>controllers() {
+<a href=#315 id=315 data-nosnippet>315</a>    <span class="macro">doc!</span>(
+<a href=#316 id=316 data-nosnippet>316</a>        T,
+<a href=#317 id=317 data-nosnippet>317</a>        Vec,
+<a href=#318 id=318 data-nosnippet>318</a>        StudyRegistryCompletion {
+<a href=#319 id=319 data-nosnippet>319</a>            completion_date: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
+<a href=#320 id=320 data-nosnippet>320</a>            completion_language: <span class="string">"en-US"</span>.to_string(),
+<a href=#321 id=321 data-nosnippet>321</a>            completion_registration_attempt_date: <span class="prelude-val">None</span>,
+<a href=#322 id=322 data-nosnippet>322</a>            email: <span class="string">"student@example.com"</span>.to_string(),
+<a href=#323 id=323 data-nosnippet>323</a>            grade: StudyRegistryGrade::new(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)),
+<a href=#324 id=324 data-nosnippet>324</a>            id: Uuid::parse_str(<span class="string">"633852ce-c82a-4d60-8ab5-28745163f6f9"</span>)
+<a href=#325 id=325 data-nosnippet>325</a>                .expect(<span class="string">"Invalid UUID constant in doc generator"</span>),
+<a href=#326 id=326 data-nosnippet>326</a>            user_id,
+<a href=#327 id=327 data-nosnippet>327</a>            tier: <span class="prelude-val">None
+<a href=#328 id=328 data-nosnippet>328</a>        </span>}
+<a href=#329 id=329 data-nosnippet>329</a>    );
+<a href=#330 id=330 data-nosnippet>330</a>}
+<a href=#331 id=331 data-nosnippet>331</a>
+<a href=#332 id=332 data-nosnippet>332</a><span class="comment">// external types, there should only be a couple in here so no macros or other fancy stuff
+<a href=#333 id=333 data-nosnippet>333</a></span><span class="kw">fn </span>external() {
+<a href=#334 id=334 data-nosnippet>334</a>    std::fs::write(<span class="macro">doc_path!</span>(<span class="string">"Bytes"</span>, <span class="string">".ts"</span>), <span class="string">"type Bytes = Blob"</span>)
+<a href=#335 id=335 data-nosnippet>335</a>        .expect(<span class="string">"Failed to write Bytes type definition file"</span>);
+<a href=#336 id=336 data-nosnippet>336</a>}</code></pre></div></section></main></body></html>

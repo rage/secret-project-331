@@ -1,5 +1,5 @@
 /*!
-Handlers for HTTP requests to `/api/v0/healthz`.
+Handlers for HTTP requests to `/api/v0/health`.
 */
 
 use sqlx::Executor;

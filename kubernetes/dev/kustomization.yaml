@@ -29,3 +29,8 @@ patches:
       name: tmc-role
   - path: main-frontend/patch-env.yml
   - path: headless-lms/env-local-patch.secret.yml
+  # Disable liveness and readiness probes in dev (keep startup probe). This is because they spam the logs and make development annoying.
+  - path: patch-disable-probes.yml
+    target:
+      version: v1
+      kind: Deployment

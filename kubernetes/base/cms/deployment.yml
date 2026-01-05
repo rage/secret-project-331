@@ -62,7 +62,7 @@ spec:
               cpu: 200m
           startupProbe:
             httpGet:
-              path: /api/status/up
+              path: /cms/api/status/up
               port: 3000
             initialDelaySeconds: 0
             periodSeconds: 1
@@ -71,7 +71,7 @@ spec:
             failureThreshold: 60
           livenessProbe:
             httpGet:
-              path: /api/status/up
+              path: /cms/api/status/up
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -80,7 +80,7 @@ spec:
             failureThreshold: 20
           readinessProbe:
             httpGet:
-              path: /api/status/up
+              path: /cms/api/status/up
               port: 3000
             initialDelaySeconds: 0
             periodSeconds: 5

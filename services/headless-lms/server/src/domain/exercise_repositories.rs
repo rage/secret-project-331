@@ -459,7 +459,7 @@ async fn find_exercise_directories(clone_path: &Path) -> anyhow::Result<Vec<Foun
             .to_string();
         let name = path
             .file_name()
-            .ok_or_else(|| anyhow::anyhow!("Path should be a file: {}", path.display()))?
+            .ok_or_else(|| anyhow::anyhow!("Path should be a directory: {}", path.display()))?
             .to_str()
             .context("Invalid directory name in repository")?
             .to_string();

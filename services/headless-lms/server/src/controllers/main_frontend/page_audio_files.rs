@@ -69,13 +69,6 @@ async fn set_page_audio(
             }
         };
 
-        let course_id = page.course_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "The page needs to be related to a course.".to_string(),
-                None,
-            )
-        })?;
         let course = models::courses::get_course(&mut conn, course_id).await?;
         let media_path = upload_field_from_cms(
             request.headers(),

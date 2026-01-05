@@ -449,15 +449,17 @@ async fn find_exercise_directories(clone_path: &Path) -> anyhow::Result<Vec<Foun
         let path = entry.into_path().canonicalize()?;
         let part = path
             .parent()
-            .expect("Path should be in a subdirectory")
+            .ok_or_else(|| anyhow::anyhow!("Path should be in a subdirectory: {}", path.display()))?
             .file_name()
-            .expect("The parent file name cannot be missing")
+            .ok_or_else(|| {
+                anyhow::anyhow!("The parent file name cannot be missing: {}", path.display())
+            })?
             .to_str()
             .context("Invalid directory name in repository")?
             .to_string();
         let name = path
             .file_name()
-            .expect("Path should be a file")
+            .ok_or_else(|| anyhow::anyhow!("Path should be a file: {}", path.display()))?
             .to_str()
             .context("Invalid directory name in repository")?
             .to_string();

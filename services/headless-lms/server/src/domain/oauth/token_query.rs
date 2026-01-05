@@ -127,7 +127,10 @@ impl OAuthValidate for TokenQuery {
         Ok(TokenParams {
             client_id: client_id.to_string(),
             client_secret: self.client_secret.clone(), // may be None for public clients
-            grant: self.grant.clone().unwrap(),        // safe due to the match above
+            grant: self
+                .grant
+                .clone()
+                .expect("grant should be Some after match validation"),
         })
     }
 }

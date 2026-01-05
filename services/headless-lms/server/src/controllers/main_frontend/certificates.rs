@@ -488,9 +488,14 @@ pub async fn delete_certificate_configuration(
     }
 
     models::certificate_configurations::delete(&mut conn, *configuration_id).await?;
-    token
-        .expect("Never None at this point")
-        .authorized_ok(web::Json(true))
+    let token = token.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Authorization token was not set".to_string(),
+            None,
+        )
+    })?;
+    token.authorized_ok(web::Json(true))
 }
 
 #[instrument(skip(pool))]

@@ -34,3 +34,4 @@ patches:
     target:
       version: v1
       kind: Deployment
+      labelSelector: "has-probes=true"

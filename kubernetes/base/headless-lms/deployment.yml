@@ -20,6 +20,7 @@ metadata:
     app: headless-lms
     deploymentType: with-init-container
     needs-db: "true"
+    has-probes: "true"
 spec:
   replicas: 1
   strategy:

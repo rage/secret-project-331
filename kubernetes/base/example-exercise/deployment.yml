@@ -19,6 +19,7 @@ metadata:
   labels:
     app: example-exercise
     deploymentType: without-init-container
+    has-probes: "true"
 spec:
   replicas: 1
   selector:

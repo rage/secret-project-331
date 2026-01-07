@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useMemo, useState } from "react"
+import { useAtomValue } from "jotai"
+import React, { useContext, useMemo, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -9,8 +10,10 @@ import TopBarMenuButton from "./TopBarMenuButton"
 
 import CourseSettingsModal from "@/components/course-material/modals/CourseSettingsModal"
 import Hamburger from "@/shared-module/common/components/Navigation/NavBar/Menu/Hamburger/Hamburger"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
+import { currentCourseIdAtom } from "@/state/course-material/selectors"
 
 const itemRow = css`
   display: flex;
@@ -65,23 +68,29 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [showCourseSettings, setShowCourseSettings] = useState(false)
+  const loginStateContext = useContext(LoginStateContext)
+
+  const courseIdFromState = useAtomValue(currentCourseIdAtom)
+  const effectiveCourseId = courseId ?? courseIdFromState ?? null
 
   const permissionCheck = useAuthorizeMultiple(
-    courseId
+    effectiveCourseId
       ? [
           {
             action: { type: "teach" },
-            resource: { type: "course", id: courseId },
+            resource: { type: "course", id: effectiveCourseId },
           },
         ]
       : [],
   )
 
   const hasPermission =
-    courseId &&
+    effectiveCourseId &&
     permissionCheck.isSuccess &&
     permissionCheck.data &&
     permissionCheck.data[0] === true
+
+  const hasCustomOptions = menuOptions && menuOptions.some((item) => item.type !== "separator")
 
   const quickActions = useMemo(() => {
     if (menuOptions) {
@@ -90,37 +99,53 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
 
     const items: MenuOption[] = []
 
-    if (courseId && hasPermission) {
-      items.push({
-        type: "separator",
-      })
-      items.push({
-        type: "action",
-        label: t("settings"),
-        onAction: () => {
-          setShowCourseSettings(true)
-          setIsOpen(false)
-        },
-      })
-      items.push({
-        type: "link",
-        label: t("button-text-manage-course"),
-        href: manageCourseRoute(courseId),
-      })
+    const isSignedIn = loginStateContext.signedIn === true
+    const shouldShowCourseSettings = isSignedIn && effectiveCourseId !== null
+
+    if (shouldShowCourseSettings || hasPermission) {
+      if (hasPermission) {
+        items.push({
+          type: "separator",
+        })
+      }
+
+      if (shouldShowCourseSettings) {
+        items.push({
+          type: "action",
+          label: t("settings"),
+          onAction: () => {
+            setShowCourseSettings(true)
+            setIsOpen(false)
+          },
+        })
+      }
+
+      if (hasPermission && effectiveCourseId) {
+        items.push({
+          type: "link",
+          label: t("button-text-manage-course"),
+          href: manageCourseRoute(effectiveCourseId),
+        })
+      }
     }
 
-    items.push({
-      type: "link",
-      label: t("user-settings"),
-      href: "/user-settings",
-    })
-
     return items
-  }, [menuOptions, courseId, hasPermission, t])
+  }, [menuOptions, effectiveCourseId, hasPermission, loginStateContext.signedIn, t])
+
+  const hasVisibleOptions = useMemo(() => {
+    if (hasCustomOptions) {
+      return true
+    }
+    return quickActions.some((item) => item.type !== "separator")
+  }, [hasCustomOptions, quickActions])
+
+  if (!hasVisibleOptions) {
+    return null
+  }
 
   return (
     <>
-      {courseId && showCourseSettings && (
+      {effectiveCourseId && showCourseSettings && (
         <CourseSettingsModal
           onClose={() => {
             setShowCourseSettings(false)
@@ -128,7 +153,7 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
           manualOpen={showCourseSettings}
         />
       )}
-
+      wat
       <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
         <TopBarMenuButton
           id="topbar-quick-actions"
@@ -138,7 +163,7 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
         >
           <Hamburger isActive={isOpen} buttonWidth={20} />
         </TopBarMenuButton>
-
+        wat
         <Popover
           placement="bottom end"
           offset={8}

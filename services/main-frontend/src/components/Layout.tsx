@@ -1,5 +1,6 @@
 "use client"
 import { css } from "@emotion/css"
+import { useAtomValue } from "jotai"
 import Head from "next/head"
 import { usePathname } from "next/navigation"
 import React, { ReactNode } from "react"
@@ -20,6 +21,8 @@ import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { currentCourseIdAtom } from "@/state/course-material/selectors"
+import { organizationSlugAtom } from "@/state/layoutAtoms"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
@@ -37,6 +40,8 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   noVisibleLayout = false,
 }) => {
   const pathname = usePathname()
+  const courseId = useAtomValue(currentCourseIdAtom)
+  const organizationSlug = useAtomValue(organizationSlugAtom)
   // eslint-disable-next-line i18next/no-literal-string
   const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
@@ -51,7 +56,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <Topbar />
+        <Topbar courseId={courseId} organizationSlug={organizationSlug} currentPagePath={pathname} />
 
         <main
           id="maincontent"

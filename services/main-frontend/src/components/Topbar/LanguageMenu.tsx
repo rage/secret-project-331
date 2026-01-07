@@ -3,7 +3,7 @@
 
 import { css } from "@emotion/css"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useRef, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -17,6 +17,7 @@ import {
   SUPPORTED_LANGUAGES,
 } from "@/shared-module/common/hooks/useLanguage"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 
 function capitalizeFirst(str: string): string {
@@ -168,6 +169,7 @@ const LanguageMenuWithHook: React.FC<
   const { alert } = useDialog()
   const { t, i18n } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
+  const isChangingRef = useRef(false)
   const languageOptions = useLanguageOptions()
 
   const contextLanguages = languageOptions?.availableLanguages
@@ -179,12 +181,24 @@ const LanguageMenuWithHook: React.FC<
 
   const handleLanguageChange = useCallback(
     async (newLanguageCode: string) => {
+      if (isChangingRef.current) {
+        return
+      }
+      if (newLanguageCode === currentLanguage) {
+        setIsOpen(false)
+        return
+      }
       try {
+        isChangingRef.current = true
         // Prefer context callback (for course material), then prop callback, then fallback to i18n
         const callback = languageOptions?.onLanguageChange || propOnLanguageChange
         if (callback) {
           await callback(newLanguageCode)
         } else {
+          // Set cookie BEFORE calling i18n.changeLanguage so that useLanguage() picks up the new value
+          if (typeof document !== "undefined") {
+            document.cookie = `${LANGUAGE_COOKIE_KEY}=${newLanguageCode}; path=/; SameSite=Strict; max-age=31536000;`
+          }
           // Fallback to basic i18n change
           await i18n.changeLanguage(newLanguageCode)
         }
@@ -193,9 +207,11 @@ const LanguageMenuWithHook: React.FC<
         const errorMessage = err instanceof Error ? err.message : String(err)
         console.error("Language redirection failed:", errorMessage)
         alert(t("language-redirection-failed", { error: errorMessage }))
+      } finally {
+        isChangingRef.current = false
       }
     },
-    [languageOptions?.onLanguageChange, propOnLanguageChange, i18n, alert, t],
+    [languageOptions?.onLanguageChange, propOnLanguageChange, i18n, alert, t, currentLanguage],
   )
 
   // Determine which languages to show: context/props languages or default supported languages

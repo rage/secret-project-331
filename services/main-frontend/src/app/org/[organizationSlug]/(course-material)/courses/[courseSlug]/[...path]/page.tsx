@@ -110,7 +110,7 @@ const PagePage: React.FC = () => {
     languageOptions.setOnLanguageChange(handler)
     return () => {
       if (languageOptions?.setOnLanguageChange) {
-        languageOptions.setOnLanguageChange(() => {})
+        languageOptions.setOnLanguageChange(undefined)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

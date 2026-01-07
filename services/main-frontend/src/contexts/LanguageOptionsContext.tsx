@@ -13,7 +13,9 @@ interface LanguageOptionsContextValue {
   setAvailableLanguages: (languages: LanguageOption[] | null) => void
   clearAvailableLanguages: () => void
   onLanguageChange?: (languageCode: string) => Promise<void> | void
-  setOnLanguageChange?: (callback: (languageCode: string) => Promise<void> | void) => void
+  setOnLanguageChange?: (
+    callback: ((languageCode: string) => Promise<void> | void) | undefined,
+  ) => void
 }
 
 const LanguageOptionsContext = createContext<LanguageOptionsContextValue | undefined>(undefined)
@@ -33,7 +35,11 @@ export function LanguageOptionsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const setOnLanguageChange = useCallback(
-    (callback: (languageCode: string) => Promise<void> | void) => {
+    (callback: ((languageCode: string) => Promise<void> | void) | undefined) => {
+      if (!callback) {
+        setOnLanguageChangeState(undefined)
+        return
+      }
       setOnLanguageChangeState(() => callback)
     },
     [],

@@ -1,8 +1,7 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import { useMemo } from "react"
-import { useContext } from "react"
+import { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
@@ -128,16 +127,17 @@ export function useUserMenuItems({
 
       return {
         // eslint-disable-next-line i18next/no-literal-string
-        id: `user-${item.href || item.label || i}`,
+        id: `user-${"href" in item ? item.href : "label" in item ? item.label : i}`,
         type: item.type,
-        label: item.label,
-        href: item.href,
-        onAction: item.onAction
-          ? () => {
-              item.onAction?.()
-              onMenuClose?.()
-            }
-          : undefined,
+        label: "label" in item ? item.label : undefined,
+        href: "href" in item ? item.href : undefined,
+        onAction:
+          "onAction" in item && item.onAction
+            ? () => {
+                item.onAction?.()
+                onMenuClose?.()
+              }
+            : undefined,
         icon: "icon" in item ? item.icon : undefined,
         isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
       }

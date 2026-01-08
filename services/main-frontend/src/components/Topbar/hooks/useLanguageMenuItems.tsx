@@ -149,7 +149,7 @@ export function useLanguageMenuItems({
         localizedLabel: localized,
         englishLabel: english,
         isSelected: selected,
-        isDraft: lang.isDraft,
+        isDraft: "isDraft" in lang ? lang.isDraft : undefined,
         lang: code,
         dir: getDir(code),
         onSelect: () => handleLanguageChange(code),

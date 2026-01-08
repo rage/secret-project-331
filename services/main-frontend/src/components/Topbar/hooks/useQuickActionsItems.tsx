@@ -75,7 +75,7 @@ export function useQuickActionsItems({
       return menuOptions
     }
 
-    const items: QuickActionItem[] = []
+    const items: Array<Omit<QuickActionItem, "id">> = []
 
     const isSignedIn = loginStateContext.signedIn === true
     const shouldShowCourseSettings = isSignedIn && effectiveCourseId !== null

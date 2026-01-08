@@ -2,12 +2,16 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { OverlayContainer } from "@react-aria/overlays"
+import { useOverlayTriggerState } from "@react-stately/overlays"
 import React, { useContext } from "react"
 import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import Brand from "./Brand"
 import LanguageMenu from "./LanguageMenu"
+import { MobileMenuButton } from "./MobileMenu/MobileMenuButton"
+import { MobileMenuOverlay } from "./MobileMenu/MobileMenuOverlay"
 import QuickActionsMenu from "./QuickActionsMenu"
 import SearchButton from "./SearchButton"
 import UserMenu from "./UserMenu"
@@ -116,208 +120,241 @@ const Topbar: React.FC<TopbarProps> = ({
 
   const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
   const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
+
+  const menuState = useOverlayTriggerState({})
+
   return (
-    <header
-      className={css`
-        width: 100%;
-        border-bottom: 1px solid #e5e7eb;
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: saturate(180%) blur(10px);
-      `}
-    >
-      <div
+    <>
+      <header
         className={css`
-          margin: 0 auto;
-          max-width: 1280px;
-          padding-inline: 1rem;
+          width: 100%;
+          border-bottom: 1px solid #e5e7eb;
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: saturate(180%) blur(10px);
         `}
       >
         <div
           className={css`
-            display: flex;
-            align-items: center;
-            height: 4rem;
-            gap: 8px;
+            margin: 0 auto;
+            max-width: 1280px;
+            padding-inline: 1rem;
           `}
-          aria-label="Top bar"
         >
-          <Brand />
-
-          {/* Middle: primary navigation slot (visible on md+) */}
-          <nav
-            aria-label="Primary"
-            className={css`
-              margin-inline-start: 8px;
-              min-width: 0;
-              flex: 1;
-              display: none;
-              gap: 8px;
-              align-items: center;
-
-              ${respondToOrLarger.md} {
-                display: flex;
-              }
-            `}
-          >
-            {children}
-          </nav>
-
-          {/* Right cluster: account THEN quick actions (hamburger is rightmost) */}
           <div
             className={css`
-              margin-inline-start: auto;
               display: flex;
               align-items: center;
-              gap: 4px;
+              height: 4rem;
+              gap: 8px;
             `}
+            aria-label="Top bar"
           >
-            {enableSearch && (
-              <SearchButton courseId={courseId} organizationSlug={organizationSlug} />
-            )}
+            <Brand />
 
-            {enableLanguageMenu && (
-              <LanguageMenu
-                courseId={courseId}
-                currentPageId={currentPagePath}
-                availableLanguages={languageMenuProps?.availableLanguages}
-                onLanguageChange={languageMenuProps?.onLanguageChange}
-              />
-            )}
+            {/* Middle: primary navigation slot (visible on md+) */}
+            <nav
+              aria-label="Primary"
+              className={css`
+                margin-inline-start: 8px;
+                min-width: 0;
+                flex: 1;
+                display: none;
+                gap: 8px;
+                align-items: center;
 
-            {enableSearch && enableLanguageMenu && (
-              <Separator
-                orientation="vertical"
-                className={css`
-                  height: 24px;
-                  background: #e5e7eb;
-                  margin-inline: 4px;
+                ${respondToOrLarger.md} {
+                  display: flex;
+                }
+              `}
+            >
+              {children}
+            </nav>
+
+            {/* Right cluster: account THEN quick actions (hamburger is rightmost) */}
+            <div
+              className={css`
+                margin-inline-start: auto;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+
+                ${respondToOrLarger.md} {
+                  display: flex;
+                }
+
+                @media (max-width: 767px) {
                   display: none;
-                  ${respondToOrLarger.md} {
-                    display: block;
-                  }
-                `}
-              />
-            )}
+                }
+              `}
+            >
+              {enableSearch && (
+                <SearchButton courseId={courseId} organizationSlug={organizationSlug} />
+              )}
 
-            {loginStateContext.signedIn ? (
-              <>
-                {enableUserMenu && <UserMenu courseId={courseId} menuOptions={userMenuOptions} />}
+              {enableLanguageMenu && (
+                <LanguageMenu
+                  courseId={courseId}
+                  currentPageId={currentPagePath}
+                  availableLanguages={languageMenuProps?.availableLanguages}
+                  onLanguageChange={languageMenuProps?.onLanguageChange}
+                />
+              )}
 
-                {enableUserMenu && enableQuickActions && (
-                  <Separator
-                    orientation="vertical"
+              {enableSearch && enableLanguageMenu && (
+                <Separator
+                  orientation="vertical"
+                  className={css`
+                    height: 24px;
+                    background: #e5e7eb;
+                    margin-inline: 4px;
+                    display: none;
+                    ${respondToOrLarger.md} {
+                      display: block;
+                    }
+                  `}
+                />
+              )}
+
+              {loginStateContext.signedIn ? (
+                <>
+                  {enableUserMenu && <UserMenu menuOptions={userMenuOptions} />}
+
+                  {enableUserMenu && enableQuickActions && (
+                    <Separator
+                      orientation="vertical"
+                      className={css`
+                        height: 24px;
+                        background: #e5e7eb;
+                        margin-inline: 4px;
+                        display: none;
+                        ${respondToOrLarger.md} {
+                          display: block;
+                        }
+                      `}
+                    />
+                  )}
+
+                  {enableQuickActions && (
+                    <QuickActionsMenu menuOptions={quickActionsOptions} courseId={courseId} />
+                  )}
+                </>
+              ) : (
+                <div
+                  className={css`
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                  `}
+                >
+                  <a
+                    href={signUpPathWithReturnTo}
                     className={css`
-                      height: 24px;
-                      background: #e5e7eb;
-                      margin-inline: 4px;
-                      display: none;
-                      ${respondToOrLarger.md} {
-                        display: block;
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 8px;
+                      padding: 10px 16px;
+                      height: 40px;
+                      border-radius: 999px;
+                      background: rgba(248, 250, 252, 0.8);
+                      border: 1px solid rgba(0, 0, 0, 0.08);
+                      cursor: pointer;
+                      transition: all 120ms ease;
+                      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+                      text-decoration: none;
+                      color: #374151;
+                      font-weight: 500;
+                      font-size: 14px;
+
+                      &:hover {
+                        background: rgba(241, 245, 249, 0.95);
+                        border-color: rgba(0, 0, 0, 0.12);
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+                        color: #111827;
+                      }
+
+                      &:active {
+                        background: rgba(226, 232, 240, 1);
+                        border-color: rgba(0, 0, 0, 0.16);
+                        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+                      }
+
+                      &:focus-visible {
+                        outline: none;
+                        box-shadow: 0 0 0 2px #111827;
                       }
                     `}
-                  />
-                )}
+                  >
+                    {t("create-new-account")}
+                  </a>
 
-                {enableQuickActions && (
-                  <QuickActionsMenu menuOptions={quickActionsOptions} courseId={courseId} />
-                )}
-              </>
-            ) : (
-              <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-                `}
-              >
-                <a
-                  href={signUpPathWithReturnTo}
-                  className={css`
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    padding: 10px 16px;
-                    height: 40px;
-                    border-radius: 999px;
-                    background: rgba(248, 250, 252, 0.8);
-                    border: 1px solid rgba(0, 0, 0, 0.08);
-                    cursor: pointer;
-                    transition: all 120ms ease;
-                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-                    text-decoration: none;
-                    color: #374151;
-                    font-weight: 500;
-                    font-size: 14px;
+                  <a
+                    href={loginPathWithReturnTo}
+                    className={css`
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 8px;
+                      padding: 10px 16px;
+                      height: 40px;
+                      border-radius: 999px;
+                      background: #111827;
+                      border: 1px solid #111827;
+                      cursor: pointer;
+                      transition: all 120ms ease;
+                      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+                      text-decoration: none;
+                      color: #ffffff;
+                      font-weight: 500;
+                      font-size: 14px;
 
-                    &:hover {
-                      background: rgba(241, 245, 249, 0.95);
-                      border-color: rgba(0, 0, 0, 0.12);
-                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-                      color: #111827;
-                    }
+                      &:hover {
+                        background: #374151;
+                        border-color: #374151;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+                      }
 
-                    &:active {
-                      background: rgba(226, 232, 240, 1);
-                      border-color: rgba(0, 0, 0, 0.16);
-                      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-                    }
+                      &:active {
+                        background: #1f2937;
+                        border-color: #1f2937;
+                        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+                      }
 
-                    &:focus-visible {
-                      outline: none;
-                      box-shadow: 0 0 0 2px #111827;
-                    }
-                  `}
-                >
-                  {t("create-new-account")}
-                </a>
+                      &:focus-visible {
+                        outline: none;
+                        box-shadow: 0 0 0 2px #111827;
+                      }
+                    `}
+                  >
+                    {t("log-in")}
+                  </a>
+                </div>
+              )}
+            </div>
 
-                <a
-                  href={loginPathWithReturnTo}
-                  className={css`
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    padding: 10px 16px;
-                    height: 40px;
-                    border-radius: 999px;
-                    background: #111827;
-                    border: 1px solid #111827;
-                    cursor: pointer;
-                    transition: all 120ms ease;
-                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-                    text-decoration: none;
-                    color: #ffffff;
-                    font-weight: 500;
-                    font-size: 14px;
-
-                    &:hover {
-                      background: #374151;
-                      border-color: #374151;
-                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
-                    }
-
-                    &:active {
-                      background: #1f2937;
-                      border-color: #1f2937;
-                      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
-                    }
-
-                    &:focus-visible {
-                      outline: none;
-                      box-shadow: 0 0 0 2px #111827;
-                    }
-                  `}
-                >
-                  {t("log-in")}
-                </a>
-              </div>
-            )}
+            <MobileMenuButton state={menuState} />
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+      {menuState.isOpen && (
+        <OverlayContainer>
+          <MobileMenuOverlay
+            state={menuState}
+            primaryNavChildren={children}
+            onClose={menuState.close}
+            courseId={courseId}
+            currentPagePath={currentPagePath}
+            enableSearch={enableSearch}
+            enableLanguageMenu={enableLanguageMenu}
+            enableUserMenu={enableUserMenu}
+            enableQuickActions={enableQuickActions}
+            userMenuOptions={userMenuOptions}
+            quickActionsOptions={quickActionsOptions}
+            languageMenuProps={languageMenuProps}
+          />
+        </OverlayContainer>
+      )}
+    </>
   )
 }
 

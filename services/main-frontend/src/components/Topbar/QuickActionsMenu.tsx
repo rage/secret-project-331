@@ -1,19 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useAtomValue } from "jotai"
-import React, { useContext, useMemo, useState } from "react"
+import React, { useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import TopBarMenuButton from "./TopBarMenuButton"
+import { useQuickActionsItems } from "./hooks/useQuickActionsItems"
 
 import CourseSettingsModal from "@/components/course-material/modals/CourseSettingsModal"
 import Hamburger from "@/shared-module/common/components/Navigation/NavBar/Menu/Hamburger/Hamburger"
-import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
-import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
-import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
 
 const itemRow = css`
   display: flex;
@@ -69,91 +65,24 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [showCourseSettings, setShowCourseSettings] = useState(false)
-  const loginStateContext = useContext(LoginStateContext)
 
-  const courseIdFromState = useAtomValue(currentCourseIdAtom)
-  const effectiveCourseId = courseId ?? courseIdFromState ?? null
-  const currentPageId = useAtomValue(currentPageIdAtom)
+  const { items, shouldShow } = useQuickActionsItems({
+    menuOptions,
+    courseId,
+    onMenuClose: () => setIsOpen(false),
+    onCourseSettingsOpen: () => {
+      setShowCourseSettings(true)
+      setIsOpen(false)
+    },
+  })
 
-  const permissionCheck = useAuthorizeMultiple(
-    effectiveCourseId
-      ? [
-          {
-            action: { type: "teach" },
-            resource: { type: "course", id: effectiveCourseId },
-          },
-        ]
-      : [],
-  )
-
-  const hasPermission =
-    effectiveCourseId &&
-    permissionCheck.isSuccess &&
-    permissionCheck.data &&
-    permissionCheck.data[0] === true
-
-  const hasCustomOptions = menuOptions && menuOptions.some((item) => item.type !== "separator")
-
-  const quickActions = useMemo(() => {
-    if (menuOptions) {
-      return menuOptions
-    }
-
-    const items: MenuOption[] = []
-
-    const isSignedIn = loginStateContext.signedIn === true
-    const shouldShowCourseSettings = isSignedIn && effectiveCourseId !== null
-
-    if (shouldShowCourseSettings || hasPermission) {
-      if (shouldShowCourseSettings) {
-        items.push({
-          type: "action",
-          label: t("course-settings"),
-          onAction: () => {
-            setShowCourseSettings(true)
-            setIsOpen(false)
-          },
-        })
-      }
-
-      if (hasPermission && effectiveCourseId) {
-        if (items.length > 0) {
-          items.push({
-            type: "separator",
-          })
-        }
-        if (currentPageId) {
-          items.push({
-            type: "link",
-            label: t("button-text-edit-page"),
-            href: editPageRoute(currentPageId),
-          })
-        }
-        items.push({
-          type: "link",
-          label: t("button-text-manage-course"),
-          href: manageCourseRoute(effectiveCourseId),
-        })
-      }
-    }
-
-    return items
-  }, [menuOptions, effectiveCourseId, hasPermission, loginStateContext.signedIn, currentPageId, t])
-
-  const hasVisibleOptions = useMemo(() => {
-    if (hasCustomOptions) {
-      return true
-    }
-    return quickActions.some((item) => item.type !== "separator")
-  }, [hasCustomOptions, quickActions])
-
-  if (!hasVisibleOptions) {
+  if (!shouldShow) {
     return null
   }
 
   return (
     <>
-      {effectiveCourseId && showCourseSettings && (
+      {courseId && showCourseSettings && (
         <CourseSettingsModal
           onClose={() => {
             setShowCourseSettings(false)
@@ -206,11 +135,11 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
                 outline: none;
               `}
             >
-              {quickActions.map((item, idx) => {
+              {items.map((item) => {
                 if (item.type === "separator") {
                   return (
                     <Separator
-                      key={`sep-${idx}`}
+                      key={item.id}
                       className={css`
                         height: 1px;
                         background: #e5e7eb;
@@ -220,16 +149,15 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
                   )
                 }
 
-                const icon =
-                  "icon" in item && item.icon ? (
-                    <span aria-hidden className={itemIcon}>
-                      {item.icon}
-                    </span>
-                  ) : null
+                const icon = item.icon ? (
+                  <span aria-hidden className={itemIcon}>
+                    {item.icon}
+                  </span>
+                ) : null
 
                 if (item.type === "link") {
                   return (
-                    <MenuItem key={item.href || `link-${idx}`} href={item.href} className={itemRow}>
+                    <MenuItem key={item.id} href={item.href} className={itemRow}>
                       {icon}
                       <span>{item.label}</span>
                     </MenuItem>
@@ -238,7 +166,7 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
 
                 return (
                   <MenuItem
-                    key={item.label || `action-${idx}`}
+                    key={item.id}
                     onAction={item.onAction}
                     className={css`
                       ${itemRow};

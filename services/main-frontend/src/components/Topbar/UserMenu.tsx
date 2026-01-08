@@ -2,17 +2,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
-import React, { useContext, useMemo, useState } from "react"
+import React, { useContext, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
-import { useTranslation } from "react-i18next"
 
 import TopBarMenuButton from "./TopBarMenuButton"
+import { useUserMenuItems } from "./hooks/useUserMenuItems"
 
-import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { logout } from "@/shared-module/common/services/backend/auth"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const itemRow = css`
@@ -58,85 +55,22 @@ export interface UserMenuProps {
 }
 
 const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOptions }) => {
-  const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [isOpen, setIsOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const userDetails = useUserDetails()
 
-  const displayName = useMemo(() => {
-    const data = userDetails.data
-    if (!data) {
-      return ""
-    }
-
-    const firstName = data.first_name?.trim()
-    const lastName = data.last_name?.trim()
-    const email = data.email?.trim()
-
-    if (firstName && firstName.length > 0 && lastName && lastName.length > 0) {
-      return `${firstName} ${lastName}`
-    }
-    if (firstName && firstName.length > 0) {
-      return firstName
-    }
-    if (lastName && lastName.length > 0) {
-      return lastName
-    }
-    if (email && email.length > 0) {
-      return email
-    }
-    return ""
-  }, [userDetails.data])
-
-  const displayInitial = useMemo(() => {
-    if (displayName.length > 0) {
-      return displayName[0].toUpperCase()
-    }
-    return "?"
-  }, [displayName])
-
-  const fullDisplayName = useMemo(() => {
-    if (userDetails.data) {
-      const fullName = [userDetails.data.first_name, userDetails.data.last_name]
-        .map((n) => n?.trim())
-        .filter((n) => n && n.length > 0)
-        .join(" ")
-      return fullName || displayName
-    }
-    return displayName
-  }, [userDetails.data, displayName])
-
-  const displayEmail = userDetails.data?.email || ""
+  const { items, displayName, displayInitial, displayEmail, fullDisplayName, shouldShow } =
+    useUserMenuItems({
+      menuOptions,
+      onMenuClose: () => setIsOpen(false),
+    })
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
   }
 
-  if (!loginStateContext.signedIn) {
+  if (!shouldShow) {
     return null
   }
-
-  const submitLogout = async () => {
-    await logout()
-    queryClient.removeQueries()
-    await loginStateContext.refresh()
-    setTimeout(() => {
-      queryClient.refetchQueries()
-    }, 100)
-    setIsOpen(false)
-  }
-
-  const defaultUserMenuItems = [
-    { type: "link" as const, href: "/user-settings", label: t("user-settings") },
-    {
-      type: "action" as const,
-      label: t("log-out"),
-      onAction: submitLogout,
-    },
-  ] as const
-
-  const userMenuItems = menuOptions || defaultUserMenuItems
 
   return (
     <>
@@ -249,11 +183,11 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
               outline: none;
             `}
           >
-            {userMenuItems.map((item, i) => {
+            {items.map((item) => {
               if (item.type === "separator") {
                 return (
                   <Separator
-                    key={`sep-${i}`}
+                    key={item.id}
                     className={css`
                       height: 1px;
                       background: #e5e7eb;
@@ -265,7 +199,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
 
               if (item.type === "link") {
                 return (
-                  <MenuItem key={item.href || `link-${i}`} href={item.href} className={itemRow}>
+                  <MenuItem key={item.id} href={item.href} className={itemRow}>
                     <span>{item.label}</span>
                   </MenuItem>
                 )
@@ -273,9 +207,12 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
 
               return (
                 <MenuItem
-                  key={item.label || `action-${i}`}
+                  key={item.id}
                   onAction={item.onAction}
-                  className={itemRow}
+                  className={css`
+                    ${itemRow};
+                    ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};
+                  `}
                 >
                   <span>{item.label}</span>
                 </MenuItem>

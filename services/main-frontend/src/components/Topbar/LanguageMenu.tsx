@@ -3,34 +3,15 @@
 
 import { css } from "@emotion/css"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useRef, useState } from "react"
+import React, { useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import TopBarMenuButton from "./TopBarMenuButton"
+import { useLanguageMenuItems } from "./hooks/useLanguageMenuItems"
 
-import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import {
-  DEFAULT_LANGUAGE,
-  getDir,
-  SUPPORTED_LANGUAGES,
-} from "@/shared-module/common/hooks/useLanguage"
+import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
-import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
-
-function capitalizeFirst(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
-
-function getLanguageLabels(targetCode: string, displayLocale: string) {
-  return {
-    native: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode)),
-    localized: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode, displayLocale)),
-    english: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode, "en")),
-  }
-}
 
 const triggerBtn = css`
   /* Keep DOM stable; structure changes via CSS only */
@@ -166,64 +147,20 @@ const LanguageMenuWithHook: React.FC<
   layoutContext: _layoutContext,
   pageState: _pageState,
 }) => {
-  const { alert } = useDialog()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const isChangingRef = useRef(false)
-  const languageOptions = useLanguageOptions()
 
-  const contextLanguages = languageOptions?.availableLanguages
-  const availableLanguages = contextLanguages || propAvailableLanguages || []
-  const areLanguagesOverridden = !!contextLanguages
+  const { items, currentLanguage, shouldShow, areLanguagesOverridden } = useLanguageMenuItems({
+    availableLanguages: propAvailableLanguages,
+    onLanguageChange: propOnLanguageChange,
+    onMenuClose: () => setIsOpen(false),
+  })
 
-  const currentLanguage = i18n.language || DEFAULT_LANGUAGE
-  const { native: activeNative } = getLanguageLabels(currentLanguage, currentLanguage)
-
-  const handleLanguageChange = useCallback(
-    async (newLanguageCode: string) => {
-      if (isChangingRef.current) {
-        return
-      }
-      if (newLanguageCode === currentLanguage) {
-        setIsOpen(false)
-        return
-      }
-      try {
-        isChangingRef.current = true
-        // Prefer context callback (for course material), then prop callback, then fallback to i18n
-        const callback = languageOptions?.onLanguageChange || propOnLanguageChange
-        if (callback) {
-          await callback(newLanguageCode)
-        } else {
-          // Set cookie BEFORE calling i18n.changeLanguage so that useLanguage() picks up the new value
-          if (typeof document !== "undefined") {
-            document.cookie = `${LANGUAGE_COOKIE_KEY}=${newLanguageCode}; path=/; SameSite=Strict; max-age=31536000;`
-          }
-          // Fallback to basic i18n change
-          await i18n.changeLanguage(newLanguageCode)
-        }
-        setIsOpen(false)
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err)
-        console.error("Language redirection failed:", errorMessage)
-        alert(t("language-redirection-failed", { error: errorMessage }))
-      } finally {
-        isChangingRef.current = false
-      }
-    },
-    [languageOptions?.onLanguageChange, propOnLanguageChange, i18n, alert, t, currentLanguage],
-  )
-
-  // Determine which languages to show: context/props languages or default supported languages
-  const languagesToShow =
-    availableLanguages.length > 0 && (areLanguagesOverridden || availableLanguages.length > 1)
-      ? availableLanguages
-      : SUPPORTED_LANGUAGES.map((code) => ({ code }))
-
-  // Hide menu if only one language is available and we're already on it
-  if (availableLanguages.length === 1 && availableLanguages[0].code === currentLanguage) {
+  if (!shouldShow) {
     return null
   }
+
+  const activeNative = items.find((item) => item.isSelected)?.nativeLabel || ""
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -277,38 +214,35 @@ const LanguageMenuWithHook: React.FC<
             outline: none;
           `}
         >
-          {languagesToShow.map((lang) => {
-            const code = lang.code
-            const { native, localized, english } = getLanguageLabels(code, currentLanguage)
-            const selected = code === currentLanguage
-            const subtitle = selected ? english : localized
+          {items.map((item) => {
+            const subtitle = item.isSelected ? item.englishLabel : item.localizedLabel
             return (
               <MenuItem
-                key={code}
-                onAction={() => handleLanguageChange(code)}
-                className={`${itemRow} ${selected ? selectedItem : ""}`}
-                aria-current={selected ? "true" : undefined}
-                lang={code}
-                dir={getDir(code)}
+                key={item.id}
+                onAction={item.onSelect}
+                className={`${itemRow} ${item.isSelected ? selectedItem : ""}`}
+                aria-current={item.isSelected ? "true" : undefined}
+                lang={item.lang}
+                dir={item.dir}
               >
                 <span className={textCol}>
                   <span
-                    className={`${primaryLine} ${selected ? selectedText : ""}`}
-                    lang={code}
-                    dir={getDir(code)}
+                    className={`${primaryLine} ${item.isSelected ? selectedText : ""}`}
+                    lang={item.lang}
+                    dir={item.dir}
                   >
-                    {native}
+                    {item.nativeLabel}
                   </span>
                   <span
-                    className={`${secondaryLine} ${selected ? selectedSubtext : ""}`}
-                    lang={selected ? "en" : currentLanguage}
-                    dir={selected ? getDir("en") : getDir(currentLanguage)}
+                    className={`${secondaryLine} ${item.isSelected ? selectedSubtext : ""}`}
+                    lang={item.isSelected ? "en" : currentLanguage}
+                    dir={item.isSelected ? getDir("en") : getDir(currentLanguage)}
                   >
                     {subtitle}
                   </span>
                 </span>
                 <span aria-hidden className={checkCell}>
-                  {selected ? "✓" : ""}
+                  {item.isSelected ? "✓" : ""}
                 </span>
               </MenuItem>
             )

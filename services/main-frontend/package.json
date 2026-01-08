@@ -30,6 +30,8 @@
     "@react-aria/dialog": "^3.5.31",
     "@react-aria/focus": "^3.21.2",
     "@react-aria/overlays": "^3.30.0",
+    "@react-aria/utils": "^3.32.0",
+    "@react-stately/overlays": "^3.6.21",
     "@react-types/dialog": "^3.5.22",
     "@tanstack/react-query": "^5.90.2",
     "@tanstack/react-table": "^8.21.3",

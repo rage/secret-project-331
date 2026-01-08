@@ -33,6 +33,8 @@
   "archived": "Archived",
   "are-you-sure-you-want-to-reset-everyones-progress-on-the-course": "Are you sure you want to reset the progress for all students in this course? This will delete their submissions, points, completions, given peer reviews and more. Note that this feature is intended to be used only when you are testing the course and don't have real students doing the course yet.",
   "are-you-sure-you-want-to-reset-your-own-progress-on-the-course": "Are you sure you want to reset your own progress on the course? This will delete your submissions, points, completions, given peer reviews and more.",
+  "aria-label-primary-navigation": "Primary",
+  "aria-label-top-bar": "Top bar",
   "at-the-form-field-fill-in-your-email-address": "At the form field 'Your email address on the MOOC course' <1>fill in: <2>{{email}}</2></1>",
   "attempted-exercises": "Exercises attempted",
   "attempted-exercises-required-for-completion": "Attempted exercises required for completion",

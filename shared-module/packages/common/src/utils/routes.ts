@@ -12,12 +12,14 @@ export function organizationFrontPageRoute(organizationSlug: string) {
   return `/org/${organizationSlug}`
 }
 
-export function loginRoute(returnTo: string) {
-  return `/login?return_to=${encodeURIComponent(returnTo)}`
+export function loginRoute(returnTo: string, language?: string) {
+  const langParam = language ? `&lang=${language}` : ""
+  return `/login?return_to=${encodeURIComponent(returnTo)}${langParam}`
 }
 
-export function signUpRoute(returnTo: string) {
-  return `/signup?return_to=${encodeURIComponent(returnTo)}`
+export function signUpRoute(returnTo: string, language?: string) {
+  const langParam = language ? `&lang=${language}` : ""
+  return `/signup?return_to=${encodeURIComponent(returnTo)}${langParam}`
 }
 
 export function manageExerciseServicesRoute() {

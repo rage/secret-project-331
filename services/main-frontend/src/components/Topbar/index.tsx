@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 "use client"
 
 import { css } from "@emotion/css"
@@ -19,6 +18,7 @@ import UserMenu from "./UserMenu"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 
 interface MenuOption {
   type: "link" | "action" | "separator"
@@ -118,8 +118,8 @@ const Topbar: React.FC<TopbarProps> = ({
   const loginStateContext = useContext(LoginStateContext)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath || "")
 
-  const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
-  const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
+  const loginPathWithReturnTo = loginRoute(returnTo, i18n.language)
+  const signUpPathWithReturnTo = signUpRoute(returnTo, i18n.language)
 
   const menuState = useOverlayTriggerState({})
 
@@ -147,13 +147,13 @@ const Topbar: React.FC<TopbarProps> = ({
               height: 4rem;
               gap: 8px;
             `}
-            aria-label="Top bar"
+            aria-label={t("aria-label-top-bar")}
           >
             <Brand />
 
             {/* Middle: primary navigation slot (visible on md+) */}
             <nav
-              aria-label="Primary"
+              aria-label={t("aria-label-primary-navigation")}
               className={css`
                 margin-inline-start: 8px;
                 min-width: 0;
@@ -202,6 +202,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
               {enableSearch && enableLanguageMenu && (
                 <Separator
+                  // eslint-disable-next-line i18next/no-literal-string
                   orientation="vertical"
                   className={css`
                     height: 24px;
@@ -221,6 +222,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
                   {enableUserMenu && enableQuickActions && (
                     <Separator
+                      // eslint-disable-next-line i18next/no-literal-string
                       orientation="vertical"
                       className={css`
                         height: 24px;

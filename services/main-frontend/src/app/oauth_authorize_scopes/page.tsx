@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useSearchParams } from "next/navigation"
-import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {

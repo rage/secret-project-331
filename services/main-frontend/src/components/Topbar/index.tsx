@@ -176,7 +176,7 @@ const Topbar: React.FC<TopbarProps> = ({
                 margin-inline-start: auto;
                 display: flex;
                 align-items: center;
-                gap: 4px;
+                gap: 8px;
 
                 ${respondToOrLarger.md} {
                   display: flex;
@@ -191,6 +191,22 @@ const Topbar: React.FC<TopbarProps> = ({
                 <SearchButton courseId={courseId} organizationSlug={organizationSlug} />
               )}
 
+              {enableSearch && enableLanguageMenu && (
+                <Separator
+                  // eslint-disable-next-line i18next/no-literal-string
+                  orientation="vertical"
+                  className={css`
+                    height: 24px;
+                    background: #e5e7eb;
+                    margin-inline: 0;
+                    display: none;
+                    ${respondToOrLarger.md} {
+                      display: block;
+                    }
+                  `}
+                />
+              )}
+
               {enableLanguageMenu && (
                 <LanguageMenu
                   courseId={courseId}
@@ -200,14 +216,14 @@ const Topbar: React.FC<TopbarProps> = ({
                 />
               )}
 
-              {enableSearch && enableLanguageMenu && (
+              {enableLanguageMenu && loginStateContext.signedIn && enableUserMenu && (
                 <Separator
                   // eslint-disable-next-line i18next/no-literal-string
                   orientation="vertical"
                   className={css`
                     height: 24px;
                     background: #e5e7eb;
-                    margin-inline: 4px;
+                    margin-inline: 0;
                     display: none;
                     ${respondToOrLarger.md} {
                       display: block;
@@ -227,7 +243,7 @@ const Topbar: React.FC<TopbarProps> = ({
                       className={css`
                         height: 24px;
                         background: #e5e7eb;
-                        margin-inline: 4px;
+                        margin-inline: 0;
                         display: none;
                         ${respondToOrLarger.md} {
                           display: block;

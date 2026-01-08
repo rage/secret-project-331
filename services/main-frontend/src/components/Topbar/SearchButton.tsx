@@ -8,59 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDebounce } from "use-debounce"
 
-// TODO: Replace with actual backend import when available
-// import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/course-material/backend"
-
-// Placeholder search functions
-const searchPagesWithPhrase = async (
-  params: { query: string },
-  courseId: string | null,
-  signal: AbortSignal | undefined,
-  t: (key: string, options?: { query?: string }) => string,
-): Promise<PageSearchResult[]> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 300))
-
-  if (signal?.aborted) {
-    throw new Error("AbortError")
-  }
-
-  // Return placeholder data
-  return [
-    {
-      id: "1",
-      title: t("search-result-placeholder-phrase", { query: params.query }),
-      url: t("search-result-placeholder-url-1"),
-      excerpt: "This is a placeholder search result for phrase matching...",
-      courseId: courseId || t("search-result-placeholder-course-id"),
-    },
-  ]
-}
-
-const searchPagesWithWords = async (
-  params: { query: string },
-  courseId: string | null,
-  signal: AbortSignal | undefined,
-  t: (key: string, options?: { query?: string }) => string,
-): Promise<PageSearchResult[]> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 300))
-
-  if (signal?.aborted) {
-    throw new Error("AbortError")
-  }
-
-  // Return placeholder data
-  return [
-    {
-      id: "2",
-      title: t("search-result-placeholder-words", { query: params.query }),
-      url: t("search-result-placeholder-url-2"),
-      excerpt: "This is a placeholder search result for word matching...",
-      courseId: courseId || t("search-result-placeholder-course-id"),
-    },
-  ]
-}
+import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/course-material/backend"
 import { PageSearchResult } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -196,8 +144,6 @@ const SearchIcon = styled(MagnifyingGlass)`
 `
 
 const StyledIcon = css`
-  right: -8px;
-  bottom: -2px;
   :hover {
     cursor: pointer;
   }
@@ -300,13 +246,11 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
             { query: debouncedQuery },
             courseId,
             abortControllerRef.current.signal,
-            t,
           ),
           searchPagesWithWords(
             { query: debouncedQuery },
             courseId,
             abortControllerRef.current.signal,
-            t,
           ),
         ])
         setPhraseSearchResults(pagesWithPhrase)

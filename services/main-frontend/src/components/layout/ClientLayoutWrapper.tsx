@@ -2,6 +2,7 @@
 
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
+import { Provider } from "jotai"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { RouterProvider } from "react-aria-components"
@@ -76,16 +77,18 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider navigate={(path) => router.push(path)}>
-        <OverlayProvider>
-          <DialogProvider>
-            <LanguageOptionsProvider>
-              <GlobalStyles />
-              <LoginStateContextProvider>{children}</LoginStateContextProvider>
-            </LanguageOptionsProvider>
-          </DialogProvider>
-        </OverlayProvider>
-      </RouterProvider>
+      <Provider>
+        <RouterProvider navigate={(path) => router.push(path)}>
+          <OverlayProvider>
+            <DialogProvider>
+              <LanguageOptionsProvider>
+                <GlobalStyles />
+                <LoginStateContextProvider>{children}</LoginStateContextProvider>
+              </LanguageOptionsProvider>
+            </DialogProvider>
+          </OverlayProvider>
+        </RouterProvider>
+      </Provider>
     </QueryClientProvider>
   )
 }

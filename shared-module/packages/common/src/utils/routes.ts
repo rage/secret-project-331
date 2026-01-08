@@ -138,3 +138,7 @@ export function coursePageSectionRoute(
 export function accountDeletedRoute() {
   return "/account-deleted"
 }
+
+export function editPageRoute(pageId: string) {
+  return `/cms/pages/${pageId}`
+}

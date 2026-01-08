@@ -12,8 +12,8 @@ import CourseSettingsModal from "@/components/course-material/modals/CourseSetti
 import Hamburger from "@/shared-module/common/components/Navigation/NavBar/Menu/Hamburger/Hamburger"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
-import { manageCourseRoute } from "@/shared-module/common/utils/routes"
-import { currentCourseIdAtom } from "@/state/course-material/selectors"
+import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
+import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
 
 const itemRow = css`
   display: flex;
@@ -26,6 +26,7 @@ const itemRow = css`
   color: #111827;
   outline: none;
   text-decoration: none !important;
+  cursor: pointer;
 
   &:where([data-hovered], [data-focused]) {
     background: #f3f4f6;
@@ -72,6 +73,7 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
 
   const courseIdFromState = useAtomValue(currentCourseIdAtom)
   const effectiveCourseId = courseId ?? courseIdFromState ?? null
+  const currentPageId = useAtomValue(currentPageIdAtom)
 
   const permissionCheck = useAuthorizeMultiple(
     effectiveCourseId
@@ -103,16 +105,10 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
     const shouldShowCourseSettings = isSignedIn && effectiveCourseId !== null
 
     if (shouldShowCourseSettings || hasPermission) {
-      if (hasPermission) {
-        items.push({
-          type: "separator",
-        })
-      }
-
       if (shouldShowCourseSettings) {
         items.push({
           type: "action",
-          label: t("settings"),
+          label: t("course-settings"),
           onAction: () => {
             setShowCourseSettings(true)
             setIsOpen(false)
@@ -121,6 +117,18 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
       }
 
       if (hasPermission && effectiveCourseId) {
+        if (items.length > 0) {
+          items.push({
+            type: "separator",
+          })
+        }
+        if (currentPageId) {
+          items.push({
+            type: "link",
+            label: t("button-text-edit-page"),
+            href: editPageRoute(currentPageId),
+          })
+        }
         items.push({
           type: "link",
           label: t("button-text-manage-course"),
@@ -130,7 +138,7 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
     }
 
     return items
-  }, [menuOptions, effectiveCourseId, hasPermission, loginStateContext.signedIn, t])
+  }, [menuOptions, effectiveCourseId, hasPermission, loginStateContext.signedIn, currentPageId, t])
 
   const hasVisibleOptions = useMemo(() => {
     if (hasCustomOptions) {
@@ -153,7 +161,6 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
           manualOpen={showCourseSettings}
         />
       )}
-      wat
       <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
         <TopBarMenuButton
           id="topbar-quick-actions"
@@ -163,7 +170,6 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
         >
           <Hamburger isActive={isOpen} buttonWidth={20} />
         </TopBarMenuButton>
-        wat
         <Popover
           placement="bottom end"
           offset={8}

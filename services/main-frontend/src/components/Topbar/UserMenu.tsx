@@ -14,7 +14,6 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { logout } from "@/shared-module/common/services/backend/auth"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 
 const itemRow = css`
   /* consistent row look */
@@ -55,11 +54,10 @@ interface MenuOption {
 }
 
 export interface UserMenuProps {
-  courseId?: string | null
   menuOptions?: MenuOption[]
 }
 
-const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ courseId, menuOptions }) => {
+const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOptions }) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [isOpen, setIsOpen] = useState(false)
@@ -130,18 +128,6 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ courseId, 
   }
 
   const defaultUserMenuItems = [
-    ...(courseId
-      ? [
-          {
-            type: "action" as const,
-            label: t("button-text-manage-course"),
-            onAction: () => {
-              window.location.href = manageCourseRoute(courseId)
-              setIsOpen(false)
-            },
-          },
-        ]
-      : []),
     { type: "link" as const, href: "/user-settings", label: t("user-settings") },
     {
       type: "action" as const,

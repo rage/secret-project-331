@@ -2,8 +2,6 @@
 
 import React from "react"
 
-import CourseMaterialProviders from "./CourseMaterialProviders"
-
 import CourseMaterialEffects from "@/components/course-material/CourseMaterialEffects"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -19,10 +17,10 @@ function CourseMaterialLayout({
   void params
 
   return (
-    <CourseMaterialProviders>
+    <>
       <CourseMaterialEffects />
       <Centered variant="narrow">{children}</Centered>
-    </CourseMaterialProviders>
+    </>
   )
 }
 

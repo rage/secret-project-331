@@ -15,7 +15,8 @@ import { useDebounce } from "use-debounce"
 const searchPagesWithPhrase = async (
   params: { query: string },
   courseId: string | null,
-  signal?: AbortSignal,
+  signal: AbortSignal | undefined,
+  t: (key: string, options?: { query?: string }) => string,
 ): Promise<PageSearchResult[]> => {
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 300))
@@ -28,10 +29,10 @@ const searchPagesWithPhrase = async (
   return [
     {
       id: "1",
-      title: `Search result for "${params.query}" (phrase)`,
-      url: "/search-result-1",
+      title: t("search-result-placeholder-phrase", { query: params.query }),
+      url: t("search-result-placeholder-url-1"),
       excerpt: "This is a placeholder search result for phrase matching...",
-      courseId: courseId || "default",
+      courseId: courseId || t("search-result-placeholder-course-id"),
     },
   ]
 }
@@ -39,7 +40,8 @@ const searchPagesWithPhrase = async (
 const searchPagesWithWords = async (
   params: { query: string },
   courseId: string | null,
-  signal?: AbortSignal,
+  signal: AbortSignal | undefined,
+  t: (key: string, options?: { query?: string }) => string,
 ): Promise<PageSearchResult[]> => {
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 300))
@@ -52,10 +54,10 @@ const searchPagesWithWords = async (
   return [
     {
       id: "2",
-      title: `Search result for "${params.query}" (words)`,
-      url: "/search-result-2",
+      title: t("search-result-placeholder-words", { query: params.query }),
+      url: t("search-result-placeholder-url-2"),
       excerpt: "This is a placeholder search result for word matching...",
-      courseId: courseId || "default",
+      courseId: courseId || t("search-result-placeholder-course-id"),
     },
   ]
 }
@@ -247,6 +249,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const abortControllerRef = useRef<AbortController>(new AbortController())
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const combinedResults = useMemo(() => {
     if (phraseSearchResults === null || wordSearchResults === null) {
@@ -297,11 +300,13 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
             { query: debouncedQuery },
             courseId,
             abortControllerRef.current.signal,
+            t,
           ),
           searchPagesWithWords(
             { query: debouncedQuery },
             courseId,
             abortControllerRef.current.signal,
+            t,
           ),
         ])
         setPhraseSearchResults(pagesWithPhrase)
@@ -315,8 +320,15 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
           throw e
         }
 
-        if ((e as any)?.response?.data) {
-          setError(JSON.stringify((e as any).response.data, undefined, 2))
+        interface ErrorWithResponse {
+          response?: {
+            data?: unknown
+          }
+        }
+
+        const errorWithResponse = e as ErrorWithResponse
+        if (errorWithResponse?.response?.data) {
+          setError(JSON.stringify(errorWithResponse.response.data, undefined, 2))
         } else {
           setError(e.toString())
         }
@@ -329,7 +341,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
     return () => {
       abortControllerRef.current?.abort()
     }
-  }, [courseId, debouncedQuery])
+  }, [courseId, debouncedQuery, t])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -354,6 +366,12 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
   const openModal = () => {
     setOpen(true)
   }
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [open])
 
   const handleResultClick = () => {
     setOpen(false)
@@ -392,8 +410,8 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
             <HeaderBar>
               <SearchIcon size={20} weight="bold" />
               <StyledInput
+                ref={inputRef}
                 value={query}
-                autoFocus
                 onChange={(e) => {
                   setError(null)
                   setQuery(e.target.value)

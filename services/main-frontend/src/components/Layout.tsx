@@ -56,7 +56,11 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <Topbar courseId={courseId} organizationSlug={organizationSlug} currentPagePath={pathname} />
+        <Topbar
+          courseId={courseId}
+          organizationSlug={organizationSlug}
+          currentPagePath={pathname}
+        />
 
         <main
           id="maincontent"

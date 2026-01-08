@@ -8,9 +8,8 @@ export async function login(
 ): Promise<void> {
   await page.goto("http://project-331.local/organizations")
   await page.waitForLoadState()
-  await page.locator("id=main-navigation-menu").click()
 
-  await page.getByText("Log in").click()
+  await page.getByRole("link", { name: "Log in" }).click()
   await page.click(`label:has-text("Email")`)
   await page.fill(`label:has-text("Email")`, user)
 
@@ -24,8 +23,8 @@ export async function login(
   // Store login state
   await page.context().storageState({ path: `src/states/${user}.json` })
   if (!stayLoggedIn) {
-    await page.locator("id=main-navigation-menu").click()
+    await page.locator("id=topbar-user-menu").click()
     await page.getByText("Log out").click()
-    await page.getByText("Log in").waitFor()
+    await page.getByRole("link", { name: "Log in" }).waitFor()
   }
 }

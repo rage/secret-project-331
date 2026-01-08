@@ -46,13 +46,12 @@ test.describe("Login session with Playwright", () => {
   )
 
   test("is succesful", async ({ page }) => {
-    await page.locator("id=main-navigation-menu").click()
-    await page.getByText("Log out").waitFor()
+    await page.locator("id=topbar-user-menu").waitFor()
   })
 
   test("able to logout", async ({ page }) => {
     await logout(page)
-    await page.getByText("Log in").waitFor()
+    await page.getByRole("link", { name: "Log in" }).waitFor()
   })
 })
 
@@ -74,9 +73,10 @@ test.describe("Login return_to", () => {
       await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
     ])
     await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
+    const currentUrl = page.url()
 
-    await page.locator("id=main-navigation-menu").click()
-    await page.getByText("Log in").click()
+    const returnTo = encodeURIComponent(currentUrl)
+    await page.goto(`http://project-331.local/login?return_to=${returnTo}`)
     await page.locator(`label:has-text("Password")`).waitFor()
     await page.waitForURL(/http:\/\/project-331\.local\/login\?return_to=.*/)
 

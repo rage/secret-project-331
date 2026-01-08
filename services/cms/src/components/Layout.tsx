@@ -56,7 +56,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <NavBar variant={"simple"}>
+        <NavBar variant={"simple"} logoLinkUrl="/">
           <NavContainer>
             <NavItems>
               <NavItem>

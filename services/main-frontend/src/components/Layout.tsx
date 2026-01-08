@@ -9,22 +9,10 @@ import Topbar from "./Topbar"
 
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
-import LanguageSelection from "@/shared-module/common/components/LanguageSelection"
-import LoginControls from "@/shared-module/common/components/LoginControls"
-import {
-  NavBar,
-  NavContainer,
-  NavItem,
-  NavItems,
-} from "@/shared-module/common/components/Navigation/NavBar"
-import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
-
-const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
 type LayoutProps = {
   children: ReactNode
@@ -62,12 +50,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           currentPagePath={pathname}
         />
 
-        <main
-          id="maincontent"
-          className={css`
-            padding-top: 4rem;
-          `}
-        >
+        <main id="maincontent">
           <Centered variant="default">{children}</Centered>
         </main>
       </div>

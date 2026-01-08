@@ -84,7 +84,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             {!hideBreadcrumbs && (
               <PageMarginOffset
                 marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-                marginBottom={MARGIN_BETWEEN_NAVBAR_AND_CONTENT}
+                marginBottom={"0"}
               >
                 <EditorBreadcrumbs />
               </PageMarginOffset>

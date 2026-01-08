@@ -1,9 +1,19 @@
 /* eslint-disable i18next/no-literal-string */
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 import { Link as AriaLink, Tooltip, TooltipTrigger } from "react-aria-components"
+
+import MOOCfi from "@/shared-module/common/img/moocfiLogo.svg"
+
+const StyledIcon = css`
+  font-size: 1.8rem;
+
+  path {
+    color: #4b5563 !important;
+  }
+`
 
 const Brand: React.FC = () => {
   return (
@@ -14,7 +24,6 @@ const Brand: React.FC = () => {
         className={css`
           display: inline-flex;
           align-items: center;
-          gap: 8px;
           border-radius: 12px;
           padding: 8px 10px; /* slightly larger target */
           outline: none;
@@ -30,30 +39,7 @@ const Brand: React.FC = () => {
           }
         `}
       >
-        <div
-          className={css`
-            width: 26px;
-            height: 26px;
-            display: grid;
-            place-items: center;
-            border-radius: 6px;
-            background: #111827;
-            color: white;
-            font-weight: 700;
-            font-size: 10px;
-          `}
-        >
-          SP
-        </div>
-        <span
-          className={css`
-            font-size: 14px;
-            font-weight: 600;
-            color: #111827;
-          `}
-        >
-          Secret Project 331
-        </span>
+        <MOOCfi className={cx(StyledIcon)} />
       </AriaLink>
       <Tooltip
         className={css`

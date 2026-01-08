@@ -128,7 +128,7 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
         border-radius: 4px;
         gap: 10px;
         flex-direction: ${orientation === "horizontal" ? "row" : "column"};
-        margin: 2rem 0;
+        margin-bottom: 2rem;
       `}
     >
       {React.Children.map(children, (child, i) => {

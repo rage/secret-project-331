@@ -66,7 +66,25 @@ const buttonsWrapper = css`
 `
 
 const menuStyle = css`
-  background: pink;
+  flex: 1;
+  flex-flow: column nowrap;
+  background: #fff;
+  border-color: #cacaca;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 10px;
+
+  box-shadow: 0px 0px 5px rgba(5n1, 51, 51, 0.1);
+`
+const menuItemStyle = css`
+  font-size: 16px;
+  border: solid pink;
+  margin: 0 0.5rem;
+  color: ${baseTheme.colors.green[700]};
+  &:hover {
+    filter: brightness(0.7) contrast(1.1);
+  }
 `
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
@@ -123,7 +141,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                     newConversation.mutate()
                   }
                 }}
-                className={buttonStyle}
+                className={menuItemStyle}
                 aria-label={t("new-conversation")}
               >
                 <AddMessage
@@ -132,12 +150,13 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                     top: 0.25rem;
                   `}
                 />
+                {t("new-conversation")}
               </MenuItem>
               <MenuItem
                 onAction={() => {
                   // go to some api endpoint where download happens?
                 }}
-                className={buttonStyle}
+                className={menuItemStyle}
                 //aria-label={t("download-transcript")}
               >
                 <Heart
@@ -146,6 +165,9 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                     top: 0.25rem;
                   `}
                 />
+                {
+                  t("new-conversation") //{t("download-transcript")}
+                }
               </MenuItem>
             </Menu>
           </Popover>

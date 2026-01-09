@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 import React, { ComponentType, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -53,17 +54,24 @@ export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
 
   const InnerComponent: React.FC<T> = (props) => {
     const { t } = useTranslation()
+    const router = useRouter()
     const loginStateContext = useContext(LoginStateContext)
+
+    useEffect(() => {
+      if (!loginStateContext.isLoading && loginStateContext.signedIn === false) {
+        const returnTo = encodeURIComponent(
+          window.location.pathname + window.location.search + window.location.hash,
+        )
+        // eslint-disable-next-line i18next/no-literal-string
+        router.replace(`/login?return_to=${returnTo}`)
+      }
+    }, [loginStateContext.isLoading, loginStateContext.signedIn, router])
 
     if (loginStateContext.isLoading || loginStateContext.signedIn === null) {
       return <Spinner variant="medium" />
     }
 
     if (!loginStateContext.signedIn) {
-      const returnTo = encodeURIComponent(
-        window.location.pathname + window.location.search + window.location.hash,
-      )
-      window.location.replace(`/login?return_to=${returnTo}`)
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
 

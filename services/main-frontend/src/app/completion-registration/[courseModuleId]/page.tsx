@@ -1,8 +1,8 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { useParams, usePathname } from "next/navigation"
-import React from "react"
+import { useParams } from "next/navigation"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import RegisterCompletion from "@/components/page-specific/register-completion/RegisterCompletion"
@@ -17,7 +17,14 @@ const REDIRECT = "redirect"
 const CompletionPage: React.FC = () => {
   const { t } = useTranslation()
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
-  const pathname = usePathname()
+  const [pathname, setPathname] = useState<string>("")
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPathname(window.location.pathname)
+    }
+  }, [])
+
   const userCompletionInformation = useQuery({
     queryKey: [`course-module-${courseModuleId}-completion-information`],
     queryFn: () => fetchUserCompletionInformation(courseModuleId),

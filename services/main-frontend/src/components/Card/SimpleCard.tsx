@@ -151,7 +151,10 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
               `}
             >
               {shouldLink ? (
-                <PseudoContentLink href={url}>
+                <PseudoContentLink
+                  href={url}
+                  data-testid={chapterNumber ? `chapter-link-${chapterNumber}` : undefined}
+                >
                   <span
                     className={css`
                       font-family: ${headingFont};

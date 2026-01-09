@@ -6,7 +6,7 @@ export async function logoutViaTopbar(page: Page) {
   const topbar = new Topbar(page)
   await topbar.expectDesktopVisible()
   await topbar.userMenu.clickItem("Log out")
-  await expect(page).toHaveURL(/\/login|\/$/)
+  await expect(page.getByRole("link", { name: "Log in" })).toBeVisible()
 }
 
 export async function switchLanguageViaTopbar(page: Page, nativeLabel: string) {
@@ -19,6 +19,7 @@ export async function switchLanguageViaTopbar(page: Page, nativeLabel: string) {
 export async function openCourseSettingsFromQuickActions(page: Page, label: string = "Settings") {
   const topbar = new Topbar(page)
   await topbar.expectDesktopVisible()
+  await expect(topbar.quickActionsTrigger).toBeVisible()
   await topbar.quickActions.clickItem(label)
   await expect(page.getByRole("dialog")).toBeVisible()
 }

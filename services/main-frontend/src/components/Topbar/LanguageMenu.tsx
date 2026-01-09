@@ -208,6 +208,7 @@ const LanguageMenuWithHook: React.FC<
         `}
       >
         <Menu
+          data-testid="topbar-language-menu-popover"
           aria-label="Language selection"
           className={css`
             display: grid;

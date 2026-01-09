@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLocators"
 
@@ -15,7 +16,8 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await page.getByRole("link", { name: "Navigate to course 'Advanced exercise states'" }).click()
   await selectCourseInstanceIfPrompted(page)
-  await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+  const chapterSelector = new ChapterSelector(page)
+  await chapterSelector.clickChapter(1)
   await page.getByRole("link", { name: "12 Complicated quizzes exercise page" }).click()
   await page.locator(`text=First question.`).waitFor()
   await page.locator(`text=Second question.`).waitFor()

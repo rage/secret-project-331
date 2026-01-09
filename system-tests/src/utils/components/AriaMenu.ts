@@ -1,25 +1,18 @@
 import { expect, Locator, Page } from "@playwright/test"
 
 type AriaMenuOpts = {
-  menuTestId?: string
-  menuAriaLabel?: string
+  menuTestId: string
 }
 
 export class AriaMenu {
   constructor(
     private readonly page: Page,
     private readonly trigger: Locator,
-    private readonly opts: AriaMenuOpts = {},
+    private readonly opts: AriaMenuOpts,
   ) {}
 
   private menu(): Locator {
-    if (this.opts.menuTestId) {
-      return this.page.getByTestId(this.opts.menuTestId)
-    }
-    if (this.opts.menuAriaLabel) {
-      return this.page.getByRole("menu", { name: this.opts.menuAriaLabel })
-    }
-    return this.page.getByRole("menu")
+    return this.page.getByTestId(this.opts.menuTestId)
   }
 
   async open() {

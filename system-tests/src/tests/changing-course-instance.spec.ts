@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { openCourseSettingsFromQuickActions } from "@/utils/flows/topbar.flow"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -21,7 +22,8 @@ test("Changing course instance preserves completions and points", async ({ page 
   await test.step("Open course and navigate to first exercise", async () => {
     await page.getByRole("link", { name: "Navigate to course 'Changing course instance'" }).click()
     await selectCourseInstanceIfPrompted(page)
-    await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    const chapterSelector = new ChapterSelector(page)
+    await chapterSelector.clickChapter(1)
     await page.getByRole("link", { name: "1 Page One" }).click()
   })
 

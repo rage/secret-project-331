@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
@@ -35,7 +36,8 @@ test.describe("Audio player accessibility", () => {
     // Test that the player is there
     await page.goto("http://project-331.local/org/uh-mathstat/courses/audio-course")
     await selectCourseInstanceIfPrompted(page)
-    await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    const chapterSelector = new ChapterSelector(page)
+    await chapterSelector.clickChapter(1)
     await page.getByRole("button", { name: "Listen" }).click()
     await page.getByText("00:00").first().waitFor()
   })
@@ -43,7 +45,8 @@ test.describe("Audio player accessibility", () => {
   test("Audio player accessibility - focus management and accessible names", async ({ page }) => {
     await page.goto("http://project-331.local/org/uh-mathstat/courses/audio-course")
     await selectCourseInstanceIfPrompted(page)
-    await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    const chapterSelector = new ChapterSelector(page)
+    await chapterSelector.clickChapter(1)
 
     const listenButton = page.getByRole("button", { name: "Listen" })
     await listenButton.waitFor()

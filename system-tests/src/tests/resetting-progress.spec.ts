@@ -1,5 +1,6 @@
 import { BrowserContext, test } from "@playwright/test"
 
+import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
@@ -14,7 +15,8 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
   await selectCourseInstanceIfPrompted(page)
-  await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+  const chapterSelector = new ChapterSelector(page)
+  await chapterSelector.clickChapter(1)
   await page.getByRole("link", { name: "2 Page 2" }).click()
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"] >> nth=0')
@@ -53,7 +55,8 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     )
     await studentPage.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
     await selectCourseInstanceIfPrompted(studentPage)
-    await studentPage.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    const studentChapterSelector = new ChapterSelector(studentPage)
+    await studentChapterSelector.clickChapter(1)
     await studentPage.getByRole("link", { name: "2 Page 2" }).click()
     await studentPage
       .frameLocator('iframe[title="Exercise 1\\, task 1 content"] >> nth=0')

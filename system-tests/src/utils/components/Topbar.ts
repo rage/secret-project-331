@@ -17,11 +17,11 @@ export class Topbar {
     this.searchButton = page.locator("#search-for-pages-button")
 
     this.userMenu = new AriaMenu(page, this.userMenuTrigger, {
-      menuAriaLabel: "Account actions",
+      menuTestId: "topbar-user-menu-popover",
     })
 
     this.languageMenu = new AriaMenu(page, page.locator("#topbar-language-menu"), {
-      menuAriaLabel: "Language selection",
+      menuTestId: "topbar-language-menu-popover",
     })
 
     this.quickActions = new AriaMenu(page, this.quickActionsTrigger, {
@@ -31,6 +31,5 @@ export class Topbar {
 
   async expectDesktopVisible() {
     await expect(this.userMenuTrigger).toBeVisible()
-    await expect(this.quickActionsTrigger).toBeVisible()
   }
 }

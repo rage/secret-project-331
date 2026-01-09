@@ -114,7 +114,10 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
           `}
         >
           {shouldLink ? (
-            <PseudoContentLink href={url}>
+            <PseudoContentLink
+              href={url}
+              data-testid={chapterNumber ? `chapter-link-${chapterNumber}` : undefined}
+            >
               <div
                 className={css`
                   position: absolute;

@@ -176,6 +176,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
           </div>
 
           <Menu
+            data-testid="topbar-user-menu-popover"
             aria-label="Account actions"
             className={css`
               display: grid;

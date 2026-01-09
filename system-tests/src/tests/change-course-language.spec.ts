@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import { openCourseSettingsFromQuickActions } from "../utils/flows/topbar.flow"
@@ -77,7 +78,8 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations",
   )
   // Make sure the language menu changes the course language version
-  await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+  const chapterSelector = new ChapterSelector(page)
+  await chapterSelector.clickChapter(1)
   await page.getByRole("link", { name: "2 Page 2" }).click()
   await page.getByText("First chapters second page.").click()
   const topbar = new Topbar(page)

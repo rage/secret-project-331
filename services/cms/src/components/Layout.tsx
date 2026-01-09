@@ -81,14 +81,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           id="maincontent"
         >
           <Centered variant="narrow">
-            {!hideBreadcrumbs && (
-              <PageMarginOffset
-                marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-                marginBottom={"0"}
-              >
-                <EditorBreadcrumbs />
-              </PageMarginOffset>
-            )}
+            {!hideBreadcrumbs && <EditorBreadcrumbs />}
             {children}
           </Centered>
         </main>

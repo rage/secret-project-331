@@ -170,10 +170,8 @@ const PagePage: React.FC = () => {
 
   return (
     <>
-      <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
-        <CourseMaterialPageBreadcrumbs currentPagePath={path} page={courseMaterialState.page} />
-        {<CourseTestModeNotification isTestMode={courseMaterialState.isTestMode} />}
-      </PageMarginOffset>
+      <CourseMaterialPageBreadcrumbs currentPagePath={path} page={courseMaterialState.page} />
+      {<CourseTestModeNotification isTestMode={courseMaterialState.isTestMode} />}
       <Page onRefresh={handleRefresh} organizationSlug={organizationSlug} />
     </>
   )

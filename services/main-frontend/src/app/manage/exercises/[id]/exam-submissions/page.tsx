@@ -51,9 +51,7 @@ const GradingPage: React.FC = () => {
   return (
     <div>
       <BreakFromCentered sidebar={false}>
-        <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
-          <Breadcrumbs pieces={pieces} />
-        </PageMarginOffset>
+        <Breadcrumbs pieces={pieces} />
       </BreakFromCentered>
       {getSubmissions.isError && <ErrorBanner variant={"readOnly"} error={getSubmissions.error} />}
       {getSubmissions.isLoading && <Spinner variant={"medium"} />}

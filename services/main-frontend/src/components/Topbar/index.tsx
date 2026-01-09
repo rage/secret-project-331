@@ -131,6 +131,8 @@ const Topbar: React.FC<TopbarProps> = ({
           border-bottom: 1px solid #e5e7eb;
           background: rgba(255, 255, 255, 0.8);
           backdrop-filter: saturate(180%) blur(10px);
+          position: relative;
+          z-index: 100;
         `}
       >
         <div

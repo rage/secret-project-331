@@ -12,7 +12,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
   await test.step("Research consent form is visible on login, if not yet answered", async () => {
     await page.goto("http://project-331.local/organizations")
     const topbar = new Topbar(page)
-    await topbar.quickActions.clickItem("Log in")
+    await topbar.clickLogin()
     await page.click(`label:has-text("Email")`)
     await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
 
@@ -39,7 +39,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
 
     //Login again and check research consent form doesn't show again when already answered.
     await topbar.quickActions.clickItem("Log out")
-    await page.getByRole("button", { name: "Log in" }).click()
+    await topbar.clickLogin()
 
     await page.click(`label:has-text("Email")`)
     await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
@@ -63,7 +63,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
 
     const topbar2 = new Topbar(page)
     await topbar2.quickActions.clickItem("Log out")
-    await topbar2.quickActions.clickItem("Log in")
+    await topbar2.clickLogin()
     await page.click(`label:has-text("Email")`)
     await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
 

@@ -88,7 +88,9 @@ test.describe("Login return_to", () => {
     // Fill input[name="password"]
     await page.fill(`label:has-text("Password")`, "admin")
 
-    await page.locator("id=login-button").click()
-    await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
+    await Promise.all([
+      page.locator("id=login-button").click(),
+      page.waitForURL(/http:\/\/project-331\.local\/org\/.*/),
+    ])
   })
 })

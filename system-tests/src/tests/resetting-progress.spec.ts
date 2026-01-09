@@ -26,7 +26,6 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.getByText("Good job!").waitFor()
   // await page.getByText("Points:1/1").waitFor()
   await page.locator('div.points:has-text("1/1")').waitFor()
-  await page.getByRole("navigation", { name: "Navigation menu" }).click()
   const topbar = new Topbar(page)
   await topbar.quickActions.clickItem("Manage course")
 

@@ -32,4 +32,13 @@ export class Topbar {
   async expectDesktopVisible() {
     await expect(this.userMenuTrigger).toBeVisible()
   }
+
+  async clickLogin() {
+    const isLoggedIn = await this.quickActionsTrigger.isVisible().catch(() => false)
+    if (isLoggedIn) {
+      await this.quickActions.clickItem("Log in")
+    } else {
+      await this.page.getByRole("link", { name: "Log in" }).click()
+    }
+  }
 }

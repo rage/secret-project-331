@@ -144,3 +144,35 @@ export function accountDeletedRoute() {
 export function editPageRoute(pageId: string) {
   return `/cms/pages/${pageId}`
 }
+
+export function examRoute(organizationSlug: string, examId: string) {
+  return `/org/${organizationSlug}/exams/${examId}`
+}
+
+export function manageExamRoute(examId: string) {
+  return `/manage/exams/${examId}`
+}
+
+export function manageExamQuestionsRoute(examId: string) {
+  return `/manage/exams/${examId}/questions`
+}
+
+export function testExamRoute(organizationSlug: string, examId: string) {
+  return `/org/${organizationSlug}/exams/testexam/${examId}`
+}
+
+export function manageUserRoute(userId: string) {
+  return `/manage/users/${userId}`
+}
+
+export function manageRegradingRoute(regradingId: string) {
+  return `/manage/regradings/${regradingId}`
+}
+
+export function exerciseAnswersRequiringAttentionRoute(exerciseId: string) {
+  return `/manage/exercises/${exerciseId}/answers-requiring-attention`
+}
+
+export function exerciseExamSubmissionsRoute(exerciseId: string) {
+  return `/manage/exercises/${exerciseId}/exam-submissions`
+}

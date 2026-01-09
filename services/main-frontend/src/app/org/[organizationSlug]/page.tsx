@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
@@ -13,6 +14,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { manageOrganizationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const Organization: React.FC = () => {
@@ -47,12 +49,12 @@ const Organization: React.FC = () => {
               id: organizationQuery.data.id,
             }}
           >
-            <a
-              href={`/manage/organizations/${organizationQuery.data.id}`}
+            <Link
+              href={manageOrganizationRoute(organizationQuery.data.id)}
               aria-label={`${t("link-manage")}`}
             >
               {t("manage")}
-            </a>
+            </Link>
           </OnlyRenderIfPermissions>
         )}
         {organizationQuery.isSuccess && (

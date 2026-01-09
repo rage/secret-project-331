@@ -15,6 +15,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { coursePageRoute } from "@/shared-module/common/utils/routes"
 
 const HeaderBar = styled.div`
   display: flex;
@@ -399,47 +400,56 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
             )}
 
             {!isLoading &&
-              combinedResults?.map((result) => (
-                <ResultCard
-                  href={`/${organizationSlug}/courses/${result.url_path}`}
-                  key={result.id}
-                  onClick={handleResultClick}
-                >
-                  <h2
-                    className={css`
-                      font-size: 1.5rem;
-                      b {
-                        text-decoration: underline;
-                      }
-                    `}
-                    dangerouslySetInnerHTML={{
-                      __html: result.title_headline ?? "",
-                    }}
-                  />
-                  {result.chapter_name != null && result.chapter_name !== "" && (
-                    <div
+              combinedResults?.map((result) => {
+                const urlPath = result.url_path.startsWith("/")
+                  ? result.url_path
+                  : `/${result.url_path}`
+                const pathSegments = urlPath.split("/").filter(Boolean)
+                const courseSlug = pathSegments[0] ?? ""
+                const relativePathWithSlash =
+                  pathSegments.length > 1 ? `/${pathSegments.slice(1).join("/")}` : "/"
+                return (
+                  <ResultCard
+                    href={coursePageRoute(organizationSlug, courseSlug, relativePathWithSlash)}
+                    key={result.id}
+                    onClick={handleResultClick}
+                  >
+                    <h2
                       className={css`
-                        font-size: 0.75rem;
-                        color: ${baseTheme.colors.gray[500]};
-                        margin: 0 0 0.25rem;
-                        line-height: 1.4;
-                      `}
-                    >
-                      {result.chapter_name}
-                    </div>
-                  )}
-                  {result.content_headline && (
-                    <p
-                      className={css`
-                        color: #5a5757;
+                        font-size: 1.5rem;
+                        b {
+                          text-decoration: underline;
+                        }
                       `}
                       dangerouslySetInnerHTML={{
-                        __html: result.content_headline,
+                        __html: result.title_headline ?? "",
                       }}
                     />
-                  )}
-                </ResultCard>
-              ))}
+                    {result.chapter_name != null && result.chapter_name !== "" && (
+                      <div
+                        className={css`
+                          font-size: 0.75rem;
+                          color: ${baseTheme.colors.gray[500]};
+                          margin: 0 0 0.25rem;
+                          line-height: 1.4;
+                        `}
+                      >
+                        {result.chapter_name}
+                      </div>
+                    )}
+                    {result.content_headline && (
+                      <p
+                        className={css`
+                          color: #5a5757;
+                        `}
+                        dangerouslySetInnerHTML={{
+                          __html: result.content_headline,
+                        }}
+                      />
+                    )}
+                  </ResultCard>
+                )
+              })}
           </ResultsContainer>
         </SearchContainer>
       </Dialog>

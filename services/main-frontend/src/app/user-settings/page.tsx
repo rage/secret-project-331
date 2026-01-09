@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
+import Link from "next/link"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,6 +19,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { courseFrontPageRoute } from "@/shared-module/common/utils/routes"
 
 const UserSettings: React.FC = () => {
   const { t } = useTranslation()
@@ -167,13 +169,15 @@ const UserSettings: React.FC = () => {
                   >
                     {course.data?.course_name}:
                   </p>
-                  <a
-                    href={`/org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
-                  >
-                    <Button size="medium" variant="primary">
-                      {t("edit")}
-                    </Button>
-                  </a>
+                  {course.data?.organization_slug && course.data?.course_slug && (
+                    <Link
+                      href={`${courseFrontPageRoute(course.data.organization_slug, course.data.course_slug)}/?show_research_form=1`}
+                    >
+                      <Button size="medium" variant="primary">
+                        {t("edit")}
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>

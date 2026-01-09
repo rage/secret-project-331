@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
 
+import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import { openCourseSettingsFromQuickActions } from "../utils/flows/topbar.flow"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -16,8 +18,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
   await selectCourseInstanceIfPrompted(page)
 
-  await page.getByRole("button", { name: "Open menu" }).click()
-  await page.getByRole("button", { name: "Settings", exact: true }).click()
+  await openCourseSettingsFromQuickActions(page)
 
   await page.getByText("Choose your preferred language").first().waitFor()
   await page.getByRole("heading", { name: "Course settings" }).click()
@@ -41,8 +42,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin",
   )
 
-  // await page.getByRole("button", { name: "Avaa valikko" }).click()
-  await page.getByRole("button", { name: "Asetukset", exact: true }).click()
+  await openCourseSettingsFromQuickActions(page, "Asetukset")
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -80,8 +80,8 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
   await page.getByRole("link", { name: "2 Page 2" }).click()
   await page.getByText("First chapters second page.").click()
-  await page.getByRole("button", { name: "Language" }).click()
-  await page.getByRole("button", { name: "Suomi" }).click()
+  const topbar = new Topbar(page)
+  await topbar.languageMenu.clickItem("Suomi")
   await page.getByText("Olet aiemmin aloittanut tämän kurssin eri kielellä.").first().waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin/chapter-1/page-2",

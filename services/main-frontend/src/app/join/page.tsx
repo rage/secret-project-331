@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -15,11 +15,13 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const JoinCoursePage: React.FC = () => {
   const { t } = useTranslation()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const joinCode = searchParams.get("code")
 
@@ -37,13 +39,23 @@ const JoinCoursePage: React.FC = () => {
   })
 
   useEffect(() => {
-    if (courseBreadcrumbs.isSuccess) {
-      location.href = `/org/${courseBreadcrumbs.data?.organization_slug}/courses/${courseBreadcrumbs.data?.course_slug}`
+    if (
+      courseBreadcrumbs.isSuccess &&
+      courseBreadcrumbs.data?.organization_slug &&
+      courseBreadcrumbs.data?.course_slug
+    ) {
+      router.push(
+        navigateToCourseRoute(
+          courseBreadcrumbs.data.organization_slug,
+          courseBreadcrumbs.data.course_slug,
+        ),
+      )
     }
   }, [
     courseBreadcrumbs.data?.course_slug,
     courseBreadcrumbs.data?.organization_slug,
     courseBreadcrumbs.isSuccess,
+    router,
   ])
 
   const handleRedirectMutation = useToastMutation(
@@ -63,9 +75,7 @@ const JoinCoursePage: React.FC = () => {
   )
 
   const handleReturn = () => {
-    if (courseBreadcrumbs.isSuccess) {
-      location.href = `/`
-    }
+    router.push("/")
   }
   return (
     <div>

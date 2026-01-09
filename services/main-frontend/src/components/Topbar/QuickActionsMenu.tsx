@@ -128,6 +128,7 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
         >
           <nav aria-label={t("quick-actions")}>
             <Menu
+              data-testid="topbar-quick-actions-menu"
               aria-label={t("quick-actions-menu")}
               className={css`
                 display: grid;

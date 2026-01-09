@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { Topbar } from "@/utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
 test("User can add missing country information", async ({ page }) => {
@@ -28,8 +29,8 @@ test("User can add missing country information", async ({ page }) => {
     await Promise.all([selectCourseInstanceIfPrompted(page), countryPrompt()])
 
     // Go to user setting and change users country
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "User settings" }).click()
+    const topbar = new Topbar(page)
+    await topbar.userMenu.clickItem("User settings")
     await expect(page.getByRole("button", { name: "Andorra Where do you live? *" })).toBeVisible()
     await page.getByRole("button", { name: "Andorra Where do you live? *" }).click()
     await page.getByRole("searchbox", { name: "Search..." }).fill("fin")
@@ -38,8 +39,7 @@ test("User can add missing country information", async ({ page }) => {
     await expect(page.getByText("Success", { exact: true })).toBeVisible()
     await expect(page.getByRole("button", { name: "Finland Where do you live? *" })).toBeVisible()
 
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "Log out" }).click()
+    await topbar.quickActions.clickItem("Log out")
   })
 
   await test.step("Add country when creating a new user and see that pop-up form doesn't show", async () => {

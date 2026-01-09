@@ -1,5 +1,6 @@
 import { BrowserContext, test } from "@playwright/test"
 
+import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
@@ -24,8 +25,8 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   // await page.getByText("Points:1/1").waitFor()
   await page.locator('div.points:has-text("1/1")').waitFor()
   await page.getByRole("navigation", { name: "Navigation menu" }).click()
-  await page.getByRole("button", { name: "Open menu" }).click()
-  await page.getByRole("button", { name: "Manage course" }).click()
+  const topbar = new Topbar(page)
+  await topbar.quickActions.clickItem("Manage course")
 
   await page.getByRole("button", { name: "Reset my own progress on the course" }).click()
   await respondToConfirmDialog(page, true)

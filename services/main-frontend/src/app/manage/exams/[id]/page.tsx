@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -20,6 +21,11 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import {
+  manageCourseByIdRoute,
+  manageExamQuestionsRoute,
+  testExamRoute,
+} from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const Organization: React.FC = () => {
@@ -92,12 +98,12 @@ const Organization: React.FC = () => {
               {getExam.data.page_id})
             </li>
             <li>
-              <a
+              <Link
                 href={`/manage/exams/${getExam.data.id}/permissions`}
                 aria-label={`${t("link-manage-permissions")} ${getExam.data.name}`}
               >
                 {t("link-manage-permissions")}
-              </a>
+              </Link>
             </li>
             <li>
               <a href={`/cms/exams/${getExam.data.id}/edit`}>{t("link-edit-exam-instructions")}</a>
@@ -113,12 +119,14 @@ const Organization: React.FC = () => {
               </a>
             </li>
             <li>
-              <a href={`/manage/exams/${getExam.data.id}/questions`}>{t("grading")}</a>
+              <Link href={manageExamQuestionsRoute(getExam.data.id)}>{t("grading")}</Link>
             </li>
             <li>
-              <a href={`/org/${organizationSlug}/exams/testexam/${getExam.data.id}`}>
-                {t("link-test-exam")}
-              </a>
+              {organizationSlug && (
+                <Link href={testExamRoute(organizationSlug, getExam.data.id)}>
+                  {t("link-test-exam")}
+                </Link>
+              )}
             </li>
             <li>
               <div
@@ -149,7 +157,7 @@ const Organization: React.FC = () => {
           <h2>{t("courses")}</h2>
           {getExam.data.courses.map((c) => (
             <div key={c.id}>
-              <a href={`/manage/courses/${c.id}`}>{c.name}</a> ({c.id}){" "}
+              <Link href={manageCourseByIdRoute(c.id)}>{c.name}</Link> ({c.id}){" "}
               <Button
                 onClick={() => {
                   unsetCourseMutation.mutate({ examId: getExam.data.id, courseId: c.id })

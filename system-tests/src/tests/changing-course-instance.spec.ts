@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { openCourseSettingsFromQuickActions } from "@/utils/flows/topbar.flow"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -44,8 +45,7 @@ test("Changing course instance preserves completions and points", async ({ page 
   })
 
   await test.step("Switch to non-default course instance", async () => {
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "Settings", exact: true }).click()
+    await openCourseSettingsFromQuickActions(page)
     await page.getByRole("radio", { name: "Non-default instance" }).check()
     await page.getByTestId("select-course-instance-continue-button").click()
     await page.getByTestId("select-course-instance-continue-button").waitFor({ state: "detached" })

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -20,10 +20,12 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
+import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const GradingPage: React.FC = () => {
   const { t } = useTranslation()
+  const router = useRouter()
   const paginationInfo = usePaginationInfo()
   const { id } = useParams<{ id: string }>()
 
@@ -115,7 +117,9 @@ const GradingPage: React.FC = () => {
                           size={"small"}
                           transform="none"
                           onClick={() => {
-                            location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
+                            router.push(
+                              submissionGradingRoute(submission.exercise_slide_submission.id),
+                            )
                           }}
                         >
                           {t("label-review")}
@@ -126,7 +130,9 @@ const GradingPage: React.FC = () => {
                           size={"small"}
                           transform="none"
                           onClick={() => {
-                            location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
+                            router.push(
+                              submissionGradingRoute(submission.exercise_slide_submission.id),
+                            )
                           }}
                         >
                           {t("grade")}
@@ -138,7 +144,9 @@ const GradingPage: React.FC = () => {
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
+                          router.push(
+                            submissionGradingRoute(submission.exercise_slide_submission.id),
+                          )
                         }}
                       >
                         {t("label-review")}

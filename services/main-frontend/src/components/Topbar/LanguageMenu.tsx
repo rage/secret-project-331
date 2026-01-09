@@ -165,6 +165,7 @@ const LanguageMenuWithHook: React.FC<
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
+        id="topbar-language-menu"
         ariaLabel={
           areLanguagesOverridden ? t("change-course-language") : t("change-user-interface-language")
         }

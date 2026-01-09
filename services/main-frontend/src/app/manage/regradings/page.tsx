@@ -31,6 +31,7 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isUuid } from "@/shared-module/common/utils/fetching"
+import { manageRegradingRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 
 interface Fields {
@@ -128,7 +129,7 @@ const RegradingsPage: React.FC = () => {
             {regradingsQuery.data.map((regrading) => (
               <FullWidthTableRow key={regrading.id}>
                 <td>
-                  <Link href={`/manage/regradings/${regrading.id}`}>{regrading.id}</Link>
+                  <Link href={manageRegradingRoute(regrading.id)}>{regrading.id}</Link>
                 </td>
                 <td>{dateToString(regrading.created_at)}</td>
                 <td>{dateToString(regrading.updated_at)}</td>

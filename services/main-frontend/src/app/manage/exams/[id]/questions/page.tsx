@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -26,11 +26,13 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
+import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const GradingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
+  const router = useRouter()
   const { confirm } = useDialog()
 
   const getExam = useQuery({
@@ -275,7 +277,7 @@ const GradingPage: React.FC = () => {
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
+                          router.push(exerciseExamSubmissionsRoute(exercise.id))
                         }}
                       >
                         {t("grade")}
@@ -286,7 +288,7 @@ const GradingPage: React.FC = () => {
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
+                          router.push(exerciseExamSubmissionsRoute(exercise.id))
                         }}
                       >
                         {t("label-review")}

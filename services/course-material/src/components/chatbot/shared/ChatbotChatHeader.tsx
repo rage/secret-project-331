@@ -12,6 +12,8 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+import { createChatbotTranscript } from "@/utils/createChatbotTranscript"
+import { downloadStringAsFile } from "@/utils/downloadStringAsFile"
 
 type ChatbotChatHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
@@ -87,6 +89,15 @@ const menuItemStyle = css`
   }
 `
 
+const downloadTranscript = (info: ChatbotConversationInfo | undefined, filename: string) => {
+  if (info === undefined) {
+    return
+  }
+  let transcript = createChatbotTranscript(info)
+  // eslint-disable-next-line i18next/no-literal-string
+  downloadStringAsFile(transcript, "txt", filename)
+}
+
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversation, isCourseMaterialBlock, closeChatbot } = props
@@ -154,10 +165,15 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
               </MenuItem>
               <MenuItem
                 onAction={() => {
-                  // go to some api endpoint where download happens?
+                  let info = currentConversationInfo.data
+                  downloadTranscript(
+                    info,
+                    `${t("conversation-with", { name: info?.chatbot_name })}`,
+                  )
                 }}
+                isDisabled={!currentConversationInfo.data}
                 className={menuItemStyle}
-                //aria-label={t("download-transcript")}
+                aria-label={t("download-transcript")}
               >
                 <Heart
                   className={css`
@@ -165,9 +181,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                     top: 0.25rem;
                   `}
                 />
-                {
-                  t("new-conversation") //{t("download-transcript")}
-                }
+                {t("download-transcript")}
               </MenuItem>
             </Menu>
           </Popover>

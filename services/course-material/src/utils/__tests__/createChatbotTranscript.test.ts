@@ -439,6 +439,144 @@ Any further questions?`,
     chatbot_name: "Test bot",
     hide_citations: true,
   }
+  const info3: ChatbotConversationInfo = {
+    current_conversation: {
+      id: "",
+      created_at: "",
+      updated_at: "",
+      deleted_at: null,
+      course_id: "",
+      user_id: "",
+      chatbot_configuration_id: "",
+    },
+    current_conversation_messages: [
+      {
+        id: "",
+        created_at: "",
+        updated_at: "",
+        deleted_at: null,
+        conversation_id: "",
+        message: "How can I help you?",
+        message_role: "assistant",
+        message_is_complete: true,
+        used_tokens: 0,
+        order_number: 0,
+        tool_output: null,
+        tool_call_fields: [],
+      },
+      {
+        id: "",
+        created_at: "",
+        updated_at: "",
+        deleted_at: null,
+        conversation_id: "",
+        message: "Hi? What is the abacus?",
+        message_role: "user",
+        message_is_complete: true,
+        used_tokens: 0,
+        order_number: 1,
+        tool_output: null,
+        tool_call_fields: [],
+      },
+      {
+        id: "",
+        created_at: "",
+        updated_at: "",
+        deleted_at: null,
+        conversation_id: "",
+        message: null,
+        message_role: "assistant",
+        message_is_complete: true,
+        used_tokens: 0,
+        order_number: 2,
+        tool_output: null,
+        tool_call_fields: [
+          {
+            id: "",
+            created_at: "",
+            updated_at: "",
+            deleted_at: null,
+            message_id: "",
+            tool_name: "what_abacus",
+            tool_arguments: {},
+            tool_call_id: "",
+          },
+        ],
+      },
+      {
+        id: "",
+        created_at: "",
+        updated_at: "",
+        deleted_at: null,
+        conversation_id: "",
+        message: null,
+        message_role: "tool",
+        message_is_complete: true,
+        used_tokens: 0,
+        order_number: 3,
+        tool_output: {
+          id: "",
+          created_at: "",
+          updated_at: "",
+          deleted_at: null,
+          message_id: "",
+          tool_name: "what_abacus",
+          tool_output: "Tool result: Just google it.",
+          tool_call_id: "",
+        },
+        tool_call_fields: [],
+      },
+      {
+        id: "long-abacus-message",
+        created_at: "",
+        updated_at: "",
+        deleted_at: null,
+        conversation_id: "",
+        message: `Here is a short essay about the abacus. I hope you enjoy it.
+
+Blah blah.
+
+Any further questions?`,
+        message_role: "assistant",
+        message_is_complete: true,
+        used_tokens: 0,
+        order_number: 4,
+        tool_output: null,
+        tool_call_fields: [],
+      },
+      {
+        id: "",
+        created_at: "",
+        updated_at: "",
+        deleted_at: null,
+        conversation_id: "",
+        message: "No, thank u :)",
+        message_role: "user",
+        message_is_complete: true,
+        used_tokens: 0,
+        order_number: 5,
+        tool_output: null,
+        tool_call_fields: [],
+      },
+      {
+        id: "",
+        created_at: "",
+        updated_at: "",
+        deleted_at: null,
+        conversation_id: "",
+        message: "Great. Any further questions?",
+        message_role: "assistant",
+        message_is_complete: true,
+        used_tokens: 0,
+        order_number: 6,
+        tool_output: null,
+        tool_call_fields: [],
+      },
+    ],
+    current_conversation_message_citations: [],
+    chatbot_name: "Test bot",
+    hide_citations: false,
+  }
 
   it("works in simple case with tool call", () => {
     let transcript = createChatbotTranscript(info1)
@@ -566,5 +704,28 @@ References
 [doc4] Abacus materials: Typical materials, https://example.com/abc
 [doc5] Generic article, https://example.com/article`,
     )
+  })
+
+  it("works when show citations but there are no citations", () => {
+    let transcript = createChatbotTranscript(info3)
+    console.log(transcript)
+    expect(transcript).toStrictEqual(`[Test bot said:]
+How can I help you?
+
+[You said:]
+Hi? What is the abacus?
+
+[Test bot said:]
+Here is a short essay about the abacus. I hope you enjoy it.
+
+Blah blah.
+
+Any further questions?
+
+[You said:]
+No, thank u :)
+
+[Test bot said:]
+Great. Any further questions?`)
   })
 })

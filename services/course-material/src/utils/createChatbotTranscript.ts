@@ -20,6 +20,7 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
     )
   }
   let latest_cit_n = 0
+  let any_citations_used = false
   let citation_list = "________________________________________________________\n\nReferences\n\n"
 
   let transcript = messages
@@ -50,6 +51,7 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
           current_citations,
           true,
         )
+        any_citations_used = filteredCitations.length > 0 ? true : any_citations_used
         filteredCitations
           .sort((a, b) =>
             citationNumberingMap.get(a.citation_number) <
@@ -75,7 +77,8 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
     })
     .join("")
 
-  transcript += hide_citations ? "" : citation_list
+  // add the references list to the transcript only on this condition
+  transcript += !hide_citations && any_citations_used ? citation_list : ""
 
   return transcript.trim()
 }

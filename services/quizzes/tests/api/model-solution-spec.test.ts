@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { POST } from "../../src/app/api/model-solution/route"
 import {
   ModelSolutionQuiz,

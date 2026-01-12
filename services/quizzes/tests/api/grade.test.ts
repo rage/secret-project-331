@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { POST } from "../../src/app/api/grade/route"
 
 import testClient from "./utils/appRouterTestClient"

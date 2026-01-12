@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import request from "supertest"
 
 import { GET } from "../../src/app/api/service-info/route"

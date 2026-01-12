@@ -10,7 +10,7 @@ pub fn generated_doc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
     stream.extend(
         format!("#[cfg_attr(all(doc, not(doctest)), generated_doc_inner({attr}))]")
             .parse::<TokenStream>()
-            .unwrap(),
+            .expect("Failed to parse generated doc attribute - this should never happen"),
     );
     stream.extend(item);
     stream

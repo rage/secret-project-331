@@ -24,3 +24,7 @@ tokio.workspace = true
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 # A Rust allocator backed by jemalloc
 tikv-jemallocator = "0.6.1"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

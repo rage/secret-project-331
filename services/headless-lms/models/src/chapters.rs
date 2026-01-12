@@ -594,6 +594,158 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserChapterProgress {
+    pub user_id: Uuid,
+    pub chapter_id: Uuid,
+    pub chapter_number: i32,
+    pub chapter_name: String,
+    pub points_obtained: f64,
+    pub exercises_attempted: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ChapterAvailability {
+    pub chapter_id: Uuid,
+    pub chapter_number: i32,
+    pub chapter_name: String,
+    pub exercises_available: i64,
+    pub points_available: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseUserInfo {
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub user_id: Uuid,
+    pub email: Option<String>,
+    pub course_instance: Option<String>,
+}
+
+pub async fn fetch_user_chapter_progress(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserChapterProgress>> {
+    let rows = sqlx::query_as!(
+        UserChapterProgress,
+        r#"
+WITH base AS (
+  SELECT ues.user_id,
+    ex.chapter_id,
+    ues.exercise_id,
+    COALESCE(ues.score_given, 0)::double precision AS points
+  FROM user_exercise_states ues
+    JOIN exercises ex ON ex.id = ues.exercise_id
+  WHERE ues.course_id = $1
+    AND ues.deleted_at IS NULL
+    AND ex.deleted_at IS NULL
+)
+SELECT b.user_id AS user_id,
+  c.id AS chapter_id,
+  c.chapter_number AS chapter_number,
+  c.name AS chapter_name,
+  COALESCE(SUM(b.points), 0)::double precision AS "points_obtained!",
+  COALESCE(COUNT(DISTINCT b.exercise_id), 0)::bigint AS "exercises_attempted!"
+FROM base b
+  JOIN chapters c ON c.id = b.chapter_id
+GROUP BY b.user_id,
+  c.id,
+  c.chapter_number,
+  c.name
+ORDER BY b.user_id,
+  c.chapter_number
+        "#,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok(rows)
+}
+
+pub async fn fetch_chapter_availability(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ChapterAvailability>> {
+    let rows = sqlx::query_as!(
+        ChapterAvailability,
+        r#"
+SELECT c.id AS chapter_id,
+  c.chapter_number AS chapter_number,
+  c.name AS chapter_name,
+  COALESCE(COUNT(ex.id), 0)::bigint AS "exercises_available!",
+  COALESCE(COUNT(ex.id), 0)::bigint AS "points_available!"
+FROM chapters c
+  JOIN exercises ex ON ex.chapter_id = c.id
+WHERE c.course_id = $1
+  AND c.deleted_at IS NULL
+  AND ex.deleted_at IS NULL
+GROUP BY c.id,
+  c.chapter_number,
+  c.name
+ORDER BY c.chapter_number
+        "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(rows)
+}
+
+pub async fn fetch_course_users(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseUserInfo>> {
+    let rows_raw = sqlx::query!(
+        r#"
+    SELECT
+        ud.first_name,
+        ud.last_name,
+        u.id AS user_id,
+        ud.email AS "email?",
+        ci.name AS "course_instance?"
+    FROM course_instance_enrollments AS cie
+    JOIN users              AS u  ON u.id = cie.user_id
+    LEFT JOIN user_details  AS ud ON ud.user_id = u.id
+    JOIN course_instances   AS ci ON ci.id = cie.course_instance_id
+    WHERE cie.course_id = $1
+        AND cie.deleted_at IS NULL
+    ORDER BY 1, user_id
+    "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let rows = rows_raw
+        .into_iter()
+        .map(|r| {
+            let first_name = r
+                .first_name
+                .map(|f| f.trim().to_string())
+                .filter(|f| !f.is_empty());
+            let last_name = r
+                .last_name
+                .map(|l| l.trim().to_string())
+                .filter(|l| !l.is_empty());
+
+            CourseUserInfo {
+                first_name,
+                last_name,
+                user_id: r.user_id,
+                email: r.email,
+                course_instance: r.course_instance,
+            }
+        })
+        .collect();
+
+    Ok(rows)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

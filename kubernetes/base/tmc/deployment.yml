@@ -19,6 +19,7 @@ metadata:
   labels:
     app: tmc
     deploymentType: without-init-container
+    has-probes: "true"
 spec:
   replicas: 1
   selector:
@@ -61,3 +62,30 @@ spec:
             limits:
               memory: 300Mi
               cpu: 200m
+          startupProbe:
+            httpGet:
+              path: /tmc/api/status/up
+              port: 3005
+            initialDelaySeconds: 0
+            periodSeconds: 1
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /tmc/api/status/up
+              port: 3005
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /tmc/api/status/up
+              port: 3005
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3

@@ -207,7 +207,13 @@ SELECT EXISTS(
     )
     .fetch_one(conn)
     .await?;
-    Ok(res.exists.unwrap())
+    res.exists.ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::Database,
+            "EXISTS query returned None - this should never happen".to_string(),
+            None,
+        )
+    })
 }
 
 #[cfg(test)]

@@ -34,7 +34,13 @@ pub async fn process_exercise_service_upload(
 ) -> Result<(), ControllerError> {
     let mut tx = conn.begin().await?;
     while let Some(item) = payload.next().await {
-        let field = item.unwrap();
+        let field = item.map_err(|err| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                format!("Failed to read multipart field: {}", err),
+                Some(anyhow::anyhow!("Multipart error: {}", err)),
+            )
+        })?;
         let field_name = {
             let name_ref = field.name().ok_or_else(|| {
                 ControllerError::new(

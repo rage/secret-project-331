@@ -32,9 +32,7 @@ reviews:
         - Use `respondToConfirmDialog` for confirm dialogs (Yes/No)
         - Use `fillPromptDialog` for prompt dialogs with input fields
 
-        NEVER select elements by auto-generated CSS classes (e.g., `.locator(".css-xknul2-TopBar")`). Instead, use semantic selectors like data-testid attributes, role selectors,
-        text content, or accessible names. Use `page.getByTestId()`, `page.getByRole()`, `page.getByText()`,
-        or `page.getByLabel()` instead.
+        NEVER select elements by auto-generated CSS classes (e.g., `.locator(".css-xknul2-TopBar")`). Instead, use semantic selectors like data-testid attributes, role selectors, text content, or accessible names. Use `page.getByTestId()`, `page.getByRole()`, `page.getByText()`, or `page.getByLabel()` instead.
 
     - path: "**/*.tsx"
       instructions: >
@@ -71,7 +69,11 @@ reviews:
 
     - path: "**/*.rs"
       instructions: >
-        No unwraps at all in non-test code. Avoid also .expect() calls outside of tests, with the exception when the program is starting up so that it would crash immediately for example when an environment variable is not set.
+        Always prefer returning Result types whenever possible. Use proper error handling with `?`, `match`, or `if let` instead of unwrapping.
+
+        NEVER use `.unwrap()` in non-test code. If the function returns a result, return an `Err`. If you cannot return a Result, use `.expect()` ONLY when the failure would occur during application startup (e.g., reading required environment variables, initializing critical resources). This ensures the app crashes immediately before handling any requests, rather than crashing during request handling which would prevent other requests from being processed. All `.expect()` calls must include a clear explanation of why it's safe to CRASH at that point.
+
+        Tests, seed scripts, and development utilities are more lenient and can use `.unwrap()` or `.expect()` as needed.
 
         No sql queries in code that is not within the models crate. If one needs to fetch data from the database, instead add a new function to the models crate and call that one.
 
@@ -101,3 +103,13 @@ reviews:
         When you come up with the table name, make sure to make it plural.
 
         The table, and all columns should have a comment explaining what they are for. The comment should be short and to the point don't repeat obvious things like the column name or the data type in the name. Don't add unnecessary words like "The column for the".
+
+    - path: "**/*"
+      instructions: >
+        Avoid banner-style section divider comments ("comment banners"), such as long separator bars, repeated dashes, or loud numbered headers used to split a file into sections (e.g. `// ----------------------------------------------------------------------`, `// 1. INPUT STATE`, `/* ======= */`). Prefer clearer naming, smaller focused modules/files, and normal short comments; do not suggest adding new comment banners, and when they appear in new or modified code, suggest removing them and improving structure instead.
+
+        Prefer comment quality over comment quantity. Do not add comments that simply restate what the code already says, narrate control flow, or explain obvious syntax — these may help readers unfamiliar with programming, but they hinder developers by adding noise and slowing down code reading. Comments should be concise, factual, and purposeful, and should communicate information that is not immediately obvious from the code itself (e.g., rationale and intent, constraints or invariants, edge cases, surprising behavior, important assumptions, performance or correctness considerations, or things future maintainers must keep in mind).
+
+        Require consistent, minimal function documentation. While some simple or self-explanatory functions or components may not strictly need comments, it is generally preferable to include a short, plain-language description of what the function is for, to clarify intent and complement (not repeat) a descriptive function name. Comments should add meaning rather than paraphrasing the name or implementation. Public interfaces should have clearer and more comprehensive documentation, but many private or internal functions also benefit from a brief comment explaining their role, assumptions, or relevant context.
+
+        Protect useful existing comments. Do not remove comments that capture non-obvious rationale, warnings, historical context, or design decisions unless they are clearly outdated or made irrelevant by the change. If a modification invalidates a comment, update it rather than deleting it. When a meaningful comment is removed, reviewers should expect an explicit justification in the PR description or a replacement comment that preserves the lost context.

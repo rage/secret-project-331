@@ -12,6 +12,7 @@ pub mod page_visit_stats;
 pub mod peer_or_self_reviewing;
 pub mod progressing;
 pub mod regrading;
+pub mod students_view;
 pub mod user_exercise_state_updater;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

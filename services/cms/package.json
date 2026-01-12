@@ -1,7 +1,7 @@
 {
   "name": "material-editor",
   "version": "0.1.0",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production next build",
@@ -11,7 +11,6 @@
     "postinstall": "pnpm run -F '**' postinstall:clean-wp && pnpm run -F '**' postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint",
     "postinstall:clean-wp": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/cleanWordpressModules.ts",
     "postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint": "find node_modules -maxdepth 1 -type d -name '*eslint*' -exec rm -r {} +",
-    "start": "NODE_ENV=production PORT=3000 node server.js",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {

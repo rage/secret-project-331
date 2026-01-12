@@ -100,7 +100,7 @@ const downloadTranscript = (info: ChatbotConversationInfo | undefined, filename:
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversation, isCourseMaterialBlock, closeChatbot } = props
+  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -191,7 +191,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
             slot="close"
             className={buttonStyle}
             aria-label={t("close")}
-            onPress={closeChatbot}
+            onPress={props.closeChatbot}
           >
             <DownIcon />
           </Button>

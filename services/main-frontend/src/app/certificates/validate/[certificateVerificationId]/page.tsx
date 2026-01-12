@@ -14,7 +14,8 @@ import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBound
 
 const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
-  const { certificateVerificationId } = useParams<{ certificateVerificationId: string }>()
+  const params = useParams<{ certificateVerificationId: string }>()
+  const certificateVerificationId = params?.certificateVerificationId
   const searchParams = useSearchParams()
   const debug = searchParams.get("debug")
   const testCourseModuleId = searchParams.get("test_certificate_configuration_id")
@@ -30,14 +31,19 @@ const ModuleCertificateVerification: React.FC = () => {
     ],
     queryFn: async () =>
       fetchCertificateImage(
-        certificateVerificationId,
+        certificateVerificationId!,
         !!debug,
         testCourseModuleId ?? undefined,
         testCourseInstanceId ?? undefined,
       ),
+    enabled: !!certificateVerificationId,
     // This is expensive, so it doesn't make sense to retry
     retry: false,
   })
+
+  if (!certificateVerificationId) {
+    return <Spinner variant={"medium"} />
+  }
 
   return (
     <>

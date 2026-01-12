@@ -15,7 +15,7 @@ import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBound
 const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
   const params = useParams<{ certificateVerificationId: string }>()
-  const certificateVerificationId = params?.certificateVerificationId
+  const certificateVerificationId = params?.certificateVerificationId ?? null
   const searchParams = useSearchParams()
   const debug = searchParams.get("debug")
   const testCourseModuleId = searchParams.get("test_certificate_configuration_id")

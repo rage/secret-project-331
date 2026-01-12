@@ -6,6 +6,8 @@ import React from "react"
 import DynamicSvg from "./DynamicSvg"
 
 import { fetchPartnersBlock } from "@/services/course-material/backend"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface PartnersBlockProps {
   courseId: string | null
@@ -14,7 +16,7 @@ interface PartnersBlockProps {
 const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
   const getPartnersBlock = useQuery({
     queryKey: ["partners-block", courseId],
-    queryFn: () => fetchPartnersBlock(courseId as NonNullable<string>),
+    queryFn: () => fetchPartnersBlock(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
   })
 
@@ -28,7 +30,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
   const hasImages = content.some((block) => block.name === "core/image" && block.attributes.url)
 
   return (
-    <>
+    <BreakFromCentered sidebar={false}>
       {hasImages && (
         <div
           data-test-id="partners-block"
@@ -91,7 +93,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
           })}
         </div>
       )}
-    </>
+    </BreakFromCentered>
   )
 }
 

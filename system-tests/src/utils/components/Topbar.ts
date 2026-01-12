@@ -6,6 +6,7 @@ export class Topbar {
   readonly userMenuTrigger: Locator
   readonly quickActionsTrigger: Locator
   readonly searchButton: Locator
+  readonly loginLink: Locator
 
   readonly userMenu: AriaMenu
   readonly quickActions: AriaMenu
@@ -15,6 +16,7 @@ export class Topbar {
     this.userMenuTrigger = page.locator("#topbar-user-menu")
     this.quickActionsTrigger = page.locator("#topbar-quick-actions")
     this.searchButton = page.locator("#search-for-pages-button")
+    this.loginLink = page.getByLabel("Top bar").getByRole("link", { name: "Log in" })
 
     this.userMenu = new AriaMenu(page, this.userMenuTrigger, {
       menuTestId: "topbar-user-menu-popover",
@@ -38,7 +40,7 @@ export class Topbar {
     if (isLoggedIn) {
       await this.quickActions.clickItem("Log in")
     } else {
-      await this.page.getByRole("link", { name: "Log in" }).click()
+      await this.loginLink.click()
     }
   }
 }

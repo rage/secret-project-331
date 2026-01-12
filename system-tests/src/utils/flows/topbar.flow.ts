@@ -6,7 +6,7 @@ export async function logoutViaTopbar(page: Page) {
   const topbar = new Topbar(page)
   await topbar.expectDesktopVisible()
   await topbar.userMenu.clickItem("Log out")
-  await expect(page.getByRole("link", { name: "Log in" })).toBeVisible()
+  await expect(topbar.loginLink).toBeVisible()
 }
 
 export async function switchLanguageViaTopbar(page: Page, nativeLabel: string) {

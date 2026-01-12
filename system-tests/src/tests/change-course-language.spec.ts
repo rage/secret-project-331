@@ -50,10 +50,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "course-lang-selection-fi-to-eng",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText("Valitse kieli"),
-      page.locator("id=language-flag"),
-    ],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Valitse kieli")],
   })
 
   const value1 = page.locator("#changeLanguage")

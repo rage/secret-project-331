@@ -9,23 +9,36 @@ function figureOutWhichReturnToPathToUse(
     return defaultPath
   }
 
+  let pathToCheck = returnPath
+
+  try {
+    const parsedUrl = new URL(returnPath)
+    pathToCheck = parsedUrl.pathname + parsedUrl.search + parsedUrl.hash
+  } catch {
+    pathToCheck = returnPath
+  }
+
+  if (!pathToCheck.startsWith("/")) {
+    return defaultPath
+  }
+
   // Only match paths like /asd, /asd/dfg, ...
-  const match = returnPath.match(/^(\/\S+)+/)
+  const match = pathToCheck.match(/^(\/\S*)+/)
   if (match === null) {
     return defaultPath
   }
 
   // Don't allow "returning" to login or to the signup page
-  if (returnPath === "/login" || returnPath === "/signup") {
+  if (pathToCheck === "/login" || pathToCheck === "/signup") {
     return defaultPath
   }
 
   // Don't allow loops
-  if (returnPath.indexOf("return_to") !== -1) {
+  if (pathToCheck.indexOf("return_to") !== -1) {
     return defaultPath
   }
 
-  return returnPath
+  return pathToCheck
 }
 
 export function validateReturnToRouteOrDefault(
@@ -33,6 +46,10 @@ export function validateReturnToRouteOrDefault(
   defaultPath: string,
 ): string {
   const res = figureOutWhichReturnToPathToUse(returnPath, defaultPath)
+
+  if (res === defaultPath) {
+    return defaultPath
+  }
 
   // Parse the path we're about to return to double check we return only paths and not urls which could redirect to other sites.
   try {

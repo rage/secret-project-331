@@ -15,18 +15,18 @@ test("User can add missing country information", async ({ page }) => {
     await page.getByRole("button", { name: "Log in" }).click()
 
     // Form to fill missing country
-    // the course instance selection is sometimes prompted before the country
-    // so we will await both simultaneously
-    const countryPrompt = async () => {
-      await expect(
-        page.locator("div").filter({ hasText: /^Fill missing information$/ }),
-      ).toBeVisible()
-      await page.getByRole("button", { name: "Select a country Where do you" }).click()
-      await page.getByRole("option", { name: "Andorra" }).click()
-      await page.getByRole("button", { name: "Save" }).click()
-      await expect(page.getByText("Success", { exact: true })).toBeVisible()
-    }
-    await Promise.all([selectCourseInstanceIfPrompted(page), countryPrompt()])
+    // The country prompt has priority over course instance selection (see useDialogStep hook)
+    // so it will always show first if both are needed
+    await expect(
+      page.locator("div").filter({ hasText: /^Fill missing information$/ }),
+    ).toBeVisible()
+    await page.getByRole("button", { name: "Select a country Where do you" }).click()
+    await page.getByRole("option", { name: "Andorra" }).click()
+    await page.getByRole("button", { name: "Save" }).click()
+    await expect(page.getByText("Success", { exact: true })).toBeVisible()
+
+    // After country prompt is handled, check if course instance selection is needed
+    await selectCourseInstanceIfPrompted(page)
 
     // Go to user setting and change users country
     const topbar = new Topbar(page)
@@ -39,7 +39,7 @@ test("User can add missing country information", async ({ page }) => {
     await expect(page.getByText("Success", { exact: true })).toBeVisible()
     await expect(page.getByRole("button", { name: "Finland Where do you live? *" })).toBeVisible()
 
-    await topbar.quickActions.clickItem("Log out")
+    await topbar.userMenu.clickItem("Log out")
   })
 
   await test.step("Add country when creating a new user and see that pop-up form doesn't show", async () => {

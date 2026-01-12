@@ -34,7 +34,7 @@ impl WsConnections {
             .0
             .get_or_init(Default::default)
             .read()
-            .expect("should never panic with the lock");
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
         lock.get(&id).cloned()
     }
 
@@ -43,7 +43,7 @@ impl WsConnections {
             .0
             .get_or_init(Default::default)
             .write()
-            .expect("should never panic with the lock");
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
         lock.insert(id, addr);
     }
 
@@ -51,7 +51,7 @@ impl WsConnections {
         if let Some(connections) = self.0.get() {
             let mut lock = connections
                 .write()
-                .expect("should never panic with the lock");
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
             lock.remove(&id);
         }
     }
@@ -85,10 +85,11 @@ impl Actor for ClientConnection {
             if socket.last_pong.elapsed() > CONNECTION_TIMEOUT {
                 // timed out
                 WS_CONNECTIONS.unregister(id);
-                ctx.text(
-                    serde_json::to_string(&PlaygroundViewsMessage::TimedOut)
-                        .expect("should never panic"),
-                );
+                if let Ok(text) = serde_json::to_string(&PlaygroundViewsMessage::TimedOut) {
+                    ctx.text(text);
+                } else {
+                    error!("Failed to serialize PlaygroundViewsMessage::TimedOut");
+                }
                 ctx.stop();
             } else {
                 ctx.ping(b"ping");
@@ -96,10 +97,11 @@ impl Actor for ClientConnection {
         });
         WS_CONNECTIONS.register(id, ctx.address());
         // inform the client of their id
-        ctx.text(
-            serde_json::to_string(&PlaygroundViewsMessage::Registered(id))
-                .expect("should never fail"),
-        );
+        if let Ok(text) = serde_json::to_string(&PlaygroundViewsMessage::Registered(id)) {
+            ctx.text(text);
+        } else {
+            error!("Failed to serialize PlaygroundViewsMessage::Registered");
+        }
         self.ping_handle = Some(ping_handle);
     }
 }
@@ -136,12 +138,13 @@ impl Handler<PlaygroundSubmissionMessage> for ClientConnection {
         ctx: &mut Self::Context,
     ) -> Self::Result {
         // pass on the message to the client
-        ctx.text(
-            serde_json::to_string(&PlaygroundViewsMessage::ExerciseTaskGradingResult(
-                msg.grading_result,
-            ))
-            .expect("should never fail"),
-        );
+        if let Ok(text) = serde_json::to_string(&PlaygroundViewsMessage::ExerciseTaskGradingResult(
+            msg.grading_result,
+        )) {
+            ctx.text(text);
+        } else {
+            error!("Failed to serialize PlaygroundViewsMessage::ExerciseTaskGradingResult");
+        }
     }
 }
 

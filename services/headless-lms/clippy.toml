@@ -1,0 +1,3 @@
+# Allow unwrap/expect in tests (including #[cfg(test)] mod tests blocks)
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

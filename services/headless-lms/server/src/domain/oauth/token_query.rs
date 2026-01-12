@@ -44,45 +44,49 @@ impl OAuthValidate for TokenQuery {
         }
 
         // Grant-specific required params
-        match &self.grant {
-            Some(TokenGrant::AuthorizationCode {
-                code,
-                redirect_uri,
-                code_verifier: _,
-            }) => {
-                if code.is_empty() {
-                    return Err(ControllerError::new(
-                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                            error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                            error_description: "code is required for authorization_code grant"
-                                .into(),
-                            redirect_uri: None,
-                            state: None,
-                            nonce: None,
-                        })),
-                        "Missing authorization code",
-                        None::<anyhow::Error>,
-                    ));
-                }
-                // If redirect_uri is provided, it must not be empty
-                if matches!(redirect_uri.as_deref(), Some("")) {
-                    return Err(ControllerError::new(
-                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                            error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                            error_description: "redirect_uri must not be empty when provided"
-                                .into(),
-                            redirect_uri: None,
-                            state: None,
-                            nonce: None,
-                        })),
-                        "Empty redirect_uri",
-                        None::<anyhow::Error>,
-                    ));
+        let grant = match self.grant.clone() {
+            Some(grant @ TokenGrant::AuthorizationCode { .. }) => {
+                if let TokenGrant::AuthorizationCode {
+                    code, redirect_uri, ..
+                } = &grant
+                {
+                    if code.is_empty() {
+                        return Err(ControllerError::new(
+                            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                                error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                                error_description: "code is required for authorization_code grant"
+                                    .into(),
+                                redirect_uri: None,
+                                state: None,
+                                nonce: None,
+                            })),
+                            "Missing authorization code",
+                            None::<anyhow::Error>,
+                        ));
+                    }
+                    // If redirect_uri is provided, it must not be empty
+                    if matches!(redirect_uri.as_deref(), Some("")) {
+                        return Err(ControllerError::new(
+                            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                                error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                                error_description: "redirect_uri must not be empty when provided"
+                                    .into(),
+                                redirect_uri: None,
+                                state: None,
+                                nonce: None,
+                            })),
+                            "Empty redirect_uri",
+                            None::<anyhow::Error>,
+                        ));
+                    }
                 }
                 // PKCE code_verifier is verified at the token handler (if the code had a challenge)
+                grant
             }
-            Some(TokenGrant::RefreshToken { refresh_token, .. }) => {
-                if refresh_token.is_empty() {
+            Some(grant @ TokenGrant::RefreshToken { .. }) => {
+                if let TokenGrant::RefreshToken { refresh_token, .. } = &grant
+                    && refresh_token.is_empty()
+                {
                     return Err(ControllerError::new(
                         ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                             error: OAuthErrorCode::InvalidRequest.as_str().into(),
@@ -95,6 +99,7 @@ impl OAuthValidate for TokenQuery {
                         None::<anyhow::Error>,
                     ));
                 }
+                grant
             }
             Some(TokenGrant::Unknown) => {
                 return Err(ControllerError::new(
@@ -122,12 +127,12 @@ impl OAuthValidate for TokenQuery {
                     None::<anyhow::Error>,
                 ));
             }
-        }
+        };
 
         Ok(TokenParams {
             client_id: client_id.to_string(),
             client_secret: self.client_secret.clone(), // may be None for public clients
-            grant: self.grant.clone().unwrap(),        // safe due to the match above
+            grant,
         })
     }
 }

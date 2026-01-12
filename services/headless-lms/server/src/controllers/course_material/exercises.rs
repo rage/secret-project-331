@@ -56,8 +56,15 @@ async fn get_exercise(
     let mut should_clear_grading_information = true;
     // Check if teacher is testing an exam and wants to see the exercise answers
     if let Some(exam_id) = course_material_exercise.exercise.exam_id {
+        let user_id_for_exam = user_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "User must be authenticated to view exam exercises".to_string(),
+                None,
+            )
+        })?;
         let user_enrollment =
-            models::exams::get_enrollment(&mut conn, exam_id, user_id.unwrap()).await?;
+            models::exams::get_enrollment(&mut conn, exam_id, user_id_for_exam).await?;
 
         if let Some(enrollment) = user_enrollment
             && let Some(show_answers) = enrollment.show_exercise_answers

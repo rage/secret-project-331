@@ -10,6 +10,7 @@ import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { createChatbotTranscript } from "@/utils/createChatbotTranscript"
@@ -102,6 +103,18 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
 
+  const createTranscript = useToastMutation(
+    async () => {
+      let info = currentConversationInfo.data
+      downloadTranscript(info, `${t("conversation-with", { name: info?.chatbot_name })}`)
+    },
+    {
+      notify: true,
+      method: "POST",
+      successMessage: t("transcript-downloaded-successfully"),
+    },
+  )
+
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
   }
@@ -163,26 +176,22 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                 />
                 {t("new-conversation")}
               </MenuItem>
-              <MenuItem
-                onAction={() => {
-                  let info = currentConversationInfo.data
-                  downloadTranscript(
-                    info,
-                    `${t("conversation-with", { name: info?.chatbot_name })}`,
-                  )
-                }}
-                isDisabled={!currentConversationInfo.data}
-                className={menuItemStyle}
-                aria-label={t("download-transcript")}
-              >
-                <Heart
-                  className={css`
-                    position: relative;
-                    top: 0.25rem;
-                  `}
-                />
-                {t("download-transcript")}
-              </MenuItem>
+              {currentConversationInfo.data?.current_conversation !== null && (
+                <MenuItem
+                  onAction={createTranscript.mutate}
+                  isDisabled={!currentConversationInfo.data}
+                  className={menuItemStyle}
+                  aria-label={t("download-transcript")}
+                >
+                  <Heart
+                    className={css`
+                      position: relative;
+                      top: 0.25rem;
+                    `}
+                  />
+                  {t("download-transcript")}
+                </MenuItem>
+              )}
             </Menu>
           </Popover>
         </MenuTrigger>

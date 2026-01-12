@@ -6,9 +6,7 @@ import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
   let messages = info.current_conversation_messages
   if (messages === null || messages.length === 0) {
-    throw new Error(
-      "Cannot create a chatbot conversation transcript: 0 or null messages. There should always be at least one message.",
-    )
+    throw new Error("Couldn't create a chatbot conversation transcript. The conversation is empty.")
   }
   let citations = info.current_conversation_message_citations ?? []
   let bot = info.chatbot_name

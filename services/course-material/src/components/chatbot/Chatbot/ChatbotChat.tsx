@@ -18,7 +18,6 @@ interface ChatbotDialogProps {
 
 interface ChatbotNoDialogProps {
   chatbotConfigurationId: string
-  closeChatbot: () => void
   isCourseMaterialBlock: true
 }
 

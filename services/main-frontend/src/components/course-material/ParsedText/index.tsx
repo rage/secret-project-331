@@ -48,7 +48,7 @@ const glossaryTermStyle = css`
 type GlossaryTarget = { node: HTMLElement; glossaryId: string }
 
 // https://github.com/facebook/react/issues/31600
-const RESCAN_DELAYS_MS = [0, 50, 200] as const
+const RESCAN_DELAYS_MS = [0, 2000] as const
 
 const scanGlossaryTargets = (container: HTMLElement | null): GlossaryTarget[] => {
   if (!container) {
@@ -120,20 +120,6 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
 
           if (!containerChanged && !stale) {
             return prev
-          }
-
-          if (containerChanged) {
-            console.warn("ParsedText: Rescan needed - container changed", {
-              delay,
-              initialContainer,
-              currentContainer,
-            })
-          }
-          if (stale) {
-            console.warn("ParsedText: Rescan needed - targets are stale", {
-              delay,
-              prevTargetsCount: prev.length,
-            })
           }
 
           const next = scanGlossaryTargets(currentContainer)

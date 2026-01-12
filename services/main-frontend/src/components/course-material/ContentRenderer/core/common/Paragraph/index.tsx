@@ -1,6 +1,6 @@
 "use client"
 import { useAtom } from "jotai"
-import React from "react"
+import React, { useMemo } from "react"
 
 import { BlockRendererProps } from "../../.."
 
@@ -29,35 +29,42 @@ const ParagraphBlock: React.FC<
   const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
   const isEditing = type === "proposed-edits"
 
+  const renderFunction = useMemo(() => {
+    const renderParagraph = ({
+      __html,
+      count,
+      hasCitationsOrGlossary,
+    }: {
+      __html: string
+      count: number
+      hasCitationsOrGlossary: boolean
+    }) => {
+      const ParagraphComponent = count > 0 ? LatexParagraph : P
+      const hideOverflow = !hasCitationsOrGlossary
+      return (
+        <ParagraphComponent
+          className={getParagraphStyles(
+            textColor,
+            backgroundColor,
+            fontSize,
+            hideOverflow,
+            dropCap,
+            align,
+          )}
+          dangerouslySetInnerHTML={{
+            __html,
+          }}
+        />
+      )
+    }
+    return renderParagraph
+  }, [textColor, backgroundColor, fontSize, dropCap, align])
+
   if (isEditing) {
     return <EditingParagraph data={data} id={id} />
   }
 
-  return (
-    <ParsedText
-      text={content}
-      render={({ __html, count, hasCitationsOrGlossary }) => {
-        const ParagraphComponent = count > 0 ? LatexParagraph : P
-        const hideOverflow = !hasCitationsOrGlossary
-        return (
-          <ParagraphComponent
-            className={getParagraphStyles(
-              textColor,
-              backgroundColor,
-              fontSize,
-              hideOverflow,
-              dropCap,
-              align,
-            )}
-            dangerouslySetInnerHTML={{
-              __html,
-            }}
-          />
-        )
-      }}
-      useWrapperElement={true}
-    />
-  )
+  return <ParsedText text={content} render={renderFunction} useWrapperElement={true} />
 }
 
 const exported = withErrorBoundary(ParagraphBlock)

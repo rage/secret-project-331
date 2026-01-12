@@ -1,5 +1,5 @@
 "use client"
-import React, { useContext } from "react"
+import React, { useCallback, useContext, useMemo } from "react"
 
 import { BlockRendererProps } from ".."
 
@@ -17,9 +17,30 @@ const ResearchFormCheckBoxBlock: React.FC<
 > = (props) => {
   const { questionIdsAndAnswers, setQuestionIdsAndAnswers } = useContext(CheckboxContext)
 
-  const handleChange = (value: boolean) => {
-    setQuestionIdsAndAnswers({ ...questionIdsAndAnswers, [props.data.clientId]: value })
-  }
+  const handleChange = useCallback(
+    (value: boolean) => {
+      setQuestionIdsAndAnswers({ ...questionIdsAndAnswers, [props.data.clientId]: value })
+    },
+    [questionIdsAndAnswers, props.data.clientId, setQuestionIdsAndAnswers],
+  )
+
+  const renderFunction = useMemo(() => {
+    const renderCheckbox = (rendered: {
+      __html: string
+      count: number
+      hasCitationsOrGlossary: boolean
+    }) => {
+      return (
+        <CheckBox
+          label={rendered.__html}
+          labelIsRawHtml
+          checked={questionIdsAndAnswers?.[props.data.clientId]}
+          onChange={() => handleChange(!questionIdsAndAnswers?.[props.data.clientId])}
+        />
+      )
+    }
+    return renderCheckbox
+  }, [questionIdsAndAnswers, props.data.clientId, handleChange])
 
   if (!questionIdsAndAnswers) {
     return
@@ -29,16 +50,7 @@ const ResearchFormCheckBoxBlock: React.FC<
     <ParsedText
       text={props.data.attributes.content}
       useWrapperElement={true}
-      render={(rendered) => {
-        return (
-          <CheckBox
-            label={rendered.__html}
-            labelIsRawHtml
-            checked={questionIdsAndAnswers[props.data.clientId]}
-            onChange={() => handleChange(!questionIdsAndAnswers[props.data.clientId])}
-          />
-        )
-      }}
+      render={renderFunction}
     />
   )
 }

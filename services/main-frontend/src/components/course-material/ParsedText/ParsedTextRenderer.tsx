@@ -1,11 +1,18 @@
-import React, { createElement, memo, RefObject, useContext, useMemo } from "react"
+import React, {
+  createElement,
+  memo,
+  RefObject,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+} from "react"
 
 import { parseText } from "../ContentRenderer/util/textParsing"
 
 import { ParsedTextProps, Tag } from "."
 
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
-import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const ParsedTextRenderer = <T extends Tag>(
   props: ParsedTextProps<T> & { wrapperRef?: RefObject<HTMLElement | null> },
@@ -13,15 +20,39 @@ const ParsedTextRenderer = <T extends Tag>(
   const { terms } = useContext(GlossaryContext)
 
   const parsedTextResult = useMemo(() => {
-    const res = parseText(props.text, terms, props.options)
-
-    const parsedText = sanitizeCourseMaterialHtml(res.parsedText)
-    return { ...res, parsedText }
+    return parseText(props.text, terms, props.options)
   }, [props.text, terms, props.options])
+
+  const innerHTMLRef = useRef<string | null>(null)
+  const prevElementRef = useRef<HTMLElement | null>(null)
+
+  const setInnerHTML = useCallback(
+    (element: HTMLElement | null) => {
+      if (!element || typeof window === "undefined") {
+        return
+      }
+
+      const elementChanged = prevElementRef.current !== element
+      const newInnerHTML = parsedTextResult.parsedText
+      if (elementChanged || innerHTMLRef.current !== newInnerHTML) {
+        element.innerHTML = newInnerHTML
+        innerHTMLRef.current = newInnerHTML
+        prevElementRef.current = element
+      }
+    },
+    [parsedTextResult.parsedText],
+  )
+
+  const renderRefCallback = useCallback(
+    (node: HTMLElement | null) => {
+      setInnerHTML(node)
+    },
+    [setInnerHTML],
+  )
 
   if (props.render) {
     return props.render({
-      __html: parsedTextResult.parsedText,
+      ref: renderRefCallback,
       count: parsedTextResult.count,
       hasCitationsOrGlossary: parsedTextResult.hasCitationsOrGlossary,
     })
@@ -30,12 +61,20 @@ const ParsedTextRenderer = <T extends Tag>(
   const Tag: T = props.tag
 
   const elementProps = {
-    dangerouslySetInnerHTML: { __html: parsedTextResult.parsedText },
     ...props.tagProps,
-    ...(props.wrapperRef && { ref: props.wrapperRef }),
   }
 
-  return createElement(Tag, elementProps as React.JSX.IntrinsicElements[T])
+  const element = createElement(Tag, {
+    ...elementProps,
+    ref: (node: HTMLElement | null) => {
+      setInnerHTML(node)
+      if (props.wrapperRef) {
+        props.wrapperRef.current = node
+      }
+    },
+  } as React.JSX.IntrinsicElements[T])
+
+  return element
 }
 
 export default memo(ParsedTextRenderer)

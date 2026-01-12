@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { JSX, memo, RefObject, useContext, useLayoutEffect, useRef, useState } from "react"
+import { JSX, memo, RefObject, useContext, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
 import ParsedTextRenderer from "./ParsedTextRenderer"
@@ -28,8 +28,8 @@ export type BaseParsedTextProps<T extends Tag> =
     }
   | {
       text: string | undefined
-      render: (rendered: {
-        __html: string
+      render: (args: {
+        ref: (node: HTMLElement | null) => void
         count: number
         hasCitationsOrGlossary: boolean
       }) => React.ReactElement
@@ -96,14 +96,14 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
 
   const timersRef = useRef<number[]>([])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // clear any prior timers when inputs change
     timersRef.current.forEach((t) => window.clearTimeout(t))
     timersRef.current = []
 
     const initialContainer = containerRef.current
 
-    // First scan immediately (layout effect)
+    // First scan immediately
     const first = scanGlossaryTargets(initialContainer)
     setGlossaryTargets(first)
 

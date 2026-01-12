@@ -1,5 +1,5 @@
 "use client"
-import React, { useCallback, useContext, useMemo } from "react"
+import React, { useCallback, useContext } from "react"
 
 import { BlockRendererProps } from ".."
 
@@ -24,23 +24,28 @@ const ResearchFormCheckBoxBlock: React.FC<
     [questionIdsAndAnswers, props.data.clientId, setQuestionIdsAndAnswers],
   )
 
-  const renderFunction = useMemo(() => {
-    const renderCheckbox = (rendered: {
-      __html: string
+  const renderFunction = useCallback(
+    ({
+      ref,
+      count: _count,
+      hasCitationsOrGlossary: _hasCitationsOrGlossary,
+    }: {
+      ref: (node: HTMLElement | null) => void
       count: number
       hasCitationsOrGlossary: boolean
     }) => {
       return (
         <CheckBox
-          label={rendered.__html}
+          label=""
           labelIsRawHtml
+          labelRef={ref}
           checked={questionIdsAndAnswers?.[props.data.clientId]}
           onChange={() => handleChange(!questionIdsAndAnswers?.[props.data.clientId])}
         />
       )
-    }
-    return renderCheckbox
-  }, [questionIdsAndAnswers, props.data.clientId, handleChange])
+    },
+    [questionIdsAndAnswers, props.data.clientId, handleChange],
+  )
 
   if (!questionIdsAndAnswers) {
     return

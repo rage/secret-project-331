@@ -1,6 +1,6 @@
 "use client"
 import { useAtom } from "jotai"
-import React, { useMemo } from "react"
+import React, { useCallback } from "react"
 
 import { BlockRendererProps } from "../../.."
 
@@ -29,13 +29,13 @@ const ParagraphBlock: React.FC<
   const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
   const isEditing = type === "proposed-edits"
 
-  const renderFunction = useMemo(() => {
-    const renderParagraph = ({
-      __html,
+  const renderFunction = useCallback(
+    ({
+      ref,
       count,
       hasCitationsOrGlossary,
     }: {
-      __html: string
+      ref: (node: HTMLElement | null) => void
       count: number
       hasCitationsOrGlossary: boolean
     }) => {
@@ -43,6 +43,7 @@ const ParagraphBlock: React.FC<
       const hideOverflow = !hasCitationsOrGlossary
       return (
         <ParagraphComponent
+          ref={ref}
           className={getParagraphStyles(
             textColor,
             backgroundColor,
@@ -51,14 +52,11 @@ const ParagraphBlock: React.FC<
             dropCap,
             align,
           )}
-          dangerouslySetInnerHTML={{
-            __html,
-          }}
         />
       )
-    }
-    return renderParagraph
-  }, [textColor, backgroundColor, fontSize, dropCap, align])
+    },
+    [textColor, backgroundColor, fontSize, dropCap, align],
+  )
 
   if (isEditing) {
     return <EditingParagraph data={data} id={id} />

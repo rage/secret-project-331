@@ -22,4 +22,6 @@ export async function openCourseSettingsFromQuickActions(page: Page, label: stri
   await expect(topbar.quickActionsTrigger).toBeVisible()
   await topbar.quickActions.clickItem(label)
   await expect(page.getByRole("dialog")).toBeVisible()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
 }

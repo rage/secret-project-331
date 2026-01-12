@@ -16,6 +16,7 @@ export class AriaMenu {
   }
 
   async open() {
+    await this.trigger.waitFor({ state: "visible" })
     await this.trigger.click()
     await expect(this.menu()).toBeVisible()
   }

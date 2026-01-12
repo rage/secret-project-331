@@ -1,6 +1,11 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { Account, AddMessage, Hamburger, Heart } from "@vectopus/atlas-icons-react"
+import {
+  Account,
+  AddMessage,
+  ArrowDownToBracket,
+  DotsHorizontal,
+} from "@vectopus/atlas-icons-react"
 import React from "react"
 import { Button, Heading, Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -77,7 +82,6 @@ const menuStyle = css`
   cursor: pointer;
   border-radius: 4px;
   margin-bottom: 10px;
-
   box-shadow: 0px 0px 5px rgba(5n1, 51, 51, 0.1);
 `
 const menuItemStyle = css`
@@ -149,7 +153,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       <div className={buttonsWrapper}>
         <MenuTrigger>
           <Button className={buttonStyle}>
-            <Hamburger
+            <DotsHorizontal
               className={css`
                 position: relative;
                 top: 0.25rem;
@@ -183,7 +187,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
                   className={menuItemStyle}
                   aria-label={t("download-transcript")}
                 >
-                  <Heart
+                  <ArrowDownToBracket
                     className={css`
                       position: relative;
                       top: 0.25rem;

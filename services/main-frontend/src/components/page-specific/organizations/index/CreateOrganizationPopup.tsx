@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
@@ -24,7 +25,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   onClose,
   onCreate,
 }) => {
-  const { t } = useTranslation("main-frontend")
+  const { t } = useTranslation()
   const {
     register,
     handleSubmit,

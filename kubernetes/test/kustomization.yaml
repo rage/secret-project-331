@@ -41,8 +41,6 @@ patches:
 
 # Patch replicas
 replicas:
-  - name: course-material
-    count: 1
   - name: quizzes
     count: 1
   - name: tmc

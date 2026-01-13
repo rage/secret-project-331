@@ -1,3 +1,4 @@
+"use client"
 import React from "react"
 
 import { Page } from "@/shared-module/common/bindings"

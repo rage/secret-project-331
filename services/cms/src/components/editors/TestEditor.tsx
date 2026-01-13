@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useReducer, useState } from "react"

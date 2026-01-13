@@ -1,8 +1,8 @@
+"use client"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { postReprocessModuleCompletions } from "../../../../../../services/backend/course-instances"
-
+import { postReprocessModuleCompletions } from "@/services/backend/course-instances"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"

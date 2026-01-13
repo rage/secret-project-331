@@ -1,4 +1,5 @@
-const MenuItem: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
+"use client"
+const MenuItem: React.FC<React.PropsWithChildren> = ({ children }) => {
   return <li>{children}</li>
 }
 

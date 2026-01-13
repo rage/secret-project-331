@@ -4,6 +4,7 @@
 import os
 import json
 import http.client
+import re
 from typing import Dict, Any, List
 import json5
 import logging
@@ -129,8 +130,16 @@ def clean_response_content(res: str) -> str:
     """
     res = res.strip()
     if res.startswith("```"):
-        # Remove the opening ```
+        # Remove the opening ``` and any language identifier
         res = res.split("```", 1)[1]
+        # Remove language identifier (e.g., "json", "python") and any leading whitespace
+        res = res.lstrip()
+        # Find the first newline and remove everything before it (language identifier)
+        if "\n" in res:
+            res = res.split("\n", 1)[1]
+        else:
+            # No newline after language identifier, remove word characters at start
+            res = re.sub(r"^[a-zA-Z]+\s*", "", res)
     if res.endswith("```"):
         # Remove the closing ```
         res = res.rsplit("```", 1)[0]

@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import Head from "next/head"
 import { useRouter } from "next/router"
@@ -55,7 +56,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <NavBar variant={"simple"}>
+        <NavBar variant={"simple"} logoLinkUrl="/">
           <NavContainer>
             <NavItems>
               <NavItem>
@@ -80,14 +81,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           id="maincontent"
         >
           <Centered variant="narrow">
-            {!hideBreadcrumbs && (
-              <PageMarginOffset
-                marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-                marginBottom={MARGIN_BETWEEN_NAVBAR_AND_CONTENT}
-              >
-                <EditorBreadcrumbs />
-              </PageMarginOffset>
-            )}
+            {!hideBreadcrumbs && <EditorBreadcrumbs />}
             {children}
           </Centered>
         </main>

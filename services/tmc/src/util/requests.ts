@@ -1,4 +1,4 @@
-import { TestRequest } from "@/pages/api/test"
+import { TestRequest } from "@/app/api/test/route"
 import { RunResult } from "@/tmc/cli"
 
 export const runBrowserTests = async (

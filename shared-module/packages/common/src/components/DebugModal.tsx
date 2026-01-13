@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { Parser } from "@json2csv/plainjs"
 import { BugInsect, DownloadArrowDown as Download } from "@vectopus/atlas-icons-react"

@@ -1,10 +1,10 @@
+"use client"
 import { css } from "@emotion/css"
 import { times } from "lodash"
 import React, { JSX } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FullWidthTableRow } from "../../../../tables/FullWidthTable"
-
+import { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
   CourseModule,
   CourseModuleCompletionWithRegistrationInfo,

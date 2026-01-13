@@ -1,10 +1,10 @@
+"use client"
 import { css } from "@emotion/css"
 import { LinesClipboard } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postUserResearchConsent } from "../../services/backend/users"
-
+import { postUserResearchConsent } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"

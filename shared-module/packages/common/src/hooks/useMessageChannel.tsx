@@ -1,4 +1,5 @@
-import { useState } from "react"
+"use client"
+import { useEffect, useState } from "react"
 
 export default function useMessageChannel(): [MessageChannel | null, () => void] {
   const [channel, setChannel] = useState<MessageChannel | null>(() => {

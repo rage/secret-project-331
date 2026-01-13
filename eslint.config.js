@@ -299,6 +299,9 @@ const config = [
               "set-state",
               "main-navigation-menu",
               "Component",
+              "use client",
+              "use server",
+              "use cache",
             ],
           },
           callees: {
@@ -463,6 +466,12 @@ const config = [
         Buffer: true,
         BufferEncoding: true,
       },
+    },
+  },
+  {
+    files: ["**/next-env.d.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
     },
   },
 ]

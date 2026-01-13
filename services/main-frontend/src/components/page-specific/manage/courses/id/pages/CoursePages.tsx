@@ -1,11 +1,11 @@
+"use client"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
-import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { fetchCourseStructure } from "../../../../../../services/backend/courses"
-
 import ManageCourseStructure from "./ManageCourseStructure"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { fetchCourseStructure } from "@/services/backend/courses"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 

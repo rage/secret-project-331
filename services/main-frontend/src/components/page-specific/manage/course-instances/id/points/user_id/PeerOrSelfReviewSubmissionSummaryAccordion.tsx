@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Link from "next/link"
@@ -49,10 +50,7 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
             <PeerReviewDiv>
               {t("label-submission-being-reviewed")}:{" "}
               <Link
-                href={{
-                  pathname: "/submissions/[submissionId]",
-                  query: { submissionId: peerOrSelfReviewSubmission.exercise_slide_submission_id },
-                }}
+                href={`/submissions/${peerOrSelfReviewSubmission.exercise_slide_submission_id}`}
               >
                 <HideTextInSystemTests
                   text={peerOrSelfReviewSubmission.exercise_slide_submission_id}

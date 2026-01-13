@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
 import { archive as icon } from "@wordpress/icons"

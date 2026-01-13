@@ -1,9 +1,9 @@
+"use client"
 import { css } from "@emotion/css"
 import React from "react"
 
-import { FlexDirection } from "../util/css-sanitization"
-
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { FlexDirection } from "@/util/css-sanitization"
 
 export interface FlexWrapperProps {
   wideScreenDirection: FlexDirection

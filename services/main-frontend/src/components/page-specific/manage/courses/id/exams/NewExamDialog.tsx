@@ -1,10 +1,10 @@
+"use client"
 import { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { createExam, createExamDuplicate } from "../../../../../../services/backend/exams"
-import NewExamForm from "../../../../../forms/NewExamForm"
-
+import NewExamForm from "@/components/forms/NewExamForm"
+import { createExam, createExamDuplicate } from "@/services/backend/exams"
 import { NewExam, OrgExam } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"

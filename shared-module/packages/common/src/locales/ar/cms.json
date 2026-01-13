@@ -86,6 +86,7 @@
   "label-points-are-all-or-nothing": "النقاط كلها أو لا شيء",
   "label-question": "السؤال",
   "label-repeat-background-x": "تكرار الخلفية أفقيًا",
+  "label-reset-answer-if-zero": "إعادة تعيين الإجابة تلقائيًا إذا كانت نتيجة المراجعة صفر نقاط",
   "label-template-name": "اسم القالب",
   "label-title": "العنوان",
   "label-weight": "الوزن",

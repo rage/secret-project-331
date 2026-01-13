@@ -1,3 +1,4 @@
+"use client"
 import { QueryClient, useQuery } from "@tanstack/react-query"
 
 import { fetchCourseLanguageVersions } from "../services/backend/courses"

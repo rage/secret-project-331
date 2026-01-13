@@ -1,3 +1,4 @@
+"use client"
 import styled from "@emotion/styled"
 
 import { baseTheme } from "../styles"

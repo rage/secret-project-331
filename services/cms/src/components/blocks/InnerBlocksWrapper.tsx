@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 
 const InnerBlocksWrapper: React.FC<React.PropsWithChildren<{ title: string }>> = ({

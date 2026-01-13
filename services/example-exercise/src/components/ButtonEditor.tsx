@@ -1,7 +1,8 @@
+"use client"
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { Alternative } from "../util/stateInterfaces"
+import { Alternative } from "@/util/stateInterfaces"
 interface Props {
   item: Alternative
   onDelete: () => void

@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { parseISO } from "date-fns"
 import { TFunction } from "i18next"

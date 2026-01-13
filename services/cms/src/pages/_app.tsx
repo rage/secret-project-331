@@ -1,3 +1,4 @@
+"use client"
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
@@ -9,7 +10,7 @@ import LocalStyles from "../styles/LocalStyles"
 
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
-import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage"
+import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage.pages"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/constants"

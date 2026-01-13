@@ -1,12 +1,14 @@
+"use client"
 import styled from "@emotion/styled"
+import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Close from "../imgs/close.svg"
 import Tick from "../imgs/tick-03.svg"
 
-import Flag from "@/shared-module/common/components/LanguageSelection/Language"
 import { headingFont } from "@/shared-module/common/styles"
+import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 
 const SelectorWrapper = styled.div`
   background: #e7e7e7;
@@ -77,12 +79,49 @@ const Country = styled.div`
   }
 `
 
+const IconContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+`
+
 export interface LanguageSelectorExtraProps {
   click: unknown
 }
 
 export type LanguageSelectorProps = React.HTMLAttributes<HTMLDivElement> &
   LanguageSelectorExtraProps
+
+const LANGUAGE_CODES = [
+  "bg-BG",
+  "fi-FI",
+  "fr-BE",
+  "de-AT",
+  "pt-PT",
+  "da-DK",
+  "de-DE",
+  "sv-SE",
+  "en-US",
+  "en-GB",
+  "nl-NL",
+  "nl-BE",
+  "cs-CZ",
+  "sk-SK",
+  "lt-LT",
+  "it-IT",
+  "hr-HR",
+  "el-GR",
+  "pl-PL",
+  "nb-NO",
+  "lv-LV",
+  "en-IE",
+  "ro-RO",
+  "es-ES",
+  "et-EE",
+  "fr-FR",
+]
 
 const LanguageSelector: React.FC<React.PropsWithChildren<LanguageSelectorProps>> = (props) => {
   const { t } = useTranslation()
@@ -99,28 +138,26 @@ const LanguageSelector: React.FC<React.PropsWithChildren<LanguageSelectorProps>>
         <StyledClose onClick={props.click} />
       </Header>
       <Content>
-        {Object.entries(Flag).map(([_, o], index) => (
-          <>
+        {LANGUAGE_CODES.map((langCode, index) => {
+          const languageName = ietfLanguageTagToHumanReadableName(langCode)
+          return (
             <Country
-              key={o.humanReadableName}
+              key={langCode}
               id={JSON.stringify(index)}
               onClick={() => {
                 handleClick(index)
               }}
             >
-              <div>
+              <IconContainer>
                 {checked === index && <StCheck />}
-                {/* <Image
-                  src={o.image}
-                  data-attribute={o.image}
-                  id={`country-flag-${index}`}
-                  alt={t("language-language", { language: key })}
-                /> */}
-              </div>
-              <span>{o.humanReadableName}</span>
+                <span role="img" aria-label={t("language-icon")}>
+                  <LanguageTranslation size={24} aria-hidden="true" />
+                </span>
+              </IconContainer>
+              <span>{languageName}</span>
             </Country>
-          </>
-        ))}
+          )
+        })}
       </Content>
     </SelectorWrapper>
   )

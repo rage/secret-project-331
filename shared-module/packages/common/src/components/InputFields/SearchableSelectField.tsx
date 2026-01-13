@@ -1,3 +1,4 @@
+"use client"
 import { css, cx } from "@emotion/css"
 import { CheckCircle, MovementArrowsUpDown, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { forwardRef, InputHTMLAttributes, SetStateAction, useState } from "react"
@@ -37,8 +38,8 @@ export interface SearchableSelectProps extends InputHTMLAttributes<HTMLSelectEle
   placeholder?: string
 }
 
-const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProps>(
-  ({ value, label, options, onChangeByValue, placeholder, required }) => {
+const SearchableSelectField = forwardRef<HTMLDivElement, SearchableSelectProps>(
+  ({ value, label, options, onChangeByValue, placeholder, required }, ref) => {
     // eslint-disable-next-line i18next/no-literal-string
     const { contains } = useFilter({ sensitivity: "base" })
     const [, setIsOpen] = useState(false)
@@ -54,6 +55,7 @@ const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProp
 
     return (
       <Select
+        ref={ref}
         placeholder={placeholder}
         selectedKey={value}
         onSelectionChange={(selected) => {

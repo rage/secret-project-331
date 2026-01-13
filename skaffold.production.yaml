@@ -22,12 +22,6 @@ build:
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
 
-    # course-material
-    - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim
-      context: services/course-material
-      docker:
-        dockerfile: Dockerfile.production.slim.dockerfile
-
     # main-frontend
     - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim
       context: services/main-frontend

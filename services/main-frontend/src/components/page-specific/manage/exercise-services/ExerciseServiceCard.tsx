@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { QueryObserverResult } from "@tanstack/react-query"
 import {
@@ -12,22 +13,18 @@ import { parseISO } from "date-fns"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  deleteExerciseService,
-  updateExerciseService,
-} from "../../../../services/backend/exercise-services"
-import { canSave } from "../../../../utils/canSaveExerciseService"
-import { convertToSlug } from "../../../../utils/convert"
-import { prepareExerciseServiceForBackend } from "../../../../utils/prepareServiceForBackend.ts"
-
 import ContentArea from "./ContentArea"
 
+import { deleteExerciseService, updateExerciseService } from "@/services/backend/exercise-services"
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { validURL } from "@/shared-module/common/utils/validation"
+import { canSave } from "@/utils/canSaveExerciseService"
+import { convertToSlug } from "@/utils/convert"
+import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
 
 interface ExerciseServiceCardProps {
   id: string

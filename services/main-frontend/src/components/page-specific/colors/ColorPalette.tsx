@@ -1,9 +1,10 @@
+"use client"
 import { css } from "@emotion/css"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-const ColorPalette: React.FC<React.PropsWithChildren<unknown>> = () => {
+const ColorPalette: React.FC = () => {
   return (
     <div
       className={css`

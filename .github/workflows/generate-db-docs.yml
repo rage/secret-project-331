@@ -9,7 +9,6 @@ on:
     paths-ignore:
       - "docs/**"
       - "services/cms/**"
-      - "services/course-material/**"
       - "services/example-exercise/**"
       - "services/main-frontend/**"
       - "services/quizzes/**"

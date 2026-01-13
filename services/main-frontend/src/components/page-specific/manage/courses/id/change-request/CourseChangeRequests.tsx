@@ -1,17 +1,18 @@
+"use client"
 import { css } from "@emotion/css"
-import { useRouter } from "next/router"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-
 import EditProposalList from "./EditProposalList"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -19,12 +20,15 @@ const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPages
   const [pending, setPending] = useState(true)
   const { t } = useTranslation()
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (router.query.pending) {
-      setPending(router.query.pending === "true")
+    const pendingParam = searchParams.get("pending")
+    if (pendingParam) {
+      setPending(pendingParam === "true")
     }
-  }, [router.query.pending])
+  }, [searchParams])
 
   return (
     <div>
@@ -41,16 +45,13 @@ const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPages
       {}
       <TabLinkNavigation>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, pending: true } }}
+          url={{ pathname, query: { pending: true } }}
           isActive={pending}
           countHook={createPendingChangeRequestCountHook(courseId)}
         >
           {t("pending")}
         </TabLink>
-        <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, pending: false } }}
-          isActive={!pending}
-        >
+        <TabLink url={{ pathname, query: { pending: false } }} isActive={!pending}>
           {t("old")}
         </TabLink>
       </TabLinkNavigation>
@@ -62,4 +63,4 @@ const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPages
   )
 }
 
-export default ChangeRequestsPage
+export default withSuspenseBoundary(ChangeRequestsPage)

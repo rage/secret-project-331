@@ -84,7 +84,7 @@ impl CourseBuilder {
         Self {
             name: name.into(),
             slug: slug.into(),
-            language_code: "en-US".into(),
+            language_code: "en".into(),
             can_add_chatbot: false,
             description: "Sample course.".into(),
             default_instance_name: b"default-instance",
@@ -462,7 +462,7 @@ mod tests {
 
         assert_eq!(course.name, "Test Course");
         assert_eq!(course.slug, "test-course");
-        assert_eq!(course.language_code, "en-US");
+        assert_eq!(course.language_code, "en");
         assert!(!course.can_add_chatbot);
         assert_eq!(course.description, "Sample course.");
         assert_eq!(course.default_instance_name, b"default-instance");
@@ -598,7 +598,7 @@ mod tests {
     fn course_builder_default_values() {
         let course = CourseBuilder::new("Minimal Course", "minimal");
 
-        assert_eq!(course.language_code, "en-US");
+        assert_eq!(course.language_code, "en");
         assert!(!course.can_add_chatbot);
         assert_eq!(course.description, "Sample course.");
         assert_eq!(course.default_instance_name, b"default-instance");
@@ -613,7 +613,7 @@ mod tests {
 
         assert_eq!(course.name, "");
         assert_eq!(course.slug, "");
-        assert_eq!(course.language_code, "en-US");
+        assert_eq!(course.language_code, "en");
         assert_eq!(course.description, "Sample course.");
     }
 

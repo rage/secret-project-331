@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -9,7 +10,6 @@ import {
 } from "@/hooks/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -145,4 +145,4 @@ const AllLanguageTotalStats: React.FC<React.PropsWithChildren<AllLanguageTotalSt
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(AllLanguageTotalStats))
+export default withErrorBoundary(AllLanguageTotalStats)

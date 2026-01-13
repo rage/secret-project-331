@@ -86,6 +86,7 @@
   "label-points-are-all-or-nothing": "Бали за принципом все або нічого",
   "label-question": "Питання",
   "label-repeat-background-x": "Повторювати фон по горизонталі",
+  "label-reset-answer-if-zero": "Автоматично скинути відповідь, якщо огляд призводить до нульових балів",
   "label-template-name": "Назва шаблону",
   "label-title": "Заголовок",
   "label-weight": "Вага",

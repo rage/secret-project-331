@@ -1,15 +1,9 @@
 import { css } from "@emotion/css"
-import {
-  CheckCircle,
-  ExclamationTriangle,
-  InfoCircle,
-  XmarkCircle,
-} from "@vectopus/atlas-icons-react"
+import { ExclamationTriangle, InfoCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStatusEvents } from "../../../hooks/useStatusEvents"
-
+import { useStatusEvents } from "@/hooks/useStatusEvents"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"

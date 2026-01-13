@@ -1,5 +1,4 @@
-import { mainFrontendClient } from "../../mainFrontendClient"
-
+import { mainFrontendClient } from "@/services/mainFrontendClient"
 import {
   CertificateGridRow,
   CertificateUpdateRequest,

@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { max } from "lodash"
 import React, { useMemo } from "react"
@@ -11,7 +12,6 @@ import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSumma
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseVisitorsByDayProps {
@@ -123,4 +123,4 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseVisitorsByDay))
+export default withErrorBoundary(CourseVisitorsByDay)

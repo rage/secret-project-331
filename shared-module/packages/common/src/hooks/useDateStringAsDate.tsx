@@ -1,3 +1,4 @@
+"use client"
 import { parseISO } from "date-fns"
 import { useMemo } from "react"
 

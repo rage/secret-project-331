@@ -1,9 +1,9 @@
+"use client"
 import { useTranslation } from "react-i18next"
-
-import { newCourseInstance } from "../../../../../../services/backend/courses"
 
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
 
+import { newCourseInstance } from "@/services/backend/courses"
 import { CourseInstanceForm } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"

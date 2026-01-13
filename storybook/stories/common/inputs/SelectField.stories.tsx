@@ -1,3 +1,4 @@
+"use client"
 import type { Meta, StoryObj } from "@storybook/react"
 
 import Component from "../../../src/shared-module/common/components/InputFields/SelectField"

@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +12,6 @@ import LineChart, {
 
 import { useUsersReturningExercisesHistoryQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface UsersReturningExercisesProps {
@@ -52,4 +52,4 @@ const UsersReturningExercises: React.FC<React.PropsWithChildren<UsersReturningEx
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(UsersReturningExercises))
+export default withErrorBoundary(UsersReturningExercises)

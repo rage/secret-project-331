@@ -1,3 +1,4 @@
+"use client"
 import React from "react"
 
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"

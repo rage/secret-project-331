@@ -1,24 +1,23 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import useExamSubmissionsInfo from "../../hooks/useExamSubmissionsInfo"
+import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
 import {
   addTeacherGradingForExamSubmission,
   fetchGradingInfo,
   fetchSubmissionInfo,
-} from "../../services/backend/submissions"
-
+} from "@/services/backend/submissions"
 import { NewTeacherGradingDecision } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 
 interface GradeExamAnswerProps {
@@ -202,4 +201,4 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
   )
 }
 
-export default dontRenderUntilQueryParametersReady(GradeExamAnswerForm)
+export default GradeExamAnswerForm

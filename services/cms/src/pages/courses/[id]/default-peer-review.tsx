@@ -1,3 +1,4 @@
+"use client"
 import { useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
@@ -24,7 +25,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 
 interface PeerReviewManagerProps {
   // courseId

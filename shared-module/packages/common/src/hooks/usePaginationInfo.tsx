@@ -1,4 +1,5 @@
-import { useRouter } from "next/router"
+"use client"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 
 // Backend also enforces this
@@ -16,11 +17,13 @@ export interface PaginationInfo {
 
 function usePaginationInfo(): PaginationInfo {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const initialPage = useMemo(() => {
     let initialPage: number
-    if (typeof router.query.page === "string") {
-      initialPage = parseInt(router.query.page)
+    const pageParam = searchParams?.get("page")
+    if (pageParam) {
+      initialPage = parseInt(pageParam)
     } else {
       initialPage = DEFAULT_PAGE
     }
@@ -28,11 +31,12 @@ function usePaginationInfo(): PaginationInfo {
       return DEFAULT_PAGE
     }
     return initialPage
-  }, [router.query.page])
+  }, [searchParams])
   const initialLimit = useMemo(() => {
     let initialLimit: number
-    if (typeof router.query.limit === "string") {
-      initialLimit = parseInt(router.query.limit)
+    const limitParam = searchParams?.get("limit")
+    if (limitParam) {
+      initialLimit = parseInt(limitParam)
     } else {
       initialLimit = DEFAULT_LIMIT
     }
@@ -40,7 +44,7 @@ function usePaginationInfo(): PaginationInfo {
       return DEFAULT_LIMIT
     }
     return initialLimit
-  }, [router.query.limit])
+  }, [searchParams])
 
   const [page, setPage] = useState(initialPage)
   const [limit, setLimit] = useState(initialLimit)
@@ -48,31 +52,22 @@ function usePaginationInfo(): PaginationInfo {
   return {
     page: Math.max(1, page),
     setPage: (newValue: number) => {
-      router.replace(
-        {
-          query: {
-            ...router.query,
-            page: newValue,
-          },
-        },
-        undefined,
-        { shallow: true },
-      )
+      const currentParams = new URLSearchParams(searchParams?.toString() || "")
+      // eslint-disable-next-line i18next/no-literal-string
+      currentParams.set("page", newValue.toString())
+      const newUrl = `${window.location.pathname}?${currentParams.toString()}`
+      router.replace(newUrl)
       setPage(newValue)
     },
     limit: Math.max(1, Math.min(limit, MAX_LIMIT)),
     setLimit: (newValue: number) => {
-      router.replace(
-        {
-          query: {
-            ...router.query,
-            limit: newValue,
-            page: 1,
-          },
-        },
-        undefined,
-        { shallow: true },
-      )
+      const currentParams = new URLSearchParams(searchParams?.toString() || "")
+      // eslint-disable-next-line i18next/no-literal-string
+      currentParams.set("limit", newValue.toString())
+      // eslint-disable-next-line i18next/no-literal-string
+      currentParams.set("page", "1")
+      const newUrl = `${window.location.pathname}?${currentParams.toString()}`
+      router.replace(newUrl)
       setLimit(newValue)
       setPage(1)
     },

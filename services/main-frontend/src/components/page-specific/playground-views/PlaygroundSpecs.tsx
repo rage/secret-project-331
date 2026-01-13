@@ -1,11 +1,11 @@
+"use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { UseQueryResult } from "@tanstack/react-query"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { PlaygroundSettings } from "../../../pages/playground-tabs"
-
+import { PlaygroundSettings } from "@/app/playground-tabs/page"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"

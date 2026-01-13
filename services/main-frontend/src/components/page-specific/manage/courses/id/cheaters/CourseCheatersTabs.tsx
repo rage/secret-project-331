@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
@@ -9,8 +10,7 @@ import {
   approveSuspectedCheaters,
   archiveSuspectedCheaters,
   fetchSuspectedCheaters,
-} from "../../../../../../services/backend/courses"
-
+} from "@/services/backend/courses"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

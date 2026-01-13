@@ -86,6 +86,7 @@
   "label-points-are-all-or-nothing": "Poäng är allt eller inget",
   "label-question": "Fråga",
   "label-repeat-background-x": "Upprepa bakgrund horisontellt",
+  "label-reset-answer-if-zero": "Återställ automatiskt svaret om granskningen resulterar i noll poäng",
   "label-template-name": "Mallnamn",
   "label-title": "Titel",
   "label-weight": "Vikt",

@@ -1,9 +1,9 @@
+"use client"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { postNewReferences } from "../../../../../../services/backend/courses"
-import NewReferenceForm from "../../../../../forms/NewReferenceForm"
-
+import NewReferenceForm from "@/components/forms/NewReferenceForm"
+import { postNewReferences } from "@/services/backend/courses"
 import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"

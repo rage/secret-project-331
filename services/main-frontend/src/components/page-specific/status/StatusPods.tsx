@@ -3,15 +3,14 @@ import { CheckCircle, Clock, Question, XmarkCircle } from "@vectopus/atlas-icons
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStatusPodLogs } from "../../../hooks/useStatusPodLogs"
-import { useStatusPods } from "../../../hooks/useStatusPods"
-import { parseAnsiToReact } from "../../../utils/parseAnsiToReact"
-
+import { useStatusPodLogs } from "@/hooks/useStatusPodLogs"
+import { useStatusPods } from "@/hooks/useStatusPods"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
+import { parseAnsiToReact } from "@/utils/parseAnsiToReact"
 
 const StatusPods: React.FC = () => {
   const { t } = useTranslation()

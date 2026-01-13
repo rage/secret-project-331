@@ -1,5 +1,6 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
+import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -32,7 +33,8 @@ test.describe("test teacher changing grade behavior", () => {
 
       await studentPage.getByRole("link", { name: "Navigate to course 'Custom" }).click()
       await selectCourseInstanceIfPrompted(studentPage)
-      await studentPage.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+      const studentChapterSelector = new ChapterSelector(studentPage)
+      await studentChapterSelector.clickChapter(1)
       await studentPage.getByRole("link", { name: "1 Page One" }).click()
       await studentPage
         .locator('iframe[title="Exercise 1\\, task 1 content"]')

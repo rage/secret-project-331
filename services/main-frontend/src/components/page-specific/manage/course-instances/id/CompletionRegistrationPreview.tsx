@@ -1,11 +1,11 @@
+"use client"
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Collapsible from "../../../../Collapsible"
-
 import PreviewUserList from "./PreviewUserList"
 
+import Collapsible from "@/components/Collapsible"
 import { ManualCompletionPreview } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"

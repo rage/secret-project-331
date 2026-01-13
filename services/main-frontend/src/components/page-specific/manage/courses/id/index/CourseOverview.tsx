@@ -1,8 +1,9 @@
+"use client"
 import React from "react"
 
-import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import ManageCourse from "../index/ManageCourse"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

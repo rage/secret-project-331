@@ -1,12 +1,12 @@
+"use client"
 import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ManagePageOrderAction } from "../../../../../../../reducers/managePageOrderReducer"
-
 import PageListItem, { MOVING_NOT_ALLOWED } from "./PageListItem"
 import TableWrapper from "./TableWrapper"
 
+import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import { Chapter, Page } from "@/shared-module/common/bindings"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 

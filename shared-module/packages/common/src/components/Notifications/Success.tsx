@@ -1,3 +1,4 @@
+"use client"
 import styled from "@emotion/styled"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
 import toast from "react-hot-toast"

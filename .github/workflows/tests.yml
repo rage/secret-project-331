@@ -237,31 +237,6 @@ jobs:
             echo "- **Service**: Quizzes"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  course-material:
-    permissions:
-      contents: read
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/setup-node-pnpm
-      - name: pnpm install --frozen-lockfile for the root of the repo
-        run: pnpm install --frozen-lockfile
-      - name: pnpm install --frozen-lockfile
-        run: pnpm install --frozen-lockfile
-        working-directory: ./services/course-material
-      - name: Run tests
-        run: pnpm run test
-        working-directory: ./services/course-material
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 📚 Course Material Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Course Material"
-          } >> "$GITHUB_STEP_SUMMARY"
-
   main-frontend:
     permissions:
       contents: read

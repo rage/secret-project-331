@@ -1,13 +1,13 @@
+"use client"
 import { css } from "@emotion/css"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useOrganizationCourseCount } from "../../../../hooks/useOrganizationCourseCount"
-import { useOrganizationCourses } from "../../../../hooks/useOrganizationCourses"
-
-import { CourseComponent, CourseGrid } from "./CourseCard"
+import CourseCard, { CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
 
+import { useOrganizationCourseCount } from "@/hooks/useOrganizationCourseCount"
+import { useOrganizationCourses } from "@/hooks/useOrganizationCourses"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -66,7 +66,7 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
 
   const courses = organizationCoursesQuery.data.map((course, n) => {
     return (
-      <CourseComponent
+      <CourseCard
         key={course.id}
         title={course.name}
         isDraft={course.is_draft}

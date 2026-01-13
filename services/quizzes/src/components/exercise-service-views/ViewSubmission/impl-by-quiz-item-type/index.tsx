@@ -1,10 +1,11 @@
+"use client"
 import { UserItemAnswer } from "../../../../../types/quizTypes/answer"
 import { ItemAnswerFeedback } from "../../../../../types/quizTypes/grading"
 import { ModelSolutionQuizItem } from "../../../../../types/quizTypes/modelSolutionSpec"
 import { PublicSpecQuizItem } from "../../../../../types/quizTypes/publicSpec"
-import { FlexDirection } from "../../../../util/css-sanitization"
 
 import { UserInformation } from "@/shared-module/common/exercise-service-protocol-types"
+import { FlexDirection } from "@/util/css-sanitization"
 
 export interface QuizItemSubmissionComponentProps<
   T extends PublicSpecQuizItem,

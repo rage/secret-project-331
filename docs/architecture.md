@@ -8,8 +8,7 @@ The system consists of microservices, organized here by function.
 
 ### Frontends
 
-- **Main Frontend** (`services/main-frontend`): Core user interface.
-- **Course Material** (`services/course-material`): Provides course content.
+- **Main Frontend** (`services/main-frontend`): Core user interface, including course material functionality.
 - **CMS** (`services/cms`): Course content editor, uses Gutenberg.
 
 ### Backend

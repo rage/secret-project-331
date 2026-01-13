@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nfrom chapters\nwhere id = $1;",
+  "query": "\nSELECT *\nfrom chapters\nwhere id = $1 AND deleted_at IS NULL;",
   "describe": {
     "columns": [
       {
@@ -96,5 +96,5 @@
       true
     ]
   },
-  "hash": "e966783963c11d6fa57df792d1bfff0dccf163f9cf5f474c1f3c724972229d4e"
+  "hash": "ad81f58c4f1b5e30eaac72cce8aee30716dc3a3dcbf6bc1c8c8e9a92e7d534e2"
 }

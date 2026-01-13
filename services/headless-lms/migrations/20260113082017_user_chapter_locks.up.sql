@@ -5,10 +5,10 @@ CREATE TABLE user_chapter_locks (
   deleted_at TIMESTAMP WITH TIME ZONE,
   user_id UUID NOT NULL REFERENCES users(id),
   chapter_id UUID NOT NULL REFERENCES chapters(id),
-  course_id UUID NOT NULL REFERENCES courses(id),
-  UNIQUE(user_id, chapter_id)
+  course_id UUID NOT NULL REFERENCES courses(id)
 );
 
+CREATE UNIQUE INDEX idx_user_chapter_locks_user_chapter_active ON user_chapter_locks(user_id, chapter_id, deleted_at) NULLS NOT DISTINCT;
 CREATE INDEX idx_user_chapter_locks_user_id ON user_chapter_locks(user_id);
 CREATE INDEX idx_user_chapter_locks_chapter_id ON user_chapter_locks(chapter_id);
 CREATE INDEX idx_user_chapter_locks_course_id ON user_chapter_locks(course_id);

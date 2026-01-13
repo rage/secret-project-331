@@ -18,12 +18,30 @@ pub async fn insert(
     chapter_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<UserChapterLock> {
+    let updated = sqlx::query_as!(
+        UserChapterLock,
+        r#"
+UPDATE user_chapter_locks
+SET deleted_at = NULL, updated_at = now()
+WHERE user_id = $1 AND chapter_id = $2 AND deleted_at IS NOT NULL
+RETURNING *
+        "#,
+        user_id,
+        chapter_id
+    )
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    if let Some(lock) = updated {
+        return Ok(lock);
+    }
+
     let res = sqlx::query_as!(
         UserChapterLock,
         r#"
 INSERT INTO user_chapter_locks (user_id, chapter_id, course_id)
 VALUES ($1, $2, $3)
-ON CONFLICT (user_id, chapter_id) DO NOTHING
+ON CONFLICT (user_id, chapter_id, deleted_at) DO UPDATE SET updated_at = now()
 RETURNING *
         "#,
         user_id,

@@ -761,10 +761,28 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    // Parse page content and filter lock-chapter blocks
-    let mut blocks: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
+    let mut blocks = match page.blocks_cloned() {
+        Ok(blocks) => blocks,
+        Err(e) => {
+            tracing::warn!(
+                "Failed to deserialize page content for page {}: {}. Falling back to empty blocks.",
+                page.id,
+                e
+            );
+            vec![]
+        }
+    };
 
-    // Check if chapter is locked for filtering
+    blocks = replace_duplicate_client_ids(blocks);
+
+    if page.chapter_id.is_some() && contains_blocks_not_allowed_in_top_level_pages(&blocks) {
+        return Err(ModelError::new(
+            ModelErrorType::Generic,
+            "Chapter pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
+            None,
+        ));
+    }
+
     let is_locked = if let (Some(user_id), Some(chapter_id)) = (user_id, page.chapter_id) {
         user_chapter_locks::get_by_user_and_chapter(conn, user_id, chapter_id)
             .await?
@@ -773,10 +791,10 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         false
     };
 
-    // Filter lock-chapter blocks
-    blocks = filter_lock_chapter_blocks(blocks, is_locked);
+    if page.chapter_id.is_some() {
+        blocks = filter_lock_chapter_blocks(blocks, is_locked);
+    }
 
-    // Convert filtered blocks back to JSON
     let filtered_content = serde_json::to_value(blocks)?;
 
     // Create a new page with filtered content

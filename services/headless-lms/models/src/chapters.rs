@@ -243,12 +243,21 @@ pub async fn get_chapter(
         "
 SELECT *
 from chapters
-where id = $1;",
+where id = $1 AND deleted_at IS NULL;",
         chapter_id,
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
-    Ok(chapter)
+    chapter.ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::NotFound,
+            format!(
+                "Chapter with id {} not found or has been deleted",
+                chapter_id
+            ),
+            None,
+        )
+    })
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Uuid> {

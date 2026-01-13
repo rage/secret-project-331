@@ -104,6 +104,8 @@ reviews:
 
         The table, and all columns should have a comment explaining what they are for. The comment should be short and to the point don't repeat obvious things like the column name or the data type in the name. Don't add unnecessary words like "The column for the".
 
+        For soft-delete tables, include `deleted_at` in unique constraints with `NULLS NOT DISTINCT`: `CREATE UNIQUE INDEX idx_name ON table(user_id, item_id, deleted_at) NULLS NOT DISTINCT;` PostgreSQL's default behavior treats NULLs as distinct, allowing multiple active rows (deleted_at IS NULL) with identical values, which breaks uniqueness. With `NULLS NOT DISTINCT`, all NULLs are treated as equal, enforcing one active row per unique key while allowing multiple soft-deleted rows with different timestamps. This enables re-inserting after soft-delete without conflicts.
+
     - path: "**/*"
       instructions: >
         Avoid banner-style section divider comments ("comment banners"), such as long separator bars, repeated dashes, or loud numbered headers used to split a file into sections (e.g. `// ----------------------------------------------------------------------`, `// 1. INPUT STATE`, `/* ======= */`). Prefer clearer naming, smaller focused modules/files, and normal short comments; do not suggest adding new comment banners, and when they appear in new or modified code, suggest removing them and improving structure instead.

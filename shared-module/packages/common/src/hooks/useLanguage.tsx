@@ -1,5 +1,6 @@
+"use client"
 import { dir } from "i18next"
-import { useRouter } from "next/router"
+import { useSearchParams } from "next/navigation"
 
 import { LANGUAGE_COOKIE_KEY } from "../utils/constants"
 import { getValueFromCookieString } from "../utils/cookies"
@@ -7,10 +8,16 @@ import { getValueFromCookieString } from "../utils/cookies"
 const LANGUAGE_QUERY_KEY = "lang"
 const IS_SERVER = typeof window === "undefined"
 
-const SUPPORTED_LANGUAGES = ["en", "fi", "uk", "sv"]
-const DEFAULT_LANGUAGE = "en"
+export const SUPPORTED_LANGUAGES = ["en", "fi", "uk", "sv"] as const
+export const DEFAULT_LANGUAGE: SUPPORTED_LANGUAGES_KEYS = "en" as const
+
+export type SUPPORTED_LANGUAGES_KEYS = (typeof SUPPORTED_LANGUAGES)[number]
 
 const CAN_ACCESS_COOKIES = detectAccessToCookies()
+
+function isSupportedLanguage(lang: string): lang is SUPPORTED_LANGUAGES_KEYS {
+  return (SUPPORTED_LANGUAGES as readonly string[]).indexOf(lang) !== -1
+}
 
 export function getDir(language: string) {
   try {
@@ -24,12 +31,9 @@ export function getDir(language: string) {
 // If language is specified with the `lang` query param, use that and save that as a langauge preference.
 // Otherwise use either the saved language preference or detect the desired language
 export default function useLanguage(): string | null {
-  const router = useRouter()
-  if (!router || !router.isReady) {
-    return null
-  }
-  const value = router?.query[LANGUAGE_QUERY_KEY]
-  const languageCandidate = determineLanguageFromQueryValue(value)
+  const searchParams = useSearchParams()
+  const value = searchParams?.get(LANGUAGE_QUERY_KEY)
+  const languageCandidate = determineLanguageFromQueryValue(value || undefined)
 
   if (!languageCandidate) {
     return null
@@ -97,12 +101,14 @@ function determineLanguageFromQueryValue(value: string | string[] | undefined): 
 }
 
 // Returns the supported language or null if the the candidate is not supported
-function mapLanguageCadidateToSupportedLanguage(navigatorLanguage: string): string | null {
-  if (SUPPORTED_LANGUAGES.indexOf(navigatorLanguage) !== -1) {
+function mapLanguageCadidateToSupportedLanguage(
+  navigatorLanguage: string,
+): SUPPORTED_LANGUAGES_KEYS | null {
+  if (isSupportedLanguage(navigatorLanguage)) {
     return navigatorLanguage
   }
   const languageParts = navigatorLanguage.split("-")
-  if (SUPPORTED_LANGUAGES.indexOf(languageParts[0]) !== -1) {
+  if (isSupportedLanguage(languageParts[0])) {
     return languageParts[0]
   }
   return null

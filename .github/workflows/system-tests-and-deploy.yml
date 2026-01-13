@@ -436,7 +436,6 @@ jobs:
           mkdir ./logs
           kubectl logs 'deployment/chatbot-syncer' > ./logs/chatbot-syncer.log
           kubectl logs 'deployment/cms' > ./logs/cms.log
-          kubectl logs 'deployment/course-material' > ./logs/course-material.log
           kubectl logs 'deployment/example-exercise' > ./logs/example-exercise.log
           kubectl logs 'deployment/headless-lms' > ./logs/headless-lms.log
           kubectl logs 'deployment/mailchimp-syncer' > ./logs/mailchimp-syncer.log

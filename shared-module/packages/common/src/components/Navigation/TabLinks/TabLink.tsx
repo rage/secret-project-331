@@ -1,13 +1,14 @@
+"use client"
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { usePathname } from "next/navigation"
 import { UrlObject } from "node:url"
 import React from "react"
 
-import useQueryParameter from "../../../hooks/useQueryParameter"
 import { baseTheme, theme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
+import withSuspenseBoundary from "../../../utils/withSuspenseBoundary"
 import Spinner from "../../Spinner"
 
 export interface TabLinkProps {
@@ -23,26 +24,21 @@ const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
   countHook,
 }) => {
   const count = countHook?.()
-  const path = `${useQueryParameter("path")}`
-  const router = useRouter()
+  const pathname = usePathname()
+
+  // Derive base course path: /manage/courses/[id]
+  // pathname example: /manage/courses/<id>/pages or /manage/courses/<id>
+  const pathSegments = pathname.split("/")
+  const baseCoursePath = pathSegments.slice(0, 4).join("/") // ["", "manage", "courses", "<id>"]
 
   if (count?.isError) {
-    console.error(`Could not fetch count for ${path}:\n`, count.error)
+    console.error("Could not fetch count:", count.error)
   }
 
-  const urlObject =
-    typeof url === "string"
-      ? {
-          // Ensure that router.route has the [...path] defined, this way it won't become a query parameter in any case.
-          // eslint-disable-next-line i18next/no-literal-string
-          pathname: path ? router.route : `${router.route}/[...path]`,
-          // Support for subpaths with splitting to an array.
-          query: { ...router.query, path: url ? url.split("/") : [] },
-        }
-      : url
+  const href = typeof url === "string" ? `${baseCoursePath}/${url}` : url
   return (
     <Link
-      href={urlObject}
+      href={href}
       replace
       role="tab"
       tabIndex={isActive ? 0 : -1}
@@ -96,4 +92,4 @@ const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
   )
 }
 
-export default TabLink
+export default withSuspenseBoundary(TabLink)

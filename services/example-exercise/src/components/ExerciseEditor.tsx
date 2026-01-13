@@ -1,14 +1,15 @@
+"use client"
 import styled from "@emotion/styled"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { State } from "../pages/iframe"
-import { Alternative } from "../util/stateInterfaces"
+import { State } from "../app/iframe/page"
 
 import ButtonEditor from "./ButtonEditor"
 
 import { CurrentStateMessage } from "@/shared-module/common/exercise-service-protocol-types"
+import { Alternative } from "@/util/stateInterfaces"
 
 const CURRENT_STATE = "current-state"
 interface Props {

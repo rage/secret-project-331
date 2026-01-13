@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
@@ -11,7 +12,6 @@ import { fetchCoursePageVisitDatumSummariesByDeviceTypes } from "@/services/back
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface DeviceTypesProps {
@@ -237,4 +237,4 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(DeviceTypes))
+export default withErrorBoundary(DeviceTypes)

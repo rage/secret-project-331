@@ -1,3 +1,4 @@
+"use client"
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
 import Link from "next/link"
@@ -6,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
+import { examRoute, manageExamRoute } from "@/shared-module/common/utils/routes"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface Exam {
@@ -79,7 +81,7 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
   return (
     <ListItem data-testid="exam-list-item">
       <ExamHeader>
-        <Link href={`/org/${organizationSlug}/exams/${exam.id}`}>{exam.name}</Link>
+        <Link href={examRoute(organizationSlug, exam.id)}>{exam.name}</Link>
       </ExamHeader>
       <ExamDetails>
         <Detail>
@@ -108,7 +110,7 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
         </Detail>
       </ExamDetails>
       <ManageLink>
-        <Link href={`/manage/exams/${exam.id}`}>{t("manage")}</Link>
+        <Link href={manageExamRoute(exam.id)}>{t("manage")}</Link>
       </ManageLink>
     </ListItem>
   )

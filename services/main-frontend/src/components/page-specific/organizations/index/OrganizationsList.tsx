@@ -1,13 +1,13 @@
+"use client"
 import { css } from "@emotion/css"
 import axios from "axios"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
-
 import CreateOrganizationPopup from "./CreateOrganizationPopup"
 import OrganizationBanner from "./components/OrganizationBanner"
 
+import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -17,7 +17,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
+const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()
   const [showCreatePopup, setShowCreatePopup] = React.useState(false)
   const { refetch } = useAllOrganizationsQuery()

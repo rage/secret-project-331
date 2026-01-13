@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -82,17 +83,9 @@ const MainFrontendBreadCrumbs: React.FC<MainFrontendBreadCrumbsProps> = ({
   ])
 
   return (
-    <div
-      className={css`
-        margin-bottom: ${MARGIN_BETWEEN_NAVBAR_AND_CONTENT};
-      `}
-    >
-      <BreakFromCentered sidebar={false}>
-        <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
-          <Breadcrumbs pieces={pieces} />
-        </PageMarginOffset>
-      </BreakFromCentered>
-    </div>
+    <BreakFromCentered sidebar={false}>
+      <Breadcrumbs pieces={pieces} />
+    </BreakFromCentered>
   )
 }
 

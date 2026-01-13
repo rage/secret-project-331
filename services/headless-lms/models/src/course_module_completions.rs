@@ -673,6 +673,17 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
     }
 }
 
+impl StudyRegistryCompletion {
+    pub fn normalize_language_code(&mut self) {
+        match self.completion_language.as_str() {
+            "en" => self.completion_language = "en-GB".to_string(),
+            "fi" => self.completion_language = "fi-FI".to_string(),
+            "sv" => self.completion_language = "sv-SE".to_string(),
+            _ => {}
+        }
+    }
+}
+
 /// Grading object that maps the system grading information to Sisu's grading scales.
 ///
 /// Currently only `sis-0-5` and `sis-hyv-hyl` scales are supported in the system.

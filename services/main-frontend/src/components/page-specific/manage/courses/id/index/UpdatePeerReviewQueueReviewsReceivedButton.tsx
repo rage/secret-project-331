@@ -1,9 +1,9 @@
+"use client"
 import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { postUpdatePeerReviewQueueReviewsReceived } from "../../../../../../services/backend/courses"
-
+import { postUpdatePeerReviewQueueReviewsReceived } from "@/services/backend/courses"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"

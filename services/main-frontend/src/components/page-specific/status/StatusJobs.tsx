@@ -3,8 +3,7 @@ import { CheckCircle, Clock, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStatusJobs } from "../../../hooks/useStatusJobs"
-
+import { useStatusJobs } from "@/hooks/useStatusJobs"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"

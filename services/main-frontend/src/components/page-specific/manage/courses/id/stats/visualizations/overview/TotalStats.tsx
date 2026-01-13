@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -14,7 +15,6 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -232,4 +232,4 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(TotalStats))
+export default withErrorBoundary(TotalStats)

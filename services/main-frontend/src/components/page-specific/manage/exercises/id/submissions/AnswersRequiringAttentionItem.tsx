@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { ExclamationMessage } from "@vectopus/atlas-icons-react"
@@ -5,12 +6,11 @@ import { parseISO } from "date-fns"
 import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
-
 import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
 import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
 import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
 
+import SubmissionIFrame from "@/components/page-specific/submissions/id/SubmissionIFrame"
 import { createTeacherGradingDecision } from "@/services/backend/teacher-grading-decisions"
 import {
   AnswerRequiringAttentionWithTasks,

@@ -1,6 +1,7 @@
+"use client"
 import { useTranslation } from "react-i18next"
 
-import { ViewSubmissionState } from "../util/stateInterfaces"
+import { ViewSubmissionState } from "@/util/stateInterfaces"
 
 interface Props {
   state: ViewSubmissionState

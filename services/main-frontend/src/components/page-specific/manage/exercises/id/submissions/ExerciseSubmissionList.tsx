@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { Link as LinkIcon } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
@@ -148,12 +149,7 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
                       text-align: center !important;
                     `}
                   >
-                    <Link
-                      href={{
-                        pathname: "/submissions/[id]",
-                        query: { id: x.id },
-                      }}
-                    >
+                    <Link href={`/submissions/${x.id}`}>
                       <LinkIcon
                         size={20}
                         className={css`

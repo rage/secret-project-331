@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
@@ -6,12 +7,11 @@ import Cite from "citation-js"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { fetchCourseReferences } from "../../../../../../services/backend/courses"
-
 import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { fetchCourseReferences } from "@/services/backend/courses"
 import { MaterialReference } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

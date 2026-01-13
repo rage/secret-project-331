@@ -1,10 +1,11 @@
+"use client"
 import { css } from "@emotion/css"
 import React from "react"
 
-import { ExerciseFeedback } from "../pages/api/grade"
-import { Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
+import { ExerciseFeedback } from "../app/api/grade/route"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { Answer, ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
 
 interface SubmissionProps {
   port: MessagePort

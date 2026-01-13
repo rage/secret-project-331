@@ -1,3 +1,4 @@
+"use client"
 /**
  * Wrapper for edible blocks.
  */

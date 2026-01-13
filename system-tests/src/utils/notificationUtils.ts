@@ -25,3 +25,11 @@ export const hideToasts = async (page: Page) => {
     }
   })
 }
+
+export const waitForSuccessNotification = async (
+  page: Page,
+  text: string = "Operation successful!",
+) => {
+  await page.getByText(text).waitFor()
+  await hideToasts(page)
+}

@@ -1,7 +1,6 @@
 import { isBoolean } from "lodash"
 
-import { mainFrontendClient } from "../../mainFrontendClient"
-
+import { mainFrontendClient } from "@/services/mainFrontendClient"
 import {
   Chapter,
   CopyCourseRequest,

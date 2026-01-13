@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import { EChartsOption } from "echarts/types/src/export/option"
 import React from "react"

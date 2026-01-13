@@ -1,3 +1,4 @@
+"use client"
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,7 +11,6 @@ import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSumma
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface TopUTMCampaignsProps {
@@ -118,4 +118,4 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(TopUTMCampaigns))
+export default withErrorBoundary(TopUTMCampaigns)

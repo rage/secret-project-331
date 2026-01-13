@@ -1,9 +1,9 @@
+"use client"
 import { css } from "@emotion/css"
-import { useRouter } from "next/router"
+import { useParams, usePathname, useRouter } from "next/navigation"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import useQueryParameter from "../../../hooks/useQueryParameter"
 import { theme } from "../../../styles"
 
 import { TabLinkProps } from "./TabLink"
@@ -19,9 +19,26 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
   enableRouting = false,
 }) => {
   const tabsRef = useRef<HTMLDivElement>(null)
-  const path = `${useQueryParameter("path")}`
+  const params = useParams<{ path?: string | string[] }>()
+  const pathParam = params?.path
+  const path = Array.isArray(pathParam) ? pathParam.join("/") : (pathParam ?? "")
   const { t } = useTranslation()
   const router = useRouter()
+  const pathname = usePathname()
+
+  /**
+   * Build absolute path to the first child tab under current route.
+   */
+  function buildFirstTabHref(firstChildUrl: string): string {
+    const normalizedFirst = firstChildUrl.startsWith("/") ? firstChildUrl.slice(1) : firstChildUrl
+    if (!path) {
+      return `${pathname.replace(/\/$/, "")}/${normalizedFirst}`
+    }
+    if (pathname.endsWith(`/${path}`)) {
+      return `${pathname.slice(0, pathname.length - (path.length + 1))}/${normalizedFirst}`
+    }
+    return `${pathname.replace(/\/$/, "")}/${normalizedFirst}`
+  }
 
   useEffect(() => {
     const childElementUrlProps = React.Children.map(children, (child) => {
@@ -38,13 +55,9 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
       enableRouting &&
       !childElementUrlProps.includes(path)
     ) {
-      const urlObject = {
-        // Ensure that router.route has the [...path] defined
-        // eslint-disable-next-line i18next/no-literal-string
-        pathname: path ? router.route : `${router.route}/[...path]`,
-        query: { ...router.query, path: childElementUrlProps[0].split("/") },
-      }
-      router.push(urlObject)
+      const first = childElementUrlProps[0]
+      const href = buildFirstTabHref(typeof first === "string" ? first : String(first))
+      router.replace(href)
     }
   })
 
@@ -115,7 +128,7 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
         border-radius: 4px;
         gap: 10px;
         flex-direction: ${orientation === "horizontal" ? "row" : "column"};
-        margin: 2rem 0;
+        margin-bottom: 2rem;
       `}
     >
       {React.Children.map(children, (child, i) => {

@@ -1,12 +1,12 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchHistoryForPage } from "../../../../../../services/backend/pages"
-
 import HistoryList from "./HistoryList"
 
+import { fetchHistoryForPage } from "@/services/backend/pages"
 import { PageHistory } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

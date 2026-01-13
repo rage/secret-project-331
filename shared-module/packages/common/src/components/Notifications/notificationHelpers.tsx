@@ -1,3 +1,4 @@
+"use client"
 import toast, { Toast } from "react-hot-toast"
 
 import DeleteNotification from "./Delete"

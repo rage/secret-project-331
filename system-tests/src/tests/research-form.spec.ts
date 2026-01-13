@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -67,8 +68,8 @@ test("User can create and respond to research form in a course", async ({
       "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management",
     )
     await selectCourseInstanceIfPrompted(page, "Non-default instance")
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "User settings" }).click()
+    const topbar = new Topbar(page)
+    await topbar.userMenu.clickItem("User settings")
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,

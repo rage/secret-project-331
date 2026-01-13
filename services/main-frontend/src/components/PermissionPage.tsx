@@ -1,14 +1,16 @@
+"use client"
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { t as globalT, TFunction } from "i18next"
-import { useRouter } from "next/router"
+import { useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { assert, Equals } from "tsafe"
 
 import { fetchPendingRoles } from "../services/backend/pendingRoles"
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
+import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
 import { RoleDomain, RoleQuery, RoleUser, UserRole } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -16,8 +18,8 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import CaretArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
 const SORT_KEY_ROLE = "role"
@@ -71,10 +73,11 @@ interface Props {
   domain: RoleDomain
 }
 
-export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domain }) => {
+const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ domain }) => {
   const { t } = useTranslation()
   const router = useRouter()
-  let { sort: sort_key } = router.query
+  const searchParams = useSearchParams()
+  let sort_key = searchParams.get("sort")
   if (typeof sort_key !== "string") {
     sort_key = SORT_KEY_NAME
   }
@@ -206,13 +209,9 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                   `}
                   aria-label={t("sort-by-name")}
                   onClick={(ev) => {
-                    router.replace(
-                      {
-                        query: { ...router.query, sort: SORT_KEY_NAME },
-                      },
-                      undefined,
-                      { shallow: true },
-                    )
+                    const params = new URLSearchParams(searchParams)
+                    params.set("sort", SORT_KEY_NAME)
+                    router.replace(`?${params.toString()}`)
                     ev.preventDefault()
                     setSorting(SORT_KEY_NAME)
                   }}
@@ -239,13 +238,9 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                   `}
                   aria-label={t("sort-by-email")}
                   onClick={(ev) => {
-                    router.replace(
-                      {
-                        query: { ...router.query, sort: SORT_KEY_EMAIL },
-                      },
-                      undefined,
-                      { shallow: true },
-                    )
+                    const params = new URLSearchParams(searchParams)
+                    params.set("sort", SORT_KEY_EMAIL)
+                    router.replace(`?${params.toString()}`)
                     ev.preventDefault()
                     setSorting(SORT_KEY_EMAIL)
                   }}
@@ -272,13 +267,9 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                   `}
                   aria-label={t("sort-by-role")}
                   onClick={(ev) => {
-                    router.replace(
-                      {
-                        query: { ...router.query, sort: SORT_KEY_ROLE },
-                      },
-                      undefined,
-                      { shallow: true },
-                    )
+                    const params = new URLSearchParams(searchParams)
+                    params.set("sort", SORT_KEY_ROLE)
+                    router.replace(`?${params.toString()}`)
                     ev.preventDefault()
                     setSorting(SORT_KEY_ROLE)
                   }}
@@ -529,3 +520,5 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
     </>
   )
 }
+
+export const PermissionPage = withSuspenseBoundary(PermissionPageComponent)

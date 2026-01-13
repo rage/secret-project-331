@@ -1,3 +1,4 @@
+"use client"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,7 +10,6 @@ import LineChart, {
 } from "../../LineChart"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface CourseVisitorsLineChartProps {
@@ -80,4 +80,4 @@ const CourseVisitorsLineChart: React.FC<React.PropsWithChildren<CourseVisitorsLi
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseVisitorsLineChart))
+export default withErrorBoundary(CourseVisitorsLineChart)

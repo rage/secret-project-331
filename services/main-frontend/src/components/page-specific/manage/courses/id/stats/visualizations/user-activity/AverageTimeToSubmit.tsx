@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +12,6 @@ import LineChart, {
 
 import { useAvgTimeToFirstSubmissionHistoryQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface AverageTimeToSubmitProps {
@@ -55,4 +55,4 @@ const AverageTimeToSubmit: React.FC<React.PropsWithChildren<AverageTimeToSubmitP
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(AverageTimeToSubmit))
+export default withErrorBoundary(AverageTimeToSubmit)

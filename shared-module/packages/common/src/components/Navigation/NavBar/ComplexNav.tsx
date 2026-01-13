@@ -1,3 +1,4 @@
+"use client"
 import { css, cx, keyframes } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -219,7 +220,6 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = () => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
-  const buttonId = "main-navigation-menu"
   return (
     <nav role="navigation" className={cx(navbarItems)}>
       <div className={cx(navbarLogo)}>
@@ -235,7 +235,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = () => {
         role="button"
         aria-label={t("open-menu")}
       >
-        <Hamburger isActive={clicked} toggleButton={callback} buttonId={buttonId} />
+        <Hamburger isActive={clicked} />
       </div>
 
       <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>

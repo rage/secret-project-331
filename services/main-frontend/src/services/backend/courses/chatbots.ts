@@ -1,5 +1,4 @@
-import { mainFrontendClient } from "../../mainFrontendClient"
-
+import { mainFrontendClient } from "@/services/mainFrontendClient"
 import { ChatbotConfiguration } from "@/shared-module/common/bindings"
 import { isChatbotConfiguration } from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"

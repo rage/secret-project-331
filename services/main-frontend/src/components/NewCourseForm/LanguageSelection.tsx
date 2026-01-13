@@ -1,9 +1,10 @@
+"use client"
 import React, { useId, useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
-  AMERICAN_ENGLISH_LANGUAGE_CODE,
+  ENGLISH_LANGUAGE_CODE,
   FieldContainer,
   FINNISH_LANGUAGE_CODE,
   FormFields,
@@ -41,11 +42,11 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
       <div id={courseLanguageHeading}>{t("course-language")}</div>
       <FieldContainer aria-labelledby={courseLanguageHeading}>
         <RadioButton
-          key={AMERICAN_ENGLISH_LANGUAGE_CODE}
+          key={ENGLISH_LANGUAGE_CODE}
           label={t("english")}
-          value={AMERICAN_ENGLISH_LANGUAGE_CODE}
+          value={ENGLISH_LANGUAGE_CODE}
           {...register("language_code")}
-          onChange={(_event) => handleLanguageSelectionChange(AMERICAN_ENGLISH_LANGUAGE_CODE)}
+          onChange={(_event) => handleLanguageSelectionChange(ENGLISH_LANGUAGE_CODE)}
         />
       </FieldContainer>
       <FieldContainer>

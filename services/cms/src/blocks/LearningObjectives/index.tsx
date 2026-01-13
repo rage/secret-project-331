@@ -1,4 +1,5 @@
 "use client"
+
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration, createBlock } from "@wordpress/blocks"
 

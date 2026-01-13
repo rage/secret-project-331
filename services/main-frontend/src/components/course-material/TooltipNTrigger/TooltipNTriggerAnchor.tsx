@@ -1,3 +1,5 @@
+"use client"
+
 import styled from "@emotion/styled"
 import { ReactNode, useRef } from "react"
 import { useLink } from "react-aria"

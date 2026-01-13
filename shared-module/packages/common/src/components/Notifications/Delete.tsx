@@ -1,4 +1,5 @@
 "use client"
+
 import styled from "@emotion/styled"
 import { BellXmark } from "@vectopus/atlas-icons-react"
 import toast from "react-hot-toast"

@@ -1,4 +1,5 @@
 "use client"
+
 import { useEffect } from "react"
 
 import { tryToScrollToSelector } from "@/utils/course-material/dom"

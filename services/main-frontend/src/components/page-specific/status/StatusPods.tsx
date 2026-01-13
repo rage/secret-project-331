@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { CheckCircle, Clock, Question, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useRef, useState } from "react"

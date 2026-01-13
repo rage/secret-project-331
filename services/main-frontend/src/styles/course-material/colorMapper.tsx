@@ -1,4 +1,5 @@
 "use client"
+
 /* eslint-disable i18next/no-literal-string */
 // Gutenberg specific, don't use in other contexes
 

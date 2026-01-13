@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react"
 
 export const parseAnsiToReact = (text: string): React.ReactNode[] => {

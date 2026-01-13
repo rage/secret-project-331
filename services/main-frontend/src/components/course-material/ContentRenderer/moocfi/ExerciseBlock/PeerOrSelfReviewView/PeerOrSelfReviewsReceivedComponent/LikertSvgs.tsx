@@ -1,4 +1,5 @@
 "use client"
+
 export const Agree = () => {
   return (
     <svg

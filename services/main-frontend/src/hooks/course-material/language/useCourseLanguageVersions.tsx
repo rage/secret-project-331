@@ -1,4 +1,5 @@
 "use client"
+
 import { useCallback, useMemo } from "react"
 
 import useCourseLanguageVersionNavigationInfos from "../useCourseLanguageVersionNavigationInfos"

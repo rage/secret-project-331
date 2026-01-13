@@ -1,4 +1,5 @@
 "use client"
+
 import { InnerBlocks } from "@wordpress/block-editor"
 
 const CourseProgressSave: React.FC<unknown> = () => {

@@ -49,8 +49,8 @@ importers:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.36.0)
       eslint-plugin-explicit-use-directives:
-        specifier: ^0.0.1
-        version: 0.0.1(eslint@9.36.0)
+        specifier: ^0.0.3
+        version: 0.0.3(eslint@9.36.0)
       eslint-plugin-i18next:
         specifier: ^6.1.3
         version: 6.1.3
@@ -1183,8 +1183,8 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
 
-  eslint-plugin-explicit-use-directives@0.0.1:
-    resolution: {integrity: sha512-4A8Yi7yMzpX0Y+4kyrRLd1hNGZN3nLPnHnYI7tSgxivmAoQuBZdr7J/XnHyaQSa++JFlSLynVfsFuBqmsdcz9g==}
+  eslint-plugin-explicit-use-directives@0.0.3:
+    resolution: {integrity: sha512-g2TEJyBlM7x1DAS9U+GVgXrgln586L/prGKVQ0/xJAlh5PdeY7Hjc4nPtvMOPuZsIR1VEMT9BvvoDDx2H/Qo1g==}
     engines: {node: '>=18.18.0'}
     peerDependencies:
       eslint: '>=9.0.0'
@@ -3585,7 +3585,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-explicit-use-directives@0.0.1(eslint@9.36.0):
+  eslint-plugin-explicit-use-directives@0.0.3(eslint@9.36.0):
     dependencies:
       eslint: 9.36.0
 

@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { usePathname, useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useState, useTransition } from "react"

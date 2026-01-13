@@ -2231,6 +2231,16 @@ export interface TeacherGradingDecision {
   hidden: boolean | null
 }
 
+export interface UserChapterLock {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  user_id: string
+  chapter_id: string
+  course_id: string
+}
+
 export interface UserCourseExerciseServiceVariable {
   id: string
   created_at: string

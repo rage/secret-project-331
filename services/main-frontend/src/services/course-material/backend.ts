@@ -52,6 +52,7 @@ import {
   StudentExerciseSlideSubmissionResult,
   Term,
   TermUpdate,
+  UserChapterLock,
   UserCourseChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseProgress,
@@ -98,6 +99,7 @@ import {
   isStudentCountry,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
+  isUserChapterLock,
   isUserCourseChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
   isUserCourseProgress,
@@ -270,6 +272,16 @@ export const fetchUserChapterInstanceChapterProgress = async (
     `/course-instances/${courseInstanceId}/chapters/${chapterId}/progress`,
   )
   return validateResponse(response, isUserCourseInstanceChapterProgress)
+}
+
+export const lockChapter = async (chapterId: string): Promise<UserChapterLock> => {
+  const response = await courseMaterialClient.post(`/chapters/${chapterId}/lock`)
+  return validateResponse(response, isUserChapterLock)
+}
+
+export const getUserChapterLocks = async (courseId: string): Promise<UserChapterLock[]> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/user-chapter-locks`)
+  return validateResponse(response, isArray(isUserChapterLock))
 }
 
 export const fetchUserCourseInstanceChapterExercisesProgress = async (

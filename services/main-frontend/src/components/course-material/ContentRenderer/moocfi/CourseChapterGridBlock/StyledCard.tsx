@@ -28,6 +28,7 @@ export interface StyledCardProps {
   now: Date
   organizationSlug: string
   previewable: boolean
+  isLocked: boolean
 }
 
 /**
@@ -40,6 +41,7 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
   now,
   organizationSlug,
   previewable,
+  isLocked,
 }) => {
   const randomNumber = stringToRandomNumber(chapter.id) % COLORS_ARRAY.length
   const randomizedColor = COLORS_ARRAY[randomNumber]
@@ -68,6 +70,7 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
         courseSlug={courseSlug}
         organizationSlug={organizationSlug}
         previewable={previewable}
+        isLocked={isLocked}
       />
     </div>
   )

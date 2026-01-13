@@ -34,6 +34,7 @@ use models::{
         ResearchFormQuestionAnswer,
     },
     student_countries::StudentCountry,
+    user_chapter_locks,
     user_course_settings::UserCourseSettings,
 };
 
@@ -1049,6 +1050,26 @@ async fn get_custom_privacy_policy_checkbox_texts(
 }
 
 /**
+GET `/api/v0/course-material/courses/:course_id/user-chapter-locks` - Get user's chapter locks for course
+
+Returns all chapters that the authenticated user has locked for the specified course.
+**/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_user_chapter_locks(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<user_chapter_locks::UserChapterLock>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+
+    let locks = user_chapter_locks::get_by_user_and_course(&mut conn, user.id, *course_id).await?;
+
+    token.authorized_ok(web::Json(locks))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1146,5 +1167,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/custom-privacy-policy-checkbox-texts",
             web::get().to(get_custom_privacy_policy_checkbox_texts),
+        )
+        .route(
+            "/{course_id}/user-chapter-locks",
+            web::get().to(get_user_chapter_locks),
         );
 }

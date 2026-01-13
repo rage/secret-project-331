@@ -2,7 +2,8 @@ use std::collections::{HashMap, hash_map};
 
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
-    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages, replace_duplicate_client_ids,
+    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages, filter_lock_chapter_blocks,
+    replace_duplicate_client_ids,
 };
 use itertools::Itertools;
 use serde_json::json;
@@ -28,6 +29,7 @@ use crate::{
         CmsPeerOrSelfReviewQuestion, normalize_cms_peer_or_self_review_questions,
     },
     prelude::*,
+    user_chapter_locks,
     user_course_settings::{self, UserCourseSettings},
 };
 
@@ -759,7 +761,29 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    if let Some(course_id) = page.course_id
+    // Parse page content and filter lock-chapter blocks
+    let mut blocks: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
+
+    // Check if chapter is locked for filtering
+    let is_locked = if let (Some(user_id), Some(chapter_id)) = (user_id, page.chapter_id) {
+        user_chapter_locks::get_by_user_and_chapter(conn, user_id, chapter_id)
+            .await?
+            .is_some()
+    } else {
+        false
+    };
+
+    // Filter lock-chapter blocks
+    blocks = filter_lock_chapter_blocks(blocks, is_locked);
+
+    // Convert filtered blocks back to JSON
+    let filtered_content = serde_json::to_value(blocks)?;
+
+    // Create a new page with filtered content
+    let mut filtered_page = page;
+    filtered_page.content = filtered_content;
+
+    if let Some(course_id) = filtered_page.course_id
         && let Some(user_id) = user_id
     {
         let instance =
@@ -774,7 +798,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
             app_conf,
         );
         return Ok(CoursePageWithUserData {
-            page,
+            page: filtered_page,
             instance,
             settings,
             course: Some(course),
@@ -784,7 +808,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         });
     }
     Ok(CoursePageWithUserData {
-        page,
+        page: filtered_page,
         instance: None,
         settings: None,
         course: None,

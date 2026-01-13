@@ -2,16 +2,17 @@
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import React from "react"
+import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import Grid from "./Grid"
 
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "@/components/course-material/LandingPageHeroSection"
 import useTime from "@/hooks/course-material/useTime"
-import { fetchChaptersInTheCourse } from "@/services/course-material/backend"
+import { fetchChaptersInTheCourse, getUserChapterLocks } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
@@ -33,13 +34,20 @@ const COLORS_ARRAY = [
 const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ courseId }) => {
   const { t } = useTranslation()
   const now = useTime()
+  const loginStateContext = useContext(LoginStateContext)
   const getChaptersInCourse = useQuery({
     queryKey: [`course-${courseId}-chapters`],
     queryFn: () => fetchChaptersInTheCourse(courseId),
   })
+  const getUserLocks = useQuery({
+    queryKey: [`course-${courseId}-user-chapter-locks`],
+    queryFn: () => getUserChapterLocks(courseId),
+    enabled: loginStateContext.signedIn === true,
+  })
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()
   const courseSlug = params?.courseSlug
   const organizationSlug = params?.organizationSlug
+  const lockedChapterIds = new Set(getUserLocks.data?.map((lock) => lock.chapter_id) ?? [])
 
   return (
     <div
@@ -126,6 +134,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
                     now={now}
                     organizationSlug={organizationSlug}
                     previewable={getChaptersInCourse.data.is_previewable}
+                    lockedChapterIds={lockedChapterIds}
                   />
                 </div>
               )

@@ -12,6 +12,7 @@ export interface GridProps {
   now: Date
   organizationSlug: string
   previewable: boolean
+  lockedChapterIds: Set<string>
 }
 
 const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
@@ -20,6 +21,7 @@ const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
   now,
   organizationSlug,
   previewable,
+  lockedChapterIds,
 }) => {
   return (
     <div
@@ -51,6 +53,7 @@ const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
             now={now}
             organizationSlug={organizationSlug}
             previewable={previewable}
+            isLocked={lockedChapterIds.has(chapter.id)}
           />
         ))}
     </div>

@@ -57,6 +57,7 @@ import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
+import LockChapterBlock from "./moocfi/LockChapterBlock"
 import LogoLink from "./moocfi/LogoLink"
 import Map from "./moocfi/Map"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
@@ -143,6 +144,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/chapter-progress": ChapterProgressBlock,
   "moocfi/chatbot": ChatbotBlock,
   "moocfi/conditional-block": ConditionalBlock,
+  "moocfi/lock-chapter": LockChapterBlock,
   "moocfi/congratulations": CongratulationsBlock,
   "moocfi/course-chapter-grid": CourseChapterGridBlock,
   "moocfi/course-objective-section": CourseObjectiveSectionBlock,

@@ -84,7 +84,7 @@
 <a href=#84 id=84 data-nosnippet>84</a>        <span class="self">Self </span>{
 <a href=#85 id=85 data-nosnippet>85</a>            name: name.into(),
 <a href=#86 id=86 data-nosnippet>86</a>            slug: slug.into(),
-<a href=#87 id=87 data-nosnippet>87</a>            language_code: <span class="string">"en-US"</span>.into(),
+<a href=#87 id=87 data-nosnippet>87</a>            language_code: <span class="string">"en"</span>.into(),
 <a href=#88 id=88 data-nosnippet>88</a>            can_add_chatbot: <span class="bool-val">false</span>,
 <a href=#89 id=89 data-nosnippet>89</a>            description: <span class="string">"Sample course."</span>.into(),
 <a href=#90 id=90 data-nosnippet>90</a>            default_instance_name: <span class="string">b"default-instance"</span>,
@@ -462,7 +462,7 @@
 <a href=#462 id=462 data-nosnippet>462</a>
 <a href=#463 id=463 data-nosnippet>463</a>        <span class="macro">assert_eq!</span>(course.name, <span class="string">"Test Course"</span>);
 <a href=#464 id=464 data-nosnippet>464</a>        <span class="macro">assert_eq!</span>(course.slug, <span class="string">"test-course"</span>);
-<a href=#465 id=465 data-nosnippet>465</a>        <span class="macro">assert_eq!</span>(course.language_code, <span class="string">"en-US"</span>);
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="macro">assert_eq!</span>(course.language_code, <span class="string">"en"</span>);
 <a href=#466 id=466 data-nosnippet>466</a>        <span class="macro">assert!</span>(!course.can_add_chatbot);
 <a href=#467 id=467 data-nosnippet>467</a>        <span class="macro">assert_eq!</span>(course.description, <span class="string">"Sample course."</span>);
 <a href=#468 id=468 data-nosnippet>468</a>        <span class="macro">assert_eq!</span>(course.default_instance_name, <span class="string">b"default-instance"</span>);
@@ -598,7 +598,7 @@
 <a href=#598 id=598 data-nosnippet>598</a>    </span><span class="kw">fn </span>course_builder_default_values() {
 <a href=#599 id=599 data-nosnippet>599</a>        <span class="kw">let </span>course = CourseBuilder::new(<span class="string">"Minimal Course"</span>, <span class="string">"minimal"</span>);
 <a href=#600 id=600 data-nosnippet>600</a>
-<a href=#601 id=601 data-nosnippet>601</a>        <span class="macro">assert_eq!</span>(course.language_code, <span class="string">"en-US"</span>);
+<a href=#601 id=601 data-nosnippet>601</a>        <span class="macro">assert_eq!</span>(course.language_code, <span class="string">"en"</span>);
 <a href=#602 id=602 data-nosnippet>602</a>        <span class="macro">assert!</span>(!course.can_add_chatbot);
 <a href=#603 id=603 data-nosnippet>603</a>        <span class="macro">assert_eq!</span>(course.description, <span class="string">"Sample course."</span>);
 <a href=#604 id=604 data-nosnippet>604</a>        <span class="macro">assert_eq!</span>(course.default_instance_name, <span class="string">b"default-instance"</span>);
@@ -613,7 +613,7 @@
 <a href=#613 id=613 data-nosnippet>613</a>
 <a href=#614 id=614 data-nosnippet>614</a>        <span class="macro">assert_eq!</span>(course.name, <span class="string">""</span>);
 <a href=#615 id=615 data-nosnippet>615</a>        <span class="macro">assert_eq!</span>(course.slug, <span class="string">""</span>);
-<a href=#616 id=616 data-nosnippet>616</a>        <span class="macro">assert_eq!</span>(course.language_code, <span class="string">"en-US"</span>);
+<a href=#616 id=616 data-nosnippet>616</a>        <span class="macro">assert_eq!</span>(course.language_code, <span class="string">"en"</span>);
 <a href=#617 id=617 data-nosnippet>617</a>        <span class="macro">assert_eq!</span>(course.description, <span class="string">"Sample course."</span>);
 <a href=#618 id=618 data-nosnippet>618</a>    }
 <a href=#619 id=619 data-nosnippet>619</a>

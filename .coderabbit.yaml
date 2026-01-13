@@ -67,6 +67,8 @@ reviews:
         1. The table has no `deleted_at` field (rare)
         2. The function name implies the function returns also non-deleted records
 
+        Avoid `ON CONFLICT (...) DO UPDATE SET updated_at = now()` that only updates the timestamp without changing other data—it erases the original updated_at value. Use `DO NOTHING` instead.
+
     - path: "**/*.rs"
       instructions: >
         Always prefer returning Result types whenever possible. Use proper error handling with `?`, `match`, or `if let` instead of unwrapping.

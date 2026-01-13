@@ -39,9 +39,9 @@ RETURNING *
     let res = sqlx::query_as!(
         UserChapterLock,
         r#"
-INSERT INTO user_chapter_locks (user_id, chapter_id, course_id)
-VALUES ($1, $2, $3)
-ON CONFLICT (user_id, chapter_id, deleted_at) DO UPDATE SET updated_at = now()
+INSERT INTO user_chapter_locks (user_id, chapter_id, course_id, deleted_at)
+VALUES ($1, $2, $3, NULL)
+ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
 RETURNING *
         "#,
         user_id,

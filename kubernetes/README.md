@@ -14,7 +14,7 @@ The Kubernetes configurations use custom labels to organize and target resources
 
 Used to categorize deployments based on their initialization requirements:
 
-- `without-init-container`: Deployments that don't require init containers (e.g., frontend services like `cms`, `main-frontend`, `quizzes`, `tmc`, `course-material`, `example-exercise`)
+- `without-init-container`: Deployments that don't require init containers (e.g., frontend services like `cms`, `main-frontend`, `quizzes`, `tmc`, `example-exercise`)
 - `with-init-container`: Deployments that require init containers, typically for database migrations or setup (e.g., `headless-lms`, `chatbot-syncer`, `email-deliver`, `regrader`)
 - `with-init-container-cronjob`: CronJobs that require init containers (e.g., `ended-exams-processor`, `calculate-page-visit-stats`, `sync-tmc-users`)
 

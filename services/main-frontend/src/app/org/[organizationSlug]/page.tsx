@@ -1,9 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useSetAtom } from "jotai"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import React, { useId } from "react"
+import React, { useEffect, useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
@@ -16,11 +17,17 @@ import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRende
 import Spinner from "@/shared-module/common/components/Spinner"
 import { manageOrganizationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { viewParamsAtom } from "@/state/course-material/params"
 
 const Organization: React.FC = () => {
   const { t } = useTranslation()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const organizationQuery = useOrganizationQueryBySlug(organizationSlug)
+  const setViewParams = useSetAtom(viewParamsAtom)
+
+  useEffect(() => {
+    setViewParams(null)
+  }, [setViewParams])
 
   const coursesSectionHeadingId = useId()
   const examsSectionHeadingId = useId()

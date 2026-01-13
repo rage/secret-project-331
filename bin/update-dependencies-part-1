@@ -295,7 +295,6 @@ def main() -> int:
         (repo_root, "repo root"),
         (repo_root / "system-tests", "system-tests"),
         (repo_root / "services" / "cms", "cms"),
-        (repo_root / "services" / "course-material", "course-material"),
         (repo_root / "services" / "example-exercise", "example-exercise"),
         (repo_root / "services" / "main-frontend", "main-frontend"),
         (repo_root / "services" / "quizzes", "quizzes"),

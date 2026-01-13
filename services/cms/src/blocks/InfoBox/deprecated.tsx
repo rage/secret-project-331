@@ -1,4 +1,5 @@
 "use client"
+
 /* eslint-disable i18next/no-literal-string */
 import { useBlockProps } from "@wordpress/block-editor"
 import { BlockDeprecation, createBlock } from "@wordpress/blocks"

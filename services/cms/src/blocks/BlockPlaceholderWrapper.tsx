@@ -1,4 +1,5 @@
 "use client"
+
 /**
  * PlaceholderWrapper used by blocks that do not allow editing directly, i.e. no nested blocks.
  * Has a black border around the block and text is centered vertically.

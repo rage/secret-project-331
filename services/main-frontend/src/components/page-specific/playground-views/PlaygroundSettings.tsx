@@ -1,4 +1,5 @@
 "use client"
+
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { BellXmark, CheckCircle } from "@vectopus/atlas-icons-react"

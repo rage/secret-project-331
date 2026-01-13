@@ -1,3 +1,5 @@
+"use client"
+
 import { act, render, screen } from "@testing-library/react"
 
 import { useIntersectionObserver } from "../useIntersectionObserver"

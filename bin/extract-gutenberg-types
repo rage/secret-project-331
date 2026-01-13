@@ -12,18 +12,18 @@ run_command cd "$RELATIVE_CMS_PATH" || exit
 run_command pnpm exec tsx scripts/extractGutenbergAttributeTypes.ts
 
 # Format the generated files with prettier instead of eslint
-run_command pnpm exec prettier --write ../course-material/types/GutenbergBlockAttributes.ts ../course-material/types/DeprecatedGutenbergBlockAttributes.ts
+run_command pnpm exec prettier --write ../main-frontend/types/GutenbergBlockAttributes.ts ../main-frontend/types/DeprecatedGutenbergBlockAttributes.ts
 
 run_command cd ../..
-if [ -f "./services/course-material/types/GutenbergBlockAttributes.guard.ts" ]; then
-  run_command rm ./services/course-material/types/GutenbergBlockAttributes.guard.ts
+if [ -f "./services/main-frontend/types/GutenbergBlockAttributes.guard.ts" ]; then
+  run_command rm ./services/main-frontend/types/GutenbergBlockAttributes.guard.ts
 fi
-if [ -f "./services/course-material/types/DepreactedGutenbergBlockAttributes.guard.ts" ]; then
-  run_command rm ./services/course-material/types/DeprecatedGutenbergBlockAttributes.guard.ts
+if [ -f "./services/main-frontend/types/DepreactedGutenbergBlockAttributes.guard.ts" ]; then
+  run_command rm ./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
 fi
 
-run_command pnpm exec ts-auto-guard --export-all --paths services/course-material/types/GutenbergBlockAttributes.ts --project services/course-material/tsconfig.json
-run_command pnpm exec prettier --write services/course-material/types/GutenbergBlockAttributes.ts services/course-material/types/GutenbergBlockAttributes.guard.ts
+run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/GutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
+run_command pnpm exec prettier --write services/main-frontend/types/GutenbergBlockAttributes.ts services/main-frontend/types/GutenbergBlockAttributes.guard.ts
 
-run_command pnpm exec ts-auto-guard --export-all --paths services/course-material/types/DeprecatedGutenbergBlockAttributes.ts --project services/course-material/tsconfig.json
-run_command pnpm exec prettier --write services/course-material/types/DeprecatedGutenbergBlockAttributes.ts services/course-material/types/DeprecatedGutenbergBlockAttributes.guard.ts
+run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
+run_command pnpm exec prettier --write services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts

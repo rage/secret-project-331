@@ -18,7 +18,7 @@ run_command cd ../..
 if [ -f "./services/main-frontend/types/GutenbergBlockAttributes.guard.ts" ]; then
   run_command rm ./services/main-frontend/types/GutenbergBlockAttributes.guard.ts
 fi
-if [ -f "./services/main-frontend/types/DepreactedGutenbergBlockAttributes.guard.ts" ]; then
+if [ -f "./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts" ]; then
   run_command rm ./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
 fi
 

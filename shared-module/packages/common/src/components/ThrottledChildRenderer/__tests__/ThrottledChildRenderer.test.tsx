@@ -1,3 +1,5 @@
+"use client"
+
 import { act, render, screen } from "@testing-library/react"
 import { Provider } from "jotai"
 import React, { useEffect } from "react"

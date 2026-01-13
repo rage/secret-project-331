@@ -1,4 +1,5 @@
 "use client"
+
 import { dir } from "i18next"
 import { useSearchParams } from "next/navigation"
 

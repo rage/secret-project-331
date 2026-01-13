@@ -1,4 +1,5 @@
 "use client"
+
 // Disables server-side rendering for the wrapped component.
 
 import { useIsSSR } from "react-aria"

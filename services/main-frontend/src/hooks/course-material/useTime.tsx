@@ -1,4 +1,5 @@
 "use client"
+
 import { useEffect, useState } from "react"
 
 export default function useTime(refreshCycle = 1000): Date {

@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import React, { useCallback, useRef, useState } from "react"
 import { Input, TextField } from "react-aria-components"

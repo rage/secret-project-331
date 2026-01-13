@@ -1,3 +1,5 @@
+"use client"
+
 import { act, render, screen } from "@testing-library/react"
 
 import { useInView } from "../useInView"

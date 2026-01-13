@@ -1,4 +1,5 @@
 "use client"
+
 import { Dispatch, SetStateAction, useEffect, useState } from "react"
 
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"

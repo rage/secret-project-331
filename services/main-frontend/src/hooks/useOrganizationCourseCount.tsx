@@ -1,4 +1,5 @@
 "use client"
+
 import { QueryClient, useQuery } from "@tanstack/react-query"
 
 import { fetchOrganizationCourseCount } from "../services/backend/organizations"

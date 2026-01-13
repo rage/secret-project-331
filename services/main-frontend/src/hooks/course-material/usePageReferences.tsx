@@ -1,4 +1,5 @@
 "use client"
+
 import { useQuery } from "@tanstack/react-query"
 // @ts-expect-error: No type definitions
 import cite from "citation-js"

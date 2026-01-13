@@ -1,3 +1,5 @@
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
 
 import { fetchJobs } from "../services/backend/status"

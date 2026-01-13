@@ -1,4 +1,5 @@
 "use client"
+
 import React from "react"
 
 import type { Course, Page } from "@/shared-module/common/bindings"

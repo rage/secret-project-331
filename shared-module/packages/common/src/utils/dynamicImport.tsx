@@ -1,4 +1,5 @@
 "use client"
+
 import dynamic from "next/dynamic"
 import { ComponentType } from "react"
 

@@ -1,4 +1,5 @@
 "use client"
+
 import { useQuery } from "@tanstack/react-query"
 
 import { fetchCourseById } from "@/services/course-material/backend"

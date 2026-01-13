@@ -1,4 +1,5 @@
 "use client"
+
 /* eslint-disable i18next/no-literal-string */
 const headingLevelMap: { [level: number]: string } = {
   1: "2.5rem",

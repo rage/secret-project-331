@@ -1,4 +1,5 @@
 "use client"
+
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 import type { EChartsOption } from "echarts/types/src/export/option"

@@ -1,3 +1,5 @@
+"use client"
+
 import { renderHook } from "@testing-library/react"
 
 import { useEverTrue } from "../useEverTrue"

@@ -1,4 +1,5 @@
 "use client"
+
 import Link from "next/link"
 
 const LinkOrNoLink: React.FC<

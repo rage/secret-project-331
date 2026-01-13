@@ -1,4 +1,5 @@
 "use client"
+
 const NavItem: React.FC<React.PropsWithChildren> = ({ children }) => {
   return <li>{children}</li>
 }

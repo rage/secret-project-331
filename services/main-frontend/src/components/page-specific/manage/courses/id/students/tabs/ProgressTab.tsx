@@ -1,4 +1,6 @@
 // ProgressTab.tsx
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"

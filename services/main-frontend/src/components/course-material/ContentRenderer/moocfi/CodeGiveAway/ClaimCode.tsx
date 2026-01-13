@@ -1,4 +1,5 @@
 "use client"
+
 import { useTranslation } from "react-i18next"
 
 import { claimCodeFromCodeGiveaway } from "@/services/course-material/backend"

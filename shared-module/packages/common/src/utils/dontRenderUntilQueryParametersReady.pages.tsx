@@ -1,4 +1,5 @@
 "use client"
+
 import { useRouter } from "next/router"
 
 // During initial render query parameters are undedined in Next.js due to optimization

@@ -1,4 +1,5 @@
 "use client"
+
 import React, { DetailedHTMLProps, HTMLAttributes } from "react"
 import "katex/dist/katex.min.css"
 

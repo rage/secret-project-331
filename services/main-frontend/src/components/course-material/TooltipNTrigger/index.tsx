@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import React, { ReactNode } from "react"
 import { Tooltip, TooltipTrigger } from "react-aria-components"

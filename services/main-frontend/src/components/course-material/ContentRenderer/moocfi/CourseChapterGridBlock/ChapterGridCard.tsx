@@ -1,4 +1,5 @@
 "use client"
+
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import { useTranslation } from "react-i18next"

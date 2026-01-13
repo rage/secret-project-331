@@ -1,4 +1,5 @@
 "use client"
+
 import { createContext } from "react"
 
 import { ExerciseAttributes } from "../blocks/Exercise"

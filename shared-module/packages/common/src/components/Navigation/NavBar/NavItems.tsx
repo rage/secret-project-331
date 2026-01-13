@@ -1,4 +1,5 @@
 "use client"
+
 import { css } from "@emotion/css"
 
 const NavItems: React.FC<React.PropsWithChildren> = ({ children }) => {

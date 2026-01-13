@@ -1,4 +1,5 @@
 "use client"
+
 import { css } from "@emotion/css"
 import { ArrowRight } from "@vectopus/atlas-icons-react"
 import { TFunction } from "i18next"

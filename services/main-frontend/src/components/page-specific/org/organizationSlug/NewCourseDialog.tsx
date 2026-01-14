@@ -1,8 +1,9 @@
+"use client"
+
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import NewCourseForm from "../../../NewCourseForm"
-
+import NewCourseForm from "@/components/NewCourseForm"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface NewCourseDialogProps {

@@ -1,13 +1,15 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ManagePageOrderAction } from "../../../../../../../reducers/managePageOrderReducer"
 import NewOrEditPageForm from "../NewOrEditPageForm"
 
 import PageAudioWidget from "./PageAudioWidget"
 
+import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import { Chapter, Page } from "@/shared-module/common/bindings"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { baseTheme } from "@/shared-module/common/styles"

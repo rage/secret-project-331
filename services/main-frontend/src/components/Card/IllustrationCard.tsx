@@ -1,0 +1,195 @@
+"use client"
+
+import { css } from "@emotion/css"
+import styled from "@emotion/styled"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import CardOpensTextOverlay from "./CardOpenTextOverlay"
+
+import { CardExtraProps } from "."
+
+import PseudoContentLink from "@/components/PseudoContentLink"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { cardMaxWidth } from "@/shared-module/common/styles/constants"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+export interface BackgroundProps {
+  bg: string | undefined
+  backgroundImage?: string
+}
+
+export const BackgroundStyles = ({ bg }: BackgroundProps) => {
+  const CARD_BACKGROUND_STYLES = `
+    background-color: ${bg ? bg : "#fff"};
+  `
+  return CARD_BACKGROUND_STYLES
+}
+
+const CardContentWrapper = styled.div`
+  display: flex;
+  height: 100%;
+  text-align: left;
+  flex-direction: column;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  ${BackgroundStyles}
+
+  h2 {
+    font-weight: 600;
+    z-index: 20;
+    line-height: 1.2;
+    color: ${baseTheme.colors.gray[700]};
+    margin-top: 5px;
+    font-size: clamp(26px, 2.2vw, 30px);
+    opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* For multi-line truncation: */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    /* stylelint-disable-next-line property-no-deprecated */
+    -webkit-box-orient: vertical;
+  }
+`
+
+export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
+
+const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
+  title,
+  chapterNumber,
+  bg,
+  backgroundImage,
+  open,
+  date,
+  time,
+  url,
+  allowedToPreview,
+}) => {
+  const { t } = useTranslation()
+
+  const shouldLink = url && (open || allowedToPreview)
+
+  return (
+    <div
+      className={css`
+        max-width: ${cardMaxWidth}rem;
+        border-radius: 1px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        background: #f2f2f2;
+        aspect-ratio: 1/1;
+        padding: 10px;
+      `}
+    >
+      <CardContentWrapper bg={bg}>
+        <CardOpensTextOverlay open={open} date={date} time={time} />
+        <div
+          className={css`
+            width: 100%;
+            height: 23.163rem;
+            transition: transform 0.2s;
+            ${backgroundImage &&
+            `background-image: url(${backgroundImage});
+              background-repeat: no-repeat;
+              background-color: ${bg};
+              background-position: center center;
+              background-size: cover;
+              `}
+
+            &:hover {
+              transform: scale(1.1);
+            }
+          `}
+        ></div>
+        <div
+          className={css`
+            flex: 1 1 auto;
+            padding: 1rem;
+            background: #fff;
+
+            ${respondToOrLarger.md} {
+              padding: 1.6rem 1.25rem;
+            }
+          `}
+        >
+          {shouldLink ? (
+            <PseudoContentLink
+              href={url}
+              data-testid={chapterNumber ? `chapter-link-${chapterNumber}` : undefined}
+            >
+              <div
+                className={css`
+                  position: absolute;
+                  top: -15px;
+                  left: 10px;
+                  ${respondToOrLarger.md} {
+                    left: 30px;
+                  }
+                `}
+              >
+                <span
+                  className={css`
+                    font-family: ${headingFont};
+                    min-width: 18px;
+                    font-weight: 500;
+                    color: ${baseTheme.colors.blue[600]} !important;
+                    background: #edf1f4;
+                    border: 3px solid #fff;
+                    border-radius: 20px;
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.6rem 0.3rem 0.6rem;
+
+                    ${respondToOrLarger.md} {
+                      font-size: 0.9rem;
+                    }
+                  `}
+                >
+                  {t("chapter-chapter-number", { number: chapterNumber })}
+                </span>
+              </div>
+              <h2>{title}</h2>
+            </PseudoContentLink>
+          ) : (
+            <>
+              <div
+                className={css`
+                  position: absolute;
+                  top: -15px;
+                  left: 10px;
+                  ${respondToOrLarger.md} {
+                    left: 30px;
+                  }
+                `}
+              >
+                <span
+                  className={css`
+                    font-family: ${headingFont};
+                    min-width: 18px;
+                    font-weight: 500;
+                    color: ${baseTheme.colors.blue[600]} !important;
+                    background: #edf1f4;
+                    border: 3px solid #fff;
+                    border-radius: 20px;
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.6rem 0.3rem 0.6rem;
+
+                    ${respondToOrLarger.md} {
+                      font-size: 0.9rem;
+                    }
+                  `}
+                >
+                  {t("chapter-chapter-number", { number: chapterNumber })}
+                </span>
+              </div>
+              <h2>{title}</h2>
+            </>
+          )}
+        </div>
+      </CardContentWrapper>
+    </div>
+  )
+}
+
+export default IllustrationCard

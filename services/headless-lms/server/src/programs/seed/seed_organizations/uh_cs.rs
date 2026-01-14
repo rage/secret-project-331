@@ -505,7 +505,7 @@ pub async fn seed_organization_uh_cs(
         name: "Introduction to Computer Science".to_string(),
         slug: "introduction-to-computer-science".to_string(),
         organization_id: uh_cs_organization_id,
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "An example course.".to_string(),

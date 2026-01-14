@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +13,6 @@ import LineChart, {
 
 import { useStudentCompletionsByCountryQuery } from "@/hooks/stats"
 import { TimeGranularity } from "@/shared-module/common/bindings"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface Props {
@@ -54,4 +55,4 @@ const CompletionsByCountry: React.FC<Props> = ({ courseId, selectedCountry }) =>
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CompletionsByCountry))
+export default withErrorBoundary(CompletionsByCountry)

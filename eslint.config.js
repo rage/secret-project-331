@@ -3,6 +3,7 @@ import next from "@next/eslint-plugin-next"
 import tanstackQuery from "@tanstack/eslint-plugin-query"
 import typescriptEslint from "@typescript-eslint/eslint-plugin"
 import tsParser from "@typescript-eslint/parser"
+import explicitUse from "eslint-plugin-explicit-use-directives"
 import i18next from "eslint-plugin-i18next"
 import importPlugin from "eslint-plugin-import"
 import jsxA11y from "eslint-plugin-jsx-a11y"
@@ -58,6 +59,7 @@ const config = [
       ...getIgnorePatterns("shared-module/"),
     ],
   },
+  explicitUse.configs["prefer-use-client"],
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
     plugins: {
@@ -299,6 +301,9 @@ const config = [
               "set-state",
               "main-navigation-menu",
               "Component",
+              "use client",
+              "use server",
+              "use cache",
             ],
           },
           callees: {
@@ -463,6 +468,12 @@ const config = [
         Buffer: true,
         BufferEncoding: true,
       },
+    },
+  },
+  {
+    files: ["**/next-env.d.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
     },
   },
 ]

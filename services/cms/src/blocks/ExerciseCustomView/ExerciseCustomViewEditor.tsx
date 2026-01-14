@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { BlockEditProps } from "@wordpress/blocks"
 import { useTranslation } from "react-i18next"

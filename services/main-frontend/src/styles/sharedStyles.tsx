@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

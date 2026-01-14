@@ -4,6 +4,7 @@ const nextJest = require("next/jest")
 const createJestConfig = nextJest({ dir: "./" })
 
 // Any custom config you want to pass to Jest
+// Default is jsdom for component tests. API tests override with @jest-environment node
 const customJestConfig = {
   preset: "ts-jest",
   testEnvironment: "jsdom",

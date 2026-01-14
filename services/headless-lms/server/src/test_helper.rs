@@ -196,7 +196,7 @@ macro_rules! insert_data {
                 name: rs.clone(),
                 slug: rs.clone(),
                 organization_id: $org,
-                language_code: "en-US".to_string(),
+                language_code: "en".to_string(),
                 teacher_in_charge_name: rs.clone(),
                 teacher_in_charge_email: format!("{rs}@example.com"),
                 description: "description".to_string(),

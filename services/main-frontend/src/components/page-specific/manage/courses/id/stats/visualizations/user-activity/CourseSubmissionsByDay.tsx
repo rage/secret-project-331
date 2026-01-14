@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { groupBy, max } from "lodash"
@@ -12,7 +14,6 @@ import { fetchCourseDailySubmissionCounts } from "@/services/backend/courses"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseSubmissionsByDayProps {
@@ -118,4 +119,4 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseSubmissionsByDay))
+export default withErrorBoundary(CourseSubmissionsByDay)

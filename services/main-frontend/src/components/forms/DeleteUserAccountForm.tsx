@@ -1,6 +1,8 @@
+"use client"
+
 import { useQueryClient } from "@tanstack/react-query"
 import i18n from "i18next"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 

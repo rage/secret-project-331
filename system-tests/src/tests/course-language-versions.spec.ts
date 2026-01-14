@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -48,7 +49,8 @@ test("Creating a new language version works", async ({ page, headless }, testInf
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.click('#content a >> :nth-match(div:has-text("Luku 1The Basics"), 3)')])
+  const chapterSelector = new ChapterSelector(page)
+  await chapterSelector.clickChapter(1)
 
   await page.getByText("1Page One").click()
 
@@ -56,7 +58,7 @@ test("Creating a new language version works", async ({ page, headless }, testInf
 
   await page.goto("about:blank")
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/")
-  await page.getByText("Chapter 1").click()
+  await chapterSelector.clickChapter(1)
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1",
   )

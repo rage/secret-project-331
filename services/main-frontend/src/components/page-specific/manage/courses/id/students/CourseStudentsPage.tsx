@@ -1,5 +1,7 @@
+"use client"
+
 import { css } from "@emotion/css"
-import { useRouter } from "next/router"
+import { usePathname, useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useState, useTransition } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,6 +11,7 @@ import { ProgressTabContent } from "./tabs/ProgressTab"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 
 type Props = { courseId?: string }
 
@@ -63,12 +66,12 @@ const cx = (...arr: Array<string | false | undefined>) => arr.filter(Boolean).jo
 const StudentsPage: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
   const router = useRouter()
+  const pathname = usePathname()
 
   const subtabFromUrl = useMemo(() => {
-    const asPath = router.asPath ?? ""
-    const m = asPath.match(/\/students\/([^/?#]+)/)
+    const m = pathname?.match(/\/students\/([^/?#]+)/)
     return m?.[1] // e.g. "users" | "completions" | "progress" | "certificates"
-  }, [router.asPath])
+  }, [pathname])
 
   const tabFromUrl = useMemo<(typeof TAB_LIST)[number]>(() => {
     return SLUG_TO_TAB[subtabFromUrl ?? ""] ?? TAB_USER
@@ -86,10 +89,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
   useEffect(() => {
     if (!subtabFromUrl && courseId) {
       // eslint-disable-next-line i18next/no-literal-string
-      router.replace(`/manage/courses/${courseId}/students/users`, undefined, {
-        shallow: true,
-        scroll: false,
-      })
+      router.replace(manageCourseStudentsRoute(courseId, "users"))
     }
   }, [subtabFromUrl, courseId, router])
 
@@ -99,11 +99,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
       return
     }
     const slug = TAB_TO_SLUG[tab]
-    // eslint-disable-next-line i18next/no-literal-string
-    router.push(`/manage/courses/${courseId}/students/${slug}`, undefined, {
-      shallow: true,
-      scroll: false,
-    })
+    router.push(manageCourseStudentsRoute(courseId, slug))
   }
 
   const tabContentMap: { [k in (typeof TAB_LIST)[number]]: React.ReactNode } = {

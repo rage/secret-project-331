@@ -1,10 +1,10 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useRouter } from "next/router"
+import { usePathname, useSearchParams } from "next/navigation"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-
-import { CourseManagementPagesProps } from "../../../../../../../pages/manage/courses/[id]/[...path]"
 
 import {
   TAB_ALL_LANGUAGES,
@@ -15,6 +15,7 @@ import {
   TAB_VISITORS,
 } from "./constants"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
@@ -23,6 +24,7 @@ import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 export const DEFAULT_CHART_HEIGHT = 450
 
@@ -48,17 +50,19 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   courseId,
 }) => {
   const { t } = useTranslation()
-  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState(TAB_OVERVIEW)
 
   const courseLanguageVersions = useCourseLanguageVersions(courseId)
   const courseInstances = useCourseInstancesQuery(courseId)
 
   useEffect(() => {
-    if (router.query.tab) {
-      setActiveTab(router.query.tab as string)
+    const tab = searchParams.get("tab")
+    if (tab) {
+      setActiveTab(tab)
     }
-  }, [router.query.tab])
+  }, [searchParams])
 
   const showLanguageVersionsTab = useMemo(
     () => courseLanguageVersions.isSuccess && courseLanguageVersions.data.length > 1,
@@ -69,6 +73,14 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
     () => courseInstances.isSuccess && courseInstances.data.length > 1,
     [courseInstances.isSuccess, courseInstances.data],
   )
+
+  const currentQuery = useMemo(() => {
+    const query: Record<string, string> = {}
+    searchParams.forEach((value, key) => {
+      query[key] = value
+    })
+    return query
+  }, [searchParams])
 
   return (
     <>
@@ -85,26 +97,26 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 
       <TabLinkNavigation>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_OVERVIEW } }}
+          url={{ pathname, query: { tab: TAB_OVERVIEW } }}
           isActive={activeTab === TAB_OVERVIEW}
         >
           {t("stats-tab-overview")}
         </TabLink>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_USER_ACTIVITY } }}
+          url={{ pathname, query: { tab: TAB_USER_ACTIVITY } }}
           isActive={activeTab === TAB_USER_ACTIVITY}
         >
           {t("stats-tab-user-activity")}
         </TabLink>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_VISITORS } }}
+          url={{ pathname, query: { tab: TAB_VISITORS } }}
           isActive={activeTab === TAB_VISITORS}
         >
           {t("stats-tab-visitors")}
         </TabLink>
         {showLanguageVersionsTab && (
           <TabLink
-            url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_ALL_LANGUAGES } }}
+            url={{ pathname, query: { tab: TAB_ALL_LANGUAGES } }}
             isActive={activeTab === TAB_ALL_LANGUAGES}
           >
             {t("stats-tab-all-languages")}
@@ -112,8 +124,8 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         )}
         <TabLink
           url={{
-            pathname: router.pathname,
-            query: { ...router.query, tab: TAB_COUNTRY_STATS },
+            pathname,
+            query: { ...currentQuery, tab: TAB_COUNTRY_STATS },
           }}
           isActive={activeTab === TAB_COUNTRY_STATS}
         >
@@ -122,8 +134,8 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {showCourseInstancesTab && (
           <TabLink
             url={{
-              pathname: router.pathname,
-              query: { ...router.query, tab: TAB_COURSE_INSTANCES },
+              pathname,
+              query: { tab: TAB_COURSE_INSTANCES },
             }}
             isActive={activeTab === TAB_COURSE_INSTANCES}
           >
@@ -144,4 +156,4 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   )
 }
 
-export default withNoSsr(CourseStatsPage)
+export default withNoSsr(withSuspenseBoundary(CourseStatsPage))

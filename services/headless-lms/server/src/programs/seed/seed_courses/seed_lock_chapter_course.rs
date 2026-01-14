@@ -8,7 +8,7 @@ use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use anyhow::Result;
 use headless_lms_models::roles::UserRole;
-use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::json;
 use tracing::info;
 use uuid::Uuid;
@@ -65,8 +65,113 @@ pub async fn seed_lock_chapter_course(
                         .page(
                             PageBuilder::new("/chapter-1/lock-page", "Lock Chapter Page")
                                 .block(
-                                    GutenbergBlock::empty_block_from_name("moocfi/lock-chapter".to_string())
-                                        .with_id(cx.v5(b"d4e5f6a7-b8c9-0123-def4-234567890123")),
+                                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                                        "moocfi/lock-chapter",
+                                        attributes! {},
+                                        vec![
+                                            GutenbergBlock::block_with_name_and_attributes(
+                                                "core/heading",
+                                                attributes! {
+                                                    "content": "Model Solution",
+                                                    "level": 2,
+                                                    "anchor": "model-solution-title"
+                                                },
+                                            )
+                                            .with_id(cx.v5(b"f1a2b3c4-d5e6-7890-abcd-ef1234567890")),
+                                            GutenbergBlock::paragraph("Congratulations on completing Chapter 1! Here's a model solution for the Customer Behavior Analysis Project.")
+                                                .with_id(cx.v5(b"f2a3b4c5-d6e7-8901-bcde-f1234567891")),
+                                            GutenbergBlock::paragraph("The project involved analyzing customer purchase data to identify patterns and segment customers. The first step was data cleaning, which included handling missing values using appropriate imputation methods and removing outliers using the IQR method.")
+                                                .with_id(cx.v5(b"f3a4b5c6-d7e8-9012-cdef-1234567892")),
+                                            GutenbergBlock::block_with_name_and_attributes(
+                                                "core/heading",
+                                                attributes! {
+                                                    "content": "Data Cleaning",
+                                                    "level": 3,
+                                                    "anchor": "data-cleaning"
+                                                },
+                                            )
+                                            .with_id(cx.v5(b"f3b4c5d6-e7f8-9012-def3-3456789012")),
+                                            GutenbergBlock::block_with_name_and_attributes(
+                                                "core/code",
+                                                attributes! {
+                                                    "content": "import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+
+# Load and clean data
+df = pd.read_csv('customer_data.csv')
+df['age'].fillna(df['age'].median(), inplace=True)
+df['income'].fillna(df['income'].mean(), inplace=True)
+
+# Remove outliers
+Q1 = df['purchase_amount'].quantile(0.25)
+Q3 = df['purchase_amount'].quantile(0.75)
+IQR = Q3 - Q1
+df = df[(df['purchase_amount'] >= Q1 - 1.5*IQR) &
+        (df['purchase_amount'] <= Q3 + 1.5*IQR)]"
+                                                },
+                                            )
+                                            .with_id(cx.v5(b"f4a5b6c7-d8e9-0123-def4-2345678903")),
+                                            GutenbergBlock::block_with_name_and_attributes(
+                                                "core/heading",
+                                                attributes! {
+                                                    "content": "Key Findings",
+                                                    "level": 3,
+                                                    "anchor": "key-findings"
+                                                },
+                                            )
+                                            .with_id(cx.v5(b"f4b5c6d7-e8f9-0123-ef45-4567890123")),
+                                            GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                                                "core/list",
+                                                attributes! {
+                                                    "ordered": false
+                                                },
+                                                vec![
+                                                    GutenbergBlock::block_with_name_and_attributes(
+                                                        "core/list-item",
+                                                        attributes! {
+                                                            "content": "Strong positive correlation (r=0.72) between income and purchase amount"
+                                                        },
+                                                    )
+                                                    .with_id(cx.v5(b"f5a6b7c8-d9e0-1234-ef45-3456789014")),
+                                                    GutenbergBlock::block_with_name_and_attributes(
+                                                        "core/list-item",
+                                                        attributes! {
+                                                            "content": "Electronics category generates 35% more revenue than other categories"
+                                                        },
+                                                    )
+                                                    .with_id(cx.v5(b"f6a7b8c9-d0e1-2345-f456-4567890125")),
+                                                    GutenbergBlock::block_with_name_and_attributes(
+                                                        "core/list-item",
+                                                        attributes! {
+                                                            "content": "High-value customers represent 18% of customers but 42% of total revenue"
+                                                        },
+                                                    )
+                                                    .with_id(cx.v5(b"f7a8b9c0-d1e2-3456-5678-5678901236")),
+                                                ],
+                                            )
+                                            .with_id(cx.v5(b"f8a9b0c1-d2e3-4567-6789-6789012347")),
+                                            GutenbergBlock::block_with_name_and_attributes(
+                                                "core/quote",
+                                                attributes! {
+                                                    "value": "The key insight from this analysis is that customer segmentation reveals distinct purchasing behaviors that can inform targeted marketing strategies."
+                                                },
+                                            )
+                                            .with_id(cx.v5(b"f0a1b2c3-d4e5-6789-8901-8901234569")),
+                                            GutenbergBlock::block_with_name_and_attributes(
+                                                "core/heading",
+                                                attributes! {
+                                                    "content": "Recommendations",
+                                                    "level": 3,
+                                                    "anchor": "recommendations"
+                                                },
+                                            )
+                                            .with_id(cx.v5(b"f1b2c3d4-e5f6-7890-f012-0123456789")),
+                                            GutenbergBlock::paragraph("Based on the analysis, recommendations include developing a VIP program for high-value customers and increasing marketing focus on the Electronics category during peak seasons. The methodology demonstrated here provides a solid framework for data-driven decision making.")
+                                                .with_id(cx.v5(b"f1a2b3c4-d5e6-7890-9012-9012345670")),
+                                        ],
+                                    )
+                                    .with_id(cx.v5(b"d4e5f6a7-b8c9-0123-def4-234567890123")),
                                 )
                                 .block(
                                     GutenbergBlock::paragraph("This is Chapter 1. You can lock this chapter when you're done.")

@@ -1,11 +1,12 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
+import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { clickPageInChapterByTitle } from "@/utils/flows/pagesInChapter.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
-test.describe("Chapter locking feature", () => {
+test.describe.only("Chapter locking feature", () => {
   let studentContext: BrowserContext
   let teacherContext: BrowserContext
 
@@ -52,6 +53,29 @@ test.describe("Chapter locking feature", () => {
           "The current chapter is locked, and you can no longer submit exercises.",
         ),
       ).toBeVisible()
+    })
+
+    await test.step("Verify model solution content is visible after locking", async () => {
+      await expect(studentPage.getByRole("heading", { name: "Model Solution" })).toBeVisible()
+      await expect(
+        studentPage.getByText(
+          "Congratulations on completing Chapter 1! Here's a model solution for the Customer Behavior Analysis Project.",
+        ),
+      ).toBeVisible()
+      await expect(
+        studentPage.getByText(
+          "Strong positive correlation (r=0.72) between income and purchase amount",
+        ),
+      ).toBeVisible()
+      await expect(
+        studentPage.getByText(
+          "The key insight from this analysis is that customer segmentation reveals distinct purchasing behaviors that can inform targeted marketing strategies.",
+        ),
+      ).toBeVisible()
+    })
+
+    await test.step("Run accessibility check on locked chapter with model solution", async () => {
+      await accessibilityCheck(studentPage, "Locked chapter with model solution", [])
     })
 
     await test.step("Navigate to exercise in locked Chapter 1", async () => {

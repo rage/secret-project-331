@@ -48,8 +48,12 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
     const longestLine = (content ?? "")
       .split("\n")
       .reduce((acc, line) => Math.max(acc, line.length), 0)
-    return longestLine > 100 ? 14 : longestLine > 70 ? 16 : 20
-  }, [content])
+    const baseSize = longestLine > 100 ? 14 : longestLine > 70 ? 16 : 20
+    if (dontAllowBlockToBeWiderThanContainerWidth) {
+      return baseSize - 4
+    }
+    return baseSize
+  }, [content, dontAllowBlockToBeWiderThanContainerWidth])
 
   return (
     <BreakFromCentered sidebar={false}>

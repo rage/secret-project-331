@@ -82,7 +82,7 @@ const LockChapterLockedView: React.FC<LockChapterLockedViewProps> = ({ blockProp
         >
           <InnerBlocks
             parentBlockProps={blockProps}
-            dontAllowInnerBlocksToBeWiderThanParentBlock={false}
+            dontAllowInnerBlocksToBeWiderThanParentBlock={true}
           />
         </div>
       )}

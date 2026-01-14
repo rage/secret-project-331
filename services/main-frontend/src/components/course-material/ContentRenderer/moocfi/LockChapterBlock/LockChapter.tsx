@@ -1,7 +1,7 @@
 "use client"
 import { css } from "@emotion/css"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
 
 import { BlockRendererProps } from "../.."
@@ -16,7 +16,8 @@ import { lockChapter } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { courseMaterialAtom } from "@/state/course-material"
-import { invalidateUserChapterLocks, reloadCurrentPageData } from "@/state/course-material/queries"
+import { userChapterLocksQueryKey } from "@/state/course-material/queries"
+import { refetchViewAtom } from "@/state/course-material/selectors"
 
 interface LockChapterProps {
   chapterId: string
@@ -28,6 +29,7 @@ type LockState = "idle" | "locking" | "locked"
 const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const queryClient = useQueryClient()
+  const triggerRefetch = useSetAtom(refetchViewAtom)
   // eslint-disable-next-line i18next/no-literal-string
   const [lockState, setLockState] = useState<LockState>("idle")
   const [showAnimation, setShowAnimation] = useState(false)
@@ -42,14 +44,16 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
       // eslint-disable-next-line i18next/no-literal-string
       setLockState("locking")
       setShowAnimation(true)
-      await invalidateUserChapterLocks(queryClient, courseId)
+      await queryClient.refetchQueries({
+        queryKey: userChapterLocksQueryKey(courseId),
+      })
     },
   })
 
   const handleAnimationComplete = async () => {
     // eslint-disable-next-line i18next/no-literal-string
     setLockState("locked")
-    await reloadCurrentPageData(queryClient)
+    await triggerRefetch()
     await new Promise((resolve) => setTimeout(resolve, 200))
     setShowAnimation(false)
   }

@@ -168,6 +168,9 @@ const ExerciseBlock: React.FC<
 
   const id = props.data.attributes.id
   const getCourseMaterialExercise = useCourseMaterialExerciseQuery(id, showExercise)
+  const courseId =
+    courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
+  const getUserLocks = useUserChapterLocks(courseId)
   useEffect(() => {
     if (!getCourseMaterialExercise.data) {
       return
@@ -175,10 +178,15 @@ const ExerciseBlock: React.FC<
     if (getCourseMaterialExercise.data.exercise_status?.score_given) {
       setPoints(getCourseMaterialExercise.data.exercise_status?.score_given)
     }
+    const chapterId = getCourseMaterialExercise.data.exercise.chapter_id
+    const isChapterLocked =
+      chapterId &&
+      getUserLocks.data?.some((lock: { chapter_id: string }) => lock.chapter_id === chapterId)
     dispatch({
       type: "exerciseDownloaded",
       payload: getCourseMaterialExercise.data,
       signedIn: Boolean(loginState.signedIn),
+      isChapterLocked: Boolean(isChapterLocked),
     })
     const a = new Map()
     getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
@@ -187,7 +195,7 @@ const ExerciseBlock: React.FC<
       }
     })
     setAnswers(a)
-  }, [getCourseMaterialExercise.data, loginState.signedIn])
+  }, [getCourseMaterialExercise.data, loginState.signedIn, getUserLocks.data])
 
   const postSubmissionMutation = useToastMutation(
     (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
@@ -216,11 +224,16 @@ const ExerciseBlock: React.FC<
       if (!data) {
         throw new Error("No data for the try again view")
       }
+      const chapterId = data.exercise.chapter_id
+      const isChapterLocked =
+        chapterId &&
+        getUserLocks.data?.some((lock: { chapter_id: string }) => lock.chapter_id === chapterId)
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       dispatch({
         type: "tryAgain",
         payload: data,
         signedIn: Boolean(loginState.signedIn),
+        isChapterLocked: Boolean(isChapterLocked),
       })
       postSubmissionMutation.reset()
 
@@ -257,10 +270,7 @@ const ExerciseBlock: React.FC<
     },
   )
 
-  const courseId =
-    courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
   const chapterId = getCourseMaterialExercise.data?.exercise.chapter_id
-  const getUserLocks = useUserChapterLocks(courseId)
 
   const exerciseNameIsLong = useMemo(() => {
     if (!getCourseMaterialExercise.data) {
@@ -617,6 +627,7 @@ const ExerciseBlock: React.FC<
                   )}
                   canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
                   exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+                  isChapterLocked={Boolean(isChapterLocked)}
                 />
               ))}
           {reviewingStage === "PeerReview" && (

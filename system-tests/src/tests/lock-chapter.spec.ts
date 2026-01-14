@@ -2,11 +2,10 @@ import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { clickPageInChapterByTitle } from "@/utils/flows/pagesInChapter.flow"
-import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
-test.describe.only("Chapter locking feature", () => {
+test.describe("Chapter locking feature", () => {
   let studentContext: BrowserContext
   let teacherContext: BrowserContext
 
@@ -57,27 +56,19 @@ test.describe.only("Chapter locking feature", () => {
 
     await test.step("Navigate to exercise in locked Chapter 1", async () => {
       await studentPage.getByText("Exercise in Chapter 1").click()
-      const frame = await getLocatorForNthExerciseServiceIframe(studentPage, "quizzes", 1)
-      await frame.getByLabel("Correct answer").waitFor()
+      await expect(studentPage.getByText("No submission received for this exercise.")).toBeVisible()
     })
 
     await test.step("Verify exercise shows locked warning", async () => {
       await expect(
-        studentPage.getByText(
-          "The current chapter is locked, and you can no longer submit exercises.",
-        ),
+        studentPage
+          .getByText("The current chapter is locked, and you can no longer submit exercises.")
+          .first(),
       ).toBeVisible()
     })
 
-    await test.step("Attempt to submit exercise in locked chapter", async () => {
-      const frame = await getLocatorForNthExerciseServiceIframe(studentPage, "quizzes", 1)
-      await frame.getByLabel("Correct answer").click()
-      await studentPage.getByRole("button", { name: "Submit" }).click()
-      await expect(
-        studentPage.getByText(
-          "The current chapter is locked, and you can no longer submit exercises.",
-        ),
-      ).toBeVisible()
+    await test.step("Verify submit button is not visible when chapter is locked", async () => {
+      await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
     })
 
     await test.step("Add lock block to Chapter 2 as teacher", async () => {
@@ -117,9 +108,9 @@ test.describe.only("Chapter locking feature", () => {
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
       await studentPage.getByText("Chapter locked").waitFor()
       await expect(
-        studentPage.getByText(
-          "The current chapter is locked, and you can no longer submit exercises.",
-        ),
+        studentPage
+          .getByText("The current chapter is locked, and you can no longer submit exercises.")
+          .first(),
       ).toBeVisible()
     })
 
@@ -130,23 +121,23 @@ test.describe.only("Chapter locking feature", () => {
     })
 
     await test.step("Verify Chapter 1 still locked after reload", async () => {
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
       await studentPage.getByText("Chapter 1 - Lockable").click()
       await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
       await expect(studentPage.getByText("Chapter locked")).toBeVisible()
     })
 
     await test.step("Verify exercise in Chapter 2 cannot be submitted", async () => {
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
       await studentPage.getByText("Chapter 2 - Add Lock Later").click()
-      await studentPage.getByText("Exercise in Chapter 2").click()
-      const frame = await getLocatorForNthExerciseServiceIframe(studentPage, "quizzes", 1)
-      await frame.getByLabel("Correct answer").waitFor()
-      await frame.getByLabel("Correct answer").click()
-      await studentPage.getByRole("button", { name: "Submit" }).click()
+      await clickPageInChapterByTitle(studentPage, "Exercise in Chapter 2")
+      await expect(studentPage.getByText("No submission received for this exercise.")).toBeVisible()
       await expect(
-        studentPage.getByText(
-          "The current chapter is locked, and you can no longer submit exercises.",
-        ),
+        studentPage
+          .getByText("The current chapter is locked, and you can no longer submit exercises.")
+          .first(),
       ).toBeVisible()
+      await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
     })
   })
 })

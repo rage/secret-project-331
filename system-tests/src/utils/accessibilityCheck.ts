@@ -41,7 +41,7 @@ export default async function accessibilityCheck(
           violation.nodes.some(
             (node) =>
               node.html.includes("a11y-speak-intro-text") ||
-              node.target.includes("a11y-speak-intro-text"),
+              (node.target && node.target.some((t) => t.includes("a11y-speak-intro-text"))),
           ) &&
           violation.id === "region"
         ) {

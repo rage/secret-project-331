@@ -132,22 +132,22 @@ pub async fn seed_lock_chapter_course(
                 .chapter(
                     ChapterBuilder::new(2, "Chapter 2 - Add Lock Later")
                         .fixed_ids(
-                            cx.v5(b"a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
-                            cx.v5(b"b2c3d4e5-f6a7-8901-bcde-f12345678901"),
+                            cx.v5(b"z1y2x3w4-v5u6-7890-tsrq-pq9876543210"),
+                            cx.v5(b"y2x3w4v5-u6t7-8901-srqp-op8765432109"),
                         )
                         .page(
                             PageBuilder::new("/chapter-2/exercise-page", "Exercise in Chapter 2")
                                 .block(
                                     GutenbergBlock::paragraph("This is Chapter 2. A lock block will be added later.")
-                                        .with_id(cx.v5(b"c3d4e5f6-a7b8-9012-cdef-123456789012")),
+                                        .with_id(cx.v5(b"x3w4v5u6-t7s8-9012-rqpo-no7654321098")),
                                 )
                                 .exercise(ExerciseBuilder::quizzes(
                                     "Chapter 2 Exercise",
                                     ExerciseIds {
-                                        exercise_id: cx.v5(b"d4e5f6a7-b8c9-0123-def4-234567890123"),
-                                        slide_id: cx.v5(b"e5f6a7b8-c9d0-1234-ef45-345678901234"),
-                                        task_id: cx.v5(b"f6a7b8c9-d0e1-2345-f456-456789012345"),
-                                        block_id: cx.v5(b"a7b8c9d0-e1f2-3456-5678-567890123456"),
+                                        exercise_id: cx.v5(b"w4v5u6t7-s8r9-0123-qpon-mn6543210987"),
+                                        slide_id: cx.v5(b"v5u6t7s8-r9q0-1234-ponm-lm5432109876"),
+                                        task_id: cx.v5(b"u6t7s8r9-q0p1-2345-onml-kl4321098765"),
+                                        block_id: cx.v5(b"t7s8r9q0-p1o2-3456-nmlk-jk3210987654"),
                                     },
                                     false,
                                     None,

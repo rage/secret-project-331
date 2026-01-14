@@ -12,29 +12,14 @@ export class TopLevelPagesSelector {
   }
 
   getTopLevelPageLink(title: string): Locator {
-    return this.page.getByRole("link", { name: title })
+    return this.getContainer().getByRole("link", { name: title })
   }
 
   async getAllTopLevelPageTitles(): Promise<string[]> {
     await this.waitForTopLevelPagesList()
-    const container = this.getContainer()
-    const allLinks = container.locator("a")
-    const count = await allLinks.count()
-    const links = await Promise.all(
-      Array.from({ length: count }, (_, i) => allLinks.nth(i)).map(async (link) => {
-        const testId = await link.getAttribute("data-testid")
-        return testId?.startsWith("top-level-page-link-") ? link : null
-      }),
-    )
-    const titles = await Promise.all(
-      links
-        .filter((link): link is Locator => link !== null)
-        .map(async (link) => {
-          const title = await link.locator("h3").textContent()
-          return title?.trim() ?? null
-        }),
-    )
-    return titles.filter((title): title is string => title !== null)
+    const pageLinks = this.getContainer().locator("a")
+    const raw = await pageLinks.locator("h3").allTextContents()
+    return raw.map((t) => t.trim()).filter(Boolean)
   }
 
   async clickTopLevelPage(title: string): Promise<void> {

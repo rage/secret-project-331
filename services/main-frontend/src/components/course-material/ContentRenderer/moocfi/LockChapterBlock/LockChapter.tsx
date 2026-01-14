@@ -1,6 +1,6 @@
 "use client"
 import { css } from "@emotion/css"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
 import React, { useState } from "react"
@@ -11,13 +11,14 @@ import InnerBlocks from "../../util/InnerBlocks"
 
 import LockAnimation from "./LockAnimation"
 
-import { getUserChapterLocks, lockChapter } from "@/services/course-material/backend"
+import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
+import { lockChapter } from "@/services/course-material/backend"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseMaterialAtom } from "@/state/course-material"
-import { reloadCurrentPageData } from "@/state/course-material/queries"
+import { invalidateUserChapterLocks, reloadCurrentPageData } from "@/state/course-material/queries"
 
 interface LockChapterProps {
   chapterId: string
@@ -305,13 +306,9 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const [showAnimation, setShowAnimation] = useState(false)
   const [hasLockedInSession, setHasLockedInSession] = useState(false)
 
-  const courseId = courseMaterialState.status === "ready" && courseMaterialState.course?.id
-
-  const getUserLocks = useQuery({
-    queryKey: [`course-${courseId}-user-chapter-locks`],
-    queryFn: () => getUserChapterLocks(courseId as string),
-    enabled: !!courseId,
-  })
+  const courseId =
+    courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
+  const getUserLocks = useUserChapterLocks(courseId)
 
   const lockMutation = useMutation({
     mutationFn: () => lockChapter(chapterId),
@@ -320,17 +317,13 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
       // eslint-disable-next-line i18next/no-literal-string
       setLockState("locking")
       setShowAnimation(true)
+      await invalidateUserChapterLocks(queryClient, courseId)
     },
   })
 
   const handleAnimationComplete = async () => {
     // eslint-disable-next-line i18next/no-literal-string
     setLockState("locked")
-
-    queryClient.invalidateQueries({
-      // eslint-disable-next-line i18next/no-literal-string
-      queryKey: [`course-${courseId}-user-chapter-locks`],
-    })
     await reloadCurrentPageData(queryClient)
     await new Promise((resolve) => setTimeout(resolve, 200))
     setShowAnimation(false)

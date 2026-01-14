@@ -2,7 +2,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
-import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
+import { CheckCircle, Padlock, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -22,6 +22,7 @@ import UserOnWrongCourseNotification from "@/components/course-material/notifica
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
+import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
 import { postStartPeerOrSelfReview, postSubmission } from "@/services/course-material/backend"
 import {
@@ -256,6 +257,11 @@ const ExerciseBlock: React.FC<
     },
   )
 
+  const courseId =
+    courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
+  const chapterId = getCourseMaterialExercise.data?.exercise.chapter_id
+  const getUserLocks = useUserChapterLocks(courseId)
+
   const exerciseNameIsLong = useMemo(() => {
     if (!getCourseMaterialExercise.data) {
       return false
@@ -275,6 +281,9 @@ const ExerciseBlock: React.FC<
   }
 
   const courseInstanceId = courseMaterialState.instance?.id
+  const isChapterLocked =
+    chapterId &&
+    getUserLocks.data?.some((lock: { chapter_id: string }) => lock.chapter_id === chapterId)
 
   const isExam = !!courseMaterialState.examData
 
@@ -646,10 +655,25 @@ const ExerciseBlock: React.FC<
                 )}
             </div>
           )}
+          {isChapterLocked && (
+            <YellowBox>
+              <div
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  gap: 0.75rem;
+                `}
+              >
+                <Padlock size={24} />
+                <div>{t("chapter-locked-description")}</div>
+              </div>
+            </YellowBox>
+          )}
           <div>
             {getCourseMaterialExercise.data.can_post_submission &&
               !userOnWrongLanguageVersion &&
-              !inSubmissionView && (
+              !inSubmissionView &&
+              !isChapterLocked && (
                 <button
                   disabled={
                     postSubmissionMutation.isPending ||

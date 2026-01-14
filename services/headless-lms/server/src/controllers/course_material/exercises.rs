@@ -20,7 +20,7 @@ use models::{
             CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewSubmission,
         },
     },
-    user_exercise_states,
+    user_chapter_locks, user_exercise_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -216,6 +216,20 @@ async fn post_submission(
     let submission = payload.0;
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+
+    if let Some(chapter_id) = exercise.chapter_id {
+        let is_locked =
+            user_chapter_locks::is_chapter_locked_for_user(&mut conn, user.id, chapter_id).await?;
+        if is_locked {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "The current chapter is locked, and you can no longer submit exercises."
+                    .to_string(),
+                None,
+            ));
+        }
+    }
+
     let token = authorize(
         &mut conn,
         Act::View,
@@ -250,6 +264,20 @@ async fn start_peer_or_self_review(
     let mut conn = pool.acquire().await?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+
+    if let Some(chapter_id) = exercise.chapter_id {
+        let is_locked =
+            user_chapter_locks::is_chapter_locked_for_user(&mut conn, user.id, chapter_id).await?;
+        if is_locked {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "The current chapter is locked, and you can no longer submit exercises."
+                    .to_string(),
+                None,
+            ));
+        }
+    }
+
     let user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
     let token = authorize(
@@ -283,6 +311,20 @@ async fn submit_peer_or_self_review(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+
+    if let Some(chapter_id) = exercise.chapter_id {
+        let is_locked =
+            user_chapter_locks::is_chapter_locked_for_user(&mut conn, user.id, chapter_id).await?;
+        if is_locked {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "The current chapter is locked, and you can no longer submit exercises."
+                    .to_string(),
+                None,
+            ));
+        }
+    }
+
     // If the claim in the token validates, we can be sure that the user submitting this peer review got the peer review candidate from the backend.
     // The validation prevents users from chaging which answer they peer review.
     let claim = GivePeerReviewClaim::validate(&payload.token, &jwt_key)?;

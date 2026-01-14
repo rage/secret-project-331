@@ -109,3 +109,12 @@ WHERE user_id = $1
     .await?;
     Ok(res)
 }
+
+pub async fn is_chapter_locked_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<bool> {
+    let lock = get_by_user_and_chapter(conn, user_id, chapter_id).await?;
+    Ok(lock.is_some())
+}

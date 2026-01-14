@@ -1,0 +1,1 @@
+ALTER TABLE chatbot_configurations DROP CONSTRAINT IF EXISTS unique_chatbot_names_within_course;

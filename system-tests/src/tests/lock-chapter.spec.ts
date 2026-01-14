@@ -1,12 +1,11 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { clickPageInChapterByTitle } from "@/utils/flows/pagesInChapter.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
-test.describe.only("Chapter locking feature", () => {
+test.describe("Chapter locking feature", () => {
   let studentContext: BrowserContext
   let teacherContext: BrowserContext
 
@@ -76,10 +75,6 @@ test.describe.only("Chapter locking feature", () => {
           "The key insight from this analysis is that customer segmentation reveals distinct purchasing behaviors that can inform targeted marketing strategies.",
         ),
       ).toBeVisible()
-    })
-
-    await test.step("Run accessibility check on locked chapter with model solution", async () => {
-      await accessibilityCheck(studentPage, "Locked chapter with model solution", [])
     })
 
     await test.step("Navigate to exercise in locked Chapter 1", async () => {

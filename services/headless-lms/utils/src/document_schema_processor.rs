@@ -10,6 +10,8 @@ use serde_json::{Map, Value};
 use ts_rs::TS;
 use uuid::Uuid;
 
+/// Blocks that are not allowed in top-level pages (pages without chapter_id).
+/// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
 static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
     "moocfi/exercise",
     "moocfi/exercise-task",
@@ -244,6 +246,8 @@ impl GutenbergBlock {
     }
 }
 
+/// Checks if blocks contain any that are not allowed in top-level pages (pages without chapter_id).
+/// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
 pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> bool {
     input
         .iter()

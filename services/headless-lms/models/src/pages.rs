@@ -775,14 +775,6 @@ pub async fn get_course_page_with_user_data_from_selected_page(
 
     blocks = replace_duplicate_client_ids(blocks);
 
-    if page.chapter_id.is_some() && contains_blocks_not_allowed_in_top_level_pages(&blocks) {
-        return Err(ModelError::new(
-            ModelErrorType::Generic,
-            "Chapter pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
-            None,
-        ));
-    }
-
     let is_locked = if let (Some(user_id), Some(chapter_id)) = (user_id, page.chapter_id) {
         user_chapter_locks::get_by_user_and_chapter(conn, user_id, chapter_id)
             .await?

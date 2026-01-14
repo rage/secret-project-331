@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { animated, SpringValue, to, useSpring, useSprings } from "react-spring"
 
 const PARTICLES = 70
@@ -9,25 +9,28 @@ const RIPPLES = 4
 interface LockAnimationProps {
   onComplete?: () => void
   size?: number
+  play?: boolean
 }
 
-const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260 }) => {
+const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, play = false }) => {
   const idx = useMemo(() => Array.from({ length: PARTICLES }, (_, i) => i), [])
+  const hasPlayedRef = useRef(false)
 
   // DROP: starts huge (close to camera) then shrinks as it drops into place
+  // If already played (play=true but hasPlayedRef would be true), start at final state
   const [lock, lockApi] = useSpring(() => ({
-    y: -220,
-    rotZ: 6,
-    scale: 2.45,
+    y: 0,
+    rotZ: 0,
+    scale: 1,
     sx: 1,
     sy: 1,
-    opacity: 0,
+    opacity: 1,
     config: { tension: 230, friction: 16 },
   }))
 
   // Shackle angle (open -> closed)
   const [shackle, shackleApi] = useSpring(() => ({
-    a: -42,
+    a: 0,
     config: { tension: 520, friction: 32, clamp: true },
   }))
 
@@ -51,71 +54,92 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260 })
     r: 0,
   }))
 
-  function startAndWait(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    api: any,
-    count: number,
-    factory: (i: number) => Record<string, unknown>,
-  ) {
-    let remaining = count
-    return new Promise<void>((resolve) => {
-      api.start((i: number) => ({
-        ...factory(i),
-        onRest: () => {
-          remaining -= 1
-          if (remaining === 0) {
-            resolve()
-          }
-        },
-      }))
-    })
-  }
-
-  function startAndWaitPhase(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    api: any,
-    count: number,
-    factory: (i: number) => { burst: Record<string, unknown>; fall: Record<string, unknown> },
-  ) {
-    let remaining = count
-    return new Promise<void>((resolve) => {
-      api.start((i: number) => {
-        const { burst, fall } = factory(i)
-
-        return {
-          from: { x: 0, y: 0, s: 0.6, o: 0, r: 0 },
-
-          to: async (next: (props: Record<string, unknown>) => Promise<void>) => {
-            await next(burst)
-
+  const run = useCallback(async () => {
+    function startAndWait(
+      api: typeof rippleApi,
+      count: number,
+      factory: (i: number) => Record<string, unknown>,
+    ) {
+      let remaining = count
+      return new Promise<void>((resolve) => {
+        api.start((i: number) => ({
+          ...factory(i),
+          onRest: () => {
             remaining -= 1
             if (remaining === 0) {
               resolve()
             }
-
-            await next(fall)
           },
-        }
+        }))
       })
-    })
-  }
+    }
 
-  const run = useCallback(async () => {
-    // Reset
+    function startAndWaitPhase(
+      api: typeof pApi,
+      count: number,
+      factory: (i: number) => { burst: Record<string, unknown>; fall: Record<string, unknown> },
+    ) {
+      type NextFn = (props: {
+        x?: number
+        y?: number
+        s?: number
+        o?: number
+        r?: number
+        delay?: number
+        config?: { tension?: number; friction?: number }
+      }) => Promise<void>
+
+      let remaining = count
+      return new Promise<void>((resolve) => {
+        api.start(((i: number) => {
+          const { burst, fall } = factory(i)
+
+          return {
+            from: { x: 0, y: 0, s: 0.6, o: 0, r: 0 },
+            to: async (next: NextFn) => {
+              await next(burst)
+
+              remaining -= 1
+              if (remaining === 0) {
+                resolve()
+              }
+
+              await next(fall)
+            },
+          }
+        }) as Parameters<typeof api.start>[0])
+      })
+    }
+
+    function startAndWaitSingle(
+      api: typeof shackleApi | typeof glowApi,
+      config: Record<string, unknown>,
+    ) {
+      return new Promise<void>((resolve) => {
+        api.start({
+          ...config,
+          onRest: () => {
+            resolve()
+          },
+        })
+      })
+    }
+
+    // Reset to starting position
+    lockApi.set({ y: -220, rotZ: 6, scale: 2.45, sx: 1, sy: 1, opacity: 0 })
     glowApi.set({ g: 0, gs: 0.9 })
     shackleApi.set({ a: -42 })
     rippleApi.set(() => ({ s: 0.2, o: 0 }))
     pApi.set(() => ({ x: 0, y: 0, s: 0.6, o: 0, r: 0 }))
 
     // Drop (big -> normal)
-    await lockApi.start({
-      from: { y: -220, rotZ: 6, scale: 2.45, sx: 1, sy: 1, opacity: 0 },
+    lockApi.start({
       to: { y: 0, rotZ: 0, scale: 1, sx: 1, sy: 1, opacity: 1 },
       config: { tension: 230, friction: 16 },
     })
 
     // Impact squish
-    await lockApi.start({
+    lockApi.start({
       to: async (next) => {
         await next({ sx: 1.22, sy: 0.78, config: { tension: 900, friction: 26 } })
         await next({ sx: 0.96, sy: 1.05, config: { tension: 520, friction: 18 } })
@@ -166,33 +190,26 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260 })
     // ACTUALLY wait for splash to finish
     await Promise.all([ripplesDone, particlesDone])
 
-    // --- NOW close the shackle immediately ---
-    await shackleApi.start({
+    // Close the shackle and wait for it to complete
+    await startAndWaitSingle(shackleApi, {
       to: { a: 0 },
       config: { tension: 520, friction: 32, clamp: true },
     })
 
-    // Keyhole glow pulse
-    await glowApi.start({
-      to: async (next) => {
-        await next({ g: 0.95, gs: 1.25, config: { tension: 260, friction: 16 } })
-        await next({ g: 0.55, gs: 1.05, config: { tension: 160, friction: 22 } })
-        await next({ g: 0.75, gs: 1.12, config: { tension: 160, friction: 22 } })
-      },
-    })
-
-    // Call onComplete when animation finishes
+    hasPlayedRef.current = true
     if (onComplete) {
       onComplete()
     }
   }, [glowApi, shackleApi, rippleApi, pApi, lockApi, onComplete])
 
   useEffect(() => {
-    run()
-  }, [run])
+    if (play && !hasPlayedRef.current) {
+      run()
+    }
+  }, [play, run])
 
   const svgSize = size
-  const containerSize = Math.min(size * 1.38, 76 * (size / 260))
+  const containerSize = size
 
   return (
     <div
@@ -212,10 +229,10 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260 })
           key={i}
           style={{
             position: "absolute",
-            width: "76%",
-            height: "76%",
+            width: "100%",
+            aspectRatio: "1/1",
             left: "50%",
-            top: "58%",
+            top: "66%",
             borderRadius: 999,
             border: i === 0 ? "2px solid rgba(0,0,0,0.22)" : "2px solid rgba(0,0,0,0.13)",
             transform: to([spr.s], (s) => `translate(-50%, -50%) scale(${s})`),
@@ -232,7 +249,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260 })
           style={{
             position: "absolute",
             left: "50%",
-            top: "58%",
+            top: "66%",
             width: 10,
             height: 10,
             borderRadius: 999,
@@ -268,7 +285,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260 })
 
 function LockSVG({
   shackle,
-  glow,
+  glow: _glow,
   size,
 }: {
   shackle: { a: SpringValue<number> }
@@ -312,6 +329,7 @@ function LockSVG({
       `}</style>
 
       {/* Body */}
+      <rect x="2.45" y="11.05" width="19.09" height="11.45" fill="white" />
       <rect className="stroke" x="2.45" y="11.05" width="19.09" height="11.45" />
 
       {/* Shackle (clean close) */}
@@ -326,19 +344,6 @@ function LockSVG({
       {/* Keyhole */}
       <circle className="stroke" cx="12" cy="15.82" r="0.95" />
       <line className="stroke" x1="12" y1="19.64" x2="12" y2="16.77" />
-
-      {/* Glow */}
-      <animated.circle
-        cx="12"
-        cy="15.9"
-        r="3.1"
-        style={{
-          fill: "rgba(0,0,0,0.12)",
-          opacity: glow.g,
-          transformOrigin: "12px 15.9px",
-          transform: glow.gs.to((s: number) => `scale(${s})`),
-        }}
-      />
     </svg>
   )
 }

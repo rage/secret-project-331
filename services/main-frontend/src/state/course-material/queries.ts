@@ -59,6 +59,16 @@ export const examQueryAtom = atomWithQuery((get) => {
 })
 
 /**
+ * Reloads the current page data by invalidating course-page queries.
+ * Use this when page content needs to be refreshed (e.g., after locking a chapter).
+ */
+export async function reloadCurrentPageData(queryClient: QueryClient) {
+  await queryClient.invalidateQueries({
+    queryKey: [QUERY_KEYS.MATERIAL_ROOT],
+  })
+}
+
+/**
  * Invalidates all course material state related queries (pages, exams, etc).
  * Use this when settings (like language or cohort) change.
  */

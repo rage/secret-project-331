@@ -304,7 +304,6 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   // eslint-disable-next-line i18next/no-literal-string
   const [lockState, setLockState] = useState<LockState>("idle")
   const [showAnimation, setShowAnimation] = useState(false)
-  const [hasLockedInSession, setHasLockedInSession] = useState(false)
 
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
@@ -313,7 +312,6 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const lockMutation = useMutation({
     mutationFn: () => lockChapter(chapterId),
     onSuccess: async () => {
-      setHasLockedInSession(true)
       // eslint-disable-next-line i18next/no-literal-string
       setLockState("locking")
       setShowAnimation(true)
@@ -329,8 +327,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     setShowAnimation(false)
   }
 
-  const _isLocked = getUserLocks.data?.some((lock) => lock.chapter_id === chapterId)
-  const isLockedForced = !hasLockedInSession ? false : _isLocked
+  const currentChapterIsLocked = getUserLocks.data?.some((lock) => lock.chapter_id === chapterId)
 
   if (getUserLocks.isError) {
     return <ErrorBanner variant={"readOnly"} error={getUserLocks.error} />
@@ -340,7 +337,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     return <Spinner variant={"medium"} />
   }
 
-  const shouldShowLockedView = lockState === "locked" || isLockedForced
+  const shouldShowLockedView = lockState === "locked" || currentChapterIsLocked
 
   return (
     <div

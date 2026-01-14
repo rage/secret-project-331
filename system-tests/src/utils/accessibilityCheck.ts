@@ -36,6 +36,17 @@ export default async function accessibilityCheck(
         ) {
           return
         }
+        // Screen reader announcement elements are intentionally positioned off-screen and don't need to be in landmarks
+        if (
+          violation.nodes.some(
+            (node) =>
+              node.html.includes("a11y-speak-intro-text") ||
+              node.target.includes("a11y-speak-intro-text"),
+          ) &&
+          violation.id === "region"
+        ) {
+          return
+        }
         if (axeSkip && axeSkip.find((skippable) => skippable === violation.id)) {
           return
         } else {

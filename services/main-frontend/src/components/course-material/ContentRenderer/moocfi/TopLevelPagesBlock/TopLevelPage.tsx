@@ -44,7 +44,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
       {getTopLevelPages.isSuccess && courseSlug && organizationSlug && (
         <>
           {getTopLevelPages.data && (
-            <Wrapper>
+            <Wrapper data-testid="top-level-pages-container">
               <h2
                 className={css`
                   font-family: ${headingFont};

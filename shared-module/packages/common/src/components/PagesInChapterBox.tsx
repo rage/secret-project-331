@@ -97,6 +97,7 @@ const PagesInChapterBox: React.FC<React.PropsWithChildren<PagesInChapterBoxProps
       <>
         <Link
           href={props.url}
+          data-testid={`page-in-chapter-link-${props.chapterIndex}`}
           className={css`
             color: #1c3b40;
             box-shadow: none;

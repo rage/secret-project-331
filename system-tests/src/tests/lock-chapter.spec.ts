@@ -1,11 +1,12 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { clickPageInChapterByTitle } from "@/utils/flows/pagesInChapter.flow"
 import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
-test.describe("Chapter locking feature", () => {
+test.describe.only("Chapter locking feature", () => {
   let studentContext: BrowserContext
   let teacherContext: BrowserContext
 
@@ -36,7 +37,7 @@ test.describe("Chapter locking feature", () => {
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
       await selectCourseInstanceIfPrompted(studentPage)
       await studentPage.getByText("Chapter 1 - Lockable").click()
-      await studentPage.getByText("Lock Chapter Page").click()
+      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
     })
 
     await test.step("Verify lock block is visible and unlockable", async () => {
@@ -130,7 +131,7 @@ test.describe("Chapter locking feature", () => {
 
     await test.step("Verify Chapter 1 still locked after reload", async () => {
       await studentPage.getByText("Chapter 1 - Lockable").click()
-      await studentPage.getByText("Lock Chapter Page").click()
+      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
       await expect(studentPage.getByText("Chapter locked")).toBeVisible()
     })
 

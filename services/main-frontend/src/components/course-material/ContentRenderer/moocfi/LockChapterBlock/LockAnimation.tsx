@@ -125,6 +125,17 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
       })
     }
 
+    function waitForLockAnimation(api: typeof lockApi, config: Record<string, unknown>) {
+      return new Promise<void>((resolve) => {
+        api.start({
+          ...config,
+          onRest: () => {
+            resolve()
+          },
+        })
+      })
+    }
+
     // Reset to starting position
     lockApi.set({ y: -220, rotZ: 6, scale: 2.45, sx: 1, sy: 1, opacity: 0 })
     glowApi.set({ g: 0, gs: 0.9 })
@@ -132,31 +143,8 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
     rippleApi.set(() => ({ s: 0.2, o: 0 }))
     pApi.set(() => ({ x: 0, y: 0, s: 0.6, o: 0, r: 0 }))
 
-    // Drop (big -> normal)
-    lockApi.start({
-      to: { y: 0, rotZ: 0, scale: 1, sx: 1, sy: 1, opacity: 1 },
-      config: { tension: 230, friction: 16 },
-    })
-
-    // Impact squish
-    lockApi.start({
-      to: async (next) => {
-        await next({ sx: 1.22, sy: 0.78, config: { tension: 900, friction: 26 } })
-        await next({ sx: 0.96, sy: 1.05, config: { tension: 520, friction: 18 } })
-        await next({ sx: 1, sy: 1, config: { tension: 420, friction: 18 } })
-      },
-    })
-
-    // --- SPLASH: wait for ripples + particles to fully finish ---
-
-    const ripplesDone = startAndWait(rippleApi, RIPPLES, (i) => ({
-      from: { s: 0.18, o: i === 0 ? 0.7 : 0.45 },
-      to: { s: 4.2 + i * 1.1, o: 0 },
-      delay: i * 70,
-      config: { tension: 135, friction: 19, clamp: true },
-    }))
-
-    const particlesDone = startAndWaitPhase(pApi, PARTICLES, () => {
+    // Start particles immediately (don't wait for them)
+    startAndWaitPhase(pApi, PARTICLES, () => {
       const a = Math.random() * Math.PI * 2
       const speed = 200 + Math.random() * 320
       const up = 210 + Math.random() * 260
@@ -187,8 +175,31 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
       }
     })
 
-    // ACTUALLY wait for splash to finish
-    await Promise.all([ripplesDone, particlesDone])
+    // Start drop animation
+    const dropDone = waitForLockAnimation(lockApi, {
+      to: { y: 0, rotZ: 0, scale: 1, sx: 1, sy: 1, opacity: 1 },
+      config: { tension: 230, friction: 16 },
+    })
+
+    // Start impact squish (will chain after drop)
+    waitForLockAnimation(lockApi, {
+      to: async (next: (props: Record<string, unknown>) => Promise<void>) => {
+        await next({ sx: 1.22, sy: 0.78, config: { tension: 900, friction: 26 } })
+        await next({ sx: 0.96, sy: 1.05, config: { tension: 520, friction: 18 } })
+        await next({ sx: 1, sy: 1, config: { tension: 420, friction: 18 } })
+      },
+    })
+
+    // Start ripples (don't wait for them)
+    startAndWait(rippleApi, RIPPLES, (i) => ({
+      from: { s: 0.18, o: i === 0 ? 0.7 : 0.45 },
+      to: { s: 4.2 + i * 1.1, o: 0 },
+      delay: i * 70,
+      config: { tension: 135, friction: 19, clamp: true },
+    }))
+
+    // Wait for drop to complete
+    await dropDone
 
     // Close the shackle and wait for it to complete
     await startAndWaitSingle(shackleApi, {

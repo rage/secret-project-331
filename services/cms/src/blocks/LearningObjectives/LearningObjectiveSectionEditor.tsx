@@ -1,3 +1,5 @@
+"use client"
+
 import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"

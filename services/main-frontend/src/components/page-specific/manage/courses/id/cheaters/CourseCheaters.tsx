@@ -1,21 +1,22 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { Gear } from "@vectopus/atlas-icons-react"
-import { useRouter } from "next/router"
+import { useSearchParams } from "next/navigation"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
+import CourseCheatersTabs from "./CourseCheatersTabs"
+
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import {
   deleteThresholdForModule,
   fetchCourseStructure,
   getAllThresholds,
   postThresholdForModule,
-} from "../../../../../../services/backend/courses"
-
-import CourseCheatersTabs from "./CourseCheatersTabs"
-
+} from "@/services/backend/courses"
 import { CourseModule, ThresholdData } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -26,6 +27,7 @@ import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const Header = styled.div`
   width: 100%;
@@ -36,13 +38,14 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
 }) => {
   const [archive, setArchive] = useState(false)
   const { t } = useTranslation()
-  const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (router.query.archive) {
-      setArchive(router.query.archive === "true")
+    const archiveParam = searchParams.get("archive")
+    if (archiveParam) {
+      setArchive(archiveParam === "true")
     }
-  }, [router.query.archive])
+  }, [searchParams])
 
   const courseStructureQuery = useQuery({
     queryKey: [`course-structure-${courseId}`],
@@ -361,14 +364,14 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       {}
       <TabLinkNavigation>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, archive: false } }}
+          url={{ pathname: window.location.pathname, query: { archive: false } }}
           isActive={!archive}
           // countHook={createPendingChangeRequestCountHook(courseId)}
         >
           {t("suspected-students")}
         </TabLink>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, archive: true } }}
+          url={{ pathname: window.location.pathname, query: { archive: true } }}
           isActive={archive}
         >
           {t("archived")}
@@ -382,4 +385,4 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   )
 }
 
-export default CourseCheaters
+export default withSuspenseBoundary(CourseCheaters)

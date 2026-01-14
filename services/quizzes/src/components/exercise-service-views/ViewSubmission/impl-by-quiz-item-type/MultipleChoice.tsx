@@ -1,3 +1,5 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -6,14 +8,14 @@ import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/ans
 import { ModelSolutionQuizItemMultiplechoice } from "../../../../../types/quizTypes/modelSolutionSpec"
 import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
-import { FlexDirection, sanitizeFlexDirection } from "../../../../util/css-sanitization"
-import { orderArrayWithId } from "../../../../util/randomizer"
 import ParsedText from "../../../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { FlexDirection, sanitizeFlexDirection } from "@/util/css-sanitization"
+import { orderArrayWithId } from "@/util/randomizer"
 
 const gradingOption = css`
   align-items: center;

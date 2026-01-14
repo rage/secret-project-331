@@ -1,13 +1,14 @@
+"use client"
+
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
 import React from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { updateCourse } from "../../../../../../../services/backend/courses"
-
 import ClosedSectionFields from "./ClosedSectionFields"
 
+import { updateCourse } from "@/services/backend/courses"
 import { Course, CourseUpdate } from "@/shared-module/common/bindings"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"

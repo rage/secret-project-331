@@ -1,6 +1,8 @@
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchFeedbackCount } from "../../services/backend/feedback"
+import { fetchFeedbackCount } from "@/services/backend/feedback"
 
 const createUnreadFeedbackCountHook = (courseId: string) => {
   const useFeedbackUnreadCount = () => {

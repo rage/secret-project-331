@@ -1,3 +1,5 @@
+"use client"
+
 import { createContext } from "react"
 
 const MessagePortContext = createContext<MessagePort | null>(null)

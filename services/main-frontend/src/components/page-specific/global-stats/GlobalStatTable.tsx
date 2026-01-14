@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { groupBy, mapValues, sortBy } from "lodash"
@@ -5,8 +7,7 @@ import Link from "next/link"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "../../tables/FullWidthTable"
-
+import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
   GlobalCourseModuleStatEntry,
   GlobalStatEntry,

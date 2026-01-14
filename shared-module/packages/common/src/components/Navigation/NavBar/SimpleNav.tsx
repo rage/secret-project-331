@@ -1,3 +1,5 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
@@ -46,7 +48,10 @@ const NavbarLogo = css`
   }
 `
 
-const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({ children }) => {
+const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({
+  children,
+  logoLinkUrl,
+}) => {
   const { t, i18n } = useTranslation()
 
   const makeTopLeftButtonToTemporarilyGoToMoocfi = true
@@ -55,15 +60,13 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({ childr
     // eslint-disable-next-line i18next/no-literal-string
     i18n?.language?.indexOf("fi") !== -1 ? "https://www.mooc.fi" : "https://www.mooc.fi/en"
 
+  const logoHref = logoLinkUrl ?? (makeTopLeftButtonToTemporarilyGoToMoocfi ? moocfiUrl : "/")
+
   return (
     <nav role="navigation" className={cx(Navbar)} aria-label={t("navigation-menu")}>
       <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
       <div className={cx(NavbarLogo)}>
-        <a
-          href={makeTopLeftButtonToTemporarilyGoToMoocfi ? moocfiUrl : "/"}
-          aria-label={t("home-page")}
-          role="button"
-        >
+        <a href={logoHref} aria-label={t("home-page")} role="button">
           <MOOCfi className={cx(StyledIcon)} />
         </a>
       </div>

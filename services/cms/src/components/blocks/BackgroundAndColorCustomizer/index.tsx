@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { BlockIcon } from "@wordpress/block-editor"
 import { ColorPalette, Notice, PanelBody, Placeholder } from "@wordpress/components"

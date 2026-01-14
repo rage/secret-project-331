@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
@@ -11,7 +13,6 @@ import { getStudentsByCountryTotals } from "@/services/backend/courses/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface Props {
@@ -122,4 +123,4 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(StudentsByCountryTotals))
+export default withErrorBoundary(StudentsByCountryTotals)

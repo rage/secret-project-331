@@ -1,10 +1,11 @@
+"use client"
+
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStatusPodLogs } from "../../../hooks/useStatusPodLogs"
-import { useStatusPods } from "../../../hooks/useStatusPods"
-
+import { useStatusPodLogs } from "@/hooks/useStatusPodLogs"
+import { useStatusPods } from "@/hooks/useStatusPods"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"

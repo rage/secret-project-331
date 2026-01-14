@@ -1,14 +1,17 @@
+"use client"
+
 import React, { ComponentClass, ComponentType, ErrorInfo } from "react"
 import { Translation } from "react-i18next"
+
+import ErrorBanner from "../components/ErrorBanner"
+
 interface ErrorBoundaryState {
   showTrace: boolean
   error?: string
   trace?: string
 }
 
-export default function withErrorBoundary<T>(
-  Component: ComponentType<React.PropsWithChildren<T>>,
-): ComponentClass<T> {
+export default function withErrorBoundary<T>(Component: ComponentType<T>): ComponentClass<T> {
   class ErrorBoundary extends React.Component<T, ErrorBoundaryState> {
     constructor(props: T) {
       super(props)
@@ -16,7 +19,12 @@ export default function withErrorBoundary<T>(
     }
 
     static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
-      return { showTrace: false, error: `${error}`, trace: undefined }
+      const errorObj = error instanceof Error ? error : new Error(String(error))
+      return {
+        showTrace: false,
+        error: errorObj.message,
+        trace: errorObj.stack,
+      }
     }
 
     componentDidCatch(error: Error, info: ErrorInfo) {
@@ -38,31 +46,29 @@ export default function withErrorBoundary<T>(
     }
 
     render() {
-      const { showTrace, error, trace } = this.state
+      const { error, trace } = this.state
 
       if (error) {
-        return (
+        const context = (
           <Translation>
             {(t) => (
               <>
-                <p>
-                  {t("error-part-of-page-has-crashed-error", { error })}
-                  {Component.displayName && <>({Component.displayName})</>}
-                </p>
-                {trace && (
-                  <>
-                    <button onClick={() => this.setState({ showTrace: !showTrace })}>
-                      {showTrace ? t("hide-trace") : t("show-trace")}
-                    </button>
-                    {showTrace && <pre>{trace}</pre>}
-                  </>
-                )}
+                {t("error-part-of-page-has-crashed-error", { error })}
+                {Component.displayName && <> ({Component.displayName})</>}
               </>
             )}
           </Translation>
         )
+        const structuredError =
+          trace !== undefined ? { message: error, stack: trace } : { message: error }
+
+        return (
+          <ErrorBanner variant="frontendCrash" error={structuredError} contextMessage={context} />
+        )
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: Shared module might have a diffrerent react version
       return <Component {...this.props} />
     }
   }

@@ -7,10 +7,12 @@ FROM (
         SELECT chatbot_name,
           id,
           course_id,
+          created_at,
           ROW_NUMBER() OVER (
             PARTITION by chatbot_name,
             course_id
-            ORDER BY course_id
+            ORDER BY created_at,
+              id
           ) AS row_num
         FROM chatbot_configurations
         WHERE deleted_at IS NULL

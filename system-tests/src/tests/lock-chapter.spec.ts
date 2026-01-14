@@ -50,7 +50,7 @@ test.describe.only("Chapter locking feature", () => {
       await expect(
         studentPage.getByText("Are you sure you want to lock this chapter?"),
       ).toBeVisible()
-      await studentPage.getByRole("button", { name: "Confirm" }).click()
+      await studentPage.getByRole("button", { name: "Yes" }).click()
       await studentPage.getByText("Chapter locked").waitFor()
       await expect(
         studentPage.getByText(

@@ -17,6 +17,7 @@ import { getChapterLockPreview, lockChapter } from "@/services/course-material/b
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseMaterialAtom } from "@/state/course-material"
 import { userChapterLocksQueryKey } from "@/state/course-material/queries"
 import { refetchViewAtom } from "@/state/course-material/selectors"
@@ -61,14 +62,82 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
       const preview = await getChapterLockPreview(chapterId)
       setIsLoadingPreview(false)
 
-      let message = t("lock-chapter-confirm-message")
+      let message: React.ReactNode = (
+        <div
+          className={css`
+            font-family: ${primaryFont};
+            line-height: 1.6;
+          `}
+        >
+          <p
+            className={css`
+              margin: 0 0 1rem 0;
+              color: ${baseTheme.colors.gray[700]};
+            `}
+          >
+            {t("lock-chapter-confirm-message")}
+          </p>
+        </div>
+      )
+
       if (preview.has_unreturned_exercises) {
-        const exerciseNames = preview.unreturned_exercises.map((e) => e.name).join(", ")
-        // eslint-disable-next-line i18next/no-literal-string
-        message = `${t("lock-chapter-confirm-message")}\n\n${t("lock-chapter-unreturned-warning", {
-          count: preview.unreturned_exercises_count,
-          exercises: exerciseNames,
-        })}`
+        message = (
+          <div
+            className={css`
+              font-family: ${primaryFont};
+              line-height: 1.6;
+            `}
+          >
+            <p
+              className={css`
+                margin: 0 0 1.5rem 0;
+                color: ${baseTheme.colors.gray[700]};
+              `}
+            >
+              {t("lock-chapter-confirm-message")}
+            </p>
+            <div
+              className={css`
+                padding: 1rem;
+                background-color: ${baseTheme.colors.yellow[50]};
+                border-left: 4px solid ${baseTheme.colors.yellow[500]};
+                border-radius: 4px;
+                margin-top: 1rem;
+              `}
+            >
+              <p
+                className={css`
+                  margin: 0 0 0.5rem 0;
+                  font-weight: 600;
+                  color: ${baseTheme.colors.gray[900]};
+                `}
+              >
+                {t("lock-chapter-unreturned-warning-title")}
+              </p>
+              <p
+                className={css`
+                  margin: 0 0 0.75rem 0;
+                  color: ${baseTheme.colors.gray[700]};
+                `}
+              >
+                {t("lock-chapter-unreturned-warning-message", {
+                  count: preview.unreturned_exercises_count,
+                })}
+              </p>
+              <ul
+                className={css`
+                  margin: 0;
+                  padding-left: 1.5rem;
+                  color: ${baseTheme.colors.gray[700]};
+                `}
+              >
+                {preview.unreturned_exercises.map((exercise) => (
+                  <li key={exercise.id}>{exercise.name}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )
       }
 
       const confirmed = await confirm(message, t("lock-chapter-confirm-title"))

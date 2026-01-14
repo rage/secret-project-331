@@ -17,20 +17,20 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
   const hasPlayedRef = useRef(false)
 
   // DROP: starts huge (close to camera) then shrinks as it drops into place
-  // If already played (play=true but hasPlayedRef would be true), start at final state
+  // Initialize at starting position (hidden) so animation can begin immediately
   const [lock, lockApi] = useSpring(() => ({
-    y: 0,
-    rotZ: 0,
-    scale: 1,
+    y: -220,
+    rotZ: 6,
+    scale: 2.45,
     sx: 1,
     sy: 1,
-    opacity: 1,
+    opacity: 0,
     config: { tension: 230, friction: 16 },
   }))
 
   // Shackle angle (open -> closed)
   const [shackle, shackleApi] = useSpring(() => ({
-    a: 0,
+    a: -42,
     config: { tension: 520, friction: 32, clamp: true },
   }))
 
@@ -294,6 +294,11 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
   )
 }
 
+/**
+ * Lock SVG icon from Atlas Icons by Vectopus
+ * License: MIT
+ * Source: https://github.com/Vectopus/Atlas-icons-react
+ */
 function LockSVG({
   shackle,
   glow: _glow,

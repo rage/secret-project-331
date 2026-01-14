@@ -47,6 +47,10 @@ test.describe.only("Chapter locking feature", () => {
 
     await test.step("Lock Chapter 1", async () => {
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
+      await expect(
+        studentPage.getByText("Are you sure you want to lock this chapter?"),
+      ).toBeVisible()
+      await studentPage.getByRole("button", { name: "Confirm" }).click()
       await studentPage.getByText("Chapter locked").waitFor()
       await expect(
         studentPage.getByText(
@@ -130,6 +134,10 @@ test.describe.only("Chapter locking feature", () => {
 
     await test.step("Lock Chapter 2", async () => {
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
+      await expect(
+        studentPage.getByText("Are you sure you want to lock this chapter?"),
+      ).toBeVisible()
+      await studentPage.getByRole("button", { name: "Confirm" }).click()
       await studentPage.getByText("Chapter locked").waitFor()
       await expect(
         studentPage

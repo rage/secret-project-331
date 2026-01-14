@@ -4,6 +4,7 @@ import { Dictionary } from "lodash"
 import { courseMaterialClient } from "./courseMaterialClient"
 
 import {
+  ChapterLockPreview,
   ChaptersWithStatus,
   ChatbotConversation,
   ChatbotConversationInfo,
@@ -62,6 +63,7 @@ import {
   UserModuleCompletionStatus,
 } from "@/shared-module/common/bindings"
 import {
+  isChapterLockPreview,
   isChaptersWithStatus,
   isChatbotConversation,
   isChatbotConversationInfo,
@@ -272,6 +274,11 @@ export const fetchUserChapterInstanceChapterProgress = async (
     `/course-instances/${courseInstanceId}/chapters/${chapterId}/progress`,
   )
   return validateResponse(response, isUserCourseInstanceChapterProgress)
+}
+
+export const getChapterLockPreview = async (chapterId: string): Promise<ChapterLockPreview> => {
+  const response = await courseMaterialClient.get(`/chapters/${chapterId}/lock-preview`)
+  return validateResponse(response, isChapterLockPreview)
 }
 
 export const lockChapter = async (chapterId: string): Promise<UserChapterLock> => {

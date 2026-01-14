@@ -3,6 +3,7 @@ import { css } from "@emotion/css"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 
@@ -12,9 +13,10 @@ import LockChapterLockedView from "./LockChapterLockedView"
 import LockChapterUnlockedView from "./LockChapterUnlockedView"
 
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import { lockChapter } from "@/services/course-material/backend"
+import { getChapterLockPreview, lockChapter } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { courseMaterialAtom } from "@/state/course-material"
 import { userChapterLocksQueryKey } from "@/state/course-material/queries"
 import { refetchViewAtom } from "@/state/course-material/selectors"
@@ -30,9 +32,12 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const queryClient = useQueryClient()
   const triggerRefetch = useSetAtom(refetchViewAtom)
+  const { confirm } = useDialog()
+  const { t } = useTranslation()
   // eslint-disable-next-line i18next/no-literal-string
   const [lockState, setLockState] = useState<LockState>("idle")
   const [showAnimation, setShowAnimation] = useState(false)
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false)
 
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
@@ -49,6 +54,32 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
       })
     },
   })
+
+  const handleLock = async () => {
+    setIsLoadingPreview(true)
+    try {
+      const preview = await getChapterLockPreview(chapterId)
+      setIsLoadingPreview(false)
+
+      let message = t("lock-chapter-confirm-message")
+      if (preview.has_unreturned_exercises) {
+        const exerciseNames = preview.unreturned_exercises.map((e) => e.name).join(", ")
+        // eslint-disable-next-line i18next/no-literal-string
+        message = `${t("lock-chapter-confirm-message")}\n\n${t("lock-chapter-unreturned-warning", {
+          count: preview.unreturned_exercises_count,
+          exercises: exerciseNames,
+        })}`
+      }
+
+      const confirmed = await confirm(message, t("lock-chapter-confirm-title"))
+      if (confirmed) {
+        lockMutation.mutate()
+      }
+    } catch (error) {
+      setIsLoadingPreview(false)
+      throw error
+    }
+  }
 
   const handleAnimationComplete = async () => {
     // eslint-disable-next-line i18next/no-literal-string
@@ -83,8 +114,9 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
         <LockChapterLoadingView />
       ) : (
         <LockChapterUnlockedView
-          onLock={() => lockMutation.mutate()}
+          onLock={handleLock}
           isLocking={lockMutation.isPending}
+          isLoadingPreview={isLoadingPreview}
           error={lockMutation.error as Error | null}
         />
       )}

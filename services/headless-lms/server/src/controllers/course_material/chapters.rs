@@ -80,6 +80,39 @@ async fn get_chapters_pages_without_main_frontpage(
 }
 
 /**
+GET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock chapter
+
+Returns information about unreturned exercises in the chapter before locking.
+**/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_chapter_lock_preview(
+    chapter_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<models::chapters::ChapterLockPreview>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Chapter(*chapter_id),
+    )
+    .await?;
+
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let preview = models::chapters::get_chapter_lock_preview(
+        &mut conn,
+        *chapter_id,
+        user.id,
+        chapter.course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(preview))
+}
+
+/**
 POST `/api/v0/course-material/chapters/:chapter_id/lock` - Lock chapter (mark as done)
 
 Locks a chapter for the authenticated user (marks it as done). If the chapter is already locked, returns the existing lock record.
@@ -126,6 +159,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{chapter_id}/pages-exclude-mainfrontpage",
         web::get().to(get_chapters_pages_without_main_frontpage),
+    )
+    .route(
+        "/{chapter_id}/lock-preview",
+        web::get().to(get_chapter_lock_preview),
     )
     .route("/{chapter_id}/lock", web::post().to(lock_chapter));
 }

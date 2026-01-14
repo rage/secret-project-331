@@ -61,6 +61,8 @@ fn models(target: &mut File) {
         chapters::ChapterAvailability,
         chapters::UserChapterProgress,
         chapters::CourseUserInfo,
+        chapters::ChapterLockPreview,
+        chapters::UnreturnedExercise,
 
         chatbot_configurations::ChatbotConfiguration,
         chatbot_configurations::NewChatbotConf,

@@ -755,6 +755,71 @@ pub async fn fetch_course_users(
     Ok(rows)
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[cfg_attr(feature = "ts_rs", ts(export))]
+pub struct UnreturnedExercise {
+    pub id: Uuid,
+    pub name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[cfg_attr(feature = "ts_rs", ts(export))]
+pub struct ChapterLockPreview {
+    pub has_unreturned_exercises: bool,
+    pub unreturned_exercises_count: i32,
+    pub unreturned_exercises: Vec<UnreturnedExercise>,
+}
+
+pub async fn get_chapter_lock_preview(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<ChapterLockPreview> {
+    let exercises = crate::exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
+
+    if exercises.is_empty() {
+        return Ok(ChapterLockPreview {
+            has_unreturned_exercises: false,
+            unreturned_exercises_count: 0,
+            unreturned_exercises: Vec::new(),
+        });
+    }
+
+    let exercise_ids: Vec<Uuid> = exercises.iter().map(|e| e.id).collect();
+
+    let returned_exercise_ids =
+        crate::user_exercise_states::get_returned_exercise_ids_for_user_and_course(
+            conn,
+            &exercise_ids,
+            user_id,
+            course_id,
+        )
+        .await?;
+
+    let returned_ids: std::collections::HashSet<Uuid> = returned_exercise_ids.into_iter().collect();
+
+    let unreturned_exercises: Vec<UnreturnedExercise> = exercises
+        .into_iter()
+        .filter(|e| !returned_ids.contains(&e.id))
+        .map(|e| UnreturnedExercise {
+            id: e.id,
+            name: e.name,
+        })
+        .collect();
+
+    let count = unreturned_exercises.len() as i32;
+    let has_unreturned = count > 0;
+
+    Ok(ChapterLockPreview {
+        has_unreturned_exercises: has_unreturned,
+        unreturned_exercises_count: count,
+        unreturned_exercises,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

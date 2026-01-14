@@ -11,12 +11,14 @@ import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 interface LockChapterUnlockedViewProps {
   onLock: () => void
   isLocking: boolean
+  isLoadingPreview: boolean
   error: Error | null
 }
 
 const LockChapterUnlockedView: React.FC<LockChapterUnlockedViewProps> = ({
   onLock,
   isLocking,
+  isLoadingPreview,
   error,
 }) => {
   const { t } = useTranslation()
@@ -90,12 +92,16 @@ const LockChapterUnlockedView: React.FC<LockChapterUnlockedViewProps> = ({
           variant="primary"
           size="large"
           onClick={onLock}
-          disabled={isLocking}
+          disabled={isLocking || isLoadingPreview}
           className={css`
             width: 100%;
           `}
         >
-          {isLocking ? t("locking-chapter") : t("lock-chapter")}
+          {isLoadingPreview
+            ? t("lock-chapter-checking")
+            : isLocking
+              ? t("locking-chapter")
+              : t("lock-chapter")}
         </Button>
         {error && <ErrorBanner variant={"readOnly"} error={error} />}
       </div>

@@ -237,6 +237,17 @@ export interface CourseUserInfo {
   course_instance: string | null
 }
 
+export interface ChapterLockPreview {
+  has_unreturned_exercises: boolean
+  unreturned_exercises_count: number
+  unreturned_exercises: Array<UnreturnedExercise>
+}
+
+export interface UnreturnedExercise {
+  id: string
+  name: string
+}
+
 export interface ChatbotConfiguration {
   id: string
   created_at: string

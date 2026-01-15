@@ -562,7 +562,7 @@ const ExerciseBlock: React.FC<
           </div>
         </div>
 
-        {chapterLockingEnabled && getCourseMaterialExercise.data && (
+        {chapterLockingEnabled && getCourseMaterialExercise.data && !isChapterLocked && (
           <div
             className={css`
               padding: 0 1.5rem;
@@ -622,7 +622,8 @@ const ExerciseBlock: React.FC<
               </DeadlineText>
             ))}
           {(getCourseMaterialExercise.data.peer_or_self_review_config ||
-            getCourseMaterialExercise.data.should_show_reset_message) &&
+            getCourseMaterialExercise.data.should_show_reset_message ||
+            reviewingStage === "WaitingForManualGrading") &&
             gradingState &&
             reviewingStage && (
               <GradingState

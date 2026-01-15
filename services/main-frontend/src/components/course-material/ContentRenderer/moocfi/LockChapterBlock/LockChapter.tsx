@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -171,6 +172,8 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
 
   const currentChapterStatus = getUserLocks.data?.find((status) => status.chapter_id === chapterId)
   const currentChapterIsLocked = currentChapterStatus?.status === "completed_and_locked"
+  const currentChapterIsNotAccessible =
+    !currentChapterStatus || currentChapterStatus.status === "not_unlocked_yet"
 
   if (getUserLocks.isError) {
     return <ErrorBanner variant={"readOnly"} error={getUserLocks.error} />
@@ -191,6 +194,62 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     >
       {shouldShowLockedView ? (
         <LockChapterLockedView blockProps={blockProps} />
+      ) : currentChapterIsNotAccessible ? (
+        <div
+          className={css`
+            background: ${baseTheme.colors.clear[100]};
+            border: 1px solid ${baseTheme.colors.gray[300]};
+            border-radius: 8px;
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            text-align: center;
+          `}
+        >
+          <div
+            className={css`
+              color: ${baseTheme.colors.gray[600]};
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            `}
+          >
+            <Padlock size={48} />
+          </div>
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              max-width: 500px;
+            `}
+          >
+            <h3
+              className={css`
+                margin: 0;
+                font-family: ${primaryFont};
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[700]};
+              `}
+            >
+              {t("lock-chapter-title")}
+            </h3>
+            <p
+              className={css`
+                margin: 0;
+                font-family: ${primaryFont};
+                font-size: 0.9375rem;
+                line-height: 1.6;
+                color: ${baseTheme.colors.gray[600]};
+              `}
+            >
+              {t("chapter-locked-complete-previous")}
+            </p>
+          </div>
+        </div>
       ) : lockState === "locking" ? (
         <LockChapterLoadingView />
       ) : (

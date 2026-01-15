@@ -1,3 +1,5 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import type { ColumnDef } from "@tanstack/react-table"

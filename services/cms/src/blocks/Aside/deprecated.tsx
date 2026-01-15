@@ -1,4 +1,5 @@
 "use client"
+
 /* eslint-disable i18next/no-literal-string */
 import { BlockDeprecation, createBlock } from "@wordpress/blocks"
 import { omit } from "lodash"

@@ -1,4 +1,5 @@
 "use client"
+
 // This page is not translated because this page is a development tool and using different languages here would just create confusing terminology and weird language.
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"

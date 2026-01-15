@@ -1,4 +1,5 @@
 "use client"
+
 /* eslint-disable i18next/no-literal-string */
 export const countryList: {
   label: string

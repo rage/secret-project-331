@@ -26,9 +26,13 @@ test.describe("Chatbot settings testing", () => {
   })
 
   test("Editing a chatbot", async ({ page }) => {
-    await page.getByRole("button", { name: "Edit" }).first().click()
+    await page
+      .getByRole("listitem")
+      .filter({ hasText: "Chatbot 1 Edit" })
+      .getByRole("button", { name: "Edit" })
+      .click()
     await page.getByRole("textbox", { name: "Name" }).click()
-    await page.getByRole("textbox", { name: "Name" }).fill("Chatbot 1")
+    await page.getByRole("textbox", { name: "Name" }).fill("Chatbot 2")
     await page.getByRole("button", { name: "Save" }).click()
     await page.getByText("Advanced settings").waitFor()
 
@@ -56,7 +60,7 @@ test.describe("Chatbot settings testing", () => {
   test("Deleting a chatbot", async ({ page }) => {
     await page
       .getByRole("listitem")
-      .filter({ hasText: "Chatbot 1 Edit" })
+      .filter({ hasText: "Chatbot 2 Edit" })
       .getByRole("button", { name: "Edit" })
       .click()
     await page.getByText("Advanced settings").waitFor()

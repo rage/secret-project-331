@@ -1,4 +1,5 @@
 "use client"
+
 import React from "react"
 
 import IllustrationCard from "./IllustrationCard"

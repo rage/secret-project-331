@@ -1,4 +1,5 @@
 "use client"
+
 import { UseQueryResult } from "@tanstack/react-query"
 
 import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "../useCourseExercisesAndCountAnswersRequitingAttentionQuery"

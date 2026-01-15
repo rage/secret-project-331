@@ -1,4 +1,5 @@
 "use client"
+
 import useCommonKeyboardShortcuts from "../hooks/useCommonKeyboardShortCuts"
 
 const CommonKeyboardShortcuts: React.FC = () => {

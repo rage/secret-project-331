@@ -1,4 +1,5 @@
 "use client"
+
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 
 import { fetchCourseExercisesAndCountOfAnswersRequiringAttention } from "../services/backend/courses"

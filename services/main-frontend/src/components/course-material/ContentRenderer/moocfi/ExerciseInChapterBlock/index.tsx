@@ -1,4 +1,5 @@
 "use client"
+
 import styled from "@emotion/styled"
 import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"

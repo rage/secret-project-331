@@ -1053,7 +1053,6 @@ GET `/api/v0/course-material/courses/:course_id/user-chapter-locks` - Get user's
 
 Returns all chapters that the authenticated user has unlocked or completed for the specified course.
 **/
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_chapter_locks(
     course_id: web::Path<Uuid>,

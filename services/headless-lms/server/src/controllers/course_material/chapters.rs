@@ -86,7 +86,6 @@ GET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock c
 
 Returns information about unreturned exercises in the chapter before locking.
 **/
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_chapter_lock_preview(
     chapter_id: web::Path<Uuid>,
@@ -126,7 +125,6 @@ Validates that:
 - Moves all exercises to manual review
 - Unlocks next chapters for the user
 **/
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn lock_chapter(
     chapter_id: web::Path<Uuid>,

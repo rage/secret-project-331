@@ -7,7 +7,6 @@ use crate::prelude::*;
 /**
 GET `/api/v0/cms/chapters/{course_id}/all-chapters-for-course` - Gets all chapters with a course_id
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_chapters_by_course_id(
     course_id: web::Path<Uuid>,

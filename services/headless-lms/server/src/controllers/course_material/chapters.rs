@@ -148,8 +148,13 @@ async fn lock_chapter(
         ));
     }
 
+    let previous_chapters =
+        models::chapters::get_previous_chapters_in_module(&mut conn, *chapter_id).await?;
+
+    let mut tx = conn.begin().await?;
+
     let current_status =
-        user_chapter_locking_statuses::get_status(&mut conn, user.id, *chapter_id).await?;
+        user_chapter_locking_statuses::get_status(&mut tx, user.id, *chapter_id).await?;
 
     match current_status {
         None => {
@@ -171,12 +176,9 @@ async fn lock_chapter(
         }
     }
 
-    let previous_chapters =
-        models::chapters::get_previous_chapters_in_module(&mut conn, *chapter_id).await?;
-
     for prev_chapter in previous_chapters {
         let prev_status =
-            user_chapter_locking_statuses::get_status(&mut conn, user.id, prev_chapter.id).await?;
+            user_chapter_locking_statuses::get_status(&mut tx, user.id, prev_chapter.id).await?;
 
         match prev_status {
             None | Some(ChapterLockingStatus::Unlocked) => {
@@ -194,8 +196,6 @@ async fn lock_chapter(
             }
         }
     }
-
-    let mut tx = conn.begin().await?;
 
     models::chapters::move_chapter_exercises_to_manual_review(
         &mut tx,

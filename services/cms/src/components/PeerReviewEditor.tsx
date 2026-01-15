@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useContext, useEffect, useMemo } from "react"
+import React, { useContext, useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -140,9 +140,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     enabled: !!courseId,
   })
 
-  const chapterId = pageContext?.page.chapter_id
-  const chapter = chapterId ? chaptersQuery.data?.find((c) => c.id === chapterId) : null
   const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
+  const isInitialMount = useRef(true)
 
   useEffect(() => {
     if (
@@ -154,14 +153,17 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   })
 
   useEffect(() => {
-    if (
-      chapterLockingEnabled &&
-      (exerciseAttributes.needs_peer_review || exerciseAttributes.needs_self_review)
-    ) {
-      setExerciseAttributes({
-        needs_peer_review: false,
-        needs_self_review: false,
-      })
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      if (
+        chapterLockingEnabled &&
+        (exerciseAttributes.needs_peer_review || exerciseAttributes.needs_self_review)
+      ) {
+        setExerciseAttributes({
+          needs_peer_review: false,
+          needs_self_review: false,
+        })
+      }
     }
   }, [
     chapterLockingEnabled,

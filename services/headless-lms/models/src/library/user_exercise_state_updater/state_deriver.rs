@@ -438,6 +438,7 @@ fn calculate_peer_review_weighted_points(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::courses::Course;
 
     mod derive_new_user_exercise_state {
         use chrono::TimeZone;

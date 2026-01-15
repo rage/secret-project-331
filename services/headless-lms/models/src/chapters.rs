@@ -931,6 +931,8 @@ pub async fn unlock_first_chapters_for_user(
 /// Unlocks the next chapter(s) for a user after they complete a chapter.
 /// If the completed chapter is the last in a base module (order_number == 0), unlocks the first chapter
 /// of all additional modules (order_number != 0). Otherwise, unlocks the next chapter in the same module.
+/// Note: If a module has no chapters with exercises, all chapters in that module will be unlocked.
+/// This is intentional to allow progression through content-only chapters.
 pub async fn unlock_next_chapters_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -972,6 +974,28 @@ pub async fn unlock_next_chapters_for_user(
             .filter(|m| m.order_number != 0)
             .collect();
 
+        let mut all_additional_module_chapter_ids = Vec::new();
+        for additional_module in &additional_modules {
+            let module_chapter_ids = get_for_module(conn, additional_module.id).await?;
+            all_additional_module_chapter_ids.extend(module_chapter_ids);
+        }
+
+        let all_exercises = if !all_additional_module_chapter_ids.is_empty() {
+            exercises::get_exercises_by_chapter_ids(conn, &all_additional_module_chapter_ids)
+                .await?
+        } else {
+            Vec::new()
+        };
+
+        let exercises_by_chapter: std::collections::HashMap<Uuid, Vec<_>> = all_exercises
+            .into_iter()
+            .fold(std::collections::HashMap::new(), |mut acc, ex| {
+                if let Some(ch_id) = ex.chapter_id {
+                    acc.entry(ch_id).or_insert_with(Vec::new).push(ex);
+                }
+                acc
+            });
+
         for additional_module in additional_modules {
             let module_chapter_ids = get_for_module(conn, additional_module.id).await?;
             let module_chapters = course_chapters(conn, course_id)
@@ -981,8 +1005,10 @@ pub async fn unlock_next_chapters_for_user(
                 .collect::<Vec<_>>();
 
             for chapter in &module_chapters {
-                let exercises = exercises::get_exercises_by_chapter_id(conn, chapter.id).await?;
-                let has_exercises = !exercises.is_empty();
+                let has_exercises = exercises_by_chapter
+                    .get(&chapter.id)
+                    .map(|exs| !exs.is_empty())
+                    .unwrap_or(false);
 
                 if has_exercises {
                     chapters_to_unlock.push(chapter.id);
@@ -995,6 +1021,7 @@ pub async fn unlock_next_chapters_for_user(
     } else {
         let all_chapters = course_chapters(conn, course_id).await?;
         let mut found_completed = false;
+        let mut candidate_chapter_ids = Vec::new();
 
         for chapter in &all_chapters {
             if chapter.course_module_id != completed_chapter.course_module_id {
@@ -1010,14 +1037,35 @@ pub async fn unlock_next_chapters_for_user(
                 continue;
             }
 
-            let exercises = exercises::get_exercises_by_chapter_id(conn, chapter.id).await?;
-            let has_exercises = !exercises.is_empty();
+            candidate_chapter_ids.push(chapter.id);
+        }
+
+        let all_exercises = if !candidate_chapter_ids.is_empty() {
+            exercises::get_exercises_by_chapter_ids(conn, &candidate_chapter_ids).await?
+        } else {
+            Vec::new()
+        };
+
+        let exercises_by_chapter: std::collections::HashMap<Uuid, Vec<_>> = all_exercises
+            .into_iter()
+            .fold(std::collections::HashMap::new(), |mut acc, ex| {
+                if let Some(ch_id) = ex.chapter_id {
+                    acc.entry(ch_id).or_insert_with(Vec::new).push(ex);
+                }
+                acc
+            });
+
+        for chapter_id in candidate_chapter_ids {
+            let has_exercises = exercises_by_chapter
+                .get(&chapter_id)
+                .map(|exs| !exs.is_empty())
+                .unwrap_or(false);
 
             if has_exercises {
-                chapters_to_unlock.push(chapter.id);
+                chapters_to_unlock.push(chapter_id);
                 break;
             } else {
-                chapters_to_unlock.push(chapter.id);
+                chapters_to_unlock.push(chapter_id);
             }
         }
     }

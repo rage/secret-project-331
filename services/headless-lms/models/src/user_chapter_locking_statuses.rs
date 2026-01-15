@@ -279,3 +279,187 @@ WHERE user_id = $1
         .map(|r| r.try_into())
         .collect::<ModelResult<Vec<_>>>()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::*;
+
+    #[tokio::test]
+    async fn get_status_returns_none_when_no_status_exists() {
+        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+        let chapter = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Test Chapter".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        let status = get_status(tx.as_mut(), user, chapter).await.unwrap();
+        assert_eq!(status, None);
+    }
+
+    #[tokio::test]
+    async fn unlock_chapter_creates_unlocked_status() {
+        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+        let chapter = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Test Chapter".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        let status = unlock_chapter(tx.as_mut(), user, chapter, course)
+            .await
+            .unwrap();
+        assert_eq!(status.status, ChapterLockingStatus::Unlocked);
+        assert_eq!(status.user_id, user);
+        assert_eq!(status.chapter_id, chapter);
+
+        let retrieved_status = get_status(tx.as_mut(), user, chapter).await.unwrap();
+        assert_eq!(retrieved_status, Some(ChapterLockingStatus::Unlocked));
+    }
+
+    #[tokio::test]
+    async fn complete_chapter_creates_completed_status() {
+        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+        let chapter = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Test Chapter".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        let status = complete_chapter(tx.as_mut(), user, chapter, course)
+            .await
+            .unwrap();
+        assert_eq!(status.status, ChapterLockingStatus::Completed);
+        assert_eq!(status.user_id, user);
+        assert_eq!(status.chapter_id, chapter);
+
+        let retrieved_status = get_status(tx.as_mut(), user, chapter).await.unwrap();
+        assert_eq!(retrieved_status, Some(ChapterLockingStatus::Completed));
+    }
+
+    #[tokio::test]
+    async fn unlock_then_complete_chapter_updates_status() {
+        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+        let chapter = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Test Chapter".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        unlock_chapter(tx.as_mut(), user, chapter, course)
+            .await
+            .unwrap();
+        let status = get_status(tx.as_mut(), user, chapter).await.unwrap();
+        assert_eq!(status, Some(ChapterLockingStatus::Unlocked));
+
+        complete_chapter(tx.as_mut(), user, chapter, course)
+            .await
+            .unwrap();
+        let status = get_status(tx.as_mut(), user, chapter).await.unwrap();
+        assert_eq!(status, Some(ChapterLockingStatus::Completed));
+    }
+
+    #[tokio::test]
+    async fn get_by_user_and_course_returns_all_statuses() {
+        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+        let chapter1 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 1".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+        let chapter2 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 2".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        unlock_chapter(tx.as_mut(), user, chapter1, course)
+            .await
+            .unwrap();
+        complete_chapter(tx.as_mut(), user, chapter2, course)
+            .await
+            .unwrap();
+
+        let statuses = get_by_user_and_course(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        assert_eq!(statuses.len(), 2);
+        assert!(
+            statuses
+                .iter()
+                .any(|s| s.chapter_id == chapter1 && s.status == ChapterLockingStatus::Unlocked)
+        );
+        assert!(
+            statuses
+                .iter()
+                .any(|s| s.chapter_id == chapter2 && s.status == ChapterLockingStatus::Completed)
+        );
+    }
+}

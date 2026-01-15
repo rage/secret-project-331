@@ -242,7 +242,10 @@ const ExerciseBlock: React.FC<
       const chapterStatus = chapterId
         ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
         : null
-      const isChapterLocked = chapterId && (chapterStatus?.status === "completed" || !chapterStatus)
+      const isChapterLocked =
+        chapterId &&
+        chapterLockingEnabled &&
+        (chapterStatus?.status === "completed" || !chapterStatus)
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       dispatch({
         type: "tryAgain",
@@ -307,7 +310,8 @@ const ExerciseBlock: React.FC<
   const chapterStatus = chapterId
     ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
     : null
-  const isChapterLocked = chapterId && (chapterStatus?.status === "completed" || !chapterStatus)
+  const isChapterLocked =
+    chapterId && chapterLockingEnabled && (chapterStatus?.status === "completed" || !chapterStatus)
 
   const isExam = !!courseMaterialState.examData
 

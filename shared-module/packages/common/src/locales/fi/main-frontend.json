@@ -460,6 +460,8 @@
   "exercise-repositories-processing-failed": "Processing failed",
   "exercise-task-content": "Tehtävän {{ exercise-number }} osion {{ task-number }} sisältö",
   "exercises-attempted": "Tehtäviä yritetty",
+  "exercises-done-through-locking-explanation": "Et saa pisteitä tästä tehtävästä ennen kuin lukitset luvun ja opettaja tarkistaa vastauksesi. Lukitse luku, kun olet tehnyt kaikki tehtävät, jotka haluat palauttaa.",
+  "exercises-done-through-locking-notification": "Huomio: Et saa pisteitä tämän luvun tehtävistä ennen kuin lukitset luvun ja opettaja tarkistaa vastauksesi.",
   "exercises-in-this-chapter": "Tehtävät tässä luvussa",
   "exit": "Poistu",
   "expand-all": "Laajenna kaikki",
@@ -1507,7 +1509,5 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "Olet suorittanut kurssin onnistuneesti! Saadaksesi opintopisteitä suorituksestasi, voit käyttää seuraavia linkkejä rekisteröidäksesi suorituksesi.",
   "your-code-code": "Koodisi on: {{code}}",
   "your-name": "Nimi",
-  "youtube-embed-error": "YouTube-videota ei voi ladata. YouTube-URL-osoite saattaa olla virheellinen.",
-  "exercises-done-through-locking-notification": "Huomio: Et saa pisteitä tämän luvun tehtävistä ennen kuin lukitset luvun ja opettaja tarkistaa vastauksesi.",
-  "exercises-done-through-locking-explanation": "Et saa pisteitä tästä tehtävästä ennen kuin lukitset luvun ja opettaja tarkistaa vastauksesi. Lukitse luku, kun olet tehnyt kaikki tehtävät, jotka haluat palauttaa."
+  "youtube-embed-error": "YouTube-videota ei voi ladata. YouTube-URL-osoite saattaa olla virheellinen."
 }

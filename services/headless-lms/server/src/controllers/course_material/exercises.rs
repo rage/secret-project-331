@@ -20,7 +20,7 @@ use models::{
             CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewSubmission,
         },
     },
-    user_chapter_locks, user_exercise_states,
+    user_chapter_locking_statuses, user_exercise_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -218,9 +218,12 @@ async fn post_submission(
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
     if let Some(chapter_id) = exercise.chapter_id {
-        let is_locked =
-            user_chapter_locks::is_chapter_locked_for_user(&mut conn, user.id, chapter_id).await?;
-        if is_locked {
+        let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if exercises_locked {
             return Err(ControllerError::new(
                 ControllerErrorType::Forbidden,
                 "The current chapter is locked, and you can no longer submit exercises."
@@ -266,9 +269,12 @@ async fn start_peer_or_self_review(
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
     if let Some(chapter_id) = exercise.chapter_id {
-        let is_locked =
-            user_chapter_locks::is_chapter_locked_for_user(&mut conn, user.id, chapter_id).await?;
-        if is_locked {
+        let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if exercises_locked {
             return Err(ControllerError::new(
                 ControllerErrorType::Forbidden,
                 "The current chapter is locked, and you can no longer submit exercises."
@@ -313,9 +319,12 @@ async fn submit_peer_or_self_review(
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
     if let Some(chapter_id) = exercise.chapter_id {
-        let is_locked =
-            user_chapter_locks::is_chapter_locked_for_user(&mut conn, user.id, chapter_id).await?;
-        if is_locked {
+        let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if exercises_locked {
             return Err(ControllerError::new(
                 ControllerErrorType::Forbidden,
                 "The current chapter is locked, and you can no longer submit exercises."

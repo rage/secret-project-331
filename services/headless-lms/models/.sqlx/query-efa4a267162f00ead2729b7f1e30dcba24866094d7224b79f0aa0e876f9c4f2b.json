@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id\n    ",
+  "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\n    ",
   "describe": {
     "columns": [
       {
@@ -122,6 +122,11 @@
         "ordinal": 23,
         "name": "closed_course_successor_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 24,
+        "name": "chapter_locking_enabled",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -153,8 +158,9 @@
       false,
       true,
       true,
-      true
+      true,
+      false
     ]
   },
-  "hash": "3c8ea41c688b6192065707f545bbd8bdb8e537ee2358e4fe1fd5bbee2e282bf2"
+  "hash": "efa4a267162f00ead2729b7f1e30dcba24866094d7224b79f0aa0e876f9c4f2b"
 }

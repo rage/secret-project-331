@@ -853,7 +853,7 @@ WHERE user_id = $1
     .await?;
     sqlx::query!(
         "
-UPDATE user_chapter_locks
+UPDATE user_chapter_locking_statuses
 SET deleted_at = now()
 WHERE user_id = $1
   AND course_id = $2

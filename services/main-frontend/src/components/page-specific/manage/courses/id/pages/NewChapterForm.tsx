@@ -28,7 +28,6 @@ interface Fields {
   opens_at: string | null
   deadline: string | null
   chapter_number: number
-  exercises_done_through_locking: boolean
 }
 
 const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = ({
@@ -54,7 +53,6 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
       chapter_number: chapterNumber,
       opens_at: null,
       deadline: null,
-      exercises_done_through_locking: false,
       ...initialData,
     },
   })
@@ -72,7 +70,6 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
       return updateChapter(initialData?.id, {
         ...data,
         course_module_id: initialData.course_module_id,
-        exercises_done_through_locking: data.exercises_done_through_locking,
       })
     },
     { notify: true, method: "POST" },
@@ -91,7 +88,6 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
           opens_at: data.opens_at ?? null,
           deadline: data.deadline ?? null,
           course_module_id: null,
-          exercises_done_through_locking: data.exercises_done_through_locking,
         })
       })}
       className={css`
@@ -162,43 +158,6 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
           {...register("deadline", { valueAsDate: true, required: false })}
         />
       </CheckboxFieldWrapper>
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin: 1rem 0;
-        `}
-      >
-        <input
-          type="checkbox"
-          {...register("exercises_done_through_locking")}
-          className={css`
-            width: 1.25rem;
-            height: 1.25rem;
-            cursor: pointer;
-          `}
-        />
-        <label
-          className={css`
-            font-family: ${primaryFont};
-            font-size: 0.9375rem;
-            cursor: pointer;
-          `}
-        >
-          {t("label-exercises-done-through-locking")}
-        </label>
-      </div>
-      <p
-        className={css`
-          margin: 0 0 1rem 0;
-          font-family: ${primaryFont};
-          font-size: 0.875rem;
-          color: ${baseTheme.colors.gray[600]};
-        `}
-      >
-        {t("label-exercises-done-through-locking-description")}
-      </p>
       <div>
         <Button variant="primary" size="medium" fullWidth disabled={!isValid || isSubmitting}>
           {newRecord ? t("button-text-create") : t("button-text-update")}

@@ -53,7 +53,7 @@ import {
   StudentExerciseSlideSubmissionResult,
   Term,
   TermUpdate,
-  UserChapterLock,
+  UserChapterLockingStatus,
   UserCourseChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseProgress,
@@ -101,7 +101,7 @@ import {
   isStudentCountry,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
-  isUserChapterLock,
+  isUserChapterLockingStatus,
   isUserCourseChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
   isUserCourseProgress,
@@ -281,14 +281,16 @@ export const getChapterLockPreview = async (chapterId: string): Promise<ChapterL
   return validateResponse(response, isChapterLockPreview)
 }
 
-export const lockChapter = async (chapterId: string): Promise<UserChapterLock> => {
+export const lockChapter = async (chapterId: string): Promise<UserChapterLockingStatus> => {
   const response = await courseMaterialClient.post(`/chapters/${chapterId}/lock`)
-  return validateResponse(response, isUserChapterLock)
+  return validateResponse(response, isUserChapterLockingStatus)
 }
 
-export const getUserChapterLocks = async (courseId: string): Promise<UserChapterLock[]> => {
+export const getUserChapterLocks = async (
+  courseId: string,
+): Promise<UserChapterLockingStatus[]> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/user-chapter-locks`)
-  return validateResponse(response, isArray(isUserChapterLock))
+  return validateResponse(response, isArray(isUserChapterLockingStatus))
 }
 
 export const fetchUserCourseInstanceChapterExercisesProgress = async (

@@ -166,6 +166,8 @@
   "chapter": "Chapter",
   "chapter-chapter-number": "Chapter {{number}}",
   "chapter-chapter-number-chapter-name": "Chapter {{chapterNumber}}: {{chapterName}}",
+  "chapter-completed-exercises-locked": "This chapter has been completed. You can no longer submit exercises.",
+  "chapter-locked-complete-previous": "Complete and lock the previous chapter to unlock exercises in this chapter.",
   "chapter-locked-description": "The current chapter is locked, and you can no longer submit exercises.",
   "chapter-locked-message": "Chapter locked",
   "chapter-progress": "Chapter progress",
@@ -460,6 +462,8 @@
   "exercise-repositories-processing-failed": "Processing failed",
   "exercise-task-content": "Exercise {{ exercise-number }}, task {{ task-number }} content",
   "exercises-attempted": "Exercises attempted",
+  "exercises-done-through-locking-explanation": "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer. Lock the chapter when you have completed all exercises you want to submit.",
+  "exercises-done-through-locking-notification": "Note: You will not receive points for exercises in this chapter until you lock the chapter and a teacher reviews your answers.",
   "exercises-in-this-chapter": "Exercises in this chapter",
   "exit": "Exit",
   "expand-all": "Expand all",
@@ -808,8 +812,6 @@
   "lock-chapter-unreturned-warning-message": "You have {{count}} exercise(s) in this chapter that you haven't returned yet. You can still lock the chapter, but you won't be able to submit these exercises after locking.",
   "lock-chapter-unreturned-warning-title": "Warning",
   "locking-chapter": "Locking chapter...",
-  "exercises-done-through-locking-notification": "Note: You will not receive points for exercises in this chapter until you lock the chapter and a teacher reviews your answers.",
-  "exercises-done-through-locking-explanation": "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer. Lock the chapter when you have completed all exercises you want to submit.",
   "log-scale-short": "Log",
   "login": "Log in",
   "login-description": "This site uses",
@@ -1511,7 +1513,5 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion.",
   "your-code-code": "Your code is: {{code}}",
   "your-name": "Your name",
-  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect.",
-  "exercises-done-through-locking-notification": "Note: You will not receive points for exercises in this chapter until you lock the chapter and a teacher reviews your answers.",
-  "exercises-done-through-locking-explanation": "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer. Lock the chapter when you have completed all exercises you want to submit."
+  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect."
 }

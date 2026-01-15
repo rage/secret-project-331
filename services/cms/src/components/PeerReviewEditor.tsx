@@ -9,8 +9,11 @@ import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
 import PageContext from "../contexts/PageContext"
-import { getCoursesDefaultCmsPeerOrSelfReviewConfiguration } from "../services/backend/courses"
 import { fetchAllChaptersByCourseId } from "../services/backend/chapters"
+import {
+  fetchCourseById,
+  getCoursesDefaultCmsPeerOrSelfReviewConfiguration,
+} from "../services/backend/courses"
 
 import {
   CmsPeerOrSelfReviewConfig,
@@ -130,11 +133,15 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     enabled: !!courseId,
   })
 
+  const courseQuery = useQuery({
+    queryKey: ["course", courseId],
+    queryFn: () => fetchCourseById(courseId),
+    enabled: !!courseId,
+  })
+
   const chapterId = pageContext?.page.chapter_id
-  const chapter = chapterId
-    ? chaptersQuery.data?.find((c) => c.id === chapterId)
-    : null
-  const exercisesDoneThroughLocking = chapter?.exercises_done_through_locking ?? false
+  const chapter = chapterId ? chaptersQuery.data?.find((c) => c.id === chapterId) : null
+  const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
 
   useEffect(() => {
     if (
@@ -147,7 +154,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   useEffect(() => {
     if (
-      exercisesDoneThroughLocking &&
+      chapterLockingEnabled &&
       (exerciseAttributes.needs_peer_review || exerciseAttributes.needs_self_review)
     ) {
       setExerciseAttributes({
@@ -155,7 +162,12 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         needs_self_review: false,
       })
     }
-  }, [exercisesDoneThroughLocking, exerciseAttributes.needs_peer_review, exerciseAttributes.needs_self_review, setExerciseAttributes])
+  }, [
+    chapterLockingEnabled,
+    exerciseAttributes.needs_peer_review,
+    exerciseAttributes.needs_self_review,
+    setExerciseAttributes,
+  ])
 
   const defaultCmsPeerOrSelfReviewConfig = useQuery({
     queryKey: [`course-default-peer-review-config-${courseId}`],
@@ -376,7 +388,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 setExerciseAttributes({ needs_peer_review: checked })
               }
               checked={peerReviewEnabled}
-              disabled={exercisesDoneThroughLocking}
+              disabled={chapterLockingEnabled}
             />
             <CheckBox
               label={t("add-self-review")}
@@ -384,9 +396,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 setExerciseAttributes({ needs_self_review: checked })
               }
               checked={selfReviewEnabled}
-              disabled={exercisesDoneThroughLocking}
+              disabled={chapterLockingEnabled}
             />
-            {exercisesDoneThroughLocking && (
+            {chapterLockingEnabled && (
               <p
                 className={css`
                   margin: 0.5rem 0 0 0;

@@ -70,7 +70,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
 
   const isChapterLocked: boolean = Boolean(
     chapterId &&
-      getUserLocks.data?.some((lock: { chapter_id: string }) => lock.chapter_id === chapterId),
+      (() => {
+        const chapterStatus = chapterId
+          ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+          : null
+        return chapterStatus?.status === "completed" || !chapterStatus
+      })(),
   )
 
   const peerOrSelfReviewData = query.data?.course_material_peer_or_self_review_data

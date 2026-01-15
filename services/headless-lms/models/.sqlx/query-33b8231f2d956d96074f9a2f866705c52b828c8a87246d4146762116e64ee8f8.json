@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM user_chapter_locks\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n        ",
+  "query": "\nINSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)\nVALUES ($1, $2, $3, 'completed'::chapter_locking_status, NULL)\nRETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\n        ",
   "describe": {
     "columns": [
       {
@@ -37,10 +37,16 @@
         "ordinal": 6,
         "name": "course_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "status!",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
+        "Uuid",
         "Uuid",
         "Uuid"
       ]
@@ -52,8 +58,9 @@
       true,
       false,
       false,
-      false
+      false,
+      null
     ]
   },
-  "hash": "16a3a6251e9021cbf35b6588afa90a9abfc3c4cc4d0d48cb2224a42dcfe01608"
+  "hash": "33b8231f2d956d96074f9a2f866705c52b828c8a87246d4146762116e64ee8f8"
 }

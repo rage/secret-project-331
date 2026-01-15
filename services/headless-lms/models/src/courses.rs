@@ -53,6 +53,7 @@ pub struct Course {
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
+    pub chapter_locking_enabled: bool,
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
@@ -77,6 +78,7 @@ pub struct CourseMaterialCourse {
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
+    pub chapter_locking_enabled: bool,
 }
 
 impl From<Course> for CourseMaterialCourse {
@@ -101,6 +103,7 @@ impl From<Course> for CourseMaterialCourse {
             closed_at: course.closed_at,
             closed_additional_message: course.closed_additional_message,
             closed_course_successor_id: course.closed_course_successor_id,
+            chapter_locking_enabled: course.chapter_locking_enabled,
         }
     }
 }
@@ -265,7 +268,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -305,7 +309,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -352,7 +357,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -411,7 +417,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -455,7 +462,8 @@ SELECT
     c.flagged_answers_threshold,
     c.closed_at,
     c.closed_additional_message,
-    c.closed_course_successor_id
+    c.closed_course_successor_id,
+    c.chapter_locking_enabled
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -524,7 +532,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE id = $1;
     "#,
@@ -635,7 +644,8 @@ SELECT courses.id,
   courses.flagged_answers_threshold,
   courses.closed_at,
   courses.closed_additional_message,
-  courses.closed_course_successor_id
+  courses.closed_course_successor_id,
+  courses.chapter_locking_enabled
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -704,6 +714,7 @@ pub struct CourseUpdate {
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
+    pub chapter_locking_enabled: bool,
 }
 
 pub async fn update_course(
@@ -726,8 +737,9 @@ SET name = $1,
   flagged_answers_threshold = $9,
   closed_at = $10,
   closed_additional_message = $11,
-  closed_course_successor_id = $12
-WHERE id = $13
+  closed_course_successor_id = $12,
+  chapter_locking_enabled = $13
+WHERE id = $14
 RETURNING id,
   name,
   created_at,
@@ -751,7 +763,8 @@ RETURNING id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
     "#,
         course_update.name,
         course_update.description,
@@ -765,6 +778,7 @@ RETURNING id,
         course_update.closed_at,
         course_update.closed_additional_message,
         course_update.closed_course_successor_id,
+        course_update.chapter_locking_enabled,
         course_id
     )
     .fetch_one(conn)
@@ -823,7 +837,8 @@ RETURNING id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
     "#,
         course_id
     )
@@ -859,7 +874,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -954,7 +970,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",
@@ -995,7 +1012,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -1057,7 +1075,8 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;

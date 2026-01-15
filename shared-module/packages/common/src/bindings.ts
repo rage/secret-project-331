@@ -148,7 +148,6 @@ export interface Chapter {
   deadline: string | null
   copied_from: string | null
   course_module_id: string
-  exercises_done_through_locking: boolean
 }
 
 export type ChapterStatus = "open" | "closed"
@@ -160,7 +159,6 @@ export interface ChapterUpdate {
   deadline: string | null
   opens_at: string | null
   course_module_id: string | null
-  exercises_done_through_locking: boolean
 }
 
 export interface ChapterWithStatus {
@@ -205,7 +203,6 @@ export interface NewChapter {
   opens_at: string | null
   deadline: string | null
   course_module_id: string | null
-  exercises_done_through_locking: boolean
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -667,6 +664,7 @@ export interface Course {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface CourseMaterialCourse {
@@ -688,6 +686,7 @@ export interface CourseMaterialCourse {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface CourseBreadcrumbInfo {
@@ -722,6 +721,7 @@ export interface CourseUpdate {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface NewCourse {
@@ -2245,7 +2245,7 @@ export interface TeacherGradingDecision {
   hidden: boolean | null
 }
 
-export interface UserChapterLock {
+export interface UserChapterLockingStatus {
   id: string
   created_at: string
   updated_at: string
@@ -2253,7 +2253,10 @@ export interface UserChapterLock {
   user_id: string
   chapter_id: string
   course_id: string
+  status: ChapterLockingStatus
 }
+
+export type ChapterLockingStatus = "unlocked" | "completed"
 
 export interface UserCourseExerciseServiceVariable {
   id: string

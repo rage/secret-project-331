@@ -31,6 +31,8 @@ pub(super) async fn load_required_data(
         peer_or_self_review_information,
         latest_teacher_grading_decision,
         user_exercise_slide_state_grading_summary,
+        chapter: _,
+        course: _,
     } = already_loaded_internal_dependencies;
 
     let loaded_user_exercise_state =
@@ -43,6 +45,16 @@ pub(super) async fn load_required_data(
             already_loaded_chapter
         } else {
             Some(crate::chapters::get_chapter(conn, chapter_id).await?)
+        }
+    } else {
+        None
+    };
+
+    let loaded_course = if let Some(course_id) = loaded_exercise.course_id {
+        if let Some(already_loaded_course) = already_loaded_internal_dependencies.course {
+            Some(already_loaded_course)
+        } else {
+            Some(crate::courses::get_course(conn, course_id).await?)
         }
     } else {
         None
@@ -71,6 +83,7 @@ pub(super) async fn load_required_data(
         .await?,
         current_user_exercise_state: loaded_user_exercise_state,
         chapter: loaded_chapter,
+        course: loaded_course,
     })
 }
 

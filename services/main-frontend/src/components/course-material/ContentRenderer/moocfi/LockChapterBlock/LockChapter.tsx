@@ -1,6 +1,7 @@
 "use client"
 import { css } from "@emotion/css"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,11 +13,9 @@ import LockChapterLoadingView from "./LockChapterLoadingView"
 import LockChapterLockedView from "./LockChapterLockedView"
 import LockChapterUnlockedView from "./LockChapterUnlockedView"
 
-import { useQuery } from "@tanstack/react-query"
-
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import { getChapterLockPreview, lockChapter } from "@/services/course-material/backend"
 import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
+import { getChapterLockPreview, lockChapter } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -46,7 +45,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
   const getUserLocks = useUserChapterLocks(courseId)
-  
+
   const chaptersQuery = useQuery({
     queryKey: ["chapters", courseId],
     queryFn: () => fetchAllChaptersByCourseId(courseId!),
@@ -54,10 +53,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   })
 
   const chapter = chaptersQuery.data?.find((c) => c.id === chapterId)
-
-  if (!chapter?.exercises_done_through_locking) {
-    return null
-  }
+  const course = courseMaterialState.course
 
   const lockMutation = useMutation({
     mutationFn: () => lockChapter(chapterId),
@@ -70,6 +66,10 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
       })
     },
   })
+
+  if (!course?.chapter_locking_enabled) {
+    return null
+  }
 
   const handleLock = async () => {
     setIsLoadingPreview(true)
@@ -173,7 +173,8 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     setShowAnimation(false)
   }
 
-  const currentChapterIsLocked = getUserLocks.data?.some((lock) => lock.chapter_id === chapterId)
+  const currentChapterStatus = getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+  const currentChapterIsLocked = currentChapterStatus?.status === "completed"
 
   if (getUserLocks.isError) {
     return <ErrorBanner variant={"readOnly"} error={getUserLocks.error} />

@@ -47,7 +47,11 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()
   const courseSlug = params?.courseSlug
   const organizationSlug = params?.organizationSlug
-  const lockedChapterIds = new Set(getUserLocks.data?.map((lock) => lock.chapter_id) ?? [])
+  const lockedChapterIds = new Set(
+    getUserLocks.data
+      ?.filter((status) => status.status === "completed")
+      .map((status) => status.chapter_id) ?? [],
+  )
 
   return (
     <div

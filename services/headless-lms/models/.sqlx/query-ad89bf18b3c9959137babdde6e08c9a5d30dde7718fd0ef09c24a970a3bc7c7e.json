@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM user_chapter_locks\nWHERE user_id = $1\n  AND chapter_id = $2\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\nFROM user_chapter_locking_statuses\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -37,6 +37,11 @@
         "ordinal": 6,
         "name": "course_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "status!",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -52,8 +57,9 @@
       true,
       false,
       false,
-      false
+      false,
+      null
     ]
   },
-  "hash": "0f9f6167eb4201b138579b4a412d63e6ca9b2f1e59e48aa7b90d8e512c145764"
+  "hash": "ad89bf18b3c9959137babdde6e08c9a5d30dde7718fd0ef09c24a970a3bc7c7e"
 }

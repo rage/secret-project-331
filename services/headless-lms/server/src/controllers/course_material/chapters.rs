@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course_material/chapters`.
 
+use models::chapters::ChapterLockPreview;
 use models::pages::{Page, PageVisibility, PageWithExercises};
-use models::user_chapter_locks;
+use models::user_chapter_locking_statuses::{self, ChapterLockingStatus};
 
 use crate::prelude::*;
 
@@ -90,7 +91,7 @@ async fn get_chapter_lock_preview(
     chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<models::chapters::ChapterLockPreview>> {
+) -> ControllerResult<web::Json<ChapterLockPreview>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -113,13 +114,16 @@ async fn get_chapter_lock_preview(
 }
 
 /**
-POST `/api/v0/course-material/chapters/:chapter_id/lock` - Lock chapter (mark as done)
+POST `/api/v0/course-material/chapters/:chapter_id/lock` - Complete chapter (mark as done)
 
-Locks a chapter for the authenticated user (marks it as done). If the chapter is already locked, returns the existing lock record.
+Completes a chapter for the authenticated user (marks it as done).
 
 Validates that:
-- All previous chapters in the same module are locked (sequential locking)
-- If exercises_done_through_locking is enabled, moves all exercises to manual review
+- Course has chapter_locking_enabled
+- Chapter is currently unlocked (student can work on it)
+- All previous chapters in the same module are completed (sequential completion)
+- Moves all exercises to manual review
+- Unlocks next chapters for the user
 **/
 #[generated_doc]
 #[instrument(skip(pool))]
@@ -127,7 +131,7 @@ async fn lock_chapter(
     chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<user_chapter_locks::UserChapterLock>> {
+) -> ControllerResult<web::Json<user_chapter_locking_statuses::UserChapterLockingStatus>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -138,54 +142,88 @@ async fn lock_chapter(
     .await?;
 
     let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let course = models::courses::get_course(&mut conn, chapter.course_id).await?;
 
-    if !chapter.exercises_done_through_locking {
+    if !course.chapter_locking_enabled {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Chapter locking is not enabled for this chapter.".to_string(),
+            "Chapter locking is not enabled for this course.".to_string(),
             None,
         ));
     }
 
-    let previous_chapters = models::chapters::get_previous_chapters_in_module(
-        &mut conn,
-        *chapter_id,
-    )
-    .await?;
+    let current_status =
+        user_chapter_locking_statuses::get_status(&mut conn, user.id, *chapter_id).await?;
 
-    for prev_chapter in previous_chapters {
-        let is_locked = user_chapter_locks::is_chapter_locked_for_user(
-            &mut conn,
-            user.id,
-            prev_chapter.id,
-        )
-        .await?;
-        if !is_locked {
+    match current_status {
+        None => {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                format!(
-                    "You must lock previous chapters in order. Please lock chapter \"{}\" first.",
-                    prev_chapter.name
-                ),
+                "This chapter is locked. Complete previous chapters first.".to_string(),
                 None,
             ));
         }
+        Some(ChapterLockingStatus::Completed) => {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "This chapter is already completed.".to_string(),
+                None,
+            ));
+        }
+        Some(ChapterLockingStatus::Unlocked) => {
+            // Continue with completion
+        }
     }
 
-    let lock =
-        user_chapter_locks::insert(&mut conn, user.id, *chapter_id, chapter.course_id).await?;
+    let previous_chapters =
+        models::chapters::get_previous_chapters_in_module(&mut conn, *chapter_id).await?;
 
-    if chapter.exercises_done_through_locking {
-        models::chapters::move_chapter_exercises_to_manual_review(
-            &mut conn,
-            *chapter_id,
-            user.id,
-            chapter.course_id,
-        )
-        .await?;
+    for prev_chapter in previous_chapters {
+        let prev_status =
+            user_chapter_locking_statuses::get_status(&mut conn, user.id, prev_chapter.id).await?;
+
+        match prev_status {
+            None | Some(ChapterLockingStatus::Unlocked) => {
+                return Err(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    format!(
+                        "You must complete previous chapters in order. Please complete chapter \"{}\" first.",
+                        prev_chapter.name
+                    ),
+                    None,
+                ));
+            }
+            Some(ChapterLockingStatus::Completed) => {
+                // Previous chapter is completed, continue
+            }
+        }
     }
 
-    token.authorized_ok(web::Json(lock))
+    models::chapters::move_chapter_exercises_to_manual_review(
+        &mut conn,
+        *chapter_id,
+        user.id,
+        chapter.course_id,
+    )
+    .await?;
+
+    let status = user_chapter_locking_statuses::complete_chapter(
+        &mut conn,
+        user.id,
+        *chapter_id,
+        chapter.course_id,
+    )
+    .await?;
+
+    models::chapters::unlock_next_chapters_for_user(
+        &mut conn,
+        user.id,
+        *chapter_id,
+        chapter.course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(status))
 }
 
 /**

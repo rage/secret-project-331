@@ -1,12 +1,12 @@
 "use client"
 import { css } from "@emotion/css"
-import { useAtomValue } from "jotai"
 import { useQuery } from "@tanstack/react-query"
+import { useAtomValue } from "jotai"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchUserCourseInstanceChapterExercisesProgress } from "@/services/course-material/backend"
 import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
+import { fetchUserCourseInstanceChapterExercisesProgress } from "@/services/course-material/backend"
 import { PageWithExercises } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import ExerciseBox from "@/shared-module/common/components/ExerciseList/ExerciseBox"
@@ -14,8 +14,8 @@ import PageBox from "@/shared-module/common/components/ExerciseList/PageBox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { courseMaterialAtom } from "@/state/course-material"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { courseMaterialAtom } from "@/state/course-material"
 import { coursePageSectionRoute } from "@/utils/course-material/routing"
 
 export interface ChapterExerciseListGroupedByPageProps {
@@ -32,10 +32,10 @@ const ChapterExerciseListGroupedByPage: React.FC<
   const loginStateContext = useContext(LoginStateContext)
   const { t } = useTranslation()
   const courseMaterialState = useAtomValue(courseMaterialAtom)
-  
+
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
-  
+
   const chaptersQuery = useQuery({
     queryKey: ["chapters", courseId],
     queryFn: () => fetchAllChaptersByCourseId(courseId!),
@@ -43,6 +43,8 @@ const ChapterExerciseListGroupedByPage: React.FC<
   })
 
   const chapter = chaptersQuery.data?.find((c) => c.id === chapterId)
+  const course = courseMaterialState.course
+  const chapterLockingEnabled = course?.chapter_locking_enabled ?? false
   const getUserCourseInstanceChapterExercisesProgress = useQuery({
     queryKey: [
       `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`,
@@ -82,7 +84,7 @@ const ChapterExerciseListGroupedByPage: React.FC<
         {page.exercises.length !== 0 && (
           <>
             <PageBox pageTitle={page.title} />
-            {chapter?.exercises_done_through_locking && (
+            {chapterLockingEnabled && (
               <div
                 className={css`
                   padding: 1rem;

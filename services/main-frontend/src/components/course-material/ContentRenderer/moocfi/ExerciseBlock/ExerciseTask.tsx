@@ -22,6 +22,7 @@ interface ExerciseTaskProps {
   postThisStateToIFrame: ExerciseIframeState | undefined
   setAnswer: (answer: { valid: boolean; data: unknown }) => void
   exerciseNumber: number
+  isChapterLocked: boolean
 }
 
 const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
@@ -31,6 +32,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   postThisStateToIFrame,
   setAnswer,
   exerciseNumber,
+  isChapterLocked,
 }) => {
   const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
@@ -56,7 +58,8 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
       ? (postThisStateToIFrame.data.grading?.feedback_text ?? null)
       : null
   const cannotAnswerButNoSubmission =
-    !canPostSubmission && !exerciseTask.previous_submission && signedIn
+    (!canPostSubmission && !exerciseTask.previous_submission && signedIn) ||
+    (isChapterLocked && !exerciseTask.previous_submission)
 
   const isEmpty = currentExerciseTaskAssignment.length === 0 || areAllParagraphsEmpty
 

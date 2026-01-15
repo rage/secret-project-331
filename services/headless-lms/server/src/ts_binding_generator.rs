@@ -61,6 +61,8 @@ fn models(target: &mut File) {
         chapters::ChapterAvailability,
         chapters::UserChapterProgress,
         chapters::CourseUserInfo,
+        chapters::ChapterLockPreview,
+        chapters::UnreturnedExercise,
 
         chatbot_configurations::ChatbotConfiguration,
         chatbot_configurations::NewChatbotConf,
@@ -296,6 +298,8 @@ fn models(target: &mut File) {
         teacher_grading_decisions::TeacherDecisionType,
         teacher_grading_decisions::TeacherGradingDecision,
 
+        user_chapter_locking_statuses::UserChapterLockingStatus,
+        user_chapter_locking_statuses::ChapterLockingStatus,
         user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
         user_details::UserDetail,

@@ -4,6 +4,7 @@ import { Dictionary } from "lodash"
 import { courseMaterialClient } from "./courseMaterialClient"
 
 import {
+  ChapterLockPreview,
   ChaptersWithStatus,
   ChatbotConversation,
   ChatbotConversationInfo,
@@ -52,6 +53,7 @@ import {
   StudentExerciseSlideSubmissionResult,
   Term,
   TermUpdate,
+  UserChapterLockingStatus,
   UserCourseChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseProgress,
@@ -61,6 +63,7 @@ import {
   UserModuleCompletionStatus,
 } from "@/shared-module/common/bindings"
 import {
+  isChapterLockPreview,
   isChaptersWithStatus,
   isChatbotConversation,
   isChatbotConversationInfo,
@@ -98,6 +101,7 @@ import {
   isStudentCountry,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
+  isUserChapterLockingStatus,
   isUserCourseChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
   isUserCourseProgress,
@@ -270,6 +274,23 @@ export const fetchUserChapterInstanceChapterProgress = async (
     `/course-instances/${courseInstanceId}/chapters/${chapterId}/progress`,
   )
   return validateResponse(response, isUserCourseInstanceChapterProgress)
+}
+
+export const getChapterLockPreview = async (chapterId: string): Promise<ChapterLockPreview> => {
+  const response = await courseMaterialClient.get(`/chapters/${chapterId}/lock-preview`)
+  return validateResponse(response, isChapterLockPreview)
+}
+
+export const lockChapter = async (chapterId: string): Promise<UserChapterLockingStatus> => {
+  const response = await courseMaterialClient.post(`/chapters/${chapterId}/lock`)
+  return validateResponse(response, isUserChapterLockingStatus)
+}
+
+export const getUserChapterLocks = async (
+  courseId: string,
+): Promise<UserChapterLockingStatus[]> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/user-chapter-locks`)
+  return validateResponse(response, isArray(isUserChapterLockingStatus))
 }
 
 export const fetchUserCourseInstanceChapterExercisesProgress = async (

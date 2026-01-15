@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { LockKeyhole } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -66,6 +67,9 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   time,
   url,
   allowedToPreview,
+  points,
+  showLock,
+  isLocked,
 }) => {
   const { t } = useTranslation()
 
@@ -85,6 +89,70 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
     >
       <CardContentWrapper bg={bg}>
         <CardOpensTextOverlay open={open} date={date} time={time} />
+        <div
+          className={css`
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 102;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          `}
+        >
+          {isLocked && (
+            <div
+              className={css`
+                color: #fff;
+                background: rgba(0, 0, 0, 0.5);
+                padding: 0.5rem;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(4px);
+              `}
+            >
+              <LockKeyhole size={20} />
+            </div>
+          )}
+          {points && (
+            <div
+              className={css`
+                background: rgba(0, 0, 0, 0.5);
+                color: #fff;
+                padding: 0.4rem 0.8rem;
+                border-radius: 0.5rem;
+                font-size: 0.875rem;
+                font-weight: 600;
+                backdrop-filter: blur(4px);
+              `}
+            >
+              {Math.round(points.awarded)} / {points.max}
+            </div>
+          )}
+        </div>
+        {showLock && (
+          <div
+            aria-label={t("chapter-locked-message")}
+            className={css`
+              position: absolute;
+              top: 1rem;
+              left: 1rem;
+              z-index: 102;
+              color: #fff;
+              background: rgba(0, 0, 0, 0.5);
+              padding: 0.5rem;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              backdrop-filter: blur(4px);
+            `}
+          >
+            <LockKeyhole size={20} />
+          </div>
+        )}
         <div
           className={css`
             width: 100%;

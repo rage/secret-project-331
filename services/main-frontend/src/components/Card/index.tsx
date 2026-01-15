@@ -18,6 +18,9 @@ export interface CardExtraProps {
   description?: string
   languages?: string
   backgroundImage?: string | null
+  points?: { awarded: number; max: number }
+  showLock?: boolean
+  isLocked?: boolean
 }
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps

@@ -1,7 +1,7 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import { assertTopLevelPageNotInList } from "../../utils/flows/topLevelPages.flow"
 
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -9,48 +9,18 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("find hidden page", async ({ page, headless }, testInfo) => {
+test("find hidden page", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Introduction to everything").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await expectScreenshotsToMatchSnapshots({
-    clearNotifications: true,
-    headless,
-    testInfo,
-    screenshotTarget: page,
-    snapshotName: "top-level-pages-list",
-    screenshotOptions: { maxDiffPixels: 1000 },
-    scrollToYCoordinate: { "mobile-tall": 5061, "desktop-regular": 3661 },
-    beforeScreenshot: async () => {
-      await Promise.all([
-        page.getByText("Information pages").waitFor(),
-        // eslint-disable-next-line playwright/no-wait-for-timeout
-        page.waitForTimeout(200),
-        page.getByText("Chapter 7Bonus chapterChapter 8Another bonus chapter").click(),
-      ])
-    },
-  })
-
-  await page.getByText("Welcome to Introduction to Everything").click()
+  await assertTopLevelPageNotInList(page, "Hidden Page")
 
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-everything/hidden")
 
-  await expectScreenshotsToMatchSnapshots({
-    clearNotifications: true,
-    headless,
-    testInfo,
-    screenshotTarget: page,
-    snapshotName: "hidden-page",
-    waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="You found the secret of the project 331!"`),
-    ],
-    screenshotOptions: { maxDiffPixels: 400 },
-  })
+  await expect(page.locator(`text="You found the secret of the project 331!"`)).toBeVisible()
 })

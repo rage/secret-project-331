@@ -14,6 +14,7 @@ import { getLanguageName } from "./ChooseCourseLanguage"
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
+import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
 import { postSaveCourseSettings } from "@/services/course-material/backend"
 import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
@@ -135,6 +136,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         })
 
         await invalidateCourseMaterialStateQueries(queryClient, courseId)
+        await refetchUserChapterLocks(queryClient, courseId)
 
         // The redirect will be handled by useCourseMaterialLanguageRedirection hook
         // after changeCourseMaterialLanguage updates the atom

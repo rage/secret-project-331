@@ -67,6 +67,8 @@ reviews:
         1. The table has no `deleted_at` field (rare)
         2. The function name implies the function returns also non-deleted records
 
+        Avoid `ON CONFLICT (...) DO UPDATE SET updated_at = now()` that only updates the timestamp without changing other data—it erases the original updated_at value. Use `DO NOTHING` instead.
+
     - path: "**/*.rs"
       instructions: >
         Always prefer returning Result types whenever possible. Use proper error handling with `?`, `match`, or `if let` instead of unwrapping.
@@ -103,6 +105,8 @@ reviews:
         When you come up with the table name, make sure to make it plural.
 
         The table, and all columns should have a comment explaining what they are for. The comment should be short and to the point don't repeat obvious things like the column name or the data type in the name. Don't add unnecessary words like "The column for the".
+
+        For soft-delete tables, include `deleted_at` in unique constraints with `NULLS NOT DISTINCT`: `CREATE UNIQUE INDEX idx_name ON table(user_id, item_id, deleted_at) NULLS NOT DISTINCT;` PostgreSQL's default behavior treats NULLs as distinct, allowing multiple active rows (deleted_at IS NULL) with identical values, which breaks uniqueness. With `NULLS NOT DISTINCT`, all NULLs are treated as equal, enforcing one active row per unique key while allowing multiple soft-deleted rows with different timestamps. This enables re-inserting after soft-delete without conflicts.
 
     - path: "**/*"
       instructions: >

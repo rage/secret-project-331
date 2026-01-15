@@ -14,6 +14,7 @@ export interface ExerciseDownloadedAction {
   type: "exerciseDownloaded"
   payload: CourseMaterialExercise
   signedIn: boolean
+  isChapterLocked: boolean
 }
 
 export interface SubmissionGradedAction {
@@ -26,6 +27,7 @@ export interface TryAgain {
   type: "tryAgain"
   payload: CourseMaterialExercise
   signedIn: boolean
+  isChapterLocked: boolean
 }
 
 export type PostThisStateToIFrameAction =
@@ -57,6 +59,24 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
           )
           if (prevExerciseTask && prevExerciseTask?.view_type === "view-submission") {
             return prevExerciseTask
+          } else if (action.isChapterLocked && exerciseTask.previous_submission) {
+            return {
+              view_type: "view-submission",
+              exercise_task_id: exerciseTask.id,
+              user_information: {
+                pseudonymous_id: exerciseTask.pseudonumous_user_id ?? getGuestPseudonymousUserId(),
+                signed_in: action.signedIn,
+              },
+              user_variables: userVariables,
+              data: {
+                public_spec: exerciseTask.public_spec,
+                model_solution_spec: exerciseTask.model_solution_spec,
+                grading: exerciseTaskGradingToExerciseTaskGradingResult(
+                  exerciseTask.previous_submission_grading,
+                ),
+                user_answer: exerciseTask.previous_submission.data_json,
+              },
+            }
           } else if (exerciseTask.previous_submission) {
             return {
               view_type: "view-submission",

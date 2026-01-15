@@ -237,6 +237,17 @@ export interface CourseUserInfo {
   course_instance: string | null
 }
 
+export interface ChapterLockPreview {
+  has_unreturned_exercises: boolean
+  unreturned_exercises_count: number
+  unreturned_exercises: Array<UnreturnedExercise>
+}
+
+export interface UnreturnedExercise {
+  id: string
+  name: string
+}
+
 export interface ChatbotConfiguration {
   id: string
   created_at: string
@@ -653,6 +664,7 @@ export interface Course {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface CourseMaterialCourse {
@@ -674,6 +686,7 @@ export interface CourseMaterialCourse {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface CourseBreadcrumbInfo {
@@ -708,6 +721,7 @@ export interface CourseUpdate {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface NewCourse {
@@ -2230,6 +2244,19 @@ export interface TeacherGradingDecision {
   justification: string | null
   hidden: boolean | null
 }
+
+export interface UserChapterLockingStatus {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  user_id: string
+  chapter_id: string
+  course_id: string
+  status: ChapterLockingStatus
+}
+
+export type ChapterLockingStatus = "unlocked" | "completed_and_locked" | "not_unlocked_yet"
 
 export interface UserCourseExerciseServiceVariable {
   id: string

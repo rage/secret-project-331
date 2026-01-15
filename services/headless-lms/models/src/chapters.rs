@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
-    course_modules,
+    course_modules, courses,
     pages::{PageMetadata, PageWithExercises},
     prelude::*,
 };
@@ -243,12 +243,21 @@ pub async fn get_chapter(
         "
 SELECT *
 from chapters
-where id = $1;",
+where id = $1 AND deleted_at IS NULL;",
         chapter_id,
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
-    Ok(chapter)
+    chapter.ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::NotFound,
+            format!(
+                "Chapter with id {} not found or has been deleted",
+                chapter_id
+            ),
+            None,
+        )
+    })
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Uuid> {
@@ -744,6 +753,339 @@ pub async fn fetch_course_users(
         .collect();
 
     Ok(rows)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UnreturnedExercise {
+    pub id: Uuid,
+    pub name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ChapterLockPreview {
+    pub has_unreturned_exercises: bool,
+    pub unreturned_exercises_count: i32,
+    pub unreturned_exercises: Vec<UnreturnedExercise>,
+}
+
+pub async fn get_chapter_lock_preview(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<ChapterLockPreview> {
+    let exercises = crate::exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
+
+    if exercises.is_empty() {
+        return Ok(ChapterLockPreview {
+            has_unreturned_exercises: false,
+            unreturned_exercises_count: 0,
+            unreturned_exercises: Vec::new(),
+        });
+    }
+
+    let exercise_ids: Vec<Uuid> = exercises.iter().map(|e| e.id).collect();
+
+    let returned_exercise_ids =
+        crate::user_exercise_states::get_returned_exercise_ids_for_user_and_course(
+            conn,
+            &exercise_ids,
+            user_id,
+            course_id,
+        )
+        .await?;
+
+    let returned_ids: std::collections::HashSet<Uuid> = returned_exercise_ids.into_iter().collect();
+
+    let unreturned_exercises: Vec<UnreturnedExercise> = exercises
+        .into_iter()
+        .filter(|e| !returned_ids.contains(&e.id))
+        .map(|e| UnreturnedExercise {
+            id: e.id,
+            name: e.name,
+        })
+        .collect();
+
+    let count = unreturned_exercises.len() as i32;
+    let has_unreturned = count > 0;
+
+    Ok(ChapterLockPreview {
+        has_unreturned_exercises: has_unreturned,
+        unreturned_exercises_count: count,
+        unreturned_exercises,
+    })
+}
+
+pub async fn get_previous_chapters_in_module(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Vec<DatabaseChapter>> {
+    let chapter = get_chapter(conn, chapter_id).await?;
+    let previous_chapters = sqlx::query_as!(
+        DatabaseChapter,
+        r#"
+SELECT *
+FROM chapters
+WHERE course_module_id = $1
+  AND chapter_number < $2
+  AND deleted_at IS NULL
+ORDER BY chapter_number ASC
+        "#,
+        chapter.course_module_id,
+        chapter.chapter_number
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(previous_chapters)
+}
+
+pub async fn move_chapter_exercises_to_manual_review(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<()> {
+    use crate::CourseOrExamId;
+    use crate::exercises;
+    use crate::user_exercise_states::{self, ReviewingStage};
+
+    let exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
+
+    for exercise in exercises {
+        let user_exercise_state_result =
+            user_exercise_states::get_users_current_by_exercise(conn, user_id, &exercise).await;
+
+        if let Ok(user_exercise_state) = user_exercise_state_result
+            && user_exercise_state.reviewing_stage != ReviewingStage::WaitingForManualGrading
+            && user_exercise_state.reviewing_stage != ReviewingStage::ReviewedAndLocked
+            && user_exercise_state.selected_exercise_slide_id.is_some()
+        {
+            let course_or_exam_id = CourseOrExamId::Course(course_id);
+            user_exercise_states::update_reviewing_stage(
+                conn,
+                user_id,
+                course_or_exam_id,
+                exercise.id,
+                ReviewingStage::WaitingForManualGrading,
+            )
+            .await?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Unlocks the first chapter(s) with exercises in the base module (order_number == 0) for a user.
+/// Also unlocks any chapters without exercises that come before the first chapter with exercises.
+pub async fn unlock_first_chapters_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    use crate::{course_modules, exercises, user_chapter_locking_statuses};
+
+    let all_modules = course_modules::get_by_course_id(conn, course_id).await?;
+    let base_module = all_modules
+        .into_iter()
+        .find(|m| m.order_number == 0)
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::NotFound,
+                "Base module not found".to_string(),
+                None,
+            )
+        })?;
+
+    let module_chapter_ids = get_for_module(conn, base_module.id).await?;
+    let module_chapters = course_chapters(conn, course_id)
+        .await?
+        .into_iter()
+        .filter(|c| module_chapter_ids.contains(&c.id))
+        .collect::<Vec<_>>();
+
+    let mut chapters_to_unlock = Vec::new();
+
+    for chapter in &module_chapters {
+        let exercises = exercises::get_exercises_by_chapter_id(conn, chapter.id).await?;
+        let has_exercises = !exercises.is_empty();
+
+        if has_exercises {
+            chapters_to_unlock.push(chapter.id);
+            break;
+        } else {
+            chapters_to_unlock.push(chapter.id);
+        }
+    }
+
+    for chapter_id in &chapters_to_unlock {
+        user_chapter_locking_statuses::unlock_chapter(conn, user_id, *chapter_id, course_id)
+            .await?;
+    }
+
+    Ok(chapters_to_unlock)
+}
+
+/// Unlocks the next chapter(s) for a user after they complete a chapter.
+/// If the completed chapter is the last in a base module (order_number == 0), unlocks the first chapter
+/// of all additional modules (order_number != 0). Otherwise, unlocks the next chapter in the same module.
+/// Note: If a module has no chapters with exercises, all chapters in that module will be unlocked.
+/// This is intentional to allow progression through content-only chapters.
+pub async fn unlock_next_chapters_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    chapter_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    use crate::{course_modules, exercises, user_chapter_locking_statuses};
+
+    let completed_chapter = get_chapter(conn, chapter_id).await?;
+    let module = course_modules::get_by_id(conn, completed_chapter.course_module_id).await?;
+
+    let module_chapters = get_for_module(conn, completed_chapter.course_module_id).await?;
+    let mut all_module_chapters = course_chapters(conn, course_id)
+        .await?
+        .into_iter()
+        .filter(|c| module_chapters.contains(&c.id))
+        .collect::<Vec<_>>();
+    all_module_chapters.sort_by_key(|c| c.chapter_number);
+
+    let mut chapters_to_unlock = Vec::new();
+
+    let is_base_module = module.order_number == 0;
+
+    let course = courses::get_course(conn, course_id).await?;
+    let mut all_module_chapters_completed = true;
+    for chapter in &all_module_chapters {
+        let status = user_chapter_locking_statuses::get_or_init_status(
+            conn,
+            user_id,
+            chapter.id,
+            Some(course_id),
+            Some(course.chapter_locking_enabled),
+        )
+        .await?;
+        if !matches!(
+            status,
+            Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
+        ) {
+            all_module_chapters_completed = false;
+            break;
+        }
+    }
+
+    if is_base_module && all_module_chapters_completed {
+        let all_modules = course_modules::get_by_course_id(conn, course_id).await?;
+        let additional_modules: Vec<_> = all_modules
+            .into_iter()
+            .filter(|m| m.order_number != 0)
+            .collect();
+
+        let mut all_additional_module_chapter_ids = Vec::new();
+        for additional_module in &additional_modules {
+            let module_chapter_ids = get_for_module(conn, additional_module.id).await?;
+            all_additional_module_chapter_ids.extend(module_chapter_ids);
+        }
+
+        let all_exercises = if !all_additional_module_chapter_ids.is_empty() {
+            exercises::get_exercises_by_chapter_ids(conn, &all_additional_module_chapter_ids)
+                .await?
+        } else {
+            Vec::new()
+        };
+
+        let exercises_by_chapter: std::collections::HashMap<Uuid, Vec<_>> = all_exercises
+            .into_iter()
+            .fold(std::collections::HashMap::new(), |mut acc, ex| {
+                if let Some(ch_id) = ex.chapter_id {
+                    acc.entry(ch_id).or_insert_with(Vec::new).push(ex);
+                }
+                acc
+            });
+
+        for additional_module in additional_modules {
+            let module_chapter_ids = get_for_module(conn, additional_module.id).await?;
+            let mut module_chapters = course_chapters(conn, course_id)
+                .await?
+                .into_iter()
+                .filter(|c| module_chapter_ids.contains(&c.id))
+                .collect::<Vec<_>>();
+            module_chapters.sort_by_key(|c| c.chapter_number);
+
+            for chapter in &module_chapters {
+                let has_exercises = exercises_by_chapter
+                    .get(&chapter.id)
+                    .map(|exs| !exs.is_empty())
+                    .unwrap_or(false);
+
+                if has_exercises {
+                    chapters_to_unlock.push(chapter.id);
+                    break;
+                } else {
+                    chapters_to_unlock.push(chapter.id);
+                }
+            }
+        }
+    } else {
+        let mut all_chapters = course_chapters(conn, course_id).await?;
+        all_chapters.sort_by_key(|c| c.chapter_number);
+        let mut found_completed = false;
+        let mut candidate_chapter_ids = Vec::new();
+
+        for chapter in &all_chapters {
+            if chapter.course_module_id != completed_chapter.course_module_id {
+                continue;
+            }
+
+            if chapter.id == completed_chapter.id {
+                found_completed = true;
+                continue;
+            }
+
+            if !found_completed {
+                continue;
+            }
+
+            candidate_chapter_ids.push(chapter.id);
+        }
+
+        let all_exercises = if !candidate_chapter_ids.is_empty() {
+            exercises::get_exercises_by_chapter_ids(conn, &candidate_chapter_ids).await?
+        } else {
+            Vec::new()
+        };
+
+        let exercises_by_chapter: std::collections::HashMap<Uuid, Vec<_>> = all_exercises
+            .into_iter()
+            .fold(std::collections::HashMap::new(), |mut acc, ex| {
+                if let Some(ch_id) = ex.chapter_id {
+                    acc.entry(ch_id).or_insert_with(Vec::new).push(ex);
+                }
+                acc
+            });
+
+        for chapter_id in candidate_chapter_ids {
+            let has_exercises = exercises_by_chapter
+                .get(&chapter_id)
+                .map(|exs| !exs.is_empty())
+                .unwrap_or(false);
+
+            if has_exercises {
+                chapters_to_unlock.push(chapter_id);
+                break;
+            } else {
+                chapters_to_unlock.push(chapter_id);
+            }
+        }
+    }
+
+    for chapter_id in &chapters_to_unlock {
+        user_chapter_locking_statuses::unlock_chapter(conn, user_id, *chapter_id, course_id)
+            .await?;
+    }
+
+    Ok(chapters_to_unlock)
 }
 
 #[cfg(test)]

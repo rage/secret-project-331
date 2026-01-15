@@ -134,6 +134,15 @@ fn derive_new_score_given(
     if let Some(teacher_grading_decision) = &input_data.latest_teacher_grading_decision {
         return Some(teacher_grading_decision.score_given);
     };
+
+    // If chapter_locking_enabled is enabled for the course, don't give automatic points
+    // Points will only be given after teacher manual review
+    if let Some(course) = &input_data.course
+        && course.chapter_locking_enabled
+    {
+        // Don't give automatic points - wait for teacher manual review
+        return None;
+    }
     // We want to give or remove points only when the peer review/self review completes. If the answer receives reviews after this, we won't take away or we won't give more points.
     // If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review. That's why we haved the locked state. If the state is and stays locked, the score won't be changed.
     if input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
@@ -429,6 +438,7 @@ fn calculate_peer_review_weighted_points(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::courses::Course;
 
     mod derive_new_user_exercise_state {
         use chrono::TimeZone;
@@ -457,7 +467,7 @@ mod tests {
             );
             let new_user_exercise_state =
                 derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                    exercise,
+                    exercise: exercise.clone(),
                     current_user_exercise_state: user_exercise_state,
                     peer_or_self_review_information: None,
                     latest_teacher_grading_decision: None,
@@ -466,6 +476,11 @@ mod tests {
                             score_given: Some(1.0),
                             grading_progress: GradingProgress::FullyGraded,
                         },
+                    chapter: None,
+                    course: exercise
+                        .course_id
+                        .map(create_course)
+                        .or_else(|| Some(create_course(id))),
                 })
                 .unwrap();
             assert_results(
@@ -489,7 +504,7 @@ mod tests {
             );
             let new_user_exercise_state =
                 derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                    exercise,
+                    exercise: exercise.clone(),
                     current_user_exercise_state: user_exercise_state,
                     peer_or_self_review_information: Some(
                         UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -502,13 +517,15 @@ mod tests {
                         },
                     ),
                     latest_teacher_grading_decision: None,
-                    user_exercise_slide_state_grading_summary:
-                        UserExerciseSlideStateGradingSummary {
-                            score_given: Some(1.0),
-                            grading_progress: GradingProgress::FullyGraded,
-                        },
-                })
-                .unwrap();
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: Some(1.0),
+                                grading_progress: GradingProgress::FullyGraded,
+                            },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
+                    })
+                    .unwrap();
             assert_results(
                 &new_user_exercise_state,
                 None,
@@ -532,7 +549,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -550,6 +567,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -573,7 +592,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -592,6 +611,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -620,7 +641,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -638,6 +659,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -662,7 +685,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -681,6 +704,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -709,7 +734,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -727,6 +752,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -751,7 +778,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -770,6 +797,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -854,7 +883,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -872,6 +901,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -894,7 +925,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -912,6 +943,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -934,7 +967,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -952,6 +985,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -975,7 +1010,7 @@ mod tests {
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                        exercise,
+                        exercise: exercise.clone(),
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -993,6 +1028,8 @@ mod tests {
                                 score_given: Some(1.0),
                                 grading_progress: GradingProgress::FullyGraded,
                             },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
                     })
                     .unwrap();
                 assert_results(
@@ -1016,7 +1053,7 @@ mod tests {
             );
             let new_user_exercise_state =
                 derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
-                    exercise,
+                    exercise: exercise.clone(),
                     current_user_exercise_state: user_exercise_state,
                     peer_or_self_review_information: Some(
                         UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -1029,13 +1066,15 @@ mod tests {
                         },
                     ),
                     latest_teacher_grading_decision: None,
-                    user_exercise_slide_state_grading_summary:
-                        UserExerciseSlideStateGradingSummary {
-                            score_given: Some(1.0),
-                            grading_progress: GradingProgress::FullyGraded,
-                        },
-                })
-                .unwrap();
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: Some(1.0),
+                                grading_progress: GradingProgress::FullyGraded,
+                            },
+                        chapter: None,
+                        course: exercise.course_id.map(create_course).or_else(|| Some(create_course(id))),
+                    })
+                    .unwrap();
             assert_results(
                 &new_user_exercise_state,
                 None,
@@ -1083,6 +1122,37 @@ mod tests {
                 use_course_default_peer_or_self_review_config,
                 exercise_language_group_id: None,
                 needs_self_review,
+            }
+        }
+
+        fn create_course(course_id: Uuid) -> Course {
+            Course {
+                id: course_id,
+                slug: "test-course".to_string(),
+                created_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
+                updated_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
+                name: "Test Course".to_string(),
+                description: None,
+                organization_id: Uuid::parse_str("00000000-0000-0000-0000-000000000000").unwrap(),
+                deleted_at: None,
+                language_code: "en".to_string(),
+                copied_from: None,
+                content_search_language: None,
+                course_language_group_id: Uuid::parse_str("00000000-0000-0000-0000-000000000001")
+                    .unwrap(),
+                is_draft: false,
+                is_test_mode: false,
+                is_unlisted: false,
+                base_module_completion_requires_n_submodule_completions: 0,
+                can_add_chatbot: false,
+                is_joinable_by_code_only: false,
+                join_code: None,
+                ask_marketing_consent: false,
+                flagged_answers_threshold: None,
+                closed_at: None,
+                closed_additional_message: None,
+                closed_course_successor_id: None,
+                chapter_locking_enabled: false,
             }
         }
 

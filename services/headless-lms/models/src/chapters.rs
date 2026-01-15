@@ -757,7 +757,6 @@ pub async fn fetch_course_users(
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-#[cfg_attr(feature = "ts_rs", ts(export))]
 pub struct UnreturnedExercise {
     pub id: Uuid,
     pub name: String,
@@ -765,7 +764,6 @@ pub struct UnreturnedExercise {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-#[cfg_attr(feature = "ts_rs", ts(export))]
 pub struct ChapterLockPreview {
     pub has_unreturned_exercises: bool,
     pub unreturned_exercises_count: i32,

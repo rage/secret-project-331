@@ -805,6 +805,7 @@
   "loading": "Завантаження",
   "loading-text": "Завантаження...",
   "locale": "Локаль",
+  "lock-chapter-preview-load-failed": "Не вдалося завантажити попередній перегляд блокування розділу",
   "log-scale-short": "Лог",
   "login": "Увійти",
   "login-description": "Цей сайт використовує",

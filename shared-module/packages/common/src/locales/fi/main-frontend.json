@@ -805,6 +805,7 @@
   "loading": "Lataa",
   "loading-text": "Ladataan...",
   "locale": "Kieli",
+  "lock-chapter-preview-load-failed": "Lukujen lukituksen esikatselun lataaminen epäonnistui",
   "log-scale-short": "Log",
   "login": "Kirjaudu sisään",
   "login-description": "Tämä sivusto käyttää",

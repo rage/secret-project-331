@@ -1,4 +1,6 @@
 use crate::{
+    chapters::{self, DatabaseChapter},
+    courses::{self, Course},
     exercise_slide_submissions::ExerciseSlideSubmission,
     exercises::Exercise,
     peer_or_self_review_configs::{self, PeerOrSelfReviewConfig},
@@ -31,8 +33,8 @@ pub(super) async fn load_required_data(
         peer_or_self_review_information,
         latest_teacher_grading_decision,
         user_exercise_slide_state_grading_summary,
-        chapter: _,
-        course: _,
+        chapter,
+        course,
     } = already_loaded_internal_dependencies;
 
     let loaded_user_exercise_state =
@@ -40,25 +42,9 @@ pub(super) async fn load_required_data(
             .await?;
     let loaded_exercise = load_exercise(conn, exercise, &loaded_user_exercise_state).await?;
 
-    let loaded_chapter = if let Some(chapter_id) = loaded_exercise.chapter_id {
-        if let Some(already_loaded_chapter) = already_loaded_internal_dependencies.chapter {
-            already_loaded_chapter
-        } else {
-            Some(crate::chapters::get_chapter(conn, chapter_id).await?)
-        }
-    } else {
-        None
-    };
+    let loaded_chapter = load_chapter(conn, chapter, loaded_exercise.chapter_id).await?;
 
-    let loaded_course = if let Some(course_id) = loaded_exercise.course_id {
-        if let Some(already_loaded_course) = already_loaded_internal_dependencies.course {
-            Some(already_loaded_course)
-        } else {
-            Some(crate::courses::get_course(conn, course_id).await?)
-        }
-    } else {
-        None
-    };
+    let loaded_course = load_course(conn, course, loaded_exercise.course_id).await?;
 
     Ok(UserExerciseStateUpdateRequiredData {
         peer_or_self_review_information: load_peer_or_self_review_information(
@@ -146,6 +132,42 @@ async fn load_exercise(
     } else {
         info!("Loading exercise");
         Ok(crate::exercises::get_by_id(conn, current_user_exercise_state.exercise_id).await?)
+    }
+}
+
+async fn load_chapter(
+    conn: &mut PgConnection,
+    already_loaded_chapter: Option<Option<DatabaseChapter>>,
+    chapter_id: Option<Uuid>,
+) -> ModelResult<Option<DatabaseChapter>> {
+    if let Some(chapter_id) = chapter_id {
+        if let Some(already_loaded_chapter) = already_loaded_chapter {
+            info!("Using already loaded chapter");
+            Ok(already_loaded_chapter)
+        } else {
+            info!("Loading chapter");
+            Ok(Some(chapters::get_chapter(conn, chapter_id).await?))
+        }
+    } else {
+        Ok(None)
+    }
+}
+
+async fn load_course(
+    conn: &mut PgConnection,
+    already_loaded_course: Option<Course>,
+    course_id: Option<Uuid>,
+) -> ModelResult<Option<Course>> {
+    if let Some(course_id) = course_id {
+        if let Some(already_loaded_course) = already_loaded_course {
+            info!("Using already loaded course");
+            Ok(Some(already_loaded_course))
+        } else {
+            info!("Loading course");
+            Ok(Some(courses::get_course(conn, course_id).await?))
+        }
+    } else {
+        Ok(None)
     }
 }
 

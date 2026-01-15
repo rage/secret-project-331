@@ -4,14 +4,12 @@ ADD COLUMN chapter_locking_enabled BOOLEAN NOT NULL DEFAULT FALSE;
 
 COMMENT ON COLUMN courses.chapter_locking_enabled IS 'When enabled, all chapters in the course are locked by default. Students must complete chapters in order to unlock subsequent chapters.';
 
--- Create enum for chapter locking status
 CREATE TYPE chapter_locking_status AS ENUM (
   'unlocked',
   'completed_and_locked',
   'not_unlocked_yet'
 );
 
--- Create new table for chapter locking statuses
 CREATE TABLE user_chapter_locking_statuses (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),

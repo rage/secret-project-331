@@ -799,6 +799,7 @@
   "loading": "Laddar",
   "loading-text": "Laddar...",
   "locale": "Lokal",
+  "lock-chapter-preview-load-failed": "Kunde inte ladda förhandsvisning av kapitellåsning",
   "log-scale-short": "Log",
   "login": "Logga in",
   "login-description": "Denna sida använder",

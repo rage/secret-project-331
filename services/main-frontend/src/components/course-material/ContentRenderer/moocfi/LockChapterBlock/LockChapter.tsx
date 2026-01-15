@@ -157,7 +157,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     } catch (error) {
       setIsLoadingPreview(false)
       setPreviewError(
-        error instanceof Error ? error : new Error("Failed to load chapter lock preview"),
+        error instanceof Error ? error : new Error(t("lock-chapter-preview-load-failed")),
       )
     }
   }

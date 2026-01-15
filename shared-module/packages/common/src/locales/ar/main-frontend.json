@@ -801,6 +801,7 @@
   "loading": "جار التحميل",
   "loading-text": "جارٍ التحميل...",
   "locale": "اللغة",
+  "lock-chapter-preview-load-failed": "فشل تحميل معاينة قفل الفصل",
   "log-scale-short": "لوج",
   "login": "تسجيل الدخول",
   "login-description": "يستخدم هذا الموقع",

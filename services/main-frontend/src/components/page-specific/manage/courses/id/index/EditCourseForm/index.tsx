@@ -165,6 +165,12 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             />
           </FieldContainer>
           <FieldContainer>
+            <CheckBox
+              label={t("label-chapter-locking-enabled")}
+              {...register("chapter_locking_enabled")}
+            />
+          </FieldContainer>
+          <FieldContainer>
             <TextField
               type={"number"}
               min={0}

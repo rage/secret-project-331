@@ -974,7 +974,8 @@ SELECT id,
   chapter_locking_enabled
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
-  ",
+  AND deleted_at IS NULL
+        ",
         course_ids
     )
     .fetch_all(conn)

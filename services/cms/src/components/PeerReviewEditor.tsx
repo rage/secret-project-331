@@ -4,13 +4,11 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useContext, useEffect, useMemo, useRef } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
-import PageContext from "../contexts/PageContext"
-import { fetchAllChaptersByCourseId } from "../services/backend/chapters"
 import {
   fetchCourseById,
   getCoursesDefaultCmsPeerOrSelfReviewConfiguration,
@@ -124,15 +122,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   instructionsEditor,
 }) => {
   const { t } = useTranslation()
-  const pageContext = useContext(PageContext)
   const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
   const selfReviewEnabled = exerciseAttributes.needs_self_review ?? false
-
-  const chaptersQuery = useQuery({
-    queryKey: ["chapters", courseId],
-    queryFn: () => fetchAllChaptersByCourseId(courseId),
-    enabled: !!courseId,
-  })
 
   const courseQuery = useQuery({
     queryKey: ["course", courseId],

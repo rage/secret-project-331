@@ -617,6 +617,7 @@
   "label-attempted-exercises-required": "Attempted exercises required",
   "label-background-svg": "Background SVG",
   "label-background-svg-current": "Background SVG (currently {{path}})",
+  "label-chapter-locking-enabled": "Chapter locking enabled",
   "label-codes-one-per-line": "Codes, one per line",
   "label-completion-date-short": "Completion date",
   "label-completion-granter-user-id": "Completion granter user id",

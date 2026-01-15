@@ -640,9 +640,7 @@ const ExerciseBlock: React.FC<
                 padding: 0 1rem;
                 margin-bottom: 1rem;
               `}
-            >
-              <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
-            </div>
+            ></div>
           )}
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&

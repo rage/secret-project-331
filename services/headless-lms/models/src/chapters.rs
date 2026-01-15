@@ -945,11 +945,12 @@ pub async fn unlock_next_chapters_for_user(
     let module = course_modules::get_by_id(conn, completed_chapter.course_module_id).await?;
 
     let module_chapters = get_for_module(conn, completed_chapter.course_module_id).await?;
-    let all_module_chapters = course_chapters(conn, course_id)
+    let mut all_module_chapters = course_chapters(conn, course_id)
         .await?
         .into_iter()
         .filter(|c| module_chapters.contains(&c.id))
         .collect::<Vec<_>>();
+    all_module_chapters.sort_by_key(|c| c.chapter_number);
 
     let mut chapters_to_unlock = Vec::new();
 
@@ -998,11 +999,12 @@ pub async fn unlock_next_chapters_for_user(
 
         for additional_module in additional_modules {
             let module_chapter_ids = get_for_module(conn, additional_module.id).await?;
-            let module_chapters = course_chapters(conn, course_id)
+            let mut module_chapters = course_chapters(conn, course_id)
                 .await?
                 .into_iter()
                 .filter(|c| module_chapter_ids.contains(&c.id))
                 .collect::<Vec<_>>();
+            module_chapters.sort_by_key(|c| c.chapter_number);
 
             for chapter in &module_chapters {
                 let has_exercises = exercises_by_chapter
@@ -1019,7 +1021,8 @@ pub async fn unlock_next_chapters_for_user(
             }
         }
     } else {
-        let all_chapters = course_chapters(conn, course_id).await?;
+        let mut all_chapters = course_chapters(conn, course_id).await?;
+        all_chapters.sort_by_key(|c| c.chapter_number);
         let mut found_completed = false;
         let mut candidate_chapter_ids = Vec::new();
 

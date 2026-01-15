@@ -16,7 +16,7 @@ CREATE TABLE user_chapter_locking_statuses (
   user_id UUID NOT NULL REFERENCES users(id),
   chapter_id UUID NOT NULL REFERENCES chapters(id),
   course_id UUID NOT NULL REFERENCES courses(id),
-  STATUS chapter_locking_status NOT NULL
+  status chapter_locking_status NOT NULL
 );
 
 CREATE UNIQUE INDEX idx_user_chapter_locking_statuses_user_chapter_active ON user_chapter_locking_statuses(user_id, chapter_id, deleted_at) NULLS NOT DISTINCT;

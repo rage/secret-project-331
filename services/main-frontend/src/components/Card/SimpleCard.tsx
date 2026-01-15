@@ -160,6 +160,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
         </div>
         {showLock && (
           <div
+            role="img"
             aria-label={t("chapter-locked-message")}
             className={css`
               position: absolute;

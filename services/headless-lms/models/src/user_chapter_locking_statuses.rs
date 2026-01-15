@@ -215,6 +215,8 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'completed'::chapter_locking_status, NULL)
+ON CONFLICT (user_id, chapter_id, deleted_at) DO UPDATE
+SET status = 'completed'::chapter_locking_status, updated_at = now(), deleted_at = NULL
 RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
         "#,
         user_id,

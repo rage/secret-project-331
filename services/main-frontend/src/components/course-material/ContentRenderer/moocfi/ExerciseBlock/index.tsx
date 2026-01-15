@@ -623,7 +623,8 @@ const ExerciseBlock: React.FC<
             ))}
           {(getCourseMaterialExercise.data.peer_or_self_review_config ||
             getCourseMaterialExercise.data.should_show_reset_message ||
-            reviewingStage === "WaitingForManualGrading") &&
+            reviewingStage === "WaitingForManualGrading" ||
+            reviewingStage === "ReviewedAndLocked") &&
             gradingState &&
             reviewingStage && (
               <GradingState
@@ -695,7 +696,7 @@ const ExerciseBlock: React.FC<
                 )}
             </div>
           )}
-          {isChapterLocked && (
+          {isChapterLocked && reviewingStage !== "ReviewedAndLocked" && (
             <YellowBox>
               <div
                 className={css`

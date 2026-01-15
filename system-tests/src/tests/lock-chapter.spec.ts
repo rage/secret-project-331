@@ -97,6 +97,11 @@ test.describe("Chapter locking feature", () => {
           "The current chapter is locked, and you can no longer submit exercises.",
         ),
       ).toBeHidden()
+      await expect(
+        studentPage.getByText(
+          "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
+        ),
+      ).toBeVisible()
     })
 
     await test.step("Verify exercise in locked Chapter 1 cannot be submitted", async () => {
@@ -110,6 +115,11 @@ test.describe("Chapter locking feature", () => {
           .first(),
       ).toBeVisible()
       await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
+      await expect(
+        studentPage.getByText(
+          "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
+        ),
+      ).toBeHidden()
     })
 
     await test.step("Navigate to Chapter 2 and verify lock block is visible", async () => {
@@ -160,6 +170,11 @@ test.describe("Chapter locking feature", () => {
           .first(),
       ).toBeVisible()
       await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
+      await expect(
+        studentPage.getByText(
+          "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
+        ),
+      ).toBeHidden()
     })
   })
 
@@ -422,6 +437,11 @@ test.describe("Chapter locking feature", () => {
           .first(),
       ).toBeVisible()
       await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
+      await expect(
+        studentPage.getByText(
+          "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
+        ),
+      ).toBeHidden()
     })
 
     await test.step("Verify lock state persists after page reload", async () => {
@@ -434,6 +454,67 @@ test.describe("Chapter locking feature", () => {
       await clickPageInChapterByTitle(studentPage, "Exercise in Chapter 2")
       await selectCourseInstanceIfPrompted(studentPage)
       await expect(studentPage.getByRole("button", { name: "Submit" })).toBeVisible()
+    })
+  })
+
+  test("Chapter locking with manual review message display", async () => {
+    const studentPage = await studentContext.newPage()
+
+    await test.step("Navigate to course and submit an exercise in Chapter 1", async () => {
+      await studentPage.goto("http://project-331.local/")
+      await studentPage.getByRole("link", { name: "All organizations" }).click()
+      await selectOrganization(
+        studentPage,
+        "University of Helsinki, Department of Mathematics and Statistics",
+      )
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.getByText("Chapter 1 - Lockable").click()
+      await clickPageInChapterByTitle(studentPage, "Exercise in Chapter 1")
+      await selectCourseInstanceIfPrompted(studentPage)
+    })
+
+    await test.step("Verify first yellow box is visible in unlocked chapter", async () => {
+      await expect(
+        studentPage.getByText(
+          "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
+        ),
+      ).toBeVisible()
+    })
+
+    await test.step("Lock chapter", async () => {
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      await studentPage.getByText("Chapter 1 - Lockable").click()
+      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
+      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
+      await studentPage.getByRole("button", { name: "Confirm" }).click()
+      await studentPage.getByText("Chapter locked").waitFor()
+    })
+
+    await test.step("Verify first yellow box is hidden when chapter is locked", async () => {
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      await studentPage.getByText("Chapter 1 - Lockable").click()
+      await clickPageInChapterByTitle(studentPage, "Exercise in Chapter 1")
+      await selectCourseInstanceIfPrompted(studentPage)
+      await expect(
+        studentPage.getByText(
+          "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
+        ),
+      ).toBeHidden()
+      await expect(
+        studentPage
+          .getByText("The current chapter is locked, and you can no longer submit exercises.")
+          .first(),
+      ).toBeVisible()
+    })
+
+    await test.step("Note: Manual review message would be shown if exercise is in manual review state", async () => {
+      await expect(
+        studentPage
+          .getByText("The current chapter is locked, and you can no longer submit exercises.")
+          .first(),
+      ).toBeVisible()
     })
   })
 })

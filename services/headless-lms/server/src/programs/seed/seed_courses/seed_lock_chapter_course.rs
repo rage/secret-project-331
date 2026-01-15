@@ -42,6 +42,7 @@ pub async fn seed_lock_chapter_course(
     let course = CourseBuilder::new(course_name, course_slug)
         .desc("Course for testing chapter locking feature.")
         .course_id(course_id)
+        .chapter_locking_enabled(true)
         .instance(CourseInstanceConfig {
             name: None,
             description: None,
@@ -241,9 +242,36 @@ df = df[(df['purchase_amount'] >= Q1 - 1.5*IQR) &
                             cx.v5(b"y2x3w4v5-u6t7-8901-srqp-op8765432109"),
                         )
                         .page(
+                            PageBuilder::new("/chapter-2/lock-page", "Lock Chapter Page")
+                                .block(
+                                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                                        "moocfi/lock-chapter",
+                                        attributes! {},
+                                        vec![
+                                            GutenbergBlock::block_with_name_and_attributes(
+                                                "core/heading",
+                                                attributes! {
+                                                    "content": "Model Solution",
+                                                    "level": 2,
+                                                    "anchor": "model-solution-title"
+                                                },
+                                            )
+                                            .with_id(cx.v5(b"g1h2i3j4-k5l6-7890-mnop-qr1234567890")),
+                                            GutenbergBlock::paragraph("Congratulations on completing Chapter 2! Here's a model solution for the exercises.")
+                                                .with_id(cx.v5(b"g2h3i4j5-k6l7-8901-nopq-rs2345678901")),
+                                        ],
+                                    )
+                                    .with_id(cx.v5(b"g3h4i5j6-k7l8-9012-opqr-st3456789012")),
+                                )
+                                .block(
+                                    GutenbergBlock::paragraph("This is Chapter 2. You can lock this chapter when you're done.")
+                                        .with_id(cx.v5(b"g4h5i6j7-k8l9-0123-pqrs-tu4567890123")),
+                                ),
+                        )
+                        .page(
                             PageBuilder::new("/chapter-2/exercise-page", "Exercise in Chapter 2")
                                 .block(
-                                    GutenbergBlock::paragraph("This is Chapter 2. A lock block will be added later.")
+                                    GutenbergBlock::paragraph("This is Chapter 2.")
                                         .with_id(cx.v5(b"x3w4v5u6-t7s8-9012-rqpo-no7654321098")),
                                 )
                                 .exercise(ExerciseBuilder::quizzes(

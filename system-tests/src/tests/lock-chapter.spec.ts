@@ -2,7 +2,6 @@ import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { clickPageInChapterByTitle } from "@/utils/flows/pagesInChapter.flow"
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.describe("Chapter locking feature", () => {
@@ -28,21 +27,6 @@ test.describe("Chapter locking feature", () => {
 
   test("Chapter locking works correctly with course-level setting", async () => {
     const studentPage = await studentContext.newPage()
-    const teacherPage = await teacherContext.newPage()
-
-    await test.step("Enable chapter locking at course level as teacher", async () => {
-      await teacherPage.goto("http://project-331.local/")
-      await teacherPage.getByRole("link", { name: "All organizations" }).click()
-      await selectOrganization(
-        teacherPage,
-        "University of Helsinki, Department of Mathematics and Statistics",
-      )
-      await teacherPage.getByLabel("Manage course 'Lock Chapter Test Course'").click()
-      await teacherPage.getByRole("tab", { name: "Settings" }).click()
-      await teacherPage.getByLabel("Chapter locking enabled").check()
-      await teacherPage.getByRole("button", { name: "Save" }).click()
-      await waitForSuccessNotification(teacherPage)
-    })
 
     await test.step("Navigate to course as student and verify first chapter is unlocked", async () => {
       await studentPage.goto("http://project-331.local/")
@@ -128,26 +112,6 @@ test.describe("Chapter locking feature", () => {
       await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
     })
 
-    await test.step("Add lock block to Chapter 2 as teacher", async () => {
-      await teacherPage.goto("http://project-331.local/")
-      await teacherPage.getByRole("link", { name: "All organizations" }).click()
-      await selectOrganization(
-        teacherPage,
-        "University of Helsinki, Department of Mathematics and Statistics",
-      )
-      await teacherPage.getByLabel("Manage course 'Lock Chapter Test Course'").click()
-      await teacherPage.getByRole("tab", { name: "Pages" }).click()
-      await teacherPage
-        .getByRole("row", { name: /Exercise in Chapter 2/ })
-        .getByRole("button", { name: "Edit page" })
-        .click()
-      await teacherPage.getByRole("button", { name: "Add block" }).click()
-      await teacherPage.getByPlaceholder("Search").fill("lock")
-      await teacherPage.getByRole("option", { name: "Lock Chapter" }).click()
-      await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
-      await waitForSuccessNotification(teacherPage)
-    })
-
     await test.step("Navigate to Chapter 2 and verify lock block is visible", async () => {
       await studentPage.goto(
         "http://project-331.local/org/uh-mathstat/courses/lock-chapter-test-course/chapter-2/exercise-page",
@@ -202,21 +166,6 @@ test.describe("Chapter locking feature", () => {
   test("Chapter locking security and data leak prevention", async () => {
     const studentPage = await studentContext.newPage()
     const student2Page = await student2Context.newPage()
-    const teacherPage = await teacherContext.newPage()
-
-    await test.step("Enable chapter locking and set up test data", async () => {
-      await teacherPage.goto("http://project-331.local/")
-      await teacherPage.getByRole("link", { name: "All organizations" }).click()
-      await selectOrganization(
-        teacherPage,
-        "University of Helsinki, Department of Mathematics and Statistics",
-      )
-      await teacherPage.getByLabel("Manage course 'Lock Chapter Test Course'").click()
-      await teacherPage.getByRole("tab", { name: "Settings" }).click()
-      await teacherPage.getByLabel("Chapter locking enabled").check()
-      await teacherPage.getByRole("button", { name: "Save" }).click()
-      await waitForSuccessNotification(teacherPage)
-    })
 
     await test.step("Verify model solution is NOT in page content before locking (API test)", async () => {
       await studentPage.goto("http://project-331.local/")
@@ -395,32 +344,17 @@ test.describe("Chapter locking feature", () => {
       const preview = await previewResponse.json()
       expect(preview).toHaveProperty("has_unreturned_exercises")
       expect(preview).toHaveProperty("unreturned_exercises_count")
-      if (preview.has_unreturned_exercises && preview.unreturned_exercises_count > 0) {
-        await expect(
-          studentPage.getByText(new RegExp(`You have \\d+ exercise\\(s\\) in this chapter`)),
-        ).toBeVisible()
-      }
+      expect(preview.has_unreturned_exercises).toBe(true)
+      expect(preview.unreturned_exercises_count).toBeGreaterThan(0)
+      await expect(
+        studentPage.getByText(new RegExp(`You have \\d+ exercise\\(s\\) in this chapter`)),
+      ).toBeVisible()
       await studentPage.getByRole("button", { name: "Cancel" }).click()
     })
   })
 
   test("Chapter locking sequential unlocking and module behavior", async () => {
     const studentPage = await studentContext.newPage()
-    const teacherPage = await teacherContext.newPage()
-
-    await test.step("Enable chapter locking at course level", async () => {
-      await teacherPage.goto("http://project-331.local/")
-      await teacherPage.getByRole("link", { name: "All organizations" }).click()
-      await selectOrganization(
-        teacherPage,
-        "University of Helsinki, Department of Mathematics and Statistics",
-      )
-      await teacherPage.getByLabel("Manage course 'Lock Chapter Test Course'").click()
-      await teacherPage.getByRole("tab", { name: "Settings" }).click()
-      await teacherPage.getByLabel("Chapter locking enabled").check()
-      await teacherPage.getByRole("button", { name: "Save" }).click()
-      await waitForSuccessNotification(teacherPage)
-    })
 
     await test.step("Verify first chapter with exercises is automatically unlocked", async () => {
       await studentPage.goto("http://project-331.local/")

@@ -58,7 +58,15 @@ RETURNING *;
         )
         .await?;
 
-        if existing_statuses.is_empty() {
+        let has_unlocked_or_completed = existing_statuses.iter().any(|s| {
+            matches!(
+                s.status,
+                user_chapter_locking_statuses::ChapterLockingStatus::Unlocked
+                    | user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked
+            )
+        });
+
+        if !has_unlocked_or_completed {
             chapters::unlock_first_chapters_for_user(
                 &mut *conn,
                 course_instance_enrollment.user_id,

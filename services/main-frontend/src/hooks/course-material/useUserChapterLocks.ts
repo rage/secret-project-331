@@ -1,5 +1,6 @@
 "use client"
 
+import type { QueryClient } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 
 import { getUserChapterLocks } from "@/services/course-material/backend"
@@ -17,5 +18,24 @@ export const useUserChapterLocks = (courseId: string | null | undefined) => {
     queryKey: userChapterLocksQueryKey(courseId),
     queryFn: () => getUserChapterLocks(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
+  })
+}
+
+/**
+ * Refetches user chapter locking statuses for a course.
+ * This function can be called after operations that might change chapter locking statuses,
+ * such as enrolling in a course instance.
+ * @param queryClient - The React Query client instance.
+ * @param courseId - The course ID to refetch chapter locks for. If null/undefined, no refetch occurs.
+ */
+export const refetchUserChapterLocks = async (
+  queryClient: QueryClient,
+  courseId: string | null | undefined,
+) => {
+  if (!courseId) {
+    return
+  }
+  await queryClient.refetchQueries({
+    queryKey: userChapterLocksQueryKey(courseId),
   })
 }

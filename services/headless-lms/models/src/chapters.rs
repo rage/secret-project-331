@@ -862,6 +862,7 @@ pub async fn move_chapter_exercises_to_manual_review(
         if let Ok(user_exercise_state) = user_exercise_state_result
             && user_exercise_state.reviewing_stage != ReviewingStage::WaitingForManualGrading
             && user_exercise_state.reviewing_stage != ReviewingStage::ReviewedAndLocked
+            && user_exercise_state.selected_exercise_slide_id.is_some()
         {
             let course_or_exam_id = CourseOrExamId::Course(course_id);
             user_exercise_states::update_reviewing_stage(

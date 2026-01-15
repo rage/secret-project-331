@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n        us_state.id,\n        us_state.user_id,\n        us_state.exercise_id,\n        us_state.score_given,\n        us_state.grading_progress as \"grading_progress: _\",\n        t_submission.data_json,\n        s_submission.created_at,\n        s_submission.updated_at,\n        s_submission.deleted_at,\n        s_submission.id AS submission_id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n            ON t_submission.exercise_slide_submission_id =\n                s_submission.id\n    WHERE us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id = $1\n    AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    AND us_state.deleted_at IS NULL\n    AND s_submission.deleted_at IS NULL\n    AND t_submission.deleted_at IS NULL\n    ORDER BY t_submission.updated_at\n    LIMIT $2 OFFSET $3;",
+  "query": "\n        SELECT DISTINCT ON (us_state.user_id)\n        us_state.id,\n        us_state.user_id,\n        us_state.exercise_id,\n        us_state.score_given,\n        us_state.grading_progress as \"grading_progress: _\",\n        t_submission.data_json,\n        s_submission.created_at,\n        s_submission.updated_at,\n        s_submission.deleted_at,\n        s_submission.id AS submission_id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n            ON t_submission.exercise_slide_submission_id =\n                s_submission.id\n    WHERE us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id = $1\n    AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    AND s_submission.deleted_at IS NULL\n    AND t_submission.deleted_at IS NULL\n    ORDER BY us_state.user_id, s_submission.created_at DESC\n    LIMIT $2 OFFSET $3;",
   "describe": {
     "columns": [
       {
@@ -87,5 +87,5 @@
       false
     ]
   },
-  "hash": "87dc2893fb766de045e185f0ca58a86c0f49f639a7b49a83d3ea852b05b9e181"
+  "hash": "4099e503b1066ed30990d73a578dc9621b1294187b08a398678890b3ba6075ba"
 }

@@ -116,6 +116,10 @@ async fn get_chapter_lock_preview(
 POST `/api/v0/course-material/chapters/:chapter_id/lock` - Lock chapter (mark as done)
 
 Locks a chapter for the authenticated user (marks it as done). If the chapter is already locked, returns the existing lock record.
+
+Validates that:
+- All previous chapters in the same module are locked (sequential locking)
+- If exercises_done_through_locking is enabled, moves all exercises to manual review
 **/
 #[generated_doc]
 #[instrument(skip(pool))]
@@ -134,8 +138,52 @@ async fn lock_chapter(
     .await?;
 
     let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+
+    if !chapter.exercises_done_through_locking {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Chapter locking is not enabled for this chapter.".to_string(),
+            None,
+        ));
+    }
+
+    let previous_chapters = models::chapters::get_previous_chapters_in_module(
+        &mut conn,
+        *chapter_id,
+    )
+    .await?;
+
+    for prev_chapter in previous_chapters {
+        let is_locked = user_chapter_locks::is_chapter_locked_for_user(
+            &mut conn,
+            user.id,
+            prev_chapter.id,
+        )
+        .await?;
+        if !is_locked {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                format!(
+                    "You must lock previous chapters in order. Please lock chapter \"{}\" first.",
+                    prev_chapter.name
+                ),
+                None,
+            ));
+        }
+    }
+
     let lock =
         user_chapter_locks::insert(&mut conn, user.id, *chapter_id, chapter.course_id).await?;
+
+    if chapter.exercises_done_through_locking {
+        models::chapters::move_chapter_exercises_to_manual_review(
+            &mut conn,
+            *chapter_id,
+            user.id,
+            chapter.course_id,
+        )
+        .await?;
+    }
 
     token.authorized_ok(web::Json(lock))
 }

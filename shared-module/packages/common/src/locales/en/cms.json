@@ -104,6 +104,9 @@
   "lock-chapter-inner-blocks-label": "Content shown after locking",
   "lock-chapter-placeholder": "Lock Chapter Button",
   "lock-chapter-placeholder-explanation": "This block is used to display a button for students to lock a chapter (mark as done).",
+  "label-exercises-done-through-locking": "Exercises done through locking",
+  "label-exercises-done-through-locking-description": "When enabled, exercises in this chapter require manual review after locking. Students will not receive points until the chapter is locked and teacher reviews their answers.",
+  "peer-review-disabled-for-locking-chapters": "Peer and self review are disabled for chapters with exercises done through locking enabled.",
   "map-block-placeholder": "Map block placeholder",
   "map-block-placeholder-explanation": "This is a placeholder for a map that shows countries of student enrolled in a course.",
   "menti-height-help-text": "Height in pixels. Adjust the height of the embedded window so that the scrollbar disappears. Also make sure that the scrollbar is not visible in the course material.",
@@ -171,5 +174,8 @@
   "warning-mobile-background-missing": "Warning: No mobile or larger background image is set, but other screen sizes have background images configured. The mobile background image serves as the default fallback for all screen sizes. If you want to use only one image that would be displayed on all screen sizes, upload it to the mobile background or larger image field.",
   "warning-points-are-all-or-nothing-disabled": "Warning: It is recommended to enable \"points are all or nothing\". The peer reviews given by students vary greatly in quality, which may lead to some students receiving unfair points from the exercise. Enabling this option reduces randomness in the received points, making the peer review process fairer for the students.",
   "welcome-message-for-course": "Welcome message for course...",
-  "width-of-table": "Width of table"
+  "width-of-table": "Width of table",
+  "label-exercises-done-through-locking": "Exercises done through locking",
+  "label-exercises-done-through-locking-description": "When enabled, exercises in this chapter require manual review after locking. Students will not receive points until the chapter is locked and teacher reviews their answers.",
+  "peer-review-disabled-for-locking-chapters": "Peer and self review are disabled for chapters with exercises done through locking enabled."
 }

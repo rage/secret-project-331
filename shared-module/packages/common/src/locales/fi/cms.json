@@ -163,5 +163,8 @@
   "warning-mobile-background-missing": "Varoitus: Mobiili- tai suurempaa taustakuvaa ei ole asetettu, mutta muille näyttökokoille on määritetty taustakuvia. Mobiilitaustakuva toimii oletusvarana kaikille näyttökokoille. Jos haluat käyttää vain yhtä kuvaa, joka näkyisi kaikilla näyttökokoilla, lataa se mobiilitaustakuvaan tai suurempaan kuvaan.",
   "warning-points-are-all-or-nothing-disabled": "Varoitus: Suositteleme, että pidät asetuksen pisteet on kaikki tai ei mitään päällä. Oppilaiden antamat vertaisarviot vaihtelevat suuresti laadultaan, mikä voi johtaa siihen, että oppilaat saavat joskus epäreiluja pisteitä tehtävästä. Tämän asetuksen käyttö vähentää satunnaisuutta saaduissa pisteissä, mikä tekee vertaisarviointiprosessista oikeudenmukaisemman oppilaille.",
   "welcome-message-for-course": "Tervetuloa kurssille viesti",
-  "width-of-table": "Taulukon leveys"
+  "width-of-table": "Taulukon leveys",
+  "label-exercises-done-through-locking": "Tehtävät tehdään lukituksen kautta",
+  "label-exercises-done-through-locking-description": "Kun käytössä, tämän luvun tehtävät vaativat manuaalisen tarkistuksen lukituksen jälkeen. Opiskelijat eivät saa pisteitä ennen kuin luku on lukittu ja opettaja on tarkistanut vastaukset.",
+  "peer-review-disabled-for-locking-chapters": "Vertaisarviointi ja itsearviointi on poistettu käytöstä luvuille, joissa tehtävät tehdään lukituksen kautta."
 }

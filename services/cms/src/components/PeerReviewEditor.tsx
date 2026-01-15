@@ -3,12 +3,14 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useMemo } from "react"
+import React, { useContext, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
+import PageContext from "../contexts/PageContext"
 import { getCoursesDefaultCmsPeerOrSelfReviewConfiguration } from "../services/backend/courses"
+import { fetchAllChaptersByCourseId } from "../services/backend/chapters"
 
 import {
   CmsPeerOrSelfReviewConfig,
@@ -118,8 +120,21 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   instructionsEditor,
 }) => {
   const { t } = useTranslation()
+  const pageContext = useContext(PageContext)
   const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
   const selfReviewEnabled = exerciseAttributes.needs_self_review ?? false
+
+  const chaptersQuery = useQuery({
+    queryKey: ["chapters", courseId],
+    queryFn: () => fetchAllChaptersByCourseId(courseId),
+    enabled: !!courseId,
+  })
+
+  const chapterId = pageContext?.page.chapter_id
+  const chapter = chapterId
+    ? chaptersQuery.data?.find((c) => c.id === chapterId)
+    : null
+  const exercisesDoneThroughLocking = chapter?.exercises_done_through_locking ?? false
 
   useEffect(() => {
     if (
@@ -129,6 +144,18 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       setExerciseAttributes({ use_course_default_peer_review: true })
     }
   })
+
+  useEffect(() => {
+    if (
+      exercisesDoneThroughLocking &&
+      (exerciseAttributes.needs_peer_review || exerciseAttributes.needs_self_review)
+    ) {
+      setExerciseAttributes({
+        needs_peer_review: false,
+        needs_self_review: false,
+      })
+    }
+  }, [exercisesDoneThroughLocking, exerciseAttributes.needs_peer_review, exerciseAttributes.needs_self_review, setExerciseAttributes])
 
   const defaultCmsPeerOrSelfReviewConfig = useQuery({
     queryKey: [`course-default-peer-review-config-${courseId}`],
@@ -349,6 +376,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 setExerciseAttributes({ needs_peer_review: checked })
               }
               checked={peerReviewEnabled}
+              disabled={exercisesDoneThroughLocking}
             />
             <CheckBox
               label={t("add-self-review")}
@@ -356,7 +384,20 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 setExerciseAttributes({ needs_self_review: checked })
               }
               checked={selfReviewEnabled}
+              disabled={exercisesDoneThroughLocking}
             />
+            {exercisesDoneThroughLocking && (
+              <p
+                className={css`
+                  margin: 0.5rem 0 0 0;
+                  font-size: 0.875rem;
+                  color: ${baseTheme.colors.gray[600]};
+                  font-style: italic;
+                `}
+              >
+                {t("peer-review-disabled-for-locking-chapters")}
+              </p>
+            )}
           </>
         )}
         {(peerReviewEnabled || selfReviewEnabled) && (

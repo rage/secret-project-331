@@ -12,8 +12,11 @@ import LockChapterLoadingView from "./LockChapterLoadingView"
 import LockChapterLockedView from "./LockChapterLockedView"
 import LockChapterUnlockedView from "./LockChapterUnlockedView"
 
+import { useQuery } from "@tanstack/react-query"
+
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import { getChapterLockPreview, lockChapter } from "@/services/course-material/backend"
+import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -43,6 +46,18 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
   const getUserLocks = useUserChapterLocks(courseId)
+  
+  const chaptersQuery = useQuery({
+    queryKey: ["chapters", courseId],
+    queryFn: () => fetchAllChaptersByCourseId(courseId!),
+    enabled: !!courseId,
+  })
+
+  const chapter = chaptersQuery.data?.find((c) => c.id === chapterId)
+
+  if (!chapter?.exercises_done_through_locking) {
+    return null
+  }
 
   const lockMutation = useMutation({
     mutationFn: () => lockChapter(chapterId),

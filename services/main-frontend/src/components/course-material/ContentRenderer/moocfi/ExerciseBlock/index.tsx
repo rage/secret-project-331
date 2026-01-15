@@ -23,6 +23,7 @@ import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
+import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
 import { postStartPeerOrSelfReview, postSubmission } from "@/services/course-material/backend"
 import {
@@ -35,6 +36,7 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { useQuery } from "@tanstack/react-query"
 import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
@@ -171,6 +173,18 @@ const ExerciseBlock: React.FC<
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
   const getUserLocks = useUserChapterLocks(courseId)
+  
+  const chaptersQuery = useQuery({
+    queryKey: ["chapters", courseId],
+    queryFn: () => fetchAllChaptersByCourseId(courseId!),
+    enabled: !!courseId,
+  })
+
+  const chapterId = getCourseMaterialExercise.data?.exercise.chapter_id
+  const chapter = chapterId
+    ? chaptersQuery.data?.find((c) => c.id === chapterId)
+    : null
+  const exercisesDoneThroughLocking = chapter?.exercises_done_through_locking ?? false
   useEffect(() => {
     if (!getCourseMaterialExercise.data) {
       return
@@ -545,6 +559,17 @@ const ExerciseBlock: React.FC<
           </div>
         </div>
 
+        {exercisesDoneThroughLocking && getCourseMaterialExercise.data && (
+          <div
+            className={css`
+              padding: 0 1.5rem;
+              margin-bottom: 1rem;
+            `}
+          >
+            <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
+          </div>
+        )}
+
         {!loginState.isLoading && !loginState.signedIn && (
           <div
             className={css`
@@ -605,6 +630,16 @@ const ExerciseBlock: React.FC<
                 shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message}
               />
             )}
+          {exercisesDoneThroughLocking && getCourseMaterialExercise.data && (
+            <div
+              className={css`
+                padding: 0 1rem;
+                margin-bottom: 1rem;
+              `}
+            >
+              <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
+            </div>
+          )}
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&
             reviewingStage !== "SelfReview" &&

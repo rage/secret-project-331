@@ -163,5 +163,8 @@
   "warning-mobile-background-missing": "Varning: Ingen bakgrundsbild för mobil eller större är inställd, men andra skärmstorlekar har bakgrundsbilder konfigurerade. Mobilens bakgrundsbild fungerar som standardfall för alla skärmstorlekar. Om du vill använda endast en bild som skulle visas på alla skärmstorlekar, ladda upp den till mobilbakgrunden eller större bildfält.",
   "warning-points-are-all-or-nothing-disabled": "Varning: Det rekommenderas att aktivera “poäng är allt eller inget”. Kamratgranskningar som ges av studenter varierar mycket i kvalitet, vilket kan leda till att vissa studenter får orättvisa poäng från övningen. Att aktivera detta alternativ minskar slumpmässigheten i de mottagna poängen och gör kamratgranskningsprocessen rättvisare för studenterna.",
   "welcome-message-for-course": "Välkomstmeddelande för kurs...",
-  "width-of-table": "Bredd på tabell"
+  "width-of-table": "Bredd på tabell",
+  "label-exercises-done-through-locking": "Övningar görs genom låsning",
+  "label-exercises-done-through-locking-description": "När aktiverat kräver övningar i detta kapitel manuell granskning efter låsning. Studenter kommer inte att få poäng förrän kapitlet är låst och läraren har granskat deras svar.",
+  "peer-review-disabled-for-locking-chapters": "Kamratgranskning och självgranskning är inaktiverade för kapitel där övningar görs genom låsning."
 }

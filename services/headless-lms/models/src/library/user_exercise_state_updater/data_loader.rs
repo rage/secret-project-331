@@ -38,6 +38,16 @@ pub(super) async fn load_required_data(
             .await?;
     let loaded_exercise = load_exercise(conn, exercise, &loaded_user_exercise_state).await?;
 
+    let loaded_chapter = if let Some(chapter_id) = loaded_exercise.chapter_id {
+        if let Some(already_loaded_chapter) = already_loaded_internal_dependencies.chapter {
+            already_loaded_chapter
+        } else {
+            Some(crate::chapters::get_chapter(conn, chapter_id).await?)
+        }
+    } else {
+        None
+    };
+
     Ok(UserExerciseStateUpdateRequiredData {
         peer_or_self_review_information: load_peer_or_self_review_information(
             conn,
@@ -60,6 +70,7 @@ pub(super) async fn load_required_data(
         )
         .await?,
         current_user_exercise_state: loaded_user_exercise_state,
+        chapter: loaded_chapter,
     })
 }
 

@@ -1500,5 +1500,7 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "لقد أكملت الدورة بنجاح! للحصول على اعتمادات ECTS لإكمال الدورة، يمكنك استخدام الروابط التالية لتسجيل إكمال الدورة.",
   "your-code-code": "رمزك هو: {{code}}",
   "your-name": "اسمك",
-  "youtube-embed-error": "تعذر تحميل فيديو YouTube. قد يكون عنوان URL لـ YouTube غير صحيح."
+  "youtube-embed-error": "تعذر تحميل فيديو YouTube. قد يكون عنوان URL لـ YouTube غير صحيح.",
+  "exercises-done-through-locking-notification": "ملاحظة: لن تحصل على نقاط للتمارين في هذا الفصل حتى تقفل الفصل ويقوم المعلم بمراجعة إجاباتك.",
+  "exercises-done-through-locking-explanation": "لن تحصل على نقاط لهذا التمرين حتى تقفل الفصل ويقوم المعلم بمراجعة إجابتك. قفل الفصل عند الانتهاء من جميع التمارين التي تريد تقديمها."
 }

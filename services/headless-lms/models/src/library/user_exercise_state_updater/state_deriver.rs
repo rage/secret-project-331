@@ -134,6 +134,15 @@ fn derive_new_score_given(
     if let Some(teacher_grading_decision) = &input_data.latest_teacher_grading_decision {
         return Some(teacher_grading_decision.score_given);
     };
+    
+    // If exercises_done_through_locking is enabled for the chapter, don't give automatic points
+    // Points will only be given after teacher manual review
+    if let Some(chapter) = &input_data.chapter {
+        if chapter.exercises_done_through_locking {
+            // Don't give automatic points - wait for teacher manual review
+            return None;
+        }
+    }
     // We want to give or remove points only when the peer review/self review completes. If the answer receives reviews after this, we won't take away or we won't give more points.
     // If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review. That's why we haved the locked state. If the state is and stays locked, the score won't be changed.
     if input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked

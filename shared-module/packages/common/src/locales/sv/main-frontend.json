@@ -1498,5 +1498,7 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "Du har framgångsrikt slutfört kursen! För att få ECTS-poäng för dina slutföranden kan du använda följande länkar för att registrera din slutförande.",
   "your-code-code": "Din kod är: {{code}}",
   "your-name": "Ditt namn",
-  "youtube-embed-error": "Kunde inte ladda YouTube-video. YouTube-URL:en kan vara felaktig."
+  "youtube-embed-error": "Kunde inte ladda YouTube-video. YouTube-URL:en kan vara felaktig.",
+  "exercises-done-through-locking-notification": "Observera: Du kommer inte att få poäng för övningar i detta kapitel förrän du låser kapitlet och en lärare granskar dina svar.",
+  "exercises-done-through-locking-explanation": "Du kommer inte att få poäng för denna övning förrän du låser kapitlet och en lärare granskar ditt svar. Lås kapitlet när du har slutfört alla övningar du vill lämna in."
 }

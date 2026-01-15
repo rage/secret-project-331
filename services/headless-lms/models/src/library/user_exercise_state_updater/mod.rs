@@ -35,6 +35,8 @@ pub struct UserExerciseStateUpdateRequiredData {
     pub latest_teacher_grading_decision: Option<TeacherGradingDecision>,
     /// The grades summed up from all the user exercise slide states. Note that multiple slides can give points, and they are all aggregated here.
     pub user_exercise_slide_state_grading_summary: UserExerciseSlideStateGradingSummary,
+    /// Chapter information if the exercise belongs to a chapter. Used to check if exercises_done_through_locking is enabled.
+    pub chapter: Option<crate::chapters::DatabaseChapter>,
 }
 
 /// Visible only in the current module (and submodules) to prevent misuse.
@@ -61,6 +63,7 @@ pub struct UserExerciseStateUpdateAlreadyLoadedRequiredData {
     /// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether a teacher has made a grading decision or not.
     pub latest_teacher_grading_decision: Option<Option<TeacherGradingDecision>>,
     pub user_exercise_slide_state_grading_summary: Option<UserExerciseSlideStateGradingSummary>,
+    pub chapter: Option<Option<crate::chapters::DatabaseChapter>>,
 }
 
 /**

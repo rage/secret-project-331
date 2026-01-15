@@ -27,6 +27,7 @@ pub struct DatabaseChapter {
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
     pub course_module_id: Uuid,
+    pub exercises_done_through_locking: bool,
 }
 
 impl DatabaseChapter {
@@ -55,6 +56,7 @@ pub struct Chapter {
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
     pub course_module_id: Uuid,
+    pub exercises_done_through_locking: bool,
 }
 
 impl Chapter {
@@ -82,6 +84,7 @@ impl Chapter {
             copied_from: chapter.copied_from,
             deadline: chapter.deadline,
             course_module_id: chapter.course_module_id,
+            exercises_done_through_locking: chapter.exercises_done_through_locking,
         }
     }
 }
@@ -122,6 +125,7 @@ pub struct NewChapter {
     /// If undefined when creating a chapter, will use the course default one.
     /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
     pub course_module_id: Option<Uuid>,
+    pub exercises_done_through_locking: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -134,6 +138,7 @@ pub struct ChapterUpdate {
     pub opens_at: Option<DateTime<Utc>>,
     /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
     pub course_module_id: Option<Uuid>,
+    pub exercises_done_through_locking: bool,
 }
 
 pub struct ChapterInfo {
@@ -169,9 +174,10 @@ INSERT INTO chapters(
     chapter_number,
     deadline,
     opens_at,
-    course_module_id
+    course_module_id,
+    exercises_done_through_locking
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id
         ",
         pkey_policy.into_uuid(),
@@ -182,6 +188,7 @@ RETURNING id
         new_chapter.deadline,
         new_chapter.opens_at,
         course_module_id,
+        new_chapter.exercises_done_through_locking,
     )
     .fetch_one(conn)
     .await?;
@@ -281,7 +288,8 @@ SET name = $2,
   deadline = $3,
   opens_at = $4,
   course_module_id = $5,
-  color = $6
+  color = $6,
+  exercises_done_through_locking = $7
 WHERE id = $1
 RETURNING *;
     "#,
@@ -291,6 +299,7 @@ RETURNING *;
         chapter_update.opens_at,
         chapter_update.course_module_id,
         chapter_update.color,
+        chapter_update.exercises_done_through_locking,
     )
     .fetch_one(conn)
     .await?;
@@ -818,6 +827,68 @@ pub async fn get_chapter_lock_preview(
         unreturned_exercises_count: count,
         unreturned_exercises,
     })
+}
+
+pub async fn get_previous_chapters_in_module(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Vec<DatabaseChapter>> {
+    let chapter = get_chapter(conn, chapter_id).await?;
+    let previous_chapters = sqlx::query_as!(
+        DatabaseChapter,
+        r#"
+SELECT *
+FROM chapters
+WHERE course_module_id = $1
+  AND chapter_number < $2
+  AND deleted_at IS NULL
+ORDER BY chapter_number ASC
+        "#,
+        chapter.course_module_id,
+        chapter.chapter_number
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(previous_chapters)
+}
+
+pub async fn move_chapter_exercises_to_manual_review(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<()> {
+    use crate::exercises;
+    use crate::user_exercise_states::{self, CourseOrExamId, ReviewingStage};
+
+    let exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
+
+    for exercise in exercises {
+        let user_exercise_state_result = user_exercise_states::get_users_current_by_exercise(
+            conn,
+            user_id,
+            &exercise,
+        )
+        .await;
+
+        if let Ok(user_exercise_state) = user_exercise_state_result {
+            if user_exercise_state.reviewing_stage != ReviewingStage::WaitingForManualGrading
+                && user_exercise_state.reviewing_stage != ReviewingStage::ReviewedAndLocked
+            {
+                let course_or_exam_id = CourseOrExamId::Course(course_id);
+                user_exercise_states::update_reviewing_stage(
+                    conn,
+                    user_id,
+                    course_or_exam_id,
+                    exercise.id,
+                    ReviewingStage::WaitingForManualGrading,
+                )
+                .await?;
+            }
+        }
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]

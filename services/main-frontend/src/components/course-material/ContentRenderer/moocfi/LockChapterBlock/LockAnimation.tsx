@@ -201,22 +201,20 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
     // Wait for drop to complete
     await dropDone
 
-    // Start glow animation when lock drops (pulse effect) - don't wait for it
-    glowApi.start({
+    // Start glow animation when lock drops (pulse effect)
+    await startAndWaitSingle(glowApi, {
       to: { g: 1, gs: 1.1 },
       config: { tension: 220, friction: 18 },
-      onRest: () => {
-        glowApi.start({
-          to: { g: 0.3, gs: 1 },
-          config: { tension: 180, friction: 20 },
-          onRest: () => {
-            glowApi.start({
-              to: { g: 0, gs: 0.9 },
-              config: { tension: 200, friction: 18 },
-            })
-          },
-        })
-      },
+    })
+
+    await startAndWaitSingle(glowApi, {
+      to: { g: 0.3, gs: 1 },
+      config: { tension: 180, friction: 20 },
+    })
+
+    await startAndWaitSingle(glowApi, {
+      to: { g: 0, gs: 0.9 },
+      config: { tension: 200, friction: 18 },
     })
 
     // Close the shackle and wait for it to complete

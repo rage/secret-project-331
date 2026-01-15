@@ -201,12 +201,21 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
     // Wait for drop to complete
     await dropDone
 
-    // Start glow animation when lock drops (pulse effect)
+    // Start glow animation when lock drops (pulse effect) - don't wait for it
     glowApi.start({
-      to: async (next: (props: Record<string, unknown>) => Promise<void>) => {
-        await next({ g: 1, gs: 1.1, config: { tension: 220, friction: 18 } })
-        await next({ g: 0.3, gs: 1, config: { tension: 180, friction: 20 } })
-        await next({ g: 0, gs: 0.9, config: { tension: 200, friction: 18 } })
+      to: { g: 1, gs: 1.1 },
+      config: { tension: 220, friction: 18 },
+      onRest: () => {
+        glowApi.start({
+          to: { g: 0.3, gs: 1 },
+          config: { tension: 180, friction: 20 },
+          onRest: () => {
+            glowApi.start({
+              to: { g: 0, gs: 0.9 },
+              config: { tension: 200, friction: 18 },
+            })
+          },
+        })
       },
     })
 

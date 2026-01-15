@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use std::convert::TryFrom;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -32,14 +33,25 @@ struct DatabaseRow {
     status: String,
 }
 
-impl From<DatabaseRow> for UserChapterLockingStatus {
-    fn from(row: DatabaseRow) -> Self {
+impl TryFrom<DatabaseRow> for UserChapterLockingStatus {
+    type Error = ModelError;
+
+    fn try_from(row: DatabaseRow) -> Result<Self, Self::Error> {
         let status = match row.status.as_str() {
             "unlocked" => ChapterLockingStatus::Unlocked,
             "completed" => ChapterLockingStatus::Completed,
-            _ => unreachable!(),
+            _ => {
+                return Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    format!(
+                        "Invalid chapter locking status from database: {}",
+                        row.status
+                    ),
+                    None,
+                ));
+            }
         };
-        UserChapterLockingStatus {
+        Ok(UserChapterLockingStatus {
             id: row.id,
             created_at: row.created_at,
             updated_at: row.updated_at,
@@ -48,7 +60,7 @@ impl From<DatabaseRow> for UserChapterLockingStatus {
             chapter_id: row.chapter_id,
             course_id: row.course_id,
             status,
-        }
+        })
     }
 }
 
@@ -140,7 +152,7 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .await?;
 
     if let Some(status) = updated {
-        return Ok(status.into());
+        return status.try_into();
     }
 
     let res = sqlx::query_as!(
@@ -160,7 +172,7 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .await?;
 
     if let Some(status) = res {
-        Ok(status.into())
+        status.try_into()
     } else {
         get_by_user_and_chapter(&mut *conn, user_id, chapter_id)
             .await?
@@ -195,7 +207,7 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .await?;
 
     if let Some(status) = res {
-        return Ok(status.into());
+        return status.try_into();
     }
 
     let insert_res = sqlx::query_as!(
@@ -212,9 +224,12 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .fetch_optional(&mut *conn)
     .await?;
 
-    insert_res.map(|s| s.into()).ok_or_else(|| {
-        ModelError::new(ModelErrorType::NotFound, "Failed to complete chapter", None)
-    })
+    insert_res
+        .map(|s| s.try_into())
+        .transpose()?
+        .ok_or_else(|| {
+            ModelError::new(ModelErrorType::NotFound, "Failed to complete chapter", None)
+        })
 }
 
 pub async fn get_by_user_and_chapter(
@@ -237,7 +252,7 @@ WHERE user_id = $1
     .fetch_optional(conn)
     .await?;
 
-    Ok(res.map(|r| r.into()))
+    res.map(|r| r.try_into()).transpose()
 }
 
 pub async fn get_by_user_and_course(
@@ -260,5 +275,7 @@ WHERE user_id = $1
     .fetch_all(conn)
     .await?;
 
-    Ok(res.into_iter().map(|r| r.into()).collect())
+    res.into_iter()
+        .map(|r| r.try_into())
+        .collect::<ModelResult<Vec<_>>>()
 }

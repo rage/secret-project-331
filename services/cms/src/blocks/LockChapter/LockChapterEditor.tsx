@@ -26,7 +26,7 @@ const ALLOWED_NESTED_BLOCKS = [
 
 const LockChapterEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
-> = ({ clientId: _clientId }) => {
+> = () => {
   const { t } = useTranslation()
   // eslint-disable-next-line i18next/no-literal-string
   const blockProps = useBlockProps({ className: "moocfi-lock-chapter" })

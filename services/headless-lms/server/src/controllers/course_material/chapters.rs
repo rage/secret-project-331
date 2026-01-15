@@ -4,6 +4,7 @@ use models::chapters::ChapterLockPreview;
 use models::pages::{Page, PageVisibility, PageWithExercises};
 use models::user_chapter_locking_statuses::{self, ChapterLockingStatus};
 
+use crate::domain::authorization::authorize_access_to_course_material;
 use crate::prelude::*;
 
 /**
@@ -133,15 +134,10 @@ async fn lock_chapter(
     user: AuthUser,
 ) -> ControllerResult<web::Json<user_chapter_locking_statuses::UserChapterLockingStatus>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Chapter(*chapter_id),
-    )
-    .await?;
-
     let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), chapter.course_id).await?;
+
     let course = models::courses::get_course(&mut conn, chapter.course_id).await?;
 
     if !course.chapter_locking_enabled {

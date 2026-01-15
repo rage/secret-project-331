@@ -160,14 +160,12 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
         </div>
         {showLock && (
           <div
-            role="button"
-            tabIndex={0}
+            aria-label={t("chapter-locked-message")}
             className={css`
               position: absolute;
               top: 1rem;
               left: 1rem;
               z-index: 102;
-              cursor: pointer;
               color: #fff;
               background: rgba(0, 0, 0, 0.5);
               padding: 0.5rem;
@@ -176,27 +174,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
               align-items: center;
               justify-content: center;
               backdrop-filter: blur(4px);
-              transition: background 0.2s;
-
-              &:hover {
-                background: rgba(0, 0, 0, 0.7);
-              }
-
-              &:focus-visible {
-                outline: 2px solid ${baseTheme.colors.green[500]};
-                outline-offset: 2px;
-              }
             `}
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault()
-                e.stopPropagation()
-              }
-            }}
           >
             <LockKeyhole size={20} />
           </div>

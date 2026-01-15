@@ -1,4 +1,5 @@
 "use client"
+
 import { css } from "@emotion/css"
 import { Padlock } from "@vectopus/atlas-icons-react"
 import React from "react"
@@ -13,6 +14,7 @@ interface LockChapterUnlockedViewProps {
   isLocking: boolean
   isLoadingPreview: boolean
   error: Error | null
+  previewError: Error | null
 }
 
 const LockChapterUnlockedView: React.FC<LockChapterUnlockedViewProps> = ({
@@ -20,6 +22,7 @@ const LockChapterUnlockedView: React.FC<LockChapterUnlockedViewProps> = ({
   isLocking,
   isLoadingPreview,
   error,
+  previewError,
 }) => {
   const { t } = useTranslation()
 
@@ -103,7 +106,9 @@ const LockChapterUnlockedView: React.FC<LockChapterUnlockedViewProps> = ({
               ? t("locking-chapter")
               : t("lock-chapter")}
         </Button>
-        {error && <ErrorBanner variant={"readOnly"} error={error} />}
+        {(error || previewError) && (
+          <ErrorBanner variant={"readOnly"} error={(error ?? previewError) as Error} />
+        )}
       </div>
     </div>
   )

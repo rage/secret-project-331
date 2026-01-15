@@ -2,7 +2,6 @@ use headless_lms_utils::numbers::f32_to_two_decimals;
 use itertools::Itertools;
 
 use crate::{
-    courses::Course,
     exercises::{ActivityProgress, GradingProgress},
     library::user_exercise_state_updater::validation::validate_input,
     peer_or_self_review_configs::PeerReviewProcessingStrategy,
@@ -138,11 +137,11 @@ fn derive_new_score_given(
 
     // If chapter_locking_enabled is enabled for the course, don't give automatic points
     // Points will only be given after teacher manual review
-    if let Some(course) = &input_data.course {
-        if course.chapter_locking_enabled {
-            // Don't give automatic points - wait for teacher manual review
-            return None;
-        }
+    if let Some(course) = &input_data.course
+        && course.chapter_locking_enabled
+    {
+        // Don't give automatic points - wait for teacher manual review
+        return None;
     }
     // We want to give or remove points only when the peer review/self review completes. If the answer receives reviews after this, we won't take away or we won't give more points.
     // If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review. That's why we haved the locked state. If the state is and stays locked, the score won't be changed.

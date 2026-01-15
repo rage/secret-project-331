@@ -2,8 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQueryClient } from "@tanstack/react-query"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useAtomValue } from "jotai"

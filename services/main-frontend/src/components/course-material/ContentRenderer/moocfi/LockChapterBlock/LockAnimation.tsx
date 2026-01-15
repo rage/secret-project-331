@@ -201,6 +201,15 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
     // Wait for drop to complete
     await dropDone
 
+    // Start glow animation when lock drops (pulse effect)
+    glowApi.start({
+      to: async (next: (props: Record<string, unknown>) => Promise<void>) => {
+        await next({ g: 1, gs: 1.1, config: { tension: 220, friction: 18 } })
+        await next({ g: 0.3, gs: 1, config: { tension: 180, friction: 20 } })
+        await next({ g: 0, gs: 0.9, config: { tension: 200, friction: 18 } })
+      },
+    })
+
     // Close the shackle and wait for it to complete
     await startAndWaitSingle(shackleApi, {
       to: { a: 0 },
@@ -301,7 +310,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
  */
 function LockSVG({
   shackle,
-  glow: _glow,
+  glow,
   size,
 }: {
   shackle: { a: SpringValue<number> }
@@ -333,6 +342,15 @@ function LockSVG({
         shapeRendering: "geometricPrecision",
       }}
     >
+      <defs>
+        <filter id="glow-filter">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
       <style>{`
         .stroke{
           fill:none;
@@ -344,9 +362,18 @@ function LockSVG({
         }
       `}</style>
 
-      {/* Body */}
-      <rect x="2.45" y="11.05" width="19.09" height="11.45" fill="white" />
-      <rect className="stroke" x="2.45" y="11.05" width="19.09" height="11.45" />
+      {/* Body with glow effect */}
+      <animated.g
+        style={{
+          filter: to([glow.g], (g) => (g > 0.01 ? "url(#glow-filter)" : "none")),
+          opacity: to([glow.g], (g) => Math.min(1, 1 + g * 0.15)),
+          transform: to([glow.gs], (gs) => `scale(${gs})`),
+          transformOrigin: "12px 16.77px",
+        }}
+      >
+        <rect x="2.45" y="11.05" width="19.09" height="11.45" fill="white" />
+        <rect className="stroke" x="2.45" y="11.05" width="19.09" height="11.45" />
+      </animated.g>
 
       {/* Shackle (clean close) */}
       <animated.path

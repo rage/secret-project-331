@@ -1,7 +1,7 @@
 "use client"
+
 import { css } from "@emotion/css"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -41,6 +41,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const [lockState, setLockState] = useState<LockState>("idle")
   const [showAnimation, setShowAnimation] = useState(false)
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
+  const [previewError, setPreviewError] = useState<Error | null>(null)
 
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
@@ -72,6 +73,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   }
 
   const handleLock = async () => {
+    setPreviewError(null)
     setIsLoadingPreview(true)
     try {
       const preview = await getChapterLockPreview(chapterId)
@@ -161,7 +163,9 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
       }
     } catch (error) {
       setIsLoadingPreview(false)
-      throw error
+      setPreviewError(
+        error instanceof Error ? error : new Error("Failed to load chapter lock preview"),
+      )
     }
   }
 
@@ -203,6 +207,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
           isLocking={lockMutation.isPending}
           isLoadingPreview={isLoadingPreview}
           error={lockMutation.error as Error | null}
+          previewError={previewError}
         />
       )}
 

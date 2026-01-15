@@ -859,20 +859,19 @@ pub async fn move_chapter_exercises_to_manual_review(
         let user_exercise_state_result =
             user_exercise_states::get_users_current_by_exercise(conn, user_id, &exercise).await;
 
-        if let Ok(user_exercise_state) = user_exercise_state_result {
-            if user_exercise_state.reviewing_stage != ReviewingStage::WaitingForManualGrading
-                && user_exercise_state.reviewing_stage != ReviewingStage::ReviewedAndLocked
-            {
-                let course_or_exam_id = CourseOrExamId::Course(course_id);
-                user_exercise_states::update_reviewing_stage(
-                    conn,
-                    user_id,
-                    course_or_exam_id,
-                    exercise.id,
-                    ReviewingStage::WaitingForManualGrading,
-                )
-                .await?;
-            }
+        if let Ok(user_exercise_state) = user_exercise_state_result
+            && user_exercise_state.reviewing_stage != ReviewingStage::WaitingForManualGrading
+            && user_exercise_state.reviewing_stage != ReviewingStage::ReviewedAndLocked
+        {
+            let course_or_exam_id = CourseOrExamId::Course(course_id);
+            user_exercise_states::update_reviewing_stage(
+                conn,
+                user_id,
+                course_or_exam_id,
+                exercise.id,
+                ReviewingStage::WaitingForManualGrading,
+            )
+            .await?;
         }
     }
 

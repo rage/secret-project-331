@@ -1,4 +1,5 @@
 "use client"
+
 import { css } from "@emotion/css"
 import { Padlock } from "@vectopus/atlas-icons-react"
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"

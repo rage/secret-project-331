@@ -305,13 +305,6 @@ WHERE user_id = $1
         .collect::<ModelResult<Vec<_>>>()
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct EffectiveChapterLockingStatus {
-    pub chapter_id: Uuid,
-    pub status: ChapterLockingStatus,
-}
-
 /// Creates a status row with `not_unlocked_yet` status if one doesn't exist.
 /// If a row already exists (with any status), returns the existing row without modifying it.
 /// This function does not overwrite existing statuses.

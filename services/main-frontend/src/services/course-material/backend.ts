@@ -21,7 +21,6 @@ import {
   CourseModuleCompletion,
   CoursePageWithUserData,
   CustomViewExerciseSubmissions,
-  EffectiveChapterLockingStatus,
   ExamData,
   ExamEnrollment,
   ExerciseSlideSubmissionAndUserExerciseStateList,
@@ -80,7 +79,6 @@ import {
   isCourseModuleCompletion,
   isCoursePageWithUserData,
   isCustomViewExerciseSubmissions,
-  isEffectiveChapterLockingStatus,
   isExamData,
   isExerciseSlideSubmissionAndUserExerciseStateList,
   isFlaggedAnswer,
@@ -290,9 +288,9 @@ export const lockChapter = async (chapterId: string): Promise<UserChapterLocking
 
 export const getUserChapterLocks = async (
   courseId: string,
-): Promise<EffectiveChapterLockingStatus[]> => {
+): Promise<UserChapterLockingStatus[]> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/user-chapter-locks`)
-  return validateResponse(response, isArray(isEffectiveChapterLockingStatus))
+  return validateResponse(response, isArray(isUserChapterLockingStatus))
 }
 
 export const fetchUserCourseInstanceChapterExercisesProgress = async (

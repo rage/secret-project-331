@@ -1059,9 +1059,8 @@ async fn get_user_chapter_locks(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<
-    web::Json<Vec<models::user_chapter_locking_statuses::EffectiveChapterLockingStatus>>,
-> {
+) -> ControllerResult<web::Json<Vec<models::user_chapter_locking_statuses::UserChapterLockingStatus>>>
+{
     use models::user_chapter_locking_statuses;
     let mut conn = pool.acquire().await?;
     let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
@@ -1070,18 +1069,7 @@ async fn get_user_chapter_locks(
         user_chapter_locking_statuses::get_by_user_and_course(&mut conn, user.id, *course_id)
             .await?;
 
-    let effective_statuses: Vec<user_chapter_locking_statuses::EffectiveChapterLockingStatus> =
-        statuses
-            .into_iter()
-            .map(
-                |s| user_chapter_locking_statuses::EffectiveChapterLockingStatus {
-                    chapter_id: s.chapter_id,
-                    status: s.status,
-                },
-            )
-            .collect();
-
-    token.authorized_ok(web::Json(effective_statuses))
+    token.authorized_ok(web::Json(statuses))
 }
 
 /**

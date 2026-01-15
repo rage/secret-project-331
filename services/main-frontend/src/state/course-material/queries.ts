@@ -12,11 +12,16 @@ import {
 const QUERY_KEYS = {
   MATERIAL_ROOT: "course-page",
   EXAM_ROOT: "exam-page",
+  USER_CHAPTER_LOCKS_ROOT: "course-user-chapter-locks",
   material: (type: string | undefined, slug: string, path: string) =>
     [QUERY_KEYS.MATERIAL_ROOT, type, slug, path] as const,
   exam: (type: string | undefined, id: string, isTest: boolean) =>
     [QUERY_KEYS.EXAM_ROOT, type, id, isTest] as const,
+  userChapterLocks: (courseId: string | null | undefined) =>
+    [QUERY_KEYS.USER_CHAPTER_LOCKS_ROOT, courseId] as const,
 } as const
+
+export const userChapterLocksQueryKey = QUERY_KEYS.userChapterLocks
 
 /** Query atom for fetching course material page data. */
 export const materialQueryAtom = atomWithQuery((get) => {
@@ -57,6 +62,19 @@ export const examQueryAtom = atomWithQuery((get) => {
     suspense: false,
   }
 })
+
+/**
+ * Invalidates user chapter locks queries for a specific course.
+ * Use this when chapter lock status changes (e.g., after locking or unlocking a chapter).
+ */
+export async function invalidateUserChapterLocks(
+  queryClient: QueryClient,
+  courseId: string | null | undefined,
+) {
+  await queryClient.invalidateQueries({
+    queryKey: userChapterLocksQueryKey(courseId),
+  })
+}
 
 /**
  * Invalidates all course material state related queries (pages, exams, etc).

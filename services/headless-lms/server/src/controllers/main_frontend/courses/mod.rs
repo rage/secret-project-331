@@ -223,7 +223,33 @@ async fn update_course(
         let _token2 =
             authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
     }
+
+    let locking_just_enabled =
+        !course_before_update.chapter_locking_enabled && course_update.chapter_locking_enabled;
+
     let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
+
+    if locking_just_enabled {
+        use models::{chapters, user_chapter_locking_statuses, user_course_settings};
+
+        let all_user_settings =
+            user_course_settings::get_all_by_course_id(&mut conn, *course_id).await?;
+
+        for settings in all_user_settings {
+            let existing_statuses = user_chapter_locking_statuses::get_by_user_and_course(
+                &mut conn,
+                settings.user_id,
+                *course_id,
+            )
+            .await?;
+
+            if existing_statuses.is_empty() {
+                chapters::unlock_first_chapters_for_user(&mut conn, settings.user_id, *course_id)
+                    .await?;
+            }
+        }
+    }
+
     token.authorized_ok(web::Json(course))
 }
 

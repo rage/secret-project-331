@@ -1342,6 +1342,40 @@ WHERE course_id = $1
     Ok(res)
 }
 
+pub async fn get_returned_exercise_ids_for_user_and_course(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    #[derive(sqlx::FromRow)]
+    struct ExerciseIdRow {
+        exercise_id: Uuid,
+    }
+
+    let returned_exercise_ids: Vec<ExerciseIdRow> = sqlx::query_as::<_, ExerciseIdRow>(
+        r#"
+        SELECT DISTINCT exercise_id
+        FROM user_exercise_states
+        WHERE exercise_id = ANY($1::uuid[])
+          AND user_id = $2
+          AND course_id = $3
+          AND deleted_at IS NULL
+          AND activity_progress IN ('completed', 'submitted')
+        "#,
+    )
+    .bind(exercise_ids)
+    .bind(user_id)
+    .bind(course_id)
+    .fetch_all(conn)
+    .await?;
+
+    Ok(returned_exercise_ids
+        .into_iter()
+        .map(|r| r.exercise_id)
+        .collect())
+}
+
 #[cfg(test)]
 mod tests {
     use chrono::TimeZone;

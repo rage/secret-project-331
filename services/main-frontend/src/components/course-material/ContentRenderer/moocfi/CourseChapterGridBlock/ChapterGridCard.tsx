@@ -2,9 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
+import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
 import Card from "@/components/Card"
+import { useChapterProgress } from "@/hooks/course-material/useChapterProgress"
 import { fetchPageUrl } from "@/services/course-material/backend"
 import { ChapterWithStatus } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -17,6 +19,7 @@ import Intersection from "@/shared-module/common/img/card-defualt-bg/intersectio
 import PixelSquare from "@/shared-module/common/img/card-defualt-bg/pixel-square.svg"
 import QuadrupleCircle from "@/shared-module/common/img/card-defualt-bg/quadruple-circle.svg"
 import Triangle from "@/shared-module/common/img/card-defualt-bg/triangle.svg"
+import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { coursePageRoute } from "@/utils/course-material/routing"
 
 interface ChapterProps {
@@ -27,6 +30,7 @@ interface ChapterProps {
   organizationSlug: string
   previewable: boolean
   backgroundImage?: string | null
+  isLocked: boolean
 }
 
 const NUMERIC = "numeric"
@@ -54,8 +58,11 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   organizationSlug,
   previewable,
   backgroundImage,
+  isLocked,
 }) => {
   const { i18n } = useTranslation()
+  const courseInstance = useAtomValue(materialInstanceAtom)
+
   const getChapterPageUrl = useQuery({
     queryKey: [`chapter-grid-chapter`, chapter.id, chapter.front_page_id],
     queryFn: () => {
@@ -66,6 +73,8 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       }
     },
   })
+
+  const getChapterProgress = useChapterProgress(courseInstance?.id, chapter.id)
 
   if (getChapterPageUrl.isError) {
     return <ErrorBanner variant={"readOnly"} error={getChapterPageUrl.error} />
@@ -108,6 +117,17 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
     (open || previewable) && getChapterPageUrl.data
       ? coursePageRoute(organizationSlug, courseSlug, getChapterPageUrl.data)
       : undefined
+
+  const pointsData =
+    (open || previewable) && getChapterProgress.data
+      ? {
+          awarded: getChapterProgress.data.score_given,
+          max: getChapterProgress.data.score_maximum,
+        }
+      : undefined
+
+  const showLock = !open && !previewable
+
   return (
     <Card
       variant={backgroundImage ? "illustration" : "simple"}
@@ -120,6 +140,9 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       url={url}
       bg={chapter.color !== null ? chapter.color : bg}
       backgroundImage={backgroundImage ? backgroundImage : arr[chapter.chapter_number - 1]}
+      points={pointsData}
+      showLock={showLock}
+      isLocked={isLocked}
     />
   )
 }

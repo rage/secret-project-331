@@ -1,14 +1,20 @@
 "use client"
 
+import { useBlockProps } from "@wordpress/block-editor"
+import { IconType, Placeholder } from "@wordpress/components"
+import React from "react"
+
 /**
  * PlaceholderWrapper used by blocks that do not allow editing directly, i.e. no nested blocks.
- * Has a black border around the block and text is centered vertically.
+ * Uses Gutenberg's native Placeholder component for consistent styling and a11y.
  */
 
 interface BlockPlaceholderWrapperProps {
-  id: string
+  id?: string
   title: string
   explanation: string
+  icon?: IconType
+  className?: string
 }
 
 const BlockPlaceholderWrapper: React.FC<React.PropsWithChildren<BlockPlaceholderWrapperProps>> = ({
@@ -16,14 +22,20 @@ const BlockPlaceholderWrapper: React.FC<React.PropsWithChildren<BlockPlaceholder
   children,
   title,
   explanation,
+  icon,
+  className,
 }) => {
+  const blockProps = useBlockProps({ className })
+
   return (
-    <div className={"wp-block wp-block-embed"} id={"placeholder-block-" + id}>
-      <div className={"components-placeholder"}>
-        <h3>{title}</h3>
-        <p>{explanation}</p>
+    <div
+      {...blockProps}
+      // eslint-disable-next-line i18next/no-literal-string
+      {...(id ? { id: `placeholder-block-${id}` } : {})}
+    >
+      <Placeholder icon={icon} label={title} instructions={explanation}>
         {children}
-      </div>
+      </Placeholder>
     </div>
   )
 }

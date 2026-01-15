@@ -34,6 +34,7 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
     <>
       <div>
         <div
+          data-testid="pages-in-chapter-container"
           className={css`
             margin: 2.5em 0;
           `}

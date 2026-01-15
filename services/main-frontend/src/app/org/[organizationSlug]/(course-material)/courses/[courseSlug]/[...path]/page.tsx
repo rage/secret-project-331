@@ -1,7 +1,6 @@
 "use client"
 
 import { useAtomValue, useSetAtom } from "jotai"
-import { useHydrateAtoms } from "jotai/utils"
 import { useParams, useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useRef } from "react"
 
@@ -51,18 +50,6 @@ const PagePage: React.FC = () => {
 
   const setOrganizationSlug = useSetAtom(organizationSlugAtom)
   const setViewParams = useSetAtom(viewParamsAtom)
-
-  // Initialize atoms synchronously on first render
-  useHydrateAtoms(
-    useMemo(
-      () =>
-        [
-          [organizationSlugAtom, organizationSlug],
-          [viewParamsAtom, viewParams],
-        ] as const,
-      [organizationSlug, viewParams],
-    ),
-  )
 
   // Update atoms when params change (e.g., after language redirect)
   useEffect(() => {

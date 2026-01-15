@@ -688,7 +688,7 @@ pub async fn answer_requiring_attention_count(
     let count = sqlx::query!(
         r#"
         SELECT
-        COUNT(*) as count
+        COUNT(DISTINCT us_state.user_id) as count
     FROM user_exercise_states AS us_state
     JOIN exercise_task_submissions AS t_submission
         ON us_state.selected_exercise_slide_id =
@@ -720,7 +720,7 @@ pub async fn get_count_of_answers_requiring_attention_in_exercise_by_course_id(
         r#"
 SELECT exercises.id,
   (
-    SELECT COUNT(us_state.id)::integer AS COUNT
+    SELECT COUNT(DISTINCT us_state.user_id)::integer AS COUNT
     FROM exercises AS exercises2
       LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id
       LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id
@@ -729,6 +729,8 @@ SELECT exercises.id,
       AND us_state.user_id = s_submission.user_id
       AND us_state.reviewing_stage = 'waiting_for_manual_grading'
       AND us_state.deleted_at IS NULL
+      AND s_submission.deleted_at IS NULL
+      AND t_submission.deleted_at IS NULL
       AND exercises2.course_id = $1
       AND exercises.id = exercises2.id
     GROUP BY exercises2.id
@@ -790,7 +792,7 @@ pub async fn get_all_answers_requiring_attention(
     let submissions = sqlx::query_as!(
         AnswerRequiringAttention,
         r#"
-        SELECT
+        SELECT DISTINCT ON (us_state.user_id)
         us_state.id,
         us_state.user_id,
         us_state.exercise_id,
@@ -814,10 +816,9 @@ pub async fn get_all_answers_requiring_attention(
     AND us_state.exercise_id = $1
     AND us_state.reviewing_stage = 'waiting_for_manual_grading'
     AND us_state.deleted_at IS NULL
-    AND us_state.deleted_at IS NULL
     AND s_submission.deleted_at IS NULL
     AND t_submission.deleted_at IS NULL
-    ORDER BY t_submission.updated_at
+    ORDER BY us_state.user_id, s_submission.created_at DESC
     LIMIT $2 OFFSET $3;"#,
         exercise_id,
         pagination.limit(),

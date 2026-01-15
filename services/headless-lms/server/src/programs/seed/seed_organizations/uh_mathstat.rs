@@ -20,7 +20,7 @@ use crate::{
     programs::seed::{
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
-            seed_course_with_peer_review::seed_peer_review_course,
+            seed_course_with_peer_review::seed_peer_review_course, seed_lock_chapter_course,
             seed_peer_review_course_without_submissions, seed_sample_course,
             seed_switching_course_instances_course,
         },
@@ -443,6 +443,14 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("f1a2b3c4-d5e6-7890-abcd-ef1234567890")?,
         "Accessibility course",
         "accessibility-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let _lock_chapter_course_id = seed_lock_chapter_course(
+        Uuid::parse_str("a1b2c3d4-e5f6-7890-abcd-ef1234567890")?,
+        "Lock Chapter Test Course",
+        "lock-chapter-test-course",
         uh_data.clone(),
     )
     .await?;

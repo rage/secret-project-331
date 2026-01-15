@@ -2,7 +2,8 @@ use std::collections::{HashMap, hash_map};
 
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
-    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages, replace_duplicate_client_ids,
+    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages, filter_lock_chapter_blocks,
+    replace_duplicate_client_ids,
 };
 use itertools::Itertools;
 use serde_json::json;
@@ -28,6 +29,7 @@ use crate::{
         CmsPeerOrSelfReviewQuestion, normalize_cms_peer_or_self_review_questions,
     },
     prelude::*,
+    user_chapter_locking_statuses,
     user_course_settings::{self, UserCourseSettings},
 };
 
@@ -759,7 +761,54 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    if let Some(course_id) = page.course_id
+    let mut blocks = match page.blocks_cloned() {
+        Ok(blocks) => blocks,
+        Err(e) => {
+            tracing::warn!(
+                "Failed to deserialize page content for page {}: {}. Falling back to empty blocks.",
+                page.id,
+                e
+            );
+            vec![]
+        }
+    };
+
+    blocks = replace_duplicate_client_ids(blocks);
+
+    let is_locked = if let (Some(user_id), Some(chapter_id)) = (user_id, page.chapter_id) {
+        if let Some(course_id) = page.course_id {
+            use crate::courses;
+            let course = courses::get_course(conn, course_id).await?;
+            let status = user_chapter_locking_statuses::get_or_init_status(
+                conn,
+                user_id,
+                chapter_id,
+                Some(course_id),
+                Some(course.chapter_locking_enabled),
+            )
+            .await?;
+            matches!(
+                status,
+                Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
+            )
+        } else {
+            false
+        }
+    } else {
+        false
+    };
+
+    if page.chapter_id.is_some() {
+        blocks = filter_lock_chapter_blocks(blocks, is_locked);
+    }
+
+    let filtered_content = serde_json::to_value(blocks)?;
+
+    // Create a new page with filtered content
+    let mut filtered_page = page;
+    filtered_page.content = filtered_content;
+
+    if let Some(course_id) = filtered_page.course_id
         && let Some(user_id) = user_id
     {
         let instance =
@@ -774,7 +823,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
             app_conf,
         );
         return Ok(CoursePageWithUserData {
-            page,
+            page: filtered_page,
             instance,
             settings,
             course: Some(course),
@@ -784,7 +833,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         });
     }
     Ok(CoursePageWithUserData {
-        page,
+        page: filtered_page,
         instance: None,
         settings: None,
         course: None,

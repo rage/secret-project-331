@@ -2,7 +2,8 @@
 
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { ExclamationMessage } from "@vectopus/atlas-icons-react"
+import { ExclamationMessage, Padlock } from "@vectopus/atlas-icons-react"
+import { useAtomValue } from "jotai"
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -15,6 +16,8 @@ import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 
 import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
 
+import YellowBox from "@/components/course-material/YellowBox"
+import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import {
   Block,
   fetchPeerOrSelfReviewDataByExerciseId,
@@ -22,6 +25,7 @@ import {
   postPeerOrSelfReviewSubmission,
 } from "@/services/course-material/backend"
 import {
+  CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewQuestionAnswer,
   ReportReason,
 } from "@/shared-module/common/bindings"
@@ -34,6 +38,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+import { courseMaterialAtom } from "@/state/course-material"
 
 const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,
@@ -43,6 +48,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
 }) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
   const [answers, setAnswers] = useState<Map<string, CourseMaterialPeerOrSelfReviewQuestionAnswer>>(
     new Map(),
   )
@@ -56,6 +62,19 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     // 23 hours in ms. Need to refetch at this time because the given peer review candidate expires in 24 hours, and someone might leave the peer review view open for longer than that
     refetchInterval: 82800000,
   })
+
+  const courseId =
+    courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
+  const exerciseData = parentExerciseQuery.data as CourseMaterialExercise | undefined
+  const chapterId = exerciseData?.exercise.chapter_id
+  const getUserLocks = useUserChapterLocks(courseId)
+
+  const chapterStatus = chapterId
+    ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+    : null
+  const isChapterCompleted = Boolean(chapterId && chapterStatus?.status === "completed_and_locked")
+  const isChapterNotAccessible = Boolean(chapterId && chapterStatus?.status === "not_unlocked_yet")
+  const isChapterLocked: boolean = isChapterCompleted || isChapterNotAccessible
 
   const peerOrSelfReviewData = query.data?.course_material_peer_or_self_review_data
 
@@ -335,6 +354,24 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           />
         ))}
 
+      {isChapterLocked && (
+        <YellowBox>
+          <div
+            className={css`
+              display: flex;
+              align-items: center;
+              gap: 0.75rem;
+            `}
+          >
+            <Padlock size={24} />
+            <div>
+              {isChapterNotAccessible
+                ? t("chapter-locked-complete-previous")
+                : t("chapter-locked-description")}
+            </div>
+          </div>
+        </YellowBox>
+      )}
       <button
         className={cx(
           css`
@@ -342,7 +379,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           `,
           exerciseButtonStyles,
         )}
-        disabled={!isValid || !peerOrSelfReviewData || submitPeerOrSelfReviewMutation.isPending}
+        disabled={
+          !isValid ||
+          !peerOrSelfReviewData ||
+          submitPeerOrSelfReviewMutation.isPending ||
+          isChapterLocked
+        }
         onClick={() => submitPeerOrSelfReviewMutation.mutate()}
       >
         {t("submit-button")}

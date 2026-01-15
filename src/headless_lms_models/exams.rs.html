@@ -102,541 +102,542 @@
 <a href=#102 id=102 data-nosnippet>102</a>  flagged_answers_threshold,
 <a href=#103 id=103 data-nosnippet>103</a>  closed_at,
 <a href=#104 id=104 data-nosnippet>104</a>  closed_additional_message,
-<a href=#105 id=105 data-nosnippet>105</a>  closed_course_successor_id
-<a href=#106 id=106 data-nosnippet>106</a>FROM courses
-<a href=#107 id=107 data-nosnippet>107</a>  JOIN course_exams ON courses.id = course_exams.course_id
-<a href=#108 id=108 data-nosnippet>108</a>WHERE course_exams.exam_id = $1
-<a href=#109 id=109 data-nosnippet>109</a>  AND courses.deleted_at IS NULL
-<a href=#110 id=110 data-nosnippet>110</a>  AND course_exams.deleted_at IS NULL
-<a href=#111 id=111 data-nosnippet>111</a>"</span>,
-<a href=#112 id=112 data-nosnippet>112</a>        id
-<a href=#113 id=113 data-nosnippet>113</a>    )
-<a href=#114 id=114 data-nosnippet>114</a>    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
-<a href=#115 id=115 data-nosnippet>115</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#116 id=116 data-nosnippet>116</a>
-<a href=#117 id=117 data-nosnippet>117</a>    <span class="prelude-val">Ok</span>(Exam {
-<a href=#118 id=118 data-nosnippet>118</a>        id: exam.id,
-<a href=#119 id=119 data-nosnippet>119</a>        name: exam.name,
-<a href=#120 id=120 data-nosnippet>120</a>        instructions: exam.instructions,
-<a href=#121 id=121 data-nosnippet>121</a>        page_id: exam.page_id,
-<a href=#122 id=122 data-nosnippet>122</a>        starts_at: exam.starts_at,
-<a href=#123 id=123 data-nosnippet>123</a>        ends_at: exam.ends_at,
-<a href=#124 id=124 data-nosnippet>124</a>        time_minutes: exam.time_minutes,
-<a href=#125 id=125 data-nosnippet>125</a>        courses,
-<a href=#126 id=126 data-nosnippet>126</a>        minimum_points_treshold: exam.minimum_points_treshold,
-<a href=#127 id=127 data-nosnippet>127</a>        language: exam.language.unwrap_or(<span class="string">"en-US"</span>.to_string()),
-<a href=#128 id=128 data-nosnippet>128</a>        grade_manually: exam.grade_manually,
-<a href=#129 id=129 data-nosnippet>129</a>    })
-<a href=#130 id=130 data-nosnippet>130</a>}
-<a href=#131 id=131 data-nosnippet>131</a>
-<a href=#132 id=132 data-nosnippet>132</a><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-<a href=#133 id=133 data-nosnippet>133</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
-<a href=#134 id=134 data-nosnippet>134</a></span><span class="kw">pub struct </span>CourseExam {
-<a href=#135 id=135 data-nosnippet>135</a>    <span class="kw">pub </span>id: Uuid,
-<a href=#136 id=136 data-nosnippet>136</a>    <span class="kw">pub </span>course_id: Uuid,
-<a href=#137 id=137 data-nosnippet>137</a>    <span class="kw">pub </span>course_name: String,
-<a href=#138 id=138 data-nosnippet>138</a>    <span class="kw">pub </span>name: String,
-<a href=#139 id=139 data-nosnippet>139</a>}
-<a href=#140 id=140 data-nosnippet>140</a>
-<a href=#141 id=141 data-nosnippet>141</a><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-<a href=#142 id=142 data-nosnippet>142</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
-<a href=#143 id=143 data-nosnippet>143</a></span><span class="kw">pub struct </span>NewExam {
-<a href=#144 id=144 data-nosnippet>144</a>    <span class="kw">pub </span>name: String,
-<a href=#145 id=145 data-nosnippet>145</a>    <span class="kw">pub </span>starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
-<a href=#146 id=146 data-nosnippet>146</a>    <span class="kw">pub </span>ends_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
-<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">pub </span>time_minutes: i32,
-<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">pub </span>organization_id: Uuid,
-<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">pub </span>minimum_points_treshold: i32,
-<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">pub </span>grade_manually: bool,
-<a href=#151 id=151 data-nosnippet>151</a>}
-<a href=#152 id=152 data-nosnippet>152</a>
-<a href=#153 id=153 data-nosnippet>153</a><span class="attr">#[derive(Debug, Serialize)]
-<a href=#154 id=154 data-nosnippet>154</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
-<a href=#155 id=155 data-nosnippet>155</a></span><span class="kw">pub struct </span>ExamInstructions {
-<a href=#156 id=156 data-nosnippet>156</a>    <span class="kw">pub </span>id: Uuid,
-<a href=#157 id=157 data-nosnippet>157</a>    <span class="kw">pub </span>instructions: serde_json::Value,
-<a href=#158 id=158 data-nosnippet>158</a>}
-<a href=#159 id=159 data-nosnippet>159</a>
-<a href=#160 id=160 data-nosnippet>160</a><span class="attr">#[derive(Debug, Serialize, Deserialize)]
-<a href=#161 id=161 data-nosnippet>161</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
-<a href=#162 id=162 data-nosnippet>162</a></span><span class="kw">pub struct </span>ExamInstructionsUpdate {
-<a href=#163 id=163 data-nosnippet>163</a>    <span class="kw">pub </span>instructions: serde_json::Value,
-<a href=#164 id=164 data-nosnippet>164</a>}
-<a href=#165 id=165 data-nosnippet>165</a>
-<a href=#166 id=166 data-nosnippet>166</a><span class="kw">pub async fn </span>insert(
-<a href=#167 id=167 data-nosnippet>167</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#168 id=168 data-nosnippet>168</a>    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
-<a href=#169 id=169 data-nosnippet>169</a>    exam: <span class="kw-2">&amp;</span>NewExam,
-<a href=#170 id=170 data-nosnippet>170</a>) -&gt; ModelResult&lt;Uuid&gt; {
-<a href=#171 id=171 data-nosnippet>171</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-<a href=#172 id=172 data-nosnippet>172</a>        <span class="string">"
-<a href=#173 id=173 data-nosnippet>173</a>INSERT INTO exams (
-<a href=#174 id=174 data-nosnippet>174</a>    id,
-<a href=#175 id=175 data-nosnippet>175</a>    name,
-<a href=#176 id=176 data-nosnippet>176</a>    instructions,
-<a href=#177 id=177 data-nosnippet>177</a>    starts_at,
-<a href=#178 id=178 data-nosnippet>178</a>    ends_at,
-<a href=#179 id=179 data-nosnippet>179</a>    time_minutes,
-<a href=#180 id=180 data-nosnippet>180</a>    organization_id,
-<a href=#181 id=181 data-nosnippet>181</a>    minimum_points_treshold,
-<a href=#182 id=182 data-nosnippet>182</a>    grade_manually
-<a href=#183 id=183 data-nosnippet>183</a>  )
-<a href=#184 id=184 data-nosnippet>184</a>VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-<a href=#185 id=185 data-nosnippet>185</a>RETURNING id
-<a href=#186 id=186 data-nosnippet>186</a>        "</span>,
-<a href=#187 id=187 data-nosnippet>187</a>        pkey_policy.into_uuid(),
-<a href=#188 id=188 data-nosnippet>188</a>        exam.name,
-<a href=#189 id=189 data-nosnippet>189</a>        serde_json::Value::Array(<span class="macro">vec!</span>[]),
-<a href=#190 id=190 data-nosnippet>190</a>        exam.starts_at,
-<a href=#191 id=191 data-nosnippet>191</a>        exam.ends_at,
-<a href=#192 id=192 data-nosnippet>192</a>        exam.time_minutes,
-<a href=#193 id=193 data-nosnippet>193</a>        exam.organization_id,
-<a href=#194 id=194 data-nosnippet>194</a>        exam.minimum_points_treshold,
-<a href=#195 id=195 data-nosnippet>195</a>        exam.grade_manually,
-<a href=#196 id=196 data-nosnippet>196</a>    )
-<a href=#197 id=197 data-nosnippet>197</a>    .fetch_one(conn)
-<a href=#198 id=198 data-nosnippet>198</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#199 id=199 data-nosnippet>199</a>
-<a href=#200 id=200 data-nosnippet>200</a>    <span class="prelude-val">Ok</span>(res.id)
-<a href=#201 id=201 data-nosnippet>201</a>}
-<a href=#202 id=202 data-nosnippet>202</a>
-<a href=#203 id=203 data-nosnippet>203</a><span class="kw">pub async fn </span>edit(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid, new_exam: NewExam) -&gt; ModelResult&lt;()&gt; {
-<a href=#204 id=204 data-nosnippet>204</a>    <span class="macro">sqlx::query!</span>(
-<a href=#205 id=205 data-nosnippet>205</a>        <span class="string">"
-<a href=#206 id=206 data-nosnippet>206</a>UPDATE exams
-<a href=#207 id=207 data-nosnippet>207</a>SET name = COALESCE($2, name),
-<a href=#208 id=208 data-nosnippet>208</a>  starts_at = $3,
-<a href=#209 id=209 data-nosnippet>209</a>  ends_at = $4,
-<a href=#210 id=210 data-nosnippet>210</a>  time_minutes = $5,
-<a href=#211 id=211 data-nosnippet>211</a>  minimum_points_treshold = $6,
-<a href=#212 id=212 data-nosnippet>212</a>  grade_manually = $7
-<a href=#213 id=213 data-nosnippet>213</a>WHERE id = $1
-<a href=#214 id=214 data-nosnippet>214</a>"</span>,
-<a href=#215 id=215 data-nosnippet>215</a>        id,
-<a href=#216 id=216 data-nosnippet>216</a>        new_exam.name,
-<a href=#217 id=217 data-nosnippet>217</a>        new_exam.starts_at,
-<a href=#218 id=218 data-nosnippet>218</a>        new_exam.ends_at,
-<a href=#219 id=219 data-nosnippet>219</a>        new_exam.time_minutes,
-<a href=#220 id=220 data-nosnippet>220</a>        new_exam.minimum_points_treshold,
-<a href=#221 id=221 data-nosnippet>221</a>        new_exam.grade_manually,
-<a href=#222 id=222 data-nosnippet>222</a>    )
-<a href=#223 id=223 data-nosnippet>223</a>    .execute(conn)
-<a href=#224 id=224 data-nosnippet>224</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#225 id=225 data-nosnippet>225</a>    <span class="prelude-val">Ok</span>(())
-<a href=#226 id=226 data-nosnippet>226</a>}
-<a href=#227 id=227 data-nosnippet>227</a>
-<a href=#228 id=228 data-nosnippet>228</a><span class="kw">pub async fn </span>get_exams_for_organization(
-<a href=#229 id=229 data-nosnippet>229</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#230 id=230 data-nosnippet>230</a>    organization: Uuid,
-<a href=#231 id=231 data-nosnippet>231</a>) -&gt; ModelResult&lt;Vec&lt;OrgExam&gt;&gt; {
-<a href=#232 id=232 data-nosnippet>232</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#233 id=233 data-nosnippet>233</a>        OrgExam,
-<a href=#234 id=234 data-nosnippet>234</a>        <span class="string">"
-<a href=#235 id=235 data-nosnippet>235</a>SELECT id,
-<a href=#236 id=236 data-nosnippet>236</a>  name,
-<a href=#237 id=237 data-nosnippet>237</a>  instructions,
-<a href=#238 id=238 data-nosnippet>238</a>  starts_at,
-<a href=#239 id=239 data-nosnippet>239</a>  ends_at,
-<a href=#240 id=240 data-nosnippet>240</a>  time_minutes,
-<a href=#241 id=241 data-nosnippet>241</a>  organization_id,
-<a href=#242 id=242 data-nosnippet>242</a>  minimum_points_treshold
-<a href=#243 id=243 data-nosnippet>243</a>FROM exams
-<a href=#244 id=244 data-nosnippet>244</a>WHERE exams.organization_id = $1
-<a href=#245 id=245 data-nosnippet>245</a>  AND exams.deleted_at IS NULL
-<a href=#246 id=246 data-nosnippet>246</a>"</span>,
-<a href=#247 id=247 data-nosnippet>247</a>        organization
-<a href=#248 id=248 data-nosnippet>248</a>    )
-<a href=#249 id=249 data-nosnippet>249</a>    .fetch_all(conn)
-<a href=#250 id=250 data-nosnippet>250</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#251 id=251 data-nosnippet>251</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#252 id=252 data-nosnippet>252</a>}
-<a href=#253 id=253 data-nosnippet>253</a>
-<a href=#254 id=254 data-nosnippet>254</a><span class="kw">pub async fn </span>get_organization_exam_with_exam_id(
-<a href=#255 id=255 data-nosnippet>255</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#256 id=256 data-nosnippet>256</a>    exam_id: Uuid,
-<a href=#257 id=257 data-nosnippet>257</a>) -&gt; ModelResult&lt;OrgExam&gt; {
-<a href=#258 id=258 data-nosnippet>258</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#259 id=259 data-nosnippet>259</a>        OrgExam,
-<a href=#260 id=260 data-nosnippet>260</a>        <span class="string">"
-<a href=#261 id=261 data-nosnippet>261</a>SELECT id,
-<a href=#262 id=262 data-nosnippet>262</a>  name,
-<a href=#263 id=263 data-nosnippet>263</a>  instructions,
-<a href=#264 id=264 data-nosnippet>264</a>  starts_at,
-<a href=#265 id=265 data-nosnippet>265</a>  ends_at,
-<a href=#266 id=266 data-nosnippet>266</a>  time_minutes,
-<a href=#267 id=267 data-nosnippet>267</a>  organization_id,
-<a href=#268 id=268 data-nosnippet>268</a>  minimum_points_treshold
-<a href=#269 id=269 data-nosnippet>269</a>FROM exams
-<a href=#270 id=270 data-nosnippet>270</a>WHERE exams.id = $1
-<a href=#271 id=271 data-nosnippet>271</a>  AND exams.deleted_at IS NULL
-<a href=#272 id=272 data-nosnippet>272</a>"</span>,
-<a href=#273 id=273 data-nosnippet>273</a>        exam_id
-<a href=#274 id=274 data-nosnippet>274</a>    )
-<a href=#275 id=275 data-nosnippet>275</a>    .fetch_one(conn)
-<a href=#276 id=276 data-nosnippet>276</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#277 id=277 data-nosnippet>277</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#278 id=278 data-nosnippet>278</a>}
-<a href=#279 id=279 data-nosnippet>279</a>
-<a href=#280 id=280 data-nosnippet>280</a><span class="kw">pub async fn </span>get_course_exams_for_organization(
-<a href=#281 id=281 data-nosnippet>281</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#282 id=282 data-nosnippet>282</a>    organization: Uuid,
-<a href=#283 id=283 data-nosnippet>283</a>) -&gt; ModelResult&lt;Vec&lt;CourseExam&gt;&gt; {
-<a href=#284 id=284 data-nosnippet>284</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#285 id=285 data-nosnippet>285</a>        CourseExam,
-<a href=#286 id=286 data-nosnippet>286</a>        <span class="string">"
-<a href=#287 id=287 data-nosnippet>287</a>SELECT exams.id,
-<a href=#288 id=288 data-nosnippet>288</a>  courses.id as course_id,
-<a href=#289 id=289 data-nosnippet>289</a>  courses.name as course_name,
-<a href=#290 id=290 data-nosnippet>290</a>  exams.name
-<a href=#291 id=291 data-nosnippet>291</a>FROM exams
-<a href=#292 id=292 data-nosnippet>292</a>  JOIN course_exams ON course_exams.exam_id = exams.id
-<a href=#293 id=293 data-nosnippet>293</a>  JOIN courses ON courses.id = course_exams.course_id
-<a href=#294 id=294 data-nosnippet>294</a>WHERE exams.organization_id = $1
-<a href=#295 id=295 data-nosnippet>295</a>  AND exams.deleted_at IS NULL
-<a href=#296 id=296 data-nosnippet>296</a>  AND courses.deleted_at IS NULL
-<a href=#297 id=297 data-nosnippet>297</a>"</span>,
-<a href=#298 id=298 data-nosnippet>298</a>        organization
-<a href=#299 id=299 data-nosnippet>299</a>    )
-<a href=#300 id=300 data-nosnippet>300</a>    .fetch_all(conn)
-<a href=#301 id=301 data-nosnippet>301</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#302 id=302 data-nosnippet>302</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#303 id=303 data-nosnippet>303</a>}
-<a href=#304 id=304 data-nosnippet>304</a>
-<a href=#305 id=305 data-nosnippet>305</a><span class="kw">pub async fn </span>get_exams_for_course(
-<a href=#306 id=306 data-nosnippet>306</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#307 id=307 data-nosnippet>307</a>    course: Uuid,
-<a href=#308 id=308 data-nosnippet>308</a>) -&gt; ModelResult&lt;Vec&lt;CourseExam&gt;&gt; {
-<a href=#309 id=309 data-nosnippet>309</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#310 id=310 data-nosnippet>310</a>        CourseExam,
-<a href=#311 id=311 data-nosnippet>311</a>        <span class="string">"
-<a href=#312 id=312 data-nosnippet>312</a>SELECT exams.id,
-<a href=#313 id=313 data-nosnippet>313</a>  courses.id as course_id,
-<a href=#314 id=314 data-nosnippet>314</a>  courses.name as course_name,
-<a href=#315 id=315 data-nosnippet>315</a>  exams.name
-<a href=#316 id=316 data-nosnippet>316</a>FROM exams
-<a href=#317 id=317 data-nosnippet>317</a>  JOIN course_exams ON course_id = $1
-<a href=#318 id=318 data-nosnippet>318</a>  JOIN courses ON courses.id = $1
-<a href=#319 id=319 data-nosnippet>319</a>  AND exams.deleted_at IS NULL
-<a href=#320 id=320 data-nosnippet>320</a>  AND courses.deleted_at IS NULL
-<a href=#321 id=321 data-nosnippet>321</a>"</span>,
-<a href=#322 id=322 data-nosnippet>322</a>        course
-<a href=#323 id=323 data-nosnippet>323</a>    )
-<a href=#324 id=324 data-nosnippet>324</a>    .fetch_all(conn)
-<a href=#325 id=325 data-nosnippet>325</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#326 id=326 data-nosnippet>326</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#327 id=327 data-nosnippet>327</a>}
-<a href=#328 id=328 data-nosnippet>328</a>
-<a href=#329 id=329 data-nosnippet>329</a><span class="kw">pub async fn </span>enroll(
-<a href=#330 id=330 data-nosnippet>330</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#331 id=331 data-nosnippet>331</a>    exam_id: Uuid,
-<a href=#332 id=332 data-nosnippet>332</a>    user_id: Uuid,
-<a href=#333 id=333 data-nosnippet>333</a>    is_teacher_testing: bool,
-<a href=#334 id=334 data-nosnippet>334</a>) -&gt; ModelResult&lt;()&gt; {
-<a href=#335 id=335 data-nosnippet>335</a>    <span class="macro">sqlx::query!</span>(
-<a href=#336 id=336 data-nosnippet>336</a>        <span class="string">"
-<a href=#337 id=337 data-nosnippet>337</a>INSERT INTO exam_enrollments (exam_id, user_id, is_teacher_testing)
-<a href=#338 id=338 data-nosnippet>338</a>VALUES ($1, $2, $3)
-<a href=#339 id=339 data-nosnippet>339</a>"</span>,
-<a href=#340 id=340 data-nosnippet>340</a>        exam_id,
-<a href=#341 id=341 data-nosnippet>341</a>        user_id,
-<a href=#342 id=342 data-nosnippet>342</a>        is_teacher_testing
-<a href=#343 id=343 data-nosnippet>343</a>    )
-<a href=#344 id=344 data-nosnippet>344</a>    .execute(conn)
-<a href=#345 id=345 data-nosnippet>345</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#346 id=346 data-nosnippet>346</a>    <span class="prelude-val">Ok</span>(())
-<a href=#347 id=347 data-nosnippet>347</a>}
-<a href=#348 id=348 data-nosnippet>348</a>
-<a href=#349 id=349 data-nosnippet>349</a><span class="doccomment">/// Checks whether a submission can be made for the given exam.
-<a href=#350 id=350 data-nosnippet>350</a></span><span class="kw">pub async fn </span>verify_exam_submission_can_be_made(
-<a href=#351 id=351 data-nosnippet>351</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#352 id=352 data-nosnippet>352</a>    exam_id: Uuid,
-<a href=#353 id=353 data-nosnippet>353</a>    user_id: Uuid,
-<a href=#354 id=354 data-nosnippet>354</a>) -&gt; ModelResult&lt;bool&gt; {
-<a href=#355 id=355 data-nosnippet>355</a>    <span class="kw">let </span>exam = get(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#356 id=356 data-nosnippet>356</a>    <span class="kw">let </span>enrollment = get_enrollment(conn, exam_id, user_id)
-<a href=#357 id=357 data-nosnippet>357</a>        .<span class="kw">await</span><span class="question-mark">?
-<a href=#358 id=358 data-nosnippet>358</a>        </span>.ok_or_else(|| {
-<a href=#359 id=359 data-nosnippet>359</a>            ModelError::new(
-<a href=#360 id=360 data-nosnippet>360</a>                ModelErrorType::PreconditionFailed,
-<a href=#361 id=361 data-nosnippet>361</a>                <span class="string">"User has no enrollment for the exam"</span>.to_string(),
-<a href=#362 id=362 data-nosnippet>362</a>                <span class="prelude-val">None</span>,
-<a href=#363 id=363 data-nosnippet>363</a>            )
-<a href=#364 id=364 data-nosnippet>364</a>        })<span class="question-mark">?</span>;
-<a href=#365 id=365 data-nosnippet>365</a>    <span class="kw">let </span>student_has_time =
-<a href=#366 id=366 data-nosnippet>366</a>        Utc::now() &lt;= enrollment.started_at + Duration::minutes(exam.time_minutes.into());
-<a href=#367 id=367 data-nosnippet>367</a>    <span class="kw">let </span>exam_is_ongoing = exam.ends_at.map(|ea| Utc::now() &lt; ea).unwrap_or_default();
-<a href=#368 id=368 data-nosnippet>368</a>    <span class="prelude-val">Ok</span>(student_has_time &amp;&amp; exam_is_ongoing)
-<a href=#369 id=369 data-nosnippet>369</a>}
-<a href=#370 id=370 data-nosnippet>370</a>
-<a href=#371 id=371 data-nosnippet>371</a><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-<a href=#372 id=372 data-nosnippet>372</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
-<a href=#373 id=373 data-nosnippet>373</a></span><span class="kw">pub struct </span>ExamEnrollment {
-<a href=#374 id=374 data-nosnippet>374</a>    <span class="kw">pub </span>user_id: Uuid,
-<a href=#375 id=375 data-nosnippet>375</a>    <span class="kw">pub </span>exam_id: Uuid,
-<a href=#376 id=376 data-nosnippet>376</a>    <span class="kw">pub </span>started_at: DateTime&lt;Utc&gt;,
-<a href=#377 id=377 data-nosnippet>377</a>    <span class="kw">pub </span>ended_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
-<a href=#378 id=378 data-nosnippet>378</a>    <span class="kw">pub </span>is_teacher_testing: bool,
-<a href=#379 id=379 data-nosnippet>379</a>    <span class="kw">pub </span>show_exercise_answers: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-<a href=#380 id=380 data-nosnippet>380</a>}
-<a href=#381 id=381 data-nosnippet>381</a>
-<a href=#382 id=382 data-nosnippet>382</a><span class="kw">pub async fn </span>get_enrollment(
-<a href=#383 id=383 data-nosnippet>383</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#384 id=384 data-nosnippet>384</a>    exam_id: Uuid,
-<a href=#385 id=385 data-nosnippet>385</a>    user_id: Uuid,
-<a href=#386 id=386 data-nosnippet>386</a>) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExamEnrollment&gt;&gt; {
-<a href=#387 id=387 data-nosnippet>387</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-<a href=#388 id=388 data-nosnippet>388</a>        ExamEnrollment,
-<a href=#389 id=389 data-nosnippet>389</a>        <span class="string">"
-<a href=#390 id=390 data-nosnippet>390</a>SELECT user_id,
-<a href=#391 id=391 data-nosnippet>391</a>  exam_id,
-<a href=#392 id=392 data-nosnippet>392</a>  started_at,
-<a href=#393 id=393 data-nosnippet>393</a>  ended_at,
-<a href=#394 id=394 data-nosnippet>394</a>  is_teacher_testing,
-<a href=#395 id=395 data-nosnippet>395</a>  show_exercise_answers
-<a href=#396 id=396 data-nosnippet>396</a>FROM exam_enrollments
-<a href=#397 id=397 data-nosnippet>397</a>WHERE exam_id = $1
-<a href=#398 id=398 data-nosnippet>398</a>  AND user_id = $2
-<a href=#399 id=399 data-nosnippet>399</a>  AND deleted_at IS NULL
-<a href=#400 id=400 data-nosnippet>400</a>"</span>,
-<a href=#401 id=401 data-nosnippet>401</a>        exam_id,
-<a href=#402 id=402 data-nosnippet>402</a>        user_id
-<a href=#403 id=403 data-nosnippet>403</a>    )
-<a href=#404 id=404 data-nosnippet>404</a>    .fetch_optional(conn)
-<a href=#405 id=405 data-nosnippet>405</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#406 id=406 data-nosnippet>406</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#407 id=407 data-nosnippet>407</a>}
-<a href=#408 id=408 data-nosnippet>408</a>
-<a href=#409 id=409 data-nosnippet>409</a><span class="kw">pub async fn </span>get_exam_enrollments_for_users(
-<a href=#410 id=410 data-nosnippet>410</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#411 id=411 data-nosnippet>411</a>    exam_id: Uuid,
-<a href=#412 id=412 data-nosnippet>412</a>    user_ids: <span class="kw-2">&amp;</span>[Uuid],
-<a href=#413 id=413 data-nosnippet>413</a>) -&gt; ModelResult&lt;HashMap&lt;Uuid, ExamEnrollment&gt;&gt; {
-<a href=#414 id=414 data-nosnippet>414</a>    <span class="kw">let </span>enrollments = <span class="macro">sqlx::query_as!</span>(
-<a href=#415 id=415 data-nosnippet>415</a>        ExamEnrollment,
-<a href=#416 id=416 data-nosnippet>416</a>        <span class="string">"
-<a href=#417 id=417 data-nosnippet>417</a>SELECT user_id,
-<a href=#418 id=418 data-nosnippet>418</a>  exam_id,
-<a href=#419 id=419 data-nosnippet>419</a>  started_at,
-<a href=#420 id=420 data-nosnippet>420</a>  ended_at,
-<a href=#421 id=421 data-nosnippet>421</a>  is_teacher_testing,
-<a href=#422 id=422 data-nosnippet>422</a>  show_exercise_answers
-<a href=#423 id=423 data-nosnippet>423</a>FROM exam_enrollments
-<a href=#424 id=424 data-nosnippet>424</a>WHERE user_id IN (
-<a href=#425 id=425 data-nosnippet>425</a>    SELECT UNNEST($1::uuid [])
-<a href=#426 id=426 data-nosnippet>426</a>  )
-<a href=#427 id=427 data-nosnippet>427</a>  AND exam_id = $2
-<a href=#428 id=428 data-nosnippet>428</a>  AND deleted_at IS NULL
-<a href=#429 id=429 data-nosnippet>429</a>"</span>,
-<a href=#430 id=430 data-nosnippet>430</a>        user_ids,
-<a href=#431 id=431 data-nosnippet>431</a>        exam_id,
-<a href=#432 id=432 data-nosnippet>432</a>    )
-<a href=#433 id=433 data-nosnippet>433</a>    .fetch_all(conn)
-<a href=#434 id=434 data-nosnippet>434</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#435 id=435 data-nosnippet>435</a>
-<a href=#436 id=436 data-nosnippet>436</a>    <span class="kw">let </span><span class="kw-2">mut </span>res: HashMap&lt;Uuid, ExamEnrollment&gt; = HashMap::new();
-<a href=#437 id=437 data-nosnippet>437</a>    <span class="kw">for </span>item <span class="kw">in </span>enrollments.into_iter() {
-<a href=#438 id=438 data-nosnippet>438</a>        res.insert(item.user_id, item);
-<a href=#439 id=439 data-nosnippet>439</a>    }
-<a href=#440 id=440 data-nosnippet>440</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#441 id=441 data-nosnippet>441</a>}
-<a href=#442 id=442 data-nosnippet>442</a>
-<a href=#443 id=443 data-nosnippet>443</a><span class="kw">pub async fn </span>get_ongoing_exam_enrollments(
-<a href=#444 id=444 data-nosnippet>444</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#445 id=445 data-nosnippet>445</a>) -&gt; ModelResult&lt;Vec&lt;ExamEnrollment&gt;&gt; {
-<a href=#446 id=446 data-nosnippet>446</a>    <span class="kw">let </span>enrollments = <span class="macro">sqlx::query_as!</span>(
-<a href=#447 id=447 data-nosnippet>447</a>        ExamEnrollment,
-<a href=#448 id=448 data-nosnippet>448</a>        <span class="string">"
-<a href=#449 id=449 data-nosnippet>449</a>SELECT user_id,
-<a href=#450 id=450 data-nosnippet>450</a>  exam_id,
-<a href=#451 id=451 data-nosnippet>451</a>  started_at,
-<a href=#452 id=452 data-nosnippet>452</a>  ended_at,
-<a href=#453 id=453 data-nosnippet>453</a>  is_teacher_testing,
-<a href=#454 id=454 data-nosnippet>454</a>  show_exercise_answers
-<a href=#455 id=455 data-nosnippet>455</a>FROM exam_enrollments
-<a href=#456 id=456 data-nosnippet>456</a>WHERE
-<a href=#457 id=457 data-nosnippet>457</a>    ended_at IS NULL
-<a href=#458 id=458 data-nosnippet>458</a>  AND deleted_at IS NULL
-<a href=#459 id=459 data-nosnippet>459</a>"
-<a href=#460 id=460 data-nosnippet>460</a>    </span>)
-<a href=#461 id=461 data-nosnippet>461</a>    .fetch_all(conn)
-<a href=#462 id=462 data-nosnippet>462</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#463 id=463 data-nosnippet>463</a>    <span class="prelude-val">Ok</span>(enrollments)
-<a href=#464 id=464 data-nosnippet>464</a>}
-<a href=#465 id=465 data-nosnippet>465</a>
-<a href=#466 id=466 data-nosnippet>466</a><span class="kw">pub async fn </span>get_exams(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; ModelResult&lt;HashMap&lt;Uuid, OrgExam&gt;&gt; {
-<a href=#467 id=467 data-nosnippet>467</a>    <span class="kw">let </span>exams = <span class="macro">sqlx::query_as!</span>(
-<a href=#468 id=468 data-nosnippet>468</a>        OrgExam,
-<a href=#469 id=469 data-nosnippet>469</a>        <span class="string">"
-<a href=#470 id=470 data-nosnippet>470</a>SELECT id,
-<a href=#471 id=471 data-nosnippet>471</a>  name,
-<a href=#472 id=472 data-nosnippet>472</a>  instructions,
-<a href=#473 id=473 data-nosnippet>473</a>  starts_at,
-<a href=#474 id=474 data-nosnippet>474</a>  ends_at,
-<a href=#475 id=475 data-nosnippet>475</a>  time_minutes,
-<a href=#476 id=476 data-nosnippet>476</a>  organization_id,
-<a href=#477 id=477 data-nosnippet>477</a>  minimum_points_treshold
-<a href=#478 id=478 data-nosnippet>478</a>FROM exams
-<a href=#479 id=479 data-nosnippet>479</a>WHERE deleted_at IS NULL
-<a href=#480 id=480 data-nosnippet>480</a>"
-<a href=#481 id=481 data-nosnippet>481</a>    </span>)
-<a href=#482 id=482 data-nosnippet>482</a>    .fetch_all(conn)
-<a href=#483 id=483 data-nosnippet>483</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#484 id=484 data-nosnippet>484</a>
-<a href=#485 id=485 data-nosnippet>485</a>    <span class="kw">let </span><span class="kw-2">mut </span>res: HashMap&lt;Uuid, OrgExam&gt; = HashMap::new();
-<a href=#486 id=486 data-nosnippet>486</a>    <span class="kw">for </span>item <span class="kw">in </span>exams.into_iter() {
-<a href=#487 id=487 data-nosnippet>487</a>        res.insert(item.id, item);
-<a href=#488 id=488 data-nosnippet>488</a>    }
-<a href=#489 id=489 data-nosnippet>489</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#490 id=490 data-nosnippet>490</a>}
-<a href=#491 id=491 data-nosnippet>491</a>
-<a href=#492 id=492 data-nosnippet>492</a><span class="kw">pub async fn </span>update_exam_start_time(
-<a href=#493 id=493 data-nosnippet>493</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#494 id=494 data-nosnippet>494</a>    exam_id: Uuid,
-<a href=#495 id=495 data-nosnippet>495</a>    user_id: Uuid,
-<a href=#496 id=496 data-nosnippet>496</a>    started_at: DateTime&lt;Utc&gt;,
-<a href=#497 id=497 data-nosnippet>497</a>) -&gt; ModelResult&lt;()&gt; {
-<a href=#498 id=498 data-nosnippet>498</a>    <span class="macro">sqlx::query!</span>(
-<a href=#499 id=499 data-nosnippet>499</a>        <span class="string">"
-<a href=#500 id=500 data-nosnippet>500</a>UPDATE exam_enrollments
-<a href=#501 id=501 data-nosnippet>501</a>SET started_at = $3
-<a href=#502 id=502 data-nosnippet>502</a>WHERE exam_id = $1
-<a href=#503 id=503 data-nosnippet>503</a>  AND user_id = $2
-<a href=#504 id=504 data-nosnippet>504</a>  AND deleted_at IS NULL
-<a href=#505 id=505 data-nosnippet>505</a>"</span>,
-<a href=#506 id=506 data-nosnippet>506</a>        exam_id,
-<a href=#507 id=507 data-nosnippet>507</a>        user_id,
-<a href=#508 id=508 data-nosnippet>508</a>        started_at
-<a href=#509 id=509 data-nosnippet>509</a>    )
-<a href=#510 id=510 data-nosnippet>510</a>    .execute(conn)
-<a href=#511 id=511 data-nosnippet>511</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#512 id=512 data-nosnippet>512</a>    <span class="prelude-val">Ok</span>(())
-<a href=#513 id=513 data-nosnippet>513</a>}
-<a href=#514 id=514 data-nosnippet>514</a>
-<a href=#515 id=515 data-nosnippet>515</a><span class="kw">pub async fn </span>update_exam_ended_at(
-<a href=#516 id=516 data-nosnippet>516</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#517 id=517 data-nosnippet>517</a>    exam_id: Uuid,
-<a href=#518 id=518 data-nosnippet>518</a>    user_id: Uuid,
-<a href=#519 id=519 data-nosnippet>519</a>    ended_at: DateTime&lt;Utc&gt;,
-<a href=#520 id=520 data-nosnippet>520</a>) -&gt; ModelResult&lt;()&gt; {
-<a href=#521 id=521 data-nosnippet>521</a>    <span class="macro">sqlx::query!</span>(
-<a href=#522 id=522 data-nosnippet>522</a>        <span class="string">"
-<a href=#523 id=523 data-nosnippet>523</a>UPDATE exam_enrollments
-<a href=#524 id=524 data-nosnippet>524</a>SET ended_at = $3
-<a href=#525 id=525 data-nosnippet>525</a>WHERE exam_id = $1
-<a href=#526 id=526 data-nosnippet>526</a>  AND user_id = $2
-<a href=#527 id=527 data-nosnippet>527</a>  AND deleted_at IS NULL
-<a href=#528 id=528 data-nosnippet>528</a>"</span>,
-<a href=#529 id=529 data-nosnippet>529</a>        exam_id,
-<a href=#530 id=530 data-nosnippet>530</a>        user_id,
-<a href=#531 id=531 data-nosnippet>531</a>        ended_at
-<a href=#532 id=532 data-nosnippet>532</a>    )
-<a href=#533 id=533 data-nosnippet>533</a>    .execute(conn)
-<a href=#534 id=534 data-nosnippet>534</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#535 id=535 data-nosnippet>535</a>    <span class="prelude-val">Ok</span>(())
-<a href=#536 id=536 data-nosnippet>536</a>}
-<a href=#537 id=537 data-nosnippet>537</a>
-<a href=#538 id=538 data-nosnippet>538</a><span class="kw">pub async fn </span>update_exam_ended_at_for_users_with_exam_id(
-<a href=#539 id=539 data-nosnippet>539</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#540 id=540 data-nosnippet>540</a>    exam_id: Uuid,
-<a href=#541 id=541 data-nosnippet>541</a>    user_ids: <span class="kw-2">&amp;</span>[Uuid],
-<a href=#542 id=542 data-nosnippet>542</a>    ended_at: DateTime&lt;Utc&gt;,
-<a href=#543 id=543 data-nosnippet>543</a>) -&gt; ModelResult&lt;()&gt; {
-<a href=#544 id=544 data-nosnippet>544</a>    <span class="macro">sqlx::query!</span>(
-<a href=#545 id=545 data-nosnippet>545</a>        <span class="string">"
-<a href=#546 id=546 data-nosnippet>546</a>UPDATE exam_enrollments
-<a href=#547 id=547 data-nosnippet>547</a>SET ended_at = $3
-<a href=#548 id=548 data-nosnippet>548</a>WHERE user_id IN (
-<a href=#549 id=549 data-nosnippet>549</a>    SELECT UNNEST($1::uuid [])
-<a href=#550 id=550 data-nosnippet>550</a>  )
-<a href=#551 id=551 data-nosnippet>551</a>  AND exam_id = $2
-<a href=#552 id=552 data-nosnippet>552</a>  AND deleted_at IS NULL
-<a href=#553 id=553 data-nosnippet>553</a>"</span>,
-<a href=#554 id=554 data-nosnippet>554</a>        user_ids,
-<a href=#555 id=555 data-nosnippet>555</a>        exam_id,
-<a href=#556 id=556 data-nosnippet>556</a>        ended_at
-<a href=#557 id=557 data-nosnippet>557</a>    )
-<a href=#558 id=558 data-nosnippet>558</a>    .execute(conn)
-<a href=#559 id=559 data-nosnippet>559</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#560 id=560 data-nosnippet>560</a>    <span class="prelude-val">Ok</span>(())
-<a href=#561 id=561 data-nosnippet>561</a>}
-<a href=#562 id=562 data-nosnippet>562</a>
-<a href=#563 id=563 data-nosnippet>563</a><span class="kw">pub async fn </span>update_show_exercise_answers(
-<a href=#564 id=564 data-nosnippet>564</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#565 id=565 data-nosnippet>565</a>    exam_id: Uuid,
-<a href=#566 id=566 data-nosnippet>566</a>    user_id: Uuid,
-<a href=#567 id=567 data-nosnippet>567</a>    show_exercise_answers: bool,
-<a href=#568 id=568 data-nosnippet>568</a>) -&gt; ModelResult&lt;()&gt; {
-<a href=#569 id=569 data-nosnippet>569</a>    <span class="macro">sqlx::query!</span>(
-<a href=#570 id=570 data-nosnippet>570</a>        <span class="string">"
-<a href=#571 id=571 data-nosnippet>571</a>UPDATE exam_enrollments
-<a href=#572 id=572 data-nosnippet>572</a>SET show_exercise_answers = $3
-<a href=#573 id=573 data-nosnippet>573</a>WHERE exam_id = $1
-<a href=#574 id=574 data-nosnippet>574</a>  AND user_id = $2
-<a href=#575 id=575 data-nosnippet>575</a>  AND deleted_at IS NULL
-<a href=#576 id=576 data-nosnippet>576</a>"</span>,
-<a href=#577 id=577 data-nosnippet>577</a>        exam_id,
-<a href=#578 id=578 data-nosnippet>578</a>        user_id,
-<a href=#579 id=579 data-nosnippet>579</a>        show_exercise_answers
-<a href=#580 id=580 data-nosnippet>580</a>    )
-<a href=#581 id=581 data-nosnippet>581</a>    .execute(conn)
-<a href=#582 id=582 data-nosnippet>582</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#583 id=583 data-nosnippet>583</a>    <span class="prelude-val">Ok</span>(())
-<a href=#584 id=584 data-nosnippet>584</a>}
-<a href=#585 id=585 data-nosnippet>585</a>
-<a href=#586 id=586 data-nosnippet>586</a><span class="kw">pub async fn </span>get_organization_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
-<a href=#587 id=587 data-nosnippet>587</a>    <span class="kw">let </span>organization_id = <span class="macro">sqlx::query!</span>(
-<a href=#588 id=588 data-nosnippet>588</a>        <span class="string">"
-<a href=#589 id=589 data-nosnippet>589</a>SELECT organization_id
-<a href=#590 id=590 data-nosnippet>590</a>FROM exams
-<a href=#591 id=591 data-nosnippet>591</a>WHERE id = $1
-<a href=#592 id=592 data-nosnippet>592</a>"</span>,
-<a href=#593 id=593 data-nosnippet>593</a>        exam_id
-<a href=#594 id=594 data-nosnippet>594</a>    )
-<a href=#595 id=595 data-nosnippet>595</a>    .fetch_one(conn)
-<a href=#596 id=596 data-nosnippet>596</a>    .<span class="kw">await</span><span class="question-mark">?
-<a href=#597 id=597 data-nosnippet>597</a>    </span>.organization_id;
-<a href=#598 id=598 data-nosnippet>598</a>    <span class="prelude-val">Ok</span>(organization_id)
-<a href=#599 id=599 data-nosnippet>599</a>}
-<a href=#600 id=600 data-nosnippet>600</a>
-<a href=#601 id=601 data-nosnippet>601</a><span class="kw">pub async fn </span>get_exam_instructions_data(
-<a href=#602 id=602 data-nosnippet>602</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#603 id=603 data-nosnippet>603</a>    exam_id: Uuid,
-<a href=#604 id=604 data-nosnippet>604</a>) -&gt; ModelResult&lt;ExamInstructions&gt; {
-<a href=#605 id=605 data-nosnippet>605</a>    <span class="kw">let </span>exam_instructions_data = <span class="macro">sqlx::query_as!</span>(
-<a href=#606 id=606 data-nosnippet>606</a>        ExamInstructions,
-<a href=#607 id=607 data-nosnippet>607</a>        <span class="string">"
-<a href=#608 id=608 data-nosnippet>608</a>SELECT id, instructions
-<a href=#609 id=609 data-nosnippet>609</a>FROM exams
-<a href=#610 id=610 data-nosnippet>610</a>WHERE id = $1;
-<a href=#611 id=611 data-nosnippet>611</a>"</span>,
-<a href=#612 id=612 data-nosnippet>612</a>        exam_id
-<a href=#613 id=613 data-nosnippet>613</a>    )
-<a href=#614 id=614 data-nosnippet>614</a>    .fetch_one(conn)
-<a href=#615 id=615 data-nosnippet>615</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#616 id=616 data-nosnippet>616</a>    <span class="prelude-val">Ok</span>(exam_instructions_data)
-<a href=#617 id=617 data-nosnippet>617</a>}
-<a href=#618 id=618 data-nosnippet>618</a>
-<a href=#619 id=619 data-nosnippet>619</a><span class="kw">pub async fn </span>update_exam_instructions(
-<a href=#620 id=620 data-nosnippet>620</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#621 id=621 data-nosnippet>621</a>    exam_id: Uuid,
-<a href=#622 id=622 data-nosnippet>622</a>    instructions_update: ExamInstructionsUpdate,
-<a href=#623 id=623 data-nosnippet>623</a>) -&gt; ModelResult&lt;ExamInstructions&gt; {
-<a href=#624 id=624 data-nosnippet>624</a>    <span class="kw">let </span>parsed_content: Vec&lt;GutenbergBlock&gt; =
-<a href=#625 id=625 data-nosnippet>625</a>        serde_json::from_value(instructions_update.instructions)<span class="question-mark">?</span>;
-<a href=#626 id=626 data-nosnippet>626</a>    <span class="kw">let </span>updated_data = <span class="macro">sqlx::query_as!</span>(
-<a href=#627 id=627 data-nosnippet>627</a>        ExamInstructions,
-<a href=#628 id=628 data-nosnippet>628</a>        <span class="string">"
-<a href=#629 id=629 data-nosnippet>629</a>    UPDATE exams
-<a href=#630 id=630 data-nosnippet>630</a>    SET instructions = $1
-<a href=#631 id=631 data-nosnippet>631</a>    WHERE id = $2
-<a href=#632 id=632 data-nosnippet>632</a>    RETURNING id,
-<a href=#633 id=633 data-nosnippet>633</a>        instructions
-<a href=#634 id=634 data-nosnippet>634</a>    "</span>,
-<a href=#635 id=635 data-nosnippet>635</a>        serde_json::to_value(parsed_content)<span class="question-mark">?</span>,
-<a href=#636 id=636 data-nosnippet>636</a>        exam_id
-<a href=#637 id=637 data-nosnippet>637</a>    )
-<a href=#638 id=638 data-nosnippet>638</a>    .fetch_one(conn)
-<a href=#639 id=639 data-nosnippet>639</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#640 id=640 data-nosnippet>640</a>
-<a href=#641 id=641 data-nosnippet>641</a>    <span class="prelude-val">Ok</span>(updated_data)
-<a href=#642 id=642 data-nosnippet>642</a>}</code></pre></div></section></main></body></html>
+<a href=#105 id=105 data-nosnippet>105</a>  closed_course_successor_id,
+<a href=#106 id=106 data-nosnippet>106</a>  chapter_locking_enabled
+<a href=#107 id=107 data-nosnippet>107</a>FROM courses
+<a href=#108 id=108 data-nosnippet>108</a>  JOIN course_exams ON courses.id = course_exams.course_id
+<a href=#109 id=109 data-nosnippet>109</a>WHERE course_exams.exam_id = $1
+<a href=#110 id=110 data-nosnippet>110</a>  AND courses.deleted_at IS NULL
+<a href=#111 id=111 data-nosnippet>111</a>  AND course_exams.deleted_at IS NULL
+<a href=#112 id=112 data-nosnippet>112</a>"</span>,
+<a href=#113 id=113 data-nosnippet>113</a>        id
+<a href=#114 id=114 data-nosnippet>114</a>    )
+<a href=#115 id=115 data-nosnippet>115</a>    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+<a href=#116 id=116 data-nosnippet>116</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#117 id=117 data-nosnippet>117</a>
+<a href=#118 id=118 data-nosnippet>118</a>    <span class="prelude-val">Ok</span>(Exam {
+<a href=#119 id=119 data-nosnippet>119</a>        id: exam.id,
+<a href=#120 id=120 data-nosnippet>120</a>        name: exam.name,
+<a href=#121 id=121 data-nosnippet>121</a>        instructions: exam.instructions,
+<a href=#122 id=122 data-nosnippet>122</a>        page_id: exam.page_id,
+<a href=#123 id=123 data-nosnippet>123</a>        starts_at: exam.starts_at,
+<a href=#124 id=124 data-nosnippet>124</a>        ends_at: exam.ends_at,
+<a href=#125 id=125 data-nosnippet>125</a>        time_minutes: exam.time_minutes,
+<a href=#126 id=126 data-nosnippet>126</a>        courses,
+<a href=#127 id=127 data-nosnippet>127</a>        minimum_points_treshold: exam.minimum_points_treshold,
+<a href=#128 id=128 data-nosnippet>128</a>        language: exam.language.unwrap_or(<span class="string">"en-US"</span>.to_string()),
+<a href=#129 id=129 data-nosnippet>129</a>        grade_manually: exam.grade_manually,
+<a href=#130 id=130 data-nosnippet>130</a>    })
+<a href=#131 id=131 data-nosnippet>131</a>}
+<a href=#132 id=132 data-nosnippet>132</a>
+<a href=#133 id=133 data-nosnippet>133</a><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+<a href=#134 id=134 data-nosnippet>134</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+<a href=#135 id=135 data-nosnippet>135</a></span><span class="kw">pub struct </span>CourseExam {
+<a href=#136 id=136 data-nosnippet>136</a>    <span class="kw">pub </span>id: Uuid,
+<a href=#137 id=137 data-nosnippet>137</a>    <span class="kw">pub </span>course_id: Uuid,
+<a href=#138 id=138 data-nosnippet>138</a>    <span class="kw">pub </span>course_name: String,
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">pub </span>name: String,
+<a href=#140 id=140 data-nosnippet>140</a>}
+<a href=#141 id=141 data-nosnippet>141</a>
+<a href=#142 id=142 data-nosnippet>142</a><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+<a href=#143 id=143 data-nosnippet>143</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+<a href=#144 id=144 data-nosnippet>144</a></span><span class="kw">pub struct </span>NewExam {
+<a href=#145 id=145 data-nosnippet>145</a>    <span class="kw">pub </span>name: String,
+<a href=#146 id=146 data-nosnippet>146</a>    <span class="kw">pub </span>starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">pub </span>ends_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">pub </span>time_minutes: i32,
+<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">pub </span>organization_id: Uuid,
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">pub </span>minimum_points_treshold: i32,
+<a href=#151 id=151 data-nosnippet>151</a>    <span class="kw">pub </span>grade_manually: bool,
+<a href=#152 id=152 data-nosnippet>152</a>}
+<a href=#153 id=153 data-nosnippet>153</a>
+<a href=#154 id=154 data-nosnippet>154</a><span class="attr">#[derive(Debug, Serialize)]
+<a href=#155 id=155 data-nosnippet>155</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+<a href=#156 id=156 data-nosnippet>156</a></span><span class="kw">pub struct </span>ExamInstructions {
+<a href=#157 id=157 data-nosnippet>157</a>    <span class="kw">pub </span>id: Uuid,
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">pub </span>instructions: serde_json::Value,
+<a href=#159 id=159 data-nosnippet>159</a>}
+<a href=#160 id=160 data-nosnippet>160</a>
+<a href=#161 id=161 data-nosnippet>161</a><span class="attr">#[derive(Debug, Serialize, Deserialize)]
+<a href=#162 id=162 data-nosnippet>162</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+<a href=#163 id=163 data-nosnippet>163</a></span><span class="kw">pub struct </span>ExamInstructionsUpdate {
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="kw">pub </span>instructions: serde_json::Value,
+<a href=#165 id=165 data-nosnippet>165</a>}
+<a href=#166 id=166 data-nosnippet>166</a>
+<a href=#167 id=167 data-nosnippet>167</a><span class="kw">pub async fn </span>insert(
+<a href=#168 id=168 data-nosnippet>168</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#169 id=169 data-nosnippet>169</a>    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+<a href=#170 id=170 data-nosnippet>170</a>    exam: <span class="kw-2">&amp;</span>NewExam,
+<a href=#171 id=171 data-nosnippet>171</a>) -&gt; ModelResult&lt;Uuid&gt; {
+<a href=#172 id=172 data-nosnippet>172</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+<a href=#173 id=173 data-nosnippet>173</a>        <span class="string">"
+<a href=#174 id=174 data-nosnippet>174</a>INSERT INTO exams (
+<a href=#175 id=175 data-nosnippet>175</a>    id,
+<a href=#176 id=176 data-nosnippet>176</a>    name,
+<a href=#177 id=177 data-nosnippet>177</a>    instructions,
+<a href=#178 id=178 data-nosnippet>178</a>    starts_at,
+<a href=#179 id=179 data-nosnippet>179</a>    ends_at,
+<a href=#180 id=180 data-nosnippet>180</a>    time_minutes,
+<a href=#181 id=181 data-nosnippet>181</a>    organization_id,
+<a href=#182 id=182 data-nosnippet>182</a>    minimum_points_treshold,
+<a href=#183 id=183 data-nosnippet>183</a>    grade_manually
+<a href=#184 id=184 data-nosnippet>184</a>  )
+<a href=#185 id=185 data-nosnippet>185</a>VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+<a href=#186 id=186 data-nosnippet>186</a>RETURNING id
+<a href=#187 id=187 data-nosnippet>187</a>        "</span>,
+<a href=#188 id=188 data-nosnippet>188</a>        pkey_policy.into_uuid(),
+<a href=#189 id=189 data-nosnippet>189</a>        exam.name,
+<a href=#190 id=190 data-nosnippet>190</a>        serde_json::Value::Array(<span class="macro">vec!</span>[]),
+<a href=#191 id=191 data-nosnippet>191</a>        exam.starts_at,
+<a href=#192 id=192 data-nosnippet>192</a>        exam.ends_at,
+<a href=#193 id=193 data-nosnippet>193</a>        exam.time_minutes,
+<a href=#194 id=194 data-nosnippet>194</a>        exam.organization_id,
+<a href=#195 id=195 data-nosnippet>195</a>        exam.minimum_points_treshold,
+<a href=#196 id=196 data-nosnippet>196</a>        exam.grade_manually,
+<a href=#197 id=197 data-nosnippet>197</a>    )
+<a href=#198 id=198 data-nosnippet>198</a>    .fetch_one(conn)
+<a href=#199 id=199 data-nosnippet>199</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#200 id=200 data-nosnippet>200</a>
+<a href=#201 id=201 data-nosnippet>201</a>    <span class="prelude-val">Ok</span>(res.id)
+<a href=#202 id=202 data-nosnippet>202</a>}
+<a href=#203 id=203 data-nosnippet>203</a>
+<a href=#204 id=204 data-nosnippet>204</a><span class="kw">pub async fn </span>edit(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid, new_exam: NewExam) -&gt; ModelResult&lt;()&gt; {
+<a href=#205 id=205 data-nosnippet>205</a>    <span class="macro">sqlx::query!</span>(
+<a href=#206 id=206 data-nosnippet>206</a>        <span class="string">"
+<a href=#207 id=207 data-nosnippet>207</a>UPDATE exams
+<a href=#208 id=208 data-nosnippet>208</a>SET name = COALESCE($2, name),
+<a href=#209 id=209 data-nosnippet>209</a>  starts_at = $3,
+<a href=#210 id=210 data-nosnippet>210</a>  ends_at = $4,
+<a href=#211 id=211 data-nosnippet>211</a>  time_minutes = $5,
+<a href=#212 id=212 data-nosnippet>212</a>  minimum_points_treshold = $6,
+<a href=#213 id=213 data-nosnippet>213</a>  grade_manually = $7
+<a href=#214 id=214 data-nosnippet>214</a>WHERE id = $1
+<a href=#215 id=215 data-nosnippet>215</a>"</span>,
+<a href=#216 id=216 data-nosnippet>216</a>        id,
+<a href=#217 id=217 data-nosnippet>217</a>        new_exam.name,
+<a href=#218 id=218 data-nosnippet>218</a>        new_exam.starts_at,
+<a href=#219 id=219 data-nosnippet>219</a>        new_exam.ends_at,
+<a href=#220 id=220 data-nosnippet>220</a>        new_exam.time_minutes,
+<a href=#221 id=221 data-nosnippet>221</a>        new_exam.minimum_points_treshold,
+<a href=#222 id=222 data-nosnippet>222</a>        new_exam.grade_manually,
+<a href=#223 id=223 data-nosnippet>223</a>    )
+<a href=#224 id=224 data-nosnippet>224</a>    .execute(conn)
+<a href=#225 id=225 data-nosnippet>225</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#226 id=226 data-nosnippet>226</a>    <span class="prelude-val">Ok</span>(())
+<a href=#227 id=227 data-nosnippet>227</a>}
+<a href=#228 id=228 data-nosnippet>228</a>
+<a href=#229 id=229 data-nosnippet>229</a><span class="kw">pub async fn </span>get_exams_for_organization(
+<a href=#230 id=230 data-nosnippet>230</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#231 id=231 data-nosnippet>231</a>    organization: Uuid,
+<a href=#232 id=232 data-nosnippet>232</a>) -&gt; ModelResult&lt;Vec&lt;OrgExam&gt;&gt; {
+<a href=#233 id=233 data-nosnippet>233</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#234 id=234 data-nosnippet>234</a>        OrgExam,
+<a href=#235 id=235 data-nosnippet>235</a>        <span class="string">"
+<a href=#236 id=236 data-nosnippet>236</a>SELECT id,
+<a href=#237 id=237 data-nosnippet>237</a>  name,
+<a href=#238 id=238 data-nosnippet>238</a>  instructions,
+<a href=#239 id=239 data-nosnippet>239</a>  starts_at,
+<a href=#240 id=240 data-nosnippet>240</a>  ends_at,
+<a href=#241 id=241 data-nosnippet>241</a>  time_minutes,
+<a href=#242 id=242 data-nosnippet>242</a>  organization_id,
+<a href=#243 id=243 data-nosnippet>243</a>  minimum_points_treshold
+<a href=#244 id=244 data-nosnippet>244</a>FROM exams
+<a href=#245 id=245 data-nosnippet>245</a>WHERE exams.organization_id = $1
+<a href=#246 id=246 data-nosnippet>246</a>  AND exams.deleted_at IS NULL
+<a href=#247 id=247 data-nosnippet>247</a>"</span>,
+<a href=#248 id=248 data-nosnippet>248</a>        organization
+<a href=#249 id=249 data-nosnippet>249</a>    )
+<a href=#250 id=250 data-nosnippet>250</a>    .fetch_all(conn)
+<a href=#251 id=251 data-nosnippet>251</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#252 id=252 data-nosnippet>252</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#253 id=253 data-nosnippet>253</a>}
+<a href=#254 id=254 data-nosnippet>254</a>
+<a href=#255 id=255 data-nosnippet>255</a><span class="kw">pub async fn </span>get_organization_exam_with_exam_id(
+<a href=#256 id=256 data-nosnippet>256</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#257 id=257 data-nosnippet>257</a>    exam_id: Uuid,
+<a href=#258 id=258 data-nosnippet>258</a>) -&gt; ModelResult&lt;OrgExam&gt; {
+<a href=#259 id=259 data-nosnippet>259</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#260 id=260 data-nosnippet>260</a>        OrgExam,
+<a href=#261 id=261 data-nosnippet>261</a>        <span class="string">"
+<a href=#262 id=262 data-nosnippet>262</a>SELECT id,
+<a href=#263 id=263 data-nosnippet>263</a>  name,
+<a href=#264 id=264 data-nosnippet>264</a>  instructions,
+<a href=#265 id=265 data-nosnippet>265</a>  starts_at,
+<a href=#266 id=266 data-nosnippet>266</a>  ends_at,
+<a href=#267 id=267 data-nosnippet>267</a>  time_minutes,
+<a href=#268 id=268 data-nosnippet>268</a>  organization_id,
+<a href=#269 id=269 data-nosnippet>269</a>  minimum_points_treshold
+<a href=#270 id=270 data-nosnippet>270</a>FROM exams
+<a href=#271 id=271 data-nosnippet>271</a>WHERE exams.id = $1
+<a href=#272 id=272 data-nosnippet>272</a>  AND exams.deleted_at IS NULL
+<a href=#273 id=273 data-nosnippet>273</a>"</span>,
+<a href=#274 id=274 data-nosnippet>274</a>        exam_id
+<a href=#275 id=275 data-nosnippet>275</a>    )
+<a href=#276 id=276 data-nosnippet>276</a>    .fetch_one(conn)
+<a href=#277 id=277 data-nosnippet>277</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#278 id=278 data-nosnippet>278</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#279 id=279 data-nosnippet>279</a>}
+<a href=#280 id=280 data-nosnippet>280</a>
+<a href=#281 id=281 data-nosnippet>281</a><span class="kw">pub async fn </span>get_course_exams_for_organization(
+<a href=#282 id=282 data-nosnippet>282</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#283 id=283 data-nosnippet>283</a>    organization: Uuid,
+<a href=#284 id=284 data-nosnippet>284</a>) -&gt; ModelResult&lt;Vec&lt;CourseExam&gt;&gt; {
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#286 id=286 data-nosnippet>286</a>        CourseExam,
+<a href=#287 id=287 data-nosnippet>287</a>        <span class="string">"
+<a href=#288 id=288 data-nosnippet>288</a>SELECT exams.id,
+<a href=#289 id=289 data-nosnippet>289</a>  courses.id as course_id,
+<a href=#290 id=290 data-nosnippet>290</a>  courses.name as course_name,
+<a href=#291 id=291 data-nosnippet>291</a>  exams.name
+<a href=#292 id=292 data-nosnippet>292</a>FROM exams
+<a href=#293 id=293 data-nosnippet>293</a>  JOIN course_exams ON course_exams.exam_id = exams.id
+<a href=#294 id=294 data-nosnippet>294</a>  JOIN courses ON courses.id = course_exams.course_id
+<a href=#295 id=295 data-nosnippet>295</a>WHERE exams.organization_id = $1
+<a href=#296 id=296 data-nosnippet>296</a>  AND exams.deleted_at IS NULL
+<a href=#297 id=297 data-nosnippet>297</a>  AND courses.deleted_at IS NULL
+<a href=#298 id=298 data-nosnippet>298</a>"</span>,
+<a href=#299 id=299 data-nosnippet>299</a>        organization
+<a href=#300 id=300 data-nosnippet>300</a>    )
+<a href=#301 id=301 data-nosnippet>301</a>    .fetch_all(conn)
+<a href=#302 id=302 data-nosnippet>302</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#303 id=303 data-nosnippet>303</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#304 id=304 data-nosnippet>304</a>}
+<a href=#305 id=305 data-nosnippet>305</a>
+<a href=#306 id=306 data-nosnippet>306</a><span class="kw">pub async fn </span>get_exams_for_course(
+<a href=#307 id=307 data-nosnippet>307</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#308 id=308 data-nosnippet>308</a>    course: Uuid,
+<a href=#309 id=309 data-nosnippet>309</a>) -&gt; ModelResult&lt;Vec&lt;CourseExam&gt;&gt; {
+<a href=#310 id=310 data-nosnippet>310</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#311 id=311 data-nosnippet>311</a>        CourseExam,
+<a href=#312 id=312 data-nosnippet>312</a>        <span class="string">"
+<a href=#313 id=313 data-nosnippet>313</a>SELECT exams.id,
+<a href=#314 id=314 data-nosnippet>314</a>  courses.id as course_id,
+<a href=#315 id=315 data-nosnippet>315</a>  courses.name as course_name,
+<a href=#316 id=316 data-nosnippet>316</a>  exams.name
+<a href=#317 id=317 data-nosnippet>317</a>FROM exams
+<a href=#318 id=318 data-nosnippet>318</a>  JOIN course_exams ON course_id = $1
+<a href=#319 id=319 data-nosnippet>319</a>  JOIN courses ON courses.id = $1
+<a href=#320 id=320 data-nosnippet>320</a>  AND exams.deleted_at IS NULL
+<a href=#321 id=321 data-nosnippet>321</a>  AND courses.deleted_at IS NULL
+<a href=#322 id=322 data-nosnippet>322</a>"</span>,
+<a href=#323 id=323 data-nosnippet>323</a>        course
+<a href=#324 id=324 data-nosnippet>324</a>    )
+<a href=#325 id=325 data-nosnippet>325</a>    .fetch_all(conn)
+<a href=#326 id=326 data-nosnippet>326</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#327 id=327 data-nosnippet>327</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#328 id=328 data-nosnippet>328</a>}
+<a href=#329 id=329 data-nosnippet>329</a>
+<a href=#330 id=330 data-nosnippet>330</a><span class="kw">pub async fn </span>enroll(
+<a href=#331 id=331 data-nosnippet>331</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#332 id=332 data-nosnippet>332</a>    exam_id: Uuid,
+<a href=#333 id=333 data-nosnippet>333</a>    user_id: Uuid,
+<a href=#334 id=334 data-nosnippet>334</a>    is_teacher_testing: bool,
+<a href=#335 id=335 data-nosnippet>335</a>) -&gt; ModelResult&lt;()&gt; {
+<a href=#336 id=336 data-nosnippet>336</a>    <span class="macro">sqlx::query!</span>(
+<a href=#337 id=337 data-nosnippet>337</a>        <span class="string">"
+<a href=#338 id=338 data-nosnippet>338</a>INSERT INTO exam_enrollments (exam_id, user_id, is_teacher_testing)
+<a href=#339 id=339 data-nosnippet>339</a>VALUES ($1, $2, $3)
+<a href=#340 id=340 data-nosnippet>340</a>"</span>,
+<a href=#341 id=341 data-nosnippet>341</a>        exam_id,
+<a href=#342 id=342 data-nosnippet>342</a>        user_id,
+<a href=#343 id=343 data-nosnippet>343</a>        is_teacher_testing
+<a href=#344 id=344 data-nosnippet>344</a>    )
+<a href=#345 id=345 data-nosnippet>345</a>    .execute(conn)
+<a href=#346 id=346 data-nosnippet>346</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#347 id=347 data-nosnippet>347</a>    <span class="prelude-val">Ok</span>(())
+<a href=#348 id=348 data-nosnippet>348</a>}
+<a href=#349 id=349 data-nosnippet>349</a>
+<a href=#350 id=350 data-nosnippet>350</a><span class="doccomment">/// Checks whether a submission can be made for the given exam.
+<a href=#351 id=351 data-nosnippet>351</a></span><span class="kw">pub async fn </span>verify_exam_submission_can_be_made(
+<a href=#352 id=352 data-nosnippet>352</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#353 id=353 data-nosnippet>353</a>    exam_id: Uuid,
+<a href=#354 id=354 data-nosnippet>354</a>    user_id: Uuid,
+<a href=#355 id=355 data-nosnippet>355</a>) -&gt; ModelResult&lt;bool&gt; {
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="kw">let </span>exam = get(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#357 id=357 data-nosnippet>357</a>    <span class="kw">let </span>enrollment = get_enrollment(conn, exam_id, user_id)
+<a href=#358 id=358 data-nosnippet>358</a>        .<span class="kw">await</span><span class="question-mark">?
+<a href=#359 id=359 data-nosnippet>359</a>        </span>.ok_or_else(|| {
+<a href=#360 id=360 data-nosnippet>360</a>            ModelError::new(
+<a href=#361 id=361 data-nosnippet>361</a>                ModelErrorType::PreconditionFailed,
+<a href=#362 id=362 data-nosnippet>362</a>                <span class="string">"User has no enrollment for the exam"</span>.to_string(),
+<a href=#363 id=363 data-nosnippet>363</a>                <span class="prelude-val">None</span>,
+<a href=#364 id=364 data-nosnippet>364</a>            )
+<a href=#365 id=365 data-nosnippet>365</a>        })<span class="question-mark">?</span>;
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="kw">let </span>student_has_time =
+<a href=#367 id=367 data-nosnippet>367</a>        Utc::now() &lt;= enrollment.started_at + Duration::minutes(exam.time_minutes.into());
+<a href=#368 id=368 data-nosnippet>368</a>    <span class="kw">let </span>exam_is_ongoing = exam.ends_at.map(|ea| Utc::now() &lt; ea).unwrap_or_default();
+<a href=#369 id=369 data-nosnippet>369</a>    <span class="prelude-val">Ok</span>(student_has_time &amp;&amp; exam_is_ongoing)
+<a href=#370 id=370 data-nosnippet>370</a>}
+<a href=#371 id=371 data-nosnippet>371</a>
+<a href=#372 id=372 data-nosnippet>372</a><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+<a href=#373 id=373 data-nosnippet>373</a>#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+<a href=#374 id=374 data-nosnippet>374</a></span><span class="kw">pub struct </span>ExamEnrollment {
+<a href=#375 id=375 data-nosnippet>375</a>    <span class="kw">pub </span>user_id: Uuid,
+<a href=#376 id=376 data-nosnippet>376</a>    <span class="kw">pub </span>exam_id: Uuid,
+<a href=#377 id=377 data-nosnippet>377</a>    <span class="kw">pub </span>started_at: DateTime&lt;Utc&gt;,
+<a href=#378 id=378 data-nosnippet>378</a>    <span class="kw">pub </span>ended_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+<a href=#379 id=379 data-nosnippet>379</a>    <span class="kw">pub </span>is_teacher_testing: bool,
+<a href=#380 id=380 data-nosnippet>380</a>    <span class="kw">pub </span>show_exercise_answers: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+<a href=#381 id=381 data-nosnippet>381</a>}
+<a href=#382 id=382 data-nosnippet>382</a>
+<a href=#383 id=383 data-nosnippet>383</a><span class="kw">pub async fn </span>get_enrollment(
+<a href=#384 id=384 data-nosnippet>384</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#385 id=385 data-nosnippet>385</a>    exam_id: Uuid,
+<a href=#386 id=386 data-nosnippet>386</a>    user_id: Uuid,
+<a href=#387 id=387 data-nosnippet>387</a>) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExamEnrollment&gt;&gt; {
+<a href=#388 id=388 data-nosnippet>388</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+<a href=#389 id=389 data-nosnippet>389</a>        ExamEnrollment,
+<a href=#390 id=390 data-nosnippet>390</a>        <span class="string">"
+<a href=#391 id=391 data-nosnippet>391</a>SELECT user_id,
+<a href=#392 id=392 data-nosnippet>392</a>  exam_id,
+<a href=#393 id=393 data-nosnippet>393</a>  started_at,
+<a href=#394 id=394 data-nosnippet>394</a>  ended_at,
+<a href=#395 id=395 data-nosnippet>395</a>  is_teacher_testing,
+<a href=#396 id=396 data-nosnippet>396</a>  show_exercise_answers
+<a href=#397 id=397 data-nosnippet>397</a>FROM exam_enrollments
+<a href=#398 id=398 data-nosnippet>398</a>WHERE exam_id = $1
+<a href=#399 id=399 data-nosnippet>399</a>  AND user_id = $2
+<a href=#400 id=400 data-nosnippet>400</a>  AND deleted_at IS NULL
+<a href=#401 id=401 data-nosnippet>401</a>"</span>,
+<a href=#402 id=402 data-nosnippet>402</a>        exam_id,
+<a href=#403 id=403 data-nosnippet>403</a>        user_id
+<a href=#404 id=404 data-nosnippet>404</a>    )
+<a href=#405 id=405 data-nosnippet>405</a>    .fetch_optional(conn)
+<a href=#406 id=406 data-nosnippet>406</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#407 id=407 data-nosnippet>407</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#408 id=408 data-nosnippet>408</a>}
+<a href=#409 id=409 data-nosnippet>409</a>
+<a href=#410 id=410 data-nosnippet>410</a><span class="kw">pub async fn </span>get_exam_enrollments_for_users(
+<a href=#411 id=411 data-nosnippet>411</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#412 id=412 data-nosnippet>412</a>    exam_id: Uuid,
+<a href=#413 id=413 data-nosnippet>413</a>    user_ids: <span class="kw-2">&amp;</span>[Uuid],
+<a href=#414 id=414 data-nosnippet>414</a>) -&gt; ModelResult&lt;HashMap&lt;Uuid, ExamEnrollment&gt;&gt; {
+<a href=#415 id=415 data-nosnippet>415</a>    <span class="kw">let </span>enrollments = <span class="macro">sqlx::query_as!</span>(
+<a href=#416 id=416 data-nosnippet>416</a>        ExamEnrollment,
+<a href=#417 id=417 data-nosnippet>417</a>        <span class="string">"
+<a href=#418 id=418 data-nosnippet>418</a>SELECT user_id,
+<a href=#419 id=419 data-nosnippet>419</a>  exam_id,
+<a href=#420 id=420 data-nosnippet>420</a>  started_at,
+<a href=#421 id=421 data-nosnippet>421</a>  ended_at,
+<a href=#422 id=422 data-nosnippet>422</a>  is_teacher_testing,
+<a href=#423 id=423 data-nosnippet>423</a>  show_exercise_answers
+<a href=#424 id=424 data-nosnippet>424</a>FROM exam_enrollments
+<a href=#425 id=425 data-nosnippet>425</a>WHERE user_id IN (
+<a href=#426 id=426 data-nosnippet>426</a>    SELECT UNNEST($1::uuid [])
+<a href=#427 id=427 data-nosnippet>427</a>  )
+<a href=#428 id=428 data-nosnippet>428</a>  AND exam_id = $2
+<a href=#429 id=429 data-nosnippet>429</a>  AND deleted_at IS NULL
+<a href=#430 id=430 data-nosnippet>430</a>"</span>,
+<a href=#431 id=431 data-nosnippet>431</a>        user_ids,
+<a href=#432 id=432 data-nosnippet>432</a>        exam_id,
+<a href=#433 id=433 data-nosnippet>433</a>    )
+<a href=#434 id=434 data-nosnippet>434</a>    .fetch_all(conn)
+<a href=#435 id=435 data-nosnippet>435</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#436 id=436 data-nosnippet>436</a>
+<a href=#437 id=437 data-nosnippet>437</a>    <span class="kw">let </span><span class="kw-2">mut </span>res: HashMap&lt;Uuid, ExamEnrollment&gt; = HashMap::new();
+<a href=#438 id=438 data-nosnippet>438</a>    <span class="kw">for </span>item <span class="kw">in </span>enrollments.into_iter() {
+<a href=#439 id=439 data-nosnippet>439</a>        res.insert(item.user_id, item);
+<a href=#440 id=440 data-nosnippet>440</a>    }
+<a href=#441 id=441 data-nosnippet>441</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#442 id=442 data-nosnippet>442</a>}
+<a href=#443 id=443 data-nosnippet>443</a>
+<a href=#444 id=444 data-nosnippet>444</a><span class="kw">pub async fn </span>get_ongoing_exam_enrollments(
+<a href=#445 id=445 data-nosnippet>445</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#446 id=446 data-nosnippet>446</a>) -&gt; ModelResult&lt;Vec&lt;ExamEnrollment&gt;&gt; {
+<a href=#447 id=447 data-nosnippet>447</a>    <span class="kw">let </span>enrollments = <span class="macro">sqlx::query_as!</span>(
+<a href=#448 id=448 data-nosnippet>448</a>        ExamEnrollment,
+<a href=#449 id=449 data-nosnippet>449</a>        <span class="string">"
+<a href=#450 id=450 data-nosnippet>450</a>SELECT user_id,
+<a href=#451 id=451 data-nosnippet>451</a>  exam_id,
+<a href=#452 id=452 data-nosnippet>452</a>  started_at,
+<a href=#453 id=453 data-nosnippet>453</a>  ended_at,
+<a href=#454 id=454 data-nosnippet>454</a>  is_teacher_testing,
+<a href=#455 id=455 data-nosnippet>455</a>  show_exercise_answers
+<a href=#456 id=456 data-nosnippet>456</a>FROM exam_enrollments
+<a href=#457 id=457 data-nosnippet>457</a>WHERE
+<a href=#458 id=458 data-nosnippet>458</a>    ended_at IS NULL
+<a href=#459 id=459 data-nosnippet>459</a>  AND deleted_at IS NULL
+<a href=#460 id=460 data-nosnippet>460</a>"
+<a href=#461 id=461 data-nosnippet>461</a>    </span>)
+<a href=#462 id=462 data-nosnippet>462</a>    .fetch_all(conn)
+<a href=#463 id=463 data-nosnippet>463</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#464 id=464 data-nosnippet>464</a>    <span class="prelude-val">Ok</span>(enrollments)
+<a href=#465 id=465 data-nosnippet>465</a>}
+<a href=#466 id=466 data-nosnippet>466</a>
+<a href=#467 id=467 data-nosnippet>467</a><span class="kw">pub async fn </span>get_exams(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; ModelResult&lt;HashMap&lt;Uuid, OrgExam&gt;&gt; {
+<a href=#468 id=468 data-nosnippet>468</a>    <span class="kw">let </span>exams = <span class="macro">sqlx::query_as!</span>(
+<a href=#469 id=469 data-nosnippet>469</a>        OrgExam,
+<a href=#470 id=470 data-nosnippet>470</a>        <span class="string">"
+<a href=#471 id=471 data-nosnippet>471</a>SELECT id,
+<a href=#472 id=472 data-nosnippet>472</a>  name,
+<a href=#473 id=473 data-nosnippet>473</a>  instructions,
+<a href=#474 id=474 data-nosnippet>474</a>  starts_at,
+<a href=#475 id=475 data-nosnippet>475</a>  ends_at,
+<a href=#476 id=476 data-nosnippet>476</a>  time_minutes,
+<a href=#477 id=477 data-nosnippet>477</a>  organization_id,
+<a href=#478 id=478 data-nosnippet>478</a>  minimum_points_treshold
+<a href=#479 id=479 data-nosnippet>479</a>FROM exams
+<a href=#480 id=480 data-nosnippet>480</a>WHERE deleted_at IS NULL
+<a href=#481 id=481 data-nosnippet>481</a>"
+<a href=#482 id=482 data-nosnippet>482</a>    </span>)
+<a href=#483 id=483 data-nosnippet>483</a>    .fetch_all(conn)
+<a href=#484 id=484 data-nosnippet>484</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#485 id=485 data-nosnippet>485</a>
+<a href=#486 id=486 data-nosnippet>486</a>    <span class="kw">let </span><span class="kw-2">mut </span>res: HashMap&lt;Uuid, OrgExam&gt; = HashMap::new();
+<a href=#487 id=487 data-nosnippet>487</a>    <span class="kw">for </span>item <span class="kw">in </span>exams.into_iter() {
+<a href=#488 id=488 data-nosnippet>488</a>        res.insert(item.id, item);
+<a href=#489 id=489 data-nosnippet>489</a>    }
+<a href=#490 id=490 data-nosnippet>490</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#491 id=491 data-nosnippet>491</a>}
+<a href=#492 id=492 data-nosnippet>492</a>
+<a href=#493 id=493 data-nosnippet>493</a><span class="kw">pub async fn </span>update_exam_start_time(
+<a href=#494 id=494 data-nosnippet>494</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#495 id=495 data-nosnippet>495</a>    exam_id: Uuid,
+<a href=#496 id=496 data-nosnippet>496</a>    user_id: Uuid,
+<a href=#497 id=497 data-nosnippet>497</a>    started_at: DateTime&lt;Utc&gt;,
+<a href=#498 id=498 data-nosnippet>498</a>) -&gt; ModelResult&lt;()&gt; {
+<a href=#499 id=499 data-nosnippet>499</a>    <span class="macro">sqlx::query!</span>(
+<a href=#500 id=500 data-nosnippet>500</a>        <span class="string">"
+<a href=#501 id=501 data-nosnippet>501</a>UPDATE exam_enrollments
+<a href=#502 id=502 data-nosnippet>502</a>SET started_at = $3
+<a href=#503 id=503 data-nosnippet>503</a>WHERE exam_id = $1
+<a href=#504 id=504 data-nosnippet>504</a>  AND user_id = $2
+<a href=#505 id=505 data-nosnippet>505</a>  AND deleted_at IS NULL
+<a href=#506 id=506 data-nosnippet>506</a>"</span>,
+<a href=#507 id=507 data-nosnippet>507</a>        exam_id,
+<a href=#508 id=508 data-nosnippet>508</a>        user_id,
+<a href=#509 id=509 data-nosnippet>509</a>        started_at
+<a href=#510 id=510 data-nosnippet>510</a>    )
+<a href=#511 id=511 data-nosnippet>511</a>    .execute(conn)
+<a href=#512 id=512 data-nosnippet>512</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#513 id=513 data-nosnippet>513</a>    <span class="prelude-val">Ok</span>(())
+<a href=#514 id=514 data-nosnippet>514</a>}
+<a href=#515 id=515 data-nosnippet>515</a>
+<a href=#516 id=516 data-nosnippet>516</a><span class="kw">pub async fn </span>update_exam_ended_at(
+<a href=#517 id=517 data-nosnippet>517</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#518 id=518 data-nosnippet>518</a>    exam_id: Uuid,
+<a href=#519 id=519 data-nosnippet>519</a>    user_id: Uuid,
+<a href=#520 id=520 data-nosnippet>520</a>    ended_at: DateTime&lt;Utc&gt;,
+<a href=#521 id=521 data-nosnippet>521</a>) -&gt; ModelResult&lt;()&gt; {
+<a href=#522 id=522 data-nosnippet>522</a>    <span class="macro">sqlx::query!</span>(
+<a href=#523 id=523 data-nosnippet>523</a>        <span class="string">"
+<a href=#524 id=524 data-nosnippet>524</a>UPDATE exam_enrollments
+<a href=#525 id=525 data-nosnippet>525</a>SET ended_at = $3
+<a href=#526 id=526 data-nosnippet>526</a>WHERE exam_id = $1
+<a href=#527 id=527 data-nosnippet>527</a>  AND user_id = $2
+<a href=#528 id=528 data-nosnippet>528</a>  AND deleted_at IS NULL
+<a href=#529 id=529 data-nosnippet>529</a>"</span>,
+<a href=#530 id=530 data-nosnippet>530</a>        exam_id,
+<a href=#531 id=531 data-nosnippet>531</a>        user_id,
+<a href=#532 id=532 data-nosnippet>532</a>        ended_at
+<a href=#533 id=533 data-nosnippet>533</a>    )
+<a href=#534 id=534 data-nosnippet>534</a>    .execute(conn)
+<a href=#535 id=535 data-nosnippet>535</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#536 id=536 data-nosnippet>536</a>    <span class="prelude-val">Ok</span>(())
+<a href=#537 id=537 data-nosnippet>537</a>}
+<a href=#538 id=538 data-nosnippet>538</a>
+<a href=#539 id=539 data-nosnippet>539</a><span class="kw">pub async fn </span>update_exam_ended_at_for_users_with_exam_id(
+<a href=#540 id=540 data-nosnippet>540</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#541 id=541 data-nosnippet>541</a>    exam_id: Uuid,
+<a href=#542 id=542 data-nosnippet>542</a>    user_ids: <span class="kw-2">&amp;</span>[Uuid],
+<a href=#543 id=543 data-nosnippet>543</a>    ended_at: DateTime&lt;Utc&gt;,
+<a href=#544 id=544 data-nosnippet>544</a>) -&gt; ModelResult&lt;()&gt; {
+<a href=#545 id=545 data-nosnippet>545</a>    <span class="macro">sqlx::query!</span>(
+<a href=#546 id=546 data-nosnippet>546</a>        <span class="string">"
+<a href=#547 id=547 data-nosnippet>547</a>UPDATE exam_enrollments
+<a href=#548 id=548 data-nosnippet>548</a>SET ended_at = $3
+<a href=#549 id=549 data-nosnippet>549</a>WHERE user_id IN (
+<a href=#550 id=550 data-nosnippet>550</a>    SELECT UNNEST($1::uuid [])
+<a href=#551 id=551 data-nosnippet>551</a>  )
+<a href=#552 id=552 data-nosnippet>552</a>  AND exam_id = $2
+<a href=#553 id=553 data-nosnippet>553</a>  AND deleted_at IS NULL
+<a href=#554 id=554 data-nosnippet>554</a>"</span>,
+<a href=#555 id=555 data-nosnippet>555</a>        user_ids,
+<a href=#556 id=556 data-nosnippet>556</a>        exam_id,
+<a href=#557 id=557 data-nosnippet>557</a>        ended_at
+<a href=#558 id=558 data-nosnippet>558</a>    )
+<a href=#559 id=559 data-nosnippet>559</a>    .execute(conn)
+<a href=#560 id=560 data-nosnippet>560</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#561 id=561 data-nosnippet>561</a>    <span class="prelude-val">Ok</span>(())
+<a href=#562 id=562 data-nosnippet>562</a>}
+<a href=#563 id=563 data-nosnippet>563</a>
+<a href=#564 id=564 data-nosnippet>564</a><span class="kw">pub async fn </span>update_show_exercise_answers(
+<a href=#565 id=565 data-nosnippet>565</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#566 id=566 data-nosnippet>566</a>    exam_id: Uuid,
+<a href=#567 id=567 data-nosnippet>567</a>    user_id: Uuid,
+<a href=#568 id=568 data-nosnippet>568</a>    show_exercise_answers: bool,
+<a href=#569 id=569 data-nosnippet>569</a>) -&gt; ModelResult&lt;()&gt; {
+<a href=#570 id=570 data-nosnippet>570</a>    <span class="macro">sqlx::query!</span>(
+<a href=#571 id=571 data-nosnippet>571</a>        <span class="string">"
+<a href=#572 id=572 data-nosnippet>572</a>UPDATE exam_enrollments
+<a href=#573 id=573 data-nosnippet>573</a>SET show_exercise_answers = $3
+<a href=#574 id=574 data-nosnippet>574</a>WHERE exam_id = $1
+<a href=#575 id=575 data-nosnippet>575</a>  AND user_id = $2
+<a href=#576 id=576 data-nosnippet>576</a>  AND deleted_at IS NULL
+<a href=#577 id=577 data-nosnippet>577</a>"</span>,
+<a href=#578 id=578 data-nosnippet>578</a>        exam_id,
+<a href=#579 id=579 data-nosnippet>579</a>        user_id,
+<a href=#580 id=580 data-nosnippet>580</a>        show_exercise_answers
+<a href=#581 id=581 data-nosnippet>581</a>    )
+<a href=#582 id=582 data-nosnippet>582</a>    .execute(conn)
+<a href=#583 id=583 data-nosnippet>583</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#584 id=584 data-nosnippet>584</a>    <span class="prelude-val">Ok</span>(())
+<a href=#585 id=585 data-nosnippet>585</a>}
+<a href=#586 id=586 data-nosnippet>586</a>
+<a href=#587 id=587 data-nosnippet>587</a><span class="kw">pub async fn </span>get_organization_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
+<a href=#588 id=588 data-nosnippet>588</a>    <span class="kw">let </span>organization_id = <span class="macro">sqlx::query!</span>(
+<a href=#589 id=589 data-nosnippet>589</a>        <span class="string">"
+<a href=#590 id=590 data-nosnippet>590</a>SELECT organization_id
+<a href=#591 id=591 data-nosnippet>591</a>FROM exams
+<a href=#592 id=592 data-nosnippet>592</a>WHERE id = $1
+<a href=#593 id=593 data-nosnippet>593</a>"</span>,
+<a href=#594 id=594 data-nosnippet>594</a>        exam_id
+<a href=#595 id=595 data-nosnippet>595</a>    )
+<a href=#596 id=596 data-nosnippet>596</a>    .fetch_one(conn)
+<a href=#597 id=597 data-nosnippet>597</a>    .<span class="kw">await</span><span class="question-mark">?
+<a href=#598 id=598 data-nosnippet>598</a>    </span>.organization_id;
+<a href=#599 id=599 data-nosnippet>599</a>    <span class="prelude-val">Ok</span>(organization_id)
+<a href=#600 id=600 data-nosnippet>600</a>}
+<a href=#601 id=601 data-nosnippet>601</a>
+<a href=#602 id=602 data-nosnippet>602</a><span class="kw">pub async fn </span>get_exam_instructions_data(
+<a href=#603 id=603 data-nosnippet>603</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#604 id=604 data-nosnippet>604</a>    exam_id: Uuid,
+<a href=#605 id=605 data-nosnippet>605</a>) -&gt; ModelResult&lt;ExamInstructions&gt; {
+<a href=#606 id=606 data-nosnippet>606</a>    <span class="kw">let </span>exam_instructions_data = <span class="macro">sqlx::query_as!</span>(
+<a href=#607 id=607 data-nosnippet>607</a>        ExamInstructions,
+<a href=#608 id=608 data-nosnippet>608</a>        <span class="string">"
+<a href=#609 id=609 data-nosnippet>609</a>SELECT id, instructions
+<a href=#610 id=610 data-nosnippet>610</a>FROM exams
+<a href=#611 id=611 data-nosnippet>611</a>WHERE id = $1;
+<a href=#612 id=612 data-nosnippet>612</a>"</span>,
+<a href=#613 id=613 data-nosnippet>613</a>        exam_id
+<a href=#614 id=614 data-nosnippet>614</a>    )
+<a href=#615 id=615 data-nosnippet>615</a>    .fetch_one(conn)
+<a href=#616 id=616 data-nosnippet>616</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#617 id=617 data-nosnippet>617</a>    <span class="prelude-val">Ok</span>(exam_instructions_data)
+<a href=#618 id=618 data-nosnippet>618</a>}
+<a href=#619 id=619 data-nosnippet>619</a>
+<a href=#620 id=620 data-nosnippet>620</a><span class="kw">pub async fn </span>update_exam_instructions(
+<a href=#621 id=621 data-nosnippet>621</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#622 id=622 data-nosnippet>622</a>    exam_id: Uuid,
+<a href=#623 id=623 data-nosnippet>623</a>    instructions_update: ExamInstructionsUpdate,
+<a href=#624 id=624 data-nosnippet>624</a>) -&gt; ModelResult&lt;ExamInstructions&gt; {
+<a href=#625 id=625 data-nosnippet>625</a>    <span class="kw">let </span>parsed_content: Vec&lt;GutenbergBlock&gt; =
+<a href=#626 id=626 data-nosnippet>626</a>        serde_json::from_value(instructions_update.instructions)<span class="question-mark">?</span>;
+<a href=#627 id=627 data-nosnippet>627</a>    <span class="kw">let </span>updated_data = <span class="macro">sqlx::query_as!</span>(
+<a href=#628 id=628 data-nosnippet>628</a>        ExamInstructions,
+<a href=#629 id=629 data-nosnippet>629</a>        <span class="string">"
+<a href=#630 id=630 data-nosnippet>630</a>    UPDATE exams
+<a href=#631 id=631 data-nosnippet>631</a>    SET instructions = $1
+<a href=#632 id=632 data-nosnippet>632</a>    WHERE id = $2
+<a href=#633 id=633 data-nosnippet>633</a>    RETURNING id,
+<a href=#634 id=634 data-nosnippet>634</a>        instructions
+<a href=#635 id=635 data-nosnippet>635</a>    "</span>,
+<a href=#636 id=636 data-nosnippet>636</a>        serde_json::to_value(parsed_content)<span class="question-mark">?</span>,
+<a href=#637 id=637 data-nosnippet>637</a>        exam_id
+<a href=#638 id=638 data-nosnippet>638</a>    )
+<a href=#639 id=639 data-nosnippet>639</a>    .fetch_one(conn)
+<a href=#640 id=640 data-nosnippet>640</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#641 id=641 data-nosnippet>641</a>
+<a href=#642 id=642 data-nosnippet>642</a>    <span class="prelude-val">Ok</span>(updated_data)
+<a href=#643 id=643 data-nosnippet>643</a>}</code></pre></div></section></main></body></html>

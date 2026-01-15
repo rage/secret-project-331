@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ChapterLockingStatus"],"fn":["complete_chapter","ensure_not_unlocked_yet_status","get_by_user_and_chapter","get_by_user_and_course","get_or_init_status","get_status_row","is_chapter_accessible","is_chapter_exercises_locked","unlock_chapter"],"struct":["DatabaseRow","UserChapterLockingStatus"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_all_by_user_and_multiple_current_courses","get_user_course_settings","get_user_course_settings_by_course_id","upsert_user_course_settings_for_enrollment"],"struct":["UserCourseSettings"]};
+window.SIDEBAR_ITEMS = {"fn":["get_all_by_course_id","get_all_by_user_and_multiple_current_courses","get_user_course_settings","get_user_course_settings_by_course_id","upsert_user_course_settings_for_enrollment"],"struct":["UserCourseSettings"]};

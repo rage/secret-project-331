@@ -5,29 +5,31 @@
 <a href=#5 id=5 data-nosnippet>5</a>
 <a href=#6 id=6 data-nosnippet>6</a>*/
 <a href=#7 id=7 data-nosnippet>7</a>
-<a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">pub mod </span>code_giveaways;
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">pub mod </span>course_instances;
-<a href=#10 id=10 data-nosnippet>10</a><span class="kw">pub mod </span>courses;
-<a href=#11 id=11 data-nosnippet>11</a><span class="kw">pub mod </span>email_templates;
-<a href=#12 id=12 data-nosnippet>12</a><span class="kw">pub mod </span>exams;
-<a href=#13 id=13 data-nosnippet>13</a><span class="kw">pub mod </span>exercise_services;
-<a href=#14 id=14 data-nosnippet>14</a><span class="kw">pub mod </span>gutenberg;
-<a href=#15 id=15 data-nosnippet>15</a><span class="kw">pub mod </span>organizations;
-<a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub mod </span>pages;
-<a href=#17 id=17 data-nosnippet>17</a><span class="kw">pub mod </span>repository_exercises;
-<a href=#18 id=18 data-nosnippet>18</a>
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>actix_web::web::{<span class="self">self</span>, ServiceConfig};
-<a href=#20 id=20 data-nosnippet>20</a>
-<a href=#21 id=21 data-nosnippet>21</a><span class="doccomment">/// Add controllers from all the submodules.
-<a href=#22 id=22 data-nosnippet>22</a></span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-<a href=#23 id=23 data-nosnippet>23</a>    cfg.service(web::scope(<span class="string">"/pages"</span>).configure(pages::_add_routes))
-<a href=#24 id=24 data-nosnippet>24</a>        .service(web::scope(<span class="string">"/course-instances"</span>).configure(course_instances::_add_routes))
-<a href=#25 id=25 data-nosnippet>25</a>        .service(web::scope(<span class="string">"/email-templates"</span>).configure(email_templates::_add_routes))
-<a href=#26 id=26 data-nosnippet>26</a>        .service(web::scope(<span class="string">"/gutenberg"</span>).configure(gutenberg::_add_routes))
-<a href=#27 id=27 data-nosnippet>27</a>        .service(web::scope(<span class="string">"/organizations"</span>).configure(organizations::_add_routes))
-<a href=#28 id=28 data-nosnippet>28</a>        .service(web::scope(<span class="string">"/courses"</span>).configure(courses::_add_routes))
-<a href=#29 id=29 data-nosnippet>29</a>        .service(web::scope(<span class="string">"/exams"</span>).configure(exams::_add_routes))
-<a href=#30 id=30 data-nosnippet>30</a>        .service(web::scope(<span class="string">"/exercise-services"</span>).configure(exercise_services::_add_routes))
-<a href=#31 id=31 data-nosnippet>31</a>        .service(web::scope(<span class="string">"/code-giveaways"</span>).configure(code_giveaways::_add_routes))
-<a href=#32 id=32 data-nosnippet>32</a>        .service(web::scope(<span class="string">"/repository-exercises"</span>).configure(repository_exercises::_add_routes));
-<a href=#33 id=33 data-nosnippet>33</a>}</code></pre></div></section></main></body></html>
+<a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">pub mod </span>chapters;
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">pub mod </span>code_giveaways;
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">pub mod </span>course_instances;
+<a href=#11 id=11 data-nosnippet>11</a><span class="kw">pub mod </span>courses;
+<a href=#12 id=12 data-nosnippet>12</a><span class="kw">pub mod </span>email_templates;
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">pub mod </span>exams;
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">pub mod </span>exercise_services;
+<a href=#15 id=15 data-nosnippet>15</a><span class="kw">pub mod </span>gutenberg;
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub mod </span>organizations;
+<a href=#17 id=17 data-nosnippet>17</a><span class="kw">pub mod </span>pages;
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">pub mod </span>repository_exercises;
+<a href=#19 id=19 data-nosnippet>19</a>
+<a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>actix_web::web::{<span class="self">self</span>, ServiceConfig};
+<a href=#21 id=21 data-nosnippet>21</a>
+<a href=#22 id=22 data-nosnippet>22</a><span class="doccomment">/// Add controllers from all the submodules.
+<a href=#23 id=23 data-nosnippet>23</a></span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+<a href=#24 id=24 data-nosnippet>24</a>    cfg.service(web::scope(<span class="string">"/pages"</span>).configure(pages::_add_routes))
+<a href=#25 id=25 data-nosnippet>25</a>        .service(web::scope(<span class="string">"/chapters"</span>).configure(chapters::_add_routes))
+<a href=#26 id=26 data-nosnippet>26</a>        .service(web::scope(<span class="string">"/course-instances"</span>).configure(course_instances::_add_routes))
+<a href=#27 id=27 data-nosnippet>27</a>        .service(web::scope(<span class="string">"/email-templates"</span>).configure(email_templates::_add_routes))
+<a href=#28 id=28 data-nosnippet>28</a>        .service(web::scope(<span class="string">"/gutenberg"</span>).configure(gutenberg::_add_routes))
+<a href=#29 id=29 data-nosnippet>29</a>        .service(web::scope(<span class="string">"/organizations"</span>).configure(organizations::_add_routes))
+<a href=#30 id=30 data-nosnippet>30</a>        .service(web::scope(<span class="string">"/courses"</span>).configure(courses::_add_routes))
+<a href=#31 id=31 data-nosnippet>31</a>        .service(web::scope(<span class="string">"/exams"</span>).configure(exams::_add_routes))
+<a href=#32 id=32 data-nosnippet>32</a>        .service(web::scope(<span class="string">"/exercise-services"</span>).configure(exercise_services::_add_routes))
+<a href=#33 id=33 data-nosnippet>33</a>        .service(web::scope(<span class="string">"/code-giveaways"</span>).configure(code_giveaways::_add_routes))
+<a href=#34 id=34 data-nosnippet>34</a>        .service(web::scope(<span class="string">"/repository-exercises"</span>).configure(repository_exercises::_add_routes));
+<a href=#35 id=35 data-nosnippet>35</a>}</code></pre></div></section></main></body></html>

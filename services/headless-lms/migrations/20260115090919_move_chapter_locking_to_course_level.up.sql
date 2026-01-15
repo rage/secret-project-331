@@ -5,7 +5,11 @@ ADD COLUMN chapter_locking_enabled BOOLEAN NOT NULL DEFAULT FALSE;
 COMMENT ON COLUMN courses.chapter_locking_enabled IS 'When enabled, all chapters in the course are locked by default. Students must complete chapters in order to unlock subsequent chapters.';
 
 -- Create enum for chapter locking status
-CREATE TYPE chapter_locking_status AS ENUM ('unlocked', 'completed');
+CREATE TYPE chapter_locking_status AS ENUM (
+  'unlocked',
+  'completed_and_locked',
+  'not_unlocked_yet'
+);
 
 -- Create new table for chapter locking statuses
 CREATE TABLE user_chapter_locking_statuses (
@@ -16,7 +20,7 @@ CREATE TABLE user_chapter_locking_statuses (
   user_id UUID NOT NULL REFERENCES users(id),
   chapter_id UUID NOT NULL REFERENCES chapters(id),
   course_id UUID NOT NULL REFERENCES courses(id),
-  status chapter_locking_status NOT NULL
+  STATUS chapter_locking_status NOT NULL
 );
 
 CREATE UNIQUE INDEX idx_user_chapter_locking_statuses_user_chapter_active ON user_chapter_locking_statuses(user_id, chapter_id, deleted_at) NULLS NOT DISTINCT;
@@ -29,5 +33,5 @@ WHERE deleted_at IS NULL;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON user_chapter_locking_statuses FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE user_chapter_locking_statuses IS 'Tracks chapter locking statuses for users. No row means chapter is locked (default). Status "unlocked" means student can work on exercises. Status "completed" means chapter is done and exercises are locked again.';
-COMMENT ON COLUMN user_chapter_locking_statuses.status IS 'unlocked: student can work on exercises. completed: chapter is done, exercises are locked.';
+COMMENT ON TABLE user_chapter_locking_statuses IS 'Tracks chapter locking statuses for users. Status "unlocked" means student can work on exercises. Status "completed_and_locked" means chapter is done and exercises are locked again. Status "not_unlocked_yet" means chapter is locked because previous chapters are not completed.';
+COMMENT ON COLUMN user_chapter_locking_statuses.status IS 'unlocked: student can work on exercises. completed_and_locked: chapter is done, exercises are locked. not_unlocked_yet: chapter is locked, previous chapters not completed.';

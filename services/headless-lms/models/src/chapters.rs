@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
-    course_modules,
+    course_modules, courses,
     pages::{PageMetadata, PageWithExercises},
     prelude::*,
 };
@@ -956,12 +956,20 @@ pub async fn unlock_next_chapters_for_user(
 
     let is_base_module = module.order_number == 0;
 
+    let course = courses::get_course(conn, course_id).await?;
     let mut all_module_chapters_completed = true;
     for chapter in &all_module_chapters {
-        let status = user_chapter_locking_statuses::get_status(conn, user_id, chapter.id).await?;
+        let status = user_chapter_locking_statuses::get_or_init_status(
+            conn,
+            user_id,
+            chapter.id,
+            Some(course_id),
+            Some(course.chapter_locking_enabled),
+        )
+        .await?;
         if !matches!(
             status,
-            Some(user_chapter_locking_statuses::ChapterLockingStatus::Completed)
+            Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
         ) {
             all_module_chapters_completed = false;
             break;

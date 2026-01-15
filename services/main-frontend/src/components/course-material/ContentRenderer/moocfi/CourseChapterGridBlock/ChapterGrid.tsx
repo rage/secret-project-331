@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import React, { useContext } from "react"
+import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import Grid from "./Grid"
@@ -48,11 +48,22 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()
   const courseSlug = params?.courseSlug
   const organizationSlug = params?.organizationSlug
-  const lockedChapterIds = new Set(
-    getUserLocks.data
-      ?.filter((status) => status.status === "completed")
-      .map((status) => status.chapter_id) ?? [],
-  )
+
+  const lockedChapterIds = useMemo(() => {
+    if (!getUserLocks.data) {
+      return new Set<string>()
+    }
+
+    const locked = new Set<string>()
+
+    getUserLocks.data.forEach((status) => {
+      if (status.status === "completed_and_locked" || status.status === "not_unlocked_yet") {
+        locked.add(status.chapter_id)
+      }
+    })
+
+    return locked
+  }, [getUserLocks.data])
 
   return (
     <div

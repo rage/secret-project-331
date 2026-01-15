@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useAtomValue } from "jotai"
@@ -25,7 +25,6 @@ import useCourseMaterialExerciseQuery, {
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
-import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
 import { postStartPeerOrSelfReview, postSubmission } from "@/services/course-material/backend"
 import {
   CourseMaterialExercise,
@@ -174,14 +173,7 @@ const ExerciseBlock: React.FC<
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
   const getUserLocks = useUserChapterLocks(courseId)
 
-  const chaptersQuery = useQuery({
-    queryKey: ["chapters", courseId],
-    queryFn: () => fetchAllChaptersByCourseId(courseId!),
-    enabled: !!courseId,
-  })
-
   const chapterId = getCourseMaterialExercise.data?.exercise.chapter_id
-  const chapter = chapterId ? chaptersQuery.data?.find((c) => c.id === chapterId) : null
   const course = courseMaterialState.course
   const chapterLockingEnabled = course?.chapter_locking_enabled ?? false
   useEffect(() => {
@@ -195,7 +187,10 @@ const ExerciseBlock: React.FC<
     const chapterStatus = chapterId
       ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
       : null
-    const isChapterLocked = chapterId && (chapterStatus?.status === "completed" || !chapterStatus)
+    const isChapterLocked =
+      chapterId &&
+      (chapterStatus?.status === "completed_and_locked" ||
+        chapterStatus?.status === "not_unlocked_yet")
     dispatch({
       type: "exerciseDownloaded",
       payload: getCourseMaterialExercise.data,
@@ -245,7 +240,8 @@ const ExerciseBlock: React.FC<
       const isChapterLocked =
         chapterId &&
         chapterLockingEnabled &&
-        (chapterStatus?.status === "completed" || !chapterStatus)
+        (chapterStatus?.status === "completed_and_locked" ||
+          chapterStatus?.status === "not_unlocked_yet")
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       dispatch({
         type: "tryAgain",
@@ -310,8 +306,11 @@ const ExerciseBlock: React.FC<
   const chapterStatus = chapterId
     ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
     : null
-  const isChapterLocked =
-    chapterId && chapterLockingEnabled && (chapterStatus?.status === "completed" || !chapterStatus)
+  const isChapterCompleted =
+    chapterId && chapterLockingEnabled && chapterStatus?.status === "completed_and_locked"
+  const isChapterNotAccessible =
+    chapterId && chapterLockingEnabled && chapterStatus?.status === "not_unlocked_yet"
+  const isChapterLocked = isChapterCompleted || isChapterNotAccessible
 
   const isExam = !!courseMaterialState.examData
 
@@ -713,7 +712,11 @@ const ExerciseBlock: React.FC<
                 `}
               >
                 <Padlock size={24} />
-                <div>{t("chapter-locked-description")}</div>
+                <div>
+                  {isChapterNotAccessible
+                    ? t("chapter-locked-complete-previous")
+                    : t("chapter-locked-description")}
+                </div>
               </div>
             </YellowBox>
           )}

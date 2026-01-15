@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)\nVALUES ($1, $2, $3, 'unlocked'::chapter_locking_status, NULL)\nON CONFLICT (user_id, chapter_id, deleted_at) DO UPDATE\nSET status = 'unlocked'::chapter_locking_status, updated_at = now()\nRETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\n        ",
+  "query": "\nINSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)\nVALUES ($1, $2, $3, 'not_unlocked_yet'::chapter_locking_status, NULL)\nON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING\nRETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\n        ",
   "describe": {
     "columns": [
       {
@@ -62,5 +62,5 @@
       null
     ]
   },
-  "hash": "54c5b1b5fd4963ec2b073e8c20f227dde615727b739952af6fba7a58bc6a1452"
+  "hash": "1c1f8ce0bd27ecae4367287d86befc2a5a3974c5fc4ef6cbe1ef6d1bae51dd0e"
 }

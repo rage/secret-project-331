@@ -219,6 +219,18 @@ async fn post_submission(
 
     if let Some(chapter_id) = exercise.chapter_id {
         let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let is_accessible = user_chapter_locking_statuses::is_chapter_accessible(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if !is_accessible {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Complete and lock the previous chapter to unlock exercises in this chapter."
+                    .to_string(),
+                None,
+            ));
+        }
         let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
             &mut conn, user.id, chapter_id, course_id,
         )
@@ -270,6 +282,18 @@ async fn start_peer_or_self_review(
 
     if let Some(chapter_id) = exercise.chapter_id {
         let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let is_accessible = user_chapter_locking_statuses::is_chapter_accessible(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if !is_accessible {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Complete and lock the previous chapter to unlock exercises in this chapter."
+                    .to_string(),
+                None,
+            ));
+        }
         let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
             &mut conn, user.id, chapter_id, course_id,
         )
@@ -320,6 +344,18 @@ async fn submit_peer_or_self_review(
 
     if let Some(chapter_id) = exercise.chapter_id {
         let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let is_accessible = user_chapter_locking_statuses::is_chapter_accessible(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if !is_accessible {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Complete and lock the previous chapter to unlock exercises in this chapter."
+                    .to_string(),
+                None,
+            ));
+        }
         let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
             &mut conn, user.id, chapter_id, course_id,
         )

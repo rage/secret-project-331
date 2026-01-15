@@ -4591,7 +4591,8 @@ export function isChapterLockingStatus(obj: unknown): obj is ChapterLockingStatu
     const typedObj = obj as ChapterLockingStatus
     return (
         (typedObj === "unlocked" ||
-            typedObj === "completed")
+            typedObj === "completed_and_locked" ||
+            typedObj === "not_unlocked_yet")
     )
 }
 

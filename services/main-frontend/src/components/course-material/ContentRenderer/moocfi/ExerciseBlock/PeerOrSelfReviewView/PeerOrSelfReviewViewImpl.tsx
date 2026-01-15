@@ -69,15 +69,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   const chapterId = exerciseData?.exercise.chapter_id
   const getUserLocks = useUserChapterLocks(courseId)
 
-  const isChapterLocked: boolean = Boolean(
-    chapterId &&
-      (() => {
-        const chapterStatus = chapterId
-          ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
-          : null
-        return chapterStatus?.status === "completed" || !chapterStatus
-      })(),
-  )
+  const chapterStatus = chapterId
+    ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+    : null
+  const isChapterCompleted = Boolean(chapterId && chapterStatus?.status === "completed_and_locked")
+  const isChapterNotAccessible = Boolean(chapterId && chapterStatus?.status === "not_unlocked_yet")
+  const isChapterLocked: boolean = isChapterCompleted || isChapterNotAccessible
 
   const peerOrSelfReviewData = query.data?.course_material_peer_or_self_review_data
 
@@ -367,7 +364,11 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
             `}
           >
             <Padlock size={24} />
-            <div>{t("chapter-locked-description")}</div>
+            <div>
+              {isChapterNotAccessible
+                ? t("chapter-locked-complete-previous")
+                : t("chapter-locked-description")}
+            </div>
           </div>
         </YellowBox>
       )}

@@ -776,12 +776,20 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     blocks = replace_duplicate_client_ids(blocks);
 
     let is_locked = if let (Some(user_id), Some(chapter_id)) = (user_id, page.chapter_id) {
-        if page.course_id.is_some() {
-            let status =
-                user_chapter_locking_statuses::get_status(conn, user_id, chapter_id).await?;
+        if let Some(course_id) = page.course_id {
+            use crate::courses;
+            let course = courses::get_course(conn, course_id).await?;
+            let status = user_chapter_locking_statuses::get_or_init_status(
+                conn,
+                user_id,
+                chapter_id,
+                Some(course_id),
+                Some(course.chapter_locking_enabled),
+            )
+            .await?;
             matches!(
                 status,
-                Some(user_chapter_locking_statuses::ChapterLockingStatus::Completed)
+                Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
             )
         } else {
             false

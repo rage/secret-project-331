@@ -153,18 +153,24 @@ async fn lock_chapter(
 
     let mut tx = conn.begin().await?;
 
-    let current_status =
-        user_chapter_locking_statuses::get_status(&mut tx, user.id, *chapter_id).await?;
+    let current_status = user_chapter_locking_statuses::get_or_init_status(
+        &mut tx,
+        user.id,
+        *chapter_id,
+        Some(chapter.course_id),
+        Some(course.chapter_locking_enabled),
+    )
+    .await?;
 
     match current_status {
-        None => {
+        None | Some(ChapterLockingStatus::NotUnlockedYet) => {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
                 "This chapter is locked. Complete previous chapters first.".to_string(),
                 None,
             ));
         }
-        Some(ChapterLockingStatus::Completed) => {
+        Some(ChapterLockingStatus::CompletedAndLocked) => {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
                 "This chapter is already completed.".to_string(),
@@ -177,11 +183,19 @@ async fn lock_chapter(
     }
 
     for prev_chapter in previous_chapters {
-        let prev_status =
-            user_chapter_locking_statuses::get_status(&mut tx, user.id, prev_chapter.id).await?;
+        let prev_status = user_chapter_locking_statuses::get_or_init_status(
+            &mut tx,
+            user.id,
+            prev_chapter.id,
+            Some(chapter.course_id),
+            Some(course.chapter_locking_enabled),
+        )
+        .await?;
 
         match prev_status {
-            None | Some(ChapterLockingStatus::Unlocked) => {
+            None
+            | Some(ChapterLockingStatus::Unlocked)
+            | Some(ChapterLockingStatus::NotUnlockedYet) => {
                 return Err(ControllerError::new(
                     ControllerErrorType::BadRequest,
                     format!(
@@ -191,7 +205,7 @@ async fn lock_chapter(
                     None,
                 ));
             }
-            Some(ChapterLockingStatus::Completed) => {
+            Some(ChapterLockingStatus::CompletedAndLocked) => {
                 // Previous chapter is completed, continue
             }
         }

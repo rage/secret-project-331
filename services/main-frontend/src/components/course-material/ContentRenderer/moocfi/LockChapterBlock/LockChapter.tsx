@@ -178,7 +178,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   }
 
   const currentChapterStatus = getUserLocks.data?.find((status) => status.chapter_id === chapterId)
-  const currentChapterIsLocked = currentChapterStatus?.status === "completed"
+  const currentChapterIsLocked = currentChapterStatus?.status === "completed_and_locked"
 
   if (getUserLocks.isError) {
     return <ErrorBanner variant={"readOnly"} error={getUserLocks.error} />

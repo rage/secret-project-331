@@ -2256,7 +2256,7 @@ export interface UserChapterLockingStatus {
   status: ChapterLockingStatus
 }
 
-export type ChapterLockingStatus = "unlocked" | "completed"
+export type ChapterLockingStatus = "unlocked" | "completed_and_locked" | "not_unlocked_yet"
 
 export interface UserCourseExerciseServiceVariable {
   id: string

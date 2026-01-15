@@ -34,12 +34,6 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
     config: { tension: 520, friction: 32, clamp: true },
   }))
 
-  const [glow, glowApi] = useSpring(() => ({
-    g: 0,
-    gs: 0.9,
-    config: { tension: 220, friction: 18 },
-  }))
-
   const [ripples, rippleApi] = useSprings(RIPPLES, () => ({
     s: 0.2,
     o: 0,
@@ -111,10 +105,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
       })
     }
 
-    function startAndWaitSingle(
-      api: typeof shackleApi | typeof glowApi,
-      config: Record<string, unknown>,
-    ) {
+    function startAndWaitSingle(api: typeof shackleApi, config: Record<string, unknown>) {
       return new Promise<void>((resolve) => {
         api.start({
           ...config,
@@ -138,7 +129,6 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
 
     // Reset to starting position
     lockApi.set({ y: -220, rotZ: 6, scale: 2.45, sx: 1, sy: 1, opacity: 0 })
-    glowApi.set({ g: 0, gs: 0.9 })
     shackleApi.set({ a: -42 })
     rippleApi.set(() => ({ s: 0.2, o: 0 }))
     pApi.set(() => ({ x: 0, y: 0, s: 0.6, o: 0, r: 0 }))
@@ -201,22 +191,6 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
     // Wait for drop to complete
     await dropDone
 
-    // Start glow animation when lock drops (pulse effect)
-    await startAndWaitSingle(glowApi, {
-      to: { g: 1, gs: 1.1 },
-      config: { tension: 220, friction: 18 },
-    })
-
-    await startAndWaitSingle(glowApi, {
-      to: { g: 0.3, gs: 1 },
-      config: { tension: 180, friction: 20 },
-    })
-
-    await startAndWaitSingle(glowApi, {
-      to: { g: 0, gs: 0.9 },
-      config: { tension: 200, friction: 18 },
-    })
-
     // Close the shackle and wait for it to complete
     await startAndWaitSingle(shackleApi, {
       to: { a: 0 },
@@ -227,7 +201,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
     if (onComplete) {
       onComplete()
     }
-  }, [glowApi, shackleApi, rippleApi, pApi, lockApi, onComplete])
+  }, [shackleApi, rippleApi, pApi, lockApi, onComplete])
 
   useEffect(() => {
     if (play && !hasPlayedRef.current) {
@@ -304,7 +278,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
           willChange: "transform",
         }}
       >
-        <LockSVG shackle={shackle} glow={glow} size={svgSize} />
+        <LockSVG shackle={shackle} size={svgSize} />
       </animated.div>
     </div>
   )
@@ -315,15 +289,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
  * License: MIT
  * Source: https://github.com/Vectopus/Atlas-icons-react
  */
-function LockSVG({
-  shackle,
-  glow,
-  size,
-}: {
-  shackle: { a: SpringValue<number> }
-  glow: { g: SpringValue<number>; gs: SpringValue<number> }
-  size: number
-}) {
+function LockSVG({ shackle, size }: { shackle: { a: SpringValue<number> }; size: number }) {
   // IMPORTANT: This shackle path is ONLY the U shape (no bottom seat segment),
   // so rotating it won't sweep across the lock body.
   // It matches your geometry: left leg at x=5.32, right at x=18.68, top arc from 12 @ y=1.5.
@@ -349,15 +315,6 @@ function LockSVG({
         shapeRendering: "geometricPrecision",
       }}
     >
-      <defs>
-        <filter id="glow-filter">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-          <feMerge>
-            <feMergeNode in="coloredBlur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
       <style>{`
         .stroke{
           fill:none;
@@ -369,18 +326,9 @@ function LockSVG({
         }
       `}</style>
 
-      {/* Body with glow effect */}
-      <animated.g
-        style={{
-          filter: to([glow.g], (g) => (g > 0.01 ? "url(#glow-filter)" : "none")),
-          opacity: to([glow.g], (g) => Math.min(1, 1 + g * 0.15)),
-          transform: to([glow.gs], (gs) => `scale(${gs})`),
-          transformOrigin: "12px 16.77px",
-        }}
-      >
-        <rect x="2.45" y="11.05" width="19.09" height="11.45" fill="white" />
-        <rect className="stroke" x="2.45" y="11.05" width="19.09" height="11.45" />
-      </animated.g>
+      {/* Body */}
+      <rect x="2.45" y="11.05" width="19.09" height="11.45" fill="white" />
+      <rect className="stroke" x="2.45" y="11.05" width="19.09" height="11.45" />
 
       {/* Shackle (clean close) */}
       <animated.path

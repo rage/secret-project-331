@@ -13,7 +13,8 @@ export class PagesInChapterSelector {
 
   getPageLinkByTitle(title: string): Locator {
     const container = this.getContainer()
-    return container.getByRole("link", { name: new RegExp(`^\\d+ ${title}$`) })
+    const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    return container.getByRole("link", { name: new RegExp(`^\\d+ ${escapedTitle}$`) })
   }
 
   getPageLinkByIndex(index: number): Locator {

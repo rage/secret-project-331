@@ -29,6 +29,3 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_chapter_locking_statuses
 
 COMMENT ON TABLE user_chapter_locking_statuses IS 'Tracks chapter locking statuses for users. No row means chapter is locked (default). Status "unlocked" means student can work on exercises. Status "completed" means chapter is done and exercises are locked again.';
 COMMENT ON COLUMN user_chapter_locking_statuses.status IS 'unlocked: student can work on exercises. completed: chapter is done, exercises are locked.';
-
--- Remove exercises_done_through_locking from chapters (if it exists)
-ALTER TABLE chapters DROP COLUMN IF EXISTS exercises_done_through_locking;

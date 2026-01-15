@@ -199,8 +199,10 @@ async fn lock_chapter(
         }
     }
 
+    let mut tx = conn.begin().await?;
+
     models::chapters::move_chapter_exercises_to_manual_review(
-        &mut conn,
+        &mut tx,
         *chapter_id,
         user.id,
         chapter.course_id,
@@ -208,7 +210,7 @@ async fn lock_chapter(
     .await?;
 
     let status = user_chapter_locking_statuses::complete_chapter(
-        &mut conn,
+        &mut tx,
         user.id,
         *chapter_id,
         chapter.course_id,
@@ -216,12 +218,14 @@ async fn lock_chapter(
     .await?;
 
     models::chapters::unlock_next_chapters_for_user(
-        &mut conn,
+        &mut tx,
         user.id,
         *chapter_id,
         chapter.course_id,
     )
     .await?;
+
+    tx.commit().await?;
 
     token.authorized_ok(web::Json(status))
 }

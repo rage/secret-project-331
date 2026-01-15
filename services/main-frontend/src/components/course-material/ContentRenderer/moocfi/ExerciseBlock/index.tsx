@@ -633,14 +633,6 @@ const ExerciseBlock: React.FC<
                 shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message}
               />
             )}
-          {chapterLockingEnabled && getCourseMaterialExercise.data && (
-            <div
-              className={css`
-                padding: 0 1rem;
-                margin-bottom: 1rem;
-              `}
-            ></div>
-          )}
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&
             reviewingStage !== "SelfReview" &&

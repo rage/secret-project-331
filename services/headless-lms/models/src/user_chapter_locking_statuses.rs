@@ -190,7 +190,7 @@ pub async fn unlock_chapter(
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'unlocked'::chapter_locking_status, NULL)
-ON CONFLICT (user_id, chapter_id, deleted_at) DO UPDATE
+ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = 'unlocked'::chapter_locking_status, deleted_at = NULL
 RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
         "#,
@@ -217,7 +217,7 @@ pub async fn complete_chapter(
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'completed_and_locked'::chapter_locking_status, NULL)
-ON CONFLICT (user_id, chapter_id, deleted_at) DO UPDATE
+ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = 'completed_and_locked'::chapter_locking_status, deleted_at = NULL
 RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
         "#,

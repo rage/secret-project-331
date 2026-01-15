@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -14,7 +14,6 @@ import LockChapterLockedView from "./LockChapterLockedView"
 import LockChapterUnlockedView from "./LockChapterUnlockedView"
 
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
 import { getChapterLockPreview, lockChapter } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -47,13 +46,6 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
   const getUserLocks = useUserChapterLocks(courseId)
 
-  const chaptersQuery = useQuery({
-    queryKey: ["chapters", courseId],
-    queryFn: () => fetchAllChaptersByCourseId(courseId!),
-    enabled: !!courseId,
-  })
-
-  const chapter = chaptersQuery.data?.find((c) => c.id === chapterId)
   const course = courseMaterialState.course
 
   const lockMutation = useMutation({

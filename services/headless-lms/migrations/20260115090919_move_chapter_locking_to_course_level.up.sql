@@ -23,7 +23,8 @@ CREATE TABLE user_chapter_locking_statuses (
   STATUS chapter_locking_status NOT NULL
 );
 
-CREATE UNIQUE INDEX idx_user_chapter_locking_statuses_user_chapter_active ON user_chapter_locking_statuses(user_id, chapter_id, deleted_at) NULLS NOT DISTINCT;
+ALTER TABLE user_chapter_locking_statuses
+ADD CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active UNIQUE NULLS NOT DISTINCT (user_id, chapter_id, deleted_at);
 CREATE INDEX idx_user_chapter_locking_statuses_user_id ON user_chapter_locking_statuses(user_id);
 CREATE INDEX idx_user_chapter_locking_statuses_chapter_id ON user_chapter_locking_statuses(chapter_id);
 CREATE INDEX idx_user_chapter_locking_statuses_course_id ON user_chapter_locking_statuses(course_id);

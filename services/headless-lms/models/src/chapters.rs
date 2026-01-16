@@ -899,11 +899,12 @@ pub async fn unlock_first_chapters_for_user(
         })?;
 
     let module_chapter_ids = get_for_module(conn, base_module.id).await?;
-    let module_chapters = course_chapters(conn, course_id)
+    let mut module_chapters = course_chapters(conn, course_id)
         .await?
         .into_iter()
         .filter(|c| module_chapter_ids.contains(&c.id))
         .collect::<Vec<_>>();
+    module_chapters.sort_by_key(|c| c.chapter_number);
 
     let mut chapters_to_unlock = Vec::new();
 
@@ -1028,16 +1029,17 @@ pub async fn unlock_next_chapters_for_user(
             }
         }
     } else {
-        let mut all_chapters = course_chapters(conn, course_id).await?;
-        all_chapters.sort_by_key(|c| c.chapter_number);
+        let module_chapter_ids = get_for_module(conn, completed_chapter.course_module_id).await?;
+        let mut module_chapters = course_chapters(conn, course_id)
+            .await?
+            .into_iter()
+            .filter(|c| module_chapter_ids.contains(&c.id))
+            .collect::<Vec<_>>();
+        module_chapters.sort_by_key(|c| c.chapter_number);
         let mut found_completed = false;
         let mut candidate_chapter_ids = Vec::new();
 
-        for chapter in &all_chapters {
-            if chapter.course_module_id != completed_chapter.course_module_id {
-                continue;
-            }
-
+        for chapter in &module_chapters {
             if chapter.id == completed_chapter.id {
                 found_completed = true;
                 continue;

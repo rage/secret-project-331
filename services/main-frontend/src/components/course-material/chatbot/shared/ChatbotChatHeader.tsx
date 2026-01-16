@@ -9,11 +9,12 @@ import {
   DotsHorizontal,
 } from "@vectopus/atlas-icons-react"
 import React from "react"
-import { Button, Heading, Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
+import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
+import DropdownMenu, { OurMenuItem } from "@/components/Topbar/DropdownMenu"
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -75,27 +76,6 @@ const buttonsWrapper = css`
   align-items: flex-start;
 `
 
-const menuStyle = css`
-  flex: 1;
-  flex-flow: column nowrap;
-  background: #fff;
-  border-color: #cacaca;
-  padding: 0;
-  cursor: pointer;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  box-shadow: 0px 0px 5px rgba(5n1, 51, 51, 0.1);
-`
-const menuItemStyle = css`
-  font-size: 16px;
-  border: solid pink;
-  margin: 0 0.5rem;
-  color: ${baseTheme.colors.green[700]};
-  &:hover {
-    filter: brightness(0.7) contrast(1.1);
-  }
-`
-
 const downloadTranscript = (info: ChatbotConversationInfo | undefined, filename: string) => {
   if (info === undefined) {
     return
@@ -120,6 +100,48 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       successMessage: t("transcript-downloaded-successfully"),
     },
   )
+
+  let items: OurMenuItem[] = [
+    {
+      // eslint-disable-next-line i18next/no-literal-string
+      id: "chatbot-header-menu-new-conversation-button",
+      onAction: () => {
+        if (!newConversation.isPending) {
+          newConversation.mutate()
+        }
+      },
+      icon: (
+        <AddMessage
+          className={css`
+            color: ${baseTheme.colors.green[700]};
+            position: relative;
+            top: -0.25rem;
+          `}
+        />
+      ),
+      type: "action",
+      label: t("new-conversation"),
+    },
+  ]
+
+  if (currentConversationInfo.data?.current_conversation !== null) {
+    items.push({
+      // eslint-disable-next-line i18next/no-literal-string
+      id: "chatbot-header-menu-dl-transcript-button",
+      onAction: createTranscript.mutate,
+      icon: (
+        <ArrowDownToBracket
+          className={css`
+            color: ${baseTheme.colors.green[700]};
+            position: relative;
+            top: -0.25rem;
+          `}
+        />
+      ),
+      type: "action",
+      label: t("download-transcript"),
+    })
+  }
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -153,54 +175,23 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         {currentConversationInfo.data?.chatbot_name}
       </Heading>
       <div className={buttonsWrapper}>
-        <MenuTrigger>
-          <Button className={buttonStyle}>
-            <DotsHorizontal
-              className={css`
-                position: relative;
-                top: 0.25rem;
-              `}
-            />
-          </Button>
-
-          <Popover isNonModal={false}>
-            <Menu className={menuStyle}>
-              <MenuItem
-                onAction={() => {
-                  if (!newConversation.isPending) {
-                    newConversation.mutate()
-                  }
-                }}
-                className={menuItemStyle}
-                aria-label={t("new-conversation")}
-              >
-                <AddMessage
-                  className={css`
-                    position: relative;
-                    top: 0.25rem;
-                  `}
-                />
-                {t("new-conversation")}
-              </MenuItem>
-              {currentConversationInfo.data?.current_conversation !== null && (
-                <MenuItem
-                  onAction={createTranscript.mutate}
-                  isDisabled={!currentConversationInfo.data}
-                  className={menuItemStyle}
-                  aria-label={t("download-transcript")}
-                >
-                  <ArrowDownToBracket
-                    className={css`
-                      position: relative;
-                      top: 0.25rem;
-                    `}
-                  />
-                  {t("download-transcript")}
-                </MenuItem>
-              )}
-            </Menu>
-          </Popover>
-        </MenuTrigger>
+        <DropdownMenu
+          controlButton={
+            //<Hamburger isActive={true} buttonWidth={20} />
+            <Button className={buttonStyle}>
+              <DotsHorizontal
+                className={css`
+                  position: relative;
+                  top: 0.25rem;
+                `}
+              />
+            </Button>
+          }
+          navLabel={null}
+          // eslint-disable-next-line i18next/no-literal-string
+          menuTestId="chatbot-header-menu"
+          items={items}
+        ></DropdownMenu>
         {!isCourseMaterialBlock && (
           <Button
             slot="close"

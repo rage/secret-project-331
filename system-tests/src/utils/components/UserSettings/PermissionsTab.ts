@@ -45,19 +45,33 @@ export class PermissionsTab {
       return []
     }
 
-    const courseItems = listContainer.locator('[data-testid^="course-consent-"]')
+    await expect(
+      listContainer
+        .locator('[data-testid^="course-consent-item-"]:not([data-testid$="-name"])')
+        .first(),
+    ).toBeVisible({ timeout: 10000 })
+
+    const courseItems = listContainer.locator(
+      '[data-testid^="course-consent-item-"]:not([data-testid$="-name"])',
+    )
     const count = await courseItems.count()
     const consents: Array<{ courseName: string; courseId: string; editLink: Locator | null }> = []
 
     for (let i = 0; i < count; i++) {
       const item = courseItems.nth(i)
       const testId = await item.getAttribute("data-testid")
-      if (!testId) {
+      if (!testId || !testId.startsWith("course-consent-item-") || testId.endsWith("-name")) {
         continue
       }
 
-      const courseId = testId.replace("course-consent-", "")
-      const courseName = await item.getByTestId(`course-consent-name-${courseId}`).textContent()
+      const courseId = testId.replace(/^course-consent-item-/, "")
+      if (!courseId) {
+        continue
+      }
+
+      const courseNameElement = item.getByTestId(`course-consent-item-${courseId}-name`)
+      await expect(courseNameElement).toBeVisible()
+      const courseName = await courseNameElement.textContent()
       const editLink = item.getByRole("link", { name: "Edit" })
 
       if (courseName) {

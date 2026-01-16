@@ -33,9 +33,11 @@ const Tab: React.FC<TabProps> = ({ tabName, children }) => {
 
   const href = `${basePath}/${tabName}`
 
+  const { "aria-controls": _ariaControls, ...restTabProps } = tabProps
+
   return (
     <Link
-      {...mergeProps(tabProps, focusProps, hoverProps)}
+      {...mergeProps(restTabProps, focusProps, hoverProps)}
       ref={tabRef}
       href={href}
       replace

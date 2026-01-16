@@ -126,7 +126,7 @@ const PermissionsSettingsPage: React.FC = () => {
                 `}
               />
             </div>
-            <h3
+            <h2
               className={css`
                 font-size: 1.0625rem;
                 font-weight: ${fontWeights.semibold};
@@ -135,7 +135,7 @@ const PermissionsSettingsPage: React.FC = () => {
               `}
             >
               {t("title-research-consents")}
-            </h3>
+            </h2>
           </div>
           <button
             data-testid="edit-research-consent-button"
@@ -173,7 +173,7 @@ const PermissionsSettingsPage: React.FC = () => {
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
@@ -214,18 +214,18 @@ const PermissionsSettingsPage: React.FC = () => {
               margin-top: 1rem;
             `}
           >
-            <h4
+            <h3
               className={css`
                 font-size: 0.8125rem;
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin: 0 0 0.75rem 0;
               `}
             >
               {t("title-course-specific-research-consents")}
-            </h4>
+            </h3>
 
             <div
               data-testid="course-specific-consents-list"
@@ -257,7 +257,7 @@ const PermissionsSettingsPage: React.FC = () => {
                 return (
                   <div
                     key={course.data.course_id}
-                    data-testid={`course-consent-${course.data.course_id}`}
+                    data-testid={`course-consent-item-${course.data.course_id}`}
                     className={css`
                       display: flex;
                       justify-content: space-between;
@@ -269,7 +269,7 @@ const PermissionsSettingsPage: React.FC = () => {
                     `}
                   >
                     <span
-                      data-testid={`course-consent-name-${course.data.course_id}`}
+                      data-testid={`course-consent-item-${course.data.course_id}-name`}
                       className={css`
                         font-size: 0.9375rem;
                         font-weight: 500;
@@ -349,7 +349,7 @@ const PermissionsSettingsPage: React.FC = () => {
               `}
             />
           </div>
-          <h3
+          <h2
             className={css`
               font-size: 1.0625rem;
               font-weight: ${fontWeights.semibold};
@@ -358,7 +358,7 @@ const PermissionsSettingsPage: React.FC = () => {
             `}
           >
             {t("user-settings-authorized-apps")}
-          </h3>
+          </h2>
         </div>
 
         {listQuery.isLoading && <Spinner variant="medium" />}
@@ -375,7 +375,7 @@ const PermissionsSettingsPage: React.FC = () => {
             {listQuery.data.length === 0 && (
               <p
                 className={css`
-                  color: ${baseTheme.colors.gray[400]};
+                  color: ${baseTheme.colors.gray[500]};
                   font-size: 0.875rem;
                   margin: 0;
                 `}
@@ -495,7 +495,7 @@ const PermissionsSettingsPage: React.FC = () => {
                 `}
               />
             </div>
-            <h3
+            <h2
               className={css`
                 font-size: 1.0625rem;
                 font-weight: ${fontWeights.semibold};
@@ -504,7 +504,7 @@ const PermissionsSettingsPage: React.FC = () => {
               `}
             >
               {t("user-settings-delete-account")}
-            </h3>
+            </h2>
           </div>
           <DeleteUserAccountForm email={getUserDetails.data.email} />
         </div>

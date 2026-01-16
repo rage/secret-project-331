@@ -235,17 +235,17 @@ const PermissionsSettingsPage: React.FC = () => {
                 gap: 0.625rem;
               `}
             >
-              {courseBreadcrumbInfos.map((course) => {
+              {courseBreadcrumbInfos.map((course, index) => {
                 if (course.isLoading) {
                   return (
-                    <div key="loading">
+                    <div key={`loading-${index}`}>
                       <Spinner variant="small" />
                     </div>
                   )
                 }
                 if (course.isError) {
                   return (
-                    <div key="error">
+                    <div key={`error-${index}`}>
                       <ErrorBanner variant="readOnly" error={course.error} />
                     </div>
                   )

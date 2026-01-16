@@ -146,5 +146,6 @@ export class PermissionsTab {
   async confirmAccountDeletionWithPassword(password: string): Promise<void> {
     await this.page.getByLabel("Password").fill(password)
     await this.page.getByRole("button", { name: "Confirm" }).click()
+    await this.page.waitForURL(/\/account-deleted/, { timeout: 10000 })
   }
 }

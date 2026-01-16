@@ -104,5 +104,6 @@ export class AccountTab {
     await this.page.getByLabel("New password").fill(newPassword)
     await this.page.getByLabel("Confirm new password").fill(newPassword)
     await this.page.getByRole("button", { name: "Save" }).click()
+    await waitForSuccessNotification(this.page, "Success")
   }
 }

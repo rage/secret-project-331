@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next"
 
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
-import DropdownMenu, { OurMenuItem } from "@/components/Topbar/DropdownMenu"
+import DropdownMenu, { DropdownMenuItem } from "@/components/Topbar/DropdownMenu"
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -101,7 +101,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
     },
   )
 
-  let items: OurMenuItem[] = [
+  let items: DropdownMenuItem[] = [
     {
       // eslint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-new-conversation-button",

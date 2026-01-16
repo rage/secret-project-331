@@ -43,12 +43,12 @@ const itemIcon = css`
 interface MenuProps {
   controlButton: ReactNode
   menuTestId: string
-  items: OurMenuItem[]
+  items: DropdownMenuItem[]
   // if the menu is a navigation element
   navLabel: string | null
 }
 
-export interface OurMenuItem {
+export interface DropdownMenuItem {
   id: string
   type: "link" | "action" | "separator"
   label?: string
@@ -62,7 +62,7 @@ const DropdownMenu: React.FC<MenuProps> = ({ controlButton, menuTestId, items, n
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false) // to hamburger
 
-  let x =
+  let nav =
     navLabel !== null
       ? (z: ReactNode) => <nav aria-label={navLabel}>{z}</nav>
       : (z: ReactNode) => <>{z}</>
@@ -97,7 +97,7 @@ const DropdownMenu: React.FC<MenuProps> = ({ controlButton, menuTestId, items, n
           }
         `}
       >
-        {x(
+        {nav(
           <Menu
             data-testid={menuTestId}
             aria-label={t("quick-actions-menu")}

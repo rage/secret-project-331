@@ -68,6 +68,9 @@ importers:
       '@react-stately/overlays':
         specifier: ^3.6.21
         version: 3.6.21(react@19.2.1)
+      '@react-stately/tabs':
+        specifier: ^3.8.7
+        version: 3.8.7(react@19.2.1)
       '@react-types/dialog':
         specifier: ^3.5.22
         version: 3.5.22(react@19.2.1)
@@ -1986,6 +1989,11 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
+  '@react-stately/list@3.13.2':
+    resolution: {integrity: sha512-dGFALuQWNNOkv7W12qSsXLF4mJHLeWeK2hVvdyj4SI8Vxku+BOfaVKuW3sn3mNiixI1dM/7FY2ip4kK+kv27vw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
   '@react-stately/menu@3.9.8':
     resolution: {integrity: sha512-bo0NOhofnTHLESiYfsSSw6gyXiPVJJ0UlN2igUXtJk5PmyhWjFzUzTzcnd7B028OB0si9w3LIWM3stqz5271Eg==}
     peerDependencies:
@@ -2021,6 +2029,11 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
+  '@react-stately/selection@3.20.7':
+    resolution: {integrity: sha512-NkiRsNCfORBIHNF1bCavh4Vvj+Yd5NffE10iXtaFuhF249NlxLynJZmkcVCqNP9taC2pBIHX00+9tcBgxhG+mA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
   '@react-stately/slider@3.7.2':
     resolution: {integrity: sha512-EVBHUdUYwj++XqAEiQg2fGi8Reccznba0uyQ3gPejF0pAc390Q/J5aqiTEDfiCM7uJ6WHxTM6lcCqHQBISk2dQ==}
     peerDependencies:
@@ -2031,8 +2044,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-stately/tabs@3.8.6':
-    resolution: {integrity: sha512-9RYxmgjVIxUpIsGKPIF7uRoHWOEz8muwaYiStCVeyiYBPmarvZoIYtTXcwSMN/vEs7heVN5uGCL6/bfdY4+WiA==}
+  '@react-stately/tabs@3.8.7':
+    resolution: {integrity: sha512-ETZEzg7s9F2SCvisZ2cCpLx6XBHqdvVgDGU5l3C3s9zBKBr6lgyLFt61IdGW8XXZRUvw4mMGT6tGQbXeGvR0Wg==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
@@ -2224,6 +2237,11 @@ packages:
 
   '@react-types/tabs@3.3.19':
     resolution: {integrity: sha512-fE+qI43yR5pAMpeqPxGqQq9jDHXEPqXskuxNHERMW0PYMdPyem2Cw6goc5F4qeZO3Hf6uPZgHkvJz2OAq7TbBw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-types/tabs@3.3.20':
+    resolution: {integrity: sha512-Kjq4PypapdMOVPAQgaFIKH65Kr3YnRvaxBGd6RYizTsqYImQhXoGj6B4lBpjYy4KhfRd4dYS82frHqTGKmBYiA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
@@ -7518,7 +7536,7 @@ snapshots:
       '@react-aria/i18n': 3.12.13(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@react-aria/selection': 3.26.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@react-aria/utils': 3.32.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@react-stately/tabs': 3.8.6(react@19.2.1)
+      '@react-stately/tabs': 3.8.7(react@19.2.1)
       '@react-types/shared': 3.32.1(react@19.2.1)
       '@react-types/tabs': 3.3.19(react@19.2.1)
       '@swc/helpers': 0.5.17
@@ -7903,6 +7921,15 @@ snapshots:
       '@swc/helpers': 0.5.17
       react: 19.2.1
 
+  '@react-stately/list@3.13.2(react@19.2.1)':
+    dependencies:
+      '@react-stately/collections': 3.12.8(react@19.2.1)
+      '@react-stately/selection': 3.20.7(react@19.2.1)
+      '@react-stately/utils': 3.11.0(react@19.2.1)
+      '@react-types/shared': 3.32.1(react@19.2.1)
+      '@swc/helpers': 0.5.17
+      react: 19.2.1
+
   '@react-stately/menu@3.9.8(react@19.2.1)':
     dependencies:
       '@react-stately/overlays': 3.6.21(react@19.2.1)
@@ -7962,6 +7989,14 @@ snapshots:
       '@swc/helpers': 0.5.17
       react: 19.2.1
 
+  '@react-stately/selection@3.20.7(react@19.2.1)':
+    dependencies:
+      '@react-stately/collections': 3.12.8(react@19.2.1)
+      '@react-stately/utils': 3.11.0(react@19.2.1)
+      '@react-types/shared': 3.32.1(react@19.2.1)
+      '@swc/helpers': 0.5.17
+      react: 19.2.1
+
   '@react-stately/slider@3.7.2(react@19.2.1)':
     dependencies:
       '@react-stately/utils': 3.11.0(react@19.2.1)
@@ -7983,11 +8018,11 @@ snapshots:
       '@swc/helpers': 0.5.17
       react: 19.2.1
 
-  '@react-stately/tabs@3.8.6(react@19.2.1)':
+  '@react-stately/tabs@3.8.7(react@19.2.1)':
     dependencies:
-      '@react-stately/list': 3.13.1(react@19.2.1)
+      '@react-stately/list': 3.13.2(react@19.2.1)
       '@react-types/shared': 3.32.1(react@19.2.1)
-      '@react-types/tabs': 3.3.19(react@19.2.1)
+      '@react-types/tabs': 3.3.20(react@19.2.1)
       '@swc/helpers': 0.5.17
       react: 19.2.1
 
@@ -8198,6 +8233,11 @@ snapshots:
       react: 19.2.1
 
   '@react-types/tabs@3.3.19(react@19.2.1)':
+    dependencies:
+      '@react-types/shared': 3.32.1(react@19.2.1)
+      react: 19.2.1
+
+  '@react-types/tabs@3.3.20(react@19.2.1)':
     dependencies:
       '@react-types/shared': 3.32.1(react@19.2.1)
       react: 19.2.1
@@ -11215,7 +11255,7 @@ snapshots:
       '@react-stately/selection': 3.20.6(react@19.2.1)
       '@react-stately/slider': 3.7.2(react@19.2.1)
       '@react-stately/table': 3.15.1(react@19.2.1)
-      '@react-stately/tabs': 3.8.6(react@19.2.1)
+      '@react-stately/tabs': 3.8.7(react@19.2.1)
       '@react-stately/toast': 3.1.2(react@19.2.1)
       '@react-stately/toggle': 3.9.2(react@19.2.1)
       '@react-stately/tooltip': 3.5.8(react@19.2.1)

@@ -176,3 +176,7 @@ export function exerciseAnswersRequiringAttentionRoute(exerciseId: string) {
 export function exerciseExamSubmissionsRoute(exerciseId: string) {
   return `/manage/exercises/${exerciseId}/exam-submissions`
 }
+
+export function userSettingsRoute() {
+  return "/user-settings/account"
+}

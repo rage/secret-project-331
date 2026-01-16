@@ -1,14 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { Padlock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ChangeUserPasswordForm from "@/components/forms/ChangeUserPasswordForm"
 import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
-import { getUserDetailsForUser } from "@/services/backend/user-details"
+import { useUserDetailsForUserQuery } from "@/hooks/useUserDetailsForUserQuery"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
@@ -17,10 +16,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 const AccountSettingsPage: React.FC = () => {
   const { t } = useTranslation()
 
-  const getUserDetails = useQuery({
-    queryKey: [`user-details`],
-    queryFn: () => getUserDetailsForUser(),
-  })
+  const getUserDetails = useUserDetailsForUserQuery()
 
   return (
     <div

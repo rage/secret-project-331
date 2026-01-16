@@ -80,7 +80,12 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
   return (
     <>
-      <Button variant="secondary" size="small" onClick={() => setOpenDialog(true)}>
+      <Button
+        data-testid="delete-account-button"
+        variant="secondary"
+        size="small"
+        onClick={() => setOpenDialog(true)}
+      >
         {t("title-delete-account")}
       </Button>
 

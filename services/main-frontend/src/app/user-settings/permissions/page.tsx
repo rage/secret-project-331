@@ -76,6 +76,7 @@ const PermissionsSettingsPage: React.FC = () => {
       `}
     >
       <div
+        data-testid="research-consents-section"
         className={css`
           background: #fff;
           border: 1px solid ${baseTheme.colors.gray[100]};
@@ -137,6 +138,7 @@ const PermissionsSettingsPage: React.FC = () => {
             </h3>
           </div>
           <button
+            data-testid="edit-research-consent-button"
             onClick={handleGeneralResearchFormButton}
             className={css`
               display: inline-flex;
@@ -178,6 +180,7 @@ const PermissionsSettingsPage: React.FC = () => {
               {t("title-general-research-consent")}
             </div>
             <div
+              data-testid="general-research-consent-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
@@ -225,6 +228,7 @@ const PermissionsSettingsPage: React.FC = () => {
             </h4>
 
             <div
+              data-testid="course-specific-consents-list"
               className={css`
                 display: flex;
                 flex-direction: column;
@@ -253,6 +257,7 @@ const PermissionsSettingsPage: React.FC = () => {
                 return (
                   <div
                     key={course.data.course_id}
+                    data-testid={`course-consent-${course.data.course_id}`}
                     className={css`
                       display: flex;
                       justify-content: space-between;
@@ -264,6 +269,7 @@ const PermissionsSettingsPage: React.FC = () => {
                     `}
                   >
                     <span
+                      data-testid={`course-consent-name-${course.data.course_id}`}
                       className={css`
                         font-size: 0.9375rem;
                         font-weight: 500;
@@ -300,6 +306,7 @@ const PermissionsSettingsPage: React.FC = () => {
       </div>
 
       <div
+        data-testid="authorized-applications-section"
         className={css`
           background: #fff;
           border: 1px solid ${baseTheme.colors.gray[100]};
@@ -358,6 +365,7 @@ const PermissionsSettingsPage: React.FC = () => {
         {listQuery.isError && <ErrorBanner variant="readOnly" error={listQuery.error} />}
         {!listQuery.isLoading && listQuery.isSuccess && (
           <div
+            data-testid="authorized-applications-list"
             className={css`
               display: flex;
               flex-direction: column;
@@ -378,6 +386,7 @@ const PermissionsSettingsPage: React.FC = () => {
             {listQuery.data.map((client) => (
               <div
                 key={client.client_id}
+                data-testid={`authorized-app-${client.client_id}`}
                 className={css`
                   display: flex;
                   justify-content: space-between;
@@ -390,6 +399,7 @@ const PermissionsSettingsPage: React.FC = () => {
               >
                 <div>
                   <div
+                    data-testid={`app-name-${client.client_id}`}
                     className={css`
                       font-weight: 500;
                       color: ${baseTheme.colors.gray[700]};
@@ -400,6 +410,7 @@ const PermissionsSettingsPage: React.FC = () => {
                     {client.client_name}
                   </div>
                   <div
+                    data-testid={`app-scopes-${client.client_id}`}
                     className={css`
                       font-size: 0.8125rem;
                       color: ${baseTheme.colors.gray[400]};
@@ -409,6 +420,7 @@ const PermissionsSettingsPage: React.FC = () => {
                   </div>
                 </div>
                 <button
+                  data-testid={`revoke-app-${client.client_id}`}
                   onClick={() => revokeMutation.mutate(client.client_id)}
                   disabled={revokeMutation.isPending}
                   className={css`
@@ -440,6 +452,7 @@ const PermissionsSettingsPage: React.FC = () => {
 
       {getUserDetails.isSuccess && getUserDetails.data?.email && (
         <div
+          data-testid="delete-account-section"
           className={css`
             background: #fff;
             border: 1px solid ${baseTheme.colors.red[100]};

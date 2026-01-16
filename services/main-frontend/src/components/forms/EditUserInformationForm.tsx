@@ -1,11 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useQueryClient } from "@tanstack/react-query"
 import { Pencil } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { refetchUserDetailsForUser } from "@/hooks/useUserDetailsForUserQuery"
 import { updateUserInfo } from "@/services/backend/user-details"
 import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -42,6 +44,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 }) => {
   const { t } = useTranslation()
   const { t: tCountries } = useTranslation("countries")
+  const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
 
   const {
@@ -88,8 +91,9 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       notify: true,
     },
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         setIsEditing(false)
+        await refetchUserDetailsForUser(queryClient)
       },
     },
   )
@@ -115,6 +119,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   if (!isEditing) {
     return (
       <div
+        data-testid="personal-information-section"
         className={css`
           background: #fff;
           border: 1px solid ${baseTheme.colors.gray[100]};
@@ -149,6 +154,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             {t("user-settings-personal-info")}
           </h3>
           <button
+            data-testid="edit-profile-button"
             onClick={() => setIsEditing(true)}
             className={css`
               display: inline-flex;
@@ -203,6 +209,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               {t("email")}
             </div>
             <div
+              data-testid="personal-info-email-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
@@ -227,6 +234,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               {t("first-name")}
             </div>
             <div
+              data-testid="personal-info-first-name-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
@@ -251,6 +259,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               {t("last-name")}
             </div>
             <div
+              data-testid="personal-info-last-name-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
@@ -275,6 +284,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               {t("enter-country-question")}
             </div>
             <div
+              data-testid="personal-info-country-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
@@ -316,6 +326,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             {t("status")}
           </div>
           <div
+            data-testid="personal-info-email-consent-value"
             className={css`
               font-size: 0.9375rem;
               color: ${baseTheme.colors.gray[700]};

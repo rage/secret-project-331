@@ -20,7 +20,9 @@ export const showToastsNormally = async (page: Page) => {
 
 export const hideToasts = async (page: Page) => {
   await page.evaluate(() => {
-    for (const notif of Array.from(document.querySelectorAll<HTMLElement>(".toast-notification"))) {
+    for (const notif of Array.from(
+      document.querySelectorAll<HTMLElement>('[data-testid="toast-notification"]'),
+    )) {
       notif.style.display = "none"
     }
   })
@@ -30,6 +32,6 @@ export const waitForSuccessNotification = async (
   page: Page,
   text: string = "Operation successful!",
 ) => {
-  await page.getByText(text).waitFor()
+  await page.getByTestId("toast-notification").getByText(text).first().waitFor()
   await hideToasts(page)
 }

@@ -1,5 +1,5 @@
 use headless_lms_models::{
-    email_templates::{EmailTemplateNew, insert_email_template},
+    email_templates::{EmailTemplateNew, EmailTemplateType, insert_email_template},
     user_passwords::insert_password_reset_token,
 };
 use serde_json::json;
@@ -51,7 +51,7 @@ pub async fn seed_generic_emails(
     ]);
 
     let english_template = EmailTemplateNew {
-        name: "reset-password-email".to_string(),
+        template_type: EmailTemplateType::ResetPasswordEmail,
         language: Some("en".to_string()),
         content: Some(english_body),
     };
@@ -93,7 +93,7 @@ pub async fn seed_generic_emails(
     ]);
 
     let finnish_template = EmailTemplateNew {
-        name: "reset-password-email".to_string(),
+        template_type: EmailTemplateType::ResetPasswordEmail,
         language: Some("fi".to_string()),
         content: Some(finnish_body),
     };
@@ -146,7 +146,7 @@ pub async fn seed_generic_emails(
     ]);
 
     let delete_template = EmailTemplateNew {
-        name: "delete-user-email".to_string(),
+        template_type: EmailTemplateType::DeleteUserEmail,
         language: Some("en".to_string()),
         content: Some(delete_body),
     };

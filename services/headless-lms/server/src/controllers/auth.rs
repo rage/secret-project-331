@@ -16,7 +16,9 @@ use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
 use headless_lms_models::ModelResult;
-use headless_lms_models::{user_email_codes, user_passwords, users};
+use headless_lms_models::{
+    email_templates::EmailTemplateType, user_email_codes, user_passwords, users,
+};
 use headless_lms_utils::{
     prelude::UtilErrorType,
     tmc::{NewUserInfo, TmcClient},
@@ -584,9 +586,9 @@ pub async fn send_delete_user_email_code(
         let language = &payload.language;
 
         // Get user deletion email template
-        let delete_template = models::email_templates::get_generic_email_template_by_name_and_language(
+        let delete_template = models::email_templates::get_generic_email_template_by_type_and_language(
             &mut conn,
-            "delete-user-email",
+            EmailTemplateType::DeleteUserEmail,
             language,
         )
         .await

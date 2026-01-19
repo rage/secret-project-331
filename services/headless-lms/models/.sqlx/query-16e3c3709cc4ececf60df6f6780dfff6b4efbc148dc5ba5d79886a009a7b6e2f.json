@@ -1,0 +1,61 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    ed.id AS id,\n    u.id AS user_id,\n    ud.email AS to,\n    et.subject AS subject,\n    et.content AS body,\n    et.email_template_type AS \"template_type: EmailTemplateType\"\nFROM email_deliveries ed\nJOIN email_templates et ON et.id = ed.email_template_id\nJOIN users u ON u.id = ed.user_id\nJOIN user_details ud ON ud.user_id = u.id\nWHERE ed.deleted_at IS NULL\n  AND ed.sent = FALSE\n  AND ed.error IS NULL\nLIMIT 10000;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "to",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "subject",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "body",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "template_type: EmailTemplateType",
+        "type_info": {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "16e3c3709cc4ececf60df6f6780dfff6b4efbc148dc5ba5d79886a009a7b6e2f"
+}

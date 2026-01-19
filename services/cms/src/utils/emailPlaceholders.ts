@@ -17,6 +17,10 @@ export const TEMPLATE_PLACEHOLDER_CONFIG: Record<string, PlaceholderConfig> = {
     required: [PLACEHOLDER_CODE],
     available: [PLACEHOLDER_CODE],
   },
+  confirm_email_code: {
+    required: [PLACEHOLDER_CODE],
+    available: [PLACEHOLDER_CODE],
+  },
 }
 
 export interface PlaceholderValidationResult {

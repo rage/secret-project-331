@@ -370,6 +370,7 @@
   "email-template-language-default": "Default",
   "email-template-last-updated": "Last updated",
   "email-template-no-subject": "No subject",
+  "email-template-type-confirm-email-code": "Confirm Email Code",
   "email-template-type-delete-user-email": "Delete User Email",
   "email-template-type-generic": "Generic",
   "email-template-type-reset-password-email": "Reset Password Email",

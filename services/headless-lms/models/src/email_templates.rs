@@ -7,6 +7,7 @@ use crate::prelude::*;
 pub enum EmailTemplateType {
     ResetPasswordEmail,
     DeleteUserEmail,
+    ConfirmEmailCode,
     Generic,
 }
 

@@ -159,6 +159,20 @@ async fn apply_email_template_replacements(
                 return Ok(blocks);
             }
         }
+        EmailTemplateType::ConfirmEmailCode => {
+            if let Some(code) =
+                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
+                    conn, user_id,
+                )
+                .await?
+            {
+                replacements.insert("CODE".to_string(), code.code);
+            } else {
+                let msg = anyhow::anyhow!("No verification code found for user {}", user_id);
+                save_err_to_email(email_id, msg, conn).await?;
+                return Ok(blocks);
+            }
+        }
         EmailTemplateType::Generic => {
             return Ok(blocks);
         }

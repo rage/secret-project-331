@@ -38,7 +38,8 @@
               "Enum": [
                 "reset_password_email",
                 "delete_user_email",
-                "generic"
+                "generic",
+                "confirm_email_code"
               ]
             }
           }

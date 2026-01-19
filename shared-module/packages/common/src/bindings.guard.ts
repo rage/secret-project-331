@@ -1596,6 +1596,7 @@ export function isEmailTemplateType(obj: unknown): obj is EmailTemplateType {
     return (
         (typedObj === "reset_password_email" ||
             typedObj === "delete_user_email" ||
+            typedObj === "confirm_email_code" ||
             typedObj === "generic")
     )
 }

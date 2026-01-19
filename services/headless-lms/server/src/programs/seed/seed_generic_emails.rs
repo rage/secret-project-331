@@ -153,5 +153,49 @@ pub async fn seed_generic_emails(
 
     insert_email_template(&mut conn, None, delete_template, delete_subject).await?;
 
+    info!("inserting confirm email code email");
+
+    let confirm_subject = Some("Email verification code");
+    let confirm_body = json!([
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "44444444-4444-4444-4444-444444444444",
+            "attributes": {
+                "content": "Hello, please use this code to verify your email address",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "55555555-5555-5555-5555-555555555555",
+            "attributes": {
+                "content": "Your verification code is: {{CODE}}",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "66666666-6666-6666-6666-666666666666",
+            "attributes": {
+                "content": "If you did not request this code, please ignore this message.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    let confirm_template = EmailTemplateNew {
+        template_type: EmailTemplateType::ConfirmEmailCode,
+        language: Some("en".to_string()),
+        content: Some(confirm_body),
+    };
+
+    insert_email_template(&mut conn, None, confirm_template, confirm_subject).await?;
+
     Ok(())
 }

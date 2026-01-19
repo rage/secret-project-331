@@ -72,6 +72,8 @@ const EmailTemplatesList: React.FC = () => {
       // eslint-disable-next-line i18next/no-literal-string
       "delete_user_email",
       // eslint-disable-next-line i18next/no-literal-string
+      "confirm_email_code",
+      // eslint-disable-next-line i18next/no-literal-string
       "generic",
     ]
 
@@ -118,6 +120,8 @@ const EmailTemplatesList: React.FC = () => {
           return t("email-template-type-reset-password-email")
         case "delete_user_email":
           return t("email-template-type-delete-user-email")
+        case "confirm_email_code":
+          return t("email-template-type-confirm-email-code")
         case "generic":
           return t("email-template-type-generic")
       }

@@ -781,7 +781,11 @@ export interface EmailTemplateUpdate {
   points_threshold: number | null
 }
 
-export type EmailTemplateType = "reset_password_email" | "delete_user_email" | "generic"
+export type EmailTemplateType =
+  | "reset_password_email"
+  | "delete_user_email"
+  | "confirm_email_code"
+  | "generic"
 
 export interface CourseExam {
   id: string

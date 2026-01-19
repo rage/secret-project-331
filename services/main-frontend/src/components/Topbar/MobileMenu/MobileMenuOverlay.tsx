@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import { useDialog } from "@react-aria/dialog"
 import { DismissButton, useModalOverlay } from "@react-aria/overlays"
 import { mergeProps } from "@react-aria/utils"
+import { LanguageTranslation, MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -76,7 +77,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         id: "mobile-search",
         type: "action",
         label: t("button-label-search-for-pages"),
-        icon: "🔍",
+        icon: <MagnifyingGlass />,
         onAction: () => {
           const searchButton = document.getElementById("search-for-pages-button")
           if (searchButton) {
@@ -98,8 +99,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         id: "mobile-language-menu",
         type: "submenu",
         label: currentLanguageName,
-        // eslint-disable-next-line i18next/no-literal-string
-        icon: "language", // Special marker for language menu
+        icon: <LanguageTranslation />, // Special marker for language menu
         lang: languageMenu.currentLanguage,
         dir: getDir(languageMenu.currentLanguage),
         submenuItems: languageMenu.items.map((langItem) => {

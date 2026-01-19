@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { OverlayContainer } from "@react-aria/overlays"
 import { useOverlayTriggerState } from "@react-stately/overlays"
-import React, { useContext } from "react"
+import React, { ReactElement, useContext } from "react"
 import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -25,7 +25,7 @@ interface MenuOption {
   label?: string
   href?: string
   onAction?: () => void
-  icon?: string
+  icon?: ReactElement
   isDestructive?: boolean
   requiresPermission?: boolean
   permissionAction?: string

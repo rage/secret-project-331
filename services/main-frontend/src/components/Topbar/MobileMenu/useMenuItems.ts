@@ -1,5 +1,6 @@
 "use client"
 
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -73,7 +74,7 @@ export function useMenuItems(
         id: "mobile-search",
         type: "action",
         label: t("button-label-search-for-pages"),
-        icon: "🔍",
+        icon: MagnifyingGlass({}),
         onAction: () => {
           const searchButton = document.getElementById("search-for-pages-button")
           if (searchButton) {

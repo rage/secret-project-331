@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ArrowRight, LanguageTranslation } from "@vectopus/atlas-icons-react"
+import { ArrowRight } from "@vectopus/atlas-icons-react"
 import React from "react"
 
 import { UnifiedMenuItem } from "../hooks/types"
@@ -21,11 +21,7 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, onAction, onSubmenuOpe
 
   const content = (
     <>
-      {item.icon === "language" ? (
-        <LanguageTranslation size={18} />
-      ) : item.icon ? (
-        <span className={iconClass}>{item.icon}</span>
-      ) : null}
+      {item.icon ? <span className={iconClass}>{item.icon}</span> : null}
       <span>{item.label}</span>
       {item.type === "submenu" && (
         <ArrowRight

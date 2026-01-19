@@ -21,6 +21,7 @@ export interface UseQuickActionsItemsProps {
     isDestructive?: boolean
   }>
   courseId?: string | null
+  onMenuClose?: () => void
   onCourseSettingsOpen?: () => void
 }
 
@@ -32,6 +33,7 @@ export interface UseQuickActionsItemsResult {
 export function useQuickActionsItems({
   menuOptions,
   courseId,
+  onMenuClose,
   onCourseSettingsOpen,
 }: UseQuickActionsItemsProps = {}): UseQuickActionsItemsResult {
   const { t } = useTranslation()
@@ -77,6 +79,7 @@ export function useQuickActionsItems({
           label: t("course-settings"),
           onAction: () => {
             onCourseSettingsOpen?.()
+            onMenuClose?.()
           },
         })
       }
@@ -110,6 +113,7 @@ export function useQuickActionsItems({
     loginStateContext.signedIn,
     currentPageId,
     t,
+    onMenuClose,
     onCourseSettingsOpen,
   ])
 
@@ -139,13 +143,14 @@ export function useQuickActionsItems({
         onAction: item.onAction
           ? () => {
               item.onAction?.()
+              onMenuClose?.()
             }
           : undefined,
         icon: "icon" in item ? item.icon : undefined,
         isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
       }
     })
-  }, [quickActions])
+  }, [quickActions, onMenuClose])
 
   return {
     items,

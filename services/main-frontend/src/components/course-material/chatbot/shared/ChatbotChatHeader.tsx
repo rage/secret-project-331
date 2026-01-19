@@ -2,16 +2,12 @@
 
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import {
-  Account,
-  AddMessage,
-  ArrowDownToBracket,
-  DotsHorizontal,
-} from "@vectopus/atlas-icons-react"
+import { Account, AddMessage, ArrowDownToBracket } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import ClarificationTooltip from "../../../ClarificationTooltip"
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
 import DropdownMenu, { DropdownMenuItem } from "@/components/Topbar/DropdownMenu"
@@ -59,21 +55,29 @@ const titleStyle = css`
 const buttonStyle = css`
   font-size: 20px;
   cursor: pointer;
-  background-color: transparent;
   border-radius: 50%;
   border: none;
-  margin: 0 0.5rem;
   color: ${baseTheme.colors.green[700]};
-  transition: filter 0.2s;
+  background-color: ${baseTheme.colors.green[300]};
+  box-shadow: none;
+  padding: 6px 14px;
 
-  &:hover {
-    filter: brightness(0.7) contrast(1.1);
+  &:hover,
+  &[data-hovered] {
+    background: ${baseTheme.colors.green[400]};
+    border-color: ${baseTheme.colors.green[400]};
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+  &[data-pressed] {
+    background: ${baseTheme.colors.green[500]};
+    border-color: ${baseTheme.colors.green[500]};
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
   }
 `
 
 const buttonsWrapper = css`
   display: flex;
-  align-items: flex-start;
+  align-items: baseline;
 `
 
 const downloadTranscript = (info: ChatbotConversationInfo | undefined, filename: string) => {
@@ -134,7 +138,9 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           className={css`
             color: ${baseTheme.colors.green[700]};
             position: relative;
-            top: -0.25rem;
+            height: 22px;
+            width: 22px;
+            top: -0.275rem;
           `}
         />
       ),
@@ -176,31 +182,26 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       </Heading>
       <div className={buttonsWrapper}>
         <DropdownMenu
-          controlButton={
-            //<Hamburger isActive={true} buttonWidth={20} />
-            <Button className={buttonStyle}>
-              <DotsHorizontal
-                className={css`
-                  position: relative;
-                  top: 0.25rem;
-                `}
-              />
-            </Button>
-          }
           navLabel={null}
           // eslint-disable-next-line i18next/no-literal-string
           menuTestId="chatbot-header-menu"
+          controlButtonClassName={buttonStyle}
+          controlButtonIconColor={`${baseTheme.colors.green[700]}`}
+          controlButtonAriaLabel={t("label-actions")}
+          controlButtonTooltipText={t("label-actions")}
           items={items}
-        ></DropdownMenu>
+        />
         {!isCourseMaterialBlock && (
-          <Button
-            slot="close"
-            className={buttonStyle}
-            aria-label={t("close")}
-            onPress={props.closeChatbot}
-          >
-            <DownIcon />
-          </Button>
+          <ClarificationTooltip text={t("close")}>
+            <Button
+              slot="close"
+              className={buttonStyle}
+              aria-label={t("close")}
+              onPress={props.closeChatbot}
+            >
+              <DownIcon />
+            </Button>
+          </ClarificationTooltip>
         )}
       </div>
     </div>

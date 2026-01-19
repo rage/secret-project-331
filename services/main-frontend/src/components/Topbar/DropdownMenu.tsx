@@ -5,6 +5,10 @@ import { ReactElement, ReactNode, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import TopBarMenuButton from "./TopBarMenuButton"
+
+import Hamburger from "@/shared-module/common/components/Navigation/NavBar/Menu/Hamburger/Hamburger"
+
 const itemRow = css`
   display: flex;
   align-items: center;
@@ -40,12 +44,40 @@ const itemIcon = css`
   opacity: 0.9;
 `
 
+const popoverStyle = css`
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 6px;
+  min-width: 260px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  z-index: 999;
+
+  &[data-entering] {
+    animation: pop-enter 120ms ease-out;
+  }
+  @keyframes pop-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+`
+
 interface MenuProps {
-  controlButton: ReactNode
   menuTestId: string
   items: DropdownMenuItem[]
   // if the menu is a navigation element
   navLabel: string | null
+  controlButtonClassName: string | undefined
+  controlButtonIconColor: string | undefined
+  controlButtonAriaLabel: string
+  controlButtonTooltipText: string
+  id?: string
 }
 
 export interface DropdownMenuItem {
@@ -58,9 +90,17 @@ export interface DropdownMenuItem {
   isDestructive?: boolean
 }
 
-const DropdownMenu: React.FC<MenuProps> = ({ controlButton, menuTestId, items, navLabel }) => {
+const DropdownMenu: React.FC<MenuProps> = ({
+  menuTestId,
+  items,
+  navLabel,
+  controlButtonClassName,
+  controlButtonIconColor,
+  controlButtonAriaLabel,
+  controlButtonTooltipText,
+}) => {
   const { t } = useTranslation()
-  const [isOpen, setIsOpen] = useState(false) // to hamburger
+  const [isOpen, setIsOpen] = useState(false)
 
   let nav =
     navLabel !== null
@@ -69,34 +109,16 @@ const DropdownMenu: React.FC<MenuProps> = ({ controlButton, menuTestId, items, n
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
-      {controlButton}
-      <Popover
-        placement="bottom end"
-        offset={8}
-        className={css`
-          background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          padding: 6px;
-          min-width: 260px;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-          z-index: 999;
-
-          &[data-entering] {
-            animation: pop-enter 120ms ease-out;
-          }
-          @keyframes pop-enter {
-            from {
-              opacity: 0;
-              transform: scale(0.98);
-            }
-            to {
-              opacity: 1;
-              transform: scale(1);
-            }
-          }
-        `}
+      <TopBarMenuButton
+        id="topbar-quick-actions"
+        ariaLabel={controlButtonAriaLabel} //t("open-quick-actions-menu")
+        tooltipText={controlButtonTooltipText} //t("quick-actions")
+        showChevron={false}
+        className={controlButtonClassName}
       >
+        <Hamburger isActive={isOpen} buttonWidth={24} barColor={controlButtonIconColor} />
+      </TopBarMenuButton>
+      <Popover placement="bottom end" offset={8} className={popoverStyle}>
         {nav(
           <Menu
             data-testid={menuTestId}

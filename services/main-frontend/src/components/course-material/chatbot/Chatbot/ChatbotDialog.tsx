@@ -96,6 +96,8 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   let dialogRef = useRef(null)
   // eslint-disable-next-line i18next/no-literal-string
   let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
+  dialogProps = { ...dialogProps, "aria-labelledby": chatbotTitleId }
+  titleProps = { ...titleProps, id: chatbotTitleId }
 
   useEffect(() => {
     if (state?.isOpen) {
@@ -135,7 +137,6 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
               <ChatbotChat
                 chatbotConfigurationId={chatbotConfigurationId}
                 isCourseMaterialBlock={false}
-                chatbotTitleId={chatbotTitleId}
                 closeChatbot={() => state.setOpen(false)}
                 titleProps={titleProps}
               />

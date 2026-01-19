@@ -14,7 +14,6 @@ import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurre
 interface ChatbotDialogProps {
   chatbotConfigurationId: string
   closeChatbot: () => void
-  chatbotTitleId: string
   isCourseMaterialBlock: false
   titleProps: DOMAttributes<Element>
 }

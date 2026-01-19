@@ -174,7 +174,6 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         <Account />
       </div>
       <Heading
-        id={isCourseMaterialBlock ? undefined : props.chatbotTitleId}
         slot="title"
         className={titleStyle}
         {...(isCourseMaterialBlock ? {} : props.titleProps)}

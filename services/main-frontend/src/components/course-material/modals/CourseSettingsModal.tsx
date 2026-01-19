@@ -126,14 +126,15 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   >(
     async (variables) => {
       const newLanguage = newLangcode ?? ""
-      if (newLanguage) {
-        changeCourseMaterialLanguage(newLanguage)
-      }
 
       try {
         await postSaveCourseSettings(variables.instanceId, {
           background_question_answers: variables.backgroundQuestionAnswers,
         })
+
+        if (newLanguage) {
+          changeCourseMaterialLanguage(newLanguage)
+        }
 
         await invalidateCourseMaterialStateQueries(queryClient, courseId)
         await refetchUserChapterLocks(queryClient, courseId)

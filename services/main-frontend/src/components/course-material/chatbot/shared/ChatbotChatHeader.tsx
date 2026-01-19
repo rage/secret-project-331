@@ -185,6 +185,8 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         <DropdownMenu
           // eslint-disable-next-line i18next/no-literal-string
           menuTestId="chatbot-header-menu"
+          // eslint-disable-next-line i18next/no-literal-string
+          menuButtonTestId="chatbot-header-menu-button"
           controlButtonClassName={buttonStyle}
           controlButtonIconColor={`${baseTheme.colors.green[700]}`}
           controlButtonAriaLabel={t("label-actions")}

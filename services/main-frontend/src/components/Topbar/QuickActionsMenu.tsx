@@ -51,6 +51,8 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
       <DropdownMenu
         // eslint-disable-next-line i18next/no-literal-string
         menuTestId="topbar-quick-actions-menu"
+        // eslint-disable-next-line i18next/no-literal-string
+        menuButtonTestId="topbar-quick-actions"
         items={items}
         navLabel={t("quick-actions")}
         controlButtonAriaLabel={t("open-quick-actions-menu")}

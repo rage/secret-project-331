@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ReactElement, ReactNode, useId, useState } from "react"
+import { ReactElement, ReactNode, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -70,6 +70,7 @@ const popoverStyle = css`
 
 interface MenuProps {
   menuTestId: string
+  menuButtonTestId: string
   items: DropdownMenuItem[]
   navLabel?: string // if the menu is a navigation element
   controlButtonClassName?: string
@@ -92,6 +93,7 @@ export interface DropdownMenuItem {
 
 const DropdownMenu: React.FC<MenuProps> = ({
   menuTestId,
+  menuButtonTestId,
   items,
   navLabel,
   controlButtonClassName,
@@ -101,7 +103,6 @@ const DropdownMenu: React.FC<MenuProps> = ({
   controlButtonIconWidth = 20,
 }) => {
   const { t } = useTranslation()
-  const id = useId()
   const [isOpen, setIsOpen] = useState(false)
 
   let nav =
@@ -112,7 +113,7 @@ const DropdownMenu: React.FC<MenuProps> = ({
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
-        id={`quick-actions-menu-button-${id}`}
+        id={menuButtonTestId}
         ariaLabel={controlButtonAriaLabel}
         tooltipText={controlButtonTooltipText}
         showChevron={false}

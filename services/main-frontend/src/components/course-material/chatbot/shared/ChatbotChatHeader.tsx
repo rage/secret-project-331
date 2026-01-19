@@ -182,7 +182,6 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       </Heading>
       <div className={buttonsWrapper}>
         <DropdownMenu
-          navLabel={null}
           // eslint-disable-next-line i18next/no-literal-string
           menuTestId="chatbot-header-menu"
           controlButtonClassName={buttonStyle}

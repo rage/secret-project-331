@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ReactElement, ReactNode, useState } from "react"
+import { ReactElement, ReactNode, useId, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -71,10 +71,9 @@ const popoverStyle = css`
 interface MenuProps {
   menuTestId: string
   items: DropdownMenuItem[]
-  // if the menu is a navigation element
-  navLabel: string | null
-  controlButtonClassName: string | undefined
-  controlButtonIconColor: string | undefined
+  navLabel?: string // if the menu is a navigation element
+  controlButtonClassName?: string
+  controlButtonIconColor?: string
   controlButtonAriaLabel: string
   controlButtonTooltipText: string
   id?: string
@@ -100,6 +99,7 @@ const DropdownMenu: React.FC<MenuProps> = ({
   controlButtonTooltipText,
 }) => {
   const { t } = useTranslation()
+  const id = useId()
   const [isOpen, setIsOpen] = useState(false)
 
   let nav =
@@ -110,9 +110,9 @@ const DropdownMenu: React.FC<MenuProps> = ({
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
-        id="topbar-quick-actions"
-        ariaLabel={controlButtonAriaLabel} //t("open-quick-actions-menu")
-        tooltipText={controlButtonTooltipText} //t("quick-actions")
+        id={`quick-actions-menu-button-${id}`}
+        ariaLabel={controlButtonAriaLabel}
+        tooltipText={controlButtonTooltipText}
         showChevron={false}
         className={controlButtonClassName}
       >

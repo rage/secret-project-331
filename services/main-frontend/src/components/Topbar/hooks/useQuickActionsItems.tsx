@@ -1,23 +1,15 @@
 "use client"
 
 import { useAtomValue } from "jotai"
-import { useContext, useMemo } from "react"
+import { ReactElement, useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
+
+import { DropdownMenuItem } from "../DropdownMenu"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
-
-export interface QuickActionItem {
-  id: string
-  type: "link" | "action" | "separator"
-  label?: string
-  href?: string
-  onAction?: () => void
-  icon?: string
-  isDestructive?: boolean
-}
 
 export interface UseQuickActionsItemsProps {
   menuOptions?: Array<{
@@ -25,23 +17,21 @@ export interface UseQuickActionsItemsProps {
     label?: string
     href?: string
     onAction?: () => void
-    icon?: string
+    icon?: ReactElement
     isDestructive?: boolean
   }>
   courseId?: string | null
-  onMenuClose?: () => void
   onCourseSettingsOpen?: () => void
 }
 
 export interface UseQuickActionsItemsResult {
-  items: QuickActionItem[]
+  items: DropdownMenuItem[]
   shouldShow: boolean
 }
 
 export function useQuickActionsItems({
   menuOptions,
   courseId,
-  onMenuClose,
   onCourseSettingsOpen,
 }: UseQuickActionsItemsProps = {}): UseQuickActionsItemsResult {
   const { t } = useTranslation()
@@ -75,7 +65,7 @@ export function useQuickActionsItems({
       return menuOptions
     }
 
-    const items: Array<Omit<QuickActionItem, "id">> = []
+    const items: Array<Omit<DropdownMenuItem, "id">> = []
 
     const isSignedIn = loginStateContext.signedIn === true
     const shouldShowCourseSettings = isSignedIn && effectiveCourseId !== null
@@ -87,7 +77,6 @@ export function useQuickActionsItems({
           label: t("course-settings"),
           onAction: () => {
             onCourseSettingsOpen?.()
-            onMenuClose?.()
           },
         })
       }
@@ -122,7 +111,6 @@ export function useQuickActionsItems({
     currentPageId,
     t,
     onCourseSettingsOpen,
-    onMenuClose,
   ])
 
   const hasVisibleOptions = useMemo(() => {
@@ -132,7 +120,7 @@ export function useQuickActionsItems({
     return quickActions.some((item) => item.type !== "separator")
   }, [hasCustomOptions, quickActions])
 
-  const items: QuickActionItem[] = useMemo(() => {
+  const items: DropdownMenuItem[] = useMemo(() => {
     return quickActions.map((item, idx) => {
       if (item.type === "separator") {
         return {
@@ -151,14 +139,13 @@ export function useQuickActionsItems({
         onAction: item.onAction
           ? () => {
               item.onAction?.()
-              onMenuClose?.()
             }
           : undefined,
         icon: "icon" in item ? item.icon : undefined,
         isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
       }
     })
-  }, [quickActions, onMenuClose])
+  }, [quickActions])
 
   return {
     items,

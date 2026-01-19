@@ -73,6 +73,30 @@ WHERE course_id = $1
     Ok(res)
 }
 
+pub async fn get_all_email_templates(conn: &mut PgConnection) -> ModelResult<Vec<EmailTemplate>> {
+    let res = sqlx::query_as!(
+        EmailTemplate,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  content,
+  email_template_type AS "template_type: EmailTemplateType",
+  subject,
+  exercise_completions_threshold,
+  points_threshold,
+  course_id,
+  language
+FROM email_templates
+WHERE deleted_at IS NULL
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_generic_email_template_by_type_and_language(
     conn: &mut PgConnection,
     template_type: EmailTemplateType,

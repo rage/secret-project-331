@@ -76,6 +76,7 @@ interface MenuProps {
   controlButtonIconColor?: string
   controlButtonAriaLabel: string
   controlButtonTooltipText: string
+  controlButtonIconWidth?: number
   id?: string
 }
 
@@ -97,6 +98,7 @@ const DropdownMenu: React.FC<MenuProps> = ({
   controlButtonIconColor,
   controlButtonAriaLabel,
   controlButtonTooltipText,
+  controlButtonIconWidth = 20,
 }) => {
   const { t } = useTranslation()
   const id = useId()
@@ -116,7 +118,11 @@ const DropdownMenu: React.FC<MenuProps> = ({
         showChevron={false}
         className={controlButtonClassName}
       >
-        <Hamburger isActive={isOpen} buttonWidth={24} barColor={controlButtonIconColor} />
+        <Hamburger
+          isActive={isOpen}
+          buttonWidth={controlButtonIconWidth}
+          barColor={controlButtonIconColor}
+        />
       </TopBarMenuButton>
       <Popover placement="bottom end" offset={8} className={popoverStyle}>
         {nav(

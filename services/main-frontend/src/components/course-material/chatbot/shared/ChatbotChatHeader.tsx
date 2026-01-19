@@ -189,6 +189,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           controlButtonIconColor={`${baseTheme.colors.green[700]}`}
           controlButtonAriaLabel={t("label-actions")}
           controlButtonTooltipText={t("label-actions")}
+          controlButtonIconWidth={24}
           items={items}
         />
         {!isCourseMaterialBlock && (

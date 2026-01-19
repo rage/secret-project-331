@@ -19,8 +19,11 @@ export async function resetClientAuthorization(page: Page) {
       try {
         await userSettings.permissionsTab.revokeAuthorizedApplication(app.name)
       } catch (error) {
-        // App might have already been revoked, continue
-        console.log(`Could not revoke ${app.name}:`, error)
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        if (errorMessage.includes("not found")) {
+          continue
+        }
+        throw error
       }
     }
   }

@@ -147,7 +147,17 @@ export class PermissionsTab {
     const app = apps.find((a) => a.name === appName)
     if (app) {
       await app.revokeButton.click()
-      await waitForSuccessNotification(this.page, "Operation successful")
+      try {
+        await waitForSuccessNotification(this.page, "Operation successful")
+      } catch {
+        const appsAfterClick = await this.getAuthorizedApplications()
+        const stillExists = appsAfterClick.some((a) => a.name === appName)
+        if (stillExists) {
+          throw new Error(
+            `Failed to revoke "${appName}": notification timeout and application still exists`,
+          )
+        }
+      }
     } else {
       throw new Error(`Authorized application "${appName}" not found`)
     }

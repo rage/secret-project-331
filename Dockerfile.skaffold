@@ -1,23 +1,36 @@
-FROM archlinux
+FROM archlinux:latest
 
 RUN pacman -Syu --noconfirm \
-  && pacman -S --noconfirm skaffold kubernetes-tools minikube kustomize docker postgresql redis sudo patch fakeroot git \
-  && yes | pacman -Scc
+  && yes | pacman -S iptables-nft \
+  && pacman -S --noconfirm --needed ca-certificates curl bash jq openssl iproute2 iputils procps-ng util-linux docker ebtables ethtool conntrack-tools socat kubectl kubeadm crictl minikube kustomize skaffold postgresql redis sudo patch fakeroot git base-devel bc moreutils findutils \
+  && pacman -Scc --noconfirm
 
-# Add user for building packages
+RUN mkdir -p /etc/docker \
+  && printf '%s\n' '{' '  "features": { "buildkit": true },' '  "log-driver": "json-file",' '  "log-opts": { "max-size": "10m", "max-file": "3" }' '}' > /etc/docker/daemon.json
+
+RUN mkdir -p /usr/local/share/devcontainer
+COPY .devcontainer/docker-entrypoint.sh /usr/local/share/devcontainer/docker-entrypoint.sh
+RUN chmod +x /usr/local/share/devcontainer/docker-entrypoint.sh
+
 RUN useradd package-builder --create-home \
-  && echo "package-builder ALL=(ALL) ALL" >> /etc/sudoers \
+  && echo "package-builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
   && passwd -d package-builder
 
 USER package-builder
-
 RUN cd /home/package-builder \
-  && git clone https://aur.archlinux.org/google-cloud-sdk.git \
-  && cd google-cloud-sdk \
-  # Commit hash verified to be safe. If you update this, verify the files in the commit so that we don't accidentally execute malicious code code.
-  && git checkout b8e27c56362707023ff986d4d515195f104047d5 \
+  && git clone https://aur.archlinux.org/google-cloud-cli.git \
+  && cd google-cloud-cli \
+  && git checkout 5029e2d0cc198924323b91cb53d4840a48b100d0 \
   && makepkg --syncdeps --install --noconfirm \
   && cd / \
-  && rm -rf /home/package-builder/google-cloud-sdk
-
+  && rm -rf /home/package-builder/google-cloud-cli
 USER root
+
+RUN useradd -m -s /bin/bash user \
+  && echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
+  && passwd -d user \
+  && usermod -aG docker user \
+  && mkdir -p /home/user/.minikube /home/user/.kube \
+  && chown -R user:user /home/user
+
+CMD ["bash", "-lc", "sleep infinity"]

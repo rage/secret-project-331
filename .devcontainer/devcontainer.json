@@ -1,0 +1,15 @@
+{
+  "name": "arch-minikube-host-docker",
+  "build": {
+    "dockerfile": "../Dockerfile.skaffold"
+  },
+  "runArgs": ["--init"],
+  "remoteUser": "user",
+  "overrideCommand": false,
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+    "source=devcontainer-minikube,target=/home/user/.minikube,type=volume",
+    "source=devcontainer-kube,target=/home/user/.kube,type=volume"
+  ],
+  "postStartCommand": "bash -lc 'bin/minikube-start --driver=docker --container-runtime=docker'"
+}

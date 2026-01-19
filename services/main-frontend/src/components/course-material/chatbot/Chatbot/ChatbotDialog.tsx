@@ -2,7 +2,14 @@
 
 import { css, keyframes } from "@emotion/css"
 import React, { useEffect, useId, useRef, useState } from "react"
-import { FocusScope, mergeProps, useOverlay, useOverlayTrigger, usePopover } from "react-aria"
+import {
+  FocusScope,
+  mergeProps,
+  useDialog,
+  useOverlay,
+  useOverlayTrigger,
+  usePopover,
+} from "react-aria"
 
 import ChatbotChat from "./ChatbotChat"
 import OpenChatbotButton from "./OpenChatbotButton"
@@ -74,7 +81,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     state,
   )
 
-  const newPopoverProps = { ...popoverProps, style: undefined }
+  let newPopoverProps = { ...popoverProps, style: undefined }
   let { overlayProps: overlayProps2 } = useOverlay(
     {
       onClose: () => {
@@ -85,6 +92,10 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     },
     popoverRef,
   )
+
+  let dialogRef = useRef(null)
+  // eslint-disable-next-line i18next/no-literal-string
+  let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
 
   useEffect(() => {
     if (state?.isOpen) {
@@ -106,7 +117,6 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
           <div
             {...mergeProps(overlayProps, newPopoverProps, overlayProps2)}
             ref={popoverRef}
-            aria-labelledby={chatbotTitleId}
             className={css`
               animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
               right: 1rem;
@@ -121,12 +131,15 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
             `}
             onAnimationEnd={handleAnimationEnd}
           >
-            <ChatbotChat
-              chatbotConfigurationId={chatbotConfigurationId}
-              isCourseMaterialBlock={false}
-              chatbotTitleId={chatbotTitleId}
-              closeChatbot={() => state.setOpen(false)}
-            />
+            <div ref={dialogRef} {...dialogProps}>
+              <ChatbotChat
+                chatbotConfigurationId={chatbotConfigurationId}
+                isCourseMaterialBlock={false}
+                chatbotTitleId={chatbotTitleId}
+                closeChatbot={() => state.setOpen(false)}
+                titleProps={titleProps}
+              />
+            </div>
           </div>
         </FocusScope>
       )}

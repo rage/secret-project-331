@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { DOMAttributes, useState } from "react"
 
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
@@ -16,6 +16,7 @@ interface ChatbotDialogProps {
   closeChatbot: () => void
   chatbotTitleId: string
   isCourseMaterialBlock: false
+  titleProps: DOMAttributes<Element>
 }
 
 interface ChatbotNoDialogProps {

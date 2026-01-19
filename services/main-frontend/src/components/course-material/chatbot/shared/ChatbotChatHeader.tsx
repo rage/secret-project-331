@@ -177,6 +177,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         id={isCourseMaterialBlock ? undefined : props.chatbotTitleId}
         slot="title"
         className={titleStyle}
+        {...(isCourseMaterialBlock ? {} : props.titleProps)}
       >
         {currentConversationInfo.data?.chatbot_name}
       </Heading>

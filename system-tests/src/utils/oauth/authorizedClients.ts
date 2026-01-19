@@ -1,34 +1,30 @@
-import { expect, Page } from "@playwright/test"
+import { Page } from "@playwright/test"
 
 import { APP_DISPLAY_NAME, BASE, TEST_CLIENT_ID } from "./constants"
 
-/** Revoke a single client row by visible name */
-export async function revokeClientRow(page: Page, displayName: string) {
-  const row = page
-    .locator("div", { has: page.locator("strong", { hasText: displayName }) })
-    .filter({ has: page.getByRole("button") })
-    .first()
+import { UserSettingsPage } from "@/utils/components/UserSettings/UserSettingsPage"
 
-  if ((await row.count()) === 0) {
-    return false
-  }
-  const revokeBtn = row.getByRole("button", { name: "REVOKE" })
-  await revokeBtn.click()
-  await expect(row).toHaveCount(0)
-  return true
-}
-
-export async function openAuthorizedApps(page: Page) {
-  await page.goto(`${BASE}/user-settings`)
-  const authorizedHeading = page.getByRole("heading", { name: /Authorized applications/i })
-  await authorizedHeading.scrollIntoViewIfNeeded()
-  await expect(authorizedHeading).toBeVisible()
-}
-
-/** Reset this user's authorization for our test client (clean slate for Suite 2) */
+/** Reset this user's authorization for our test client (clean slate for OAuth tests) */
 export async function resetClientAuthorization(page: Page) {
-  await openAuthorizedApps(page)
-  // Try revoke by display name and client_id (in case the UI shows either)
-  await revokeClientRow(page, APP_DISPLAY_NAME)
-  await revokeClientRow(page, TEST_CLIENT_ID)
+  await page.goto(`${BASE}/user-settings/account`)
+  const userSettings = new UserSettingsPage(page)
+  await userSettings.waitForPage()
+  await userSettings.navigateToPermissionsTab()
+  await userSettings.permissionsTab.scrollToAuthorizedApplications()
+
+  const apps = await userSettings.permissionsTab.getAuthorizedApplications()
+
+  for (const app of apps) {
+    if (app.name === APP_DISPLAY_NAME || app.name === TEST_CLIENT_ID) {
+      try {
+        await userSettings.permissionsTab.revokeAuthorizedApplication(app.name)
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        if (errorMessage.includes("not found")) {
+          continue
+        }
+        throw error
+      }
+    }
+  }
 }

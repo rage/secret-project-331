@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { logout } from "@/shared-module/common/services/backend/auth"
+import { userSettingsRoute } from "@/shared-module/common/utils/routes"
 
 export interface UserMenuItem {
   id: string
@@ -104,7 +105,7 @@ export function useUserMenuItems({
   }
 
   const defaultUserMenuItems = [
-    { type: "link" as const, href: "/user-settings", label: t("user-settings") },
+    { type: "link" as const, href: userSettingsRoute(), label: t("user-settings") },
     {
       type: "action" as const,
       label: t("log-out"),

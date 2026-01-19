@@ -93,7 +93,7 @@ const ErrorMessage = styled.div`
 const ErrorNotification = (props: ErrorNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <NotificationWrapper className="toast-notification" data-test-id="error-notification">
+    <NotificationWrapper data-testid="toast-notification">
       <Content>
         <IconWrapper>
           <BellXmark color={baseTheme.colors.red[700]} />

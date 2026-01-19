@@ -66,7 +66,12 @@ const ChangeUserPasswordForm: React.FC = () => {
   if (!isOpen) {
     return (
       <div>
-        <Button variant="primary" size="small" onClick={() => setIsOpen(true)}>
+        <Button
+          data-testid="change-password-button"
+          variant="primary"
+          size="small"
+          onClick={() => setIsOpen(true)}
+        >
           {t("change-password")}
         </Button>
       </div>

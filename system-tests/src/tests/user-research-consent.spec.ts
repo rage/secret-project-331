@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { Topbar } from "../utils/components/Topbar"
+import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -75,23 +76,16 @@ test("Research consent form is visible on login, if not yet answered", async ({
 
     const topbar3 = new Topbar(page)
     await topbar3.userMenu.clickItem("User settings")
-    await page.getByRole("button", { name: "Edit" }).click()
-    expect(
-      await page
-        .getByLabel(
-          "I want to participate in the educational research. By choosing this, you help both current and future students.",
-        )
-        .isChecked(),
-    )
+    const userSettings = new UserSettingsPage(page)
+    await userSettings.waitForPage()
+    await userSettings.navigateToPermissionsTab()
 
-    await page.getByLabel("I do not want to participate in the educational research.").check()
-    await page.getByTestId("research-consent-dialog").getByRole("button", { name: "Save" }).click()
-    await page.getByText("Operation successful").waitFor()
-    await page.getByRole("button", { name: "Edit" }).click()
-    expect(
-      await page
-        .getByLabel("I do not want to participate in the educational research.")
-        .isChecked(),
-    )
+    const consentValue = await userSettings.permissionsTab.getGeneralResearchConsentValue()
+    expect(consentValue?.trim()).toBe("Yes")
+
+    await userSettings.permissionsTab.updateGeneralResearchConsent(false)
+
+    const updatedConsentValue = await userSettings.permissionsTab.getGeneralResearchConsentValue()
+    expect(updatedConsentValue?.trim()).toBe("No")
   })
 })

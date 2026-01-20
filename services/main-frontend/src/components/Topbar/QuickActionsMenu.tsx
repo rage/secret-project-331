@@ -3,7 +3,8 @@
 import React, { ReactElement, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import DropdownMenu from "./DropdownMenu"
+import DropdownMenu from "../DropdownMenu"
+
 import { useQuickActionsItems } from "./hooks/useQuickActionsItems"
 
 import CourseSettingsModal from "@/components/course-material/modals/CourseSettingsModal"

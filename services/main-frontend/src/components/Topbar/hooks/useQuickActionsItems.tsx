@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai"
 import { ReactElement, useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { DropdownMenuItem } from "../DropdownMenu"
+import { DropdownMenuItem } from "../../DropdownMenu"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"

@@ -21,7 +21,7 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, onAction, onSubmenuOpe
 
   const content = (
     <>
-      {item.icon ? <span className={iconClass}>{item.icon}</span> : null}
+      {item.icon && <span className={iconClass}>{item.icon}</span>}
       <span>{item.label}</span>
       {item.type === "submenu" && (
         <ArrowRight

@@ -71,10 +71,11 @@ export function useMenuItems(
     // Search button
     if (enableSearch && courseId && currentPagePath) {
       items.push({
+        // eslint-disable-next-line i18next/no-literal-string
         id: "mobile-search",
         type: "action",
         label: t("button-label-search-for-pages"),
-        icon: MagnifyingGlass({}),
+        icon: <MagnifyingGlass />,
         onAction: () => {
           const searchButton = document.getElementById("search-for-pages-button")
           if (searchButton) {
@@ -89,10 +90,12 @@ export function useMenuItems(
     // Language menu as submenu
     if (enableLanguageMenu && languageMenu.shouldShow) {
       items.push({
+        // eslint-disable-next-line i18next/no-literal-string
         id: "mobile-language-menu",
         type: "submenu",
         label: t("language"),
         submenuItems: languageMenu.items.map((langItem) => {
+          // eslint-disable-next-line i18next/no-literal-string
           const label = langItem.isSelected ? `${langItem.nativeLabel} ✓` : langItem.nativeLabel
           return {
             id: langItem.id,
@@ -123,11 +126,14 @@ export function useMenuItems(
     if (!userMenu.shouldShow) {
       const returnTo = currentPagePath || ""
 
+      // eslint-disable-next-line i18next/no-literal-string
       const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
+      // eslint-disable-next-line i18next/no-literal-string
       const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
       items.push({
+        // eslint-disable-next-line i18next/no-literal-string
         id: "mobile-signup",
         type: "link",
         label: t("create-new-account"),
@@ -135,6 +141,7 @@ export function useMenuItems(
       })
 
       items.push({
+        // eslint-disable-next-line i18next/no-literal-string
         id: "mobile-login",
         type: "link",
         label: t("log-in"),

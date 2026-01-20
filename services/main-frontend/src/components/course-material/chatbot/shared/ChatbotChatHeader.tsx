@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next"
 import ClarificationTooltip from "../../../ClarificationTooltip"
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
-import DropdownMenu, { DropdownMenuItem } from "@/components/Topbar/DropdownMenu"
+import DropdownMenu, { DropdownMenuItem } from "@/components/DropdownMenu"
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -80,15 +80,6 @@ const buttonsWrapper = css`
   align-items: baseline;
 `
 
-const downloadTranscript = (info: ChatbotConversationInfo | undefined, filename: string) => {
-  if (info === undefined) {
-    return
-  }
-  let transcript = createChatbotTranscript(info)
-  // eslint-disable-next-line i18next/no-literal-string
-  downloadStringAsFile(transcript, "txt", filename)
-}
-
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
@@ -96,7 +87,16 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const createTranscript = useToastMutation(
     async () => {
       let info = currentConversationInfo.data
-      downloadTranscript(info, `${t("conversation-with", { name: info?.chatbot_name })}`)
+      if (info === undefined) {
+        return
+      }
+      let transcript = createChatbotTranscript(info)
+      downloadStringAsFile(
+        transcript,
+        // eslint-disable-next-line i18next/no-literal-string
+        "txt",
+        `${t("conversation-with", { name: info?.chatbot_name })}`,
+      )
     },
     {
       notify: true,

@@ -5,7 +5,7 @@ import { ReactElement, ReactNode, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import TopBarMenuButton from "./TopBarMenuButton"
+import TopBarMenuButton from "./Topbar/TopBarMenuButton"
 
 import Hamburger from "@/shared-module/common/components/Navigation/NavBar/Menu/Hamburger/Hamburger"
 

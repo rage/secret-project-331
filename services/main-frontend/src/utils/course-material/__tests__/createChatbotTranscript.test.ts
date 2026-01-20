@@ -2,7 +2,7 @@ import { createChatbotTranscript } from "../createChatbotTranscript"
 
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 
-describe.only("getChatbotTranscript", () => {
+describe("getChatbotTranscript", () => {
   const info1: ChatbotConversationInfo = {
     current_conversation: {
       id: "",
@@ -580,8 +580,6 @@ Any further questions?`,
 
   it("works in simple case with tool call", () => {
     let transcript = createChatbotTranscript(info1)
-    console.log(transcript)
-
     expect(transcript).toStrictEqual(
       `[Test bot said:]
 How can I help you?
@@ -602,8 +600,6 @@ Great. Any further questions?`,
 
   it("works with citations and tool call, hide citations", () => {
     let transcript = createChatbotTranscript(info2)
-    console.log(transcript)
-
     expect(transcript).toStrictEqual(
       `[Test bot said:]
 How can I help you?
@@ -649,9 +645,8 @@ Great. Any further questions?`,
   })
 
   it("works with citations and tool call, show citations", () => {
-    info2.hide_citations = false
-    let transcript = createChatbotTranscript(info2)
-    console.log(transcript)
+    let info2a = { ...info2, hide_citations: false }
+    let transcript = createChatbotTranscript(info2a)
     expect(transcript).toStrictEqual(
       `[Test bot said:]
 How can I help you?
@@ -708,7 +703,6 @@ References
 
   it("works when show citations but there are no citations", () => {
     let transcript = createChatbotTranscript(info3)
-    console.log(transcript)
     expect(transcript).toStrictEqual(`[Test bot said:]
 How can I help you?
 

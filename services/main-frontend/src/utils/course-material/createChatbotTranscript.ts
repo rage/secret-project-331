@@ -44,6 +44,7 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
       // if there are citations, process them and modify m.message
       if (m.message_role === "assistant" && msgs_w_citations.has(m.id) && m.message !== null) {
         let current_citations = citations.filter((c) => c.conversation_message_id === m.id)
+        // citationNumberingMap should contain the same numbers as the filteredCitations array
         let { filteredCitations, citationNumberingMap } = renumberFilterCitations(
           m.message,
           current_citations,

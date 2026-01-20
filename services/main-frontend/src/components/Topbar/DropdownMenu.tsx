@@ -105,10 +105,9 @@ const DropdownMenu: React.FC<MenuProps> = ({
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
-  let nav =
-    navLabel !== null
-      ? (z: ReactNode) => <nav aria-label={navLabel}>{z}</nav>
-      : (z: ReactNode) => <>{z}</>
+  const nav = navLabel
+    ? (z: ReactNode) => <nav aria-label={navLabel}>{z}</nav>
+    : (z: ReactNode) => <>{z}</>
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>

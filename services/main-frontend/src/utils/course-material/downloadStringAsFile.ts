@@ -12,4 +12,5 @@ export const downloadStringAsFile = (s: string, extension: fileExtension, fileNa
   downloadLink.click()
   // remove the link after download
   downloadLink.parentNode?.removeChild(downloadLink)
+  window.URL.revokeObjectURL(url)
 }

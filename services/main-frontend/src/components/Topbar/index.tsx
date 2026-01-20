@@ -52,7 +52,7 @@ interface MenuOption {
  * // Custom user menu options
  * <Topbar
  *   userMenuOptions={[
- *     { type: "link", label: "Profile", href: "/profile", icon: "👤" },
+ *     { type: "link", label: "Profile", href: "/profile", icon: <UserIcon /> },
  *     { type: "separator" },
  *     { type: "action", label: "Logout", onAction: handleLogout, isDestructive: true }
  *   ]}

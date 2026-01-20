@@ -128,7 +128,6 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
               max-height: 90vh;
               position: fixed;
               bottom: 4rem;
-              right: 1rem;
               z-index: 1000;
             `}
             onAnimationEnd={handleAnimationEnd}

@@ -871,10 +871,10 @@ pub async fn verify_email(
         )
     })?;
 
-    if token.is_none() {
+    let Some(token_value) = token else {
         let skip_token = skip_authorize();
         return skip_token.authorized_ok(web::Json(false));
-    }
+    };
 
     let is_valid = email_verification_tokens::verify_code(
         &mut conn,
@@ -895,7 +895,7 @@ pub async fn verify_email(
         return skip_token.authorized_ok(web::Json(false));
     }
 
-    let user_id = token.unwrap().user_id;
+    let user_id = token_value.user_id;
 
     email_verification_tokens::mark_as_used(&mut conn, &payload.email_verification_token)
         .await

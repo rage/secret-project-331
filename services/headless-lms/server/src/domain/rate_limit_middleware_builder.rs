@@ -48,12 +48,10 @@ impl EndpointLimiters {
             day: cfg
                 .per_day
                 .and_then(|n| build_custom_period_limiter(n, Duration::from_secs(24 * 60 * 60))),
-            hour: cfg
-                .per_hour
-                .and_then(|n| build_limiter(n, |nz| Quota::per_hour(nz))),
+            hour: cfg.per_hour.and_then(|n| build_limiter(n, Quota::per_hour)),
             minute: cfg
                 .per_minute
-                .and_then(|n| build_limiter(n, |nz| Quota::per_minute(nz))),
+                .and_then(|n| build_limiter(n, Quota::per_minute)),
         }
     }
 
@@ -148,11 +146,11 @@ where
         const SHRINK_EVERY: u64 = 65_536;
 
         let n = self.calls.fetch_add(1, Ordering::Relaxed) + 1;
-        if n % RETAIN_EVERY == 0 {
+        if n.is_multiple_of(RETAIN_EVERY) {
             for limiter in self.limiters.iter() {
                 limiter.retain_recent();
             }
-            if n % SHRINK_EVERY == 0 {
+            if n.is_multiple_of(SHRINK_EVERY) {
                 for limiter in self.limiters.iter() {
                     limiter.shrink_to_fit();
                 }

@@ -17,7 +17,8 @@ use anyhow::Error;
 use anyhow::anyhow;
 use headless_lms_models::ModelResult;
 use headless_lms_models::{
-    email_templates::EmailTemplateType, user_email_codes, user_passwords, users,
+    email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
+    user_passwords, users,
 };
 use headless_lms_utils::{
     prelude::UtilErrorType,
@@ -33,6 +34,15 @@ use tracing_log::log;
 pub struct Login {
     email: String,
     password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum LoginResponse {
+    Success,
+    RequiresEmailVerification { email_verification_token: String },
+    Failed,
 }
 
 /**
@@ -306,7 +316,7 @@ pub async fn authorize_multiple_actions_on_resources(
 
 /**
 POST `/api/v0/auth/login` Logs in to TMC.
-Returns true if login was successful, false if credentials were incorrect.
+Returns LoginResponse indicating success, email verification required, or failure.
 **/
 #[instrument(skip(session, pool, client, payload, app_conf, tmc_client))]
 pub async fn login(
@@ -316,13 +326,13 @@ pub async fn login(
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
     tmc_client: web::Data<TmcClient>,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<web::Json<LoginResponse>> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
     // Development mode UUID login (allows logging in with a user ID string)
     if app_conf.development_uuid_login {
-        return handle_uuid_login(&session, &mut conn, &email).await;
+        return handle_uuid_login(&session, &mut conn, &email, &app_conf).await;
     }
 
     // Test mode: authenticate using seeded test credentials or stored password
@@ -330,25 +340,40 @@ pub async fn login(
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     };
 
-    return handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
-        .await;
+    return handle_production_login(
+        &session,
+        &mut conn,
+        &client,
+        &tmc_client,
+        &email,
+        &password,
+        &app_conf,
+    )
+    .await;
 }
 
 async fn handle_uuid_login(
     session: &Session,
     conn: &mut PgConnection,
     email: &str,
-) -> ControllerResult<web::Json<bool>> {
+    app_conf: &ApplicationConfiguration,
+) -> ControllerResult<web::Json<LoginResponse>> {
     warn!("Trying development mode UUID login");
     let token = skip_authorize();
 
     if let Ok(id) = Uuid::parse_str(email) {
         let user = { models::users::get_by_id(conn, id).await? };
+        let is_admin = is_user_global_admin(conn, user.id).await?;
+
+        if app_conf.enable_admin_email_verification && is_admin {
+            return handle_email_verification(conn, &user).await;
+        }
+
         authorization::remember(session, user)?;
-        token.authorized_ok(web::Json(true))
+        token.authorized_ok(web::Json(LoginResponse::Success))
     } else {
         warn!("Authentication failed");
-        token.authorized_ok(web::Json(false))
+        token.authorized_ok(web::Json(LoginResponse::Failed))
     }
 }
 
@@ -358,7 +383,7 @@ async fn handle_test_mode_login(
     email: &str,
     password: &str,
     app_conf: &ApplicationConfiguration,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<web::Json<LoginResponse>> {
     warn!("Using test credentials. Normal accounts won't work.");
 
     let user = match models::users::get_by_email(conn, email).await {
@@ -366,7 +391,7 @@ async fn handle_test_mode_login(
         Err(_) => {
             warn!("Test user not found for {}", email);
             let token = skip_authorize();
-            return token.authorized_ok(web::Json(false));
+            return token.authorized_ok(web::Json(LoginResponse::Failed));
         }
     };
 
@@ -392,13 +417,23 @@ async fn handle_test_mode_login(
 
     if is_authenticated {
         info!("Authentication successful");
+        let is_admin = is_user_global_admin(conn, user.id).await?;
+
+        if app_conf.enable_admin_email_verification && is_admin {
+            return handle_email_verification(conn, &user).await;
+        }
+
         authorization::remember(session, user)?;
     } else {
         warn!("Authentication failed");
     }
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(is_authenticated))
+    if is_authenticated {
+        token.authorized_ok(web::Json(LoginResponse::Success))
+    } else {
+        token.authorized_ok(web::Json(LoginResponse::Failed))
+    }
 }
 
 async fn handle_production_login(
@@ -408,8 +443,10 @@ async fn handle_production_login(
     tmc_client: &TmcClient,
     email: &str,
     password: &str,
-) -> ControllerResult<web::Json<bool>> {
+    app_conf: &ApplicationConfiguration,
+) -> ControllerResult<web::Json<LoginResponse>> {
     let mut is_authenticated = false;
+    let mut authenticated_user: Option<headless_lms_models::users::User> = None;
 
     // Try to authenticate using password stored in courses.mooc.fi database
     if let Ok(user) = models::users::get_by_email(conn, email).await {
@@ -425,7 +462,7 @@ async fn handle_production_login(
 
             if is_authenticated {
                 info!("Authentication successful");
-                authorization::remember(session, user)?;
+                authenticated_user = Some(user);
             }
         }
     }
@@ -473,18 +510,27 @@ async fn handle_production_login(
             } else {
                 warn!("User has no upstream_id; skipping notify to TMC");
             }
-            authorization::remember(session, user)?;
             info!("Authentication successful");
+            authenticated_user = Some(user);
             is_authenticated = true;
         }
     }
 
     let token = skip_authorize();
     if is_authenticated {
-        token.authorized_ok(web::Json(true))
+        if let Some(user) = authenticated_user {
+            let is_admin = is_user_global_admin(conn, user.id).await?;
+
+            if app_conf.enable_admin_email_verification && is_admin {
+                return handle_email_verification(conn, &user).await;
+            }
+
+            authorization::remember(session, user)?;
+        }
+        token.authorized_ok(web::Json(LoginResponse::Success))
     } else {
         warn!("Authentication failed");
-        token.authorized_ok(web::Json(false))
+        token.authorized_ok(web::Json(LoginResponse::Failed))
     }
 }
 
@@ -727,6 +773,157 @@ pub async fn is_user_global_admin(conn: &mut PgConnection, user_id: Uuid) -> Mod
         .any(|r| r.role == models::roles::UserRole::Admin && r.is_global))
 }
 
+async fn handle_email_verification(
+    conn: &mut PgConnection,
+    user: &headless_lms_models::users::User,
+) -> ControllerResult<web::Json<LoginResponse>> {
+    let code: String = rand::rng().random_range(100_000..1_000_000).to_string();
+
+    let email_verification_token =
+        email_verification_tokens::create_email_verification_token(conn, user.id, code.clone())
+            .await
+            .map_err(|e| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Failed to create email verification token".to_string(),
+                    Some(anyhow!(e)),
+                )
+            })?;
+
+    user_email_codes::insert_user_email_code(conn, user.id, code.clone())
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to insert user email code".to_string(),
+                Some(anyhow!(e)),
+            )
+        })?;
+
+    let email_template = models::email_templates::get_generic_email_template_by_type_and_language(
+        conn,
+        EmailTemplateType::ConfirmEmailCode,
+        "en",
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            format!("Failed to get email template: {}", e.message()),
+            Some(anyhow!(e)),
+        )
+    })?;
+
+    models::email_deliveries::insert_email_delivery(conn, user.id, email_template.id)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to insert email delivery".to_string(),
+                Some(anyhow!(e)),
+            )
+        })?;
+
+    email_verification_tokens::mark_code_sent(conn, &email_verification_token)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to mark code as sent".to_string(),
+                Some(anyhow!(e)),
+            )
+        })?;
+
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(LoginResponse::RequiresEmailVerification {
+        email_verification_token,
+    }))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct VerifyEmailRequest {
+    pub email_verification_token: String,
+    pub code: String,
+}
+
+/**
+POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.
+**/
+#[instrument(skip(session, pool, payload))]
+pub async fn verify_email(
+    session: Session,
+    pool: web::Data<PgPool>,
+    payload: web::Json<VerifyEmailRequest>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let payload = payload.into_inner();
+
+    let token = email_verification_tokens::get_by_email_verification_token(
+        &mut conn,
+        &payload.email_verification_token,
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to get email verification token".to_string(),
+            Some(anyhow!(e)),
+        )
+    })?;
+
+    if token.is_none() {
+        let skip_token = skip_authorize();
+        return skip_token.authorized_ok(web::Json(false));
+    }
+
+    let is_valid = email_verification_tokens::verify_code(
+        &mut conn,
+        &payload.email_verification_token,
+        &payload.code,
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to verify code".to_string(),
+            Some(anyhow!(e)),
+        )
+    })?;
+
+    if !is_valid {
+        let skip_token = skip_authorize();
+        return skip_token.authorized_ok(web::Json(false));
+    }
+
+    let user_id = token.unwrap().user_id;
+
+    email_verification_tokens::mark_as_used(&mut conn, &payload.email_verification_token)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to mark token as used".to_string(),
+                Some(anyhow!(e)),
+            )
+        })?;
+
+    let user = models::users::get_by_id(&mut conn, user_id)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to get user".to_string(),
+                Some(anyhow!(e)),
+            )
+        })?;
+
+    authorization::remember(&session, user)?;
+
+    let skip_token = skip_authorize();
+    skip_token.authorized_ok(web::Json(true))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::resource("/signup")
@@ -762,5 +959,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/send-email-code",
         web::post().to(send_delete_user_email_code),
-    );
+    )
+    .route("/verify-email", web::post().to(verify_email));
 }

@@ -1341,6 +1341,7 @@
   "text-decribe-course-module-completions-count-when-some-modules-completed-more-than-once": "{{count}} في {{numDistinctModules}} وحدات (تم إكمال بعض الوحدات أكثر من مرة)",
   "text-field-label-chapter-number": "رقم الفصل",
   "text-field-label-description": "الوصف",
+  "text-field-label-email-title": "عنوان البريد الإلكتروني",
   "text-field-label-name": "الاسم",
   "text-field-label-or-header-slug-or-short-name": "الاسم المختصر",
   "text-field-label-path": "المسار",

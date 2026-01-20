@@ -1339,6 +1339,7 @@
   "text-decribe-course-module-completions-count-when-some-modules-completed-more-than-once": "{{count}} i {{numDistinctModules}} moduler (vissa moduler avslutade mer än en gång)",
   "text-field-label-chapter-number": "Kapitelnummer",
   "text-field-label-description": "Beskrivning",
+  "text-field-label-email-title": "E-posttitel",
   "text-field-label-name": "Namn",
   "text-field-label-or-header-slug-or-short-name": "Slug",
   "text-field-label-path": "Sökväg",

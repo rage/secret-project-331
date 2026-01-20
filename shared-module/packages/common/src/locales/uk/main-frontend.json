@@ -1348,6 +1348,7 @@
   "text-decribe-course-module-completions-count-when-some-modules-completed-more-than-once": "{{count}} у {{numDistinctModules}} модулів (деякі модулі виконано більше одного разу)",
   "text-field-label-chapter-number": "Номер розділу",
   "text-field-label-description": "Опис",
+  "text-field-label-email-title": "Заголовок електронної пошти",
   "text-field-label-name": "Ім'я",
   "text-field-label-or-header-slug-or-short-name": "Slug",
   "text-field-label-path": "Шлях",

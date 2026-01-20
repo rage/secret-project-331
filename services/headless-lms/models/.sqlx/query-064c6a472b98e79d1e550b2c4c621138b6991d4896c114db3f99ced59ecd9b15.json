@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE email_verification_tokens\nSET used_at = NOW()\nWHERE email_verification_token = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "064c6a472b98e79d1e550b2c4c621138b6991d4896c114db3f99ced59ecd9b15"
+}

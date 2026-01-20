@@ -1347,6 +1347,7 @@
   "text-decribe-course-module-completions-count-when-some-modules-completed-more-than-once": "{{count}} suoritusta {{numDistinctModules}} moduulissa (osa moduuleista suoritettu useammin kuin kerran)",
   "text-field-label-chapter-number": "Luvun numero",
   "text-field-label-description": "Kuvaus",
+  "text-field-label-email-title": "Sähköpostin otsikko",
   "text-field-label-name": "Nimi",
   "text-field-label-or-header-slug-or-short-name": "Lyhyt nimi",
   "text-field-label-path": "Polku",

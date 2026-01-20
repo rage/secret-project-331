@@ -33,6 +33,7 @@ pub struct EmailTemplateNew {
     pub template_type: EmailTemplateType,
     pub language: Option<String>,
     pub content: Option<serde_json::Value>,
+    pub subject: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -148,6 +149,7 @@ pub async fn insert_email_template(
     email_template: EmailTemplateNew,
     subject: Option<&'_ str>,
 ) -> ModelResult<EmailTemplate> {
+    let subject_to_use = email_template.subject.as_deref().or(subject);
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
@@ -179,7 +181,7 @@ RETURNING id,
         "#,
         email_template.template_type as EmailTemplateType,
         course_id,
-        subject,
+        subject_to_use,
         email_template.language,
         email_template.content,
     )

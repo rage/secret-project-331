@@ -771,6 +771,7 @@ export interface EmailTemplateNew {
   template_type: EmailTemplateType
   language: string | null
   content: unknown | null
+  subject: string | null
 }
 
 export interface EmailTemplateUpdate {
@@ -2387,6 +2388,16 @@ export interface CreateAccountDetails {
 export interface Login {
   email: string
   password: string
+}
+
+export type LoginResponse =
+  | { type: "success" }
+  | { type: "requires_email_verification"; email_verification_token: string }
+  | { type: "failed" }
+
+export interface VerifyEmailRequest {
+  email_verification_token: string
+  code: string
 }
 
 export interface UserInfo {

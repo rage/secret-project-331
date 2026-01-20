@@ -332,6 +332,8 @@ fn controllers(target: &mut File) {
 
             CreateAccountDetails,
             Login,
+            LoginResponse,
+            VerifyEmailRequest,
             UserInfo,
         };
     }

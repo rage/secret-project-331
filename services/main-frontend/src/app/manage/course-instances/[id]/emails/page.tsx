@@ -28,11 +28,13 @@ const CourseInstanceEmailTemplates: React.FC = () => {
   })
   const [showForm, setShowForm] = useState(false)
 
-  const handleCreateEmailTemplate = async (newName: string) => {
+  const handleCreateEmailTemplate = async (emailTitle: string) => {
     const result = await postNewEmailTemplateForCourseInstance(courseInstanceId, {
-      name: newName,
+      // eslint-disable-next-line i18next/no-literal-string
+      template_type: "generic",
       language: null,
       content: undefined,
+      subject: emailTitle || null,
     })
     setShowForm(!showForm)
     window.location.assign(`/cms/email-templates/${result.id}/edit`)
@@ -76,7 +78,8 @@ const CourseInstanceEmailTemplates: React.FC = () => {
           {getCourseInstanceEmailTemplates.data.map((template) => {
             return (
               <li key={template.id}>
-                {template.name} <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
+                {template.subject || template.template_type}{" "}
+                <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
                 <Button
                   size="medium"
                   variant="secondary"

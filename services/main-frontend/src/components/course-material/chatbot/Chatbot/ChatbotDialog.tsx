@@ -43,8 +43,8 @@ const closeAnimation = keyframes`
 
 const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const chatbotTitleId = useId()
-  let buttonRef = useRef<HTMLButtonElement | null>(null)
-  let popoverRef = useRef(null)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+  const popoverRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -93,7 +93,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     popoverRef,
   )
 
-  let dialogRef = useRef(null)
+  const dialogRef = useRef(null)
   // eslint-disable-next-line i18next/no-literal-string
   let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
   dialogProps = { ...dialogProps, "aria-labelledby": chatbotTitleId }

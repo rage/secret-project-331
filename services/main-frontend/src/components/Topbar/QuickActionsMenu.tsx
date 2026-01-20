@@ -57,7 +57,7 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
         navLabel={t("quick-actions")}
         controlButtonAriaLabel={t("open-quick-actions-menu")}
         controlButtonTooltipText={t("quick-actions")}
-      ></DropdownMenu>
+      />
     </>
   )
 }

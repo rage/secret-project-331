@@ -146,8 +146,8 @@ export function useQuickActionsItems({
               onMenuClose?.()
             }
           : undefined,
-        icon: "icon" in item ? item.icon : undefined,
-        isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
+        icon: item.icon,
+        isDestructive: item.isDestructive,
       }
     })
   }, [quickActions, onMenuClose])

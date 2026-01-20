@@ -99,7 +99,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         id: "mobile-language-menu",
         type: "submenu",
         label: currentLanguageName,
-        icon: <LanguageTranslation />, // Special marker for language menu
+        icon: <LanguageTranslation />,
         lang: languageMenu.currentLanguage,
         dir: getDir(languageMenu.currentLanguage),
         submenuItems: languageMenu.items.map((langItem) => {

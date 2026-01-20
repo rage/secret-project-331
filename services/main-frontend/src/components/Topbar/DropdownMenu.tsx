@@ -78,7 +78,6 @@ interface MenuProps {
   controlButtonAriaLabel: string
   controlButtonTooltipText: string
   controlButtonIconWidth?: number
-  id?: string
 }
 
 export interface DropdownMenuItem {

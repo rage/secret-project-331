@@ -8,9 +8,9 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
   if (messages === null || messages.length === 0) {
     throw new Error("Couldn't create a chatbot conversation transcript. The conversation is empty.")
   }
-  let citations = info.current_conversation_message_citations ?? []
-  let bot = info.chatbot_name
-  let hide_citations = info.hide_citations
+  const citations = info.current_conversation_message_citations ?? []
+  const bot = info.chatbot_name
+  const hide_citations = info.hide_citations
   let msgs_w_citations = new Set()
   if (!hide_citations) {
     msgs_w_citations = new Set(
@@ -55,7 +55,7 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
           current_citations,
           true,
         )
-        any_citations_used = filteredCitations.length > 0 ? true : any_citations_used
+        any_citations_used = filteredCitations.length > 0 || any_citations_used
         filteredCitations
           .sort((a, b) =>
             citationNumberingMap.get(a.citation_number) <

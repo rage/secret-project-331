@@ -1,8 +1,8 @@
-type fileExtension = "txt" | "pdf"
+type FileExtension = "txt" | "pdf"
 
-export const downloadStringAsFile = (s: string, extension: fileExtension, fileName: string) => {
-  let fileT = extension === "txt" ? "text/plain" : extension === "pdf" ? "application/pdf" : ""
-  let b = new Blob([s], { type: fileT })
+export const downloadStringAsFile = (s: string, extension: FileExtension, fileName: string) => {
+  const fileT = extension === "txt" ? "text/plain" : extension === "pdf" ? "application/pdf" : ""
+  const b = new Blob([s], { type: fileT })
   const url = window.URL.createObjectURL(b)
 
   const downloadLink = document.createElement("a")

@@ -54,6 +54,7 @@ pub async fn seed_generic_emails(
         template_type: EmailTemplateType::ResetPasswordEmail,
         language: Some("en".to_string()),
         content: Some(english_body),
+        subject: english_subject.map(|s| s.to_string()),
     };
 
     insert_email_template(&mut conn, None, english_template, english_subject).await?;
@@ -96,6 +97,7 @@ pub async fn seed_generic_emails(
         template_type: EmailTemplateType::ResetPasswordEmail,
         language: Some("fi".to_string()),
         content: Some(finnish_body),
+        subject: finnish_subject.map(|s| s.to_string()),
     };
 
     insert_email_template(&mut conn, None, finnish_template, finnish_subject).await?;
@@ -149,6 +151,7 @@ pub async fn seed_generic_emails(
         template_type: EmailTemplateType::DeleteUserEmail,
         language: Some("en".to_string()),
         content: Some(delete_body),
+        subject: delete_subject.map(|s| s.to_string()),
     };
 
     insert_email_template(&mut conn, None, delete_template, delete_subject).await?;
@@ -193,6 +196,7 @@ pub async fn seed_generic_emails(
         template_type: EmailTemplateType::ConfirmEmailCode,
         language: Some("en".to_string()),
         content: Some(confirm_body),
+        subject: confirm_subject.map(|s| s.to_string()),
     };
 
     insert_email_template(&mut conn, None, confirm_template, confirm_subject).await?;

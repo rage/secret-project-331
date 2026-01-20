@@ -8,7 +8,7 @@ use crate::{
         authorization::{
             self, ActionOnResource, authorize_with_fetched_list_of_roles, skip_authorize,
         },
-        rate_limit_middleware_builder::build_rate_limiting_middleware,
+        rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
     },
     prelude::*,
 };
@@ -26,7 +26,6 @@ use headless_lms_utils::{
 };
 use rand::Rng;
 use secrecy::SecretString;
-use std::time::Duration;
 use tracing_log::log;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -927,24 +926,22 @@ pub async fn verify_email(
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::resource("/signup")
-            .wrap(build_rate_limiting_middleware(Duration::from_secs(60), 15))
-            .wrap(build_rate_limiting_middleware(
-                Duration::from_secs(60 * 60 * 24),
-                1000,
-            ))
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(15),
+                per_hour: None,
+                per_day: Some(1000),
+                per_month: None,
+            }))
             .to(signup),
     )
     .service(
         web::resource("/login")
-            .wrap(build_rate_limiting_middleware(Duration::from_secs(60), 20))
-            .wrap(build_rate_limiting_middleware(
-                Duration::from_secs(60 * 60),
-                100,
-            ))
-            .wrap(build_rate_limiting_middleware(
-                Duration::from_secs(60 * 60 * 24),
-                500,
-            ))
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(20),
+                per_hour: Some(100),
+                per_day: Some(500),
+                per_month: None,
+            }))
             .to(login),
     )
     .route("/logout", web::post().to(logout))
@@ -955,10 +952,34 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(authorize_multiple_actions_on_resources),
     )
     .route("/user-info", web::get().to(user_info))
-    .route("/delete-user-account", web::post().to(delete_user_account))
-    .route(
-        "/send-email-code",
-        web::post().to(send_delete_user_email_code),
+    .service(
+        web::resource("/delete-user-account")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: None,
+                per_hour: Some(5),
+                per_day: Some(10),
+                per_month: None,
+            }))
+            .to(delete_user_account),
     )
-    .route("/verify-email", web::post().to(verify_email));
+    .service(
+        web::resource("/send-email-code")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: None,
+                per_hour: Some(5),
+                per_day: Some(20),
+                per_month: None,
+            }))
+            .to(send_delete_user_email_code),
+    )
+    .service(
+        web::resource("/verify-email")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(10),
+                per_hour: Some(50),
+                per_day: None,
+                per_month: None,
+            }))
+            .to(verify_email),
+    );
 }

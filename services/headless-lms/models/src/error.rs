@@ -375,6 +375,7 @@ mod test {
                 template_type: EmailTemplateType::Generic,
                 language: None,
                 content: None,
+                subject: None,
             },
             Some(""),
         )

@@ -8,7 +8,7 @@ SET name = CASE
     ELSE email_template_type::text
   END;
 
-CREATE UNIQUE INDEX unique_email_templates_name_language_general ON email_templates(name, language)
+CREATE UNIQUE INDEX unique_email_templates_name_language_general ON email_templates(name, language, deleted_at) NULLS NOT DISTINCT
 WHERE course_instance_id IS NULL;
 
 ALTER TABLE email_templates DROP COLUMN email_template_type;

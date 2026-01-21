@@ -5,7 +5,7 @@ import styled from "@emotion/styled"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getPlaceholderConfig } from "../../utils/emailPlaceholders"
+import { getPlaceholderConfig, PlaceholderValidationResult } from "../../utils/emailPlaceholders"
 import PlaceholderInfo from "../email/PlaceholderInfo"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -15,21 +15,12 @@ const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 
-interface PlaceholderValidation {
-  valid: boolean
-  errors: string[]
-  warnings: string[]
-  detectedPlaceholders: string[]
-  missingRequired: string[]
-  invalidPlaceholders: string[]
-}
-
 interface UpdateEmailDetailsFormProps {
   templateType: unknown
   subject: string
   setTemplateType: React.Dispatch<React.SetStateAction<unknown>>
   setSubject: (newSubject: string) => void
-  placeholderValidation: PlaceholderValidation
+  placeholderValidation: PlaceholderValidationResult
 }
 
 const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetailsFormProps>> = ({

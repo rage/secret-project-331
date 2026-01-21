@@ -52,8 +52,14 @@ const EmailTemplatesList: React.FC = () => {
       const coursePromises = uniqueCourseIds.map((courseId) =>
         getCourse(courseId).then((course) => ({ courseId, course })),
       )
-      const results = await Promise.all(coursePromises)
-      return new Map(results.map(({ courseId, course }) => [courseId, course]))
+      const results = await Promise.allSettled(coursePromises)
+      const fulfilled = results
+        .filter(
+          (result): result is PromiseFulfilledResult<{ courseId: string; course: Course }> =>
+            result.status === "fulfilled",
+        )
+        .map((result) => result.value)
+      return new Map(fulfilled.map(({ courseId, course }) => [courseId, course]))
     },
     enabled: uniqueCourseIds.length > 0 && templatesQuery.isSuccess,
   })

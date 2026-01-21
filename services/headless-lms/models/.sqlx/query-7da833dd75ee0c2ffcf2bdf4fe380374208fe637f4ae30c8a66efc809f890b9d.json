@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE email_templates\nSET email_template_type = $1,\n  subject = $2,\n  content = $3,\n  exercise_completions_threshold = $4,\n  points_threshold = $5\nWHERE id = $6\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  content,\n  email_template_type AS \"template_type: EmailTemplateType\",\n  subject,\n  exercise_completions_threshold,\n  points_threshold,\n  course_id,\n  language\n  ",
+  "query": "\nUPDATE email_templates\nSET email_template_type = $1,\n  subject = $2,\n  content = $3,\n  exercise_completions_threshold = $4,\n  points_threshold = $5\nWHERE id = $6\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  content,\n  email_template_type AS \"template_type: EmailTemplateType\",\n  subject,\n  exercise_completions_threshold,\n  points_threshold,\n  course_id,\n  language\n  ",
   "describe": {
     "columns": [
       {
@@ -107,5 +107,5 @@
       true
     ]
   },
-  "hash": "d43688e84c5f7450b6aedf8e3948e388b7d4e736a6b38d595fa7f05e21b6f6e8"
+  "hash": "7da833dd75ee0c2ffcf2bdf4fe380374208fe637f4ae30c8a66efc809f890b9d"
 }

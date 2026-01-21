@@ -6,6 +6,7 @@ SET course_instance_id = (
     SELECT course_instances.id
     FROM course_instances
     WHERE course_instances.course_id = email_templates.course_id
+    ORDER BY course_instances.created_at ASC
     LIMIT 1
   );
 

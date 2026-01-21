@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO email_templates (\n    email_template_type,\n    course_id,\n    subject,\n    language,\n    content\n  )\nVALUES ($1, $2, $3, $4, $5) ON CONFLICT (email_template_type, language)\nWHERE course_id IS NULL\n  AND deleted_at IS NULL DO\nUPDATE\nSET subject = COALESCE(EXCLUDED.subject, email_templates.subject),\n  content = COALESCE(EXCLUDED.content, email_templates.content),\n  updated_at = NOW()\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  content,\n  email_template_type AS \"template_type: EmailTemplateType\",\n  subject,\n  exercise_completions_threshold,\n  points_threshold,\n  course_id,\n  language\n        ",
+  "query": "\nINSERT INTO email_templates (\n    email_template_type,\n    course_id,\n    subject,\n    language,\n    content\n  )\nVALUES ($1, $2, $3, $4, $5) ON CONFLICT (email_template_type, language, deleted_at)\nWHERE course_id IS NULL\n  AND deleted_at IS NULL DO\nUPDATE\nSET subject = COALESCE(EXCLUDED.subject, email_templates.subject),\n  content = COALESCE(EXCLUDED.content, email_templates.content),\n  updated_at = NOW()\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  content,\n  email_template_type AS \"template_type: EmailTemplateType\",\n  subject,\n  exercise_completions_threshold,\n  points_threshold,\n  course_id,\n  language\n        ",
   "describe": {
     "columns": [
       {
@@ -106,5 +106,5 @@
       true
     ]
   },
-  "hash": "61f1839fd8e0e1c2f69f4582c0dee828fd47f8deeaf232a7ced4f49543f99d33"
+  "hash": "ef6f0ed8e7c068f958f4ba085ca266cb45ecc90966cca94e8357082f73be84a4"
 }

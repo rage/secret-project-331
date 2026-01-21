@@ -12,15 +12,13 @@ CREATE TABLE email_verification_tokens (
     CONSTRAINT email_verification_token_length CHECK (LENGTH(email_verification_token) >= 128)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS unique_active_email_verification_token 
-ON email_verification_tokens(email_verification_token) 
-WHERE deleted_at IS NULL AND used_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS unique_active_email_verification_token ON email_verification_tokens(email_verification_token, deleted_at) NULLS NOT DISTINCT
+WHERE used_at IS NULL;
 
-CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_expires_at 
-ON email_verification_tokens(expires_at);
+CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_expires_at ON email_verification_tokens(expires_at);
 
-CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON email_verification_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON email_verification_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 COMMENT ON TABLE email_verification_tokens IS 'Stores email verification tokens and codes for two-step authentication. Expired records are automatically filtered in queries and randomly cleaned up (1 in 10 chance) to prevent table bloat.';
 COMMENT ON COLUMN email_verification_tokens.id IS 'A unique identifier for this token record';

@@ -834,6 +834,7 @@
   "login": "Log in",
   "login-description": "This site uses",
   "login-description2": "accounts. If you have previously done mooc.fi -courses, you can log in with your existing account.",
+  "login.linkMooc": "mooc.fi",
   "logout": "Log out",
   "manage": "Manage",
   "manage-course": "Manage course '{{ title }}'",

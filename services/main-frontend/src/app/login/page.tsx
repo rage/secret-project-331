@@ -199,16 +199,14 @@ const Login: React.FC = () => {
               margin-bottom: 2rem;
             `}
           >
-            {}
             {t("login-description")}{" "}
             <a
               className={css`
                 color: ${baseTheme.colors.blue[500]}!important;
               `}
               href="https://mooc.fi"
-              // eslint-disable-next-line i18next/no-literal-string
             >
-              mooc.fi
+              {t("login.linkMooc")}
             </a>{" "}
             {t("login-description2")}
           </div>

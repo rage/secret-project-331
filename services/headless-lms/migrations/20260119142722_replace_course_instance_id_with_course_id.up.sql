@@ -10,7 +10,11 @@ SET course_id = (
 
 DROP INDEX unique_email_templates_type_language_general;
 
-CREATE UNIQUE INDEX unique_email_templates_type_language_general ON email_templates(email_template_type, language)
+CREATE UNIQUE INDEX unique_email_templates_type_language_general ON email_templates(
+  email_template_type,
+  language,
+  deleted_at
+) NULLS NOT DISTINCT
 WHERE course_id IS NULL;
 
 ALTER TABLE email_templates DROP COLUMN course_instance_id;

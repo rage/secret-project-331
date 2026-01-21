@@ -160,7 +160,7 @@ INSERT INTO email_templates (
     language,
     content
   )
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email_template_type, language)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email_template_type, language, deleted_at)
 WHERE course_id IS NULL
   AND deleted_at IS NULL DO
 UPDATE
@@ -234,6 +234,7 @@ SET email_template_type = $1,
   exercise_completions_threshold = $4,
   points_threshold = $5
 WHERE id = $6
+  AND deleted_at IS NULL
 RETURNING id,
   created_at,
   updated_at,

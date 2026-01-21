@@ -804,6 +804,7 @@
   "login": "Logga in",
   "login-description": "Denna sida använder",
   "login-description2": "konton. Om du tidigare har gjort mooc.fi-kurser kan du logga in med ditt befintliga konto.",
+  "login.linkMooc": "mooc.fi",
   "logout": "Logga ut",
   "manage": "Hantera",
   "manage-course": "Hantera kurs '{{ title }}'",

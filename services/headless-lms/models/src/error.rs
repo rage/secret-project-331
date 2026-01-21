@@ -366,7 +366,7 @@ mod test {
 
     #[tokio::test]
     async fn email_templates_check() {
-        insert_data!(:tx, :user, :org, :course, :instance);
+        insert_data!(:tx, :user, :org, :course);
 
         let err = crate::email_templates::insert_email_template(
             tx.as_mut(),

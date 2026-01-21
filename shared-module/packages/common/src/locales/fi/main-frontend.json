@@ -810,6 +810,7 @@
   "login": "Kirjaudu sisään",
   "login-description": "Tämä sivusto käyttää",
   "login-description2": "käyttäjätunnuksia. Jos olet aikaisemmin tehnyt mooc.fi -kursseja, voit käyttää sisäänkirjautumissivulla olemassa olevia tunnuksiasi. Tällä sivulla voit luoda uuden tunnuksen, joka toimii suurimmassa osassa mooc.fi:n kursseissa ja palveluissa.",
+  "login.linkMooc": "mooc.fi",
   "logout": "Kirjaudu ulos",
   "manage": "Hallitse",
   "manage-course": "Hallinnoi kurssia '{{ title }}'",

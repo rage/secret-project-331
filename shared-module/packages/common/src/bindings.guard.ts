@@ -1573,8 +1573,6 @@ export function isEmailTemplateNew(obj: unknown): obj is EmailTemplateNew {
         isEmailTemplateType(typedObj["template_type"]) as boolean &&
         (typedObj["language"] === null ||
             typeof typedObj["language"] === "string") &&
-        (typedObj["content"] === null ||
-            typeof typedObj["content"] === "object") &&
         (typedObj["subject"] === null ||
             typeof typedObj["subject"] === "string")
     )

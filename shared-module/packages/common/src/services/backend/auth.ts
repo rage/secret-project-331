@@ -1,7 +1,7 @@
 import axios from "axios"
 
 import { ActionOnResource, CreateAccountDetails, LoginResponse, UserInfo } from "../../bindings"
-import { isUserInfo } from "../../bindings.guard"
+import { isLoginResponse, isUserInfo } from "../../bindings.guard"
 import { isArray, isBoolean, isNull, isUnion, validateResponse } from "../../utils/fetching"
 
 export const loggedIn = async (): Promise<boolean> => {
@@ -18,7 +18,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     email,
     password,
   })
-  return response.data as LoginResponse
+  return validateResponse(response, isLoginResponse)
 }
 
 export const verifyEmail = async (

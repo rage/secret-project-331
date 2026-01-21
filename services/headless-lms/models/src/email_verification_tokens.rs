@@ -124,6 +124,8 @@ UPDATE email_verification_tokens
 SET used_at = NOW()
 WHERE email_verification_token = $1
   AND deleted_at IS NULL
+  AND used_at IS NULL
+  AND expires_at > NOW()
         "#,
         email_verification_token
     )

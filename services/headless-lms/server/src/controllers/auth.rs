@@ -897,6 +897,16 @@ pub async fn verify_email(
 
     let user_id = token_value.user_id;
 
+    user_email_codes::mark_user_email_code_used(&mut conn, user_id, &payload.code)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to mark user email code as used".to_string(),
+                Some(anyhow!(e)),
+            )
+        })?;
+
     email_verification_tokens::mark_as_used(&mut conn, &payload.email_verification_token)
         .await
         .map_err(|e| {

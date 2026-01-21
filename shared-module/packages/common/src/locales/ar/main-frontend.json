@@ -806,6 +806,7 @@
   "login": "تسجيل الدخول",
   "login-description": "يستخدم هذا الموقع",
   "login-description2": "الحسابات. إذا كنت قد قمت سابقًا بدورات mooc.fi، يمكنك تسجيل الدخول باستخدام حسابك الحالي.",
+  "login.linkMooc": "mooc.fi",
   "logout": "تسجيل الخروج",
   "manage": "إدارة",
   "manage-course": "إدارة الدورة '{{ title }}'",

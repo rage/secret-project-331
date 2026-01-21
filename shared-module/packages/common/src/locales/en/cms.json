@@ -147,7 +147,7 @@
   "peer-reviews-to-give": "Peer reviews to give",
   "peer-reviews-to-receive": "Peer reviews to receive",
   "peer-reviews-to-receive-and-give-error-message": "Peer reviews to give must be greater than peer reviews to receive",
-  "placeholder-code-description": "The verification code that users need to enter to delete their account.",
+  "placeholder-code-description": "A one-time code used for verification, such as password reset or email verification.",
   "placeholder-reset-link-description": "The password reset link that users can click to reset their password.",
   "please-select-exercise-type": "Please select an exercise type:",
   "primary-color": "Primary color",

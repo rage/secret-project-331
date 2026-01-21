@@ -1,23 +1,15 @@
 "use client"
 
 import { useAtomValue } from "jotai"
-import { useContext, useMemo } from "react"
+import { ReactElement, useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
+
+import { DropdownMenuItem } from "../../DropdownMenu"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
-
-export interface QuickActionItem {
-  id: string
-  type: "link" | "action" | "separator"
-  label?: string
-  href?: string
-  onAction?: () => void
-  icon?: string
-  isDestructive?: boolean
-}
 
 export interface UseQuickActionsItemsProps {
   menuOptions?: Array<{
@@ -25,7 +17,7 @@ export interface UseQuickActionsItemsProps {
     label?: string
     href?: string
     onAction?: () => void
-    icon?: string
+    icon?: ReactElement
     isDestructive?: boolean
   }>
   courseId?: string | null
@@ -34,7 +26,7 @@ export interface UseQuickActionsItemsProps {
 }
 
 export interface UseQuickActionsItemsResult {
-  items: QuickActionItem[]
+  items: DropdownMenuItem[]
   shouldShow: boolean
 }
 
@@ -75,7 +67,7 @@ export function useQuickActionsItems({
       return menuOptions
     }
 
-    const items: Array<Omit<QuickActionItem, "id">> = []
+    const items: Array<Omit<DropdownMenuItem, "id">> = []
 
     const isSignedIn = loginStateContext.signedIn === true
     const shouldShowCourseSettings = isSignedIn && effectiveCourseId !== null
@@ -121,8 +113,8 @@ export function useQuickActionsItems({
     loginStateContext.signedIn,
     currentPageId,
     t,
-    onCourseSettingsOpen,
     onMenuClose,
+    onCourseSettingsOpen,
   ])
 
   const hasVisibleOptions = useMemo(() => {
@@ -132,7 +124,7 @@ export function useQuickActionsItems({
     return quickActions.some((item) => item.type !== "separator")
   }, [hasCustomOptions, quickActions])
 
-  const items: QuickActionItem[] = useMemo(() => {
+  const items: DropdownMenuItem[] = useMemo(() => {
     return quickActions.map((item, idx) => {
       if (item.type === "separator") {
         return {
@@ -154,8 +146,8 @@ export function useQuickActionsItems({
               onMenuClose?.()
             }
           : undefined,
-        icon: "icon" in item ? item.icon : undefined,
-        isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
+        icon: item.icon,
+        isDestructive: item.isDestructive,
       }
     })
   }, [quickActions, onMenuClose])

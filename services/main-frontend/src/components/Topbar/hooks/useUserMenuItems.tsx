@@ -1,7 +1,7 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import { useContext, useMemo } from "react"
+import { ReactElement, useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
@@ -15,7 +15,7 @@ export interface UserMenuItem {
   label?: string
   href?: string
   onAction?: () => void
-  icon?: string
+  icon?: ReactElement
   isDestructive?: boolean
 }
 
@@ -25,7 +25,7 @@ export interface UseUserMenuItemsProps {
     label?: string
     href?: string
     onAction?: () => void
-    icon?: string
+    icon?: ReactElement
     isDestructive?: boolean
   }>
   onMenuClose?: () => void

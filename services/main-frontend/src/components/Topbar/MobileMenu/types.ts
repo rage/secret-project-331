@@ -1,6 +1,7 @@
 "use client"
 
 import type { OverlayTriggerState } from "@react-stately/overlays"
+import { ReactElement } from "react"
 
 export interface MobileMenuButtonProps {
   state: OverlayTriggerState
@@ -21,7 +22,7 @@ export interface MobileMenuOverlayProps {
     label?: string
     href?: string
     onAction?: () => void
-    icon?: string
+    icon?: ReactElement
     isDestructive?: boolean
   }>
   quickActionsOptions?: Array<{
@@ -29,7 +30,7 @@ export interface MobileMenuOverlayProps {
     label?: string
     href?: string
     onAction?: () => void
-    icon?: string
+    icon?: ReactElement
     isDestructive?: boolean
   }>
   languageMenuProps?: {

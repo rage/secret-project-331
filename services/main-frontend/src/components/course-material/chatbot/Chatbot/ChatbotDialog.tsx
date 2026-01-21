@@ -1,9 +1,15 @@
 "use client"
 
 import { css, keyframes } from "@emotion/css"
-import React, { useContext, useEffect, useId, useRef, useState } from "react"
-import { FocusScope } from "react-aria"
-import { Dialog, OverlayTriggerStateContext } from "react-aria-components"
+import React, { useEffect, useId, useRef, useState } from "react"
+import {
+  FocusScope,
+  mergeProps,
+  useDialog,
+  useOverlay,
+  useOverlayTrigger,
+  usePopover,
+} from "react-aria"
 
 import ChatbotChat from "./ChatbotChat"
 import OpenChatbotButton from "./OpenChatbotButton"
@@ -37,9 +43,61 @@ const closeAnimation = keyframes`
 
 const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const chatbotTitleId = useId()
-  const dialogRef = useRef<HTMLDivElement>(null)
-  let state = useContext(OverlayTriggerStateContext)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+  const popoverRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+  let state = {
+    isOpen,
+    setOpen: (o: boolean) => {
+      setIsOpen(o)
+      if (!o) {
+        buttonRef.current?.focus()
+      }
+    },
+    open: () => {
+      setIsOpen(true)
+    },
+    close: () => {
+      // no operation prevents close on scroll
+    },
+    toggle: () => {
+      setIsOpen(!isOpen)
+      if (isOpen) {
+        buttonRef.current?.focus()
+      }
+    },
+  }
+  let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
+  let { popoverProps } = usePopover(
+    {
+      shouldUpdatePosition: false,
+      offset: -60,
+      isNonModal: true,
+      popoverRef,
+      triggerRef: buttonRef,
+    },
+    state,
+  )
+
+  let newPopoverProps = { ...popoverProps, style: undefined }
+  let { overlayProps: overlayProps2 } = useOverlay(
+    {
+      onClose: () => {
+        state.setOpen(false)
+      },
+      isOpen: state.isOpen,
+      isDismissable: false,
+    },
+    popoverRef,
+  )
+
+  const dialogRef = useRef(null)
+  // eslint-disable-next-line i18next/no-literal-string
+  let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
+  dialogProps = { ...dialogProps, "aria-labelledby": chatbotTitleId }
+  titleProps = { ...titleProps, id: chatbotTitleId }
 
   useEffect(() => {
     if (state?.isOpen) {
@@ -53,51 +111,38 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     }
   }
 
-  useEffect(() => {
-    const removeListenersAbortController = new AbortController()
-    const currentRef = dialogRef.current
-    currentRef?.addEventListener(
-      "keydown",
-      (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          state?.close()
-        }
-      },
-      { signal: removeListenersAbortController.signal },
-    )
-
-    return () => {
-      removeListenersAbortController.abort()
-    }
-  }, [state])
-
   return (
     <>
-      <OpenChatbotButton hide={shouldRender} />
-      <div ref={dialogRef}>
-        {shouldRender && (
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          <FocusScope restoreFocus autoFocus>
-            <Dialog
-              aria-labelledby={chatbotTitleId}
-              className={css`
-                animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
-                position: fixed;
-                bottom: 70px;
-                right: 1rem;
-                z-index: 1000;
-              `}
-              onAnimationEnd={handleAnimationEnd}
-            >
+      <OpenChatbotButton hide={shouldRender} triggerProps={triggerProps} ref={buttonRef} />
+      {shouldRender && (
+        <FocusScope restoreFocus>
+          <div
+            {...mergeProps(overlayProps, newPopoverProps, overlayProps2)}
+            ref={popoverRef}
+            className={css`
+              animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
+              right: 1rem;
+              width: ${CHATBOX_WIDTH_PX}px;
+              max-width: 90vw;
+              height: ${CHATBOX_HEIGHT_PX}px;
+              max-height: 90vh;
+              position: fixed;
+              bottom: 4rem;
+              z-index: 1000;
+            `}
+            onAnimationEnd={handleAnimationEnd}
+          >
+            <div ref={dialogRef} {...dialogProps}>
               <ChatbotChat
                 chatbotConfigurationId={chatbotConfigurationId}
                 isCourseMaterialBlock={false}
-                chatbotTitleId={chatbotTitleId}
+                closeChatbot={() => state.setOpen(false)}
+                titleProps={titleProps}
               />
-            </Dialog>
-          </FocusScope>
-        )}
-      </div>
+            </div>
+          </div>
+        </FocusScope>
+      )}
     </>
   )
 }

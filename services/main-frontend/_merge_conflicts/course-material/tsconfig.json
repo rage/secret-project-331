@@ -7,7 +7,7 @@
     "module": "esnext",
     "types": ["jest"],
     "jsx": "preserve",
-    "lib": ["dom", "es2017", "ES6"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "typeRoots": ["./src/shared-module/types", "types", "./node_modules/@types"],
     "moduleResolution": "node",
     "allowJs": true,

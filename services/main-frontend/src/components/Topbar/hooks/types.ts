@@ -1,5 +1,7 @@
 "use client"
 
+import { ReactElement } from "react"
+
 // Unified menu item type that supports all menu types
 export interface UnifiedMenuItem {
   id: string
@@ -7,7 +9,7 @@ export interface UnifiedMenuItem {
   label?: string
   href?: string
   onAction?: () => void
-  icon?: string
+  icon?: ReactElement
   isDestructive?: boolean
   lang?: string
   dir?: "ltr" | "rtl"

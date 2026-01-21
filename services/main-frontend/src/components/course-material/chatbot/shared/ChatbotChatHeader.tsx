@@ -88,7 +88,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
     async () => {
       let info = currentConversationInfo.data
       if (info === undefined) {
-        return
+        throw new Error("No current conversation data")
       }
       let transcript = createChatbotTranscript(info)
       downloadStringAsFile(

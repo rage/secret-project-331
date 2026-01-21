@@ -3,13 +3,14 @@
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import React from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import Grid from "./Grid"
 
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "@/components/course-material/LandingPageHeroSection"
 import useTime from "@/hooks/course-material/useTime"
+import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import { fetchChaptersInTheCourse } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -38,9 +39,26 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
     queryKey: [`course-${courseId}-chapters`],
     queryFn: () => fetchChaptersInTheCourse(courseId),
   })
+  const getUserLocks = useUserChapterLocks(courseId)
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()
   const courseSlug = params?.courseSlug
   const organizationSlug = params?.organizationSlug
+
+  const lockedChapterIds = useMemo(() => {
+    if (!getUserLocks.data) {
+      return new Set<string>()
+    }
+
+    const locked = new Set<string>()
+
+    getUserLocks.data.forEach((status) => {
+      if (status.status === "completed_and_locked" || status.status === "not_unlocked_yet") {
+        locked.add(status.chapter_id)
+      }
+    })
+
+    return locked
+  }, [getUserLocks.data])
 
   return (
     <div
@@ -127,6 +145,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
                     now={now}
                     organizationSlug={organizationSlug}
                     previewable={getChaptersInCourse.data.is_previewable}
+                    lockedChapterIds={lockedChapterIds}
                   />
                 </div>
               )

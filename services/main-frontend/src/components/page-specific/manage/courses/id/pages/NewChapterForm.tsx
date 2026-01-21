@@ -12,6 +12,7 @@ import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface NewChapterFormProps {

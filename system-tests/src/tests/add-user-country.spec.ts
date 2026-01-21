@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { Topbar } from "@/utils/components/Topbar"
+import { UserSettingsPage } from "@/utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
 test("User can add missing country information", async ({ page }) => {
@@ -31,13 +32,13 @@ test("User can add missing country information", async ({ page }) => {
     // Go to user setting and change users country
     const topbar = new Topbar(page)
     await topbar.userMenu.clickItem("User settings")
-    await expect(page.getByRole("button", { name: "Andorra Where do you live? *" })).toBeVisible()
-    await page.getByRole("button", { name: "Andorra Where do you live? *" }).click()
-    await page.getByRole("searchbox", { name: "Search..." }).fill("fin")
-    await page.getByRole("option", { name: "Finland" }).click()
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Success", { exact: true })).toBeVisible()
-    await expect(page.getByRole("button", { name: "Finland Where do you live? *" })).toBeVisible()
+    const userSettings = new UserSettingsPage(page)
+    await userSettings.waitForPage()
+    await userSettings.navigateToAccountTab()
+    await userSettings.accountTab.updatePersonalInformation(
+      { country: "Finland" },
+      { field: "country", expectedValue: "Finland" },
+    )
 
     await topbar.userMenu.clickItem("Log out")
   })

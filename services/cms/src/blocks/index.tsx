@@ -38,6 +38,7 @@ import LandingPageCopyText from "./LandingPageCopyText"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import LearningObjectives from "./LearningObjectives"
+import LockChapter from "./LockChapter"
 import Map from "./Map"
 import PagesInChapter from "./PagesInChapter"
 import PartnersBlock from "./Partners"
@@ -56,6 +57,7 @@ export const blockTypeMapForPages = [
   ["moocfi/aside", Aside],
   ["moocfi/chapter-progress", ChapterProgress],
   ["moocfi/congratulations", Congratulations],
+  ["moocfi/lock-chapter", LockChapter],
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/course-progress", CourseProgress],
   ["moocfi/exercise-slide", ExerciseSlide],

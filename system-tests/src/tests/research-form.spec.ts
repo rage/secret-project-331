@@ -1,6 +1,7 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { Topbar } from "../utils/components/Topbar"
+import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -70,6 +71,10 @@ test("User can create and respond to research form in a course", async ({
     await selectCourseInstanceIfPrompted(page, "Non-default instance")
     const topbar = new Topbar(page)
     await topbar.userMenu.clickItem("User settings")
+    const userSettings = new UserSettingsPage(page)
+    await userSettings.waitForPage()
+    await userSettings.navigateToPermissionsTab()
+
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,
@@ -77,12 +82,12 @@ test("User can create and respond to research form in a course", async ({
       snapshotName: "research-consent-form-shows-in-user-setting-page",
       waitForTheseToBeVisibleAndStable: [page.getByText("Advanced course instance management")],
     })
-    await page.getByRole("link", { name: "Edit" }).getByRole("button", { name: "Edit" }).click()
 
-    await expect(page.getByLabel("I want to take part in research")).toBeChecked()
-
-    await page.getByText("I want to take part in research").click()
-    await page.getByRole("button", { name: "Save" }).click()
-    await page.getByRole("heading", { name: "User settings" }).waitFor()
+    await userSettings.permissionsTab.editCourseSpecificConsent(
+      "Advanced course instance management",
+    )
+    await page.waitForURL(/\/org\/uh-cs\/courses\/advanced-course-instance-management/, {
+      timeout: 10000,
+    })
   })
 })

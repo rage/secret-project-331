@@ -91,7 +91,7 @@ const SuccessMessage = styled.div`
 const SuccessNotification = (props: SuccessNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <NotificationWrapper className="toast-notification">
+    <NotificationWrapper data-testid="toast-notification">
       <Content>
         <IconWrapper>
           <CheckCircle color={baseTheme.colors.green[600]} size={20} />

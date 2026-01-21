@@ -68,6 +68,9 @@ importers:
       '@react-stately/overlays':
         specifier: ^3.6.21
         version: 3.6.21(react@19.2.1)
+      '@react-stately/tabs':
+        specifier: ^3.8.7
+        version: 3.8.7(react@19.2.1)
       '@react-types/dialog':
         specifier: ^3.5.22
         version: 3.5.22(react@19.2.1)

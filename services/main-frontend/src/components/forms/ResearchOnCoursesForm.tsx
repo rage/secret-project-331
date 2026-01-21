@@ -1,10 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useQueryClient } from "@tanstack/react-query"
 import { LinesClipboard } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { refetchUserResearchConsent } from "@/hooks/useUserResearchConsentQuery"
 import { postUserResearchConsent } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
@@ -23,6 +25,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   initialConsentValue,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [researchConsentFormOpen, setResearchConsentFormOpen] = useState(true)
   const [consent, setConsent] = useState<boolean | undefined>(initialConsentValue)
   const [optionSelected, setOptionSelected] = useState<boolean>(true)
@@ -36,6 +39,11 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
     {
       notify: true,
       method: "POST",
+    },
+    {
+      onSuccess: async () => {
+        await refetchUserResearchConsent(queryClient)
+      },
     },
   )
 

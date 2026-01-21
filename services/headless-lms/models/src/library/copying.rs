@@ -119,7 +119,8 @@ RETURNING id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_course_successor_id
+  closed_course_successor_id,
+  chapter_locking_enabled
         "#,
         new_course.name,
         new_course.organization_id,

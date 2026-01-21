@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
-import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
+import { CheckCircle, Padlock, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -23,6 +23,7 @@ import UserOnWrongCourseNotification from "@/components/course-material/notifica
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
+import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
 import { postStartPeerOrSelfReview, postSubmission } from "@/services/course-material/backend"
 import {
@@ -168,6 +169,13 @@ const ExerciseBlock: React.FC<
 
   const id = props.data.attributes.id
   const getCourseMaterialExercise = useCourseMaterialExerciseQuery(id, showExercise)
+  const courseId =
+    courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
+  const getUserLocks = useUserChapterLocks(courseId)
+
+  const chapterId = getCourseMaterialExercise.data?.exercise.chapter_id
+  const course = courseMaterialState.course
+  const chapterLockingEnabled = course?.chapter_locking_enabled ?? false
   useEffect(() => {
     if (!getCourseMaterialExercise.data) {
       return
@@ -175,10 +183,19 @@ const ExerciseBlock: React.FC<
     if (getCourseMaterialExercise.data.exercise_status?.score_given) {
       setPoints(getCourseMaterialExercise.data.exercise_status?.score_given)
     }
+    const chapterId = getCourseMaterialExercise.data.exercise.chapter_id
+    const chapterStatus = chapterId
+      ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+      : null
+    const isChapterLocked =
+      chapterId &&
+      (chapterStatus?.status === "completed_and_locked" ||
+        chapterStatus?.status === "not_unlocked_yet")
     dispatch({
       type: "exerciseDownloaded",
       payload: getCourseMaterialExercise.data,
       signedIn: Boolean(loginState.signedIn),
+      isChapterLocked: Boolean(isChapterLocked),
     })
     const a = new Map()
     getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
@@ -187,7 +204,7 @@ const ExerciseBlock: React.FC<
       }
     })
     setAnswers(a)
-  }, [getCourseMaterialExercise.data, loginState.signedIn])
+  }, [getCourseMaterialExercise.data, loginState.signedIn, getUserLocks.data])
 
   const postSubmissionMutation = useToastMutation(
     (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
@@ -216,11 +233,21 @@ const ExerciseBlock: React.FC<
       if (!data) {
         throw new Error("No data for the try again view")
       }
+      const chapterId = data.exercise.chapter_id
+      const chapterStatus = chapterId
+        ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+        : null
+      const isChapterLocked =
+        chapterId &&
+        chapterLockingEnabled &&
+        (chapterStatus?.status === "completed_and_locked" ||
+          chapterStatus?.status === "not_unlocked_yet")
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       dispatch({
         type: "tryAgain",
         payload: data,
         signedIn: Boolean(loginState.signedIn),
+        isChapterLocked: Boolean(isChapterLocked),
       })
       postSubmissionMutation.reset()
 
@@ -276,6 +303,14 @@ const ExerciseBlock: React.FC<
   }
 
   const courseInstanceId = courseMaterialState.instance?.id
+  const chapterStatus = chapterId
+    ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+    : null
+  const isChapterCompleted =
+    chapterId && chapterLockingEnabled && chapterStatus?.status === "completed_and_locked"
+  const isChapterNotAccessible =
+    chapterId && chapterLockingEnabled && chapterStatus?.status === "not_unlocked_yet"
+  const isChapterLocked = isChapterCompleted || isChapterNotAccessible
 
   const isExam = !!courseMaterialState.examData
 
@@ -527,6 +562,17 @@ const ExerciseBlock: React.FC<
           </div>
         </div>
 
+        {chapterLockingEnabled && getCourseMaterialExercise.data && !isChapterLocked && (
+          <div
+            className={css`
+              padding: 0 1.5rem;
+              margin-bottom: 1rem;
+            `}
+          >
+            <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
+          </div>
+        )}
+
         {!loginState.isLoading && !loginState.signedIn && (
           <div
             className={css`
@@ -576,7 +622,9 @@ const ExerciseBlock: React.FC<
               </DeadlineText>
             ))}
           {(getCourseMaterialExercise.data.peer_or_self_review_config ||
-            getCourseMaterialExercise.data.should_show_reset_message) &&
+            getCourseMaterialExercise.data.should_show_reset_message ||
+            reviewingStage === "WaitingForManualGrading" ||
+            reviewingStage === "ReviewedAndLocked") &&
             gradingState &&
             reviewingStage && (
               <GradingState
@@ -609,6 +657,7 @@ const ExerciseBlock: React.FC<
                   )}
                   canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
                   exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+                  isChapterLocked={Boolean(isChapterLocked)}
                 />
               ))}
           {reviewingStage === "PeerReview" && (
@@ -647,10 +696,29 @@ const ExerciseBlock: React.FC<
                 )}
             </div>
           )}
+          {isChapterLocked && reviewingStage !== "ReviewedAndLocked" && (
+            <YellowBox>
+              <div
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  gap: 0.75rem;
+                `}
+              >
+                <Padlock size={24} />
+                <div>
+                  {isChapterNotAccessible
+                    ? t("chapter-locked-complete-previous")
+                    : t("chapter-locked-description")}
+                </div>
+              </div>
+            </YellowBox>
+          )}
           <div>
             {getCourseMaterialExercise.data.can_post_submission &&
               !userOnWrongLanguageVersion &&
-              !inSubmissionView && (
+              !inSubmissionView &&
+              !isChapterLocked && (
                 <button
                   disabled={
                     postSubmissionMutation.isPending ||

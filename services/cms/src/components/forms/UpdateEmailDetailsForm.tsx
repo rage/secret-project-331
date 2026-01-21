@@ -82,6 +82,11 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
                 value: "generic",
                 label: t("email-template-type-generic"),
               },
+              {
+                // eslint-disable-next-line i18next/no-literal-string
+                value: "confirm_email_code",
+                label: t("email-template-type-confirm-email-code"),
+              },
             ]}
           />
           {templateTypeHelperText && (

@@ -128,7 +128,9 @@ test.describe("Test chatbot chat box", () => {
     await test.step("try making a new convo", async () => {
       await student1Page.getByRole("button", { name: "Open chatbot" }).click()
       await expect(chatbotDialog.getByText("Hello! How can I assist you")).toBeVisible()
-      await chatbotDialog.getByRole("button", { name: "New conversation" }).click()
+      await chatbotDialog.getByRole("button", { name: "Actions", exact: true }).click()
+      // the menu popover is not inside the dialog so use student1page
+      await student1Page.getByRole("menuitem", { name: "New conversation" }).click()
       await chatbotDialog.getByText("Oh...").waitFor()
       await expect(chatbotDialog.getByText("Hello! How can I assist you")).toHaveCount(0)
     })
@@ -235,7 +237,9 @@ test.describe("Test chatbot chat box", () => {
       )
       await selectCourseInstanceIfPrompted(student1Page)
       await expect(student1Page.getByText("Hello! How can I assist you")).toBeVisible()
-      await student1Page.getByRole("button", { name: "New conversation" }).click()
+
+      await student1Page.getByRole("button", { name: "Actions", exact: true }).click()
+      await student1Page.getByRole("menuitem", { name: "New conversation" }).click()
       await student1Page.getByText("Haiii xD").waitFor()
       await expect(student1Page.getByText("Hello! How can I assist you")).toHaveCount(0)
     })

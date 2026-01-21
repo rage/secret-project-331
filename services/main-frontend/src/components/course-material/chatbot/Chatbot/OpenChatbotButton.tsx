@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import React, { RefObject } from "react"
+import { AriaButtonProps } from "react-aria"
 import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -28,18 +29,26 @@ const buttonStyle = (hide: boolean) => css`
   &:hover {
     background-color: ${baseTheme.colors.green[400]};
   }
-  ${hide && `visibility: hidden;`}
+  ${hide ? `visibility: hidden;` : ``}
 `
 
 interface OpenChatbotButtonProps {
   hide: boolean
+  ref: RefObject<HTMLButtonElement | null>
+  triggerProps: AriaButtonProps
 }
 
-const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide }) => {
+const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide, ref, triggerProps }) => {
   const { t } = useTranslation()
 
   return (
-    <Button className={buttonStyle(hide)} aria-label={t("open-chatbot")}>
+    <Button
+      slot="open"
+      className={buttonStyle(hide)}
+      aria-label={t("open-chatbot")}
+      ref={ref}
+      {...triggerProps}
+    >
       <AIChat
         className={css`
           position: relative;
@@ -52,4 +61,4 @@ const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide }) => {
   )
 }
 
-export default React.memo(OpenChatbotButton)
+export default OpenChatbotButton

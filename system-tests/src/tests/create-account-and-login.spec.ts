@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test"
 
 import { Topbar } from "../utils/components/Topbar"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
 test("User can create an account and log in", async ({ page }) => {
   await test.step("User can create an account", async () => {
     await page.goto("http://project-331.local/signup?return_to=%2F")
@@ -15,10 +17,12 @@ test("User can create an account and log in", async ({ page }) => {
     await page.getByRole("textbox", { name: "Confirm password (Required)" }).fill("testuser")
 
     await page.getByRole("button", { name: "Create an account" }).click()
+    waitForSuccessNotification(page)
 
     await expect(page.getByRole("heading", { name: "Regarding research done on" })).toBeVisible()
     await page.getByText("I do not want to participate").click()
     await page.getByRole("button", { name: "Save" }).click()
+    waitForSuccessNotification(page)
 
     await expect(page.getByRole("heading", { name: "Please confirm your email" })).toBeVisible()
     await page.getByRole("button", { name: "Done" }).click()
@@ -27,6 +31,7 @@ test("User can create an account and log in", async ({ page }) => {
   })
 
   await test.step("User can log in with the created account", async () => {
+    await page.getByRole("heading", { name: "Log in" }).waitFor()
     await page.getByRole("textbox", { name: "Email (Required)" }).fill("testuser@example.com")
     await page.getByRole("textbox", { name: "Password (Required)" }).fill("testuser")
     await page.getByRole("button", { name: "Log in" }).click()

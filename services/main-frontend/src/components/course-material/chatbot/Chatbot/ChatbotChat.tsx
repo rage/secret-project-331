@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { DOMAttributes, useState } from "react"
 
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
@@ -13,8 +13,9 @@ import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurre
 
 interface ChatbotDialogProps {
   chatbotConfigurationId: string
-  chatbotTitleId: string
+  closeChatbot: () => void
   isCourseMaterialBlock: false
+  titleProps: DOMAttributes<Element>
 }
 
 interface ChatbotNoDialogProps {

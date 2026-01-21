@@ -66,6 +66,7 @@ test.describe("admin", () => {
       page,
       "University of Helsinki, Department of Mathematics and Statistics",
     )
+    await expect(page.getByText("Introduction to Statistics")).toBeVisible()
 
     await page.click(`button:text("Create")`)
     // Fill input

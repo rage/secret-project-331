@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import { Topbar } from "../utils/components/Topbar"
 
-import { hideToasts } from "@/utils/notificationUtils"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test("User can create an account and log in", async ({ page }) => {
   await test.step("User can create an account", async () => {
@@ -17,14 +17,12 @@ test("User can create an account and log in", async ({ page }) => {
     await page.getByRole("textbox", { name: "Confirm password (Required)" }).fill("testuser")
 
     await page.getByRole("button", { name: "Create an account" }).click()
-    await page.getByText("Operation successful!").waitFor()
-    await hideToasts(page)
+    waitForSuccessNotification(page)
 
     await expect(page.getByRole("heading", { name: "Regarding research done on" })).toBeVisible()
     await page.getByText("I do not want to participate").click()
     await page.getByRole("button", { name: "Save" }).click()
-    await page.getByText("Operation successful!").waitFor()
-    await hideToasts(page)
+    waitForSuccessNotification(page)
 
     await expect(page.getByRole("heading", { name: "Please confirm your email" })).toBeVisible()
     await page.getByRole("button", { name: "Done" }).click()

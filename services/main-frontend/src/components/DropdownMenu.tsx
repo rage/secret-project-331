@@ -70,6 +70,7 @@ const popoverStyle = css`
 
 interface MenuProps {
   menuTestId: string
+  menuAriaLabel?: string
   menuButtonTestId: string
   items: DropdownMenuItem[]
   navLabel?: string // if the menu is a navigation element
@@ -86,12 +87,14 @@ export interface DropdownMenuItem {
   label?: string
   href?: string
   onAction?: () => void
+  disabled?: boolean
   icon?: ReactElement
   isDestructive?: boolean
 }
 
 const DropdownMenu: React.FC<MenuProps> = ({
   menuTestId,
+  menuAriaLabel,
   menuButtonTestId,
   items,
   navLabel,
@@ -127,7 +130,7 @@ const DropdownMenu: React.FC<MenuProps> = ({
         {nav(
           <Menu
             data-testid={menuTestId}
-            aria-label={t("quick-actions-menu")}
+            aria-label={menuAriaLabel ?? t("quick-actions-menu")}
             className={css`
               display: flex;
               flex-direction: column;
@@ -168,6 +171,7 @@ const DropdownMenu: React.FC<MenuProps> = ({
                 <MenuItem
                   key={item.id}
                   onAction={item.onAction}
+                  isDisabled={item.disabled}
                   className={css`
                     ${itemRow};
                     ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};

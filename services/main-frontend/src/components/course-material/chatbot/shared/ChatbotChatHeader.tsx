@@ -114,6 +114,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           newConversation.mutate()
         }
       },
+      disabled: newConversation.isPending,
       icon: (
         <AddMessage
           className={css`
@@ -133,6 +134,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       // eslint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-dl-transcript-button",
       onAction: createTranscript.mutate,
+      disabled: createTranscript.isPending,
       icon: (
         <ArrowDownToBracket
           className={css`

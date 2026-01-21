@@ -129,7 +129,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
     },
   ]
 
-  if (currentConversationInfo.data?.current_conversation !== null) {
+  if (currentConversationInfo.data?.current_conversation) {
     items.push({
       // eslint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-dl-transcript-button",

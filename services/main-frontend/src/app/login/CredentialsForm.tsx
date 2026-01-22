@@ -140,7 +140,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
           `}
           href={signUpRoute(returnToForLinkToSignupPage)}
         >
-          {t("create-an-acount")}
+          {t("create-an-account")}
         </a>
       </div>
     </form>

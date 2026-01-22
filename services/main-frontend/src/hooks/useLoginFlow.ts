@@ -42,9 +42,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
 
   const loginMutation = useToastMutation(
     async (credentials: { email: string; password: string }) => {
-      const response = await login(credentials.email, credentials.password)
       setError(null)
       setCredentialsError(false)
+      const response = await login(credentials.email, credentials.password)
 
       if (response.type === "success") {
         await loginStateContext.refresh()
@@ -77,7 +77,7 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
         setStep({ step: "awaiting_consent_check" })
         return true
       } else {
-        setVerificationError("verification-failed")
+        setVerificationError(t("verification-failed"))
         return false
       }
     },

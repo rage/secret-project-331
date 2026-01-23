@@ -222,6 +222,15 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   user_information,
 }) => {
   const { t } = useTranslation()
+  const submitMessage = useMemo(() => {
+    if (!feedback_json) {
+      return null
+    }
+    const entry = feedback_json.find(
+      (item) => item.quiz_item_id === null && item.quiz_item_feedback?.trim(),
+    )
+    return entry?.quiz_item_feedback?.trim() ?? null
+  }, [feedback_json])
 
   // set wide screen direction to row if there is multiple-choice item
   // in quiz items
@@ -247,6 +256,28 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
     <FlexWrapper wideScreenDirection={direction}>
       {hasTypeChanged && (
         <GenericInfobox>{t("message-the-exercise-type-has-changed")}</GenericInfobox>
+      )}
+      {submitMessage && (
+        <div
+          className={css`
+            margin: 1rem 0;
+            background: white;
+            font-weight: 400;
+            color: ${baseTheme.colors.gray[500]};
+            padding: 0.75rem 1rem;
+            align-items: center;
+            display: flex;
+            font-size: 1rem;
+
+            svg {
+              margin-right: 0.5rem;
+              color: ${baseTheme.colors.blue[500]};
+            }
+          `}
+        >
+          <InfoCircle size={20} />
+          <ParsedText inline parseLatex parseMarkdown text={submitMessage} />
+        </div>
       )}
       {publicAlternatives.items
         .sort((i1, i2) => i1.order - i2.order)

@@ -19,8 +19,9 @@ const submissionFeedback = (
   submission: UserAnswer,
   quiz: PrivateSpecQuiz,
   quizItemGradings: QuizItemAnswerGrading[],
+  submitMessage: string | null,
 ): ItemAnswerFeedback[] => {
-  return submission.itemAnswers.map((itemAnswer) => {
+  const itemFeedbacks = submission.itemAnswers.map((itemAnswer) => {
     const item = quiz.items.find((i) => i.id === itemAnswer.quizItemId)
     const itemGrading = quizItemGradings.find((ig) => ig.quizItemId === itemAnswer.quizItemId)
 
@@ -133,6 +134,18 @@ const submissionFeedback = (
       correctnessCoefficient: itemGrading.correctnessCoefficient,
     }
   })
+
+  if (submitMessage && submitMessage.trim() !== "") {
+    itemFeedbacks.push({
+      quiz_item_id: null,
+      quiz_item_feedback: submitMessage.trim(),
+      quiz_item_option_feedbacks: null,
+      timeline_item_feedbacks: null,
+      correctnessCoefficient: 1,
+    })
+  }
+
+  return itemFeedbacks
 }
 
 export { submissionFeedback }

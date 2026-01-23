@@ -1,12 +1,13 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import i18n from "i18next"
 import { useRouter } from "next/navigation"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import VerifyOneTimeCodeForm from "./VerifyOneTimeCodeFrom"
+import OneTimeCodeForm from "./OneTimeCodeForm"
 import VerifyPasswordForm from "./VerifyPasswordForm"
 
 import Button from "@/shared-module/common/components/Button"
@@ -113,10 +114,22 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
         )}
 
         {step === "verifyCode" && (
-          <VerifyOneTimeCodeForm
-            onSubmit={(code) => deleteAccountMutation.mutateAsync(code)}
-            onResend={() => sendEmailCodeMutation.mutateAsync(password)}
-            credentialsError={credentialsError}
+          <OneTimeCodeForm
+            containerClassName={css`
+              padding: 0;
+            `}
+            message={t("insert-single-use-code-account-deletion")}
+            onSubmit={async (code) => {
+              await deleteAccountMutation.mutateAsync(code)
+            }}
+            submitLabel={t("button-text-verify")}
+            error={credentialsError ? t("incorrect-code") : null}
+            isSubmitting={deleteAccountMutation.isPending}
+            resend={{
+              helperText: t("delete-account-did-not-receive-email"),
+              label: t("resend"),
+              onResend: () => sendEmailCodeMutation.mutateAsync(password),
+            }}
           />
         )}
       </StandardDialog>

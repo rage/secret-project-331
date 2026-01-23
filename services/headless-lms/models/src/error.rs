@@ -358,19 +358,24 @@ mod test {
     use uuid::Uuid;
 
     use super::*;
-    use crate::{PKeyPolicy, email_templates::EmailTemplateNew, test_helper::*};
+    use crate::{
+        PKeyPolicy,
+        email_templates::{EmailTemplateNew, EmailTemplateType},
+        test_helper::*,
+    };
 
     #[tokio::test]
     async fn email_templates_check() {
-        insert_data!(:tx, :user, :org, :course, :instance);
+        insert_data!(:tx, :user, :org, :course);
 
         let err = crate::email_templates::insert_email_template(
             tx.as_mut(),
-            Some(instance.id),
+            Some(course),
             EmailTemplateNew {
-                name: "".to_string(),
+                template_type: EmailTemplateType::Generic,
                 language: None,
                 content: None,
+                subject: None,
             },
             Some(""),
         )

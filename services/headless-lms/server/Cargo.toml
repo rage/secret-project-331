@@ -155,6 +155,8 @@ dpop-verifier = { version = "4.4.0", features = ["actix-web"] }
 kube = { version = "2.0.1", features = ["runtime", "derive", "client"] }
 # Bindings for the Kubernetes client API
 k8s-openapi = { version = "0.26.1", features = ["v1_30"] }
+# A rate-limiting implementation in Rust
+governor = "0.10.4"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

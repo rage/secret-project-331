@@ -32,6 +32,7 @@ pub mod course_modules;
 pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;
+pub mod email_verification_tokens;
 pub mod ended_processed_exams;
 pub mod error;
 pub mod exams;

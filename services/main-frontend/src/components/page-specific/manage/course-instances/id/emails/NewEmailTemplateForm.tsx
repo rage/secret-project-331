@@ -20,14 +20,14 @@ const FieldContainer = styled.div`
 `
 
 interface NewEmailTemplateFormProps {
-  onSubmitForm: (newName: string) => void
+  onSubmitForm: (emailTitle: string) => void
 }
 
 const NewEmailTemplateForm: React.FC<React.PropsWithChildren<NewEmailTemplateFormProps>> = ({
   onSubmitForm,
 }) => {
   const { t } = useTranslation()
-  const [name, setName] = useState("")
+  const [emailTitle, setEmailTitle] = useState("")
 
   return (
     <div
@@ -39,16 +39,16 @@ const NewEmailTemplateForm: React.FC<React.PropsWithChildren<NewEmailTemplateFor
         <FieldContainer>
           <StyledTextField
             required
-            label={t("text-field-label-name")}
-            value={name}
+            label={t("text-field-label-email-title")}
+            value={emailTitle}
             onChangeByValue={(value) => {
-              setName(value)
+              setEmailTitle(value)
             }}
           />
         </FieldContainer>
       </div>
       <div>
-        <StyledButton size="medium" variant="primary" onClick={() => onSubmitForm(name)}>
+        <StyledButton size="medium" variant="primary" onClick={() => onSubmitForm(emailTitle)}>
           {t("button-text-create")}
         </StyledButton>
       </div>

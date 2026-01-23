@@ -116,6 +116,15 @@ pub async fn authorize(
         ));
     }
 
+    if query.request.is_some() {
+        return Err(oauth_error(
+            "request_not_supported",
+            "request object is not supported",
+            Some(&query.redirect_uri),
+            query.state.as_deref(),
+        ));
+    }
+
     let prompt = parse_prompt(query.prompt.as_deref()).map_err(|msg| {
         oauth_invalid_request(msg, Some(&query.redirect_uri), query.state.as_deref())
     })?;

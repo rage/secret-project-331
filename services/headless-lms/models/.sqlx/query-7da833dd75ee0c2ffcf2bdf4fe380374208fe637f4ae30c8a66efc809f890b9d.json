@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT *\nFROM email_templates\nWHERE id = $1\n  AND deleted_at IS NULL",
+  "query": "\nUPDATE email_templates\nSET email_template_type = $1,\n  subject = $2,\n  content = $3,\n  exercise_completions_threshold = $4,\n  points_threshold = $5\nWHERE id = $6\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  content,\n  email_template_type AS \"template_type: EmailTemplateType\",\n  subject,\n  exercise_completions_threshold,\n  points_threshold,\n  course_id,\n  language\n  ",
   "describe": {
     "columns": [
       {
@@ -30,8 +30,20 @@
       },
       {
         "ordinal": 5,
-        "name": "name",
-        "type_info": "Varchar"
+        "name": "template_type: EmailTemplateType",
+        "type_info": {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code"
+              ]
+            }
+          }
+        }
       },
       {
         "ordinal": 6,
@@ -50,7 +62,7 @@
       },
       {
         "ordinal": 9,
-        "name": "course_instance_id",
+        "name": "course_id",
         "type_info": "Uuid"
       },
       {
@@ -61,6 +73,23 @@
     ],
     "parameters": {
       "Left": [
+        {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code"
+              ]
+            }
+          }
+        },
+        "Varchar",
+        "Jsonb",
+        "Int4",
+        "Int4",
         "Uuid"
       ]
     },
@@ -78,5 +107,5 @@
       true
     ]
   },
-  "hash": "f2beb11b5e6318b712b0af9bd4fde454472ce8eda3612295b788958148a376b5"
+  "hash": "7da833dd75ee0c2ffcf2bdf4fe380374208fe637f4ae30c8a66efc809f890b9d"
 }

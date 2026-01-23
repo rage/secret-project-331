@@ -759,27 +759,34 @@ export interface EmailTemplate {
   updated_at: string
   deleted_at: string | null
   content: unknown | null
-  name: string
+  template_type: EmailTemplateType
   subject: string | null
   exercise_completions_threshold: number | null
   points_threshold: number | null
-  course_instance_id: string | null
+  course_id: string | null
   language: string | null
 }
 
 export interface EmailTemplateNew {
-  name: string
+  template_type: EmailTemplateType
   language: string | null
   content: unknown | null
+  subject: string | null
 }
 
 export interface EmailTemplateUpdate {
-  name: string
+  template_type: EmailTemplateType
   subject: string
   content: unknown
   exercise_completions_threshold: number | null
   points_threshold: number | null
 }
+
+export type EmailTemplateType =
+  | "reset_password_email"
+  | "delete_user_email"
+  | "confirm_email_code"
+  | "generic"
 
 export interface CourseExam {
   id: string
@@ -2381,6 +2388,16 @@ export interface CreateAccountDetails {
 export interface Login {
   email: string
   password: string
+}
+
+export type LoginResponse =
+  | { type: "success" }
+  | { type: "requires_email_verification"; email_verification_token: string }
+  | { type: "failed" }
+
+export interface VerifyEmailRequest {
+  email_verification_token: string
+  code: string
 }
 
 export interface UserInfo {

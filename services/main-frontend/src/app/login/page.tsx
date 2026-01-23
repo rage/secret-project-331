@@ -1,64 +1,41 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useCallback, useContext, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
+import { CredentialsForm } from "@/app/login/CredentialsForm"
+import { VerificationForm } from "@/app/login/VerificationForm"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
-import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
-import Button from "@/shared-module/common/components/Button"
+import { useLoginFlow } from "@/hooks/useLoginFlow"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import Spinner from "@/shared-module/common/components/Spinner"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { login } from "@/shared-module/common/services/backend/auth"
-import { baseTheme } from "@/shared-module/common/styles"
-import {
-  useCurrentPagePathForReturnTo,
-  validateReturnToRouteOrDefault,
-} from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
   const { t } = useTranslation()
-  const loginStateContext = useContext(LoginStateContext)
-
   const router = useRouter()
-  const pathname = usePathname()
-  const [credentialsError, setCredentialsError] = useState<boolean>(false)
-  const [error, setError] = useState<Error | null>(null)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
-  const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(pathname)
-  const [showForm, setShowForm] = useState<boolean>(false)
-
-  const loginMutation = useToastMutation(
-    async () => {
-      const success = await login(email, password)
-      // Clear any previous errors
-      setError(null)
-      setCredentialsError(!success)
-      return success
-    },
-    { notify: false },
-  )
 
   const redirect = useCallback(() => {
     const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
     router.push(returnTo)
   }, [router, uncheckedReturnTo])
 
-  const getUserConsent = useUserResearchConsentQuery()
-
-  if (getUserConsent.status == "error" && !showForm) {
-    setShowForm(true)
-  } else if (getUserConsent.status == "success") {
-    redirect()
-  }
+  const {
+    step,
+    credentialsError,
+    verificationError,
+    error,
+    isSubmittingCredentials,
+    isSubmittingVerification,
+    submitCredentials,
+    submitVerification,
+    onConsentSubmitted,
+  } = useLoginFlow(redirect, t)
 
   return (
     <div
@@ -75,137 +52,49 @@ const Login: React.FC = () => {
     >
       {error && <ErrorBanner error={error} />}
 
-      <form
-        onSubmit={async (event) => {
-          event.preventDefault()
-          try {
-            const success = await loginMutation.mutateAsync()
-            if (success) {
-              await loginStateContext.refresh()
-            }
-          } catch (e) {
-            if (!(e instanceof Error)) {
-              throw e
-            }
-            console.error("failed to login: ", e)
-            setError(e)
-            return null
-          }
-        }}
-        className={css`
-          display: flex;
-          flex-direction: column;
-          padding: 3rem 0rem;
-        `}
-      >
-        <h1>{t("login")}</h1>
-        <div
-          className={css`
-            margin-bottom: 2rem;
-          `}
-        >
-          {}
-          {t("login-description")}{" "}
-          <a
-            className={css`
-              color: ${baseTheme.colors.blue[500]}!important;
-            `}
-            href="https://mooc.fi"
-            // eslint-disable-next-line i18next/no-literal-string
-          >
-            mooc.fi
-          </a>{" "}
-          {t("login-description2")}
-        </div>
-        <TextField
-          label={t("label-email")}
-          onChange={(event) => {
-            setEmail(event.target.value)
-            setCredentialsError(false)
-          }}
-          required
+      {step.step === "credentials" && (
+        <CredentialsForm
+          onSubmit={submitCredentials}
+          error={credentialsError}
+          isSubmitting={isSubmittingCredentials}
         />
-        <TextField
-          type="password"
-          label={t("label-password")}
-          onChange={(event) => {
-            setPassword(event.target.value)
-            setCredentialsError(false)
-          }}
-          required
+      )}
+
+      {step.step === "verification" && (
+        <VerificationForm
+          onSubmit={submitVerification}
+          error={verificationError}
+          isSubmitting={isSubmittingVerification}
         />
-        {credentialsError && (
-          <div
-            aria-live="assertive"
-            className={css`
-              padding: 1rem;
-              border: 2px solid ${baseTheme.colors.red[500]};
-              font-weight: bold;
-              color: ${baseTheme.colors.red[500]};
-              margin-top: 1rem;
-            `}
-          >
-            {t("incorrect-email-or-password")}
-          </div>
-        )}
-        <Button
-          className={css`
-            margin: 2rem 0rem;
-          `}
-          variant={"primary"}
-          size={"medium"}
-          id={"login-button"}
-          disabled={
-            !email || !password || email === "" || password === "" || loginMutation.isPending
-          }
-        >
-          {t("login")}
-        </Button>
+      )}
+
+      {step.step === "awaiting_consent_check" && (
         <div
           className={css`
-            margin-bottom: 1.5rem;
-            display: none;
+            display: flex;
+            flex-direction: column;
+            padding: 3rem 0rem;
+            align-items: center;
           `}
         >
-          <Link
-            className={css`
-              color: ${baseTheme.colors.blue[500]}!important;
-            `}
-            href="/sign-up"
-          >
-            {t("create-new-account")}
-          </Link>
+          <Spinner variant={"medium"} />
         </div>
+      )}
+
+      {step.step === "consent_form" && <ResearchOnCoursesForm afterSubmit={onConsentSubmitted} />}
+
+      {step.step === "complete" && (
         <div
           className={css`
-            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            padding: 3rem 0rem;
+            align-items: center;
           `}
         >
-          <Link
-            className={css`
-              color: ${baseTheme.colors.blue[500]}!important;
-            `}
-            href="/reset-password"
-          >
-            {t("forgot-password")}
-          </Link>
+          <Spinner variant={"medium"} />
         </div>
-        <div
-          className={css`
-            margin-bottom: 1.5rem;
-          `}
-        >
-          <a
-            className={css`
-              color: ${baseTheme.colors.blue[500]}!important;
-            `}
-            href={`/signup?return_to=${encodeURIComponent(returnToForLinkToSignupPage)}`}
-          >
-            {t("create-an-acount")}
-          </a>
-        </div>
-      </form>
-      {showForm && <ResearchOnCoursesForm afterSubmit={redirect} />}
+      )}
     </div>
   )
 }

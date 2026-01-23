@@ -1,5 +1,5 @@
 use headless_lms_models::{
-    email_templates::{EmailTemplateNew, insert_email_template},
+    email_templates::{EmailTemplateNew, EmailTemplateType, insert_email_template},
     user_passwords::insert_password_reset_token,
 };
 use serde_json::json;
@@ -51,9 +51,10 @@ pub async fn seed_generic_emails(
     ]);
 
     let english_template = EmailTemplateNew {
-        name: "reset-password-email".to_string(),
+        template_type: EmailTemplateType::ResetPasswordEmail,
         language: Some("en".to_string()),
         content: Some(english_body),
+        subject: english_subject.map(|s| s.to_string()),
     };
 
     insert_email_template(&mut conn, None, english_template, english_subject).await?;
@@ -93,9 +94,10 @@ pub async fn seed_generic_emails(
     ]);
 
     let finnish_template = EmailTemplateNew {
-        name: "reset-password-email".to_string(),
+        template_type: EmailTemplateType::ResetPasswordEmail,
         language: Some("fi".to_string()),
         content: Some(finnish_body),
+        subject: finnish_subject.map(|s| s.to_string()),
     };
 
     insert_email_template(&mut conn, None, finnish_template, finnish_subject).await?;
@@ -146,12 +148,58 @@ pub async fn seed_generic_emails(
     ]);
 
     let delete_template = EmailTemplateNew {
-        name: "delete-user-email".to_string(),
+        template_type: EmailTemplateType::DeleteUserEmail,
         language: Some("en".to_string()),
         content: Some(delete_body),
+        subject: delete_subject.map(|s| s.to_string()),
     };
 
     insert_email_template(&mut conn, None, delete_template, delete_subject).await?;
+
+    info!("inserting confirm email code email");
+
+    let confirm_subject = Some("Email verification code");
+    let confirm_body = json!([
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "44444444-4444-4444-4444-444444444444",
+            "attributes": {
+                "content": "Hello, please use this code to verify your email address",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "55555555-5555-5555-5555-555555555555",
+            "attributes": {
+                "content": "Your verification code is: {{CODE}}",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "66666666-6666-6666-6666-666666666666",
+            "attributes": {
+                "content": "If you did not request this code, please ignore this message.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    let confirm_template = EmailTemplateNew {
+        template_type: EmailTemplateType::ConfirmEmailCode,
+        language: Some("en".to_string()),
+        content: Some(confirm_body),
+        subject: confirm_subject.map(|s| s.to_string()),
+    };
+
+    insert_email_template(&mut conn, None, confirm_template, confirm_subject).await?;
 
     Ok(())
 }

@@ -1,25 +1,24 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import CourseContext from "../../../contexts/CourseContext"
-import { fetchCourseInstance } from "../../../services/backend/course-instances"
 import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
 
-import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
+import { EmailTemplateUpdate } from "@/shared-module/common/bindings"
+import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useStateQuery from "@/shared-module/common/hooks/useStateQuery"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const EmailEditor = dynamicImport(() => import("../../../components/editors/EmailEditor"))
@@ -37,52 +36,45 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
   const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
     fetchEmailTemplateWithId(_emailTemplateId),
   )
-  const courseInstanceId = templateQuery.data?.course_instance_id
-  const instanceQuery = useQuery({
-    gcTime: 0,
-    queryKey: ["course-id-of-instance", courseInstanceId],
-    enabled: !!courseInstanceId,
-    queryFn: async () => {
-      const res = await fetchCourseInstance(assertNotNullOrUndefined(courseInstanceId))
-      // This only works when gCTime is set to 0
-      setNeedToRunMigrationsAndValidations(true)
-      return res
-    },
-  })
 
-  if (templateQuery.state === "error" || instanceQuery.isError) {
-    return (
-      <>
-        <ErrorBanner variant={"readOnly"} error={templateQuery.error} />
-        <ErrorBanner variant={"readOnly"} error={instanceQuery.error} />
-      </>
-    )
+  useEffect(() => {
+    if (templateQuery.state === "ready" && templateQuery.data) {
+      setNeedToRunMigrationsAndValidations(true)
+    }
+  }, [templateQuery.state, templateQuery.data])
+
+  const saveMutation = useToastMutation(
+    (template: EmailTemplateUpdate) => updateExistingEmailTemplate(emailTemplateId, template),
+    {
+      notify: true,
+      method: "PUT",
+    },
+    {
+      onSuccess: () => {
+        templateQuery.refetch()
+      },
+    },
+  )
+
+  if (templateQuery.state === "error") {
+    return <ErrorBanner variant={"readOnly"} error={templateQuery.error} />
   }
 
   if (templateQuery.state !== "ready") {
     return <Spinner variant={"medium"} />
   }
 
-  if (instanceQuery.isLoading || !instanceQuery.data) {
-    return <Spinner variant={"medium"} />
-  }
-
-  const handleSave = async (template: EmailTemplateUpdate): Promise<EmailTemplate> => {
-    const res = await updateExistingEmailTemplate(emailTemplateId, {
-      ...template,
-    })
-    await templateQuery.refetch()
-    return res
-  }
+  const courseId = templateQuery.data?.course_id
 
   return (
-    <CourseContext.Provider value={{ courseId: instanceQuery.data.course_id }}>
+    <CourseContext.Provider value={courseId ? { courseId } : null}>
       <EmailEditor
         data={templateQuery.data}
-        handleSave={handleSave}
+        saveMutation={saveMutation}
         needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
         setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
       />
+      <DebugModal data={templateQuery.data} />
     </CourseContext.Provider>
   )
 }

@@ -1,3 +1,4 @@
+use crate::email_templates::EmailTemplateType;
 use crate::prelude::*;
 use std::fmt::Display;
 
@@ -19,7 +20,7 @@ pub struct Email {
     pub to: String,
     pub subject: Option<String>,
     pub body: Option<serde_json::Value>,
-    pub name: Option<String>,
+    pub template_type: Option<EmailTemplateType>,
 }
 
 pub async fn insert_email_delivery(
@@ -58,7 +59,7 @@ SELECT
     ud.email AS to,
     et.subject AS subject,
     et.content AS body,
-    et.name AS name
+    et.email_template_type AS "template_type: EmailTemplateType"
 FROM email_deliveries ed
 JOIN email_templates et ON et.id = ed.email_template_id
 JOIN users u ON u.id = ed.user_id

@@ -114,6 +114,7 @@ fn models(target: &mut File) {
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,
         email_templates::EmailTemplateUpdate,
+        email_templates::EmailTemplateType,
         exams::CourseExam,
         exams::Exam,
         exams::ExamEnrollment,
@@ -331,6 +332,8 @@ fn controllers(target: &mut File) {
 
             CreateAccountDetails,
             Login,
+            LoginResponse,
+            VerifyEmailRequest,
             UserInfo,
         };
     }

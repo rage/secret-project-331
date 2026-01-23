@@ -3,6 +3,7 @@ use std::{env, time::Duration};
 use anyhow::{Context, Result};
 use futures::{FutureExt, StreamExt};
 use headless_lms_models::email_deliveries::{Email, fetch_emails, mark_as_sent, save_err_to_email};
+use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
 use lettre::transport::smtp::authentication::Credentials;
@@ -58,10 +59,10 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
     let mut email_block: Vec<EmailGutenbergBlock> =
         serde_json::from_value(email.body.context("No body")?)?;
 
-    if let Some(name) = &email.name {
+    if let Some(template_type) = email.template_type {
         email_block = apply_email_template_replacements(
             &mut conn,
-            name,
+            template_type,
             email.id,
             email.user_id,
             email_block,
@@ -116,15 +117,15 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
 
 async fn apply_email_template_replacements(
     conn: &mut PgConnection,
-    template_name: &str,
+    template_type: EmailTemplateType,
     email_id: Uuid,
     user_id: Uuid,
     blocks: Vec<EmailGutenbergBlock>,
 ) -> anyhow::Result<Vec<EmailGutenbergBlock>> {
     let mut replacements = HashMap::new();
 
-    match template_name.to_lowercase().as_str() {
-        "reset-password-email" => {
+    match template_type {
+        EmailTemplateType::ResetPasswordEmail => {
             if let Some(token_str) =
                 get_unused_reset_password_token_with_user_id(conn, user_id).await?
             {
@@ -144,7 +145,7 @@ async fn apply_email_template_replacements(
                 return Ok(blocks);
             }
         }
-        "delete-user-email" => {
+        EmailTemplateType::DeleteUserEmail => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
                     conn, user_id,
@@ -158,7 +159,23 @@ async fn apply_email_template_replacements(
                 return Ok(blocks);
             }
         }
-        _ => {}
+        EmailTemplateType::ConfirmEmailCode => {
+            if let Some(code) =
+                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
+                    conn, user_id,
+                )
+                .await?
+            {
+                replacements.insert("CODE".to_string(), code.code);
+            } else {
+                let msg = anyhow::anyhow!("No verification code found for user {}", user_id);
+                save_err_to_email(email_id, msg, conn).await?;
+                return Ok(blocks);
+            }
+        }
+        EmailTemplateType::Generic => {
+            return Ok(blocks);
+        }
     }
 
     Ok(insert_placeholders(blocks, &replacements))

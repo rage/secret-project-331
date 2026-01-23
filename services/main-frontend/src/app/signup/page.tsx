@@ -395,7 +395,7 @@ const CreateAccountForm: React.FC = () => {
         </fieldset>
         <input
           disabled={!isValid || createAccountMutation.isPending}
-          value={t("create-an-acount")}
+          value={t("create-an-account")}
           type="submit"
         />
       </form>

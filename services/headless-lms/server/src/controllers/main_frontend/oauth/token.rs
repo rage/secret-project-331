@@ -8,7 +8,7 @@ use crate::domain::oauth::token_response::TokenResponse;
 use crate::domain::oauth::token_service::{
     TokenGrantRequest, TokenGrantResult, generate_token_pair, process_token_grant,
 };
-use crate::domain::rate_limit_middleware_builder::build_rate_limiting_middleware;
+use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use chrono::{Duration, Utc};
@@ -18,7 +18,6 @@ use models::{
     library::oauth::token_digest_sha256, oauth_access_token::TokenType, oauth_client::OAuthClient,
 };
 use sqlx::PgPool;
-use std::time::Duration as StdDuration;
 
 /// Handles the `/token` endpoint for exchanging authorization codes or refresh tokens.
 ///
@@ -230,18 +229,12 @@ pub async fn token(
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/token")
-            .wrap(build_rate_limiting_middleware(
-                StdDuration::from_secs(60),
-                100,
-            ))
-            .wrap(build_rate_limiting_middleware(
-                StdDuration::from_secs(60 * 60),
-                500,
-            ))
-            .wrap(build_rate_limiting_middleware(
-                StdDuration::from_secs(60 * 60 * 24),
-                2000,
-            ))
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(100),
+                per_hour: Some(500),
+                per_day: Some(2000),
+                per_month: None,
+            }))
             .route(web::post().to(token)),
     );
 }

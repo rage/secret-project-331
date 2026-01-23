@@ -187,9 +187,9 @@ pub async fn send_reset_password_email(
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
 
-    let reset_template = models::email_templates::get_generic_email_template_by_name_and_language(
+    let reset_template = models::email_templates::get_generic_email_template_by_type_and_language(
         &mut conn,
-        "reset-password-email",
+        models::email_templates::EmailTemplateType::ResetPasswordEmail,
         language,
     )
     .await

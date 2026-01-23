@@ -119,7 +119,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
               padding: 0;
             `}
             message={t("insert-single-use-code-account-deletion")}
-            onSubmit={(code) => deleteAccountMutation.mutateAsync(code)}
+            onSubmit={async (code) => {
+              await deleteAccountMutation.mutateAsync(code)
+            }}
             submitLabel={t("button-text-verify")}
             error={credentialsError ? t("incorrect-code") : null}
             isSubmitting={deleteAccountMutation.isPending}

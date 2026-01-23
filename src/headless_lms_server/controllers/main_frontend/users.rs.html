@@ -187,9 +187,9 @@
 <a href=#187 id=187 data-nosnippet>187</a>    <span class="kw">let </span>email = <span class="kw-2">&amp;</span>payload.email.trim().to_lowercase();
 <a href=#188 id=188 data-nosnippet>188</a>    <span class="kw">let </span>language = <span class="kw-2">&amp;</span>payload.language;
 <a href=#189 id=189 data-nosnippet>189</a>
-<a href=#190 id=190 data-nosnippet>190</a>    <span class="kw">let </span>reset_template = models::email_templates::get_generic_email_template_by_name_and_language(
+<a href=#190 id=190 data-nosnippet>190</a>    <span class="kw">let </span>reset_template = models::email_templates::get_generic_email_template_by_type_and_language(
 <a href=#191 id=191 data-nosnippet>191</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#192 id=192 data-nosnippet>192</a>        <span class="string">"reset-password-email"</span>,
+<a href=#192 id=192 data-nosnippet>192</a>        models::email_templates::EmailTemplateType::ResetPasswordEmail,
 <a href=#193 id=193 data-nosnippet>193</a>        language,
 <a href=#194 id=194 data-nosnippet>194</a>    )
 <a href=#195 id=195 data-nosnippet>195</a>    .<span class="kw">await

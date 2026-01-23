@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Time sources for rate limiters."><title>governor::clock - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="governor" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module clock</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../governor/index.html">governor</a><span class="version">0.10.4</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module clock</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate governor</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">governor</a></div><h1>Module <span>clock</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/governor/clock.rs.html#1-226">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Time sources for rate limiters.</p>
+<p>The time sources contained in this module allow the rate limiter
+to be (optionally) independent of std, and additionally
+allow mocking the passage of time.</p>
+<p>You can supply a custom time source by implementing both <a href="trait.Reference.html" title="trait governor::clock::Reference"><code>Reference</code></a>
+and <a href="trait.Clock.html" title="trait governor::clock::Clock"><code>Clock</code></a> for your own types, and by implementing <code>Add&lt;Nanos&gt;</code> for
+your <a href="trait.Reference.html" title="trait governor::clock::Reference"><code>Reference</code></a> type:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>governor::clock::{Reference, Clock};
+<span class="kw">use </span>governor::nanos::Nanos;
+
+<span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+</span><span class="kw">struct </span>MyInstant(u64);
+
+<span class="kw">impl </span>Add&lt;Nanos&gt; <span class="kw">for </span>MyInstant {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
+
+   <span class="kw">fn </span>add(<span class="self">self</span>, other: Nanos) -&gt; <span class="self">Self </span>{
+       <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0 </span>+ other.as_u64())
+   }
+}
+
+<span class="kw">impl </span>Reference <span class="kw">for </span>MyInstant {
+    <span class="kw">fn </span>duration_since(<span class="kw-2">&amp;</span><span class="self">self</span>, earlier: <span class="self">Self</span>) -&gt; Nanos {
+        <span class="self">self</span>.<span class="number">0</span>.checked_sub(earlier.<span class="number">0</span>).unwrap_or(<span class="number">0</span>).into()
+    }
+
+    <span class="kw">fn </span>saturating_sub(<span class="kw-2">&amp;</span><span class="self">self</span>, duration: Nanos) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.checked_sub(duration.into()).unwrap_or(<span class="self">self</span>.<span class="number">0</span>))
+    }
+}
+
+<span class="kw">struct </span>MyCounter(u64);
+
+<span class="kw">impl </span>Clock <span class="kw">for </span>MyCounter {
+    <span class="kw">type </span>Instant = MyInstant;
+
+    <span class="kw">fn </span>now(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Instant {
+        MyInstant(<span class="self">self</span>.<span class="number">0</span>)
+    }
+}</code></pre></div></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.FakeRelativeClock.html" title="struct governor::clock::FakeRelativeClock">Fake<wbr>Relative<wbr>Clock</a></dt><dd>A mock implementation of a clock. All it does is keep track of
+what “now” is (relative to some point meaningful to the program),
+and returns that.</dd><dt><a class="struct" href="struct.MonotonicClock.html" title="struct governor::clock::MonotonicClock">Monotonic<wbr>Clock</a></dt><dd>The monotonic clock implemented by <a href="https://doc.rust-lang.org/1.92.0/std/time/struct.Instant.html" title="struct std::time::Instant"><code>Instant</code></a>.</dd><dt><a class="struct" href="struct.QuantaClock.html" title="struct governor::clock::QuantaClock">Quanta<wbr>Clock</a></dt><dd>A clock using the default <a href="../../quanta/struct.Clock.html" title="struct quanta::Clock"><code>quanta::Clock</code></a> structure.</dd><dt><a class="struct" href="struct.QuantaInstant.html" title="struct governor::clock::QuantaInstant">Quanta<wbr>Instant</a></dt><dd>A nanosecond-scale opaque instant (already scaled to reference time) returned from a
+<a href="struct.QuantaClock.html" title="struct governor::clock::QuantaClock"><code>QuantaClock</code></a>.</dd><dt><a class="struct" href="struct.QuantaUpkeepClock.html" title="struct governor::clock::QuantaUpkeepClock">Quanta<wbr>Upkeep<wbr>Clock</a></dt><dd>A clock using the default <a href="../../quanta/struct.Clock.html" title="struct quanta::Clock"><code>quanta::Clock</code></a> structure and an upkeep thread.</dd><dt><a class="struct" href="struct.SystemClock.html" title="struct governor::clock::SystemClock">System<wbr>Clock</a></dt><dd>The non-monotonic clock implemented by <a href="https://doc.rust-lang.org/1.92.0/std/time/struct.SystemTime.html" title="struct std::time::SystemTime"><code>SystemTime</code></a>.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Clock.html" title="trait governor::clock::Clock">Clock</a></dt><dd>A time source used by rate limiters.</dd><dt><a class="trait" href="trait.ReasonablyRealtime.html" title="trait governor::clock::ReasonablyRealtime">Reasonably<wbr>Realtime</a></dt><dd>Identifies clocks that run similarly to the monotonic realtime clock.</dd><dt><a class="trait" href="trait.Reference.html" title="trait governor::clock::Reference">Reference</a></dt><dd>A measurement from a clock.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.DefaultClock.html" title="type governor::clock::DefaultClock">Default<wbr>Clock</a></dt><dd>The default clock using <a href="../../quanta/index.html" title="mod quanta"><code>quanta</code></a> for extremely fast timekeeping (at a 100ns resolution).</dd></dl></section></div></main></body></html>

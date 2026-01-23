@@ -1,9 +1,9 @@
 (function() {
-    var type_impls = Object.fromEntries([["serde",[]],["serde_core",[]],["zstd_safe",[]]]);
+    var type_impls = Object.fromEntries([["nonzero_ext",[]],["serde",[]],["serde_core",[]],["zstd_safe",[]]]);
     if (window.register_type_impls) {
         window.register_type_impls(type_impls);
     } else {
         window.pending_type_impls = type_impls;
     }
 })()
-//{"start":55,"fragment_lengths":[12,18,17]}
+//{"start":55,"fragment_lengths":[18,13,18,17]}

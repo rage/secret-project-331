@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["FakeRelativeClock","MonotonicClock","QuantaClock","QuantaInstant","QuantaUpkeepClock","SystemClock"],"trait":["Clock","ReasonablyRealtime","Reference"],"type":["DefaultClock"]};

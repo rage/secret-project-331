@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["build_rate_limiting_middleware"]};
+window.SIDEBAR_ITEMS = {"fn":["build_custom_period_limiter","build_limiter","extract_client_ip_key"],"struct":["EndpointLimiters","RateLimit","RateLimitConfig","RateLimitInner"],"type":["Key","Limiter"]};

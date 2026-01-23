@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["create_email_verification_token","get_by_email_verification_token","is_valid","mark_as_used","mark_code_sent","maybe_cleanup_expired","verify_code"],"struct":["EmailVerificationToken"]};

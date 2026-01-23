@@ -200,54 +200,53 @@ pub async fn fetch_exam_for_user(
 
                 // Check if student has any published grading results they can view at the exam page
                 for grading_decision in teachers_grading_decisions_list.into_iter() {
-                    if let Some(hidden) = grading_decision.hidden {
-                        if !hidden {
-                            // Get the corresponding exercise for the grading result
-                            for grading in teacher_grading_decisions.into_iter() {
-                                let user_exercise_state = user_exercise_states
-                                    .iter()
-                                    .find(|state| state.id == grading.user_exercise_state_id)
-                                    .ok_or_else(|| {
-                                        ModelError::new(
-                                            ModelErrorType::Generic,
-                                            "User_exercise_state not found",
-                                            None,
-                                        )
-                                    })?;
+                    if let Some(hidden) = grading_decision.hidden
+                        && !hidden
+                    {
+                        // Get the corresponding exercise for the grading result
+                        for grading in teacher_grading_decisions.into_iter() {
+                            let user_exercise_state = user_exercise_states
+                                .iter()
+                                .find(|state| state.id == grading.user_exercise_state_id)
+                                .ok_or_else(|| {
+                                    ModelError::new(
+                                        ModelErrorType::Generic,
+                                        "User_exercise_state not found",
+                                        None,
+                                    )
+                                })?;
 
-                                let exercise = exam_exercises
-                                    .iter()
-                                    .find(|exercise| exercise.id == user_exercise_state.exercise_id)
-                                    .ok_or_else(|| {
-                                        ModelError::new(
-                                            ModelErrorType::Generic,
-                                            "Exercise not found",
-                                            None,
-                                        )
-                                    })?;
+                            let exercise = exam_exercises
+                                .iter()
+                                .find(|exercise| exercise.id == user_exercise_state.exercise_id)
+                                .ok_or_else(|| {
+                                    ModelError::new(
+                                        ModelErrorType::Generic,
+                                        "Exercise not found",
+                                        None,
+                                    )
+                                })?;
 
-                                grading_decision_and_exercise_list
-                                    .push((grading, exercise.clone()));
-                            }
-
-                            let token =
-                                authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id))
-                                    .await?;
-                            return token.authorized_ok(web::Json(ExamData {
-                                id: exam.id,
-                                name: exam.name,
-                                instructions: exam.instructions,
-                                starts_at,
-                                ends_at,
-                                ended,
-                                time_minutes: exam.time_minutes,
-                                enrollment_data: ExamEnrollmentData::StudentCanViewGrading {
-                                    gradings: grading_decision_and_exercise_list,
-                                    enrollment,
-                                },
-                                language: exam.language,
-                            }));
+                            grading_decision_and_exercise_list.push((grading, exercise.clone()));
                         }
+
+                        let token =
+                            authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id))
+                                .await?;
+                        return token.authorized_ok(web::Json(ExamData {
+                            id: exam.id,
+                            name: exam.name,
+                            instructions: exam.instructions,
+                            starts_at,
+                            ends_at,
+                            ended,
+                            time_minutes: exam.time_minutes,
+                            enrollment_data: ExamEnrollmentData::StudentCanViewGrading {
+                                gradings: grading_decision_and_exercise_list,
+                                enrollment,
+                            },
+                            language: exam.language,
+                        }));
                     }
                 }
                 // user has ended the exam

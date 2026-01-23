@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO certificate_configuration_to_requirements (\n            certificate_configuration_id,\n            course_module_id\n        )\n        SELECT $1, $2\n        WHERE NOT EXISTS (\n            SELECT 1\n            FROM certificate_configuration_to_requirements\n            WHERE certificate_configuration_id = $1\n              AND course_module_id = $2\n              AND deleted_at IS NULL\n        )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8790df6e2a9102a2cd4825d4fffc62def8c6253ca55a606be5ebc6766bd4c811"
+}

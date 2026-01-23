@@ -6,6 +6,7 @@ use crate::{
 use headless_lms_utils::{
     ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
 };
+use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;
@@ -18,6 +19,7 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
         oauth_application_id: "some-id".to_string(),
         oauth_secret: "some-secret".to_string(),
         auth_url: "http://example.com".parse().unwrap(),
+        token_url: "http://example.com/token".parse().unwrap(),
         icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
         file_store: Arc::new(futures::executor::block_on(async {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
@@ -27,9 +29,11 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
             test_mode: true,
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
+            enable_admin_email_verification: false,
             azure_configuration: None,
             test_chatbot: false,
             tmc_account_creation_origin: None,
+            tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
             oauth_server_configuration: headless_lms_utils::OAuthServerConfiguration {
                 rsa_public_key: "temp-change-when-needed".into(),
                 rsa_private_key: "test-change".into(),
@@ -193,7 +197,7 @@ macro_rules! insert_data {
                 name: rs.clone(),
                 slug: rs.clone(),
                 organization_id: $org,
-                language_code: "en-US".to_string(),
+                language_code: "en".to_string(),
                 teacher_in_charge_name: rs.clone(),
                 teacher_in_charge_email: format!("{rs}@example.com"),
                 description: "description".to_string(),

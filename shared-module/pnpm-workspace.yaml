@@ -18,16 +18,14 @@ updateNotifier: false
 sharedWorkspaceLockfile: false
 
 # Delay brand-new releases to reduce supply-chain risk (minutes)
-minimumReleaseAge: 1440
+# minimumReleaseAge: 1440
 # If you want to exclude some packages from the minimumReleaseAge, you can do it here
-# minimumReleaseAgeExclude:
+minimumReleaseAgeExclude: ["next", "react", "react-dom", "@next/*"]
 
 # Fail install if a dependency wants to run unreviewed build scripts (it's better to fail so that we know to review the build scripts straight away)
 strictDepBuilds: true
 # Dependencies that are allowed to run build scripts
-onlyBuiltDependencies: [
-    esbuild
-  ]
+onlyBuiltDependencies: [esbuild]
 
 # Prefer local workspace packages and link them for better DX
 linkWorkspacePackages: true

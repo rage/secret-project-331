@@ -1,14 +1,17 @@
+"use client"
+
 export const TWO_DIMENSIONAL_BUTTON_STYLES = `
+  position: relative;
   align-items: center;
   flex-grow: 1;
   appearance: none;
   background-color: #fcfcfd;
   border-radius: 0.625rem;
-  border: 0.188rem solid #d6d6e7;
+  border: 0.188rem solid #b8b8c8;
   box-shadow:
     rgba(45, 35, 66, 0) 0 2px 4px,
     rgba(45, 35, 66, 0) 0 7px 13px -3px,
-    #d6d6e7 0 -2px 0 inset;
+    #b8b8c8 0 -2px 0 inset;
   color: #36395a;
   cursor: pointer;
   display: flex;
@@ -30,14 +33,23 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   margin-bottom: 0.625rem;
   margin-right: 0.625rem;
 
-    &:hover {
-      background: #f1f4f9;
-      border-color: #718dbf;
-      box-shadow:
-        rgba(45, 35, 66, 0) 0 4px 8px,
-        rgba(45, 35, 66, 0) 0 7px 13px -3px,
-        #718dbf 0 -2px 0 inset;
-    }
+  &:focus-visible {
+    outline: 3px solid #2d4a7f;
+    outline-offset: 2px;
+  }
+
+  &[aria-pressed="true"] {
+    font-weight: 600;
+  }
+
+  &:hover {
+    background: #f1f4f9;
+    border-color: #718dbf;
+    box-shadow:
+      rgba(45, 35, 66, 0) 0 4px 8px,
+      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+      #718dbf 0 -2px 0 inset;
+  }
 `
 
 export const QUIZ_TITLE_STYLE = `
@@ -50,10 +62,10 @@ export const QUIZ_TITLE_STYLE = `
 
 export const TWO_DIMENSIONAL_BUTTON_SELECTED = `
   background: #f1f4f9;
-  border-color: #3d5a8f;
+  border-color: #2d4a7f;
   box-shadow:
     rgba(45, 35, 66, 0) 0 4px 8px,
     rgba(45, 35, 66, 0) 0 7px 13px -3px,
-    #3d5a8f 0 -2px 0 inset;
-  color: #4c5868;
+    #2d4a7f 0 -2px 0 inset;
+  color: #2d3a4a;
 `

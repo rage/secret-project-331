@@ -1,6 +1,8 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -81,6 +83,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       thinking_model: oldChatbotConf.thinking_model,
       max_completion_tokens: oldChatbotConf.max_completion_tokens,
       use_azure_search: oldChatbotConf.use_azure_search,
+      use_tools: oldChatbotConf.use_tools,
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
     },
@@ -166,6 +169,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       maintain_azure_search_index: azure_search,
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
+      use_tools: data.use_tools,
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
       chatbotconf_id: null,
     })
@@ -260,6 +264,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 disabled={!selectedModel?.thinking}
                 {...register("max_completion_tokens", { required: t("required-field") })}
               />
+              <CheckBox label={t("enable-tool-use")} {...register("use_tools")} />
             </div>
           </div>
         ) : (

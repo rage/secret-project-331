@@ -63,10 +63,12 @@ async fn post_new_email_template(
         Res::CourseInstance(*course_instance_id),
     )
     .await?;
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let new_email_template = payload.0;
     let email_template = models::email_templates::insert_email_template(
         &mut conn,
-        *course_instance_id,
+        Some(course_instance.course_id),
         new_email_template,
         None,
     )
@@ -89,8 +91,10 @@ async fn get_email_templates_by_course_instance_id(
     )
     .await?;
 
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let email_templates =
-        models::email_templates::get_email_templates(&mut conn, *course_instance_id).await?;
+        models::email_templates::get_email_templates(&mut conn, course_instance.course_id).await?;
     token.authorized_ok(web::Json(email_templates))
 }
 
@@ -427,6 +431,7 @@ async fn get_user_progress_for_course_instance(
         &mut conn,
         course_instance.course_id,
         user_id,
+        false,
     )
     .await?;
     token.authorized_ok(web::Json(user_course_progress))

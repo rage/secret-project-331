@@ -212,6 +212,42 @@ export interface UserCourseInstanceChapterProgress {
   attempted_exercises: number | null
 }
 
+export interface ChapterAvailability {
+  chapter_id: string
+  chapter_number: number
+  chapter_name: string
+  exercises_available: number
+  points_available: number
+}
+
+export interface UserChapterProgress {
+  user_id: string
+  chapter_id: string
+  chapter_number: number
+  chapter_name: string
+  points_obtained: number
+  exercises_attempted: number
+}
+
+export interface CourseUserInfo {
+  first_name: string | null
+  last_name: string | null
+  user_id: string
+  email: string | null
+  course_instance: string | null
+}
+
+export interface ChapterLockPreview {
+  has_unreturned_exercises: boolean
+  unreturned_exercises_count: number
+  unreturned_exercises: Array<UnreturnedExercise>
+}
+
+export interface UnreturnedExercise {
+  id: string
+  name: string
+}
+
 export interface ChatbotConfiguration {
   id: string
   created_at: string
@@ -238,6 +274,7 @@ export interface ChatbotConfiguration {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  use_tools: boolean
   default_chatbot: boolean
 }
 
@@ -263,6 +300,7 @@ export interface NewChatbotConf {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  use_tools: boolean
   default_chatbot: boolean
   chatbotconf_id: string | null
 }
@@ -289,11 +327,15 @@ export interface ChatbotConversationMessage {
   deleted_at: string | null
   conversation_id: string
   message: string | null
-  is_from_chatbot: boolean
+  message_role: MessageRole
   message_is_complete: boolean
   used_tokens: number
   order_number: number
+  tool_output: ChatbotConversationMessageToolOutput | null
+  tool_call_fields: Array<ChatbotConversationMessageToolCall>
 }
+
+export type MessageRole = "assistant" | "user" | "tool" | "system"
 
 export interface ChatbotConversationMessageCitation {
   id: string
@@ -307,6 +349,28 @@ export interface ChatbotConversationMessageCitation {
   content: string
   document_url: string
   citation_number: number
+}
+
+export interface ChatbotConversationMessageToolCall {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  message_id: string
+  tool_name: string
+  tool_arguments: unknown
+  tool_call_id: string
+}
+
+export interface ChatbotConversationMessageToolOutput {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  message_id: string
+  tool_name: string
+  tool_output: string
+  tool_call_id: string
 }
 
 export interface ChatbotConversation {
@@ -600,6 +664,7 @@ export interface Course {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface CourseMaterialCourse {
@@ -621,6 +686,7 @@ export interface CourseMaterialCourse {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface CourseBreadcrumbInfo {
@@ -655,6 +721,7 @@ export interface CourseUpdate {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface NewCourse {
@@ -692,24 +759,34 @@ export interface EmailTemplate {
   updated_at: string
   deleted_at: string | null
   content: unknown | null
-  name: string
+  template_type: EmailTemplateType
   subject: string | null
   exercise_completions_threshold: number | null
   points_threshold: number | null
-  course_instance_id: string
+  course_id: string | null
+  language: string | null
 }
 
 export interface EmailTemplateNew {
-  name: string
+  template_type: EmailTemplateType
+  language: string | null
+  content: unknown | null
+  subject: string | null
 }
 
 export interface EmailTemplateUpdate {
-  name: string
+  template_type: EmailTemplateType
   subject: string
   content: unknown
   exercise_completions_threshold: number | null
   points_threshold: number | null
 }
+
+export type EmailTemplateType =
+  | "reset_password_email"
+  | "delete_user_email"
+  | "confirm_email_code"
+  | "generic"
 
 export interface CourseExam {
   id: string
@@ -1152,6 +1229,11 @@ export interface GeneratedCertificate {
   certificate_configuration_id: string
 }
 
+export interface CertificateUpdateRequest {
+  date_issued: string
+  name_on_certificate: string | null
+}
+
 export interface Term {
   id: string
   term: string
@@ -1177,6 +1259,11 @@ export interface CohortActivity {
 
 export interface CountResult {
   period: string | null
+  count: number
+}
+
+export interface StudentsByCountryTotalsResult {
+  country: string | null
   count: number
 }
 
@@ -1412,6 +1499,30 @@ export interface UserWithModuleCompletions {
   first_name: string | null
   last_name: string | null
   user_id: string
+}
+
+export interface ProgressOverview {
+  user_details: Array<UserDetail>
+  chapters: Array<DatabaseChapter>
+  user_exercise_states: Array<UserExerciseState>
+  chapter_availability: Array<ChapterAvailability>
+  user_chapter_progress: Array<UserChapterProgress>
+}
+
+export interface CompletionGridRow {
+  student: string
+  module: string | null
+  grade: string
+  status: string
+}
+
+export interface CertificateGridRow {
+  student: string
+  certificate: string
+  date_issued: string | null
+  verification_id: string | null
+  certificate_id: string | null
+  name_on_certificate: string | null
 }
 
 export interface UserMarketingConsent {
@@ -2110,8 +2221,7 @@ export interface SuspectedCheaters {
 }
 
 export interface ThresholdData {
-  points: number
-  duration_seconds: number | null
+  duration_seconds: number
 }
 
 export interface NewTeacherGradingDecision {
@@ -2141,6 +2251,19 @@ export interface TeacherGradingDecision {
   justification: string | null
   hidden: boolean | null
 }
+
+export interface UserChapterLockingStatus {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  user_id: string
+  chapter_id: string
+  course_id: string
+  status: ChapterLockingStatus
+}
+
+export type ChapterLockingStatus = "unlocked" | "completed_and_locked" | "not_unlocked_yet"
 
 export interface UserCourseExerciseServiceVariable {
   id: string
@@ -2265,6 +2388,16 @@ export interface CreateAccountDetails {
 export interface Login {
   email: string
   password: string
+}
+
+export type LoginResponse =
+  | { type: "success" }
+  | { type: "requires_email_verification"; email_verification_token: string }
+  | { type: "failed" }
+
+export interface VerifyEmailRequest {
+  email_verification_token: string
+  code: string
 }
 
 export interface UserInfo {

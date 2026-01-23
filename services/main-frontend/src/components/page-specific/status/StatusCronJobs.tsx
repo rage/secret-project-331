@@ -1,10 +1,11 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { CheckCircle, Clock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStatusCronJobs } from "../../../hooks/useStatusCronJobs"
-
+import { useStatusCronJobs } from "@/hooks/useStatusCronJobs"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"

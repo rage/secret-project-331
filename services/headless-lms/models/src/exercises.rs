@@ -332,6 +332,28 @@ WHERE chapter_id = $1
     Ok(exercises)
 }
 
+pub async fn get_exercises_by_chapter_ids(
+    conn: &mut PgConnection,
+    chapter_ids: &[Uuid],
+) -> ModelResult<Vec<Exercise>> {
+    if chapter_ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE chapter_id = ANY($1)
+  AND deleted_at IS NULL
+"#,
+        chapter_ids as &[Uuid]
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_exercises_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
@@ -657,6 +679,7 @@ pub async fn delete_exercises_by_page_id(
 UPDATE exercises
 SET deleted_at = now()
 WHERE page_id = $1
+AND deleted_at IS NULL
 RETURNING id;
         ",
         page_id

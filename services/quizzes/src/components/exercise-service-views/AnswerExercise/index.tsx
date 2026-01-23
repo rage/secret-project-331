@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useCallback, useMemo, useState } from "react"
 
 import { UserAnswer } from "../../../../types/quizTypes/answer"

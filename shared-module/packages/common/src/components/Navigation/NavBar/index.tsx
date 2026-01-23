@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react"
 
 import ComplexNav from "./ComplexNav"
@@ -14,6 +16,7 @@ export interface NavigationProps {
   frontPageUrl?: string
   faqUrl?: string
   SearchDialogComponent?: React.ReactNode
+  logoLinkUrl?: string
 }
 
 const NavBar: React.FC<React.PropsWithChildren<NavigationProps>> = (props) => {

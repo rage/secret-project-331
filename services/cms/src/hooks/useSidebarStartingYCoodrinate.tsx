@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 const TOP_BAR_HEIGHT_PX = 90
 const useSidebarStartingYCoodrinate = () => {

@@ -1,6 +1,6 @@
-use lettre::transport::smtp::Error;
-
+use crate::email_templates::EmailTemplateType;
 use crate::prelude::*;
+use std::fmt::Display;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct EmailDelivery {
@@ -16,28 +16,59 @@ pub struct EmailDelivery {
 
 pub struct Email {
     pub id: Uuid,
-    // TODO: change to user.email when field exists in the db.
-    pub to: Uuid,
+    pub user_id: Uuid,
+    pub to: String,
     pub subject: Option<String>,
     pub body: Option<serde_json::Value>,
+    pub template_type: Option<EmailTemplateType>,
+}
+
+pub async fn insert_email_delivery(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email_template_id: Uuid,
+) -> ModelResult<Uuid> {
+    let id = Uuid::new_v4();
+
+    sqlx::query!(
+        r#"
+INSERT INTO email_deliveries (
+    id,
+    user_id,
+    email_template_id
+)
+VALUES ($1, $2, $3)
+        "#,
+        id,
+        user_id,
+        email_template_id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(id)
 }
 
 pub async fn fetch_emails(conn: &mut PgConnection) -> ModelResult<Vec<Email>> {
     let emails = sqlx::query_as!(
         Email,
-        "
-SELECT ed.id AS id,
-  u.id AS to,
-  et.subject AS subject,
-  et.content AS body
+        r#"
+SELECT
+    ed.id AS id,
+    u.id AS user_id,
+    ud.email AS to,
+    et.subject AS subject,
+    et.content AS body,
+    et.email_template_type AS "template_type: EmailTemplateType"
 FROM email_deliveries ed
-  JOIN email_templates et ON et.id = ed.email_template_id
-  JOIN users u ON u.id = ed.user_id
+JOIN email_templates et ON et.id = ed.email_template_id
+JOIN users u ON u.id = ed.user_id
+JOIN user_details ud ON ud.user_id = u.id
 WHERE ed.deleted_at IS NULL
   AND ed.sent = FALSE
   AND ed.error IS NULL
 LIMIT 10000;
-  ",
+        "#,
     )
     .fetch_all(conn)
     .await?;
@@ -62,7 +93,7 @@ where id = $1;
 
 pub async fn save_err_to_email(
     email_id: Uuid,
-    err: Error,
+    err: impl Display,
     conn: &mut PgConnection,
 ) -> ModelResult<()> {
     sqlx::query!(

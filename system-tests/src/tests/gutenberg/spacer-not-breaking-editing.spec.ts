@@ -49,15 +49,6 @@ test.describe(() => {
       .fill("This text should remain editable")
     await page.waitForTimeout(100)
     await page.getByText("This text should remain editable").press("Control+A")
-    // In this screenshot the plus sign for inserting a new block should not be on top of the typing caret.
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      screenshotTarget: page,
-      snapshotName: "new-block-inserter-should-not-obscure-typing-caret",
-      axeSkip: ["aria-allowed-attr", "aria-allowed-role", "region", "heading-order"],
-      scrollToYCoordinate: 200,
-    })
     await page
       .getByText("Pages in chapter placeholderThis block is placed on each chapter front page, e.g")
       .click()

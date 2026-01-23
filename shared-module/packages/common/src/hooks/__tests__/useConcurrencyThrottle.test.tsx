@@ -1,3 +1,5 @@
+"use client"
+
 import { act, renderHook } from "@testing-library/react"
 import { Provider } from "jotai"
 import React from "react"

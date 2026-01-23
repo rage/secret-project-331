@@ -445,6 +445,7 @@ pub async fn delete_exercise_tasks_by_slide_ids(
 UPDATE exercise_tasks
 SET deleted_at = now()
 WHERE exercise_slide_id = ANY($1)
+AND deleted_at IS NULL
 RETURNING id;
         ",
         &exercise_slide_ids,

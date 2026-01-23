@@ -1,17 +1,19 @@
+"use client"
+
 import { css } from "@emotion/css"
-import { useRouter } from "next/router"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-
 import FeedbackList from "./FeedbackList"
 
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -19,12 +21,15 @@ const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const [read, setRead] = useState(false)
   const { t } = useTranslation()
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (router.query.read) {
-      setRead(router.query.read === "true")
+    const readParam = searchParams.get("read")
+    if (readParam) {
+      setRead(readParam === "true")
     }
-  }, [router.query.read])
+  }, [searchParams])
 
   return (
     <div>
@@ -41,15 +46,12 @@ const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       <TabLinkNavigation>
         <TabLink
           isActive={!read}
-          url={{ pathname: router.pathname, query: { ...router.query, read: false } }}
+          url={{ pathname, query: { read: false } }}
           countHook={createUnreadFeedbackCountHook(courseId)}
         >
           {t("unread")}
         </TabLink>
-        <TabLink
-          isActive={read}
-          url={{ pathname: router.pathname, query: { ...router.query, read: true } }}
-        >
+        <TabLink isActive={read} url={{ pathname, query: { read: true } }}>
           {t("read")}
         </TabLink>
       </TabLinkNavigation>
@@ -60,4 +62,4 @@ const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   )
 }
 
-export default CourseFeedback
+export default withSuspenseBoundary(CourseFeedback)

@@ -1,3 +1,5 @@
+"use client"
+
 import styled from "@emotion/styled"
 import React, { forwardRef, Ref } from "react"
 

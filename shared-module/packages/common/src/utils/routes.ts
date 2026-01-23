@@ -12,12 +12,14 @@ export function organizationFrontPageRoute(organizationSlug: string) {
   return `/org/${organizationSlug}`
 }
 
-export function loginRoute(returnTo: string) {
-  return `/login?return_to=${encodeURIComponent(returnTo)}`
+export function loginRoute(returnTo: string, language?: string) {
+  const langParam = language ? `&lang=${language}` : ""
+  return `/login?return_to=${encodeURIComponent(returnTo)}${langParam}`
 }
 
-export function signUpRoute(returnTo: string) {
-  return `/signup?return_to=${encodeURIComponent(returnTo)}`
+export function signUpRoute(returnTo: string, language?: string) {
+  const langParam = language ? `&lang=${language}` : ""
+  return `/signup?return_to=${encodeURIComponent(returnTo)}${langParam}`
 }
 
 export function manageExerciseServicesRoute() {
@@ -68,6 +70,11 @@ export function manageCourseExercisesRoute(courseId: string) {
   return `/manage/courses/${courseId}/exercises`
 }
 
+export function manageCourseStudentsRoute(courseId: string, subtab?: string) {
+  const base = `/manage/courses/${courseId}/students`
+  return subtab ? `${base}/${subtab}` : base
+}
+
 export function manageChatbotRoute(chatbotId: string) {
   return `/manage/chatbots/${chatbotId}`
 }
@@ -94,4 +101,82 @@ export function exerciseSubmissionsRoute(exerciseId: string) {
 
 export function submissionGradingRoute(submissionId: string) {
   return `/submissions/${submissionId}/grading/`
+}
+
+export function courseFrontPageRoute(organizationSlug: string, courseSlug: string) {
+  return `/org/${organizationSlug}/courses/${courseSlug}`
+}
+
+export function courseFaqPageRoute(organizationSlug: string, courseSlug: string) {
+  return `/org/${organizationSlug}/courses/${courseSlug}`
+}
+
+export function coursePageRoute(
+  organizationSlug: string,
+  courseSlug: string,
+  relativePathWithSlash: string,
+) {
+  if (organizationSlug === null || organizationSlug === undefined || organizationSlug === "") {
+    throw new Error("Cannot build course page route without an organization slug")
+  }
+  if (courseSlug === null || courseSlug === undefined || courseSlug === "") {
+    throw new Error("Cannot build course page route without a course slug")
+  }
+  if (relativePathWithSlash === null || relativePathWithSlash === undefined) {
+    throw new Error("Cannot build course page route without a relative path")
+  }
+  return `/org/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}`
+}
+
+export function coursePageSectionRoute(
+  organizationSlug: string,
+  courseSlug: string,
+  relativePathWithSlash: string,
+  anchor: string,
+) {
+  return `/org/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}#${anchor}`
+}
+
+export function accountDeletedRoute() {
+  return "/account-deleted"
+}
+
+export function editPageRoute(pageId: string) {
+  return `/cms/pages/${pageId}`
+}
+
+export function examRoute(organizationSlug: string, examId: string) {
+  return `/org/${organizationSlug}/exams/${examId}`
+}
+
+export function manageExamRoute(examId: string) {
+  return `/manage/exams/${examId}`
+}
+
+export function manageExamQuestionsRoute(examId: string) {
+  return `/manage/exams/${examId}/questions`
+}
+
+export function testExamRoute(organizationSlug: string, examId: string) {
+  return `/org/${organizationSlug}/exams/testexam/${examId}`
+}
+
+export function manageUserRoute(userId: string) {
+  return `/manage/users/${userId}`
+}
+
+export function manageRegradingRoute(regradingId: string) {
+  return `/manage/regradings/${regradingId}`
+}
+
+export function exerciseAnswersRequiringAttentionRoute(exerciseId: string) {
+  return `/manage/exercises/${exerciseId}/answers-requiring-attention`
+}
+
+export function exerciseExamSubmissionsRoute(exerciseId: string) {
+  return `/manage/exercises/${exerciseId}/exam-submissions`
+}
+
+export function userSettingsRoute() {
+  return "/user-settings/account"
 }

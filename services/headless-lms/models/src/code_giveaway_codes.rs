@@ -178,6 +178,7 @@ pub async fn delete_by_id(conn: &mut PgConnection, code_id: Uuid) -> ModelResult
 UPDATE code_giveaway_codes
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING *
         "#,
         code_id
@@ -206,7 +207,13 @@ SELECT EXISTS(
     )
     .fetch_one(conn)
     .await?;
-    Ok(res.exists.unwrap())
+    res.exists.ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::Database,
+            "EXISTS query returned None - this should never happen".to_string(),
+            None,
+        )
+    })
 }
 
 #[cfg(test)]

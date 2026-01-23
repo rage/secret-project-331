@@ -104,13 +104,13 @@ pub async fn delete_playground_example(
 UPDATE playground_examples
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING *;
   ",
         id
     )
     .fetch_one(&mut *conn)
-    .await
-    .unwrap();
+    .await?;
 
     Ok(PlaygroundExample {
         id: res.id,

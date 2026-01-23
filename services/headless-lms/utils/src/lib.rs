@@ -25,19 +25,21 @@ pub mod url_to_oembed_endpoint;
 extern crate tracing;
 
 use anyhow::Context;
-use secrecy::{ExposeSecret, SecretBox};
+use secrecy::{ExposeSecret, SecretBox, SecretString};
 use std::sync::Arc;
 use std::{env, str::FromStr};
 use url::Url;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,
     pub test_chatbot: bool,
     pub development_uuid_login: bool,
+    pub enable_admin_email_verification: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub tmc_account_creation_origin: Option<String>,
+    pub tmc_admin_access_token: SecretString,
     pub oauth_server_configuration: OAuthServerConfiguration,
 }
 
@@ -47,6 +49,9 @@ impl ApplicationConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let test_mode = env::var("TEST_MODE").is_ok();
         let development_uuid_login = env::var("DEVELOPMENT_UUID_LOGIN").is_ok();
+        let enable_admin_email_verification = env::var("ENABLE_ADMIN_EMAIL_VERIFICATION")
+            .map(|v| v.parse::<bool>().unwrap_or(false))
+            .unwrap_or(false);
         let test_chatbot = test_mode
             && (env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok_and(|v| v.as_str() != "false")
                 || env::var("AZURE_CHATBOT_API_KEY").is_err());
@@ -62,6 +67,17 @@ impl ApplicationConfiguration {
                 .context("TMC_ACCOUNT_CREATION_ORIGIN must be defined")?,
         );
 
+        let tmc_admin_access_token = SecretString::new(
+            std::env::var("TMC_ACCESS_TOKEN")
+                .unwrap_or_else(|_| {
+                    if test_mode {
+                        "mock-access-token".to_string()
+                    } else {
+                        panic!("TMC_ACCESS_TOKEN must be defined in production")
+                    }
+                })
+                .into(),
+        );
         let oauth_server_configuration = OAuthServerConfiguration::try_from_env()
             .context("Failed to load OAuth server configuration")?;
 
@@ -70,8 +86,10 @@ impl ApplicationConfiguration {
             test_mode,
             test_chatbot,
             development_uuid_login,
+            enable_admin_email_verification,
             azure_configuration,
             tmc_account_creation_origin,
+            tmc_admin_access_token,
             oauth_server_configuration,
         })
     }

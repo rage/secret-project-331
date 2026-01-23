@@ -1,3 +1,5 @@
+"use client"
+
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
@@ -77,7 +79,7 @@ const LoadingMessage = styled.div`
 const LoadingNotification = (props: LoadingNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <NotificationWrapper className="toast-notification">
+    <NotificationWrapper data-testid="toast-notification">
       <Content>
         <IconWrapper>
           <Spinner variant={"medium"} />

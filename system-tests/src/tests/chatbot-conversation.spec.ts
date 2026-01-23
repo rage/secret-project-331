@@ -1,10 +1,17 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import { BrowserContext, expect, Page, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots, { waitToBeStable } from "@/utils/screenshot"
 import { scrollElementContainerToTop, scrollToYCoordinate } from "@/utils/scrollUtils"
 import { waitForAnimationsToEnd } from "@/utils/waitForAnimationsToEnd"
+
+async function closePopover(page: Page) {
+  await page.locator("body").press("Escape")
+  // Wait a moment while the popover is closing.
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
+}
 
 test.describe("Test chatbot chat box", () => {
   test.use({
@@ -97,8 +104,12 @@ test.describe("Test chatbot chat box", () => {
         waitForTheseToBeVisibleAndStable: [textInPopover],
         beforeScreenshot: async () => {
           // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
-          await student1Page.locator("body").press("Escape")
-          await textInPopover.waitFor({ state: "hidden" })
+          await expect(async () => {
+            await closePopover(student1Page)
+            await expect(textInPopover).toBeHidden({ timeout: 2000 })
+          }).toPass({
+            timeout: 15000,
+          })
           await scrollElementContainerToTop(citation1)
           await citation1.click()
           await textInPopover.waitFor()
@@ -117,7 +128,9 @@ test.describe("Test chatbot chat box", () => {
     await test.step("try making a new convo", async () => {
       await student1Page.getByRole("button", { name: "Open chatbot" }).click()
       await expect(chatbotDialog.getByText("Hello! How can I assist you")).toBeVisible()
-      await chatbotDialog.getByRole("button", { name: "New conversation" }).click()
+      await chatbotDialog.getByRole("button", { name: "Actions", exact: true }).click()
+      // the menu popover is not inside the dialog so use student1page
+      await student1Page.getByRole("menuitem", { name: "New conversation" }).click()
       await chatbotDialog.getByText("Oh...").waitFor()
       await expect(chatbotDialog.getByText("Hello! How can I assist you")).toHaveCount(0)
     })
@@ -172,17 +185,19 @@ test.describe("Test chatbot chat box", () => {
         [],
       )
       await expect(student1Page.getByText("Mock test page content This")).toBeVisible()
-      await student1Page.locator("body").press("Escape")
+      await closePopover(student1Page)
 
       await student1Page.getByLabel("Citation 2").click()
       await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
-      await student1Page.locator("body").press("Escape")
+      await closePopover(student1Page)
 
       const citation1 = student1Page.getByLabel("Citation 1").first()
       await citation1.waitFor({ state: "visible" })
       await scrollToYCoordinate(student1Page, 0)
       await citation1.click()
       const textInPopover = student1Page.getByText("Mock test page content")
+      // eslint-disable-next-line playwright/no-wait-for-timeout
+      await student1Page.waitForTimeout(100)
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: student1Page,
         headless,
@@ -191,8 +206,12 @@ test.describe("Test chatbot chat box", () => {
         waitForTheseToBeVisibleAndStable: [textInPopover],
         beforeScreenshot: async () => {
           // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
-          await student1Page.locator("body").press("Escape")
-          await textInPopover.waitFor({ state: "hidden" })
+          await expect(async () => {
+            await closePopover(student1Page)
+            await expect(textInPopover).toBeHidden({ timeout: 2000 })
+          }).toPass({
+            timeout: 15000,
+          })
           await scrollElementContainerToTop(citation1)
           await citation1.click()
           await textInPopover.waitFor()
@@ -203,7 +222,7 @@ test.describe("Test chatbot chat box", () => {
           "mobile-tall": 140,
         },
       })
-      await student1Page.locator("body").press("Escape")
+      await closePopover(student1Page)
     })
 
     await test.step("try following the link in reference", async () => {
@@ -218,7 +237,9 @@ test.describe("Test chatbot chat box", () => {
       )
       await selectCourseInstanceIfPrompted(student1Page)
       await expect(student1Page.getByText("Hello! How can I assist you")).toBeVisible()
-      await student1Page.getByRole("button", { name: "New conversation" }).click()
+
+      await student1Page.getByRole("button", { name: "Actions", exact: true }).click()
+      await student1Page.getByRole("menuitem", { name: "New conversation" }).click()
       await student1Page.getByText("Haiii xD").waitFor()
       await expect(student1Page.getByText("Hello! How can I assist you")).toHaveCount(0)
     })

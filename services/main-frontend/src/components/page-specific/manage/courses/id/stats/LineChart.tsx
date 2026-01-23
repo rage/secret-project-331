@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 import type { EChartsOption } from "echarts/types/src/export/option"
@@ -10,14 +12,16 @@ import StatsHeader from "./StatsHeader"
 
 import { CountResult } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export const MONTHLY_PERIOD = "Month" as const
 export const DAILY_PERIOD = "Day" as const
+export const CUSTOM_PERIOD = "Custom" as const
 
-export type Period = typeof MONTHLY_PERIOD | typeof DAILY_PERIOD
+export type Period = typeof MONTHLY_PERIOD | typeof DAILY_PERIOD | typeof CUSTOM_PERIOD
 
 export const DAILY_DATE_FORMAT = "yyyy-MM-dd"
 export const MONTHLY_DATE_FORMAT = "yyyy-MM"
@@ -34,6 +38,11 @@ interface LineChartProps {
   statHeading: string
   instructionText: string
   disablePeriodSelector?: boolean
+  showCustomTimePeriodSelector?: boolean
+  startDate?: string | null
+  endDate?: string | null
+  setStartDate?: React.Dispatch<React.SetStateAction<string | null>>
+  setEndDate?: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -48,6 +57,9 @@ const LineChart: React.FC<LineChartProps> = ({
   statHeading,
   instructionText,
   disablePeriodSelector = false,
+  showCustomTimePeriodSelector,
+  setStartDate,
+  setEndDate,
 }) => {
   const { t } = useTranslation()
 
@@ -102,20 +114,50 @@ const LineChart: React.FC<LineChartProps> = ({
     <>
       <StatsHeader heading={statHeading} debugData={data}>
         {!disablePeriodSelector && (
-          <SelectMenu
-            id="period-select"
-            options={[
-              { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
-              { value: DAILY_PERIOD, label: t("stats-period-daily") },
-            ]}
-            value={period}
-            onChange={(e) => setPeriod(e.currentTarget.value as Period)}
+          <div
             className={css`
-              margin-bottom: 0;
-              min-width: 120px;
+              display: flex;
+              gap: 1rem;
+              align-items: center;
             `}
-            showDefaultOption={false}
-          />
+          >
+            {showCustomTimePeriodSelector && period === CUSTOM_PERIOD && (
+              <div
+                className={css`
+                  display: flex;
+                  gap: 4px;
+                  padding-bottom: 12px;
+                `}
+              >
+                <DatePickerField
+                  label={t("stats-start-date")}
+                  onChangeByValue={(value) => setStartDate?.(value)}
+                />
+                <DatePickerField
+                  label={t("stats-end-date")}
+                  onChangeByValue={(value) => setEndDate?.(value)}
+                />
+              </div>
+            )}
+
+            <SelectMenu
+              id="period-select"
+              options={[
+                { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
+                { value: DAILY_PERIOD, label: t("stats-period-daily") },
+                ...(showCustomTimePeriodSelector
+                  ? [{ value: CUSTOM_PERIOD, label: t("stats-period-custom") }]
+                  : []),
+              ]}
+              value={period}
+              onChange={(e) => setPeriod(e.currentTarget.value as Period)}
+              className={css`
+                margin-bottom: 0;
+                min-width: 120px;
+              `}
+              showDefaultOption={false}
+            />
+          </div>
         )}
       </StatsHeader>
       <InstructionBox>{instructionText}</InstructionBox>

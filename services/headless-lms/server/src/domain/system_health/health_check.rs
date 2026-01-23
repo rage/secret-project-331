@@ -46,16 +46,16 @@ pub fn is_recent_event(event: &EventInfo) -> bool {
         }
     };
 
-    if let Some(ts) = &event.last_timestamp {
-        if check_timestamp(ts) {
-            return true;
-        }
+    if let Some(ts) = &event.last_timestamp
+        && check_timestamp(ts)
+    {
+        return true;
     }
 
-    if let Some(ts) = &event.first_timestamp {
-        if check_timestamp(ts) {
-            return true;
-        }
+    if let Some(ts) = &event.first_timestamp
+        && check_timestamp(ts)
+    {
+        return true;
     }
 
     false

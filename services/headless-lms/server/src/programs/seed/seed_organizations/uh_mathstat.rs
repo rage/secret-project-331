@@ -20,7 +20,7 @@ use crate::{
     programs::seed::{
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
-            seed_course_with_peer_review::seed_peer_review_course,
+            seed_course_with_peer_review::seed_peer_review_course, seed_lock_chapter_course,
             seed_peer_review_course_without_submissions, seed_sample_course,
             seed_switching_course_instances_course,
         },
@@ -88,7 +88,7 @@ pub async fn seed_organization_uh_mathstat(
         name: "Introduction to Statistics".to_string(),
         slug: "introduction-to-statistics".to_string(),
         organization_id: uh_mathstat_id,
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "Introduces you to the wonderful world of statistics!".to_string(),
@@ -139,7 +139,7 @@ pub async fn seed_organization_uh_mathstat(
         name: "Introduction to Drafts".to_string(),
         slug: "introduction-to-drafts".to_string(),
         organization_id: uh_mathstat_id,
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "Just a draft.".to_string(),
@@ -176,7 +176,7 @@ pub async fn seed_organization_uh_mathstat(
             name: "Joinable by code only".to_string(),
             slug: "joinable-by-code-only".to_string(),
             organization_id: uh_mathstat_id,
-            language_code: "en-US".to_string(),
+            language_code: "en".to_string(),
             teacher_in_charge_name: "admin".to_string(),
             teacher_in_charge_email: "admin@example.com".to_string(),
             description: "Just a draft.".to_string(),
@@ -233,7 +233,7 @@ pub async fn seed_organization_uh_mathstat(
             name: "Johdatus sitaatioihin".to_string(),
             slug: "johdatus-sitaatioihin".to_string(),
             organization_id: uh_mathstat_id,
-            language_code: "fi-FI".to_string(),
+            language_code: "fi".to_string(),
             teacher_in_charge_name: "admin".to_string(),
             teacher_in_charge_email: "admin@example.com".to_string(),
             description: "Just a draft.".to_string(),
@@ -443,6 +443,14 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("f1a2b3c4-d5e6-7890-abcd-ef1234567890")?,
         "Accessibility course",
         "accessibility-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let _lock_chapter_course_id = seed_lock_chapter_course(
+        Uuid::parse_str("a1b2c3d4-e5f6-7890-abcd-ef1234567890")?,
+        "Lock Chapter Test Course",
+        "lock-chapter-test-course",
         uh_data.clone(),
     )
     .await?;

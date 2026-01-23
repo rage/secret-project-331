@@ -1,7 +1,11 @@
 pub mod seed_accessibility_course;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
+pub mod seed_lock_chapter_course;
+pub use seed_lock_chapter_course::seed_lock_chapter_course;
 pub mod seed_course_with_peer_review;
+pub mod seed_graded;
+pub use seed_graded::seed_graded_course;
 pub mod seed_glossary;
 pub mod seed_switching_course_instances_course;
 pub use seed_switching_course_instances_course::seed_switching_course_instances_course;
@@ -94,7 +98,7 @@ pub async fn seed_sample_course(
         name: course_name.to_string(),
         organization_id: org,
         slug: course_slug.to_string(),
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "Sample course.".to_string(),
@@ -2015,7 +2019,7 @@ pub async fn seed_cs_course_material(
         name: "Introduction to Course Material".to_string(),
         organization_id: org,
         slug: "introduction-to-course-material".to_string(),
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "The definitive introduction to course material.".to_string(),
@@ -2764,7 +2768,7 @@ pub async fn seed_peer_review_course_without_submissions(
         name: course_name.to_string(),
         organization_id: org,
         slug: course_slug.to_string(),
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "Sample course.".to_string(),

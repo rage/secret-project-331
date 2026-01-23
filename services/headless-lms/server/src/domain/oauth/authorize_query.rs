@@ -148,6 +148,8 @@ mod tests {
             nonce: None,
             code_challenge: None,
             code_challenge_method: None,
+            prompt: None,
+            request: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -169,6 +171,8 @@ mod tests {
             nonce: None,
             code_challenge: None,
             code_challenge_method: None,
+            prompt: None,
+            request: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -191,6 +195,8 @@ mod tests {
             nonce: None,
             code_challenge: None,
             code_challenge_method: None,
+            prompt: None,
+            request: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -224,6 +230,8 @@ mod tests {
             nonce: None,
             code_challenge: None,
             code_challenge_method: None,
+            prompt: None,
+            request: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -245,6 +253,8 @@ mod tests {
             nonce: Some("n".into()),
             code_challenge: Some("abcDEF123-_".into()),
             code_challenge_method: Some("S256".into()),
+            prompt: None,
+            request: None,
             _extra: Default::default(),
         };
         let p = q.validate().expect("validate should pass");

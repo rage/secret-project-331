@@ -8,6 +8,7 @@ use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use anyhow::Result;
 use headless_lms_models::roles::UserRole;
+use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::json;
 use tracing::info;
 use uuid::Uuid;
@@ -123,6 +124,31 @@ pub async fn seed_accessibility_course(
                                 })),
                                 vec![],
                             )),
+                    )
+                    .page(
+                        PageBuilder::new("/chapter-1/flip-card", "Flip Card").block(
+                            GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                                "moocfi/flip-card",
+                                attributes! {
+                                    "size": "m"
+                                },
+                                vec![
+                                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                                        "moocfi/front-card",
+                                        attributes! {},
+                                        vec![GutenbergBlock::paragraph("Front side content")],
+                                    )
+                                    .with_id(cx.v5(b"f1a2b3c4-d5e6-7890-1234-567890abcdef")),
+                                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                                        "moocfi/back-card",
+                                        attributes! {},
+                                        vec![GutenbergBlock::paragraph("Back side content")],
+                                    )
+                                    .with_id(cx.v5(b"a1b2c3d4-e5f6-7890-abcd-ef1234567890")),
+                                ],
+                            )
+                            .with_id(cx.v5(b"12345678-1234-5678-9012-123456789abc")),
+                        ),
                     ),
             ),
         );

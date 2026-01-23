@@ -2,6 +2,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -125,12 +126,12 @@ test("Grade exams manually", async ({}) => {
   await teacherPage.locator("#Justification").fill("Ok")
   await teacherPage.getByLabel("Score", { exact: true }).fill("1")
   await teacherPage.getByRole("button", { name: "Save and next" }).click()
-  await teacherPage.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(teacherPage)
 
   await teacherPage.locator("#Justification").fill("Good")
   await teacherPage.getByLabel("Score", { exact: true }).fill("0.5")
   await teacherPage.getByRole("button", { name: "Submit" }).click()
-  await teacherPage.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(teacherPage)
 
   // Check both submissions are graded
   await teacherPage.getByRole("link", { name: "Submissions" }).click()
@@ -168,7 +169,7 @@ test("Grade exams manually", async ({}) => {
   // Publish grading results
   await teacherPage.getByRole("button", { name: "Publish grading results" }).click()
   await respondToConfirmDialog(teacherPage, true)
-  await teacherPage.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(teacherPage)
 
   await expect(
     teacherPage.getByRole("row", { name: "Grade Question 1 Graded 2 2 0" }),

@@ -14,6 +14,8 @@ pub struct AuthorizeQuery {
     pub code_challenge: Option<String>,
     pub code_challenge_method: Option<String>,
 
+    pub prompt: Option<String>,
+
     // OAuth2.0 spec requires that auth does not fail when there are unknown parameters present,
     // see RFC 6749 3.1
     #[serde(flatten)]
@@ -30,6 +32,7 @@ pub struct AuthorizeParams {
     pub nonce: Option<String>,
     pub code_challenge: Option<String>,
     pub code_challenge_method: Option<String>,
+    pub prompt: Option<String>,
 }
 
 // We need to make sure we don't return errors directly, instead we need to return
@@ -102,6 +105,7 @@ impl OAuthValidate for AuthorizeQuery {
             nonce: self.nonce.clone(),
             code_challenge: self.code_challenge.clone(),
             code_challenge_method: self.code_challenge_method.clone(),
+            prompt: self.prompt.clone(),
         })
     }
 }

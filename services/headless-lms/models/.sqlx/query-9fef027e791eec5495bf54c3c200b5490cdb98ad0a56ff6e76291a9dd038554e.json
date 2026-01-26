@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = true\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\n",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    suggest_next_messages,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\nFROM chatbot_configurations\nWHERE id = $1\nAND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -130,6 +130,11 @@
       },
       {
         "ordinal": 25,
+        "name": "suggest_next_messages",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 26,
         "name": "verbosity: VerbosityLevel",
         "type_info": {
           "Custom": {
@@ -145,7 +150,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 27,
         "name": "reasoning_effort: ReasoningEffortLevel",
         "type_info": {
           "Custom": {
@@ -194,8 +199,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "2962e8e524043bed872eabbcbf43cba1d6a22807842a064aa19d3e3004027a97"
+  "hash": "9fef027e791eec5495bf54c3c200b5490cdb98ad0a56ff6e76291a9dd038554e"
 }

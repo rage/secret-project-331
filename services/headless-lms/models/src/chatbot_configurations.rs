@@ -51,6 +51,7 @@ pub struct ChatbotConfiguration {
     pub use_semantic_reranking: bool,
     pub use_tools: bool,
     pub default_chatbot: bool,
+    pub suggest_next_messages: bool,
 }
 
 impl Default for ChatbotConfiguration {
@@ -83,6 +84,7 @@ impl Default for ChatbotConfiguration {
             use_semantic_reranking: false,
             use_tools: false,
             default_chatbot: false,
+            suggest_next_messages: false,
         }
     }
 }
@@ -114,6 +116,7 @@ pub struct NewChatbotConf {
     pub use_tools: bool,
     pub default_chatbot: bool,
     pub chatbotconf_id: Option<Uuid>,
+    pub suggest_next_messages: bool,
 }
 
 impl Default for NewChatbotConf {
@@ -144,6 +147,7 @@ impl Default for NewChatbotConf {
             use_tools: chatbot_conf.use_tools,
             default_chatbot: chatbot_conf.default_chatbot,
             chatbotconf_id: None,
+            suggest_next_messages: chatbot_conf.suggest_next_messages,
         }
     }
 }
@@ -178,6 +182,7 @@ SELECT
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 FROM chatbot_configurations
@@ -223,9 +228,10 @@ INSERT INTO chatbot_configurations (
     use_azure_search,
     use_tools,
     maintain_azure_search_index,
-    default_chatbot
+    default_chatbot,
+    suggest_next_messages
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
 RETURNING
     id,
     created_at,
@@ -252,6 +258,7 @@ RETURNING
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
         "#,
@@ -277,7 +284,8 @@ RETURNING
         input.use_azure_search,
         input.use_tools,
         maintain_azure_search_index,
-        input.default_chatbot
+        input.default_chatbot,
+        input.suggest_next_messages
     )
     .fetch_one(conn)
     .await?;
@@ -315,8 +323,9 @@ SET
     max_completion_tokens = $19,
     verbosity = $20,
     reasoning_effort = $21,
-    use_tools = $22
-WHERE id = $23
+    use_tools = $22,
+    suggest_next_messages = $23
+WHERE id = $24
 RETURNING
     id,
     created_at,
@@ -342,6 +351,7 @@ RETURNING
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
     use_tools
@@ -368,6 +378,7 @@ RETURNING
         input.verbosity as VerbosityLevel,
         input.reasoning_effort as ReasoningEffortLevel,
         input.use_tools,
+        input.suggest_next_messages,
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -423,6 +434,7 @@ SELECT
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 FROM chatbot_configurations
@@ -469,6 +481,7 @@ SELECT
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 FROM chatbot_configurations
@@ -516,9 +529,9 @@ SELECT
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
-
 FROM chatbot_configurations
 WHERE maintain_azure_search_index = true
 AND deleted_at IS NULL
@@ -584,6 +597,7 @@ RETURNING
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
 "#,

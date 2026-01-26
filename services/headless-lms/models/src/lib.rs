@@ -15,6 +15,7 @@ pub mod chatbot_conversation_message_tool_calls;
 pub mod chatbot_conversation_message_tool_outputs;
 pub mod chatbot_conversation_messages;
 pub mod chatbot_conversation_messages_citations;
+pub mod chatbot_conversation_suggested_messages;
 pub mod chatbot_conversations;
 pub mod chatbot_page_sync_statuses;
 pub mod code_giveaway_codes;

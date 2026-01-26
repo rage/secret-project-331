@@ -2,7 +2,8 @@ use futures::future::OptionFuture;
 
 use crate::{
     chatbot_conversation_messages::ChatbotConversationMessage,
-    chatbot_conversation_messages_citations::ChatbotConversationMessageCitation, prelude::*,
+    chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
+    chatbot_conversation_suggested_messages::ChatbotConversationSuggestedMessage, prelude::*,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -26,6 +27,7 @@ pub struct ChatbotConversationInfo {
     pub current_conversation_message_citations: Option<Vec<ChatbotConversationMessageCitation>>,
     pub chatbot_name: String,
     pub hide_citations: bool,
+    pub suggested_messages: Vec<ChatbotConversationSuggestedMessage>,
 }
 
 pub async fn insert(
@@ -84,6 +86,7 @@ pub async fn get_current_conversation_info(
         get_latest_conversation_for_user(tx, user_id, chatbot_configuration_id)
             .await
             .optional()?;
+    // the messages are sorted by response_order_number
     let current_conversation_messages = OptionFuture::from(
         current_conversation
             .clone()
@@ -99,6 +102,36 @@ pub async fn get_current_conversation_info(
         .await
         .transpose()?;
 
+    let mut suggested_messages = if let Some(ccm) = &current_conversation_messages
+        && let Some(last_ccm) = ccm.last()
+    {
+        crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
+            tx,
+            last_ccm.id.to_owned(),
+        )
+        .await?
+    } else {
+        Vec::new()
+    };
+
+    suggested_messages = if let Some(cc) = &current_conversation
+        && suggested_messages.is_empty()
+        && chatbot_configuration.default_chatbot
+    {
+        // suggest_next_messages
+        // generate suggested
+        let suggested_messages = Vec::from([
+            "What's up?".to_string(),
+            "How can I pass this course?".to_string(),
+            "When can I get my certificate?.".to_string(),
+        ]);
+        // insert into db and return here
+        crate::chatbot_conversation_suggested_messages::insert_batch(tx, &cc.id, suggested_messages)
+            .await?
+    } else {
+        suggested_messages
+    };
+
     Ok(ChatbotConversationInfo {
         current_conversation,
         current_conversation_messages,
@@ -106,5 +139,6 @@ pub async fn get_current_conversation_info(
         // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         chatbot_name: chatbot_configuration.chatbot_name,
         hide_citations: chatbot_configuration.hide_citations,
+        suggested_messages,
     })
 }

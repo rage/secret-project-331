@@ -150,8 +150,7 @@ argon2 = "0.5.3"
 p256 = { version = "0.13", features = ["pkcs8"] }
 pkcs8 = "0.10"
 # Dpop verifying
-dpop-verifier = { version = "4.4.0", features = ["actix-web"]}
-# Easy-to-use secret management library.
+dpop-verifier = { version = "4.4.0", features = ["actix-web"] }
 # Kubernetes client and async controller runtime
 kube = { version = "2.0.1", features = ["runtime", "derive", "client"] }
 # Bindings for the Kubernetes client API

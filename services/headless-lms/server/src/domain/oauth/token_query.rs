@@ -44,7 +44,6 @@ impl OAuthValidate for TokenQuery {
         }
 
         // Grant-specific required params
-
         let grant = match self.grant.clone() {
             Some(grant @ TokenGrant::AuthorizationCode { .. }) => {
                 if let TokenGrant::AuthorizationCode {

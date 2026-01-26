@@ -130,7 +130,7 @@ pub async fn authorize(
 
     if prompt.login {
         return Err(oauth_error(
-            "login_required",
+            "inalid_request",
             "prompt=login is not supported",
             Some(&query.redirect_uri),
             query.state.as_deref(),
@@ -139,7 +139,7 @@ pub async fn authorize(
 
     if prompt.select_account {
         return Err(oauth_error(
-            "account_selection_required",
+            "inalid_request",
             "prompt=select_account is not supported",
             Some(&query.redirect_uri),
             query.state.as_deref(),

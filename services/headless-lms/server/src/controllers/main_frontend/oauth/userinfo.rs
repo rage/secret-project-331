@@ -140,7 +140,7 @@ pub async fn user_info(
             let presented_jkt = verify_dpop_from_actix(
                 &mut conn,
                 &req,
-                "GET",
+                req.method().as_str(),
                 &app_conf.oauth_server_configuration.dpop_nonce_key,
                 Some(raw_token),
             )

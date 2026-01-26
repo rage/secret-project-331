@@ -354,6 +354,25 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
           margin: 0 1rem;
         `}
       >
+        {currentConversationInfo.data.suggested_messages?.map((m) => (
+          <div
+            key={m.id}
+            className={css`
+              background: pink;
+            `}
+          >
+            {m.message}
+          </div>
+        ))}
+      </div>
+      <div
+        className={css`
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          margin: 0 1rem;
+        `}
+      >
         <div
           className={css`
             flex-grow: 1;

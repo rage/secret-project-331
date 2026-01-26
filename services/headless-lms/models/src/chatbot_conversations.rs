@@ -27,7 +27,7 @@ pub struct ChatbotConversationInfo {
     pub current_conversation_message_citations: Option<Vec<ChatbotConversationMessageCitation>>,
     pub chatbot_name: String,
     pub hide_citations: bool,
-    pub suggested_messages: Vec<ChatbotConversationSuggestedMessage>,
+    pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
 }
 
 pub async fn insert(
@@ -102,43 +102,40 @@ pub async fn get_current_conversation_info(
         .await
         .transpose()?;
 
-    let mut suggested_messages = if let Some(ccm) = &current_conversation_messages
+    let suggested_messages = if chatbot_configuration.suggest_next_messages
+        && let Some(ccm) = &current_conversation_messages
         && let Some(last_ccm) = ccm.last()
     {
-        crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
-            tx,
-            last_ccm.id.to_owned(),
-        )
-        .await?
+        let suggested_messages2 =
+            crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
+                tx,
+                last_ccm.id.to_owned(),
+            )
+            .await?;
+        if !suggested_messages2.is_empty() {
+            Some(suggested_messages2)
+        } else {
+            // generate suggested messages
+            let sm = Vec::from([
+                "What's up?".to_string(),
+                "How can I pass this course?".to_string(),
+                "When can I get my certificate?.".to_string(),
+            ]);
+            crate::chatbot_conversation_suggested_messages::insert_batch(tx, &last_ccm.id, sm)
+                .await
+                .optional()?
+        }
     } else {
-        Vec::new()
-    };
-
-    suggested_messages = if let Some(cc) = &current_conversation
-        && suggested_messages.is_empty()
-        && chatbot_configuration.default_chatbot
-    {
-        // suggest_next_messages
-        // generate suggested
-        let suggested_messages = Vec::from([
-            "What's up?".to_string(),
-            "How can I pass this course?".to_string(),
-            "When can I get my certificate?.".to_string(),
-        ]);
-        // insert into db and return here
-        crate::chatbot_conversation_suggested_messages::insert_batch(tx, &cc.id, suggested_messages)
-            .await?
-    } else {
-        suggested_messages
+        None
     };
 
     Ok(ChatbotConversationInfo {
         current_conversation,
         current_conversation_messages,
         current_conversation_message_citations,
+        suggested_messages,
         // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         chatbot_name: chatbot_configuration.chatbot_name,
         hide_citations: chatbot_configuration.hide_citations,
-        suggested_messages,
     })
 }

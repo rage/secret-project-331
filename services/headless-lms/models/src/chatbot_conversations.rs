@@ -106,25 +106,12 @@ pub async fn get_current_conversation_info(
         && let Some(ccm) = &current_conversation_messages
         && let Some(last_ccm) = ccm.last()
     {
-        let suggested_messages2 =
-            crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
-                tx,
-                last_ccm.id.to_owned(),
-            )
-            .await?;
-        if !suggested_messages2.is_empty() {
-            Some(suggested_messages2)
-        } else {
-            // generate suggested messages
-            let sm = Vec::from([
-                "What's up?".to_string(),
-                "How can I pass this course?".to_string(),
-                "When can I get my certificate?.".to_string(),
-            ]);
-            crate::chatbot_conversation_suggested_messages::insert_batch(tx, &last_ccm.id, sm)
-                .await
-                .optional()?
-        }
+        crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
+            tx,
+            last_ccm.id.to_owned(),
+        )
+        .await
+        .optional()?
     } else {
         None
     };

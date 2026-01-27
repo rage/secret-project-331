@@ -165,6 +165,31 @@ async fn current_conversation_info(
     )
     .await?;
 
+    if chatbot_configuration.suggest_next_messages
+        && let Some(msgs) = &res.suggested_messages // todo when is None and when is empty Vec??
+        && msgs.is_empty()
+        && let Some(ccm) = &res.current_conversation_messages
+        && let Some(last_ccm) = ccm.last()
+    {
+        // generate suggested messages
+        let sm = headless_lms_chatbot::message_suggestion::generate_suggested_messages().await?;
+
+        headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(
+            &mut conn,
+            &last_ccm.id,
+            sm,
+        )
+        .await?;
+
+        let res = chatbot_conversations::get_current_conversation_info(
+            &mut conn,
+            user.id,
+            chatbot_configuration.id,
+        )
+        .await?;
+        return token.authorized_ok(web::Json(res));
+    }
+
     token.authorized_ok(web::Json(res))
 }
 

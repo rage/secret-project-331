@@ -10,6 +10,7 @@ pub mod chatbot_error;
 pub mod chatbot_tools;
 pub mod content_cleaner;
 pub mod llm_utils;
+pub mod message_suggestion;
 pub mod search_filter;
 
 pub mod prelude;

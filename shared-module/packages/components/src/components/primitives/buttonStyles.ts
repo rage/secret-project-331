@@ -57,6 +57,8 @@ export const rootBaseCss = css`
   cursor: pointer;
   user-select: none;
 
+  transition: var(--btn-transition);
+
   outline: none;
   &:focus-visible {
     box-shadow:
@@ -72,6 +74,7 @@ export const rootBaseCss = css`
   &:disabled {
     opacity: var(--btn-disabled-opacity);
     cursor: default;
+    transition: none;
   }
 
   /* Prevent pointer activation for disabled links (still keyboard-focusable via tabIndex). */
@@ -86,7 +89,8 @@ export const rootBaseCss = css`
 
   /* Pressed state (hook-driven) */
   &[data-pressed="true"] {
-    transform: translateY(var(--btn-pressed-offset));
+    transform: translateY(var(--btn-pressed-offset)) scale(0.98);
+    transition: var(--btn-press-transition);
   }
 
   /* Subtle loading hint */
@@ -158,12 +162,27 @@ const primaryCss = css`
   color: var(--btn-primary-fg);
   border-color: var(--btn-primary-border);
 
-  &:hover {
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
     background: var(--btn-primary-bg-hover);
+    color: var(--btn-primary-fg-hover);
+    border-color: var(--btn-primary-border-hover);
+    box-shadow:
+      var(--btn-primary-shadow-hover),
+      inset 0 0 0 var(--btn-primary-outline-width) var(--btn-primary-bg);
+  }
+
+  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-primary-bg-hover);
+    color: var(--btn-primary-fg-hover);
+    border-color: var(--btn-primary-border-hover);
+    box-shadow:
+      var(--btn-primary-shadow-hover),
+      inset 0 0 0 var(--btn-primary-outline-width) var(--btn-primary-bg);
   }
 
   &[data-pressed="true"] {
     background: var(--btn-primary-bg-pressed);
+    box-shadow: var(--btn-pressed-shadow);
   }
 `
 
@@ -172,12 +191,27 @@ const secondaryCss = css`
   color: var(--btn-secondary-fg);
   border-color: var(--btn-secondary-border);
 
-  &:hover {
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
     background: var(--btn-secondary-bg-hover);
+    color: var(--btn-secondary-fg-hover);
+    border-color: var(--btn-secondary-border-hover);
+    box-shadow:
+      var(--btn-secondary-shadow-hover),
+      inset 0 0 0 var(--btn-secondary-outline-width) var(--btn-secondary-bg);
+  }
+
+  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-secondary-bg-hover);
+    color: var(--btn-secondary-fg-hover);
+    border-color: var(--btn-secondary-border-hover);
+    box-shadow:
+      var(--btn-secondary-shadow-hover),
+      inset 0 0 0 var(--btn-secondary-outline-width) var(--btn-secondary-bg);
   }
 
   &[data-pressed="true"] {
     background: var(--btn-secondary-bg-pressed);
+    box-shadow: var(--btn-pressed-shadow);
   }
 `
 
@@ -186,12 +220,27 @@ const tertiaryCss = css`
   color: var(--btn-tertiary-fg);
   border-color: var(--btn-tertiary-border);
 
-  &:hover {
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
     background: var(--btn-tertiary-bg-hover);
+    color: var(--btn-tertiary-fg-hover);
+    border-color: var(--btn-tertiary-border-hover);
+    box-shadow:
+      var(--btn-tertiary-shadow-hover),
+      inset 0 0 0 var(--btn-tertiary-outline-width) var(--btn-tertiary-bg-hover);
+  }
+
+  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-tertiary-bg-hover);
+    color: var(--btn-tertiary-fg-hover);
+    border-color: var(--btn-tertiary-border-hover);
+    box-shadow:
+      var(--btn-tertiary-shadow-hover),
+      inset 0 0 0 var(--btn-tertiary-outline-width) var(--btn-tertiary-bg-hover);
   }
 
   &[data-pressed="true"] {
     background: var(--btn-tertiary-bg-pressed);
+    box-shadow: var(--btn-pressed-shadow);
   }
 `
 

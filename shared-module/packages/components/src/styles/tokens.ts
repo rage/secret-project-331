@@ -48,7 +48,12 @@ export const tokensGlobal = injectGlobal`
     --btn-loading-opacity: 0.8;
 
     /* pressed */
-    --btn-pressed-offset: 0.5px;
+    --btn-pressed-offset: 2px;
+    --btn-pressed-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    /* transitions */
+    --btn-transition: all 0.2s;
+    --btn-press-transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     /* palette */
     --color-blue-25: #fbfcfd;
@@ -172,22 +177,34 @@ export const tokensGlobal = injectGlobal`
     /* primary */
     --btn-primary-bg: var(--color-green-600);
     --btn-primary-fg: var(--color-primary-100);
-    --btn-primary-border: transparent;
-    --btn-primary-bg-hover: var(--color-green-700);
+    --btn-primary-border: var(--color-green-600);
+    --btn-primary-bg-hover: var(--color-primary-100);
+    --btn-primary-fg-hover: var(--color-green-700);
+    --btn-primary-border-hover: var(--color-primary-100);
     --btn-primary-bg-pressed: var(--color-green-800);
+    --btn-primary-shadow-hover: 0 4px 12px rgba(31, 105, 100, 0.15);
+    --btn-primary-outline-width: 3px;
 
     /* secondary */
     --btn-secondary-bg: var(--color-clear-200);
     --btn-secondary-fg: var(--color-gray-700);
-    --btn-secondary-border: transparent;
-    --btn-secondary-bg-hover: var(--color-clear-300);
+    --btn-secondary-border: var(--color-clear-200);
+    --btn-secondary-bg-hover: var(--color-gray-700);
+    --btn-secondary-fg-hover: var(--color-clear-50);
+    --btn-secondary-border-hover: var(--color-gray-700);
     --btn-secondary-bg-pressed: var(--color-clear-400);
+    --btn-secondary-shadow-hover: 0 4px 12px rgba(26, 35, 51, 0.15);
+    --btn-secondary-outline-width: 3px;
 
     /* tertiary */
     --btn-tertiary-bg: transparent;
     --btn-tertiary-fg: var(--color-gray-700);
     --btn-tertiary-border: var(--color-clear-400);
-    --btn-tertiary-bg-hover: var(--color-clear-200);
+    --btn-tertiary-bg-hover: var(--color-gray-700);
+    --btn-tertiary-fg-hover: var(--color-primary-100);
+    --btn-tertiary-border-hover: var(--color-gray-700);
     --btn-tertiary-bg-pressed: var(--color-clear-300);
+    --btn-tertiary-shadow-hover: 0 4px 12px rgba(26, 35, 51, 0.15);
+    --btn-tertiary-outline-width: 3px;
   }
 `

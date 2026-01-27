@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react"
+import { ArrowRight, Star } from "@vectopus/atlas-icons-react"
 
 import { Button } from "../../src/shared-module/components"
 
@@ -89,10 +90,10 @@ export const Loading = {
 export const WithIcons = {
   render: () => (
     <div className={stackCss}>
-      <Button icon={<span aria-hidden="true">★</span>} iconPosition="start">
+      <Button icon={<Star aria-hidden="true" size={16} />} iconPosition="start">
         Starred
       </Button>
-      <Button icon={<span aria-hidden="true">→</span>} iconPosition="end">
+      <Button icon={<ArrowRight aria-hidden="true" size={16} />} iconPosition="end">
         Continue
       </Button>
     </div>

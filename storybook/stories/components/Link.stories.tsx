@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react"
+import { ArrowRight } from "@vectopus/atlas-icons-react"
 
 import { Link } from "../../src/shared-module/components"
 
@@ -58,6 +59,8 @@ export const StyledAsButton = {
     styledAsButton: true,
     variant: "primary",
     size: "md",
+    icon: <ArrowRight aria-hidden="true" size={16} />,
+    iconPosition: "start",
     children: "Open",
   },
 } satisfies StoryType

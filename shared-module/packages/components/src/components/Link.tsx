@@ -1,5 +1,6 @@
 "use client"
 
+import { cx } from "@emotion/css"
 import NextLink from "next/link"
 import React from "react"
 import { useLink, useObjectRef } from "react-aria"
@@ -11,6 +12,7 @@ import {
   type ButtonSize,
   type ButtonVariant,
   contentCss,
+  contentLoadingCss,
   type IconPosition,
   iconSlotCss,
   type PressHandlers,
@@ -165,7 +167,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       >
         {styledAsButtonResolved ? (
           <>
-            <span className={contentCss}>
+            <span className={cx(contentCss, isLoading ? contentLoadingCss : undefined)}>
               {resolvedIcon && resolvedIconPosition === "start" ? (
                 <span className={iconSlotCss}>{resolvedIcon}</span>
               ) : null}

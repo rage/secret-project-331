@@ -102,6 +102,10 @@ export const contentCss = css`
   gap: var(--control-gap);
 `
 
+export const contentLoadingCss = css`
+  opacity: 0;
+`
+
 export const iconSlotCss = css`
   display: inline-flex;
   align-items: center;

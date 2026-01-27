@@ -1,5 +1,6 @@
 "use client"
 
+import { cx } from "@emotion/css"
 import React from "react"
 import { useButton, useObjectRef } from "react-aria"
 import type { AriaButtonOptions } from "react-aria"
@@ -11,6 +12,7 @@ import {
   type ButtonSize,
   type ButtonVariant,
   contentCss,
+  contentLoadingCss,
   type IconPosition,
   iconSlotCss,
   type PressHandlers,
@@ -113,7 +115,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         type={props.type ?? "button"}
       >
-        <span className={contentCss}>
+        <span className={cx(contentCss, isLoading ? contentLoadingCss : undefined)}>
           {icon && iconPosition === "start" ? <span className={iconSlotCss}>{icon}</span> : null}
           <span id={labelledBy === labelId ? labelId : undefined}>{children}</span>
           {icon && iconPosition === "end" ? <span className={iconSlotCss}>{icon}</span> : null}

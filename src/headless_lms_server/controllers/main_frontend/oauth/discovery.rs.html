@@ -112,29 +112,33 @@
 <a href=#112 id=112 data-nosnippet>112</a>        <span class="string">"subject_types_supported"</span>:         [<span class="string">"public"</span>],
 <a href=#113 id=113 data-nosnippet>113</a>        <span class="string">"id_token_signing_alg_values_supported"</span>: [<span class="string">"RS256"</span>],
 <a href=#114 id=114 data-nosnippet>114</a>
-<a href=#115 id=115 data-nosnippet>115</a>        <span class="comment">// Token endpoint auth: public ("none") and confidential via client_secret_post
-<a href=#116 id=116 data-nosnippet>116</a>        </span><span class="string">"token_endpoint_auth_methods_supported"</span>: [<span class="string">"none"</span>,<span class="string">"client_secret_post"</span>],
-<a href=#117 id=117 data-nosnippet>117</a>
-<a href=#118 id=118 data-nosnippet>118</a>        <span class="comment">// PKCE (RFC 7636): server supports S256; "plain" discouraged and typically disabled
-<a href=#119 id=119 data-nosnippet>119</a>        </span><span class="string">"code_challenge_methods_supported"</span>: [<span class="string">"S256"</span>],
-<a href=#120 id=120 data-nosnippet>120</a>
-<a href=#121 id=121 data-nosnippet>121</a>        <span class="comment">// DPoP (RFC 9449) metadata
-<a href=#122 id=122 data-nosnippet>122</a>        </span><span class="string">"dpop_signing_alg_values_supported"</span>: [<span class="string">"ES256"</span>,<span class="string">"RS256"</span>],
-<a href=#123 id=123 data-nosnippet>123</a>
-<a href=#124 id=124 data-nosnippet>124</a>        <span class="comment">// Nice-to-have hints for clients (optional but common)
-<a href=#125 id=125 data-nosnippet>125</a>        </span><span class="string">"scopes_supported"</span>:                [<span class="string">"openid"</span>,<span class="string">"profile"</span>,<span class="string">"email"</span>,<span class="string">"offline_access"</span>],
-<a href=#126 id=126 data-nosnippet>126</a>        <span class="string">"claims_supported"</span>:                [<span class="string">"sub"</span>,<span class="string">"iss"</span>,<span class="string">"aud"</span>,<span class="string">"exp"</span>,<span class="string">"iat"</span>,<span class="string">"auth_time"</span>,<span class="string">"nonce"</span>,<span class="string">"email"</span>,<span class="string">"email_verified"</span>,<span class="string">"name"</span>,<span class="string">"given_name"</span>,<span class="string">"family_name"</span>],
-<a href=#127 id=127 data-nosnippet>127</a>        <span class="string">"response_modes_supported"</span>:        [<span class="string">"query"</span>],
-<a href=#128 id=128 data-nosnippet>128</a>        <span class="string">"userinfo_signing_alg_values_supported"</span>: [], <span class="comment">// we return plain JSON at /userinfo
-<a href=#129 id=129 data-nosnippet>129</a>    </span>});
-<a href=#130 id=130 data-nosnippet>130</a>
-<a href=#131 id=131 data-nosnippet>131</a>    server_token.authorized_ok(HttpResponse::Ok().json(config))
-<a href=#132 id=132 data-nosnippet>132</a>}
-<a href=#133 id=133 data-nosnippet>133</a>
-<a href=#134 id=134 data-nosnippet>134</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
-<a href=#135 id=135 data-nosnippet>135</a>    cfg.route(
-<a href=#136 id=136 data-nosnippet>136</a>        <span class="string">"/.well-known/openid-configuration"</span>,
-<a href=#137 id=137 data-nosnippet>137</a>        web::get().to(well_known_openid),
-<a href=#138 id=138 data-nosnippet>138</a>    )
-<a href=#139 id=139 data-nosnippet>139</a>    .route(<span class="string">"/jwks.json"</span>, web::get().to(jwks));
-<a href=#140 id=140 data-nosnippet>140</a>}</code></pre></div></section></main></body></html>
+<a href=#115 id=115 data-nosnippet>115</a>        <span class="string">"request_parameter_supported"</span>: <span class="bool-val">false</span>,
+<a href=#116 id=116 data-nosnippet>116</a>        <span class="string">"request_uri_parameter_supported"</span>: <span class="bool-val">false</span>,
+<a href=#117 id=117 data-nosnippet>117</a>        <span class="string">"request_object_signing_alg_values_supported"</span>: [<span class="string">"RS256"</span>],
+<a href=#118 id=118 data-nosnippet>118</a>
+<a href=#119 id=119 data-nosnippet>119</a>        <span class="comment">// Token endpoint auth: public ("none") and confidential via client_secret_post
+<a href=#120 id=120 data-nosnippet>120</a>        </span><span class="string">"token_endpoint_auth_methods_supported"</span>: [<span class="string">"none"</span>,<span class="string">"client_secret_post"</span>],
+<a href=#121 id=121 data-nosnippet>121</a>
+<a href=#122 id=122 data-nosnippet>122</a>        <span class="comment">// PKCE (RFC 7636): server supports S256; "plain" discouraged and typically disabled
+<a href=#123 id=123 data-nosnippet>123</a>        </span><span class="string">"code_challenge_methods_supported"</span>: [<span class="string">"S256"</span>],
+<a href=#124 id=124 data-nosnippet>124</a>
+<a href=#125 id=125 data-nosnippet>125</a>        <span class="comment">// DPoP (RFC 9449) metadata
+<a href=#126 id=126 data-nosnippet>126</a>        </span><span class="string">"dpop_signing_alg_values_supported"</span>: [<span class="string">"ES256"</span>,<span class="string">"RS256"</span>],
+<a href=#127 id=127 data-nosnippet>127</a>
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="comment">// Nice-to-have hints for clients (optional but common)
+<a href=#129 id=129 data-nosnippet>129</a>        </span><span class="string">"scopes_supported"</span>:                [<span class="string">"openid"</span>,<span class="string">"profile"</span>,<span class="string">"email"</span>,<span class="string">"offline_access"</span>],
+<a href=#130 id=130 data-nosnippet>130</a>        <span class="string">"claims_supported"</span>:                [<span class="string">"sub"</span>,<span class="string">"iss"</span>,<span class="string">"aud"</span>,<span class="string">"exp"</span>,<span class="string">"iat"</span>,<span class="string">"auth_time"</span>,<span class="string">"nonce"</span>,<span class="string">"email"</span>,<span class="string">"email_verified"</span>,<span class="string">"name"</span>,<span class="string">"given_name"</span>,<span class="string">"family_name"</span>],
+<a href=#131 id=131 data-nosnippet>131</a>        <span class="string">"response_modes_supported"</span>:        [<span class="string">"query"</span>],
+<a href=#132 id=132 data-nosnippet>132</a>        <span class="string">"userinfo_signing_alg_values_supported"</span>: [], <span class="comment">// we return plain JSON at /userinfo
+<a href=#133 id=133 data-nosnippet>133</a>    </span>});
+<a href=#134 id=134 data-nosnippet>134</a>
+<a href=#135 id=135 data-nosnippet>135</a>    server_token.authorized_ok(HttpResponse::Ok().json(config))
+<a href=#136 id=136 data-nosnippet>136</a>}
+<a href=#137 id=137 data-nosnippet>137</a>
+<a href=#138 id=138 data-nosnippet>138</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
+<a href=#139 id=139 data-nosnippet>139</a>    cfg.route(
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="string">"/.well-known/openid-configuration"</span>,
+<a href=#141 id=141 data-nosnippet>141</a>        web::get().to(well_known_openid),
+<a href=#142 id=142 data-nosnippet>142</a>    )
+<a href=#143 id=143 data-nosnippet>143</a>    .route(<span class="string">"/jwks.json"</span>, web::get().to(jwks));
+<a href=#144 id=144 data-nosnippet>144</a>}</code></pre></div></section></main></body></html>

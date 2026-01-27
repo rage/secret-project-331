@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/oauth/userinfo.rs`."><title>userinfo.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">headless_lms_server/controllers/main_frontend/oauth/</div>userinfo.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::domain::oauth::dpop::verify_dpop_from_actix;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span><span class="kw">crate</span>::domain::oauth::userinfo_response::UserInfoResponse;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
-<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>actix_web::{HttpResponse, web};
+<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>actix_web::{HttpResponse, guard, web};
 <a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>domain::error::{OAuthErrorCode, OAuthErrorData};
 <a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span>dpop_verifier::DpopError;
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>headless_lms_utils::ApplicationConfiguration;
@@ -140,7 +140,7 @@
 <a href=#140 id=140 data-nosnippet>140</a>            </span><span class="kw">let </span>presented_jkt = verify_dpop_from_actix(
 <a href=#141 id=141 data-nosnippet>141</a>                <span class="kw-2">&amp;mut </span>conn,
 <a href=#142 id=142 data-nosnippet>142</a>                <span class="kw-2">&amp;</span>req,
-<a href=#143 id=143 data-nosnippet>143</a>                <span class="string">"GET"</span>,
+<a href=#143 id=143 data-nosnippet>143</a>                req.method().as_str(),
 <a href=#144 id=144 data-nosnippet>144</a>                <span class="kw-2">&amp;</span>app_conf.oauth_server_configuration.dpop_nonce_key,
 <a href=#145 id=145 data-nosnippet>145</a>                <span class="prelude-val">Some</span>(raw_token),
 <a href=#146 id=146 data-nosnippet>146</a>            )
@@ -199,5 +199,10 @@
 <a href=#199 id=199 data-nosnippet>199</a>}
 <a href=#200 id=200 data-nosnippet>200</a>
 <a href=#201 id=201 data-nosnippet>201</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
-<a href=#202 id=202 data-nosnippet>202</a>    cfg.route(<span class="string">"/userinfo"</span>, web::get().to(user_info));
-<a href=#203 id=203 data-nosnippet>203</a>}</code></pre></div></section></main></body></html>
+<a href=#202 id=202 data-nosnippet>202</a>    cfg.route(
+<a href=#203 id=203 data-nosnippet>203</a>        <span class="string">"/userinfo"</span>,
+<a href=#204 id=204 data-nosnippet>204</a>        web::route()
+<a href=#205 id=205 data-nosnippet>205</a>            .guard(guard::Any(guard::Get()).or(guard::Post()))
+<a href=#206 id=206 data-nosnippet>206</a>            .to(user_info),
+<a href=#207 id=207 data-nosnippet>207</a>    );
+<a href=#208 id=208 data-nosnippet>208</a>}</code></pre></div></section></main></body></html>

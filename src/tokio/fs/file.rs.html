@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.48.0/src/fs/file.rs`."><title>file.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tokio/fs/</div>file.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Types for working with [`File`].
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.49.0/src/fs/file.rs`."><title>file.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tokio/fs/</div>file.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Types for working with [`File`].
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! [`File`]: File
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -917,75 +917,79 @@
 <a href=#917 id=917 data-nosnippet>917</a><span class="attr">#[cfg(unix)]
 <a href=#918 id=918 data-nosnippet>918</a></span><span class="kw">impl </span>std::os::unix::io::FromRawFd <span class="kw">for </span>File {
 <a href=#919 id=919 data-nosnippet>919</a>    <span class="kw">unsafe fn </span>from_raw_fd(fd: std::os::unix::io::RawFd) -&gt; <span class="self">Self </span>{
-<a href=#920 id=920 data-nosnippet>920</a>        StdFile::from_raw_fd(fd).into()
-<a href=#921 id=921 data-nosnippet>921</a>    }
-<a href=#922 id=922 data-nosnippet>922</a>}
-<a href=#923 id=923 data-nosnippet>923</a>
-<a href=#924 id=924 data-nosnippet>924</a><span class="macro">cfg_windows!</span> {
-<a href=#925 id=925 data-nosnippet>925</a>    <span class="kw">use </span><span class="kw">crate</span>::os::windows::io::{AsRawHandle, FromRawHandle, RawHandle, AsHandle, BorrowedHandle};
-<a href=#926 id=926 data-nosnippet>926</a>
-<a href=#927 id=927 data-nosnippet>927</a>    <span class="kw">impl </span>AsRawHandle <span class="kw">for </span>File {
-<a href=#928 id=928 data-nosnippet>928</a>        <span class="kw">fn </span>as_raw_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RawHandle {
-<a href=#929 id=929 data-nosnippet>929</a>            <span class="self">self</span>.std.as_raw_handle()
-<a href=#930 id=930 data-nosnippet>930</a>        }
-<a href=#931 id=931 data-nosnippet>931</a>    }
-<a href=#932 id=932 data-nosnippet>932</a>
-<a href=#933 id=933 data-nosnippet>933</a>    <span class="kw">impl </span>AsHandle <span class="kw">for </span>File {
-<a href=#934 id=934 data-nosnippet>934</a>        <span class="kw">fn </span>as_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BorrowedHandle&lt;<span class="lifetime">'_</span>&gt; {
-<a href=#935 id=935 data-nosnippet>935</a>            <span class="kw">unsafe </span>{
-<a href=#936 id=936 data-nosnippet>936</a>                BorrowedHandle::borrow_raw(
-<a href=#937 id=937 data-nosnippet>937</a>                    AsRawHandle::as_raw_handle(<span class="self">self</span>),
-<a href=#938 id=938 data-nosnippet>938</a>                )
-<a href=#939 id=939 data-nosnippet>939</a>            }
-<a href=#940 id=940 data-nosnippet>940</a>        }
-<a href=#941 id=941 data-nosnippet>941</a>    }
-<a href=#942 id=942 data-nosnippet>942</a>
-<a href=#943 id=943 data-nosnippet>943</a>    <span class="kw">impl </span>FromRawHandle <span class="kw">for </span>File {
-<a href=#944 id=944 data-nosnippet>944</a>        <span class="kw">unsafe fn </span>from_raw_handle(handle: RawHandle) -&gt; <span class="self">Self </span>{
-<a href=#945 id=945 data-nosnippet>945</a>            StdFile::from_raw_handle(handle).into()
-<a href=#946 id=946 data-nosnippet>946</a>        }
-<a href=#947 id=947 data-nosnippet>947</a>    }
-<a href=#948 id=948 data-nosnippet>948</a>}
-<a href=#949 id=949 data-nosnippet>949</a>
-<a href=#950 id=950 data-nosnippet>950</a><span class="kw">impl </span>Inner {
-<a href=#951 id=951 data-nosnippet>951</a>    <span class="kw">async fn </span>complete_inflight(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-<a href=#952 id=952 data-nosnippet>952</a>        <span class="kw">use </span>std::future::poll_fn;
+<a href=#920 id=920 data-nosnippet>920</a>        <span class="comment">// Safety: exactly the same safety contract as
+<a href=#921 id=921 data-nosnippet>921</a>        // `std::os::unix::io::FromRawFd::from_raw_fd`.
+<a href=#922 id=922 data-nosnippet>922</a>        </span><span class="kw">unsafe </span>{ StdFile::from_raw_fd(fd).into() }
+<a href=#923 id=923 data-nosnippet>923</a>    }
+<a href=#924 id=924 data-nosnippet>924</a>}
+<a href=#925 id=925 data-nosnippet>925</a>
+<a href=#926 id=926 data-nosnippet>926</a><span class="macro">cfg_windows!</span> {
+<a href=#927 id=927 data-nosnippet>927</a>    <span class="kw">use </span><span class="kw">crate</span>::os::windows::io::{AsRawHandle, FromRawHandle, RawHandle, AsHandle, BorrowedHandle};
+<a href=#928 id=928 data-nosnippet>928</a>
+<a href=#929 id=929 data-nosnippet>929</a>    <span class="kw">impl </span>AsRawHandle <span class="kw">for </span>File {
+<a href=#930 id=930 data-nosnippet>930</a>        <span class="kw">fn </span>as_raw_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RawHandle {
+<a href=#931 id=931 data-nosnippet>931</a>            <span class="self">self</span>.std.as_raw_handle()
+<a href=#932 id=932 data-nosnippet>932</a>        }
+<a href=#933 id=933 data-nosnippet>933</a>    }
+<a href=#934 id=934 data-nosnippet>934</a>
+<a href=#935 id=935 data-nosnippet>935</a>    <span class="kw">impl </span>AsHandle <span class="kw">for </span>File {
+<a href=#936 id=936 data-nosnippet>936</a>        <span class="kw">fn </span>as_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BorrowedHandle&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#937 id=937 data-nosnippet>937</a>            <span class="kw">unsafe </span>{
+<a href=#938 id=938 data-nosnippet>938</a>                BorrowedHandle::borrow_raw(
+<a href=#939 id=939 data-nosnippet>939</a>                    AsRawHandle::as_raw_handle(<span class="self">self</span>),
+<a href=#940 id=940 data-nosnippet>940</a>                )
+<a href=#941 id=941 data-nosnippet>941</a>            }
+<a href=#942 id=942 data-nosnippet>942</a>        }
+<a href=#943 id=943 data-nosnippet>943</a>    }
+<a href=#944 id=944 data-nosnippet>944</a>
+<a href=#945 id=945 data-nosnippet>945</a>    <span class="kw">impl </span>FromRawHandle <span class="kw">for </span>File {
+<a href=#946 id=946 data-nosnippet>946</a>        <span class="kw">unsafe fn </span>from_raw_handle(handle: RawHandle) -&gt; <span class="self">Self </span>{
+<a href=#947 id=947 data-nosnippet>947</a>            <span class="comment">// Safety: exactly the same safety contract as
+<a href=#948 id=948 data-nosnippet>948</a>            // `FromRawHandle::from_raw_handle`.
+<a href=#949 id=949 data-nosnippet>949</a>            </span><span class="kw">unsafe </span>{ StdFile::from_raw_handle(handle).into() }
+<a href=#950 id=950 data-nosnippet>950</a>        }
+<a href=#951 id=951 data-nosnippet>951</a>    }
+<a href=#952 id=952 data-nosnippet>952</a>}
 <a href=#953 id=953 data-nosnippet>953</a>
-<a href=#954 id=954 data-nosnippet>954</a>        poll_fn(|cx| <span class="self">self</span>.poll_complete_inflight(cx)).<span class="kw">await</span>;
-<a href=#955 id=955 data-nosnippet>955</a>    }
-<a href=#956 id=956 data-nosnippet>956</a>
-<a href=#957 id=957 data-nosnippet>957</a>    <span class="kw">fn </span>poll_complete_inflight(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;()&gt; {
-<a href=#958 id=958 data-nosnippet>958</a>        <span class="macro">ready!</span>(<span class="kw">crate</span>::trace::trace_leaf(cx));
-<a href=#959 id=959 data-nosnippet>959</a>        <span class="kw">match </span><span class="self">self</span>.poll_flush(cx) {
-<a href=#960 id=960 data-nosnippet>960</a>            Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; {
-<a href=#961 id=961 data-nosnippet>961</a>                <span class="self">self</span>.last_write_err = <span class="prelude-val">Some</span>(e.kind());
-<a href=#962 id=962 data-nosnippet>962</a>                Poll::Ready(())
-<a href=#963 id=963 data-nosnippet>963</a>            }
-<a href=#964 id=964 data-nosnippet>964</a>            Poll::Ready(<span class="prelude-val">Ok</span>(())) =&gt; Poll::Ready(()),
-<a href=#965 id=965 data-nosnippet>965</a>            Poll::Pending =&gt; Poll::Pending,
-<a href=#966 id=966 data-nosnippet>966</a>        }
-<a href=#967 id=967 data-nosnippet>967</a>    }
-<a href=#968 id=968 data-nosnippet>968</a>
-<a href=#969 id=969 data-nosnippet>969</a>    <span class="kw">fn </span>poll_flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
-<a href=#970 id=970 data-nosnippet>970</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(e) = <span class="self">self</span>.last_write_err.take() {
-<a href=#971 id=971 data-nosnippet>971</a>            <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(e.into()));
-<a href=#972 id=972 data-nosnippet>972</a>        }
-<a href=#973 id=973 data-nosnippet>973</a>
-<a href=#974 id=974 data-nosnippet>974</a>        <span class="kw">let </span>(op, buf) = <span class="kw">match </span><span class="self">self</span>.state {
-<a href=#975 id=975 data-nosnippet>975</a>            State::Idle(<span class="kw">_</span>) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(())),
-<a href=#976 id=976 data-nosnippet>976</a>            State::Busy(<span class="kw-2">ref mut </span>rx) =&gt; <span class="macro">ready!</span>(Pin::new(rx).poll(cx))<span class="question-mark">?</span>,
-<a href=#977 id=977 data-nosnippet>977</a>        };
-<a href=#978 id=978 data-nosnippet>978</a>
-<a href=#979 id=979 data-nosnippet>979</a>        <span class="comment">// The buffer is not used here
-<a href=#980 id=980 data-nosnippet>980</a>        </span><span class="self">self</span>.state = State::Idle(<span class="prelude-val">Some</span>(buf));
-<a href=#981 id=981 data-nosnippet>981</a>
-<a href=#982 id=982 data-nosnippet>982</a>        <span class="kw">match </span>op {
-<a href=#983 id=983 data-nosnippet>983</a>            Operation::Read(<span class="kw">_</span>) =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(())),
-<a href=#984 id=984 data-nosnippet>984</a>            Operation::Write(res) =&gt; Poll::Ready(res),
-<a href=#985 id=985 data-nosnippet>985</a>            Operation::Seek(<span class="kw">_</span>) =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(())),
-<a href=#986 id=986 data-nosnippet>986</a>        }
-<a href=#987 id=987 data-nosnippet>987</a>    }
-<a href=#988 id=988 data-nosnippet>988</a>}
-<a href=#989 id=989 data-nosnippet>989</a>
-<a href=#990 id=990 data-nosnippet>990</a><span class="attr">#[cfg(test)]
-<a href=#991 id=991 data-nosnippet>991</a></span><span class="kw">mod </span>tests;</code></pre></div></section></main></body></html>
+<a href=#954 id=954 data-nosnippet>954</a><span class="kw">impl </span>Inner {
+<a href=#955 id=955 data-nosnippet>955</a>    <span class="kw">async fn </span>complete_inflight(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+<a href=#956 id=956 data-nosnippet>956</a>        <span class="kw">use </span>std::future::poll_fn;
+<a href=#957 id=957 data-nosnippet>957</a>
+<a href=#958 id=958 data-nosnippet>958</a>        poll_fn(|cx| <span class="self">self</span>.poll_complete_inflight(cx)).<span class="kw">await</span>;
+<a href=#959 id=959 data-nosnippet>959</a>    }
+<a href=#960 id=960 data-nosnippet>960</a>
+<a href=#961 id=961 data-nosnippet>961</a>    <span class="kw">fn </span>poll_complete_inflight(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;()&gt; {
+<a href=#962 id=962 data-nosnippet>962</a>        <span class="macro">ready!</span>(<span class="kw">crate</span>::trace::trace_leaf(cx));
+<a href=#963 id=963 data-nosnippet>963</a>        <span class="kw">match </span><span class="self">self</span>.poll_flush(cx) {
+<a href=#964 id=964 data-nosnippet>964</a>            Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; {
+<a href=#965 id=965 data-nosnippet>965</a>                <span class="self">self</span>.last_write_err = <span class="prelude-val">Some</span>(e.kind());
+<a href=#966 id=966 data-nosnippet>966</a>                Poll::Ready(())
+<a href=#967 id=967 data-nosnippet>967</a>            }
+<a href=#968 id=968 data-nosnippet>968</a>            Poll::Ready(<span class="prelude-val">Ok</span>(())) =&gt; Poll::Ready(()),
+<a href=#969 id=969 data-nosnippet>969</a>            Poll::Pending =&gt; Poll::Pending,
+<a href=#970 id=970 data-nosnippet>970</a>        }
+<a href=#971 id=971 data-nosnippet>971</a>    }
+<a href=#972 id=972 data-nosnippet>972</a>
+<a href=#973 id=973 data-nosnippet>973</a>    <span class="kw">fn </span>poll_flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+<a href=#974 id=974 data-nosnippet>974</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(e) = <span class="self">self</span>.last_write_err.take() {
+<a href=#975 id=975 data-nosnippet>975</a>            <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(e.into()));
+<a href=#976 id=976 data-nosnippet>976</a>        }
+<a href=#977 id=977 data-nosnippet>977</a>
+<a href=#978 id=978 data-nosnippet>978</a>        <span class="kw">let </span>(op, buf) = <span class="kw">match </span><span class="self">self</span>.state {
+<a href=#979 id=979 data-nosnippet>979</a>            State::Idle(<span class="kw">_</span>) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(())),
+<a href=#980 id=980 data-nosnippet>980</a>            State::Busy(<span class="kw-2">ref mut </span>rx) =&gt; <span class="macro">ready!</span>(Pin::new(rx).poll(cx))<span class="question-mark">?</span>,
+<a href=#981 id=981 data-nosnippet>981</a>        };
+<a href=#982 id=982 data-nosnippet>982</a>
+<a href=#983 id=983 data-nosnippet>983</a>        <span class="comment">// The buffer is not used here
+<a href=#984 id=984 data-nosnippet>984</a>        </span><span class="self">self</span>.state = State::Idle(<span class="prelude-val">Some</span>(buf));
+<a href=#985 id=985 data-nosnippet>985</a>
+<a href=#986 id=986 data-nosnippet>986</a>        <span class="kw">match </span>op {
+<a href=#987 id=987 data-nosnippet>987</a>            Operation::Read(<span class="kw">_</span>) =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(())),
+<a href=#988 id=988 data-nosnippet>988</a>            Operation::Write(res) =&gt; Poll::Ready(res),
+<a href=#989 id=989 data-nosnippet>989</a>            Operation::Seek(<span class="kw">_</span>) =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(())),
+<a href=#990 id=990 data-nosnippet>990</a>        }
+<a href=#991 id=991 data-nosnippet>991</a>    }
+<a href=#992 id=992 data-nosnippet>992</a>}
+<a href=#993 id=993 data-nosnippet>993</a>
+<a href=#994 id=994 data-nosnippet>994</a><span class="attr">#[cfg(test)]
+<a href=#995 id=995 data-nosnippet>995</a></span><span class="kw">mod </span>tests;</code></pre></div></section></main></body></html>

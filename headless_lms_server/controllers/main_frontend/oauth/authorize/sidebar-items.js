@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","authorize"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","authorize","parse_prompt"],"struct":["PromptFlags"]};

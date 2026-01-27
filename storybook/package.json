@@ -36,10 +36,12 @@
     "@react-aria/focus": "^3.15.0",
     "@react-aria/overlays": "^3.15.0",
     "@react-types/dialog": "^3.5.0",
+    "@react-types/shared": "^3.23.2",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "i18next": "^24.2.1",
+    "react-aria": "^3.38.0",
     "react-i18next": "^15.4.0",
     "uuid": "^11.1.0"
   }

@@ -1,0 +1,31 @@
+{
+  "name": "components",
+  "version": "0.0.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "keywords": [],
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.26.2",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
+  },
+  "dependencies": {
+    "@emotion/css": "^11.13.5",
+    "@react-types/shared": "^3.32.1",
+    "next": "^16.1.5",
+    "react": "^19.2.4",
+    "react-aria": "^3.45.0",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "typescript": "^5.9.3"
+  }
+}

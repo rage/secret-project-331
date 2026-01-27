@@ -1,4 +1,8 @@
+"use client"
+
 import type { Preview } from "@storybook/react"
+
+import { tokensGlobal } from "../src/shared-module/components"
 
 const preview: Preview = {
   parameters: {
@@ -15,3 +19,5 @@ const preview: Preview = {
 }
 
 export default preview
+
+void tokensGlobal

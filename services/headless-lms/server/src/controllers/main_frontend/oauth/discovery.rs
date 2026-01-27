@@ -112,6 +112,10 @@ pub async fn well_known_openid(
         "subject_types_supported":         ["public"],
         "id_token_signing_alg_values_supported": ["RS256"],
 
+        "request_parameter_supported": false,
+        "request_uri_parameter_supported": false,
+        "request_object_signing_alg_values_supported": ["RS256"],
+
         // Token endpoint auth: public ("none") and confidential via client_secret_post
         "token_endpoint_auth_methods_supported": ["none","client_secret_post"],
 

@@ -147,10 +147,11 @@ POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/c
 
 Returns the current conversation for the user.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn current_conversation_info(
     pool: web::Data<PgPool>,
     user: AuthUser,
+    app_conf: web::Data<ApplicationConfiguration>,
     params: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
     let token = skip_authorize();
@@ -172,7 +173,9 @@ async fn current_conversation_info(
         && let Some(last_ccm) = ccm.last()
     {
         // generate suggested messages
-        let sm = headless_lms_chatbot::message_suggestion::generate_suggested_messages().await?;
+        let sm =
+            headless_lms_chatbot::message_suggestion::generate_suggested_messages(&app_conf, ccm)
+                .await?;
 
         headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(
             &mut conn,

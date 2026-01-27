@@ -45,7 +45,7 @@ export const rootBaseCss = css`
   vertical-align: middle;
   gap: var(--control-gap);
 
-  border-radius: var(--radius-control);
+  border-radius: var(--control-radius);
   font-weight: 600;
   line-height: 1;
   text-decoration: none;
@@ -133,19 +133,19 @@ export const spinnerCss = css`
 
 const sizeSmCss = css`
   height: var(--control-height-sm);
-  padding: 0 var(--control-pad-x-sm);
+  padding: 0 var(--control-padding-x-sm);
   font-size: var(--font-size-sm);
 `
 
 const sizeMdCss = css`
   height: var(--control-height-md);
-  padding: 0 var(--control-pad-x-md);
+  padding: 0 var(--control-padding-x-md);
   font-size: var(--font-size-md);
 `
 
 const sizeLgCss = css`
   height: var(--control-height-lg);
-  padding: 0 var(--control-pad-x-lg);
+  padding: 0 var(--control-padding-x-lg);
   font-size: var(--font-size-lg);
 `
 

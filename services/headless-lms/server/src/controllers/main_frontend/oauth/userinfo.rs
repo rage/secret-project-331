@@ -1,7 +1,7 @@
 use crate::domain::oauth::dpop::verify_dpop_from_actix;
 use crate::domain::oauth::userinfo_response::UserInfoResponse;
 use crate::prelude::*;
-use actix_web::{HttpResponse, web};
+use actix_web::{HttpResponse, guard, web};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use dpop_verifier::DpopError;
 use headless_lms_utils::ApplicationConfiguration;
@@ -140,7 +140,7 @@ pub async fn user_info(
             let presented_jkt = verify_dpop_from_actix(
                 &mut conn,
                 &req,
-                "GET",
+                req.method().as_str(),
                 &app_conf.oauth_server_configuration.dpop_nonce_key,
                 Some(raw_token),
             )
@@ -199,5 +199,10 @@ pub async fn user_info(
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/userinfo", web::get().to(user_info));
+    cfg.route(
+        "/userinfo",
+        web::route()
+            .guard(guard::Any(guard::Get()).or(guard::Post()))
+            .to(user_info),
+    );
 }

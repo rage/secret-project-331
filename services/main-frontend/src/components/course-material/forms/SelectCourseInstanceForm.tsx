@@ -44,6 +44,7 @@ interface SelectCourseInstanceFormProps {
   initialSelectedInstanceId?: string
   dialogLanguage: string
   selectedLangCourseId: string
+  useStartCourseLabel?: boolean
 }
 
 const SelectCourseInstanceForm: React.FC<
@@ -54,6 +55,7 @@ const SelectCourseInstanceForm: React.FC<
   initialSelectedInstanceId,
   dialogLanguage,
   selectedLangCourseId,
+  useStartCourseLabel = false,
 }) => {
   const { t } = useTranslation("main-frontend", { lng: dialogLanguage })
   const [selectedInstanceId, setSelectedInstanceId] = useState(
@@ -225,6 +227,7 @@ const SelectCourseInstanceForm: React.FC<
           <div>
             <SelectMarketingConsentForm
               courseId={selectedLangCourseId}
+              dialogLanguage={dialogLanguage}
               onEmailSubscriptionConsentChange={setIsEmailSubscriptionConsentChecked}
               onMarketingConsentChange={setIsMarketingConsentChecked}
             />
@@ -242,7 +245,7 @@ const SelectCourseInstanceForm: React.FC<
             }
             data-testid="select-course-instance-continue-button"
           >
-            {t("continue")}
+            {useStartCourseLabel ? t("start-course") : t("continue")}
           </Button>
         </div>
       </>

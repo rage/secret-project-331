@@ -107,15 +107,16 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     (lang) => lang.courseId === selectedLangCourseId,
   )?.code
 
-  useEffect(() => {
-    const signedIn = !!loginState.signedIn
+  const signedIn = !!loginState.signedIn
+  const shouldAutoOpen =
+    signedIn &&
+    (shouldChooseInstance ||
+      (askMarketingConsent === true && checkUserMarketingConsent === "unsubscribed"))
+  const shouldOpen = shouldAutoOpen || (signedIn && manualOpen)
 
-    setOpen(
-      (signedIn && shouldChooseInstance) ||
-        (signedIn && manualOpen) ||
-        (signedIn && askMarketingConsent === true && checkUserMarketingConsent === "unsubscribed"),
-    )
-  }, [loginState, manualOpen, shouldChooseInstance, askMarketingConsent, checkUserMarketingConsent])
+  useEffect(() => {
+    setOpen(shouldOpen)
+  }, [shouldOpen])
 
   const languageChanged = savedOrDefaultLangCourseId !== selectedLangCourseId
 
@@ -202,6 +203,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
             }
             dialogLanguage={dialogLanguage}
             selectedLangCourseId={selectedLangCourseId}
+            useStartCourseLabel={shouldAutoOpen && !manualOpen}
           />
         )}
       </div>

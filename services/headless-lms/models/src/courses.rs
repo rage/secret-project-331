@@ -750,6 +750,7 @@ SET name = $1,
   closed_course_successor_id = $13,
   chapter_locking_enabled = $14
 WHERE id = $15
+  AND deleted_at IS NULL
 RETURNING id,
   name,
   created_at,

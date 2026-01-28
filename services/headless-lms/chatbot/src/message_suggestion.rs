@@ -1,5 +1,6 @@
 use crate::{
     azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams},
+    content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
     },
@@ -12,6 +13,8 @@ use headless_lms_utils::prelude::BackendError;
 // todo what is the correct value
 /// Maximum context window size for LLM in tokens
 pub const MAX_CONTEXT_WINDOW: i32 = 16000;
+/// Maximum percentage of context window to use in a single request
+pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
 
 /// System prompt instructions for generating suggested next messages
 const SYSTEM_PROMPT: &str = r#"You are given a conversation between a helpful learning assistant and a student. You task is to generate three messages that the student could send to the assistant next.
@@ -20,11 +23,14 @@ The messages should be:
 
 * short and clear
 * aid in learning
+* independent of time (no October 2023)
+* related to the course topics and the conversation so far
 * etc.
 
 Directions:
 
 * output only the three message suggestions, nothing else
+*
 
 The course the student is on is: Advanced chatbot course
 
@@ -39,27 +45,37 @@ pub async fn generate_suggested_messages(
     conversation_messages: &Vec<ChatbotConversationMessage>,
 ) -> ChatbotResult<Vec<String>> {
     let used_tokens = estimate_tokens(SYSTEM_PROMPT) + estimate_tokens(USER_PROMPT);
+    let token_budget = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
+    let conv_len = conversation_messages.len();
 
-    // collect the conversation messages into one string
-    // while tracking token use so we don't go over the context window wize
-    let (_used_tokens2, conversation) = conversation_messages
+    // calculate how many messages to include in the conversation context
+    let (_, order_n) = conversation_messages
         .iter()
         // iterate through the messages starting from the newest until token limit is hit
-        .rfold((used_tokens, "".to_string()), |(tokens, msgs), el| {
-            if let Some(message) = &el.message {
-                // add previous tokens, this message's tokens and extra 5 tokens for the tag
-                let new_tokens = tokens + el.used_tokens + 5;
-                if new_tokens > MAX_CONTEXT_WINDOW {
-                    return (tokens, msgs);
+        .rfold((used_tokens, conv_len), |(tokens, n), el| {
+            if !el.message.is_none() {
+                // add previous tokens, this message's tokens and extra 1 tokens for newline
+                let new_tokens = tokens + el.used_tokens + 1;
+                if new_tokens > token_budget {
+                    return (tokens, n);
                 }
-                let tag = format!("[{who} said:]\n", who = el.message_role);
-                let new_msgs = tag + message + "\n" + &msgs;
-                return (new_tokens, new_msgs);
+                //let tag = format!("[{who} said:]\n", who = el.message_role);
+                let new_n = el.order_number as usize;
+                return (new_tokens, new_n);
             } else {
-                return (tokens, msgs);
+                return (tokens, n);
             }
         });
-    println!("!!!!!!!!!!!!!!!!!!!Conversation: {:?}", conversation);
+    // the order number of the earliest message to inlcude in the conversation context
+    let conversation = &conversation_messages[order_n..]
+        .iter()
+        .map(|x| x.message.to_owned())
+        .collect::<Option<Vec<String>>>()
+        .ok_or_else(|| {
+            ChatbotError::new(ChatbotErrorType::ChatbotMessageSuggestError, "lol", None)
+        })?
+        .join("\n\n");
+    println!("🐱🐱🐱🐱🐱🐱🐱 Conversation: {:?}", conversation);
 
     let system_prompt = APIMessage {
         role: MessageRole::System,
@@ -90,7 +106,7 @@ pub async fn generate_suggested_messages(
     // add the teacher's prompt
     // make llm reqes
     let completion = make_blocking_llm_request(chat_request, app_config).await?;
-    println!("!!!!!!!!!!!!!!!!!!!{:?}", completion);
+    println!("🐱🐱🐱🐱🐱🐱🐱 Completion: {:?}", completion);
     let suggested_messages: Vec<String> = match &completion
         .choices
         .first()
@@ -105,6 +121,7 @@ pub async fn generate_suggested_messages(
         .fields
     {
         APIMessageKind::Text(message) => {
+            // parse structured output
             message.content.split("\n").map(|x| x.to_owned()).collect()
         }
         _ => {

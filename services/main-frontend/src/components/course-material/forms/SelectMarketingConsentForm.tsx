@@ -1,8 +1,8 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { t } from "i18next"
 import React, { useContext, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   fetchCustomPrivacyPolicyCheckboxTexts,
@@ -17,15 +17,18 @@ import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCour
 
 interface SelectMarketingConsentFormProps {
   courseId: string
+  dialogLanguage: string
   onEmailSubscriptionConsentChange: (isChecked: boolean) => void
   onMarketingConsentChange: (isChecked: boolean) => void
 }
 
 const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   courseId,
+  dialogLanguage,
   onEmailSubscriptionConsentChange,
   onMarketingConsentChange,
 }) => {
+  const { t } = useTranslation("main-frontend", { lng: dialogLanguage })
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [emailSubscriptionConsent, setEmailSubscriptionConsent] = useState(false)
   const loginStateContext = useContext(LoginStateContext)
@@ -39,7 +42,7 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   const customPrivacyPolicyCheckboxTextsQuery = useQuery({
     queryKey: ["customPrivacyPolicyCheckboxTexts", courseId],
     queryFn: () => fetchCustomPrivacyPolicyCheckboxTexts(courseId),
-    enabled: courseId !== undefined,
+    enabled: courseId !== undefined && dialogLanguage !== undefined,
   })
 
   const handleEmailSubscriptionConsentChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -11,7 +11,6 @@ import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../../
 import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
-import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 
 type QuizzesGradingRequest = GradingRequest<PrivateSpecQuiz, UserAnswer>
 
@@ -33,11 +32,12 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
     submission_data,
     exercise_spec,
     assessedAnswers,
+    exercise_spec.submitMessage,
   )
 
   const responseJson: ExerciseTaskGradingResult = {
     feedback_json: feedbacks,
-    feedback_text: nullIfEmptyString(exercise_spec.submitMessage),
+    feedback_text: null,
     grading_progress: "FullyGraded",
     score_given: score,
     score_maximum: exercise_spec.items.length,

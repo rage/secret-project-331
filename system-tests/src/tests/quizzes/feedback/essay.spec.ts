@@ -56,6 +56,7 @@ test.describe(() => {
   Mauris sed volutpat est. Sed pharetra a turpis at hendrerit. Donec nibh enim, tincidunt eu porta id, placerat a orci. Proin porttitor tristique mattis. Curabitur facilisis sapien sed lorem dignissim pulvinar. Mauris egestas, lacus ac mattis pretium, purus sapien posuere turpis, nec tristique lectus leo non risus. Aliquam erat volutpat. Proin ac tempus sem, id facilisis augue. Vivamus vel elit ultrices magna pretium finibus sed in quam. Curabitur urna arcu, porta ut interdum id, ullamcorper non arcu. Proin in mauris ante. Maecenas lobortis maximus dolor, nec lacinia tellus.`)
 
     await page.click(`button:text-is("Submit")`)
+    await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -63,7 +64,7 @@ test.describe(() => {
       testInfo,
       snapshotName: "essay-feedback",
       waitForTheseToBeVisibleAndStable: [
-        page.locator(`text=This is an extra submit message from the teacher.`),
+        frame.locator(`text=This is an extra submit message from the teacher.`),
         frame,
       ],
     })

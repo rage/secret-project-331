@@ -18,9 +18,7 @@ test("User can add missing country information", async ({ page }) => {
     // Form to fill missing country
     // The country prompt has priority over course instance selection (see useDialogStep hook)
     // so it will always show first if both are needed
-    await expect(
-      page.locator("div").filter({ hasText: /^Fill missing information$/ }),
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
     await page.getByRole("button", { name: "Select a country Where do you" }).click()
     await page.getByRole("option", { name: "Andorra" }).click()
     await page.getByRole("button", { name: "Save" }).click()

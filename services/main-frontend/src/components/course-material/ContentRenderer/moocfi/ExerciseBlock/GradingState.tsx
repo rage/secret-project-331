@@ -63,6 +63,8 @@ const getText = (
     switch (shouldSeeResetMessage) {
       case "reset-automatically-due-to-failed-review":
         return t("help-text-exercise-involves-reject-and-reset-automatically")
+      case "flagged-answers-skip-manual-review-and-allow-retry":
+        return t("help-text-flagged-answers-skip-manual-review-and-allow-retry")
       case "reset-by-staff":
         return t("help-text-exercise-involves-reject-and-reset-by-staff")
       default:

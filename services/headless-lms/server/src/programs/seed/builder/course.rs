@@ -459,6 +459,8 @@ impl CourseBuilder {
                 is_joinable_by_code_only: course.is_joinable_by_code_only,
                 ask_marketing_consent: course.ask_marketing_consent,
                 flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(3),
+                flagged_answers_skip_manual_review_and_allow_retry: course
+                    .flagged_answers_skip_manual_review_and_allow_retry,
                 closed_at: course.closed_at,
                 closed_additional_message: course.closed_additional_message.clone(),
                 closed_course_successor_id: course.closed_course_successor_id,

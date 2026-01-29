@@ -417,11 +417,11 @@ pub async fn get_course_material_exercise(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExercise> {
     let mut exercise = get_by_id(conn, exercise_id).await?;
-    if exercise.deadline.is_none() {
-        if let Some(chapter_id) = exercise.chapter_id {
-            let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
-            exercise.deadline = chapter.deadline;
-        }
+    if exercise.deadline.is_none()
+        && let Some(chapter_id) = exercise.chapter_id
+    {
+        let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
+        exercise.deadline = chapter.deadline;
     }
     let (current_exercise_slide, instance_or_exam_id) =
         get_or_select_exercise_slide(&mut *conn, user_id, &exercise, fetch_service_info).await?;

@@ -15,6 +15,7 @@ import CardSVG from "@/shared-module/common/img/cardNext.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 
 export interface BackgroundProps {
   bg: string | undefined
@@ -96,10 +97,23 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   points,
   showLock,
   isLocked,
+  deadline,
+  exerciseDeadline,
+  exerciseDeadlinesMultiple,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const shouldLink = url && (open || allowedToPreview)
+  const formattedDeadline = humanReadableDateTime(deadline, i18n.language) ?? null
+  const formattedExerciseDeadline = humanReadableDateTime(exerciseDeadline, i18n.language) ?? null
+  const exerciseDeadlineText = formattedExerciseDeadline
+    ? exerciseDeadlinesMultiple
+      ? t("chapter-card-deadline-varies", { date: formattedExerciseDeadline })
+      : `${t("chapter-card-exercise-deadline")} ${formattedExerciseDeadline}`
+    : null
+  const deadlineText = formattedDeadline
+    ? `${t("chapter-card-deadline")} ${formattedDeadline}`
+    : null
 
   return (
     <div
@@ -245,6 +259,23 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                   </span>
                   <h2>{title}</h2>
                 </>
+              )}
+              {(deadlineText || exerciseDeadlineText) && (
+                <div
+                  className={css`
+                    margin-top: 0.6rem;
+                    color: #f5f6f7;
+                    font-size: 0.875rem;
+                    line-height: 1.4;
+                    opacity: 0.95;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.5rem 0.75rem;
+                  `}
+                >
+                  {deadlineText && <span>{deadlineText}</span>}
+                  {exerciseDeadlineText && <span>{exerciseDeadlineText}</span>}
+                </div>
               )}
             </div>
           </div>

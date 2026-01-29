@@ -416,7 +416,13 @@ pub async fn get_course_material_exercise(
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExercise> {
-    let exercise = get_by_id(conn, exercise_id).await?;
+    let mut exercise = get_by_id(conn, exercise_id).await?;
+    if exercise.deadline.is_none() {
+        if let Some(chapter_id) = exercise.chapter_id {
+            let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
+            exercise.deadline = chapter.deadline;
+        }
+    }
     let (current_exercise_slide, instance_or_exam_id) =
         get_or_select_exercise_slide(&mut *conn, user_id, &exercise, fetch_service_info).await?;
     info!(
@@ -1107,6 +1113,7 @@ WHERE user_exercise_state_id IN (
 mod test {
     use super::*;
     use crate::{
+        chapters,
         course_instance_enrollments::{self, NewCourseInstanceEnrollment},
         exercise_service_info::{self, PathInfo},
         exercise_services::{self, ExerciseServiceNewOrUpdate},
@@ -1114,24 +1121,12 @@ mod test {
         test_helper::*,
         user_exercise_states,
     };
+    use chrono::TimeZone;
+    use sqlx::PgConnection;
 
-    #[tokio::test]
-    async fn selects_course_material_exercise_for_enrolled_student() {
-        insert_data!(
-            :tx,
-            user: user_id,
-            org: organization_id,
-            course: course_id,
-            instance: course_instance,
-            :course_module,
-            chapter: chapter_id,
-            page: page_id,
-            exercise: exercise_id,
-            slide: exercise_slide_id,
-            task: exercise_task_id
-        );
+    async fn insert_exercise_service_with_info(tx: &mut PgConnection) {
         let exercise_service = exercise_services::insert_exercise_service(
-            tx.as_mut(),
+            tx,
             &ExerciseServiceNewOrUpdate {
                 name: "text-exercise".to_string(),
                 slug: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
@@ -1142,8 +1137,8 @@ mod test {
         )
         .await
         .unwrap();
-        let _exercise_service_info = exercise_service_info::insert(
-            tx.as_mut(),
+        exercise_service_info::insert(
+            tx,
             &PathInfo {
                 exercise_service_id: exercise_service.id,
                 user_interface_iframe_path: "/iframe".to_string(),
@@ -1155,6 +1150,24 @@ mod test {
         )
         .await
         .unwrap();
+    }
+
+    #[tokio::test]
+    async fn selects_course_material_exercise_for_enrolled_student() {
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: _organization_id,
+            course: course_id,
+            instance: _course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+        insert_exercise_service_with_info(tx.as_mut()).await;
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             tx.as_mut(),
             NewCourseInstanceEnrollment {
@@ -1209,5 +1222,53 @@ mod test {
                 .unwrap(),
             exercise_slide_id
         );
+    }
+
+    #[tokio::test]
+    async fn course_material_exercise_inherits_chapter_deadline() {
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: organization_id,
+            course: course_id,
+            instance: course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: page_id,
+            exercise: exercise_id,
+            slide: exercise_slide_id,
+            task: exercise_task_id
+        );
+        insert_exercise_service_with_info(tx.as_mut()).await;
+
+        let chapter_deadline = Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap();
+        let chapter = chapters::get_chapter(tx.as_mut(), chapter_id)
+            .await
+            .unwrap();
+        chapters::update_chapter(
+            tx.as_mut(),
+            chapter_id,
+            chapters::ChapterUpdate {
+                name: chapter.name,
+                color: chapter.color,
+                front_page_id: chapter.front_page_id,
+                deadline: Some(chapter_deadline),
+                opens_at: chapter.opens_at,
+                course_module_id: Some(chapter.course_module_id),
+            },
+        )
+        .await
+        .unwrap();
+
+        let exercise = get_course_material_exercise(
+            tx.as_mut(),
+            Some(user_id),
+            exercise_id,
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(exercise.exercise.deadline, Some(chapter_deadline));
     }
 }

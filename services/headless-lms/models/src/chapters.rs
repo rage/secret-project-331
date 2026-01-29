@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 use crate::{
     course_modules, courses,
@@ -330,9 +330,21 @@ pub struct ChapterWithStatus {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
     pub chapter_image_url: Option<String>,
     pub course_module_id: Uuid,
+    pub exercise_deadline_override_count: i64,
+    pub exercise_deadline_override_distinct_count: i64,
+    pub earliest_exercise_deadline_override: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, Default)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ChapterExerciseDeadlineOverrideSummary {
+    pub earliest_exercise_deadline_override: Option<DateTime<Utc>>,
+    pub exercise_deadline_override_count: i64,
+    pub exercise_deadline_override_distinct_count: i64,
 }
 
 impl ChapterWithStatus {
@@ -340,6 +352,7 @@ impl ChapterWithStatus {
         database_chapter: DatabaseChapter,
         timestamp: DateTime<Utc>,
         chapter_image_url: Option<String>,
+        exercise_deadline_overrides: Option<ChapterExerciseDeadlineOverrideSummary>,
     ) -> Self {
         let open = database_chapter
             .opens_at
@@ -350,6 +363,7 @@ impl ChapterWithStatus {
         } else {
             ChapterStatus::Closed
         };
+        let exercise_deadline_overrides = exercise_deadline_overrides.unwrap_or_default();
         ChapterWithStatus {
             id: database_chapter.id,
             created_at: database_chapter.created_at,
@@ -361,9 +375,16 @@ impl ChapterWithStatus {
             chapter_number: database_chapter.chapter_number,
             front_page_id: database_chapter.front_page_id,
             opens_at: database_chapter.opens_at,
+            deadline: database_chapter.deadline,
             status,
             chapter_image_url,
             course_module_id: database_chapter.course_module_id,
+            exercise_deadline_override_count: exercise_deadline_overrides
+                .exercise_deadline_override_count,
+            exercise_deadline_override_distinct_count: exercise_deadline_overrides
+                .exercise_deadline_override_distinct_count,
+            earliest_exercise_deadline_override: exercise_deadline_overrides
+                .earliest_exercise_deadline_override,
         }
     }
 }
@@ -407,6 +428,58 @@ WHERE course_id = $1
     .fetch_all(conn)
     .await?;
     Ok(chapters)
+}
+
+pub async fn exercise_deadline_overrides_by_chapter_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, ChapterExerciseDeadlineOverrideSummary>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT
+  e.chapter_id,
+  MIN(e.deadline) FILTER (
+    WHERE e.deadline IS NOT NULL
+      AND (c.deadline IS NULL OR e.deadline <> c.deadline)
+  ) AS earliest_exercise_deadline_override,
+  COUNT(*) FILTER (
+    WHERE e.deadline IS NOT NULL
+      AND (c.deadline IS NULL OR e.deadline <> c.deadline)
+  ) AS exercise_deadline_override_count,
+  COUNT(DISTINCT e.deadline) FILTER (
+    WHERE e.deadline IS NOT NULL
+      AND (c.deadline IS NULL OR e.deadline <> c.deadline)
+  ) AS exercise_deadline_override_distinct_count
+FROM exercises e
+JOIN chapters c ON c.id = e.chapter_id
+WHERE c.course_id = $1
+  AND c.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+GROUP BY e.chapter_id, c.deadline
+        "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut summaries = HashMap::new();
+    for row in rows {
+        if let Some(chapter_id) = row.chapter_id {
+            summaries.insert(
+                chapter_id,
+                ChapterExerciseDeadlineOverrideSummary {
+                    earliest_exercise_deadline_override: row.earliest_exercise_deadline_override,
+                    exercise_deadline_override_count: row
+                        .exercise_deadline_override_count
+                        .unwrap_or(0),
+                    exercise_deadline_override_distinct_count: row
+                        .exercise_deadline_override_distinct_count
+                        .unwrap_or(0),
+                },
+            );
+        }
+    }
+    Ok(summaries)
 }
 
 pub async fn course_instance_chapters(

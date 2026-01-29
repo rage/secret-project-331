@@ -26,4 +26,5 @@ Dockerfile text eol=lf
 
 # Hide diff for certain heavy files by default in Github pull request
 system-tests/src/__screenshots__/**/*.png linguist-generated=true
+system-tests/src/__screenshots__/**/*.png filter=lfs diff=lfs merge=lfs -text
 services/headless-lms/models/.sqlx/**/*.json linguist-generated=true

@@ -439,6 +439,15 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _seed_reject_and_reset_submission_peer_review_course = seed_peer_review_course(
+        Uuid::parse_str("e91eb0d0-1737-44e8-9554-a9492e69ddc7")?,
+        "Spam answers skip teacher review course",
+        "spam-answers-skip-teacher-review-course",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
     let _accessibility_course_id = seed_accessibility_course(
         Uuid::parse_str("f1a2b3c4-d5e6-7890-abcd-ef1234567890")?,
         "Accessibility course",

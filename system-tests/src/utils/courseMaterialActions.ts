@@ -102,3 +102,7 @@ export async function navigateToNextPageInMaterial(page: Page) {
     { box: true },
   )
 }
+
+export function getExerciseRegion(page: Page, exerciseName: string) {
+  return page.getByRole("region", { name: exerciseName })
+}

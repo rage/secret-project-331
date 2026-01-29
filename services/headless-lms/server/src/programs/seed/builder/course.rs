@@ -78,6 +78,7 @@ pub struct CourseBuilder {
     pub certificate_config: Option<CertificateConfig>,
     pub front_page_content: Option<Vec<GutenbergBlock>>,
     pub chapter_locking_enabled: bool,
+    pub flagged_answers_skip_manual_review_and_allow_retry: bool,
 }
 
 impl CourseBuilder {
@@ -99,7 +100,14 @@ impl CourseBuilder {
             certificate_config: None,
             front_page_content: None,
             chapter_locking_enabled: false,
+            flagged_answers_skip_manual_review_and_allow_retry: false,
         }
+    }
+
+    /// Enables skipping manual review for flagged answers and allowing retry.
+    pub fn flagged_answers_skip_manual_review_and_allow_retry(mut self, v: bool) -> Self {
+        self.flagged_answers_skip_manual_review_and_allow_retry = v;
+        self
     }
 
     pub fn chatbot(mut self, v: bool) -> Self {
@@ -447,7 +455,7 @@ impl CourseBuilder {
         }
         tx.commit().await.context("committing transaction")?;
 
-        if self.chapter_locking_enabled {
+        if self.chapter_locking_enabled || self.flagged_answers_skip_manual_review_and_allow_retry {
             use headless_lms_models::courses::CourseUpdate;
             let course_update = CourseUpdate {
                 name: course.name.clone(),
@@ -459,16 +467,16 @@ impl CourseBuilder {
                 is_joinable_by_code_only: course.is_joinable_by_code_only,
                 ask_marketing_consent: course.ask_marketing_consent,
                 flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(3),
-                flagged_answers_skip_manual_review_and_allow_retry: course
+                flagged_answers_skip_manual_review_and_allow_retry: self
                     .flagged_answers_skip_manual_review_and_allow_retry,
                 closed_at: course.closed_at,
                 closed_additional_message: course.closed_additional_message.clone(),
                 closed_course_successor_id: course.closed_course_successor_id,
-                chapter_locking_enabled: true,
+                chapter_locking_enabled: self.chapter_locking_enabled,
             };
             let updated_course = courses::update_course(conn, course.id, course_update)
                 .await
-                .context("updating course to enable chapter locking")?;
+                .context("updating course")?;
             return Ok((
                 updated_course,
                 default_instance,

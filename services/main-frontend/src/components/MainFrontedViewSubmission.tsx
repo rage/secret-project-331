@@ -5,8 +5,7 @@ import { CheckCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import SubmissionIFrame from "./page-specific/submissions/id/SubmissionIFrame"
-
+import SubmissionIFrame from "@/app/submissions/[id]/grading/SubmissionIFrame"
 import { ExerciseSlideSubmissionInfo } from "@/shared-module/common/bindings"
 import { headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"

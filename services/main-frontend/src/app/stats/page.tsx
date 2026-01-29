@@ -4,7 +4,8 @@ import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import GlobalStatTable from "@/components/page-specific/global-stats/GlobalStatTable"
+import GlobalStatTable from "./GlobalStatTable"
+
 import {
   useCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery,
   useNumberOfPeopleCompletedACourseQuery,

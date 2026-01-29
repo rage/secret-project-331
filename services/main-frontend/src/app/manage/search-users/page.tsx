@@ -6,7 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SearchUsersResults from "@/components/page-specific/manage/search-users/SearchUsersResults"
+import SearchUsersResults from "./SearchUsersResults"
+
 import {
   searchForUserDetailsByEmail,
   searchForUserDetailsByOtherDetails,

@@ -4,9 +4,10 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import CheatersThresholdConfig from "./CheatersThresholdConfig"
+
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
-import CheatersThresholdConfig from "@/components/page-specific/manage/courses/id/cheaters/CheatersThresholdConfig"
 import {
   manageCourseOtherCheatersArchivedRoute,
   manageCourseOtherCheatersSuspectedRoute,

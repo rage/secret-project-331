@@ -3,8 +3,8 @@
 import React from "react"
 
 import { useStudentsContext } from "../StudentsContext"
+import { ProgressTabContent } from "../tabs/ProgressTab"
 
-import { ProgressTabContent } from "@/components/page-specific/manage/courses/id/students/tabs/ProgressTab"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

@@ -3,7 +3,8 @@
 import { useParams } from "next/navigation"
 import React from "react"
 
-import EditProposalList from "@/components/page-specific/manage/courses/id/change-request/EditProposalList"
+import EditProposalList from "../EditProposalList"
+
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

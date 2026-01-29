@@ -3,7 +3,8 @@
 import { useParams } from "next/navigation"
 import React from "react"
 
-import CoursePermissions from "@/components/page-specific/manage/courses/id/permissions/CoursePermissions"
+import CoursePermissions from "./CoursePermissions"
+
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

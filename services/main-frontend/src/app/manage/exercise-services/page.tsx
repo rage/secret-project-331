@@ -4,8 +4,9 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseServiceContainer from "@/components/page-specific/manage/exercise-services/ExerciseServiceContainer"
-import ExerciseServiceCreationModal from "@/components/page-specific/manage/exercise-services/ExerciseServiceCreationModal"
+import ExerciseServiceContainer from "./ExerciseServiceContainer"
+import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
+
 import { addExerciseService, fetchExerciseServices } from "@/services/backend/exercise-services"
 import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"

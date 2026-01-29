@@ -6,10 +6,10 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { StudentsContextProvider, useStudentsContext } from "./StudentsContext"
+import * as styles from "./StudentsPageStyles"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
-import * as styles from "@/components/page-specific/manage/courses/id/students/StudentsPageStyles"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"

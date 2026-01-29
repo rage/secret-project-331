@@ -3,7 +3,8 @@
 import { useParams } from "next/navigation"
 import React from "react"
 
-import UserActivityTab from "@/components/page-specific/manage/courses/id/stats/CourseStatsPage/tabs/UserActivityTab"
+import UserActivityTab from "../tabs/UserActivityTab"
+
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

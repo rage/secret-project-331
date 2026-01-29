@@ -21,30 +21,26 @@ export interface CourseManagementPagesProps {
 export type TabPage = React.ComponentType<React.PropsWithChildren<CourseManagementPagesProps>>
 
 const CourseOverview = dynamicImport<CourseManagementPagesProps>(
-  () => import("@/components/page-specific/manage/courses/id/index/CourseOverview"),
+  () => import("../overview/CourseOverview"),
 )
-const CoursePages = dynamicImport<CourseManagementPagesProps>(
-  () => import("@/components/page-specific/manage/courses/id/pages/CoursePages"),
-)
+const CoursePages = dynamicImport<CourseManagementPagesProps>(() => import("../pages/CoursePages"))
 const CourseModules = dynamicImport<CourseManagementPagesProps>(
-  () => import("@/components/page-specific/manage/courses/id/pages/CourseModules"),
+  () => import("../pages/CourseModules"),
 )
 const CourseExercises = dynamicImport<CourseManagementPagesProps>(
-  () => import("@/components/page-specific/manage/courses/id/exercises/CourseExercises"),
+  () => import("../exercises/CourseExercises"),
 )
 const CourseCourseInstances = dynamicImport<CourseManagementPagesProps>(
-  () =>
-    import("@/components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"),
+  () => import("../course-instances/CourseCourseInstances"),
 )
 const CourseLanguageVersionsPage = dynamicImport<CourseManagementPagesProps>(
-  () =>
-    import("@/components/page-specific/manage/courses/id/language-versions/CourseLanguageVersions"),
+  () => import("../language-versions/CourseLanguageVersions"),
 )
 const CoursePermissions = dynamicImport<CourseManagementPagesProps>(
-  () => import("@/components/page-specific/manage/courses/id/permissions/CoursePermissions"),
+  () => import("../permissions/CoursePermissions"),
 )
 const CourseStudentsPage = dynamicImport<CourseManagementPagesProps>(
-  () => import("@/components/page-specific/manage/courses/id/students/CourseStudentsPage"),
+  () => import("../students/CourseStudentsPage"),
 )
 
 const CourseManagementPageTabs: {

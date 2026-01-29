@@ -3,7 +3,8 @@
 import { useParams, useRouter } from "next/navigation"
 import React, { useEffect } from "react"
 
-import ChatbotPage from "@/components/page-specific/manage/courses/id/chatbot/ChatbotPage"
+import ChatbotPage from "./ChatbotPage"
+
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { manageCourseOtherReferencesRoute } from "@/shared-module/common/utils/routes"

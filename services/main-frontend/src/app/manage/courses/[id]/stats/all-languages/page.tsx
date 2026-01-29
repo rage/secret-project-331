@@ -3,7 +3,8 @@
 import { useParams, useRouter } from "next/navigation"
 import React, { useEffect } from "react"
 
-import AllLanguagesTab from "@/components/page-specific/manage/courses/id/stats/CourseStatsPage/tabs/AllLanguagesTab"
+import AllLanguagesTab from "../tabs/AllLanguagesTab"
+
 import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { manageCourseStatsOverviewRoute } from "@/shared-module/common/utils/routes"

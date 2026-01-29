@@ -63,10 +63,18 @@ function ensure_git_lfs_installed() {
   if git rev-parse --is-inside-work-tree &> /dev/null; then
     local lfs_clean
     local lfs_smudge
+    local had_lfs_filters
     lfs_clean=$(git config --get filter.lfs.clean || true)
     lfs_smudge=$(git config --get filter.lfs.smudge || true)
+    had_lfs_filters=true
     if [ -z "$lfs_clean" ] && [ -z "$lfs_smudge" ]; then
+      had_lfs_filters=false
       git lfs install --local &> /dev/null || true
+    fi
+    if [ "$had_lfs_filters" = false ]; then
+      echo "Git LFS filters were missing for this checkout. Hydrating LFS objects now..."
+      git lfs pull
+      git lfs checkout
     fi
   fi
 }

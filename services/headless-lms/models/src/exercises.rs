@@ -1240,6 +1240,16 @@ mod test {
             task: exercise_task_id
         );
         insert_exercise_service_with_info(tx.as_mut()).await;
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id,
+                course_instance_id: course_instance.id,
+                user_id,
+            },
+        )
+        .await
+        .unwrap();
 
         let chapter_deadline = Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap();
         let chapter = chapters::get_chapter(tx.as_mut(), chapter_id)

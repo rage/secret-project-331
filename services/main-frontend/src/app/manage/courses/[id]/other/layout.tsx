@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import {
   courseChatbotSettingsRoute,
@@ -72,9 +73,9 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
   }, [courseId, t, showChatbotTab])
 
   return (
-    <>
+    <RouteTabListProvider tabs={tabs}>
       <RouteTabList tabs={tabs} />
       {children}
-    </>
+    </RouteTabListProvider>
   )
 }

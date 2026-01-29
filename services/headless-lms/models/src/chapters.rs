@@ -438,17 +438,15 @@ pub async fn exercise_deadline_overrides_by_chapter_for_course(
         r#"
 SELECT
   e.chapter_id,
-  MIN(e.deadline) FILTER (
-    WHERE e.deadline IS NOT NULL
-      AND (c.deadline IS NULL OR e.deadline <> c.deadline)
+  MIN(COALESCE(e.deadline, c.deadline)) FILTER (
+    WHERE COALESCE(e.deadline, c.deadline) IS NOT NULL
   ) AS earliest_exercise_deadline_override,
   COUNT(*) FILTER (
     WHERE e.deadline IS NOT NULL
       AND (c.deadline IS NULL OR e.deadline <> c.deadline)
   ) AS exercise_deadline_override_count,
-  COUNT(DISTINCT e.deadline) FILTER (
-    WHERE e.deadline IS NOT NULL
-      AND (c.deadline IS NULL OR e.deadline <> c.deadline)
+  COUNT(DISTINCT COALESCE(e.deadline, c.deadline)) FILTER (
+    WHERE COALESCE(e.deadline, c.deadline) IS NOT NULL
   ) AS exercise_deadline_override_distinct_count
 FROM exercises e
 JOIN chapters c ON c.id = e.chapter_id

@@ -1159,13 +1159,13 @@ mod test {
             user: user_id,
             org: _organization_id,
             course: course_id,
-            instance: _course_instance,
+            instance: course_instance,
             :course_module,
             chapter: chapter_id,
             page: _page_id,
             exercise: exercise_id,
-            slide: _exercise_slide_id,
-            task: _exercise_task_id
+            slide: exercise_slide_id,
+            task: exercise_task_id
         );
         insert_exercise_service_with_info(tx.as_mut()).await;
         course_instance_enrollments::insert_enrollment_and_set_as_current(

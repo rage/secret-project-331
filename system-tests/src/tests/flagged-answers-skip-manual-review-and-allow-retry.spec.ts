@@ -1,7 +1,6 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
-import { fillPromptDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
@@ -68,7 +67,8 @@ test("Reset flagged answers without manual review", async () => {
     await student2Page.getByRole("button", { name: "Start peer review" }).click()
     await student2Page.getByRole("button", { name: "Report" }).click()
     await student2Page.getByText("Spam", { exact: true }).click()
-    await fillPromptDialog(student2Page, "Spam report for reset", true)
+    await student2Page.getByPlaceholder("Optional description...").fill("Spam report for reset")
+    await student2Page.getByLabel("Report Answer").getByRole("button", { name: "Submit" }).click()
 
     await waitForSuccessNotification(student2Page)
   })

@@ -453,7 +453,7 @@
   "exercise-deadline": "الموعد النهائي للتمرين: ",
   "exercise-deadline-short": "موعد التمرين",
   "exercise-deadlines-vary": "مواعيد نهائية متعددة للتمارين (الأقرب {{date}})",
-  "exercise-deadlines-vary-short": "مواعيد التمرين متعددة (الأقرب {{date}})",
+  "exercise-deadlines-vary-short": "مواعيد التمارين متعددة (الأقرب {{date}})",
   "exercise-grading": "تقييم التمرين",
   "exercise-repositories-add": "إضافة مستودع التمارين",
   "exercise-repositories-added": "تمت إضافة مستودع التمارين",

@@ -452,7 +452,7 @@
   "exam-time-up": "Ваш час минув, іспит закрито. Поверніться, щоб побачити результати після {{ ends-at }}.",
   "exam-timer-has-run-out": "Час минув, іспит закрито.",
   "exercise": "Вправи",
-  "exercise-deadline": "Кінцевий термін вправи: ",
+  "exercise-deadline": "Кінцевий термін вправи:",
   "exercise-deadline-short": "До вправи",
   "exercise-deadlines-vary": "Кінцеві терміни вправ: кілька (найраніший {{date}})",
   "exercise-deadlines-vary-short": "До вправ: кілька (найраніший {{date}})",

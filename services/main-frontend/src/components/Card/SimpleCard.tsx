@@ -57,8 +57,8 @@ const CardContentWrapper = styled.div`
     }
   }
 
-  span {
-    color: #f5f6f7;
+  span.chapter-number {
+    color: ${baseTheme.colors.clear[100]};
     font-size: clamp(16px, 1em, 20px);
     opacity: 0.9;
     z-index: 20;
@@ -240,9 +240,9 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                   data-testid={chapterNumber ? `chapter-link-${chapterNumber}` : undefined}
                 >
                   <span
-                    className={css`
+                    className={`${css`
                       font-family: ${headingFont};
-                    `}
+                    `} chapter-number`}
                   >
                     {t("chapter-chapter-number", { number: chapterNumber })}
                   </span>
@@ -251,9 +251,9 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
               ) : (
                 <>
                   <span
-                    className={css`
+                    className={`${css`
                       font-family: ${headingFont};
-                    `}
+                    `} chapter-number`}
                   >
                     {t("chapter-chapter-number", { number: chapterNumber })}
                   </span>
@@ -264,7 +264,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                 <div
                   className={css`
                     margin-top: 0.6rem;
-                    color: #f5f6f7;
+                    color: ${baseTheme.colors.clear[100]};
                     font-size: 0.875rem;
                     line-height: 1.4;
                     opacity: 0.95;

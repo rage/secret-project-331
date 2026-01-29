@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { PermissionPage } from "@/components/PermissionPage"
 import { getCourse } from "@/services/backend/courses"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

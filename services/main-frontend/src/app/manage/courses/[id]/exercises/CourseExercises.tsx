@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import ExerciseList from "./ExerciseList"
 import ExerciseRepositories from "./ExerciseRepositories"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({

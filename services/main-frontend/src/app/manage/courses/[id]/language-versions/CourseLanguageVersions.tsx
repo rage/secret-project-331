@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { formatLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import Button from "@/shared-module/common/components/Button"

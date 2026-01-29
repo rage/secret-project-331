@@ -10,7 +10,7 @@ import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
 import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
 import PointExportButton from "./PointExportButton"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import useCourseInstancesQuery, { invalidateCourseInstances } from "@/hooks/useCourseInstancesQuery"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

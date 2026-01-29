@@ -5,7 +5,7 @@ import React from "react"
 
 import ManageCourseStructure from "./ManageCourseStructure"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { fetchCourseStructure } from "@/services/backend/courses"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

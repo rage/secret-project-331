@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next"
 import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { fetchCourseReferences } from "@/services/backend/courses"
 import { MaterialReference } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"

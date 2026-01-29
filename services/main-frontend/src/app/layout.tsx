@@ -5,6 +5,7 @@ import React, { Suspense } from "react"
 
 import Layout from "@/components/Layout"
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
+import { AriaRouterProvider } from "@/components/providers/AriaRouterProvider"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/constants"
@@ -30,11 +31,13 @@ const RootLayout = ({
         <Script noModule id="outdated-browser-warning">
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>
-        <Suspense fallback={<Spinner />}>
-          <ClientLayoutWrapper>
-            <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
-          </ClientLayoutWrapper>
-        </Suspense>
+        <AriaRouterProvider>
+          <Suspense fallback={<Spinner />}>
+            <ClientLayoutWrapper>
+              <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
+            </ClientLayoutWrapper>
+          </Suspense>
+        </AriaRouterProvider>
       </body>
     </html>
   )

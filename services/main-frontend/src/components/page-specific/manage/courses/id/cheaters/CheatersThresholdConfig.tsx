@@ -1,16 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { Gear } from "@vectopus/atlas-icons-react"
-import { useSearchParams } from "next/navigation"
-import React, { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseCheatersTabs from "./CourseCheatersTabs"
-
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import {
   deleteThresholdForModule,
   fetchCourseStructure,
@@ -21,31 +16,17 @@ import { CourseModule, ThresholdData } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
-import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
-import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
-const Header = styled.div`
-  width: 100%;
-`
+interface CheatersThresholdConfigProps {
+  courseId: string
+}
 
-const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
-  courseId,
-}) => {
-  const [archive, setArchive] = useState(false)
+/** Renders threshold configuration UI for the cheaters section. */
+export default function CheatersThresholdConfig({ courseId }: CheatersThresholdConfigProps) {
   const { t } = useTranslation()
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    const archiveParam = searchParams.get("archive")
-    if (archiveParam) {
-      setArchive(archiveParam === "true")
-    }
-  }, [searchParams])
 
   const courseStructureQuery = useQuery({
     queryKey: [`course-structure-${courseId}`],
@@ -83,45 +64,24 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
 
   const handleUpdateThreshold = async (moduleId: string, durationHours: number | undefined) => {
     if (durationHours === undefined) {
-      // Delete threshold if value is empty
       return deleteThresholdForModuleMutation.mutate(moduleId)
     }
-
     const convertedDuration = durationHours * 3600
-    const threshold = {
-      duration_seconds: convertedDuration,
-    }
-
+    const threshold = { duration_seconds: convertedDuration }
     return postThresholdForModuleMutation.mutate({ moduleId, threshold })
   }
 
   const postThresholdForModuleMutation = useToastMutation(
     ({ moduleId, threshold }: { moduleId: string; threshold: ThresholdData }) =>
       postThresholdForModule(moduleId, threshold),
-    {
-      notify: true,
-      successMessage: t("threshold-added-successfully"),
-      method: "POST",
-    },
-    {
-      onSuccess: () => {
-        thresholdsQuery.refetch()
-      },
-    },
+    { notify: true, successMessage: t("threshold-added-successfully"), method: "POST" },
+    { onSuccess: () => thresholdsQuery.refetch() },
   )
 
   const deleteThresholdForModuleMutation = useToastMutation(
     (moduleId: string) => deleteThresholdForModule(moduleId),
-    {
-      notify: true,
-      successMessage: t("threshold-removed-successfully"),
-      method: "DELETE",
-    },
-    {
-      onSuccess: () => {
-        thresholdsQuery.refetch()
-      },
-    },
+    { notify: true, successMessage: t("threshold-removed-successfully"), method: "DELETE" },
+    { onSuccess: () => thresholdsQuery.refetch() },
   )
 
   return (
@@ -143,7 +103,6 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           border-radius: 4px;
           margin: 1.25rem 0 2.5rem 0;
           padding: 1.245rem;
-
           .heading {
             display: flex;
             align-items: center;
@@ -153,19 +112,13 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
               margin-right: 5px;
             }
           }
-
           .description {
             color: #707070;
             margin-bottom: 0.625rem;
           }
-
           .duration-threshold {
             width: 10rem;
             margin-bottom: 0;
-          }
-
-          .threshold-btn {
-            margin-top: 0.5rem;
           }
         `}
       >
@@ -184,13 +137,11 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
         {(courseStructureQuery.isLoading || thresholdsQuery.isLoading) && (
           <Spinner variant="medium" />
         )}
-        <Header>
-          <h5 className="heading">
-            <Gear size={16} weight="bold" aria-hidden="true" />
-            {t("configure-threshold")}
-          </h5>
-          <p className="description">{t("configure-threshold-description")}</p>
-        </Header>
+        <h5 className="heading">
+          <Gear size={16} weight="bold" aria-hidden="true" />
+          {t("configure-threshold")}
+        </h5>
+        <p className="description">{t("configure-threshold-description")}</p>
         {courseStructureQuery.data && (
           <div
             className={css`
@@ -202,7 +153,6 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 1rem;
-
                 th {
                   text-align: left;
                   padding: 0.75rem;
@@ -210,30 +160,24 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
                   font-weight: 600;
                   color: ${baseTheme.colors.gray[700]};
                 }
-
                 th:first-of-type {
                   width: 30%;
                 }
-
                 th:nth-of-type(2) {
                   width: 30%;
                 }
-
                 th:last-of-type {
                   width: 40%;
                   min-width: 150px;
                 }
-
                 td {
                   padding: 0.75rem;
                   border-bottom: 1px solid ${baseTheme.colors.gray[100]};
                   vertical-align: middle;
                 }
-
                 td:last-of-type {
                   min-width: 150px;
                 }
-
                 tr:last-child td {
                   border-bottom: none;
                 }
@@ -361,28 +305,6 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           </div>
         )}
       </div>
-      {}
-      <TabLinkNavigation>
-        <TabLink
-          url={{ pathname: window.location.pathname, query: { archive: false } }}
-          isActive={!archive}
-          // countHook={createPendingChangeRequestCountHook(courseId)}
-        >
-          {t("suspected-students")}
-        </TabLink>
-        <TabLink
-          url={{ pathname: window.location.pathname, query: { archive: true } }}
-          isActive={archive}
-        >
-          {t("archived")}
-        </TabLink>
-      </TabLinkNavigation>
-      {/* TODO: Dropdown for perPage? */}
-      <TabLinkPanel>
-        <CourseCheatersTabs courseId={courseId} archive={archive} perPage={4} />
-      </TabLinkPanel>
     </>
   )
 }
-
-export default withSuspenseBoundary(CourseCheaters)

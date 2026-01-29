@@ -1,0 +1,15 @@
+"use client"
+
+import { useParams } from "next/navigation"
+import React from "react"
+
+import References from "@/components/page-specific/manage/courses/id/references"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+function OtherReferencesPage() {
+  const params = useParams<{ id: string }>()
+  return <References courseId={params.id} />
+}
+
+export default withErrorBoundary(withSignedIn(OtherReferencesPage))

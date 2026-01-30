@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use tracing::{debug, error, instrument, trace, warn};
 
 // API version for Azure OpenAI calls
-pub const LLM_API_VERSION: &str = "2024-06-01";
+pub const LLM_API_VERSION: &str = "2024-10-21";
 
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -159,6 +159,44 @@ pub enum LLMRequestParams {
     NonThinking(NonThinkingParams),
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum JSONType {
+    JsonSchema,
+    Object,
+    Array,
+    String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct JSONSchema {
+    pub name: String,
+    pub strict: bool,
+    pub schema: Schema,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct Schema {
+    #[serde(rename = "type")]
+    pub type_field: JSONType,
+    pub items: Items,
+    pub min_items: i64,
+    pub max_items: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct Items {
+    #[serde(rename = "type")]
+    pub type_field: JSONType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct LLMRequestResponseFormatParam {
+    #[serde(rename = "type")]
+    pub format_type: JSONType, //JsonSchema
+    pub json_schema: JSONSchema,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LLMRequest {
     pub messages: Vec<APIMessage>,
@@ -166,6 +204,8 @@ pub struct LLMRequest {
     pub data_sources: Vec<DataSource>,
     #[serde(flatten)]
     pub params: LLMRequestParams,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub response_format: Option<LLMRequestResponseFormatParam>,
     pub stop: Option<String>,
 }
 
@@ -338,6 +378,7 @@ impl LLMRequest {
                 messages: api_chat_messages,
                 data_sources,
                 params,
+                response_format: None,
                 stop: None,
             },
             new_message.order_number,

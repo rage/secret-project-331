@@ -339,6 +339,7 @@ async fn process_block_chunk(
             presence_penalty: None,
             max_tokens: None,
         }),
+        response_format: None,
         stop: None,
     };
     info!(

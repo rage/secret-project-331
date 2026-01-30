@@ -1,5 +1,8 @@
 use crate::{
-    azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams},
+    azure_chatbot::{
+        Items, JSONSchema, JSONType, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam,
+        NonThinkingParams, Schema,
+    },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
@@ -59,7 +62,6 @@ pub async fn generate_suggested_messages(
                 if new_tokens > token_budget {
                     return (tokens, n);
                 }
-                //let tag = format!("[{who} said:]\n", who = el.message_role);
                 let new_n = el.order_number as usize;
                 return (new_tokens, new_n);
             } else {
@@ -72,7 +74,13 @@ pub async fn generate_suggested_messages(
         .map(|x| x.message.to_owned())
         .collect::<Option<Vec<String>>>()
         .ok_or_else(|| {
-            ChatbotError::new(ChatbotErrorType::ChatbotMessageSuggestError, "lol", None)
+            // todo, should probably just put in an empty convo??
+            // or when could this fail, it probably never should
+            ChatbotError::new(
+                ChatbotErrorType::ChatbotMessageSuggestError,
+                "Failed to ",
+                None,
+            )
         })?
         .join("\n\n");
     println!("🐱🐱🐱🐱🐱🐱🐱 Conversation: {:?}", conversation);
@@ -91,7 +99,6 @@ pub async fn generate_suggested_messages(
     };
 
     let chat_request = LLMRequest {
-        // estimate tokens and shorten conversation if needed
         messages: vec![system_prompt, user_prompt],
         data_sources: vec![],
         params: LLMRequestParams::NonThinking(NonThinkingParams {
@@ -101,10 +108,24 @@ pub async fn generate_suggested_messages(
             frequency_penalty: None,
             presence_penalty: None,
         }),
+        response_format: Some(LLMRequestResponseFormatParam {
+            format_type: JSONType::JsonSchema,
+            json_schema: JSONSchema {
+                name: "Lol".to_string(),
+                strict: true,
+                schema: Schema {
+                    type_field: JSONType::Array,
+                    items: Items {
+                        type_field: JSONType::String,
+                    },
+                    min_items: 3,
+                    max_items: 3,
+                },
+            },
+        }),
         stop: None,
     };
     // add the teacher's prompt
-    // make llm reqes
     let completion = make_blocking_llm_request(chat_request, app_config).await?;
     println!("🐱🐱🐱🐱🐱🐱🐱 Completion: {:?}", completion);
     let suggested_messages: Vec<String> = match &completion

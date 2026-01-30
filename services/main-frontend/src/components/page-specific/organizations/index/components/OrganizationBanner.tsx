@@ -1,7 +1,9 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { ApartmentBuilding, Gear } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 

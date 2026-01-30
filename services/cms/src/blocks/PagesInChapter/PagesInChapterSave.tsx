@@ -1,3 +1,5 @@
+"use client"
+
 import { InnerBlocks } from "@wordpress/block-editor"
 
 const PagesInChapterSave: React.FC<unknown> = () => {

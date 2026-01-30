@@ -28,6 +28,8 @@ pub enum UtilErrorType {
     Other,
     Unavailable,
     DeserializationError,
+    TmcHttpError,
+    TmcErrorResponse,
 }
 
 /**

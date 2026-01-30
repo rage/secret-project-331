@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import React, { useCallback, useId } from "react"
 import { useTranslation } from "react-i18next"

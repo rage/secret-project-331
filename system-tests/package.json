@@ -4,7 +4,7 @@
   "description": "",
   "keywords": [],
   "main": "index.js",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
     "create-login-states": "env LANGUAGE=en_US  pnpm exec playwright test --project setup",
     "help": "playwright --help",
@@ -32,6 +32,7 @@
   "dependencies": {
     "@axe-core/playwright": "^4.10.2",
     "axe-core": "^4.10.3",
+    "jose": "^6.1.0",
     "js-yaml": "^4.1.0",
     "png-metadata": "^1.0.2",
     "tar-fs": "^3.1.0",

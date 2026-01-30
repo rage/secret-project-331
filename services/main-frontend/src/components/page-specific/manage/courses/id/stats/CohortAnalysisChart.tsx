@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 import type { EChartsOption } from "echarts/types/src/export/option"
@@ -338,7 +340,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
               { value: DAILY_PERIOD, label: t("stats-period-daily") },
             ]}
             value={period}
-            onChange={(e) => setPeriod(e.target.value as Period)}
+            onChange={(e) => setPeriod(e.currentTarget.value as Period)}
             className={css`
               margin-bottom: 0;
               min-width: 120px;

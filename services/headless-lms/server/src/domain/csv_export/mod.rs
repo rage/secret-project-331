@@ -118,10 +118,10 @@ fn course_module_completion_info_to_grade_string(
         "fail".to_string()
     });
     if let Some(grade_string) = grade_string {
-        if let Some(info) = input {
-            if !info.prerequisite_modules_completed {
-                return format!("{grade_string}*");
-            }
+        if let Some(info) = input
+            && !info.prerequisite_modules_completed
+        {
+            return format!("{grade_string}*");
         }
         return grade_string;
     }

@@ -34,6 +34,9 @@ fn domain(target: &mut File) {
         error::ErrorData,
         error::ErrorResponse,
         models_requests::SpecRequest,
+        oauth::consent_query::ConsentQuery,
+        oauth::consent_response::ConsentResponse,
+        oauth::consent_deny_query::ConsentDenyQuery,
     };
 }
 
@@ -55,10 +58,22 @@ fn models(target: &mut File) {
         chapters::DatabaseChapter,
         chapters::NewChapter,
         chapters::UserCourseInstanceChapterProgress,
+        chapters::ChapterAvailability,
+        chapters::UserChapterProgress,
+        chapters::CourseUserInfo,
+        chapters::ChapterLockPreview,
+        chapters::UnreturnedExercise,
+
         chatbot_configurations::ChatbotConfiguration,
         chatbot_configurations::NewChatbotConf,
+        chatbot_configurations::VerbosityLevel,
+        chatbot_configurations::ReasoningEffortLevel,
+        chatbot_configurations_models::ChatbotConfigurationModel,
         chatbot_conversation_messages::ChatbotConversationMessage,
+        chatbot_conversation_messages::MessageRole,
         chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
+        chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
+        chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
         chatbot_conversations::ChatbotConversation,
         chatbot_conversations::ChatbotConversationInfo,
         code_giveaway_codes::CodeGiveawayCode,
@@ -99,6 +114,7 @@ fn models(target: &mut File) {
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,
         email_templates::EmailTemplateUpdate,
+        email_templates::EmailTemplateType,
         exams::CourseExam,
         exams::Exam,
         exams::ExamEnrollment,
@@ -150,12 +166,14 @@ fn models(target: &mut File) {
         flagged_answers::ReportReason,
 
         generated_certificates::GeneratedCertificate,
+        generated_certificates::CertificateUpdateRequest,
         glossary::Term,
         glossary::TermUpdate,
 
         library::course_stats::AverageMetric,
         library::course_stats::CohortActivity,
         library::course_stats::CountResult,
+        library::course_stats::StudentsByCountryTotalsResult,
         library::custom_view_exercises::CustomViewExerciseSubmissions,
         library::custom_view_exercises::CustomViewExerciseTaskGrading,
         library::custom_view_exercises::CustomViewExerciseTaskSpec,
@@ -186,12 +204,17 @@ fn models(target: &mut File) {
         library::progressing::UserCourseModuleCompletion,
         library::progressing::UserModuleCompletionStatus,
         library::progressing::UserWithModuleCompletions,
+        library::students_view::ProgressOverview,
+        library::students_view::CompletionGridRow,
+        library::students_view::CertificateGridRow,
 
         marketing_consents::UserMarketingConsent,
         material_references::MaterialReference,
         material_references::NewMaterialReference,
 
         organizations::Organization,
+
+        oauth_user_client_scopes::AuthorizedClientInfo,
 
         page_audio_files::PageAudioFile,
         page_history::HistoryChangeReason,
@@ -276,6 +299,8 @@ fn models(target: &mut File) {
         teacher_grading_decisions::TeacherDecisionType,
         teacher_grading_decisions::TeacherGradingDecision,
 
+        user_chapter_locking_statuses::UserChapterLockingStatus,
+        user_chapter_locking_statuses::ChapterLockingStatus,
         user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
         user_details::UserDetail,
@@ -307,6 +332,8 @@ fn controllers(target: &mut File) {
 
             CreateAccountDetails,
             Login,
+            LoginResponse,
+            VerifyEmailRequest,
             UserInfo,
         };
     }
@@ -332,6 +359,7 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
+            chatbot_models::CourseInfo,
             certificates::CertificateConfigurationUpdate,
             courses::GetFeedbackQuery,
             courses::CopyCourseRequest,
@@ -347,6 +375,26 @@ fn controllers(target: &mut File) {
             user_details::BulkUserDetailsRequest,
             user_details::UserDetailsRequest,
             user_details::UserInfoPayload,
+            status::CronJobInfo,
+            status::DeploymentInfo,
+            status::EventInfo,
+            status::IngressInfo,
+            status::JobInfo,
+            status::PodDisruptionBudgetInfo,
+            status::PodInfo,
+            status::ServiceInfo,
+            status::ServicePortInfo,
+        };
+    }
+
+    // domain
+    {
+        use crate::domain::*;
+        export! {
+            target,
+
+            system_health::HealthStatus,
+            system_health::SystemHealthStatus,
         };
     }
 }

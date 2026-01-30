@@ -10,6 +10,7 @@ use anyhow::Result;
 use chrono::Utc;
 
 use headless_lms_models::chatbot_configurations::NewChatbotConf;
+use headless_lms_models::chatbot_configurations_models;
 use headless_lms_models::roles::UserRole;
 use serde_json::json;
 
@@ -45,6 +46,8 @@ pub async fn seed_chatbot_course(
 
     info!("Inserting sample course {}", course_name);
 
+    let llm = chatbot_configurations_models::get_default(&mut conn).await?;
+
     let course = CourseBuilder::new(course_name, course_slug)
         .desc("Sample course for chatbot.")
         .chatbot(true)
@@ -68,6 +71,8 @@ pub async fn seed_chatbot_course(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             hide_citations: false,
+            model_id: llm.id,
+            thinking_model: llm.thinking,
             default_chatbot: true,
             ..Default::default()
         })
@@ -80,6 +85,8 @@ pub async fn seed_chatbot_course(
             initial_message: "Haiii xD What's up?".to_string(),
             use_azure_search: true,
             hide_citations: false,
+            model_id: llm.id,
+            thinking_model: llm.thinking,
             ..Default::default()})
         .role(seed_users_result.teacher_user_id, UserRole::Teacher)
         .module(
@@ -126,14 +133,13 @@ pub async fn seed_chatbot_course(
                                             "id": cx.v5(b"exercise:1:1:option:3")
                                         }
                                     ]),
+                                    false,
+                                    None,
+                                    None
                                 )),
                         )
                         .page(
                           PageBuilder::new("/chapter-1/page-2", "Page 2")
-                            .block(paragraph(
-                                "Here you can prompt a chatbot.",
-                                cx.v5(b"page:1:2:block:intro"),
-                            ))
                             .block(chatbot_block(
                                 cx.v5(b"page:1:2:block:chatbox"),
                                 cx.v5(b"chatbot_config:block"),

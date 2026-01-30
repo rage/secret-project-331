@@ -48,27 +48,6 @@ spec:
                 name: cms
                 port:
                   number: 3000
-          - path: /org
-            pathType: Prefix
-            backend:
-              service:
-                name: course-material
-                port:
-                  number: 3003
-          - path: /org/[^/]+/?$
-            pathType: Exact
-            backend:
-              service:
-                name: main-frontend
-                port:
-                  number: 3000
-          - path: /organizations
-            pathType: Exact
-            backend:
-              service:
-                name: main-frontend
-                port:
-                  number: 3000
           - path: /
             pathType: Prefix
             backend:

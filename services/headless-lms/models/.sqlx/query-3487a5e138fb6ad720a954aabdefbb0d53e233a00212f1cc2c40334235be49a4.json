@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO study_registry_registrars (\n            name,\n            secret_key\n        )\n        VALUES (\n            'Default Registrar',\n            encode(gen_random_bytes(32), 'hex')\n        )\n        RETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3487a5e138fb6ad720a954aabdefbb0d53e233a00212f1cc2c40334235be49a4"
+}

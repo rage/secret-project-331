@@ -1,3 +1,6 @@
+"use client"
+
+import type { QueryClient } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
@@ -12,6 +15,13 @@ const useUserResearchConsentQuery = () => {
     queryKey: [`users-get-user-research-consent`],
     queryFn: () => getResearchConsentByUserId(),
     enabled: loginStateContext.signedIn === true,
+  })
+}
+
+export const refetchUserResearchConsent = async (queryClient: QueryClient) => {
+  await queryClient.refetchQueries({
+    // eslint-disable-next-line i18next/no-literal-string
+    queryKey: [`users-get-user-research-consent`],
   })
 }
 

@@ -1,9 +1,13 @@
+#![allow(clippy::unwrap_used)]
+
 pub mod builder;
 pub mod seed_certificate_fonts;
 pub mod seed_courses;
 pub mod seed_exercise_services;
 pub mod seed_file_storage;
+pub mod seed_generic_emails;
 pub mod seed_helpers;
+pub mod seed_oauth_clients;
 pub mod seed_organizations;
 pub mod seed_playground_examples;
 pub mod seed_roles;
@@ -12,7 +16,10 @@ pub mod seed_users;
 
 use std::{env, process::Command, sync::Arc, time::Duration};
 
-use crate::{domain::models_requests::JwtKey, setup_tracing};
+use crate::{
+    domain::models_requests::JwtKey, programs::seed::seed_oauth_clients::seed_oauth_clients,
+    setup_tracing,
+};
 
 use anyhow::Context;
 use futures::try_join;
@@ -78,7 +85,12 @@ pub async fn main() -> anyhow::Result<()> {
         )),
         run_parallelly(seed_certificate_fonts::seed_certificate_fonts(
             db_pool.clone()
-        ))
+        )),
+        run_parallelly(seed_generic_emails::seed_generic_emails(
+            db_pool.clone(),
+            seed_users_result
+        )),
+        run_parallelly(seed_oauth_clients(db_pool.clone()))
     )?;
 
     Ok(())
@@ -94,11 +106,19 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
     let clean = env::args().any(|a| a == "clean");
 
     let db_url = env::var("DATABASE_URL")?;
+    let cpu_count = std::thread::available_parallelism()
+        .map(|n| n.get())
+        .unwrap_or(2);
+
+    let max_conns: u32 = std::cmp::max(2, cpu_count as u32);
+
+    let min_conns: u32 = std::cmp::max(1, (cpu_count / 2) as u32);
+
     let db_pool = PgPoolOptions::new()
-        .max_connections(10)
-        .min_connections(5)
-        // the seed process can take a while, default is 30
-        .acquire_timeout(Duration::from_secs(90))
+        .max_connections(max_conns)
+        .min_connections(min_conns)
+        // Since this is the seed, it should be fine to wait for a long time for connections
+        .acquire_timeout(Duration::from_secs(10 * 60))
         .connect(&db_url)
         .await?;
 

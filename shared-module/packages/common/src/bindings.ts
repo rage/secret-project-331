@@ -64,6 +64,27 @@ export interface SpecRequest {
   upload_url: string | null
 }
 
+export interface ConsentQuery {
+  client_id: string
+  redirect_uri: string
+  response_type: string
+  scope: string
+  state: string
+  nonce: string
+  code_challenge: string | null
+  code_challenge_method: string | null
+}
+
+export interface ConsentResponse {
+  redirect_uri: string
+}
+
+export interface ConsentDenyQuery {
+  client_id: string
+  redirect_uri: string
+  state: string
+}
+
 export interface CertificateAllRequirements {
   certificate_configuration_id: string
   course_module_ids: Array<string>
@@ -191,6 +212,42 @@ export interface UserCourseInstanceChapterProgress {
   attempted_exercises: number | null
 }
 
+export interface ChapterAvailability {
+  chapter_id: string
+  chapter_number: number
+  chapter_name: string
+  exercises_available: number
+  points_available: number
+}
+
+export interface UserChapterProgress {
+  user_id: string
+  chapter_id: string
+  chapter_number: number
+  chapter_name: string
+  points_obtained: number
+  exercises_attempted: number
+}
+
+export interface CourseUserInfo {
+  first_name: string | null
+  last_name: string | null
+  user_id: string
+  email: string | null
+  course_instance: string | null
+}
+
+export interface ChapterLockPreview {
+  has_unreturned_exercises: boolean
+  unreturned_exercises_count: number
+  unreturned_exercises: Array<UnreturnedExercise>
+}
+
+export interface UnreturnedExercise {
+  id: string
+  name: string
+}
+
 export interface ChatbotConfiguration {
   id: string
   created_at: string
@@ -199,19 +256,25 @@ export interface ChatbotConfiguration {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
+  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  response_max_tokens: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  use_tools: boolean
   default_chatbot: boolean
 }
 
@@ -219,20 +282,42 @@ export interface NewChatbotConf {
   course_id: string
   enabled_to_students: boolean
   chatbot_name: string
+  model_id: string
+  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
+  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  response_max_tokens: number
+  max_completion_tokens: number
+  verbosity: VerbosityLevel
+  reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  use_tools: boolean
   default_chatbot: boolean
+  chatbotconf_id: string | null
+}
+
+export type VerbosityLevel = "low" | "medium" | "high"
+
+export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+
+export interface ChatbotConfigurationModel {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  model: string
+  thinking: boolean
+  default_model: boolean
+  deployment_name: string
 }
 
 export interface ChatbotConversationMessage {
@@ -242,11 +327,15 @@ export interface ChatbotConversationMessage {
   deleted_at: string | null
   conversation_id: string
   message: string | null
-  is_from_chatbot: boolean
+  message_role: MessageRole
   message_is_complete: boolean
   used_tokens: number
   order_number: number
+  tool_output: ChatbotConversationMessageToolOutput | null
+  tool_call_fields: Array<ChatbotConversationMessageToolCall>
 }
+
+export type MessageRole = "assistant" | "user" | "tool" | "system"
 
 export interface ChatbotConversationMessageCitation {
   id: string
@@ -260,6 +349,28 @@ export interface ChatbotConversationMessageCitation {
   content: string
   document_url: string
   citation_number: number
+}
+
+export interface ChatbotConversationMessageToolCall {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  message_id: string
+  tool_name: string
+  tool_arguments: unknown
+  tool_call_id: string
+}
+
+export interface ChatbotConversationMessageToolOutput {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  message_id: string
+  tool_name: string
+  tool_output: string
+  tool_call_id: string
 }
 
 export interface ChatbotConversation {
@@ -553,6 +664,7 @@ export interface Course {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface CourseMaterialCourse {
@@ -574,6 +686,7 @@ export interface CourseMaterialCourse {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface CourseBreadcrumbInfo {
@@ -608,6 +721,7 @@ export interface CourseUpdate {
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
+  chapter_locking_enabled: boolean
 }
 
 export interface NewCourse {
@@ -645,24 +759,34 @@ export interface EmailTemplate {
   updated_at: string
   deleted_at: string | null
   content: unknown | null
-  name: string
+  template_type: EmailTemplateType
   subject: string | null
   exercise_completions_threshold: number | null
   points_threshold: number | null
-  course_instance_id: string
+  course_id: string | null
+  language: string | null
 }
 
 export interface EmailTemplateNew {
-  name: string
+  template_type: EmailTemplateType
+  language: string | null
+  content: unknown | null
+  subject: string | null
 }
 
 export interface EmailTemplateUpdate {
-  name: string
+  template_type: EmailTemplateType
   subject: string
   content: unknown
   exercise_completions_threshold: number | null
   points_threshold: number | null
 }
+
+export type EmailTemplateType =
+  | "reset_password_email"
+  | "delete_user_email"
+  | "confirm_email_code"
+  | "generic"
 
 export interface CourseExam {
   id: string
@@ -957,6 +1081,7 @@ export interface CourseMaterialExercise {
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
+  should_show_reset_message: string | null
 }
 
 export interface Exercise {
@@ -1015,12 +1140,13 @@ export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending
 
 export interface ExerciseResetLog {
   id: string
-  reset_by: string
+  reset_by: string | null
   reset_by_first_name: string | null
   reset_by_last_name: string | null
   reset_for: string
   exercise_id: string
   exercise_name: string
+  reason: string | null
   course_id: string
   reset_at: string
   created_at: string
@@ -1103,6 +1229,11 @@ export interface GeneratedCertificate {
   certificate_configuration_id: string
 }
 
+export interface CertificateUpdateRequest {
+  date_issued: string
+  name_on_certificate: string | null
+}
+
 export interface Term {
   id: string
   term: string
@@ -1128,6 +1259,11 @@ export interface CohortActivity {
 
 export interface CountResult {
   period: string | null
+  count: number
+}
+
+export interface StudentsByCountryTotalsResult {
+  country: string | null
   count: number
 }
 
@@ -1365,6 +1501,30 @@ export interface UserWithModuleCompletions {
   user_id: string
 }
 
+export interface ProgressOverview {
+  user_details: Array<UserDetail>
+  chapters: Array<DatabaseChapter>
+  user_exercise_states: Array<UserExerciseState>
+  chapter_availability: Array<ChapterAvailability>
+  user_chapter_progress: Array<UserChapterProgress>
+}
+
+export interface CompletionGridRow {
+  student: string
+  module: string | null
+  grade: string
+  status: string
+}
+
+export interface CertificateGridRow {
+  student: string
+  certificate: string
+  date_issued: string | null
+  verification_id: string | null
+  certificate_id: string | null
+  name_on_certificate: string | null
+}
+
 export interface UserMarketingConsent {
   id: string
   course_id: string
@@ -1404,6 +1564,12 @@ export interface Organization {
   organization_image_url: string | null
   deleted_at: string | null
   hidden: boolean
+}
+
+export interface AuthorizedClientInfo {
+  client_id: string
+  client_name: string
+  scopes: Array<string>
 }
 
 export interface PageAudioFile {
@@ -1690,6 +1856,7 @@ export interface CmsPeerOrSelfReviewConfig {
   accepting_threshold: number
   processing_strategy: PeerReviewProcessingStrategy
   points_are_all_or_nothing: boolean
+  reset_answer_if_zero_points_from_review: boolean
   review_instructions: unknown | null
 }
 
@@ -1719,6 +1886,7 @@ export interface PeerOrSelfReviewConfig {
   processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
   points_are_all_or_nothing: boolean
+  reset_answer_if_zero_points_from_review: boolean
   review_instructions: unknown | null
 }
 
@@ -2053,8 +2221,7 @@ export interface SuspectedCheaters {
 }
 
 export interface ThresholdData {
-  points: number
-  duration_seconds: number | null
+  duration_seconds: number
 }
 
 export interface NewTeacherGradingDecision {
@@ -2071,6 +2238,7 @@ export type TeacherDecisionType =
   | "ZeroPoints"
   | "CustomPoints"
   | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export interface TeacherGradingDecision {
   id: string
@@ -2083,6 +2251,19 @@ export interface TeacherGradingDecision {
   justification: string | null
   hidden: boolean | null
 }
+
+export interface UserChapterLockingStatus {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  user_id: string
+  chapter_id: string
+  course_id: string
+  status: ChapterLockingStatus
+}
+
+export type ChapterLockingStatus = "unlocked" | "completed_and_locked" | "not_unlocked_yet"
 
 export interface UserCourseExerciseServiceVariable {
   id: string
@@ -2209,6 +2390,16 @@ export interface Login {
   password: string
 }
 
+export type LoginResponse =
+  | { type: "success" }
+  | { type: "requires_email_verification"; email_verification_token: string }
+  | { type: "failed" }
+
+export interface VerifyEmailRequest {
+  email_verification_token: string
+  code: string
+}
+
 export interface UserInfo {
   user_id: string
   first_name: string | null
@@ -2258,6 +2449,10 @@ export type ExamEnrollmentData =
 export interface CourseMaterialPeerOrSelfReviewDataWithToken {
   course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData
   token: string | null
+}
+
+export interface CourseInfo {
+  course_id: string
 }
 
 export interface CertificateConfigurationUpdate {
@@ -2384,6 +2579,81 @@ export interface UserInfoPayload {
   last_name: string
   country: string
   email_communication_consent: boolean
+}
+
+export interface CronJobInfo {
+  name: string
+  schedule: string
+  last_schedule_time: string | null
+}
+
+export interface DeploymentInfo {
+  name: string
+  replicas: number
+  ready_replicas: number
+  selector_labels: Record<string, string>
+}
+
+export interface EventInfo {
+  name: string
+  reason: string | null
+  message: string | null
+  type_: string | null
+  first_timestamp: string | null
+  last_timestamp: string | null
+  count: number | null
+  involved_object_kind: string | null
+  involved_object_name: string | null
+}
+
+export interface IngressInfo {
+  name: string
+  hosts: Array<string>
+  paths: Array<string>
+  class_name: string | null
+}
+
+export interface JobInfo {
+  name: string
+  succeeded: number | null
+  failed: number | null
+  active: number | null
+}
+
+export interface PodDisruptionBudgetInfo {
+  name: string
+  current_healthy: number
+  desired_healthy: number
+  disruptions_allowed: number
+  expected_pods: number
+  selector_labels: Record<string, string>
+}
+
+export interface PodInfo {
+  name: string
+  phase: string
+  ready: boolean | null
+  labels: Record<string, string>
+}
+
+export interface ServiceInfo {
+  name: string
+  cluster_ip: string | null
+  ports: Array<ServicePortInfo>
+}
+
+export interface ServicePortInfo {
+  name: string | null
+  port: number
+  target_port: string | null
+  protocol: string | null
+}
+
+export type HealthStatus = "healthy" | "warning" | "error"
+
+export interface SystemHealthStatus {
+  status: HealthStatus
+  issues: Array<string>
 }
 
 export interface Pagination {

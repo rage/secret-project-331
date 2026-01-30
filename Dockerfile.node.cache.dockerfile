@@ -10,7 +10,6 @@ USER node
 
 RUN cd /tmp/cache-build && pnpm fetch \
   && cd /tmp/cache-build/services/cms && pnpm fetch \
-  && cd /tmp/cache-build/services/course-material && pnpm fetch \
   && cd /tmp/cache-build/services/example-exercise && pnpm fetch \
   && cd /tmp/cache-build/services/main-frontend && pnpm fetch \
   && cd /tmp/cache-build/services/quizzes && pnpm fetch \

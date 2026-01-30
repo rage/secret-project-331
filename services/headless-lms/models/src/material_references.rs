@@ -110,7 +110,8 @@ pub async fn delete_reference(conn: &mut PgConnection, id: Uuid) -> ModelResult<
         "
 UPDATE material_references
 SET deleted_at = now()
-WHERE material_references.id = $1;
+WHERE material_references.id = $1
+AND deleted_at IS NULL;
         ",
         id
     )

@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
@@ -11,7 +13,6 @@ import { fetchCoursePageVisitDatumSummariesByCountry } from "@/services/backend/
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseVisitorsByCountryProps {
@@ -126,4 +127,4 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseVisitorsByCountry))
+export default withErrorBoundary(CourseVisitorsByCountry)

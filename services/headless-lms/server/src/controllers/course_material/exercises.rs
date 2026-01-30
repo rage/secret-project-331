@@ -7,7 +7,9 @@ use crate::{
     },
     prelude::*,
 };
-use headless_lms_models::flagged_answers::FlaggedAnswer;
+use headless_lms_models::{
+    ModelError, ModelErrorType, flagged_answers::FlaggedAnswer, peer_or_self_review_configs,
+};
 use models::{
     exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::CourseMaterialExercise,
@@ -18,7 +20,7 @@ use models::{
             CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewSubmission,
         },
     },
-    user_exercise_states,
+    user_chapter_locking_statuses, user_exercise_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -54,15 +56,22 @@ async fn get_exercise(
     let mut should_clear_grading_information = true;
     // Check if teacher is testing an exam and wants to see the exercise answers
     if let Some(exam_id) = course_material_exercise.exercise.exam_id {
+        let user_id_for_exam = user_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "User must be authenticated to view exam exercises".to_string(),
+                None,
+            )
+        })?;
         let user_enrollment =
-            models::exams::get_enrollment(&mut conn, exam_id, user_id.unwrap()).await?;
+            models::exams::get_enrollment(&mut conn, exam_id, user_id_for_exam).await?;
 
-        if let Some(enrollment) = user_enrollment {
-            if let Some(show_answers) = enrollment.show_exercise_answers {
-                if enrollment.is_teacher_testing && show_answers {
-                    should_clear_grading_information = false;
-                }
-            }
+        if let Some(enrollment) = user_enrollment
+            && let Some(show_answers) = enrollment.show_exercise_answers
+            && enrollment.is_teacher_testing
+            && show_answers
+        {
+            should_clear_grading_information = false;
         }
     }
 
@@ -207,6 +216,35 @@ async fn post_submission(
     let submission = payload.0;
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+
+    if let Some(chapter_id) = exercise.chapter_id {
+        let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let is_accessible = user_chapter_locking_statuses::is_chapter_accessible(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if !is_accessible {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Complete and lock the previous chapter to unlock exercises in this chapter."
+                    .to_string(),
+                None,
+            ));
+        }
+        let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if exercises_locked {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "The current chapter is locked, and you can no longer submit exercises."
+                    .to_string(),
+                None,
+            ));
+        }
+    }
+
     let token = authorize(
         &mut conn,
         Act::View,
@@ -241,6 +279,35 @@ async fn start_peer_or_self_review(
     let mut conn = pool.acquire().await?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+
+    if let Some(chapter_id) = exercise.chapter_id {
+        let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let is_accessible = user_chapter_locking_statuses::is_chapter_accessible(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if !is_accessible {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Complete and lock the previous chapter to unlock exercises in this chapter."
+                    .to_string(),
+                None,
+            ));
+        }
+        let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if exercises_locked {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "The current chapter is locked, and you can no longer submit exercises."
+                    .to_string(),
+                None,
+            ));
+        }
+    }
+
     let user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
     let token = authorize(
@@ -274,6 +341,35 @@ async fn submit_peer_or_self_review(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+
+    if let Some(chapter_id) = exercise.chapter_id {
+        let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+        let is_accessible = user_chapter_locking_statuses::is_chapter_accessible(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if !is_accessible {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Complete and lock the previous chapter to unlock exercises in this chapter."
+                    .to_string(),
+                None,
+            ));
+        }
+        let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
+            &mut conn, user.id, chapter_id, course_id,
+        )
+        .await?;
+        if exercises_locked {
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "The current chapter is locked, and you can no longer submit exercises."
+                    .to_string(),
+                None,
+            ));
+        }
+    }
+
     // If the claim in the token validates, we can be sure that the user submitting this peer review got the peer review candidate from the backend.
     // The validation prevents users from chaging which answer they peer review.
     let claim = GivePeerReviewClaim::validate(&payload.token, &jwt_key)?;
@@ -305,14 +401,48 @@ async fn submit_peer_or_self_review(
         )
         .await?;
         if let Some(receiver_user_exercise_state) = receiver_user_exercise_state {
+            let mut tx = conn.begin().await?;
+
             models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
-            &mut conn,
+            &mut tx,
             &exercise,
             giver_user_exercise_state,
             receiver_user_exercise_state,
             payload.0,
         )
         .await?;
+
+            // Get updater receiver state after possible update above
+            let updated_receiver_state = user_exercise_states::get_user_exercise_state_if_exists(
+                &mut tx,
+                exercise_slide_submission.user_id,
+                exercise.id,
+                CourseOrExamId::Course(receiver_course_id),
+            )
+            .await?
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Receiver exercise state not found".to_string(),
+                    None,
+                )
+            })?;
+
+            let peer_or_self_review_config =
+                peer_or_self_review_configs::get_by_exercise_or_course_id(
+                    &mut tx,
+                    &exercise,
+                    exercise.get_course_id()?,
+                )
+                .await?;
+
+            let _ = models::library::peer_or_self_reviewing::reset_exercise_if_needed_if_zero_points_from_review(
+                &mut tx,
+                &peer_or_self_review_config,
+                &updated_receiver_state,
+            ).await?;
+
+            tx.commit().await?;
         } else {
             warn!(
                 "No user exercise state found for receiver's exercise slide submission id: {}",

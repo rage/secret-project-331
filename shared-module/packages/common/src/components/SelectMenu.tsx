@@ -1,27 +1,30 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-interface SelectOption {
-  value: string
+interface SelectOption<T> {
+  value: T
   label: string
 }
 
-interface SelectMenuExtraProps {
+interface SelectMenuExtraProps<T> {
   id: string
   label?: string
   error?: string
   value?: string
   defaultValue?: string
-  options: SelectOption[]
+  options: SelectOption<T>[]
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
   className?: string
   showDefaultOption?: boolean
+  disabled?: boolean
 }
 
 const DEFAULT_VALUE_KEY = "default-value"
 
-export type SelectMenuProps = React.HTMLAttributes<HTMLInputElement> & SelectMenuExtraProps
+export type SelectMenuProps<T> = React.HTMLAttributes<HTMLSelectElement> & SelectMenuExtraProps<T>
 
 const SelectIcon = () => {
   return (
@@ -35,7 +38,7 @@ const SelectIcon = () => {
   )
 }
 
-const SelectMenu = ({
+const SelectMenu = <T extends string = string>({
   id,
   label,
   onChange,
@@ -44,14 +47,14 @@ const SelectMenu = ({
   className,
   showDefaultOption = true,
   ...rest
-}: SelectMenuExtraProps) => {
+}: SelectMenuProps<T>) => {
   const { t } = useTranslation()
   return (
     <div
       className={cx(
         css`
           margin-bottom: 1rem;
-
+          ${rest.disabled && `filter: opacity(0.5);`}
           :hover {
             background: #f9f9f9;
           }
@@ -72,6 +75,7 @@ const SelectMenu = ({
             color: #4c5868;
             appearance: none;
             background: transparent;
+            ${rest.disabled && `cursor: not-allowed;`}
 
             :hover {
               background: #f9f9f9;

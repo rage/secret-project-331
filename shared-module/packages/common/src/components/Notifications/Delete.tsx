@@ -1,3 +1,5 @@
+"use client"
+
 import styled from "@emotion/styled"
 import { BellXmark } from "@vectopus/atlas-icons-react"
 import toast from "react-hot-toast"
@@ -89,7 +91,7 @@ const DeleteMessage = styled.div`
 const DeleteNotification = (props: DeleteNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <NotificationWrapper className="toast-notification">
+    <NotificationWrapper data-testid="toast-notification">
       <Content>
         <IconWrapper>
           <BellXmark color={baseTheme.colors.red[700]} size={20} />

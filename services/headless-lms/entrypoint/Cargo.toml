@@ -13,7 +13,7 @@ license.workspace = true
 headless-lms-server = { path = "../server" }
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
-actix-web = "4.11.0"
+actix-web = "4.12.1"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.100"
 # Combinators and utilities for working with Futures, Streams, Sinks, and the AsyncRead and AsyncWrite traits.
@@ -23,4 +23,8 @@ tokio.workspace = true
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 # A Rust allocator backed by jemalloc
-tikv-jemallocator = "0.6.0"
+tikv-jemallocator = "0.6.1"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

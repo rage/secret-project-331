@@ -1,0 +1,69 @@
+"use client"
+
+import { css } from "@emotion/css"
+
+import { BlockRendererProps } from "../../.."
+
+import { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
+import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
+import ParsedText from "@/components/course-material/ParsedText"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+interface ExtraAttributes {
+  align?: string
+}
+
+const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>> = (props) => {
+  const { citation, value, align } = props.data.attributes
+
+  const styleLeftDefault = css`
+    padding: 0.4rem 1rem;
+    margin: 2.5rem 0;
+    max-width: 100%;
+    border-left: 7px solid #bdc7d1;
+    background: #f6f8fa;
+  `
+  const styleRightDefault = css`
+    padding: 0.5rem 2rem;
+    margin: 2.5rem 0;
+    max-width: 650px;
+    border-right: 7px solid #bfbfbf;
+    text-align: right;
+  `
+  const styleCenterDefault = css`
+    margin-bottom: 1.75em;
+    text-align: center;
+  `
+
+  return (
+    <>
+      <blockquote
+        className={css`
+          ${((align && align === "left") || !align) && styleLeftDefault}
+          ${align && align === "right" && styleRightDefault}
+          ${align && align === "center" && styleCenterDefault}
+          margin-bottom: 1.75rem;
+        `}
+        cite={citation}
+      >
+        <div>
+          {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        </div>
+        <ParsedText
+          text={citation}
+          tag="cite"
+          tagProps={{
+            className: css`
+              font-style: normal;
+              font-size: 0.8125rem;
+            `,
+          }}
+          useWrapperElement={true}
+        />
+      </blockquote>
+    </>
+  )
+}
+
+export default withErrorBoundary(QuoteBlock)

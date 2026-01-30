@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useCallback } from "react"
@@ -29,6 +31,7 @@ const DECISIONS: Record<string, TeacherDecisionType> = {
   ZeroPoints: "ZeroPoints",
   FullPoints: "FullPoints",
   CustomPoints: "CustomPoints",
+  RejectAndReset: "RejectAndReset",
 }
 
 const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsProps> = ({
@@ -68,6 +71,10 @@ const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsPro
     },
     [handleDecision],
   )
+
+  const handleRejectAndReset = useCallback(() => {
+    handleDecision(DECISIONS.RejectAndReset)
+  }, [handleDecision])
 
   return (
     <ControlPanel>
@@ -116,6 +123,17 @@ const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsPro
           {t("button-text-full-points")}
         </Button>
         <CustomPointsPopup exerciseMaxPoints={exerciseMaxPoints} onSubmit={handleCustomPoints} />
+        <Button
+          size="medium"
+          variant="reject"
+          className={css`
+            margin-left: 1em;
+            margin-right: 0.5em;
+          `}
+          onClick={handleRejectAndReset}
+        >
+          {t("button-text-reject-and-reset")}
+        </Button>
       </div>
     </ControlPanel>
   )

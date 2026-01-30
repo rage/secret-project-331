@@ -5,6 +5,7 @@ This documents all endpoints. Select a module below for a category.
 
 */
 
+pub mod chapters;
 pub mod code_giveaways;
 pub mod course_instances;
 pub mod courses;
@@ -21,6 +22,7 @@ use actix_web::web::{self, ServiceConfig};
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/pages").configure(pages::_add_routes))
+        .service(web::scope("/chapters").configure(chapters::_add_routes))
         .service(web::scope("/course-instances").configure(course_instances::_add_routes))
         .service(web::scope("/email-templates").configure(email_templates::_add_routes))
         .service(web::scope("/gutenberg").configure(gutenberg::_add_routes))

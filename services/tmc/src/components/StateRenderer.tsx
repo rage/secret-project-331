@@ -1,7 +1,7 @@
+"use client"
+
 import React from "react"
 import { useTranslation } from "react-i18next"
-
-import { ExerciseIframeState } from "../util/stateInterfaces"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
@@ -12,6 +12,7 @@ import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/consta
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { RunResult } from "@/tmc/cli"
+import { ExerciseIframeState } from "@/util/stateInterfaces"
 
 interface Props {
   state: ExerciseIframeState | null

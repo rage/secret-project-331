@@ -1,15 +1,21 @@
+"use client"
+
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
   useTotalUsersCompletedCourseQuery,
+  useTotalUsersCompletedCourseQueryCustomTimePeriod,
   useTotalUsersReturnedExercisesQuery,
+  useTotalUsersReturnedExercisesQueryCustomTimePeriod,
   useTotalUsersStartedCourseQuery,
+  useTotalUsersStartedCourseQueryCustomTimePeriod,
 } from "@/hooks/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
+import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -63,19 +69,58 @@ const statTitleStyles = css`
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `
+export const CUSTOM_RANGE = "custom" as const
+export const TOTAL_RANGE = "total" as const
 
 const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ courseId }) => {
   const { t, i18n } = useTranslation()
-  const totalUsersQuery = useTotalUsersStartedCourseQuery(courseId)
-  const totalCompletionsQuery = useTotalUsersCompletedCourseQuery(courseId)
-  const totalReturnedExercisesQuery = useTotalUsersReturnedExercisesQuery(courseId)
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
+  const [rangeMode, setRangeMode] = useState<"total" | "custom">(TOTAL_RANGE)
 
-  const hasError =
-    totalUsersQuery.error || totalCompletionsQuery.error || totalReturnedExercisesQuery.error
-  const isLoading =
-    totalUsersQuery.isLoading ||
-    totalCompletionsQuery.isLoading ||
-    totalReturnedExercisesQuery.isLoading
+  const totalUsersNormal = useTotalUsersStartedCourseQuery(courseId, {
+    enabled: rangeMode === TOTAL_RANGE,
+  })
+  const totalReturnedNormal = useTotalUsersReturnedExercisesQuery(courseId, {
+    enabled: rangeMode === TOTAL_RANGE,
+  })
+  const totalCompletionsNormal = useTotalUsersCompletedCourseQuery(courseId, {
+    enabled: rangeMode === TOTAL_RANGE,
+  })
+
+  const customEnabled = rangeMode === CUSTOM_RANGE && startDate && endDate && startDate <= endDate
+  const totalUsersCustom = useTotalUsersStartedCourseQueryCustomTimePeriod(
+    courseId,
+    startDate ?? "",
+    endDate ?? "",
+    {
+      enabled: !!customEnabled,
+    },
+  )
+  const totalReturnedCustom = useTotalUsersReturnedExercisesQueryCustomTimePeriod(
+    courseId,
+    startDate ?? "",
+    endDate ?? "",
+    {
+      enabled: !!customEnabled,
+    },
+  )
+  const totalCompletionsCustom = useTotalUsersCompletedCourseQueryCustomTimePeriod(
+    courseId,
+    startDate ?? "",
+    endDate ?? "",
+    {
+      enabled: !!customEnabled,
+    },
+  )
+
+  const usersQuery = customEnabled ? totalUsersCustom : totalUsersNormal
+  const returnedQuery = customEnabled ? totalReturnedCustom : totalReturnedNormal
+  const completionsQuery = customEnabled ? totalCompletionsCustom : totalCompletionsNormal
+
+  const isLoading = usersQuery.isLoading || returnedQuery.isLoading || completionsQuery.isLoading
+
+  const hasError = usersQuery.error || returnedQuery.error || completionsQuery.error
 
   return (
     <div
@@ -90,52 +135,97 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
       {hasError ? (
         <ErrorBanner
           variant="readOnly"
-          error={
-            totalUsersQuery.error ||
-            totalCompletionsQuery.error ||
-            totalReturnedExercisesQuery.error
-          }
+          error={usersQuery.error || returnedQuery.error || completionsQuery.error}
         />
       ) : (
-        <div
-          className={css`
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-          `}
-        >
-          <div className={statBoxStyles}>
-            {isLoading ? (
-              <div className={loadingValueStyles} />
-            ) : (
-              <div className={statValueStyles}>
-                {formatNumber(totalUsersQuery.data?.count || 0, i18n.language)}
+        <div>
+          <div
+            className={css`
+              display: flex;
+              gap: 1rem;
+              align-items: center;
+              justify-content: flex-end;
+            `}
+          >
+            {rangeMode === CUSTOM_RANGE && (
+              <div
+                className={css`
+                  display: flex;
+                  gap: 4px;
+                  padding-bottom: 15px;
+                `}
+              >
+                <DatePickerField
+                  label={t("stats-start-date")}
+                  value={startDate ?? ""}
+                  onChangeByValue={(value) => setStartDate(value)}
+                />
+                <DatePickerField
+                  label={t("stats-end-date")}
+                  value={endDate ?? ""}
+                  onChangeByValue={(value) => setEndDate(value)}
+                />
               </div>
             )}
-            <h3 className={statTitleStyles}>{t("stats-heading-students-started-the-course")}</h3>
+
+            <SelectMenu
+              id="period-select"
+              options={[
+                { value: TOTAL_RANGE, label: t("stats-period-total") },
+                { value: CUSTOM_RANGE, label: t("stats-period-custom") },
+              ]}
+              value={rangeMode}
+              onChange={(e) => setRangeMode(e.currentTarget.value as "total" | "custom")}
+              className={css`
+                margin-bottom: 0;
+                min-width: 120px;
+              `}
+              showDefaultOption={false}
+            />
           </div>
 
-          <div className={statBoxStyles}>
-            {isLoading ? (
-              <div className={loadingValueStyles} />
-            ) : (
-              <div className={statValueStyles}>
-                {formatNumber(totalReturnedExercisesQuery.data?.count || 0, i18n.language)}
-              </div>
-            )}
-            <h3 className={statTitleStyles}>{t("stats-heading-students-returned-exercises")}</h3>
-          </div>
+          <div
+            className={css`
+              display: flex;
+              gap: 2rem;
+              justify-content: center;
+              flex-wrap: wrap;
+            `}
+          >
+            <div className={statBoxStyles}>
+              {isLoading ? (
+                <div className={loadingValueStyles} />
+              ) : (
+                <div className={statValueStyles}>
+                  {formatNumber(usersQuery.data?.count || 0, i18n.language)}
+                </div>
+              )}
+              <h3 className={statTitleStyles}>{t("stats-heading-students-started-the-course")}</h3>
+            </div>
 
-          <div className={statBoxStyles}>
-            {isLoading ? (
-              <div className={loadingValueStyles} />
-            ) : (
-              <div className={statValueStyles}>
-                {formatNumber(totalCompletionsQuery.data?.count || 0, i18n.language)}
-              </div>
-            )}
-            <h3 className={statTitleStyles}>{t("stats-heading-students-completed-the-course")}</h3>
+            <div className={statBoxStyles}>
+              {isLoading ? (
+                <div className={loadingValueStyles} />
+              ) : (
+                <div className={statValueStyles}>
+                  {formatNumber(returnedQuery.data?.count || 0, i18n.language)}
+                </div>
+              )}
+              <h3 className={statTitleStyles}>{t("stats-heading-students-returned-exercises")}</h3>
+            </div>
+
+            <div className={statBoxStyles}>
+              {isLoading ? (
+                <div className={loadingValueStyles} />
+              ) : (
+                <div className={statValueStyles}>
+                  {formatNumber(completionsQuery.data?.count || 0, i18n.language)}
+                </div>
+              )}
+              <h3 className={statTitleStyles}>
+                {t("stats-heading-students-completed-the-course")}
+              </h3>
+            </div>
           </div>
         </div>
       )}
@@ -143,4 +233,4 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(TotalStats))
+export default withErrorBoundary(TotalStats)

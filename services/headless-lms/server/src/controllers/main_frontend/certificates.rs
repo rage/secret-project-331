@@ -2,7 +2,9 @@ use crate::{controllers::helpers::file_uploading, prelude::*};
 use actix_multipart::form::{MultipartForm, tempfile::TempFile};
 use chrono::Utc;
 use headless_lms_certificates as certificates;
+use headless_lms_models::generated_certificates::CertificateUpdateRequest;
 use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
+
 use models::{
     certificate_configurations::{
         CertificateTextAnchor, DatabaseCertificateConfiguration, PaperSize,
@@ -486,9 +488,55 @@ pub async fn delete_certificate_configuration(
     }
 
     models::certificate_configurations::delete(&mut conn, *configuration_id).await?;
-    token
-        .expect("Never None at this point")
-        .authorized_ok(web::Json(true))
+    let token = token.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Authorization token was not set".to_string(),
+            None,
+        )
+    })?;
+    token.authorized_ok(web::Json(true))
+}
+
+#[instrument(skip(pool))]
+pub async fn update_generated_certificate(
+    certificate_id: web::Path<Uuid>,
+    payload: web::Json<CertificateUpdateRequest>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<GeneratedCertificate>> {
+    let mut conn = pool.acquire().await?;
+
+    let cert = models::generated_certificates::get_by_id(&mut conn, *certificate_id).await?;
+
+    // find course_id for authorization
+    let req = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+        &mut conn,
+        cert.certificate_configuration_id,
+    ).await?;
+
+    let course_module_id = req.course_module_ids.first().ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Certificate has no associated course module",
+            None,
+        )
+    })?;
+
+    let course_module = models::course_modules::get_by_id(&mut conn, *course_module_id).await?;
+    let course_id = course_module.course_id;
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let updated = models::generated_certificates::update_certificate(
+        &mut conn,
+        *certificate_id,
+        payload.date_issued,
+        payload.name_on_certificate.clone(),
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(updated))
 }
 
 /**
@@ -504,6 +552,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/get-by-configuration-id/{certificate_configuration_id}",
             web::get().to(get_generated_certificate),
+        )
+        .route(
+            "/generated/{certificate_id}",
+            web::put().to(update_generated_certificate),
         )
         .route(
             "/{certificate_verification_id}",

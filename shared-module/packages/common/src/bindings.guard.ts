@@ -5,7 +5,7 @@
  * Generated type guards for "bindings.ts".
  * WARNING: Do not manually change this file.
  */
-import { Action, ActionOnResource, Resource, ErrorData, ErrorResponse, SpecRequest, CertificateAllRequirements, CertificateConfiguration, CertificateConfigurationAndRequirements, CertificateTextAnchor, PaperSize, Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, DatabaseChapter, NewChapter, UserCourseInstanceChapterProgress, ChatbotConfiguration, NewChatbotConf, ChatbotConversationMessage, ChatbotConversationMessageCitation, ChatbotConversation, ChatbotConversationInfo, CodeGiveawayCode, CodeGiveaway, CodeGiveawayStatus, NewCodeGiveaway, CourseBackgroundQuestionAnswer, NewCourseBackgroundQuestionAnswer, CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers, CourseCustomPrivacyPolicyCheckboxText, CourseInstanceEnrollment, CourseInstanceEnrollmentsInfo, ChapterScore, CourseInstance, CourseInstanceForm, PointMap, Points, CourseModuleCompletion, CourseModuleCompletionWithRegistrationInfo, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, ModifiedModule, ModuleUpdates, NewCourseModule, NewModule, Course, CourseMaterialCourse, CourseBreadcrumbInfo, CourseCount, CourseStructure, CourseUpdate, NewCourse, CourseLanguageVersionNavigationInfo, EmailTemplate, EmailTemplateNew, EmailTemplateUpdate, CourseExam, Exam, ExamEnrollment, ExamInstructions, ExamInstructionsUpdate, NewExam, OrgExam, ExerciseRepository, ExerciseRepositoryStatus, CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi, ExerciseService, ExerciseServiceIframeRenderingInfo, ExerciseServiceNewOrUpdate, AnswerRequiringAttention, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmission, ExerciseSlideSubmissionAndUserExerciseState, ExerciseSlideSubmissionAndUserExerciseStateList, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour, ExerciseSlideSubmissionInfo, CourseMaterialExerciseSlide, ExerciseSlide, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy, ExerciseTaskSubmission, PeerOrSelfReviewsReceived, CourseMaterialExerciseTask, ExerciseTask, ActivityProgress, CourseMaterialExercise, Exercise, ExerciseGradingStatus, ExerciseStatus, ExerciseStatusSummaryForUser, GradingProgress, ExerciseResetLog, Feedback, FeedbackBlock, FeedbackCount, NewFeedback, FlaggedAnswer, NewFlaggedAnswer, NewFlaggedAnswerWithToken, ReportReason, GeneratedCertificate, Term, TermUpdate, AverageMetric, CohortActivity, CountResult, CustomViewExerciseSubmissions, CustomViewExerciseTaskGrading, CustomViewExerciseTaskSpec, CustomViewExerciseTaskSubmission, CustomViewExerciseTasks, CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry, TimeGranularity, AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewDataAnswerToReview, CourseMaterialPeerOrSelfReviewQuestionAnswer, CourseMaterialPeerOrSelfReviewSubmission, CompletionRegistrationLink, CourseInstanceCompletionSummary, ManualCompletionPreview, ManualCompletionPreviewUser, TeacherManualCompletion, TeacherManualCompletionRequest, UserCompletionInformation, UserCourseModuleCompletion, UserModuleCompletionStatus, UserWithModuleCompletions, UserMarketingConsent, MaterialReference, NewMaterialReference, Organization, PageAudioFile, HistoryChangeReason, PageHistory, PageVisitDatumSummaryByCourse, PageVisitDatumSummaryByCoursesCountries, PageVisitDatumSummaryByCourseDeviceTypes, PageVisitDatumSummaryByPages, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, ContentManagementPage, CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, IsChapterFrontPage, NewPage, Page, PageChapterAndCourseInformation, PageDetailsUpdate, PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises, SearchRequest, PartnerBlockNew, PartnersBlock, CmsPeerOrSelfReviewConfig, CmsPeerOrSelfReviewConfiguration, CourseMaterialPeerOrSelfReviewConfig, PeerOrSelfReviewConfig, PeerReviewProcessingStrategy, PeerOrSelfReviewAnswer, PeerOrSelfReviewQuestionAndAnswer, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers, CmsPeerOrSelfReviewQuestion, PeerOrSelfReviewQuestion, PeerOrSelfReviewQuestionType, PeerOrSelfReviewSubmission, PeerReviewQueueEntry, PendingRole, PlaygroundExample, PlaygroundExampleData, PrivacyLink, BlockProposal, BlockProposalAction, BlockProposalInfo, EditedBlockNoLongerExistsData, EditedBlockStillExistsData, NewProposedBlockEdit, ProposalStatus, EditProposalInfo, NewProposedPageEdits, PageProposal, ProposalCount, NewRegrading, NewRegradingIdType, Regrading, RegradingInfo, RegradingSubmissionInfo, RepositoryExercise, NewResearchForm, NewResearchFormQuestion, NewResearchFormQuestionAnswer, ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer, RoleDomain, RoleInfo, RoleUser, UserRole, StudentCountry, SuspectedCheaters, ThresholdData, NewTeacherGradingDecision, TeacherDecisionType, TeacherGradingDecision, UserCourseExerciseServiceVariable, UserCourseSettings, UserDetail, ExerciseUserCounts, ReviewingStage, UserCourseChapterExerciseProgress, UserCourseProgress, UserExerciseState, UserResearchConsent, User, UploadResult, CreateAccountDetails, Login, UserInfo, SaveCourseSettingsPayload, ChaptersWithStatus, CourseMaterialCourseModule, ExamData, ExamEnrollmentData, CourseMaterialPeerOrSelfReviewDataWithToken, CertificateConfigurationUpdate, GetFeedbackQuery, CopyCourseRequest, CopyCourseMode, ExamCourseInfo, NewExerciseRepository, ExerciseServiceWithError, ExerciseSubmissions, MarkAsRead, PlaygroundViewsMessage, GetEditProposalsQuery, RoleQuery, BulkUserDetailsRequest, UserDetailsRequest, UserInfoPayload, Pagination, OEmbedResponse, GutenbergBlock } from "./bindings";
+import { Action, ActionOnResource, Resource, ErrorData, ErrorResponse, SpecRequest, ConsentQuery, ConsentResponse, ConsentDenyQuery, CertificateAllRequirements, CertificateConfiguration, CertificateConfigurationAndRequirements, CertificateTextAnchor, PaperSize, Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, DatabaseChapter, NewChapter, UserCourseInstanceChapterProgress, ChapterAvailability, UserChapterProgress, CourseUserInfo, ChapterLockPreview, UnreturnedExercise, ChatbotConfiguration, NewChatbotConf, VerbosityLevel, ReasoningEffortLevel, ChatbotConfigurationModel, ChatbotConversationMessage, MessageRole, ChatbotConversationMessageCitation, ChatbotConversationMessageToolCall, ChatbotConversationMessageToolOutput, ChatbotConversation, ChatbotConversationInfo, CodeGiveawayCode, CodeGiveaway, CodeGiveawayStatus, NewCodeGiveaway, CourseBackgroundQuestionAnswer, NewCourseBackgroundQuestionAnswer, CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers, CourseCustomPrivacyPolicyCheckboxText, CourseInstanceEnrollment, CourseInstanceEnrollmentsInfo, ChapterScore, CourseInstance, CourseInstanceForm, PointMap, Points, CourseModuleCompletion, CourseModuleCompletionWithRegistrationInfo, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, ModifiedModule, ModuleUpdates, NewCourseModule, NewModule, Course, CourseMaterialCourse, CourseBreadcrumbInfo, CourseCount, CourseStructure, CourseUpdate, NewCourse, CourseLanguageVersionNavigationInfo, EmailTemplate, EmailTemplateNew, EmailTemplateUpdate, EmailTemplateType, CourseExam, Exam, ExamEnrollment, ExamInstructions, ExamInstructionsUpdate, NewExam, OrgExam, ExerciseRepository, ExerciseRepositoryStatus, CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi, ExerciseService, ExerciseServiceIframeRenderingInfo, ExerciseServiceNewOrUpdate, AnswerRequiringAttention, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmission, ExerciseSlideSubmissionAndUserExerciseState, ExerciseSlideSubmissionAndUserExerciseStateList, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour, ExerciseSlideSubmissionInfo, CourseMaterialExerciseSlide, ExerciseSlide, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy, ExerciseTaskSubmission, PeerOrSelfReviewsReceived, CourseMaterialExerciseTask, ExerciseTask, ActivityProgress, CourseMaterialExercise, Exercise, ExerciseGradingStatus, ExerciseStatus, ExerciseStatusSummaryForUser, GradingProgress, ExerciseResetLog, Feedback, FeedbackBlock, FeedbackCount, NewFeedback, FlaggedAnswer, NewFlaggedAnswer, NewFlaggedAnswerWithToken, ReportReason, GeneratedCertificate, CertificateUpdateRequest, Term, TermUpdate, AverageMetric, CohortActivity, CountResult, StudentsByCountryTotalsResult, CustomViewExerciseSubmissions, CustomViewExerciseTaskGrading, CustomViewExerciseTaskSpec, CustomViewExerciseTaskSubmission, CustomViewExerciseTasks, CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry, TimeGranularity, AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewDataAnswerToReview, CourseMaterialPeerOrSelfReviewQuestionAnswer, CourseMaterialPeerOrSelfReviewSubmission, CompletionRegistrationLink, CourseInstanceCompletionSummary, ManualCompletionPreview, ManualCompletionPreviewUser, TeacherManualCompletion, TeacherManualCompletionRequest, UserCompletionInformation, UserCourseModuleCompletion, UserModuleCompletionStatus, UserWithModuleCompletions, ProgressOverview, CompletionGridRow, CertificateGridRow, UserMarketingConsent, MaterialReference, NewMaterialReference, Organization, AuthorizedClientInfo, PageAudioFile, HistoryChangeReason, PageHistory, PageVisitDatumSummaryByCourse, PageVisitDatumSummaryByCoursesCountries, PageVisitDatumSummaryByCourseDeviceTypes, PageVisitDatumSummaryByPages, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, ContentManagementPage, CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, IsChapterFrontPage, NewPage, Page, PageChapterAndCourseInformation, PageDetailsUpdate, PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises, SearchRequest, PartnerBlockNew, PartnersBlock, CmsPeerOrSelfReviewConfig, CmsPeerOrSelfReviewConfiguration, CourseMaterialPeerOrSelfReviewConfig, PeerOrSelfReviewConfig, PeerReviewProcessingStrategy, PeerOrSelfReviewAnswer, PeerOrSelfReviewQuestionAndAnswer, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers, CmsPeerOrSelfReviewQuestion, PeerOrSelfReviewQuestion, PeerOrSelfReviewQuestionType, PeerOrSelfReviewSubmission, PeerReviewQueueEntry, PendingRole, PlaygroundExample, PlaygroundExampleData, PrivacyLink, BlockProposal, BlockProposalAction, BlockProposalInfo, EditedBlockNoLongerExistsData, EditedBlockStillExistsData, NewProposedBlockEdit, ProposalStatus, EditProposalInfo, NewProposedPageEdits, PageProposal, ProposalCount, NewRegrading, NewRegradingIdType, Regrading, RegradingInfo, RegradingSubmissionInfo, RepositoryExercise, NewResearchForm, NewResearchFormQuestion, NewResearchFormQuestionAnswer, ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer, RoleDomain, RoleInfo, RoleUser, UserRole, StudentCountry, SuspectedCheaters, ThresholdData, NewTeacherGradingDecision, TeacherDecisionType, TeacherGradingDecision, UserChapterLockingStatus, ChapterLockingStatus, UserCourseExerciseServiceVariable, UserCourseSettings, UserDetail, ExerciseUserCounts, ReviewingStage, UserCourseChapterExerciseProgress, UserCourseProgress, UserExerciseState, UserResearchConsent, User, UploadResult, CreateAccountDetails, Login, LoginResponse, VerifyEmailRequest, UserInfo, SaveCourseSettingsPayload, ChaptersWithStatus, CourseMaterialCourseModule, ExamData, ExamEnrollmentData, CourseMaterialPeerOrSelfReviewDataWithToken, CourseInfo, CertificateConfigurationUpdate, GetFeedbackQuery, CopyCourseRequest, CopyCourseMode, ExamCourseInfo, NewExerciseRepository, ExerciseServiceWithError, ExerciseSubmissions, MarkAsRead, PlaygroundViewsMessage, GetEditProposalsQuery, RoleQuery, BulkUserDetailsRequest, UserDetailsRequest, UserInfoPayload, CronJobInfo, DeploymentInfo, EventInfo, IngressInfo, JobInfo, PodDisruptionBudgetInfo, PodInfo, ServiceInfo, ServicePortInfo, HealthStatus, SystemHealthStatus, Pagination, OEmbedResponse, GutenbergBlock } from "./bindings";
 
 export function isAction(obj: unknown): obj is Action {
     const typedObj = obj as Action
@@ -213,6 +213,47 @@ export function isSpecRequest(obj: unknown): obj is SpecRequest {
         typeof typedObj["request_id"] === "string" &&
         (typedObj["upload_url"] === null ||
             typeof typedObj["upload_url"] === "string")
+    )
+}
+
+export function isConsentQuery(obj: unknown): obj is ConsentQuery {
+    const typedObj = obj as ConsentQuery
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["client_id"] === "string" &&
+        typeof typedObj["redirect_uri"] === "string" &&
+        typeof typedObj["response_type"] === "string" &&
+        typeof typedObj["scope"] === "string" &&
+        typeof typedObj["state"] === "string" &&
+        typeof typedObj["nonce"] === "string" &&
+        (typedObj["code_challenge"] === null ||
+            typeof typedObj["code_challenge"] === "string") &&
+        (typedObj["code_challenge_method"] === null ||
+            typeof typedObj["code_challenge_method"] === "string")
+    )
+}
+
+export function isConsentResponse(obj: unknown): obj is ConsentResponse {
+    const typedObj = obj as ConsentResponse
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["redirect_uri"] === "string"
+    )
+}
+
+export function isConsentDenyQuery(obj: unknown): obj is ConsentDenyQuery {
+    const typedObj = obj as ConsentDenyQuery
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["client_id"] === "string" &&
+        typeof typedObj["redirect_uri"] === "string" &&
+        typeof typedObj["state"] === "string"
     )
 }
 
@@ -460,6 +501,79 @@ export function isUserCourseInstanceChapterProgress(obj: unknown): obj is UserCo
     )
 }
 
+export function isChapterAvailability(obj: unknown): obj is ChapterAvailability {
+    const typedObj = obj as ChapterAvailability
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["chapter_id"] === "string" &&
+        typeof typedObj["chapter_number"] === "number" &&
+        typeof typedObj["chapter_name"] === "string" &&
+        typeof typedObj["exercises_available"] === "number" &&
+        typeof typedObj["points_available"] === "number"
+    )
+}
+
+export function isUserChapterProgress(obj: unknown): obj is UserChapterProgress {
+    const typedObj = obj as UserChapterProgress
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["user_id"] === "string" &&
+        typeof typedObj["chapter_id"] === "string" &&
+        typeof typedObj["chapter_number"] === "number" &&
+        typeof typedObj["chapter_name"] === "string" &&
+        typeof typedObj["points_obtained"] === "number" &&
+        typeof typedObj["exercises_attempted"] === "number"
+    )
+}
+
+export function isCourseUserInfo(obj: unknown): obj is CourseUserInfo {
+    const typedObj = obj as CourseUserInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        (typedObj["first_name"] === null ||
+            typeof typedObj["first_name"] === "string") &&
+        (typedObj["last_name"] === null ||
+            typeof typedObj["last_name"] === "string") &&
+        typeof typedObj["user_id"] === "string" &&
+        (typedObj["email"] === null ||
+            typeof typedObj["email"] === "string") &&
+        (typedObj["course_instance"] === null ||
+            typeof typedObj["course_instance"] === "string")
+    )
+}
+
+export function isChapterLockPreview(obj: unknown): obj is ChapterLockPreview {
+    const typedObj = obj as ChapterLockPreview
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["has_unreturned_exercises"] === "boolean" &&
+        typeof typedObj["unreturned_exercises_count"] === "number" &&
+        Array.isArray(typedObj["unreturned_exercises"]) &&
+        typedObj["unreturned_exercises"].every((e: any) =>
+            isUnreturnedExercise(e) as boolean
+        )
+    )
+}
+
+export function isUnreturnedExercise(obj: unknown): obj is UnreturnedExercise {
+    const typedObj = obj as UnreturnedExercise
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["id"] === "string" &&
+        typeof typedObj["name"] === "string"
+    )
+}
+
 export function isChatbotConfiguration(obj: unknown): obj is ChatbotConfiguration {
     const typedObj = obj as ChatbotConfiguration
     return (
@@ -474,19 +588,25 @@ export function isChatbotConfiguration(obj: unknown): obj is ChatbotConfiguratio
         typeof typedObj["course_id"] === "string" &&
         typeof typedObj["enabled_to_students"] === "boolean" &&
         typeof typedObj["chatbot_name"] === "string" &&
+        typeof typedObj["model_id"] === "string" &&
+        typeof typedObj["thinking_model"] === "boolean" &&
         typeof typedObj["prompt"] === "string" &&
         typeof typedObj["initial_message"] === "string" &&
         typeof typedObj["weekly_tokens_per_user"] === "number" &&
         typeof typedObj["daily_tokens_per_user"] === "number" &&
+        typeof typedObj["response_max_tokens"] === "number" &&
         typeof typedObj["temperature"] === "number" &&
         typeof typedObj["top_p"] === "number" &&
         typeof typedObj["frequency_penalty"] === "number" &&
         typeof typedObj["presence_penalty"] === "number" &&
-        typeof typedObj["response_max_tokens"] === "number" &&
+        typeof typedObj["max_completion_tokens"] === "number" &&
+        isVerbosityLevel(typedObj["verbosity"]) as boolean &&
+        isReasoningEffortLevel(typedObj["reasoning_effort"]) as boolean &&
         typeof typedObj["use_azure_search"] === "boolean" &&
         typeof typedObj["maintain_azure_search_index"] === "boolean" &&
         typeof typedObj["hide_citations"] === "boolean" &&
         typeof typedObj["use_semantic_reranking"] === "boolean" &&
+        typeof typedObj["use_tools"] === "boolean" &&
         typeof typedObj["default_chatbot"] === "boolean"
     )
 }
@@ -500,20 +620,65 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
         typeof typedObj["course_id"] === "string" &&
         typeof typedObj["enabled_to_students"] === "boolean" &&
         typeof typedObj["chatbot_name"] === "string" &&
+        typeof typedObj["model_id"] === "string" &&
+        typeof typedObj["thinking_model"] === "boolean" &&
         typeof typedObj["prompt"] === "string" &&
         typeof typedObj["initial_message"] === "string" &&
         typeof typedObj["weekly_tokens_per_user"] === "number" &&
         typeof typedObj["daily_tokens_per_user"] === "number" &&
+        typeof typedObj["response_max_tokens"] === "number" &&
         typeof typedObj["temperature"] === "number" &&
         typeof typedObj["top_p"] === "number" &&
         typeof typedObj["frequency_penalty"] === "number" &&
         typeof typedObj["presence_penalty"] === "number" &&
-        typeof typedObj["response_max_tokens"] === "number" &&
+        typeof typedObj["max_completion_tokens"] === "number" &&
+        isVerbosityLevel(typedObj["verbosity"]) as boolean &&
+        isReasoningEffortLevel(typedObj["reasoning_effort"]) as boolean &&
         typeof typedObj["use_azure_search"] === "boolean" &&
         typeof typedObj["maintain_azure_search_index"] === "boolean" &&
         typeof typedObj["hide_citations"] === "boolean" &&
         typeof typedObj["use_semantic_reranking"] === "boolean" &&
-        typeof typedObj["default_chatbot"] === "boolean"
+        typeof typedObj["use_tools"] === "boolean" &&
+        typeof typedObj["default_chatbot"] === "boolean" &&
+        (typedObj["chatbotconf_id"] === null ||
+            typeof typedObj["chatbotconf_id"] === "string")
+    )
+}
+
+export function isVerbosityLevel(obj: unknown): obj is VerbosityLevel {
+    const typedObj = obj as VerbosityLevel
+    return (
+        (typedObj === "low" ||
+            typedObj === "medium" ||
+            typedObj === "high")
+    )
+}
+
+export function isReasoningEffortLevel(obj: unknown): obj is ReasoningEffortLevel {
+    const typedObj = obj as ReasoningEffortLevel
+    return (
+        (typedObj === "low" ||
+            typedObj === "medium" ||
+            typedObj === "high" ||
+            typedObj === "minimal")
+    )
+}
+
+export function isChatbotConfigurationModel(obj: unknown): obj is ChatbotConfigurationModel {
+    const typedObj = obj as ChatbotConfigurationModel
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["id"] === "string" &&
+        typeof typedObj["created_at"] === "string" &&
+        typeof typedObj["updated_at"] === "string" &&
+        (typedObj["deleted_at"] === null ||
+            typeof typedObj["deleted_at"] === "string") &&
+        typeof typedObj["model"] === "string" &&
+        typeof typedObj["thinking"] === "boolean" &&
+        typeof typedObj["default_model"] === "boolean" &&
+        typeof typedObj["deployment_name"] === "string"
     )
 }
 
@@ -531,10 +696,26 @@ export function isChatbotConversationMessage(obj: unknown): obj is ChatbotConver
         typeof typedObj["conversation_id"] === "string" &&
         (typedObj["message"] === null ||
             typeof typedObj["message"] === "string") &&
-        typeof typedObj["is_from_chatbot"] === "boolean" &&
+        isMessageRole(typedObj["message_role"]) as boolean &&
         typeof typedObj["message_is_complete"] === "boolean" &&
         typeof typedObj["used_tokens"] === "number" &&
-        typeof typedObj["order_number"] === "number"
+        typeof typedObj["order_number"] === "number" &&
+        (typedObj["tool_output"] === null ||
+            isChatbotConversationMessageToolOutput(typedObj["tool_output"]) as boolean) &&
+        Array.isArray(typedObj["tool_call_fields"]) &&
+        typedObj["tool_call_fields"].every((e: any) =>
+            isChatbotConversationMessageToolCall(e) as boolean
+        )
+    )
+}
+
+export function isMessageRole(obj: unknown): obj is MessageRole {
+    const typedObj = obj as MessageRole
+    return (
+        (typedObj === "assistant" ||
+            typedObj === "user" ||
+            typedObj === "tool" ||
+            typedObj === "system")
     )
 }
 
@@ -557,6 +738,41 @@ export function isChatbotConversationMessageCitation(obj: unknown): obj is Chatb
         typeof typedObj["content"] === "string" &&
         typeof typedObj["document_url"] === "string" &&
         typeof typedObj["citation_number"] === "number"
+    )
+}
+
+export function isChatbotConversationMessageToolCall(obj: unknown): obj is ChatbotConversationMessageToolCall {
+    const typedObj = obj as ChatbotConversationMessageToolCall
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["id"] === "string" &&
+        typeof typedObj["created_at"] === "string" &&
+        typeof typedObj["updated_at"] === "string" &&
+        (typedObj["deleted_at"] === null ||
+            typeof typedObj["deleted_at"] === "string") &&
+        typeof typedObj["message_id"] === "string" &&
+        typeof typedObj["tool_name"] === "string" &&
+        typeof typedObj["tool_call_id"] === "string"
+    )
+}
+
+export function isChatbotConversationMessageToolOutput(obj: unknown): obj is ChatbotConversationMessageToolOutput {
+    const typedObj = obj as ChatbotConversationMessageToolOutput
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["id"] === "string" &&
+        typeof typedObj["created_at"] === "string" &&
+        typeof typedObj["updated_at"] === "string" &&
+        (typedObj["deleted_at"] === null ||
+            typeof typedObj["deleted_at"] === "string") &&
+        typeof typedObj["message_id"] === "string" &&
+        typeof typedObj["tool_name"] === "string" &&
+        typeof typedObj["tool_output"] === "string" &&
+        typeof typedObj["tool_call_id"] === "string"
     )
 }
 
@@ -1169,7 +1385,8 @@ export function isCourse(obj: unknown): obj is Course {
         (typedObj["closed_additional_message"] === null ||
             typeof typedObj["closed_additional_message"] === "string") &&
         (typedObj["closed_course_successor_id"] === null ||
-            typeof typedObj["closed_course_successor_id"] === "string")
+            typeof typedObj["closed_course_successor_id"] === "string") &&
+        typeof typedObj["chapter_locking_enabled"] === "boolean"
     )
 }
 
@@ -1202,7 +1419,8 @@ export function isCourseMaterialCourse(obj: unknown): obj is CourseMaterialCours
         (typedObj["closed_additional_message"] === null ||
             typeof typedObj["closed_additional_message"] === "string") &&
         (typedObj["closed_course_successor_id"] === null ||
-            typeof typedObj["closed_course_successor_id"] === "string")
+            typeof typedObj["closed_course_successor_id"] === "string") &&
+        typeof typedObj["chapter_locking_enabled"] === "boolean"
     )
 }
 
@@ -1273,7 +1491,8 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
         (typedObj["closed_additional_message"] === null ||
             typeof typedObj["closed_additional_message"] === "string") &&
         (typedObj["closed_course_successor_id"] === null ||
-            typeof typedObj["closed_course_successor_id"] === "string")
+            typeof typedObj["closed_course_successor_id"] === "string") &&
+        typeof typedObj["chapter_locking_enabled"] === "boolean"
     )
 }
 
@@ -1331,14 +1550,17 @@ export function isEmailTemplate(obj: unknown): obj is EmailTemplate {
         typeof typedObj["updated_at"] === "string" &&
         (typedObj["deleted_at"] === null ||
             typeof typedObj["deleted_at"] === "string") &&
-        typeof typedObj["name"] === "string" &&
+        isEmailTemplateType(typedObj["template_type"]) as boolean &&
         (typedObj["subject"] === null ||
             typeof typedObj["subject"] === "string") &&
         (typedObj["exercise_completions_threshold"] === null ||
             typeof typedObj["exercise_completions_threshold"] === "number") &&
         (typedObj["points_threshold"] === null ||
             typeof typedObj["points_threshold"] === "number") &&
-        typeof typedObj["course_instance_id"] === "string"
+        (typedObj["course_id"] === null ||
+            typeof typedObj["course_id"] === "string") &&
+        (typedObj["language"] === null ||
+            typeof typedObj["language"] === "string")
     )
 }
 
@@ -1348,7 +1570,11 @@ export function isEmailTemplateNew(obj: unknown): obj is EmailTemplateNew {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["name"] === "string"
+        isEmailTemplateType(typedObj["template_type"]) as boolean &&
+        (typedObj["language"] === null ||
+            typeof typedObj["language"] === "string") &&
+        (typedObj["subject"] === null ||
+            typeof typedObj["subject"] === "string")
     )
 }
 
@@ -1358,12 +1584,22 @@ export function isEmailTemplateUpdate(obj: unknown): obj is EmailTemplateUpdate 
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["name"] === "string" &&
+        isEmailTemplateType(typedObj["template_type"]) as boolean &&
         typeof typedObj["subject"] === "string" &&
         (typedObj["exercise_completions_threshold"] === null ||
             typeof typedObj["exercise_completions_threshold"] === "number") &&
         (typedObj["points_threshold"] === null ||
             typeof typedObj["points_threshold"] === "number")
+    )
+}
+
+export function isEmailTemplateType(obj: unknown): obj is EmailTemplateType {
+    const typedObj = obj as EmailTemplateType
+    return (
+        (typedObj === "reset_password_email" ||
+            typedObj === "delete_user_email" ||
+            typedObj === "confirm_email_code" ||
+            typedObj === "generic")
     )
 }
 
@@ -1938,7 +2174,9 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
         Array.isArray(typedObj["user_course_instance_exercise_service_variables"]) &&
         typedObj["user_course_instance_exercise_service_variables"].every((e: any) =>
             isUserCourseExerciseServiceVariable(e) as boolean
-        )
+        ) &&
+        (typedObj["should_show_reset_message"] === null ||
+            typeof typedObj["should_show_reset_message"] === "string")
     )
 }
 
@@ -1993,7 +2231,8 @@ export function isExerciseGradingStatus(obj: unknown): obj is ExerciseGradingSta
             typedObj["teacher_decision"] === "FullPoints" ||
             typedObj["teacher_decision"] === "ZeroPoints" ||
             typedObj["teacher_decision"] === "CustomPoints" ||
-            typedObj["teacher_decision"] === "SuspectedPlagiarism") &&
+            typedObj["teacher_decision"] === "SuspectedPlagiarism" ||
+            typedObj["teacher_decision"] === "RejectAndReset") &&
         typeof typedObj["submission_id"] === "string" &&
         typeof typedObj["updated_at"] === "string"
     )
@@ -2071,7 +2310,8 @@ export function isExerciseResetLog(obj: unknown): obj is ExerciseResetLog {
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typeof typedObj["id"] === "string" &&
-        typeof typedObj["reset_by"] === "string" &&
+        (typedObj["reset_by"] === null ||
+            typeof typedObj["reset_by"] === "string") &&
         (typedObj["reset_by_first_name"] === null ||
             typeof typedObj["reset_by_first_name"] === "string") &&
         (typedObj["reset_by_last_name"] === null ||
@@ -2079,6 +2319,8 @@ export function isExerciseResetLog(obj: unknown): obj is ExerciseResetLog {
         typeof typedObj["reset_for"] === "string" &&
         typeof typedObj["exercise_id"] === "string" &&
         typeof typedObj["exercise_name"] === "string" &&
+        (typedObj["reason"] === null ||
+            typeof typedObj["reason"] === "string") &&
         typeof typedObj["course_id"] === "string" &&
         typeof typedObj["reset_at"] === "string" &&
         typeof typedObj["created_at"] === "string" &&
@@ -2239,6 +2481,18 @@ export function isGeneratedCertificate(obj: unknown): obj is GeneratedCertificat
     )
 }
 
+export function isCertificateUpdateRequest(obj: unknown): obj is CertificateUpdateRequest {
+    const typedObj = obj as CertificateUpdateRequest
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["date_issued"] === "string" &&
+        (typedObj["name_on_certificate"] === null ||
+            typeof typedObj["name_on_certificate"] === "string")
+    )
+}
+
 export function isTerm(obj: unknown): obj is Term {
     const typedObj = obj as Term
     return (
@@ -2299,6 +2553,18 @@ export function isCountResult(obj: unknown): obj is CountResult {
             typeof typedObj === "function") &&
         (typedObj["period"] === null ||
             typeof typedObj["period"] === "string") &&
+        typeof typedObj["count"] === "number"
+    )
+}
+
+export function isStudentsByCountryTotalsResult(obj: unknown): obj is StudentsByCountryTotalsResult {
+    const typedObj = obj as StudentsByCountryTotalsResult
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        (typedObj["country"] === null ||
+            typeof typedObj["country"] === "string") &&
         typeof typedObj["count"] === "number"
     )
 }
@@ -2809,6 +3075,68 @@ export function isUserWithModuleCompletions(obj: unknown): obj is UserWithModule
     )
 }
 
+export function isProgressOverview(obj: unknown): obj is ProgressOverview {
+    const typedObj = obj as ProgressOverview
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        Array.isArray(typedObj["user_details"]) &&
+        typedObj["user_details"].every((e: any) =>
+            isUserDetail(e) as boolean
+        ) &&
+        Array.isArray(typedObj["chapters"]) &&
+        typedObj["chapters"].every((e: any) =>
+            isDatabaseChapter(e) as boolean
+        ) &&
+        Array.isArray(typedObj["user_exercise_states"]) &&
+        typedObj["user_exercise_states"].every((e: any) =>
+            isUserExerciseState(e) as boolean
+        ) &&
+        Array.isArray(typedObj["chapter_availability"]) &&
+        typedObj["chapter_availability"].every((e: any) =>
+            isChapterAvailability(e) as boolean
+        ) &&
+        Array.isArray(typedObj["user_chapter_progress"]) &&
+        typedObj["user_chapter_progress"].every((e: any) =>
+            isUserChapterProgress(e) as boolean
+        )
+    )
+}
+
+export function isCompletionGridRow(obj: unknown): obj is CompletionGridRow {
+    const typedObj = obj as CompletionGridRow
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["student"] === "string" &&
+        (typedObj["module"] === null ||
+            typeof typedObj["module"] === "string") &&
+        typeof typedObj["grade"] === "string" &&
+        typeof typedObj["status"] === "string"
+    )
+}
+
+export function isCertificateGridRow(obj: unknown): obj is CertificateGridRow {
+    const typedObj = obj as CertificateGridRow
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["student"] === "string" &&
+        typeof typedObj["certificate"] === "string" &&
+        (typedObj["date_issued"] === null ||
+            typeof typedObj["date_issued"] === "string") &&
+        (typedObj["verification_id"] === null ||
+            typeof typedObj["verification_id"] === "string") &&
+        (typedObj["certificate_id"] === null ||
+            typeof typedObj["certificate_id"] === "string") &&
+        (typedObj["name_on_certificate"] === null ||
+            typeof typedObj["name_on_certificate"] === "string")
+    )
+}
+
 export function isUserMarketingConsent(obj: unknown): obj is UserMarketingConsent {
     const typedObj = obj as UserMarketingConsent
     return (
@@ -2879,6 +3207,21 @@ export function isOrganization(obj: unknown): obj is Organization {
         (typedObj["deleted_at"] === null ||
             typeof typedObj["deleted_at"] === "string") &&
         typeof typedObj["hidden"] === "boolean"
+    )
+}
+
+export function isAuthorizedClientInfo(obj: unknown): obj is AuthorizedClientInfo {
+    const typedObj = obj as AuthorizedClientInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["client_id"] === "string" &&
+        typeof typedObj["client_name"] === "string" &&
+        Array.isArray(typedObj["scopes"]) &&
+        typedObj["scopes"].every((e: any) =>
+            typeof e === "string"
+        )
     )
 }
 
@@ -3454,7 +3797,8 @@ export function isCmsPeerOrSelfReviewConfig(obj: unknown): obj is CmsPeerOrSelfR
         typeof typedObj["peer_reviews_to_receive"] === "number" &&
         typeof typedObj["accepting_threshold"] === "number" &&
         isPeerReviewProcessingStrategy(typedObj["processing_strategy"]) as boolean &&
-        typeof typedObj["points_are_all_or_nothing"] === "boolean"
+        typeof typedObj["points_are_all_or_nothing"] === "boolean" &&
+        typeof typedObj["reset_answer_if_zero_points_from_review"] === "boolean"
     )
 }
 
@@ -3506,7 +3850,8 @@ export function isPeerOrSelfReviewConfig(obj: unknown): obj is PeerOrSelfReviewC
         typeof typedObj["accepting_threshold"] === "number" &&
         isPeerReviewProcessingStrategy(typedObj["processing_strategy"]) as boolean &&
         typeof typedObj["manual_review_cutoff_in_days"] === "number" &&
-        typeof typedObj["points_are_all_or_nothing"] === "boolean"
+        typeof typedObj["points_are_all_or_nothing"] === "boolean" &&
+        typeof typedObj["reset_answer_if_zero_points_from_review"] === "boolean"
     )
 }
 
@@ -4182,9 +4527,7 @@ export function isThresholdData(obj: unknown): obj is ThresholdData {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["points"] === "number" &&
-        (typedObj["duration_seconds"] === null ||
-            typeof typedObj["duration_seconds"] === "number")
+        typeof typedObj["duration_seconds"] === "number"
     )
 }
 
@@ -4211,7 +4554,8 @@ export function isTeacherDecisionType(obj: unknown): obj is TeacherDecisionType 
         (typedObj === "FullPoints" ||
             typedObj === "ZeroPoints" ||
             typedObj === "CustomPoints" ||
-            typedObj === "SuspectedPlagiarism")
+            typedObj === "SuspectedPlagiarism" ||
+            typedObj === "RejectAndReset")
     )
 }
 
@@ -4234,6 +4578,33 @@ export function isTeacherGradingDecision(obj: unknown): obj is TeacherGradingDec
         (typedObj["hidden"] === null ||
             typedObj["hidden"] === false ||
             typedObj["hidden"] === true)
+    )
+}
+
+export function isUserChapterLockingStatus(obj: unknown): obj is UserChapterLockingStatus {
+    const typedObj = obj as UserChapterLockingStatus
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["id"] === "string" &&
+        typeof typedObj["created_at"] === "string" &&
+        typeof typedObj["updated_at"] === "string" &&
+        (typedObj["deleted_at"] === null ||
+            typeof typedObj["deleted_at"] === "string") &&
+        typeof typedObj["user_id"] === "string" &&
+        typeof typedObj["chapter_id"] === "string" &&
+        typeof typedObj["course_id"] === "string" &&
+        isChapterLockingStatus(typedObj["status"]) as boolean
+    )
+}
+
+export function isChapterLockingStatus(obj: unknown): obj is ChapterLockingStatus {
+    const typedObj = obj as ChapterLockingStatus
+    return (
+        (typedObj === "unlocked" ||
+            typedObj === "completed_and_locked" ||
+            typedObj === "not_unlocked_yet")
     )
 }
 
@@ -4461,6 +4832,36 @@ export function isLogin(obj: unknown): obj is Login {
     )
 }
 
+export function isLoginResponse(obj: unknown): obj is LoginResponse {
+    const typedObj = obj as LoginResponse
+    return (
+        ((typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+            typedObj["type"] === "success" ||
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typedObj["type"] === "requires_email_verification" &&
+            typeof typedObj["email_verification_token"] === "string" ||
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typedObj["type"] === "failed")
+    )
+}
+
+export function isVerifyEmailRequest(obj: unknown): obj is VerifyEmailRequest {
+    const typedObj = obj as VerifyEmailRequest
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["email_verification_token"] === "string" &&
+        typeof typedObj["code"] === "string"
+    )
+}
+
 export function isUserInfo(obj: unknown): obj is UserInfo {
     const typedObj = obj as UserInfo
     return (
@@ -4583,6 +4984,16 @@ export function isCourseMaterialPeerOrSelfReviewDataWithToken(obj: unknown): obj
         isCourseMaterialPeerOrSelfReviewData(typedObj["course_material_peer_or_self_review_data"]) as boolean &&
         (typedObj["token"] === null ||
             typeof typedObj["token"] === "string")
+    )
+}
+
+export function isCourseInfo(obj: unknown): obj is CourseInfo {
+    const typedObj = obj as CourseInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["course_id"] === "string"
     )
 }
 
@@ -4879,6 +5290,194 @@ export function isUserInfoPayload(obj: unknown): obj is UserInfoPayload {
         typeof typedObj["last_name"] === "string" &&
         typeof typedObj["country"] === "string" &&
         typeof typedObj["email_communication_consent"] === "boolean"
+    )
+}
+
+export function isCronJobInfo(obj: unknown): obj is CronJobInfo {
+    const typedObj = obj as CronJobInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["name"] === "string" &&
+        typeof typedObj["schedule"] === "string" &&
+        (typedObj["last_schedule_time"] === null ||
+            typeof typedObj["last_schedule_time"] === "string")
+    )
+}
+
+export function isDeploymentInfo(obj: unknown): obj is DeploymentInfo {
+    const typedObj = obj as DeploymentInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["name"] === "string" &&
+        typeof typedObj["replicas"] === "number" &&
+        typeof typedObj["ready_replicas"] === "number" &&
+        (typedObj["selector_labels"] !== null &&
+            typeof typedObj["selector_labels"] === "object" ||
+            typeof typedObj["selector_labels"] === "function") &&
+        Object.entries<any>(typedObj["selector_labels"])
+            .every(([key, value]) => (typeof value === "string" &&
+                typeof key === "string"))
+    )
+}
+
+export function isEventInfo(obj: unknown): obj is EventInfo {
+    const typedObj = obj as EventInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["name"] === "string" &&
+        (typedObj["reason"] === null ||
+            typeof typedObj["reason"] === "string") &&
+        (typedObj["message"] === null ||
+            typeof typedObj["message"] === "string") &&
+        (typedObj["type_"] === null ||
+            typeof typedObj["type_"] === "string") &&
+        (typedObj["first_timestamp"] === null ||
+            typeof typedObj["first_timestamp"] === "string") &&
+        (typedObj["last_timestamp"] === null ||
+            typeof typedObj["last_timestamp"] === "string") &&
+        (typedObj["count"] === null ||
+            typeof typedObj["count"] === "number") &&
+        (typedObj["involved_object_kind"] === null ||
+            typeof typedObj["involved_object_kind"] === "string") &&
+        (typedObj["involved_object_name"] === null ||
+            typeof typedObj["involved_object_name"] === "string")
+    )
+}
+
+export function isIngressInfo(obj: unknown): obj is IngressInfo {
+    const typedObj = obj as IngressInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["name"] === "string" &&
+        Array.isArray(typedObj["hosts"]) &&
+        typedObj["hosts"].every((e: any) =>
+            typeof e === "string"
+        ) &&
+        Array.isArray(typedObj["paths"]) &&
+        typedObj["paths"].every((e: any) =>
+            typeof e === "string"
+        ) &&
+        (typedObj["class_name"] === null ||
+            typeof typedObj["class_name"] === "string")
+    )
+}
+
+export function isJobInfo(obj: unknown): obj is JobInfo {
+    const typedObj = obj as JobInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["name"] === "string" &&
+        (typedObj["succeeded"] === null ||
+            typeof typedObj["succeeded"] === "number") &&
+        (typedObj["failed"] === null ||
+            typeof typedObj["failed"] === "number") &&
+        (typedObj["active"] === null ||
+            typeof typedObj["active"] === "number")
+    )
+}
+
+export function isPodDisruptionBudgetInfo(obj: unknown): obj is PodDisruptionBudgetInfo {
+    const typedObj = obj as PodDisruptionBudgetInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["name"] === "string" &&
+        typeof typedObj["current_healthy"] === "number" &&
+        typeof typedObj["desired_healthy"] === "number" &&
+        typeof typedObj["disruptions_allowed"] === "number" &&
+        typeof typedObj["expected_pods"] === "number" &&
+        (typedObj["selector_labels"] !== null &&
+            typeof typedObj["selector_labels"] === "object" ||
+            typeof typedObj["selector_labels"] === "function") &&
+        Object.entries<any>(typedObj["selector_labels"])
+            .every(([key, value]) => (typeof value === "string" &&
+                typeof key === "string"))
+    )
+}
+
+export function isPodInfo(obj: unknown): obj is PodInfo {
+    const typedObj = obj as PodInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["name"] === "string" &&
+        typeof typedObj["phase"] === "string" &&
+        (typedObj["ready"] === null ||
+            typedObj["ready"] === false ||
+            typedObj["ready"] === true) &&
+        (typedObj["labels"] !== null &&
+            typeof typedObj["labels"] === "object" ||
+            typeof typedObj["labels"] === "function") &&
+        Object.entries<any>(typedObj["labels"])
+            .every(([key, value]) => (typeof value === "string" &&
+                typeof key === "string"))
+    )
+}
+
+export function isServiceInfo(obj: unknown): obj is ServiceInfo {
+    const typedObj = obj as ServiceInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["name"] === "string" &&
+        (typedObj["cluster_ip"] === null ||
+            typeof typedObj["cluster_ip"] === "string") &&
+        Array.isArray(typedObj["ports"]) &&
+        typedObj["ports"].every((e: any) =>
+            isServicePortInfo(e) as boolean
+        )
+    )
+}
+
+export function isServicePortInfo(obj: unknown): obj is ServicePortInfo {
+    const typedObj = obj as ServicePortInfo
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        (typedObj["name"] === null ||
+            typeof typedObj["name"] === "string") &&
+        typeof typedObj["port"] === "number" &&
+        (typedObj["target_port"] === null ||
+            typeof typedObj["target_port"] === "string") &&
+        (typedObj["protocol"] === null ||
+            typeof typedObj["protocol"] === "string")
+    )
+}
+
+export function isHealthStatus(obj: unknown): obj is HealthStatus {
+    const typedObj = obj as HealthStatus
+    return (
+        (typedObj === "healthy" ||
+            typedObj === "warning" ||
+            typedObj === "error")
+    )
+}
+
+export function isSystemHealthStatus(obj: unknown): obj is SystemHealthStatus {
+    const typedObj = obj as SystemHealthStatus
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        isHealthStatus(typedObj["status"]) as boolean &&
+        Array.isArray(typedObj["issues"]) &&
+        typedObj["issues"].every((e: any) =>
+            typeof e === "string"
+        )
     )
 }
 

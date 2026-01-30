@@ -100,6 +100,7 @@ pub struct CourseMaterialExercise {
     pub peer_or_self_review_config: Option<CourseMaterialPeerOrSelfReviewConfig>,
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
     pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
+    pub should_show_reset_message: Option<String>,
 }
 
 impl CourseMaterialExercise {
@@ -331,6 +332,28 @@ WHERE chapter_id = $1
     Ok(exercises)
 }
 
+pub async fn get_exercises_by_chapter_ids(
+    conn: &mut PgConnection,
+    chapter_ids: &[Uuid],
+) -> ModelResult<Vec<Exercise>> {
+    if chapter_ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE chapter_id = ANY($1)
+  AND deleted_at IS NULL
+"#,
+        chapter_ids as &[Uuid]
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_exercises_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
@@ -480,6 +503,17 @@ pub async fn get_course_material_exercise(
         _ => None,
     }.unwrap_or_default();
 
+    let should_show_reset_message = if let Some(user_id) = user_id {
+        crate::exercise_reset_logs::user_should_see_reset_message_for_exercise(
+            conn,
+            user_id,
+            exercise_id,
+        )
+        .await?
+    } else {
+        None
+    };
+
     Ok(CourseMaterialExercise {
         exercise,
         can_post_submission,
@@ -489,6 +523,7 @@ pub async fn get_course_material_exercise(
         peer_or_self_review_config,
         user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
+        should_show_reset_message,
     })
 }
 
@@ -644,6 +679,7 @@ pub async fn delete_exercises_by_page_id(
 UPDATE exercises
 SET deleted_at = now()
 WHERE page_id = $1
+AND deleted_at IS NULL
 RETURNING id;
         ",
         page_id
@@ -903,8 +939,9 @@ WHERE ues.user_id = ANY($1)
 pub async fn reset_exercises_for_selected_users(
     conn: &mut PgConnection,
     users_and_exercises: &[(Uuid, Vec<Uuid>)],
-    reset_by: Uuid,
+    reset_by: Option<Uuid>,
     course_id: Uuid,
+    reason: Option<String>,
 ) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
     let mut successful_resets = Vec::new();
     let mut tx = conn.begin().await?;
@@ -1056,6 +1093,7 @@ WHERE user_exercise_state_id IN (
             *user_id,
             exercise_ids,
             course_id,
+            reason.clone(),
         )
         .await?;
 

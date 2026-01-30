@@ -22,7 +22,7 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, create_glossary_course, seed_cs_course_material,
+            CommonCourseData, seed_cs_course_material, seed_glossary, seed_graded_course,
             seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
@@ -111,6 +111,7 @@ pub async fn seed_organization_uh_cs(
         automatic_course_with_exam_id,
         certificates_id,
         ..,
+        _graded_demo_course_id,
     ) = try_join!(
         // using these ids
         run_parallelly(seed_sample_course(
@@ -162,6 +163,13 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         // not using these ids
+        run_parallelly(seed_graded_course(
+            Uuid::parse_str("1c9f9ba8-aaaa-4aa4-bccb-123654abcabc")?,
+            "Graded Demo Course",
+            "graded-demo-course",
+            cs_data.clone(),
+            seed_users_result,
+        )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("4dde368a-5e5d-4001-b8aa-13079390f818")?,
             "Model solutions",
@@ -226,12 +234,11 @@ pub async fn seed_organization_uh_cs(
             false,
             seed_users_result,
         )),
-        run_parallelly(seed_sample_course(
+        run_parallelly(seed_glossary::seed_glossary_course(
             Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
             "Glossary course",
             "glossary-course",
             cs_data.clone(),
-            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -265,10 +272,6 @@ pub async fn seed_organization_uh_cs(
             cs_data.clone(),
             false,
             seed_users_result,
-        )),
-        run_parallelly(create_glossary_course(
-            Uuid::parse_str("e5b89931-e3d6-4930-9692-61539748c12c")?,
-            cs_data.clone(),
         )),
         run_parallelly(seed_peer_review_course_without_submissions(
             Uuid::parse_str("c47e1cfd-a2da-4fd1-aca8-f2b2d906c4c0")?,
@@ -502,7 +505,7 @@ pub async fn seed_organization_uh_cs(
         name: "Introduction to Computer Science".to_string(),
         slug: "introduction-to-computer-science".to_string(),
         organization_id: uh_cs_organization_id,
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "An example course.".to_string(),

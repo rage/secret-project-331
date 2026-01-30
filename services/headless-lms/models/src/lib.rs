@@ -10,6 +10,9 @@ pub mod certificate_configurations;
 pub mod certificate_fonts;
 pub mod chapters;
 pub mod chatbot_configurations;
+pub mod chatbot_configurations_models;
+pub mod chatbot_conversation_message_tool_calls;
+pub mod chatbot_conversation_message_tool_outputs;
 pub mod chatbot_conversation_messages;
 pub mod chatbot_conversation_messages_citations;
 pub mod chatbot_conversations;
@@ -29,7 +32,9 @@ pub mod course_modules;
 pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;
+pub mod email_verification_tokens;
 pub mod ended_processed_exams;
+pub mod error;
 pub mod exams;
 pub mod exercise_language_groups;
 pub mod exercise_repositories;
@@ -52,6 +57,12 @@ pub mod join_code_uses;
 pub mod library;
 pub mod marketing_consents;
 pub mod material_references;
+pub mod oauth_access_token;
+pub mod oauth_auth_code;
+pub mod oauth_client;
+pub mod oauth_dpop_proofs;
+pub mod oauth_refresh_tokens;
+pub mod oauth_user_client_scopes;
 pub mod offered_answers_to_peer_review_temporary;
 pub mod open_university_registration_links;
 pub mod organizations;
@@ -87,16 +98,17 @@ pub mod study_registry_registrars;
 pub mod suspected_cheaters;
 pub mod teacher_grading_decisions;
 pub mod url_redirections;
+pub mod user_chapter_locking_statuses;
 pub mod user_course_exercise_service_variables;
 pub mod user_course_settings;
 pub mod user_details;
+pub mod user_email_codes;
 pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
 pub mod user_exercise_task_states;
+pub mod user_passwords;
 pub mod user_research_consents;
 pub mod users;
-
-pub mod error;
 
 pub mod prelude;
 #[cfg(test)]
@@ -124,7 +136,7 @@ Helper struct to use with functions that insert data into the database.
 By calling `.into_uuid()` function implemented by `PKeyPolicy<Uuid>`, this enum can be used with
 SQLX queries while letting the caller dictate how the primary key should be decided.
 
-```no_run
+```no_check
 # use headless_lms_models::{ModelResult, PKeyPolicy};
 # use uuid::Uuid;
 # use sqlx::PgConnection;

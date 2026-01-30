@@ -1,10 +1,12 @@
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import useAllOrganizationsQuery from "../../../hooks/useAllOrganizationsQuery"
-import { getMyCourses } from "../../../services/backend/users"
-import { CourseComponent, CourseGrid } from "../org/organizationSlug/CourseCard"
+import CourseCard, { CourseGrid } from "../org/organizationSlug/CourseCard"
 
+import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
+import { getMyCourses } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
@@ -39,7 +41,7 @@ const MyCourses: React.FC = () => {
           (org) => org.id === course.organization_id,
         )
         return (
-          <CourseComponent
+          <CourseCard
             key={course.id}
             title={course.name}
             isDraft={course.is_draft}

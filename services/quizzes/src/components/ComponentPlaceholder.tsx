@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useContext } from "react"
 
@@ -15,7 +17,7 @@ const DynamicallyLoadingComponentPlaceholder = () => {
         height: ${iframeHeight}px;
       `}
     >
-      <Spinner variant="medium" />
+      <Spinner variant="placeholder" />
     </div>
   )
 }

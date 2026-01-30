@@ -1,3 +1,5 @@
+"use client"
+
 import styled from "@emotion/styled"
 import React from "react"
 import { ToggleButton, ToggleButtonGroup } from "react-aria-components"

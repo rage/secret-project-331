@@ -1149,6 +1149,7 @@ mod tests {
                 join_code: None,
                 ask_marketing_consent: false,
                 flagged_answers_threshold: None,
+                flagged_answers_skip_manual_review_and_allow_retry: false,
                 closed_at: None,
                 closed_additional_message: None,
                 closed_course_successor_id: None,

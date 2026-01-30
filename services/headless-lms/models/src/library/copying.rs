@@ -76,7 +76,8 @@ INSERT INTO courses (
     join_code,
     ask_marketing_consent,
     description,
-    flagged_answers_threshold
+    flagged_answers_threshold,
+    flagged_answers_skip_manual_review_and_allow_retry
   )
 VALUES (
     $1,
@@ -94,7 +95,8 @@ VALUES (
     $13,
     $14,
     $15,
-    $16
+    $16,
+    $17
   )
 RETURNING id,
   name,
@@ -117,6 +119,7 @@ RETURNING id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
@@ -137,7 +140,8 @@ RETURNING id,
         new_course.join_code,
         new_course.ask_marketing_consent,
         parent_course.description,
-        parent_course.flagged_answers_threshold
+        parent_course.flagged_answers_threshold,
+        parent_course.flagged_answers_skip_manual_review_and_allow_retry
     )
     .fetch_one(&mut *tx)
     .await?;

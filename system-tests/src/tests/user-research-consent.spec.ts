@@ -57,7 +57,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
       page,
       "University of Helsinki, Department of Mathematics and Statistics",
     )
-    await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
+    await page.getByRole("link", { name: "Navigate to course 'Change language course'" }).click()
     await selectCourseInstanceIfPrompted(page)
     // eslint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")

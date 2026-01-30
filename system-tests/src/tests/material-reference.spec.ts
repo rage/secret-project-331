@@ -15,7 +15,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
 
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
-  await page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click()
+  await page.locator("[aria-label=\"Manage course \\'Material references course\\'\"] svg").click()
   await page.getByRole("tab", { name: "Other" }).click()
   await page.getByRole("tab", { name: "References" }).click()
 
@@ -151,7 +151,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await page.getByText(`Operation successful!`).waitFor()
 
   await page.goto(
-    "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations/chapter-1/page-1",
+    "http://project-331.local/org/uh-mathstat/courses/material-references-course/chapter-1/page-1",
   )
 
   await selectCourseInstanceIfPrompted(page)

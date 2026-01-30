@@ -80,6 +80,8 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
   // Make sure this works even after reloading the page
   await page.reload()
   await page.getByText("Answer this question.").first().scrollIntoViewIfNeeded()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
   await page.locator("button:text('Try again')").first().click()
   await page
     .frameLocator("iframe")

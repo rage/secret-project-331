@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -17,7 +18,8 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.getByText("Chapter 1The Basics").click()
+  const chapterSelector = new ChapterSelector(page)
+  await chapterSelector.clickChapter(1)
 
   await page.getByText("1Page One").click()
   await expect(page).toHaveURL(

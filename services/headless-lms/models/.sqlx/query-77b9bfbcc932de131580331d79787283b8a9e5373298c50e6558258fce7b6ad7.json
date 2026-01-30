@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id\n        FROM study_registry_registrars\n        WHERE deleted_at IS NULL\n        ORDER BY created_at\n        LIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "77b9bfbcc932de131580331d79787283b8a9e5373298c50e6558258fce7b6ad7"
+}

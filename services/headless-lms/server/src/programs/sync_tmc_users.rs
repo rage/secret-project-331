@@ -50,34 +50,36 @@ pub async fn update_users(
     conn: &mut PgConnection,
     recent_changes: &TMCRecentChanges,
 ) -> anyhow::Result<()> {
-    let mut email_update_list = recent_changes
+    let email_update_list = recent_changes
         .changes
         .iter()
         .filter(|c| c.change_type == "email_changed")
         .collect::<Vec<_>>();
 
     info!("Updating emails for {} users", email_update_list.len());
-    email_update_list.sort_by(|a, b| {
-        let date_a = match DateTime::parse_from_rfc3339(a.created_at.as_str()) {
-            Ok(val) => val,
-            Err(e) => {
-                error!("Error converting date: '{}'", a.created_at);
-                error!("Error: {}", e);
-                DateTime::parse_from_str("01.01.1450", "%d.%m.%Y").unwrap()
-            }
-        };
 
-        let date_b = match DateTime::parse_from_rfc3339(b.created_at.as_str()) {
-            Ok(val) => val,
+    // Parse dates and filter out invalid entries
+    let mut parsed_updates: Vec<(DateTime<chrono::FixedOffset>, &Change)> = Vec::new();
+    for change in &email_update_list {
+        match DateTime::parse_from_rfc3339(change.created_at.as_str()) {
+            Ok(date) => parsed_updates.push((date, change)),
             Err(e) => {
-                error!("Error converting date: '{}'", b.created_at);
+                error!("Error converting date: '{}'", change.created_at);
                 error!("Error: {}", e);
-                DateTime::parse_from_str("01.01.1450", "%d.%m.%Y").unwrap()
+                return Err(anyhow::anyhow!(
+                    "Error converting date: '{}'",
+                    change.created_at
+                ));
             }
-        };
+        }
+    }
 
-        date_a.cmp(&date_b)
-    });
+    parsed_updates.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let email_update_list: Vec<&Change> = parsed_updates
+        .into_iter()
+        .map(|(_, change)| change)
+        .collect();
 
     for change in email_update_list {
         if let Some(user_id) = change.user_id {

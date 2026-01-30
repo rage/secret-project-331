@@ -1,3 +1,5 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
@@ -7,9 +9,6 @@ import { useTranslation } from "react-i18next"
 import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
-import { COLUMN, ROW } from "../../../../util/constants"
-import { sanitizeFlexDirection } from "../../../../util/css-sanitization"
-import { orderArrayWithId } from "../../../../util/randomizer"
 import ParsedText from "../../../ParsedText"
 
 import {
@@ -22,6 +21,9 @@ import { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { COLUMN, ROW } from "@/util/constants"
+import { sanitizeFlexDirection } from "@/util/css-sanitization"
+import { orderArrayWithId } from "@/util/randomizer"
 
 export const optionButton = css`
   ${TWO_DIMENSIONAL_BUTTON_STYLES}

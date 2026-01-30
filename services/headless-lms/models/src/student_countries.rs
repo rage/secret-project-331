@@ -45,6 +45,7 @@ pub async fn delete_student_country(conn: &mut PgConnection, id: Uuid) -> ModelR
 UPDATE student_countries
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
       "#,
         id
     )

@@ -1,3 +1,5 @@
+"use client"
+
 import { InnerBlocks } from "@wordpress/block-editor"
 
 const CodeGiveawayBlockSave: React.FC = () => {

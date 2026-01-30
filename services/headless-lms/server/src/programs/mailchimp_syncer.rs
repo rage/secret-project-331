@@ -422,7 +422,7 @@ pub async fn sync_tags_from_mailchimp(
     let mailchimp_tags = match response_json.get("tags") {
         Some(tags) if tags.is_array() => tags
             .as_array()
-            .unwrap()
+            .ok_or_else(|| anyhow::anyhow!("tags field is not an array despite is_array() check"))?
             .iter()
             .filter_map(|tag| {
                 let name = tag.get("name")?.as_str()?.to_string();
@@ -630,29 +630,29 @@ pub async fn send_users_to_mailchimp(
     // Prepare each user's data for Mailchimp
     for user in &users_details {
         // Check user has given permission to send data to mailchimp
-        if let Some(ref subscription) = user.email_subscription_in_mailchimp {
-            if subscription == "subscribed" {
-                let user_details = json!({
-                    "email_address": user.email,
-                    "status": user.email_subscription_in_mailchimp,
-                    "merge_fields": {
-                        "FNAME": user.first_name.clone().unwrap_or("".to_string()),
-                        "LNAME": user.last_name.clone().unwrap_or("".to_string()),
-                        "MARKETING": if user.consent { "allowed" } else { "disallowed" },
-                        "LOCALE": user.locale,
-                        // If the course is not completed, we pass an empty string to mailchimp to remove the value
-                        "GRADUATED": user.completed_course_at.map(|cca| cca.to_rfc3339()).unwrap_or("".to_string()),
-                        "USERID": user.user_id,
-                        "COURSEID": user.course_id,
-                        "LANGGRPID": user.course_language_group_id,
-                        "RESEARCH" : if user.research_consent.unwrap_or(false) { "allowed" } else { "disallowed" },
-                        "COUNTRY" : user.country.clone().unwrap_or("".to_string()),
-                    },
-                   "tags": tag_objects.iter().map(|tag| tag["name"].clone()).collect::<Vec<_>>()
-                });
-                users_data_in_json.push(user_details);
-                user_ids.push(user.id);
-            }
+        if let Some(ref subscription) = user.email_subscription_in_mailchimp
+            && subscription == "subscribed"
+        {
+            let user_details = json!({
+                "email_address": user.email,
+                "status": user.email_subscription_in_mailchimp,
+                "merge_fields": {
+                    "FNAME": user.first_name.clone().unwrap_or("".to_string()),
+                    "LNAME": user.last_name.clone().unwrap_or("".to_string()),
+                    "MARKETING": if user.consent { "allowed" } else { "disallowed" },
+                    "LOCALE": user.locale,
+                    // If the course is not completed, we pass an empty string to mailchimp to remove the value
+                    "GRADUATED": user.completed_course_at.map(|cca| cca.to_rfc3339()).unwrap_or("".to_string()),
+                    "USERID": user.user_id,
+                    "COURSEID": user.course_id,
+                    "LANGGRPID": user.course_language_group_id,
+                    "RESEARCH" : if user.research_consent.unwrap_or(false) { "allowed" } else { "disallowed" },
+                    "COUNTRY" : user.country.clone().unwrap_or("".to_string()),
+                },
+               "tags": tag_objects.iter().map(|tag| tag["name"].clone()).collect::<Vec<_>>()
+            });
+            users_data_in_json.push(user_details);
+            user_ids.push(user.id);
         }
     }
 
@@ -732,10 +732,10 @@ async fn update_emails_in_mailchimp(
 
     for user in users {
         if let Some(ref user_mailchimp_id) = user.user_mailchimp_id {
-            if let Some(ref status) = user.email_subscription_in_mailchimp {
-                if status != "subscribed" {
-                    continue; // Skip this user if they are not subscribed because Mailchimp only updates emails that are subscribed
-                }
+            if let Some(ref status) = user.email_subscription_in_mailchimp
+                && status != "subscribed"
+            {
+                continue; // Skip this user if they are not subscribed because Mailchimp only updates emails that are subscribed
             }
 
             let url = format!(

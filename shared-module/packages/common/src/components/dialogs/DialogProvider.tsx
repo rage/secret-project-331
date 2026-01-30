@@ -1,3 +1,5 @@
+"use client"
+
 import React, { createContext, ReactNode, useCallback, useContext, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
 

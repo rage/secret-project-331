@@ -32,6 +32,8 @@ reviews:
         - Use `respondToConfirmDialog` for confirm dialogs (Yes/No)
         - Use `fillPromptDialog` for prompt dialogs with input fields
 
+        NEVER select elements by auto-generated CSS classes (e.g., `.locator(".css-xknul2-TopBar")`). Instead, use semantic selectors like data-testid attributes, role selectors, text content, or accessible names. Use `page.getByTestId()`, `page.getByRole()`, `page.getByText()`, or `page.getByLabel()` instead.
+
     - path: "**/*.tsx"
       instructions: >
         Make sure to use the `useTranslation` hook for all text that is visible to the user.
@@ -51,3 +53,67 @@ reviews:
         For calling the React hooks useMemo and useEffect, don't use the React. prefix.
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
+
+    - path: "services/headless-lms/models/src/**/*.rs"
+      instructions: >
+        All sql queries should be written with the macros from the sqlx crate. Macros end with an exclamation mark. Example good functions: query!, query_as!, query_scalar!, query_file!, etc. Example bad functions: query, query_as, query_scalar, query_file, etc.
+
+        If a transaction is started it should be committed or rolled back before the transaction goes out of scope. Example: `let mut tx = conn.begin().await?; ... tx.commit().await?;`
+
+        All UPDATE queries that set `deleted_at = now()` MUST include `AND deleted_at IS NULL` in the WHERE clause to prevent overwriting timestamps for already-deleted records.
+        Example: `UPDATE table SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL`
+
+        Most tables have the `deleted_at` field. When fetching data, always include `AND deleted_at IS NULL` in the WHERE clause to prevent fetching deleted records. Example: `SELECT * FROM table WHERE id = $1 AND deleted_at IS NULL`. The exceptions to this rule are:
+        1. The table has no `deleted_at` field (rare)
+        2. The function name implies the function returns also non-deleted records
+
+        Avoid `ON CONFLICT (...) DO UPDATE SET updated_at = now()` that only updates the timestamp without changing other data—it erases the original updated_at value. Use `DO NOTHING` instead.
+
+    - path: "**/*.rs"
+      instructions: >
+        Always prefer returning Result types whenever possible. Use proper error handling with `?`, `match`, or `if let` instead of unwrapping.
+
+        NEVER use `.unwrap()` in non-test code. If the function returns a result, return an `Err`. If you cannot return a Result, use `.expect()` ONLY when the failure would occur during application startup (e.g., reading required environment variables, initializing critical resources). This ensures the app crashes immediately before handling any requests, rather than crashing during request handling which would prevent other requests from being processed. All `.expect()` calls must include a clear explanation of why it's safe to CRASH at that point.
+
+        Tests, seed scripts, and development utilities are more lenient and can use `.unwrap()` or `.expect()` as needed.
+
+        No sql queries in code that is not within the models crate. If one needs to fetch data from the database, instead add a new function to the models crate and call that one.
+
+    - path: "services/headless-lms/migrations/**/*.sql"
+      instructions: >
+        Once you want to change something in the database, don't edit any migrations that were not created in your current pull request as previous migration have already been applied to production. Create new migrations with bin/sqlx-migrate-add.
+
+        When creating new tables, follow these rules:
+        New database tables should include the `created_at`, `updated_at`, and `deleted_at` fields, a trigger for automatically updating the updated_at field, and a comment for explaining what the table is for. If one of these columns are omitted, the table comment should tell why that decision was made.
+
+        ```sql
+        CREATE TABLE table_templates (
+          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+          created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          deleted_at TIMESTAMP WITH TIME ZONE
+        );
+        CREATE TRIGGER set_timestamp BEFORE
+        UPDATE ON table_templates FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+        COMMENT ON TABLE table_templates IS 'An example';
+        COMMENT ON COLUMN table_templates.id IS 'A unique, stable identifier for the record.';
+        COMMENT ON COLUMN table_templates.created_at IS 'Timestamp when the record was created.';
+        COMMENT ON COLUMN table_templates.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+        COMMENT ON COLUMN table_templates.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+        ```
+
+        When you come up with the table name, make sure to make it plural.
+
+        The table, and all columns should have a comment explaining what they are for. The comment should be short and to the point don't repeat obvious things like the column name or the data type in the name. Don't add unnecessary words like "The column for the".
+
+        For soft-delete tables, include `deleted_at` in unique constraints with `NULLS NOT DISTINCT`: `CREATE UNIQUE INDEX idx_name ON table(user_id, item_id, deleted_at) NULLS NOT DISTINCT;` PostgreSQL's default behavior treats NULLs as distinct, allowing multiple active rows (deleted_at IS NULL) with identical values, which breaks uniqueness. With `NULLS NOT DISTINCT`, all NULLs are treated as equal, enforcing one active row per unique key while allowing multiple soft-deleted rows with different timestamps. This enables re-inserting after soft-delete without conflicts.
+
+    - path: "**/*"
+      instructions: >
+        Avoid banner-style section divider comments ("comment banners"), such as long separator bars, repeated dashes, or loud numbered headers used to split a file into sections (e.g. `// ----------------------------------------------------------------------`, `// 1. INPUT STATE`, `/* ======= */`). Prefer clearer naming, smaller focused modules/files, and normal short comments; do not suggest adding new comment banners, and when they appear in new or modified code, suggest removing them and improving structure instead.
+
+        Prefer comment quality over comment quantity. Do not add comments that simply restate what the code already says, narrate control flow, or explain obvious syntax — these may help readers unfamiliar with programming, but they hinder developers by adding noise and slowing down code reading. Comments should be concise, factual, and purposeful, and should communicate information that is not immediately obvious from the code itself (e.g., rationale and intent, constraints or invariants, edge cases, surprising behavior, important assumptions, performance or correctness considerations, or things future maintainers must keep in mind).
+
+        Require consistent, minimal function documentation. While some simple or self-explanatory functions or components may not strictly need comments, it is generally preferable to include a short, plain-language description of what the function is for, to clarify intent and complement (not repeat) a descriptive function name. Comments should add meaning rather than paraphrasing the name or implementation. Public interfaces should have clearer and more comprehensive documentation, but many private or internal functions also benefit from a brief comment explaining their role, assumptions, or relevant context.
+
+        Protect useful existing comments. Do not remove comments that capture non-obvious rationale, warnings, historical context, or design decisions unless they are clearly outdated or made irrelevant by the change. If a modification invalidates a comment, update it rather than deleting it. When a meaningful comment is removed, reviewers should expect an explicit justification in the PR description or a replacement comment that preserves the lost context.

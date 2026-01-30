@@ -1,3 +1,5 @@
+"use client"
+
 // This page is not translated because this page is a development tool and using different languages here would just create confusing terminology and weird language.
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
@@ -7,13 +9,12 @@ import { useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { UseParsedPrivateSpecResult } from "../../../hooks/playground/useParsedPrivateSpec"
-import { PlaygroundSettings } from "../../../pages/playground-tabs"
-
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
+import { PlaygroundSettings } from "@/app/playground-tabs/page"
+import { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
 import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"

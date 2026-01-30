@@ -1,6 +1,8 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { forwardRef, InputHTMLAttributes } from "react"
+import React, { forwardRef, InputHTMLAttributes, useEffect, useRef } from "react"
 
 import { baseTheme, primaryFont } from "../../styles"
 
@@ -79,6 +81,7 @@ export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   checked?: boolean
   onChangeByValue?: (checked: boolean, name?: string) => void
   labelIsRawHtml?: boolean
+  labelRef?: React.Ref<HTMLElement | null>
 }
 
 const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
@@ -89,10 +92,25 @@ const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
       className,
       checked,
       labelIsRawHtml = false,
+      labelRef,
       ...rest
     }: CheckboxProps,
     ref,
   ) => {
+    const labelSpanRef = useRef<HTMLSpanElement | null>(null)
+    const innerHTMLRef = useRef<string | null>(null)
+
+    useEffect(() => {
+      if (labelIsRawHtml && !labelRef && labelSpanRef.current && typeof window !== "undefined") {
+        const element = labelSpanRef.current
+        const newInnerHTML = rest.label
+        if (innerHTMLRef.current !== newInnerHTML) {
+          element.innerHTML = newInnerHTML
+          innerHTMLRef.current = newInnerHTML
+        }
+      }
+    }, [labelIsRawHtml, labelRef, rest.label])
+
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {
@@ -123,9 +141,17 @@ const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
             ref={ref}
             {...rest}
           />
-          {/* eslint-disable-next-line react/no-danger-with-children */}
           <span
-            dangerouslySetInnerHTML={labelIsRawHtml ? { __html: rest.label } : undefined}
+            ref={(node) => {
+              if (labelRef) {
+                if (typeof labelRef === "function") {
+                  labelRef(node)
+                } else {
+                  ;(labelRef as { current: HTMLElement | null }).current = node
+                }
+              }
+              labelSpanRef.current = node
+            }}
             // eslint-disable-next-line react/no-children-prop
             children={labelIsRawHtml ? undefined : rest.label}
           />

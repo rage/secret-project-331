@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "main": "src/index.js",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
     "start": "tsx src/index.ts"
   },

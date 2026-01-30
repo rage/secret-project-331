@@ -205,6 +205,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
 UPDATE user_exercise_slide_states
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING id
     ",
         id

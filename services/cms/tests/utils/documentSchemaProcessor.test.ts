@@ -85,6 +85,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
             innerBlocks: [],
           },
         ],
+        reset_answer_if_zero_points_from_review: false,
       },
       peer_or_self_review_questions: [
         {

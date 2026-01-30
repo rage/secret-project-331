@@ -28,16 +28,14 @@ RUN location update \
 
 FROM rust:bookworm AS icu4x-builder
 
-RUN cargo install icu4x-datagen
+RUN cargo install icu4x-datagen --version 2.1.1 --locked
 
-
-# Generate v2 of the file so that we can temporarily use the other one for compatibility
-# TODO: Remove this in the next release
 RUN icu4x-datagen \
   --markers all \
-  --locales all \
+  --locales full \
   --format blob \
-  --out /icu4x.postcard.2
+  --out /icu4x.postcard \
+  --overwrite
 
 FROM rust:bookworm AS rust-base
 
@@ -57,17 +55,10 @@ RUN cargo install sqlx-cli --no-default-features --features postgres,rustls && \
   cargo install cargo-watch && \
   cargo install systemfd && \
   cargo install cargo-chef --locked && \
-  cargo install icu_datagen && \
   rustup component add clippy
 
-RUN icu4x-datagen \
-  --keys all \
-  --locales fi \
-  --locales en \
-  --format blob \
-  --out /icu4x.postcard
-
-COPY --from=icu4x-builder /icu4x.postcard.2 /icu4x.postcard.2
+COPY --from=icu4x-builder /icu4x.postcard /icu4x.postcard
+COPY --from=icu4x-builder /icu4x.postcard /icu4x.postcard.2
 
 COPY --from=dep-builder /ips-to-country /ips-to-country
 
@@ -104,7 +95,6 @@ RUN cargo chef cook --release --recipe-path recipe.json
 FROM rust-base
 
 # Copy the cached dependencies
-COPY --from=chef-builder --chown=user:user /app/target /app/target
 COPY --from=chef-builder --chown=user:user /home/user/.cargo /home/user/.cargo
 
 USER root

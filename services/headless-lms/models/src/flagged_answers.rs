@@ -103,41 +103,41 @@ pub async fn insert_flagged_answer_and_move_to_manual_review_if_needed(
 
     // Check if the flag count exceeds the courses flagged answers threshold.
     // If it does the move to manual review and remove from the peer review queue.
-    if let Some(flagged_answers_threshold) = course.flagged_answers_threshold {
-        if updated_flag_count >= flagged_answers_threshold {
-            // Ensure course id exists
-            let course_id = flagged_submission_data
-                .course_id
-                .map(CourseOrExamId::Course)
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::Generic,
-                        "No course instance found for the submission.".to_string(),
-                        None,
-                    )
-                })?;
+    if let Some(flagged_answers_threshold) = course.flagged_answers_threshold
+        && updated_flag_count >= flagged_answers_threshold
+    {
+        // Ensure course id exists
+        let course_id = flagged_submission_data
+            .course_id
+            .map(CourseOrExamId::Course)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "No course instance found for the submission.".to_string(),
+                    None,
+                )
+            })?;
 
-            // Move the answer to manual review
-            let update_result = user_exercise_states::update_reviewing_stage(
+        // Move the answer to manual review
+        let update_result = user_exercise_states::update_reviewing_stage(
+            &mut tx,
+            flagged_user,
+            course_id,
+            flagged_submission_data.exercise_id,
+            ReviewingStage::WaitingForManualGrading,
+        )
+        .await?;
+
+        // Remove from peer review queue so other students can't review an answers that is already in manual review
+        // Remove the answer from the peer review queue
+        if let Some(course_id) = update_result.course_id {
+            peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
                 &mut tx,
                 flagged_user,
-                course_id,
                 flagged_submission_data.exercise_id,
-                ReviewingStage::WaitingForManualGrading,
+                course_id,
             )
             .await?;
-
-            // Remove from peer review queue so other students can't review an answers that is already in manual review
-            // Remove the answer from the peer review queue
-            if let Some(course_id) = update_result.course_id {
-                peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
-                    &mut tx,
-                    flagged_user,
-                    flagged_submission_data.exercise_id,
-                    course_id,
-                )
-                .await?;
-            }
         }
     }
     // Make sure the user who flagged this is allowed to get a new answer to review

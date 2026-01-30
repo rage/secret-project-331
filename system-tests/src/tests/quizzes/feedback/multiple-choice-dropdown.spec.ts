@@ -37,6 +37,7 @@ test.describe(() => {
 
     await page.getByText("Submit").click()
     await page.getByText("Try again").waitFor()
+    await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -44,7 +45,7 @@ test.describe(() => {
       testInfo,
       snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
       waitForTheseToBeVisibleAndStable: [
-        page.locator(`text=This is an extra submit message from the teacher.`),
+        frame.locator(`text=This is an extra submit message from the teacher.`),
       ],
     })
 
@@ -60,6 +61,7 @@ test.describe(() => {
 
     await page.getByText("Submit").click()
     await page.getByText("Try again").waitFor()
+    await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -67,7 +69,7 @@ test.describe(() => {
       testInfo,
       snapshotName: "multiple-choice-dropdown-feedback-correct-answer",
       waitForTheseToBeVisibleAndStable: [
-        page.locator(`text=This is an extra submit message from the teacher.`),
+        frame.locator(`text=This is an extra submit message from the teacher.`),
       ],
     })
 
@@ -83,6 +85,7 @@ test.describe(() => {
 
     await page.getByText("Submit").click()
     await page.getByText("Try again").waitFor()
+    await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -90,7 +93,7 @@ test.describe(() => {
       testInfo,
       snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer-after-correct",
       waitForTheseToBeVisibleAndStable: [
-        page.locator(`text=This is an extra submit message from the teacher.`),
+        frame.locator(`text=This is an extra submit message from the teacher.`),
       ],
     })
   })

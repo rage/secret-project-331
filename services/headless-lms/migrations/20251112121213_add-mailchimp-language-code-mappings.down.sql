@@ -1,0 +1,1 @@
+DROP TABLE mailchimp_language_code_mappings;

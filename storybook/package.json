@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",

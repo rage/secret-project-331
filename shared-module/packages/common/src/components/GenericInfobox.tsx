@@ -1,9 +1,11 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 
 import { baseTheme } from "../styles"
 
-const GenericInfobox: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
+const GenericInfobox: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <div
       className={css`

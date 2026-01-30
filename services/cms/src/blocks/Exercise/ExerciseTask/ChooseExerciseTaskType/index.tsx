@@ -1,3 +1,5 @@
+"use client"
+
 import ExerciseServiceList from "./ExerciseServiceList"
 
 import { ExerciseServiceIframeRenderingInfo } from "@/shared-module/common/bindings"

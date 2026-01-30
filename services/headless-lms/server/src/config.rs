@@ -25,6 +25,7 @@ pub struct ServerConfigBuilder {
     pub oauth_application_id: String,
     pub oauth_secret: String,
     pub auth_url: Url,
+    pub token_url: Url,
     pub icu4x_postcard_path: String,
     pub file_store: Arc<dyn FileStore + Send + Sync>,
     pub app_conf: ApplicationConfiguration,
@@ -40,9 +41,12 @@ impl ServerConfigBuilder {
             oauth_application_id: env::var("OAUTH_APPLICATION_ID")
                 .context("OAUTH_APPLICATION_ID must be defined")?,
             oauth_secret: env::var("OAUTH_SECRET").context("OAUTH_SECRET must be defined")?,
-            auth_url: "https://tmc.mooc.fi/oauth/token"
+            auth_url: "https://tmc.mooc.fi/oauth/authorize"
                 .parse()
                 .context("Failed to parse auth_url")?,
+            token_url: "https://tmc.mooc.fi/oauth/token"
+                .parse()
+                .context("Failed to parse token url")?,
             icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
                 .context("ICU4X_POSTCARD_PATH must be defined")?,
             file_store: crate::setup_file_store(),
@@ -78,7 +82,7 @@ impl ServerConfigBuilder {
         let oauth_client: OAuthClient = BasicClient::new(ClientId::new(self.oauth_application_id))
             .set_client_secret(ClientSecret::new(self.oauth_secret))
             .set_auth_uri(AuthUrl::from_url(self.auth_url.clone()))
-            .set_token_uri(TokenUrl::from_url(self.auth_url));
+            .set_token_uri(TokenUrl::from_url(self.token_url.clone()));
         let oauth_client = Data::new(oauth_client);
 
         let icu4x_blob = Icu4xBlob::new(&self.icu4x_postcard_path)?;

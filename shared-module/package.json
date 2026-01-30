@@ -5,7 +5,7 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "keywords": [],
   "main": "index.js",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
     "sync": "tsx sync.ts",
     "sync-once": "tsx sync.ts --once"

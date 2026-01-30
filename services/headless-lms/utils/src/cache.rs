@@ -71,8 +71,8 @@ impl Cache {
                 attempt += 1;
                 info!("Attempting to establish Redis connection... (attempt {attempt})");
                 let config = redis::aio::ConnectionManagerConfig::new()
-                    .set_connection_timeout(Duration::from_secs(5))
-                    .set_response_timeout(Duration::from_secs(2))
+                    .set_connection_timeout(Some(Duration::from_secs(5)))
+                    .set_response_timeout(Some(Duration::from_secs(2)))
                     .set_number_of_retries(3);
 
                 match ConnectionManager::new_with_config(client_clone.clone(), config).await {
@@ -130,7 +130,7 @@ impl Cache {
         V: DeserializeOwned + Serialize,
         F: FnOnce() -> Fut,
         Fut: std::future::Future<Output = UtilResult<V>>,
-        K: ToRedisArgs + Send + Sync + Clone + std::fmt::Debug,
+        K: ToRedisArgs + Send + Sync + Clone + std::fmt::Debug + redis::ToSingleRedisArg,
     {
         if let Some(cached) = self.get_json::<V, K>(key.clone()).await {
             info!("Cache hit for key: {:?}", key);
@@ -156,7 +156,7 @@ impl Cache {
     pub async fn cache_json<V, K>(&self, key: K, value: &V, expires_in: Duration) -> bool
     where
         V: Serialize,
-        K: ToRedisArgs + Send + Sync,
+        K: ToRedisArgs + Send + Sync + redis::ToSingleRedisArg,
     {
         if !self.initial_connection_successful() {
             warn!("Skipping cache_json because initial connection not successful");
@@ -200,7 +200,7 @@ impl Cache {
     pub async fn get_json<V, K>(&self, key: K) -> Option<V>
     where
         V: DeserializeOwned,
-        K: ToRedisArgs + Send + Sync,
+        K: ToRedisArgs + Send + Sync + redis::ToSingleRedisArg,
     {
         if !self.initial_connection_successful() {
             warn!("Skipping get_json because initial connection not successful");

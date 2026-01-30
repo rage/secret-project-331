@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { InspectorControls } from "@wordpress/block-editor"

@@ -1,5 +1,6 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
+import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import {
   navigateToNextPageInMaterial,
   selectCourseInstanceIfPrompted,
@@ -32,7 +33,8 @@ test("Can manually reset exercises", async () => {
   await student1Page.goto("http://project-331.local/org/uh-cs/courses/advanced-exercise-states")
 
   await selectCourseInstanceIfPrompted(student1Page)
-  await student1Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+  const studentChapterSelector = new ChapterSelector(student1Page)
+  await studentChapterSelector.clickChapter(1)
   await student1Page.getByRole("link", { name: "1 Page One" }).click()
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')

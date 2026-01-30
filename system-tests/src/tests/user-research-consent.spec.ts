@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { Topbar } from "../utils/components/Topbar"
+import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -10,8 +12,8 @@ test("Research consent form is visible on login, if not yet answered", async ({
 }, testInfo) => {
   await test.step("Research consent form is visible on login, if not yet answered", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "Log in" }).click()
+    const topbar = new Topbar(page)
+    await topbar.clickLogin()
     await page.click(`label:has-text("Email")`)
     await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
 
@@ -37,9 +39,8 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await page.getByText("Operation successful").waitFor()
 
     //Login again and check research consent form doesn't show again when already answered.
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "Log out" }).click()
-    await page.getByRole("button", { name: "Log in" }).click()
+    await topbar.userMenu.clickItem("Log out")
+    await topbar.clickLogin()
 
     await page.click(`label:has-text("Email")`)
     await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
@@ -47,7 +48,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await page.click(`label:has-text("Password")`)
     await page.fill(`label:has-text("Password")`, "student-without-research-consent")
     await page.locator("id=login-button").click()
-    await expect(page.getByText("Organizations")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Organizations" })).toBeVisible()
   })
 
   await test.step("Can change research consent", async () => {
@@ -58,11 +59,12 @@ test("Research consent form is visible on login, if not yet answered", async ({
     )
     await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
     await selectCourseInstanceIfPrompted(page)
+    // eslint-disable-next-line playwright/no-networkidle
+    await page.waitForLoadState("networkidle")
 
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "Log out" }).click()
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "Log in" }).click()
+    const topbar2 = new Topbar(page)
+    await topbar2.userMenu.clickItem("Log out")
+    await topbar2.clickLogin()
     await page.click(`label:has-text("Email")`)
     await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
 
@@ -72,25 +74,18 @@ test("Research consent form is visible on login, if not yet answered", async ({
 
     await selectCourseInstanceIfPrompted(page)
 
-    await page.getByRole("button", { name: "Open menu" }).click()
-    await page.getByRole("button", { name: "User settings" }).click()
-    await page.getByRole("button", { name: "Edit" }).click()
-    expect(
-      await page
-        .getByLabel(
-          "I want to participate in the educational research. By choosing this, you help both current and future students.",
-        )
-        .isChecked(),
-    )
+    const topbar3 = new Topbar(page)
+    await topbar3.userMenu.clickItem("User settings")
+    const userSettings = new UserSettingsPage(page)
+    await userSettings.waitForPage()
+    await userSettings.navigateToPermissionsTab()
 
-    await page.getByLabel("I do not want to participate in the educational research.").check()
-    await page.getByTestId("research-consent-dialog").getByRole("button", { name: "Save" }).click()
-    await page.getByText("Operation successful").waitFor()
-    await page.getByRole("button", { name: "Edit" }).click()
-    expect(
-      await page
-        .getByLabel("I do not want to participate in the educational research.")
-        .isChecked(),
-    )
+    const consentValue = await userSettings.permissionsTab.getGeneralResearchConsentValue()
+    expect(consentValue?.trim()).toBe("Yes")
+
+    await userSettings.permissionsTab.updateGeneralResearchConsent(false)
+
+    const updatedConsentValue = await userSettings.permissionsTab.getGeneralResearchConsentValue()
+    expect(updatedConsentValue?.trim()).toBe("No")
   })
 })

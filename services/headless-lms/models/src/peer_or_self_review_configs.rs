@@ -29,6 +29,7 @@ pub struct PeerOrSelfReviewConfig {
     pub processing_strategy: PeerReviewProcessingStrategy,
     pub manual_review_cutoff_in_days: i32,
     pub points_are_all_or_nothing: bool,
+    pub reset_answer_if_zero_points_from_review: bool,
     pub review_instructions: Option<serde_json::Value>,
 }
 
@@ -54,6 +55,7 @@ pub struct CmsPeerOrSelfReviewConfig {
     pub accepting_threshold: f32,
     pub processing_strategy: PeerReviewProcessingStrategy,
     pub points_are_all_or_nothing: bool,
+    pub reset_answer_if_zero_points_from_review: bool,
     pub review_instructions: Option<serde_json::Value>,
 }
 
@@ -122,9 +124,10 @@ pub async fn upsert_with_id(
     accepting_threshold,
     processing_strategy,
     points_are_all_or_nothing,
-    review_instructions
+    review_instructions,
+    reset_answer_if_zero_points_from_review
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
 UPDATE
 SET course_id = excluded.course_id,
   exercise_id = excluded.exercise_id,
@@ -133,6 +136,7 @@ SET course_id = excluded.course_id,
   accepting_threshold = excluded.accepting_threshold,
   processing_strategy = excluded.processing_strategy,
   points_are_all_or_nothing = excluded.points_are_all_or_nothing,
+  reset_answer_if_zero_points_from_review = excluded.reset_answer_if_zero_points_from_review,
   review_instructions = excluded.review_instructions
 RETURNING id,
   course_id,
@@ -142,7 +146,8 @@ RETURNING id,
   accepting_threshold,
   processing_strategy AS "processing_strategy:_",
   points_are_all_or_nothing,
-  review_instructions
+  review_instructions,
+  reset_answer_if_zero_points_from_review
 "#,
         pkey_policy.into_uuid(),
         cms_peer_review.course_id,
@@ -153,6 +158,7 @@ RETURNING id,
         cms_peer_review.processing_strategy as _,
         cms_peer_review.points_are_all_or_nothing,
         cms_peer_review.review_instructions,
+        cms_peer_review.reset_answer_if_zero_points_from_review,
     )
     .fetch_one(conn)
     .await?;
@@ -175,7 +181,8 @@ SELECT id,
   processing_strategy AS "processing_strategy: _",
   manual_review_cutoff_in_days,
   points_are_all_or_nothing,
-  review_instructions
+  review_instructions,
+  reset_answer_if_zero_points_from_review
 FROM peer_or_self_review_configs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -207,7 +214,8 @@ SELECT id,
     processing_strategy AS "processing_strategy: _",
     manual_review_cutoff_in_days,
     points_are_all_or_nothing,
-    review_instructions
+    review_instructions,
+    reset_answer_if_zero_points_from_review
 FROM peer_or_self_review_configs
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -251,7 +259,8 @@ SELECT id,
   processing_strategy AS "processing_strategy: _",
   manual_review_cutoff_in_days,
   points_are_all_or_nothing,
-  review_instructions
+  review_instructions,
+  reset_answer_if_zero_points_from_review
 FROM peer_or_self_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL
@@ -270,6 +279,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
 UPDATE peer_or_self_review_configs
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 RETURNING id
     ",
         id
@@ -363,6 +373,7 @@ SELECT pr.id as id,
   pr.accepting_threshold as accepting_threshold,
   pr.processing_strategy AS "processing_strategy: _",
   points_are_all_or_nothing,
+  pr.reset_answer_if_zero_points_from_review,
   pr.review_instructions
 from pages p
   join exercises e on p.id = e.page_id
@@ -417,6 +428,7 @@ SELECT id,
   accepting_threshold,
   processing_strategy AS "processing_strategy: _",
   points_are_all_or_nothing,
+  reset_answer_if_zero_points_from_review,
   review_instructions
 FROM peer_or_self_review_configs
 WHERE course_id = $1
@@ -445,6 +457,7 @@ SELECT id,
   accepting_threshold,
   processing_strategy AS "processing_strategy:_",
   points_are_all_or_nothing,
+  reset_answer_if_zero_points_from_review,
   review_instructions
 FROM peer_or_self_review_configs
 WHERE id = $1;

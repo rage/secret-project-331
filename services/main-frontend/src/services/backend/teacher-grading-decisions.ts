@@ -6,7 +6,11 @@ import { validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const createTeacherGradingDecision = async (
   data: NewTeacherGradingDecision,
-): Promise<UserExerciseState> => {
+): Promise<UserExerciseState | null> => {
   const response = await mainFrontendClient.post(`/teacher-grading-decisions`, data)
+  if (response.data === null) {
+    return null
+  }
+
   return validateResponse(response, isUserExerciseState)
 }

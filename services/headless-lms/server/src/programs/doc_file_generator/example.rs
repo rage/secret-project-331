@@ -23,7 +23,8 @@ impl<T: Example> Example for Vec<T> {
 
 impl Example for Uuid {
     fn example() -> Self {
-        Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap()
+        Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32")
+            .expect("Invalid UUID constant in Example implementation")
     }
 }
 
@@ -35,7 +36,8 @@ impl Example for DateTime<Utc> {
 
 impl Example for NaiveDate {
     fn example() -> Self {
-        NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()
+        NaiveDate::from_ymd_opt(2022, 1, 1)
+            .expect("Invalid date constant in Example implementation")
     }
 }
 

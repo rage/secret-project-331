@@ -20,6 +20,7 @@ metadata:
     app: headless-lms
     deploymentType: with-init-container
     needs-db: "true"
+    has-probes: "true"
 spec:
   replicas: 1
   strategy:
@@ -37,6 +38,7 @@ spec:
       labels:
         app: headless-lms
     spec:
+      serviceAccountName: headless-lms-inspector
       containers:
         - name: headless-lms
           image: headless-lms
@@ -50,6 +52,38 @@ spec:
             limits:
               memory: 800Mi
               cpu: 500m
+          startupProbe:
+            httpGet:
+              path: /api/v0/health/up
+              port: 3001
+            initialDelaySeconds: 0
+            periodSeconds: 1
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /api/v0/health/up
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /api/v0/health/up
+              port: 3001
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
@@ -76,10 +110,10 @@ spec:
               ./wait-for-db-migrations.sh
           resources:
             requests:
-              memory: 100Mi
+              memory: 200Mi
               cpu: 20m
             limits:
-              memory: 300Mi
+              memory: 500Mi
               cpu: 200m
           envFrom:
             - secretRef:
@@ -133,9 +167,9 @@ spec:
                 name: headless-lms-secrets
           resources:
             requests:
-              memory: 100Mi
+              memory: 200Mi
               cpu: 20m
             limits:
-              memory: 300Mi
+              memory: 500Mi
               cpu: 200m
       restartPolicy: Never

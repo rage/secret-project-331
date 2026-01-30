@@ -1,16 +1,17 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { submitChanges as submitModuleChanges } from "../../../../../../services/backend/course-modules"
-import { fetchCourseStructure } from "../../../../../../services/backend/courses"
-import BottomPanel from "../../../../../BottomPanel"
-
 import EditCourseModuleForm, { EditCourseModuleFormFields } from "./EditCourseModuleForm"
 import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
 
+import BottomPanel from "@/components/BottomPanel"
+import { submitChanges as submitModuleChanges } from "@/services/backend/course-modules"
+import { fetchCourseStructure } from "@/services/backend/courses"
 import { CompletionPolicy, ModifiedModule, NewModule } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

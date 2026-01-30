@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 
 interface PageMarginOffsetProps {

@@ -38,14 +38,6 @@ build:
             dest: /app
       docker:
         dockerfile: Dockerfile
-    - image: course-material
-      context: services/course-material
-      sync:
-        manual:
-          - src: src/**/*
-            dest: /app
-      docker:
-        dockerfile: Dockerfile
     - image: quizzes
       context: services/quizzes
       sync:

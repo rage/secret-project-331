@@ -1,12 +1,13 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { markAsRead } from "../../../../../../services/backend/feedback"
-
 import { usePageInfo } from "@/hooks/usePageInfo"
+import { markAsRead } from "@/services/backend/feedback"
 import { Feedback } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"

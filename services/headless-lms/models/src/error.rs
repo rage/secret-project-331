@@ -171,6 +171,7 @@ impl BackendError for ModelError {
 pub enum ModelErrorType {
     RecordNotFound,
     NotFound,
+    /// matched in From<sqlx::Error> for ModelError to get the constraint that was violated
     DatabaseConstraint {
         constraint: String,
         description: &'static str,
@@ -243,6 +244,14 @@ impl From<sqlx::Error> for ModelError {
                             ModelErrorType::DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "Email must contain an '@' symbol.",
+                            },
+                            err.to_string(),
+                            Some(err.into()),
+                        ),
+                        "unique_chatbot_names_within_course" => ModelError::new(
+                            ModelErrorType::DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "The chatbot name is already taken by another chatbot on this course",
                             },
                             err.to_string(),
                             Some(err.into()),
@@ -349,17 +358,24 @@ mod test {
     use uuid::Uuid;
 
     use super::*;
-    use crate::{PKeyPolicy, email_templates::EmailTemplateNew, test_helper::*};
+    use crate::{
+        PKeyPolicy,
+        email_templates::{EmailTemplateNew, EmailTemplateType},
+        test_helper::*,
+    };
 
     #[tokio::test]
     async fn email_templates_check() {
-        insert_data!(:tx, :user, :org, :course, :instance);
+        insert_data!(:tx, :user, :org, :course);
 
         let err = crate::email_templates::insert_email_template(
             tx.as_mut(),
-            instance.id,
+            Some(course),
             EmailTemplateNew {
-                name: "".to_string(),
+                template_type: EmailTemplateType::Generic,
+                language: None,
+                content: None,
+                subject: None,
             },
             Some(""),
         )

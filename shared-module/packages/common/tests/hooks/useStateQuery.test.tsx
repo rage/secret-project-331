@@ -1,3 +1,5 @@
+"use client"
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { renderHook, waitFor } from "@testing-library/react"
 
@@ -14,7 +16,7 @@ const testClient = new QueryClient({
   },
 })
 
-const Wrapper: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (
+const Wrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
   <QueryClientProvider client={testClient}>{children}</QueryClientProvider>
 )
 

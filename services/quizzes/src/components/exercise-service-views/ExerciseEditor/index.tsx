@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from "react"
 
 import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"

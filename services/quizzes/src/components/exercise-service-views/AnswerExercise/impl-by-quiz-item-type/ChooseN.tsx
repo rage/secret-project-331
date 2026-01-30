@@ -1,6 +1,10 @@
+"use client"
+
 import { css } from "@emotion/css"
-import _ from "lodash"
-import React from "react"
+import { CheckCircle } from "@vectopus/atlas-icons-react"
+import React, { useEffect, useId, useRef, useState } from "react"
+import { ToggleButton, ToggleButtonGroup } from "react-aria-components"
+import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
@@ -19,39 +23,58 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const ChooseN: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
-  const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const selectedOptionId = event.currentTarget.value
-    if (!quizItemAnswerState) {
-      setQuizItemAnswerState({
-        quizItemId: quizItem.id,
-        type: "choose-n",
-        selectedOptionIds: [selectedOptionId],
-        valid: 1 == quizItem.n,
-      })
-      return
-    }
+  const { t } = useTranslation()
+  const groupId = useId()
 
-    if (
-      !quizItemAnswerState.selectedOptionIds.includes(selectedOptionId) &&
-      quizItemAnswerState.selectedOptionIds.length == quizItem.n
-    ) {
-      return
-    }
-    const selectedIds = _.xor(quizItemAnswerState.selectedOptionIds, [selectedOptionId])
-    const validAnswer = selectedIds.length == quizItem.n
+  const selectedIds = quizItemAnswerState?.selectedOptionIds ?? []
+  const selectedCount = selectedIds.length
+  const limit = quizItem.n
+  const atLimit = selectedCount >= limit
 
-    const newItemAnswer: UserItemAnswerChooseN = {
-      ...quizItemAnswerState,
-      selectedOptionIds: selectedIds,
-      valid: validAnswer,
-    }
+  const [announcement, setAnnouncement] = useState<string>("")
+  const lastAnnouncedRef = useRef<string>("")
 
-    setQuizItemAnswerState(newItemAnswer)
+  useEffect(() => {
+    setAnnouncement("")
+    lastAnnouncedRef.current = ""
+  }, [quizItem.id])
+
+  const announce = (msg: string) => {
+    if (lastAnnouncedRef.current === msg) {
+      setAnnouncement("")
+      requestAnimationFrame(() => setAnnouncement(msg))
+    } else {
+      setAnnouncement(msg)
+    }
+    lastAnnouncedRef.current = msg
   }
 
-  // Is it a dynamic color, because it was discarded in this PR
-  // const selectedBackgroundColor = quizTheme.selectedItemBackground
-  // const selectedForegroundColor = quizTheme.selectedItemColor
+  const handleSelectionChange = (keys: Set<React.Key>) => {
+    const nextSelectedIds = Array.from(keys).filter((k): k is string => typeof k === "string")
+
+    if (nextSelectedIds.length > limit) {
+      announce(t("choose-n-limit-reached", { count: limit }))
+      return
+    }
+
+    setQuizItemAnswerState({
+      quizItemId: quizItem.id,
+      type: "choose-n",
+      selectedOptionIds: nextSelectedIds,
+      valid: nextSelectedIds.length === limit,
+    })
+
+    if (announcement) {
+      setAnnouncement("")
+    }
+  }
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const statusId = `${groupId}-status`
+  // eslint-disable-next-line i18next/no-literal-string
+  const hintId = `${groupId}-hint`
+  // eslint-disable-next-line i18next/no-literal-string
+  const liveId = `${groupId}-live`
 
   return (
     <div
@@ -72,32 +95,142 @@ const ChooseN: React.FunctionComponent<
       >
         {quizItem.title || quizItem.body}
       </h2>
-      <div
-        className={css`
-          display: flex;
-          flex-wrap: wrap;
-        `}
-      >
-        {quizItem.options.map((o) => (
-          <button
-            key={o.id}
-            value={o.id}
-            onClick={handleOptionSelect}
-            className={css`
-              ${TWO_DIMENSIONAL_BUTTON_STYLES}
-              ${quizItemAnswerState?.selectedOptionIds?.includes(o.id) &&
-              `
-                ${TWO_DIMENSIONAL_BUTTON_SELECTED}
-              `}
-            `}
-            disabled={
-              quizItemAnswerState?.selectedOptionIds.length == quizItem.n &&
-              !quizItemAnswerState?.selectedOptionIds?.includes(o.id)
+
+      <div>
+        <ToggleButtonGroup
+          // eslint-disable-next-line i18next/no-literal-string
+          selectionMode="multiple"
+          selectedKeys={new Set(selectedIds)}
+          onSelectionChange={handleSelectionChange}
+          aria-label={quizItem.title || quizItem.body || undefined}
+          aria-describedby={`${statusId} ${hintId} ${liveId}`}
+          className={css`
+            display: flex;
+            flex-wrap: wrap;
+          `}
+        >
+          {quizItem.options.map((o) => {
+            const isSelected = selectedIds.includes(o.id)
+            const visuallyMuted = atLimit && !isSelected
+
+            return (
+              <ToggleButton
+                key={o.id}
+                id={o.id}
+                className={css`
+                  ${TWO_DIMENSIONAL_BUTTON_STYLES}
+                  ${isSelected && TWO_DIMENSIONAL_BUTTON_SELECTED}
+
+                  /* "Looks disabled" but stays interactive */
+                  ${visuallyMuted &&
+                  css`
+                    background-color: #f8f8f9;
+                    border-color: #d0d0d8;
+                    box-shadow:
+                      rgba(45, 35, 66, 0) 0 2px 4px,
+                      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                      #d0d0d8 0 -2px 0 inset;
+                    color: #2d3a4a;
+                    cursor: not-allowed;
+                  `}
+                `}
+              >
+                <span
+                  className={css`
+                    flex: 1;
+                    text-align: center;
+                  `}
+                >
+                  {o.title || o.body}
+                </span>
+                {isSelected && (
+                  <span
+                    className={css`
+                      position: absolute;
+                      right: 0.875rem;
+                      top: 50%;
+                      transform: translateY(-50%);
+                      display: flex;
+                      align-items: center;
+                      width: 1.25rem;
+                      height: 1.25rem;
+                    `}
+                  >
+                    <CheckCircle size={20} />
+                  </span>
+                )}
+              </ToggleButton>
+            )
+          })}
+        </ToggleButtonGroup>
+
+        {/* Always-visible, de-emphasized status (not aria-live) */}
+        <div
+          className={css`
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: #4a4a4a;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            ${respondToOrLarger.md} {
+              flex-direction: row;
+              align-items: center;
+              flex-wrap: nowrap;
+              gap: 0.5rem;
             }
+          `}
+        >
+          <span
+            id={statusId}
+            className={css`
+              ${respondToOrLarger.md} {
+                white-space: nowrap;
+              }
+            `}
           >
-            {o.title || o.body}
-          </button>
-        ))}
+            {selectedCount} / {limit} {t("choose-n-chosen")}
+          </span>
+          {atLimit && selectedCount === limit && (
+            <span
+              id={hintId}
+              className={css`
+                ${respondToOrLarger.md} {
+                  white-space: nowrap;
+                }
+              `}
+            >
+              {t("choose-n-at-limit-hint")}
+            </span>
+          )}
+        </div>
+
+        {/* Persistent live region for invalid action feedback */}
+        <div
+          id={liveId}
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className={css`
+            margin-top: 1rem;
+          `}
+        >
+          {announcement ? (
+            <div
+              className={css`
+                padding: 0.875rem;
+                border-radius: 0.5rem;
+                background-color: #fff4e6;
+                border: 2px solid #cc7a00;
+                color: #b83900;
+                font-size: 1rem;
+                line-height: 1.5;
+              `}
+            >
+              {announcement}
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   )

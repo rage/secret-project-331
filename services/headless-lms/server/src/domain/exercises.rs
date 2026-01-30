@@ -95,14 +95,13 @@ async fn enforce_deadline(
     if let Some(deadline) = exercise
         .deadline
         .or_else(|| chapter.and_then(|c| c.deadline))
+        && Utc::now() + Duration::seconds(1) >= deadline
     {
-        if Utc::now() + Duration::seconds(1) >= deadline {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Exercise deadline passed.".to_string(),
-                None,
-            ));
-        }
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Exercise deadline passed.".to_string(),
+            None,
+        ));
     }
 
     Ok(())
@@ -155,10 +154,11 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
         ))
     }?
     .data;
-    if exercise.limit_number_of_tries {
-        if let Some(max_tries_per_slide) = exercise.max_tries_per_slide {
-            // check if the user has attempts remaining
-            let slide_id_to_submissions_count =
+    if exercise.limit_number_of_tries
+        && let Some(max_tries_per_slide) = exercise.max_tries_per_slide
+    {
+        // check if the user has attempts remaining
+        let slide_id_to_submissions_count =
                 models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
                     conn,
                     exercise.id,
@@ -167,27 +167,26 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
                 )
                 .await?;
 
-            let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(&0);
-            if count >= &(max_tries_per_slide as i64) {
-                tracing::error!(
-                    user_id = %user_id,
-                    exercise_id = %exercise.id,
-                    slide_id = %slide_id,
-                    course_or_exam_id = ?course_id_or_exam_id,
-                    current_try_count = %count,
-                    max_tries_per_slide = %max_tries_per_slide,
-                    limit_number_of_tries = %exercise.limit_number_of_tries,
-                    "User has run out of tries for exercise slide submission"
-                );
-                return Err(ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "You've ran out of tries.".to_string(),
-                    None,
-                ));
-            }
-            if count + 1 >= (max_tries_per_slide as i64) {
-                last_try = true;
-            }
+        let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(&0);
+        if count >= &(max_tries_per_slide as i64) {
+            tracing::error!(
+                user_id = %user_id,
+                exercise_id = %exercise.id,
+                slide_id = %slide_id,
+                course_or_exam_id = ?course_id_or_exam_id,
+                current_try_count = %count,
+                max_tries_per_slide = %max_tries_per_slide,
+                limit_number_of_tries = %exercise.limit_number_of_tries,
+                "User has run out of tries for exercise slide submission"
+            );
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "You've ran out of tries.".to_string(),
+                None,
+            ));
+        }
+        if count + 1 >= (max_tries_per_slide as i64) {
+            last_try = true;
         }
     }
     Ok((course_id_or_exam_id, last_try))

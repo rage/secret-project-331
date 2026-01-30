@@ -175,20 +175,31 @@ pub async fn mark_completions_as_registered_to_study_registry(
         }
     }
 
-    let new_registrations: Vec<NewCourseModuleCompletionRegisteredToStudyRegistry> = completions
+    let new_registrations = completions
         .into_iter()
         .map(|completion| {
-            let module_completion = completions_by_id.get(&completion.completion_id).unwrap();
-            NewCourseModuleCompletionRegisteredToStudyRegistry {
+            let module_completion = completions_by_id
+                .get(&completion.completion_id)
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailed,
+                        format!(
+                            "Completion with id {} not found after validation - this should never happen",
+                            completion.completion_id
+                        ),
+                        None,
+                    )
+                })?;
+            Ok(NewCourseModuleCompletionRegisteredToStudyRegistry {
                 course_id: module_completion.course_id,
                 course_module_completion_id: completion.completion_id,
                 course_module_id: module_completion.course_module_id,
                 study_registry_registrar_id,
                 user_id: module_completion.user_id,
                 real_student_number: completion.student_number,
-            }
+            })
         })
-        .collect();
+        .collect::<ModelResult<Vec<_>>>()?;
 
     let mut tx = conn.begin().await?;
 
@@ -235,6 +246,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
 UPDATE course_module_completion_registered_to_study_registries
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
         ",
         id
     )
@@ -343,6 +355,41 @@ RETURNING id
     .await?;
 
     Ok(res.len() as i64)
+}
+
+pub async fn insert_record(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    completion_id: Uuid,
+    module_id: Uuid,
+    registrar_id: Uuid,
+    user_id: Uuid,
+    real_student_number: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+        INSERT INTO course_module_completion_registered_to_study_registries (
+            course_id,
+            course_module_completion_id,
+            course_module_id,
+            study_registry_registrar_id,
+            user_id,
+            real_student_number
+        )
+        VALUES ($1,$2,$3,$4,$5,$6)
+        ON CONFLICT DO NOTHING
+        "#,
+        course_id,
+        completion_id,
+        module_id,
+        registrar_id,
+        user_id,
+        real_student_number
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
 }
 
 #[cfg(test)]

@@ -1,3 +1,5 @@
+"use client"
+
 import { DiffEditorProps } from "@monaco-editor/react"
 import React from "react"
 

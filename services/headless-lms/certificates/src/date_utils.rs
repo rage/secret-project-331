@@ -8,7 +8,10 @@ use icu::calendar::Gregorian;
 use icu::datetime::fieldsets::YMD;
 use icu::datetime::{DateTimeFormatter, DateTimeFormatterPreferences};
 use icu::locale::Locale;
+use icu::locale::fallback::LocaleFallbacker;
 use icu::time::DateTime;
+use icu_provider::prelude::BufferProvider;
+use icu_provider_adapters::fallback::LocaleFallbackProvider;
 use icu_provider_blob::BlobDataProvider;
 
 /// Converts a date to a localized string representation using ICU4X.
@@ -53,22 +56,40 @@ fn create_formatter_preferences(locale: &Locale) -> DateTimeFormatterPreferences
     preferences
 }
 
-/// Create a BlobDataProvider from the ICU4X blob.
-fn create_blob_data_provider(icu4x_blob: Icu4xBlob) -> UtilResult<BlobDataProvider> {
-    BlobDataProvider::try_new_from_static_blob(icu4x_blob.get()).map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Failed to create BlobDataProvider instance.".to_string(),
-            Some(original_error.into()),
-        )
-    })
+/// Create a locale-aware data provider with fallback from the ICU4X blob.
+fn create_blob_data_provider(
+    icu4x_blob: Icu4xBlob,
+) -> UtilResult<LocaleFallbackProvider<BlobDataProvider>> {
+    let buffer_provider =
+        BlobDataProvider::try_new_from_static_blob(icu4x_blob.get()).map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Failed to create BlobDataProvider instance.".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
+
+    let fallbacker = LocaleFallbacker::try_new_with_buffer_provider(&buffer_provider).map_err(
+        |original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Failed to create LocaleFallbacker instance.".to_string(),
+                Some(original_error.into()),
+            )
+        },
+    )?;
+
+    Ok(LocaleFallbackProvider::new(buffer_provider, fallbacker))
 }
 
 /// Create a DateTimeFormatter with the given provider and preferences.
-fn create_date_formatter(
-    provider: &BlobDataProvider,
+fn create_date_formatter<P>(
+    provider: &P,
     preferences: DateTimeFormatterPreferences,
-) -> UtilResult<DateTimeFormatter<YMD>> {
+) -> UtilResult<DateTimeFormatter<YMD>>
+where
+    P: BufferProvider + ?Sized,
+{
     DateTimeFormatter::try_new_with_buffer_provider(provider, preferences, YMD::long()).map_err(
         |original_error| {
             UtilError::new(

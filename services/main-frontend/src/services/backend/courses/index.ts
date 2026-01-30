@@ -1,7 +1,6 @@
 import { isBoolean } from "lodash"
 
-import { mainFrontendClient } from "../../mainFrontendClient"
-
+import { mainFrontendClient } from "@/services/mainFrontendClient"
 import {
   Chapter,
   CopyCourseRequest,
@@ -47,7 +46,6 @@ import {
   isPartnersBlock,
   isSuspectedCheaters,
   isTerm,
-  isThresholdData,
   isUserCourseSettings,
 } from "@/shared-module/common/bindings.guard"
 import {
@@ -270,12 +268,38 @@ export const postUpdatePeerReviewQueueReviewsReceived = async (
   return validateResponse(res, isBoolean)
 }
 
-export const postNewThreshold = async (
-  courseId: string,
+interface Threshold {
+  id: string
+  course_module_id: string
+  duration_seconds: number
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+export const getAllThresholds = async (courseId: string): Promise<Threshold[]> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/thresholds`)
+  return validateResponse(
+    response,
+    isArray(
+      (data): data is Threshold =>
+        typeof data === "object" &&
+        data !== null &&
+        "course_module_id" in data &&
+        "duration_seconds" in data,
+    ),
+  )
+}
+
+export const postThresholdForModule = async (
+  courseModuleId: string,
   data: ThresholdData,
-): Promise<ThresholdData> => {
-  const res = await mainFrontendClient.post(`/courses/${courseId}/threshold`, data)
-  return validateResponse(res, isThresholdData)
+): Promise<void> => {
+  const _res = await mainFrontendClient.post(`/course-modules/${courseModuleId}/threshold`, data)
+}
+
+export const deleteThresholdForModule = async (courseModuleId: string): Promise<void> => {
+  const _res = await mainFrontendClient.delete(`/course-modules/${courseModuleId}/threshold`)
 }
 
 export const fetchSuspectedCheaters = async (

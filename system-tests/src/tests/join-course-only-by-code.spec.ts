@@ -53,14 +53,30 @@ test("Join course by code only", async ({}) => {
 
   await test.step("Generate a new join code", async () => {
     await expect(teacherPage.getByRole("link", { name: "/join?code=" })).toBeVisible()
+
+    const oldJoinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
+    const oldJoinCodeHref = await oldJoinCodeElement.getAttribute("href")
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    const oldJoinCode = oldJoinCodeHref?.replace("/join?code=", "").trim() || ""
+
     await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
     await teacherPage.getByText("Operation successful").waitFor()
+
+    await teacherPage.waitForFunction((oldCode) => {
+      const link = document.querySelector('a[href^="/join?code="]') as HTMLAnchorElement
+      if (!link) {
+        return false
+      }
+      const newCode = link.href.replace("/join?code=", "").trim()
+      return newCode !== oldCode && newCode !== ""
+    }, oldJoinCode)
 
     const joinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
     const joinCodeHref = await joinCodeElement.getAttribute("href")
     // eslint-disable-next-line playwright/no-conditional-in-test
     joinCode = joinCodeHref?.replace("/join?code=", "").trim() || ""
     expect(joinCode).not.toBe("")
+    expect(joinCode).not.toBe(oldJoinCode)
   })
 
   await test.step("Student joins with the new code", async () => {
@@ -71,7 +87,7 @@ test("Join course by code only", async ({}) => {
 
   await test.step("Verify student access with the new code", async () => {
     await selectCourseInstanceIfPrompted(student1Page)
-    await student1Page.getByRole("heading", { name: "Welcome to..." }).click()
+    await student1Page.getByRole("heading", { name: "Welcome to..." }).waitFor()
   })
 
   await test.step("Verify student2 (who hasn't used the code) cannot access the course directly", async () => {

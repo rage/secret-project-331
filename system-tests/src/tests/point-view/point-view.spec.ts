@@ -21,8 +21,6 @@ test("Points view works", async ({ page, headless }, testInfo) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.getByText("Start course").click()
-
   await page.getByText("The Basics").click()
 
   await page.getByText("Page One").first().click()

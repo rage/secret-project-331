@@ -1,13 +1,18 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
-import { getCoursesDefaultCmsPeerOrSelfReviewConfiguration } from "../services/backend/courses"
+import {
+  fetchCourseById,
+  getCoursesDefaultCmsPeerOrSelfReviewConfiguration,
+} from "../services/backend/courses"
 
 import {
   CmsPeerOrSelfReviewConfig,
@@ -120,6 +125,15 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
   const selfReviewEnabled = exerciseAttributes.needs_self_review ?? false
 
+  const courseQuery = useQuery({
+    queryKey: ["course", courseId],
+    queryFn: () => fetchCourseById(courseId),
+    enabled: !!courseId,
+  })
+
+  const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
+  const isInitialMount = useRef(true)
+
   useEffect(() => {
     if (
       exerciseAttributes.use_course_default_peer_review === undefined ||
@@ -128,6 +142,26 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       setExerciseAttributes({ use_course_default_peer_review: true })
     }
   })
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      if (
+        chapterLockingEnabled &&
+        (exerciseAttributes.needs_peer_review || exerciseAttributes.needs_self_review)
+      ) {
+        setExerciseAttributes({
+          needs_peer_review: false,
+          needs_self_review: false,
+        })
+      }
+    }
+  }, [
+    chapterLockingEnabled,
+    exerciseAttributes.needs_peer_review,
+    exerciseAttributes.needs_self_review,
+    setExerciseAttributes,
+  ])
 
   const defaultCmsPeerOrSelfReviewConfig = useQuery({
     queryKey: [`course-default-peer-review-config-${courseId}`],
@@ -217,6 +251,12 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         peerOrSelfReviewConfig = {
           ...parsedPeerOrSelfReviewConfig,
           points_are_all_or_nothing: value === "true",
+        }
+        break
+      case "reset_answer_if_zero_points_from_review":
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
+          reset_answer_if_zero_points_from_review: value === "true",
         }
         break
       default:
@@ -342,6 +382,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 setExerciseAttributes({ needs_peer_review: checked })
               }
               checked={peerReviewEnabled}
+              disabled={chapterLockingEnabled}
             />
             <CheckBox
               label={t("add-self-review")}
@@ -349,7 +390,20 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 setExerciseAttributes({ needs_self_review: checked })
               }
               checked={selfReviewEnabled}
+              disabled={chapterLockingEnabled}
             />
+            {chapterLockingEnabled && (
+              <p
+                className={css`
+                  margin: 0.5rem 0 0 0;
+                  font-size: 0.875rem;
+                  color: ${baseTheme.colors.gray[600]};
+                  font-style: italic;
+                `}
+              >
+                {t("peer-review-disabled-for-locking-chapters")}
+              </p>
+            )}
           </>
         )}
         {(peerReviewEnabled || selfReviewEnabled) && (
@@ -446,6 +500,22 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   }
                   disabled={
                     parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything"
+                  }
+                />
+                <CheckBox
+                  label={t("label-reset-answer-if-zero")}
+                  checked={parsedPeerOrSelfReviewConfig.reset_answer_if_zero_points_from_review}
+                  onChangeByValue={(checked) =>
+                    handlePeerReviewValueChange(
+                      checked.toString(),
+                      // eslint-disable-next-line i18next/no-literal-string
+                      "reset_answer_if_zero_points_from_review",
+                    )
+                  }
+                  disabled={
+                    parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything" ||
+                    parsedPeerOrSelfReviewConfig.processing_strategy ===
+                      "AutomaticallyGradeOrManualReviewByAverage"
                   }
                 />
                 {!parsedPeerOrSelfReviewConfig.points_are_all_or_nothing && (
@@ -597,6 +667,7 @@ function defaultPeerOrSelfReviewConfig(
     peer_reviews_to_give: 3,
     peer_reviews_to_receive: 2,
     points_are_all_or_nothing: true,
+    reset_answer_if_zero_points_from_review: false,
     review_instructions: [],
   }
 }

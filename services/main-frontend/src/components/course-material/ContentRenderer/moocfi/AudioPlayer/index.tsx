@@ -1,0 +1,148 @@
+"use client"
+
+import { css } from "@emotion/css"
+import React, { useEffect, useRef, useState } from "react"
+import { useButton, useFocusRing } from "react-aria"
+import { useTranslation } from "react-i18next"
+
+import Controls from "./Controls"
+import DisplayTrack from "./DisplayTrack"
+import ProgressBar from "./ProgressBar"
+
+import { AudioFile } from "@/components/course-material/Page"
+import CloseIcon from "@/img/course-material/close.svg"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+export interface AudioFileProps {
+  tracks: AudioFile[]
+  isVisible: boolean
+  setIsVisible: () => void
+}
+export type AudioPlayerProps = React.HTMLAttributes<HTMLDivElement> & AudioFileProps
+
+const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
+  tracks,
+  isVisible,
+  setIsVisible,
+}) => {
+  const { t } = useTranslation()
+  const [timeProgress, setTimeProgress] = useState<number>(0)
+  const [duration, setDuration] = useState<number>(0)
+
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const progressBarRef = useRef<HTMLInputElement | null>(null)
+  const dialogRef = useRef<HTMLDivElement | null>(null)
+  const playPauseButtonRef = useRef<HTMLButtonElement | null>(null)
+
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const { buttonProps: closeButtonProps } = useButton(
+    {
+      onPress: setIsVisible,
+      "aria-label": t("audio-player-close"),
+    },
+    closeButtonRef,
+  )
+  const { focusProps: closeFocusProps, isFocusVisible: isCloseFocusVisible } = useFocusRing()
+
+  useEffect(() => {
+    if (isVisible && dialogRef.current) {
+      const firstFocusable = playPauseButtonRef.current || dialogRef.current
+      if (firstFocusable) {
+        setTimeout(() => {
+          firstFocusable.focus()
+        }, 0)
+      }
+    }
+  }, [isVisible])
+
+  return (
+    <>
+      {tracks && isVisible && (
+        <div
+          className={css`
+            position: fixed;
+            display: flex;
+            bottom: 40px;
+            margin: auto;
+            left: 0;
+            right: 0;
+            width: 600px;
+            z-index: 99;
+          `}
+        >
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-label={t("audio-player-dialog-label")}
+            tabIndex={-1}
+            className={css`
+              width: 100vw;
+              background: #fff;
+              position: relative;
+              border-radius: 10px;
+              border: 2px solid #e3d2f2;
+              padding: 30px 20px;
+              box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.1);
+
+              ${respondToOrLarger.md} {
+                width: 700px;
+              }
+            `}
+          >
+            <div
+              className={css`
+                margin: 0 auto;
+              `}
+            >
+              <DisplayTrack
+                {...{
+                  tracks,
+                  audioRef,
+                  setDuration,
+                  progressBarRef,
+                }}
+              />
+              <ProgressBar {...{ progressBarRef, audioRef, timeProgress, duration }} />
+              <Controls
+                {...{
+                  audioRef,
+                  progressBarRef,
+                  duration,
+                  setTimeProgress,
+                  tracks,
+                  playPauseButtonRef,
+                }}
+              />
+              <button
+                {...closeButtonProps}
+                {...closeFocusProps}
+                ref={closeButtonRef}
+                className={css`
+                  position: absolute;
+                  height: 28px;
+                  width: 28px;
+                  border: none;
+                  border-radius: 100px;
+                  right: 10px;
+                  top: 8px;
+                  display: flex;
+                  align-items: center;
+                  padding-left: 2px;
+                  ${isCloseFocusVisible &&
+                  css`
+                    outline: 2px solid #4a90e2;
+                    outline-offset: 2px;
+                  `}
+                `}
+              >
+                <CloseIcon aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+export default withErrorBoundary(AudioPlayer)

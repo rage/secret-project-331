@@ -28,9 +28,9 @@ export const queryClient = new QueryClient({
         }
         const willRetry = failureCount < 3
         if (willRetry) {
-          console.info("Retrying... (${statusCode})")
+          console.info(`Retrying... (${statusCode})`)
         } else {
-          console.info("Maximum number of retries reached. Not retrying anymore. (${statusCode})")
+          console.info(`Maximum number of retries reached. Not retrying anymore. (${statusCode})`)
         }
         return willRetry
       },

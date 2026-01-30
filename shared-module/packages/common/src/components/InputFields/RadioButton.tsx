@@ -1,3 +1,5 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import { DetailedHTMLProps, InputHTMLAttributes } from "react"
 

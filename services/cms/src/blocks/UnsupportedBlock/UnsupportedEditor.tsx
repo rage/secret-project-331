@@ -1,3 +1,5 @@
+"use client"
+
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 import { useTranslation } from "react-i18next"

@@ -91,7 +91,7 @@ export const blockTypeMap: Array<[string, BlockConfiguration]> = [
 
 ## Display block in Course-Material
 
-Creating a display block in course material is similar to creating a component in cms with few differences. Here you don't need to create a configuration. Let's start creating a display block by creating a file `MyRenderComponent.tsx` in `services/course-material/src/components/ContentRenderer` and add the following content to it:
+Creating a display block in course material is similar to creating a component in cms with few differences. Here you don't need to create a configuration. Let's start creating a display block by creating a file `MyRenderComponent.tsx` in `services/main-frontend/src/components/course-material/ContentRenderer` and add the following content to it:
 
 ```typescript
 import { BlockRendererProps } from "."

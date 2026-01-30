@@ -6,6 +6,176 @@ use headless_lms_models::course_modules::{
 use sqlx::PgConnection;
 
 use crate::programs::seed::builder::{chapter::ChapterBuilder, context::SeedContext};
+use chrono::{DateTime, Utc};
+use headless_lms_models::{
+    course_module_completion_registered_to_study_registries, course_module_completions,
+    course_module_completions::NewCourseModuleCompletionSeed,
+};
+
+use uuid::Uuid;
+
+#[derive(Debug, Clone)]
+pub struct CompletionRegisteredBuilder {
+    pub registrar_id: Option<Uuid>,
+    pub real_student_number: Option<String>,
+}
+
+impl CompletionRegisteredBuilder {
+    pub fn new() -> Self {
+        Self {
+            registrar_id: None,
+            real_student_number: None,
+        }
+    }
+
+    pub fn registrar_id(mut self, id: Uuid) -> Self {
+        self.registrar_id = Some(id);
+        self
+    }
+
+    pub fn real_student_number(mut self, num: impl Into<String>) -> Self {
+        self.real_student_number = Some(num.into());
+        self
+    }
+}
+
+impl Default for CompletionRegisteredBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Builder for seeding a single course_module_completion row.
+#[derive(Debug, Clone)]
+pub struct CompletionBuilder {
+    user_id: Uuid,
+    email: Option<String>,
+    grade: Option<i32>,
+    passed: Option<bool>,
+    completion_date: Option<DateTime<Utc>>,
+    completion_language: Option<String>,
+    eligible_for_ects: Option<bool>,
+    prerequisite_modules_completed: Option<bool>,
+    needs_to_be_reviewed: Option<bool>,
+    register: Option<CompletionRegisteredBuilder>,
+}
+
+impl CompletionBuilder {
+    pub fn new(user_id: Uuid) -> Self {
+        Self {
+            user_id,
+            email: Some(format!("{}@example.com", user_id)),
+            grade: None,
+            passed: Some(true),
+            completion_date: Some(chrono::Utc::now()),
+            completion_language: Some("en-US".to_string()),
+            eligible_for_ects: Some(true),
+            prerequisite_modules_completed: Some(false),
+            needs_to_be_reviewed: Some(false),
+            register: None,
+        }
+    }
+
+    pub fn registered(mut self, r: CompletionRegisteredBuilder) -> Self {
+        self.register = Some(r);
+        self
+    }
+
+    pub fn email(mut self, v: impl Into<String>) -> Self {
+        self.email = Some(v.into());
+        self
+    }
+
+    pub fn grade(mut self, v: i32) -> Self {
+        self.grade = Some(v);
+        self
+    }
+
+    pub fn passed(mut self, v: bool) -> Self {
+        self.passed = Some(v);
+        self
+    }
+
+    pub fn completion_date(mut self, v: DateTime<Utc>) -> Self {
+        self.completion_date = Some(v);
+        self
+    }
+
+    pub fn completion_language(mut self, v: impl Into<String>) -> Self {
+        self.completion_language = Some(v.into());
+        self
+    }
+
+    pub fn eligible_for_ects(mut self, v: bool) -> Self {
+        self.eligible_for_ects = Some(v);
+        self
+    }
+
+    pub fn prerequisite_modules_completed(mut self, v: bool) -> Self {
+        self.prerequisite_modules_completed = Some(v);
+        self
+    }
+
+    pub fn needs_to_be_reviewed(mut self, v: bool) -> Self {
+        self.needs_to_be_reviewed = Some(v);
+        self
+    }
+
+    pub async fn seed(
+        &self,
+        conn: &mut sqlx::PgConnection,
+        course_id: Uuid,
+        course_module_id: Uuid,
+        default_registrar_id: Option<Uuid>,
+    ) -> anyhow::Result<()> {
+        let seed = NewCourseModuleCompletionSeed {
+            course_id,
+            course_module_id,
+            user_id: self.user_id,
+            completion_date: self.completion_date,
+            completion_language: self.completion_language.clone(),
+            eligible_for_ects: self.eligible_for_ects,
+            email: self.email.clone(),
+            grade: self.grade,
+            passed: self.passed,
+            prerequisite_modules_completed: self.prerequisite_modules_completed,
+            needs_to_be_reviewed: self.needs_to_be_reviewed,
+        };
+
+        let completion_id = course_module_completions::insert_seed_row(conn, &seed).await?;
+
+        // Mark registration attempt (seed always sets this)
+        course_module_completions::update_registration_attempt(conn, completion_id)
+            .await
+            .ok();
+
+        if let Some(r) = &self.register {
+            let registrar_id = if let Some(id) = r.registrar_id {
+                id
+            } else if let Some(def) = default_registrar_id {
+                def
+            } else {
+                return Ok(());
+            };
+
+            if let Some(student_number) = &r.real_student_number {
+                course_module_completion_registered_to_study_registries::insert_record(
+                    conn,
+                    course_id,
+                    completion_id,
+                    course_module_id,
+                    registrar_id,
+                    self.user_id,
+                    student_number,
+                )
+                .await
+                .context("insert registry record")?;
+            }
+        }
+
+        Ok(())
+    }
+}
 
 /// Builder for course modules that group chapters with ECTS credits and Open University registration.
 #[derive(Debug, Clone)]
@@ -16,6 +186,8 @@ pub struct ModuleBuilder {
     pub chapters: Vec<ChapterBuilder>,
     pub register_to_open_university: bool,
     pub completion_policy: CompletionPolicy,
+    pub completions: Vec<CompletionBuilder>,
+    pub default_registrar_id: Option<Uuid>,
 }
 
 impl Default for ModuleBuilder {
@@ -33,8 +205,24 @@ impl ModuleBuilder {
             chapters: vec![],
             register_to_open_university: false,
             completion_policy: CompletionPolicy::Manual,
+            completions: vec![],
+            default_registrar_id: None,
         }
     }
+    pub fn default_registrar(mut self, id: Uuid) -> Self {
+        self.default_registrar_id = Some(id);
+        self
+    }
+    pub fn completion(mut self, c: CompletionBuilder) -> Self {
+        self.completions.push(c);
+        self
+    }
+
+    pub fn completions<I: IntoIterator<Item = CompletionBuilder>>(mut self, it: I) -> Self {
+        self.completions.extend(it);
+        self
+    }
+
     pub fn order(mut self, n: i32) -> Self {
         self.order = Some(n);
         self
@@ -117,6 +305,11 @@ impl ModuleBuilder {
             )
             .await
             .context("enabling OU registration for module")?;
+        }
+
+        for comp in &self.completions {
+            comp.seed(conn, course_id, module.id, self.default_registrar_id)
+                .await?;
         }
 
         for ch in self.chapters {

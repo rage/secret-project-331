@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      INSERT INTO user_email_codes (code, user_id)\nVALUES ($1, $2)\nRETURNING code\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "code",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "d65c5db352c07e9b93914dedb530c0781f66e6660c9d74e38442f70b86aed9ad"
+}

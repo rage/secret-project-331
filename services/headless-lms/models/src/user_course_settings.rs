@@ -17,6 +17,10 @@ pub async fn upsert_user_course_settings_for_enrollment(
     conn: &mut PgConnection,
     course_instance_enrollment: &CourseInstanceEnrollment,
 ) -> ModelResult<UserCourseSettings> {
+    use crate::{chapters, courses, user_chapter_locking_statuses};
+
+    let course = courses::get_course(conn, course_instance_enrollment.course_id).await?;
+
     let user_course_settings = sqlx::query_as!(
         UserCourseSettings,
         "
@@ -43,8 +47,35 @@ RETURNING *;
         course_instance_enrollment.course_id,
         course_instance_enrollment.course_instance_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *conn)
     .await?;
+
+    if course.chapter_locking_enabled {
+        let existing_statuses = user_chapter_locking_statuses::get_by_user_and_course(
+            &mut *conn,
+            course_instance_enrollment.user_id,
+            course_instance_enrollment.course_id,
+        )
+        .await?;
+
+        let has_unlocked_or_completed = existing_statuses.iter().any(|s| {
+            matches!(
+                s.status,
+                user_chapter_locking_statuses::ChapterLockingStatus::Unlocked
+                    | user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked
+            )
+        });
+
+        if !has_unlocked_or_completed {
+            chapters::unlock_first_chapters_for_user(
+                &mut *conn,
+                course_instance_enrollment.user_id,
+                course_instance_enrollment.course_id,
+            )
+            .await?;
+        }
+    }
+
     Ok(user_course_settings)
 }
 
@@ -122,6 +153,29 @@ WHERE current_course_id = ANY($1)
         ",
         course_ids,
         user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserCourseSettings>> {
+    let res = sqlx::query_as!(
+        UserCourseSettings,
+        "
+SELECT ucs.*
+FROM courses c
+  JOIN user_course_settings ucs ON (
+    ucs.course_language_group_id = c.course_language_group_id
+  )
+WHERE c.id = $1
+  AND c.deleted_at IS NULL
+  AND ucs.deleted_at IS NULL
+        ",
+        course_id
     )
     .fetch_all(conn)
     .await?;

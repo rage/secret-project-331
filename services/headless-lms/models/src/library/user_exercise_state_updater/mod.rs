@@ -7,7 +7,9 @@ mod state_deriver;
 mod validation;
 
 use crate::{
+    chapters::DatabaseChapter,
     course_modules,
+    courses::Course,
     exercise_slide_submissions::ExerciseSlideSubmission,
     exercises::Exercise,
     peer_or_self_review_configs::PeerOrSelfReviewConfig,
@@ -35,6 +37,10 @@ pub struct UserExerciseStateUpdateRequiredData {
     pub latest_teacher_grading_decision: Option<TeacherGradingDecision>,
     /// The grades summed up from all the user exercise slide states. Note that multiple slides can give points, and they are all aggregated here.
     pub user_exercise_slide_state_grading_summary: UserExerciseSlideStateGradingSummary,
+    /// Chapter information if the exercise belongs to a chapter. Used to check if chapter_locking_enabled is enabled.
+    pub chapter: Option<DatabaseChapter>,
+    /// Course information. Used to check if chapter_locking_enabled is enabled.
+    pub course: Option<Course>,
 }
 
 /// Visible only in the current module (and submodules) to prevent misuse.
@@ -61,6 +67,8 @@ pub struct UserExerciseStateUpdateAlreadyLoadedRequiredData {
     /// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether a teacher has made a grading decision or not.
     pub latest_teacher_grading_decision: Option<Option<TeacherGradingDecision>>,
     pub user_exercise_slide_state_grading_summary: Option<UserExerciseSlideStateGradingSummary>,
+    pub chapter: Option<Option<DatabaseChapter>>,
+    pub course: Option<Course>,
 }
 
 /**

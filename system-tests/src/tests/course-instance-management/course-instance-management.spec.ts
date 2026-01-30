@@ -84,7 +84,7 @@ test("Managing course instances works", async ({ page }) => {
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )
 
-  await page.getByText("Course instance default").waitFor()
+  await expect(page.getByRole("heading", { name: /^Course instance Default/i })).toBeVisible()
 
   await page.getByRole("button", { name: "Edit" }).first().click()
 

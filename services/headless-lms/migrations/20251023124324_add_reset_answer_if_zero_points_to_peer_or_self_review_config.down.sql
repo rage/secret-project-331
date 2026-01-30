@@ -1,0 +1,1 @@
+ALTER TABLE peer_or_self_review_configs DROP COLUMN IF EXISTS reset_answer_if_zero_points_from_review;

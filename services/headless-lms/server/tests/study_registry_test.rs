@@ -155,7 +155,7 @@ async fn insert_data(
                 name: "course".to_string(),
                 slug: "slug".to_string(),
                 organization_id: org,
-                language_code: "en-US".to_string(),
+                language_code: "en".to_string(),
                 teacher_in_charge_name: "Teacher".to_string(),
                 teacher_in_charge_email: "teacher@email.com".to_string(),
                 description: "".to_string(),

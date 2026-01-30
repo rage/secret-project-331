@@ -34,7 +34,7 @@ impl IpToCountryMapper {
                 .max_open(10)
                 .contents_first(false)
                 .sort_by_file_name();
-            let mut some_lists_skipped = true;
+            let mut some_lists_skipped = false;
             for entry_result in walker {
                 let entry = entry_result?;
                 if !entry.file_type().is_file() {

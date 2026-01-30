@@ -13,11 +13,11 @@ export const fetchEmailTemplateWithId = async (emailTemplateId: string): Promise
 
 export const updateExistingEmailTemplate = async (
   id: string,
-  { content, name, subject }: EmailTemplateUpdate,
+  { content, template_type, subject }: EmailTemplateUpdate,
 ): Promise<EmailTemplate> => {
   const response = await cmsClient.put(
     `/email-templates/${id}`,
-    { content, name, subject },
+    { content, template_type, subject },
     {
       headers: { "Content-Type": "application/json" },
     },

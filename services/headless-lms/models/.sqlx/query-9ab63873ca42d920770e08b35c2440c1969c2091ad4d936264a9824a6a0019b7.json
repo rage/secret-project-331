@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      SELECT ct.id,\n      ct.course_module_id,\n      ct.duration_seconds,\n      ct.created_at,\n      ct.updated_at,\n      ct.deleted_at\n      FROM cheater_thresholds ct\n      JOIN course_modules cm ON ct.course_module_id = cm.id\n      WHERE cm.course_id = $1\n      AND ct.deleted_at IS NULL\n      AND cm.deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_module_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "duration_seconds",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "9ab63873ca42d920770e08b35c2440c1969c2091ad4d936264a9824a6a0019b7"
+}

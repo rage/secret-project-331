@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO chatbot_configurations (\n    id,\n    course_id,\n    chatbot_name,\n    initial_message,\n    prompt,\n    use_azure_search,\n    maintain_azure_search_index,\n    use_semantic_reranking,\n    hide_citations,\n    temperature,\n    top_p,\n    presence_penalty,\n    frequency_penalty,\n    response_max_tokens,\n    daily_tokens_per_user,\n    weekly_tokens_per_user,\n    default_chatbot,\n    enabled_to_students,\n    model_id,\n    thinking_model,\n    use_tools\n  )\nSELECT\n  uuid_generate_v5($1, id::text),\n  $1,\n  chatbot_name,\n  initial_message,\n  prompt,\n  use_azure_search,\n  maintain_azure_search_index,\n  use_semantic_reranking,\n  hide_citations,\n  temperature,\n  top_p,\n  presence_penalty,\n  frequency_penalty,\n  response_max_tokens,\n  daily_tokens_per_user,\n  weekly_tokens_per_user,\n  default_chatbot,\n  enabled_to_students,\n  model_id,\n  thinking_model,\n  use_tools\nFROM chatbot_configurations\nWHERE course_id = $2\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "190a29ee27a5bad0b1f919a91f0a78e78b9a288b1e5333a6b1ef3f9d680bfe18"
+}

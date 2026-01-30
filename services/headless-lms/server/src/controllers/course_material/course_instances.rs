@@ -29,6 +29,7 @@ async fn get_user_progress_for_course_instance(
         &mut conn,
         course_instance.course_id,
         user.id,
+        false,
     )
     .await?;
     let token = skip_authorize();

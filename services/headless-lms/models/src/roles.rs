@@ -55,15 +55,15 @@ impl Role {
         if self.is_global {
             "Global".to_string()
         } else if let Some(id) = self.organization_id {
-            return format!("Organization {}", id);
+            format!("Organization {}", id)
         } else if let Some(id) = self.course_id {
-            return format!("Course {}", id);
+            format!("Course {}", id)
         } else if let Some(id) = self.course_instance_id {
-            return format!("CourseInstance {}", id);
+            format!("CourseInstance {}", id)
         } else if let Some(id) = self.exam_id {
-            return format!("Exam {}", id);
+            format!("Exam {}", id)
         } else {
-            return "Unknown domain".to_string();
+            "Unknown domain".to_string()
         }
     }
 }

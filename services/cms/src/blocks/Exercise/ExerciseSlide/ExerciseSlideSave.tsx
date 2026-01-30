@@ -1,3 +1,5 @@
+"use client"
+
 import { InnerBlocks } from "@wordpress/block-editor"
 
 const ExerciseSlideSave: React.FC<unknown> = () => {

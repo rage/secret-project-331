@@ -8,7 +8,6 @@ on:
     paths-ignore:
       - "docs/**"
       - "services/cms/**"
-      - "services/course-material/**"
       - "services/example-exercise/**"
       - "services/main-frontend/**"
       - "services/quizzes/**"
@@ -20,7 +19,6 @@ on:
       - "docs/**"
       - "services/cms/**"
       - "services/example-exercise/**"
-      - "services/course-material/**"
       - "services/main-frontend/**"
       - "services/quizzes/**"
       - "services/tmc/**"

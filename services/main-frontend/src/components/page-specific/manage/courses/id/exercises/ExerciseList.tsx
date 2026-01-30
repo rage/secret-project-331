@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { groupBy, mapValues } from "lodash"
 import Link from "next/link"
@@ -9,6 +11,10 @@ import { useCourseStructure } from "@/hooks/useCourseStructure"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights, monospaceFont, primaryFont } from "@/shared-module/common/styles"
+import {
+  exerciseAnswersRequiringAttentionRoute,
+  exerciseSubmissionsRoute,
+} from "@/shared-module/common/utils/routes"
 
 export interface ExerciseListProps {
   courseId: string
@@ -170,12 +176,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                                 line-height: 160%;
                               `}
                             >
-                              <Link
-                                href={{
-                                  pathname: "/manage/exercises/[exerciseId]/submissions",
-                                  query: { exerciseId: exercise.id },
-                                }}
-                              >
+                              <Link href={exerciseSubmissionsRoute(exercise.id)}>
                                 {exercise.name} {exercise.count}
                               </Link>
                             </div>
@@ -193,11 +194,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                                     border-radius: 100px;
                                     padding: 3px 16px 5px;
                                   `}
-                                  href={{
-                                    pathname:
-                                      "/manage/exercises/[exerciseId]/answers-requiring-attention",
-                                    query: { exerciseId: exercise.id },
-                                  }}
+                                  href={exerciseAnswersRequiringAttentionRoute(exercise.id)}
                                 >
                                   {t("link-view-answers-requiring-attention")}
                                 </Link>

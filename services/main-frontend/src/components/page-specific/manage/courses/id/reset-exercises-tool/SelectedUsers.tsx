@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"

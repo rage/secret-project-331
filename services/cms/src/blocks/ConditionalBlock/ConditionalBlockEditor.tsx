@@ -1,3 +1,5 @@
+"use client"
+
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"

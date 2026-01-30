@@ -1,3 +1,5 @@
+"use client"
+
 import { css, injectGlobal } from "@emotion/css"
 
 import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"
@@ -92,6 +94,6 @@ injectGlobal`
 ${globalCss}
 `
 
-const GlobalStyles: React.FC<React.PropsWithChildren<unknown>> = () => null
+const GlobalStyles: React.FC = () => null
 
 export default GlobalStyles

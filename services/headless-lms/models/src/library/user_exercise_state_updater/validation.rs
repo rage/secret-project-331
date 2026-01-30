@@ -41,15 +41,14 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
 
         if let Some(peer_review_queue_entry) =
             &peer_or_self_review_information.peer_review_queue_entry
+            && peer_review_queue_entry.deleted_at.is_some()
         {
-            if peer_review_queue_entry.deleted_at.is_some() {
-                return Err(ModelError::new(
-              ModelErrorType::Generic,
-              "Attempted to update user_exercise_state with a deleted peer review queue entry"
-                  .to_string(),
-              None,
-                ));
-            }
+            return Err(ModelError::new(
+                ModelErrorType::Generic,
+                "Attempted to update user_exercise_state with a deleted peer review queue entry"
+                    .to_string(),
+                None,
+            ));
         }
 
         if peer_or_self_review_information
@@ -66,15 +65,15 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
         }
     }
 
-    if let Some(latest_teacher_grading_decision) = &input_data.latest_teacher_grading_decision {
-        if latest_teacher_grading_decision.deleted_at.is_some() {
-            return Err(ModelError::new(
-                ModelErrorType::Generic,
-                "Attempted to update user_exercise_state with a latest teacher grading decision"
-                    .to_string(),
-                None,
-            ));
-        }
+    if let Some(latest_teacher_grading_decision) = &input_data.latest_teacher_grading_decision
+        && latest_teacher_grading_decision.deleted_at.is_some()
+    {
+        return Err(ModelError::new(
+            ModelErrorType::Generic,
+            "Attempted to update user_exercise_state with a latest teacher grading decision"
+                .to_string(),
+            None,
+        ));
     }
     Ok(())
 }

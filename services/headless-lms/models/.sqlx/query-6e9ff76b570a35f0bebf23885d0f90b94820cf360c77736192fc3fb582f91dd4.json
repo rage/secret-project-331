@@ -44,7 +44,8 @@
                 "full-points",
                 "zero-points",
                 "custom-points",
-                "suspected-plagiarism"
+                "suspected-plagiarism",
+                "reject-and-reset"
               ]
             }
           }
@@ -72,7 +73,8 @@
                 "full-points",
                 "zero-points",
                 "custom-points",
-                "suspected-plagiarism"
+                "suspected-plagiarism",
+                "reject-and-reset"
               ]
             }
           }

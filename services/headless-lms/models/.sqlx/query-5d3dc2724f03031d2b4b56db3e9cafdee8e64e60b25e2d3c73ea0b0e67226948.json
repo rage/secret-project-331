@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_repositories\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5d3dc2724f03031d2b4b56db3e9cafdee8e64e60b25e2d3c73ea0b0e67226948"
+}

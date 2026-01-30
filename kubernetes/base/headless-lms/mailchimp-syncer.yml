@@ -24,10 +24,10 @@ spec:
           command: ["bin/run", "mailchimp-syncer"]
           resources:
             requests:
-              memory: 100Mi
+              memory: 200Mi
               cpu: 20m
             limits:
-              memory: 300Mi
+              memory: 500Mi
               cpu: 200m
           envFrom:
             - secretRef:
@@ -45,10 +45,10 @@ spec:
               ./wait-for-db-migrations.sh marketing_mailing_list_access_tokens
           resources:
             requests:
-              memory: 100Mi
+              memory: 200Mi
               cpu: 20m
             limits:
-              memory: 300Mi
+              memory: 500Mi
               cpu: 200m
           envFrom:
             - secretRef:

@@ -1,3 +1,5 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { forwardRef, InputHTMLAttributes } from "react"

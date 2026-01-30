@@ -80,7 +80,8 @@ impl<'a> UploadClaim<'a> {
     }
 
     pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0).expect("should never fail")
+        self.sign_with_key(&key.0)
+            .expect("JWT signing failed - this should never happen with a valid key")
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
@@ -108,9 +109,13 @@ impl FromRequest for UploadClaim<'_> {
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let try_from_request = move || {
-            let jwt_key = req
-                .app_data::<web::Data<JwtKey>>()
-                .expect("Missing JwtKey in app data");
+            let jwt_key = req.app_data::<web::Data<JwtKey>>().ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Missing JwtKey in app data - server configuration error".to_string(),
+                    None,
+                )
+            })?;
             let header = req
                 .headers()
                 .get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
@@ -161,7 +166,8 @@ impl GradingUpdateClaim {
     }
 
     pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0).expect("should never fail")
+        self.sign_with_key(&key.0)
+            .expect("JWT signing failed - this should never happen with a valid key")
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
@@ -189,9 +195,13 @@ impl FromRequest for GradingUpdateClaim {
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let try_from_request = move || {
-            let jwt_key = req
-                .app_data::<web::Data<JwtKey>>()
-                .expect("Missing JwtKey in app data");
+            let jwt_key = req.app_data::<web::Data<JwtKey>>().ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Missing JwtKey in app data - server configuration error".to_string(),
+                    None,
+                )
+            })?;
             let header = req
                 .headers()
                 .get(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER)
@@ -408,7 +418,8 @@ impl GivePeerReviewClaim {
     }
 
     pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0).expect("should never fail")
+        self.sign_with_key(&key.0)
+            .expect("JWT signing failed - this should never happen with a valid key")
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {

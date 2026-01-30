@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO cheater_thresholds (id, course_module_id, duration_seconds)\nSELECT\n  uuid_generate_v5($1, id::text),\n  $2,\n  duration_seconds\nFROM cheater_thresholds\nWHERE course_module_id = $3\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c119bc78df696be113198aa7caadde89a9b75230719475b2e2c7fd5e8599c6b2"
+}

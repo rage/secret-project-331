@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { UseMutationResult, useQuery } from "@tanstack/react-query"
@@ -15,6 +17,7 @@ import {
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
+import { fetchCourseById } from "../../services/backend/courses"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { fetchNextPageRoutingData } from "../../services/backend/pages"
 import { modifyBlocks, removeUncommonSpacesFromBlocks } from "../../utils/Gutenberg/modifyBlocks"
@@ -70,13 +73,17 @@ const customBlocks = (
   examId: string | null,
   urlPath: string,
   canAddChatbot: boolean,
+  chapterLockingEnabled: boolean,
 ) => {
   if (chapterId !== null || examId !== null) {
-    if (canAddChatbot) {
-      return blockTypeMapForPages
-    } else {
-      return blockTypeMapForPages.filter((v) => v[0] !== "moocfi/chatbot")
+    let blocks = blockTypeMapForPages
+    if (!chapterLockingEnabled) {
+      blocks = blocks.filter((v) => v[0] !== "moocfi/lock-chapter")
     }
+    if (!canAddChatbot) {
+      blocks = blocks.filter((v) => v[0] !== "moocfi/chatbot")
+    }
+    return blocks
   } else {
     if (urlPath === "/") {
       return blockTypeMapForFrontPages
@@ -166,6 +173,14 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     queryFn: () => fetchNextPageRoutingData(data.id),
   })
 
+  const courseQuery = useQuery({
+    queryKey: ["course", data.course_id],
+    queryFn: () => fetchCourseById(data.course_id!),
+    enabled: !!data.course_id,
+  })
+
+  const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
+
   const pageRoutingData = getNextPageRoutingData.data
   let nextPageUrl = "/"
 
@@ -250,8 +265,15 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     </div>
   )
   const memoizedCustomBlocks = useMemo(
-    () => customBlocks(data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot),
-    [data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot],
+    () =>
+      customBlocks(
+        data.chapter_id,
+        data.exam_id,
+        data.url_path,
+        courseCanAddChatbot,
+        chapterLockingEnabled,
+      ),
+    [data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot, chapterLockingEnabled],
   )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>

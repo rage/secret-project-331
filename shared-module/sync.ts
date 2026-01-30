@@ -9,7 +9,6 @@ const exec = promisify(execOriginal)
 
 const ALL_SERVICES_TARGETS = [
   "services/cms/src/shared-module",
-  "services/course-material/src/shared-module",
   "services/example-exercise/src/shared-module",
   "services/headless-lms/shared-module",
   "services/main-frontend/src/shared-module",
@@ -34,6 +33,7 @@ interface ChangeDescription {
   operation: watcher.EventType
 }
 let subscriptions: watcher.AsyncSubscription[] = []
+let shouldRestart = false
 
 async function main() {
   await cleanUpFolders()
@@ -52,16 +52,28 @@ async function main() {
     process.exit(0)
   })
 
+  process.on("unhandledRejection", (reason, _promise) => {
+    console.error("Unhandled promise rejection detected, restarting...")
+    console.error(reason)
+    shouldRestart = true
+  })
+
   // Loop to make sure restarts work
 
   while (true) {
-    await runSync(restarted)
+    try {
+      await runSync(restarted)
+    } catch (error) {
+      console.error("Error in runSync, restarting...")
+      console.error(error)
+    }
     restarted = true
   }
 }
 
 async function runSync(restarted: boolean) {
   const startTime = Date.now()
+  shouldRestart = false
   console.clear()
   if (restarted) {
     console.log(
@@ -84,38 +96,46 @@ async function runSync(restarted: boolean) {
           if (err) {
             console.error(`Error occurred while watching:`)
             console.error(err)
+            shouldRestart = true
+            return
           }
-          const changes = groupBy(
-            events.map((event) => {
-              const relativePath = path.relative(__dirname, event.path)
-              const syncFolder =
-                SYNC_TARGETS.find((target) =>
-                  relativePath.startsWith(`packages` + path.sep + target.source),
-                ) ?? null
-              return {
-                path: relativePath,
-                syncFolder: syncFolder?.source ?? null,
-                operation: event.type,
-              } satisfies ChangeDescription
-            }),
-            (event) => event.syncFolder,
-          )
-          if (DEBUG) {
-            console.log("Changes:", JSON.stringify(changes, null, 2))
-          }
-
-          for (const [syncFolder, events] of Object.entries(changes)) {
-            const targets = SYNC_TARGETS.find((target) => target.source === syncFolder)
-
-            // Syncing is done with rsync, but we'll want to minimize the number of files rsync has to go through
-            // Therefore we'll find the common root of all changed files and sync from there
-            const commonRoot = getCommonRootOfChanges(events)
-            console.info(
-              `Syncing changes in "${commonRoot}" to ${targets?.destinations.length} destinations.`,
+          try {
+            const changes = groupBy(
+              events.map((event) => {
+                const relativePath = path.relative(__dirname, event.path)
+                const syncFolder =
+                  SYNC_TARGETS.find((target) =>
+                    relativePath.startsWith(`packages` + path.sep + target.source),
+                  ) ?? null
+                return {
+                  path: relativePath,
+                  syncFolder: syncFolder?.source ?? null,
+                  operation: event.type,
+                } satisfies ChangeDescription
+              }),
+              (event) => event.syncFolder,
             )
-            for (const destination of targets?.destinations ?? []) {
-              await syncPath(commonRoot, destination)
+            if (DEBUG) {
+              console.log("Changes:", JSON.stringify(changes, null, 2))
             }
+
+            for (const [syncFolder, events] of Object.entries(changes)) {
+              const targets = SYNC_TARGETS.find((target) => target.source === syncFolder)
+
+              // Syncing is done with rsync, but we'll want to minimize the number of files rsync has to go through
+              // Therefore we'll find the common root of all changed files and sync from there
+              const commonRoot = getCommonRootOfChanges(events)
+              console.info(
+                `Syncing changes in "${commonRoot}" to ${targets?.destinations.length} destinations.`,
+              )
+              for (const destination of targets?.destinations ?? []) {
+                await syncPath(commonRoot, destination)
+              }
+            }
+          } catch (error) {
+            console.error("Error occurred while syncing changes:")
+            console.error(error)
+            shouldRestart = true
           }
         },
       )
@@ -126,6 +146,11 @@ async function runSync(restarted: boolean) {
 
   while (true) {
     await new Promise((resolve) => setTimeout(resolve, 300_000))
+    if (shouldRestart) {
+      console.log("Error detected, restarting in 15 seconds...")
+      await new Promise((resolve) => setTimeout(resolve, 15_000))
+      break
+    }
     if (Date.now() - startTime > 3_600_000) {
       // Restarting the watching process to make sure nothing is missed in case of something like https://github.com/parcel-bundler/watcher/issues/97
       console.log("One hour has elapsed, restarting...")
@@ -188,10 +213,21 @@ async function syncEverything() {
 
 async function syncPath(relativeSource: string, pathToTargetSharedModule: string) {
   let source = path.resolve(__dirname, relativeSource)
-  // check if source is a directory
-  const sourceStat = await stat(source)
-  if (sourceStat.isDirectory()) {
-    source = source + path.sep
+  try {
+    // check if source is a directory
+    const sourceStat = await stat(source)
+    if (sourceStat.isDirectory()) {
+      source = source + path.sep
+    }
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      // Source doesn't exist, skip syncing
+      if (DEBUG) {
+        console.log(`Source path does not exist, skipping: ${source}`)
+      }
+      return
+    }
+    throw error
   }
   const target = path.resolve(
     __dirname,

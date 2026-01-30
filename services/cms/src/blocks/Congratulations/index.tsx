@@ -1,3 +1,5 @@
+"use client"
+
 import { BlockConfiguration } from "@wordpress/blocks"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"

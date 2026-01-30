@@ -1,5 +1,9 @@
-import handler from "../../src/pages/api/grade"
+/**
+ * @jest-environment node
+ */
+import { POST } from "../../src/app/api/grade/route"
 
+import testClient from "./utils/appRouterTestClient"
 import { oldGenerateMultipleChoiceRequest } from "./utils/oldQuizGenerator"
 import {
   generateChooseNGradingRequest,
@@ -7,12 +11,11 @@ import {
   generateTimelineGradingRequest,
   generateUnknownItemTypeGradingRequest,
 } from "./utils/privateSpecGenerator"
-import testClient from "./utils/testClient"
 
 import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import { isExerciseTaskGradingResult } from "@/shared-module/common/bindings.guard"
 
-const client = testClient(handler)
+const client = testClient(POST)
 
 describe("grade", () => {
   it("returns correct format", async () => {

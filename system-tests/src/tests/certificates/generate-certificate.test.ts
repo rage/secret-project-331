@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
@@ -16,7 +17,8 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+  const chapterSelector = new ChapterSelector(page)
+  await chapterSelector.clickChapter(1)
   await page.getByRole("link", { name: "1 Page One" }).click()
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')

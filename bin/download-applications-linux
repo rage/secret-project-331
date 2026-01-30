@@ -3,14 +3,14 @@ set -euo pipefail
 
 # Define the list of URLs and checksums to download
 downloads=(
-  "https://storage.googleapis.com/skaffold/releases/v2.4.1/skaffold-linux-amd64 skaffold 5a5f147c6262263b6f30790673c89d63f44732c33d7eb472eb99248d883650eb"
-  "https://dl.k8s.io/release/v1.27.1/bin/linux/amd64/kubectl kubectl 7fe3a762d926fb068bae32c399880e946e8caf3d903078bea9b169dcd5c17f6d"
-  "https://github.com/kubernetes/minikube/releases/download/v1.30.1/minikube-linux-amd64 minikube e53d9e8c31f4c5f683182f5323d3527aa0725f713945c6d081cf71aa548ab388"
-  "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.3/kustomize_v5.0.3_linux_amd64.tar.gz kustomize b4e376166eeeab348cdce889dc3664ddcc929174ed103346af056c3e1dc95db7"
-  "https://github.com/rhysd/actionlint/releases/download/v1.6.24/actionlint_1.6.24_linux_amd64.tar.gz actionlint fbc889db89c64e9f390835ae3f3661aa1a1cdebc7738476032f72379741ebb5f"
-  "https://github.com/stern/stern/releases/download/v1.25.0/stern_1.25.0_linux_amd64.tar.gz stern 1a89589da2694fadcec2e002ca6e38a3a5eab2096bbdd1c46a551b9f416bc75a"
-  "https://github.com/ahmetb/kubectx/releases/download/v0.9.4/kubens_v0.9.4_linux_x86_64.tar.gz kubens cc376ced21b441efe4d61685830e0ff3ade194c303216d1ca08b72073c556d44"
-  "https://github.com/ahmetb/kubectx/releases/download/v0.9.4/kubectx_v0.9.4_linux_x86_64.tar.gz kubectx 9317271d6dd7c771c844d9d3b37a7e56c5d74c6e53366aa230ced3fb69d128bc"
+  "https://storage.googleapis.com/skaffold/releases/v2.17.0/skaffold-linux-amd64 skaffold 12d16e5c18b0232cbe0854d3e8b1581a98e58c1a415b060d4b5da70e43a17708"
+  "https://dl.k8s.io/release/v1.35.0/bin/linux/amd64/kubectl kubectl a2e984a18a0c063279d692533031c1eff93a262afcc0afdc517375432d060989"
+  "https://github.com/kubernetes/minikube/releases/download/v1.38.0/minikube-linux-amd64 minikube 6f3fa62bbc3820dbe1f1cffe4beef62c466a8fb1058837781d20d36233dcfa12"
+  "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.7.1/kustomize_v5.7.1_linux_amd64.tar.gz kustomize 54636edecead2af90fa980cdc6a66a5ce062a1e4d694a2e36357cd73190755bb"
+  "https://github.com/rhysd/actionlint/releases/download/v1.7.10/actionlint_1.7.10_linux_amd64.tar.gz actionlint 98def53d7668f0f87cb2dd57addd825399ab1bc1902286944d662aa56c4e2cbe"
+  "https://github.com/stern/stern/releases/download/v1.33.1/stern_1.33.1_linux_amd64.tar.gz stern 147b6b8bc89f8a6980267e3ff66023877a5a7ad2a158d6328bf94a94cd3c0c3f"
+  "https://github.com/ahmetb/kubectx/releases/download/v0.9.5/kubens_v0.9.5_linux_x86_64.tar.gz kubens 8ffbe8a7109d199dd3c199b6c2f58ddf77146f6f822b5c5d437010bbe9fd4144"
+  "https://github.com/ahmetb/kubectx/releases/download/v0.9.5/kubectx_v0.9.5_linux_x86_64.tar.gz kubectx 0bbb4d4fbd8807ec20b86a9e880a68eedc20f27655826ad8f65982de47f6d74b"
 )
 
 # Define the directory to download the binaries to
@@ -35,6 +35,7 @@ for download in "${downloads[@]}"; do
   echo "Downloading $filename from $url to $destination"
 
   # If the url is a tar.gz, download it to a temporary file and extract it to a temporary directory
+  # We will verify the binary inside the tar.gz
   if [[ "$url" == *.tar.gz ]]; then
     tmpfile=$(mktemp)
     tmpdir=$(mktemp -d)
@@ -54,7 +55,7 @@ for download in "${downloads[@]}"; do
   fi
 
   # Verify the checksum of the downloaded file
-  if ! echo "$checksum  $download_dir/$filename" | sha256sum --check --status; then
+  if ! echo "$checksum  $destination" | sha256sum --check --status; then
     echo "Checksum verification failed for $filename"
     # Expected and was
     echo "Expected the checksum to be $checksum  but was $(sha256sum "$destination")"

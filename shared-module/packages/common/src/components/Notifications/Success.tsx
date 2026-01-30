@@ -1,3 +1,5 @@
+"use client"
+
 import styled from "@emotion/styled"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
 import toast from "react-hot-toast"
@@ -89,7 +91,7 @@ const SuccessMessage = styled.div`
 const SuccessNotification = (props: SuccessNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <NotificationWrapper className="toast-notification">
+    <NotificationWrapper data-testid="toast-notification">
       <Content>
         <IconWrapper>
           <CheckCircle color={baseTheme.colors.green[600]} size={20} />

@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { groupBy, mapValues, sortBy } from "lodash"
@@ -5,8 +7,7 @@ import Link from "next/link"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "../../tables/FullWidthTable"
-
+import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
   GlobalCourseModuleStatEntry,
   GlobalStatEntry,
@@ -32,41 +33,48 @@ type ModuleStatTableProps = {
 
 type GlobalStatTableProps = RegularStatTableProps | ModuleStatTableProps
 
+type TransformedStatEntry = GlobalStatEntry & { course_module_id?: string }
+
 const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, granularity }) => {
   const { t } = useTranslation()
 
-  const transformedData: GlobalStatEntry[] = useMemo(() => {
+  const transformedData: TransformedStatEntry[] = useMemo(() => {
     if (!query.data) {
       return []
     }
     if (!moduleStats) {
       return query.data
     }
-    const res = query.data
-      ?.filter(
+    const moduleEntries: GlobalCourseModuleStatEntry[] = query.data
+    return moduleEntries
+      .filter(
         (entry) =>
           entry.course_module_ects_credits !== null && entry.course_module_ects_credits !== 0,
       )
-      .map(
-        (entry) =>
-          ({
-            ...entry,
-            course_name: `${entry.course_name} (${
-              entry.course_module_name ?? t("default-module")
-            })`,
-            value: entry.value * (entry.course_module_ects_credits ?? 0),
-            month: null,
-            year: Number(entry.year),
-          }) satisfies GlobalStatEntry,
-      )
-    return res
+      .map((entry) => ({
+        ...entry,
+        course_name: `${entry.course_name} (${entry.course_module_name ?? t("default-module")})`,
+        value: entry.value * (entry.course_module_ects_credits ?? 0),
+        month: null,
+        year: Number(entry.year),
+        course_module_id: entry.course_module_id,
+      }))
   }, [moduleStats, query.data, t])
 
   const data = useMemo(() => {
-    const data = sortBy(transformedData || [], ["organization_name", "name"])
-    const groupedByOrg = groupBy(data, (entry) => entry.organization_id)
-    return mapValues(groupedByOrg, (entries) => groupBy(entries, (entry) => entry.course_id))
-  }, [transformedData])
+    const sorted = sortBy(transformedData || [], ["organization_name", "course_name"])
+    const byOrg = groupBy(sorted, (e) => e.organization_id)
+
+    return mapValues(byOrg, (entries) => {
+      if (moduleStats) {
+        const DEFAULT_MODULE_ID = "default"
+        return groupBy(entries, (e) => {
+          return e.course_module_id ?? DEFAULT_MODULE_ID
+        })
+      }
+      return groupBy(entries, (e) => e.course_id)
+    })
+  }, [transformedData, moduleStats])
 
   const timeColumns = useMemo(() => {
     if (granularity === "Year") {
@@ -96,7 +104,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
           return
         }
         const year = Number(entry.year)
-        const month = moduleStats ? 1 : Number((entry as GlobalStatEntry).month)
+        const month = moduleStats ? 1 : "month" in entry ? Number(entry.month ?? null) : 1
 
         if (year < minYear || (year === minYear && month < minMonth)) {
           minYear = year
@@ -162,8 +170,9 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
       <tbody>
         {Object.entries(data).map(([_organizationId, organizationCourses]) => {
           const organizationCoursesCount = Object.entries(organizationCourses).length
-          return Object.entries(organizationCourses).map(([courseId, entries], n) => {
+          return Object.entries(organizationCourses).map(([moduleId, entries], n) => {
             const firstEntry = entries[0]
+            const courseId = firstEntry.course_id
             entries.sort((a, b) => {
               if (a.year !== b.year) {
                 return Number(a.year) - Number(b.year)
@@ -174,7 +183,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
               return 0
             })
             return (
-              <FullWidthTableRow key={courseId}>
+              <FullWidthTableRow key={moduleId}>
                 {n === 0 && (
                   <td
                     className={css`
@@ -195,8 +204,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
                     entry = entries.find(
                       (entry) =>
                         entry.year === Number(year) &&
-                        (moduleStats ||
-                          String((entry as GlobalStatEntry).month).padStart(2, "0") === month),
+                        (moduleStats || String(entry.month ?? "").padStart(2, "0") === month),
                     )
                   }
                   return <td key={column.key}>{entry ? entry.value : "-"}</td>

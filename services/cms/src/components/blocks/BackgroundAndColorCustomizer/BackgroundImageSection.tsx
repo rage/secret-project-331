@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { BlockIcon, MediaPlaceholder } from "@wordpress/block-editor"
 import { Placeholder } from "@wordpress/components"

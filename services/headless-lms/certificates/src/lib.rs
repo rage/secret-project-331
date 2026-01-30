@@ -134,7 +134,13 @@ pub async fn generate_certificate(
     };
     let date = if debug {
         // TODO: this fixes the date for system tests, not a great solution...
-        NaiveDate::from_ymd_opt(2023, 1, 1).unwrap()
+        NaiveDate::from_ymd_opt(2023, 1, 1).ok_or_else(|| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Invalid date 2023-01-01 - this should never happen".to_string(),
+                None,
+            )
+        })?
     } else {
         certificate.created_at.date_naive()
     };

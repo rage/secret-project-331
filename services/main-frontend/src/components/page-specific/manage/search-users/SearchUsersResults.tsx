@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import {
@@ -15,6 +17,7 @@ import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface SearchUsersResultsProps {
@@ -66,7 +69,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
       id: "details",
       header: t("button-details"),
       cell: (props) => (
-        <Link href={`/manage/users/${props.row.original.user_id}`}>
+        <Link href={manageUserRoute(props.row.original.user_id)}>
           <Button variant="tertiary" size="medium">
             {t("button-details")}
           </Button>

@@ -283,6 +283,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
 UPDATE course_modules
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
 ",
         id
     )
@@ -318,6 +319,33 @@ SELECT *
 FROM course_modules
 WHERE course_id = $1
 AND deleted_at IS NULL
+",
+        course_id
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_id_only_with_open_chapters(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT *
+FROM course_modules as cm
+WHERE EXISTS (
+  SELECT 1
+  FROM chapters as ch
+  WHERE ch.course_module_id = cm.id
+    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)
+    AND ch.deleted_at IS NULL
+)
+  AND cm.course_id = $1
+  AND cm.deleted_at IS NULL
 ",
         course_id
     )

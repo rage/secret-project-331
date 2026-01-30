@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO email_verification_tokens (\n    email_verification_token,\n    user_id,\n    code,\n    expires_at\n)\nVALUES ($1, $2, $3, NOW() + INTERVAL '15 minutes')\nRETURNING email_verification_token\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "email_verification_token",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "685e599ff119733b82316acf340137649d203954eb933fd809677ce1ec6c2d7c"
+}

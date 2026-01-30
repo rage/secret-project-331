@@ -8,8 +8,6 @@ export default {
   "services/cms/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/cms/ --noEmit",
   "services/main-frontend/src/**/*.{js,jsx,ts,tsx}": () =>
     "pnpm exec tsc -p services/main-frontend/ --noEmit",
-  "services/course-material/src/**/*.{js,jsx,ts,tsx}": () =>
-    "pnpm exec tsc -p services/course-material/ --noEmit",
   "services/quizzes/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/quizzes/ --noEmit",
   "services/tmc/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/tmc/ --noEmit",
   "*.{md,json,scss,css}": "prettier --write",

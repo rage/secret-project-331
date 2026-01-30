@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { MinusCircle } from "@vectopus/atlas-icons-react"
@@ -220,7 +222,7 @@ const Timeline: React.FunctionComponent<
                         const choices = [
                           {
                             timelineItemId: timelineItem.itemId,
-                            chosenEventId: event.target.value,
+                            chosenEventId: event.currentTarget.value,
                           },
                         ]
                         setQuizItemAnswerState({
@@ -229,7 +231,7 @@ const Timeline: React.FunctionComponent<
                           timelineChoices: [
                             {
                               timelineItemId: timelineItem.itemId,
-                              chosenEventId: event.target.value,
+                              chosenEventId: event.currentTarget.value,
                             },
                           ],
                           valid: validate(choices, quizItem.timelineItems),
@@ -242,7 +244,10 @@ const Timeline: React.FunctionComponent<
                         ) || []
                       const newTimelineChoices: TimelineChoice[] = [
                         ...timelineChoicesWithoutThisOne,
-                        { timelineItemId: timelineItem.itemId, chosenEventId: event.target.value },
+                        {
+                          timelineItemId: timelineItem.itemId,
+                          chosenEventId: event.currentTarget.value,
+                        },
                       ]
 
                       setQuizItemAnswerState({

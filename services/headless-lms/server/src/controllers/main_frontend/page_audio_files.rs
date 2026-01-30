@@ -69,7 +69,7 @@ async fn set_page_audio(
             }
         };
 
-        let course = models::courses::get_course(&mut conn, page.course_id.unwrap()).await?;
+        let course = models::courses::get_course(&mut conn, course_id).await?;
         let media_path = upload_field_from_cms(
             request.headers(),
             field,

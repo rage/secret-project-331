@@ -87,15 +87,13 @@ impl FileStore for LocalFileStore {
         _mime_type: &str,
     ) -> UtilResult<()> {
         let full_path = self.base_path.join(path);
-        let parent_option = full_path.parent();
-        if parent_option.is_none() {
-            return Err(UtilError::new(
+        let parent = full_path.parent().ok_or_else(|| {
+            UtilError::new(
                 UtilErrorType::Other,
                 "Media path did not have a parent folder".to_string(),
                 None,
-            ));
-        }
-        let parent = parent_option.unwrap();
+            )
+        })?;
         if parent.exists() {
             if !parent.is_dir() {
                 return Err(UtilError::new(

@@ -3,6 +3,7 @@ import next from "@next/eslint-plugin-next"
 import tanstackQuery from "@tanstack/eslint-plugin-query"
 import typescriptEslint from "@typescript-eslint/eslint-plugin"
 import tsParser from "@typescript-eslint/parser"
+import explicitUse from "eslint-plugin-explicit-use-directives"
 import i18next from "eslint-plugin-i18next"
 import importPlugin from "eslint-plugin-import"
 import jsxA11y from "eslint-plugin-jsx-a11y"
@@ -58,6 +59,7 @@ const config = [
       ...getIgnorePatterns("shared-module/"),
     ],
   },
+  explicitUse.configs["prefer-use-client"],
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
     plugins: {
@@ -120,6 +122,8 @@ const config = [
         JSX: true,
         WindowEventMap: true,
         RequestInit: true,
+        IntersectionObserverInit: true,
+        IntersectionObserverCallback: true,
       },
     },
     settings: {
@@ -275,6 +279,7 @@ const config = [
               "component",
               "align",
               "slot",
+              "tag",
             ],
           },
           words: {
@@ -296,6 +301,9 @@ const config = [
               "set-state",
               "main-navigation-menu",
               "Component",
+              "use client",
+              "use server",
+              "use cache",
             ],
           },
           callees: {
@@ -374,10 +382,25 @@ const config = [
               "useTransition",
               "createPopper",
               "closest",
+              "querySelectorAll",
+              "getAttribute",
             ],
           },
           "object-properties": {
-            exclude: ["type", "[A-Z_-]+", "displayName", "href", "direction", "variant", "size"],
+            exclude: [
+              "type",
+              "[A-Z_-]+",
+              "displayName",
+              "href",
+              "direction",
+              "variant",
+              "size",
+              "width",
+              "minWidth",
+              "maxWidth",
+              "boxSizing",
+              "transform",
+            ],
           },
           "class-properties": {
             exclude: ["displayName"],
@@ -445,6 +468,12 @@ const config = [
         Buffer: true,
         BufferEncoding: true,
       },
+    },
+  },
+  {
+    files: ["**/next-env.d.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
     },
   },
 ]

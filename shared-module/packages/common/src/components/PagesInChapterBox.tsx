@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Link from "next/link"
@@ -96,6 +98,7 @@ const PagesInChapterBox: React.FC<React.PropsWithChildren<PagesInChapterBoxProps
       <>
         <Link
           href={props.url}
+          data-testid={`page-in-chapter-link-${props.chapterIndex}`}
           className={css`
             color: #1c3b40;
             box-shadow: none;
@@ -105,6 +108,11 @@ const PagesInChapterBox: React.FC<React.PropsWithChildren<PagesInChapterBoxProps
               outline-offset: 2px;
             }
 
+            &:focus-visible .chapter-parts {
+              background-color: rgb(235, 239, 242);
+              box-shadow: 0 0 0 2px ${baseTheme.colors.green[500]};
+            }
+
             :hover {
               .chapter-part-arrow {
                 visibility: visible;
@@ -112,7 +120,7 @@ const PagesInChapterBox: React.FC<React.PropsWithChildren<PagesInChapterBoxProps
             }
           `}
         >
-          <ChapterParts {...props}>
+          <ChapterParts {...props} className="chapter-parts">
             <PageNumberBox>
               <span>{props.chapterIndex}</span>
             </PageNumberBox>

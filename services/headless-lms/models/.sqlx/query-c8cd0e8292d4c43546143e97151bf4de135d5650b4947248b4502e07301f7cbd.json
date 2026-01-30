@@ -1,0 +1,92 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n              digest        as \"digest: _\",\n              user_id,\n              client_id,\n              scopes,\n              audience,\n              jti,\n              dpop_jkt,\n              token_type    as \"token_type: TokenType\",\n              metadata,\n              expires_at,\n              created_at\n            FROM oauth_access_tokens\n            WHERE digest = $1 AND expires_at > now()\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest: _",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "scopes",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "audience",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "jti",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "dpop_jkt",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "token_type: TokenType",
+        "type_info": {
+          "Custom": {
+            "name": "token_type",
+            "kind": {
+              "Enum": [
+                "Bearer",
+                "DPoP"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "metadata",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 9,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c8cd0e8292d4c43546143e97151bf4de135d5650b4947248b4502e07301f7cbd"
+}

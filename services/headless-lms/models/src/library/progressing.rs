@@ -45,9 +45,9 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
         )
         .await?;
 
-        if let Some(thresholds) = suspected_cheaters::get_thresholds_by_id(&mut tx, course.id)
-            .await
-            .optional()?
+        if let Some(thresholds) =
+            suspected_cheaters::get_thresholds_by_module_id(&mut tx, completion.course_module_id)
+                .await?
         {
             check_and_insert_suspected_cheaters(
                 &mut tx,
@@ -74,16 +74,37 @@ pub async fn check_and_insert_suspected_cheaters(
         .await?
         .unwrap_or(0.0);
 
-    let student_duration_seconds =
+    let completed_module = course_modules::get_by_id(conn, completion.course_module_id).await?;
+    let is_default_module = completed_module.is_default_module();
+
+    let student_duration_seconds = if is_default_module {
         course_instances::get_student_duration(conn, completion.user_id, course_id)
             .await?
-            .unwrap_or(0);
+            .unwrap_or(0)
+    } else {
+        let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
+        let default_completion = course_module_completions::get_all_by_course_module_and_user_ids(
+            conn,
+            default_module.id,
+            completion.user_id,
+        )
+        .await?
+        .into_iter()
+        .max_by_key(|c| c.completion_date);
 
-    let duration_threshold = thresholds.duration_seconds.unwrap_or(0);
+        if let Some(default_completion) = default_completion {
+            let duration =
+                (completion.completion_date - default_completion.completion_date).num_seconds();
+            duration.max(0)
+        } else {
+            // No default completion exists yet, fall back to calculating duration from enrollment time.
+            course_instances::get_student_duration(conn, completion.user_id, course_id)
+                .await?
+                .unwrap_or(0)
+        }
+    };
 
-    if (total_points as i32) >= thresholds.points
-        && (student_duration_seconds as i32) < duration_threshold
-    {
+    if (student_duration_seconds as i32) < thresholds.duration_seconds {
         suspected_cheaters::insert(
             conn,
             completion.user_id,
@@ -258,10 +279,10 @@ async fn user_has_passed_exam_for_the_course_based_on_points(
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;
-            if let Some(points) = points {
-                if points >= exam.minimum_points_treshold as f32 {
-                    return Ok(true);
-                }
+            if let Some(points) = points
+                && points >= exam.minimum_points_treshold as f32
+            {
+                return Ok(true);
             }
         }
     }
@@ -1129,7 +1150,7 @@ mod tests {
         .await
         .unwrap();
 
-        course_module_completions::insert(
+        let completion = course_module_completions::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
             &NewCourseModuleCompletion {
@@ -1148,10 +1169,14 @@ mod tests {
         )
         .await
         .unwrap();
-        suspected_cheaters::insert_thresholds(tx.as_mut(), course, Some(259200), 10)
-            .await
-            .unwrap();
-        update_automatic_completion_status_and_grant_if_eligible(tx.as_mut(), &course_module, user)
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(tx.as_mut(), user, course, &thresholds, completion)
             .await
             .unwrap();
 
@@ -1159,6 +1184,7 @@ mod tests {
             suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
                 .await
                 .unwrap();
+        assert_eq!(cheaters.len(), 1);
         assert_eq!(cheaters[0].user_id, user);
     }
 
@@ -1210,7 +1236,7 @@ mod tests {
         )
         .await
         .unwrap();
-        suspected_cheaters::insert_thresholds(tx.as_mut(), course, Some(172800), 10)
+        suspected_cheaters::insert_thresholds_by_module_id(tx.as_mut(), course_module.id, 172800)
             .await
             .unwrap();
         update_automatic_completion_status_and_grant_if_eligible(tx.as_mut(), &course_module, user)

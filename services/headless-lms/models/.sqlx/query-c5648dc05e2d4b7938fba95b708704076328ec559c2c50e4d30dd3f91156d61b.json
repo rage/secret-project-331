@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\nFROM user_chapter_locking_statuses\nWHERE user_id = $1\n  AND chapter_id = $2\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "chapter_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "status!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "c5648dc05e2d4b7938fba95b708704076328ec559c2c50e4d30dd3f91156d61b"
+}

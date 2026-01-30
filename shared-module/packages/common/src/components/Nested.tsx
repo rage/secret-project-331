@@ -1,9 +1,11 @@
+"use client"
+
 import { css } from "@emotion/css"
 import React from "react"
 
 const PLACEHOLDER_TEXT = "I'm a nested paragraph"
 
-const Nested: React.FC<React.PropsWithChildren<unknown>> = (_props) => {
+const Nested: React.FC = (_props) => {
   return (
     <div
       className={css`

@@ -30,7 +30,8 @@ pub fn example_impl(input: TokenStream) -> TokenStream {
         Expr::Call(e) => {
             if let Expr::Path(p) = *e.func {
                 // tuple enum
-                let underscore: Expr = syn::parse_str("_").unwrap();
+                let underscore: Expr = syn::parse_str("_")
+                    .expect("Failed to parse underscore literal - this should never happen");
                 let segments = p.path.segments;
 
                 // remove the trailing (:: VariantName) to get the type pathPathS

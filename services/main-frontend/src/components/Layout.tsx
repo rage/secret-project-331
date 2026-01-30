@@ -1,23 +1,21 @@
+"use client"
+
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { useAtomValue } from "jotai"
 import Head from "next/head"
-import { useRouter } from "next/router"
+import { usePathname } from "next/navigation"
 import React, { ReactNode } from "react"
 
+import Topbar from "./Topbar"
+
+import { fetchPrivacyLink } from "@/services/course-material/backend"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
-import LanguageSelection from "@/shared-module/common/components/LanguageSelection"
-import LoginControls from "@/shared-module/common/components/LoginControls"
-import {
-  NavBar,
-  NavContainer,
-  NavItem,
-  NavItems,
-} from "@/shared-module/common/components/Navigation/NavBar"
-import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
-
-const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
+import { currentCourseIdAtom } from "@/state/course-material/selectors"
+import { organizationSlugAtom } from "@/state/layoutAtoms"
 
 type LayoutProps = {
   children: ReactNode
@@ -32,9 +30,25 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
   noVisibleLayout = false,
 }) => {
-  const router = useRouter()
+  const pathname = usePathname()
+  const courseId = useAtomValue(currentCourseIdAtom)
+  const organizationSlug = useAtomValue(organizationSlugAtom)
   // eslint-disable-next-line i18next/no-literal-string
   const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
+
+  const getPrivacyLink = useQuery({
+    queryKey: ["privacy-link", courseId],
+    queryFn: () => fetchPrivacyLink(courseId as NonNullable<string>),
+    enabled: !!courseId,
+  })
+
+  const customPrivacyLinks =
+    getPrivacyLink.isSuccess && Array.isArray(getPrivacyLink.data)
+      ? getPrivacyLink.data.map((link) => ({
+          linkTitle: link.title,
+          linkUrl: link.url,
+        }))
+      : []
 
   const visibleLayout = noVisibleLayout ? (
     <>{children}</>
@@ -47,29 +61,17 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <NavBar
-          // faqUrl={faqUrl}
-          variant={"simple"}
-          // Return to path can be override per page
-          // returnToPath={returnToPath ?? returnPath}
-        >
-          <NavContainer>
-            <NavItems>
-              <NavItem>
-                <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
-              </NavItem>
-            </NavItems>
-          </NavContainer>
-          <Menu>
-            <LoginControls currentPagePath={router.asPath} />
-          </Menu>
-        </NavBar>
+        <Topbar
+          courseId={courseId}
+          organizationSlug={organizationSlug}
+          currentPagePath={pathname}
+        />
 
         <main id="maincontent">
           <Centered variant="default">{children}</Centered>
         </main>
       </div>
-      <Footer />
+      <Footer privacyLinks={customPrivacyLinks} />
     </>
   )
 

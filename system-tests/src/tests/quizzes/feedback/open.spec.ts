@@ -60,7 +60,7 @@ test.describe(() => {
 
     await page.getByText("Submit").click()
     await page.getByText("Try again").waitFor()
-    await page.locator(`text=This is an extra submit message from the teacher.`).waitFor()
+    await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -68,7 +68,7 @@ test.describe(() => {
       testInfo,
       snapshotName: "open-feedback-incorrect",
       waitForTheseToBeVisibleAndStable: [
-        page.locator(`text=This is an extra submit message from the teacher.`),
+        frame.locator(`text=This is an extra submit message from the teacher.`),
       ],
     })
 
@@ -85,14 +85,14 @@ test.describe(() => {
       .fill("1999-01-01")
 
     await page.getByText("Submit").click()
-
+    await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,
       testInfo,
       snapshotName: "open-feedback-correct",
       waitForTheseToBeVisibleAndStable: [
-        page.locator(`text=This is an extra submit message from the teacher.`),
+        frame.locator(`text=This is an extra submit message from the teacher.`),
       ],
     })
   })

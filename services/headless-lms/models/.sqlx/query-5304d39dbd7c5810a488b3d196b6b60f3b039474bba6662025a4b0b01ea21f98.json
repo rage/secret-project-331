@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE email_verification_tokens\nSET code_sent = TRUE\nWHERE email_verification_token = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5304d39dbd7c5810a488b3d196b6b60f3b039474bba6662025a4b0b01ea21f98"
+}

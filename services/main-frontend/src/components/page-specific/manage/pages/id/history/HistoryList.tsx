@@ -1,10 +1,11 @@
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 
-import { fetchHistoryCountForPage, restorePage } from "../../../../../../services/backend/pages"
-
 import HistoryPage from "./HistoryPage"
 
+import { fetchHistoryCountForPage, restorePage } from "@/services/backend/pages"
 import { PageHistory } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"

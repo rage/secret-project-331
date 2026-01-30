@@ -18,10 +18,10 @@ pub fn format_backtrace(backtrace: &Backtrace, fmt: &mut fmt::Formatter<'_>) -> 
                                path: backtrace::BytesOrWideString<'_>| {
         let cwd_path_buf = path.into_path_buf();
 
-        if let Some(cwd) = &cwd_copy {
-            if let Ok(suffix) = cwd_path_buf.strip_prefix(cwd) {
-                return fmt::Display::fmt(&suffix.display(), fmt);
-            }
+        if let Some(cwd) = &cwd_copy
+            && let Ok(suffix) = cwd_path_buf.strip_prefix(cwd)
+        {
+            return fmt::Display::fmt(&suffix.display(), fmt);
         }
 
         fmt::Display::fmt(&cwd_path_buf.display(), fmt)

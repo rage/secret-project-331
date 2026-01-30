@@ -137,6 +137,61 @@ RETURNING *
     Ok(res)
 }
 
+#[derive(Debug, Clone)]
+pub struct NewCourseModuleCompletionSeed {
+    pub course_id: Uuid,
+    pub course_module_id: Uuid,
+    pub user_id: Uuid,
+    pub completion_date: Option<DateTime<Utc>>,
+    pub completion_language: Option<String>,
+    pub eligible_for_ects: Option<bool>,
+    pub email: Option<String>,
+    pub grade: Option<i32>,
+    pub passed: Option<bool>,
+    pub prerequisite_modules_completed: Option<bool>,
+    pub needs_to_be_reviewed: Option<bool>,
+}
+
+pub async fn insert_seed_row(
+    conn: &mut PgConnection,
+    seed: &NewCourseModuleCompletionSeed,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        r#"
+        INSERT INTO course_module_completions (
+            course_id,
+            course_module_id,
+            user_id,
+            completion_date,
+            completion_language,
+            eligible_for_ects,
+            email,
+            grade,
+            passed,
+            prerequisite_modules_completed,
+            needs_to_be_reviewed
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        RETURNING id
+        "#,
+        seed.course_id,
+        seed.course_module_id,
+        seed.user_id,
+        seed.completion_date,
+        seed.completion_language.as_deref(),
+        seed.eligible_for_ects,
+        seed.email.as_deref(),
+        seed.grade,
+        seed.passed,
+        seed.prerequisite_modules_completed,
+        seed.needs_to_be_reviewed,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res.id)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModuleCompletion> {
     let res = sqlx::query_as!(
         CourseModuleCompletion,
@@ -618,6 +673,17 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
     }
 }
 
+impl StudyRegistryCompletion {
+    pub fn normalize_language_code(&mut self) {
+        match self.completion_language.as_str() {
+            "en" => self.completion_language = "en-GB".to_string(),
+            "fi" => self.completion_language = "fi-FI".to_string(),
+            "sv" => self.completion_language = "sv-SE".to_string(),
+            _ => {}
+        }
+    }
+}
+
 /// Grading object that maps the system grading information to Sisu's grading scales.
 ///
 /// Currently only `sis-0-5` and `sis-hyv-hyl` scales are supported in the system.
@@ -726,10 +792,55 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
 UPDATE course_module_completions
 SET deleted_at = now()
 WHERE id = $1
+AND deleted_at IS NULL
         ",
         id,
     )
     .execute(conn)
     .await?;
+    Ok(())
+}
+
+pub async fn find_existing(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_module_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Uuid> {
+    let row = sqlx::query!(
+        r#"
+        SELECT id
+        FROM course_module_completions
+        WHERE course_id = $1
+          AND course_module_id = $2
+          AND user_id = $3
+          AND completion_granter_user_id IS NULL
+          AND deleted_at IS NULL
+        "#,
+        course_id,
+        course_module_id,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(row.id)
+}
+
+pub async fn update_registration_attempt(
+    conn: &mut PgConnection,
+    completion_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+        UPDATE course_module_completions
+        SET completion_registration_attempt_date = now()
+        WHERE id = $1
+        "#,
+        completion_id
+    )
+    .execute(conn)
+    .await?;
+
     Ok(())
 }

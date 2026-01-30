@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM oauth_user_client_scopes WHERE user_id = $1 AND client_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a515733cb04f494f737d02a709581f67172ba06e39d2fc898fa7dcb36879100f"
+}

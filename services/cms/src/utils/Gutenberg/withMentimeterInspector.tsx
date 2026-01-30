@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { InspectorControls } from "@wordpress/block-editor"
 import { PanelBody, TextControl } from "@wordpress/components"

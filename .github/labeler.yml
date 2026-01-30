@@ -18,10 +18,6 @@ cms:
   - changed-files:
       - any-glob-to-any-file: "services/cms/**/*"
 
-course-material:
-  - changed-files:
-      - any-glob-to-any-file: "services/course-material/**/*"
-
 example-exercise:
   - changed-files:
       - any-glob-to-any-file: "services/example-exercise/**/*"

@@ -1,6 +1,8 @@
+"use client"
+
 // Disables server-side rendering for the wrapped component.
 
-import { useEffect, useState } from "react"
+import { useIsSSR } from "react-aria"
 
 const DEFAULT_DISPLAY_NAME = "Component"
 
@@ -9,13 +11,11 @@ function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
   const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
 
   const InnerComponent = (props: T) => {
-    const [rendered, setRendered] = useState(false)
-    useEffect(() => {
-      setRendered(true)
-    }, [])
-    if (!rendered) {
+    const isSSR = useIsSSR()
+    if (isSSR) {
       return null
     }
+
     // @ts-expect-error: no intrisic attributes
     return <WrappedComponent {...(props as T)} />
   }

@@ -1,3 +1,5 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import React, { forwardRef, TextareaHTMLAttributes, useEffect, useRef } from "react"
 import { FieldError } from "react-hook-form"

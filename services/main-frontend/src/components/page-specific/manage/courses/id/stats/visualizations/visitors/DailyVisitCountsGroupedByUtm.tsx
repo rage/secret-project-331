@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import {
   createColumnHelper,
@@ -17,7 +19,6 @@ import Accordion from "@/shared-module/common/components/Accordion"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface DailyVisitCountsGroupedByUtmProps {
@@ -182,4 +183,4 @@ function rowToGroupingKey(row: PageVisitDatumSummaryByCourse) {
   return `${row.visit_date}-${row.utm_source}-${row.utm_medium}-${row.utm_campaign}-${row.utm_term}-${row.utm_content}`
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(DailyVisitCountsGroupedByUtm))
+export default withErrorBoundary(DailyVisitCountsGroupedByUtm)

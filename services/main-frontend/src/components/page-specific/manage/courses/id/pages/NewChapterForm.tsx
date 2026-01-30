@@ -1,16 +1,18 @@
+"use client"
+
 import { css } from "@emotion/css"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postNewChapter, updateChapter } from "../../../../../../services/backend/chapters"
-
+import { postNewChapter, updateChapter } from "@/services/backend/chapters"
 import { Chapter, NewChapter } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/CheckboxFieldWrapper"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface NewChapterFormProps {

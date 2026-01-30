@@ -47,13 +47,13 @@ test.describe(() => {
       await frame.getByText("Pick all the programming languages from below").waitFor()
     }
 
-    await frame.locator(`button:text("AC")`).click()
-    await frame.locator(`button:text("Jupiter")`).click()
+    await frame.getByRole("button", { name: "AC" }).click()
+    await frame.getByRole("button", { name: "Jupiter" }).click()
 
     await page.getByText("Submit").click()
 
     await page.getByText("Try again").waitFor()
-    await page.getByText(`This is an extra submit message from the teacher.`).waitFor()
+    await frame.getByText(`This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -61,22 +61,22 @@ test.describe(() => {
       testInfo,
       snapshotName: "clickable-multiple-choice-incorrect-answer",
       waitForTheseToBeVisibleAndStable: [
-        page.locator(`text=This is an extra submit message from the teacher.`),
+        frame.locator(`text=This is an extra submit message from the teacher.`),
       ],
     })
 
     await page.getByText("Try again").click()
     // Unselect all the options
     await frame.getByText("Pick all the programming languages from below").waitFor()
-    await frame.locator(`button:text("AC")`).click()
-    await frame.locator(`button:text("Jupiter")`).click()
+    await frame.getByRole("button", { name: "AC" }).click()
+    await frame.getByRole("button", { name: "Jupiter" }).click()
 
-    await frame.locator(`button:text("Java")`).click()
-    await frame.locator(`button:text("Erlang")`).click()
+    await frame.getByRole("button", { name: "Java" }).click()
+    await frame.getByRole("button", { name: "Erlang" }).click()
 
     await page.getByText("Submit").click()
     await page.getByText("Try again").waitFor()
-    await page.getByText(`This is an extra submit message from the teacher.`).waitFor()
+    await frame.getByText(`This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -84,7 +84,7 @@ test.describe(() => {
       testInfo,
       snapshotName: "clickable-multiple-choice-correct-answer",
       waitForTheseToBeVisibleAndStable: [
-        page.getByText(`This is an extra submit message from the teacher.`),
+        frame.getByText(`This is an extra submit message from the teacher.`),
       ],
     })
   })

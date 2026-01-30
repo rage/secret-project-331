@@ -1,9 +1,9 @@
+"use client"
+
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ManagePageOrderAction } from "../../../../../../../reducers/managePageOrderReducer"
-import { deletePage } from "../../../../../../../services/backend/pages"
 import NewOrEditPageForm from "../NewOrEditPageForm"
 
 import PageListItem, {
@@ -14,6 +14,8 @@ import PageListItem, {
 } from "./PageListItem"
 import TableWrapper from "./TableWrapper"
 
+import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
+import { deletePage } from "@/services/backend/pages"
 import { Chapter, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"

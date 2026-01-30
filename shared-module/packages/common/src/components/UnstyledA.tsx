@@ -1,3 +1,5 @@
+"use client"
+
 import styled from "@emotion/styled"
 
 const UnstyledA = styled.a`

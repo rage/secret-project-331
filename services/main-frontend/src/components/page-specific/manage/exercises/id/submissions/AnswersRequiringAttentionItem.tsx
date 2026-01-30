@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { ExclamationMessage } from "@vectopus/atlas-icons-react"
@@ -5,12 +7,11 @@ import { parseISO } from "date-fns"
 import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
-
 import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
 import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
 import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
 
+import SubmissionIFrame from "@/components/page-specific/submissions/id/SubmissionIFrame"
 import { createTeacherGradingDecision } from "@/services/backend/teacher-grading-decisions"
 import {
   AnswerRequiringAttentionWithTasks,
@@ -45,6 +46,7 @@ const TopBar = styled.div`
 const AnswersRequiringAttentionItem: React.FC<Props> = ({
   answerRequiringAttention,
   exerciseMaxPoints,
+  refetch,
 }) => {
   const { t } = useTranslation()
   const [updatedPoints, setUpdatedPoints] = useState<number | null>(null)
@@ -59,7 +61,12 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
     },
     {
       onSuccess: (data) => {
-        setUpdatedPoints(data.score_given)
+        if (data) {
+          setUpdatedPoints(data.score_given)
+        } else {
+          // In case that teacher used reject and reset
+          refetch()
+        }
       },
     },
   )

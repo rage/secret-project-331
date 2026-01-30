@@ -19,9 +19,11 @@ futures-util = "0.3.31"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # Utilities for working with Tokio.
-tokio-util = "0.7.16"
+tokio-util = "0.7.17"
+# Utilities to work with `Stream` and `tokio`.
+tokio-stream.workspace = true
 # higher level HTTP client library
-reqwest = { version = "0.12.23", features = [
+reqwest = { version = "0.12.25", features = [
   "brotli",
   "gzip",
   "json",
@@ -34,9 +36,9 @@ serde = { version = "1.0.228", features = ["derive"] }
 # A JSON serialization file format
 serde_json = "1.0.145"
 # Application-level tracing for Rust.
-tracing = "0.1.41"
+tracing = "0.1.43"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.18.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.19.0", features = ["serde", "v4", "v5"] }
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.100"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
@@ -44,7 +46,7 @@ sqlx.workspace = true
 # Asynchronous streams using async & await notation
 async-stream = "0.3.6"
 # Types and traits for working with bytes
-bytes = "1.10.1"
+bytes = "1.11.0"
 # Azure Storage crate from the Azure SDK for Rust
 azure_storage = "0.21.0"
 # Azure Blob Storage crate from the Azure SDK for Rust
@@ -55,3 +57,11 @@ azure_core = "0.21.0"
 url = "2.5.7"
 # A crate for safe and ergonomic pin-projection.
 pin-project = "1.1.10"
+# Utilities for enriching errors with `tracing`.
+tracing-error = "0.2.1"
+#  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
+backtrace = "0.3.76"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

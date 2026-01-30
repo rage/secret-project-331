@@ -121,7 +121,13 @@ async fn get_completions(
             &mut handle_conn,
             &course_modules,
             &dont_include_completions_from_this_registrar,
-        );
+        )
+        .map(|result| {
+            result.map(|mut completion| {
+                completion.normalize_language_code();
+                completion
+            })
+        });
         let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
             let token = skip_authorize();
             let message = match message {
@@ -236,7 +242,13 @@ async fn get_module_completions(
             &mut handle_conn,
             &modules,
             &dont_include_completions_from_this_registrar,
-        );
+        )
+        .map(|result| {
+            result.map(|mut completion| {
+                completion.normalize_language_code();
+                completion
+            })
+        });
         let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
             let token = skip_authorize();
             let message = match message {

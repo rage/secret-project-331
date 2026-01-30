@@ -1,22 +1,25 @@
+pub mod seed_accessibility_course;
+pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
+pub mod seed_lock_chapter_course;
+pub use seed_lock_chapter_course::seed_lock_chapter_course;
+pub mod seed_course_with_peer_review;
+pub mod seed_graded;
+pub use seed_graded::seed_graded_course;
+pub mod seed_glossary;
+pub mod seed_switching_course_instances_course;
+pub use seed_switching_course_instances_course::seed_switching_course_instances_course;
 
 use std::sync::Arc;
 
 use crate::domain::models_requests::{self, JwtKey};
-use crate::programs::seed::builder::chapter::ChapterBuilder;
-use crate::programs::seed::builder::context::SeedContext;
-use crate::programs::seed::builder::course::{CourseBuilder, CourseInstanceConfig};
-use crate::programs::seed::builder::exercise::{ExerciseBuilder, ExerciseIds};
-use crate::programs::seed::builder::module::ModuleBuilder;
-use crate::programs::seed::builder::page::PageBuilder;
+
 use crate::programs::seed::seed_helpers::{
     create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
     paragraph, quizzes_exercise, submit_and_grade,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
-
-use serde_json::json;
 
 use headless_lms_models::{
     PKeyPolicy, certificate_configuration_to_requirements, certificate_configurations, chapters,
@@ -90,13 +93,12 @@ pub async fn seed_sample_course(
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
     info!("inserting sample course {}", course_name);
-    info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
         name: course_name.to_string(),
         organization_id: org,
         slug: course_slug.to_string(),
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "Sample course.".to_string(),
@@ -1253,6 +1255,9 @@ pub async fn seed_sample_course(
                 ],
             )],
             Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            None,
+            None,
+            None,
         );
     create_page(
         &mut conn,
@@ -1558,6 +1563,9 @@ pub async fn seed_sample_course(
                 ],
             )],
             Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            None,
+            None,
+            None,
         );
 
     create_page(
@@ -1932,7 +1940,6 @@ pub async fn seed_sample_course(
     // acronyms
     glossary::insert(&mut conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
     glossary::insert(&mut conn, "HDD", "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",  course.id).await?;
-    glossary::insert(&mut conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
     glossary::insert(&mut conn, "KB", "Keyboard.", course.id).await?;
 
     // create_best_peer_review(&mut conn, course.id, Some(exercise_1_id)).await?;
@@ -1998,341 +2005,6 @@ pub async fn seed_sample_course(
     Ok(course.id)
 }
 
-pub async fn seed_switching_course_instances_course(
-    course_id: Uuid,
-    course_name: &str,
-    course_slug: &str,
-    common_course_data: CommonCourseData,
-    can_add_chatbot: bool,
-    seed_users_result: SeedUsersResult,
-) -> Result<Uuid> {
-    let CommonCourseData {
-        db_pool,
-        organization_id: org,
-        teacher_user_id,
-        student_user_id: _student,
-        langs_user_id: _langs_user_id,
-        example_normal_user_ids: _users,
-        jwt_key: _jwt_key,
-        base_url: _base_url,
-    } = common_course_data;
-
-    let mut conn = db_pool.acquire().await?;
-    let cx = SeedContext {
-        teacher: teacher_user_id,
-        org,
-        base_course_ns: course_id,
-    };
-
-    info!(
-        "Inserting switching course instances course {}",
-        course_name
-    );
-
-    let course = CourseBuilder::new(course_name, course_slug)
-        .desc("Sample course.")
-        .chatbot(can_add_chatbot)
-        .course_id(course_id)
-        .instance(CourseInstanceConfig {
-            name: None,
-            description: None,
-            support_email: None,
-            teacher_in_charge_name: "admin".to_string(),
-            teacher_in_charge_email: "admin@example.com".to_string(),
-            opening_time: None,
-            closing_time: None,
-            instance_id: Some(cx.v5(b"instance:default")),
-        })
-        .instance(CourseInstanceConfig {
-            name: Some("Non-default instance".to_string()),
-            description: Some("This is a non-default instance".to_string()),
-            support_email: Some("contact@example.com".to_string()),
-            teacher_in_charge_name: "admin".to_string(),
-            teacher_in_charge_email: "admin@example.com".to_string(),
-            opening_time: None,
-            closing_time: None,
-            instance_id: Some(cx.v5(b"instance:non-default")),
-        })
-        .role(seed_users_result.teacher_user_id, UserRole::Teacher)
-        .module(
-            ModuleBuilder::new()
-                .order(0)
-                .register_to_open_university(false)
-                .automatic_completion(Some(1), Some(1), false)
-                .chapter(
-                    ChapterBuilder::new(1, "The Basics")
-                        .opens(Utc::now())
-                        .deadline(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap())
-                        .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
-                        .page(
-                            PageBuilder::new("/chapter-1/page-1", "Page One")
-                                .block(paragraph(
-                                    "This is a simple introduction to the basics.",
-                                    cx.v5(b"page:1:1:block:intro"),
-                                ))
-                                .exercise(ExerciseBuilder::example_exercise(
-                                    "Simple multiple choice",
-                                    ExerciseIds {
-                                        exercise_id: cx.v5(b"exercise:1:1:e"),
-                                        slide_id: cx.v5(b"exercise:1:1:s"),
-                                        task_id: cx.v5(b"exercise:1:1:t"),
-                                        block_id: cx.v5(b"exercise:1:1:b"),
-                                    },
-                                    vec![paragraph(
-                                        "What is 2 + 2?",
-                                        cx.v5(b"exercise:1:1:prompt"),
-                                    )],
-                                    json!([
-                                        {
-                                            "name": "3",
-                                            "correct": false,
-                                            "id": cx.v5(b"exercise:1:1:option:1")
-                                        },
-                                        {
-                                            "name": "4",
-                                            "correct": true,
-                                            "id": cx.v5(b"exercise:1:1:option:2")
-                                        },
-                                        {
-                                            "name": "5",
-                                            "correct": false,
-                                            "id": cx.v5(b"exercise:1:1:option:3")
-                                        }
-                                    ]),
-                                )),
-                        ),
-                ),
-        )
-        .module(
-            ModuleBuilder::new()
-                .order(1)
-                .name("Another module")
-                .automatic_completion(Some(1), Some(1), false)
-                .ects(5.0)
-                .chapter(
-                    ChapterBuilder::new(2, "Another chapter")
-                        .fixed_ids(cx.v5(b"chapter:2"), cx.v5(b"chapter:2:instance"))
-                        .page(
-                            PageBuilder::new("/chapter-2/page-1", "Simple Page")
-                                .block(paragraph(
-                                    "This is another simple page with basic content.",
-                                    cx.v5(b"page:2:1:block:intro"),
-                                ))
-                                .exercise(ExerciseBuilder::example_exercise(
-                                    "Simple question",
-                                    ExerciseIds {
-                                        exercise_id: cx.v5(b"exercise:2:1:e"),
-                                        slide_id: cx.v5(b"exercise:2:1:s"),
-                                        task_id: cx.v5(b"exercise:2:1:t"),
-                                        block_id: cx.v5(b"exercise:2:1:b"),
-                                    },
-                                    vec![paragraph(
-                                        "What color is the sky?",
-                                        cx.v5(b"exercise:2:1:prompt"),
-                                    )],
-                                    json!([
-                                        {
-                                            "name": "Red",
-                                            "correct": false,
-                                            "id": cx.v5(b"exercise:2:1:option:1")
-                                        },
-                                        {
-                                            "name": "Blue",
-                                            "correct": true,
-                                            "id": cx.v5(b"exercise:2:1:option:2")
-                                        },
-                                        {
-                                            "name": "Green",
-                                            "correct": false,
-                                            "id": cx.v5(b"exercise:2:1:option:3")
-                                        }
-                                    ]),
-                                )),
-                        ),
-                ),
-        )
-        .module(
-            ModuleBuilder::new()
-                .order(2)
-                .name("Bonus module")
-                .register_to_open_university(true)
-                .automatic_completion(None, Some(1), false)
-                .chapter(
-                    ChapterBuilder::new(3, "Bonus chapter")
-                        .fixed_ids(cx.v5(b"chapter:3"), cx.v5(b"chapter:3:instance"))
-                        .page(
-                            PageBuilder::new("/chapter-3/page-1", "Bonus Page")
-                                .block(paragraph(
-                                    "This is a bonus page with simple content.",
-                                    cx.v5(b"page:3:1:block:intro"),
-                                ))
-                                .exercise(ExerciseBuilder::example_exercise(
-                                    "Bonus question",
-                                    ExerciseIds {
-                                        exercise_id: cx.v5(b"exercise:3:1:e"),
-                                        slide_id: cx.v5(b"exercise:3:1:s"),
-                                        task_id: cx.v5(b"exercise:3:1:t"),
-                                        block_id: cx.v5(b"exercise:3:1:b"),
-                                    },
-                                    vec![paragraph(
-                                        "What is the capital of France?",
-                                        cx.v5(b"exercise:3:1:assignment"),
-                                    )],
-                                    json!([
-                                        {
-                                            "name": "London",
-                                            "correct": false,
-                                            "id": cx.v5(b"exercise:3:1:option:1")
-                                        },
-                                        {
-                                            "name": "Paris",
-                                            "correct": true,
-                                            "id": cx.v5(b"exercise:3:1:option:2")
-                                        },
-                                        {
-                                            "name": "Berlin",
-                                            "correct": false,
-                                            "id": cx.v5(b"exercise:3:1:option:3")
-                                        }
-                                    ]),
-                                )),
-                        ),
-                ),
-        );
-
-    let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
-
-    Ok(course.id)
-}
-
-pub async fn create_glossary_course(
-    course_id: Uuid,
-    common_course_data: CommonCourseData,
-) -> Result<Uuid> {
-    let CommonCourseData {
-        db_pool,
-        organization_id: org_id,
-        teacher_user_id,
-        student_user_id: _,
-        langs_user_id: _,
-        example_normal_user_ids: _,
-        jwt_key: _jwt_key,
-        base_url: _base_url,
-    } = common_course_data;
-    let mut conn = db_pool.acquire().await?;
-
-    // Create new course
-    let new_course = NewCourse {
-        name: "Glossary Tooltip".to_string(),
-        organization_id: org_id,
-        slug: "glossary-tooltip".to_string(),
-        language_code: "en-US".to_string(),
-        teacher_in_charge_name: "admin".to_string(),
-        teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "Sample course.".to_string(),
-        is_draft: false,
-        is_test_mode: false,
-        is_unlisted: false,
-        copy_user_permissions: false,
-        is_joinable_by_code_only: false,
-        join_code: None,
-        ask_marketing_consent: false,
-        flagged_answers_threshold: Some(3),
-        can_add_chatbot: false,
-    };
-
-    let (course, _front_page, _default_instance, default_module) =
-        library::content_management::create_new_course(
-            &mut conn,
-            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
-                course_id,
-                default_course_instance_id: Uuid::new_v5(
-                    &course_id,
-                    b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454",
-                ),
-            }),
-            new_course,
-            teacher_user_id,
-            get_seed_spec_fetcher(),
-            models_requests::fetch_service_info,
-        )
-        .await?;
-
-    // Create course instance
-    course_instances::insert(
-        &mut conn,
-        PKeyPolicy::Fixed(Uuid::new_v5(
-            &course_id,
-            b"67f077b4-0562-47ae-a2b9-db2f08f168a9",
-        )),
-        NewCourseInstance {
-            course_id: course.id,
-            name: Some("Non-default instance"),
-            description: Some("This is a non-default instance"),
-            support_email: Some("contact@example.com"),
-            teacher_in_charge_name: "admin",
-            teacher_in_charge_email: "admin@example.com",
-            opening_time: None,
-            closing_time: None,
-        },
-    )
-    .await?;
-
-    // Chapter & Main page
-    let new_chapter = NewChapter {
-        chapter_number: 1,
-        course_id: course.id,
-        front_page_id: None,
-        name: "Glossary".to_string(),
-        color: None,
-        opens_at: None,
-        deadline: Some(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap()),
-        course_module_id: Some(default_module.id),
-    };
-    let (chapter, _front_page) = library::content_management::create_new_chapter(
-        &mut conn,
-        PKeyPolicy::Fixed((
-            Uuid::new_v5(&course_id, b"3d1d7303-b654-428a-8b46-1dbfe908d38a"),
-            Uuid::new_v5(&course_id, b"97568e97-0d6c-4702-9534-77d6e2784c8a"),
-        )),
-        &new_chapter,
-        teacher_user_id,
-        get_seed_spec_fetcher(),
-        models_requests::fetch_service_info,
-    )
-    .await?;
-    chapters::set_opens_at(&mut conn, chapter.id, Utc::now()).await?;
-
-    // Create page
-    create_page(
-        &mut conn,
-        course.id,
-        teacher_user_id,
-        Some(chapter.id),
-        CmsPageUpdate {
-            url_path: "/tooltip".to_string(),
-            title: "Tooltip".to_string(),
-            chapter_id: Some(chapter.id),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            content: vec![paragraph(
-                "Use the KB to write sentences for your CS-courses.",
-                Uuid::new_v5(&course.id, b"6903cf16-4f79-4985-a354-4257be1193a2"),
-            )],
-        },
-    )
-    .await?;
-
-    // Setup glossary
-    glossary::insert(&mut conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
-    glossary::insert(&mut conn, "HDD", "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",  course.id).await?;
-    glossary::insert(&mut conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
-    glossary::insert(&mut conn, "KB", "Keyboard.", course.id).await?;
-
-    Ok(course.id)
-}
-
 pub async fn seed_cs_course_material(
     db_pool: &Pool<Postgres>,
     org: Uuid,
@@ -2347,7 +2019,7 @@ pub async fn seed_cs_course_material(
         name: "Introduction to Course Material".to_string(),
         organization_id: org,
         slug: "introduction-to-course-material".to_string(),
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "The definitive introduction to course material.".to_string(),
@@ -3096,7 +2768,7 @@ pub async fn seed_peer_review_course_without_submissions(
         name: course_name.to_string(),
         organization_id: org,
         slug: course_slug.to_string(),
-        language_code: "en-US".to_string(),
+        language_code: "en".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "Sample course.".to_string(),

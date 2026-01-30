@@ -1,15 +1,16 @@
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postNewPage, updatePageDetails } from "../../../../../../services/backend/pages"
-import { normalizePath } from "../../../../../../utils/normalizePath"
-
+import { postNewPage, updatePageDetails } from "@/services/backend/pages"
 import { Page } from "@/shared-module/common/bindings"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { normalizePath } from "@/utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
   display: flex;

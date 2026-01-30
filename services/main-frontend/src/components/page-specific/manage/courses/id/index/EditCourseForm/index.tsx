@@ -1,13 +1,14 @@
+"use client"
+
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
 import React from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { updateCourse } from "../../../../../../../services/backend/courses"
-
 import ClosedSectionFields from "./ClosedSectionFields"
 
+import { updateCourse } from "@/services/backend/courses"
 import { Course, CourseUpdate } from "@/shared-module/common/bindings"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -48,6 +49,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
       can_add_chatbot: course.can_add_chatbot,
       is_joinable_by_code_only: course.is_joinable_by_code_only,
       ask_marketing_consent: course.ask_marketing_consent,
+      chapter_locking_enabled: course.chapter_locking_enabled,
       flagged_answers_threshold: course.flagged_answers_threshold ?? 3,
       closed_at: course.closed_at
         ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null)
@@ -83,6 +85,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
         can_add_chatbot: data.can_add_chatbot,
         is_joinable_by_code_only: data.is_joinable_by_code_only,
         ask_marketing_consent: data.ask_marketing_consent,
+        chapter_locking_enabled: data.chapter_locking_enabled,
         flagged_answers_threshold: data.flagged_answers_threshold,
         closed_at: data.set_course_closed_at
           ? data.closed_at
@@ -159,6 +162,12 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             <CheckBox
               label={t("label-ask-for-marketing-consent")}
               {...register("ask_marketing_consent")}
+            />
+          </FieldContainer>
+          <FieldContainer>
+            <CheckBox
+              label={t("label-chapter-locking-enabled")}
+              {...register("chapter_locking_enabled")}
             />
           </FieldContainer>
           <FieldContainer>

@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM chatbot_conversation_message_tool_calls\nWHERE message_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "message_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "tool_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "tool_arguments",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "tool_call_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "f5f637547b959d1261cd6c7be756657817c6bd4e8ede3765891b73f3243ef4a8"
+}

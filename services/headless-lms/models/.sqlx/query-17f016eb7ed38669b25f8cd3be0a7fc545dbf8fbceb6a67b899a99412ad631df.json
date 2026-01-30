@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nAND deleted_at IS NULL\nRETURNING id;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "17f016eb7ed38669b25f8cd3be0a7fc545dbf8fbceb6a67b899a99412ad631df"
+}

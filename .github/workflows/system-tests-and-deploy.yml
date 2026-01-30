@@ -335,6 +335,21 @@ jobs:
         id: deploy_local
         run: skaffold deploy --force --filename ./skaffold.production.yaml --build-artifacts=./skaffold-build-output.json
 
+      - name: Dump migration logs on failure
+        if: failure()
+        run: |
+          echo "=== Migrations job logs ==="
+          kubectl logs job/headless-lms-run-migrations --tail=200 || true
+          echo
+          echo "=== Email-deliver pod logs (if any) ==="
+          kubectl logs deployment/email-deliver --tail=100 || true
+          echo
+          echo "=== Job list ==="
+          kubectl get jobs || true
+          echo
+          echo "=== Pod list ==="
+          kubectl get pods -A || true
+
       - name: Configure ingress
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
 
@@ -421,7 +436,6 @@ jobs:
           mkdir ./logs
           kubectl logs 'deployment/chatbot-syncer' > ./logs/chatbot-syncer.log
           kubectl logs 'deployment/cms' > ./logs/cms.log
-          kubectl logs 'deployment/course-material' > ./logs/course-material.log
           kubectl logs 'deployment/example-exercise' > ./logs/example-exercise.log
           kubectl logs 'deployment/headless-lms' > ./logs/headless-lms.log
           kubectl logs 'deployment/mailchimp-syncer' > ./logs/mailchimp-syncer.log

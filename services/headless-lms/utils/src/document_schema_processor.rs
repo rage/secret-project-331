@@ -10,6 +10,8 @@ use serde_json::{Map, Value};
 use ts_rs::TS;
 use uuid::Uuid;
 
+/// Blocks that are not allowed in top-level pages (pages without chapter_id).
+/// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
 static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
     "moocfi/exercise",
     "moocfi/exercise-task",
@@ -244,6 +246,8 @@ impl GutenbergBlock {
     }
 }
 
+/// Checks if blocks contain any that are not allowed in top-level pages (pages without chapter_id).
+/// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
 pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> bool {
     input
         .iter()
@@ -272,6 +276,33 @@ pub fn remove_sensitive_attributes(input: Vec<GutenbergBlock>) -> Vec<GutenbergB
                 block.attributes = Map::new();
             }
             block.inner_blocks = remove_sensitive_attributes(block.inner_blocks);
+            block
+        })
+        .collect()
+}
+
+/// Filters lock-chapter blocks' inner blocks based on whether the chapter is locked.
+/// If the chapter is not locked, inner blocks are removed to prevent unauthorized access.
+/// This function recursively processes all blocks to handle nested structures.
+pub fn filter_lock_chapter_blocks(
+    input: Vec<GutenbergBlock>,
+    is_locked: bool,
+) -> Vec<GutenbergBlock> {
+    input
+        .into_iter()
+        .map(|mut block| {
+            if block.name == "moocfi/lock-chapter" {
+                if !is_locked {
+                    // Remove inner blocks if chapter is not locked
+                    block.inner_blocks = vec![];
+                } else {
+                    // Recursively process inner blocks if locked
+                    block.inner_blocks = filter_lock_chapter_blocks(block.inner_blocks, is_locked);
+                }
+            } else {
+                // Recursively process all blocks
+                block.inner_blocks = filter_lock_chapter_blocks(block.inner_blocks, is_locked);
+            }
             block
         })
         .collect()
@@ -401,5 +432,159 @@ mod tests {
         let input = vec![a, b];
         let result = validate_unique_client_ids(input);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn filter_lock_chapter_blocks_removes_inner_blocks_when_not_locked() {
+        let inner_block = GutenbergBlock::block_with_name_and_attributes(
+            "core/paragraph",
+            attributes! {
+                "content": "This should be hidden"
+            },
+        );
+        let lock_block = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/lock-chapter",
+            attributes! {},
+            vec![inner_block.clone()],
+        );
+        let regular_block = GutenbergBlock::block_with_name_and_attributes(
+            "core/heading",
+            attributes! {
+                "content": "Regular heading"
+            },
+        );
+
+        let input = vec![lock_block, regular_block];
+        let result = filter_lock_chapter_blocks(input, false);
+
+        // Lock-chapter block should have no inner blocks
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0].name, "moocfi/lock-chapter");
+        assert_eq!(result[0].inner_blocks.len(), 0);
+        // Regular block should be unaffected
+        assert_eq!(result[1].name, "core/heading");
+    }
+
+    #[test]
+    fn filter_lock_chapter_blocks_preserves_inner_blocks_when_locked() {
+        let inner_block = GutenbergBlock::block_with_name_and_attributes(
+            "core/paragraph",
+            attributes! {
+                "content": "This should be visible"
+            },
+        );
+        let lock_block = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/lock-chapter",
+            attributes! {},
+            vec![inner_block.clone()],
+        );
+
+        let input = vec![lock_block];
+        let result = filter_lock_chapter_blocks(input, true);
+
+        // Lock-chapter block should preserve inner blocks
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].name, "moocfi/lock-chapter");
+        assert_eq!(result[0].inner_blocks.len(), 1);
+        assert_eq!(result[0].inner_blocks[0].name, "core/paragraph");
+    }
+
+    #[test]
+    fn filter_lock_chapter_blocks_handles_nested_blocks() {
+        let nested_inner = GutenbergBlock::block_with_name_and_attributes(
+            "core/paragraph",
+            attributes! {
+                "content": "Nested content"
+            },
+        );
+        let nested_lock = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/lock-chapter",
+            attributes! {},
+            vec![nested_inner],
+        );
+        let outer_lock = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/lock-chapter",
+            attributes! {},
+            vec![nested_lock],
+        );
+
+        let input = vec![outer_lock];
+        let result = filter_lock_chapter_blocks(input, false);
+
+        // All lock-chapter blocks should have inner blocks removed
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].name, "moocfi/lock-chapter");
+        assert_eq!(result[0].inner_blocks.len(), 0);
+    }
+
+    #[test]
+    fn filter_lock_chapter_blocks_handles_nested_blocks_when_locked() {
+        let nested_inner = GutenbergBlock::block_with_name_and_attributes(
+            "core/paragraph",
+            attributes! {
+                "content": "Nested content"
+            },
+        );
+        let nested_lock = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/lock-chapter",
+            attributes! {},
+            vec![nested_inner.clone()],
+        );
+        let outer_lock = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/lock-chapter",
+            attributes! {},
+            vec![nested_lock],
+        );
+
+        let input = vec![outer_lock];
+        let result = filter_lock_chapter_blocks(input, true);
+
+        // All lock-chapter blocks should preserve inner blocks
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].name, "moocfi/lock-chapter");
+        assert_eq!(result[0].inner_blocks.len(), 1);
+        assert_eq!(result[0].inner_blocks[0].name, "moocfi/lock-chapter");
+        assert_eq!(result[0].inner_blocks[0].inner_blocks.len(), 1);
+        assert_eq!(
+            result[0].inner_blocks[0].inner_blocks[0].name,
+            "core/paragraph"
+        );
+    }
+
+    #[test]
+    fn filter_lock_chapter_blocks_does_not_affect_non_lock_blocks() {
+        let paragraph = GutenbergBlock::block_with_name_and_attributes(
+            "core/paragraph",
+            attributes! {
+                "content": "Regular paragraph"
+            },
+        );
+        let heading = GutenbergBlock::block_with_name_and_attributes(
+            "core/heading",
+            attributes! {
+                "content": "Regular heading"
+            },
+        );
+        let list_item = GutenbergBlock::block_with_name_and_attributes(
+            "core/list-item",
+            attributes! {
+                "content": "List item"
+            },
+        );
+        let list = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "core/list",
+            attributes! {},
+            vec![list_item],
+        );
+
+        let input = vec![paragraph, heading, list];
+        let result = filter_lock_chapter_blocks(input, false);
+
+        // All blocks should be preserved
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0].name, "core/paragraph");
+        assert_eq!(result[1].name, "core/heading");
+        assert_eq!(result[2].name, "core/list");
+        assert_eq!(result[2].inner_blocks.len(), 1);
     }
 }

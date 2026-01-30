@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE glossary\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3c4be2dc1f24ceea1e2faab25dfe15542f852b1eb7d4d8f8efb44b59011f1e5f"
+}

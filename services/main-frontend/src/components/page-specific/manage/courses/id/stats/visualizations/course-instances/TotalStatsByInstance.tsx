@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { TFunction } from "i18next"
 import React, { useMemo } from "react"

@@ -1,14 +1,14 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CardList, CardListItem } from "../../../../styles/styles"
-
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
-import { CourseManagementPagesProps } from "@/pages/manage/courses/[id]/[...path]"
+import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/[...path]/page"
 import {
   getCourseChatbots,
   setAsDefaultChatbot,
@@ -21,6 +21,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
+import { CardList, CardListItem } from "@/styles/styles"
 
 const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()

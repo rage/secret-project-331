@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
 import { formatLtr } from "@wordpress/icons"

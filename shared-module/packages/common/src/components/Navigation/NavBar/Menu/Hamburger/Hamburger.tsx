@@ -1,30 +1,15 @@
-import { css, cx } from "@emotion/css"
+"use client"
 
 import { HamburgerSpring } from "./HamburgerSpring"
 
-const defaultPadding = css`
-  padding: 0;
-`
-
 interface HamburgerProps {
   isActive: boolean
-  toggleButton: () => void
-  buttonId: string
+  barColor?: string
+  buttonWidth?: number
 }
 
-const Hamburger: React.FC<React.PropsWithChildren<HamburgerProps>> = ({
-  isActive,
-  toggleButton,
-  buttonId,
-}) => {
-  return (
-    <HamburgerSpring
-      barColor="#333"
-      buttonWidth={30}
-      {...{ isActive, toggleButton, buttonId }}
-      className={buttonId === "main-navigation-menu" ? cx(defaultPadding) : undefined}
-    />
-  )
+const Hamburger: React.FC<HamburgerProps> = ({ isActive, barColor = "#333", buttonWidth = 30 }) => {
+  return <HamburgerSpring barColor={barColor} buttonWidth={buttonWidth} isActive={isActive} />
 }
 
 export default Hamburger

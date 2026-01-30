@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { Placement } from "@popperjs/core"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"

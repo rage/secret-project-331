@@ -3,12 +3,12 @@
 use crate::{domain::authorization::authorize, prelude::*};
 use headless_lms_models::ModelError;
 use headless_lms_models::library::TimeGranularity;
+use headless_lms_models::library::course_stats::StudentsByCountryTotalsResult;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType};
 use models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
 use std::collections::HashMap;
 use std::time::Duration;
 use uuid::Uuid;
-
 const CACHE_DURATION: Duration = Duration::from_secs(3600);
 
 /// Helper function to handle caching for stats endpoints
@@ -794,6 +794,403 @@ async fn get_users_returning_exercises_history_by_instance(
     token.authorized_ok(web::Json(res))
 }
 
+/// GET `/api/v0/main-frontend/{course_id}/stats/student-enrollments-by-country/{granularity}/{time_window}/{country}`
+///
+/// Returns student signup statistics grouped by country with the specified time granularity.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_student_enrollments_by_country(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, u16, String)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let (course_id, granularity, time_window, country) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!(
+        "student-enrollments-by-country-{}-{}-{}",
+        granularity, time_window, country
+    );
+
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::student_enrollments_by_country(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+                country,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/student-completions-by-country/{granularity}/{time_window}/{country}`
+///
+/// Returns student completion statistics grouped by country with the specified time granularity.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_student_completions_by_country(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, u16, String)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let (course_id, granularity, time_window, country) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!(
+        "student-completions-by-country-{}-{}-{}",
+        granularity, time_window, country
+    );
+
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::student_completions_by_country(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+                country,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/students-by-country-totals`
+///
+/// Returns all enrolled students grouped by country.
+#[instrument(skip(pool))]
+async fn get_students_by_country_totals(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<Uuid>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<StudentsByCountryTotalsResult>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = path.into_inner();
+
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!("students-by-country-totals-{}", course_id);
+
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::students_by_country_totals(&mut conn, course_id).await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/by-module/first-submissions/{granularity}/{time_window}`
+///
+/// Returns first exercise submission statistics with specified time granularity and window,
+/// grouped by module.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_first_exercise_submissions_by_module(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!(
+        "first-submissions-by-module-{}-{}",
+        granularity, time_window
+    );
+
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::first_exercise_submissions_by_module(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/completions-history/custom-time-period/{start_date}/{end_date}`
+///
+/// Returns completion statistics by custom time period.
+/// Query parameters:
+/// - start_date: YYYY-MM-DD
+/// - end_date: YYYY-MM-DD
+#[instrument(skip(pool))]
+async fn get_course_completions_history_by_custom_time_period(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, String, String)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let (course_id, start_date, end_date) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!("completions-custom-{}-{}", start_date, end_date);
+
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::course_completions_history_by_custom_time_period(
+                &mut conn,
+                course_id,
+                &start_date,
+                &end_date,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/users-starting-history/custom-time-period/{start_date}/{end_date}`
+///
+/// Returns unique users starting statistics with specified time period.
+#[instrument(skip(pool))]
+async fn get_unique_users_starting_history_custom_time_period(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, String, String)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let (course_id, start_date, end_date) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!("users-starting-custom-{}-{}", start_date, end_date);
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::unique_users_starting_history_by_custom_time_period(
+                &mut conn,
+                course_id,
+                &start_date,
+                &end_date,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/total-users-started-course/custom-time-period/{start_date}/{end_date}`
+#[instrument(skip(pool))]
+async fn get_total_users_started_course_custom_time_period(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, String, String)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<CountResult>> {
+    let (course_id, start_date, end_date) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!("total-users-started-custom-{}-{}", start_date, end_date);
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::get_total_users_started_course_custom_time_period(
+                &mut conn,
+                course_id,
+                &start_date,
+                &end_date,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/total-users-completed/custom-time-period/{start_date}/{end_date}`
+#[instrument(skip(pool))]
+async fn get_total_users_completed_course_custom_time_period(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, String, String)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<CountResult>> {
+    let (course_id, start_date, end_date) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!("total-users-completed-custom-{}-{}", start_date, end_date);
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::get_total_users_completed_course_custom_time_period(
+                &mut conn,
+                course_id,
+                &start_date,
+                &end_date,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}`
+#[instrument(skip(pool))]
+async fn get_total_users_returned_exercises_custom_time_period(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, String, String)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<CountResult>> {
+    let (course_id, start_date, end_date) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!("total-users-returned-custom-{}-{}", start_date, end_date);
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::get_total_users_returned_exercises_custom_time_period(
+                &mut conn,
+                course_id,
+                &start_date,
+                &end_date,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route(
         "/total-users-started-course",
@@ -866,5 +1263,41 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     .route(
         "/all-language-versions/users-starting-history/{granularity}/{time_window}",
         web::get().to(get_unique_users_starting_history_all_language_versions),
+    )
+    .route(
+        "/completions-history/custom-time-period/{start_date}/{end_date}",
+        web::get().to(get_course_completions_history_by_custom_time_period),
+    )
+    .route(
+        "/student-enrollments-by-country/{granularity}/{time_window}/{country}",
+        web::get().to(get_student_enrollments_by_country),
+    )
+    .route(
+        "/student-completions-by-country/{granularity}/{time_window}/{country}",
+        web::get().to(get_student_completions_by_country),
+    )
+    .route(
+        "/students-by-country-totals",
+        web::get().to(get_students_by_country_totals),
+    )
+    .route(
+        "/by-module/first-submissions/{granularity}/{time_window}",
+        web::get().to(get_first_exercise_submissions_by_module),
+    )
+    .route(
+        "/users-starting-history/custom-time-period/{start_date}/{end_date}",
+        web::get().to(get_unique_users_starting_history_custom_time_period),
+    )
+    .route(
+        "/total-users-started-course/custom-time-period/{start_date}/{end_date}",
+        web::get().to(get_total_users_started_course_custom_time_period),
+    )
+    .route(
+        "/total-users-completed/custom-time-period/{start_date}/{end_date}",
+        web::get().to(get_total_users_completed_course_custom_time_period),
+    )
+    .route(
+        "/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}",
+        web::get().to(get_total_users_returned_exercises_custom_time_period),
     );
 }

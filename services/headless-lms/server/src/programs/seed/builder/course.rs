@@ -77,6 +77,7 @@ pub struct CourseBuilder {
     pub glossary_entries: Vec<GlossaryEntry>,
     pub certificate_config: Option<CertificateConfig>,
     pub front_page_content: Option<Vec<GutenbergBlock>>,
+    pub chapter_locking_enabled: bool,
 }
 
 impl CourseBuilder {
@@ -84,7 +85,7 @@ impl CourseBuilder {
         Self {
             name: name.into(),
             slug: slug.into(),
-            language_code: "en-US".into(),
+            language_code: "en".into(),
             can_add_chatbot: false,
             description: "Sample course.".into(),
             default_instance_name: b"default-instance",
@@ -97,11 +98,16 @@ impl CourseBuilder {
             glossary_entries: vec![],
             certificate_config: None,
             front_page_content: None,
+            chapter_locking_enabled: false,
         }
     }
 
     pub fn chatbot(mut self, v: bool) -> Self {
         self.can_add_chatbot = v;
+        self
+    }
+    pub fn chapter_locking_enabled(mut self, v: bool) -> Self {
+        self.chapter_locking_enabled = v;
         self
     }
     pub fn desc(mut self, d: impl Into<String>) -> Self {
@@ -441,6 +447,33 @@ impl CourseBuilder {
         }
         tx.commit().await.context("committing transaction")?;
 
+        if self.chapter_locking_enabled {
+            use headless_lms_models::courses::CourseUpdate;
+            let course_update = CourseUpdate {
+                name: course.name.clone(),
+                description: course.description.clone(),
+                is_draft: course.is_draft,
+                is_test_mode: course.is_test_mode,
+                can_add_chatbot: course.can_add_chatbot,
+                is_unlisted: course.is_unlisted,
+                is_joinable_by_code_only: course.is_joinable_by_code_only,
+                ask_marketing_consent: course.ask_marketing_consent,
+                flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(3),
+                closed_at: course.closed_at,
+                closed_additional_message: course.closed_additional_message.clone(),
+                closed_course_successor_id: course.closed_course_successor_id,
+                chapter_locking_enabled: true,
+            };
+            let updated_course = courses::update_course(conn, course.id, course_update)
+                .await
+                .context("updating course to enable chapter locking")?;
+            return Ok((
+                updated_course,
+                default_instance,
+                last_module.expect("At least one module must be provided"),
+            ));
+        }
+
         Ok((
             course,
             default_instance,
@@ -462,7 +495,7 @@ mod tests {
 
         assert_eq!(course.name, "Test Course");
         assert_eq!(course.slug, "test-course");
-        assert_eq!(course.language_code, "en-US");
+        assert_eq!(course.language_code, "en");
         assert!(!course.can_add_chatbot);
         assert_eq!(course.description, "Sample course.");
         assert_eq!(course.default_instance_name, b"default-instance");
@@ -598,7 +631,7 @@ mod tests {
     fn course_builder_default_values() {
         let course = CourseBuilder::new("Minimal Course", "minimal");
 
-        assert_eq!(course.language_code, "en-US");
+        assert_eq!(course.language_code, "en");
         assert!(!course.can_add_chatbot);
         assert_eq!(course.description, "Sample course.");
         assert_eq!(course.default_instance_name, b"default-instance");
@@ -613,7 +646,7 @@ mod tests {
 
         assert_eq!(course.name, "");
         assert_eq!(course.slug, "");
-        assert_eq!(course.language_code, "en-US");
+        assert_eq!(course.language_code, "en");
         assert_eq!(course.description, "Sample course.");
     }
 

@@ -1,19 +1,11 @@
+"use client"
+
 import { css, cx } from "@emotion/css"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import { BlockProhibited } from "@vectopus/atlas-icons-react"
 import { max } from "lodash"
 import React, { useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-
-import managePageOrderReducer, {
-  managePageOrderInitialState,
-} from "../../../../../../reducers/managePageOrderReducer"
-import { deleteChapter } from "../../../../../../services/backend/chapters"
-import {
-  postNewChapterOrdering,
-  postNewPageOrdering,
-} from "../../../../../../services/backend/courses"
-import BottomPanel from "../../../../../BottomPanel"
 
 import ChapterFormDialog from "./ChapterFormDialog"
 import ChapterImageDialog from "./ChapterImageDialog"
@@ -26,6 +18,12 @@ import {
   MOVING_NOT_ALLOWED,
 } from "./PageList/PageListItem"
 
+import BottomPanel from "@/components/BottomPanel"
+import managePageOrderReducer, {
+  managePageOrderInitialState,
+} from "@/reducers/managePageOrderReducer"
+import { deleteChapter } from "@/services/backend/chapters"
+import { postNewChapterOrdering, postNewPageOrdering } from "@/services/backend/courses"
 import { Chapter, CourseStructure } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"

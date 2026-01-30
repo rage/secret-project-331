@@ -1,9 +1,10 @@
+"use client"
+
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { deleteReference, postReferenceUpdate } from "../../../../../../services/backend/courses"
-import EditReferenceForm from "../../../../../forms/EditReferenceForm"
-
+import EditReferenceForm from "@/components/forms/EditReferenceForm"
+import { deleteReference, postReferenceUpdate } from "@/services/backend/courses"
 import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"

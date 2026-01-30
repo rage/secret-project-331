@@ -1,9 +1,10 @@
+"use client"
+
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { EditExam } from "../../../../../../services/backend/exams"
-import EditExamForm from "../../../../../forms/EditExamForm"
-
+import EditExamForm from "@/components/forms/EditExamForm"
+import { EditExam } from "@/services/backend/exams"
 import { Exam, NewExam } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"

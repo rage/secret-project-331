@@ -18,10 +18,7 @@ test("Error notifications work", async ({ page, headless }, testInfo) => {
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })
-  await page
-    .locator('[data-test-id="error-notification"]')
-    .getByText("Missing exercise type for")
-    .waitFor()
+  await page.getByTestId("toast-notification").getByText("Missing exercise type for").waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

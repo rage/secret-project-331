@@ -14,9 +14,19 @@ async fn get_email_template(
     user: AuthUser,
 ) -> ControllerResult<web::Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     let email_templates =
         models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
+    let token = if let Some(course_id) = email_templates.course_id {
+        authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?
+    } else {
+        authorize(
+            &mut conn,
+            Act::Administrate,
+            Some(user.id),
+            Res::GlobalPermissions,
+        )
+        .await?
+    };
     token.authorized_ok(web::Json(email_templates))
 }
 
@@ -31,7 +41,19 @@ async fn update_email_template(
     user: AuthUser,
 ) -> ControllerResult<web::Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let template =
+        models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
+    let token = if let Some(course_id) = template.course_id {
+        authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?
+    } else {
+        authorize(
+            &mut conn,
+            Act::Administrate,
+            Some(user.id),
+            Res::GlobalPermissions,
+        )
+        .await?
+    };
     let request_update_template = payload.0;
     let updated_template = models::email_templates::update_email_template(
         &mut conn,

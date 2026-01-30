@@ -1,3 +1,5 @@
+"use client"
+
 import { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useForm } from "react-hook-form"

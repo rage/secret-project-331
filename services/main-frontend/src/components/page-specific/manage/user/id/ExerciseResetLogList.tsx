@@ -1,3 +1,5 @@
+"use client"
+
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"

@@ -1,3 +1,5 @@
+"use client"
+
 import { QueryClient, useQuery } from "@tanstack/react-query"
 
 import { getCourse as fetchCourse } from "../services/backend/courses"

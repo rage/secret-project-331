@@ -1,6 +1,6 @@
 "use client"
 
-import { Namespace, TFunction } from "i18next"
+import { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,14 +12,15 @@ import {
   ReviewingStage,
 } from "@/shared-module/common/bindings"
 
-interface GradingStateProps {
-  gradingProgress: GradingProgress
-  reviewingStage: ReviewingStage
+interface ExerciseStatusMessageProps {
+  gradingProgress: GradingProgress | undefined
+  reviewingStage: ReviewingStage | undefined
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null
   exercise: Exercise
   shouldSeeResetMessage: string | null
 }
-const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
+
+const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMessageProps>> = ({
   gradingProgress,
   reviewingStage,
   peerOrSelfReviewConfig,
@@ -27,50 +28,67 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   shouldSeeResetMessage,
 }) => {
   const { t } = useTranslation()
-  const text = useMemo(
-    () =>
-      getText(
-        reviewingStage,
-        gradingProgress,
-        peerOrSelfReviewConfig,
-        exercise,
-        shouldSeeResetMessage,
-        t,
-      ),
-    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, shouldSeeResetMessage, t],
+
+  const resetMessageText = useMemo(
+    () => getResetMessageText(shouldSeeResetMessage, t),
+    [shouldSeeResetMessage, t],
   )
 
-  if (text === null) {
+  const statusMessageText = useMemo(
+    () =>
+      getStatusMessageText(reviewingStage, gradingProgress, peerOrSelfReviewConfig, exercise, t),
+    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, t],
+  )
+
+  if (resetMessageText === null && statusMessageText === null) {
     return null
   }
 
   return (
-    <YellowBox>
-      <p>{text}</p>
-    </YellowBox>
+    <>
+      {resetMessageText && (
+        <YellowBox>
+          <p>{resetMessageText}</p>
+        </YellowBox>
+      )}
+      {statusMessageText && (
+        <YellowBox>
+          <p>{statusMessageText}</p>
+        </YellowBox>
+      )}
+    </>
   )
 }
 
-const getText = (
-  reviewingStage: ReviewingStage,
-  gradingProgress: GradingProgress,
+function getResetMessageText(shouldSeeResetMessage: string | null, t: TFunction): string | null {
+  if (shouldSeeResetMessage === null) {
+    return null
+  }
+
+  switch (shouldSeeResetMessage) {
+    case "reset-automatically-due-to-failed-review":
+      return t("help-text-exercise-involves-reject-and-reset-automatically")
+    case "flagged-answers-skip-manual-review-and-allow-retry":
+      return t("help-text-flagged-answers-skip-manual-review-and-allow-retry")
+    case "reset-by-staff":
+      return t("help-text-exercise-involves-reject-and-reset-by-staff")
+    default:
+      return null
+  }
+}
+
+function getStatusMessageText(
+  reviewingStage: ReviewingStage | undefined,
+  gradingProgress: GradingProgress | undefined,
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
   exercise: Exercise,
-  shouldSeeResetMessage: string | null,
   t: TFunction,
-): string | null => {
-  if (shouldSeeResetMessage !== null && reviewingStage === "NotStarted") {
-    switch (shouldSeeResetMessage) {
-      case "reset-automatically-due-to-failed-review":
-        return t("help-text-exercise-involves-reject-and-reset-automatically")
-      case "flagged-answers-skip-manual-review-and-allow-retry":
-        return t("help-text-flagged-answers-skip-manual-review-and-allow-retry")
-      case "reset-by-staff":
-        return t("help-text-exercise-involves-reject-and-reset-by-staff")
-      default:
-        return null
-    }
+): string | null {
+  // Need valid reviewing stage and grading progress for status messages
+  if (reviewingStage === undefined || gradingProgress === undefined) {
+    return null
   }
+
   if (peerOrSelfReviewConfig && reviewingStage === "NotStarted") {
     if (exercise.needs_peer_review && exercise.needs_self_review) {
       return t("help-text-exercise-involves-peer-review-and-self-review", {
@@ -113,4 +131,5 @@ const getText = (
       return null
   }
 }
-export default GradingState
+
+export default ExerciseStatusMessage

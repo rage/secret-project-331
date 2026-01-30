@@ -12,8 +12,8 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 
+import ExerciseStatusMessage from "./ExerciseStatusMessage"
 import ExerciseTask from "./ExerciseTask"
-import GradingState from "./GradingState"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
@@ -621,20 +621,13 @@ const ExerciseBlock: React.FC<
                 {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
               </DeadlineText>
             ))}
-          {(getCourseMaterialExercise.data.peer_or_self_review_config ||
-            getCourseMaterialExercise.data.should_show_reset_message ||
-            reviewingStage === "WaitingForManualGrading" ||
-            reviewingStage === "ReviewedAndLocked") &&
-            gradingState &&
-            reviewingStage && (
-              <GradingState
-                gradingProgress={gradingState}
-                reviewingStage={reviewingStage}
-                peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
-                exercise={getCourseMaterialExercise.data.exercise}
-                shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message}
-              />
-            )}
+          <ExerciseStatusMessage
+            gradingProgress={gradingState}
+            reviewingStage={reviewingStage}
+            peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
+            exercise={getCourseMaterialExercise.data.exercise}
+            shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message}
+          />
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&
             reviewingStage !== "SelfReview" &&

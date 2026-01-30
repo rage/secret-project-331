@@ -14,6 +14,7 @@ import PseudoContentLink from "@/components/PseudoContentLink"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 
 export interface BackgroundProps {
   bg: string | undefined
@@ -70,10 +71,23 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   points,
   showLock,
   isLocked,
+  deadline,
+  exerciseDeadline,
+  exerciseDeadlinesMultiple,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const shouldLink = url && (open || allowedToPreview)
+  const formattedDeadline = humanReadableDateTime(deadline, i18n.language) ?? null
+  const formattedExerciseDeadline = humanReadableDateTime(exerciseDeadline, i18n.language) ?? null
+  const exerciseDeadlineText = formattedExerciseDeadline
+    ? exerciseDeadlinesMultiple
+      ? t("chapter-card-deadline-varies", { date: formattedExerciseDeadline })
+      : `${t("chapter-card-exercise-deadline")} ${formattedExerciseDeadline}`
+    : null
+  const deadlineText = formattedDeadline
+    ? `${t("chapter-card-deadline")} ${formattedDeadline}`
+    : null
 
   return (
     <div
@@ -218,6 +232,22 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                 </span>
               </div>
               <h2>{title}</h2>
+              {(deadlineText || exerciseDeadlineText) && (
+                <div
+                  className={css`
+                    margin-top: 0.5rem;
+                    color: ${baseTheme.colors.gray[700]};
+                    font-size: 0.85rem;
+                    line-height: 1.35;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.35rem 0.7rem;
+                  `}
+                >
+                  {deadlineText && <span>{deadlineText}</span>}
+                  {exerciseDeadlineText && <span>{exerciseDeadlineText}</span>}
+                </div>
+              )}
             </PseudoContentLink>
           ) : (
             <>
@@ -252,6 +282,22 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                 </span>
               </div>
               <h2>{title}</h2>
+              {(deadlineText || exerciseDeadlineText) && (
+                <div
+                  className={css`
+                    margin-top: 0.5rem;
+                    color: ${baseTheme.colors.gray[700]};
+                    font-size: 0.85rem;
+                    line-height: 1.35;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.35rem 0.7rem;
+                  `}
+                >
+                  {deadlineText && <span>{deadlineText}</span>}
+                  {exerciseDeadlineText && <span>{exerciseDeadlineText}</span>}
+                </div>
+              )}
             </>
           )}
         </div>

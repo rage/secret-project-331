@@ -422,6 +422,9 @@ async fn get_chapters(
     .is_some();
     let token = skip_authorize();
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+    let exercise_deadline_overrides =
+        models::chapters::exercise_deadline_overrides_by_chapter_for_course(&mut conn, *course_id)
+            .await?;
     let chapters = models::chapters::course_chapters(&mut conn, *course_id)
         .await?
         .into_iter()
@@ -430,10 +433,12 @@ async fn get_chapters(
                 .chapter_image_path
                 .as_ref()
                 .map(|path| file_store.get_download_url(Path::new(&path), &app_conf));
+            let exercise_deadline_overrides = exercise_deadline_overrides.get(&chapter.id).copied();
             ChapterWithStatus::from_database_chapter_timestamp_and_image_url(
                 chapter,
                 Utc::now(),
                 chapter_image_url,
+                exercise_deadline_overrides,
             )
         })
         .collect();

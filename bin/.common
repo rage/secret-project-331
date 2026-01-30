@@ -39,6 +39,46 @@ function ensure_common_programs_in_path() {
   ensure_program_in_path sponge
 }
 
+function ensure_git_lfs_installed() {
+  if ! command -v git-lfs &> /dev/null; then
+    echo "git-lfs is not installed or it is not in your \$PATH. Aborting."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      echo "Install: brew install git-lfs"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      echo "Install: Ubuntu: sudo apt-get install git-lfs | Arch: sudo pacman -S git-lfs"
+    elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+      echo "Install: winget install Git.GitLFS"
+    else
+      echo "Install: see https://git-lfs.com/"
+    fi
+    exit 1
+  fi
+  if ! git lfs version &> /dev/null; then
+    echo "git lfs is not working correctly. Aborting."
+    echo "Try reinstalling git-lfs and ensure 'git lfs install' has been run."
+    exit 1
+  fi
+
+  # Ensure LFS filters/hooks are configured at least once for this repo.
+  if git rev-parse --is-inside-work-tree &> /dev/null; then
+    local lfs_clean
+    local lfs_smudge
+    local had_lfs_filters
+    lfs_clean=$(git config --get filter.lfs.clean || true)
+    lfs_smudge=$(git config --get filter.lfs.smudge || true)
+    had_lfs_filters=true
+    if [ -z "$lfs_clean" ] && [ -z "$lfs_smudge" ]; then
+      had_lfs_filters=false
+      git lfs install --local &> /dev/null || true
+    fi
+    if [ "$had_lfs_filters" = false ]; then
+      echo "Git LFS filters were missing for this checkout. Hydrating LFS objects now..."
+      git lfs pull
+      git lfs checkout
+    fi
+  fi
+}
+
 function enforce_inotify_watches_limit_sufficient() {
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     INOTIFY_WATCHES=$(cat /proc/sys/fs/inotify/max_user_watches)

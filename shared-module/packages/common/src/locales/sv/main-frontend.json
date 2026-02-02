@@ -513,7 +513,6 @@
   "grading": "Betygsättning",
   "grading-explanation": "Övningstjänsten skapar denna data från betygsändpunkten när backend skickar en inlämning för att bli betygsatt.",
   "grading-failed": "Övningsbedömning misslyckades",
-  "grading-fully-graded": "Övning fullt bedömd",
   "grading-pending": "Övningsbedömning väntar",
   "grading-pending-manual": "Övningsbedömning väntar på manuell bedömning",
   "grant-access-to-users-with-permissions-to-original-course": "Ge tillgång till denna kurs till alla som hade tillgång till den ursprungliga",

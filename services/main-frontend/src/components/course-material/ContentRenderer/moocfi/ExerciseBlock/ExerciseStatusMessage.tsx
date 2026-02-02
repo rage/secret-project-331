@@ -109,7 +109,7 @@ function getStatusMessageText(
       case "Failed":
         return t("grading-failed")
       case "FullyGraded":
-        return t("grading-fully-graded")
+        return null
       case "NotReady":
         return null
       case "Pending":

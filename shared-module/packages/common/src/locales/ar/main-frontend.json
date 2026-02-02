@@ -514,7 +514,6 @@
   "grading": "التقييم",
   "grading-explanation": "تقوم خدمة التمارين بإنشاء هذه البيانات من نقطة النهاية للدرجة عندما يقوم الخلفية بإرسال تقديم لتقييمه.",
   "grading-failed": "فشل تصحيح التمرين",
-  "grading-fully-graded": "تم تصحيح التمرين بالكامل",
   "grading-pending": "تصحيح التمرين معلق",
   "grading-pending-manual": "تصحيح التمرين في انتظار التصحيح اليدوي",
   "grant-access-to-users-with-permissions-to-original-course": "امنح الوصول إلى هذه الدورة لكل من كان لديه حق الوصول إلى الدورة الأصلية",

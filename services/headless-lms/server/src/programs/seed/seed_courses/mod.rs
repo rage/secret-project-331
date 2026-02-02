@@ -3,6 +3,8 @@ pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
 pub mod seed_lock_chapter_course;
 pub use seed_lock_chapter_course::seed_lock_chapter_course;
+pub mod seed_material_reference_course;
+pub use seed_material_reference_course::seed_material_reference_course;
 pub mod seed_course_with_peer_review;
 pub mod seed_graded;
 pub use seed_graded::seed_graded_course;

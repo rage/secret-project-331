@@ -21,8 +21,8 @@ use crate::{
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
             seed_course_with_peer_review::seed_peer_review_course, seed_lock_chapter_course,
-            seed_peer_review_course_without_submissions, seed_sample_course,
-            seed_switching_course_instances_course,
+            seed_material_reference_course, seed_peer_review_course_without_submissions,
+            seed_sample_course, seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
@@ -216,10 +216,18 @@ pub async fn seed_organization_uh_mathstat(
         jwt_key: Arc::clone(&jwt_key),
         base_url,
     };
-    let introduction_to_citations = seed_sample_course(
+    let _material_reference_course = seed_material_reference_course(
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
-        "Introduction to citations",
-        "introduction-to-citations",
+        "Material references course",
+        "material-references-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let change_language_course = seed_sample_course(
+        Uuid::parse_str("5c8b1f3e-d7a2-4e9f-b3c1-8a7f6d5e4c3b")?,
+        "Change language course",
+        "change-language-course",
         uh_data.clone(),
         false,
         seed_users_result,
@@ -228,10 +236,10 @@ pub async fn seed_organization_uh_mathstat(
 
     copy_course(
         &mut conn,
-        introduction_to_citations,
+        change_language_course,
         &NewCourse {
-            name: "Johdatus sitaatioihin".to_string(),
-            slug: "johdatus-sitaatioihin".to_string(),
+            name: "Vaihda kurssin kieli".to_string(),
+            slug: "vaihda-kurssin-kieli".to_string(),
             organization_id: uh_mathstat_id,
             language_code: "fi".to_string(),
             teacher_in_charge_name: "admin".to_string(),

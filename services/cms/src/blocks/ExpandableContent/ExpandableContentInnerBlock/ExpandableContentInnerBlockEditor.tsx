@@ -13,7 +13,13 @@ import { ExpandableContentConfigurationProps } from "."
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph", "core/image", "core/list"]
+const ALLOWED_NESTED_BLOCKS = [
+  "core/heading",
+  "core/paragraph",
+  "core/image",
+  "core/list",
+  "core/html",
+]
 const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
 > = ({ clientId, attributes, setAttributes }) => {

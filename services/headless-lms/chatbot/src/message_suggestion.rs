@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use crate::{
     azure_chatbot::{
-        Items, JSONSchema, JSONType, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam,
-        NonThinkingParams, Schema,
+        ArrayItem, ArrayProperty, JSONSchema, JSONType, LLMRequest, LLMRequestParams,
+        LLMRequestResponseFormatParam, NonThinkingParams, Schema,
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
@@ -12,6 +14,13 @@ use crate::{
 use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole};
 use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::BackendError;
+
+/// Shape of the structured LLM output response, defined by the JSONSchema in
+/// generate_suggested_messages
+#[derive(serde::Deserialize)]
+struct ChatbotNextMessageSuggestionResponse {
+    suggestions: Vec<String>,
+}
 
 // todo what is the correct value
 /// Maximum context window size for LLM in tokens
@@ -41,7 +50,7 @@ The conversation is as follows:
 "#;
 
 /// User prompt instructions for generating suggested next messages
-const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could send next. Output only the message suggestions separated by a newline."#;
+const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could send next."#;
 
 pub async fn generate_suggested_messages(
     app_config: &ApplicationConfiguration,
@@ -111,15 +120,21 @@ pub async fn generate_suggested_messages(
         response_format: Some(LLMRequestResponseFormatParam {
             format_type: JSONType::JsonSchema,
             json_schema: JSONSchema {
-                name: "Lol".to_string(),
+                name: "ChatbotNextMessageSuggestionResponse".to_string(),
                 strict: true,
                 schema: Schema {
-                    type_field: JSONType::Array,
-                    items: Items {
-                        type_field: JSONType::String,
-                    },
-                    min_items: 3,
-                    max_items: 3,
+                    type_field: JSONType::Object,
+                    properties: HashMap::from([(
+                        "suggestions".to_string(),
+                        ArrayProperty {
+                            type_field: JSONType::Array,
+                            items: ArrayItem {
+                                type_field: JSONType::String,
+                            },
+                        },
+                    )]),
+                    required: Vec::from(["suggestions".to_string()]),
+                    additional_properties: false,
                 },
             },
         }),
@@ -143,7 +158,9 @@ pub async fn generate_suggested_messages(
     {
         APIMessageKind::Text(message) => {
             // parse structured output
-            message.content.split("\n").map(|x| x.to_owned()).collect()
+            let suggestions: ChatbotNextMessageSuggestionResponse =
+                serde_json::from_str(&message.content)?;
+            suggestions.suggestions
         }
         _ => {
             return Err(ChatbotError::new(

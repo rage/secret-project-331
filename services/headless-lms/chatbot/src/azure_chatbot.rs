@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{
@@ -168,6 +169,7 @@ pub enum JSONType {
     String,
 }
 
+/// Schema for defining structured LLM output
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct JSONSchema {
     pub name: String,
@@ -175,17 +177,30 @@ pub struct JSONSchema {
     pub schema: Schema,
 }
 
+/// Defines LLM structured output shape and types
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct Schema {
     #[serde(rename = "type")]
+    /// Type of the schema, should be Object
     pub type_field: JSONType,
-    pub items: Items,
-    pub min_items: i64,
-    pub max_items: i64,
+    // only array-type properties are supported for now
+    pub properties: HashMap<String, ArrayProperty>,
+    /// All 'properties' keys must be included in this 'required' list
+    pub required: Vec<String>,
+    /// additionalProperties should always be 'false'
+    pub additional_properties: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct Items {
+pub struct ArrayProperty {
+    #[serde(rename = "type")]
+    pub type_field: JSONType,
+    pub items: ArrayItem,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ArrayItem {
     #[serde(rename = "type")]
     pub type_field: JSONType,
 }
@@ -193,7 +208,7 @@ pub struct Items {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct LLMRequestResponseFormatParam {
     #[serde(rename = "type")]
-    pub format_type: JSONType, //JsonSchema
+    pub format_type: JSONType, //should be JsonSchema
     pub json_schema: JSONSchema,
 }
 

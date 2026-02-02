@@ -18,6 +18,25 @@ export const hasDropCap = css`
   }
 `
 
+export const paragraphBaseDefaults = `
+  margin: 1.25rem 0;
+  min-width: 1px;
+  height: auto;
+  line-height: 160%;
+`
+
+export const paragraphDefaultBlockStyles = `
+  ${paragraphBaseDefaults}
+  color: ${colorMapper(undefined)};
+  background-color: ${colorMapper(undefined, UNSET_COLOR)};
+  font-size: ${mobileFontSizeMapper(undefined)};
+  text-align: left;
+
+  ${respondToOrLarger.md} {
+    font-size: ${fontSizeMapper(undefined)};
+  }
+`
+
 export const baseParagraphStyles = (hideOverflow = false) => css`
   margin: 1.25rem 0;
   min-width: 1px;
@@ -33,11 +52,11 @@ export const getParagraphStyles = (
   dropCap: boolean,
   align: string | undefined,
 ) => css`
-  ${baseParagraphStyles(hideOverflow)}
+  ${paragraphBaseDefaults}
+  ${hideOverflow && `overflow-x: hidden; overflow-y: hidden;`}
   color: ${colorMapper(textColor)};
   background-color: ${colorMapper(backgroundColor, UNSET_COLOR)};
   font-size: ${mobileFontSizeMapper(fontSize)};
-  line-height: 160%;
   text-align: ${align ?? "left"};
   ${backgroundColor && `padding: 1.25em 2.375em !important;`}
 

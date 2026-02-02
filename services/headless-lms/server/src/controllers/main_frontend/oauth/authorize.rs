@@ -1,11 +1,11 @@
 use crate::domain::oauth::authorize_query::AuthorizeQuery;
-use crate::domain::oauth::helpers::oauth_invalid_request;
+use crate::domain::oauth::helpers::{oauth_error, oauth_invalid_request};
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::pkce::parse_authorize_pkce;
 use crate::domain::oauth::redirects::{
     build_authorize_qs, build_consent_redirect, build_login_redirect, redirect_with_code,
 };
-use crate::domain::rate_limit_middleware_builder::build_rate_limiting_middleware;
+use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
 use actix_web::web;
 use chrono::{Duration, Utc};
@@ -18,7 +18,35 @@ use models::{
 };
 use sqlx::PgPool;
 use std::collections::HashSet;
-use std::time::Duration as StdDuration;
+
+#[derive(Debug, Clone, Copy, Default)]
+struct PromptFlags {
+    none: bool,
+    consent: bool,
+    login: bool,
+    select_account: bool,
+}
+
+fn parse_prompt(prompt: Option<&str>) -> Result<PromptFlags, &'static str> {
+    let mut f = PromptFlags::default();
+    let Some(p) = prompt else { return Ok(f) };
+
+    for v in p.split_whitespace() {
+        match v {
+            "none" => f.none = true,
+            "consent" => f.consent = true,
+            "login" => f.login = true,
+            "select_account" => f.select_account = true,
+            _ => return Err("unsupported prompt value"),
+        }
+    }
+
+    if f.none && (f.consent || f.login || f.select_account) {
+        return Err("prompt=none cannot be combined with other values");
+    }
+
+    Ok(f)
+}
 
 /// Handles the `/authorize` endpoint for OAuth 2.0 and OpenID Connect with PKCE support.
 ///
@@ -87,6 +115,37 @@ pub async fn authorize(
         ));
     }
 
+    if query.request.is_some() {
+        return Err(oauth_error(
+            "request_not_supported",
+            "request object is not supported",
+            Some(&query.redirect_uri),
+            query.state.as_deref(),
+        ));
+    }
+
+    let prompt = parse_prompt(query.prompt.as_deref()).map_err(|msg| {
+        oauth_invalid_request(msg, Some(&query.redirect_uri), query.state.as_deref())
+    })?;
+
+    if prompt.login {
+        return Err(oauth_error(
+            "inalid_request",
+            "prompt=login is not supported",
+            Some(&query.redirect_uri),
+            query.state.as_deref(),
+        ));
+    }
+
+    if prompt.select_account {
+        return Err(oauth_error(
+            "inalid_request",
+            "prompt=select_account is not supported",
+            Some(&query.redirect_uri),
+            query.state.as_deref(),
+        ));
+    }
+
     let parsed_pkce_method = parse_authorize_pkce(
         &client,
         query.code_challenge.as_deref(),
@@ -103,8 +162,16 @@ pub async fn authorize(
             let requested: HashSet<&str> = query.scope.split_whitespace().collect();
             let granted: HashSet<&str> = granted_scopes.iter().map(|s| s.as_str()).collect();
             let missing: Vec<&str> = requested.difference(&granted).copied().collect();
+            if prompt.none && !missing.is_empty() {
+                return Err(oauth_error(
+                    "consent_required",
+                    "end-user consent is required",
+                    Some(&query.redirect_uri),
+                    query.state.as_deref(),
+                ));
+            }
 
-            if !missing.is_empty() {
+            if prompt.consent || !missing.is_empty() {
                 let return_to = format!(
                     "/api/v0/main-frontend/oauth/authorize?{}",
                     build_authorize_qs(&query)
@@ -138,7 +205,17 @@ pub async fn authorize(
                 redirect_with_code(&query.redirect_uri, &code, query.state.as_deref())
             }
         }
-        None => build_login_redirect(&query),
+        None => {
+            if prompt.none {
+                return Err(oauth_error(
+                    "login_required",
+                    "end-user is not logged in",
+                    Some(&query.redirect_uri),
+                    query.state.as_deref(),
+                ));
+            }
+            build_login_redirect(&query)
+        }
     };
 
     server_token.authorized_ok(
@@ -151,18 +228,12 @@ pub async fn authorize(
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/authorize")
-            .wrap(build_rate_limiting_middleware(
-                StdDuration::from_secs(60),
-                100,
-            ))
-            .wrap(build_rate_limiting_middleware(
-                StdDuration::from_secs(60 * 60),
-                500,
-            ))
-            .wrap(build_rate_limiting_middleware(
-                StdDuration::from_secs(60 * 60 * 24),
-                2000,
-            ))
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(100),
+                per_hour: Some(500),
+                per_day: Some(2000),
+                per_month: None,
+            }))
             .route(web::get().to(authorize))
             .route(web::post().to(authorize)),
     );

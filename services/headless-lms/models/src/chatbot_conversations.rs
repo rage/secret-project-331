@@ -26,6 +26,7 @@ pub struct ChatbotConversationInfo {
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,
     pub current_conversation_message_citations: Option<Vec<ChatbotConversationMessageCitation>>,
     pub chatbot_name: String,
+    pub course_name: String,
     pub hide_citations: bool,
     pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
 }
@@ -82,6 +83,7 @@ pub async fn get_current_conversation_info(
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
         crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
+    let course = crate::courses::get_course(tx, chatbot_configuration.course_id).await?;
     let current_conversation =
         get_latest_conversation_for_user(tx, user_id, chatbot_configuration_id)
             .await
@@ -123,6 +125,7 @@ pub async fn get_current_conversation_info(
         suggested_messages,
         // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         chatbot_name: chatbot_configuration.chatbot_name,
+        course_name: course.name,
         hide_citations: chatbot_configuration.hide_citations,
     })
 }

@@ -1,3 +1,4 @@
 DROP TABLE chatbot_conversation_suggested_messages;
 
-ALTER TABLE chatbot_configurations DROP COLUMN suggest_next_messages;
+ALTER TABLE chatbot_configurations DROP COLUMN suggest_next_messages,
+  DROP COLUMN initial_suggested_messages;

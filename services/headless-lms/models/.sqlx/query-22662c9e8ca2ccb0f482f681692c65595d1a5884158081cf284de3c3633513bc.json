@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_configurations\nSET\n    enabled_to_students = $1,\n    chatbot_name = $2,\n    prompt = $3,\n    initial_message = $4,\n    weekly_tokens_per_user = $5,\n    daily_tokens_per_user = $6,\n    temperature = $7,\n    top_p = $8,\n    frequency_penalty = $9,\n    presence_penalty = $10,\n    response_max_tokens = $11,\n    use_azure_search = $12,\n    maintain_azure_search_index = $13,\n    hide_citations = $14,\n    use_semantic_reranking = $15,\n    default_chatbot = $16,\n    model_id = $17,\n    thinking_model = $18,\n    max_completion_tokens = $19,\n    verbosity = $20,\n    reasoning_effort = $21,\n    use_tools = $22,\n    suggest_next_messages = $23\nWHERE id = $24\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    default_chatbot,\n    suggest_next_messages,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\",\n    use_tools\n",
+  "query": "\nINSERT INTO chatbot_configurations (\n    id,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    hide_citations,\n    frequency_penalty,\n    presence_penalty,\n    max_completion_tokens,\n    verbosity,\n    reasoning_effort,\n    response_max_tokens,\n    use_azure_search,\n    use_tools,\n    maintain_azure_search_index,\n    default_chatbot,\n    suggest_next_messages,\n    initial_suggested_messages\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    suggest_next_messages,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\",\n    initial_suggested_messages\n        ",
   "describe": {
     "columns": [
       {
@@ -120,16 +120,21 @@
       },
       {
         "ordinal": 23,
-        "name": "default_chatbot",
+        "name": "use_tools",
         "type_info": "Bool"
       },
       {
         "ordinal": 24,
-        "name": "suggest_next_messages",
+        "name": "default_chatbot",
         "type_info": "Bool"
       },
       {
         "ordinal": 25,
+        "name": "suggest_next_messages",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 26,
         "name": "verbosity: VerbosityLevel",
         "type_info": {
           "Custom": {
@@ -145,7 +150,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 27,
         "name": "reasoning_effort: ReasoningEffortLevel",
         "type_info": {
           "Custom": {
@@ -162,31 +167,28 @@
         }
       },
       {
-        "ordinal": 27,
-        "name": "use_tools",
-        "type_info": "Bool"
+        "ordinal": 28,
+        "name": "initial_suggested_messages",
+        "type_info": "VarcharArray"
       }
     ],
     "parameters": {
       "Left": [
-        "Bool",
-        "Varchar",
-        "Varchar",
-        "Varchar",
-        "Int4",
-        "Int4",
-        "Float4",
-        "Float4",
-        "Float4",
-        "Float4",
-        "Int4",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
+        "Uuid",
         "Uuid",
         "Bool",
+        "Varchar",
+        "Uuid",
+        "Bool",
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Float4",
+        "Float4",
+        "Bool",
+        "Float4",
+        "Float4",
         "Int4",
         {
           "Custom": {
@@ -213,9 +215,13 @@
             }
           }
         },
+        "Int4",
         "Bool",
         "Bool",
-        "Uuid"
+        "Bool",
+        "Bool",
+        "Bool",
+        "VarcharArray"
       ]
     },
     "nullable": [
@@ -246,8 +252,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "86f59cdd11b05ac341ca5ef7ca4b51db9305ee0b935404972f870204b1550670"
+  "hash": "22662c9e8ca2ccb0f482f681692c65595d1a5884158081cf284de3c3633513bc"
 }

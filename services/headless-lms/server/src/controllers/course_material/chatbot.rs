@@ -175,9 +175,12 @@ async fn current_conversation_info(
     {
         // generate suggested messages
         println!("🐱🐱🐱🐱🐱🐱🐱 Generating suggested messages");
-        let sm =
-            headless_lms_chatbot::message_suggestion::generate_suggested_messages(&app_conf, ccm)
-                .await?;
+        let sm = headless_lms_chatbot::message_suggestion::generate_suggested_messages(
+            &app_conf,
+            ccm,
+            &res.course_name,
+        )
+        .await?;
         println!("🐱🐱🐱🐱🐱🐱🐱 Insserting suggested messages");
 
         headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(

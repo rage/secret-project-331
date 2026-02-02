@@ -608,7 +608,12 @@ export function isChatbotConfiguration(obj: unknown): obj is ChatbotConfiguratio
         typeof typedObj["use_semantic_reranking"] === "boolean" &&
         typeof typedObj["use_tools"] === "boolean" &&
         typeof typedObj["default_chatbot"] === "boolean" &&
-        typeof typedObj["suggest_next_messages"] === "boolean"
+        typeof typedObj["suggest_next_messages"] === "boolean" &&
+        (typedObj["initial_suggested_messages"] === null ||
+            Array.isArray(typedObj["initial_suggested_messages"]) &&
+            typedObj["initial_suggested_messages"].every((e: any) =>
+                typeof e === "string"
+            ))
     )
 }
 
@@ -643,7 +648,12 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
         typeof typedObj["default_chatbot"] === "boolean" &&
         (typedObj["chatbotconf_id"] === null ||
             typeof typedObj["chatbotconf_id"] === "string") &&
-        typeof typedObj["suggest_next_messages"] === "boolean"
+        typeof typedObj["suggest_next_messages"] === "boolean" &&
+        (typedObj["initial_suggested_messages"] === null ||
+            Array.isArray(typedObj["initial_suggested_messages"]) &&
+            typedObj["initial_suggested_messages"].every((e: any) =>
+                typeof e === "string"
+            ))
     )
 }
 
@@ -830,6 +840,7 @@ export function isChatbotConversationInfo(obj: unknown): obj is ChatbotConversat
                 isChatbotConversationMessageCitation(e) as boolean
             )) &&
         typeof typedObj["chatbot_name"] === "string" &&
+        typeof typedObj["course_name"] === "string" &&
         typeof typedObj["hide_citations"] === "boolean" &&
         (typedObj["suggested_messages"] === null ||
             Array.isArray(typedObj["suggested_messages"]) &&

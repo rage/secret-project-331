@@ -29,7 +29,7 @@ pub const MAX_CONTEXT_WINDOW: i32 = 16000;
 pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
 
 /// System prompt instructions for generating suggested next messages
-const SYSTEM_PROMPT: &str = r#"You are given a conversation between a helpful teaching assistant chatbot and a student. You task is to analyze the conversation and suggest what messages the user chould send to the teaching assistant next to best support the user's learning.
+const SYSTEM_PROMPT: &str = r#"You are given a conversation between a helpful teaching assistant chatbot and a student. You task is to analyze the conversation and suggest what messages the user chould send to the teaching assistant chatbot next to best support the user's learning.
 
 When generating suggestions:
 - Base them strictly on the content and tone of the conversation so far
@@ -52,10 +52,9 @@ Constraints:
 - Do not continue the conversation yourself.
 - Do not role-play the teaching assistant.
 - Only output the suggested messages, nothing else.
-- Only suggest 3 next user messages.
+- Suggest exactly 3 next user messages.
 - Be brief, concise and clear.
 
-The conversation is as follows:
 "#;
 
 /// User prompt instructions for generating suggested next messages
@@ -64,8 +63,13 @@ const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could 
 pub async fn generate_suggested_messages(
     app_config: &ApplicationConfiguration,
     conversation_messages: &Vec<ChatbotConversationMessage>,
+    course_name: &str,
 ) -> ChatbotResult<Vec<String>> {
-    let used_tokens = estimate_tokens(SYSTEM_PROMPT) + estimate_tokens(USER_PROMPT);
+    let prompt = SYSTEM_PROMPT.to_owned()
+        + &format!("The course is: {}\n\n", course_name)
+        + &format!("Example suggested messages: {}\n\n", "") // todo
+        + "The conversation so far:\n";
+    let used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
     let token_budget = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
     let conv_len = conversation_messages.len();
 
@@ -106,7 +110,7 @@ pub async fn generate_suggested_messages(
     let system_prompt = APIMessage {
         role: MessageRole::System,
         fields: APIMessageKind::Text(APIMessageText {
-            content: SYSTEM_PROMPT.to_string() + &conversation,
+            content: prompt + &conversation,
         }),
     };
     let user_prompt = APIMessage {

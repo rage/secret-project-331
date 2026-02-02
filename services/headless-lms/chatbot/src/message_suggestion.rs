@@ -29,22 +29,31 @@ pub const MAX_CONTEXT_WINDOW: i32 = 16000;
 pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
 
 /// System prompt instructions for generating suggested next messages
-const SYSTEM_PROMPT: &str = r#"You are given a conversation between a helpful learning assistant and a student. You task is to generate three messages that the student could send to the assistant next.
+const SYSTEM_PROMPT: &str = r#"You are given a conversation between a helpful teaching assistant chatbot and a student. You task is to analyze the conversation and suggest what messages the user chould send to the teaching assistant next to best support the user's learning.
 
-The messages should be:
+When generating suggestions:
+- Base them strictly on the content and tone of the conversation so far
+- Think of questions that will help deepen the user's understanding, aid in learning, clear misconceptions and motivate the user to think and reason about the subject at hand
+- Avoid introducing unrelated topics or information not motivated by the conversation
+- Maintain a supportive, respectful, and clear tone
+- Keep the suggested messages short and concise
 
-* short and clear
-* aid in learning
-* independent of time (no October 2023)
-* related to the course topics and the conversation so far
-* etc.
+Steps:
+1. Analyze the student's current level of understanding, confusion, and engagement.
+2. Identify any misconceptions, gaps, or opportunities for deeper learning.
+3. Propose next messages that:
+   - Advance understanding
+   - Encourage active thinking
+   - Are appropriate in difficulty and tone
+   - Are appropriate in the context of the conversation so far
+   - Are relevant to the topic of the conversation, context and course
 
-Directions:
-
-* output only the three message suggestions, nothing else
-*
-
-The course the student is on is: Advanced chatbot course
+Constraints:
+- Do not continue the conversation yourself.
+- Do not role-play the teaching assistant.
+- Only output the suggested messages, nothing else.
+- Only suggest 3 next user messages.
+- Be brief, concise and clear.
 
 The conversation is as follows:
 "#;
@@ -140,7 +149,7 @@ pub async fn generate_suggested_messages(
         }),
         stop: None,
     };
-    // add the teacher's prompt
+    // todo add the teacher's prompt (info abt the course)
     let completion = make_blocking_llm_request(chat_request, app_config).await?;
     println!("🐱🐱🐱🐱🐱🐱🐱 Completion: {:?}", completion);
     let suggested_messages: Vec<String> = match &completion

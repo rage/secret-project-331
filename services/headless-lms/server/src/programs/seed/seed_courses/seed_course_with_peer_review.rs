@@ -27,6 +27,7 @@ pub async fn seed_peer_review_course(
     common_course_data: CommonCourseData,
     seed_users_result: SeedUsersResult,
     flagged_answers_skip_manual_review_and_allow_retry: bool,
+    flagged_answers_threshold: Option<i32>,
 ) -> Result<Uuid> {
     let CommonCourseData {
         db_pool,
@@ -52,6 +53,7 @@ pub async fn seed_peer_review_course(
         .chatbot(false)
         .course_id(course_id)
         .flagged_answers_skip_manual_review_and_allow_retry(flagged_answers_skip_manual_review_and_allow_retry)
+        .flagged_answers_threshold(flagged_answers_threshold)
         .instance(CourseInstanceConfig {
             name: None,
             description: None,

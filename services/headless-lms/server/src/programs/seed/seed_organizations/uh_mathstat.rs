@@ -437,6 +437,7 @@ pub async fn seed_organization_uh_mathstat(
         uh_data.clone(),
         seed_users_result,
         false,
+        None,
     )
     .await?;
 
@@ -447,6 +448,7 @@ pub async fn seed_organization_uh_mathstat(
         uh_data.clone(),
         seed_users_result,
         true,
+        Some(1),
     )
     .await?;
 

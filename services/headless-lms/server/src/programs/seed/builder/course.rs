@@ -79,6 +79,7 @@ pub struct CourseBuilder {
     pub front_page_content: Option<Vec<GutenbergBlock>>,
     pub chapter_locking_enabled: bool,
     pub flagged_answers_skip_manual_review_and_allow_retry: bool,
+    pub flagged_answers_threshold: Option<i32>,
 }
 
 impl CourseBuilder {
@@ -101,12 +102,19 @@ impl CourseBuilder {
             front_page_content: None,
             chapter_locking_enabled: false,
             flagged_answers_skip_manual_review_and_allow_retry: false,
+            flagged_answers_threshold: None,
         }
     }
 
     /// Enables skipping manual review for flagged answers and allowing retry.
     pub fn flagged_answers_skip_manual_review_and_allow_retry(mut self, v: bool) -> Self {
         self.flagged_answers_skip_manual_review_and_allow_retry = v;
+        self
+    }
+
+    /// Sets the number of spam reports needed to trigger reset/manual review.
+    pub fn flagged_answers_threshold(mut self, v: Option<i32>) -> Self {
+        self.flagged_answers_threshold = v;
         self
     }
 
@@ -229,7 +237,7 @@ impl CourseBuilder {
             is_joinable_by_code_only: false,
             join_code: None,
             ask_marketing_consent: false,
-            flagged_answers_threshold: Some(3),
+            flagged_answers_threshold: Some(self.flagged_answers_threshold.unwrap_or(3)),
             can_add_chatbot: self.can_add_chatbot,
         };
 
@@ -466,7 +474,7 @@ impl CourseBuilder {
                 is_unlisted: course.is_unlisted,
                 is_joinable_by_code_only: course.is_joinable_by_code_only,
                 ask_marketing_consent: course.ask_marketing_consent,
-                flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(3),
+                flagged_answers_threshold: self.flagged_answers_threshold.unwrap_or(3),
                 flagged_answers_skip_manual_review_and_allow_retry: self
                     .flagged_answers_skip_manual_review_and_allow_retry,
                 closed_at: course.closed_at,

@@ -78,10 +78,6 @@ pub async fn insert_flagged_answer_and_move_to_manual_review_if_needed(
     })?;
 
     let flagged_user = flagged_submission_data.user_id;
-    println!(
-        "Serialized ReportReason::Spam: {:?}",
-        serde_json::to_string(&flagged_answer.reason)?
-    );
 
     // Create a new flagged answer
     let new_flagged_answer = NewFlaggedAnswer {

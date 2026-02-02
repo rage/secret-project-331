@@ -165,26 +165,31 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       await page.locator(`text=This paragraph contains a citation`).scrollIntoViewIfNeeded(),
   })
 
-  await page.getByText("Reference").scrollIntoViewIfNeeded()
+  await page.getByText("References", { exact: true }).scrollIntoViewIfNeeded()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "closed-course-material-reference-list",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Reference")],
-    beforeScreenshot: async () => await page.getByText("Reference").scrollIntoViewIfNeeded(),
+    waitForTheseToBeVisibleAndStable: [page.getByText("References", { exact: true })],
+    beforeScreenshot: async () =>
+      await page.getByText("References", { exact: true }).scrollIntoViewIfNeeded(),
   })
 
-  await page.getByText("Reference").click()
+  await page.getByText("References", { exact: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "open-course-material-reference-list",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Reference"), page.locator("text=Wang")],
-    beforeScreenshot: async () => await page.getByText("Reference").scrollIntoViewIfNeeded(),
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("References", { exact: true }),
+      page.locator("text=Wang"),
+    ],
+    beforeScreenshot: async () =>
+      await page.getByText("References", { exact: true }).scrollIntoViewIfNeeded(),
   })
 
   await test.step("Tooltip is accessible", async () => {

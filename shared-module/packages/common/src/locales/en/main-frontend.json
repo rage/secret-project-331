@@ -1351,6 +1351,7 @@
   "submission-id": "Submission ID",
   "submit-button": "Submit",
   "suggest-improvements": "Suggest improvements",
+  "suggest-next-messages": "Suggest messages that the student can send to the chatbot",
   "support-email": "Support email",
   "support-email-description": "Support emails are sent to this address if it is set, and to the teacher-in-charge email otherwise.",
   "suspect-approved-successfully": "Cheating confirmed",

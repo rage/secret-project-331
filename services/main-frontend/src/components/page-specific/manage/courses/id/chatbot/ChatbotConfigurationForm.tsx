@@ -86,6 +86,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       use_tools: oldChatbotConf.use_tools,
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
+      suggest_next_messages: oldChatbotConf.suggest_next_messages,
     },
   })
 
@@ -170,6 +171,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
       use_tools: data.use_tools,
+      suggest_next_messages: data.suggest_next_messages,
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
       chatbotconf_id: null,
     })
@@ -221,6 +223,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           showDefaultOption={false}
           {...register("model_id")}
         />
+        <CheckBox label={t("suggest-next-messages")} {...register("suggest_next_messages")} />
         {selectedModel?.thinking ? (
           <div className={itemCss}>
             <h4>{t("configure-reasoning")}</h4>

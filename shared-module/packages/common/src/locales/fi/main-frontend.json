@@ -1327,6 +1327,7 @@
   "submission-id": "Lähetyksen tunnus",
   "submit-button": "Lähetä",
   "suggest-improvements": "Ehdota parannuksia",
+  "suggest-next-messages": "Ehdota opiskelijalle viestejä, joita lähettää keskustelurobotille",
   "support-email": "Tukisähköposti",
   "support-email-description": "Jos tukisähköposti on asetettu ne lähetetään siihen ja muussa tapauksessa vastuuopettajan sähköpostiosoitteeseen",
   "suspect-approved-successfully": "Epäilty huijari hyväksytty onnistuneesti",

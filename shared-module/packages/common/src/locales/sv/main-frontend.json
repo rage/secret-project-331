@@ -166,6 +166,7 @@
   "chapter": "Kapitel",
   "chapter-card-deadline": "Deadline",
   "chapter-card-deadline-varies": "Deadline varierar per uppgift (tidigast {{date}})",
+  "chapter-card-deadline-varies-value": "Varierar per uppgift (tidigast {{date}})",
   "chapter-card-exercise-deadline": "Deadline",
   "chapter-chapter-number": "Kapitel {{number}}",
   "chapter-chapter-number-chapter-name": "Kapitel {{chapterNumber}}: {{chapterName}}",

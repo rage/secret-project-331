@@ -168,6 +168,7 @@
   "chapter": "Розділ",
   "chapter-card-deadline": "Кінцевий термін",
   "chapter-card-deadline-varies": "Кінцевий термін різниться за вправами (найраніший {{date}})",
+  "chapter-card-deadline-varies-value": "Різниться за вправами (найраніший {{date}})",
   "chapter-card-exercise-deadline": "Кінцевий термін",
   "chapter-chapter-number": "Розділ {{number}}",
   "chapter-chapter-number-chapter-name": "Розділ {{chapterNumber}}: {{chapterName}}",

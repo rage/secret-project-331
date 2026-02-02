@@ -166,6 +166,7 @@
   "chapter": "الفصل",
   "chapter-card-deadline": "الموعد النهائي",
   "chapter-card-deadline-varies": "الموعد النهائي يختلف حسب التمرين (الأقرب {{date}})",
+  "chapter-card-deadline-varies-value": "يختلف حسب التمرين (الأقرب {{date}})",
   "chapter-card-exercise-deadline": "الموعد النهائي",
   "chapter-chapter-number": "الفصل {{number}}",
   "chapter-chapter-number-chapter-name": "الفصل {{chapterNumber}}: {{chapterName}}",

@@ -166,6 +166,7 @@
   "chapter": "Luku",
   "chapter-card-deadline": "Deadline",
   "chapter-card-deadline-varies": "Deadline vaihtelee tehtävittäin (aikaisin {{date}})",
+  "chapter-card-deadline-varies-value": "Vaihtelee tehtävittäin (aikaisin {{date}})",
   "chapter-card-exercise-deadline": "Deadline",
   "chapter-chapter-number": "Luku {{number}}",
   "chapter-chapter-number-chapter-name": "Luku {{chapterNumber}}: {{chapterName}}",

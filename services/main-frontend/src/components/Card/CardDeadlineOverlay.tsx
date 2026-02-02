@@ -1,0 +1,76 @@
+"use client"
+
+import { css, cx } from "@emotion/css"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { secondaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+export const cardTopBandStyle = css`
+  flex: 0 1 auto;
+  text-align: center;
+  background: #e2e4e6;
+  padding: 1rem 2rem;
+  color: #303030;
+  font-size: 0.8em;
+  font-weight: 500;
+
+  ${respondToOrLarger.md} {
+    font-size: 1em;
+    padding: 1.5rem;
+  }
+`
+
+const deadlineContentStyle = css`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`
+
+const deadlineLabelStyle = css`
+  font-family: ${secondaryFont} !important;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+`
+
+interface CardDeadlineOverlayProps {
+  formattedDeadline: string | null
+  formattedExerciseDeadline: string | null
+  exerciseDeadlinesMultiple: boolean
+}
+
+/** Renders deadline info in a top band matching the "Available" overlay style. */
+const CardDeadlineOverlay: React.FC<CardDeadlineOverlayProps> = ({
+  formattedDeadline,
+  formattedExerciseDeadline,
+  exerciseDeadlinesMultiple,
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <div className={cx(cardTopBandStyle, deadlineContentStyle)}>
+      {formattedDeadline && (
+        <div>
+          <div className={deadlineLabelStyle}>{t("chapter-card-deadline")}</div>
+          <div>{formattedDeadline}</div>
+        </div>
+      )}
+      {formattedExerciseDeadline && (
+        <div>
+          <div className={deadlineLabelStyle}>{t("chapter-card-exercise-deadline")}</div>
+          <div>
+            {exerciseDeadlinesMultiple
+              ? t("chapter-card-deadline-varies-value", {
+                  date: formattedExerciseDeadline,
+                })
+              : formattedExerciseDeadline}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default CardDeadlineOverlay

@@ -166,6 +166,7 @@
   "chapter": "Chapter",
   "chapter-card-deadline": "Deadline",
   "chapter-card-deadline-varies": "Deadline varies per exercise (earliest {{date}})",
+  "chapter-card-deadline-varies-value": "Varies per exercise (earliest {{date}})",
   "chapter-card-exercise-deadline": "Deadline",
   "chapter-chapter-number": "Chapter {{number}}",
   "chapter-chapter-number-chapter-name": "Chapter {{chapterNumber}}: {{chapterName}}",

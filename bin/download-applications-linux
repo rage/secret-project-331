@@ -4,7 +4,7 @@ set -euo pipefail
 # Define the list of URLs and checksums to download
 downloads=(
   "https://storage.googleapis.com/skaffold/releases/v2.17.0/skaffold-linux-amd64 skaffold 12d16e5c18b0232cbe0854d3e8b1581a98e58c1a415b060d4b5da70e43a17708"
-  "https://dl.k8s.io/release/v1.35.0/bin/linux/amd64/kubectl kubectl a2e984a18a0c063279d692533031c1eff93a262afcc0afdc517375432d060989"
+  "https://dl.k8s.io/release/v1.34.3/bin/linux/amd64/kubectl kubectl ab60ca5f0fd60c1eb81b52909e67060e3ba0bd27e55a8ac147cbc2172ff14212"
   "https://github.com/kubernetes/minikube/releases/download/v1.38.0/minikube-linux-amd64 minikube 6f3fa62bbc3820dbe1f1cffe4beef62c466a8fb1058837781d20d36233dcfa12"
   "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.7.1/kustomize_v5.7.1_linux_amd64.tar.gz kustomize 54636edecead2af90fa980cdc6a66a5ce062a1e4d694a2e36357cd73190755bb"
   "https://github.com/rhysd/actionlint/releases/download/v1.7.10/actionlint_1.7.10_linux_amd64.tar.gz actionlint 98def53d7668f0f87cb2dd57addd825399ab1bc1902286944d662aa56c4e2cbe"
@@ -33,6 +33,11 @@ for download in "${downloads[@]}"; do
   fi
 
   echo "Downloading $filename from $url to $destination"
+
+  if [ -f "$destination" ]; then
+    rm "$destination"
+  fi
+
 
   # If the url is a tar.gz, download it to a temporary file and extract it to a temporary directory
   # We will verify the binary inside the tar.gz

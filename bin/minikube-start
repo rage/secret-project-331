@@ -52,7 +52,7 @@ fi
 
 run_command "$COMMAND" "${ARGUMENTS[@]}"
 # Have to update the config for the ingress to that the ingress controller does not reject our ingresses
-kubectl patch configmap ingress-nginx-controller -n ingress-nginx --type merge -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}'
+run_command kubectl patch configmap ingress-nginx-controller -n ingress-nginx --type merge -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}'
 
 run_command "$SCRIPT_DIR/minikube-pull-images"
 

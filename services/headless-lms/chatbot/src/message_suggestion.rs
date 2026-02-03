@@ -52,7 +52,7 @@ Constraints:
 - Do not continue the conversation yourself.
 - Do not role-play the teaching assistant.
 - Only output the suggested messages, nothing else.
-- Suggest exactly 3 next user messages.
+- Suggest exactly 3 alternate next user messages.
 - Be brief, concise and clear.
 
 "#;
@@ -63,11 +63,13 @@ const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could 
 pub async fn generate_suggested_messages(
     app_config: &ApplicationConfiguration,
     conversation_messages: &Vec<ChatbotConversationMessage>,
+    initial_suggested_messages: Option<Vec<String>>,
     course_name: &str,
 ) -> ChatbotResult<Vec<String>> {
     let prompt = SYSTEM_PROMPT.to_owned()
         + &format!("The course is: {}\n\n", course_name)
-        + &format!("Example suggested messages: {}\n\n", "") // todo
+        // if there are initial suggested messages, then include them as examples
+        + &(if let Some(ism) = initial_suggested_messages {format!("Example suggested messages: {}\n\n", ism.join(" "))} else {"".to_string()})
         + "The conversation so far:\n";
     let used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
     let token_budget = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
@@ -105,7 +107,6 @@ pub async fn generate_suggested_messages(
             )
         })?
         .join("\n\n");
-    println!("🐱🐱🐱🐱🐱🐱🐱 Conversation: {:?}", conversation);
 
     let system_prompt = APIMessage {
         role: MessageRole::System,
@@ -155,7 +156,6 @@ pub async fn generate_suggested_messages(
     };
     // todo add the teacher's prompt (info abt the course)
     let completion = make_blocking_llm_request(chat_request, app_config).await?;
-    println!("🐱🐱🐱🐱🐱🐱🐱 Completion: {:?}", completion);
     let suggested_messages: Vec<String> = match &completion
         .choices
         .first()

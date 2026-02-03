@@ -166,10 +166,10 @@ async fn current_conversation_info(
         chatbot_configuration.id,
     )
     .await?;
-    println!("🐱🐱🐱🐱🐱🐱🐱 Got current conversation info");
 
     if chatbot_configuration.suggest_next_messages
-        && let Some(msgs) = &res.suggested_messages // todo when is None and when is empty Vec??
+        // suggested_messages is None if suggest_next_messages=false
+        && let Some(msgs) = &res.suggested_messages
         && msgs.is_empty()
         && let Some(ccm) = &res.current_conversation_messages
         && let Some(last_ccm) = ccm.last()
@@ -189,15 +189,14 @@ async fn current_conversation_info(
             }
         } else {
             // for other messages, generate suggested messages
-            println!("🐱🐱🐱🐱🐱🐱🐱 Generating suggested messages");
             headless_lms_chatbot::message_suggestion::generate_suggested_messages(
                 &app_conf,
                 ccm,
+                chatbot_configuration.initial_suggested_messages,
                 &res.course_name,
             )
             .await?
         };
-        println!("🐱🐱🐱🐱🐱🐱🐱 Insserting suggested messages");
 
         headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(
             &mut conn,

@@ -8,6 +8,7 @@ use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
 use headless_lms_models::{chatbot_configurations, courses};
+use rand::seq::SliceRandom;
 
 use crate::prelude::*;
 
@@ -173,14 +174,29 @@ async fn current_conversation_info(
         && let Some(ccm) = &res.current_conversation_messages
         && let Some(last_ccm) = ccm.last()
     {
-        // generate suggested messages
-        println!("🐱🐱🐱🐱🐱🐱🐱 Generating suggested messages");
-        let sm = headless_lms_chatbot::message_suggestion::generate_suggested_messages(
-            &app_conf,
-            ccm,
-            &res.course_name,
-        )
-        .await?;
+        let sm = if last_ccm.order_number == 0 {
+            // for the first message, get initial_suggested_messages
+            let mut sm = chatbot_configuration
+                .initial_suggested_messages
+                .unwrap_or(vec![]);
+            // take 3 random elements
+            if sm.len() > 3 {
+                let mut rng = rand::rng();
+                sm.shuffle(&mut rng);
+                sm[..3].to_vec()
+            } else {
+                sm
+            }
+        } else {
+            // for other messages, generate suggested messages
+            println!("🐱🐱🐱🐱🐱🐱🐱 Generating suggested messages");
+            headless_lms_chatbot::message_suggestion::generate_suggested_messages(
+                &app_conf,
+                ccm,
+                &res.course_name,
+            )
+            .await?
+        };
         println!("🐱🐱🐱🐱🐱🐱🐱 Insserting suggested messages");
 
         headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(

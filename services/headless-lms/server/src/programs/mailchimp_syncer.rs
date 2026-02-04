@@ -800,6 +800,7 @@ pub async fn send_users_to_mailchimp(
     tag_objects: Vec<serde_json::Value>,
 ) -> anyhow::Result<Vec<Uuid>> {
     let mut users_data_in_json = vec![];
+    let mut sent_user_ids = Vec::new();
     let mut successfully_synced_user_ids = Vec::new();
     let mut user_id_contact_id_pairs = Vec::new();
 
@@ -809,6 +810,7 @@ pub async fn send_users_to_mailchimp(
         if let Some(ref subscription) = user.email_subscription_in_mailchimp
             && subscription == "subscribed"
         {
+            sent_user_ids.push(user.user_id);
             let user_details = json!({
                 "email_address": user.email,
                 "status": user.email_subscription_in_mailchimp,
@@ -881,6 +883,7 @@ pub async fn send_users_to_mailchimp(
         }
 
         let response_data: serde_json::Value = response.json().await?;
+        let mut chunk_contact_count = 0;
         for key in &["new_members", "updated_members"] {
             if let Some(members) = response_data[key].as_array() {
                 for member in members {
@@ -891,15 +894,91 @@ pub async fn send_users_to_mailchimp(
                         if let Some(contact_id) = member["contact_id"].as_str() {
                             user_id_contact_id_pairs
                                 .push((user_id.to_string(), contact_id.to_string()));
+                            chunk_contact_count += 1;
                         }
                     }
                 }
             }
         }
+        if let Some(errors) = response_data["errors"].as_array()
+            && !errors.is_empty()
+        {
+            let sample: Vec<String> = errors
+                .iter()
+                .take(5)
+                .map(|e| {
+                    let email = e
+                        .get("email_address")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("?");
+                    let msg = e.get("error").and_then(|v| v.as_str()).unwrap_or_else(|| {
+                        e.get("message").and_then(|v| v.as_str()).unwrap_or("?")
+                    });
+                    format!("{}: {}", email, msg)
+                })
+                .collect();
+            warn!(
+                "Mailchimp batch subscribe chunk {}/{} returned {} error(s) (e.g. unsubscribed/rejected). Sample: {:?}",
+                chunk_index + 1,
+                total_chunks,
+                errors.len(),
+                sample
+            );
+        }
+        info!(
+            "Chunk {}/{}: {} contact_id(s) from new_members/updated_members",
+            chunk_index + 1,
+            total_chunks,
+            chunk_contact_count
+        );
     }
 
-    // DB update only after all chunks succeed. On retry the same unsynced set is sent again;
-    // update_existing: true avoids duplicate side effects for members already in Mailchimp.
+    let got_contact_id_set: std::collections::HashSet<Uuid> = user_id_contact_id_pairs
+        .iter()
+        .filter_map(|(uid, _)| Uuid::parse_str(uid).ok())
+        .collect();
+    let no_contact_id_user_ids: Vec<Uuid> = sent_user_ids
+        .iter()
+        .filter(|id| !got_contact_id_set.contains(id))
+        .copied()
+        .collect();
+
+    if !no_contact_id_user_ids.is_empty() {
+        let sample_len = no_contact_id_user_ids.len().min(10);
+        warn!(
+            "Mailchimp did not return contact_id for {} member(s) (likely unsubscribed, removed, or rejected). Marking synced_to_mailchimp_at to stop retry. First {} user_id(s): {:?}",
+            no_contact_id_user_ids.len(),
+            sample_len,
+            &no_contact_id_user_ids[..sample_len]
+        );
+        if let Err(e) = headless_lms_models::marketing_consents::update_synced_to_mailchimp_at_to_all_synced_users(
+            conn,
+            &no_contact_id_user_ids,
+        )
+        .await
+        {
+            error!(
+                "Failed to update synced_to_mailchimp_at for no-contact_id users: {:?}",
+                e
+            );
+        }
+    }
+
+    info!(
+        "Batch subscribe list '{}': sent {} member(s), got {} contact_id(s){}",
+        token.mailchimp_mailing_list_id,
+        sent_user_ids.len(),
+        user_id_contact_id_pairs.len(),
+        if no_contact_id_user_ids.is_empty() {
+            String::new()
+        } else {
+            format!(
+                ", {} without contact_id (marked synced to stop retry)",
+                no_contact_id_user_ids.len()
+            )
+        }
+    );
+
     if !user_id_contact_id_pairs.is_empty() {
         headless_lms_models::marketing_consents::update_user_mailchimp_id_at_to_all_synced_users(
             conn,

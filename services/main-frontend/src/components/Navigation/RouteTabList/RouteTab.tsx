@@ -120,16 +120,20 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
       {count?.isSuccess && count.data !== 0 && (
         <span
           className={css`
-            background: ${baseTheme.colors.red[400]};
-            border-radius: 20px;
-            line-height: 10px;
-            padding: 1px 5px;
-            text-align: center;
-            font-size: 14px;
-            color: ${baseTheme.colors.primary[100]};
-            margin-left: 3px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            min-width: 20px;
+            min-height: 20px;
             width: 20px;
             height: 20px;
+            box-sizing: border-box;
+            background: ${baseTheme.colors.red[400]};
+            border-radius: 50%;
+            font-size: 14px;
+            color: ${baseTheme.colors.primary[100]};
+            margin-left: 6px;
           `}
         >
           {count.data}

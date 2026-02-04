@@ -1121,6 +1121,7 @@ mod test {
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+                "test-clg-allows-valid",
             )
             .await
             .unwrap();
@@ -1141,6 +1142,7 @@ mod test {
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+                "test-clg-disallows-empty",
             )
             .await
             .unwrap();
@@ -1161,6 +1163,7 @@ mod test {
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+                "test-clg-disallows-wrong-case",
             )
             .await
             .unwrap();
@@ -1181,6 +1184,7 @@ mod test {
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+                "test-clg-disallows-underscore",
             )
             .await
             .unwrap();

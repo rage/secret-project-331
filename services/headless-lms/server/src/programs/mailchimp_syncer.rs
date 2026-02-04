@@ -1,10 +1,11 @@
+use crate::prelude::*;
 use crate::setup_tracing;
 use dotenv::dotenv;
 use headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
 use headless_lms_models::marketing_consents::UserEmailSubscription;
 use headless_lms_models::marketing_consents::UserMarketingConsentWithDetails;
 use headless_lms_utils::http::REQWEST_CLIENT;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::{PgConnection, PgPool};
 use std::{
@@ -48,11 +49,6 @@ const REQUIRED_FIELDS: &[FieldSchema] = &[
         default_value: "en",
     },
     FieldSchema {
-        tag: "GRADUATED",
-        name: "Graduated",
-        default_value: "",
-    },
-    FieldSchema {
         tag: "COURSEID",
         name: "Course ID",
         default_value: "",
@@ -81,6 +77,143 @@ const PROCESS_UNSUBSCRIBES_INTERVAL_SECS: u64 = 10_800;
 
 const SYNC_INTERVAL_SECS: u64 = 10;
 const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
+
+const BATCH_POLL_INTERVAL_SECS: u64 = 10;
+const BATCH_POLL_TIMEOUT_SECS: u64 = 300;
+/// Mailchimp batch API limit; chunk operations above this size.
+const MAX_OPERATIONS_PER_BATCH: usize = 500;
+
+#[derive(Debug, Clone, Serialize)]
+struct BatchOperation {
+    method: String,
+    path: String,
+    body: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    operation_id: Option<String>,
+}
+
+/// Submits operations to Mailchimp POST /batches. Chunks at MAX_OPERATIONS_PER_BATCH. Returns batch IDs.
+async fn submit_batch(
+    server_prefix: &str,
+    access_token: &str,
+    operations: Vec<BatchOperation>,
+) -> anyhow::Result<Vec<String>> {
+    if operations.is_empty() {
+        return Ok(vec![]);
+    }
+    let total_chunks = (operations.len() + MAX_OPERATIONS_PER_BATCH - 1) / MAX_OPERATIONS_PER_BATCH;
+    let mut batch_ids = Vec::new();
+    for (chunk_index, chunk) in operations.chunks(MAX_OPERATIONS_PER_BATCH).enumerate() {
+        info!(
+            "Submitting batch with {} operations (chunk {}/{})",
+            chunk.len(),
+            chunk_index + 1,
+            total_chunks
+        );
+        let body = json!({ "operations": chunk });
+        let url = format!("https://{}.api.mailchimp.com/3.0/batches", server_prefix);
+        let response = REQWEST_CLIENT
+            .post(&url)
+            .header("Authorization", format!("apikey {}", access_token))
+            .json(&body)
+            .send()
+            .await?;
+        if !response.status().is_success() {
+            let error_text = response.text().await.unwrap_or_default();
+            return Err(anyhow::anyhow!(
+                "Mailchimp batch submit failed: {}",
+                error_text
+            ));
+        }
+        let data: serde_json::Value = response.json().await?;
+        let id = data["id"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Mailchimp batch response missing id"))?
+            .to_string();
+        batch_ids.push(id);
+    }
+    Ok(batch_ids)
+}
+
+/// Polls GET /batches/{batch_id} until status is "finished", or timeout. Logs batch error counts when finished.
+async fn poll_batch_until_finished(
+    server_prefix: &str,
+    access_token: &str,
+    batch_id: &str,
+    timeout: Duration,
+    poll_interval: Duration,
+) -> anyhow::Result<()> {
+    let deadline = Instant::now() + timeout;
+    let start = Instant::now();
+    let mut last_logged_minute = 0u64;
+    let mut interval = tokio::time::interval(poll_interval);
+    loop {
+        interval.tick().await;
+        if Instant::now() >= deadline {
+            return Err(anyhow::anyhow!(
+                "Mailchimp batch {} did not finish within {:?}",
+                batch_id,
+                timeout
+            ));
+        }
+        let url = format!(
+            "https://{}.api.mailchimp.com/3.0/batches/{}",
+            server_prefix, batch_id
+        );
+        let response = REQWEST_CLIENT
+            .get(&url)
+            .header("Authorization", format!("apikey {}", access_token))
+            .send()
+            .await?;
+        if !response.status().is_success() {
+            let error_text = response.text().await.unwrap_or_default();
+            return Err(anyhow::anyhow!(
+                "Mailchimp batch status check failed: {}",
+                error_text
+            ));
+        }
+        let data: serde_json::Value = response.json().await?;
+        let status = data["status"].as_str().unwrap_or("");
+        let elapsed = start.elapsed();
+        if elapsed.as_secs() >= 60 {
+            let minute = elapsed.as_secs() / 60;
+            if minute > last_logged_minute {
+                last_logged_minute = minute;
+                info!(
+                    "Batch {} still processing after {}s (status: {})",
+                    batch_id,
+                    elapsed.as_secs(),
+                    status
+                );
+            }
+        }
+        match status {
+            "finished" => {
+                if let Some(url) = data["response_body_url"].as_str() {
+                    info!("Batch {} results available at: {}", batch_id, url);
+                }
+                if let Some(errored) = data["errored_operations"].as_u64() {
+                    let total = data["total_operations"].as_u64().unwrap_or(0);
+                    if errored > 0 {
+                        warn!(
+                            "Mailchimp batch {} finished with {} errored operations out of {}",
+                            batch_id, errored, total
+                        );
+                    }
+                }
+                return Ok(());
+            }
+            "error" | "expired" => {
+                return Err(anyhow::anyhow!(
+                    "Mailchimp batch {} ended with status: {}",
+                    batch_id,
+                    status
+                ));
+            }
+            _ => {}
+        }
+    }
+}
 
 /// The main function that initializes environment variables, config, and sync process.
 pub async fn main() -> anyhow::Result<()> {
@@ -518,6 +651,15 @@ async fn sync_contacts(
 
     // Iterate through tokens and fetch and send user details to Mailchimp
     for token in access_tokens {
+        let course_language_group_slug =
+            headless_lms_models::course_language_groups::get_slug_by_id(
+                conn,
+                token.course_language_group_id,
+            )
+            .await
+            .ok()
+            .flatten();
+
         // Fetch all users from Mailchimp and sync possible changes locally
         if process_unsubscribes {
             let mailchimp_data = fetch_unsubscribed_users_from_mailchimp_in_chunks(
@@ -581,7 +723,33 @@ async fn sync_contacts(
 
         if !unsynced_users_details.is_empty() {
             let consent_synced_user_ids =
-                send_users_to_mailchimp(conn, token, unsynced_users_details, tag_objects).await?;
+                send_users_to_mailchimp(conn, &token, &unsynced_users_details, tag_objects).await?;
+
+            if let Some(ref slug) = course_language_group_slug {
+                if !consent_synced_user_ids.is_empty() {
+                    let mailchimp_id_mapping =
+                        headless_lms_models::marketing_consents::fetch_user_mailchimp_id_mapping(
+                            conn,
+                            token.course_language_group_id,
+                            &consent_synced_user_ids,
+                        )
+                        .await?;
+                    if let Err(e) = sync_completed_tag_for_members(
+                        &unsynced_users_details,
+                        &consent_synced_user_ids,
+                        &mailchimp_id_mapping,
+                        slug,
+                        &token,
+                    )
+                    .await
+                    {
+                        error!(
+                            "Failed to sync completed tag for list '{}': {:?}",
+                            token.mailchimp_mailing_list_id, e
+                        );
+                    }
+                }
+            }
 
             // Store the successfully synced user IDs from syncing user consents
             successfully_synced_user_ids.extend(consent_synced_user_ids);
@@ -618,17 +786,16 @@ async fn sync_contacts(
 /// Sends a batch of users to Mailchimp for synchronization.
 pub async fn send_users_to_mailchimp(
     conn: &mut PgConnection,
-    token: MarketingMailingListAccessToken,
-    users_details: Vec<UserMarketingConsentWithDetails>,
+    token: &MarketingMailingListAccessToken,
+    users_details: &[UserMarketingConsentWithDetails],
     tag_objects: Vec<serde_json::Value>,
 ) -> anyhow::Result<Vec<Uuid>> {
     let mut users_data_in_json = vec![];
-    let mut user_ids = vec![];
     let mut successfully_synced_user_ids = Vec::new();
     let mut user_id_contact_id_pairs = Vec::new();
 
     // Prepare each user's data for Mailchimp
-    for user in &users_details {
+    for user in users_details {
         // Check user has given permission to send data to mailchimp
         if let Some(ref subscription) = user.email_subscription_in_mailchimp
             && subscription == "subscribed"
@@ -641,8 +808,6 @@ pub async fn send_users_to_mailchimp(
                     "LNAME": user.last_name.clone().unwrap_or("".to_string()),
                     "MARKETING": if user.consent { "allowed" } else { "disallowed" },
                     "LOCALE": user.locale,
-                    // If the course is not completed, we pass an empty string to mailchimp to remove the value
-                    "GRADUATED": user.completed_course_at.map(|cca| cca.to_rfc3339()).unwrap_or("".to_string()),
                     "USERID": user.user_id,
                     "COURSEID": user.course_id,
                     "LANGGRPID": user.course_language_group_id,
@@ -652,7 +817,6 @@ pub async fn send_users_to_mailchimp(
                "tags": tag_objects.iter().map(|tag| tag["name"].clone()).collect::<Vec<_>>()
             });
             users_data_in_json.push(user_details);
-            user_ids.push(user.id);
         }
     }
 
@@ -718,6 +882,102 @@ pub async fn send_users_to_mailchimp(
             error_text
         ))
     }
+}
+
+/// Sets or removes the "{slug}-completed" tag on Mailchimp members based on course completion. Skips users without user_mailchimp_id.
+async fn sync_completed_tag_for_members(
+    users_details: &[UserMarketingConsentWithDetails],
+    successfully_synced_user_ids: &[Uuid],
+    mailchimp_id_by_user: &std::collections::HashMap<Uuid, String>,
+    slug: &str,
+    token: &MarketingMailingListAccessToken,
+) -> anyhow::Result<()> {
+    let tag_name = format!("{}-completed", slug);
+    let success_set: std::collections::HashSet<_> = successfully_synced_user_ids.iter().collect();
+
+    let mut operations = Vec::new();
+    for user in users_details {
+        if !success_set.contains(&user.user_id) {
+            continue;
+        }
+        let Some(user_mailchimp_id) = mailchimp_id_by_user.get(&user.user_id) else {
+            continue;
+        };
+        let status = if user.completed_course_at.is_some() {
+            "active"
+        } else {
+            "inactive"
+        };
+        let path = format!(
+            "/lists/{}/members/{}/tags",
+            token.mailchimp_mailing_list_id, user_mailchimp_id
+        );
+        let body = json!({
+            "tags": [
+                { "name": tag_name, "status": status }
+            ]
+        })
+        .to_string();
+        operations.push(BatchOperation {
+            method: "POST".to_string(),
+            path,
+            body,
+            operation_id: Some(user.user_id.to_string()),
+        });
+    }
+
+    if operations.is_empty() {
+        return Ok(());
+    }
+
+    let ops_count = operations.len();
+    info!(
+        "Submitting {} completion tag operations for list '{}'",
+        ops_count, token.mailchimp_mailing_list_id
+    );
+
+    let batch_ids = submit_batch(&token.server_prefix, &token.access_token, operations).await?;
+    let timeout = Duration::from_secs(BATCH_POLL_TIMEOUT_SECS);
+    let poll_interval = Duration::from_secs(BATCH_POLL_INTERVAL_SECS);
+
+    let start_time = Instant::now();
+    let poll_futures = batch_ids.iter().map(|batch_id| {
+        poll_batch_until_finished(
+            &token.server_prefix,
+            &token.access_token,
+            batch_id,
+            timeout,
+            poll_interval,
+        )
+    });
+    let results = futures::future::join_all(poll_futures).await;
+
+    let errors: Vec<_> = results
+        .into_iter()
+        .enumerate()
+        .filter_map(|(i, result)| result.err().map(|e| (i, e)))
+        .collect();
+
+    if !errors.is_empty() {
+        for (i, e) in &errors {
+            error!(
+                "Batch {} failed for completion tags in list '{}': {:?}",
+                batch_ids.get(*i).map(String::as_str).unwrap_or("?"),
+                token.mailchimp_mailing_list_id,
+                e
+            );
+        }
+        return Err(anyhow::anyhow!("{} batch(es) failed", errors.len()));
+    }
+
+    info!(
+        "Completed sync of {} completion tags for list '{}' in {:.2}s",
+        ops_count,
+        token.mailchimp_mailing_list_id,
+        start_time.elapsed().as_secs_f64()
+    );
+
+    Ok(())
 }
 
 /// Updates the email addresses of multiple users in a Mailchimp mailing list.
@@ -850,15 +1110,14 @@ async fn process_unsubscribed_users_from_mailchimp(
     conn: &mut PgConnection,
     mailchimp_data: Vec<(String, String, String, String)>,
 ) -> anyhow::Result<()> {
-    // Log the total size of the Mailchimp data
     let total_records = mailchimp_data.len();
+    let total_chunks = total_records.div_ceil(BATCH_SIZE);
 
-    for chunk in mailchimp_data.chunks(BATCH_SIZE) {
+    for (chunk_num, chunk) in mailchimp_data.chunks(BATCH_SIZE).enumerate() {
         if chunk.is_empty() {
             continue;
         }
 
-        // Attempt to process the current chunk
         if let Err(e) = headless_lms_models::marketing_consents::update_unsubscribed_users_from_mailchimp_in_bulk(
             conn,
             chunk.to_vec(),
@@ -866,8 +1125,9 @@ async fn process_unsubscribed_users_from_mailchimp(
         .await
         {
             error!(
-                "Error while processing chunk {}/{}: ",
-                total_records.div_ceil(BATCH_SIZE),
+                "Error while processing chunk {}/{}: {}",
+                chunk_num + 1,
+                total_chunks,
                 e
             );
         }

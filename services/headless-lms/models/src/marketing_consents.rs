@@ -218,6 +218,34 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
     Ok(result)
 }
 
+/// Fetches user_id -> user_mailchimp_id for the given course language group and user IDs (e.g. after syncing to Mailchimp). Only includes entries with a non-null user_mailchimp_id.
+pub async fn fetch_user_mailchimp_id_mapping(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    user_ids: &[Uuid],
+) -> sqlx::Result<std::collections::HashMap<Uuid, String>> {
+    if user_ids.is_empty() {
+        return Ok(std::collections::HashMap::new());
+    }
+    let rows = sqlx::query!(
+        r#"
+    SELECT user_id, user_mailchimp_id
+    FROM user_marketing_consents
+    WHERE course_language_group_id = $1 AND user_id = ANY($2::uuid[])
+    "#,
+        course_language_group_id,
+        user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let map = rows
+        .into_iter()
+        .filter_map(|r| r.user_mailchimp_id.map(|id| (r.user_id, id)))
+        .collect();
+    Ok(map)
+}
+
 /// Fetches email, email subscription status and user ID for users whose details have been updated after their marketing consent was last synced to Mailchimp
 pub async fn fetch_all_unsynced_updated_emails(
     conn: &mut PgConnection,

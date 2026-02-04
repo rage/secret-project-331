@@ -33,7 +33,7 @@ pub async fn create_new_course(
     let mut tx = conn.begin().await?;
 
     let course_language_group_id =
-        course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?;
+        course_language_groups::insert(&mut tx, PKeyPolicy::Generate, &new_course.slug).await?;
 
     let course_id = courses::insert(
         &mut tx,

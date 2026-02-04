@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4,\n  can_add_chatbot = $5,\n  is_unlisted = $6,\n  is_joinable_by_code_only = $7,\n  ask_marketing_consent = $8,\n  flagged_answers_threshold = $9,\n  closed_at = $10,\n  closed_additional_message = $11,\n  closed_course_successor_id = $12,\n  chapter_locking_enabled = $13\nWHERE id = $14\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\n    ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND (\n    id IN (\n      SELECT course_id\n      FROM roles\n      WHERE deleted_at IS NULL\n        AND user_id = $1\n        AND course_id IS NOT NULL\n    )\n    OR (\n      id IN (\n        SELECT ci.course_id\n        FROM course_instances ci\n          JOIN ROLES r ON r.course_instance_id = ci.id\n        WHERE r.user_id = $1\n          AND r.deleted_at IS NULL\n          AND ci.deleted_at IS NULL\n      )\n    )\n  ) ",
   "describe": {
     "columns": [
       {
@@ -110,40 +110,32 @@
       },
       {
         "ordinal": 21,
+        "name": "flagged_answers_skip_manual_review_and_allow_retry",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 22,
         "name": "closed_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "closed_additional_message",
         "type_info": "Text"
       },
       {
-        "ordinal": 23,
+        "ordinal": 24,
         "name": "closed_course_successor_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 24,
+        "ordinal": 25,
         "name": "chapter_locking_enabled",
         "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": [
-        "Varchar",
-        "Text",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Int4",
-        "Timestamptz",
-        "Text",
-        "Uuid",
-        "Bool",
         "Uuid"
       ]
     },
@@ -169,11 +161,12 @@
       true,
       false,
       false,
+      false,
       true,
       true,
       true,
       false
     ]
   },
-  "hash": "74bda1ed5ba31ad0f567ce4a1dad92c5b81673c6167c67555a2d109e6a4bd205"
+  "hash": "4903ed710c034dd1c857bf0f1ae9cc7638a9c3d420854417d4f579cc2b391ff8"
 }

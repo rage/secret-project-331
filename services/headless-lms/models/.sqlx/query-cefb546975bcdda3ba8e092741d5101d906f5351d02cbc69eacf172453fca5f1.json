@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions,\n    c.can_add_chatbot,\n    c.is_unlisted,\n    c.is_joinable_by_code_only,\n    c.join_code,\n    c.ask_marketing_consent,\n    c.flagged_answers_threshold,\n    c.closed_at,\n    c.closed_additional_message,\n    c.closed_course_successor_id,\n    c.chapter_locking_enabled\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
+  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions,\n    c.can_add_chatbot,\n    c.is_unlisted,\n    c.is_joinable_by_code_only,\n    c.join_code,\n    c.ask_marketing_consent,\n    c.flagged_answers_threshold,\n    c.flagged_answers_skip_manual_review_and_allow_retry,\n    c.closed_at,\n    c.closed_additional_message,\n    c.closed_course_successor_id,\n    c.chapter_locking_enabled\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
   "describe": {
     "columns": [
       {
@@ -110,21 +110,26 @@
       },
       {
         "ordinal": 21,
+        "name": "flagged_answers_skip_manual_review_and_allow_retry",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 22,
         "name": "closed_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "closed_additional_message",
         "type_info": "Text"
       },
       {
-        "ordinal": 23,
+        "ordinal": 24,
         "name": "closed_course_successor_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 24,
+        "ordinal": 25,
         "name": "chapter_locking_enabled",
         "type_info": "Bool"
       }
@@ -158,11 +163,12 @@
       true,
       false,
       false,
+      false,
       true,
       true,
       true,
       false
     ]
   },
-  "hash": "9502a7a161e9232a3a23a95bd65a0cbb1d02950a10737fbfeb28816bd0b53526"
+  "hash": "cefb546975bcdda3ba8e092741d5101d906f5351d02cbc69eacf172453fca5f1"
 }

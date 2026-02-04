@@ -4,15 +4,15 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { secondaryFont } from "@/shared-module/common/styles"
+import { baseTheme, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export const cardTopBandStyle = css`
   flex: 0 1 auto;
   text-align: center;
-  background: #e2e4e6;
+  background: ${baseTheme.colors.gray[100]};
   padding: 1rem 2rem;
-  color: #303030;
+  color: ${baseTheme.colors.gray[700]};
   font-size: 0.8em;
   font-weight: 500;
 

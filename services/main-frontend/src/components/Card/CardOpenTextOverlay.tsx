@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 
 import { cardTopBandStyle } from "./CardDeadlineOverlay"
 import CardOpensText from "./CardOpensText"
@@ -24,12 +24,14 @@ const CardOpensTextOverlay: React.FC<React.PropsWithChildren<CardOpensTextProps>
     >
       {!open && (
         <div
-          className={css`
-            ${cardTopBandStyle};
-            position: absolute;
-            width: 100%;
-            z-index: 100;
-          `}
+          className={cx(
+            cardTopBandStyle,
+            css`
+              position: absolute;
+              width: 100%;
+              z-index: 100;
+            `,
+          )}
         >
           <CardOpensText open={open} date={date} time={time} />
         </div>

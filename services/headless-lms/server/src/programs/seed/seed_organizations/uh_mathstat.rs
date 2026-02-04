@@ -444,6 +444,19 @@ pub async fn seed_organization_uh_mathstat(
         "reject-and-reset-submission-with-peer-reviews-course",
         uh_data.clone(),
         seed_users_result,
+        false,
+        None,
+    )
+    .await?;
+
+    let _seed_spam_answers_skip_teacher_review_course = seed_peer_review_course(
+        Uuid::parse_str("e91eb0d0-1737-44e8-9554-a9492e69ddc7")?,
+        "Spam answers skip teacher review course",
+        "spam-answers-skip-teacher-review-course",
+        uh_data.clone(),
+        seed_users_result,
+        true,
+        Some(1),
     )
     .await?;
 

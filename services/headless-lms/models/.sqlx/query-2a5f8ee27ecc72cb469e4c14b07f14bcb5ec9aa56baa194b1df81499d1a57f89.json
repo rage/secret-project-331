@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT courses.id,\n  courses.name,\n  courses.created_at,\n  courses.updated_at,\n  courses.organization_id,\n  courses.deleted_at,\n  courses.slug,\n  courses.content_search_language::text,\n  courses.language_code,\n  courses.copied_from,\n  courses.course_language_group_id,\n  courses.description,\n  courses.is_draft,\n  courses.is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  courses.is_unlisted,\n  courses.is_joinable_by_code_only,\n  courses.join_code,\n  courses.ask_marketing_consent,\n  courses.flagged_answers_threshold,\n  courses.closed_at,\n  courses.closed_additional_message,\n  courses.closed_course_successor_id,\n  courses.chapter_locking_enabled\nFROM courses\nWHERE courses.organization_id = $1\n  AND (\n    (\n      courses.is_draft IS FALSE\n      AND courses.is_unlisted IS FALSE\n    )\n    OR EXISTS (\n      SELECT id\n      FROM roles\n      WHERE user_id = $2\n        AND (\n          course_id = courses.id\n          OR roles.organization_id = courses.organization_id\n          OR roles.is_global IS TRUE\n        )\n    )\n  )\n  AND courses.deleted_at IS NULL\nORDER BY courses.name\nLIMIT $3 OFFSET $4;\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -75,18 +75,18 @@
       },
       {
         "ordinal": 14,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "is_unlisted",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
       },
       {
         "ordinal": 17,
@@ -110,31 +110,33 @@
       },
       {
         "ordinal": 21,
+        "name": "flagged_answers_skip_manual_review_and_allow_retry",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 22,
         "name": "closed_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "closed_additional_message",
         "type_info": "Text"
       },
       {
-        "ordinal": 23,
+        "ordinal": 24,
         "name": "closed_course_successor_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 24,
+        "ordinal": 25,
         "name": "chapter_locking_enabled",
         "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid",
-        "Int8",
-        "Int8"
+        "Text"
       ]
     },
     "nullable": [
@@ -159,11 +161,12 @@
       true,
       false,
       false,
+      false,
       true,
       true,
       true,
       false
     ]
   },
-  "hash": "cb15bb65a4685f533a7a5662c09b198cfa1040704e9c05640b3f0873bc9eaed7"
+  "hash": "2a5f8ee27ecc72cb469e4c14b07f14bcb5ec9aa56baa194b1df81499d1a57f89"
 }

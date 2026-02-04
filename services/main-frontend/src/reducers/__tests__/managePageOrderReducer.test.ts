@@ -65,6 +65,7 @@ const createCourse = (overrides: Partial<Course>): Course => ({
   join_code: null,
   ask_marketing_consent: false,
   flagged_answers_threshold: null,
+  flagged_answers_skip_manual_review_and_allow_retry: false,
   closed_at: null,
   closed_additional_message: null,
   closed_course_successor_id: null,

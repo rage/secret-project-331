@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\nFROM courses\nWHERE id = $1;\n    ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -110,28 +110,33 @@
       },
       {
         "ordinal": 21,
+        "name": "flagged_answers_skip_manual_review_and_allow_retry",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 22,
         "name": "closed_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "closed_additional_message",
         "type_info": "Text"
       },
       {
-        "ordinal": 23,
+        "ordinal": 24,
         "name": "closed_course_successor_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 24,
+        "ordinal": 25,
         "name": "chapter_locking_enabled",
         "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -156,11 +161,12 @@
       true,
       false,
       false,
+      false,
       true,
       true,
       true,
       false
     ]
   },
-  "hash": "7804a581f43953bb3e36dfce98489a14be4ce7bf59682b553f78d4bcc5d27a75"
+  "hash": "9610b1df457aff6325714baf5f0df6b6b31819c20202086686bdb72406861f69"
 }

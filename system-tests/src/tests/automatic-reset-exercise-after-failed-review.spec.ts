@@ -1,10 +1,12 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
+
+const EXERCISE_NAME = "Exercise: Simple multiple choice with automatic reset on zero score"
 
 let context1: BrowserContext
 let context2: BrowserContext
@@ -34,10 +36,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student1Page)
-    await student1Page
-      .getByRole("region", {
-        name: "Exercise: Simple multiple choice with automatic reset on zero score",
-      })
+    await getExerciseRegion(student1Page, EXERCISE_NAME)
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "3" })
       .click()
@@ -53,10 +52,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student2Page)
-    await student2Page
-      .getByRole("region", {
-        name: "Exercise: Simple multiple choice with automatic reset on zero score",
-      })
+    await getExerciseRegion(student2Page, EXERCISE_NAME)
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
       .click()
@@ -72,10 +68,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(teacherPage)
-    await teacherPage
-      .getByRole("region", {
-        name: "Exercise: Simple multiple choice with automatic reset on zero score",
-      })
+    await getExerciseRegion(teacherPage, EXERCISE_NAME)
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })
       .click()
@@ -150,10 +143,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student1Page)
-    await student1Page
-      .getByRole("region", {
-        name: "Exercise: Simple multiple choice with automatic reset on zero score",
-      })
+    await getExerciseRegion(student1Page, EXERCISE_NAME)
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "3" })
       .click()

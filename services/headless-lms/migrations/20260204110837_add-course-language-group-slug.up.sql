@@ -25,5 +25,4 @@ ALTER TABLE course_language_groups
 ALTER COLUMN slug
 SET NOT NULL;
 
-CREATE UNIQUE INDEX course_language_groups_slug_unique_non_deleted ON course_language_groups (slug) NULLS NOT DISTINCT
-WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX course_language_groups_slug_unique_non_deleted ON course_language_groups (slug, deleted_at) NULLS NOT DISTINCT;

@@ -231,7 +231,7 @@ pub async fn fetch_user_mailchimp_id_mapping(
         r#"
     SELECT user_id, user_mailchimp_id
     FROM user_marketing_consents
-    WHERE course_language_group_id = $1 AND user_id = ANY($2::uuid[])
+    WHERE course_language_group_id = $1 AND user_id = ANY($2::uuid[]) AND deleted_at IS NULL
     "#,
         course_language_group_id,
         user_ids

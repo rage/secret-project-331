@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    SELECT user_id, user_mailchimp_id\n    FROM user_marketing_consents\n    WHERE course_language_group_id = $1 AND user_id = ANY($2::uuid[])\n    ",
+  "query": "\n    SELECT user_id, user_mailchimp_id\n    FROM user_marketing_consents\n    WHERE course_language_group_id = $1 AND user_id = ANY($2::uuid[]) AND deleted_at IS NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -25,5 +25,5 @@
       true
     ]
   },
-  "hash": "e6256cf558d877b829baecc0ad91b381bc33d3acef9f999674ecce96e32863dd"
+  "hash": "8cea784ba475ce7258756e360f182fcd0914bf66be5c428b18be443a88e642e0"
 }

@@ -5,7 +5,6 @@ use headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
 use headless_lms_models::marketing_consents::UserEmailSubscription;
 use headless_lms_models::marketing_consents::UserMarketingConsentWithDetails;
 use headless_lms_utils::http::REQWEST_CLIENT;
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::{PgConnection, PgPool};
 use std::{
@@ -101,7 +100,7 @@ async fn submit_batch(
     if operations.is_empty() {
         return Ok(vec![]);
     }
-    let total_chunks = (operations.len() + MAX_OPERATIONS_PER_BATCH - 1) / MAX_OPERATIONS_PER_BATCH;
+    let total_chunks = operations.len().div_ceil(MAX_OPERATIONS_PER_BATCH);
     let mut batch_ids = Vec::new();
     for (chunk_index, chunk) in operations.chunks(MAX_OPERATIONS_PER_BATCH).enumerate() {
         info!(
@@ -652,13 +651,23 @@ async fn sync_contacts(
     // Iterate through tokens and fetch and send user details to Mailchimp
     for token in access_tokens {
         let course_language_group_slug =
-            headless_lms_models::course_language_groups::get_slug_by_id(
+            match headless_lms_models::course_language_groups::get_slug_by_id(
                 conn,
                 token.course_language_group_id,
             )
             .await
-            .ok()
-            .flatten();
+            {
+                Ok(Some(s)) => Some(s),
+                Ok(None) => None,
+                Err(e) => {
+                    error!(
+                        course_language_group_id = %token.course_language_group_id,
+                        "Failed to get course language group slug: {:?}",
+                        e
+                    );
+                    return Err(e.into());
+                }
+            };
 
         // Fetch all users from Mailchimp and sync possible changes locally
         if process_unsubscribes {
@@ -725,29 +734,29 @@ async fn sync_contacts(
             let consent_synced_user_ids =
                 send_users_to_mailchimp(conn, &token, &unsynced_users_details, tag_objects).await?;
 
-            if let Some(ref slug) = course_language_group_slug {
-                if !consent_synced_user_ids.is_empty() {
-                    let mailchimp_id_mapping =
-                        headless_lms_models::marketing_consents::fetch_user_mailchimp_id_mapping(
-                            conn,
-                            token.course_language_group_id,
-                            &consent_synced_user_ids,
-                        )
-                        .await?;
-                    if let Err(e) = sync_completed_tag_for_members(
-                        &unsynced_users_details,
+            if let Some(ref slug) = course_language_group_slug
+                && !consent_synced_user_ids.is_empty()
+            {
+                let mailchimp_id_mapping =
+                    headless_lms_models::marketing_consents::fetch_user_mailchimp_id_mapping(
+                        conn,
+                        token.course_language_group_id,
                         &consent_synced_user_ids,
-                        &mailchimp_id_mapping,
-                        slug,
-                        &token,
                     )
-                    .await
-                    {
-                        error!(
-                            "Failed to sync completed tag for list '{}': {:?}",
-                            token.mailchimp_mailing_list_id, e
-                        );
-                    }
+                    .await?;
+                if let Err(e) = sync_completed_tag_for_members(
+                    &unsynced_users_details,
+                    &consent_synced_user_ids,
+                    &mailchimp_id_mapping,
+                    slug,
+                    &token,
+                )
+                .await
+                {
+                    error!(
+                        "Failed to sync completed tag for list '{}': {:?}",
+                        token.mailchimp_mailing_list_id, e
+                    );
                 }
             }
 

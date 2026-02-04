@@ -49,26 +49,25 @@ const CardDeadlineOverlay: React.FC<CardDeadlineOverlayProps> = ({
 }) => {
   const { t } = useTranslation()
 
+  const deadlineValue =
+    formattedExerciseDeadline != null
+      ? exerciseDeadlinesMultiple
+        ? t("chapter-card-deadline-varies-value", {
+            date: formattedExerciseDeadline,
+          })
+        : formattedExerciseDeadline
+      : formattedDeadline
+
+  if (!deadlineValue) {
+    return null
+  }
+
   return (
     <div className={cx(cardTopBandStyle, deadlineContentStyle)}>
-      {formattedDeadline && (
-        <div>
-          <div className={deadlineLabelStyle}>{t("chapter-card-deadline")}</div>
-          <div>{formattedDeadline}</div>
-        </div>
-      )}
-      {formattedExerciseDeadline && (
-        <div>
-          <div className={deadlineLabelStyle}>{t("chapter-card-exercise-deadline")}</div>
-          <div>
-            {exerciseDeadlinesMultiple
-              ? t("chapter-card-deadline-varies-value", {
-                  date: formattedExerciseDeadline,
-                })
-              : formattedExerciseDeadline}
-          </div>
-        </div>
-      )}
+      <div>
+        <div className={deadlineLabelStyle}>{t("chapter-card-deadline")}</div>
+        <div>{deadlineValue}</div>
+      </div>
     </div>
   )
 }

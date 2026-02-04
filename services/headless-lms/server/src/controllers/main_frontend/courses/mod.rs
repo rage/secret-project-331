@@ -532,26 +532,16 @@ pub async fn create_course_copy(
 
     let mut tx = conn.begin().await?;
 
+    let new_course = payload.new_course.clone();
+
     let copied_course = match &payload.mode {
         CopyCourseMode::Duplicate => {
-            models::library::copying::copy_course(
-                &mut tx,
-                *course_id,
-                &payload.new_course,
-                false,
-                user.id,
-            )
-            .await?
+            models::library::copying::copy_course(&mut tx, *course_id, &new_course, false, user.id)
+                .await?
         }
         CopyCourseMode::SameLanguageGroup => {
-            models::library::copying::copy_course(
-                &mut tx,
-                *course_id,
-                &payload.new_course,
-                true,
-                user.id,
-            )
-            .await?
+            models::library::copying::copy_course(&mut tx, *course_id, &new_course, true, user.id)
+                .await?
         }
         CopyCourseMode::ExistingLanguageGroup { target_course_id } => {
             let target_course = models::courses::get_course(&mut tx, *target_course_id).await?;
@@ -567,18 +557,23 @@ pub async fn create_course_copy(
                 &mut tx,
                 *course_id,
                 target_course.course_language_group_id,
-                &payload.new_course,
+                &new_course,
                 user.id,
             )
             .await?
         }
         CopyCourseMode::NewLanguageGroup => {
-            let new_clg_id = course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?;
+            let new_clg_id = course_language_groups::insert(
+                &mut tx,
+                PKeyPolicy::Generate,
+                new_course.slug.as_str(),
+            )
+            .await?;
             models::library::copying::copy_course_with_language_group(
                 &mut tx,
                 *course_id,
                 new_clg_id,
-                &payload.new_course,
+                &new_course,
                 user.id,
             )
             .await?

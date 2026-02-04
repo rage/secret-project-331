@@ -244,9 +244,12 @@ impl CourseBuilder {
         // Create course manually without default module
         let mut tx = conn.begin().await.context("starting transaction")?;
 
-        let course_language_group_id =
-            course_language_groups::insert(&mut tx, headless_lms_models::PKeyPolicy::Generate)
-                .await?;
+        let course_language_group_id = course_language_groups::insert(
+            &mut tx,
+            headless_lms_models::PKeyPolicy::Generate,
+            &new_course.slug,
+        )
+        .await?;
 
         let course_id = courses::insert(
             &mut tx,

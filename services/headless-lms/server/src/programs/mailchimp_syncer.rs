@@ -79,8 +79,8 @@ const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
 
 const BATCH_POLL_INTERVAL_SECS: u64 = 10;
 const BATCH_POLL_TIMEOUT_SECS: u64 = 300;
-/// Mailchimp batch API limit; chunk operations above this size.
-const MAX_OPERATIONS_PER_BATCH: usize = 500;
+/// Mailchimp API limit for batch operations and batch subscribe (500 items/members per request).
+const MAX_MAILCHIMP_BATCH_SIZE: usize = 500;
 
 #[derive(Debug, Clone, Serialize)]
 struct BatchOperation {
@@ -91,7 +91,7 @@ struct BatchOperation {
     operation_id: Option<String>,
 }
 
-/// Submits operations to Mailchimp POST /batches. Chunks at MAX_OPERATIONS_PER_BATCH. Returns batch IDs.
+/// Submits operations to Mailchimp POST /batches. Chunks at MAX_MAILCHIMP_BATCH_SIZE. Returns batch IDs.
 async fn submit_batch(
     server_prefix: &str,
     access_token: &str,
@@ -100,9 +100,9 @@ async fn submit_batch(
     if operations.is_empty() {
         return Ok(vec![]);
     }
-    let total_chunks = operations.len().div_ceil(MAX_OPERATIONS_PER_BATCH);
+    let total_chunks = operations.len().div_ceil(MAX_MAILCHIMP_BATCH_SIZE);
     let mut batch_ids = Vec::new();
-    for (chunk_index, chunk) in operations.chunks(MAX_OPERATIONS_PER_BATCH).enumerate() {
+    for (chunk_index, chunk) in operations.chunks(MAX_MAILCHIMP_BATCH_SIZE).enumerate() {
         info!(
             "Submitting batch with {} operations (chunk {}/{})",
             chunk.len(),
@@ -829,35 +829,58 @@ pub async fn send_users_to_mailchimp(
         }
     }
 
-    let batch_request = json!({
-        "members": users_data_in_json,
-        "update_existing":true
-    });
+    if users_data_in_json.is_empty() {
+        info!("No new users to sync.");
+        return Ok(vec![]);
+    }
 
     let url = format!(
         "https://{}.api.mailchimp.com/3.0/lists/{}",
         token.server_prefix, token.mailchimp_mailing_list_id
     );
 
-    // Check if batch is empty before sending
-    if users_data_in_json.is_empty() {
-        info!("No new users to sync.");
-        return Ok(vec![]);
-    }
+    let total_chunks = users_data_in_json.len().div_ceil(MAX_MAILCHIMP_BATCH_SIZE);
+    info!(
+        "Syncing {} members to list '{}' in {} chunk(s)",
+        users_data_in_json.len(),
+        token.mailchimp_mailing_list_id,
+        total_chunks
+    );
 
-    // Send the batch request to Mailchimp
-    let response = REQWEST_CLIENT
-        .post(&url)
-        .header("Content-Type", "application/json")
-        .header("Authorization", format!("apikey {}", token.access_token))
-        .json(&batch_request)
-        .send()
-        .await?;
+    for (chunk_index, chunk) in users_data_in_json
+        .chunks(MAX_MAILCHIMP_BATCH_SIZE)
+        .enumerate()
+    {
+        info!(
+            "Syncing users chunk {}/{} ({} members)",
+            chunk_index + 1,
+            total_chunks,
+            chunk.len()
+        );
+        let batch_request = json!({
+            "members": chunk,
+            "update_existing": true
+        });
 
-    if response.status().is_success() {
+        let response = REQWEST_CLIENT
+            .post(&url)
+            .header("Content-Type", "application/json")
+            .header("Authorization", format!("apikey {}", token.access_token))
+            .json(&batch_request)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let error_text = response.text().await?;
+            return Err(anyhow::anyhow!(
+                "Error syncing users to Mailchimp. Status: {}. Error: {}",
+                status,
+                error_text
+            ));
+        }
+
         let response_data: serde_json::Value = response.json().await?;
-
-        // Iterate over both new_members and updated_members to extract user_ids and contact_ids
         for key in &["new_members", "updated_members"] {
             if let Some(members) = response_data[key].as_array() {
                 for member in members {
@@ -873,24 +896,19 @@ pub async fn send_users_to_mailchimp(
                 }
             }
         }
-        // Update the users contact_id from Mailchimp to the database as user_mailchimp_id
+    }
+
+    // DB update only after all chunks succeed. On retry the same unsynced set is sent again;
+    // update_existing: true avoids duplicate side effects for members already in Mailchimp.
+    if !user_id_contact_id_pairs.is_empty() {
         headless_lms_models::marketing_consents::update_user_mailchimp_id_at_to_all_synced_users(
             conn,
             user_id_contact_id_pairs,
         )
         .await?;
-
-        // Return the list of successfully synced user_ids
-        Ok(successfully_synced_user_ids)
-    } else {
-        let status = response.status();
-        let error_text = response.text().await?;
-        Err(anyhow::anyhow!(
-            "Error syncing users to Mailchimp. Status: {}. Error: {}",
-            status,
-            error_text
-        ))
     }
+
+    Ok(successfully_synced_user_ids)
 }
 
 /// Sets or removes the "{slug}-completed" tag on Mailchimp members based on course completion. Skips users without user_mailchimp_id.

@@ -14,9 +14,9 @@ import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeR
 import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
-  manageCourseChangeRequestsPendingRoute,
+  manageCourseChangeRequestsRoute,
   manageCourseExercisesRoute,
-  manageCourseFeedbackUnreadRoute,
+  manageCourseFeedbackRoute,
   manageCourseInstancesRoute,
   manageCourseLanguageVersionsRoute,
   manageCourseModulesRoute,
@@ -75,13 +75,13 @@ export default function CourseManagementLayout({ children }: { children: React.R
       {
         key: KEY_FEEDBACK,
         title: t("link-feedback"),
-        href: manageCourseFeedbackUnreadRoute(courseId),
+        href: manageCourseFeedbackRoute(courseId),
         countHook: feedbackCountHook,
       },
       {
         key: KEY_CHANGE_REQUESTS,
         title: t("link-change-requests"),
-        href: manageCourseChangeRequestsPendingRoute(courseId),
+        href: manageCourseChangeRequestsRoute(courseId),
         countHook: changeRequestCountHook,
       },
       {

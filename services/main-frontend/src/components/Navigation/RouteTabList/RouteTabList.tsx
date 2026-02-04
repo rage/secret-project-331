@@ -27,11 +27,14 @@ const tabListClassNameVertical = css`
 `
 
 export interface RouteTabListProps {
-  tabs: RouteTabDefinition[]
+  tabs?: RouteTabDefinition[]
   orientation?: "horizontal" | "vertical"
 }
 
-function RouteTabListStandalone({ tabs, orientation }: RouteTabListProps) {
+function RouteTabListStandalone({
+  tabs,
+  orientation,
+}: RouteTabListProps & { tabs: RouteTabDefinition[] }) {
   const pathname = usePathname()
   const tabListRef = useRef<HTMLDivElement>(null)
 
@@ -115,13 +118,16 @@ const DEFAULT_ORIENTATION = "horizontal"
 /** Renders tab list. Use with tabs prop (standalone) or inside RouteTabListProvider (with RouteTabPanel for full ARIA). */
 export const RouteTabList: React.FC<RouteTabListProps> = (props) => {
   const context = useRouteTabListContext()
+  if (props.tabs) {
+    return (
+      <RouteTabListStandalone
+        tabs={props.tabs}
+        orientation={props.orientation ?? DEFAULT_ORIENTATION}
+      />
+    )
+  }
   if (context !== null) {
     return <RouteTabListFromContext />
   }
-  return (
-    <RouteTabListStandalone
-      tabs={props.tabs}
-      orientation={props.orientation ?? DEFAULT_ORIENTATION}
-    />
-  )
+  throw new Error("RouteTabList requires either tabs prop or RouteTabListProvider context")
 }

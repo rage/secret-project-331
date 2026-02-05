@@ -141,7 +141,7 @@ pub async fn main() -> anyhow::Result<()> {
         }
     }
 
-    info!("Starting mailchimp syncer.");
+    info!("Starting mailchimp syncer (periodic reconciliation loop).");
 
     let mut last_time_unsubscribes_processed = Instant::now();
     let mut last_time_tags_synced = Instant::now();
@@ -164,7 +164,7 @@ pub async fn main() -> anyhow::Result<()> {
 
         // Check and sync tags for this access token once every hour
         if last_time_tags_synced.elapsed().as_secs() >= 3600 {
-            info!("Syncing tags from Mailchimp...");
+            info!("Stage: tag catalog sync (keep local tag metadata aligned with Mailchimp).");
             for token in &access_tokens {
                 if let Err(e) = sync_tags_from_mailchimp(
                     &mut conn,
@@ -563,6 +563,9 @@ async fn sync_contacts(
 
         // Fetch all users from Mailchimp and sync possible changes locally
         if process_unsubscribes {
+            info!(
+                "Stage: unsubscribe sync (apply Mailchimp compliance/unsubscribe changes locally)."
+            );
             let mailchimp_data = fetch_unsubscribed_users_from_mailchimp_in_chunks(
                 &token.mailchimp_mailing_list_id,
                 &token.server_prefix,
@@ -588,7 +591,7 @@ async fn sync_contacts(
             .await?;
 
         info!(
-            "Found {} unsynced user email(s) for course language group: {}",
+            "Stage: email updates (ensure member identifiers stay correct). Found {} unsynced user email(s) for course language group: {}",
             users_with_unsynced_emails.len(),
             token.course_language_group_id
         );
@@ -673,7 +676,7 @@ async fn sync_contacts(
             .await?;
 
         info!(
-            "Found {} unsynced user consent(s) for course language group: {}",
+            "Stage: member upsert (merge fields + consent). Found {} unsynced user consent(s) for course language group: {}",
             unsynced_users_details.len(),
             token.course_language_group_id
         );
@@ -723,7 +726,7 @@ async fn sync_contacts(
     {
         Ok(_) => {
             info!(
-                "Successfully updated synced status for {} users.",
+                "Stage: mark synced (avoid repeat work). Successfully updated synced status for {} users.",
                 successfully_synced_user_ids.len()
             );
         }
@@ -1045,7 +1048,7 @@ async fn sync_completed_tag_for_members(
 
     let ops_count = operations.len();
     info!(
-        "Submitting {} completion tag operations for list '{}'",
+        "Stage: completion tags (mark course completion). Preparing {} operation(s) for list '{}'",
         ops_count, token.mailchimp_mailing_list_id
     );
 

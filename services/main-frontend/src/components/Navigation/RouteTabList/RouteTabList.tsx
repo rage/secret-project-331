@@ -18,6 +18,7 @@ const tabListClassName = css`
   border-radius: 8px;
   gap: 4px;
   flex-direction: row;
+  flex-wrap: wrap;
   margin-bottom: 1.5rem;
   border: 1px solid ${baseTheme.colors.gray[100]};
 `

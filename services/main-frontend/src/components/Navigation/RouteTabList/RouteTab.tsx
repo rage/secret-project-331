@@ -55,13 +55,13 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
       replace
       aria-disabled={isDisabled}
       className={css`
-        flex: 1;
+        flex: 0 1 auto;
         display: flex;
         align-items: center;
         justify-content: center;
         text-decoration: none;
         font-weight: ${isSelected ? fontWeights.semibold : fontWeights.medium};
-        font-size: 0.9375rem;
+        font-size: 0.875rem;
         color: ${isDisabled
           ? baseTheme.colors.gray[300]
           : isSelected
@@ -69,10 +69,11 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
             : baseTheme.colors.gray[500]};
         background: ${isSelected ? "#fff" : "transparent"};
         border-radius: 6px;
-        padding: 0.625rem 1rem;
+        padding: 0.5rem 0.75rem;
         transition: all 0.15s ease;
         position: relative;
         cursor: ${isDisabled ? "not-allowed" : "pointer"};
+        white-space: nowrap;
         ${isSelected &&
         css`
           box-shadow:
@@ -80,8 +81,8 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
             0 1px 2px rgba(0, 0, 0, 0.06);
         `}
         ${respondToOrLarger.sm} {
-          padding: 0.75rem 1.5rem;
-          font-size: 0.9375rem;
+          padding: 0.625rem 1.125rem;
+          font-size: 0.9rem;
         }
         ${isFocusVisible &&
         css`
@@ -124,16 +125,14 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            min-width: 20px;
             min-height: 20px;
-            width: 20px;
-            height: 20px;
             box-sizing: border-box;
             background: ${baseTheme.colors.red[400]};
-            border-radius: 50%;
-            font-size: 14px;
+            border-radius: 20px;
+            font-size: 12px;
             color: ${baseTheme.colors.primary[100]};
-            margin-left: 6px;
+            margin-left: 3px;
+            padding: 0 6px;
           `}
         >
           {count.data}

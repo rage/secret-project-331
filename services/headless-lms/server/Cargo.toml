@@ -120,6 +120,8 @@ tempfile = "3.23.0"
 zstd = "0.13.3" # matches the version from actix-http
 # A Rust implementation of a TAR file reader and writer.
 tar = "0.4.44"
+# DEFLATE compression and gzip decompression.
+flate2 = "1.1.5"
 # Utilities for random number generation
 rand = "0.9.2"
 # A pure Rust implementation of the RSA public key cryptosystem.

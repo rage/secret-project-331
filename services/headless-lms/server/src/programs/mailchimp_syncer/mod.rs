@@ -17,10 +17,10 @@ mod batch_client;
 mod mailchimp_ops;
 mod policy_tags;
 
-use batch_client::{
-    BatchOperation, MAX_MAILCHIMP_BATCH_SIZE, poll_batch_until_finished, submit_batch,
-};
+use batch_client::MAX_MAILCHIMP_BATCH_SIZE;
+use mailchimp_ops::{MailchimpExecutor, MailchimpOperation};
 use policy_tags::sync_policy_tags_for_users;
+use reqwest::Method;
 
 #[derive(Debug, Deserialize)]
 struct MailchimpField {
@@ -141,7 +141,7 @@ pub async fn main() -> anyhow::Result<()> {
         }
     }
 
-    info!("Starting mailchimp syncer.");
+    info!("Starting mailchimp syncer (periodic reconciliation loop).");
 
     let mut last_time_unsubscribes_processed = Instant::now();
     let mut last_time_tags_synced = Instant::now();
@@ -164,7 +164,7 @@ pub async fn main() -> anyhow::Result<()> {
 
         // Check and sync tags for this access token once every hour
         if last_time_tags_synced.elapsed().as_secs() >= 3600 {
-            info!("Syncing tags from Mailchimp...");
+            info!("Stage: tag catalog sync (keep local tag metadata aligned with Mailchimp).");
             for token in &access_tokens {
                 if let Err(e) = sync_tags_from_mailchimp(
                     &mut conn,
@@ -563,6 +563,9 @@ async fn sync_contacts(
 
         // Fetch all users from Mailchimp and sync possible changes locally
         if process_unsubscribes {
+            info!(
+                "Stage: unsubscribe sync (apply Mailchimp compliance/unsubscribe changes locally)."
+            );
             let mailchimp_data = fetch_unsubscribed_users_from_mailchimp_in_chunks(
                 &token.mailchimp_mailing_list_id,
                 &token.server_prefix,
@@ -588,7 +591,7 @@ async fn sync_contacts(
             .await?;
 
         info!(
-            "Found {} unsynced user email(s) for course language group: {}",
+            "Stage: email updates (ensure member identifiers stay correct). Found {} unsynced user email(s) for course language group: {}",
             users_with_unsynced_emails.len(),
             token.course_language_group_id
         );
@@ -673,7 +676,7 @@ async fn sync_contacts(
             .await?;
 
         info!(
-            "Found {} unsynced user consent(s) for course language group: {}",
+            "Stage: member upsert (merge fields + consent). Found {} unsynced user consent(s) for course language group: {}",
             unsynced_users_details.len(),
             token.course_language_group_id
         );
@@ -723,7 +726,7 @@ async fn sync_contacts(
     {
         Ok(_) => {
             info!(
-                "Successfully updated synced status for {} users.",
+                "Stage: mark synced (avoid repeat work). Successfully updated synced status for {} users.",
                 successfully_synced_user_ids.len()
             );
         }
@@ -1024,20 +1027,17 @@ async fn sync_completed_tag_for_members(
         } else {
             "inactive"
         };
-        let path = format!(
-            "/lists/{}/members/{}/tags",
-            token.mailchimp_mailing_list_id, user_mailchimp_id
-        );
-        let body = json!({
-            "tags": [
-                { "name": tag_name, "status": status }
-            ]
-        })
-        .to_string();
-        operations.push(BatchOperation {
-            method: "POST".to_string(),
-            path,
-            body,
+        operations.push(MailchimpOperation {
+            method: Method::POST,
+            path: format!(
+                "/lists/{}/members/{}/tags",
+                token.mailchimp_mailing_list_id, user_mailchimp_id
+            ),
+            body: Some(json!({
+                "tags": [
+                    { "name": tag_name, "status": status }
+                ]
+            })),
             operation_id: Some(user.user_id.to_string()),
         });
     }
@@ -1048,42 +1048,37 @@ async fn sync_completed_tag_for_members(
 
     let ops_count = operations.len();
     info!(
-        "Submitting {} completion tag operations for list '{}'",
+        "Stage: completion tags (mark course completion). Preparing {} operation(s) for list '{}'",
         ops_count, token.mailchimp_mailing_list_id
     );
 
-    let batch_ids = submit_batch(&token.server_prefix, &token.access_token, operations).await?;
     let timeout = Duration::from_secs(BATCH_POLL_TIMEOUT_SECS);
     let poll_interval = Duration::from_secs(BATCH_POLL_INTERVAL_SECS);
+    let executor = MailchimpExecutor::new(timeout, poll_interval);
 
     let start_time = Instant::now();
-    let poll_futures = batch_ids.iter().map(|batch_id| {
-        poll_batch_until_finished(
-            &token.server_prefix,
-            &token.access_token,
-            batch_id,
-            timeout,
-            poll_interval,
-        )
-    });
-    let results = futures::future::join_all(poll_futures).await;
-
-    let errors: Vec<_> = results
-        .into_iter()
-        .enumerate()
-        .filter_map(|(i, result)| result.err().map(|e| (i, e)))
-        .collect();
-
-    if !errors.is_empty() {
-        for (i, e) in &errors {
-            error!(
-                "Batch {} failed for completion tags in list '{}': {:?}",
-                batch_ids.get(*i).map(String::as_str).unwrap_or("?"),
-                token.mailchimp_mailing_list_id,
-                e
-            );
-        }
-        return Err(anyhow::anyhow!("{} batch(es) failed", errors.len()));
+    let results = executor.execute(token, operations).await?;
+    let failures: Vec<_> = results.iter().filter(|r| !r.is_success()).collect();
+    if !failures.is_empty() {
+        let sample: Vec<String> = failures
+            .iter()
+            .take(5)
+            .map(|r| {
+                format!(
+                    "{}: {}",
+                    r.operation_id.as_deref().unwrap_or("?"),
+                    r.error.as_deref().unwrap_or("unknown error")
+                )
+            })
+            .collect();
+        warn!(
+            "Completion tag sync for list '{}' had {} failure(s) out of {}. Sample: {:?}",
+            token.mailchimp_mailing_list_id,
+            failures.len(),
+            results.len(),
+            sample
+        );
+        return Err(anyhow::anyhow!("completion tag sync failed"));
     }
 
     info!(

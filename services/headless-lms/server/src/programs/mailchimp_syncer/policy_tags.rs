@@ -160,6 +160,11 @@ pub async fn sync_policy_tags_for_users(
         target_by_user.insert(target.user_id, target);
     }
 
+    info!(
+        "Stage: policy tags 1/2 (GET current tags to compute deltas). Preparing {} operation(s) for list '{}'",
+        targets.len(),
+        token.mailchimp_mailing_list_id
+    );
     let get_ops: Vec<MailchimpOperation> = targets
         .iter()
         .map(|target| MailchimpOperation {
@@ -174,6 +179,11 @@ pub async fn sync_policy_tags_for_users(
         .collect();
 
     let get_results = executor.execute(token, get_ops).await?;
+    info!(
+        "Stage: policy tags 1/2 (GET current tags to compute deltas). Received {} result(s) for list '{}'",
+        get_results.len(),
+        token.mailchimp_mailing_list_id
+    );
 
     let mut results_map: std::collections::HashMap<Uuid, PolicyTagSyncResult> =
         std::collections::HashMap::new();
@@ -278,7 +288,20 @@ pub async fn sync_policy_tags_for_users(
         return Ok(results_map.into_values().collect());
     }
 
+    info!(
+        "Stage: policy tags 2/2 (POST updates to enforce current language/consent). Applying tag changes for {} member(s) in list '{}'",
+        post_ops.len(),
+        token.mailchimp_mailing_list_id
+    );
     let post_results = executor.execute(token, post_ops).await?;
+    let (post_ok, post_failed): (Vec<_>, Vec<_>) =
+        post_results.iter().partition(|r| r.is_success());
+    info!(
+        "Stage: policy tags 2/2 (POST updates to enforce current language/consent). Completed for list '{}' ({} ok, {} failed)",
+        token.mailchimp_mailing_list_id,
+        post_ok.len(),
+        post_failed.len()
+    );
     for result in post_results {
         let user_id = match result
             .operation_id

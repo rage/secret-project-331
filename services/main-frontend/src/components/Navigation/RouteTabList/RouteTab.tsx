@@ -15,6 +15,8 @@ export interface RouteTabDefinition {
   key: string
   title: string
   href: string
+  /** If set, used for active-tab matching (pathname.startsWith). Omit to use href. */
+  pathPrefix?: string
   disabled?: boolean
   countHook?: () => UseQueryResult<number, unknown>
 }

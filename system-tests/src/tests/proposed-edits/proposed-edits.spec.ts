@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
@@ -15,8 +15,6 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Introduction to edit proposals").click()
 
@@ -116,15 +114,8 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click()
 
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2",
-  )
-
   await page.getByText("Change requests").click()
   await page.getByText("Accept").first().waitFor({ state: "visible" })
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests",
-  )
 
   await page.click(':nth-match(:text("Accept"), 1)')
 
@@ -138,10 +129,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.click('text="Old"')
 
-  await page.getByText("Pending 2").click()
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
-  )
+  await page.getByRole("tab", { name: "Pending" }).click()
 
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),

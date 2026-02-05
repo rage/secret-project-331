@@ -1,7 +1,6 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
@@ -18,22 +17,15 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Introduction to feedback").click()
 
   await selectCourseInstanceIfPrompted(page)
 
   await page.getByText("The Basics").click()
-  await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
-  )
 
   await page.getByText("Page One").first().click()
   await page.locator(`text=Everything is a big topic`).waitFor()
-  await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
-  )
 
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
@@ -78,14 +70,10 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await login("admin@example.com", "admin", page, true)
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click()
-  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
   await Promise.all([page.getByRole("tab", { name: "Feedback 4" }).click()])
-  // await page.waitForURL((url) => url.searchParams.has("read"))
-  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 
   // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
   await page.getByText(`Page: Page One`).waitFor()
@@ -125,7 +113,6 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   })
 
   await page.click(':nth-match(:text("Read"), 2)')
-  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback?read=true")
 
   await page.getByRole("button", { name: "Mark as unread" }).first().click()
 

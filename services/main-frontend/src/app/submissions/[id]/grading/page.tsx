@@ -6,8 +6,9 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import SubmissionIFrame from "./SubmissionIFrame"
+
 import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
-import SubmissionIFrame from "@/components/page-specific/submissions/id/SubmissionIFrame"
 import { fetchExam } from "@/services/backend/exams"
 import { Block } from "@/services/backend/exercises"
 import { fetchSubmissionInfo } from "@/services/backend/submissions"

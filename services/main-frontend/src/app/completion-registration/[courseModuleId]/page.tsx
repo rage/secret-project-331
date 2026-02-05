@@ -5,7 +5,8 @@ import { useParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import RegisterCompletion from "@/components/page-specific/register-completion/RegisterCompletion"
+import RegisterCompletion from "./RegisterCompletion"
+
 import { fetchUserCompletionInformation } from "@/services/backend/course-modules"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

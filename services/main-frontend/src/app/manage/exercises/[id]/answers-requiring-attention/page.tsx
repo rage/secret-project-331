@@ -6,8 +6,9 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
+
 import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
-import AnswersRequiringAttentionList from "@/components/page-specific/manage/exercises/id/submissions/AnswersRequiringAttentionList"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"

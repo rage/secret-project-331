@@ -6,8 +6,9 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CodeGiveawayCode from "@/components/page-specific/manage/code-giveaways/CodeGiveawayCode"
-import ImportCodesForm from "@/components/page-specific/manage/code-giveaways/ImportCodesForm"
+import CodeGiveawayCode from "./CodeGiveawayCode"
+import ImportCodesForm from "./ImportCodesForm"
+
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { fetchCodeGiveawayById, fetchCodesByCodeGiveawayId } from "@/services/backend/codeGiveaways"
 import Button from "@/shared-module/common/components/Button"

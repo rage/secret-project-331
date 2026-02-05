@@ -2,7 +2,8 @@
 
 import React from "react"
 
-import OrganizationsList from "@/components/page-specific/organizations/index/OrganizationsList"
+import OrganizationsList from "./OrganizationsList"
+
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const OrganizationsPage: React.FC = () => {

@@ -3,7 +3,8 @@
 import { useParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import HistoryView from "@/components/page-specific/manage/pages/id/history/HistoryView"
+import HistoryView from "./HistoryView"
+
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 
 const History: React.FC = () => {

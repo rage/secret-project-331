@@ -9,9 +9,10 @@ import { useParams, useRouter } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import AddUserPopup from "@/components/page-specific/organizations/[id]/AddUserPopup"
-import DeleteOrganizationPopup from "@/components/page-specific/organizations/[id]/DeleteOrganizationPopup"
-import EditUserPopup from "@/components/page-specific/organizations/[id]/EditUserPopup"
+import AddUserPopup from "./AddUserPopup"
+import DeleteOrganizationPopup from "./DeleteOrganizationPopup"
+import EditUserPopup from "./EditUserPopup"
+
 import { fetchOrganization, updateOrganization } from "@/services/backend/organizations"
 import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
 import { RoleDomain, RoleUser, UserRole } from "@/shared-module/common/bindings"

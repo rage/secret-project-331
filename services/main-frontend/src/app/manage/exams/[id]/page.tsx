@@ -7,7 +7,8 @@ import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import EditExamDialog from "@/components/page-specific/manage/courses/id/exams/EditExamDialog"
+import EditExamDialog from "../EditExamDialog"
+
 import {
   fetchExam,
   fetchOrganization,

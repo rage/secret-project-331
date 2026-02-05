@@ -7,7 +7,8 @@ import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterPointsDashboard from "@/components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
+import ChapterPointsDashboard from "../ChapterPointsDashboard"
+
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { getPoints } from "@/services/backend/course-instances"
 import { UserDetail } from "@/shared-module/common/bindings"

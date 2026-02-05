@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewCourseInstanceForm from "@/components/page-specific/manage/courses/id/course-instances/NewCourseInstanceForm"
+import NewCourseInstanceForm from "@/app/manage/courses/[id]/course-instances/NewCourseInstanceForm"
 import {
   deleteCourseInstance,
   editCourseInstance,

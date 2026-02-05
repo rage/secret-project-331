@@ -17,10 +17,10 @@ mod batch_client;
 mod mailchimp_ops;
 mod policy_tags;
 
-use batch_client::{
-    BatchOperation, MAX_MAILCHIMP_BATCH_SIZE, poll_batch_until_finished, submit_batch,
-};
+use batch_client::MAX_MAILCHIMP_BATCH_SIZE;
+use mailchimp_ops::{MailchimpExecutor, MailchimpOperation};
 use policy_tags::sync_policy_tags_for_users;
+use reqwest::Method;
 
 #[derive(Debug, Deserialize)]
 struct MailchimpField {
@@ -1024,20 +1024,17 @@ async fn sync_completed_tag_for_members(
         } else {
             "inactive"
         };
-        let path = format!(
-            "/lists/{}/members/{}/tags",
-            token.mailchimp_mailing_list_id, user_mailchimp_id
-        );
-        let body = json!({
-            "tags": [
-                { "name": tag_name, "status": status }
-            ]
-        })
-        .to_string();
-        operations.push(BatchOperation {
-            method: "POST".to_string(),
-            path,
-            body,
+        operations.push(MailchimpOperation {
+            method: Method::POST,
+            path: format!(
+                "/lists/{}/members/{}/tags",
+                token.mailchimp_mailing_list_id, user_mailchimp_id
+            ),
+            body: Some(json!({
+                "tags": [
+                    { "name": tag_name, "status": status }
+                ]
+            })),
             operation_id: Some(user.user_id.to_string()),
         });
     }
@@ -1052,38 +1049,33 @@ async fn sync_completed_tag_for_members(
         ops_count, token.mailchimp_mailing_list_id
     );
 
-    let batch_ids = submit_batch(&token.server_prefix, &token.access_token, operations).await?;
     let timeout = Duration::from_secs(BATCH_POLL_TIMEOUT_SECS);
     let poll_interval = Duration::from_secs(BATCH_POLL_INTERVAL_SECS);
+    let executor = MailchimpExecutor::new(timeout, poll_interval);
 
     let start_time = Instant::now();
-    let poll_futures = batch_ids.iter().map(|batch_id| {
-        poll_batch_until_finished(
-            &token.server_prefix,
-            &token.access_token,
-            batch_id,
-            timeout,
-            poll_interval,
-        )
-    });
-    let results = futures::future::join_all(poll_futures).await;
-
-    let errors: Vec<_> = results
-        .into_iter()
-        .enumerate()
-        .filter_map(|(i, result)| result.err().map(|e| (i, e)))
-        .collect();
-
-    if !errors.is_empty() {
-        for (i, e) in &errors {
-            error!(
-                "Batch {} failed for completion tags in list '{}': {:?}",
-                batch_ids.get(*i).map(String::as_str).unwrap_or("?"),
-                token.mailchimp_mailing_list_id,
-                e
-            );
-        }
-        return Err(anyhow::anyhow!("{} batch(es) failed", errors.len()));
+    let results = executor.execute(token, operations).await?;
+    let failures: Vec<_> = results.iter().filter(|r| !r.is_success()).collect();
+    if !failures.is_empty() {
+        let sample: Vec<String> = failures
+            .iter()
+            .take(5)
+            .map(|r| {
+                format!(
+                    "{}: {}",
+                    r.operation_id.as_deref().unwrap_or("?"),
+                    r.error.as_deref().unwrap_or("unknown error")
+                )
+            })
+            .collect();
+        warn!(
+            "Completion tag sync for list '{}' had {} failure(s) out of {}. Sample: {:?}",
+            token.mailchimp_mailing_list_id,
+            failures.len(),
+            results.len(),
+            sample
+        );
+        return Err(anyhow::anyhow!("completion tag sync failed"));
     }
 
     info!(

@@ -16,6 +16,8 @@ export class AriaMenu {
   }
 
   async open() {
+    // Press esc in case another menu is open
+    await this.page.keyboard.press("Escape")
     await this.trigger.waitFor({ state: "visible" })
     await this.trigger.click()
     await expect(this.menu()).toBeVisible()

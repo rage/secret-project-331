@@ -7,8 +7,9 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseInstanceEnrollmentsList from "@/components/page-specific/manage/user/id/CourseInstanceEnrollmentsList"
-import ExerciseResetLogList from "@/components/page-specific/manage/user/id/ExerciseResetLogList"
+import CourseInstanceEnrollmentsList from "./CourseInstanceEnrollmentsList"
+import ExerciseResetLogList from "./ExerciseResetLogList"
+
 import { useUserDetails } from "@/hooks/useUserDetails"
 import { getCourseInstanceEnrollmentsInfo } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

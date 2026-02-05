@@ -6,7 +6,8 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseSubmissionList from "@/components/page-specific/manage/exercises/id/submissions/ExerciseSubmissionList"
+import ExerciseSubmissionList from "./ExerciseSubmissionList"
+
 import { fetchExerciseSubmissions, getExercise } from "@/services/backend/exercises"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

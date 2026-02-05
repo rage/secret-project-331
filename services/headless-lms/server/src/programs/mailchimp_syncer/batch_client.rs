@@ -77,25 +77,6 @@ pub async fn submit_batch(
     Ok(batch_ids)
 }
 
-/// Polls GET /batches/{batch_id} until status is "finished", or timeout. Logs batch error counts when finished.
-pub async fn poll_batch_until_finished(
-    server_prefix: &str,
-    access_token: &str,
-    batch_id: &str,
-    timeout: Duration,
-    poll_interval: Duration,
-) -> anyhow::Result<()> {
-    poll_batch_until_finished_with_response_url(
-        server_prefix,
-        access_token,
-        batch_id,
-        timeout,
-        poll_interval,
-    )
-    .await?;
-    Ok(())
-}
-
 /// Polls GET /batches/{batch_id} until status is "finished", or timeout. Returns response_body_url and error counts.
 pub async fn poll_batch_until_finished_with_response_url(
     server_prefix: &str,

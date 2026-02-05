@@ -2345,6 +2345,7 @@ dependencies = [
  "doc-macro",
  "dotenv",
  "dpop-verifier",
+ "flate2",
  "futures",
  "futures-util",
  "git2",

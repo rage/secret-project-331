@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["CONSENTED_TAG","NO_CONSENT_TAG"],"fn":["build_targets","compute_policy_tag_updates","current_status","extract_tag_status_map","normalize_locale_to_language_tag","normalize_tag_status","sync_policy_tags_for_users"],"struct":["PolicyTagSyncResult","PolicyTagTarget"]};

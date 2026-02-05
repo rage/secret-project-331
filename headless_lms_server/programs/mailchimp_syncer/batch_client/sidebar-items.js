@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MAX_MAILCHIMP_BATCH_SIZE"],"fn":["extract_batch_results_from_value","parse_batch_results_from_tar_gz","parse_operation_response_value","poll_batch_until_finished","poll_batch_until_finished_with_response_url","submit_batch"],"struct":["BatchOperation","BatchOperationResult","BatchPollResponse"]};

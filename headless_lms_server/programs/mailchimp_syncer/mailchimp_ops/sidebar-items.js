@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_BATCH_THRESHOLD"],"fn":["execute_batch","execute_direct","order_results"],"struct":["MailchimpExecutor","MailchimpOpResult","MailchimpOperation"]};

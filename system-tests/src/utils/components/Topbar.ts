@@ -35,12 +35,8 @@ export class Topbar {
     await expect(this.userMenuTrigger).toBeVisible()
   }
 
+  /** Clicks whichever login control appears (quick actions menu or login link); first successful click wins. */
   async clickLogin() {
-    const isLoggedIn = await this.quickActionsTrigger.isVisible().catch(() => false)
-    if (isLoggedIn) {
-      await this.quickActions.clickItem("Log in")
-    } else {
-      await this.loginLink.click()
-    }
+    await Promise.any([this.quickActions.clickItem("Log in"), this.loginLink.click()])
   }
 }

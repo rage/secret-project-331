@@ -270,6 +270,7 @@ pub async fn fetch_user_marketing_consents_with_details_by_user_ids(
         AND mlcm.deleted_at IS NULL
     WHERE umc.course_language_group_id = $1
     AND umc.user_id = ANY($2::uuid[])
+    AND umc.deleted_at IS NULL
     "#,
         course_language_group_id,
         user_ids

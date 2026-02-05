@@ -57,6 +57,11 @@ const REQUIRED_FIELDS: &[FieldSchema] = &[
         default_value: "en",
     },
     FieldSchema {
+        tag: "GRADUATED",
+        name: "Graduated",
+        default_value: "",
+    },
+    FieldSchema {
         tag: "COURSEID",
         name: "Course ID",
         default_value: "",
@@ -762,6 +767,7 @@ pub async fn send_users_to_mailchimp(
                     "LNAME": user.last_name.clone().unwrap_or("".to_string()),
                     "MARKETING": if user.consent { "allowed" } else { "disallowed" },
                     "LOCALE": user.locale,
+                    "GRADUATED": user.completed_course_at.map(|cca| cca.to_rfc3339()).unwrap_or("".to_string()),
                     "USERID": user.user_id,
                     "COURSEID": user.course_id,
                     "LANGGRPID": user.course_language_group_id,

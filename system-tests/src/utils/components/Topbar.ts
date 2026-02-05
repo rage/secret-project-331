@@ -14,7 +14,7 @@ export class Topbar {
 
   constructor(private readonly page: Page) {
     this.userMenuTrigger = page.locator("#topbar-user-menu")
-    this.quickActionsTrigger = page.locator("#topbar-quick-actions")
+    this.quickActionsTrigger = page.getByTestId("topbar-quick-actions")
     this.searchButton = page.locator("#search-for-pages-button")
     this.loginLink = page.getByLabel("Top bar").getByRole("link", { name: "Log in" })
 

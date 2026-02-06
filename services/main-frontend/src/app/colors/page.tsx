@@ -1,6 +1,6 @@
 "use client"
 
-import ColorPalette from "@/components/page-specific/colors/ColorPalette"
+import ColorPalette from "./ColorPalette"
 
 const Home: React.FC = () => {
   return (

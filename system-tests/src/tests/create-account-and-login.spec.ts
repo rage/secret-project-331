@@ -16,13 +16,15 @@ test("User can create an account and log in", async ({ page }) => {
     await page.getByRole("textbox", { name: "Password (Required)", exact: true }).fill("testuser")
     await page.getByRole("textbox", { name: "Confirm password (Required)" }).fill("testuser")
 
-    await page.getByRole("button", { name: "Create an account" }).click()
-    waitForSuccessNotification(page)
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Create an account" }).click()
+    })
 
     await expect(page.getByRole("heading", { name: "Regarding research done on" })).toBeVisible()
     await page.getByText("I do not want to participate").click()
-    await page.getByRole("button", { name: "Save" }).click()
-    waitForSuccessNotification(page)
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
 
     await expect(page.getByRole("heading", { name: "Please confirm your email" })).toBeVisible()
     await page.getByRole("button", { name: "Done" }).click()

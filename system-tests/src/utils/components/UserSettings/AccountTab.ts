@@ -45,8 +45,13 @@ export class AccountTab {
       }
     }
 
-    await this.page.getByRole("button", { name: "Save" }).click()
-    await waitForSuccessNotification(this.page, "Success")
+    await waitForSuccessNotification(
+      this.page,
+      async () => {
+        await this.page.getByRole("button", { name: "Save" }).click()
+      },
+      "Success",
+    )
 
     if (verifyUpdate) {
       const personalInfo = await this.getPersonalInformation()
@@ -103,7 +108,12 @@ export class AccountTab {
     await this.page.getByLabel("Old password").fill(currentPassword)
     await this.page.getByLabel("New password").fill(newPassword)
     await this.page.getByLabel("Confirm new password").fill(newPassword)
-    await this.page.getByRole("button", { name: "Save" }).click()
-    await waitForSuccessNotification(this.page, "Success")
+    await waitForSuccessNotification(
+      this.page,
+      async () => {
+        await this.page.getByRole("button", { name: "Save" }).click()
+      },
+      "Success",
+    )
   }
 }

@@ -6,7 +6,8 @@ import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewEmailTemplateForm from "@/components/page-specific/manage/course-instances/id/emails/NewEmailTemplateForm"
+import NewEmailTemplateForm from "./NewEmailTemplateForm"
+
 import {
   fetchCourseInstanceEmailTemplates,
   postNewEmailTemplateForCourseInstance,

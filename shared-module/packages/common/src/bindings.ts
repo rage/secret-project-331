@@ -665,6 +665,7 @@ export interface Course {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  flagged_answers_skip_manual_review_and_allow_retry: boolean
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
@@ -722,6 +723,7 @@ export interface CourseUpdate {
   is_joinable_by_code_only: boolean
   ask_marketing_consent: boolean
   flagged_answers_threshold: number
+  flagged_answers_skip_manual_review_and_allow_retry: boolean
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null

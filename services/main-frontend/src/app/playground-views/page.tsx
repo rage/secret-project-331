@@ -11,9 +11,10 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import PlaygroundExerciseEditorIframe from "@/components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
-import PlaygroundExerciseIframe from "@/components/page-specific/playground-views/PlaygroundExerciseIframe"
-import PlaygroundViewSubmissionIframe from "@/components/page-specific/playground-views/PlaygroundViewSubmissionIframe"
+import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
+import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
+import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
+
 import {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,

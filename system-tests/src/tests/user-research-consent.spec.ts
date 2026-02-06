@@ -5,6 +5,7 @@ import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsP
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 test("Research consent form is visible on login, if not yet answered", async ({
   page,
@@ -35,8 +36,12 @@ test("Research consent form is visible on login, if not yet answered", async ({
       snapshotName: "research-consent-form",
       waitForTheseToBeVisibleAndStable: [page.getByText("Regarding research done on courses")],
     })
-    await page.getByTestId("research-consent-dialog").getByRole("button", { name: "Save" }).click()
-    await page.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page
+        .getByTestId("research-consent-dialog")
+        .getByRole("button", { name: "Save" })
+        .click()
+    })
 
     //Login again and check research consent form doesn't show again when already answered.
     await topbar.userMenu.clickItem("Log out")

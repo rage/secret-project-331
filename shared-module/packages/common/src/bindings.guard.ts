@@ -1386,6 +1386,7 @@ export function isCourse(obj: unknown): obj is Course {
         typeof typedObj["ask_marketing_consent"] === "boolean" &&
         (typedObj["flagged_answers_threshold"] === null ||
             typeof typedObj["flagged_answers_threshold"] === "number") &&
+        typeof typedObj["flagged_answers_skip_manual_review_and_allow_retry"] === "boolean" &&
         (typedObj["closed_at"] === null ||
             typeof typedObj["closed_at"] === "string") &&
         (typedObj["closed_additional_message"] === null ||
@@ -1492,6 +1493,7 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
         typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
         typeof typedObj["ask_marketing_consent"] === "boolean" &&
         typeof typedObj["flagged_answers_threshold"] === "number" &&
+        typeof typedObj["flagged_answers_skip_manual_review_and_allow_retry"] === "boolean" &&
         (typedObj["closed_at"] === null ||
             typeof typedObj["closed_at"] === "string") &&
         (typedObj["closed_additional_message"] === null ||

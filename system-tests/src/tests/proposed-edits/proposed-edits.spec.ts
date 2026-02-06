@@ -4,6 +4,7 @@ import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialAction
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -123,9 +124,9 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.fill('textarea:has-text("Like this!")', "Like this!!!!!")
   await page.click(':nth-match(:text("Reject"), 3)')
 
-  await page.click('text="Send"')
-
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.click('text="Send"')
+  })
 
   await page.click('text="Old"')
 

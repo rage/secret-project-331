@@ -4,6 +4,7 @@ import {
   hideToasts,
   showNextToastsInfinitely,
   showToastsNormally,
+  waitForSuccessNotification,
 } from "../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -33,14 +34,16 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   await page.click('[placeholder="Enter email"]')
   await page.fill('[placeholder="Enter email"]', "teacher@example.com")
   await page.selectOption("select", "Admin")
-  await page.getByText("Add user").click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Add user").click()
+  })
 
   await page.click('[placeholder="Enter email"]')
   await page.fill('[placeholder="Enter email"]', "admin@example.com")
   await page.selectOption("select", "Teacher")
-  await page.getByText("Add user").click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Add user").click()
+  })
 
   await page.click('[aria-label="Sort by email"]')
   await expect(page).toHaveURL(

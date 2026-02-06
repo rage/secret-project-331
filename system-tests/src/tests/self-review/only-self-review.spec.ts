@@ -2,6 +2,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.describe("An exercise that has self review but no peer review works", () => {
@@ -47,8 +48,9 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await teacherPage.getByRole("button", { name: "Add peer review question" }).click()
       await teacherPage.getByLabel("Peer review question type").nth(1).selectOption("Scale")
       await teacherPage.getByLabel("Peer review questionInsert").fill("The answer was correct")
-      await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
-      await teacherPage.getByText("Operation successful!").waitFor()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
+      })
     })
 
     await test.step("Student 1 answers the exercise and reviews their own answer", async () => {
@@ -71,8 +73,9 @@ test.describe("An exercise that has self review but no peer review works", () =>
         .getByPlaceholder("Write a review")
         .fill("This was such a good answer 100/100.")
       await student1Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
-      await student1Page.getByRole("button", { name: "Submit" }).click()
-      await student1Page.getByText("Operation successful!").waitFor()
+      await waitForSuccessNotification(student1Page, async () => {
+        await student1Page.getByRole("button", { name: "Submit" }).click()
+      })
       await student1Page.getByText("Waiting for course staff to review your answer").waitFor()
     })
     await test.step(`Teacher reviews the answer`, async () => {
@@ -83,8 +86,9 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
       await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("0.7")
-      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
-      await teacherPage.getByText("Operation successful!").waitFor()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+      })
     })
 
     await test.step("Student 1 sees the results", async () => {

@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -20,8 +21,9 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
     .click()
   await page.getByRole("button", { name: "Edit", exact: true }).click()
   await page.getByPlaceholder("Opens at").fill("3200-04-17T19:13:24")
-  await page.getByRole("button", { name: "Update" }).click()
-  await page.getByText("Operation successful").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Update" }).click()
+  })
   await page
     .getByRole("row", { name: "Page One /chapter-1/page-1 Edit page Dropdown menu" })
     .getByRole("button", { name: "Edit page" })

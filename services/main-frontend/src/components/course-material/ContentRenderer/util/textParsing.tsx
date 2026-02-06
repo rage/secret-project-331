@@ -15,6 +15,7 @@ const REGEX_MODE = "gm"
 
 const GLOSSARY_TERM_REGEX_PREFIX = "\\b("
 const GLOSSARY_TERM_REGEX_SUFFIX = ")\\b"
+// Simple FIFO cache for compiled glossary term regexes; Map preserves insertion order.
 const TERM_REGEX_CACHE = new Map<string, RegExp>()
 const TERM_REGEX_CACHE_MAX_SIZE = 100
 
@@ -92,6 +93,7 @@ export const replaceTextNodeWithGlossarySpans = (
     if (m.index > lastIndex) {
       fragment.appendChild(doc.createTextNode(text.substring(lastIndex, m.index)))
     }
+    // Empty span is a mounting point for the glossary tooltip portal.
     const span = doc.createElement(GLOSSARY_SPAN_TAG)
     span.setAttribute(DATA_GLOSSARY_ID_ATTR, glossaryId)
     fragment.appendChild(span)

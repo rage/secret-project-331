@@ -15,9 +15,28 @@ const REGEX_MODE = "gm"
 
 const GLOSSARY_TERM_REGEX_PREFIX = "\\b("
 const GLOSSARY_TERM_REGEX_SUFFIX = ")\\b"
+const TERM_REGEX_CACHE = new Map<string, RegExp>()
+const TERM_REGEX_CACHE_MAX_SIZE = 100
+
+const getTermRegex = (term: string): RegExp => {
+  let regex = TERM_REGEX_CACHE.get(term)
+  if (!regex) {
+    if (TERM_REGEX_CACHE.size >= TERM_REGEX_CACHE_MAX_SIZE) {
+      const oldestKey = TERM_REGEX_CACHE.keys().next().value
+      if (oldestKey !== undefined) {
+        TERM_REGEX_CACHE.delete(oldestKey)
+      }
+    }
+    regex = new RegExp(GLOSSARY_TERM_REGEX_PREFIX + term + GLOSSARY_TERM_REGEX_SUFFIX, REGEX_MODE)
+    TERM_REGEX_CACHE.set(term, regex)
+  }
+  return regex
+}
+
 const GLOSSARY_SPAN_TAG = "span"
 const DATA_GLOSSARY_ID_ATTR = "data-glossary-id"
 const HTML_MIME_TYPE = "text/html"
+const DOM_PARSER = new DOMParser()
 
 const DATA_CITATION_ID_ATTR = "data-citation-id"
 const DATA_CITATION_PRENOTE_ATTR = "data-citation-prenote"
@@ -25,16 +44,16 @@ const DATA_CITATION_POSTNOTE_ATTR = "data-citation-postnote"
 const HTML_ENTITY_QUOT = "&quot;"
 const HTML_ENTITY_NBSP = "&nbsp;"
 const AMPERSAND_CHAR = "&"
+const QUOTE_REGEX = /"/g
+const TILDE_REGEX = /~/g
 
 /** Finds all whole-word matches of term in text; returns index and length for each. */
 export const findTermMatches = (
   text: string,
   term: string,
 ): { index: number; length: number }[] => {
-  const regex = new RegExp(
-    GLOSSARY_TERM_REGEX_PREFIX + term + GLOSSARY_TERM_REGEX_SUFFIX,
-    REGEX_MODE,
-  )
+  const regex = getTermRegex(term)
+  regex.lastIndex = 0
   const matches: { index: number; length: number }[] = []
   let match
   while ((match = regex.exec(text)) !== null) {
@@ -99,7 +118,7 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
     return { parsedText: data, terms: usedGlossary }
   }
 
-  const doc = new DOMParser().parseFromString(data, HTML_MIME_TYPE)
+  const doc = DOM_PARSER.parseFromString(data, HTML_MIME_TYPE)
 
   for (const item of glossary) {
     const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT)
@@ -139,10 +158,18 @@ const parseCitation = (data: string) => {
       }
 
       const prenoteAttr = actualPrenote
-        ? ` ${DATA_CITATION_PRENOTE_ATTR}="${actualPrenote.replace(/"/g, HTML_ENTITY_QUOT).replace(/~/g, HTML_ENTITY_NBSP)}"`
+        ? (() => {
+            QUOTE_REGEX.lastIndex = 0
+            TILDE_REGEX.lastIndex = 0
+            return ` ${DATA_CITATION_PRENOTE_ATTR}="${actualPrenote.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)}"`
+          })()
         : ""
       const postnoteAttr = actualPostnote
-        ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${actualPostnote.replace(/"/g, HTML_ENTITY_QUOT).replace(/~/g, HTML_ENTITY_NBSP)}"`
+        ? (() => {
+            QUOTE_REGEX.lastIndex = 0
+            TILDE_REGEX.lastIndex = 0
+            return ` ${DATA_CITATION_POSTNOTE_ATTR}="${actualPostnote.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)}"`
+          })()
         : ""
       return `<${GLOSSARY_SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${citationId}"${prenoteAttr}${postnoteAttr}></${GLOSSARY_SPAN_TAG}>`
     },

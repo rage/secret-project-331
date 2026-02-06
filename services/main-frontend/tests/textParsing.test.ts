@@ -556,6 +556,13 @@ describe("parseText", () => {
       const { parsedText } = parseText("Use C++17 here.", [specialTerm])
       expect(parsedText).toBe('Use <span data-glossary-id="term-special"></span> here.')
     })
+
+    test("does not match term split across elements", () => {
+      const input = "<b>algo</b>rithm is here."
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).not.toContain('data-glossary-id="term-1"')
+      expect(parsedText).toContain("<b>algo</b>rithm is here.")
+    })
   })
 })
 

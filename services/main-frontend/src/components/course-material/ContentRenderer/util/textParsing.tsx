@@ -10,6 +10,8 @@ import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCour
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
 const LATEX_CITE_REGEX = /\\cite(?:\[([^\]]*)\])?(?:\[([^\]]*)\])?{(.*?)}/g
 const HTML_ESCAPED_AMPERSAND = "&amp;"
+const AMPERSAND_CHAR = "&"
+const HTML_MIME_TYPE = "text/html"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 const REGEX_MODE = "gm"
 
@@ -41,26 +43,33 @@ const getTermRegex = (term: string): RegExp => {
   return regex
 }
 
-const GLOSSARY_SPAN_TAG = "span"
+const SPAN_TAG = "span"
 const DATA_GLOSSARY_ID_ATTR = "data-glossary-id"
-const HTML_MIME_TYPE = "text/html"
-const DOM_PARSER = new DOMParser()
+let domParser: DOMParser | null = null
+
+/** Returns a DOMParser instance, lazily created to avoid SSR issues. */
+const getDomParser = (): DOMParser => {
+  if (domParser) {
+    return domParser
+  }
+  if (typeof DOMParser === "undefined") {
+    throw new Error("DOMParser is not available in this environment.")
+  }
+  domParser = new DOMParser()
+  return domParser
+}
 
 const DATA_CITATION_ID_ATTR = "data-citation-id"
 const DATA_CITATION_PRENOTE_ATTR = "data-citation-prenote"
 const DATA_CITATION_POSTNOTE_ATTR = "data-citation-postnote"
 const HTML_ENTITY_QUOT = "&quot;"
 const HTML_ENTITY_NBSP = "&nbsp;"
-const AMPERSAND_CHAR = "&"
 const QUOTE_REGEX = /"/g
 const TILDE_REGEX = /~/g
 
 /** Escapes citation-related text for safe use in HTML attributes. */
-const escapeCitationText = (value: string): string => {
-  QUOTE_REGEX.lastIndex = 0
-  TILDE_REGEX.lastIndex = 0
-  return value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)
-}
+const escapeCitationText = (value: string): string =>
+  value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)
 
 /** Finds all whole-word matches of term in text; returns index and length for each. */
 export const findTermMatches = (
@@ -93,8 +102,9 @@ export const replaceTextNodeWithGlossarySpans = (
     if (m.index > lastIndex) {
       fragment.appendChild(doc.createTextNode(text.substring(lastIndex, m.index)))
     }
-    // Empty span is a mounting point for the glossary tooltip portal.
-    const span = doc.createElement(GLOSSARY_SPAN_TAG)
+    // Empty span is a mounting point for the glossary tooltip portal; the user-visible
+    // text is rendered later by the React tooltip component rather than being kept here.
+    const span = doc.createElement(SPAN_TAG)
     span.setAttribute(DATA_GLOSSARY_ID_ATTR, glossaryId)
     fragment.appendChild(span)
     lastIndex = m.index + m.length
@@ -127,6 +137,10 @@ const convertToLatex = (data: string) => {
   return { count, converted }
 }
 
+/** Parses glossary terms out of HTML and inserts span markers into text nodes.
+ * Earlier items in the glossary array win when terms overlap, because matches
+ * are removed from the DOM before later terms are processed.
+ */
 const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; terms: Term[] } => {
   const usedGlossary: Term[] = []
 
@@ -134,7 +148,7 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
     return { parsedText: data, terms: usedGlossary }
   }
 
-  const doc = DOM_PARSER.parseFromString(data, HTML_MIME_TYPE)
+  const doc = getDomParser().parseFromString(data, HTML_MIME_TYPE)
 
   for (const item of glossary) {
     const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT)
@@ -148,7 +162,7 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
       if (matches.length === 0) {
         continue
       }
-      matches.forEach(() => usedGlossary.push(item))
+      usedGlossary.push(item)
       replaceTextNodeWithGlossarySpans(doc, textNode, matches, item.id)
     }
   }
@@ -160,6 +174,10 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
   return { parsedText: doc.body.innerHTML, terms: usedGlossary }
 }
 
+/** Parses LaTeX \\cite commands in the raw HTML string into span markers.
+ * This runs before DOM-based glossary parsing and assumes citation commands
+ * appear only in text content, not inside HTML attribute values.
+ */
 const parseCitation = (data: string) => {
   const converted = data.replace(
     LATEX_CITE_REGEX,
@@ -180,7 +198,7 @@ const parseCitation = (data: string) => {
         ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(actualPostnote)}"`
         : ""
       const escapedCitationId = escapeCitationText(citationId ?? "")
-      return `<${GLOSSARY_SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${escapedCitationId}"${prenoteAttr}${postnoteAttr}></${GLOSSARY_SPAN_TAG}>`
+      return `<${SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${escapedCitationId}"${prenoteAttr}${postnoteAttr}></${SPAN_TAG}>`
     },
   )
   return converted

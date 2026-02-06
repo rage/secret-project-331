@@ -4,6 +4,7 @@ import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -147,8 +148,9 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
 
   await page.locator('[aria-label="Table caption text"]').fill(CAPTION_CONTENT)
 
-  await page.getByText("Save").nth(3).click()
-  await page.getByText(`Operation successful!`).waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Save").nth(3).click()
+  })
 
   await page.goto(
     "http://project-331.local/org/uh-mathstat/courses/material-references-course/chapter-1/page-1",

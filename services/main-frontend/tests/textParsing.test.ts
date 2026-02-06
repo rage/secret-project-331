@@ -1,4 +1,130 @@
-import { parseText } from "@/components/course-material/ContentRenderer/util/textParsing"
+import {
+  findTermMatches,
+  parseText,
+  replaceTextNodeWithGlossarySpans,
+} from "@/components/course-material/ContentRenderer/util/textParsing"
+import { Term } from "@/shared-module/common/bindings"
+
+describe("findTermMatches", () => {
+  test("single match in middle of string", () => {
+    expect(findTermMatches("An algorithm here", "algorithm")).toEqual([{ index: 3, length: 9 }])
+  })
+
+  test("multiple matches", () => {
+    expect(findTermMatches("algorithm and algorithm", "algorithm")).toEqual([
+      { index: 0, length: 9 },
+      { index: 14, length: 9 },
+    ])
+  })
+
+  test("no match when term is absent", () => {
+    expect(findTermMatches("No match here", "algorithm")).toEqual([])
+  })
+
+  test("no match on partial word", () => {
+    expect(findTermMatches("Algorithms", "algorithm")).toEqual([])
+  })
+
+  test("match at start of string", () => {
+    expect(findTermMatches("algorithm runs", "algorithm")).toEqual([{ index: 0, length: 9 }])
+  })
+
+  test("match at end of string", () => {
+    expect(findTermMatches("We need an algorithm", "algorithm")).toEqual([{ index: 11, length: 9 }])
+  })
+
+  test("is case-sensitive", () => {
+    expect(findTermMatches("Algorithm with capital A", "algorithm")).toEqual([])
+  })
+
+  test("adjacent to punctuation matches at correct index", () => {
+    expect(findTermMatches("An algorithm, or two", "algorithm")).toEqual([{ index: 3, length: 9 }])
+  })
+
+  test("empty input string returns no matches", () => {
+    expect(findTermMatches("", "algorithm")).toEqual([])
+  })
+})
+
+describe("replaceTextNodeWithGlossarySpans", () => {
+  test("single match splits text node into text, span, text", () => {
+    const doc = new DOMParser().parseFromString("<p></p>", "text/html")
+    const p = doc.body.firstElementChild!
+    const textNode = doc.createTextNode("An algorithm here")
+    p.appendChild(textNode)
+    replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 3, length: 9 }], "term-1")
+    expect(p.innerHTML).toBe('An <span data-glossary-id="term-1"></span> here')
+  })
+
+  test("multiple matches produce correct sequence of text nodes and spans", () => {
+    const doc = new DOMParser().parseFromString("<p></p>", "text/html")
+    const p = doc.body.firstElementChild!
+    const textNode = doc.createTextNode("algorithm and algorithm")
+    p.appendChild(textNode)
+    replaceTextNodeWithGlossarySpans(
+      doc,
+      textNode,
+      [
+        { index: 0, length: 9 },
+        { index: 14, length: 9 },
+      ],
+      "id-a",
+    )
+    expect(p.innerHTML).toBe(
+      '<span data-glossary-id="id-a"></span> and <span data-glossary-id="id-a"></span>',
+    )
+  })
+
+  test("match at start: no leading text, starts with span", () => {
+    const doc = new DOMParser().parseFromString("<p></p>", "text/html")
+    const p = doc.body.firstElementChild!
+    const textNode = doc.createTextNode("algorithm here")
+    p.appendChild(textNode)
+    replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 0, length: 9 }], "x")
+    expect(p.innerHTML).toBe('<span data-glossary-id="x"></span> here')
+  })
+
+  test("match at end: no trailing text, ends with span", () => {
+    const doc = new DOMParser().parseFromString("<p></p>", "text/html")
+    const p = doc.body.firstElementChild!
+    const textNode = doc.createTextNode("the algorithm")
+    p.appendChild(textNode)
+    replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 4, length: 9 }], "y")
+    expect(p.innerHTML).toBe('the <span data-glossary-id="y"></span>')
+  })
+
+  test("span has correct data-glossary-id attribute value", () => {
+    const doc = new DOMParser().parseFromString("<p></p>", "text/html")
+    const p = doc.body.firstElementChild!
+    const textNode = doc.createTextNode("word")
+    p.appendChild(textNode)
+    replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 0, length: 4 }], "custom-id-123")
+    expect(p.querySelector("span")?.getAttribute("data-glossary-id")).toBe("custom-id-123")
+  })
+
+  test("original text node is removed from the parent", () => {
+    const doc = new DOMParser().parseFromString("<p></p>", "text/html")
+    const p = doc.body.firstElementChild!
+    const textNode = doc.createTextNode("an algorithm")
+    p.appendChild(textNode)
+    replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 3, length: 9 }], "id")
+    expect(p.contains(textNode)).toBe(false)
+  })
+
+  test("text with HTML-special chars is preserved and not interpreted as HTML", () => {
+    const doc = new DOMParser().parseFromString("<p></p>", "text/html")
+    const p = doc.body.firstElementChild!
+    const textNode = doc.createTextNode("Use x<y and a&b")
+    p.appendChild(textNode)
+    replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 4, length: 1 }], "id")
+    expect(p.querySelectorAll("span")).toHaveLength(1)
+    expect(p.childNodes.length).toBe(3)
+    const parts = Array.from(p.childNodes).map((n) => n.textContent ?? "")
+    expect(parts[0]).toBe("Use ")
+    expect(parts[1]).toBe("")
+    expect(parts[2]).toBe("<y and a&b")
+  })
+})
 
 describe("parseText", () => {
   test("Does not remove spaces in middle of sentences.", () => {
@@ -292,6 +418,156 @@ describe("parseText", () => {
         expect(parsedText).toContain('data-citation-postnote="p.&nbsp;12"')
         expect(parsedText).not.toContain("data-citation-prenote")
       })
+
+      test("escapes quotes and tildes in citation id", () => {
+        const { parsedText } = parseText('Text\\cite{key"~1} with special id.', [], {
+          glossary: false,
+        })
+        expect(parsedText).toContain('data-citation-id="key&quot;&nbsp;1"')
+      })
     })
+  })
+
+  describe("glossary parsing", () => {
+    const term: Term = {
+      id: "term-1",
+      term: "algorithm",
+      definition: "A step-by-step procedure.",
+    }
+
+    test("wraps glossary term in span with data-glossary-id", () => {
+      const { parsedText } = parseText("An algorithm solves it.", [term])
+      expect(parsedText).toBe('An <span data-glossary-id="term-1"></span> solves it.')
+    })
+
+    test("returns used term in glossaryEntries", () => {
+      const { parsedText, glossaryEntries } = parseText("Text with algorithm inside.", [term])
+      expect(parsedText).toBe('Text with <span data-glossary-id="term-1"></span> inside.')
+      expect(glossaryEntries).toHaveLength(1)
+      expect(glossaryEntries[0].id).toBe("term-1")
+      expect(glossaryEntries[0].term).toBe("algorithm")
+    })
+
+    test("does not match partial word", () => {
+      const { parsedText } = parseText("Algorithms are many.", [term])
+      expect(parsedText).toBe("Algorithms are many.")
+    })
+
+    test("does nothing when glossary option is false", () => {
+      const { parsedText } = parseText("An algorithm here.", [term], {
+        glossary: false,
+      })
+      expect(parsedText).toBe("An algorithm here.")
+    })
+
+    test("replaces same term multiple times and dedupes glossaryEntries", () => {
+      const { parsedText, glossaryEntries } = parseText(
+        "An algorithm here and an algorithm there.",
+        [term],
+      )
+      expect(parsedText).toBe(
+        'An <span data-glossary-id="term-1"></span> here and an <span data-glossary-id="term-1"></span> there.',
+      )
+      expect(glossaryEntries).toHaveLength(1)
+      expect(glossaryEntries[0].id).toBe("term-1")
+    })
+
+    test("replaces two different terms in one string", () => {
+      const terms: Term[] = [
+        { id: "id-a", term: "algorithm", definition: "Step-by-step procedure." },
+        { id: "id-b", term: "variable", definition: "Named storage." },
+      ]
+      const { parsedText, glossaryEntries } = parseText("An algorithm uses a variable.", terms)
+      expect(parsedText).toBe(
+        'An <span data-glossary-id="id-a"></span> uses a <span data-glossary-id="id-b"></span>.',
+      )
+      expect(glossaryEntries).toHaveLength(2)
+      expect(glossaryEntries.map((t) => t.id).sort()).toEqual(["id-a", "id-b"])
+    })
+
+    test("term at start and term at end of string", () => {
+      const { parsedText } = parseText("algorithm runs.", [term])
+      expect(parsedText).toBe('<span data-glossary-id="term-1"></span> runs.')
+      const { parsedText: endText } = parseText("We need an algorithm", [term])
+      expect(endText).toBe('We need an <span data-glossary-id="term-1"></span>')
+    })
+
+    test("is case-sensitive", () => {
+      const { parsedText } = parseText("Algorithm with capital A.", [term])
+      expect(parsedText).toBe("Algorithm with capital A.")
+    })
+
+    test("empty glossary leaves text unchanged", () => {
+      const { parsedText, glossaryEntries } = parseText("An algorithm here.", [])
+      expect(parsedText).toBe("An algorithm here.")
+      expect(glossaryEntries).toHaveLength(0)
+    })
+
+    test("matches term with trailing punctuation", () => {
+      const { parsedText } = parseText("An algorithm, or two.", [term])
+      expect(parsedText).toBe('An <span data-glossary-id="term-1"></span>, or two.')
+    })
+
+    test("first matching term wins when one term is substring of another", () => {
+      const terms: Term[] = [
+        { id: "loop", term: "loop", definition: "Repetition." },
+        { id: "for-loop", term: "for loop", definition: "Loop construct." },
+      ]
+      const { parsedText } = parseText("Use a for loop here.", terms)
+      expect(parsedText).toBe('Use a for <span data-glossary-id="loop"></span> here.')
+    })
+
+    test("does not replace glossary term inside link href (preserves URL)", () => {
+      const input = 'See <a href="https://example.com/algorithm">documentation</a>.'
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).toContain('href="https://example.com/algorithm"')
+    })
+
+    test("does not replace glossary term inside link href query string", () => {
+      const input = 'Search <a href="https://example.com/search?q=algorithm">results</a> here.'
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).toContain('href="https://example.com/search?q=algorithm"')
+    })
+
+    test("does not replace glossary term inside link href fragment", () => {
+      const input = 'Jump to <a href="#algorithm">section</a> below.'
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).toContain('href="#algorithm"')
+    })
+
+    test("does not replace glossary term inside link title attribute", () => {
+      const input = '<a href="https://example.com" title="See algorithm definition">link</a>'
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).toContain('title="See algorithm definition"')
+    })
+
+    test("does not replace glossary term inside abbr title attribute", () => {
+      const input = 'An <abbr title="algorithm">algo</abbr> is a procedure.'
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).toContain('title="algorithm"')
+    })
+
+    test("handles glossary term with regex-special characters literally", () => {
+      const specialTerm: Term = {
+        id: "term-special",
+        term: "C++17",
+        definition: "A C++ standard version.",
+      }
+      const { parsedText } = parseText("Use C++17 here.", [specialTerm])
+      expect(parsedText).toBe('Use <span data-glossary-id="term-special"></span> here.')
+    })
+
+    test("does not match term split across elements", () => {
+      const input = "<b>algo</b>rithm is here."
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).not.toContain('data-glossary-id="term-1"')
+      expect(parsedText).toContain("<b>algo</b>rithm is here.")
+    })
+  })
+})
+
+describe("findTermMatches with regex-special characters", () => {
+  test("matches term containing regex metacharacters literally", () => {
+    expect(findTermMatches("Use C++17 here.", "C++17")).toEqual([{ index: 4, length: 5 }])
   })
 })

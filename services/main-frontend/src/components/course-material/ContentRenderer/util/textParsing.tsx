@@ -13,6 +13,65 @@ const HTML_ESCAPED_AMPERSAND = "&amp;"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 const REGEX_MODE = "gm"
 
+const GLOSSARY_TERM_REGEX_PREFIX = "\\b("
+const GLOSSARY_TERM_REGEX_SUFFIX = ")\\b"
+const GLOSSARY_SPAN_TAG = "span"
+const DATA_GLOSSARY_ID_ATTR = "data-glossary-id"
+const HTML_MIME_TYPE = "text/html"
+
+const DATA_CITATION_ID_ATTR = "data-citation-id"
+const DATA_CITATION_PRENOTE_ATTR = "data-citation-prenote"
+const DATA_CITATION_POSTNOTE_ATTR = "data-citation-postnote"
+const HTML_ENTITY_QUOT = "&quot;"
+const HTML_ENTITY_NBSP = "&nbsp;"
+const AMPERSAND_CHAR = "&"
+
+/** Finds all whole-word matches of term in text; returns index and length for each. */
+export const findTermMatches = (
+  text: string,
+  term: string,
+): { index: number; length: number }[] => {
+  const regex = new RegExp(
+    GLOSSARY_TERM_REGEX_PREFIX + term + GLOSSARY_TERM_REGEX_SUFFIX,
+    REGEX_MODE,
+  )
+  const matches: { index: number; length: number }[] = []
+  let match
+  while ((match = regex.exec(text)) !== null) {
+    matches.push({ index: match.index, length: match[0].length })
+  }
+  return matches
+}
+
+/** Splits a text node at match positions and inserts span elements with data-glossary-id. */
+export const replaceTextNodeWithGlossarySpans = (
+  doc: Document,
+  textNode: Text,
+  matches: { index: number; length: number }[],
+  glossaryId: string,
+): void => {
+  const text = textNode.textContent ?? ""
+  const parent = textNode.parentNode!
+  const fragment = doc.createDocumentFragment()
+  let lastIndex = 0
+
+  for (const m of matches) {
+    if (m.index > lastIndex) {
+      fragment.appendChild(doc.createTextNode(text.substring(lastIndex, m.index)))
+    }
+    const span = doc.createElement(GLOSSARY_SPAN_TAG)
+    span.setAttribute(DATA_GLOSSARY_ID_ATTR, glossaryId)
+    fragment.appendChild(span)
+    lastIndex = m.index + m.length
+  }
+
+  if (lastIndex < text.length) {
+    fragment.appendChild(doc.createTextNode(text.substring(lastIndex)))
+  }
+
+  parent.replaceChild(fragment, textNode)
+}
+
 /**
  *
  * @param data HTML-content from the server
@@ -22,7 +81,7 @@ const convertToLatex = (data: string) => {
   let count = 0
   const converted = data.replace(LATEX_REGEX, (_, latex) => {
     // Convert ampersand back to special symbol. This is needed e.g. in matrices
-    const processed = latex.replaceAll(HTML_ESCAPED_AMPERSAND, "&")
+    const processed = latex.replaceAll(HTML_ESCAPED_AMPERSAND, AMPERSAND_CHAR)
     count++
     return KaTex.renderToString(processed, {
       throwOnError: false,
@@ -34,20 +93,36 @@ const convertToLatex = (data: string) => {
 }
 
 const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; terms: Term[] } => {
-  let parsed = data
-  let usedGlossary: Term[] = []
+  const usedGlossary: Term[] = []
 
-  glossary.forEach((item) => {
-    // eslint-disable-next-line i18next/no-literal-string
-    const regexString = `\\b(${item.term})\\b`
-    parsed = parsed.replace(new RegExp(regexString, REGEX_MODE), (_content, _) => {
-      usedGlossary.push(item)
-      // eslint-disable-next-line i18next/no-literal-string
-      return `<span data-glossary-id="${item.id}"></span>`
-    })
-  })
+  if (glossary.length === 0) {
+    return { parsedText: data, terms: usedGlossary }
+  }
 
-  return { parsedText: parsed, terms: usedGlossary }
+  const doc = new DOMParser().parseFromString(data, HTML_MIME_TYPE)
+
+  for (const item of glossary) {
+    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT)
+    const textNodes: Text[] = []
+    while (walker.nextNode()) {
+      textNodes.push(walker.currentNode as Text)
+    }
+
+    for (const textNode of textNodes) {
+      const matches = findTermMatches(textNode.textContent ?? "", item.term)
+      if (matches.length === 0) {
+        continue
+      }
+      matches.forEach(() => usedGlossary.push(item))
+      replaceTextNodeWithGlossarySpans(doc, textNode, matches, item.id)
+    }
+  }
+
+  if (usedGlossary.length === 0) {
+    return { parsedText: data, terms: usedGlossary }
+  }
+
+  return { parsedText: doc.body.innerHTML, terms: usedGlossary }
 }
 
 const parseCitation = (data: string) => {
@@ -64,15 +139,12 @@ const parseCitation = (data: string) => {
       }
 
       const prenoteAttr = actualPrenote
-        ? // eslint-disable-next-line i18next/no-literal-string
-          ` data-citation-prenote="${actualPrenote.replace(/"/g, "&quot;").replace(/~/g, "&nbsp;")}"`
+        ? ` ${DATA_CITATION_PRENOTE_ATTR}="${actualPrenote.replace(/"/g, HTML_ENTITY_QUOT).replace(/~/g, HTML_ENTITY_NBSP)}"`
         : ""
       const postnoteAttr = actualPostnote
-        ? // eslint-disable-next-line i18next/no-literal-string
-          ` data-citation-postnote="${actualPostnote.replace(/"/g, "&quot;").replace(/~/g, "&nbsp;")}"`
+        ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${actualPostnote.replace(/"/g, HTML_ENTITY_QUOT).replace(/~/g, HTML_ENTITY_NBSP)}"`
         : ""
-      // eslint-disable-next-line i18next/no-literal-string
-      return `<span data-citation-id="${citationId}"${prenoteAttr}${postnoteAttr}></span>`
+      return `<${GLOSSARY_SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${citationId}"${prenoteAttr}${postnoteAttr}></${GLOSSARY_SPAN_TAG}>`
     },
   )
   return converted

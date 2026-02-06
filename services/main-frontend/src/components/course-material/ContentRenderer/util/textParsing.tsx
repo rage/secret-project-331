@@ -18,6 +18,9 @@ const GLOSSARY_TERM_REGEX_SUFFIX = ")\\b"
 const TERM_REGEX_CACHE = new Map<string, RegExp>()
 const TERM_REGEX_CACHE_MAX_SIZE = 100
 
+/** Escapes regex metacharacters in a string so it can be used literally in a RegExp. */
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
 const getTermRegex = (term: string): RegExp => {
   let regex = TERM_REGEX_CACHE.get(term)
   if (!regex) {
@@ -27,7 +30,11 @@ const getTermRegex = (term: string): RegExp => {
         TERM_REGEX_CACHE.delete(oldestKey)
       }
     }
-    regex = new RegExp(GLOSSARY_TERM_REGEX_PREFIX + term + GLOSSARY_TERM_REGEX_SUFFIX, REGEX_MODE)
+    const escapedTerm = escapeRegex(term)
+    regex = new RegExp(
+      GLOSSARY_TERM_REGEX_PREFIX + escapedTerm + GLOSSARY_TERM_REGEX_SUFFIX,
+      REGEX_MODE,
+    )
     TERM_REGEX_CACHE.set(term, regex)
   }
   return regex
@@ -46,6 +53,13 @@ const HTML_ENTITY_NBSP = "&nbsp;"
 const AMPERSAND_CHAR = "&"
 const QUOTE_REGEX = /"/g
 const TILDE_REGEX = /~/g
+
+/** Escapes citation-related text for safe use in HTML attributes. */
+const escapeCitationText = (value: string): string => {
+  QUOTE_REGEX.lastIndex = 0
+  TILDE_REGEX.lastIndex = 0
+  return value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)
+}
 
 /** Finds all whole-word matches of term in text; returns index and length for each. */
 export const findTermMatches = (
@@ -158,20 +172,13 @@ const parseCitation = (data: string) => {
       }
 
       const prenoteAttr = actualPrenote
-        ? (() => {
-            QUOTE_REGEX.lastIndex = 0
-            TILDE_REGEX.lastIndex = 0
-            return ` ${DATA_CITATION_PRENOTE_ATTR}="${actualPrenote.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)}"`
-          })()
+        ? ` ${DATA_CITATION_PRENOTE_ATTR}="${escapeCitationText(actualPrenote)}"`
         : ""
       const postnoteAttr = actualPostnote
-        ? (() => {
-            QUOTE_REGEX.lastIndex = 0
-            TILDE_REGEX.lastIndex = 0
-            return ` ${DATA_CITATION_POSTNOTE_ATTR}="${actualPostnote.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)}"`
-          })()
+        ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(actualPostnote)}"`
         : ""
-      return `<${GLOSSARY_SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${citationId}"${prenoteAttr}${postnoteAttr}></${GLOSSARY_SPAN_TAG}>`
+      const escapedCitationId = escapeCitationText(citationId ?? "")
+      return `<${GLOSSARY_SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${escapedCitationId}"${prenoteAttr}${postnoteAttr}></${GLOSSARY_SPAN_TAG}>`
     },
   )
   return converted

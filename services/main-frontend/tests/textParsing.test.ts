@@ -418,6 +418,13 @@ describe("parseText", () => {
         expect(parsedText).toContain('data-citation-postnote="p.&nbsp;12"')
         expect(parsedText).not.toContain("data-citation-prenote")
       })
+
+      test("escapes quotes and tildes in citation id", () => {
+        const { parsedText } = parseText('Text\\cite{key"~1} with special id.', [], {
+          glossary: false,
+        })
+        expect(parsedText).toContain('data-citation-id="key&quot;&nbsp;1"')
+      })
     })
   })
 
@@ -539,5 +546,21 @@ describe("parseText", () => {
       const { parsedText } = parseText(input, [term])
       expect(parsedText).toContain('title="algorithm"')
     })
+
+    test("handles glossary term with regex-special characters literally", () => {
+      const specialTerm: Term = {
+        id: "term-special",
+        term: "C++17",
+        definition: "A C++ standard version.",
+      }
+      const { parsedText } = parseText("Use C++17 here.", [specialTerm])
+      expect(parsedText).toBe('Use <span data-glossary-id="term-special"></span> here.')
+    })
+  })
+})
+
+describe("findTermMatches with regex-special characters", () => {
+  test("matches term containing regex metacharacters literally", () => {
+    expect(findTermMatches("Use C++17 here.", "C++17")).toEqual([{ index: 4, length: 5 }])
   })
 })

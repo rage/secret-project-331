@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nupdate email_deliveries\nset retry_count = retry_count + 1,\n    first_failed_at = coalesce(first_failed_at, now()),\n    retryable = FALSE,\n    next_retry_at = NULL\nwhere id = $1;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ef6eb035cda03d8ecae460938e83879a98501f7cc92a870d064daae459784662"
+}

@@ -1,0 +1,94 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH due AS (\n    SELECT\n        ed.id\n    FROM email_deliveries ed\n    WHERE ed.deleted_at IS NULL\n      AND ed.sent = FALSE\n      AND ed.retryable = TRUE\n      AND (ed.next_retry_at IS NULL OR ed.next_retry_at <= now())\n    ORDER BY coalesce(ed.next_retry_at, '-infinity'::timestamptz), ed.created_at\n    FOR UPDATE SKIP LOCKED\n    LIMIT $1\n),\nclaimed AS (\n    UPDATE email_deliveries ed\n    SET last_attempt_at = now(),\n        -- Crash-recovery lease for claimed rows; this is not retry backoff.\n        next_retry_at = now() + interval '5 minutes'\n    FROM due\n    WHERE ed.id = due.id\n    RETURNING\n        ed.id,\n        ed.user_id,\n        ed.email_template_id,\n        ed.retry_count,\n        ed.next_retry_at,\n        ed.retryable,\n        ed.first_failed_at,\n        ed.last_attempt_at\n)\nSELECT\n    c.id AS id,\n    c.user_id AS user_id,\n    ud.email AS to,\n    et.subject AS subject,\n    et.content AS body,\n    et.email_template_type AS \"template_type: EmailTemplateType\",\n    c.retry_count AS retry_count,\n    c.next_retry_at AS next_retry_at,\n    c.retryable AS retryable,\n    c.first_failed_at AS first_failed_at,\n    c.last_attempt_at AS last_attempt_at\nFROM claimed c\nJOIN email_templates et ON et.id = c.email_template_id\nJOIN users u ON u.id = c.user_id\nJOIN user_details ud ON ud.user_id = u.id\nORDER BY c.last_attempt_at ASC;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "to",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "subject",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "body",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "template_type: EmailTemplateType",
+        "type_info": {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "retry_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "next_retry_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "retryable",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "first_failed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "last_attempt_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "f1bb6484b9191f169e98b361f52a05ada92a59712c5ab6fb61ddc330a212a9f6"
+}

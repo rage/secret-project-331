@@ -1,6 +1,7 @@
 use crate::email_templates::EmailTemplateType;
 use crate::prelude::*;
-use std::fmt::Display;
+
+pub const FETCH_LIMIT: i64 = 20;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct EmailDelivery {
@@ -9,9 +10,14 @@ pub struct EmailDelivery {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub email_template_id: Uuid,
-    pub error: Option<String>,
     pub sent: bool,
     pub user_id: Uuid,
+    /// Number of failed send attempts recorded so far.
+    pub retry_count: i32,
+    pub next_retry_at: Option<DateTime<Utc>>,
+    pub retryable: bool,
+    pub first_failed_at: Option<DateTime<Utc>>,
+    pub last_attempt_at: Option<DateTime<Utc>>,
 }
 
 pub struct Email {
@@ -21,6 +27,12 @@ pub struct Email {
     pub subject: Option<String>,
     pub body: Option<serde_json::Value>,
     pub template_type: Option<EmailTemplateType>,
+    /// Number of failed send attempts recorded so far.
+    pub retry_count: i32,
+    pub next_retry_at: Option<DateTime<Utc>>,
+    pub retryable: bool,
+    pub first_failed_at: Option<DateTime<Utc>>,
+    pub last_attempt_at: Option<DateTime<Utc>>,
 }
 
 pub async fn insert_email_delivery(
@@ -53,22 +65,54 @@ pub async fn fetch_emails(conn: &mut PgConnection) -> ModelResult<Vec<Email>> {
     let emails = sqlx::query_as!(
         Email,
         r#"
+WITH due AS (
+    SELECT
+        ed.id
+    FROM email_deliveries ed
+    WHERE ed.deleted_at IS NULL
+      AND ed.sent = FALSE
+      AND ed.retryable = TRUE
+      AND (ed.next_retry_at IS NULL OR ed.next_retry_at <= now())
+    ORDER BY coalesce(ed.next_retry_at, '-infinity'::timestamptz), ed.created_at
+    FOR UPDATE SKIP LOCKED
+    LIMIT $1
+),
+claimed AS (
+    UPDATE email_deliveries ed
+    SET last_attempt_at = now(),
+        -- Crash-recovery lease for claimed rows; this is not retry backoff.
+        next_retry_at = now() + interval '5 minutes'
+    FROM due
+    WHERE ed.id = due.id
+    RETURNING
+        ed.id,
+        ed.user_id,
+        ed.email_template_id,
+        ed.retry_count,
+        ed.next_retry_at,
+        ed.retryable,
+        ed.first_failed_at,
+        ed.last_attempt_at
+)
 SELECT
-    ed.id AS id,
-    u.id AS user_id,
+    c.id AS id,
+    c.user_id AS user_id,
     ud.email AS to,
     et.subject AS subject,
     et.content AS body,
-    et.email_template_type AS "template_type: EmailTemplateType"
-FROM email_deliveries ed
-JOIN email_templates et ON et.id = ed.email_template_id
-JOIN users u ON u.id = ed.user_id
+    et.email_template_type AS "template_type: EmailTemplateType",
+    c.retry_count AS retry_count,
+    c.next_retry_at AS next_retry_at,
+    c.retryable AS retryable,
+    c.first_failed_at AS first_failed_at,
+    c.last_attempt_at AS last_attempt_at
+FROM claimed c
+JOIN email_templates et ON et.id = c.email_template_id
+JOIN users u ON u.id = c.user_id
 JOIN user_details ud ON ud.user_id = u.id
-WHERE ed.deleted_at IS NULL
-  AND ed.sent = FALSE
-  AND ed.error IS NULL
-LIMIT 10000;
+ORDER BY c.last_attempt_at ASC;
         "#,
+        FETCH_LIMIT
     )
     .fetch_all(conn)
     .await?;
@@ -76,11 +120,12 @@ LIMIT 10000;
     Ok(emails)
 }
 
-pub async fn mark_as_sent(email_id: Uuid, conn: &mut PgConnection) -> ModelResult<()> {
+pub async fn mark_as_sent(conn: &mut PgConnection, email_id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
 update email_deliveries
-set sent = TRUE
+set sent = TRUE,
+    next_retry_at = NULL
 where id = $1;
     ",
         email_id
@@ -91,19 +136,85 @@ where id = $1;
     Ok(())
 }
 
-pub async fn save_err_to_email(
-    email_id: Uuid,
-    err: impl Display,
+pub async fn insert_email_delivery_error(
     conn: &mut PgConnection,
+    error: EmailDeliveryErrorInsert,
+) -> ModelResult<Uuid> {
+    let id = Uuid::new_v4();
+    sqlx::query!(
+        r#"
+INSERT INTO email_delivery_errors (
+    id,
+    email_delivery_id,
+    attempt,
+    error_message,
+    error_code,
+    smtp_response,
+    smtp_response_code,
+    is_transient
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        "#,
+        id,
+        error.email_delivery_id,
+        error.attempt,
+        error.error_message,
+        error.error_code,
+        error.smtp_response,
+        error.smtp_response_code,
+        error.is_transient
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(id)
+}
+
+pub struct EmailDeliveryErrorInsert {
+    pub email_delivery_id: Uuid,
+    pub attempt: i32,
+    pub error_message: String,
+    pub error_code: Option<String>,
+    pub smtp_response: Option<String>,
+    pub smtp_response_code: Option<i32>,
+    pub is_transient: bool,
+}
+
+pub async fn increment_retry_and_schedule(
+    conn: &mut PgConnection,
+    email_id: Uuid,
+    next_retry_at: Option<DateTime<Utc>>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 update email_deliveries
-set sent = FALSE,
-  error = $1
-where id = $2;
+set retry_count = retry_count + 1,
+    next_retry_at = $2,
+    first_failed_at = coalesce(first_failed_at, now())
+where id = $1;
     ",
-        err.to_string(),
+        email_id,
+        next_retry_at
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn increment_retry_and_mark_non_retryable(
+    conn: &mut PgConnection,
+    email_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+update email_deliveries
+set retry_count = retry_count + 1,
+    first_failed_at = coalesce(first_failed_at, now()),
+    retryable = FALSE,
+    next_retry_at = NULL
+where id = $1;
+    ",
         email_id
     )
     .execute(conn)

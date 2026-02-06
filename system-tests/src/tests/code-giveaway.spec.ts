@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -13,8 +14,9 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByRole("tab", { name: "Code giveaways" }).click()
   await page.getByRole("button", { name: "New" }).click()
   await page.getByLabel("Name", { exact: true }).fill("Best code giveaway of this generation")
-  await page.getByRole("button", { name: "Create" }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Create" }).click()
+  })
   await page.getByRole("link", { name: "Best code giveaway of this" }).click()
   await page.getByRole("button", { name: "Import" }).click()
   await page.getByLabel("Codes, one per line").fill("\n\n\ncode 1\n  code 2\n\n  code 3  \n\n\n")
@@ -44,8 +46,9 @@ test("Code giveaways work", async ({ page }) => {
   await page
     .getByLabel("Empty block; start writing or")
     .fill("Congratulations! You're the 1 billionth visitor to this website!")
-  await page.getByRole("button", { name: "Save", exact: true }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+  })
   const page1Promise = page.waitForEvent("popup")
   await page.getByRole("button", { name: "Open saved page in a new tab" }).click()
 

@@ -99,8 +99,13 @@ test.describe("Teacher can set threshold for course", () => {
 
     // Navigate cheater's view and delete a suspected cheater
     await teacherPage.goto(CHEATER_EDITOR_PAGE)
-    await teacherPage.getByText("Clear suspicion", { exact: true }).first().click()
-    await waitForSuccessNotification(teacherPage, "Suspicion cleared and archived")
+    await waitForSuccessNotification(
+      teacherPage,
+      async () => {
+        await teacherPage.getByText("Clear suspicion", { exact: true }).first().click()
+      },
+      "Suspicion cleared and archived",
+    )
     await teacherPage.getByRole("tab", { name: "Archived" }).click()
     await teacherPage
       .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")

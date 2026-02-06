@@ -1,6 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -89,21 +90,23 @@ test("Automatic reject and reset submission", async () => {
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("radio", { name: "Strongly agree" })
       .click()
-    await student1Page
-      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-      .getByRole("button", { name: "Submit" })
-      .click()
-    await expect(student1Page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(student1Page, async () => {
+      await student1Page
+        .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
+        .getByRole("button", { name: "Submit" })
+        .click()
+    })
 
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("radio", { name: "Strongly agree" })
       .click()
-    await student1Page
-      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-      .getByRole("button", { name: "Submit" })
-      .click()
-    await expect(student1Page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(student1Page, async () => {
+      await student1Page
+        .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
+        .getByRole("button", { name: "Submit" })
+        .click()
+    })
 
     await expect(
       student1Page.getByRole("heading", { name: "Waiting for peer reviews" }),
@@ -112,29 +115,32 @@ test("Automatic reject and reset submission", async () => {
     // Student2 peer reviews Student1 and Teachers answers
     await student2Page.getByRole("button", { name: "Start peer review" }).click()
     await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
-    await student2Page
-      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-      .getByRole("button", { name: "Submit" })
-      .click()
-    await expect(student2Page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(student2Page, async () => {
+      await student2Page
+        .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
+        .getByRole("button", { name: "Submit" })
+        .click()
+    })
 
     await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
-    await student2Page
-      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-      .getByRole("button", { name: "Submit" })
-      .click()
-    await expect(student2Page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(student2Page, async () => {
+      await student2Page
+        .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
+        .getByRole("button", { name: "Submit" })
+        .click()
+    })
 
     await expect(student2Page.getByText("Your answer has been reviewed")).toBeVisible()
 
     // Teacher peer reviews Student1 and Student2 answers
     await teacherPage.getByRole("button", { name: "Start peer review" }).click()
     await teacherPage.getByRole("radio", { name: "Strongly disagree" }).click()
-    await teacherPage
-      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-      .getByRole("button", { name: "Submit" })
-      .click()
-    await expect(teacherPage.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(teacherPage, async () => {
+      await teacherPage
+        .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
+        .getByRole("button", { name: "Submit" })
+        .click()
+    })
   })
 
   await test.step("Student1 can resubmit after rejection and it does not affect Student2 points or given peer reviews", async () => {

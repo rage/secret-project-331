@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { respondToConfirmDialog } from "@/utils/dialogs"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.describe("Chatbot settings testing", () => {
   test.use({
@@ -20,8 +21,9 @@ test.describe("Chatbot settings testing", () => {
     await page.getByRole("button", { name: "Create a new chatbot" }).click()
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("Chatbot 1")
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
     await expect(page.getByText("Advanced settings")).toBeVisible()
   })
 
@@ -45,16 +47,19 @@ test.describe("Chatbot settings testing", () => {
     await page.getByRole("spinbutton", { name: "Frequency penalty" }).click()
     await page.getByRole("spinbutton", { name: "Frequency penalty" }).fill("0.2")
     await page.getByText("Use course material search and cite sources").click()
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
   })
 
   test("Setting a chatbot as default", async ({ page }) => {
-    await page.getByRole("button", { name: "Set as the default chatbot" }).first().click()
-    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Set as the default chatbot" }).first().click()
+    })
     await expect(page.getByText("(Default)")).toBeVisible()
-    await page.getByRole("button", { name: "Set as the default chatbot" }).first().click()
-    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Set as the default chatbot" }).first().click()
+    })
   })
 
   test("Deleting a chatbot", async ({ page }) => {

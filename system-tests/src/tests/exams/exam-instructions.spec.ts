@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -49,8 +50,9 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
   await page.getByRole("textbox", { name: "List text" }).press("Enter")
   await page.getByRole("textbox", { name: "List text" }).nth(1).fill("Two")
 
-  await page.locator(`button:text-is("Save")`).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.locator(`button:text-is("Save")`).click()
+  })
 
   await page.goto("http://project-331.local/org/uh-cs")
 

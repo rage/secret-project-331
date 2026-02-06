@@ -3,7 +3,7 @@ import { expect, Page, test } from "@playwright/test"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
-import { hideToasts } from "@/utils/notificationUtils"
+import { hideToasts, waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -68,9 +68,9 @@ async function deletePage(page: Page, pageText: string) {
 
 async function saveChanges(page: Page) {
   await test.step("Save changes", async () => {
-    await hideToasts(page)
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
     await verifyDialogState(page, false, false)
   })
 }
@@ -148,9 +148,9 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
     await page.getByLabel("Set Deadline").first().check()
     await page.getByLabel("Deadline", { exact: true }).first().fill("2050-01-01T23:59:13")
 
-    await hideToasts(page)
-    await page.getByRole("button", { name: "Update" }).click()
-    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Update" }).click()
+    })
     await expect(page.getByText("The intermediaries TEST change")).toBeVisible()
   })
 

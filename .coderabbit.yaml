@@ -19,7 +19,8 @@ reviews:
     - path: "system-tests/**/*"
       instructions: >
         For Playwright system tests, make sure each test that triggers a backend mutation (e.g., clicking a save button)
-        waits for a UI confirmation element that proves the request completed successfully before proceeding.
+        waits for a UI confirmation element that proves the request completed successfully before proceeding. Prefer using
+        `waitForSuccessNotification` for success toasts. Example: `await waitForSuccessNotification(page, async () => { await page.getByRole("button", { name: "Save" }).click() })`. If the toast text differs, pass it as the third arg. Default is `/Operation successful!?/`.
         Otherwise, the test might continue before the operation finishes.
 
         Also if someone navigates to a course page, and clicks continue on a dialog straight away, make sure its done with the

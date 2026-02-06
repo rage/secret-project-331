@@ -4,6 +4,7 @@ import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocator
 
 import { answerExercise, fillPeerReview } from "./peer_review_utils"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-2"
@@ -103,8 +104,9 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
 
     await teacherPage.getByRole("button", { name: "Custom points" }).first().click()
     await teacherPage.getByRole("spinbutton").fill("0.75")
-    await teacherPage.getByRole("button", { name: "Give custom points" }).click()
-    await teacherPage.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(teacherPage, async () => {
+      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+    })
 
     // Now student 2 should see their results.
     await student2Page.reload()

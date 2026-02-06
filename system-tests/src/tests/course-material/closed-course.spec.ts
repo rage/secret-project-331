@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -21,8 +22,9 @@ test("Can close courses and shows warning dialog", async ({ page }) => {
   await page
     .getByRole("textbox", { name: "Closed course successor" })
     .fill("3cbaac48-59c4-4e31-9d7e-1f51c017390d")
-  await page.getByRole("button", { name: "Update" }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Update" }).click()
+  })
   await page.getByRole("button", { name: "Open course front page" }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.getByText("This course has been closed").waitFor()

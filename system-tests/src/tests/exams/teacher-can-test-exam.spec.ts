@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -97,8 +98,9 @@ test.skip("Testing exam works", async ({ page }) => {
 
     await waitForViewType(quizzesIframe, "view-submission")
 
-    await page.getByRole("button", { name: "Reset exam progress" }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Reset exam progress" }).click()
+    })
     await page.waitForTimeout(100)
     await waitForViewType(quizzesIframe, "answer-exercise")
 

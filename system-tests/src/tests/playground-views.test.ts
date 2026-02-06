@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import { scrollLocatorsParentIframeToViewIfNeeded } from "../utils/iframeLocators"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 test("Playground views works", async ({ page }) => {
   await page.goto("http://project-331.local/playground-views")
   await page.getByRole("heading", { name: "Playground for exercise IFrames" }).waitFor()
@@ -62,8 +63,9 @@ test("Playground views works", async ({ page }) => {
   )
   await page.frameLocator('iframe[title="PLAYGROUND"]').getByRole("checkbox", { name: "a" }).click()
   await page.getByText('{ "selectedOptionId": ').waitFor()
-  await page.getByRole("button", { name: "Submit" }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Submit" }).click()
+  })
   await page.getByText('{ "selectedOptionId": ').first().waitFor()
   await page
     .getByText(

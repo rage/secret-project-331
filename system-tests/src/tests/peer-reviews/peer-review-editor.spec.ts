@@ -1,8 +1,8 @@
 import { test } from "@playwright/test"
 
-import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -32,8 +32,9 @@ test("create peer review", async ({ page }) => {
   // Fill text=Insert question here
   await page.getByText("Insert question here").fill("first question")
 
-  await page.getByText("Save").nth(3).click()
-  await page.getByText(`Operation successful`).waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Save").nth(3).click()
+  })
 })
 
 test("default peer review editing", async ({ page, headless }, testInfo) => {
@@ -81,8 +82,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   // Fill text=General comments
   await page1.getByText("General comments").fill("test")
 
-  await showNextToastsInfinitely(page1)
-  await page1.getByText("Save").click()
-  await page1.getByText(`Operation successful`).waitFor()
-  await showToastsNormally(page1)
+  await waitForSuccessNotification(page1, async () => {
+    await page1.getByText("Save").click()
+  })
 })

@@ -2,6 +2,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 
 import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.describe("test teacher changing grade behavior", () => {
@@ -67,11 +68,12 @@ test.describe("test teacher changing grade behavior", () => {
 
       await exerciseDetailsComponent.getByRole("button", { name: "Give custom points" }).click()
       await teacherPage.getByRole("slider").fill("0.5")
-      await teacherPage
-        .locator("#custom-point-popup")
-        .getByRole("button", { name: "Give custom points" })
-        .click()
-      await teacherPage.getByText("Operation successful").first().waitFor()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage
+          .locator("#custom-point-popup")
+          .getByRole("button", { name: "Give custom points" })
+          .click()
+      })
       await expect(exerciseDetailsComponent).toContainText("0.5/1")
     })
 

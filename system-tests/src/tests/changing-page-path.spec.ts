@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -14,8 +15,9 @@ test("Chaning page path works and redirects correctly", async ({ page }) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   await page.getByText("New page").nth(1).click()
   await page.getByLabel("Title  *").fill("page with wrong path")
-  await page.getByRole("button", { name: "Create" }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Create" }).click()
+  })
   await page.getByRole("cell", { name: "/chapter-1/page-with-wrong-path" }).waitFor()
   await page
     .getByRole("row", {
@@ -26,8 +28,9 @@ test("Chaning page path works and redirects correctly", async ({ page }) => {
   await page.getByRole("button", { name: "Edit page details" }).click()
   await page.getByLabel("Title  *").fill("page-with-right-path")
   await page.getByLabel("Path  *").fill("page-with-right-path-yeah")
-  await page.getByRole("button", { name: "Update" }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Update" }).click()
+  })
   await page.getByRole("cell", { name: "/chapter-1/page-with-right-path-yeah" }).waitFor()
   // go to the old url to see if the redirect works
   await page.goto(

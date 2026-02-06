@@ -4,6 +4,7 @@ import { expect, test } from "playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 /**
  *
@@ -40,8 +41,9 @@ export const fillPeerReview = async (
         `:nth-match(p:text-is('${options[1]}'):below(span:has-text('Was the answer good? *')), 1)`,
       )
       .click()
-    await page.getByRole("button", { name: "Submit" }).first().click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Submit" }).first().click()
+    })
   })
 }
 

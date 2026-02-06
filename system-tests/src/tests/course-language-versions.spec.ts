@@ -4,6 +4,7 @@ import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -101,8 +102,9 @@ test("creator of new language version can grant permissions to same users as the
   await page.getByRole("tab", { name: "Permissions" }).click()
   //add new permission to assistant
   await page.getByPlaceholder("Enter email").fill("assistant@example.com")
-  await page.getByRole("button", { name: "Add user" }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Add user" }).click()
+  })
 
   //make new language version
   await page.getByRole("tab", { name: "Language versions" }).click()

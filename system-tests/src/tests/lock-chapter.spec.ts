@@ -4,6 +4,7 @@ import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { clickPageInChapterByTitle } from "@/utils/flows/pagesInChapter.flow"
 import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 const LOCK_CHAPTERS_COURSE_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
@@ -127,8 +128,9 @@ test.describe("Chapter locking feature", () => {
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
       await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("1")
-      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
-      await teacherPage.getByText("Operation successful!").waitFor()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+      })
     })
 
     await test.step("Student sees reviewed exercise results from Chapter 1", async () => {
@@ -239,8 +241,9 @@ test.describe("Chapter locking feature", () => {
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
       await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("1")
-      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
-      await teacherPage.getByText("Operation successful!").waitFor()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+      })
     })
 
     await test.step("Student sees reviewed exercise results from Chapter 2", async () => {

@@ -28,10 +28,26 @@ export const hideToasts = async (page: Page) => {
   })
 }
 
+/**
+ * Hides existing toasts, runs the provided action that triggers a success toast,
+ * then waits for the toast and hides all toasts again.
+ *
+ * Example:
+ * ```ts
+ * await waitForSuccessNotification(page, async () => {
+ *   await page.getByRole("button", { name: "Submit" }).click()
+ * })
+ * ```
+ *
+ * This prevents races where prior notifications linger during fast system tests.
+ */
 export const waitForSuccessNotification = async (
   page: Page,
-  text: string = "Operation successful!",
+  action: () => Promise<void>,
+  text: string | RegExp = /Operation successful!?/,
 ) => {
+  await hideToasts(page)
+  await action()
   await page.getByTestId("toast-notification").getByText(text).first().waitFor()
   await hideToasts(page)
 }

@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.describe("anonymous user", () => {
@@ -132,8 +133,9 @@ test.describe("Teacher", () => {
     await page.getByPlaceholder("Enter email").click()
     await page.getByPlaceholder("Enter email").fill("user@example.com")
     await page.getByRole("combobox", { name: "Role" }).selectOption("MaterialViewer")
-    await page.getByRole("button", { name: "Add user" }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Add user" }).click()
+    })
 
     // check that the user can access the course
     const context2 = await browser.newContext({ storageState: "src/states/user@example.com.json" })

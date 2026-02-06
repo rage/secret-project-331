@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -38,9 +39,9 @@ test("Limited tries work", async ({ page }) => {
   // Fill [placeholder="Max\ tries\ per\ slide"]
   await page.locator('[placeholder="Max\\ tries\\ per\\ slide"]').fill("2")
 
-  await page.locator(`button:text-is("Save")`).nth(1).click()
-
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.locator(`button:text-is("Save")`).nth(1).click()
+  })
 
   await page.goto("http://project-331.local/organizations")
 

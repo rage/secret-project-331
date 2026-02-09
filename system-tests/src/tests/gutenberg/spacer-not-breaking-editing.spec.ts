@@ -1,7 +1,6 @@
 /* eslint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -16,8 +15,7 @@ test.describe(() => {
 
   test("Spacers should not break text editing under them, block inserter should not go on top of the typing caret", async ({
     page,
-    headless,
-  }, testInfo) => {
+  }) => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()

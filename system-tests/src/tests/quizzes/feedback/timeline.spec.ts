@@ -3,8 +3,6 @@ import { test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
-import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
-
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -14,7 +12,7 @@ test.describe(() => {
   // This does not seem to be something we can fix, so we'll retry
   test.describe.configure({ retries: 4 })
 
-  test("quizzes timeline feedback", async ({ page, headless }, testInfo) => {
+  test("quizzes timeline feedback", async ({ page, headless, testInfo }) => {
     await page.goto(
       "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-timeline",
     )

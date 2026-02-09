@@ -3,11 +3,7 @@
 import { act, renderHook } from "@testing-library/react"
 
 import useExerciseServiceParentConnection from "../../src/hooks/useExerciseServiceParentConnection"
-import {
-  createMockMessageChannel,
-  createMockMessageEvent,
-  simulateParentPortTransfer,
-} from "../utils/iframeTestUtils"
+import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
 
 describe("useExerciseServiceParentConnection", () => {
   let addEventListenerSpy: jest.SpyInstance

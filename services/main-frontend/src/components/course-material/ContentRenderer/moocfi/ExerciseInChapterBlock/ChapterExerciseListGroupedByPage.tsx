@@ -6,7 +6,6 @@ import { useAtomValue } from "jotai"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
 import { fetchUserCourseInstanceChapterExercisesProgress } from "@/services/course-material/backend"
 import { PageWithExercises } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

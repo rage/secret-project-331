@@ -34,6 +34,7 @@ interface TopBarMenuButtonProps {
   ariaLabel: string
   tooltipText: string
   id?: string
+  dataTestId?: string
   className?: string
   onClick?: () => void
   showChevron?: boolean
@@ -46,6 +47,7 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
   ariaLabel,
   tooltipText,
   id,
+  dataTestId,
   className,
   onClick,
   showChevron = true,
@@ -58,6 +60,7 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
     <ClarificationTooltip text={tooltipText}>
       <AriaButton
         id={id}
+        data-testid={dataTestId}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
         lang={lang}

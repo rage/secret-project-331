@@ -127,6 +127,8 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       : undefined
 
   const showLock = !open && !previewable
+  const hasExerciseDeadlineOverrides = chapter.exercise_deadline_override_count > 0
+  const exerciseDeadlinesMultiple = chapter.exercise_deadline_override_distinct_count > 1
 
   return (
     <Card
@@ -143,6 +145,11 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       points={pointsData}
       showLock={showLock}
       isLocked={isLocked}
+      deadline={chapter.deadline}
+      exerciseDeadline={
+        hasExerciseDeadlineOverrides ? chapter.earliest_exercise_deadline_override : null
+      }
+      exerciseDeadlinesMultiple={hasExerciseDeadlineOverrides && exerciseDeadlinesMultiple}
     />
   )
 }

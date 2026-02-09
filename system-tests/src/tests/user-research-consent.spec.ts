@@ -44,7 +44,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
     })
 
     //Login again and check research consent form doesn't show again when already answered.
-    await topbar.userMenu.clickItem("Log out")
+    await topbar.logout()
     await topbar.clickLogin()
 
     await page.click(`label:has-text("Email")`)
@@ -68,7 +68,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await page.waitForLoadState("networkidle")
 
     const topbar2 = new Topbar(page)
-    await topbar2.userMenu.clickItem("Log out")
+    await topbar2.logout()
     await topbar2.clickLogin()
     await page.click(`label:has-text("Email")`)
     await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")

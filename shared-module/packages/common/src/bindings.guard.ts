@@ -427,10 +427,16 @@ export function isChapterWithStatus(obj: unknown): obj is ChapterWithStatus {
             typeof typedObj["front_page_id"] === "string") &&
         (typedObj["opens_at"] === null ||
             typeof typedObj["opens_at"] === "string") &&
+        (typedObj["deadline"] === null ||
+            typeof typedObj["deadline"] === "string") &&
         isChapterStatus(typedObj["status"]) as boolean &&
         (typedObj["chapter_image_url"] === null ||
             typeof typedObj["chapter_image_url"] === "string") &&
-        typeof typedObj["course_module_id"] === "string"
+        typeof typedObj["course_module_id"] === "string" &&
+        typeof typedObj["exercise_deadline_override_count"] === "number" &&
+        typeof typedObj["exercise_deadline_override_distinct_count"] === "number" &&
+        (typedObj["earliest_exercise_deadline_override"] === null ||
+            typeof typedObj["earliest_exercise_deadline_override"] === "string")
     )
 }
 

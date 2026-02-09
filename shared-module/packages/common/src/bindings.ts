@@ -172,9 +172,13 @@ export interface ChapterWithStatus {
   chapter_number: number
   front_page_id: string | null
   opens_at: string | null
+  deadline: string | null
   status: ChapterStatus
   chapter_image_url: string | null
   course_module_id: string
+  exercise_deadline_override_count: number
+  exercise_deadline_override_distinct_count: number
+  earliest_exercise_deadline_override: string | null
 }
 
 export interface DatabaseChapter {

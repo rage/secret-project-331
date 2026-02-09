@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -30,6 +31,19 @@ export default function StatsLayout({ children }: { children: React.ReactNode })
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
+
+  const crumbs = useMemo(
+    () => [
+      {
+        isLoading: false as const,
+        label: t("title-statistics"),
+        href: manageCourseStatsOverviewRoute(courseId),
+      },
+    ],
+    [courseId, t],
+  )
+
+  useRegisterBreadcrumbs({ key: `course:${courseId}:stats`, order: 30, crumbs })
 
   const courseLanguageVersions = useCourseLanguageVersions(courseId)
   const courseInstances = useCourseInstancesQuery(courseId)

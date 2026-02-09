@@ -384,6 +384,7 @@ const config = [
               "closest",
               "querySelectorAll",
               "getAttribute",
+              "useRegisterBreadcrumbs",
             ],
           },
           "object-properties": {

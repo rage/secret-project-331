@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { ApartmentBuilding, Gear } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -26,7 +25,6 @@ type Props = {
 
 const OrganizationBanner: React.FC<Props> = ({ organization }) => {
   const { t } = useTranslation()
-  const router = useRouter()
 
   return (
     <div

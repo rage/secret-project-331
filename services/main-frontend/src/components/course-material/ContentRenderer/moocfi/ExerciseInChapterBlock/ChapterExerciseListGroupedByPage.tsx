@@ -34,16 +34,6 @@ const ChapterExerciseListGroupedByPage: React.FC<
   const { t } = useTranslation()
   const courseMaterialState = useAtomValue(courseMaterialAtom)
 
-  const courseId =
-    courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
-
-  const chaptersQuery = useQuery({
-    queryKey: ["chapters", courseId],
-    queryFn: () => fetchAllChaptersByCourseId(courseId!),
-    enabled: !!courseId,
-  })
-
-  const chapter = chaptersQuery.data?.find((c) => c.id === chapterId)
   const course = courseMaterialState.course
   const chapterLockingEnabled = course?.chapter_locking_enabled ?? false
   const getUserCourseInstanceChapterExercisesProgress = useQuery({

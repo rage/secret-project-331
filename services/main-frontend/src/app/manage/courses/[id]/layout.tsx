@@ -4,14 +4,15 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
 import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
   manageCourseChangeRequestsRoute,
@@ -24,8 +25,10 @@ import {
   manageCourseOverviewRoute,
   manageCoursePagesRoute,
   manageCoursePermissionsRoute,
+  manageCourseRoute,
   manageCourseStatsOverviewRoute,
   manageCourseStudentsRoute,
+  organizationFrontPageRoute,
 } from "@/shared-module/common/utils/routes"
 
 const KEY_OVERVIEW = "overview"
@@ -50,6 +53,35 @@ export default function CourseManagementLayout({ children }: { children: React.R
     { action: { type: "administrate" }, resource: { type: "global_permissions" } },
   ])
   const isGlobalAdmin = (isGlobalAdminQuery.isSuccess && isGlobalAdminQuery.data?.[0]) ?? false
+
+  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
+
+  const crumbs = useMemo(
+    () => [
+      courseBreadcrumbInfo.data?.organization_name
+        ? {
+            isLoading: false as const,
+            label: courseBreadcrumbInfo.data.organization_name,
+            href: organizationFrontPageRoute(courseBreadcrumbInfo.data?.organization_slug ?? ""),
+          }
+        : { isLoading: true as const },
+      courseBreadcrumbInfo.data?.course_name
+        ? {
+            isLoading: false as const,
+            label: courseBreadcrumbInfo.data.course_name,
+            href: manageCourseRoute(courseId),
+          }
+        : { isLoading: true as const },
+    ],
+    [
+      courseBreadcrumbInfo.data?.organization_slug,
+      courseBreadcrumbInfo.data?.organization_name,
+      courseBreadcrumbInfo.data?.course_name,
+      courseId,
+    ],
+  )
+
+  useRegisterBreadcrumbs({ key: `course:${courseId}`, order: 20, crumbs })
 
   const feedbackCountHook = createUnreadFeedbackCountHook(courseId)
   const changeRequestCountHook = createPendingChangeRequestCountHook(courseId)
@@ -132,12 +164,9 @@ export default function CourseManagementLayout({ children }: { children: React.R
   }, [courseId, t, isGlobalAdmin, feedbackCountHook, changeRequestCountHook, answersCountHook])
 
   return (
-    <>
-      <MainFrontendBreadCrumbs organizationSlug={null} courseId={courseId} />
-      <RouteTabListProvider tabs={tabs}>
-        <RouteTabList tabs={tabs} />
-        <RouteTabPanel>{children}</RouteTabPanel>
-      </RouteTabListProvider>
-    </>
+    <RouteTabListProvider tabs={tabs}>
+      <RouteTabList tabs={tabs} />
+      <RouteTabPanel>{children}</RouteTabPanel>
+    </RouteTabListProvider>
   )
 }

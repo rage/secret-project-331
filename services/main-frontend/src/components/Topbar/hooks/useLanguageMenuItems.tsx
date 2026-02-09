@@ -61,7 +61,6 @@ export interface UseLanguageMenuItemsResult {
 export function useLanguageMenuItems({
   availableLanguages: propAvailableLanguages,
   onLanguageChange: propOnLanguageChange,
-  renderAsSubmenu = false,
   onMenuClose,
 }: UseLanguageMenuItemsProps = {}): UseLanguageMenuItemsResult {
   const { t, i18n } = useTranslation()

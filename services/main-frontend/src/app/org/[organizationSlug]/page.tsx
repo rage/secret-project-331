@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next"
 import CourseList from "./CourseList"
 import ExamList from "./ExamList"
 
-import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
 import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -35,7 +34,6 @@ const Organization: React.FC = () => {
 
   return (
     <>
-      <MainFrontendBreadCrumbs organizationSlug={organizationSlug} courseId={null} />
       <div>
         {organizationQuery.isSuccess && (
           <h1

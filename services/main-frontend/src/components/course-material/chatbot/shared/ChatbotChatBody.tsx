@@ -5,6 +5,7 @@ import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
+import { Button as AriaButton } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -13,6 +14,7 @@ import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 
+import Idea from "@/img/course-material/idea.svg"
 import { sendChatbotMessage } from "@/services/course-material/backend"
 import {
   ChatbotConversation,
@@ -81,10 +83,6 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
     optimisticMessage: null,
     streamingMessage: null,
   })
-
-  let suggestedMessages = useMemo(() => {
-    let msgs = currentConversationInfo.data?.suggested_messages
-  }, [currentConversationInfo.data?.suggested_messages])
 
   const newMessageMutation = useToastMutation(
     async () => {
@@ -351,6 +349,57 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}
+
+        {currentConversationInfo.data.suggested_messages?.map((m) => (
+          <AriaButton
+            key={m.id}
+            className={css`
+              align-self: flex-end;
+              border: none;
+              width: fit-content;
+              overflow-wrap: break-word;
+              padding: 0.3rem 0.5rem;
+              margin: 0.2rem 0;
+              border-radius: 12px;
+              font-size: 0.8rem;
+              background: linear-gradient(
+                120deg,
+                ${baseTheme.colors.blue[100]} 30%,
+                #ffffff 38%,
+                #f2f2f2 40%,
+                ${baseTheme.colors.blue[100]} 48%
+              );
+              background-size: 200% 100%;
+              background-position: 100% 0;
+              ${newMessageMutation.isPending
+                ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%);`
+                : ""}
+              &:hover {
+                filter: brightness(0.9) contrast(1.1);
+                cursor: pointer;
+              }
+            `}
+            onClick={() => console.log(m.message)}
+          >
+            <Idea
+              className={css`
+                position: relative;
+                opacity: 80%;
+                top: 3px;
+                margin-right: 5px;
+                transform: rotateY(180deg);
+              `}
+            />
+            <span
+              className={css`
+                position: relative;
+                top: -5px;
+              `}
+            >
+              {m.message}
+            </span>
+          </AriaButton>
+        ))}
       </div>
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
@@ -359,59 +408,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       <div
         className={css`
           display: flex;
-          overflow-x: auto;
-          overflow-y: hidden;
-          height: 4.6rem;
-          gap: 10px;
-          align-items: flex-end;
-          margin: 0 1rem;
-        `}
-      >
-        {currentConversationInfo.data.suggested_messages?.map((m) => {
-          let message = m.message.split(" ")
-          console.log(message)
-          let half = m.message.length / 2
-
-          let line1 = message.slice(0, half).join(" ")
-          let line2 = message.slice(half).join(" ")
-          console.log("lin1: ", line1, "line2:", line2)
-          return (
-            <div
-              key={m.id}
-              className={css`
-                display: flex;
-                flex: auto;
-                flex-shrink: 0;
-                justify-content: center;
-                overflow-wrap: break-word;
-                padding: 0.4rem;
-                border-radius: 8px;
-                margin: 0.5rem 0;
-                font-size: 0.8rem;
-                background: linear-gradient(
-                  120deg,
-                  ${baseTheme.colors.blue[100]} 30%,
-                  #ffffff 38%,
-                  #f2f2f2 40%,
-                  ${baseTheme.colors.blue[100]} 48%
-                );
-                background-size: 200% 100%;
-                background-position: 100% 0;
-                ${newMessageMutation.isPending
-                  ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%);`
-                  : ""}
-              `}
-            >
-              {line1}
-              <br></br>
-              {line2}
-            </div>
-          )
-        })}
-      </div>
-      <div
-        className={css`
-          display: flex;
+          flex-grow: 1;
           gap: 10px;
           align-items: center;
           margin: 0 1rem;

@@ -5,7 +5,7 @@ import { Topbar } from "../components/Topbar"
 export async function logoutViaTopbar(page: Page) {
   const topbar = new Topbar(page)
   await topbar.expectDesktopVisible()
-  await topbar.userMenu.clickItem("Log out")
+  await topbar.logout()
   await expect(topbar.loginLink).toBeVisible()
 }
 

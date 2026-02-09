@@ -14,7 +14,7 @@ export class Topbar {
 
   constructor(private readonly page: Page) {
     this.userMenuTrigger = page.locator("#topbar-user-menu")
-    this.quickActionsTrigger = page.locator("#topbar-quick-actions")
+    this.quickActionsTrigger = page.getByTestId("topbar-quick-actions")
     this.searchButton = page.locator("#search-for-pages-button")
     this.loginLink = page.getByLabel("Top bar").getByRole("link", { name: "Log in" })
 
@@ -35,12 +35,18 @@ export class Topbar {
     await expect(this.userMenuTrigger).toBeVisible()
   }
 
+  /** Clicks whichever login control appears, preferring quick actions when visible. */
   async clickLogin() {
-    const isLoggedIn = await this.quickActionsTrigger.isVisible().catch(() => false)
-    if (isLoggedIn) {
+    if (await this.quickActionsTrigger.isVisible()) {
       await this.quickActions.clickItem("Log in")
-    } else {
-      await this.loginLink.click()
+      return
     }
+
+    await this.loginLink.click()
+  }
+
+  /** Logs out via the user menu. */
+  async logout() {
+    await this.userMenu.clickItem("Log out")
   }
 }

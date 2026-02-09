@@ -94,8 +94,8 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
             attempt,
             "retry_window_expired",
             format!(
-                "Retry window expired before send attempt (to={}, template={:?}, first_failed_at={:?})",
-                email.to, email.template_type, email.first_failed_at
+                "Retry window expired before send attempt (email_id={}, user_id={}, template={:?}, first_failed_at={:?})",
+                email.id, email.user_id, email.template_type, email.first_failed_at
             ),
         )
         .await?;
@@ -319,14 +319,12 @@ fn build_email_message(
     msg_as_plaintext: String,
     msg_as_html: String,
 ) -> Result<Message> {
-    let email_to = &email.to;
-
     Message::builder()
         .from(SMTP_FROM.parse()?)
         .to(email
             .to
             .parse()
-            .with_context(|| format!("Invalid address: {}", email_to))?)
+            .with_context(|| format!("Invalid recipient address for email_id {}", email.id))?)
         .subject(email.subject.clone().context("No subject")?)
         .message_id(Some(format!(
             "<{}-{}@{}>",

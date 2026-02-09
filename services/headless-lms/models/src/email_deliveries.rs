@@ -35,13 +35,40 @@ pub struct Email {
     pub last_attempt_at: Option<DateTime<Utc>>,
 }
 
+/// Inserts an email delivery; fails if the user or email template is soft-deleted.
 pub async fn insert_email_delivery(
     conn: &mut PgConnection,
     user_id: Uuid,
     email_template_id: Uuid,
 ) -> ModelResult<Uuid> {
-    let id = Uuid::new_v4();
+    let check = sqlx::query_as!(
+        CheckUserAndTemplateRow,
+        r#"
+SELECT
+    EXISTS(SELECT 1 FROM users WHERE id = $1 AND deleted_at IS NULL) AS "user_ok!",
+    EXISTS(SELECT 1 FROM email_templates WHERE id = $2 AND deleted_at IS NULL) AS "template_ok!"
+        "#,
+        user_id,
+        email_template_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    if !check.user_ok {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "User not found or deleted".to_string(),
+            None,
+        ));
+    }
+    if !check.template_ok {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Email template not found or deleted".to_string(),
+            None,
+        ));
+    }
 
+    let id = Uuid::new_v4();
     sqlx::query!(
         r#"
 INSERT INTO email_deliveries (
@@ -59,6 +86,11 @@ VALUES ($1, $2, $3)
     .await?;
 
     Ok(id)
+}
+
+struct CheckUserAndTemplateRow {
+    user_ok: bool,
+    template_ok: bool,
 }
 
 pub async fn fetch_emails(conn: &mut PgConnection) -> ModelResult<Vec<Email>> {
@@ -187,10 +219,10 @@ pub async fn increment_retry_and_schedule(
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-update email_deliveries
-set retry_count = retry_count + 1,
+UPDATE email_deliveries
+SET retry_count = retry_count + 1,
     next_retry_at = $2,
-    first_failed_at = coalesce(first_failed_at, now())
+    first_failed_at = COALESCE(first_failed_at, NOW())
 where id = $1;
     ",
         email_id,
@@ -208,17 +240,37 @@ pub async fn increment_retry_and_mark_non_retryable(
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-update email_deliveries
-set retry_count = retry_count + 1,
-    first_failed_at = coalesce(first_failed_at, now()),
+UPDATE email_deliveries
+SET retry_count = retry_count + 1,
+    first_failed_at = COALESCE(first_failed_at, NOW()),
     retryable = FALSE,
     next_retry_at = NULL
-where id = $1;
+WHERE id = $1;
     ",
         email_id
     )
     .execute(conn)
     .await?;
 
+    Ok(())
+}
+
+/// Soft-deletes unsent, still-retryable email deliveries for a user. Call when soft-deleting the user so pending deliveries are not retried.
+pub async fn soft_delete_unsent_retryable_deliveries_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE email_deliveries
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND deleted_at IS NULL
+  AND sent = FALSE
+  AND retryable = TRUE",
+        user_id
+    )
+    .execute(conn)
+    .await?;
     Ok(())
 }

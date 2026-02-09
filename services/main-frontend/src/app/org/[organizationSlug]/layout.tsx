@@ -16,14 +16,15 @@ function OrgLayoutContent({ children }: { children: React.ReactNode }) {
   const crumbs = useMemo(
     () => [
       { isLoading: false as const, label: t("home"), href: "/" },
-      organizationQuery.data?.name
+      organizationQuery.data?.name && organizationSlug
         ? {
             isLoading: false as const,
             label: organizationQuery.data.name,
+            href: `/org/${organizationSlug}`,
           }
         : { isLoading: true as const },
     ],
-    [organizationQuery.data?.name, t],
+    [organizationQuery.data?.name, organizationSlug, t],
   )
 
   useRegisterBreadcrumbs({

@@ -33,19 +33,19 @@ export default function ExerciseLayout({ children }: { children: React.ReactNode
             href: organizationFrontPageRoute(courseBreadcrumbInfo.data?.organization_slug ?? ""),
           }
         : { isLoading: true as const },
-      courseBreadcrumbInfo.data?.course_name
+      courseBreadcrumbInfo.data?.course_name && courseId
         ? {
             isLoading: false as const,
             label: courseBreadcrumbInfo.data.course_name,
-            href: manageCourseRoute(courseId ?? ""),
+            href: manageCourseRoute(courseId),
           }
         : { isLoading: true as const },
       // Exercise crumb links to course exercises list (parent context); there is no standalone exercise manage page.
-      exerciseQuery.data?.name
+      exerciseQuery.data?.name && courseId
         ? {
             isLoading: false as const,
             label: exerciseQuery.data.name,
-            href: manageCourseExercisesRoute(courseId ?? ""),
+            href: manageCourseExercisesRoute(courseId),
           }
         : { isLoading: true as const },
     ],

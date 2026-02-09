@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, keyframes } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
@@ -25,6 +25,12 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
+
+const loadAnimation = keyframes`
+100%{
+      background-position: -100% 0;
+  }
+`
 
 interface ChatbotChatBodyProps {
   chatbotConfigurationId: string
@@ -75,6 +81,10 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
     optimisticMessage: null,
     streamingMessage: null,
   })
+
+  let suggestedMessages = useMemo(() => {
+    let msgs = currentConversationInfo.data?.suggested_messages
+  }, [currentConversationInfo.data?.suggested_messages])
 
   const newMessageMutation = useToastMutation(
     async () => {
@@ -349,21 +359,55 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       <div
         className={css`
           display: flex;
+          overflow-x: auto;
+          overflow-y: hidden;
+          height: 4.6rem;
           gap: 10px;
-          align-items: center;
+          align-items: flex-end;
           margin: 0 1rem;
         `}
       >
-        {currentConversationInfo.data.suggested_messages?.map((m) => (
-          <div
-            key={m.id}
-            className={css`
-              background: pink;
-            `}
-          >
-            {m.message}
-          </div>
-        ))}
+        {currentConversationInfo.data.suggested_messages?.map((m) => {
+          let message = m.message.split(" ")
+          console.log(message)
+          let half = m.message.length / 2
+
+          let line1 = message.slice(0, half).join(" ")
+          let line2 = message.slice(half).join(" ")
+          console.log("lin1: ", line1, "line2:", line2)
+          return (
+            <div
+              key={m.id}
+              className={css`
+                display: flex;
+                flex: auto;
+                flex-shrink: 0;
+                justify-content: center;
+                overflow-wrap: break-word;
+                padding: 0.4rem;
+                border-radius: 8px;
+                margin: 0.5rem 0;
+                font-size: 0.8rem;
+                background: linear-gradient(
+                  120deg,
+                  ${baseTheme.colors.blue[100]} 30%,
+                  #ffffff 38%,
+                  #f2f2f2 40%,
+                  ${baseTheme.colors.blue[100]} 48%
+                );
+                background-size: 200% 100%;
+                background-position: 100% 0;
+                ${newMessageMutation.isPending
+                  ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%);`
+                  : ""}
+              `}
+            >
+              {line1}
+              <br></br>
+              {line2}
+            </div>
+          )
+        })}
       </div>
       <div
         className={css`

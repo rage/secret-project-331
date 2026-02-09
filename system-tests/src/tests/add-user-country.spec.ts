@@ -43,7 +43,7 @@ test("User can add missing country information", async ({ page }) => {
       { field: "country", expectedValue: "Finland" },
     )
 
-    await topbar.userMenu.clickItem("Log out")
+    await topbar.logout()
   })
 
   await test.step("Add country when creating a new user and see that pop-up form doesn't show", async () => {

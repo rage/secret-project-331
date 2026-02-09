@@ -29,7 +29,7 @@ test("User can create an account and log in", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Please confirm your email" })).toBeVisible()
     await page.getByRole("button", { name: "Done" }).click()
     const topbar = new Topbar(page)
-    await topbar.userMenu.clickItem("Log out")
+    await topbar.logout()
   })
 
   await test.step("User can log in with the created account", async () => {

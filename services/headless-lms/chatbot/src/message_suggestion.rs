@@ -62,7 +62,7 @@ const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could 
 
 pub async fn generate_suggested_messages(
     app_config: &ApplicationConfiguration,
-    conversation_messages: &Vec<ChatbotConversationMessage>,
+    conversation_messages: &[ChatbotConversationMessage],
     initial_suggested_messages: Option<Vec<String>>,
     course_name: &str,
 ) -> ChatbotResult<Vec<String>> {

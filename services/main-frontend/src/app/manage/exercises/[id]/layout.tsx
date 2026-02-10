@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
@@ -15,6 +16,7 @@ import {
 
 export default function ExerciseLayout({ children }: { children: React.ReactNode }) {
   const { id } = useParams<{ id: string }>()
+  const { t } = useTranslation()
 
   const exerciseQuery = useQuery({
     queryKey: ["exercise", id],
@@ -40,11 +42,10 @@ export default function ExerciseLayout({ children }: { children: React.ReactNode
             href: manageCourseRoute(courseId),
           }
         : { isLoading: true as const },
-      // Exercise crumb links to course exercises list (parent context); there is no standalone exercise manage page.
-      exerciseQuery.data?.name && courseId
+      courseId
         ? {
             isLoading: false as const,
-            label: exerciseQuery.data.name,
+            label: t("link-exercises"),
             href: manageCourseExercisesRoute(courseId),
           }
         : { isLoading: true as const },
@@ -54,7 +55,7 @@ export default function ExerciseLayout({ children }: { children: React.ReactNode
       courseBreadcrumbInfo.data?.organization_name,
       courseBreadcrumbInfo.data?.course_name,
       courseId,
-      exerciseQuery.data?.name,
+      t,
     ],
   )
 

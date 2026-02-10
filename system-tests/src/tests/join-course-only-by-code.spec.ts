@@ -1,6 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -59,8 +60,9 @@ test("Join course by code only", async ({}) => {
     // eslint-disable-next-line playwright/no-conditional-in-test
     const oldJoinCode = oldJoinCodeHref?.replace("/join?code=", "").trim() || ""
 
-    await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
-    await teacherPage.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(teacherPage, async () => {
+      await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
+    })
 
     await teacherPage.waitForFunction((oldCode) => {
       const link = document.querySelector('a[href^="/join?code="]') as HTMLAnchorElement

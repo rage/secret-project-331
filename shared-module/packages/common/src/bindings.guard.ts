@@ -427,10 +427,16 @@ export function isChapterWithStatus(obj: unknown): obj is ChapterWithStatus {
             typeof typedObj["front_page_id"] === "string") &&
         (typedObj["opens_at"] === null ||
             typeof typedObj["opens_at"] === "string") &&
+        (typedObj["deadline"] === null ||
+            typeof typedObj["deadline"] === "string") &&
         isChapterStatus(typedObj["status"]) as boolean &&
         (typedObj["chapter_image_url"] === null ||
             typeof typedObj["chapter_image_url"] === "string") &&
-        typeof typedObj["course_module_id"] === "string"
+        typeof typedObj["course_module_id"] === "string" &&
+        typeof typedObj["exercise_deadline_override_count"] === "number" &&
+        typeof typedObj["exercise_deadline_override_distinct_count"] === "number" &&
+        (typedObj["earliest_exercise_deadline_override"] === null ||
+            typeof typedObj["earliest_exercise_deadline_override"] === "string")
     )
 }
 
@@ -1414,6 +1420,7 @@ export function isCourse(obj: unknown): obj is Course {
         typeof typedObj["ask_marketing_consent"] === "boolean" &&
         (typedObj["flagged_answers_threshold"] === null ||
             typeof typedObj["flagged_answers_threshold"] === "number") &&
+        typeof typedObj["flagged_answers_skip_manual_review_and_allow_retry"] === "boolean" &&
         (typedObj["closed_at"] === null ||
             typeof typedObj["closed_at"] === "string") &&
         (typedObj["closed_additional_message"] === null ||
@@ -1520,6 +1527,7 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
         typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
         typeof typedObj["ask_marketing_consent"] === "boolean" &&
         typeof typedObj["flagged_answers_threshold"] === "number" &&
+        typeof typedObj["flagged_answers_skip_manual_review_and_allow_retry"] === "boolean" &&
         (typedObj["closed_at"] === null ||
             typeof typedObj["closed_at"] === "string") &&
         (typedObj["closed_additional_message"] === null ||

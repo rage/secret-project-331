@@ -28,7 +28,7 @@ pub async fn copy_course(
     let course_language_group_id = if same_language_group {
         parent_course.course_language_group_id
     } else {
-        course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?
+        course_language_groups::insert(&mut tx, PKeyPolicy::Generate, &new_course.slug).await?
     };
 
     let copied_course = copy_course_with_language_group(
@@ -76,7 +76,8 @@ INSERT INTO courses (
     join_code,
     ask_marketing_consent,
     description,
-    flagged_answers_threshold
+    flagged_answers_threshold,
+    flagged_answers_skip_manual_review_and_allow_retry
   )
 VALUES (
     $1,
@@ -94,7 +95,8 @@ VALUES (
     $13,
     $14,
     $15,
-    $16
+    $16,
+    $17
   )
 RETURNING id,
   name,
@@ -117,6 +119,7 @@ RETURNING id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
@@ -137,7 +140,8 @@ RETURNING id,
         new_course.join_code,
         new_course.ask_marketing_consent,
         parent_course.description,
-        parent_course.flagged_answers_threshold
+        parent_course.flagged_answers_threshold,
+        parent_course.flagged_answers_skip_manual_review_and_allow_retry
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -1424,9 +1428,10 @@ mod tests {
                      :chapter, :page, exercise: _e);
 
         // Pre-create a brand-new CLG that both copies will use
-        let reusable_clg = course_language_groups::insert(tx.as_mut(), PKeyPolicy::Generate)
-            .await
-            .unwrap();
+        let reusable_clg =
+            course_language_groups::insert(tx.as_mut(), PKeyPolicy::Generate, "reusable-clg")
+                .await
+                .unwrap();
 
         let meta1 = create_new_course(org, "en-US".into());
         let copy1 =

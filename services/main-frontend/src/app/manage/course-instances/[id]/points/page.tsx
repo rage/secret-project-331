@@ -4,11 +4,12 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ChapterPointsDashboard from "../ChapterPointsDashboard"
 
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { getPoints } from "@/services/backend/course-instances"
 import { UserDetail } from "@/shared-module/common/bindings"
@@ -38,6 +39,14 @@ const CourseInstancePointsList: React.FC = () => {
   const { t } = useTranslation()
 
   const [sorting, setSorting] = useState(NAME)
+
+  const crumbs = useMemo(() => [{ isLoading: false as const, label: t("point-summary") }], [t])
+
+  useRegisterBreadcrumbs({
+    key: `course-instance:${courseInstanceId}:points`,
+    order: 60,
+    crumbs,
+  })
 
   function sortUsers(first: ProcessedUser, second: ProcessedUser): number {
     if (sorting == NAME) {

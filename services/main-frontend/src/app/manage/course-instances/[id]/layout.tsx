@@ -3,14 +3,20 @@
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { fetchCourseInstance } from "@/services/backend/course-instances"
-import { manageCourseRoute, organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
+import {
+  manageCourseInstancesRoute,
+  manageCourseRoute,
+  organizationFrontPageRoute,
+} from "@/shared-module/common/utils/routes"
 
 export default function CourseInstanceLayout({ children }: { children: React.ReactNode }) {
   const { id } = useParams<{ id: string }>()
+  const { t } = useTranslation()
 
   const courseInstanceQuery = useQuery({
     queryKey: ["course-instance", id],
@@ -29,11 +35,18 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
             href: organizationFrontPageRoute(courseBreadcrumbInfo.data?.organization_slug ?? ""),
           }
         : { isLoading: true as const },
-      courseBreadcrumbInfo.data?.course_name
+      courseBreadcrumbInfo.data?.course_name && courseId
         ? {
             isLoading: false as const,
             label: courseBreadcrumbInfo.data.course_name,
-            href: manageCourseRoute(courseId ?? ""),
+            href: manageCourseRoute(courseId),
+          }
+        : { isLoading: true as const },
+      courseId
+        ? {
+            isLoading: false as const,
+            label: t("link-course-instances"),
+            href: manageCourseInstancesRoute(courseId),
           }
         : { isLoading: true as const },
       courseInstanceQuery.data?.name
@@ -51,6 +64,7 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
       courseId,
       courseInstanceQuery.data?.name,
       id,
+      t,
     ],
   )
 

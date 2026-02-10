@@ -3,7 +3,15 @@
 import { css, keyframes } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
+import React, {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react"
 import { VisuallyHidden } from "react-aria"
 import { Button as AriaButton } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -79,6 +87,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
+  const [suggestedNewMessage, setSuggestedNewMessage] = useState<string>("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
     streamingMessage: null,
@@ -144,6 +153,21 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       },
     },
   )
+
+  useEffect(() => {
+    if (suggestedNewMessage.trim().length > 0) {
+      sendSuggestedNewMessage()
+    }
+  }, [suggestedNewMessage])
+
+  const sendSuggestedNewMessage = useEffectEvent(() => {
+    if (suggestedNewMessage.trim().length > 0 && suggestedNewMessage === newMessage) {
+      if (canSubmit) {
+        newMessageMutation.mutate()
+        setSuggestedNewMessage("")
+      }
+    }
+  })
 
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
@@ -349,57 +373,68 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}
-
-        {currentConversationInfo.data.suggested_messages?.map((m) => (
-          <AriaButton
-            key={m.id}
-            className={css`
-              align-self: flex-end;
-              border: none;
-              width: fit-content;
-              overflow-wrap: break-word;
-              padding: 0.3rem 0.5rem;
-              margin: 0.2rem 0;
-              border-radius: 12px;
-              font-size: 0.8rem;
-              background: linear-gradient(
-                120deg,
-                ${baseTheme.colors.blue[100]} 30%,
-                #ffffff 38%,
-                #f2f2f2 40%,
-                ${baseTheme.colors.blue[100]} 48%
-              );
-              background-size: 200% 100%;
-              background-position: 100% 0;
-              ${newMessageMutation.isPending
-                ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%);`
-                : ""}
-              &:hover {
-                filter: brightness(0.9) contrast(1.1);
-                cursor: pointer;
-              }
-            `}
-            onClick={() => console.log(m.message)}
-          >
-            <Idea
+        <div
+          className={css`
+            display: flex;
+            flex-flow: column nowrap;
+            margin-top: auto;
+            margin-left: 2rem;
+          `}
+        >
+          {currentConversationInfo.data.suggested_messages?.map((m) => (
+            <AriaButton
+              key={m.id}
               className={css`
-                position: relative;
-                opacity: 80%;
-                top: 3px;
-                margin-right: 5px;
-                transform: rotateY(180deg);
+                align-self: flex-end;
+                text-align: start;
+                border: none;
+                overflow-wrap: break-word;
+                padding: 0.3rem 0.5rem;
+                margin: 0.2rem 0;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                background: linear-gradient(
+                  120deg,
+                  ${baseTheme.colors.blue[100]} 30%,
+                  #ffffff 38%,
+                  #f2f2f2 40%,
+                  ${baseTheme.colors.blue[100]} 48%
+                );
+                background-size: 200% 100%;
+                background-position: 100% 0;
+                ${newMessageMutation.isPending
+                  ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%);`
+                  : ""}
+                &:hover {
+                  filter: brightness(0.9) contrast(1.1);
+                  cursor: pointer;
+                }
               `}
-            />
-            <span
-              className={css`
-                position: relative;
-                top: -5px;
-              `}
+              onClick={(e) => {
+                e.preventDefault()
+                setSuggestedNewMessage(m.message)
+                setNewMessage(m.message)
+              }}
             >
-              {m.message}
-            </span>
-          </AriaButton>
-        ))}
+              <Idea
+                className={css`
+                  position: relative;
+                  opacity: ${newMessageMutation.isPending ? `0%` : "80%"};
+                  top: 3px;
+                  margin-right: 5px;
+                `}
+              />
+              <span
+                className={css`
+                  position: relative;
+                  top: -5px;
+                `}
+              >
+                {m.message}
+              </span>
+            </AriaButton>
+          ))}
+        </div>
       </div>
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
@@ -408,7 +443,6 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       <div
         className={css`
           display: flex;
-          flex-grow: 1;
           gap: 10px;
           align-items: center;
           margin: 0 1rem;

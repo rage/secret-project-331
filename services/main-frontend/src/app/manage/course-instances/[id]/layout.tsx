@@ -28,11 +28,11 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
 
   const crumbs = useMemo(
     () => [
-      courseBreadcrumbInfo.data?.organization_name
+      courseBreadcrumbInfo.data?.organization_name && courseBreadcrumbInfo.data?.organization_slug
         ? {
             isLoading: false as const,
             label: courseBreadcrumbInfo.data.organization_name,
-            href: organizationFrontPageRoute(courseBreadcrumbInfo.data?.organization_slug ?? ""),
+            href: organizationFrontPageRoute(courseBreadcrumbInfo.data.organization_slug),
           }
         : { isLoading: true as const },
       courseBreadcrumbInfo.data?.course_name && courseId

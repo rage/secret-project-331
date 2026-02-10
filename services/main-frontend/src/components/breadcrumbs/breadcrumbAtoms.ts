@@ -21,3 +21,5 @@ export const breadcrumbCrumbsAtom = atom((get) => {
     e.crumbs.map((crumb, index): BreadcrumbItemWithKey => ({ entryKey: e.key, index, crumb })),
   )
 })
+
+export const isCourseMaterialAtom = atom<boolean>(false)

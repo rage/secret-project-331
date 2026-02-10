@@ -1,10 +1,12 @@
 "use client"
 
-import { useParams, useSelectedLayoutSegments } from "next/navigation"
+import { useAtomValue } from "jotai"
+import { useParams } from "next/navigation"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import BreadcrumbRenderer from "@/components/breadcrumbs/BreadcrumbRenderer"
+import { isCourseMaterialAtom } from "@/components/breadcrumbs/breadcrumbAtoms"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 
@@ -44,8 +46,7 @@ function OrgLayoutContent({
 }
 
 export default function OrgLayout({ children }: { children: React.ReactNode }) {
-  const segments = useSelectedLayoutSegments()
-  const isCourseMaterial = segments[0] === "courses" || segments[0] === "exams"
+  const isCourseMaterial = useAtomValue(isCourseMaterialAtom)
 
   return (
     <>

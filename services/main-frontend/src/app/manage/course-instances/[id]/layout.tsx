@@ -49,13 +49,13 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
             href: manageCourseInstancesRoute(courseId),
           }
         : { isLoading: true as const },
-      courseInstanceQuery.data?.name
-        ? {
+      courseInstanceQuery.isLoading
+        ? { isLoading: true as const }
+        : {
             isLoading: false as const,
-            label: courseInstanceQuery.data.name,
+            label: courseInstanceQuery.data?.name || t("default-instance"),
             href: `/manage/course-instances/${id}`,
-          }
-        : { isLoading: true as const },
+          },
     ],
     [
       courseBreadcrumbInfo.data?.organization_slug,
@@ -63,6 +63,7 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
       courseBreadcrumbInfo.data?.course_name,
       courseId,
       courseInstanceQuery.data?.name,
+      courseInstanceQuery.isLoading,
       id,
       t,
     ],

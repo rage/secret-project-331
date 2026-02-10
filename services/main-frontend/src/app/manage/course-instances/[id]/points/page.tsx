@@ -11,7 +11,7 @@ import ChapterPointsDashboard from "../ChapterPointsDashboard"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { getPoints } from "@/services/backend/course-instances"
+import { fetchCourseInstance, getPoints } from "@/services/backend/course-instances"
 import { UserDetail } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -39,6 +39,13 @@ const CourseInstancePointsList: React.FC = () => {
   const { t } = useTranslation()
 
   const [sorting, setSorting] = useState(NAME)
+
+  const courseInstanceQuery = useQuery({
+    queryKey: ["course-instance", courseInstanceId],
+    queryFn: () => fetchCourseInstance(courseInstanceId),
+  })
+
+  const instanceLabel = courseInstanceQuery.data?.name || t("default-instance")
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("point-summary") }], [t])
 
@@ -94,7 +101,7 @@ const CourseInstancePointsList: React.FC = () => {
           line-height: 45px;
         `}
       >
-        {t("point-summary")}: {courseInstanceId}
+        {t("point-summary")}: {instanceLabel}
       </h2>
       {getPointsList.isError && <ErrorBanner variant={"readOnly"} error={getPointsList.error} />}
       {getPointsList.isLoading && <Spinner variant={"medium"} />}

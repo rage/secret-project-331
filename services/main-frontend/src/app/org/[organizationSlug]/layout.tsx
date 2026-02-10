@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useSelectedLayoutSegments } from "next/navigation"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,7 +8,13 @@ import BreadcrumbRenderer from "@/components/breadcrumbs/BreadcrumbRenderer"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 
-function OrgLayoutContent({ children }: { children: React.ReactNode }) {
+function OrgLayoutContent({
+  children,
+  isCourseMaterial,
+}: {
+  children: React.ReactNode
+  isCourseMaterial: boolean
+}) {
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const { t } = useTranslation()
   const organizationQuery = useOrganizationQueryBySlug(organizationSlug ?? null)
@@ -31,16 +37,20 @@ function OrgLayoutContent({ children }: { children: React.ReactNode }) {
     key: `org:${organizationSlug ?? ""}`,
     order: 10,
     crumbs,
+    disabled: isCourseMaterial,
   })
 
   return <>{children}</>
 }
 
 export default function OrgLayout({ children }: { children: React.ReactNode }) {
+  const segments = useSelectedLayoutSegments()
+  const isCourseMaterial = segments[0] === "courses" || segments[0] === "exams"
+
   return (
     <>
-      <BreadcrumbRenderer />
-      <OrgLayoutContent>{children}</OrgLayoutContent>
+      {!isCourseMaterial && <BreadcrumbRenderer />}
+      <OrgLayoutContent isCourseMaterial={isCourseMaterial}>{children}</OrgLayoutContent>
     </>
   )
 }

@@ -2,6 +2,8 @@ DROP INDEX IF EXISTS email_deliveries_retry_queue_idx;
 DROP INDEX IF EXISTS email_delivery_errors_created_at_idx;
 DROP INDEX IF EXISTS email_delivery_errors_email_delivery_id_idx;
 
+DROP TRIGGER IF EXISTS set_timestamp ON email_delivery_errors;
+
 DROP TABLE IF EXISTS email_delivery_errors;
 
 ALTER TABLE email_deliveries

@@ -101,9 +101,14 @@ WITH due AS (
     SELECT
         ed.id
     FROM email_deliveries ed
+    JOIN users u ON u.id = ed.user_id
+    JOIN user_details ud ON ud.user_id = ed.user_id
+    JOIN email_templates et ON et.id = ed.email_template_id
     WHERE ed.deleted_at IS NULL
       AND ed.sent = FALSE
       AND ed.retryable = TRUE
+      AND u.deleted_at IS NULL
+      AND et.deleted_at IS NULL
       AND (ed.next_retry_at IS NULL OR ed.next_retry_at <= now())
     ORDER BY coalesce(ed.next_retry_at, '-infinity'::timestamptz), ed.created_at
     FOR UPDATE SKIP LOCKED
@@ -210,6 +215,21 @@ pub struct EmailDeliveryErrorInsert {
     pub smtp_response: Option<String>,
     pub smtp_response_code: Option<i32>,
     pub is_transient: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct EmailDeliveryError {
+    pub id: Uuid,
+    pub email_delivery_id: Uuid,
+    pub attempt: i32,
+    pub error_message: String,
+    pub error_code: Option<String>,
+    pub smtp_response: Option<String>,
+    pub smtp_response_code: Option<i32>,
+    pub is_transient: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 pub async fn increment_retry_and_schedule(

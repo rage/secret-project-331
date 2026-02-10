@@ -52,9 +52,9 @@ pub struct NewCourseInstanceEnrollment {
 }
 
 /**
-Inserts enrollment if it doesn't exist yet.
+Inserts enrollment if it doesn't exist yet; on conflict updates deleted_at to NULL (upsert).
 
-If the enrollment exists, this just makes sure that the record is not deleted. This is useful because the user might accidentally request entrolling to the same course instance twice for example with two differet browser tabs.
+Handles duplicate submissions (e.g. multiple tabs or parallel requests) by conflicting on (user_id, course_id, course_instance_id).
 */
 pub async fn insert_enrollment_if_it_doesnt_exist(
     conn: &mut PgConnection,
@@ -65,7 +65,7 @@ pub async fn insert_enrollment_if_it_doesnt_exist(
         "
 INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)
 VALUES ($1, $2, $3)
-ON CONFLICT (user_id, course_instance_id)
+ON CONFLICT (user_id, course_id, course_instance_id)
 DO UPDATE SET deleted_at = NULL
 RETURNING *;
 ",

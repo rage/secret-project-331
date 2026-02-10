@@ -1238,7 +1238,7 @@ mod test {
             page: page_id,
             exercise: exercise_id,
             slide: exercise_slide_id,
-            task: exercise_task_id
+            task: _exercise_task_id
         );
         insert_exercise_service_with_info(tx.as_mut()).await;
         course_instance_enrollments::insert_enrollment_and_set_as_current(

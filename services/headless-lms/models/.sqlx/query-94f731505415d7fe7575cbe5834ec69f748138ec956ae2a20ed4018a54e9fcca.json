@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO email_delivery_errors (\n    id,\n    email_delivery_id,\n    attempt,\n    error_message,\n    error_code,\n    smtp_response,\n    smtp_response_code,\n    is_transient\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Text",
+        "Text",
+        "Text",
+        "Int4",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "94f731505415d7fe7575cbe5834ec69f748138ec956ae2a20ed4018a54e9fcca"
+}

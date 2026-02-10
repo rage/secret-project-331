@@ -14,7 +14,7 @@ import { CardExtraProps } from "."
 
 import PseudoContentLink from "@/components/PseudoContentLink"
 import CardSVG from "@/shared-module/common/img/cardNext.svg"
-import { headingFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"

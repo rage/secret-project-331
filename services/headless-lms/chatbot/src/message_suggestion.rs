@@ -80,16 +80,16 @@ pub async fn generate_suggested_messages(
         .iter()
         // iterate through the messages starting from the newest until token limit is hit
         .rfold((used_tokens, conv_len), |(tokens, n), el| {
-            if !el.message.is_none() {
+            if el.message.is_some() {
                 // add previous tokens, this message's tokens and extra 1 tokens for newline
                 let new_tokens = tokens + el.used_tokens + 1;
                 if new_tokens > token_budget {
                     return (tokens, n);
                 }
                 let new_n = el.order_number as usize;
-                return (new_tokens, new_n);
+                (new_tokens, new_n)
             } else {
-                return (tokens, n);
+                (tokens, n)
             }
         });
     // the order number of the earliest message to inlcude in the conversation context
@@ -111,7 +111,7 @@ pub async fn generate_suggested_messages(
     let system_prompt = APIMessage {
         role: MessageRole::System,
         fields: APIMessageKind::Text(APIMessageText {
-            content: prompt + &conversation,
+            content: prompt + conversation,
         }),
     };
     let user_prompt = APIMessage {

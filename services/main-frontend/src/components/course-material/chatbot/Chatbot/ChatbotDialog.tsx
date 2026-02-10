@@ -124,7 +124,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
               right: 1rem;
               width: ${CHATBOX_WIDTH_PX}px;
               max-width: 90vw;
-              min-height: ${CHATBOX_HEIGHT_PX}px;
+              min-height: 60vh;
               height: fit-content;
               max-height: 90vh;
               position: fixed;

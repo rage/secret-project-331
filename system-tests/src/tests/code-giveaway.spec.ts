@@ -12,7 +12,7 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByLabel("Manage course 'Giveaway'").click()
   await page.getByRole("tab", { name: "Other" }).click()
   await page.getByRole("tab", { name: "Code giveaways" }).click()
-  await page.getByRole("button", { name: "New" }).click()
+  await page.getByRole("button", { name: "New", exact: true }).click()
   await page.getByLabel("Name", { exact: true }).fill("Best code giveaway of this generation")
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Create" }).click()

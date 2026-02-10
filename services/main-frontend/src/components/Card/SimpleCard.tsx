@@ -6,7 +6,9 @@ import { LockKeyhole } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import CardDeadlineOverlay, { cardTopBandStyle } from "./CardDeadlineOverlay"
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
+import CardOpensText from "./CardOpensText"
 
 import { CardExtraProps } from "."
 
@@ -15,6 +17,7 @@ import CardSVG from "@/shared-module/common/img/cardNext.svg"
 import { headingFont } from "@/shared-module/common/styles"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 
 export interface BackgroundProps {
   bg: string | undefined
@@ -56,8 +59,8 @@ const CardContentWrapper = styled.div`
     }
   }
 
-  span {
-    color: #f5f6f7;
+  span.chapter-number {
+    color: ${baseTheme.colors.clear[100]};
     font-size: clamp(16px, 1em, 20px);
     opacity: 0.9;
     z-index: 20;
@@ -96,10 +99,26 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   points,
   showLock,
   isLocked,
+  deadline,
+  exerciseDeadline,
+  exerciseDeadlinesMultiple,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const shouldLink = url && (open || allowedToPreview)
+  const formattedDeadline = humanReadableDateTime(deadline, i18n.language) ?? null
+  const formattedExerciseDeadline = humanReadableDateTime(exerciseDeadline, i18n.language) ?? null
+  const hasDeadlines = !!(formattedDeadline || formattedExerciseDeadline)
+
+  const topBandsWrapperStyle = css`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  `
 
   return (
     <div
@@ -114,7 +133,22 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
     >
       <CardContentWrapper bg={bg}>
         {backgroundImage && StyledSVG(backgroundImage)}
-        <CardOpensTextOverlay open={open} date={date} time={time} />
+        {hasDeadlines ? (
+          <div className={topBandsWrapperStyle}>
+            {!open && (
+              <div className={cardTopBandStyle}>
+                <CardOpensText open={open} date={date} time={time} />
+              </div>
+            )}
+            <CardDeadlineOverlay
+              formattedDeadline={formattedDeadline}
+              formattedExerciseDeadline={formattedExerciseDeadline}
+              exerciseDeadlinesMultiple={!!exerciseDeadlinesMultiple}
+            />
+          </div>
+        ) : (
+          <CardOpensTextOverlay open={open} date={date} time={time} />
+        )}
         <div
           className={css`
             position: absolute;
@@ -226,9 +260,9 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                   data-testid={chapterNumber ? `chapter-link-${chapterNumber}` : undefined}
                 >
                   <span
-                    className={css`
+                    className={`${css`
                       font-family: ${headingFont};
-                    `}
+                    `} chapter-number`}
                   >
                     {t("chapter-chapter-number", { number: chapterNumber })}
                   </span>
@@ -237,9 +271,9 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
               ) : (
                 <>
                   <span
-                    className={css`
+                    className={`${css`
                       font-family: ${headingFont};
-                    `}
+                    `} chapter-number`}
                   >
                     {t("chapter-chapter-number", { number: chapterNumber })}
                   </span>

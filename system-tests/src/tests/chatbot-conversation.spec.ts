@@ -244,4 +244,44 @@ test.describe("Test chatbot chat box", () => {
       await expect(student1Page.getByText("Hello! How can I assist you")).toHaveCount(0)
     })
   })
+
+  test("course material block chatbot with suggested messages", async ({
+    page,
+    headless,
+  }, testInfo) => {
+    const student1Page = await context1.newPage()
+
+    await test.step("student views material block chatbot that suggests", async () => {
+      student1Page.goto(
+        "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1/page-3",
+      )
+      await selectCourseInstanceIfPrompted(student1Page)
+      await student1Page.getByRole("heading", { name: "Test bot" }).scrollIntoViewIfNeeded()
+      await student1Page.getByRole("button", { name: "Agree" }).click()
+      await waitForAnimationsToEnd(student1Page.getByText("How are we doing this fine evening?"))
+      await expect(
+        student1Page.getByText("Tell me more about your fascinating self."),
+      ).toBeVisible()
+
+      await accessibilityCheck(
+        student1Page,
+        "Block Chatbot with Suggestions New Conversation / View",
+        [],
+      )
+      await expectScreenshotsToMatchSnapshots({
+        screenshotTarget: student1Page,
+        headless,
+        testInfo,
+        snapshotName: "block-chatbot-new-conversation-with-suggested-messages",
+      })
+    })
+
+    await test.step("student sends a suggested message", async () => {})
+
+    await test.step("teacher changes the default chatbot", async () => {
+      page.goto(
+        "http://project-331.local/manage/courses/ced2f632-25ba-4e93-8e38-8df53ef7ab41/other/chatbot",
+      )
+    })
+  })
 })

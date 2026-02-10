@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["fetch_emails","insert_email_delivery","mark_as_sent","save_err_to_email"],"struct":["Email","EmailDelivery"]};
+window.SIDEBAR_ITEMS = {"constant":["FETCH_LIMIT"],"fn":["fetch_emails","increment_retry_and_mark_non_retryable","increment_retry_and_schedule","insert_email_delivery","insert_email_delivery_error","mark_as_sent","soft_delete_unsent_retryable_deliveries_for_user"],"struct":["CheckUserAndTemplateRow","Email","EmailDelivery","EmailDeliveryError","EmailDeliveryErrorInsert"]};

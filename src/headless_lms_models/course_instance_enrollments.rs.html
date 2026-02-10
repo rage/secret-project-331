@@ -52,9 +52,9 @@
 <a href=#52 id=52 data-nosnippet>52</a>}
 <a href=#53 id=53 data-nosnippet>53</a>
 <a href=#54 id=54 data-nosnippet>54</a><span class="doccomment">/**
-<a href=#55 id=55 data-nosnippet>55</a>Inserts enrollment if it doesn't exist yet.
+<a href=#55 id=55 data-nosnippet>55</a>Inserts enrollment if it doesn't exist yet; on conflict updates deleted_at to NULL (upsert).
 <a href=#56 id=56 data-nosnippet>56</a>
-<a href=#57 id=57 data-nosnippet>57</a>If the enrollment exists, this just makes sure that the record is not deleted. This is useful because the user might accidentally request entrolling to the same course instance twice for example with two differet browser tabs.
+<a href=#57 id=57 data-nosnippet>57</a>Handles duplicate submissions (e.g. multiple tabs or parallel requests) by conflicting on (user_id, course_id, course_instance_id).
 <a href=#58 id=58 data-nosnippet>58</a>*/
 <a href=#59 id=59 data-nosnippet>59</a></span><span class="kw">pub async fn </span>insert_enrollment_if_it_doesnt_exist(
 <a href=#60 id=60 data-nosnippet>60</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
@@ -65,7 +65,7 @@
 <a href=#65 id=65 data-nosnippet>65</a>        <span class="string">"
 <a href=#66 id=66 data-nosnippet>66</a>INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)
 <a href=#67 id=67 data-nosnippet>67</a>VALUES ($1, $2, $3)
-<a href=#68 id=68 data-nosnippet>68</a>ON CONFLICT (user_id, course_instance_id)
+<a href=#68 id=68 data-nosnippet>68</a>ON CONFLICT (user_id, course_id, course_instance_id)
 <a href=#69 id=69 data-nosnippet>69</a>DO UPDATE SET deleted_at = NULL
 <a href=#70 id=70 data-nosnippet>70</a>RETURNING *;
 <a href=#71 id=71 data-nosnippet>71</a>"</span>,

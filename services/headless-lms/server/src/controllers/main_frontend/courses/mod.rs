@@ -36,7 +36,7 @@ use models::{
     peer_or_self_review_configs::PeerOrSelfReviewConfig,
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
     user_course_settings::UserCourseSettings,
-    user_exercise_states::ExerciseUserCounts,
+    user_exercise_states::{ExerciseUserCounts, UserCourseProgress},
 };
 
 use crate::{
@@ -82,6 +82,34 @@ async fn get_course_breadcrumb_info(
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(info))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/progress/:user_id` - Returns user progress for the course.
+*/
+#[instrument(skip(pool))]
+async fn get_user_progress_for_course(
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<UserCourseProgress>>> {
+    let (course_id, target_user_id) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+    let user_course_progress = models::user_exercise_states::get_user_course_progress(
+        &mut conn,
+        course_id,
+        target_user_id,
+        false,
+    )
+    .await?;
+    token.authorized_ok(web::Json(user_course_progress))
 }
 
 /**
@@ -1809,6 +1837,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/breadcrumb-info",
             web::get().to(get_course_breadcrumb_info),
+        )
+        .route(
+            "/{course_id}/progress/{user_id}",
+            web::get().to(get_user_progress_for_course),
         )
         .route(
             "/{course_id}/user-settings/{user_id}",

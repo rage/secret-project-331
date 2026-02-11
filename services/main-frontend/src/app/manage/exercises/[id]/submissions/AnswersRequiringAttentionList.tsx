@@ -17,6 +17,7 @@ interface Props {
   answersRequiringAttention: AnswerRequiringAttentionWithTasks[]
   exercise_max_points: number
   exerciseName: string
+  courseId: string | null
   refetch: () => void
 }
 
@@ -24,6 +25,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   answersRequiringAttention,
   exercise_max_points,
   exerciseName,
+  courseId,
   refetch,
 }) => {
   const { expandAll, collapseAll } = useAccordionContext()
@@ -59,6 +61,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
             key={answerRequiringAttention.id}
             answerRequiringAttention={answerRequiringAttention}
             exerciseMaxPoints={exercise_max_points}
+            courseId={courseId}
             refetch={refetch}
           />
         ))}

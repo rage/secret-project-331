@@ -129,6 +129,7 @@ const SubmissionsPage: React.FC = () => {
             answersRequiringAttention={answersQuery.data.data}
             exercise_max_points={answersQuery.data.exercise_max_points}
             exerciseName={exerciseContext?.exercise.name ?? ""}
+            courseId={exerciseQuery.data?.course_id ?? null}
             refetch={answersQuery.refetch}
           />
           <Pagination totalPages={answersQuery.data?.total_pages} paginationInfo={paginationInfo} />

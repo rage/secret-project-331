@@ -1,8 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
-import { parseISO } from "date-fns"
 import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,6 +9,7 @@ import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
 import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
 
 import SubmissionIFrame from "@/app/submissions/[id]/grading/SubmissionIFrame"
+import { UserDisplay } from "@/components/UserDisplay"
 import {
   ExerciseCardHeader,
   ExerciseCardPointsBadge,
@@ -29,20 +28,14 @@ import { dateToString } from "@/shared-module/common/utils/time"
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks
   exerciseMaxPoints: number
+  courseId: string | null
   refetch: () => void
 }
-
-const StatusPanel = styled.div`
-  border-top: 3px solid rgba(112, 112, 112, 0.1);
-  width: 100%;
-  height: 70px;
-  display: flex;
-  align-items: center;
-`
 
 const AnswersRequiringAttentionItem: React.FC<Props> = ({
   answerRequiringAttention,
   exerciseMaxPoints,
+  courseId,
   refetch,
 }) => {
   const { t } = useTranslation()
@@ -108,7 +101,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                     padding-bottom: 0.2rem;
                   `}
                 >
-                  {answerRequiringAttention.user_id}
+                  <UserDisplay userId={answerRequiringAttention.user_id} courseId={courseId} />
                   <br />
                   {dateToString(answerRequiringAttention.created_at)}
                 </div>
@@ -175,11 +168,13 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 <PeerOrSelfReviewAccordion
                   peerOrSelfReviews={answerRequiringAttention.received_peer_or_self_reviews}
                   title={t("received-reviews")}
+                  courseId={courseId}
                 />
 
                 <PeerOrSelfReviewAccordion
                   peerOrSelfReviews={answerRequiringAttention.given_peer_reviews}
                   title={t("given-peer-reviews-to-other-students")}
+                  courseId={courseId}
                 />
 
                 <FlaggedPeerReviewAccordion

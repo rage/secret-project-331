@@ -19,9 +19,9 @@ interface TeacherGradingDecisionControlsProps {
 }
 
 const ControlPanel = styled.div`
-  background: #f5f5f5;
+  background: #fff;
   width: 100%;
-  height: 150px;
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -95,7 +95,9 @@ const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsPro
       <div
         className={css`
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
+          gap: 0.5rem;
         `}
       >
         <Button

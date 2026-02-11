@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { ExclamationMessage } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,14 +11,20 @@ import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
 import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
 
 import SubmissionIFrame from "@/app/submissions/[id]/grading/SubmissionIFrame"
+import {
+  ExerciseCardHeader,
+  ExerciseCardPointsBadge,
+  ExerciseCardWrapper,
+} from "@/components/exercise-card"
 import { createTeacherGradingDecision } from "@/services/backend/teacher-grading-decisions"
 import {
   AnswerRequiringAttentionWithTasks,
   NewTeacherGradingDecision,
 } from "@/shared-module/common/bindings"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { primaryFont } from "@/shared-module/common/styles"
+import { headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks
@@ -31,14 +36,6 @@ const StatusPanel = styled.div`
   border-top: 3px solid rgba(112, 112, 112, 0.1);
   width: 100%;
   height: 70px;
-  display: flex;
-  align-items: center;
-`
-
-const TopBar = styled.div`
-  width: 100%;
-  height: 108px;
-  background: #1f6964;
   display: flex;
   align-items: center;
 `
@@ -89,140 +86,111 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
           }
         `}
       >
-        <TopBar>
-          <ExclamationMessage
-            size={64}
-            className={css`
-              color: white;
-              margin: 1.5rem;
-            `}
+        <ExerciseCardWrapper>
+          <ExerciseCardHeader
+            backgroundColor="#718dbf"
+            title={
+              <h2
+                className={css`
+                  font-size: 1.7rem;
+                  font-weight: 500;
+                  font-family: ${headingFont} !important;
+                  overflow-wrap: anywhere;
+                  overflow: hidden;
+                  margin-top: -2px;
+                `}
+              >
+                <div
+                  className={css`
+                    font-size: 1.2rem;
+                    line-height: 1.4;
+                    overflow: hidden;
+                    padding-bottom: 0.2rem;
+                  `}
+                >
+                  {answerRequiringAttention.user_id}
+                  <br />
+                  {dateToString(answerRequiringAttention.created_at)}
+                </div>
+              </h2>
+            }
+            rightContent={
+              <ExerciseCardPointsBadge
+                score={
+                  (updatedPoints === null ? answerRequiringAttention.score_given : updatedPoints) ??
+                  0
+                }
+                maxScore={exerciseMaxPoints}
+              />
+            }
           />
-          <div id="text-column">
-            <p
-              className={css`
-                font-family: ${primaryFont};
-                color: #f5f6f7cc;
-                font-size: 16px;
-                font-weight: 500;
-                line-height: 16px;
-                letter-spacing: 0em;
-                margin-bottom: 0.5em;
-              `}
-            >
-              {t("answered-at", {
-                time: `${parseISO(answerRequiringAttention.created_at).toDateString()} ${parseISO(
-                  answerRequiringAttention.created_at,
-                ).toLocaleTimeString()}`,
-              })}{" "}
-            </p>
-            <p
-              className={css`
-                font-family: ${primaryFont};
-                font-size: 17px;
-                font-weight: 400;
-                line-height: 17px;
-                letter-spacing: 0em;
-                text-align: left;
-                color: white;
-              `}
-            >
-              {t("user-id")}: {answerRequiringAttention?.user_id}
-            </p>
-          </div>
+
           <div
             className={css`
-              color: white;
-              margin-left: auto;
-              margin-right: 1em;
-              font-size: 24px;
+              padding: 0 1rem 1.5rem;
             `}
-            id="point column"
           >
             <p
               className={css`
+                margin-top: 0;
+                margin-bottom: 1em;
+                font-family: ${primaryFont};
+                color: #4b4b4b;
+                font-weight: 500;
+                font-size: 20px;
+                line-height: 20px;
                 text-transform: uppercase;
               `}
             >
-              {t("points")}:{" "}
-              {updatedPoints === null ? answerRequiringAttention.score_given : updatedPoints}/
-              {exerciseMaxPoints}
+              {t("student-answer")}
             </p>
-          </div>
-        </TopBar>
 
-        <p
-          className={css`
-            margin-top: 1.5em;
-            margin-bottom: 1em;
-            font-family: ${primaryFont};
-            color: #4b4b4b;
-            font-weight: 500;
-            font-size: 20px;
-            line-height: 20px;
-            text-transform: uppercase;
-          `}
-        >
-          {t("student-answer")}
-        </p>
+            {answerRequiringAttention.tasks
+              .sort((a, b) => a.order_number - b.order_number)
+              .map((task) => (
+                <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
+              ))}
+            <div
+              className={css`
+                margin-top: 1.5rem;
+                background: #ffffff;
+                border-radius: 0.625rem;
+                padding: 1rem 1.25rem 1.5rem;
+                box-shadow:
+                  rgba(15, 23, 42, 0.06) 0 1px 2px,
+                  rgba(15, 23, 42, 0.04) 0 0 0 1px;
+              `}
+            >
+              <TeacherGradingDecisionControls
+                userExerciseStateId={answerRequiringAttention.id}
+                exerciseId={answerRequiringAttention.exercise_id}
+                exerciseMaxPoints={exerciseMaxPoints}
+                onGradingDecisionSubmit={handleGradingDecisionSubmit}
+              />
 
-        {answerRequiringAttention.tasks
-          .sort((a, b) => a.order_number - b.order_number)
-          .map((task) => (
-            <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
-          ))}
-
-        <div>
-          <StatusPanel>
-            <div>
-              <span
+              <div
                 className={css`
-                  margin-left: 1em;
-                  font-family: ${primaryFont};
-                  color: #707070;
+                  margin-top: 1.5rem;
                 `}
               >
-                {t("status")}
-              </span>
-              <span
-                className={css`
-                  margin-left: 1em;
-                  font-family: ${primaryFont};
-                  color: #9a9a9a;
-                `}
-              >
-                {answerRequiringAttention.grading_progress}
-              </span>
+                <PeerOrSelfReviewAccordion
+                  peerOrSelfReviews={answerRequiringAttention.received_peer_or_self_reviews}
+                  title={t("received-reviews")}
+                />
+
+                <PeerOrSelfReviewAccordion
+                  peerOrSelfReviews={answerRequiringAttention.given_peer_reviews}
+                  title={t("given-peer-reviews-to-other-students")}
+                />
+
+                <FlaggedPeerReviewAccordion
+                  reports={answerRequiringAttention.received_peer_review_flagging_reports}
+                  title={t("label-received-reports")}
+                />
+              </div>
             </div>
-          </StatusPanel>
-
-          <TeacherGradingDecisionControls
-            userExerciseStateId={answerRequiringAttention.id}
-            exerciseId={answerRequiringAttention.exercise_id}
-            exerciseMaxPoints={exerciseMaxPoints}
-            onGradingDecisionSubmit={handleGradingDecisionSubmit}
-          />
-        </div>
-      </div>
-
-      <div
-        className={css`
-          margin-bottom: 3rem;
-        `}
-      >
-        <PeerOrSelfReviewAccordion
-          peerOrSelfReviews={answerRequiringAttention.received_peer_or_self_reviews}
-          title={t("received-reviews")}
-        />
-
-        <PeerOrSelfReviewAccordion
-          peerOrSelfReviews={answerRequiringAttention.given_peer_reviews}
-          title={t("given-peer-reviews-to-other-students")}
-        />
-
-        <FlaggedPeerReviewAccordion
-          reports={answerRequiringAttention.received_peer_review_flagging_reports}
-          title={t("label-received-reports")}
-        />
+          </div>
+        </ExerciseCardWrapper>
       </div>
     </>
   )

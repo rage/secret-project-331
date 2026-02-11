@@ -15,11 +15,9 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

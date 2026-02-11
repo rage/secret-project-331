@@ -66,7 +66,16 @@ const config = [
       "@next/next": next,
     },
     rules: {
-      "@next/next/no-html-link-for-pages": "error",
+      "@next/next/no-html-link-for-pages": [
+        "error",
+        [
+          "services/main-frontend/src/app",
+          "services/cms/src/pages",
+          "services/quizzes/src/app",
+          "services/tmc/src/app",
+          "services/example-exercise/src/app",
+        ],
+      ],
       "@next/next/no-img-element": "error",
       "@next/next/no-sync-scripts": "error",
       "@next/next/no-script-component-in-head": "error",
@@ -384,6 +393,7 @@ const config = [
               "closest",
               "querySelectorAll",
               "getAttribute",
+              "useRegisterBreadcrumbs",
             ],
           },
           "object-properties": {

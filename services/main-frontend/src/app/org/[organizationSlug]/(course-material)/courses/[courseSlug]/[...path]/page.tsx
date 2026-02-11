@@ -13,8 +13,6 @@ import useLanguageNavigation from "@/hooks/course-material/language/useLanguageN
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"

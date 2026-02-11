@@ -10,6 +10,7 @@ import * as styles from "./StudentsPageStyles"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
@@ -50,6 +51,19 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   const courseId = params.id
   const { t } = useTranslation()
   const { inputValue, setSearchQuery } = useStudentsContext()
+
+  const crumbs = useMemo(
+    () => [
+      {
+        isLoading: false as const,
+        label: t("label-students"),
+        href: `${manageCourseStudentsRoute(courseId)}/users`,
+      },
+    ],
+    [courseId, t],
+  )
+
+  useRegisterBreadcrumbs({ key: `course:${courseId}:students`, order: 30, crumbs })
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base = manageCourseStudentsRoute(courseId)

@@ -1,3 +1,4 @@
+/* eslint-disable playwright/no-conditional-in-test, playwright/no-conditional-expect */
 import { expect, test } from "@playwright/test"
 
 import { resetClientAuthorization } from "../../../utils/oauth/authorizedClients"

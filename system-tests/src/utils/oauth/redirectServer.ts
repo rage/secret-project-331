@@ -7,7 +7,7 @@ let _setupCount = 0
 let _isSharedServer = false // Track if this worker is using a server set up by another worker
 let _setupPromise: Promise<void> | null = null // Track ongoing setup to avoid race conditions
 
-async function verifyServerRunning(uri: URL): Promise<boolean> {
+async function _verifyServerRunning(uri: URL): Promise<boolean> {
   return new Promise((resolve) => {
     const testReq = http.get(
       {

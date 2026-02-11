@@ -23,8 +23,8 @@ test("Organization workflow", async ({ page }) => {
 
   await test.step("Can see the new organization in manage page", async () => {
     await manageOrganization(page, "New Test")
-    await page.getByText("New Test", { exact: true }).click()
-    await page.getByText("newslug", { exact: true }).click()
+    await page.getByLabel("General").getByText("New Test").waitFor()
+    await page.getByText("newslug", { exact: true }).waitFor()
   })
 
   await test.step("Edit the organization", async () => {

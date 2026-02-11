@@ -73,16 +73,18 @@ global.MutationObserver = FakeMutationObserver
 //** Extract Gutenberg block attribute types */
 async function main() {
   // We do these imports dynamically so that our patches above are applied before the imports are executed. (Normal imports would be hoisted.)
-  const [blocks, { addFilter }, blockLibrary, { default: tableBlockJSON }] = await Promise.all([
-    import("@wordpress/blocks"),
-    import("@wordpress/hooks"),
-    import("@wordpress/block-library"),
-    import("@wordpress/block-library/src/table/block.json"),
-  ])
+  const [blocks, { addFilter: _addFilter }, blockLibrary, { default: tableBlockJSON }] =
+    await Promise.all([
+      import("@wordpress/blocks"),
+      import("@wordpress/hooks"),
+      import("@wordpress/block-library"),
+      import("@wordpress/block-library/src/table/block.json"),
+    ])
 
-  const { modifyEmbedBlockAttributes, modifyImageBlockAttributes } = await import(
-    "../src/utils/Gutenberg/modifyBlockAttributes"
-  )
+  const {
+    modifyEmbedBlockAttributes: _modifyEmbedBlockAttributes,
+    modifyImageBlockAttributes: _modifyImageBlockAttributes,
+  } = await import("../src/utils/Gutenberg/modifyBlockAttributes")
   const { supportedCoreBlocks } = await import("../src/blocks/supportedGutenbergBlocks")
 
   blockLibrary.registerCoreBlocks()

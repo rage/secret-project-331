@@ -8,8 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
 
-import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
-import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
 import { fetchAnswersRequiringAttention } from "@/services/backend/answers-requiring-attention"
@@ -20,7 +19,6 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { manageCourseExercisesRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
@@ -45,7 +43,17 @@ const SubmissionsPage: React.FC = () => {
   const exerciseQuery = useExerciseQuery(id)
   const paginationInfo = usePaginationInfo()
   const courseStructure = useCourseStructure(exerciseQuery.data?.course_id ?? null)
-  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(exerciseQuery.data?.course_id ?? null)
+
+  const crumbs = useMemo(
+    () => [{ isLoading: false as const, label: t("header-answers-requiring-attention") }],
+    [t],
+  )
+
+  useRegisterBreadcrumbs({
+    key: `exercise:${id}:answers-requiring-attention`,
+    order: 60,
+    crumbs,
+  })
 
   const exerciseContext = useMemo(() => {
     if (!courseStructure.data || !exerciseQuery.data) {
@@ -81,14 +89,6 @@ const SubmissionsPage: React.FC = () => {
 
   return (
     <div>
-      <MainFrontendBreadCrumbs
-        organizationSlug={courseBreadcrumbInfo.data?.organization_slug ?? null}
-        courseId={exerciseContext?.exercise.course_id ?? null}
-        exerciseName={exerciseContext?.exercise.name}
-        exerciseUrl={manageCourseExercisesRoute(exerciseContext?.exercise.course_id ?? "")}
-        additionalPieces={[{ text: t("header-answers-requiring-attention"), url: "" }]}
-      />
-
       <h4
         className={css`
           color: #313947;

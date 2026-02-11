@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import ChatbotConfigurationForm from "@/app/manage/courses/[id]/other/chatbot/ChatbotConfigurationForm"
-import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
 import { getChatbotConfiguration } from "@/services/backend/chatbots"
 import { ChatbotConfiguration } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -35,7 +34,6 @@ const CustomizeChatbotPage = () => {
 
   return (
     <div>
-      <MainFrontendBreadCrumbs organizationSlug={null} courseId={chatbotQuery.data.course_id} />
       <Button type="button" size="medium" variant="secondary" onClick={() => router.back()}>
         {t("back")}
       </Button>

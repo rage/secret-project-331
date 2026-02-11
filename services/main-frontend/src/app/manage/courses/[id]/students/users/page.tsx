@@ -1,7 +1,5 @@
 "use client"
 
-import React from "react"
-
 import { useStudentsContext } from "../StudentsContext"
 import { UserTabContent } from "../StudentsTableTabs"
 

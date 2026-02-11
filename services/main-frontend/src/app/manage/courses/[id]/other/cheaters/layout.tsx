@@ -8,6 +8,7 @@ import CheatersThresholdConfig from "./CheatersThresholdConfig"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   manageCourseOtherCheatersArchivedRoute,
   manageCourseOtherCheatersSuspectedRoute,
@@ -20,6 +21,19 @@ export default function CheatersLayout({ children }: { children: React.ReactNode
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
+
+  const crumbs = useMemo(
+    () => [
+      {
+        isLoading: false as const,
+        label: t("link-cheaters"),
+        href: manageCourseOtherCheatersSuspectedRoute(courseId),
+      },
+    ],
+    [courseId, t],
+  )
+
+  useRegisterBreadcrumbs({ key: `course:${courseId}:other:cheaters`, order: 40, crumbs })
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     return [

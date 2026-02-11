@@ -3,6 +3,7 @@
 import { useAtomValue, useSetAtom } from "jotai"
 import React, { useEffect } from "react"
 
+import { useRegisterCourseMaterial } from "@/components/breadcrumbs/useRegisterCourseMaterial"
 import CourseMaterialEffects from "@/components/course-material/CourseMaterialEffects"
 import PartnersSectionBlock from "@/components/course-material/layout/PartnersSection"
 import Centered from "@/shared-module/common/components/Centering/Centered"
@@ -19,6 +20,8 @@ function CourseMaterialLayout({
 }) {
   // Suppress unused params warning
   void params
+
+  useRegisterCourseMaterial()
 
   const courseId = useAtomValue(currentCourseIdAtom)
   const setViewParams = useSetAtom(viewParamsAtom)

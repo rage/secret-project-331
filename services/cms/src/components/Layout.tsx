@@ -18,9 +18,7 @@ import {
   NavItem,
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
-import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 

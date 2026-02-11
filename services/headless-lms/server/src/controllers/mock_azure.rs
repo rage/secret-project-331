@@ -43,31 +43,15 @@ data: [DONE]"#
 
 // note that this endpoint doesn't correspond to an actual azure endpoint
 //
-// GET /api/v0/mock_azure/test/{deployment_name}/chat/suggestions
+// GET  /api/v0/mock_azure/test/{deployment_name}/chat/suggestions
 // POST /api/v0/mock_azure/test/{deployment_name}/chat/suggestions
 async fn mock_azure_message_suggestion(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<String> {
     assert!(app_conf.test_chatbot && app_conf.test_mode);
-    let a = r#"data: {
-  "id": "mock_id",
-  "model": "gpt-4o",
-  "created": 1757592280,
-  "object": "extensions.chat.completion.chunk",
-  "choices": [
-    {
-      "index": 0,
-      "delta": {
-        "role": "assistant",
-        "content": "{\"suggestions\":[\"Can you pls help me?\",\"Nice weather we're having.\",\"Hello?\"]}"
-      },
-      "end_turn": true,
-      "finish_reason": "stop"
-    }
-  ]
-}"#
+    let a = r#"
+{"id":"mock_id","model":"gpt-4o","created":1757592280,  "object":"extensions.chat.completion.chunk","choices":[{"index":0,"message":{"role":"assistant","content": "{\"suggestions\":[\"Can you pls help me?\",\"Nice weather we're having.\",\"Hello?\"]}"},"end_turn": true,"finish_reason":"stop"}]}"#
     .to_string();
-
     let token = skip_authorize();
     token.authorized_ok(a)
 }

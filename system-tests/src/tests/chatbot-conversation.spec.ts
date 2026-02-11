@@ -278,6 +278,9 @@ test.describe.only("Test chatbot chat box", () => {
     await test.step("student sends a suggested message", async () => {
       await studentPage.getByRole("button", { name: "What is going on?" }).click()
       await expect(studentPage.getByText("Hello! How can I assist you")).toBeVisible()
+      await studentPage
+        .getByRole("button", { name: "Nice weather we're having." })
+        .scrollIntoViewIfNeeded()
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: studentPage,
         headless,
@@ -326,6 +329,9 @@ test.describe.only("Test chatbot chat box", () => {
     await test.step("student sends suggested message", async () => {
       await studentPage.getByRole("button", { name: "What is going on?" }).click()
       await expect(studentPage.getByText("Hello! How can I assist you")).toBeVisible()
+      await studentPage
+        .getByRole("button", { name: "Nice weather we're having." })
+        .scrollIntoViewIfNeeded()
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: studentPage,
         headless,

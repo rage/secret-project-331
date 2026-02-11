@@ -8,14 +8,123 @@ This endpoint is intended to be used exclusively by the TMC server, and access r
 a valid authorization header.
 */
 
-use crate::domain::authorization::authorize_access_from_tmc_server_to_course_mooc_fi;
+use crate::domain::authorization::{
+    authorize_access_from_tmc_server_to_course_mooc_fi,
+    get_or_create_user_from_tmc_mooc_fi_response,
+};
 use crate::prelude::*;
+use headless_lms_utils::tmc::TmcClient;
+use models::users::User;
 use secrecy::SecretString;
+
+#[derive(Debug, Deserialize)]
+pub struct CreateUserRequest {
+    upstream_id: i32,
+    password: SecretString,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CreateUserResponse {
+    pub user: User,
+    pub password_set: bool,
+}
 
 #[derive(Debug, Deserialize)]
 pub struct LoginRequest {
     user_id: Uuid,
     password: SecretString,
+}
+
+/**
+POST `/api/v0/tmc-server/users/create`
+
+Endpoint used by the TMC server to create a new user in this system.
+
+Fetches the user details from tmc.mooc.fi and creates the user if they don't already exist.
+Sets the provided password for the user.
+
+Returns the created user and a boolean indicating whether the password was successfully set.
+
+Only works if the authorization header is set to a valid shared secret between systems.
+*/
+#[instrument(skip(pool, tmc_client))]
+pub async fn create_user(
+    request: HttpRequest,
+    pool: web::Data<PgPool>,
+    payload: web::Json<CreateUserRequest>,
+    tmc_client: web::Data<TmcClient>,
+) -> ControllerResult<web::Json<CreateUserResponse>> {
+    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+
+    let mut conn = pool.acquire().await?;
+
+    let CreateUserRequest {
+        upstream_id,
+        password,
+    } = payload.into_inner();
+
+    // Fetch user details from tmc.mooc.fi
+    let tmc_user = tmc_client
+        .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(&upstream_id)
+        .await?;
+
+    info!(
+        "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
+        tmc_user.id,
+        tmc_user
+            .courses_mooc_fi_user_id
+            .map(|uuid| uuid.to_string())
+            .unwrap_or_else(|| "None (will generate new UUID)".to_string())
+    );
+
+    // Start a transaction to ensure atomic user creation and password setting
+    let mut tx = conn.begin().await?;
+
+    // Create user in headless-lms (or fetch if already exists)
+    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *tx, tmc_user).await?;
+
+    info!("User {} created or fetched successfully", user.id);
+
+    // Set password
+    let password_hash = models::user_passwords::hash_password(&password).map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to hash password",
+            Some(anyhow::Error::msg(e.to_string())),
+        )
+    })?;
+    let password_set =
+        models::user_passwords::upsert_user_password(&mut *tx, user.id, &password_hash).await?;
+
+    if !password_set {
+        return Err(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to set password",
+            Some(anyhow::Error::msg(format!(
+                "upsert_user_password returned false for user {}",
+                user.id
+            ))),
+        ));
+    }
+
+    // Commit the transaction only if everything succeeded
+    tx.commit().await?;
+
+    // Notify TMC that password is now managed by courses.mooc.fi
+    tmc_client
+        .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to notify TMC that user's password is saved in courses.mooc.fi",
+                Some(anyhow::Error::msg(e.to_string())),
+            )
+        })?;
+
+    info!("Password set: {}", password_set);
+
+    token.authorized_ok(web::Json(CreateUserResponse { user, password_set }))
 }
 
 /**
@@ -100,12 +209,13 @@ pub async fn courses_moocfi_password_change(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/authenticate",
-        web::post().to(courses_moocfi_password_login),
-    )
-    .route(
-        "/change-password",
-        web::post().to(courses_moocfi_password_change),
-    );
+    cfg.route("/create", web::post().to(create_user))
+        .route(
+            "/authenticate",
+            web::post().to(courses_moocfi_password_login),
+        )
+        .route(
+            "/change-password",
+            web::post().to(courses_moocfi_password_change),
+        );
 }

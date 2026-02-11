@@ -458,6 +458,7 @@ pub async fn make_streaming_llm_request(
 pub async fn make_blocking_llm_request(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
+    endpoint_path: Option<String>,
 ) -> anyhow::Result<LLMCompletionResponse> {
     debug!(
         "Preparing blocking LLM request with {} messages",
@@ -473,9 +474,13 @@ pub async fn make_blocking_llm_request(
         anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
     })?;
 
-    let api_endpoint = chatbot_config
-        .api_endpoint
-        .join("gpt-4o/chat/completions")?;
+    let path = if let Some(p) = endpoint_path {
+        p
+    } else {
+        "gpt-4o/chat/completions".to_string()
+    };
+
+    let api_endpoint = chatbot_config.api_endpoint.join(&path)?;
 
     trace!("Making LLM request to endpoint: {}", api_endpoint);
     make_llm_request(chat_request, &api_endpoint, &chatbot_config.api_key).await

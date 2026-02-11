@@ -14,6 +14,7 @@ use crate::{
 use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole};
 use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::BackendError;
+use tracing::info;
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in
 /// generate_suggested_messages
@@ -154,8 +155,15 @@ pub async fn generate_suggested_messages(
         }),
         stop: None,
     };
-    // todo add the teacher's prompt (info abt the course)
-    let completion = make_blocking_llm_request(chat_request, app_config).await?;
+
+    let endpoint_path = if app_config.test_chatbot && app_config.test_mode {
+        info!("Test mode. Using mock azure endpoint for LLM message suggestion.");
+        Some("gpt-4o/chat/suggestions".to_string())
+    } else {
+        // if it's not test mode, the default, actual endpoint is used
+        None
+    };
+    let completion = make_blocking_llm_request(chat_request, app_config, endpoint_path).await?;
     let suggested_messages: Vec<String> = match &completion
         .choices
         .first()

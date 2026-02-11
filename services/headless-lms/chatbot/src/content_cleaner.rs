@@ -347,7 +347,7 @@ async fn process_block_chunk(
         estimate_tokens(chunk)
     );
 
-    let completion = match make_blocking_llm_request(llm_base_request, app_config).await {
+    let completion = match make_blocking_llm_request(llm_base_request, app_config, None).await {
         Ok(completion) => completion,
         Err(e) => {
             error!("Failed to process chunk: {}", e);

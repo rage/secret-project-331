@@ -5,6 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import AnswersRequiringAttentionItem from "./AnswersRequiringAttentionItem"
+import ExerciseAssignmentPreview from "./ExerciseAssignmentPreview"
 
 import { AnswerRequiringAttentionWithTasks } from "@/shared-module/common/bindings"
 import { useAccordionContext } from "@/shared-module/common/components/Accordion/accordionContext"
@@ -15,12 +16,14 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 interface Props {
   answersRequiringAttention: AnswerRequiringAttentionWithTasks[]
   exercise_max_points: number
+  exerciseName: string
   refetch: () => void
 }
 
 const AnswersRequiringAttentionList: React.FC<Props> = ({
   answersRequiringAttention,
   exercise_max_points,
+  exerciseName,
   refetch,
 }) => {
   const { expandAll, collapseAll } = useAccordionContext()
@@ -29,9 +32,16 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   return (
     <>
       <Centered variant="narrow">
+        {answersRequiringAttention.length > 0 && (
+          <ExerciseAssignmentPreview
+            tasks={answersRequiringAttention[0].tasks}
+            exerciseName={exerciseName}
+            exerciseMaxPoints={exercise_max_points}
+          />
+        )}
         <div
           className={css`
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
             gap: 1rem;
             justify-content: flex-end;

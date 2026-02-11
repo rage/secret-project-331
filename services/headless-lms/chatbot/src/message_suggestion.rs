@@ -69,8 +69,8 @@ pub async fn generate_suggested_messages(
 ) -> ChatbotResult<Vec<String>> {
     let prompt = SYSTEM_PROMPT.to_owned()
         + &format!("The course is: {}\n\n", course_name)
-        // if there are initial suggested messages, then include them as examples
-        + &(if let Some(ism) = initial_suggested_messages {format!("Example suggested messages: {}\n\n", ism.join(" "))} else {"".to_string()})
+        // if there are initial suggested messages, then include <=5 of them as examples
+        + &(if let Some(ism) = initial_suggested_messages {format!("Example suggested messages: {}\n\n", ism.into_iter().take(5).collect::<Vec<String>>().join(" "))} else {"".to_string()})
         + "The conversation so far:\n";
     let used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
     let token_budget = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
@@ -80,30 +80,32 @@ pub async fn generate_suggested_messages(
     let (_, order_n) = conversation_messages
         .iter()
         // iterate through the messages starting from the newest until token limit is hit
-        .rfold((used_tokens, conv_len), |(tokens, n), el| {
+        // initial values: tokens already used are in the accumulator,
+        // the msg n to cut off the convo from is the convo len (take no msgs)
+        .rfold((used_tokens, conv_len), |(accum_tokens, nth_msg), el| {
             if el.message.is_some() {
-                // add previous tokens, this message's tokens and extra 1 tokens for newline
-                let new_tokens = tokens + el.used_tokens + 1;
-                if new_tokens > token_budget {
-                    return (tokens, n);
+                // add previous tokens, this message's tokens and extra 1 tokens for newline to the accumulator
+                let new_accum_tokens = accum_tokens + el.used_tokens + 1;
+                if new_accum_tokens > token_budget {
+                    return (accum_tokens, nth_msg);
                 }
-                let new_n = el.order_number as usize;
-                (new_tokens, new_n)
+                let new_order_n = el.order_number as usize;
+                (new_accum_tokens, new_order_n)
             } else {
-                (tokens, n)
+                (accum_tokens, nth_msg)
             }
         });
-    // the order number of the earliest message to inlcude in the conversation context
+    // cut off messages older than order_n from the conversation to keep context short
     let conversation = &conversation_messages[order_n..]
         .iter()
         .map(|x| x.message.to_owned())
         .collect::<Option<Vec<String>>>()
         .ok_or_else(|| {
-            // todo, should probably just put in an empty convo??
-            // or when could this fail, it probably never should
+            // this isn't ok only if the conversation contains only ChatbotConversationMessages
+            // that have no message property, which should never happen in practice
             ChatbotError::new(
                 ChatbotErrorType::ChatbotMessageSuggestError,
-                "Failed to ",
+                "Failed to create context for message suggestion LLM, there were no conversation messages. There should be some messages before messages are suggested.",
                 None,
             )
         })?

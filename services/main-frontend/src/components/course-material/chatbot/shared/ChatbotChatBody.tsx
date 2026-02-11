@@ -419,7 +419,9 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
               <Idea
                 className={css`
                   position: relative;
-                  opacity: ${newMessageMutation.isPending ? `0%` : "80%"};
+                  opacity: ${newMessageMutation.isPending || currentConversationInfo.isLoading
+                    ? `0%`
+                    : "80%"};
                   top: 3px;
                   margin-right: 5px;
                 `}

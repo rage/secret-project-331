@@ -38,8 +38,6 @@ pub async fn insert_batch(
     conversation_message_id: &Uuid,
     input: Vec<String>,
 ) -> ModelResult<Vec<ChatbotConversationSuggestedMessage>> {
-    //let messages: &Vec<String> = &input.iter().map(|m| m.message.to_owned()).collect();
-
     let res = sqlx::query_as!(
         ChatbotConversationSuggestedMessage,
         r#"

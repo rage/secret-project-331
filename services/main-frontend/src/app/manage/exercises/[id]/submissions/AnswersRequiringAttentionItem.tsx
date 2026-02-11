@@ -117,8 +117,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
             rightContent={
               <ExerciseCardPointsBadge
                 score={
-                  (updatedPoints === null ? answerRequiringAttention.score_given : updatedPoints) ??
-                  0
+                  updatedPoints === null ? answerRequiringAttention.score_given : updatedPoints
                 }
                 maxScore={exerciseMaxPoints}
               />

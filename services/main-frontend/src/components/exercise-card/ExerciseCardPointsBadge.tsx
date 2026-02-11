@@ -9,7 +9,7 @@ import { headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export interface ExerciseCardPointsBadgeProps {
-  score: number
+  score: number | null
   maxScore: number
 }
 
@@ -78,7 +78,7 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
         <div className="points">
           <CheckCircle size={16} weight="bold" color="#394F77" />
           <span data-testid="exercise-points">
-            <sup>{score}</sup>/<sub>{maxScore}</sub>
+            <sup>{score ?? "-"}</sup>/<sub>{maxScore}</sub>
           </span>
         </div>
       </div>

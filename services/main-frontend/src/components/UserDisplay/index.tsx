@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
+import Link from "next/link"
 import React, { useRef } from "react"
 import { useOverlayTrigger } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -11,7 +12,9 @@ import { UserDetailsContent } from "./UserDetailsContent"
 import { UserDetailsPopover } from "./UserDetailsPopover"
 
 import { useUserDetails } from "@/hooks/useUserDetails"
+import Button from "@/shared-module/common/components/Button"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 
 function hasName(value: string | null | undefined): boolean {
   return !!value && value.trim().length > 0
@@ -161,6 +164,26 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
         >
           <UserDetailsContent data={data} userId={userId} />
           {courseId && <CourseProgressSection courseId={courseId} userId={userId} />}
+          {courseId && (
+            <div
+              className={css`
+                margin-top: 0.75rem;
+                display: flex;
+                justify-content: center;
+              `}
+            >
+              <Link
+                href={courseUserStatusSummaryRoute(courseId, userId)}
+                className={css`
+                  text-decoration: none;
+                `}
+              >
+                <Button variant="tertiary" size="small">
+                  {t("course-status-summary")}
+                </Button>
+              </Link>
+            </div>
+          )}
         </UserDetailsPopover>
       )}
     </>

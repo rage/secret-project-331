@@ -533,7 +533,7 @@
   "grant-access-to-users-with-permissions-to-original-course": "Myönnä oikeudet tälle kurssille kaikille, joilla on oikeudet alkuperäisellä kurssilla",
   "guest": "vieras",
   "header-answers-requiring-attention": "Huomiota tarvitsevia vastaukset",
-  "header-course-instance-enrollments": "Kurssiversioille ilmoittatumiset",
+  "header-course-enrollments": "Kurssi-ilmoittautumiset",
   "header-course-visitors-by-country": "Kurssin vierailijat maan mukaan",
   "header-dailty-visit-counts": "Päivittäiset vierailumäärät",
   "header-daily-visit-counts": "Päivittäiset vierailumäärät",

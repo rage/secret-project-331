@@ -527,7 +527,7 @@
   "grant-access-to-users-with-permissions-to-original-course": "Ge tillgång till denna kurs till alla som hade tillgång till den ursprungliga",
   "guest": "gäst",
   "header-answers-requiring-attention": "Svar som kräver uppmärksamhet",
-  "header-course-instance-enrollments": "Kursinstansregistreringar",
+  "header-course-enrollments": "Kursregistreringar",
   "header-course-visitors-by-country": "Kursbesökare per land",
   "header-dailty-visit-counts": "Dagliga besöksräkningar",
   "header-daily-visit-counts": "Dagliga besöksräkningar",

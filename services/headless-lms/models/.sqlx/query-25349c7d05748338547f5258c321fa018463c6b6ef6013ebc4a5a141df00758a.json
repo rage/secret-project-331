@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_id, MIN(created_at) AS first_enrolled_at\nFROM course_instance_enrollments\nWHERE user_id = $1 AND deleted_at IS NULL\nGROUP BY course_id\nORDER BY first_enrolled_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_enrolled_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "25349c7d05748338547f5258c321fa018463c6b6ef6013ebc4a5a141df00758a"
+}

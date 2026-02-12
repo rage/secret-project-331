@@ -73,7 +73,7 @@ const UserPage: React.FC = () => {
         </p>
       </Area>
       <Area>
-        <h2>{t("header-course-instance-enrollments")}</h2>
+        <h2>{t("header-course-enrollments")}</h2>
         <CourseInstanceEnrollmentsList userId={id} />
       </Area>
       <OnlyRenderIfPermissions action={{ type: "teach" }} resource={{ type: "global_permissions" }}>

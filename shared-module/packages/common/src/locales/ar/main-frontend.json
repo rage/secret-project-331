@@ -528,7 +528,7 @@
   "grant-access-to-users-with-permissions-to-original-course": "امنح الوصول إلى هذه الدورة لكل من كان لديه حق الوصول إلى الدورة الأصلية",
   "guest": "ضيف",
   "header-answers-requiring-attention": "الإجابات التي تتطلب الانتباه",
-  "header-course-instance-enrollments": "تسجيلات دورة الدورة",
+  "header-course-enrollments": "تسجيلات المقررات",
   "header-course-visitors-by-country": "زوار الدورة حسب البلد",
   "header-dailty-visit-counts": "عدد الزيارات اليومية",
   "header-daily-visit-counts": "عدد الزيارات اليومية",

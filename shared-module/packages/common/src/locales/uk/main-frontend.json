@@ -530,7 +530,7 @@
   "grant-access-to-users-with-permissions-to-original-course": "Надайте доступ до цього курсу всім, хто мав доступ до оригінального",
   "guest": "гість",
   "header-answers-requiring-attention": "Відповіді, що вимагають уваги",
-  "header-course-instance-enrollments": "Реєстрація на курси",
+  "header-course-enrollments": "Реєстрації на курси",
   "header-course-visitors-by-country": "Відвідувачі курсу за країнами",
   "header-dailty-visit-counts": "Підрахунок щоденних відвідувань",
   "header-daily-visit-counts": "Щоденний підрахунок відвідувань",

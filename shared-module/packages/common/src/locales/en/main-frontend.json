@@ -545,7 +545,7 @@
   "grant-access-to-users-with-permissions-to-original-course": "Grant access to this course to everyone who had access to the original one",
   "guest": "guest",
   "header-answers-requiring-attention": "Answers requiring attention",
-  "header-course-instance-enrollments": "Course instance enrollments",
+  "header-course-enrollments": "Course enrollments",
   "header-course-visitors-by-country": "Course visitors by country",
   "header-dailty-visit-counts": "Daily visit counts",
   "header-daily-visit-counts": "Daily Visit Counts",

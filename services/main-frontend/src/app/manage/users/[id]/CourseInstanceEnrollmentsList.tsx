@@ -9,7 +9,7 @@ import { getCourseInstanceEnrollmentsInfo } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { courseInstanceUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
+import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 
 export interface CourseInstanceEnrollmentsListProps {
@@ -111,9 +111,7 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
                     )}
               </p>
             </div>
-            <Link
-              href={courseInstanceUserStatusSummaryRoute(enrollment.course_instance_id, userId)}
-            >
+            <Link href={courseUserStatusSummaryRoute(enrollment.course_id, userId)}>
               <Button variant="tertiary" size="medium">
                 {t("course-status-summary")}
               </Button>

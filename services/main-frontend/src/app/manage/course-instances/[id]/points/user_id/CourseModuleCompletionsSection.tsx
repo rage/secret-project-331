@@ -81,7 +81,7 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
   courseId,
 }) => {
   const { t } = useTranslation()
-  const courseModuleCompletionsQuery = useCourseModuleCompletions(courseInstanceId, userId)
+  const courseModuleCompletionsQuery = useCourseModuleCompletions(courseId, userId)
   const courseStructure = useCourseStructure(courseId)
 
   if (courseModuleCompletionsQuery.isError || courseStructure.isError) {

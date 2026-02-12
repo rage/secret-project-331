@@ -191,8 +191,8 @@ export function navigateToCourseRoute(organizationSlug: string, courseSlug: stri
   return `/org/${organizationSlug}/courses/${courseSlug}`
 }
 
-export function courseInstanceUserStatusSummaryRoute(courseInstanceId: string, userId: string) {
-  return `/manage/course-instances/${courseInstanceId}/course-status-summary-for-user/${userId}`
+export function courseUserStatusSummaryRoute(courseId: string, userId: string) {
+  return `/manage/courses/${courseId}/user-status-summary/${userId}`
 }
 
 export function exerciseSubmissionsRoute(exerciseId: string) {

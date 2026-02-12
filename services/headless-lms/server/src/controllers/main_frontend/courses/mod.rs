@@ -17,13 +17,14 @@ use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     chapters::Chapter,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
+    course_module_completions::CourseModuleCompletion,
     course_modules::ModuleUpdates,
     courses::{Course, CourseBreadcrumbInfo, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
     },
-    exercises::Exercise,
+    exercises::{Exercise, ExerciseStatusSummaryForUser},
     feedback::{self, Feedback, FeedbackCount},
     glossary::{Term, TermUpdate},
     library,
@@ -82,6 +83,56 @@ async fn get_course_breadcrumb_info(
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(info))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/status-for-all-exercises/:user_id` - Returns status for all exercises in the course for a given user.
+*/
+#[instrument(skip(pool))]
+async fn get_all_exercise_statuses_by_course_id(
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseStatusSummaryForUser>>> {
+    let (course_id, user_id) = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+    let res = models::exercises::get_all_exercise_statuses_by_user_id_and_course_id(
+        &mut conn, course_id, user_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/course-module-completions/:user_id` - Returns all course module completions for a given user for this course.
+*/
+#[instrument(skip(pool))]
+async fn get_all_course_module_completions_for_user_by_course_id(
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseModuleCompletion>>> {
+    let (course_id, user_id) = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+    let res = models::course_module_completions::get_all_by_course_id_and_user_id(
+        &mut conn, course_id, user_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -1745,6 +1796,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))
         .route("/{course_id}", web::delete().to(delete_course))
+        .route(
+            "/{course_id}/status-for-all-exercises/{user_id}",
+            web::get().to(get_all_exercise_statuses_by_course_id),
+        )
+        .route(
+            "/{course_id}/course-module-completions/{user_id}",
+            web::get().to(get_all_course_module_completions_for_user_by_course_id),
+        )
         .route(
             "/{course_id}/daily-submission-counts",
             web::get().to(get_daily_submission_counts),

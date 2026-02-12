@@ -110,7 +110,7 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
 }) => {
   const { t } = useTranslation()
   const courseStructure = useCourseStructure(courseId)
-  const courseInstanceProgresses = useCourseInstanceProgress(courseInstanceId, userId)
+  const courseInstanceProgresses = useCourseInstanceProgress(courseId, userId)
 
   if (courseInstanceProgresses.isError || courseStructure.isError) {
     return <ErrorBanner error={courseInstanceProgresses.error ?? courseStructure.error} />

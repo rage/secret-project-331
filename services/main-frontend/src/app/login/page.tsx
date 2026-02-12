@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useRouter } from "next/navigation"
-import { useCallback } from "react"
+import { useCallback, useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CredentialsForm } from "@/app/login/CredentialsForm"
@@ -11,6 +11,7 @@ import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { useLoginFlow } from "@/hooks/useLoginFlow"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -18,7 +19,15 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const Login: React.FC = () => {
   const { t } = useTranslation()
   const router = useRouter()
+  const loginStateContext = useContext(LoginStateContext)
   const uncheckedReturnTo = useQueryParameter("return_to")
+
+  useEffect(() => {
+    if (loginStateContext.signedIn) {
+      const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+      router.push(returnTo)
+    }
+  }, [loginStateContext.signedIn, uncheckedReturnTo, router])
 
   const redirect = useCallback(() => {
     const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")

@@ -257,6 +257,7 @@ fn models(target: &mut File) {
         peer_or_self_review_questions::PeerOrSelfReviewQuestion,
         peer_or_self_review_questions::PeerOrSelfReviewQuestionType,
         peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
+        peer_or_self_review_submissions::PeerOrSelfReviewSubmissionWithSubmissionOwner,
         peer_review_queue_entries::PeerReviewQueueEntry,
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,

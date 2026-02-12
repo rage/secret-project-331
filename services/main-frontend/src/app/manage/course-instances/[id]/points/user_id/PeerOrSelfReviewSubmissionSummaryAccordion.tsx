@@ -8,13 +8,13 @@ import { UserDisplay } from "@/components/UserDisplay"
 import {
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionSubmission,
-  PeerOrSelfReviewSubmission,
+  PeerOrSelfReviewSubmissionWithSubmissionOwner,
 } from "@/shared-module/common/bindings"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface PeerOrSelfReviewSubmissionSummaryAccordionProps {
-  peerOrSelfReviewSubmission: PeerOrSelfReviewSubmission
+  peerOrSelfReviewSubmission: PeerOrSelfReviewSubmissionWithSubmissionOwner
   peerOrSelfReviewQuestionSubmissions: PeerOrSelfReviewQuestionSubmission[]
   peerOrSelfReviewQuestions: PeerOrSelfReviewQuestion[]
   showSubmissionBeingReviewed?: boolean
@@ -103,7 +103,10 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
             `}
           >
             <UserDisplay
-              userId={peerOrSelfReviewSubmission.user_id}
+              userId={
+                peerOrSelfReviewSubmission.submission_owner_user_id ??
+                peerOrSelfReviewSubmission.user_id
+              }
               courseId={peerOrSelfReviewSubmission.course_id}
             />
             {showSubmissionBeingReviewed && (

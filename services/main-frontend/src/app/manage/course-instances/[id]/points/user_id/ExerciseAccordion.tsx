@@ -70,10 +70,18 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
     <div
       className={css`
         margin-bottom: 1rem;
-        border: 1px solid ${baseTheme.colors.clear[200]};
+        border: 1px solid ${baseTheme.colors.clear[300]};
         border-radius: 6px;
         background-color: ${baseTheme.colors.primary[100]};
-        box-shadow: 0 1px 3px ${baseTheme.colors.clear[100]};
+        box-shadow: 0 1px 4px ${baseTheme.colors.clear[300]};
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+        ${isExpanded &&
+        `
+          border-color: ${baseTheme.colors.green[400]};
+          box-shadow: 0 4px 12px ${baseTheme.colors.clear[400]};
+        `}
         ${userExerciseState === undefined &&
         `opacity: 0.5;
          cursor: not-allowed;
@@ -229,69 +237,77 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                     </div>
                   )}
 
-                  <h3
+                  <div
                     className={css`
-                      color: ${baseTheme.colors.gray[700]};
-                      margin: 0;
-                      font-size: 0.85rem;
-                      font-weight: 700;
-                      text-transform: uppercase;
-                      letter-spacing: 0.03em;
-                      padding: 0.5rem 1.25rem;
-                      border-left: 3px solid ${baseTheme.colors.green[600]};
-                      background-color: ${baseTheme.colors.clear[100]};
                       border-bottom: 1px solid ${baseTheme.colors.clear[200]};
                     `}
                   >
-                    {t("header-submissions")}
-                  </h3>
-                  <div
-                    className={css`
-                      padding: 0.75rem 1.25rem;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 0.25rem;
-                    `}
-                  >
-                    {exerciseStatus.exercise_slide_submissions.map((exerciseSlideSubmission) => (
-                      <div
-                        key={exerciseSlideSubmission.id}
-                        className={css`
-                          display: flex;
-                          align-items: center;
-                          gap: 0.75rem;
-                          font-size: 0.85rem;
-                        `}
-                      >
-                        <Link
-                          href={`/submissions/${exerciseSlideSubmission.id}`}
+                    <h3
+                      className={css`
+                        color: ${baseTheme.colors.gray[700]};
+                        margin: 0;
+                        font-size: 0.85rem;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.03em;
+                        padding: 0.5rem 1.25rem;
+                      `}
+                    >
+                      {t("header-submissions")}
+                    </h3>
+                    <div
+                      className={css`
+                        padding: 0.75rem 1.25rem;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.25rem;
+                      `}
+                    >
+                      {exerciseStatus.exercise_slide_submissions.map((exerciseSlideSubmission) => (
+                        <div
+                          key={exerciseSlideSubmission.id}
                           className={css`
-                            color: ${baseTheme.colors.blue[600]};
-                            text-decoration: none;
-                            &:hover {
-                              text-decoration: underline;
-                            }
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            font-size: 0.85rem;
                           `}
                         >
-                          <HideTextInSystemTests
-                            text={exerciseSlideSubmission.id}
-                            testPlaceholder="00000000-0000-0000-0000-000000000000"
-                          />
-                        </Link>
-                        <span
-                          className={css`
-                            color: ${baseTheme.colors.gray[600]};
-                            font-size: 0.8rem;
-                          `}
-                        >
-                          {dateToString(exerciseSlideSubmission.created_at)}
-                        </span>
-                      </div>
-                    ))}
+                          <Link
+                            href={`/submissions/${exerciseSlideSubmission.id}`}
+                            className={css`
+                              color: ${baseTheme.colors.blue[600]};
+                              text-decoration: none;
+                              &:hover {
+                                text-decoration: underline;
+                              }
+                            `}
+                          >
+                            <HideTextInSystemTests
+                              text={exerciseSlideSubmission.id}
+                              testPlaceholder="00000000-0000-0000-0000-000000000000"
+                            />
+                          </Link>
+                          <span
+                            className={css`
+                              color: ${baseTheme.colors.gray[600]};
+                              font-size: 0.8rem;
+                            `}
+                          >
+                            {dateToString(exerciseSlideSubmission.created_at)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {exerciseStatus.exercise.needs_peer_review && (
-                    <div>
+                    <div
+                      className={css`
+                        border-bottom: 1px solid ${baseTheme.colors.clear[200]};
+                        margin-top: 0.75rem;
+                      `}
+                    >
                       <h3
                         className={css`
                           color: ${baseTheme.colors.gray[700]};
@@ -301,10 +317,6 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                           text-transform: uppercase;
                           letter-spacing: 0.03em;
                           padding: 0.5rem 1.25rem;
-                          border-left: 3px solid ${baseTheme.colors.green[600]};
-                          background-color: ${baseTheme.colors.clear[100]};
-                          border-top: 1px solid ${baseTheme.colors.clear[200]};
-                          border-bottom: 1px solid ${baseTheme.colors.clear[200]};
                         `}
                       >
                         {t("peer-reviews")}

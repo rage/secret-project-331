@@ -11,12 +11,14 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 export interface ExerciseCardPointsBadgeProps {
   score: number | null
   maxScore: number
+  dataTestId?: string
 }
 
 /** Rounded pill showing exercise points with CheckCircle icon and sup/sub formatting. */
 const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPointsBadgeProps>> = ({
   score,
   maxScore,
+  dataTestId = "exercise-points",
 }) => {
   const { t } = useTranslation()
 
@@ -77,7 +79,7 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
         <span className="heading">{t("points-label")}</span>
         <div className="points">
           <CheckCircle size={16} weight="bold" color="#394F77" />
-          <span data-testid="exercise-points">
+          <span data-testid={dataTestId}>
             <sup>{score ?? "-"}</sup>/<sub>{maxScore}</sub>
           </span>
         </div>

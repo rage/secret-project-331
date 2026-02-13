@@ -112,6 +112,23 @@ describe("parseHighlightedCode", () => {
     })
   })
 
+  describe("BR tags and input format", () => {
+    it("should NOT recognize markers when content has <br> tags (expects pre-processed input)", () => {
+      const rawGutenbergContent = "const x = 1 // highlight-line<br/>const y = 2"
+      const result = parseHighlightedCode(rawGutenbergContent)
+      expect(result.highlightedLines.size).toBe(0)
+      expect(result.cleanCode).toContain("<br/>")
+    })
+
+    it("should recognize markers after <br> tags are replaced with newlines", () => {
+      const processedContent = "const x = 1 // highlight-line\nconst y = 2"
+      const result = parseHighlightedCode(processedContent)
+      expect(result.highlightedLines.size).toBe(1)
+      expect(result.highlightedLines.has(1)).toBe(true)
+      expect(result.cleanCode).toBe("const x = 1\nconst y = 2")
+    })
+  })
+
   describe("Malformed input handling", () => {
     it("should highlight to end when highlight-start has no matching end", () => {
       const input = "a\n// highlight-start\nb\nc"

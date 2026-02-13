@@ -7,6 +7,7 @@ import { BlockRendererProps } from "../../.."
 
 import { CopyButton } from "./CopyButton"
 import { parseHighlightedCode } from "./highlightParser"
+import { replaceBrTagsWithNewlines } from "./utils"
 
 import { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -47,9 +48,11 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
 }) => {
   const { content } = data.attributes
 
+  const processedContent = useMemo(() => replaceBrTagsWithNewlines(content ?? undefined), [content])
+
   const { cleanCode, highlightedLines } = useMemo(
-    () => parseHighlightedCode(content ?? undefined),
-    [content],
+    () => parseHighlightedCode(processedContent),
+    [processedContent],
   )
 
   const fontSizePx = useMemo(() => {

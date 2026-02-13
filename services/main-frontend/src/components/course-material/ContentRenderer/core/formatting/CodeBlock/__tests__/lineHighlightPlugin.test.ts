@@ -129,5 +129,17 @@ describe("lineHighlightPlugin", () => {
       expect(lines[0].textContent).toBe("a")
       expect(lines[1].textContent).toBe("")
     })
+
+    it("has no extra text nodes between code-line spans", () => {
+      const el = makeCodeElement("a\nb\nc", "1")
+      applyLineWrapping(el)
+      const codeLines = el.querySelectorAll(".code-line")
+      expect(codeLines.length).toBe(3)
+      expect(el.childNodes.length).toBe(3)
+      Array.from(el.childNodes).forEach((node) => {
+        expect(node.nodeType).toBe(Node.ELEMENT_NODE)
+        expect((node as Element).classList.contains("code-line")).toBe(true)
+      })
+    })
   })
 })

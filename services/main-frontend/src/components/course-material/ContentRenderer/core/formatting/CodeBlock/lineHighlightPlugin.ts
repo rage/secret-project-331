@@ -117,9 +117,6 @@ export function applyLineWrapping(el: HTMLElement): void {
       span.appendChild(node)
     }
     fragment.appendChild(span)
-    if (lineNum < lines.length) {
-      fragment.appendChild(document.createTextNode("\n"))
-    }
   }
   el.innerHTML = ""
   el.appendChild(fragment)

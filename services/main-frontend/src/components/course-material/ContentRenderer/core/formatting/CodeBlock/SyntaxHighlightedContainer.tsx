@@ -3,10 +3,9 @@
 import "highlight.js/styles/atom-one-dark.css"
 import { css } from "@emotion/css"
 import hljs from "highlight.js"
-import { memo, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useRef } from "react"
 
 import { ensureLineHighlightPluginRegistered } from "./lineHighlightPlugin"
-import { replaceBrTagsWithNewlines } from "./utils"
 
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
@@ -42,16 +41,13 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
 }) => {
   const ref = useRef<HTMLElement>(null)
 
-  const replacedContent = useMemo(() => {
-    return replaceBrTagsWithNewlines(content) ?? ""
-  }, [content])
-
   useEffect(() => {
     if (!ref.current) {
       return
     }
 
     delete ref.current.dataset.hljsLineWrapped
+    delete ref.current.dataset.highlighted
     if (highlightedLines && highlightedLines.size > 0) {
       ref.current.dataset.highlightLines = Array.from(highlightedLines)
         .sort((a, b) => a - b)
@@ -61,9 +57,9 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
     }
 
     // Sanitization is the source of truth for HTML safety; highlight.js does not preserve arbitrary HTML.
-    ref.current.innerHTML = sanitizeCourseMaterialHtml(replacedContent)
+    ref.current.innerHTML = sanitizeCourseMaterialHtml(content ?? "")
     hljs.highlightElement(ref.current)
-  }, [replacedContent, highlightedLines])
+  }, [content, highlightedLines])
 
   return <code className={codeBlockStyles} ref={ref} />
 }

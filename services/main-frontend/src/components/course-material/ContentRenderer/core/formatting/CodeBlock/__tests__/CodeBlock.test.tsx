@@ -141,6 +141,24 @@ describe("CodeBlock", () => {
       )
     })
 
+    it("should recognize highlight markers when content has <br> tags", async () => {
+      const contentWithBrAndMarkers =
+        "const x = 1 // highlight-line<br/>const y = 2<br/>// highlight-start<br/>const z = 3<br/>// highlight-end"
+      const { container } = renderCodeBlock(contentWithBrAndMarkers)
+      await waitFor(
+        () => {
+          const codeElement = container.querySelector("code")
+          expect(codeElement?.textContent).not.toContain("// highlight-line")
+          expect(codeElement?.textContent).not.toContain("// highlight-start")
+          expect(codeElement?.textContent).not.toContain("// highlight-end")
+          const highlighted = container.querySelectorAll(".highlighted-line")
+          expect(highlighted.length).toBeGreaterThanOrEqual(2)
+          expect(highlighted[0].textContent).toContain("const x = 1")
+        },
+        { timeout: 2000 },
+      )
+    })
+
     it("correctly highlights lines in code with blank lines", async () => {
       const contentWithBlanks = "first\n\nthird // highlight-line"
       const { container } = renderCodeBlock(contentWithBlanks)

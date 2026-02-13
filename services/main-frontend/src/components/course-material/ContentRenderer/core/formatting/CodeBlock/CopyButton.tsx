@@ -32,8 +32,8 @@ interface CopyButtonProps {
 
 const buttonStyles = css`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 26px;
+  right: 26px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -56,11 +56,11 @@ const buttonStyles = css`
     color: ${ICON_COLORS.ERROR};
   }
   &:hover:not([data-status="default"]) {
-    background-color: ${baseTheme.colors.gray[600]};
+    background-color: rgba(255, 255, 255, 0.08);
   }
   &:hover[data-status="default"] {
     transform: scale(1.1);
-    background-color: ${baseTheme.colors.gray[600]};
+    background-color: rgba(255, 255, 255, 0.08);
   }
 `
 

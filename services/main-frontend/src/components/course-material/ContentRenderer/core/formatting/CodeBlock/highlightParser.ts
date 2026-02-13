@@ -69,13 +69,11 @@ export function parseHighlightedCode(content: string | null | undefined): Proces
     const line = lines[i]
 
     if (isStandaloneMarker(line, MARKER_START)) {
-      cleanLines.push("")
       rangeLevel += 1
       continue
     }
 
     if (isStandaloneMarker(line, MARKER_END)) {
-      cleanLines.push("")
       rangeLevel = Math.max(0, rangeLevel - 1)
       continue
     }

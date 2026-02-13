@@ -3,7 +3,9 @@
 import { fireEvent, render, waitFor } from "@testing-library/react"
 import "@testing-library/jest-dom"
 
+import { parseHighlightedCode } from "../highlightParser"
 import CodeBlock from "../index"
+import { replaceBrTagsWithNewlines } from "../utils"
 
 // Helper function for rendering CodeBlock with default content
 const renderCodeBlock = (content = 'console.log("Hello, World!")') =>
@@ -124,6 +126,30 @@ describe("CodeBlock", () => {
       })
       expect(writeText).toHaveBeenCalledWith("const url = process.env.URI\nmongoose.connect(url)")
       consoleSpy.mockRestore()
+    })
+
+    it("copied text matches cleanCode when content has <br> and highlight markers (no extra blank lines from markers)", async () => {
+      const writeText = jest.fn(() => Promise.resolve())
+      Object.defineProperty(navigator, "clipboard", {
+        value: { writeText },
+        configurable: true,
+      })
+      const contentWithBrAndMarkers =
+        "const url = process.env.MONGODB_URI // highlight-line<br><br>mongoose.connect(url)<br>// highlight-start<br>.then(result => {<br>  console.log('connected to MongoDB')<br>})<br>.catch(error => {<br>  console.log('error connecting to MongoDB:', error.message)<br>})<br>// highlight-end<br><br>module.exports = mongoose.model('Note', noteSchema) // highlight-line"
+      const { container } = renderCodeBlock(contentWithBrAndMarkers)
+      await waitFor(() => {
+        const codeElement = container.querySelector("code")
+        expect(codeElement?.textContent).not.toContain("// highlight")
+      })
+      const copyButton = container.querySelector('button[aria-label="copy-to-clipboard"]')
+      fireEvent.click(copyButton!)
+      await waitFor(() => {
+        expect(writeText).toHaveBeenCalled()
+      })
+      const copied = writeText.mock.calls[0][0]
+      const processed = replaceBrTagsWithNewlines(contentWithBrAndMarkers)
+      const { cleanCode: expected } = parseHighlightedCode(processed ?? "")
+      expect(copied.replace(/\r\n/g, "\n")).toBe(expected)
     })
 
     it("should highlight range between highlight-start and highlight-end", async () => {

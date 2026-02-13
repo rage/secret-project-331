@@ -12,16 +12,16 @@ describe("parseHighlightedCode", () => {
     it("should highlight a range with // highlight-start and // highlight-end", () => {
       const input = "line1\n// highlight-start\nline2\nline3\n// highlight-end\nline4"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("line1\n\nline2\nline3\n\nline4")
-      expect(result.highlightedLines).toEqual(new Set([3, 4]))
+      expect(result.cleanCode).toBe("line1\nline2\nline3\nline4")
+      expect(result.highlightedLines).toEqual(new Set([2, 3]))
     })
 
     it("should support multiple separate highlight regions", () => {
       const input =
         "a\n// highlight-start\nb\n// highlight-end\nc\n// highlight-start\nd\n// highlight-end\ne"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("a\n\nb\n\nc\n\nd\n\ne")
-      expect(result.highlightedLines).toEqual(new Set([3, 7]))
+      expect(result.cleanCode).toBe("a\nb\nc\nd\ne")
+      expect(result.highlightedLines).toEqual(new Set([2, 4]))
     })
 
     it("should return empty set when no markers present", () => {
@@ -35,16 +35,16 @@ describe("parseHighlightedCode", () => {
       const input =
         "a // highlight-line\n// highlight-start\nb\nc\n// highlight-end\nd // highlight-line"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("a\n\nb\nc\n\nd")
-      expect(result.highlightedLines).toEqual(new Set([1, 3, 4, 6]))
+      expect(result.cleanCode).toBe("a\nb\nc\nd")
+      expect(result.highlightedLines).toEqual(new Set([1, 2, 3, 4]))
     })
 
     it("should highlight standalone // highlight-line but not standalone // highlight-start", () => {
       const input = "// highlight-line\n// highlight-start\ncode\n// highlight-end"
       const result = parseHighlightedCode(input)
       expect(result.highlightedLines).toContain(1)
-      expect(result.highlightedLines).not.toContain(2)
-      expect(result.highlightedLines).toContain(3)
+      expect(result.highlightedLines).toContain(2)
+      expect(result.cleanCode).toBe("\ncode")
     })
   })
 
@@ -84,31 +84,31 @@ describe("parseHighlightedCode", () => {
     it("should handle only marker lines", () => {
       const input = "// highlight-start\n// highlight-end"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("\n")
+      expect(result.cleanCode).toBe("")
       expect(result.highlightedLines.size).toBe(0)
     })
 
     it("should handle markers on otherwise empty lines", () => {
       const input = "// highlight-start\n  \n// highlight-end"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("\n  \n")
-      expect(result.highlightedLines).toEqual(new Set([2]))
+      expect(result.cleanCode).toBe("  ")
+      expect(result.highlightedLines).toEqual(new Set([1]))
     })
 
     it("should handle consecutive highlight regions", () => {
       const input =
         "// highlight-start\na\n// highlight-end\n// highlight-start\nb\n// highlight-end"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("\na\n\n\nb\n")
-      expect(result.highlightedLines).toEqual(new Set([2, 5]))
+      expect(result.cleanCode).toBe("a\nb")
+      expect(result.highlightedLines).toEqual(new Set([1, 2]))
     })
 
     it("should treat overlapping regions as highlight (second start extends range)", () => {
       const input =
         "// highlight-start\na\n// highlight-start\nb\n// highlight-end\nc\n// highlight-end"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("\na\n\nb\n\nc\n")
-      expect(result.highlightedLines).toEqual(new Set([2, 4, 6]))
+      expect(result.cleanCode).toBe("a\nb\nc")
+      expect(result.highlightedLines).toEqual(new Set([1, 2, 3]))
     })
   })
 
@@ -133,37 +133,37 @@ describe("parseHighlightedCode", () => {
     it("should highlight to end when highlight-start has no matching end", () => {
       const input = "a\n// highlight-start\nb\nc"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("a\n\nb\nc")
-      expect(result.highlightedLines).toEqual(new Set([3, 4]))
+      expect(result.cleanCode).toBe("a\nb\nc")
+      expect(result.highlightedLines).toEqual(new Set([2, 3]))
     })
 
     it("should ignore highlight-end when no matching start", () => {
       const input = "a\n// highlight-end\nb"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("a\n\nb")
+      expect(result.cleanCode).toBe("a\nb")
       expect(result.highlightedLines.size).toBe(0)
     })
 
     it("should handle multiple starts before single end (first range only closed)", () => {
       const input = "// highlight-start\n// highlight-start\na\n// highlight-end\nb"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("\n\na\n\nb")
-      expect(result.highlightedLines).toEqual(new Set([3, 5]))
+      expect(result.cleanCode).toBe("a\nb")
+      expect(result.highlightedLines).toEqual(new Set([1, 2]))
     })
 
     it("should allow nested start/end pairs", () => {
       const input =
         "// highlight-start\na\n// highlight-start\nb\n// highlight-end\nc\n// highlight-end\nd"
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("\na\n\nb\n\nc\n\nd")
-      expect(result.highlightedLines).toEqual(new Set([2, 4, 6]))
+      expect(result.cleanCode).toBe("a\nb\nc\nd")
+      expect(result.highlightedLines).toEqual(new Set([1, 2, 3]))
     })
 
     it("should accept markers with leading whitespace", () => {
       const input = "   // highlight-start   \na\n  // highlight-end  "
       const result = parseHighlightedCode(input)
-      expect(result.cleanCode).toBe("\na\n")
-      expect(result.highlightedLines).toEqual(new Set([2]))
+      expect(result.cleanCode).toBe("a")
+      expect(result.highlightedLines).toEqual(new Set([1]))
     })
 
     it("should not treat marker in middle of line as marker", () => {
@@ -216,13 +216,13 @@ module.exports = mongoose.model('Note', noteSchema) // highlight-line`
       expect(result.cleanCode).not.toContain("// highlight-start")
       expect(result.cleanCode).not.toContain("// highlight-end")
       expect(result.highlightedLines).toContain(1)
+      expect(result.highlightedLines).toContain(4)
       expect(result.highlightedLines).toContain(5)
       expect(result.highlightedLines).toContain(6)
       expect(result.highlightedLines).toContain(7)
       expect(result.highlightedLines).toContain(8)
       expect(result.highlightedLines).toContain(9)
-      expect(result.highlightedLines).toContain(10)
-      expect(result.highlightedLines).toContain(13)
+      expect(result.highlightedLines).toContain(11)
     })
 
     it("should preserve Python-style comments without treating as markers", () => {
@@ -268,21 +268,18 @@ module.exports = mongoose.model('Note', noteSchema) // highlight-line`
     it("should not highlight marker-only lines", () => {
       const input = "// highlight-start\ncode\n// highlight-end"
       const result = parseHighlightedCode(input)
-      expect(result.highlightedLines).toEqual(new Set([2]))
-      expect(result.highlightedLines.has(1)).toBe(false)
-      expect(result.highlightedLines.has(3)).toBe(false)
+      expect(result.highlightedLines).toEqual(new Set([1]))
+      expect(result.cleanCode).toBe("code")
     })
 
-    it("should preserve line count when marker lines are replaced with empty", () => {
+    it("omits marker-only lines from cleanCode so copy matches display", () => {
       const input = "a\n// highlight-start\nb\n// highlight-end\nc"
       const result = parseHighlightedCode(input)
       const outputLines = result.cleanCode.split("\n")
-      expect(outputLines.length).toBe(5)
+      expect(outputLines.length).toBe(3)
       expect(outputLines[0]).toBe("a")
-      expect(outputLines[1]).toBe("")
-      expect(outputLines[2]).toBe("b")
-      expect(outputLines[3]).toBe("")
-      expect(outputLines[4]).toBe("c")
+      expect(outputLines[1]).toBe("b")
+      expect(outputLines[2]).toBe("c")
     })
   })
 })

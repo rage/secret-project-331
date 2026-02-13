@@ -146,10 +146,11 @@ describe("CodeBlock", () => {
       await waitFor(() => {
         expect(writeText).toHaveBeenCalled()
       })
-      const copied = writeText.mock.calls[0][0]
+      const copied = (writeText.mock.calls[0] as unknown as [string] | undefined)?.[0]
+      expect(copied).toBeDefined()
       const processed = replaceBrTagsWithNewlines(contentWithBrAndMarkers)
       const { cleanCode: expected } = parseHighlightedCode(processed ?? "")
-      expect(copied.replace(/\r\n/g, "\n")).toBe(expected)
+      expect(String(copied).replace(/\r\n/g, "\n")).toBe(expected)
     })
 
     it("should highlight range between highlight-start and highlight-end", async () => {

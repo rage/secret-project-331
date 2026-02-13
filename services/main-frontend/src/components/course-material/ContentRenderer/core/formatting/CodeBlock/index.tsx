@@ -2,12 +2,13 @@
 
 import { css } from "@emotion/css"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
 
 import { CopyButton } from "./CopyButton"
 import { parseHighlightedCode } from "./highlightParser"
-import { replaceBrTagsWithNewlines } from "./utils"
+import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
 
 import { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -21,6 +22,18 @@ const containerStyles = css`
   position: relative;
   max-width: 1000px;
   margin: 0 auto;
+`
+
+const srOnlyStyles = css`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 `
 
 const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
@@ -46,6 +59,7 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
   data,
   dontAllowBlockToBeWiderThanContainerWidth,
 }) => {
+  const { t } = useTranslation()
   const { content } = data.attributes
 
   const processedContent = useMemo(() => replaceBrTagsWithNewlines(content ?? undefined), [content])
@@ -64,9 +78,19 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
     return baseSize
   }, [cleanCode, dontAllowBlockToBeWiderThanContainerWidth])
 
+  const highlightedLinesSummary =
+    highlightedLines && highlightedLines.size > 0
+      ? formatHighlightedLinesRanges(highlightedLines)
+      : ""
+
   return (
     <BreakFromCentered sidebar={false}>
       <div className={containerStyles}>
+        {highlightedLinesSummary && (
+          <span className={srOnlyStyles}>
+            {t("code-block-highlighted-lines", { lines: highlightedLinesSummary })}
+          </span>
+        )}
         {cleanCode && <CopyButton content={cleanCode} />}
         <pre
           className={getPreStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}

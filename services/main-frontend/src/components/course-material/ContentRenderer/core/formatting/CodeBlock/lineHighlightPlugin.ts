@@ -111,8 +111,12 @@ export function applyLineWrapping(el: HTMLElement): void {
   for (let i = 0; i < lines.length; i++) {
     const lineNum = i + 1
     const span = document.createElement("span")
-    span.className = highlightedLines.has(lineNum) ? "code-line highlighted-line" : "code-line"
+    const isHighlighted = highlightedLines.has(lineNum)
+    span.className = isHighlighted ? "code-line highlighted-line" : "code-line"
     span.setAttribute("data-line", String(lineNum))
+    if (isHighlighted) {
+      span.setAttribute("aria-label", `Line ${lineNum}, highlighted`)
+    }
     for (const node of lines[i]) {
       span.appendChild(node)
     }

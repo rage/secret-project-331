@@ -141,5 +141,16 @@ describe("lineHighlightPlugin", () => {
         expect((node as Element).classList.contains("code-line")).toBe(true)
       })
     })
+
+    it("sets aria-label on highlighted line spans for screen readers", () => {
+      const el = makeCodeElement("a\nb\nc", "1,3")
+      applyLineWrapping(el)
+      const line1 = el.querySelector("[data-line='1']")
+      const line2 = el.querySelector("[data-line='2']")
+      const line3 = el.querySelector("[data-line='3']")
+      expect(line1?.getAttribute("aria-label")).toBe("Line 1, highlighted")
+      expect(line2?.getAttribute("aria-label")).toBeNull()
+      expect(line3?.getAttribute("aria-label")).toBe("Line 3, highlighted")
+    })
   })
 })

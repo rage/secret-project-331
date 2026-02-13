@@ -215,5 +215,14 @@ describe("CodeBlock", () => {
         { timeout: 2000 },
       )
     })
+
+    it("announces highlighted lines to screen readers when highlights are present", () => {
+      const content = "line1 // highlight-line\nline2\nline3 // highlight-line"
+      const { container } = renderCodeBlock(content)
+      const preParent = container.querySelector("pre")?.parentElement
+      const srOnlySpan = preParent?.querySelector(":scope > span")
+      expect(srOnlySpan).toBeInTheDocument()
+      expect(srOnlySpan?.textContent?.length).toBeGreaterThan(0)
+    })
   })
 })

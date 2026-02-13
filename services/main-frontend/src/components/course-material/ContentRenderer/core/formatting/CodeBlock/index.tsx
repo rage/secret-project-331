@@ -54,6 +54,9 @@ const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
 /**
  * Renders a code block with syntax highlighting and a copy button.
  * Adjusts font size based on the longest line of code.
+ *
+ * Input (e.g. from Gutenberg) may use `<br>` for line breaks. We normalize those to `\n` before
+ * parsing and display. Escaped br (e.g. `&lt;br&gt;`) is left as literal text and is not treated as a newline.
  */
 const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttributes>>> = ({
   data,

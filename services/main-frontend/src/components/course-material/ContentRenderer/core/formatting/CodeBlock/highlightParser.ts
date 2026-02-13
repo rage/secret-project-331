@@ -44,15 +44,18 @@ function stripHighlightLineMarker(line: string): { cleaned: string; hadMarker: b
 /**
  * Parses code content for highlight markers and returns clean code plus 1-indexed line numbers to highlight.
  *
+ * Expects content with real newlines (`\n`). If the source uses `<br>` (e.g. Gutenberg), run
+ * replaceBrTagsWithNewlines before calling this. Escaped br (e.g. `&lt;br&gt;`) is never treated as a newline.
+ *
  * Supported markers (JavaScript/TypeScript style only):
  * - "// highlight-line" (at end of line) - highlights that line
  * - "// highlight-start" (standalone line) - begins highlight range
  * - "// highlight-end" (standalone line) - ends highlight range
  *
  * Note: Only "//" comment markers are supported. Other languages (Python "#", etc.) are not supported.
- * Marker-only lines are replaced with empty lines to preserve line count.
+ * Marker-only lines are omitted from output so copy and display match.
  *
- * @param content - The code content to parse
+ * @param content - The code content to parse (use newlines; normalize br upstream if needed)
  * @returns Object with cleanCode (markers removed) and highlightedLines (1-indexed Set)
  */
 export function parseHighlightedCode(content: string | null | undefined): ProcessedCodeData {

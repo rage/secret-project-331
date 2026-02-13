@@ -35,8 +35,9 @@ export function formatHighlightedLinesRanges(lines: Set<number>): string {
 }
 
 /**
- * Replaces HTML BR tags with newline characters and decodes HTML entities.
- * Used specifically for code block content formatting.
+ * Replaces HTML BR tags (e.g. from Gutenberg) with newline characters.
+ * Only actual `<br>`, `<br/>`, `<br />` etc. are matched; escaped br such as `&lt;br&gt;` is not
+ * replaced and will render as literal "<br>" text (so users can show br in code).
  */
 export function replaceBrTagsWithNewlines(html: string | null | undefined): typeof html {
   if (!html) {

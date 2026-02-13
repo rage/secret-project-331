@@ -6,6 +6,7 @@ import { useMemo } from "react"
 import { BlockRendererProps } from "../../.."
 
 import { CopyButton } from "./CopyButton"
+import { parseHighlightedCode } from "./highlightParser"
 
 import { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -28,6 +29,7 @@ const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
   line-height: 1.75rem;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  padding: 16px;
   ${allowFullWidth &&
   `
     margin-top: -1.5rem;
@@ -45,25 +47,28 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
 }) => {
   const { content } = data.attributes
 
+  const { cleanCode, highlightedLines } = useMemo(
+    () => parseHighlightedCode(content ?? undefined),
+    [content],
+  )
+
   const fontSizePx = useMemo(() => {
-    const longestLine = (content ?? "")
-      .split("\n")
-      .reduce((acc, line) => Math.max(acc, line.length), 0)
+    const longestLine = cleanCode.split("\n").reduce((acc, line) => Math.max(acc, line.length), 0)
     const baseSize = longestLine > 100 ? 14 : longestLine > 70 ? 16 : 20
     if (dontAllowBlockToBeWiderThanContainerWidth) {
       return baseSize - 4
     }
     return baseSize
-  }, [content, dontAllowBlockToBeWiderThanContainerWidth])
+  }, [cleanCode, dontAllowBlockToBeWiderThanContainerWidth])
 
   return (
     <BreakFromCentered sidebar={false}>
       <div className={containerStyles}>
-        {content && <CopyButton content={content} />}
+        {cleanCode && <CopyButton content={cleanCode} />}
         <pre
           className={getPreStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}
         >
-          <SyntaxHighlightedContainer content={content} />
+          <SyntaxHighlightedContainer content={cleanCode} highlightedLines={highlightedLines} />
         </pre>
       </div>
     </BreakFromCentered>

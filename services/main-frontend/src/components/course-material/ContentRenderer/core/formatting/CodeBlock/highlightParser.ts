@@ -1,6 +1,8 @@
 /**
  * Parser for comment-based line highlighting in code blocks.
- * Supports // highlight-line, // highlight-start, // highlight-end.
+ * Supports both slash style (// HIGHLIGHT LINE, // BEGIN HIGHLIGHT, // END HIGHLIGHT)
+ * and hash style (# HIGHLIGHT LINE, # BEGIN HIGHLIGHT, # END HIGHLIGHT) in the same block,
+ * so highlighting works regardless of block language or missing language.
  */
 
 export interface ProcessedCodeData {
@@ -8,9 +10,25 @@ export interface ProcessedCodeData {
   highlightedLines: Set<number>
 }
 
-const MARKER_LINE = "// highlight-line"
-const MARKER_START = "// highlight-start"
-const MARKER_END = "// highlight-end"
+interface MarkerSet {
+  line: string
+  start: string
+  end: string
+}
+
+const SLASH_MARKERS: MarkerSet = {
+  line: "// HIGHLIGHT LINE",
+  start: "// BEGIN HIGHLIGHT",
+  end: "// END HIGHLIGHT",
+}
+
+const HASH_MARKERS: MarkerSet = {
+  line: "# HIGHLIGHT LINE",
+  start: "# BEGIN HIGHLIGHT",
+  end: "# END HIGHLIGHT",
+}
+
+const MARKER_SETS = [SLASH_MARKERS, HASH_MARKERS]
 
 /**
  * Returns true if the line is the start or end marker with optional surrounding whitespace.
@@ -21,14 +39,16 @@ function isStandaloneMarker(line: string, marker: string): boolean {
 }
 
 /**
- * Strips trailing "// highlight-line" from a line if present. Returns the cleaned line and whether it was present.
- * Requires whitespace (space or tab) before the marker so e.g. "http:// highlight-line" in a string is not stripped.
+ * Strips trailing line-highlight marker from a line if present. Returns the cleaned line and whether it was present.
+ * Requires whitespace (space or tab) before the marker so e.g. "http:// ..." or "key# ..." in strings are not stripped.
  */
-function stripHighlightLineMarker(line: string): { cleaned: string; hadMarker: boolean } {
+function stripHighlightLineMarker(
+  line: string,
+  markerLine: string,
+): { cleaned: string; hadMarker: boolean } {
   const trimmed = line.trimEnd()
-  const marker = MARKER_LINE
-  if (trimmed.endsWith(marker)) {
-    const before = trimmed.slice(0, trimmed.length - marker.length)
+  if (trimmed.endsWith(markerLine)) {
+    const before = trimmed.slice(0, trimmed.length - markerLine.length)
     if (
       before.length > 0 &&
       before[before.length - 1] !== " " &&
@@ -43,17 +63,17 @@ function stripHighlightLineMarker(line: string): { cleaned: string; hadMarker: b
 
 /**
  * Parses code content for highlight markers and returns clean code plus 1-indexed line numbers to highlight.
+ * Recognizes both // and # marker styles in the same block so language need not be detected.
  *
  * Expects content with real newlines (`\n`). If the source uses `<br>` (e.g. Gutenberg), run
  * replaceBrTagsWithNewlines before calling this. Escaped br (e.g. `&lt;br&gt;`) is never treated as a newline.
  *
- * Supported markers (JavaScript/TypeScript style only):
- * - "// highlight-line" (at end of line) - highlights that line
- * - "// highlight-start" (standalone line) - begins highlight range
- * - "// highlight-end" (standalone line) - ends highlight range
+ * Supported markers (both styles apply):
+ * - "// HIGHLIGHT LINE" or "# HIGHLIGHT LINE" (at end of line, with whitespace before comment) - highlights that line
+ * - "// BEGIN HIGHLIGHT" or "# BEGIN HIGHLIGHT" (standalone line) - begins highlight range
+ * - "// END HIGHLIGHT" or "# END HIGHLIGHT" (standalone line) - ends highlight range
  *
- * Note: Only "//" comment markers are supported. Other languages (Python "#", etc.) are not supported.
- * Marker-only lines are omitted from output so copy and display match.
+ * Marker-only lines (start/end) are omitted from output so copy and display match.
  *
  * @param content - The code content to parse (use newlines; normalize br upstream if needed)
  * @returns Object with cleanCode (markers removed) and highlightedLines (1-indexed Set)
@@ -71,17 +91,34 @@ export function parseHighlightedCode(content: string | null | undefined): Proces
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
 
-    if (isStandaloneMarker(line, MARKER_START)) {
-      rangeLevel += 1
+    let isStandalone = false
+    for (const markers of MARKER_SETS) {
+      if (isStandaloneMarker(line, markers.start)) {
+        rangeLevel += 1
+        isStandalone = true
+        break
+      }
+      if (isStandaloneMarker(line, markers.end)) {
+        rangeLevel = Math.max(0, rangeLevel - 1)
+        isStandalone = true
+        break
+      }
+    }
+    if (isStandalone) {
       continue
     }
 
-    if (isStandaloneMarker(line, MARKER_END)) {
-      rangeLevel = Math.max(0, rangeLevel - 1)
-      continue
+    let cleaned = line
+    let hadMarker = false
+    for (const markers of MARKER_SETS) {
+      const result = stripHighlightLineMarker(cleaned, markers.line)
+      if (result.hadMarker) {
+        cleaned = result.cleaned
+        hadMarker = true
+        break
+      }
     }
 
-    const { cleaned, hadMarker } = stripHighlightLineMarker(line)
     cleanLines.push(cleaned)
     const lineNum = cleanLines.length
 

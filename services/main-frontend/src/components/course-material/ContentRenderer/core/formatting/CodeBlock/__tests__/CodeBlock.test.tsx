@@ -73,18 +73,18 @@ describe("CodeBlock", () => {
 
   describe("line highlighting", () => {
     it("should remove highlight markers from displayed code", async () => {
-      const contentWithMarkers = "const x = 1 // highlight-line\nfoo()\nbar()"
+      const contentWithMarkers = "const x = 1 // HIGHLIGHT LINE\nfoo()\nbar()"
       const { container } = renderCodeBlock(contentWithMarkers)
       await waitFor(() => {
         const codeElement = container.querySelector("code")
-        expect(codeElement?.textContent).not.toContain("// highlight-line")
+        expect(codeElement?.textContent).not.toContain("// HIGHLIGHT LINE")
         expect(codeElement?.textContent).toContain("const x = 1")
         expect(codeElement?.textContent).toContain("foo()")
       })
     })
 
     it("should apply highlighted-line class to marked lines", async () => {
-      const contentWithMarkers = "line1 // highlight-line\nline2\nline3"
+      const contentWithMarkers = "line1 // HIGHLIGHT LINE\nline2\nline3"
       const { container } = renderCodeBlock(contentWithMarkers)
       await waitFor(
         () => {
@@ -97,7 +97,7 @@ describe("CodeBlock", () => {
     })
 
     it("should wrap lines in code-line spans when highlighting is used", async () => {
-      const contentWithMarkers = "a // highlight-line\nb\nc"
+      const contentWithMarkers = "a // HIGHLIGHT LINE\nb\nc"
       const { container } = renderCodeBlock(contentWithMarkers)
       await waitFor(
         () => {
@@ -116,7 +116,7 @@ describe("CodeBlock", () => {
       })
       const consoleSpy = jest.spyOn(console, "info").mockImplementation()
       const contentWithMarkers =
-        "const url = process.env.URI // highlight-line\nmongoose.connect(url)"
+        "const url = process.env.URI // HIGHLIGHT LINE\nmongoose.connect(url)"
       const { container } = renderCodeBlock(contentWithMarkers)
       const copyButton = container.querySelector('button[aria-label="copy-to-clipboard"]')
       expect(copyButton).toBeInTheDocument()
@@ -135,11 +135,11 @@ describe("CodeBlock", () => {
         configurable: true,
       })
       const contentWithBrAndMarkers =
-        "const url = process.env.MONGODB_URI // highlight-line<br><br>mongoose.connect(url)<br>// highlight-start<br>.then(result => {<br>  console.log('connected to MongoDB')<br>})<br>.catch(error => {<br>  console.log('error connecting to MongoDB:', error.message)<br>})<br>// highlight-end<br><br>module.exports = mongoose.model('Note', noteSchema) // highlight-line"
+        "const url = process.env.MONGODB_URI // HIGHLIGHT LINE<br><br>mongoose.connect(url)<br>// BEGIN HIGHLIGHT<br>.then(result => {<br>  console.log('connected to MongoDB')<br>})<br>.catch(error => {<br>  console.log('error connecting to MongoDB:', error.message)<br>})<br>// END HIGHLIGHT<br><br>module.exports = mongoose.model('Note', noteSchema) // HIGHLIGHT LINE"
       const { container } = renderCodeBlock(contentWithBrAndMarkers)
       await waitFor(() => {
         const codeElement = container.querySelector("code")
-        expect(codeElement?.textContent).not.toContain("// highlight")
+        expect(codeElement?.textContent).not.toContain("// HIGHLIGHT")
       })
       const copyButton = container.querySelector('button[aria-label="copy-to-clipboard"]')
       fireEvent.click(copyButton!)
@@ -153,14 +153,14 @@ describe("CodeBlock", () => {
       expect(String(copied).replace(/\r\n/g, "\n")).toBe(expected)
     })
 
-    it("should highlight range between highlight-start and highlight-end", async () => {
-      const contentWithRange = "before\n// highlight-start\nmid1\nmid2\n// highlight-end\nafter"
+    it("should highlight range between BEGIN HIGHLIGHT and END HIGHLIGHT", async () => {
+      const contentWithRange = "before\n// BEGIN HIGHLIGHT\nmid1\nmid2\n// END HIGHLIGHT\nafter"
       const { container } = renderCodeBlock(contentWithRange)
       await waitFor(
         () => {
           const codeElement = container.querySelector("code")
-          expect(codeElement?.textContent).not.toContain("// highlight-start")
-          expect(codeElement?.textContent).not.toContain("// highlight-end")
+          expect(codeElement?.textContent).not.toContain("// BEGIN HIGHLIGHT")
+          expect(codeElement?.textContent).not.toContain("// END HIGHLIGHT")
           const highlighted = container.querySelectorAll(".highlighted-line")
           expect(highlighted.length).toBeGreaterThanOrEqual(2)
         },
@@ -170,14 +170,14 @@ describe("CodeBlock", () => {
 
     it("should recognize highlight markers when content has <br> tags", async () => {
       const contentWithBrAndMarkers =
-        "const x = 1 // highlight-line<br/>const y = 2<br/>// highlight-start<br/>const z = 3<br/>// highlight-end"
+        "const x = 1 // HIGHLIGHT LINE<br/>const y = 2<br/>// BEGIN HIGHLIGHT<br/>const z = 3<br/>// END HIGHLIGHT"
       const { container } = renderCodeBlock(contentWithBrAndMarkers)
       await waitFor(
         () => {
           const codeElement = container.querySelector("code")
-          expect(codeElement?.textContent).not.toContain("// highlight-line")
-          expect(codeElement?.textContent).not.toContain("// highlight-start")
-          expect(codeElement?.textContent).not.toContain("// highlight-end")
+          expect(codeElement?.textContent).not.toContain("// HIGHLIGHT LINE")
+          expect(codeElement?.textContent).not.toContain("// BEGIN HIGHLIGHT")
+          expect(codeElement?.textContent).not.toContain("// END HIGHLIGHT")
           const highlighted = container.querySelectorAll(".highlighted-line")
           expect(highlighted.length).toBeGreaterThanOrEqual(2)
           expect(highlighted[0].textContent).toContain("const x = 1")
@@ -187,7 +187,7 @@ describe("CodeBlock", () => {
     })
 
     it("correctly highlights lines in code with blank lines", async () => {
-      const contentWithBlanks = "first\n\nthird // highlight-line"
+      const contentWithBlanks = "first\n\nthird // HIGHLIGHT LINE"
       const { container } = renderCodeBlock(contentWithBlanks)
       await waitFor(
         () => {
@@ -200,7 +200,7 @@ describe("CodeBlock", () => {
     })
 
     it("should correctly highlight lines inside multi-line block comments", async () => {
-      const content = "// highlight-start\n/*\n * block comment\n */\n// highlight-end\ncode"
+      const content = "// BEGIN HIGHLIGHT\n/*\n * block comment\n */\n// END HIGHLIGHT\ncode"
       const { container } = renderCodeBlock(content)
       await waitFor(
         () => {
@@ -212,7 +212,7 @@ describe("CodeBlock", () => {
     })
 
     it("should not double-wrap lines on re-render", async () => {
-      const content = "a // highlight-line\nb"
+      const content = "a // HIGHLIGHT LINE\nb"
       const data = {
         attributes: { content },
         name: "core/code" as const,
@@ -231,7 +231,7 @@ describe("CodeBlock", () => {
     })
 
     it("should highlight lines when language is auto-detected", async () => {
-      const content = "const x = 1 // highlight-line\nconst y = 2"
+      const content = "const x = 1 // HIGHLIGHT LINE\nconst y = 2"
       const { container } = renderCodeBlock(content)
       await waitFor(
         () => {
@@ -243,8 +243,23 @@ describe("CodeBlock", () => {
       )
     })
 
+    it("should strip # HIGHLIGHT LINE and highlight regardless of language", async () => {
+      const content = "x = 1  # HIGHLIGHT LINE\ny = 2"
+      const { container } = renderCodeBlock(content)
+      await waitFor(
+        () => {
+          const codeEl = container.querySelector("code")
+          expect(codeEl?.textContent).not.toContain("# HIGHLIGHT LINE")
+          const highlighted = container.querySelectorAll(".highlighted-line")
+          expect(highlighted.length).toBe(1)
+          expect(highlighted[0].textContent?.trim()).toBe("x = 1")
+        },
+        { timeout: 2000 },
+      )
+    })
+
     it("announces highlighted lines to screen readers when highlights are present", () => {
-      const content = "line1 // highlight-line\nline2\nline3 // highlight-line"
+      const content = "line1 // HIGHLIGHT LINE\nline2\nline3 // HIGHLIGHT LINE"
       const { container } = renderCodeBlock(content)
       const preParent = container.querySelector("pre")?.parentElement
       const srOnlySpan = preParent?.querySelector(":scope > span")

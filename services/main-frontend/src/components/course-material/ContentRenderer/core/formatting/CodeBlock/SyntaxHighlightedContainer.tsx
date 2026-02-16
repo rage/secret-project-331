@@ -34,6 +34,7 @@ const codeBlockStyles = css`
 
 /**
  * Renders code with syntax highlighting using highlight.js. Optionally wraps lines and highlights specific lines.
+ * Receives content that already uses newlines (CodeBlock normalizes `<br>` to `\n` upstream; escaped br stays literal).
  */
 const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
   content,

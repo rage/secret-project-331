@@ -108,12 +108,12 @@ pub async fn get_current_conversation_info(
         && let Some(ccm) = &current_conversation_messages
         && let Some(last_ccm) = ccm.last()
     {
-        crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
+        let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
             tx,
             last_ccm.id.to_owned(),
         )
-        .await
-        .optional()?
+        .await?;
+        if sm.is_empty() { None } else { Some(sm) }
     } else {
         None
     };

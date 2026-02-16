@@ -23,14 +23,14 @@ struct ChatbotNextMessageSuggestionResponse {
     suggestions: Vec<String>,
 }
 
-// todo what is the correct value
+// todo what is the correct value ????????++
 /// Maximum context window size for LLM in tokens
 pub const MAX_CONTEXT_WINDOW: i32 = 16000;
 /// Maximum percentage of context window to use in a single request
 pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
 
 /// System prompt instructions for generating suggested next messages
-const SYSTEM_PROMPT: &str = r#"You are given a conversation between a helpful teaching assistant chatbot and a student. You task is to analyze the conversation and suggest what messages the user chould send to the teaching assistant chatbot next to best support the user's learning.
+const SYSTEM_PROMPT: &str = r#"You are given a conversation between a helpful teaching assistant chatbot and a student. Your task is to analyze the conversation and suggest what messages the user could send to the teaching assistant chatbot next to best support the user's learning.
 
 When generating suggestions:
 - Base them strictly on the content and tone of the conversation so far

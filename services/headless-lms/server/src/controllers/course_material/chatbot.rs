@@ -8,7 +8,7 @@ use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
 use headless_lms_models::{chatbot_configurations, courses};
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 
 use crate::prelude::*;
 
@@ -176,14 +176,13 @@ async fn current_conversation_info(
     {
         let sm = if last_ccm.order_number == 0 {
             // for the first message, get initial_suggested_messages
-            let mut sm = chatbot_configuration
+            let sm = chatbot_configuration
                 .initial_suggested_messages
                 .unwrap_or(vec![]);
             // take 3 random elements
             if sm.len() > 3 {
                 let mut rng = rand::rng();
-                sm.shuffle(&mut rng);
-                sm[..3].to_vec()
+                sm.choose_multiple(&mut rng, 3).cloned().collect()
             } else {
                 sm
             }
@@ -198,12 +197,14 @@ async fn current_conversation_info(
             .await?
         };
 
-        headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(
-            &mut conn,
-            &last_ccm.id,
-            sm,
-        )
-        .await?;
+        if !sm.is_empty() {
+            headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(
+                &mut conn,
+                &last_ccm.id,
+                sm,
+            )
+            .await?;
+        }
 
         let res = chatbot_conversations::get_current_conversation_info(
             &mut conn,

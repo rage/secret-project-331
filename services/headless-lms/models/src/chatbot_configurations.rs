@@ -335,6 +335,7 @@ SET
     suggest_next_messages = $23,
     initial_suggested_messages = $24
 WHERE id = $25
+    AND deleted_at IS NULL
 RETURNING
     id,
     created_at,

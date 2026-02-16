@@ -415,6 +415,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
                 setSuggestedNewMessage(m.message)
                 setNewMessage(m.message)
               }}
+              isDisabled={newMessageMutation.isPending || currentConversationInfo.isLoading}
             >
               <Idea
                 className={css`

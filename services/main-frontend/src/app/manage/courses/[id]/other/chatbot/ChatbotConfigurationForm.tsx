@@ -258,7 +258,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 >
                   <TextField
                     key={item.id}
-                    error={errors.suggested_messages?.message}
+                    error={errors.suggested_messages?.[idx]?.message}
                     label={t("label-message")}
                     {...register(`suggested_messages.${idx}.message` as const, {
                       required: t("required-field"),

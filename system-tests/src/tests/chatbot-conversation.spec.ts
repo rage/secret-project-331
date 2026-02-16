@@ -13,7 +13,7 @@ async function closePopover(page: Page) {
   await page.waitForTimeout(100)
 }
 
-test.describe.only("Test chatbot chat box", () => {
+test.describe("Test chatbot chat box", () => {
   test.use({
     storageState: "src/states/teacher@example.com.json",
   })
@@ -249,7 +249,7 @@ test.describe.only("Test chatbot chat box", () => {
     const studentPage = await context1.newPage()
 
     await test.step("student views material block chatbot that suggests", async () => {
-      studentPage.goto(
+      await studentPage.goto(
         "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1/page-3",
       )
       await selectCourseInstanceIfPrompted(studentPage)
@@ -298,7 +298,7 @@ test.describe.only("Test chatbot chat box", () => {
     const studentPage = await context2.newPage()
 
     await test.step("teacher changes the default chatbot", async () => {
-      page.goto(
+      await page.goto(
         "http://project-331.local/manage/courses/ced2f632-25ba-4e93-8e38-8df53ef7ab41/other/chatbot",
       )
       // this should be Suggestion bot's button

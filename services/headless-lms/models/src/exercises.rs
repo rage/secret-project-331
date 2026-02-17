@@ -700,6 +700,29 @@ RETURNING id;
     Ok(deleted_ids)
 }
 
+pub async fn update_teacher_reviews_answer_after_locking(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    teacher_reviews_answer_after_locking: bool,
+) -> ModelResult<Exercise> {
+    let exercise = sqlx::query_as!(
+        Exercise,
+        r#"
+UPDATE exercises
+SET teacher_reviews_answer_after_locking = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING *
+        "#,
+        exercise_id,
+        teacher_reviews_answer_after_locking
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(exercise)
+}
+
 pub async fn set_exercise_to_use_exercise_specific_peer_or_self_review_config(
     conn: &mut PgConnection,
     exercise_id: Uuid,

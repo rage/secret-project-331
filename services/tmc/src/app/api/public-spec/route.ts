@@ -54,7 +54,10 @@ async function processPublicSpec(
     }
 
     debug(requestId, "preparing stub dir")
-    const stubDir = await prepareStubDir(requestId, privateSpec.repository_exercise.download_url)
+    const stubDir = await prepareStubDir(
+      privateSpec.repository_exercise.download_url,
+      makeLog(requestId),
+    )
     let publicSpec: PublicSpec
     debug(requestId, "uploading public spec")
     publicSpec = await uploadPublicSpec(
@@ -71,17 +74,21 @@ async function processPublicSpec(
   }
 }
 
-const prepareStubDir = async (requestId: string, downloadUrl: string): Promise<string> => {
+const prepareStubDir = async (
+  downloadUrl: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<string> => {
   const templateArchive = temporaryFile()
   await downloadStream(downloadUrl, templateArchive)
 
   const templateDir = temporaryDirectory()
-  debug("extracting template to", templateDir)
-  await extractProject(templateArchive, templateDir, makeLog(requestId))
+  log("extracting template to " + templateDir)
+  await extractProject(templateArchive, templateDir, log)
 
   const stubDir = temporaryDirectory()
-  debug("preparing stub to", stubDir)
-  await prepareStub(templateDir, stubDir, makeLog(requestId))
+  log("preparing stub to " + stubDir)
+  await prepareStub(templateDir, stubDir, log)
+
   return stubDir
 }
 

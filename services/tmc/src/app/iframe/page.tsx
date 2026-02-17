@@ -160,12 +160,14 @@ const Iframe: React.FC = () => {
     }
   })
 
+  const contentMaxWidth =
+    state?.view_type === "answer-exercise" ? undefined : (maxWidth ?? undefined)
   return (
     <HeightTrackingContainer port={port}>
       <div
         className={css`
           width: 100%;
-          ${maxWidth && `max-width: ${maxWidth}px;`}
+          ${contentMaxWidth != null ? `max-width: ${contentMaxWidth}px;` : ""}
           margin: 0 auto;
         `}
       >
@@ -221,11 +223,10 @@ const requestRepositoryExercises = (port: MessagePort | null) => {
 
 const publicSpecToIframeUserAnswer = async (publicSpec: PublicSpec): Promise<UserAnswer> => {
   if (publicSpec.type == "browser") {
-    // dl archive
+    // Fetch stub archive (student files only)
     debug("fetching ", publicSpec.stub_download_url)
     const stubResponse = await fetch(publicSpec.stub_download_url)
 
-    // unpack zstd
     const tarZstdArchive = await stubResponse.arrayBuffer()
     const files = await extractTarZstd(Buffer.from(tarZstdArchive))
 

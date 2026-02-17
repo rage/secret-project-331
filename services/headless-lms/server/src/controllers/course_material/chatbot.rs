@@ -188,6 +188,10 @@ async fn current_conversation_info(
             }
         } else {
             // for other messages, generate suggested messages
+            let course_description =
+                models::courses::get_course(&mut conn, chatbot_configuration.course_id)
+                    .await?
+                    .description;
             let message_suggest_llm =
                 models::application_task_default_language_models::get_for_message_suggestion(
                     &mut conn,
@@ -199,6 +203,7 @@ async fn current_conversation_info(
                 ccm,
                 chatbot_configuration.initial_suggested_messages,
                 &res.course_name,
+                course_description,
             )
             .await?
         };

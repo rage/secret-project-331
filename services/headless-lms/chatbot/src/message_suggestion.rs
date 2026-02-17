@@ -63,11 +63,13 @@ pub async fn generate_suggested_messages(
     conversation_messages: &[ChatbotConversationMessage],
     initial_suggested_messages: Option<Vec<String>>,
     course_name: &str,
+    course_desc: Option<String>,
 ) -> ChatbotResult<Vec<String>> {
     let prompt = SYSTEM_PROMPT.to_owned()
         + &format!("The course is: {}\n\n", course_name)
         // if there are initial suggested messages, then include <=5 of them as examples
         + &(if let Some(ism) = initial_suggested_messages {format!("Example suggested messages: {}\n\n", ism.into_iter().take(5).collect::<Vec<String>>().join(" "))} else {"".to_string()})
+        + &(if let Some(c_d) = course_desc {format!("Description for course: {:?}\n\n", c_d)} else {"".to_string()})
         + "The conversation so far:\n";
 
     let used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
@@ -116,6 +118,7 @@ pub async fn generate_suggested_messages(
             content: prompt + conversation,
         }),
     };
+
     let user_prompt = APIMessage {
         role: MessageRole::User,
         fields: APIMessageKind::Text(APIMessageText {

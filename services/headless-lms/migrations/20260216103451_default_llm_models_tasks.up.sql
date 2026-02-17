@@ -5,10 +5,10 @@ CREATE TABLE application_task_default_language_models (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  -- should be unique?
   task application_task NOT NULL,
   model_id UUID NOT NULL REFERENCES chatbot_configurations_models(id),
-  context_utilization real NOT NULL
+  context_utilization real NOT NULL,
+  UNIQUE NULLS NOT DISTINCT (task, deleted_at)
 );
 
 CREATE TRIGGER set_timestamp BEFORE

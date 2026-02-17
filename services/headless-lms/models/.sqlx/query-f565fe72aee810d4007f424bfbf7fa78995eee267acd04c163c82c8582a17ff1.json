@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    a.id,\n    a.task as \"task: ApplicationTask\",\n    a.context_utilization,\n    model.model,\n    model.thinking,\n    model.deployment_name,\n    model.context_size\nFROM application_task_default_language_models AS a\nJOIN chatbot_configurations_models AS model ON model.id = a.model_id\nWHERE a.task = 'content-cleaning'\nAND a.deleted_at IS NULL\n        ",
+  "query": "\nSELECT\n    a.id,\n    a.task as \"task: ApplicationTask\",\n    a.context_utilization,\n    model.model,\n    model.thinking,\n    model.deployment_name,\n    model.context_size\nFROM application_task_default_language_models AS a\nJOIN chatbot_configurations_models AS model ON model.id = a.model_id\nWHERE a.task = 'content-cleaning'\nAND a.deleted_at IS NULL\nAND model.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -62,5 +62,5 @@
       false
     ]
   },
-  "hash": "d696b8ec960fd02249a0781f2d3c616e19c99964ed9e3dc238e3c4351b0e3c09"
+  "hash": "f565fe72aee810d4007f424bfbf7fa78995eee267acd04c163c82c8582a17ff1"
 }

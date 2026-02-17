@@ -187,12 +187,12 @@ async fn current_conversation_info(
                 sm
             }
         } else {
+            // for other messages, generate suggested messages
             let message_suggest_llm =
                 models::application_task_default_language_models::get_for_message_suggestion(
                     &mut conn,
                 )
                 .await?;
-            // for other messages, generate suggested messages
             headless_lms_chatbot::message_suggestion::generate_suggested_messages(
                 &app_conf,
                 message_suggest_llm,

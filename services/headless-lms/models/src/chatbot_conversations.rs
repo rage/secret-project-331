@@ -113,7 +113,8 @@ pub async fn get_current_conversation_info(
             last_ccm.id.to_owned(),
         )
         .await?;
-        if sm.is_empty() { None } else { Some(sm) }
+        // return an empty vec if there are not yet any suggested messages
+        Some(sm)
     } else {
         None
     };

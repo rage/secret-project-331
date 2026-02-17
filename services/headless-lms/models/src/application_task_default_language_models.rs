@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[sqlx(type_name = "application_task", rename_all = "snake_case")]
+#[sqlx(type_name = "application_task", rename_all = "kebab-case")]
 pub enum ApplicationTask {
     ContentCleaning,
     MessageSuggestion,
@@ -86,6 +86,7 @@ FROM application_task_default_language_models AS a
 JOIN chatbot_configurations_models AS model ON model.id = a.model_id
 WHERE a.task = 'content-cleaning'
 AND a.deleted_at IS NULL
+AND model.deleted_at IS NULL
         "#,
     )
     .fetch_one(conn)
@@ -109,6 +110,7 @@ FROM application_task_default_language_models AS a
 JOIN chatbot_configurations_models AS model ON model.id = a.model_id
 WHERE a.task = 'message-suggestion'
 AND a.deleted_at IS NULL
+AND model.deleted_at IS NULL
         "#,
     )
     .fetch_one(conn)

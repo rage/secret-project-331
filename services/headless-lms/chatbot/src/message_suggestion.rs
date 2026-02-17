@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     azure_chatbot::{
         ArrayItem, ArrayProperty, JSONSchema, JSONType, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, Schema,
+        LLMRequestResponseFormatParam, NonThinkingParams, Schema, ThinkingParams,
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
@@ -24,9 +24,6 @@ use tracing::info;
 struct ChatbotNextMessageSuggestionResponse {
     suggestions: Vec<String>,
 }
-
-/// Maximum percentage of context window to use in a single request
-pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
 
 /// System prompt instructions for generating suggested next messages
 const SYSTEM_PROMPT: &str = r#"You are given a conversation between a helpful teaching assistant chatbot and a student. Your task is to analyze the conversation and suggest what messages the user could send to the teaching assistant chatbot next to best support the user's learning.
@@ -50,7 +47,7 @@ Steps:
 
 Constraints:
 - Do not continue the conversation yourself.
-- Do not role-play the teaching assistant.
+- Role-play a student who wants to learn.
 - Only output the suggested messages, nothing else.
 - Suggest exactly 3 alternate next user messages.
 - Be brief, concise and clear.
@@ -126,16 +123,28 @@ pub async fn generate_suggested_messages(
         }),
     };
 
-    let chat_request = LLMRequest {
-        messages: vec![system_prompt, user_prompt],
-        data_sources: vec![],
-        params: LLMRequestParams::NonThinking(NonThinkingParams {
+    let params = if task_lm.thinking {
+        LLMRequestParams::Thinking(ThinkingParams {
+            max_completion_tokens: None,
+            verbosity: None,
+            reasoning_effort: None,
+            tools: vec![],
+            tool_choice: None,
+        })
+    } else {
+        LLMRequestParams::NonThinking(NonThinkingParams {
             max_tokens: None,
             temperature: None,
             top_p: None,
             frequency_penalty: None,
             presence_penalty: None,
-        }),
+        })
+    };
+
+    let chat_request = LLMRequest {
+        messages: vec![system_prompt, user_prompt],
+        data_sources: vec![],
+        params,
         response_format: Some(LLMRequestResponseFormatParam {
             format_type: JSONType::JsonSchema,
             json_schema: JSONSchema {

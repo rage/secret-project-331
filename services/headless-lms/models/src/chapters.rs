@@ -3,6 +3,7 @@ use std::{collections::HashMap, path::PathBuf};
 use crate::CourseOrExamId;
 use crate::exercises;
 use crate::exercises::GradingProgress;
+use crate::library::user_exercise_state_updater;
 use crate::user_exercise_states::{self, ReviewingStage};
 use crate::{
     course_modules, courses,
@@ -938,23 +939,32 @@ pub async fn move_chapter_exercises_to_manual_review(
             continue;
         }
 
-        let course_or_exam_id = CourseOrExamId::Course(course_id);
-        let new_stage = if exercise.needs_peer_review || exercise.needs_self_review {
-            ReviewingStage::WaitingForManualGrading
-        } else if !exercise.teacher_reviews_answer_after_locking
+        if exercise.needs_peer_review || exercise.needs_self_review {
+            user_exercise_states::update_reviewing_stage(
+                conn,
+                user_id,
+                CourseOrExamId::Course(course_id),
+                exercise.id,
+                ReviewingStage::WaitingForManualGrading,
+            )
+            .await?;
+            continue;
+        }
+
+        if !exercise.teacher_reviews_answer_after_locking
             && user_exercise_state.grading_progress == GradingProgress::FullyGraded
         {
-            ReviewingStage::ReviewedAndLocked
-        } else {
-            ReviewingStage::WaitingForManualGrading
-        };
+            user_exercise_state_updater::update_user_exercise_state(conn, user_exercise_state.id)
+                .await?;
+            continue;
+        }
 
         user_exercise_states::update_reviewing_stage(
             conn,
             user_id,
-            course_or_exam_id,
+            CourseOrExamId::Course(course_id),
             exercise.id,
-            new_stage,
+            ReviewingStage::WaitingForManualGrading,
         )
         .await?;
     }

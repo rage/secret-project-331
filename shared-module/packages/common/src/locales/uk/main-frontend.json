@@ -204,6 +204,7 @@
   "closed-course-successor-id": "Ідентифікатор наступника закритого курсу",
   "closing-time": "Час закриття",
   "code": "Код",
+  "code-block-highlighted-lines": "Виділені рядки: {{lines}}",
   "cohort-analysis-future-date": "Майбутня дата - дані ще недоступні",
   "cohort-analysis-tooltip": "Когорта: {{cohort}}<br/>Дні після початку: {{days}}<br/>Активні користувачі: {{users}}",
   "cohort-analysis-tooltip-daily": "Когорта: {{cohort}}<br/>Дні після початку: {{days}}<br/>Активні користувачі: {{users}}",

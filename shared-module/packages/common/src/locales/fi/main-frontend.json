@@ -202,6 +202,7 @@
   "closed-course-successor-id": "Suljetun kurssin seuraajan ID",
   "closing-time": "Sulkeutuu",
   "code": "Koodi",
+  "code-block-highlighted-lines": "Korostetut rivit: {{lines}}",
   "cohort-analysis-future-date": "Tuleva päivämäärä - Ei tietoja saatavilla vielä",
   "cohort-analysis-tooltip": "Kohortti: {{cohort}}<br/>Päiviä aloituksen jälkeen: {{days}}<br/>Aktiiviset käyttäjät: {{users}}",
   "cohort-analysis-tooltip-daily": "Kohortti: {{cohort}}<br/>Päiviä aloituksesta: {{days}}<br/>Aktiivisia käyttäjiä: {{users}}",

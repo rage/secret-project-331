@@ -202,6 +202,7 @@
   "closed-course-successor-id": "معرف الدورة المغلقة التالية",
   "closing-time": "وقت الإغلاق",
   "code": "رمز",
+  "code-block-highlighted-lines": "الأسطر المميزة: {{lines}}",
   "cohort-analysis-future-date": "تاريخ مستقبلي - لا توجد بيانات متاحة حتى الآن",
   "cohort-analysis-tooltip": "المجموعة: {{cohort}}<br/>الأيام بعد البدء: {{days}}<br/>المستخدمون النشطون: {{users}}",
   "cohort-analysis-tooltip-daily": "المجموعة: {{cohort}}<br/>الأيام بعد البدء: {{days}}<br/>المستخدمون النشطون: {{users}}",

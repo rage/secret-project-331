@@ -94,6 +94,8 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
           : JSON.parse(exerciseAttributes.peer_or_self_review_questions_config),
       use_course_default_peer_or_self_review_config:
         exerciseAttributes.use_course_default_peer_review,
+      teacher_reviews_answer_after_locking:
+        exerciseAttributes.teacher_reviews_answer_after_locking ?? true,
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0
@@ -264,6 +266,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
             ? JSON.stringify(exercise.peer_or_self_review_questions)
             : "null",
         use_course_default_peer_review: exercise.use_course_default_peer_or_self_review_config,
+        teacher_reviews_answer_after_locking: exercise.teacher_reviews_answer_after_locking,
       },
     }
 

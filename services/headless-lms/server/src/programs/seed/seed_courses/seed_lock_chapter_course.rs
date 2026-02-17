@@ -232,7 +232,67 @@ df = df[(df['purchase_amount'] >= Q1 - 1.5*IQR) &
                                       ]
                                     })),
                                     vec![],
+                                    true,
                                 )),
+                        )
+                        .page(
+                            PageBuilder::new(
+                                "/chapter-1/auto-graded-exercise-page",
+                                "Auto-graded Exercise in Chapter 1",
+                            )
+                            .exercise(ExerciseBuilder::quizzes(
+                                "Chapter 1 Auto-graded Exercise",
+                                ExerciseIds {
+                                    exercise_id: cx.v5(b"a1b2c3d4-e5f6-7890-abcd-ef1234567891"),
+                                    slide_id: cx.v5(b"b2c3d4e5-f6a7-8901-bcde-f123456789012"),
+                                    task_id: cx.v5(b"c3d4e5f6-a7b8-9012-cdef-123456789013"),
+                                    block_id: cx.v5(b"d4e5f6a7-b8c9-0123-def4-234567890124"),
+                                },
+                                false,
+                                None,
+                                JsonSource::Inline(json!({
+                                  "version": "2",
+                                  "title": "Chapter 1 Auto-graded Exercise",
+                                  "body": "Select the correct answer.",
+                                  "awardPointsEvenIfWrong": false,
+                                  "grantPointsPolicy": "grant_whenever_possible",
+                                  "quizItemDisplayDirection": "vertical",
+                                  "submitMessage": "",
+                                  "items": [
+                                    {
+                                      "type": "multiple-choice",
+                                      "id": "e4f5a6b7-c8d9-0123-ef45-345678901235",
+                                      "failureMessage": "",
+                                      "options": [
+                                        {
+                                          "order": 1,
+                                          "additionalCorrectnessExplanationOnModelSolution": "",
+                                          "body": "",
+                                          "correct": true,
+                                          "id": "f5a6b7c8-d9e0-1234-f456-456789012346",
+                                          "messageAfterSubmissionWhenSelected": "",
+                                          "title": "Correct answer"
+                                        },
+                                        {
+                                          "order": 2,
+                                          "additionalCorrectnessExplanationOnModelSolution": "",
+                                          "body": "",
+                                          "correct": false,
+                                          "id": "a6b7c8d9-e0f1-2345-5678-567890123457",
+                                          "messageAfterSubmissionWhenSelected": "",
+                                          "title": "Wrong answer"
+                                        }
+                                      ],
+                                      "order": 0,
+                                      "successMessage": "",
+                                      "title": "What is the correct answer?",
+                                      "body": ""
+                                    }
+                                  ]
+                                })),
+                                vec![],
+                                false,
+                            )),
                         ),
                 )
                 .chapter(
@@ -325,6 +385,7 @@ df = df[(df['purchase_amount'] >= Q1 - 1.5*IQR) &
                                       ]
                                     })),
                                     vec![],
+                                    true,
                                 )),
                         ),
                 ),

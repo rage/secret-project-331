@@ -508,16 +508,19 @@ const ExerciseBlock: React.FC<
           }
         />
 
-        {chapterLockingEnabled && getCourseMaterialExercise.data && !isChapterLocked && (
-          <div
-            className={css`
-              padding: 0 1.5rem;
-              margin-bottom: 1rem;
-            `}
-          >
-            <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
-          </div>
-        )}
+        {chapterLockingEnabled &&
+          getCourseMaterialExercise.data &&
+          !isChapterLocked &&
+          getCourseMaterialExercise.data.exercise.teacher_reviews_answer_after_locking && (
+            <div
+              className={css`
+                padding: 0 1.5rem;
+                margin-bottom: 1rem;
+              `}
+            >
+              <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
+            </div>
+          )}
 
         {!loginState.isLoading && !loginState.signedIn && (
           <div
@@ -635,24 +638,28 @@ const ExerciseBlock: React.FC<
                 )}
             </div>
           )}
-          {isChapterLocked && reviewingStage !== "ReviewedAndLocked" && (
-            <YellowBox>
-              <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  gap: 0.75rem;
-                `}
-              >
-                <Padlock size={24} />
-                <div>
-                  {isChapterNotAccessible
-                    ? t("chapter-locked-complete-previous")
-                    : t("chapter-locked-description")}
+          {isChapterLocked &&
+            reviewingStage !== "ReviewedAndLocked" &&
+            (isChapterNotAccessible ||
+              getCourseMaterialExercise.data?.exercise.teacher_reviews_answer_after_locking !==
+                false) && (
+              <YellowBox>
+                <div
+                  className={css`
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                  `}
+                >
+                  <Padlock size={24} />
+                  <div>
+                    {isChapterNotAccessible
+                      ? t("chapter-locked-complete-previous")
+                      : t("chapter-locked-description")}
+                  </div>
                 </div>
-              </div>
-            </YellowBox>
-          )}
+              </YellowBox>
+            )}
           <div>
             {getCourseMaterialExercise.data.can_post_submission &&
               !userOnWrongLanguageVersion &&

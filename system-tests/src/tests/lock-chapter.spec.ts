@@ -310,7 +310,7 @@ test.describe("Chapter locking feature", () => {
     const studentPage = await student2Context.newPage()
     const teacherPage = await teacherContext.newPage()
 
-    await test.step("Navigate to auto-graded exercise and verify pre-lock message", async () => {
+    await test.step("Navigate to auto-graded exercise (no pre-lock message for auto-graded)", async () => {
       await studentPage.goto("http://project-331.local/")
       await studentPage.getByRole("link", { name: "All organizations" }).click()
       await selectOrganization(
@@ -323,11 +323,7 @@ test.describe("Chapter locking feature", () => {
       await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
       await clickPageInChapterByTitle(studentPage, "Auto-graded Exercise in Chapter 1")
       await selectCourseInstanceIfPrompted(studentPage)
-      await expect(
-        studentPage.getByText(
-          "You will receive points based on automated grading when you lock the chapter.",
-        ),
-      ).toBeVisible()
+      await expect(studentPage.getByRole("button", { name: "Submit" })).toBeVisible()
     })
 
     await test.step("Submit correct answer on auto-graded exercise", async () => {
@@ -368,8 +364,12 @@ test.describe("Chapter locking feature", () => {
         `http://project-331.local/manage/courses/${LOCK_CHAPTERS_COURSE_ID}/pages`,
       )
       await teacherPage.getByRole("tab", { name: "Exercises" }).click()
-      await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
-      await expect(teacherPage.getByText("Chapter 1 Auto-graded Exercise")).toBeHidden()
+      const autoGradedRow = teacherPage
+        .getByRole("listitem")
+        .filter({ has: teacherPage.getByText("Chapter 1 Auto-graded Exercise") })
+      await expect(
+        autoGradedRow.getByRole("link", { name: "View answers requiring attention" }),
+      ).toHaveCount(0)
     })
 
     await student2Context.close()
@@ -380,35 +380,35 @@ test.describe("Chapter locking feature", () => {
     const student3Context = await browser.newContext({
       storageState: "src/states/student3@example.com.json",
     })
-    const student2Context = await browser.newContext({
-      storageState: "src/states/student2@example.com.json",
+    const student4Context = await browser.newContext({
+      storageState: "src/states/student4@example.com.json",
     })
     const studentPage = await student3Context.newPage()
-    const student2Page = await student2Context.newPage()
+    const student4Page = await student4Context.newPage()
 
     await test.step("Verify model solution is NOT visible before locking", async () => {
-      await student2Page.goto("http://project-331.local/")
-      await student2Page.getByRole("link", { name: "All organizations" }).click()
+      await student4Page.goto("http://project-331.local/")
+      await student4Page.getByRole("link", { name: "All organizations" }).click()
       await selectOrganization(
-        student2Page,
+        student4Page,
         "University of Helsinki, Department of Mathematics and Statistics",
       )
-      await student2Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()
-      await selectCourseInstanceIfPrompted(student2Page)
-      const chapterSelector = new ChapterSelector(student2Page)
+      await student4Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      await selectCourseInstanceIfPrompted(student4Page)
+      const chapterSelector = new ChapterSelector(student4Page)
       await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
-      await clickPageInChapterByTitle(student2Page, "Lock Chapter Page")
-      await selectCourseInstanceIfPrompted(student2Page)
+      await clickPageInChapterByTitle(student4Page, "Lock Chapter Page")
+      await selectCourseInstanceIfPrompted(student4Page)
 
-      await expect(student2Page.getByRole("button", { name: "Lock Chapter" })).toBeVisible()
-      await expect(student2Page.getByRole("heading", { name: "Model Solution" })).toBeHidden()
+      await expect(student4Page.getByRole("button", { name: "Lock Chapter" })).toBeVisible()
+      await expect(student4Page.getByRole("heading", { name: "Model Solution" })).toBeHidden()
       await expect(
-        student2Page.getByText("Congratulations on completing Chapter 1! Here's a model solution"),
+        student4Page.getByText("Congratulations on completing Chapter 1! Here's a model solution"),
       ).toBeHidden()
     })
 
     await test.step("Verify page API does not leak model solution before locking", async () => {
-      const pageResponse = await student2Page.request.get(
+      const pageResponse = await student4Page.request.get(
         `http://project-331.local/api/v0/course-material/courses/lock-chapter-test-course/page-by-path/chapter-1/lock-page`,
       )
       expect(pageResponse.ok()).toBeTruthy()
@@ -418,26 +418,26 @@ test.describe("Chapter locking feature", () => {
       expect(pageContent).not.toContain("Congratulations on completing Chapter 1")
     })
 
-    await test.step("Lock Chapter 1 as student2", async () => {
-      await student2Page.getByRole("button", { name: "Lock Chapter" }).click()
+    await test.step("Lock Chapter 1 as student4", async () => {
+      await student4Page.getByRole("button", { name: "Lock Chapter" }).click()
       await expect(
-        student2Page.getByText("Are you sure you want to lock this chapter?"),
+        student4Page.getByText("Are you sure you want to lock this chapter?"),
       ).toBeVisible()
-      await student2Page.getByRole("button", { name: "Yes" }).click()
-      await student2Page.getByText("Chapter locked").waitFor()
+      await student4Page.getByRole("button", { name: "Yes" }).click()
+      await student4Page.getByText("Chapter locked").waitFor()
     })
 
-    await test.step("Verify model solution IS visible after locking for student2", async () => {
-      await expect(student2Page.getByRole("heading", { name: "Model Solution" })).toBeVisible()
+    await test.step("Verify model solution IS visible after locking for student4", async () => {
+      await expect(student4Page.getByRole("heading", { name: "Model Solution" })).toBeVisible()
       await expect(
-        student2Page.getByText(
+        student4Page.getByText(
           "Congratulations on completing Chapter 1! Here's a model solution for the Customer Behavior Analysis Project.",
         ),
       ).toBeVisible()
     })
 
     await test.step("Verify page API includes model solution after locking", async () => {
-      const pageResponse = await student2Page.request.get(
+      const pageResponse = await student4Page.request.get(
         `http://project-331.local/api/v0/course-material/courses/lock-chapter-test-course/page-by-path/chapter-1/lock-page`,
       )
       expect(pageResponse.ok()).toBeTruthy()
@@ -447,7 +447,7 @@ test.describe("Chapter locking feature", () => {
       expect(pageContent).toContain("Congratulations on completing Chapter 1")
     })
 
-    await test.step("Verify student3 cannot see student2's model solution", async () => {
+    await test.step("Verify student3 cannot see student4's model solution", async () => {
       await studentPage.goto("http://project-331.local/")
       await studentPage.getByRole("link", { name: "All organizations" }).click()
       await selectOrganization(
@@ -468,13 +468,13 @@ test.describe("Chapter locking feature", () => {
     })
 
     await test.step("Verify lock preview shows unreturned exercises warning", async () => {
-      await student2Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()
-      const chapterSelector = new ChapterSelector(student2Page)
+      await student4Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      const chapterSelector = new ChapterSelector(student4Page)
       await chapterSelector.clickChapterByTitle("Chapter 2 - Add Lock Later")
-      await clickPageInChapterByTitle(student2Page, "Exercise in Chapter 2")
-      await selectCourseInstanceIfPrompted(student2Page)
+      await clickPageInChapterByTitle(student4Page, "Exercise in Chapter 2")
+      await selectCourseInstanceIfPrompted(student4Page)
 
-      const chaptersResponse = await student2Page.request.get(
+      const chaptersResponse = await student4Page.request.get(
         `http://project-331.local/api/v0/course-material/courses/${LOCK_CHAPTERS_COURSE_ID}/chapters`,
       )
       expect(chaptersResponse.ok()).toBeTruthy()
@@ -483,15 +483,15 @@ test.describe("Chapter locking feature", () => {
         .flatMap((m: { chapters: Array<{ id: string; name: string }> }) => m.chapters)
         .find((c: { name: string }) => c.name.includes("Chapter 2"))
 
-      await student2Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()
-      const chapterSelector2 = new ChapterSelector(student2Page)
+      await student4Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      const chapterSelector2 = new ChapterSelector(student4Page)
       await chapterSelector2.clickChapterByTitle("Chapter 2 - Add Lock Later")
-      await clickPageInChapterByTitle(student2Page, "Lock Chapter Page")
-      await selectCourseInstanceIfPrompted(student2Page)
-      await student2Page.getByText("Mark Chapter as Complete").waitFor()
+      await clickPageInChapterByTitle(student4Page, "Lock Chapter Page")
+      await selectCourseInstanceIfPrompted(student4Page)
+      await student4Page.getByText("Mark Chapter as Complete").waitFor()
 
-      await student2Page.getByRole("button", { name: "Lock Chapter" }).click()
-      const previewResponse = await student2Page.request.get(
+      await student4Page.getByRole("button", { name: "Lock Chapter" }).click()
+      const previewResponse = await student4Page.request.get(
         `http://project-331.local/api/v0/course-material/chapters/${chapter2.id}/lock-preview`,
       )
       expect(previewResponse.ok()).toBeTruthy()
@@ -501,12 +501,12 @@ test.describe("Chapter locking feature", () => {
       expect(preview.has_unreturned_exercises).toBe(true)
       expect(preview.unreturned_exercises_count).toBeGreaterThan(0)
       await expect(
-        student2Page.getByText(new RegExp(`You have \\d+ exercise\\(s\\) in this chapter`)),
+        student4Page.getByText(new RegExp(`You have \\d+ exercise\\(s\\) in this chapter`)),
       ).toBeVisible()
-      await student2Page.getByRole("button", { name: "No" }).click()
+      await student4Page.getByRole("button", { name: "No" }).click()
     })
 
     await student3Context.close()
-    await student2Context.close()
+    await student4Context.close()
   })
 })

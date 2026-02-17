@@ -72,6 +72,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         margin-bottom: 1rem;
         border: 1px solid ${baseTheme.colors.clear[300]};
         border-radius: 6px;
+        overflow: hidden;
         background-color: ${baseTheme.colors.primary[100]};
         box-shadow: 0 1px 4px ${baseTheme.colors.clear[300]};
         transition:

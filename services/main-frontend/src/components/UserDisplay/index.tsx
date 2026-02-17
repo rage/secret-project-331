@@ -1,10 +1,10 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import Link from "next/link"
 import React, { useRef } from "react"
-import { useOverlayTrigger } from "react-aria"
+import { mergeProps, useButton, useOverlayTrigger } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { CourseProgressSection } from "./CourseProgressSection"
@@ -13,6 +13,8 @@ import { UserDetailsPopover } from "./UserDetailsPopover"
 
 import { useUserDetails } from "@/hooks/useUserDetails"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 
@@ -26,19 +28,35 @@ export interface UserDisplayProps {
   courseId: string | null | undefined
 }
 
+/** Renders user avatar (first letter) and display name or email. */
 const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
   const { t } = useTranslation()
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const state = useOverlayTriggerState({})
   const { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, triggerRef)
 
-  const { data, isLoading } = useUserDetails(courseId ? [courseId] : null, userId, {
+  const { data, isLoading, isError, error } = useUserDetails(courseId ? [courseId] : null, userId, {
     staleTime: 30 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
 
-  if (isLoading || !data) {
+  const { buttonProps } = useButton(
+    mergeProps(triggerProps, {
+      onPress: () => state.toggle(),
+    }),
+    triggerRef,
+  )
+
+  if (isLoading) {
+    return <Spinner />
+  }
+
+  if (isError) {
+    return <ErrorBanner error={error} />
+  }
+
+  if (!data) {
     return (
       <span
         className={css`
@@ -102,7 +120,6 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-    z-index: 999;
 
     &[data-entering] {
       animation: pop-enter 120ms ease-out;
@@ -142,15 +159,19 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     }
   `
 
+  const errorBadgeStyle = css`
+    border-color: ${baseTheme.colors.red[300]};
+    background: ${baseTheme.colors.red[50]};
+  `
+
   return (
     <>
       <button
         ref={triggerRef}
-        {...triggerProps}
+        {...buttonProps}
         type="button"
         aria-label={t("view-details")}
-        className={badgeStyle}
-        onClick={() => state.toggle()}
+        className={cx(badgeStyle, isError && errorBadgeStyle)}
       >
         {badgeContent}
       </button>

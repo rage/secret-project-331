@@ -859,11 +859,14 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_id(
                 .remove(&exercise.id)
                 .unwrap_or_default()
                 .into_iter()
-                .map(|prs| PeerOrSelfReviewSubmissionWithSubmissionOwner {
-                    submission: prs.clone(),
-                    submission_owner_user_id: submission_owner_user_ids
+                .map(|prs| {
+                    let submission_owner_user_id = submission_owner_user_ids
                         .get(&prs.exercise_slide_submission_id)
-                        .copied(),
+                        .copied();
+                    PeerOrSelfReviewSubmissionWithSubmissionOwner {
+                        submission: prs,
+                        submission_owner_user_id,
+                    }
                 })
                 .collect();
             let received_peer_or_self_review_submissions = received_peer_or_self_review_submissions

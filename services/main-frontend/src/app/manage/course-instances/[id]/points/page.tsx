@@ -81,9 +81,10 @@ const CourseInstancePointsList: React.FC = () => {
     : 0
 
   const courseId =
-    getPointsList.isSuccess && getPointsList.data.chapter_points.length > 0
+    courseInstanceQuery.data?.course_id ??
+    (getPointsList.isSuccess && getPointsList.data.chapter_points.length > 0
       ? getPointsList.data.chapter_points[0].course_id
-      : undefined
+      : undefined)
 
   return (
     <div

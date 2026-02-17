@@ -11,16 +11,10 @@ import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 export interface ExerciseAssignmentPreviewProps {
   tasks: CourseMaterialExerciseTask[]
-  exerciseName: string
-  exerciseMaxPoints: number
 }
 
 /** Renders only the exercise instructions in a distinct reference box (no iframes/interactive parts). */
-const ExerciseAssignmentPreview: React.FC<ExerciseAssignmentPreviewProps> = ({
-  tasks,
-  exerciseName: _exerciseName,
-  exerciseMaxPoints: _exerciseMaxPoints,
-}) => {
+const ExerciseAssignmentPreview: React.FC<ExerciseAssignmentPreviewProps> = ({ tasks }) => {
   const { t } = useTranslation()
   const sortedTasks = useMemo(
     () => [...tasks].sort((a, b) => a.order_number - b.order_number),
@@ -28,6 +22,8 @@ const ExerciseAssignmentPreview: React.FC<ExerciseAssignmentPreviewProps> = ({
   )
 
   const tasksWithContent = useMemo(() => {
+    // Treat a task as empty only when every block is an empty core/paragraph.
+    // Other block types (e.g. headings) are not considered here and may need handling later.
     return sortedTasks.filter((task) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const assignment = task.assignment as Block<any>[] | undefined
@@ -75,33 +71,40 @@ const ExerciseAssignmentPreview: React.FC<ExerciseAssignmentPreviewProps> = ({
         className={css`
           font-family: ${headingFont};
           color: ${baseTheme.colors.gray[700]};
-          p {
-            font-size: 1rem !important;
-            font-weight: 400;
-            line-height: 1.6;
-            margin-top: 0;
-            margin-bottom: 0.75rem;
-          }
-          p:last-child {
-            margin-bottom: 0;
-          }
-          li {
-            font-size: 1rem !important;
-            font-weight: 400;
-            line-height: 1.6;
-          }
         `}
       >
-        {tasksWithContent.map((task) => (
-          <div key={task.id}>
-            <ContentRenderer
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              data={task.assignment as Block<any>[]}
-              isExam={false}
-              dontAllowBlockToBeWiderThanContainerWidth={true}
-            />
-          </div>
-        ))}
+        <div
+          className={css`
+            & .assignment-text {
+              p {
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: 1.6;
+                margin-top: 0;
+                margin-bottom: 0.75rem;
+              }
+              p:last-child {
+                margin-bottom: 0;
+              }
+              li {
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: 1.6;
+              }
+            }
+          `}
+        >
+          {tasksWithContent.map((task) => (
+            <div key={task.id} className="assignment-text">
+              <ContentRenderer
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data={task.assignment as Block<any>[]}
+                isExam={false}
+                dontAllowBlockToBeWiderThanContainerWidth={true}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

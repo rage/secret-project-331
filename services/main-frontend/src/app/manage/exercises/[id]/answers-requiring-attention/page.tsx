@@ -128,7 +128,6 @@ const SubmissionsPage: React.FC = () => {
           <AnswersRequiringAttentionList
             answersRequiringAttention={answersQuery.data.data}
             exercise_max_points={answersQuery.data.exercise_max_points}
-            exerciseName={exerciseContext?.exercise.name ?? ""}
             courseId={exerciseQuery.data?.course_id ?? null}
             refetch={answersQuery.refetch}
           />

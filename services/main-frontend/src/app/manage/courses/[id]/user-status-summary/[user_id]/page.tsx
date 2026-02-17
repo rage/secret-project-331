@@ -15,6 +15,7 @@ import { useExerciseStatusSummaries } from "@/hooks/useExerciseStatusSummaries"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { courseExerciseResetToolRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const CourseExerciseStatusList: React.FC = () => {
@@ -48,16 +49,14 @@ const CourseExerciseStatusList: React.FC = () => {
         {t("course-status-summary")}
       </h1>
       <CourseInstanceUserInfoBox courseId={id} courseInstanceId="" userId={user_id} />
-      <CourseModuleCompletionsSection courseInstanceId="" userId={user_id} courseId={id} />
-      <CourseInstanceProgressSection courseInstanceId="" userId={user_id} courseId={id} />
+      <CourseModuleCompletionsSection userId={user_id} courseId={id} />
+      <CourseInstanceProgressSection userId={user_id} courseId={id} />
       <ExerciseListSection
         groupedByChapter={groupedByChapter}
         courseId={id}
         onPointsUpdate={exerciseStatusSummariesQuery.refetch}
       />
-      <Link href={`/manage/courses/${id}/other/exercise-reset-tool?user_id=${user_id}`}>
-        {t("title-reset-exercises")}
-      </Link>
+      <Link href={courseExerciseResetToolRoute(id, user_id)}>{t("title-reset-exercises")}</Link>
     </>
   )
 }

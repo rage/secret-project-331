@@ -20,6 +20,18 @@ export interface PeerOrSelfReviewSubmissionSummaryAccordionProps {
   showSubmissionBeingReviewed?: boolean
 }
 
+const questionLabelClass = css`
+  color: ${baseTheme.colors.gray[700]};
+  font-weight: 500;
+`
+const numberBadgeClass = css`
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+  background: ${baseTheme.colors.green[100]};
+  color: ${baseTheme.colors.green[700]};
+  font-weight: 600;
+`
+
 const PeerOrSelfReviewSubmissionSummaryAccordion = ({
   peerOrSelfReviewSubmission,
   peerOrSelfReviewQuestionSubmissions,
@@ -27,6 +39,7 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
   peerOrSelfReviewQuestions,
 }: PeerOrSelfReviewSubmissionSummaryAccordionProps) => {
   const { t } = useTranslation()
+
   return (
     <div
       className={css`
@@ -158,25 +171,10 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
                         gap: 0.5rem;
                       `}
                     >
-                      <span
-                        className={css`
-                          color: ${baseTheme.colors.gray[700]};
-                          font-weight: 500;
-                        `}
-                      >
+                      <span className={questionLabelClass}>
                         {peerOrSelfReviewQuestion?.question}
                       </span>
-                      <span
-                        className={css`
-                          padding: 0.05rem 0.4rem;
-                          border-radius: 3px;
-                          background: ${baseTheme.colors.green[100]};
-                          color: ${baseTheme.colors.green[700]};
-                          font-weight: 600;
-                        `}
-                      >
-                        {prqs.number_data}
-                      </span>
+                      <span className={numberBadgeClass}>{prqs.number_data}</span>
                     </div>
                   )}
                   {hasText && (
@@ -190,36 +188,21 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
                             margin-bottom: 0.25rem;
                           `}
                         >
-                          <span
-                            className={css`
-                              color: ${baseTheme.colors.gray[700]};
-                              font-weight: 500;
-                            `}
-                          >
+                          <span className={questionLabelClass}>
                             {peerOrSelfReviewQuestion?.question}
                           </span>
-                          <span
-                            className={css`
-                              padding: 0.05rem 0.4rem;
-                              border-radius: 3px;
-                              background: ${baseTheme.colors.green[100]};
-                              color: ${baseTheme.colors.green[700]};
-                              font-weight: 600;
-                            `}
-                          >
-                            {prqs.number_data}
-                          </span>
+                          <span className={numberBadgeClass}>{prqs.number_data}</span>
                         </div>
                       )}
                       {!hasNumber && (
                         <div
                           className={css`
-                            color: ${baseTheme.colors.gray[700]};
-                            font-weight: 500;
                             margin-bottom: 0.2rem;
                           `}
                         >
-                          {peerOrSelfReviewQuestion?.question}
+                          <span className={questionLabelClass}>
+                            {peerOrSelfReviewQuestion?.question}
+                          </span>
                         </div>
                       )}
                       <div
@@ -238,14 +221,7 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
                     </div>
                   )}
                   {!hasNumber && !hasText && (
-                    <span
-                      className={css`
-                        color: ${baseTheme.colors.gray[700]};
-                        font-weight: 500;
-                      `}
-                    >
-                      {peerOrSelfReviewQuestion?.question}
-                    </span>
+                    <span className={questionLabelClass}>{peerOrSelfReviewQuestion?.question}</span>
                   )}
                 </div>
               )

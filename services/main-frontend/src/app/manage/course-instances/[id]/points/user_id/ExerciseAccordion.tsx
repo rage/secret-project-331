@@ -193,8 +193,9 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                 background-color: ${baseTheme.colors.clear[100]};
               }
 
-              &:focus {
-                outline: none;
+              &:focus-visible {
+                outline: 2px solid ${baseTheme.colors.blue[500]};
+                outline-offset: 2px;
                 background-color: ${baseTheme.colors.clear[100]};
               }
             `}
@@ -213,9 +214,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
           </button>
           <div
             className={css`
-              max-height: ${isExpanded ? "3000px" : "0"};
-              overflow: hidden;
-              transition: max-height 0.3s ease-out;
+              display: ${isExpanded ? "block" : "none"};
               background-color: ${baseTheme.colors.primary[100]};
             `}
           >

@@ -11,7 +11,7 @@ import {
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
 import { ExerciseSlideSubmissionInfo } from "@/shared-module/common/bindings"
-import { headingFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -52,7 +52,7 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
                   font-weight: 600;
                   font-size: 18px;
                   margin-bottom: 0.25rem;
-                  color: #1b222c;
+                  color: ${baseTheme.colors.gray[800]};
                 `}
               >
                 {t("submission")}:
@@ -75,7 +75,7 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
           }
           rightContent={
             <ExerciseCardPointsBadge
-              score={totalScoreGiven ?? 0}
+              score={totalScoreGiven ?? null}
               maxScore={submissionData.exercise.score_maximum}
               // eslint-disable-next-line i18next/no-literal-string
               dataTestId="submission-points"

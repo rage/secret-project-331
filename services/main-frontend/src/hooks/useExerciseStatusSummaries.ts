@@ -4,7 +4,7 @@ import { getAllExerciseStatusSummariesForUserAndCourse } from "../services/backe
 
 export const useExerciseStatusSummaries = (courseId: string, userId: string) => {
   return useQuery({
-    queryKey: [`${courseId}-status-for-all-exercises-${userId}`],
+    queryKey: ["courses", courseId, "status-for-all-exercises", userId],
     queryFn: () => getAllExerciseStatusSummariesForUserAndCourse(courseId, userId),
   })
 }

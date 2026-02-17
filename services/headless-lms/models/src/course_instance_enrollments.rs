@@ -226,6 +226,12 @@ ORDER BY first_enrolled_at
         )
         .await?;
     let courses = crate::courses::get_by_ids(conn, &course_ids).await?;
+    let course_instance_ids: Vec<Uuid> = course_instance_enrollments
+        .iter()
+        .map(|e| e.course_instance_id)
+        .collect();
+    let all_course_instances =
+        crate::course_instances::get_by_ids(conn, &course_instance_ids).await?;
 
     let mut course_enrollments = Vec::with_capacity(rows.len());
     for row in rows {
@@ -240,16 +246,11 @@ ORDER BY first_enrolled_at
                     None,
                 )
             })?;
-        let enrollments_for_course: Vec<_> = course_instance_enrollments
+        let course_instances: Vec<_> = all_course_instances
             .iter()
-            .filter(|e| e.course_id == row.course_id)
+            .filter(|ci| ci.course_id == row.course_id)
+            .cloned()
             .collect();
-        let course_instance_ids: Vec<Uuid> = enrollments_for_course
-            .iter()
-            .map(|e| e.course_instance_id)
-            .collect();
-        let course_instances =
-            crate::course_instances::get_by_ids(conn, &course_instance_ids).await?;
         let user_course_settings_for_course = user_course_settings
             .iter()
             .find(|ucs| ucs.course_language_group_id == course.course_language_group_id)
@@ -264,15 +265,21 @@ ORDER BY first_enrolled_at
             .map(|ucs| ucs.current_course_id == row.course_id)
             .unwrap_or(false);
 
+        let first_enrolled_at = row.first_enrolled_at.ok_or_else(|| {
+            crate::ModelError::new(
+                crate::error::ModelErrorType::Generic,
+                "first_enrolled_at missing for grouped enrollment row".to_string(),
+                None,
+            )
+        })?;
+
         course_enrollments.push(CourseEnrollmentInfo {
             course_id: row.course_id,
             course,
             course_instances,
             user_course_settings: user_course_settings_for_course,
             course_module_completions,
-            first_enrolled_at: row
-                .first_enrolled_at
-                .expect("first_enrolled_at is always Some for grouped enrollment row"),
+            first_enrolled_at,
             is_current,
         });
     }

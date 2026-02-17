@@ -1,15 +1,24 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { useUserCourseProgress } from "@/hooks/useUserCourseProgress"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export function CourseProgressSection({ courseId, userId }: { courseId: string; userId: string }) {
   const { t } = useTranslation()
   const progressQuery = useUserCourseProgress(courseId, userId)
+
+  if (progressQuery.isLoading) {
+    return <Spinner variant="small" />
+  }
+
+  if (progressQuery.isError) {
+    return <ErrorBanner error={progressQuery.error} />
+  }
 
   if (!progressQuery.data || progressQuery.data.length === 0) {
     return null

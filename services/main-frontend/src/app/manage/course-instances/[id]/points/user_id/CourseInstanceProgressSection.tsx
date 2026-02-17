@@ -98,13 +98,11 @@ const ProgressValue = styled.span`
 `
 
 interface CourseInstanceProgressSectionProps {
-  courseInstanceId: string
   userId: string
   courseId: string
 }
 
 const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps> = ({
-  courseInstanceId,
   userId,
   courseId,
 }) => {
@@ -161,8 +159,9 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
           ? (courseInstanceProgress.score_given / courseInstanceProgress.score_maximum) * 100
           : 0
         const exercisesProgress = courseInstanceProgress.total_exercises
-          ? (courseInstanceProgress.attempted_exercises ??
-              0 / courseInstanceProgress.total_exercises) * 100
+          ? ((courseInstanceProgress.attempted_exercises ?? 0) /
+              courseInstanceProgress.total_exercises) *
+            100
           : 0
 
         return (

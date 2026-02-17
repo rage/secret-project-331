@@ -16,7 +16,6 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 interface Props {
   answersRequiringAttention: AnswerRequiringAttentionWithTasks[]
   exercise_max_points: number
-  exerciseName: string
   courseId: string | null
   refetch: () => void
 }
@@ -24,7 +23,6 @@ interface Props {
 const AnswersRequiringAttentionList: React.FC<Props> = ({
   answersRequiringAttention,
   exercise_max_points,
-  exerciseName,
   courseId,
   refetch,
 }) => {
@@ -35,11 +33,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
     <>
       <Centered variant="narrow">
         {answersRequiringAttention.length > 0 && (
-          <ExerciseAssignmentPreview
-            tasks={answersRequiringAttention[0].tasks}
-            exerciseName={exerciseName}
-            exerciseMaxPoints={exercise_max_points}
-          />
+          <ExerciseAssignmentPreview tasks={answersRequiringAttention[0].tasks} />
         )}
         <div
           className={css`

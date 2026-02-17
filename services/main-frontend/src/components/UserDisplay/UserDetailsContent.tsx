@@ -20,7 +20,7 @@ export function UserDetailsContent({ data, userId }: { data: UserDetail; userId:
       <DetailRow label={t("label-user-id")} value={userId} />
       <DetailRow label={t("label-first-name")} value={data.first_name?.trim() || "-"} />
       <DetailRow label={t("label-last-name")} value={data.last_name?.trim() || "-"} />
-      <DetailRow label={t("label-email")} value={data.email || "-"} />
+      <DetailRow label={t("label-email")} value={data.email?.trim() || "-"} />
       <DetailRow label={t("country")} value={data.country?.trim() || "-"} />
     </div>
   )

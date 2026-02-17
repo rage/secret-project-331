@@ -183,6 +183,10 @@ export function manageCourseOtherExerciseResetToolRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/exercise-reset-tool`
 }
 
+export function courseExerciseResetToolRoute(courseId: string, userId: string) {
+  return `/manage/courses/${courseId}/other/exercise-reset-tool?user_id=${userId}`
+}
+
 export function manageCourseByIdRoute(courseId: string) {
   return `/manage/courses/${courseId}`
 }

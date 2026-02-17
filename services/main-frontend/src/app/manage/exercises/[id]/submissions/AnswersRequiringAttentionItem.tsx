@@ -21,7 +21,7 @@ import {
   NewTeacherGradingDecision,
 } from "@/shared-module/common/bindings"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { headingFont, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateToString } from "@/shared-module/common/utils/time"
 
@@ -81,7 +81,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
       >
         <ExerciseCardWrapper>
           <ExerciseCardHeader
-            backgroundColor="#718dbf"
+            backgroundColor={baseTheme.colors.blue[600]}
             title={
               <h2
                 className={css`
@@ -127,7 +127,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 margin-top: 0;
                 margin-bottom: 1em;
                 font-family: ${primaryFont};
-                color: #4b4b4b;
+                color: ${baseTheme.colors.gray[700]};
                 font-weight: 500;
                 font-size: 20px;
                 line-height: 20px;
@@ -138,6 +138,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
             </p>
 
             {answerRequiringAttention.tasks
+              .slice()
               .sort((a, b) => a.order_number - b.order_number)
               .map((task) => (
                 <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
@@ -145,7 +146,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
             <div
               className={css`
                 margin-top: 1.5rem;
-                background: #ffffff;
+                background: ${baseTheme.colors.primary[100]};
                 border-radius: 0.625rem;
                 padding: 1rem 1.25rem 1.5rem;
                 box-shadow:

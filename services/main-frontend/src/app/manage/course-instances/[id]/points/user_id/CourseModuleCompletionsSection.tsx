@@ -70,13 +70,11 @@ const Value = styled.span`
 `
 
 interface CourseModuleCompletionsSectionProps {
-  courseInstanceId: string
   userId: string
   courseId: string
 }
 
 const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionProps> = ({
-  courseInstanceId,
   userId,
   courseId,
 }) => {

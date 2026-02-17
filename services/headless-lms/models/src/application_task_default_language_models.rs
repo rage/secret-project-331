@@ -1,0 +1,111 @@
+use crate::prelude::*;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[sqlx(type_name = "application_task", rename_all = "snake_case")]
+pub enum ApplicationTask {
+    ContentCleaning,
+    MessageSuggestion,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ApplicationTaskDefaultLanguageModel {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub model_id: Uuid,
+    pub task: ApplicationTask,
+    pub context_utilization: f32,
+}
+
+pub async fn insert(
+    conn: &mut PgConnection,
+    input: ApplicationTaskDefaultLanguageModel,
+) -> ModelResult<ApplicationTaskDefaultLanguageModel> {
+    let res = sqlx::query_as!(
+        ApplicationTaskDefaultLanguageModel,
+        r#"
+INSERT INTO application_task_default_language_models (model_id, task, context_utilization)
+VALUES ($1, $2, $3)
+RETURNING
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    model_id,
+    task as "task: ApplicationTask",
+    context_utilization
+        "#,
+        input.model_id,
+        input.task as ApplicationTask,
+        input.context_utilization
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE application_task_default_language_models
+SET deleted_at = now()
+WHERE id = $1
+AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn get_for_content_cleaning(
+    conn: &mut PgConnection,
+) -> ModelResult<ApplicationTaskDefaultLanguageModel> {
+    let res = sqlx::query_as!(
+        ApplicationTaskDefaultLanguageModel,
+        r#"
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    model_id,
+    task as "task: ApplicationTask",
+    context_utilization
+FROM application_task_default_language_models
+WHERE task = 'content-cleaning'
+AND deleted_at IS NULL
+        "#,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_for_message_suggestion(
+    conn: &mut PgConnection,
+) -> ModelResult<ApplicationTaskDefaultLanguageModel> {
+    let res = sqlx::query_as!(
+        ApplicationTaskDefaultLanguageModel,
+        r#"
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    model_id,
+    task as "task: ApplicationTask",
+    context_utilization
+FROM application_task_default_language_models
+WHERE task = 'message-suggestion'
+AND deleted_at IS NULL
+        "#,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

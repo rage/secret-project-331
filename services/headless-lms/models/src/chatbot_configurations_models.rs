@@ -11,6 +11,7 @@ pub struct ChatbotConfigurationModel {
     pub thinking: bool,
     pub default_model: bool,
     pub deployment_name: String,
+    pub context_size: i32,
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
@@ -20,6 +21,7 @@ pub struct NewChatbotConfigurationModel {
     pub thinking: bool,
     pub default_model: bool,
     pub deployment_name: String,
+    pub context_size: i32,
 }
 
 pub async fn get_by_id(
@@ -94,13 +96,14 @@ pub async fn insert(
     let res = sqlx::query_as!(
         ChatbotConfigurationModel,
         r#"
-INSERT INTO chatbot_configurations_models (id, model, thinking, deployment_name, default_model) VALUES ($1, $2, $3, $4, $5) RETURNING *
+INSERT INTO chatbot_configurations_models (id, model, thinking, deployment_name, default_model, context_size) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *
         "#,
         input.id,
         input.model,
         input.thinking,
         input.deployment_name,
         input.default_model,
+        input.context_size,
     )
     .fetch_one(conn)
     .await?;

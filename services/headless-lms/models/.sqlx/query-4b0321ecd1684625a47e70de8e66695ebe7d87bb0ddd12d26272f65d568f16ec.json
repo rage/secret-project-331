@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE application_task_default_language_models\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4b0321ecd1684625a47e70de8e66695ebe7d87bb0ddd12d26272f65d568f16ec"
+}

@@ -1,0 +1,66 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    model_id,\n    task as \"task: ApplicationTask\",\n    context_utilization\nFROM application_task_default_language_models\nWHERE task = 'message-suggestion'\nAND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "model_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "task: ApplicationTask",
+        "type_info": {
+          "Custom": {
+            "name": "application_task",
+            "kind": {
+              "Enum": [
+                "content-cleaning",
+                "message-suggestion"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "context_utilization",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "aed3b793e43ef6c77a98e9412245b3472fb4b26c564f00838ed776f3232d0d30"
+}

@@ -10,8 +10,34 @@ export function decodeHtmlEntities(text: string): string {
 }
 
 /**
- * Replaces HTML BR tags with newline characters and decodes HTML entities.
- * Used specifically for code block content formatting.
+ * Formats a set of 1-indexed line numbers into a concise string with ranges (e.g. "1, 5 to 7, 13").
+ * Used for screen-reader announcement of highlighted code lines.
+ */
+export function formatHighlightedLinesRanges(lines: Set<number>): string {
+  if (lines.size === 0) {
+    return ""
+  }
+  const sorted = Array.from(lines).sort((a, b) => a - b)
+  const parts: string[] = []
+  let rangeStart = sorted[0]
+  let rangeEnd = sorted[0]
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === rangeEnd + 1) {
+      rangeEnd = sorted[i]
+    } else {
+      parts.push(rangeStart === rangeEnd ? String(rangeStart) : `${rangeStart} to ${rangeEnd}`)
+      rangeStart = sorted[i]
+      rangeEnd = sorted[i]
+    }
+  }
+  parts.push(rangeStart === rangeEnd ? String(rangeStart) : `${rangeStart} to ${rangeEnd}`)
+  return parts.join(", ")
+}
+
+/**
+ * Replaces HTML BR tags (e.g. from Gutenberg) with newline characters.
+ * Only actual `<br>`, `<br/>`, `<br />` etc. are matched; escaped br such as `&lt;br&gt;` is not
+ * replaced and will render as literal "<br>" text (so users can show br in code).
  */
 export function replaceBrTagsWithNewlines(html: string | null | undefined): typeof html {
   if (!html) {

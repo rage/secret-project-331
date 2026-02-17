@@ -205,6 +205,7 @@
   "closed-course-successor-id": "Closed course successor ID",
   "closing-time": "Closing time",
   "code": "Code",
+  "code-block-highlighted-lines": "Highlighted lines: {{lines}}",
   "cohort-analysis-future-date": "Future date - No data available yet",
   "cohort-analysis-tooltip": "Cohort: {{cohort}}<br/>Days after start: {{days}}<br/>Active users: {{users}}",
   "cohort-analysis-tooltip-daily": "Cohort: {{cohort}}<br/>Days after start: {{days}}<br/>Active users: {{users}}",

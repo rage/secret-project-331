@@ -1,5 +1,9 @@
 use std::{collections::HashMap, path::PathBuf};
 
+use crate::CourseOrExamId;
+use crate::exercises;
+use crate::exercises::GradingProgress;
+use crate::user_exercise_states::{self, ReviewingStage};
 use crate::{
     course_modules, courses,
     pages::{PageMetadata, PageWithExercises},
@@ -918,31 +922,41 @@ pub async fn move_chapter_exercises_to_manual_review(
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<()> {
-    use crate::CourseOrExamId;
-    use crate::exercises;
-    use crate::user_exercise_states::{self, ReviewingStage};
-
     let exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
 
     for exercise in exercises {
         let user_exercise_state_result =
             user_exercise_states::get_users_current_by_exercise(conn, user_id, &exercise).await;
 
-        if let Ok(user_exercise_state) = user_exercise_state_result
-            && user_exercise_state.reviewing_stage != ReviewingStage::WaitingForManualGrading
-            && user_exercise_state.reviewing_stage != ReviewingStage::ReviewedAndLocked
-            && user_exercise_state.selected_exercise_slide_id.is_some()
+        let Ok(user_exercise_state) = user_exercise_state_result else {
+            continue;
+        };
+        if user_exercise_state.reviewing_stage == ReviewingStage::WaitingForManualGrading
+            || user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+            || user_exercise_state.selected_exercise_slide_id.is_none()
         {
-            let course_or_exam_id = CourseOrExamId::Course(course_id);
-            user_exercise_states::update_reviewing_stage(
-                conn,
-                user_id,
-                course_or_exam_id,
-                exercise.id,
-                ReviewingStage::WaitingForManualGrading,
-            )
-            .await?;
+            continue;
         }
+
+        let course_or_exam_id = CourseOrExamId::Course(course_id);
+        let new_stage = if exercise.needs_peer_review || exercise.needs_self_review {
+            ReviewingStage::WaitingForManualGrading
+        } else if !exercise.teacher_reviews_answer_after_locking
+            && user_exercise_state.grading_progress == GradingProgress::FullyGraded
+        {
+            ReviewingStage::ReviewedAndLocked
+        } else {
+            ReviewingStage::WaitingForManualGrading
+        };
+
+        user_exercise_states::update_reviewing_stage(
+            conn,
+            user_id,
+            course_or_exam_id,
+            exercise.id,
+            new_stage,
+        )
+        .await?;
     }
 
     Ok(())

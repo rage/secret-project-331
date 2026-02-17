@@ -1260,6 +1260,7 @@ pub async fn seed_sample_course(
             None,
             None,
             None,
+            true,
         );
     create_page(
         &mut conn,
@@ -1568,6 +1569,7 @@ pub async fn seed_sample_course(
             None,
             None,
             None,
+            true,
         );
 
     create_page(

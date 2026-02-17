@@ -46,6 +46,7 @@ pub enum ExerciseBuilder {
         deadline: Option<DateTime<Utc>>,
         spec: JsonSource,
         assignment_blocks: Vec<GutenbergBlock>,
+        teacher_reviews_answer_after_locking: bool,
     },
     /// Test My Code exercise
     Tmc {
@@ -65,6 +66,7 @@ impl ExerciseBuilder {
         deadline: Option<DateTime<Utc>>,
         spec: JsonSource,
         assignment_blocks: Vec<GutenbergBlock>,
+        teacher_reviews_answer_after_locking: bool,
     ) -> Self {
         Self::Quizzes {
             ids,
@@ -73,6 +75,7 @@ impl ExerciseBuilder {
             deadline,
             spec,
             assignment_blocks,
+            teacher_reviews_answer_after_locking,
         }
     }
 
@@ -129,6 +132,7 @@ impl ExerciseBuilder {
                 deadline: _,
                 spec,
                 assignment_blocks,
+                teacher_reviews_answer_after_locking,
             } => {
                 let spec_v = spec.load()?;
                 let assignment_json = serde_json::to_value(assignment_blocks)?;
@@ -143,6 +147,7 @@ impl ExerciseBuilder {
                     None,
                     None,
                     None,
+                    *teacher_reviews_answer_after_locking,
                 );
                 let slide = slides.swap_remove(0);
                 let task = tasks.swap_remove(0);
@@ -169,6 +174,7 @@ impl ExerciseBuilder {
                     Some(false),
                     None,
                     None,
+                    true,
                 );
                 let slide = slides.swap_remove(0);
                 let task = tasks.swap_remove(0);
@@ -201,6 +207,7 @@ impl ExerciseBuilder {
                     Some(*needs_peer_review),
                     peer_or_self_review_config.clone(),
                     peer_or_self_review_questions.clone(),
+                    true,
                 );
 
                 let slide = slides
@@ -261,6 +268,7 @@ mod tests {
             deadline,
             spec,
             assignment_blocks.clone(),
+            true,
         );
 
         match builder {
@@ -271,6 +279,7 @@ mod tests {
                 deadline: builder_deadline,
                 spec: _,
                 assignment_blocks: builder_blocks,
+                teacher_reviews_answer_after_locking: _,
             } => {
                 assert_eq!(name, "Test Quiz");
                 assert!(needs_peer_review);
@@ -382,12 +391,14 @@ mod tests {
             None,
             spec,
             assignment_blocks,
+            true,
         );
 
         match builder {
             ExerciseBuilder::Quizzes {
                 deadline,
                 needs_peer_review,
+                teacher_reviews_answer_after_locking: _,
                 ..
             } => {
                 assert_eq!(deadline, None);
@@ -410,10 +421,11 @@ mod tests {
             None,
             spec.clone(),
             assignment_blocks.clone(),
+            true,
         );
 
         let builder2 =
-            ExerciseBuilder::quizzes("&str name", ids, false, None, spec, assignment_blocks);
+            ExerciseBuilder::quizzes("&str name", ids, false, None, spec, assignment_blocks, true);
 
         match (builder1, builder2) {
             (

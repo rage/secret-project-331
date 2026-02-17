@@ -569,7 +569,11 @@ const ExerciseBlock: React.FC<
               margin-bottom: 1rem;
             `}
           >
-            <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
+            <YellowBox>
+              {getCourseMaterialExercise.data.exercise.teacher_reviews_answer_after_locking
+                ? t("exercises-done-through-locking-explanation")
+                : t("exercises-done-through-locking-auto-graded-explanation")}
+            </YellowBox>
           </div>
         )}
 
@@ -702,7 +706,10 @@ const ExerciseBlock: React.FC<
                 <div>
                   {isChapterNotAccessible
                     ? t("chapter-locked-complete-previous")
-                    : t("chapter-locked-description")}
+                    : getCourseMaterialExercise.data?.exercise
+                          .teacher_reviews_answer_after_locking !== false
+                      ? t("chapter-locked-description")
+                      : t("chapter-locked-auto-graded-description")}
                 </div>
               </div>
             </YellowBox>

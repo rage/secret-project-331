@@ -1122,6 +1122,7 @@ mod tests {
                 use_course_default_peer_or_self_review_config,
                 exercise_language_group_id: None,
                 needs_self_review,
+                teacher_reviews_answer_after_locking: true,
             }
         }
 

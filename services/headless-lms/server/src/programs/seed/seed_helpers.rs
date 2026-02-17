@@ -230,6 +230,7 @@ pub fn create_best_exercise(
         Some(false),
         None,
         None,
+        true,
     );
     (
         exercise_block,
@@ -248,6 +249,7 @@ pub fn example_exercise_flexible(
     needs_peer_review: Option<bool>,
     peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
     peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
+    teacher_reviews_answer_after_locking: bool,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -314,6 +316,7 @@ pub fn example_exercise_flexible(
         needs_peer_review: needs_peer_review.unwrap_or(false),
         needs_self_review: false,
         use_course_default_peer_or_self_review_config: false,
+        teacher_reviews_answer_after_locking,
         peer_or_self_review_config,
         peer_or_self_review_questions,
     };
@@ -361,6 +364,7 @@ pub fn quizzes_exercise(
         needs_peer_review,
         needs_self_review: false,
         use_course_default_peer_or_self_review_config: true,
+        teacher_reviews_answer_after_locking: true,
         peer_or_self_review_config: None,
         peer_or_self_review_questions: None,
     };
@@ -419,6 +423,7 @@ pub fn tmc_exercise(
         needs_peer_review,
         needs_self_review: false,
         use_course_default_peer_or_self_review_config: true,
+        teacher_reviews_answer_after_locking: true,
         peer_or_self_review_config: None,
         peer_or_self_review_questions: None,
     };

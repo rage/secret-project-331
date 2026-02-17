@@ -47,6 +47,7 @@ pub struct Exercise {
     pub needs_self_review: bool,
     pub use_course_default_peer_or_self_review_config: bool,
     pub exercise_language_group_id: Option<Uuid>,
+    pub teacher_reviews_answer_after_locking: bool,
 }
 
 impl Exercise {

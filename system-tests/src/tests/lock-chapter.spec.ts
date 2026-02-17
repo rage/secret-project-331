@@ -300,6 +300,82 @@ test.describe("Chapter locking feature", () => {
     await teacherContext.close()
   })
 
+  test("Chapter locking with automated grading (no teacher review)", async ({ browser }) => {
+    const student2Context = await browser.newContext({
+      storageState: "src/states/student2@example.com.json",
+    })
+    const teacherContext = await browser.newContext({
+      storageState: "src/states/teacher@example.com.json",
+    })
+    const studentPage = await student2Context.newPage()
+    const teacherPage = await teacherContext.newPage()
+
+    await test.step("Navigate to auto-graded exercise and verify pre-lock message", async () => {
+      await studentPage.goto("http://project-331.local/")
+      await studentPage.getByRole("link", { name: "All organizations" }).click()
+      await selectOrganization(
+        studentPage,
+        "University of Helsinki, Department of Mathematics and Statistics",
+      )
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      await selectCourseInstanceIfPrompted(studentPage)
+      const chapterSelector = new ChapterSelector(studentPage)
+      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
+      await clickPageInChapterByTitle(studentPage, "Auto-graded Exercise in Chapter 1")
+      await selectCourseInstanceIfPrompted(studentPage)
+      await expect(
+        studentPage.getByText(
+          "You will receive points based on automated grading when you lock the chapter.",
+        ),
+      ).toBeVisible()
+    })
+
+    await test.step("Submit correct answer on auto-graded exercise", async () => {
+      const exerciseFrame = await getLocatorForNthExerciseServiceIframe(studentPage, "quizzes", 1)
+      await exerciseFrame.getByRole("button", { name: "Correct answer" }).click()
+      await studentPage.getByRole("button", { name: "Submit" }).click()
+      await studentPage.getByText("Try again").waitFor()
+    })
+
+    await test.step("Lock chapter and verify points without teacher review", async () => {
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      const chapterSelector = new ChapterSelector(studentPage)
+      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
+      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
+      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
+      await expect(
+        studentPage.getByText("Are you sure you want to lock this chapter?"),
+      ).toBeVisible()
+      await studentPage.getByRole("button", { name: "Yes" }).click()
+      await studentPage.getByText("Chapter locked").waitFor()
+    })
+
+    await test.step("Verify auto-graded exercise shows points and reviewed state", async () => {
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      const chapterSelector = new ChapterSelector(studentPage)
+      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
+      await clickPageInChapterByTitle(studentPage, "Auto-graded Exercise in Chapter 1")
+      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.reload()
+      await expect(studentPage.getByTestId("exercise-points")).toContainText("1/1")
+      await studentPage.getByText("Your answer has been reviewed").waitFor()
+      await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
+    })
+
+    await test.step("Teacher verifies auto-graded exercise is not in review list", async () => {
+      await teacherPage.goto(
+        `http://project-331.local/manage/courses/${LOCK_CHAPTERS_COURSE_ID}/pages`,
+      )
+      await teacherPage.getByRole("tab", { name: "Exercises" }).click()
+      await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
+      await expect(teacherPage.getByText("Chapter 1 Auto-graded Exercise")).toBeHidden()
+    })
+
+    await student2Context.close()
+    await teacherContext.close()
+  })
+
   test("Chapter locking security and data isolation", async ({ browser }) => {
     const student3Context = await browser.newContext({
       storageState: "src/states/student3@example.com.json",

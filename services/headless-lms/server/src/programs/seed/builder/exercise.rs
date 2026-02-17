@@ -12,7 +12,7 @@ use headless_lms_models::{
 
 use crate::programs::seed::{
     builder::{context::SeedContext, json_source::JsonSource},
-    seed_helpers::example_exercise_flexible,
+    seed_helpers::{ExampleExerciseFlexibleParams, example_exercise_flexible},
 };
 use headless_lms_utils::attributes;
 
@@ -136,19 +136,20 @@ impl ExerciseBuilder {
             } => {
                 let spec_v = spec.load()?;
                 let assignment_json = serde_json::to_value(assignment_blocks)?;
-                let (block, exercise, mut slides, mut tasks) = example_exercise_flexible(
-                    ids.exercise_id,
-                    name.clone(),
-                    vec![(
-                        ids.slide_id,
-                        vec![(ids.task_id, "quizzes".to_string(), assignment_json, spec_v)],
-                    )],
-                    ids.block_id,
-                    None,
-                    None,
-                    None,
-                    *teacher_reviews_answer_after_locking,
-                );
+                let (block, exercise, mut slides, mut tasks) =
+                    example_exercise_flexible(ExampleExerciseFlexibleParams {
+                        exercise_id: ids.exercise_id,
+                        exercise_name: name.clone(),
+                        exercise_slides: vec![(
+                            ids.slide_id,
+                            vec![(ids.task_id, "quizzes".to_string(), assignment_json, spec_v)],
+                        )],
+                        client_id: ids.block_id,
+                        needs_peer_review: None,
+                        peer_or_self_review_config: None,
+                        peer_or_self_review_questions: None,
+                        teacher_reviews_answer_after_locking: *teacher_reviews_answer_after_locking,
+                    });
                 let slide = slides.swap_remove(0);
                 let task = tasks.swap_remove(0);
                 (block, exercise, slide, task)
@@ -163,19 +164,20 @@ impl ExerciseBuilder {
             } => {
                 let spec_v = spec.load()?;
                 let assignment_json = serde_json::to_value(assignment_blocks)?;
-                let (block, exercise, mut slides, mut tasks) = example_exercise_flexible(
-                    ids.exercise_id,
-                    name.clone(),
-                    vec![(
-                        ids.slide_id,
-                        vec![(ids.task_id, "tmc".to_string(), assignment_json, spec_v)],
-                    )],
-                    ids.block_id,
-                    Some(false),
-                    None,
-                    None,
-                    true,
-                );
+                let (block, exercise, mut slides, mut tasks) =
+                    example_exercise_flexible(ExampleExerciseFlexibleParams {
+                        exercise_id: ids.exercise_id,
+                        exercise_name: name.clone(),
+                        exercise_slides: vec![(
+                            ids.slide_id,
+                            vec![(ids.task_id, "tmc".to_string(), assignment_json, spec_v)],
+                        )],
+                        client_id: ids.block_id,
+                        needs_peer_review: Some(false),
+                        peer_or_self_review_config: None,
+                        peer_or_self_review_questions: None,
+                        teacher_reviews_answer_after_locking: true,
+                    });
                 let slide = slides.swap_remove(0);
                 let task = tasks.swap_remove(0);
                 (block, exercise, slide, task)
@@ -191,24 +193,25 @@ impl ExerciseBuilder {
                 peer_or_self_review_questions,
             } => {
                 let assignment_json = serde_json::to_value(assignment_blocks)?;
-                let (_block, exercise, slides, tasks) = example_exercise_flexible(
-                    ids.exercise_id,
-                    name.clone(),
-                    vec![(
-                        ids.slide_id,
-                        vec![(
-                            ids.task_id,
-                            "example-exercise".to_string(),
-                            assignment_json,
-                            options.clone(),
+                let (_block, exercise, slides, tasks) =
+                    example_exercise_flexible(ExampleExerciseFlexibleParams {
+                        exercise_id: ids.exercise_id,
+                        exercise_name: name.clone(),
+                        exercise_slides: vec![(
+                            ids.slide_id,
+                            vec![(
+                                ids.task_id,
+                                "example-exercise".to_string(),
+                                assignment_json,
+                                options.clone(),
+                            )],
                         )],
-                    )],
-                    ids.block_id,
-                    Some(*needs_peer_review),
-                    peer_or_self_review_config.clone(),
-                    peer_or_self_review_questions.clone(),
-                    true,
-                );
+                        client_id: ids.block_id,
+                        needs_peer_review: Some(*needs_peer_review),
+                        peer_or_self_review_config: peer_or_self_review_config.clone(),
+                        peer_or_self_review_questions: peer_or_self_review_questions.clone(),
+                        teacher_reviews_answer_after_locking: true,
+                    });
 
                 let slide = slides
                     .into_iter()

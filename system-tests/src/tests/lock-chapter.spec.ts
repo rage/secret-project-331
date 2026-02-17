@@ -1,7 +1,8 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { clickPageInChapterByTitle } from "@/utils/flows/pagesInChapter.flow"
 import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
@@ -10,19 +11,10 @@ import { selectOrganization } from "@/utils/organizationUtils"
 const LOCK_CHAPTERS_COURSE_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 
 test.describe("Chapter locking feature", () => {
-  let studentContext: BrowserContext
-
-  test.beforeEach(async ({ browser }) => {
-    studentContext = await browser.newContext({
+  test("Chapter locking complete flow", async ({ browser }) => {
+    const studentContext = await browser.newContext({
       storageState: "src/states/student1@example.com.json",
     })
-  })
-
-  test.afterEach(async () => {
-    await studentContext.close()
-  })
-
-  test("Chapter locking complete flow", async ({ browser }) => {
     const teacherContext = await browser.newContext({
       storageState: "src/states/teacher@example.com.json",
     })
@@ -99,10 +91,7 @@ test.describe("Chapter locking feature", () => {
       await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
       await selectCourseInstanceIfPrompted(studentPage)
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
-      await expect(
-        studentPage.getByText("Are you sure you want to lock this chapter?"),
-      ).toBeVisible()
-      await studentPage.getByRole("button", { name: "Yes" }).click()
+      await respondToConfirmDialog(studentPage, true, "Are you sure you want to lock this chapter?")
       await studentPage.getByText("Chapter locked").waitFor()
       await expect(
         studentPage.getByText(
@@ -226,10 +215,7 @@ test.describe("Chapter locking feature", () => {
       await selectCourseInstanceIfPrompted(studentPage)
       await studentPage.getByText("Mark Chapter as Complete").waitFor()
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
-      await expect(
-        studentPage.getByText("Are you sure you want to lock this chapter?"),
-      ).toBeVisible()
-      await studentPage.getByRole("button", { name: "Yes" }).click()
+      await respondToConfirmDialog(studentPage, true, "Are you sure you want to lock this chapter?")
       await studentPage.getByText("Chapter locked").waitFor()
     })
 
@@ -297,6 +283,7 @@ test.describe("Chapter locking feature", () => {
       await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
     })
 
+    await studentContext.close()
     await teacherContext.close()
   })
 
@@ -340,10 +327,7 @@ test.describe("Chapter locking feature", () => {
       await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
       await selectCourseInstanceIfPrompted(studentPage)
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
-      await expect(
-        studentPage.getByText("Are you sure you want to lock this chapter?"),
-      ).toBeVisible()
-      await studentPage.getByRole("button", { name: "Yes" }).click()
+      await respondToConfirmDialog(studentPage, true, "Are you sure you want to lock this chapter?")
       await studentPage.getByText("Chapter locked").waitFor()
     })
 
@@ -364,6 +348,7 @@ test.describe("Chapter locking feature", () => {
         `http://project-331.local/manage/courses/${LOCK_CHAPTERS_COURSE_ID}/pages`,
       )
       await teacherPage.getByRole("tab", { name: "Exercises" }).click()
+      await teacherPage.getByRole("listitem").first().waitFor({ state: "visible" })
       const autoGradedRow = teacherPage
         .getByRole("listitem")
         .filter({ has: teacherPage.getByText("Chapter 1 Auto-graded Exercise") })
@@ -420,10 +405,11 @@ test.describe("Chapter locking feature", () => {
 
     await test.step("Lock Chapter 1 as student4", async () => {
       await student4Page.getByRole("button", { name: "Lock Chapter" }).click()
-      await expect(
-        student4Page.getByText("Are you sure you want to lock this chapter?"),
-      ).toBeVisible()
-      await student4Page.getByRole("button", { name: "Yes" }).click()
+      await respondToConfirmDialog(
+        student4Page,
+        true,
+        "Are you sure you want to lock this chapter?",
+      )
       await student4Page.getByText("Chapter locked").waitFor()
     })
 
@@ -503,7 +489,7 @@ test.describe("Chapter locking feature", () => {
       await expect(
         student4Page.getByText(new RegExp(`You have \\d+ exercise\\(s\\) in this chapter`)),
       ).toBeVisible()
-      await student4Page.getByRole("button", { name: "No" }).click()
+      await respondToConfirmDialog(student4Page, false)
     })
 
     await student3Context.close()

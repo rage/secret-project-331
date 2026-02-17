@@ -929,8 +929,17 @@ pub async fn move_chapter_exercises_to_manual_review(
         let user_exercise_state_result =
             user_exercise_states::get_users_current_by_exercise(conn, user_id, &exercise).await;
 
-        let Ok(user_exercise_state) = user_exercise_state_result else {
-            continue;
+        let user_exercise_state = match user_exercise_state_result {
+            Ok(state) => state,
+            Err(e) => {
+                if matches!(
+                    e.error_type(),
+                    ModelErrorType::PreconditionFailed | ModelErrorType::RecordNotFound
+                ) {
+                    continue;
+                }
+                return Err(e);
+            }
         };
         if user_exercise_state.reviewing_stage == ReviewingStage::WaitingForManualGrading
             || user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked

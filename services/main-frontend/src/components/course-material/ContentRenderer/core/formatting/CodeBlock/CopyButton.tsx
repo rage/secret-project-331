@@ -26,14 +26,15 @@ const ICON_COLORS = {
   ERROR: baseTheme.colors.red[300],
 } as const
 
+/** Plain code string to copy; uses newlines (CodeBlock passes cleanCode; br in source is already normalized). */
 interface CopyButtonProps {
   content: string
 }
 
 const buttonStyles = css`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 26px;
+  right: 26px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -56,11 +57,11 @@ const buttonStyles = css`
     color: ${ICON_COLORS.ERROR};
   }
   &:hover:not([data-status="default"]) {
-    background-color: ${baseTheme.colors.gray[600]};
+    background-color: rgba(255, 255, 255, 0.08);
   }
   &:hover[data-status="default"] {
     transform: scale(1.1);
-    background-color: ${baseTheme.colors.gray[600]};
+    background-color: rgba(255, 255, 255, 0.08);
   }
 `
 
@@ -107,7 +108,7 @@ const AnimatedDiv = animated.div as React.FC<{
 }>
 
 /**
- * Button component that copies text to clipboard.
+ * Copies the given code string to clipboard. Content is expected to use newlines (upstream handles <br> → \n; escaped br stays literal).
  * Shows success/error state for 2 seconds after copy attempt.
  */
 export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {

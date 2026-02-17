@@ -1,7 +1,6 @@
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "application_task", rename_all = "snake_case")]
 pub enum ApplicationTask {
     ContentCleaning,
@@ -9,7 +8,6 @@ pub enum ApplicationTask {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ApplicationTaskDefaultLanguageModel {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -18,6 +16,16 @@ pub struct ApplicationTaskDefaultLanguageModel {
     pub model_id: Uuid,
     pub task: ApplicationTask,
     pub context_utilization: f32,
+}
+
+pub struct TaskLMSpec {
+    pub id: Uuid,
+    pub task: ApplicationTask,
+    pub context_utilization: f32,
+    pub model: String,
+    pub thinking: bool,
+    pub deployment_name: String,
+    pub context_size: i32,
 }
 
 pub async fn insert(
@@ -62,23 +70,22 @@ AND deleted_at IS NULL
     Ok(())
 }
 
-pub async fn get_for_content_cleaning(
-    conn: &mut PgConnection,
-) -> ModelResult<ApplicationTaskDefaultLanguageModel> {
+pub async fn get_for_content_cleaning(conn: &mut PgConnection) -> ModelResult<TaskLMSpec> {
     let res = sqlx::query_as!(
-        ApplicationTaskDefaultLanguageModel,
+        TaskLMSpec,
         r#"
 SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    model_id,
-    task as "task: ApplicationTask",
-    context_utilization
-FROM application_task_default_language_models
-WHERE task = 'content-cleaning'
-AND deleted_at IS NULL
+    a.id,
+    a.task as "task: ApplicationTask",
+    a.context_utilization,
+    model.model,
+    model.thinking,
+    model.deployment_name,
+    model.context_size
+FROM application_task_default_language_models AS a
+JOIN chatbot_configurations_models AS model ON model.id = a.model_id
+WHERE a.task = 'content-cleaning'
+AND a.deleted_at IS NULL
         "#,
     )
     .fetch_one(conn)
@@ -86,23 +93,22 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
-pub async fn get_for_message_suggestion(
-    conn: &mut PgConnection,
-) -> ModelResult<ApplicationTaskDefaultLanguageModel> {
+pub async fn get_for_message_suggestion(conn: &mut PgConnection) -> ModelResult<TaskLMSpec> {
     let res = sqlx::query_as!(
-        ApplicationTaskDefaultLanguageModel,
+        TaskLMSpec,
         r#"
 SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    model_id,
-    task as "task: ApplicationTask",
-    context_utilization
-FROM application_task_default_language_models
-WHERE task = 'message-suggestion'
-AND deleted_at IS NULL
+    a.id,
+    a.task as "task: ApplicationTask",
+    a.context_utilization,
+    model.model,
+    model.thinking,
+    model.deployment_name,
+    model.context_size
+FROM application_task_default_language_models AS a
+JOIN chatbot_configurations_models AS model ON model.id = a.model_id
+WHERE a.task = 'message-suggestion'
+AND a.deleted_at IS NULL
         "#,
     )
     .fetch_one(conn)

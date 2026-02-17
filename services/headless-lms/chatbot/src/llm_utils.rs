@@ -5,6 +5,7 @@ use crate::{
 };
 use core::default::Default;
 use headless_lms_models::{
+    application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
     chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
     chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
@@ -450,7 +451,7 @@ pub async fn make_streaming_llm_request(
 }
 
 /// Makes a non-streaming request to an LLM using application configuration
-#[instrument(skip(chat_request, app_config), fields(
+#[instrument(skip(chat_request, app_config, task_lm), fields(
     num_messages = chat_request.messages.len(),
     temperature,
     max_tokens
@@ -458,6 +459,7 @@ pub async fn make_streaming_llm_request(
 pub async fn make_blocking_llm_request(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
+    task_lm: &TaskLMSpec,
     endpoint_path: Option<String>,
 ) -> anyhow::Result<LLMCompletionResponse> {
     debug!(
@@ -474,10 +476,11 @@ pub async fn make_blocking_llm_request(
         anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
     })?;
 
+    let model = task_lm.deployment_name.to_owned();
     let path = if let Some(p) = endpoint_path {
-        p
+        model + &p
     } else {
-        "gpt-4o/chat/completions".to_string()
+        model + "/chat/completions"
     };
 
     let api_endpoint = chatbot_config.api_endpoint.join(&path)?;

@@ -359,6 +359,7 @@ pub async fn seed_organization_uh_mathstat(
             thinking: false,
             default_model: true,
             deployment_name: "mock-gpt".to_string(),
+            context_size: 10000,
         },
     )
     .await?;

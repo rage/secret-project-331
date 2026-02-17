@@ -11,9 +11,11 @@ use crate::{
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
-use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole};
-use headless_lms_utils::ApplicationConfiguration;
-use headless_lms_utils::prelude::BackendError;
+use headless_lms_models::{
+    application_task_default_language_models::TaskLMSpec,
+    chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
+};
+use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 use tracing::info;
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in
@@ -23,9 +25,6 @@ struct ChatbotNextMessageSuggestionResponse {
     suggestions: Vec<String>,
 }
 
-// todo what is the correct value ????????++
-/// Maximum context window size for LLM in tokens
-pub const MAX_CONTEXT_WINDOW: i32 = 16000;
 /// Maximum percentage of context window to use in a single request
 pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
 
@@ -63,6 +62,7 @@ const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could 
 
 pub async fn generate_suggested_messages(
     app_config: &ApplicationConfiguration,
+    task_lm: TaskLMSpec,
     conversation_messages: &[ChatbotConversationMessage],
     initial_suggested_messages: Option<Vec<String>>,
     course_name: &str,
@@ -72,8 +72,10 @@ pub async fn generate_suggested_messages(
         // if there are initial suggested messages, then include <=5 of them as examples
         + &(if let Some(ism) = initial_suggested_messages {format!("Example suggested messages: {}\n\n", ism.into_iter().take(5).collect::<Vec<String>>().join(" "))} else {"".to_string()})
         + "The conversation so far:\n";
+
     let used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
-    let token_budget = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
+    let token_budget =
+        calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
     let conv_len = conversation_messages.len();
 
     // calculate how many messages to include in the conversation context
@@ -160,12 +162,13 @@ pub async fn generate_suggested_messages(
 
     let endpoint_path = if app_config.test_chatbot && app_config.test_mode {
         info!("Test mode. Using mock azure endpoint for LLM message suggestion.");
-        Some("gpt-4o/chat/suggestions".to_string())
+        Some("/chat/suggestions".to_string())
     } else {
         // if it's not test mode, the default, actual endpoint is used
         None
     };
-    let completion = make_blocking_llm_request(chat_request, app_config, endpoint_path).await?;
+    let completion =
+        make_blocking_llm_request(chat_request, app_config, &task_lm, endpoint_path).await?;
     let suggested_messages: Vec<String> = match &completion
         .choices
         .first()

@@ -1,18 +1,15 @@
-use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
+use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams};
 use crate::llm_utils::{
     APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
 };
 use crate::prelude::*;
 use anyhow::Error;
+use headless_lms_models::application_task_default_language_models::TaskLMSpec;
 use headless_lms_models::chatbot_conversation_messages::MessageRole;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
 use tracing::{debug, error, info, instrument, warn};
 
-/// Maximum context window size for LLM in tokens
-pub const MAX_CONTEXT_WINDOW: i32 = 16000;
-/// Maximum percentage of context window to use in a single request
-pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
 /// Temperature for requests, low for deterministic results
 pub const REQUEST_TEMPERATURE: f32 = 0.1;
 
@@ -41,10 +38,11 @@ const USER_PROMPT_START: &str =
     "Convert this JSON content to clean markdown. Output only the markdown, nothing else.";
 
 /// Cleans content by converting the material blocks to clean markdown using an LLM
-#[instrument(skip(blocks, app_config), fields(num_blocks = blocks.len()))]
+#[instrument(skip(blocks, app_config, task_lm), fields(num_blocks = blocks.len()))]
 pub async fn convert_material_blocks_to_markdown_with_llm(
     blocks: &[GutenbergBlock],
     app_config: &ApplicationConfiguration,
+    task_lm: &TaskLMSpec,
 ) -> anyhow::Result<String> {
     debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = APIMessage {
@@ -55,7 +53,8 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     };
 
     let system_message_tokens = estimate_tokens(SYSTEM_PROMPT);
-    let safe_token_limit = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
+    let safe_token_limit =
+        calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
     let max_content_tokens = (safe_token_limit - system_message_tokens).max(1);
 
     debug!(
@@ -65,7 +64,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
 
     let chunks = split_blocks_into_chunks(blocks, max_content_tokens)?;
     debug!("Split content into {} chunks", chunks.len());
-    process_chunks(&chunks, &system_message, app_config).await
+    process_chunks(&chunks, &system_message, app_config, task_lm).await
 }
 
 /// Calculate the safe token limit based on context window and utilization
@@ -302,18 +301,20 @@ pub fn append_markdown_with_separator(result: &mut String, new_content: &str) {
 }
 
 /// Process all chunks and combine the results
-#[instrument(skip(chunks, system_message, app_config), fields(num_chunks = chunks.len()))]
+#[instrument(skip(chunks, system_message, app_config, task_lm), fields(num_chunks = chunks.len()))]
 async fn process_chunks(
     chunks: &[String],
     system_message: &APIMessage,
     app_config: &ApplicationConfiguration,
+    task_lm: &TaskLMSpec,
 ) -> anyhow::Result<String> {
     debug!("Processing {} chunks", chunks.len());
     let mut result = String::new();
 
     for (i, chunk) in chunks.iter().enumerate() {
         debug!("Processing chunk {}/{}", i + 1, chunks.len());
-        let chunk_markdown = process_block_chunk(chunk, system_message, app_config).await?;
+        let chunk_markdown =
+            process_block_chunk(chunk, system_message, app_config, task_lm).await?;
         append_markdown_with_separator(&mut result, &chunk_markdown);
     }
 
@@ -322,23 +323,35 @@ async fn process_chunks(
 }
 
 /// Process a subset of blocks in a single LLM request
-#[instrument(skip(chunk, system_message, app_config), fields(chunk_tokens = estimate_tokens(chunk)))]
+#[instrument(skip(chunk, system_message, app_config, task_lm), fields(chunk_tokens = estimate_tokens(chunk)))]
 async fn process_block_chunk(
     chunk: &str,
     system_message: &APIMessage,
     app_config: &ApplicationConfiguration,
+    task_lm: &TaskLMSpec,
 ) -> anyhow::Result<String> {
     let messages = prepare_llm_messages(chunk, system_message)?;
-    let llm_base_request: LLMRequest = LLMRequest {
-        messages,
-        data_sources: vec![],
-        params: LLMRequestParams::NonThinking(NonThinkingParams {
+    let params = if task_lm.thinking {
+        LLMRequestParams::Thinking(ThinkingParams {
+            max_completion_tokens: None,
+            verbosity: None,
+            reasoning_effort: None,
+            tools: vec![],
+            tool_choice: None,
+        })
+    } else {
+        LLMRequestParams::NonThinking(NonThinkingParams {
             temperature: Some(REQUEST_TEMPERATURE),
             top_p: None,
             frequency_penalty: None,
             presence_penalty: None,
             max_tokens: None,
-        }),
+        })
+    };
+    let llm_base_request: LLMRequest = LLMRequest {
+        messages,
+        data_sources: vec![],
+        params,
         response_format: None,
         stop: None,
     };
@@ -347,13 +360,14 @@ async fn process_block_chunk(
         estimate_tokens(chunk)
     );
 
-    let completion = match make_blocking_llm_request(llm_base_request, app_config, None).await {
-        Ok(completion) => completion,
-        Err(e) => {
-            error!("Failed to process chunk: {}", e);
-            return Err(e);
-        }
-    };
+    let completion =
+        match make_blocking_llm_request(llm_base_request, app_config, task_lm, None).await {
+            Ok(completion) => completion,
+            Err(e) => {
+                error!("Failed to process chunk: {}", e);
+                return Err(e);
+            }
+        };
 
     match &completion
         .choices

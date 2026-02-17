@@ -47,6 +47,7 @@ pub struct Exercise {
     pub needs_self_review: bool,
     pub use_course_default_peer_or_self_review_config: bool,
     pub exercise_language_group_id: Option<Uuid>,
+    pub teacher_reviews_answer_after_locking: bool,
 }
 
 impl Exercise {
@@ -697,6 +698,29 @@ RETURNING id;
     .map(|x| x.id)
     .collect();
     Ok(deleted_ids)
+}
+
+pub async fn update_teacher_reviews_answer_after_locking(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    teacher_reviews_answer_after_locking: bool,
+) -> ModelResult<Exercise> {
+    let exercise = sqlx::query_as!(
+        Exercise,
+        r#"
+UPDATE exercises
+SET teacher_reviews_answer_after_locking = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING *
+        "#,
+        exercise_id,
+        teacher_reviews_answer_after_locking
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(exercise)
 }
 
 pub async fn set_exercise_to_use_exercise_specific_peer_or_self_review_config(

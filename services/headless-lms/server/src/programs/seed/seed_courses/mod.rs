@@ -17,8 +17,8 @@ use std::sync::Arc;
 use crate::domain::models_requests::{self, JwtKey};
 
 use crate::programs::seed::seed_helpers::{
-    create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
-    paragraph, quizzes_exercise, submit_and_grade,
+    ExampleExerciseFlexibleParams, create_best_exercise, create_best_peer_review, create_page,
+    example_exercise_flexible, paragraph, quizzes_exercise, submit_and_grade,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
@@ -1188,10 +1188,10 @@ pub async fn seed_sample_course(
     let multi_exercise_1_slide_1_task_3_id =
         Uuid::new_v5(&course_id, b"4c4bc8e5-7108-4f0d-a3d9-54383aa57269");
     let (multi_exercise_block_1, multi_exercise_1, multi_exercise_1_slides, multi_exercise_1_tasks) =
-        example_exercise_flexible(
-            multi_exercise_1_id,
-            "Multiple task exercise".to_string(),
-            vec![(
+        example_exercise_flexible(ExampleExerciseFlexibleParams {
+            exercise_id: multi_exercise_1_id,
+            exercise_name: "Multiple task exercise".to_string(),
+            exercise_slides: vec![(
                 multi_exercise_1_slide_1_id,
                 vec![
                     (
@@ -1256,11 +1256,12 @@ pub async fn seed_sample_course(
                     ),
                 ],
             )],
-            Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
-            None,
-            None,
-            None,
-        );
+            client_id: Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            needs_peer_review: None,
+            peer_or_self_review_config: None,
+            peer_or_self_review_questions: None,
+            teacher_reviews_answer_after_locking: true,
+        });
     create_page(
         &mut conn,
         course.id,
@@ -1334,10 +1335,10 @@ pub async fn seed_sample_course(
     let multi_exercise_2_slide_1_task_3_id =
         Uuid::new_v5(&course_id, b"8fbdbc4d-0c62-4b70-bb31-4c5fbb4ea6dd");
     let (multi_exercise_block_2, multi_exercise_2, multi_exercise_2_slides, multi_exercise_2_tasks) =
-        example_exercise_flexible(
-            multi_exercise_2_id,
-            "Multiple task quizzes exercise".to_string(),
-            vec![(
+        example_exercise_flexible(ExampleExerciseFlexibleParams {
+            exercise_id: multi_exercise_2_id,
+            exercise_name: "Multiple task quizzes exercise".to_string(),
+            exercise_slides: vec![(
                 multi_exercise_2_slide_1_id,
                 vec![
                     (
@@ -1564,11 +1565,12 @@ pub async fn seed_sample_course(
                     ),
                 ],
             )],
-            Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
-            None,
-            None,
-            None,
-        );
+            client_id: Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            needs_peer_review: None,
+            peer_or_self_review_config: None,
+            peer_or_self_review_questions: None,
+            teacher_reviews_answer_after_locking: true,
+        });
 
     create_page(
         &mut conn,

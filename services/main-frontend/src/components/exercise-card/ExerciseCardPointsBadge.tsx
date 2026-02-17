@@ -6,7 +6,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { headingFont, secondaryFont } from "@/shared-module/common/styles"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export interface ExerciseCardPointsBadgeProps {
   score: number | null
@@ -22,6 +21,10 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
 }) => {
   const { t } = useTranslation()
 
+  const pointsScoreStyles = css`
+    white-space: nowrap;
+  `
+
   return (
     <div
       className={css`
@@ -35,7 +38,8 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
         padding: 8px 16px 6px 16px;
         color: #57606f;
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
+        align-items: center;
         flex-direction: column;
         gap: 16px;
         box-shadow:
@@ -44,6 +48,9 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
           #c4c4c4 0 -3px 0 inset;
 
         .points {
+          display: flex;
+          align-items: center;
+          flex-wrap: nowrap;
           line-height: 100%;
           color: #57606f;
           z-index: 999;
@@ -66,12 +73,8 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
         }
 
         svg {
+          flex-shrink: 0;
           margin-right: 4px;
-        }
-
-        width: 100%;
-        ${respondToOrLarger.xxs} {
-          width: auto;
         }
       `}
     >
@@ -79,7 +82,7 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
         <span className="heading">{t("points-label")}</span>
         <div className="points">
           <CheckCircle size={16} weight="bold" color="#394F77" />
-          <span data-testid={dataTestId}>
+          <span data-testid={dataTestId} className={pointsScoreStyles}>
             <sup>{score ?? "-"}</sup>/<sub>{maxScore}</sub>
           </span>
         </div>

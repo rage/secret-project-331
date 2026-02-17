@@ -15,9 +15,7 @@ use crate::{
     peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
     peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
-    peer_or_self_review_submissions::{
-        PeerOrSelfReviewSubmission, PeerOrSelfReviewSubmissionWithSubmissionOwner,
-    },
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmissionWithSubmissionOwner,
     peer_review_queue_entries::PeerReviewQueueEntry,
     prelude::*,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},

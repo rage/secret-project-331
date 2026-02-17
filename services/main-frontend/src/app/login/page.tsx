@@ -22,13 +22,6 @@ const Login: React.FC = () => {
   const loginStateContext = useContext(LoginStateContext)
   const uncheckedReturnTo = useQueryParameter("return_to")
 
-  useEffect(() => {
-    if (loginStateContext.signedIn) {
-      const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-      router.push(returnTo)
-    }
-  }, [loginStateContext.signedIn, uncheckedReturnTo, router])
-
   const redirect = useCallback(() => {
     const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
     router.push(returnTo)
@@ -45,6 +38,13 @@ const Login: React.FC = () => {
     submitVerification,
     onConsentSubmitted,
   } = useLoginFlow(redirect, t)
+
+  useEffect(() => {
+    if (loginStateContext.signedIn && step.step === "credentials") {
+      const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+      router.push(returnTo)
+    }
+  }, [loginStateContext.signedIn, uncheckedReturnTo, router, step.step])
 
   return (
     <div

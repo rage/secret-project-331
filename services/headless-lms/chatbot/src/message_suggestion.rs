@@ -34,6 +34,7 @@ When generating suggestions:
 - Avoid introducing unrelated topics or information not motivated by the conversation
 - Maintain a supportive, respectful, and clear tone
 - Keep the suggested messages short and concise
+- The teaching assistant's messages are marked to have been said by 'assistant'.
 
 Steps:
 1. Analyze the student's current level of understanding, confusion, and engagement.
@@ -50,7 +51,8 @@ Constraints:
 - Role-play a student who wants to learn.
 - Only output the suggested messages, nothing else.
 - Suggest exactly 3 alternate next user messages.
-- Be brief, concise and clear.
+- Be brief, concise and clear. Use as few words and sentences as possible.
+- Generate messages that fit some of the categories 'clarification', 'elaboration', 'placing in context', 'how to learn this', and 'practical use'
 
 "#;
 
@@ -86,12 +88,14 @@ pub async fn generate_suggested_messages(
         .rfold((used_tokens, conv_len), |(accum_tokens, nth_msg), el| {
             if el.message.is_some() {
                 // add previous tokens, this message's tokens and extra 1 tokens for newline to the accumulator
-                let new_accum_tokens = accum_tokens + el.used_tokens + 1;
+                let new_accum_tokens = accum_tokens + el.used_tokens + 4;
                 if new_accum_tokens > token_budget {
                     return (accum_tokens, nth_msg);
                 }
                 let new_order_n = el.order_number as usize;
                 (new_accum_tokens, new_order_n)
+            } else if el.tool_output.is_some() {
+                (accum_tokens, nth_msg) // todo
             } else {
                 (accum_tokens, nth_msg)
             }
@@ -99,18 +103,18 @@ pub async fn generate_suggested_messages(
     // cut off messages older than order_n from the conversation to keep context short
     let conversation = &conversation_messages[order_n..]
         .iter()
-        .map(|x| x.message.to_owned())
-        .collect::<Option<Vec<String>>>()
-        .ok_or_else(|| {
-            // this isn't ok only if the conversation contains only ChatbotConversationMessages
-            // that have no message property, which should never happen in practice
-            ChatbotError::new(
-                ChatbotErrorType::ChatbotMessageSuggestError,
-                "Failed to create context for message suggestion LLM, there were no conversation messages. There should be some messages before messages are suggested.",
-                None,
-            )
-        })?
-        .join("\n\n");
+        .map(|x| create_msg_string(x))
+        .collect::<Vec<String>>()
+        .join("");
+    if conversation.trim().len() == 0 {
+        // this happens only if the conversation contains only ChatbotConversationMessages
+        // that have no message property, which should never happen in practice
+        return Err(ChatbotError::new(
+            ChatbotErrorType::ChatbotMessageSuggestError,
+            "Failed to create context for message suggestion LLM, there were no conversation messages or no content in any messages. There should be some messages before messages are suggested.",
+            None,
+        ));
+    };
 
     let system_prompt = APIMessage {
         role: MessageRole::System,
@@ -209,4 +213,31 @@ pub async fn generate_suggested_messages(
         }
     };
     Ok(suggested_messages)
+}
+
+fn create_msg_string(m: &ChatbotConversationMessage) -> String {
+    match m.message_role {
+        MessageRole::User => {
+            if let Some(msg) = &m.message {
+                format!("Student said:\n {msg}\n\n")
+            } else {
+                "".to_string()
+            }
+        }
+        MessageRole::Assistant => {
+            if let Some(msg) = &m.message {
+                format!("Assistant said:\n {msg}\n\n")
+            } else {
+                "".to_string()
+            }
+        }
+        MessageRole::Tool => {
+            if let Some(output) = &m.tool_output {
+                format!("Tool {}: {}\n\n", output.tool_name, output.tool_output)
+            } else {
+                "".to_string()
+            }
+        }
+        MessageRole::System => "".to_string(),
+    }
 }

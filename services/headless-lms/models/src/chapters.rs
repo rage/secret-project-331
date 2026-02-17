@@ -1,5 +1,10 @@
 use std::{collections::HashMap, path::PathBuf};
 
+use crate::CourseOrExamId;
+use crate::exercises;
+use crate::exercises::GradingProgress;
+use crate::library::user_exercise_state_updater;
+use crate::user_exercise_states::{self, ReviewingStage};
 use crate::{
     course_modules, courses,
     pages::{PageMetadata, PageWithExercises},
@@ -918,31 +923,67 @@ pub async fn move_chapter_exercises_to_manual_review(
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<()> {
-    use crate::CourseOrExamId;
-    use crate::exercises;
-    use crate::user_exercise_states::{self, ReviewingStage};
-
     let exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
 
     for exercise in exercises {
         let user_exercise_state_result =
             user_exercise_states::get_users_current_by_exercise(conn, user_id, &exercise).await;
 
-        if let Ok(user_exercise_state) = user_exercise_state_result
-            && user_exercise_state.reviewing_stage != ReviewingStage::WaitingForManualGrading
-            && user_exercise_state.reviewing_stage != ReviewingStage::ReviewedAndLocked
-            && user_exercise_state.selected_exercise_slide_id.is_some()
+        let user_exercise_state = match user_exercise_state_result {
+            Ok(state) => state,
+            Err(e) => {
+                if matches!(
+                    e.error_type(),
+                    ModelErrorType::PreconditionFailed | ModelErrorType::RecordNotFound
+                ) {
+                    continue;
+                }
+                return Err(e);
+            }
+        };
+        if user_exercise_state.reviewing_stage == ReviewingStage::WaitingForManualGrading
+            || user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+            || user_exercise_state.selected_exercise_slide_id.is_none()
         {
-            let course_or_exam_id = CourseOrExamId::Course(course_id);
+            continue;
+        }
+
+        if exercise.needs_peer_review || exercise.needs_self_review {
             user_exercise_states::update_reviewing_stage(
                 conn,
                 user_id,
-                course_or_exam_id,
+                CourseOrExamId::Course(course_id),
                 exercise.id,
                 ReviewingStage::WaitingForManualGrading,
             )
             .await?;
+            continue;
         }
+
+        if !exercise.teacher_reviews_answer_after_locking
+            && user_exercise_state.grading_progress == GradingProgress::FullyGraded
+        {
+            user_exercise_states::update_reviewing_stage(
+                conn,
+                user_id,
+                CourseOrExamId::Course(course_id),
+                exercise.id,
+                ReviewingStage::ReviewedAndLocked,
+            )
+            .await?;
+            user_exercise_state_updater::update_user_exercise_state(conn, user_exercise_state.id)
+                .await?;
+            continue;
+        }
+
+        user_exercise_states::update_reviewing_stage(
+            conn,
+            user_id,
+            CourseOrExamId::Course(course_id),
+            exercise.id,
+            ReviewingStage::WaitingForManualGrading,
+        )
+        .await?;
     }
 
     Ok(())
@@ -1164,6 +1205,101 @@ pub async fn unlock_next_chapters_for_user(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    mod move_chapter_exercises_to_manual_review {
+        use super::*;
+        use crate::{
+            exercises::ActivityProgress,
+            test_helper::*,
+            user_exercise_slide_states,
+            user_exercise_states::{self, UserExerciseStateUpdate},
+        };
+
+        #[tokio::test]
+        async fn fully_graded_auto_review_exercise_becomes_reviewed_and_locked() {
+            insert_data!(
+                :tx,
+                :user,
+                :org,
+                :course,
+                instance: _instance,
+                :course_module,
+                :chapter,
+                :page,
+                :exercise,
+                :slide
+            );
+
+            exercises::update_teacher_reviews_answer_after_locking(tx.as_mut(), exercise, false)
+                .await
+                .unwrap();
+
+            user_exercise_states::upsert_selected_exercise_slide_id(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+                Some(slide),
+            )
+            .await
+            .unwrap();
+
+            let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+            )
+            .await
+            .unwrap();
+
+            let user_exercise_slide_state =
+                user_exercise_slide_states::get_or_insert_by_unique_index(
+                    tx.as_mut(),
+                    user_exercise_state.id,
+                    slide,
+                )
+                .await
+                .unwrap();
+            user_exercise_slide_states::update(
+                tx.as_mut(),
+                user_exercise_slide_state.id,
+                Some(1.0),
+                GradingProgress::FullyGraded,
+            )
+            .await
+            .unwrap();
+
+            user_exercise_states::update(
+                tx.as_mut(),
+                UserExerciseStateUpdate {
+                    id: user_exercise_state.id,
+                    score_given: Some(1.0),
+                    activity_progress: ActivityProgress::Completed,
+                    reviewing_stage: ReviewingStage::NotStarted,
+                    grading_progress: GradingProgress::FullyGraded,
+                },
+            )
+            .await
+            .unwrap();
+
+            move_chapter_exercises_to_manual_review(tx.as_mut(), chapter, user, course)
+                .await
+                .unwrap();
+
+            let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
+            let user_exercise_state =
+                user_exercise_states::get_users_current_by_exercise(tx.as_mut(), user, &exercise)
+                    .await
+                    .unwrap();
+            assert_eq!(
+                user_exercise_state.reviewing_stage,
+                ReviewingStage::ReviewedAndLocked
+            );
+        }
+    }
 
     mod constraints {
         use super::*;

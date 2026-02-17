@@ -198,39 +198,41 @@ pub fn create_best_exercise(
         exercise_task_id,
         block_id,
     } = exercise_data;
-    let (exercise_block, exercise, mut slides, mut tasks) = example_exercise_flexible(
-        exercise_id,
-        exercise_name.unwrap_or_else(|| "Best exercise".to_string()),
-        vec![(
-            exercise_slide_id,
-            vec![(
-                exercise_task_id,
-                "example-exercise".to_string(),
-                serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
-                serde_json::json!([
-                    {
-                        "name": "a",
-                        "correct": false,
-                        "id": spec_1,
-                    },
-                    {
-                        "name": "b",
-                        "correct": true,
-                        "id": spec_2,
-                    },
-                    {
-                        "name": "c",
-                        "correct": true,
-                        "id": spec_3,
-                    },
-                ]),
+    let (exercise_block, exercise, mut slides, mut tasks) =
+        example_exercise_flexible(ExampleExerciseFlexibleParams {
+            exercise_id,
+            exercise_name: exercise_name.unwrap_or_else(|| "Best exercise".to_string()),
+            exercise_slides: vec![(
+                exercise_slide_id,
+                vec![(
+                    exercise_task_id,
+                    "example-exercise".to_string(),
+                    serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
+                    serde_json::json!([
+                        {
+                            "name": "a",
+                            "correct": false,
+                            "id": spec_1,
+                        },
+                        {
+                            "name": "b",
+                            "correct": true,
+                            "id": spec_2,
+                        },
+                        {
+                            "name": "c",
+                            "correct": true,
+                            "id": spec_3,
+                        },
+                    ]),
+                )],
             )],
-        )],
-        block_id,
-        Some(false),
-        None,
-        None,
-    );
+            client_id: block_id,
+            needs_peer_review: Some(false),
+            peer_or_self_review_config: None,
+            peer_or_self_review_questions: None,
+            teacher_reviews_answer_after_locking: true,
+        });
     (
         exercise_block,
         exercise,
@@ -240,20 +242,36 @@ pub fn create_best_exercise(
 }
 
 #[allow(clippy::type_complexity)]
+pub struct ExampleExerciseFlexibleParams {
+    pub exercise_id: Uuid,
+    pub exercise_name: String,
+    pub exercise_slides: Vec<(Uuid, Vec<(Uuid, String, Value, Value)>)>,
+    pub client_id: Uuid,
+    pub needs_peer_review: Option<bool>,
+    pub peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
+    pub peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
+    pub teacher_reviews_answer_after_locking: bool,
+}
+
+#[allow(clippy::type_complexity)]
 pub fn example_exercise_flexible(
-    exercise_id: Uuid,
-    exercise_name: String,
-    exercise_slides: Vec<(Uuid, Vec<(Uuid, String, Value, Value)>)>,
-    client_id: Uuid,
-    needs_peer_review: Option<bool>,
-    peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
-    peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
+    params: ExampleExerciseFlexibleParams,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
     Vec<CmsPageExerciseSlide>,
     Vec<CmsPageExerciseTask>,
 ) {
+    let ExampleExerciseFlexibleParams {
+        exercise_id,
+        exercise_name,
+        exercise_slides,
+        client_id,
+        needs_peer_review,
+        peer_or_self_review_config,
+        peer_or_self_review_questions,
+        teacher_reviews_answer_after_locking,
+    } = params;
     let block = GutenbergBlock {
         client_id,
         name: "moocfi/exercise".to_string(),
@@ -314,6 +332,7 @@ pub fn example_exercise_flexible(
         needs_peer_review: needs_peer_review.unwrap_or(false),
         needs_self_review: false,
         use_course_default_peer_or_self_review_config: false,
+        teacher_reviews_answer_after_locking,
         peer_or_self_review_config,
         peer_or_self_review_questions,
     };
@@ -361,6 +380,7 @@ pub fn quizzes_exercise(
         needs_peer_review,
         needs_self_review: false,
         use_course_default_peer_or_self_review_config: true,
+        teacher_reviews_answer_after_locking: true,
         peer_or_self_review_config: None,
         peer_or_self_review_questions: None,
     };
@@ -419,6 +439,7 @@ pub fn tmc_exercise(
         needs_peer_review,
         needs_self_review: false,
         use_course_default_peer_or_self_review_config: true,
+        teacher_reviews_answer_after_locking: true,
         peer_or_self_review_config: None,
         peer_or_self_review_questions: None,
     };

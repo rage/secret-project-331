@@ -21,6 +21,7 @@ export interface ExerciseAttributes {
   peer_or_self_review_config: string
   peer_or_self_review_questions_config: string
   use_course_default_peer_review: boolean
+  teacher_reviews_answer_after_locking?: boolean
 }
 
 /**
@@ -77,6 +78,10 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
     use_course_default_peer_review: {
       type: "boolean",
       default: false,
+    },
+    teacher_reviews_answer_after_locking: {
+      type: "boolean",
+      default: true,
     },
   },
   edit: enforceExerciseIdDefined(ExerciseEditor),

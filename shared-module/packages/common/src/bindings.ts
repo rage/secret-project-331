@@ -1110,6 +1110,7 @@ export interface Exercise {
   needs_self_review: boolean
   use_course_default_peer_or_self_review_config: boolean
   exercise_language_group_id: string | null
+  teacher_reviews_answer_after_locking: boolean
 }
 
 export interface ExerciseGradingStatus {
@@ -1669,6 +1670,7 @@ export interface CmsPageExercise {
   peer_or_self_review_config: CmsPeerOrSelfReviewConfig | null
   peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion> | null
   use_course_default_peer_or_self_review_config: boolean
+  teacher_reviews_answer_after_locking: boolean
 }
 
 export interface CmsPageExerciseSlide {

@@ -97,6 +97,11 @@
         "ordinal": 18,
         "name": "needs_self_review",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 19,
+        "name": "teacher_reviews_answer_after_locking",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -123,6 +128,7 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },

@@ -663,7 +663,8 @@ ins_exercises AS (
       limit_number_of_tries,
       needs_peer_review,
       use_course_default_peer_or_self_review_config,
-      needs_self_review
+      needs_self_review,
+      teacher_reviews_answer_after_locking
     )
   SELECT uuid_generate_v5($1, src.id::text),
     $1,
@@ -679,7 +680,8 @@ ins_exercises AS (
     src.limit_number_of_tries,
     src.needs_peer_review,
     src.use_course_default_peer_or_self_review_config,
-    src.needs_self_review
+    src.needs_self_review,
+    src.teacher_reviews_answer_after_locking
   FROM src
   RETURNING id,
     copied_from
@@ -733,7 +735,8 @@ INSERT INTO exercises (
     limit_number_of_tries,
     needs_peer_review,
     use_course_default_peer_or_self_review_config,
-    needs_self_review
+    needs_self_review,
+    teacher_reviews_answer_after_locking
   )
 SELECT uuid_generate_v5($1, id::text),
   $1,
@@ -748,7 +751,8 @@ SELECT uuid_generate_v5($1, id::text),
   limit_number_of_tries,
   needs_peer_review,
   use_course_default_peer_or_self_review_config,
-  needs_self_review
+  needs_self_review,
+  teacher_reviews_answer_after_locking
 FROM exercises
 WHERE exam_id = $2
   AND deleted_at IS NULL

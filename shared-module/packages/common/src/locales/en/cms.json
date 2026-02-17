@@ -172,6 +172,7 @@
   "table-box-description": "This is a custom table block with colored background",
   "table-width-customizer": "Table width customizer",
   "task": "Task",
+  "teacher-reviews-answer-after-locking": "Teacher reviews answer after locking",
   "template-name-helper-text": "This template requires the following placeholders: {{placeholders}}. Make sure to include them in paragraph blocks within the email content.",
   "template-name-helper-text-generic": "The template name identifies this email template. Some template names support placeholders that will be replaced when emails are sent.",
   "template-type-helper-text": "This template type requires the following placeholders: {{placeholders}}. Make sure to include them in paragraph blocks within the email content.",

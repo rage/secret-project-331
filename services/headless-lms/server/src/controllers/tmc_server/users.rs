@@ -81,7 +81,7 @@ pub async fn create_user(
     let mut tx = conn.begin().await?;
 
     // Create user in headless-lms (or fetch if already exists)
-    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *tx, tmc_user).await?;
+    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut tx, tmc_user).await?;
 
     info!("User {} created or fetched successfully", user.id);
 
@@ -94,7 +94,7 @@ pub async fn create_user(
         )
     })?;
     let password_set =
-        models::user_passwords::upsert_user_password(&mut *tx, user.id, &password_hash).await?;
+        models::user_passwords::upsert_user_password(&mut tx, user.id, &password_hash).await?;
 
     if !password_set {
         return Err(ControllerError::new(
@@ -110,17 +110,37 @@ pub async fn create_user(
     // Commit the transaction only if everything succeeded
     tx.commit().await?;
 
-    // Notify TMC that password is now managed by courses.mooc.fi
-    tmc_client
-        .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to notify TMC that user's password is saved in courses.mooc.fi",
-                Some(anyhow::Error::msg(e.to_string())),
-            )
-        })?;
+    // Notify TMC that password is now managed by courses.mooc.fi.
+    // Retry with exponential backoff and a cap before giving up.
+    const MAX_ATTEMPTS: u32 = 10;
+    const MAX_DELAY_MS: u64 = 30_000;
+    for attempt in 1..=MAX_ATTEMPTS {
+        match tmc_client
+            .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
+            .await
+        {
+            Ok(_) => break,
+            Err(e) if attempt < MAX_ATTEMPTS => {
+                let delay = std::time::Duration::from_millis(
+                    200u64
+                        .saturating_mul(2u64.pow(attempt - 1))
+                        .min(MAX_DELAY_MS),
+                );
+                warn!(
+                    "Failed to notify TMC that user's password is saved in courses.mooc.fi (attempt {}/{}), retrying in {:?}: upstream_id={}, user_id={}, error={}",
+                    attempt, MAX_ATTEMPTS, delay, upstream_id, user.id, e
+                );
+                tokio::time::sleep(delay).await;
+            }
+            Err(e) => {
+                return Err(ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Failed to notify TMC that user's password is saved in courses.mooc.fi after all retries",
+                    Some(anyhow::Error::msg(e.to_string())),
+                ));
+            }
+        }
+    }
 
     info!("Password set: {}", password_set);
 

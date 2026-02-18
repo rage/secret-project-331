@@ -1,11 +1,15 @@
 /*!
 Handlers for HTTP requests to `/api/v0/tmc-server/users/`.
 
-These endpoints are used by the TMC server to verify whether a user's email and password match
-what is stored in this system.
+Exposes three endpoints used exclusively by the TMC server, all of which require a valid
+shared-secret authorization header:
 
-This endpoint is intended to be used exclusively by the TMC server, and access requires
-a valid authorization header.
+- `POST /create` – fetches user details from tmc.mooc.fi, creates the user in this system if
+  they don't exist, sets the provided password, and notifies TMC that password management has
+  moved to courses.mooc.fi.
+- `POST /authenticate` – verifies a user_id/password pair against the locally stored hash.
+- `POST /change-password` – updates the stored password hash, optionally verifying the old one
+  first.
 */
 
 use crate::domain::authorization::{
@@ -56,14 +60,11 @@ pub async fn create_user(
 ) -> ControllerResult<web::Json<CreateUserResponse>> {
     let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
 
-    let mut conn = pool.acquire().await?;
-
     let CreateUserRequest {
         upstream_id,
         password,
     } = payload.into_inner();
 
-    // Fetch user details from tmc.mooc.fi
     let tmc_user = tmc_client
         .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(&upstream_id)
         .await?;
@@ -78,7 +79,7 @@ pub async fn create_user(
     );
 
     // A transaction ensures user creation and password hash are written atomically.
-    let mut tx = conn.begin().await?;
+    let mut tx = pool.begin().await?;
 
     let user = get_or_create_user_from_tmc_mooc_fi_response(&mut tx, tmc_user).await?;
 

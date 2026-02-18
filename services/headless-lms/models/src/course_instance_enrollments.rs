@@ -24,6 +24,24 @@ pub struct CourseInstanceEnrollmentsInfo {
     pub course_module_completions: Vec<CourseModuleCompletion>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseEnrollmentInfo {
+    pub course_id: Uuid,
+    pub course: Course,
+    pub course_instances: Vec<CourseInstance>,
+    pub user_course_settings: Option<UserCourseSettings>,
+    pub course_module_completions: Vec<CourseModuleCompletion>,
+    pub first_enrolled_at: DateTime<Utc>,
+    pub is_current: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseEnrollmentsInfo {
+    pub course_enrollments: Vec<CourseEnrollmentInfo>,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -169,4 +187,97 @@ pub async fn get_course_instance_enrollments_info_for_user(
         user_course_settings,
         course_module_completions,
     })
+}
+
+struct CourseEnrollmentRow {
+    course_id: Uuid,
+    first_enrolled_at: Option<DateTime<Utc>>,
+}
+
+/// Returns one entry per course the user is enrolled in, with aggregated data.
+pub async fn get_course_enrollments_info_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<CourseEnrollmentsInfo> {
+    let rows = sqlx::query_as!(
+        CourseEnrollmentRow,
+        "
+SELECT course_id, MIN(created_at) AS first_enrolled_at
+FROM course_instance_enrollments
+WHERE user_id = $1 AND deleted_at IS NULL
+GROUP BY course_id
+ORDER BY first_enrolled_at
+        ",
+        user_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    let course_ids: Vec<Uuid> = rows.iter().map(|r| r.course_id).collect();
+
+    let course_instance_enrollments = get_by_user_id(&mut *conn, user_id).await?;
+    let all_course_module_completions =
+        crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
+    let user_course_settings =
+        crate::user_course_settings::get_all_by_user_id(conn, user_id).await?;
+    let courses = crate::courses::get_by_ids(conn, &course_ids).await?;
+    let course_instance_ids: Vec<Uuid> = course_instance_enrollments
+        .iter()
+        .map(|e| e.course_instance_id)
+        .collect();
+    let all_course_instances =
+        crate::course_instances::get_by_ids(conn, &course_instance_ids).await?;
+
+    let mut course_enrollments = Vec::with_capacity(rows.len());
+    for row in rows {
+        let course = courses
+            .iter()
+            .find(|c| c.id == row.course_id)
+            .cloned()
+            .ok_or_else(|| {
+                crate::ModelError::new(
+                    crate::error::ModelErrorType::NotFound,
+                    "Course not found for enrollment".to_string(),
+                    None,
+                )
+            })?;
+        let course_instances: Vec<_> = all_course_instances
+            .iter()
+            .filter(|ci| ci.course_id == row.course_id)
+            .cloned()
+            .collect();
+        let user_course_settings_for_course = user_course_settings
+            .iter()
+            .find(|ucs| ucs.course_language_group_id == course.course_language_group_id)
+            .cloned();
+        let course_module_completions = all_course_module_completions
+            .iter()
+            .filter(|cmc| cmc.course_id == row.course_id)
+            .cloned()
+            .collect();
+        let is_current = user_course_settings_for_course
+            .as_ref()
+            .map(|ucs| ucs.current_course_id == row.course_id)
+            .unwrap_or(false);
+
+        let first_enrolled_at = row.first_enrolled_at.ok_or_else(|| {
+            crate::ModelError::new(
+                crate::error::ModelErrorType::Generic,
+                "first_enrolled_at missing for grouped enrollment row".to_string(),
+                None,
+            )
+        })?;
+
+        course_enrollments.push(CourseEnrollmentInfo {
+            course_id: row.course_id,
+            course,
+            course_instances,
+            user_course_settings: user_course_settings_for_course,
+            course_module_completions,
+            first_enrolled_at,
+            is_current,
+        });
+    }
+
+    Ok(CourseEnrollmentsInfo { course_enrollments })
 }

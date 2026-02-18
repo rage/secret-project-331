@@ -24,11 +24,11 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
   <h5
     className={css`
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
-      margin-bottom: 2rem;
-      margin-top: -0.5rem;
-      color: ${baseTheme.colors.gray[600]};
+      margin-bottom: 2.5rem;
+      margin-top: 0.5rem;
+      color: ${baseTheme.colors.gray[500]};
       font-family: ${primaryFont};
       text-align: center;
     `}
@@ -91,15 +91,15 @@ const SubmissionsPage: React.FC = () => {
     <div>
       <h4
         className={css`
-          color: #313947;
+          color: ${baseTheme.colors.gray[700]};
           font-family: ${primaryFont};
-          font-size: 30px;
-          font-weight: 500;
-          line-height: 30px;
-          letter-spacing: 0em;
+          font-size: 28px;
+          font-weight: 600;
+          line-height: 1.2;
+          letter-spacing: -0.01em;
           text-align: center;
-          opacity: 0.8;
-          margin-bottom: 1em;
+          margin-bottom: 0.75rem;
+          margin-top: 1rem;
         `}
       >
         {t("header-answers-requiring-attention")}
@@ -128,6 +128,7 @@ const SubmissionsPage: React.FC = () => {
           <AnswersRequiringAttentionList
             answersRequiringAttention={answersQuery.data.data}
             exercise_max_points={answersQuery.data.exercise_max_points}
+            courseId={exerciseQuery.data?.course_id ?? null}
             refetch={answersQuery.refetch}
           />
           <Pagination totalPages={answersQuery.data?.total_pages} paginationInfo={paginationInfo} />

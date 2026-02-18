@@ -5,6 +5,7 @@ import styled from "@emotion/styled"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { UserDisplay } from "@/components/UserDisplay"
 import {
   PeerOrSelfReviewAnswer,
   PeerReviewWithQuestionsAndAnswers,
@@ -17,6 +18,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 export interface PeerOrSelfReviewAccordionProps {
   peerOrSelfReviews: Array<PeerReviewWithQuestionsAndAnswers>
   title: string
+  courseId: string | null
 }
 
 const Question = styled.div`
@@ -40,6 +42,7 @@ const QuestionWrapper = styled.div`
 const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
   peerOrSelfReviews,
   title,
+  courseId,
 }) => {
   const { t } = useTranslation()
   const userInfo = useUserInfo()
@@ -122,7 +125,18 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
         >
           {selfReviews.map((selfReview) => (
             <div key={selfReview.peer_or_self_review_submission_id}>
-              <Title>{t("title-self-review")}</Title>
+              <Title
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  flex-wrap: wrap;
+                  gap: 0.5rem;
+                `}
+              >
+                {t("title-self-review")}
+                <UserDisplay userId={selfReview.peer_review_giver_user_id} courseId={courseId} />
+              </Title>
               {selfReview.questions_and_answers.map((x, i) => (
                 <QuestionWrapper key={x.peer_or_self_review_question_id}>
                   {mapToAnswer(
@@ -138,7 +152,18 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
           ))}
           {peerReviews.map((peerReview, i) => (
             <div key={peerReview.peer_or_self_review_submission_id}>
-              <Title>{t("peer-review-n", { n: i + 1 })}</Title>
+              <Title
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  flex-wrap: wrap;
+                  gap: 0.5rem;
+                `}
+              >
+                {t("peer-review-n", { n: i + 1 })}
+                <UserDisplay userId={peerReview.peer_review_giver_user_id} courseId={courseId} />
+              </Title>
               {peerReview.questions_and_answers.map((x, i) => (
                 <QuestionWrapper key={x.peer_or_self_review_question_id}>
                   {mapToAnswer(

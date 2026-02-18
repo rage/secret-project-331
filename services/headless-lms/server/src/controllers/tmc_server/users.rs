@@ -136,7 +136,7 @@ pub async fn create_user(
     if !inline_succeeded {
         let tmc_client = tmc_client.clone();
         let user_id = user.id;
-        drop(tokio::spawn(async move {
+        tokio::spawn(async move {
             const MAX_ATTEMPTS_BG: u32 = 10;
             const MAX_DELAY_MS_BG: u64 = 30_000;
             for attempt in 1..=MAX_ATTEMPTS_BG {
@@ -171,7 +171,7 @@ pub async fn create_user(
                     }
                 }
             }
-        }));
+        });
     }
 
     info!("Password set: {}", password_set);

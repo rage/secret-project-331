@@ -96,7 +96,7 @@ test.describe("Students should be able to give extra peer reviews to receive pri
 
       await exerciseDetailsComponent.getByRole("button", { name: "View details" }).click()
 
-      await expect(exerciseDetailsComponent).toContainText(/Priority:\s*4/)
+      await expect(exerciseDetailsComponent).toContainText(/Priority:\s*4\b/)
     })
   })
 })

@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import Link from "next/link"
 import React, { useRef } from "react"
@@ -159,11 +159,6 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     }
   `
 
-  const errorBadgeStyle = css`
-    border-color: ${baseTheme.colors.red[300]};
-    background: ${baseTheme.colors.red[50]};
-  `
-
   return (
     <>
       <button
@@ -171,7 +166,7 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
         {...buttonProps}
         type="button"
         aria-label={t("view-details")}
-        className={cx(badgeStyle, isError && errorBadgeStyle)}
+        className={badgeStyle}
       >
         {badgeContent}
       </button>

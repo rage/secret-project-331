@@ -76,62 +76,12 @@ pub async fn generate_suggested_messages(
         + &(if let Some(c_d) = course_desc {format!("Description for course: {}\n\n", c_d)} else {"".to_string()})
         + "The conversation so far:\n";
 
-    let mut used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
+    let used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
     let token_budget =
         calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
-    let conv_len = conversation_messages.len();
 
-    // calculate how many messages to include in the conversation context
-    let order_n = conversation_messages
-        .iter()
-        // we want to take messages starting from the newest (=last)
-        .rev()
-        .map_while(|el| {
-            if el.message.is_some() {
-                // add this message's tokens and extra 4 tokens for newline and
-                // tag to used_tokens
-                used_tokens += el.used_tokens + 4;
-            } else if let Some(output) = &el.tool_output {
-                // add the tokens needed for the tool info to used_tokens
-                let s = format!("{}:\n{}\n\n", output.tool_name, output.tool_output);
-                used_tokens += estimate_tokens(&s);
-            } else {
-                // if there is no message or tool output, skip this element.
-                // big number won't affect the truncation later as we take min.
-                return Some(conv_len);
-            }
-            if used_tokens > token_budget {
-                return None;
-            }
-            let new_order_n = el.order_number as usize;
-            // include this element's order_number as a potential cutoff point
-            Some(new_order_n)
-        })
-        // fuse to cut off the iterator at the first None, i.e. the first msg that
-        // didn't fit into the context
-        .fuse()
-        // select the minimum order_number i.e. oldest message to include
-        .min()
-        .ok_or(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "Failed to create context for message suggestion LLM, there were no conversation messages or none of them fit into the context.",
-            None,
-        ))?;
-    // cut off messages older than order_n from the conversation to keep context short
-    let conversation = &conversation_messages[order_n..]
-        .iter()
-        .map(create_msg_string)
-        .collect::<Vec<String>>()
-        .join("");
-    if conversation.trim().is_empty() {
-        // this happens only if the conversation contains only ChatbotConversationMessages
-        // that have no message property, which should never happen in practice
-        return Err(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "Failed to create context for message suggestion LLM, there were no conversation messages or no content in any messages. There should be some messages before messages are suggested.",
-            None,
-        ));
-    };
+    let conversation =
+        &create_conversation_from_msgs(conversation_messages, used_tokens, token_budget)?;
 
     let system_prompt = APIMessage {
         role: MessageRole::System,
@@ -227,18 +177,79 @@ pub async fn generate_suggested_messages(
     Ok(suggestions.suggestions)
 }
 
+fn create_conversation_from_msgs(
+    conversation_messages: &[ChatbotConversationMessage],
+    mut used_tokens: i32,
+    token_budget: i32,
+) -> ChatbotResult<String> {
+    let conv_len = conversation_messages.len();
+    // calculate how many messages to include in the conversation context
+    let order_n = conversation_messages
+        .iter()
+        .enumerate()
+        // we want to take messages starting from the newest (=last)
+        .rev()
+        .map_while(|(idx, el)| {
+            println!("🐈🐈🐈🐈🐈{:?}", used_tokens);
+            if el.message.is_some() {
+                // add this message's tokens and extra 5 tokens for newline and
+                // tag to used_tokens
+                used_tokens += el.used_tokens + 5;
+            } else if let Some(output) = &el.tool_output {
+                // add the tokens needed for the tool info to used_tokens
+                let s = format!("{}:\n{}\n\n", output.tool_name, output.tool_output);
+                used_tokens += estimate_tokens(&s);
+            } else {
+                // if there is no message or tool output, skip this element.
+                // big number won't affect the truncation later as we take min.
+                return Some(conv_len);
+            }
+            if used_tokens > token_budget {
+                return None;
+            }
+            // include this element's index as a potential cutoff point
+            Some(idx)
+        })
+        // select the minimum order_number i.e. oldest message to include
+        .min()
+        .ok_or(ChatbotError::new(
+            ChatbotErrorType::ChatbotMessageSuggestError,
+            "Failed to create context for message suggestion LLM, there were no conversation messages or none of them fit into the context.",
+            None,
+        ))?;
+    println!("🐈🐈🐈{:?}", used_tokens);
+    // cut off messages older than order_n from the conversation to keep context short
+    let conversation = conversation_messages[order_n..]
+        .iter()
+        .map(create_msg_string)
+        .collect::<Vec<String>>()
+        .join("")
+        .to_owned();
+    if conversation.trim().is_empty() {
+        // this happens only if the conversation contains only ChatbotConversationMessages
+        // that have no message property, which should never happen in practice
+        return Err(ChatbotError::new(
+            ChatbotErrorType::ChatbotMessageSuggestError,
+            "Failed to create context for message suggestion LLM, there were no conversation messages or no content in any messages. There should be some messages before messages are suggested.",
+            None,
+        ));
+    };
+
+    Ok(conversation)
+}
+
 fn create_msg_string(m: &ChatbotConversationMessage) -> String {
     match m.message_role {
         MessageRole::User => {
             if let Some(msg) = &m.message {
-                format!("Student said:\n {msg}\n\n")
+                format!("Student:\n{msg}\n\n")
             } else {
                 "".to_string()
             }
         }
         MessageRole::Assistant => {
             if let Some(msg) = &m.message {
-                format!("Assistant said:\n {msg}\n\n")
+                format!("Assistant:\n{msg}\n\n")
             } else {
                 "".to_string()
             }
@@ -251,5 +262,388 @@ fn create_msg_string(m: &ChatbotConversationMessage) -> String {
             }
         }
         MessageRole::System => "".to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_msgs() -> Vec<ChatbotConversationMessage> {
+        vec![ChatbotConversationMessage {
+            order_number: 0,
+            message_role: MessageRole::System,
+            message: Some("You are a helpful assistant.".to_string()),
+            used_tokens: 6,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 0,
+            message_role: MessageRole::Assistant,
+            message: Some("Hello! What can I help you with?".to_string()),
+            used_tokens: 9,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 1,
+            message_role: MessageRole::User,
+            message: Some("Hi, I’m stuck on solving quadratic equations. I don’t really get when to factor and when to use the quadratic formula.".to_string()),
+            used_tokens: 26,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 2,
+            message_role: MessageRole::Assistant,
+            message: Some("No worries — that’s a super common question 😊
+Let’s start simple: do you remember the standard form of a quadratic equation?".to_string()),
+            used_tokens: 27,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 3,
+            message_role: MessageRole::User,
+            message: Some("Is it something like ax² + bx + c = 0?".to_string()),
+            used_tokens: 14,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 4,
+            message_role: MessageRole::Assistant,
+            message: Some("Exactly! Great start.
+Now, factoring works best when the numbers are “nice” — meaning you can easily find two numbers that multiply to ac and add to b.
+
+The quadratic formula works every time, but it can be more work.
+
+Let’s try this one:
+x² + 5x + 6 = 0
+
+Would you like to try factoring it?".to_string()),
+            used_tokens: 79,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 5,
+            message_role: MessageRole::User,
+            message: Some("Okay… I need two numbers that multiply to 6 and add to 5. So 2 and 3?".to_string()),
+            used_tokens: 24,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 6,
+            message_role: MessageRole::Assistant,
+            message: Some("Perfect! 🎯
+
+So we rewrite it as:
+(x + 2)(x + 3) = 0
+
+Now what do we do?".to_string()),
+            used_tokens: 56,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 7,
+            message_role: MessageRole::User,
+            message: Some("Set each part equal to zero?
+x + 2 = 0 and x + 3 = 0?".to_string()),
+            used_tokens: 23,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 8,
+            message_role: MessageRole::Assistant,
+            message: Some("Yes!
+
+So your solutions are:
+x = -2
+x = -3
+
+See how clean that was? That’s when factoring is ideal.
+
+Now let’s try one that’s harder:
+2x² + 3x + 1 = 0
+
+Do you want to try factoring again, or use the quadratic formula?".to_string()),
+            used_tokens: 67,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 9,
+            message_role: MessageRole::User,
+            message: Some("Factoring looks harder with the 2 in front… maybe quadratic formula?".to_string()),
+            used_tokens: 15,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 10,
+            message_role: MessageRole::Assistant,
+            message: Some("Good instinct. When a ≠ 1, the quadratic formula is often safer.
+
+The formula is:
+
+x = (-b ± √(b² - 4ac)) / 2a
+
+For this equation:
+a = 2
+b = 3
+c = 1
+
+First step: calculate the discriminant (b² - 4ac). Want to try that?".to_string()),
+            used_tokens: 80,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 11,
+            message_role: MessageRole::User,
+            message: Some("Okay
+3² - 4(2)(1)
+= 9 - 8
+= 1".to_string()),
+            used_tokens: 22,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 12,
+            message_role: MessageRole::Assistant,
+            message: Some("Excellent!
+
+Now plug it into the formula:
+
+x = (-3 ± √1) / 4
+
+Since √1 = 1, what are the two answers?".to_string()),
+            used_tokens: 34,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 13,
+            message_role: MessageRole::User,
+            message: Some("(-3 + 1)/4 = -2/4 = -1/2
+(-3 - 1)/4 = -4/4 = -1".to_string()),
+            used_tokens: 33,
+            ..Default::default()
+        },
+                ChatbotConversationMessage {
+            order_number: 14,
+            message_role: MessageRole::Assistant,
+            message: Some("YES 👏
+
+So your solutions are:
+x = -1/2
+x = -1
+
+You handled that really well.
+
+Quick check:
+When would you choose factoring over the quadratic formula?".to_string()),
+            used_tokens: 40,
+            ..Default::default()
+        },
+        ChatbotConversationMessage {
+            order_number: 15,
+            message_role: MessageRole::User,
+            message: Some("If the numbers are simple and easy to factor. Otherwise use the formula since it always works.".to_string()),
+            used_tokens: 19,
+            ..Default::default()
+        },
+                ChatbotConversationMessage {
+            order_number: 16,
+            message_role: MessageRole::Assistant,
+            message: Some("Exactly right. You’ve got it!
+
+Want to try a challenge problem next time with completing the square?".to_string()),
+            used_tokens: 21,
+            ..Default::default()
+        },
+        ]
+    }
+
+    #[test]
+    fn create_context_it_fits() {
+        let used_tokens = 2000;
+        let token_budget = 3000;
+        let conv_msgs = get_msgs();
+
+        let convo = create_conversation_from_msgs(&conv_msgs, used_tokens, token_budget)
+            .expect("Creating conversation string failed!");
+
+        let expected_string = r#"Assistant:
+Hello! What can I help you with?
+
+Student:
+Hi, I’m stuck on solving quadratic equations. I don’t really get when to factor and when to use the quadratic formula.
+
+Assistant:
+No worries — that’s a super common question 😊
+Let’s start simple: do you remember the standard form of a quadratic equation?
+
+Student:
+Is it something like ax² + bx + c = 0?
+
+Assistant:
+Exactly! Great start.
+Now, factoring works best when the numbers are “nice” — meaning you can easily find two numbers that multiply to ac and add to b.
+
+The quadratic formula works every time, but it can be more work.
+
+Let’s try this one:
+x² + 5x + 6 = 0
+
+Would you like to try factoring it?
+
+Student:
+Okay… I need two numbers that multiply to 6 and add to 5. So 2 and 3?
+
+Assistant:
+Perfect! 🎯
+
+So we rewrite it as:
+(x + 2)(x + 3) = 0
+
+Now what do we do?
+
+Student:
+Set each part equal to zero?
+x + 2 = 0 and x + 3 = 0?
+
+Assistant:
+Yes!
+
+So your solutions are:
+x = -2
+x = -3
+
+See how clean that was? That’s when factoring is ideal.
+
+Now let’s try one that’s harder:
+2x² + 3x + 1 = 0
+
+Do you want to try factoring again, or use the quadratic formula?
+
+Student:
+Factoring looks harder with the 2 in front… maybe quadratic formula?
+
+Assistant:
+Good instinct. When a ≠ 1, the quadratic formula is often safer.
+
+The formula is:
+
+x = (-b ± √(b² - 4ac)) / 2a
+
+For this equation:
+a = 2
+b = 3
+c = 1
+
+First step: calculate the discriminant (b² - 4ac). Want to try that?
+
+Student:
+Okay
+3² - 4(2)(1)
+= 9 - 8
+= 1
+
+Assistant:
+Excellent!
+
+Now plug it into the formula:
+
+x = (-3 ± √1) / 4
+
+Since √1 = 1, what are the two answers?
+
+Student:
+(-3 + 1)/4 = -2/4 = -1/2
+(-3 - 1)/4 = -4/4 = -1
+
+Assistant:
+YES 👏
+
+So your solutions are:
+x = -1/2
+x = -1
+
+You handled that really well.
+
+Quick check:
+When would you choose factoring over the quadratic formula?
+
+Student:
+If the numbers are simple and easy to factor. Otherwise use the formula since it always works.
+
+Assistant:
+Exactly right. You’ve got it!
+
+Want to try a challenge problem next time with completing the square?
+
+"#.to_string();
+
+        assert_eq!(convo, expected_string);
+    }
+
+    #[test]
+    fn create_context_it_wont_fit() {
+        let used_tokens = 2000;
+        let token_budget = 2300;
+        let conv_msgs = get_msgs();
+
+        let convo = create_conversation_from_msgs(&conv_msgs, used_tokens, token_budget)
+            .expect("Creating conversation string failed!");
+
+        let expected_string = r#"Assistant:
+Good instinct. When a ≠ 1, the quadratic formula is often safer.
+
+The formula is:
+
+x = (-b ± √(b² - 4ac)) / 2a
+
+For this equation:
+a = 2
+b = 3
+c = 1
+
+First step: calculate the discriminant (b² - 4ac). Want to try that?
+
+Student:
+Okay
+3² - 4(2)(1)
+= 9 - 8
+= 1
+
+Assistant:
+Excellent!
+
+Now plug it into the formula:
+
+x = (-3 ± √1) / 4
+
+Since √1 = 1, what are the two answers?
+
+Student:
+(-3 + 1)/4 = -2/4 = -1/2
+(-3 - 1)/4 = -4/4 = -1
+
+Assistant:
+YES 👏
+
+So your solutions are:
+x = -1/2
+x = -1
+
+You handled that really well.
+
+Quick check:
+When would you choose factoring over the quadratic formula?
+
+Student:
+If the numbers are simple and easy to factor. Otherwise use the formula since it always works.
+
+Assistant:
+Exactly right. You’ve got it!
+
+Want to try a challenge problem next time with completing the square?
+
+"#
+        .to_string();
+        assert_eq!(convo, expected_string);
     }
 }

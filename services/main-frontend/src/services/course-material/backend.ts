@@ -1,4 +1,4 @@
-import { RawAxiosRequestHeaders } from "axios"
+import axios, { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
 import { courseMaterialClient } from "./courseMaterialClient"
@@ -482,6 +482,18 @@ export const enrollInExam = async (examId: string, is_teacher_testing: boolean):
 export const fetchExam = async (examId: string): Promise<ExamData> => {
   const response = await courseMaterialClient.get(`/exams/${examId}`, { responseType: "json" })
   return validateResponse(response, isExamData)
+}
+
+export const fetchCurrentServerTime = async (): Promise<string> => {
+  const response = await axios.get("/api/v0/main-frontend/time", {
+    responseType: "json",
+    headers: {
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+    },
+  })
+
+  return validateResponse(response, isString)
 }
 
 export const fetchExamForTesting = async (examId: string): Promise<ExamData> => {

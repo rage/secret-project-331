@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "@/components/course-material/ContentRenderer"
 import Page from "@/components/course-material/Page"
+import ExamClockSkewWarning from "@/components/course-material/exams/ExamClockSkewWarning"
 import ExamStartBanner from "@/components/course-material/exams/ExamStartBanner"
 import ExamTimer from "@/components/course-material/exams/ExamTimer"
 import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
@@ -193,6 +194,7 @@ const Exam: React.FC = () => {
       </div>
     </BreakFromCentered>
   )
+  const clockSkewWarning = <ExamClockSkewWarning />
 
   if (
     examData.enrollment_data.tag === "NotEnrolled" ||
@@ -200,6 +202,7 @@ const Exam: React.FC = () => {
   ) {
     return (
       <>
+        {clockSkewWarning}
         {examInfo}
         <div id="exam-instructions">
           <ExamStartBanner
@@ -233,6 +236,7 @@ const Exam: React.FC = () => {
   if (examData.enrollment_data.tag === "StudentTimeUp") {
     return (
       <>
+        {clockSkewWarning}
         {examInfo}
         <div>
           {t("exam-time-up", {
@@ -246,6 +250,7 @@ const Exam: React.FC = () => {
   if (examData.enrollment_data.tag === "StudentCanViewGrading") {
     return (
       <>
+        {clockSkewWarning}
         {examInfo}
         {examData.enrollment_data.gradings.map(
           (grade) =>
@@ -305,9 +310,41 @@ const Exam: React.FC = () => {
       ])
     : addMinutes(examData.enrollment_data.enrollment.started_at, examData.time_minutes)
   const secondsLeft = differenceInSeconds(endsAt, now)
+  const warningMessageClass = css`
+    background: linear-gradient(
+      140deg,
+      ${baseTheme.colors.yellow[100]},
+      ${baseTheme.colors.clear[100]}
+    );
+    border: 1px solid ${baseTheme.colors.yellow[300]};
+    border-left: 8px solid ${baseTheme.colors.yellow[600]};
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+  `
+  const infoMessageClass = css`
+    background: linear-gradient(
+      140deg,
+      ${baseTheme.colors.blue[100]},
+      ${baseTheme.colors.clear[100]}
+    );
+    border: 1px solid ${baseTheme.colors.blue[300]};
+    border-left: 8px solid ${baseTheme.colors.blue[600]};
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+  `
+  const messageTextClass = css`
+    margin: 0;
+    font-family: ${primaryFont};
+    font-size: clamp(0.95rem, 2.2vw, 1rem);
+    line-height: 1.45;
+    color: ${baseTheme.colors.gray[700]};
+  `
 
   return (
     <>
+      {clockSkewWarning}
       <ExamTimeOverModal
         disabled={examData.ended}
         secondsLeft={secondsLeft}
@@ -321,29 +358,13 @@ const Exam: React.FC = () => {
         secondsLeft={secondsLeft}
       />
       {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
-        <div
-          className={css`
-            background-color: ${baseTheme.colors.yellow[100]};
-            color: black;
-            padding: 0.7rem 1rem;
-            margin: 1rem 0;
-            border: 1px solid ${baseTheme.colors.yellow[300]};
-          `}
-        >
-          <div>{t("exam-time-running-out-soon-help-text")}</div>
+        <div className={warningMessageClass}>
+          <p className={messageTextClass}>{t("exam-time-running-out-soon-help-text")}</p>
         </div>
       )}
       {examData.ended && (
-        <div
-          className={css`
-            background-color: ${baseTheme.colors.yellow[100]};
-            color: black;
-            padding: 0.7rem 1rem;
-            margin: 1rem 0;
-            border: 1px solid ${baseTheme.colors.yellow[300]};
-          `}
-        >
-          <div>{t("exam-ended-see-points-below")}</div>
+        <div className={infoMessageClass}>
+          <p className={messageTextClass}>{t("exam-ended-see-points-below")}</p>
         </div>
       )}
       <Page onRefresh={handleRefresh} organizationSlug={params.organizationSlug} />

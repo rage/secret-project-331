@@ -24,6 +24,7 @@ import {
 } from "@/services/course-material/backend"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "@/shared-module/common/components/Centering/Centered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -237,7 +238,11 @@ const Exam: React.FC = () => {
       </div>
     </BreakFromCentered>
   )
-  const clockSkewWarning = <ExamClockSkewWarning />
+  const clockSkewWarning = (
+    <Centered variant="default">
+      <ExamClockSkewWarning />
+    </Centered>
+  )
 
   if (
     examData.enrollment_data.tag === "NotEnrolled" ||
@@ -248,8 +253,8 @@ const Exam: React.FC = () => {
     }
     return (
       <>
-        {clockSkewWarning}
         {examInfo}
+        {clockSkewWarning}
         <div id="exam-instructions">
           <ExamStartBanner
             onStart={async () => {

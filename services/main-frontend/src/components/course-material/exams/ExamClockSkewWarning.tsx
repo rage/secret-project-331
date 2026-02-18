@@ -59,6 +59,16 @@ const chooseEstimateFromSamples = (samples: ClockSkewSample[]): ClockSkewEstimat
   }
 }
 
+/* eslint-disable i18next/no-literal-string */
+const getDateStringInTimezone = (ms: number, tz: string): string =>
+  new Intl.DateTimeFormat("en", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(ms))
+/* eslint-enable i18next/no-literal-string */
+
 const formatDateTimeInTimezone = (
   timestampMs: number,
   timeZone: string,
@@ -72,6 +82,18 @@ const formatDateTimeInTimezone = (
     month: "2-digit",
     // eslint-disable-next-line i18next/no-literal-string
     day: "2-digit",
+    // eslint-disable-next-line i18next/no-literal-string
+    hour: "2-digit",
+    // eslint-disable-next-line i18next/no-literal-string
+    minute: "2-digit",
+    // eslint-disable-next-line i18next/no-literal-string
+    second: "2-digit",
+  }).format(new Date(timestampMs))
+}
+
+const formatTimeInTimezone = (timestampMs: number, timeZone: string, language: string): string => {
+  return new Intl.DateTimeFormat(language, {
+    timeZone,
     // eslint-disable-next-line i18next/no-literal-string
     hour: "2-digit",
     // eslint-disable-next-line i18next/no-literal-string
@@ -147,22 +169,6 @@ const highlightedDetailRowClass = (isSevere: boolean) => css`
   font-weight: 600;
 `
 
-const noteClass = css`
-  margin: 0;
-  line-height: 1.45;
-  padding: 0.6rem 0.7rem;
-  border-radius: 6px;
-  background: ${baseTheme.colors.clear[100]};
-  border: 1px solid ${baseTheme.colors.clear[300]};
-`
-
-const metaClass = css`
-  margin: 0;
-  color: ${baseTheme.colors.gray[600]};
-  font-size: 0.95rem;
-  line-height: 1.4;
-`
-
 const labelClass = (isSevere: boolean) => css`
   display: inline-block;
   text-transform: uppercase;
@@ -226,11 +232,13 @@ const ExamClockSkewWarning: React.FC = () => {
     const roundedDifferenceMinutes = Math.round(absOffsetMs / MINUTE_MS)
     const hours = Math.floor(roundedDifferenceMinutes / 60)
     const minutes = roundedDifferenceMinutes % 60
-    const difference = t("exam-clock-warning-duration", { hours, minutes })
-    const direction =
-      estimate.finalOffsetMs >= 0
-        ? t("exam-clock-warning-direction-behind")
-        : t("exam-clock-warning-direction-ahead")
+    const difference =
+      hours > 0 && minutes > 0
+        ? t("exam-clock-warning-duration-hours-minutes", { hours, minutes })
+        : hours > 0
+          ? t("exam-clock-warning-duration-hours-only", { hours })
+          : t("exam-clock-warning-duration-minutes-only", { minutes })
+    const isFast = estimate.finalOffsetMs < 0
 
     const resolvedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const timezoneForFormatting = resolvedTimezone || "UTC"
@@ -239,8 +247,12 @@ const ExamClockSkewWarning: React.FC = () => {
 
     const deviceNowMs = now.getTime()
     const correctNowMs = addMilliseconds(now, estimate.finalOffsetMs).getTime()
-    const correctTime = formatDateTimeInTimezone(correctNowMs, timezoneForFormatting, i18n.language)
-    const deviceTime = formatDateTimeInTimezone(deviceNowMs, timezoneForFormatting, i18n.language)
+    const datesMatch =
+      getDateStringInTimezone(correctNowMs, timezoneForFormatting) ===
+      getDateStringInTimezone(deviceNowMs, timezoneForFormatting)
+    const formatTime = datesMatch ? formatTimeInTimezone : formatDateTimeInTimezone
+    const correctTime = formatTime(correctNowMs, timezoneForFormatting, i18n.language)
+    const deviceTime = formatTime(deviceNowMs, timezoneForFormatting, i18n.language)
 
     return (
       <BreakFromCentered sidebar={false}>
@@ -248,17 +260,18 @@ const ExamClockSkewWarning: React.FC = () => {
           <div className={cardContentClass}>
             <div className={labelClass(isSevere)}>{t("exam-clock-warning-label")}</div>
             <h2 className={headingClass}>
-              {isSevere ? t("exam-clock-warning-title-severe") : t("exam-clock-warning-title")}
+              {t(isFast ? "exam-clock-warning-title-fast" : "exam-clock-warning-title-slow", {
+                difference,
+              })}
             </h2>
             <p className={bodyClass}>
               {showDetailedInformation
-                ? t("exam-clock-warning-summary-detailed", { difference })
-                : t("exam-clock-warning-summary-mild", { difference })}
+                ? t("exam-clock-warning-summary-detailed")
+                : t("exam-clock-warning-summary-mild")}
             </p>
 
             {showDetailedInformation ? (
               <div className={detailsContainerClass}>
-                <p className={noteClass}>{t("exam-clock-warning-rtt-note")}</p>
                 <div className={detailsClass}>
                   <p className={detailRowClass}>
                     {t("exam-clock-warning-timezone", {
@@ -267,36 +280,22 @@ const ExamClockSkewWarning: React.FC = () => {
                     })}
                   </p>
                   <p className={detailRowClass}>
-                    {t("exam-clock-warning-correct-time", {
-                      timezone: displayedTimezone,
-                      time: correctTime,
-                    })}
+                    {t("exam-clock-warning-correct-time", { time: correctTime })}
                   </p>
                   <p className={detailRowClass}>
-                    {t("exam-clock-warning-device-time", {
-                      timezone: displayedTimezone,
-                      time: deviceTime,
-                    })}
+                    {t("exam-clock-warning-device-time", { time: deviceTime })}
                   </p>
                   <p className={`${detailRowClass} ${highlightedDetailRowClass(isSevere)}`}>
-                    {t("exam-clock-warning-difference", { difference, direction })}
+                    {t(
+                      isFast
+                        ? "exam-clock-warning-difference-fast"
+                        : "exam-clock-warning-difference-slow",
+                      { difference },
+                    )}
                   </p>
                 </div>
-                <p className={metaClass}>
-                  {t("exam-clock-warning-sampling", {
-                    samples: estimate.sampleCount,
-                    rtt: Math.round(estimate.bestRttMs),
-                  })}
-                </p>
               </div>
-            ) : (
-              <p className={noteClass}>
-                {t("exam-clock-warning-rtt-note-short", {
-                  samples: estimate.sampleCount,
-                  rtt: Math.round(estimate.bestRttMs),
-                })}
-              </p>
-            )}
+            ) : null}
           </div>
         </section>
       </BreakFromCentered>

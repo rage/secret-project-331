@@ -165,8 +165,12 @@ pub async fn create_user(
                     }
                     Err(e) => {
                         error!(
-                            "Background TMC notification exhausted all {} retries: upstream_id={}, user_id={}, error={}",
-                            MAX_ATTEMPTS_BG, upstream_id, user_id, e
+                            "Background TMC notification exhausted all {} retries at {}: upstream_id={}, user_id={}, error={}",
+                            MAX_ATTEMPTS_BG,
+                            chrono::Utc::now(),
+                            upstream_id,
+                            user_id,
+                            e
                         );
                     }
                 }

@@ -240,6 +240,29 @@ WHERE id = $1
     Ok(exercise_slide_submission)
 }
 
+/// Returns a map of exercise_slide_submission id -> user_id for the given submission ids.
+pub async fn get_user_ids_by_submission_ids(
+    conn: &mut PgConnection,
+    submission_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, Uuid>> {
+    if submission_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let rows = sqlx::query!(
+        r#"
+SELECT id,
+  user_id
+FROM exercise_slide_submissions
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        submission_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows.into_iter().map(|r| (r.id, r.user_id)).collect())
+}
+
 /// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.
 ///
 /// This function is mostly provided for very specific peer review purposes. Used only as a last resort if no other candidates are found to be peer reviewed.

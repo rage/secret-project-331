@@ -24,7 +24,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import {
-  courseInstanceUserStatusSummaryRoute,
+  courseUserStatusSummaryRoute,
   exerciseSubmissionsRoute,
 } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
@@ -212,12 +212,12 @@ const Submission: React.FC = () => {
                 },
               ]}
               actionButtons={
-                userCourseSettings.data?.current_course_instance_id
+                getSubmissionInfo.data?.exercise.course_id
                   ? [
                       <Link
                         key="course-status"
-                        href={courseInstanceUserStatusSummaryRoute(
-                          userCourseSettings.data.current_course_instance_id,
+                        href={courseUserStatusSummaryRoute(
+                          getSubmissionInfo.data.exercise.course_id,
                           getSubmissionInfo.data.exercise_slide_submission.user_id,
                         )}
                       >

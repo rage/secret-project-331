@@ -16,6 +16,15 @@ pub struct PeerOrSelfReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
 }
 
+/// Same as PeerOrSelfReviewSubmission with optional submission owner (user who received the review). Used for "given" reviews.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PeerOrSelfReviewSubmissionWithSubmissionOwner {
+    #[serde(flatten)]
+    pub submission: PeerOrSelfReviewSubmission,
+    pub submission_owner_user_id: Option<Uuid>,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,

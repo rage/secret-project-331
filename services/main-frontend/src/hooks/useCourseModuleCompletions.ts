@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getAllCourseModuleCompletionsForUserAndCourseInstance } from "../services/backend/course-instances"
+import { getAllCourseModuleCompletionsForUserAndCourse } from "../services/backend/courses"
 
-export const useCourseModuleCompletions = (courseInstanceId: string, userId: string) => {
+export const useCourseModuleCompletions = (courseId: string, userId: string) => {
   return useQuery({
-    queryKey: [`${courseInstanceId}-course-module-completions-${userId}`],
-    queryFn: () => getAllCourseModuleCompletionsForUserAndCourseInstance(courseInstanceId, userId),
+    queryKey: [`${courseId}-course-module-completions-${userId}`],
+    queryFn: () => getAllCourseModuleCompletionsForUserAndCourse(courseId, userId),
   })
 }

@@ -6,7 +6,7 @@ import {
   ConsentQuery,
   ConsentResponse,
   Course,
-  CourseInstanceEnrollmentsInfo,
+  CourseEnrollmentsInfo,
   ExerciseResetLog,
   ResearchFormQuestionAnswer,
   UserResearchConsent,
@@ -15,18 +15,16 @@ import {
   isAuthorizedClientInfo,
   isConsentResponse,
   isCourse,
-  isCourseInstanceEnrollmentsInfo,
+  isCourseEnrollmentsInfo,
   isExerciseResetLog,
   isResearchFormQuestionAnswer,
   isUserResearchConsent,
 } from "@/shared-module/common/bindings.guard"
 import { isArray, isBoolean, validateResponse } from "@/shared-module/common/utils/fetching"
 
-export async function getCourseInstanceEnrollmentsInfo(
-  userId: string,
-): Promise<CourseInstanceEnrollmentsInfo> {
-  const response = await mainFrontendClient.get(`/users/${userId}/course-instance-enrollments`)
-  return validateResponse(response, isCourseInstanceEnrollmentsInfo)
+export async function getCourseEnrollmentsInfo(userId: string): Promise<CourseEnrollmentsInfo> {
+  const response = await mainFrontendClient.get(`/users/${userId}/course-enrollments`)
+  return validateResponse(response, isCourseEnrollmentsInfo)
 }
 
 export const postUserResearchConsent = async (consent: boolean): Promise<UserResearchConsent> => {

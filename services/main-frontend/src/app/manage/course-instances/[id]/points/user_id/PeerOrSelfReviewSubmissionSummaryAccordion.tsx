@@ -1,28 +1,35 @@
 "use client"
 
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
+import { UserDisplay } from "@/components/UserDisplay"
 import {
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionSubmission,
-  PeerOrSelfReviewSubmission,
+  PeerOrSelfReviewSubmissionWithSubmissionOwner,
 } from "@/shared-module/common/bindings"
-import Accordion from "@/shared-module/common/components/Accordion"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface PeerOrSelfReviewSubmissionSummaryAccordionProps {
-  peerOrSelfReviewSubmission: PeerOrSelfReviewSubmission
+  peerOrSelfReviewSubmission: PeerOrSelfReviewSubmissionWithSubmissionOwner
   peerOrSelfReviewQuestionSubmissions: PeerOrSelfReviewQuestionSubmission[]
   peerOrSelfReviewQuestions: PeerOrSelfReviewQuestion[]
   showSubmissionBeingReviewed?: boolean
 }
 
-const PeerReviewDiv = styled.div`
-  margin-bottom: 0.5rem;
+const questionLabelClass = css`
+  color: ${baseTheme.colors.gray[700]};
+  font-weight: 500;
+`
+const numberBadgeClass = css`
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+  background: ${baseTheme.colors.green[100]};
+  color: ${baseTheme.colors.green[700]};
+  font-weight: 600;
 `
 
 const PeerOrSelfReviewSubmissionSummaryAccordion = ({
@@ -32,71 +39,196 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
   peerOrSelfReviewQuestions,
 }: PeerOrSelfReviewSubmissionSummaryAccordionProps) => {
   const { t } = useTranslation()
+
   return (
     <div
       className={css`
-        margin: 0.5rem 0;
+        margin: 0.3rem 0;
       `}
     >
-      <Accordion>
-        <details>
-          <summary>
+      <details
+        className={css`
+          border: 1px solid ${baseTheme.colors.green[200]};
+          border-left: 3px solid ${baseTheme.colors.green[200]};
+          border-radius: 4px;
+          background: ${baseTheme.colors.green[50]};
+          &[open] {
+            border-left-color: ${baseTheme.colors.green[500]};
+          }
+          & > summary {
+            padding: 0.45rem 0.75rem;
+            cursor: pointer;
+            list-style: none;
+            font-size: 0.8rem;
+            color: ${baseTheme.colors.gray[600]};
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            user-select: none;
+          }
+          & > summary:hover {
+            background: ${baseTheme.colors.green[75]};
+          }
+          & > summary::-webkit-details-marker {
+            display: none;
+          }
+          & > summary::after {
+            content: "\\203A";
+            font-size: 1.1rem;
+            line-height: 1;
+            color: ${baseTheme.colors.gray[500]};
+            transition: transform 0.15s ease;
+            display: inline-block;
+            flex-shrink: 0;
+          }
+          &[open] > summary::after {
+            transform: rotate(90deg);
+          }
+          &[open] > summary {
+            border-bottom: 1px solid ${baseTheme.colors.green[100]};
+          }
+        `}
+      >
+        <summary>
+          <span>
             {t("peer-review-submission-id")}:{" "}
             <HideTextInSystemTests
               text={peerOrSelfReviewSubmission.id}
               testPlaceholder="00000000-0000-0000-0000-000000000000"
             />
-          </summary>
-          {showSubmissionBeingReviewed && (
-            <PeerReviewDiv>
-              {t("label-submission-being-reviewed")}:{" "}
-              <Link
-                href={`/submissions/${peerOrSelfReviewSubmission.exercise_slide_submission_id}`}
+          </span>
+        </summary>
+        <div
+          className={css`
+            padding: 0.6rem 0.75rem;
+            font-size: 0.8rem;
+          `}
+        >
+          <div
+            className={css`
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              flex-wrap: wrap;
+              gap: 0.4rem;
+              margin-bottom: 0.5rem;
+            `}
+          >
+            <UserDisplay
+              userId={
+                peerOrSelfReviewSubmission.submission_owner_user_id ??
+                peerOrSelfReviewSubmission.user_id
+              }
+              courseId={peerOrSelfReviewSubmission.course_id}
+            />
+            {showSubmissionBeingReviewed && (
+              <span
+                className={css`
+                  color: ${baseTheme.colors.gray[600]};
+                `}
               >
-                <HideTextInSystemTests
-                  text={peerOrSelfReviewSubmission.exercise_slide_submission_id}
-                  testPlaceholder="00000000-0000-0000-0000-000000000000"
-                />
-              </Link>
-            </PeerReviewDiv>
-          )}
-          {peerOrSelfReviewQuestionSubmissions.map((prqs) => {
-            const peerOrSelfReviewQuestion = peerOrSelfReviewQuestions.find(
-              (prq) => prq.id === prqs.peer_or_self_review_question_id,
-            )
-            return (
-              <PeerReviewDiv key={prqs.id}>
-                <p>
-                  {t("question")}: {peerOrSelfReviewQuestion?.question}{" "}
-                  {prqs.number_data !== null && (
-                    <span
+                {t("label-submission-being-reviewed")}:{" "}
+                <Link
+                  href={`/submissions/${peerOrSelfReviewSubmission.exercise_slide_submission_id}`}
+                  className={css`
+                    color: ${baseTheme.colors.blue[600]};
+                    text-decoration: none;
+                    &:hover {
+                      text-decoration: underline;
+                    }
+                  `}
+                >
+                  <HideTextInSystemTests
+                    text={peerOrSelfReviewSubmission.exercise_slide_submission_id}
+                    testPlaceholder="00000000-0000-0000-0000-000000000000"
+                  />
+                </Link>
+              </span>
+            )}
+          </div>
+
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 0.4rem;
+            `}
+          >
+            {peerOrSelfReviewQuestionSubmissions.map((prqs) => {
+              const peerOrSelfReviewQuestion = peerOrSelfReviewQuestions.find(
+                (prq) => prq.id === prqs.peer_or_self_review_question_id,
+              )
+              const hasNumber = prqs.number_data !== null
+              const hasText = prqs.text_data !== null
+              return (
+                <div key={prqs.id}>
+                  {hasNumber && !hasText && (
+                    <div
                       className={css`
-                        background-color: ${baseTheme.colors.clear[100]};
-                        padding: 0.5rem;
-                        white-space: pre-wrap;
+                        display: flex;
+                        align-items: baseline;
+                        gap: 0.5rem;
                       `}
                     >
-                      {prqs.number_data}
-                    </span>
+                      <span className={questionLabelClass}>
+                        {peerOrSelfReviewQuestion?.question}
+                      </span>
+                      <span className={numberBadgeClass}>{prqs.number_data}</span>
+                    </div>
                   )}
-                </p>
-
-                {prqs.text_data !== null && (
-                  <div
-                    className={css`
-                      background-color: ${baseTheme.colors.clear[100]};
-                      padding: 0.5rem;
-                      white-space: pre-wrap;
-                    `}
-                  >
-                    {prqs.text_data}
-                  </div>
-                )}
-              </PeerReviewDiv>
-            )
-          })}
-        </details>
-      </Accordion>
+                  {hasText && (
+                    <div>
+                      {hasNumber && (
+                        <div
+                          className={css`
+                            display: flex;
+                            align-items: baseline;
+                            gap: 0.5rem;
+                            margin-bottom: 0.25rem;
+                          `}
+                        >
+                          <span className={questionLabelClass}>
+                            {peerOrSelfReviewQuestion?.question}
+                          </span>
+                          <span className={numberBadgeClass}>{prqs.number_data}</span>
+                        </div>
+                      )}
+                      {!hasNumber && (
+                        <div
+                          className={css`
+                            margin-bottom: 0.2rem;
+                          `}
+                        >
+                          <span className={questionLabelClass}>
+                            {peerOrSelfReviewQuestion?.question}
+                          </span>
+                        </div>
+                      )}
+                      <div
+                        className={css`
+                          padding: 0.4rem 0.5rem;
+                          background: ${baseTheme.colors.primary[100]};
+                          border: 1px solid ${baseTheme.colors.clear[200]};
+                          border-radius: 3px;
+                          color: ${baseTheme.colors.gray[600]};
+                          line-height: 1.5;
+                          white-space: pre-wrap;
+                        `}
+                      >
+                        {prqs.text_data}
+                      </div>
+                    </div>
+                  )}
+                  {!hasNumber && !hasText && (
+                    <span className={questionLabelClass}>{peerOrSelfReviewQuestion?.question}</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </details>
     </div>
   )
 }

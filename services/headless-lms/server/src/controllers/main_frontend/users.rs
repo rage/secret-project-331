@@ -2,7 +2,7 @@ use crate::prelude::*;
 use anyhow::anyhow;
 use headless_lms_utils::tmc::TmcClient;
 use models::{
-    course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
+    course_instance_enrollments::CourseEnrollmentsInfo, courses::Course,
     exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
     user_research_consents::UserResearchConsent, users::User,
 };
@@ -24,14 +24,14 @@ pub async fn get_user(
 }
 
 /**
-GET `/api/v0/main-frontend/users/:id/course-instance-enrollments`
+GET `/api/v0/main-frontend/users/:id/course-enrollments`
 */
 #[instrument(skip(pool))]
-pub async fn get_course_instance_enrollments_for_user(
+pub async fn get_course_enrollments_for_user(
     user_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     auth_user: AuthUser,
-) -> ControllerResult<web::Json<CourseInstanceEnrollmentsInfo>> {
+) -> ControllerResult<web::Json<CourseEnrollmentsInfo>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -40,15 +40,10 @@ pub async fn get_course_instance_enrollments_for_user(
         Res::GlobalPermissions,
     )
     .await?;
-    let mut res =
-        models::course_instance_enrollments::get_course_instance_enrollments_info_for_user(
-            &mut conn, *user_id,
-        )
-        .await?;
-
-    res.course_instance_enrollments
-        .sort_by(|a, b| a.created_at.cmp(&b.created_at));
-
+    let res = models::course_instance_enrollments::get_course_enrollments_info_for_user(
+        &mut conn, *user_id,
+    )
+    .await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -346,8 +341,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     )
     .route("/{user_id}", web::get().to(get_user))
     .route(
-        "/{user_id}/course-instance-enrollments",
-        web::get().to(get_course_instance_enrollments_for_user),
+        "/{user_id}/course-enrollments",
+        web::get().to(get_course_enrollments_for_user),
     )
     .route(
         "/{user_id}/user-reset-exercise-logs",

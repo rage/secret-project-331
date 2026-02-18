@@ -49,6 +49,8 @@ reviews:
 
         For loading and error states, use the Spinner and ErrorBanner components from the shared module.
 
+        For screen-reader-only text, use VisuallyHidden from react-aria instead of custom sr-only / visually-hidden CSS.
+
         We have better replacements for window.confirm, window.alert, and window.prompt, use the DialogProvider and the useDialog hook from the shared module instead.
 
         For calling the React hooks useMemo and useEffect, don't use the React. prefix.

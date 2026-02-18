@@ -7,11 +7,11 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseInstanceEnrollmentsList from "./CourseInstanceEnrollmentsList"
+import CourseEnrollmentsList from "./CourseEnrollmentsList"
 import ExerciseResetLogList from "./ExerciseResetLogList"
 
 import { useUserDetails } from "@/hooks/useUserDetails"
-import { getCourseInstanceEnrollmentsInfo } from "@/services/backend/users"
+import { getCourseEnrollmentsInfo } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -27,24 +27,19 @@ const UserPage: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  // Get course enrollments to find course contexts for user details
-  const courseInstanceEnrollmentsQuery = useQuery({
-    queryKey: ["course-instance-enrollments", id],
-    queryFn: () => getCourseInstanceEnrollmentsInfo(id),
+  const courseEnrollmentsQuery = useQuery({
+    queryKey: ["course-enrollments", id],
+    queryFn: () => getCourseEnrollmentsInfo(id),
   })
 
-  // Get all course IDs from enrollments to use for user details
-  const courseIds =
-    courseInstanceEnrollmentsQuery.data?.course_instance_enrollments.map(
-      (enrollment) => enrollment.course_id,
-    ) ?? []
+  const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? []
 
   const userDetailsQuery = useUserDetails(courseIds, id)
 
-  if (courseInstanceEnrollmentsQuery.isError) {
-    return <ErrorBanner error={courseInstanceEnrollmentsQuery.error} variant="readOnly" />
+  if (courseEnrollmentsQuery.isError) {
+    return <ErrorBanner error={courseEnrollmentsQuery.error} variant="readOnly" />
   }
-  if (courseInstanceEnrollmentsQuery.isLoading) {
+  if (courseEnrollmentsQuery.isLoading) {
     return <Spinner variant="medium" />
   }
 
@@ -73,8 +68,8 @@ const UserPage: React.FC = () => {
         </p>
       </Area>
       <Area>
-        <h2>{t("header-course-instance-enrollments")}</h2>
-        <CourseInstanceEnrollmentsList userId={id} />
+        <h2>{t("header-course-enrollments")}</h2>
+        <CourseEnrollmentsList userId={id} />
       </Area>
       <OnlyRenderIfPermissions action={{ type: "teach" }} resource={{ type: "global_permissions" }}>
         <Area>

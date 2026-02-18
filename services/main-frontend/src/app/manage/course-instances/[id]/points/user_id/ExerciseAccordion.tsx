@@ -70,10 +70,19 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
     <div
       className={css`
         margin-bottom: 1rem;
-        border: 1px solid ${baseTheme.colors.clear[200]};
+        border: 1px solid ${baseTheme.colors.clear[300]};
         border-radius: 6px;
+        overflow: hidden;
         background-color: ${baseTheme.colors.primary[100]};
-        box-shadow: 0 1px 3px ${baseTheme.colors.clear[100]};
+        box-shadow: 0 1px 4px ${baseTheme.colors.clear[300]};
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+        ${isExpanded &&
+        `
+          border-color: ${baseTheme.colors.green[400]};
+          box-shadow: 0 4px 12px ${baseTheme.colors.clear[400]};
+        `}
         ${userExerciseState === undefined &&
         `opacity: 0.5;
          cursor: not-allowed;
@@ -184,8 +193,9 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                 background-color: ${baseTheme.colors.clear[100]};
               }
 
-              &:focus {
-                outline: none;
+              &:focus-visible {
+                outline: 2px solid ${baseTheme.colors.blue[500]};
+                outline-offset: 2px;
                 background-color: ${baseTheme.colors.clear[100]};
               }
             `}
@@ -204,62 +214,53 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
           </button>
           <div
             className={css`
-              max-height: ${isExpanded ? "2000px" : "0"};
-              overflow: hidden;
-              transition: max-height 0.3s ease-out;
-              background-color: ${baseTheme.colors.clear[100]};
+              display: ${isExpanded ? "block" : "none"};
+              background-color: ${baseTheme.colors.primary[100]};
             `}
           >
-            <div
-              className={css`
-                padding: 1.5rem;
-              `}
-            >
+            <div>
               {exerciseStatus.exercise_slide_submissions.length > 0 ? (
                 <div>
                   {exerciseStatus.teacher_grading_decision && (
                     <div
                       className={css`
                         background-color: ${baseTheme.colors.green[100]};
-                        padding: 1rem;
-                        border-radius: 4px;
-                        margin-bottom: 1.5rem;
-                        border: 1px solid ${baseTheme.colors.green[200]};
+                        padding: 0.6rem 1.25rem;
+                        border-left: 3px solid ${baseTheme.colors.green[600]};
+                        font-size: 0.9rem;
+                        color: ${baseTheme.colors.green[700]};
                       `}
                     >
-                      <p
-                        className={css`
-                          margin: 0;
-                          color: ${baseTheme.colors.green[700]};
-                        `}
-                      >
-                        {t("teacher-has-graded-this-manually")} (
-                        <strong>{exerciseStatus.teacher_grading_decision.teacher_decision}</strong>{" "}
-                        {exerciseStatus.teacher_grading_decision.score_given})
-                      </p>
+                      {t("teacher-has-graded-this-manually")} (
+                      <strong>{exerciseStatus.teacher_grading_decision.teacher_decision}</strong>{" "}
+                      {exerciseStatus.teacher_grading_decision.score_given})
                     </div>
                   )}
 
                   <div
                     className={css`
-                      margin-bottom: 2rem;
+                      border-bottom: 1px solid ${baseTheme.colors.clear[200]};
                     `}
                   >
                     <h3
                       className={css`
                         color: ${baseTheme.colors.gray[700]};
-                        margin: 0 0 1rem;
-                        font-size: 1.1rem;
-                        border-bottom: 1px solid ${baseTheme.colors.clear[200]};
-                        padding-bottom: 0.5rem;
+                        margin: 0;
+                        font-size: 0.85rem;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.03em;
+                        padding: 0.5rem 1.25rem;
                       `}
                     >
                       {t("header-submissions")}
                     </h3>
                     <div
                       className={css`
-                        display: grid;
-                        gap: 0.75rem;
+                        padding: 0.75rem 1.25rem;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.25rem;
                       `}
                     >
                       {exerciseStatus.exercise_slide_submissions.map((exerciseSlideSubmission) => (
@@ -268,14 +269,8 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                           className={css`
                             display: flex;
                             align-items: center;
-                            gap: 1rem;
-                            padding: 0.75rem;
-                            border-radius: 4px;
-                            border: 1px solid ${baseTheme.colors.clear[200]};
-                            background-color: ${baseTheme.colors.primary[100]};
-                            &:hover {
-                              background-color: ${baseTheme.colors.clear[100]};
-                            }
+                            gap: 0.75rem;
+                            font-size: 0.85rem;
                           `}
                         >
                           <Link
@@ -283,9 +278,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                             className={css`
                               color: ${baseTheme.colors.blue[600]};
                               text-decoration: none;
-                              font-weight: 500;
                               &:hover {
-                                color: ${baseTheme.colors.blue[700]};
                                 text-decoration: underline;
                               }
                             `}
@@ -297,8 +290,8 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                           </Link>
                           <span
                             className={css`
-                              color: ${baseTheme.colors.gray[500]};
-                              font-size: 0.9rem;
+                              color: ${baseTheme.colors.gray[600]};
+                              font-size: 0.8rem;
                             `}
                           >
                             {dateToString(exerciseSlideSubmission.created_at)}
@@ -309,93 +302,77 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                   </div>
 
                   {exerciseStatus.exercise.needs_peer_review && (
-                    <div>
+                    <div
+                      className={css`
+                        border-bottom: 1px solid ${baseTheme.colors.clear[200]};
+                        margin-top: 0.75rem;
+                      `}
+                    >
                       <h3
                         className={css`
                           color: ${baseTheme.colors.gray[700]};
-                          margin: 0 0 1rem;
-                          font-size: 1.1rem;
-                          border-bottom: 1px solid ${baseTheme.colors.clear[200]};
-                          padding-bottom: 0.5rem;
+                          margin: 0;
+                          font-size: 0.85rem;
+                          font-weight: 700;
+                          text-transform: uppercase;
+                          letter-spacing: 0.03em;
+                          padding: 0.5rem 1.25rem;
                         `}
                       >
                         {t("peer-reviews")}
                       </h3>
 
-                      {exerciseStatus.peer_review_queue_entry ? (
-                        <div
-                          className={css`
-                            background-color: ${baseTheme.colors.primary[100]};
-                            padding: 1rem;
-                            border-radius: 4px;
-                            margin-bottom: 1.5rem;
-                            border: 1px solid ${baseTheme.colors.clear[200]};
-                          `}
-                        >
+                      <div
+                        className={css`
+                          padding: 0.75rem 1.25rem;
+                        `}
+                      >
+                        {exerciseStatus.peer_review_queue_entry ? (
                           <div
                             className={css`
                               display: grid;
-                              gap: 0.5rem;
+                              grid-template-columns: auto 1fr;
+                              gap: 0.15rem 1rem;
+                              align-items: baseline;
+                              margin-bottom: 0.75rem;
+                              font-size: 0.85rem;
+                              color: ${baseTheme.colors.gray[700]};
                             `}
                           >
-                            <p
+                            <span>{t("given-enough-peer-reviews")}:</span>
+                            <span
                               className={css`
-                                margin: 0;
-                                color: ${baseTheme.colors.gray[700]};
+                                color: ${baseTheme.colors.green[600]};
+                                font-weight: 500;
                               `}
                             >
-                              {t("given-enough-peer-reviews")}:{" "}
-                              <span
-                                className={css`
-                                  color: ${baseTheme.colors.green[600]};
-                                  font-weight: 500;
-                                `}
-                              >
-                                {t("label-true")}
-                              </span>
-                            </p>
-                            <p
+                              {t("label-true")}
+                            </span>
+                            <span>{t("received-enough-peer-reviews")}:</span>
+                            <span
                               className={css`
-                                margin: 0;
-                                color: ${baseTheme.colors.gray[700]};
+                                color: ${baseTheme.colors.green[600]};
+                                font-weight: 500;
                               `}
                             >
-                              {`${t("received-enough-peer-reviews")}: `}{" "}
-                              <span
-                                className={css`
-                                  color: ${baseTheme.colors.green[600]};
-                                  font-weight: 500;
-                                `}
-                              >
-                                <BooleanAsText
-                                  value={
-                                    exerciseStatus.peer_review_queue_entry
-                                      .received_enough_peer_reviews
-                                  }
-                                />
-                              </span>
-                            </p>
-                            <p
-                              className={css`
-                                margin: 0;
-                                color: ${baseTheme.colors.gray[700]};
-                              `}
-                            >
-                              {t("label-entered-peer-review-queue")}:{" "}
+                              <BooleanAsText
+                                value={
+                                  exerciseStatus.peer_review_queue_entry
+                                    .received_enough_peer_reviews
+                                }
+                              />
+                            </span>
+                            <span>{t("label-entered-peer-review-queue")}:</span>
+                            <span>
                               <HideTextInSystemTests
                                 text={dateToString(
                                   exerciseStatus.peer_review_queue_entry.created_at,
                                 )}
                                 testPlaceholder={dateToString(new Date(0))}
                               />
-                            </p>
-                            <p
-                              className={css`
-                                margin: 0;
-                                color: ${baseTheme.colors.gray[700]};
-                              `}
-                            >
-                              {t("label-submission-being-reviewed")}:{" "}
+                            </span>
+                            <span>{t("label-submission-being-reviewed")}:</span>
+                            <span>
                               <HideTextInSystemTests
                                 text={
                                   exerciseStatus.peer_review_queue_entry
@@ -403,173 +380,204 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                                 }
                                 testPlaceholder="00000000-0000-0000-0000-000000000000"
                               />
-                            </p>
-                            <p
+                            </span>
+                            <span>{t("label-priority")}:</span>
+                            <span
                               className={css`
-                                margin: 0;
+                                color: ${baseTheme.colors.green[600]};
+                                font-weight: 500;
+                              `}
+                            >
+                              {exerciseStatus.peer_review_queue_entry.peer_review_priority}
+                            </span>
+                          </div>
+                        ) : (
+                          <p
+                            className={css`
+                              margin: 0 0 0.75rem;
+                              font-size: 0.85rem;
+                              color: ${baseTheme.colors.gray[600]};
+                            `}
+                          >
+                            {t("given-enough-peer-reviews")}:{" "}
+                            <strong
+                              className={css`
                                 color: ${baseTheme.colors.gray[700]};
                               `}
                             >
-                              {t("label-priority")}:{" "}
+                              {t("label-false")}
+                            </strong>
+                          </p>
+                        )}
+
+                        {exerciseStatus.received_peer_or_self_review_submissions.length > 0 ? (
+                          <div
+                            className={css`
+                              margin-bottom: 0.75rem;
+                              padding-bottom: 0.75rem;
+                              border-bottom: 1px solid ${baseTheme.colors.clear[200]};
+                            `}
+                          >
+                            <h4
+                              className={css`
+                                color: ${baseTheme.colors.gray[700]};
+                                margin: 0 0 0.35rem;
+                                font-size: 0.8rem;
+                                font-weight: 600;
+                                display: flex;
+                                align-items: center;
+                                gap: 0.35rem;
+                              `}
+                            >
+                              {t("peer-reviews-received")}
                               <span
                                 className={css`
-                                  color: ${baseTheme.colors.green[600]};
-                                  font-weight: 500;
+                                  display: inline-flex;
+                                  align-items: center;
+                                  padding: 0.05rem 0.45rem;
+                                  border-radius: 9999px;
+                                  background-color: ${baseTheme.colors.green[100]};
+                                  color: ${baseTheme.colors.green[700]};
+                                  font-size: 0.7rem;
+                                  font-weight: 700;
                                 `}
                               >
-                                {exerciseStatus.peer_review_queue_entry.peer_review_priority}
+                                {exerciseStatus.received_peer_or_self_review_submissions.length}
                               </span>
-                            </p>
+                            </h4>
+                            {exerciseStatus.received_peer_or_self_review_submissions.map(
+                              (received) => {
+                                const peerOrSelfReviewQuestionSubmissions =
+                                  exerciseStatus.received_peer_or_self_review_question_submissions.filter(
+                                    (prqs) =>
+                                      prqs.peer_or_self_review_submission_id === received.id,
+                                  )
+                                return (
+                                  <PeerOrSelfReviewSubmissionSummaryAccordion
+                                    key={received.id}
+                                    peerOrSelfReviewSubmission={received}
+                                    peerOrSelfReviewQuestionSubmissions={
+                                      peerOrSelfReviewQuestionSubmissions
+                                    }
+                                    peerOrSelfReviewQuestions={
+                                      exerciseStatus.peer_or_self_review_questions
+                                    }
+                                    showSubmissionBeingReviewed={
+                                      exerciseStatus.exercise_slide_submissions.length > 1
+                                    }
+                                  />
+                                )
+                              },
+                            )}
                           </div>
-                        </div>
-                      ) : (
-                        <p
-                          className={css`
-                            margin: 0;
-                            color: ${baseTheme.colors.gray[700]};
-                          `}
-                        >
-                          {t("given-enough-peer-reviews")}:{" "}
-                          <span
+                        ) : (
+                          <p
                             className={css`
-                              color: ${baseTheme.colors.gray[500]};
+                              color: ${baseTheme.colors.gray[600]};
+                              font-style: italic;
+                              margin: 0 0 0.75rem;
+                              font-size: 0.85rem;
                             `}
                           >
-                            {t("label-false")}
-                          </span>
-                        </p>
-                      )}
+                            {t("no-peer-reviews-received")}
+                          </p>
+                        )}
 
-                      {exerciseStatus.received_peer_or_self_review_submissions.length > 0 ? (
-                        <div
-                          className={css`
-                            margin-bottom: 2rem;
-                          `}
-                        >
-                          <h4
-                            className={css`
-                              color: ${baseTheme.colors.gray[700]};
-                              margin: 0 0 1rem;
-                              font-size: 1rem;
-                              border-bottom: 1px solid ${baseTheme.colors.clear[200]};
-                              padding-bottom: 0.25rem;
-                            `}
-                          >
-                            {t("peer-reviews-received")} (
-                            {exerciseStatus.received_peer_or_self_review_submissions.length})
-                          </h4>
-                          {exerciseStatus.received_peer_or_self_review_submissions.map(
-                            (received) => {
+                        {exerciseStatus.given_peer_or_self_review_submissions.length > 0 ? (
+                          <div>
+                            <h4
+                              className={css`
+                                color: ${baseTheme.colors.gray[700]};
+                                margin: 0 0 0.35rem;
+                                font-size: 0.8rem;
+                                font-weight: 600;
+                                display: flex;
+                                align-items: center;
+                                gap: 0.35rem;
+                              `}
+                            >
+                              {t("peer-reviews-given")}
+                              <span
+                                className={css`
+                                  display: inline-flex;
+                                  align-items: center;
+                                  padding: 0.05rem 0.45rem;
+                                  border-radius: 9999px;
+                                  background-color: ${baseTheme.colors.green[100]};
+                                  color: ${baseTheme.colors.green[700]};
+                                  font-size: 0.7rem;
+                                  font-weight: 700;
+                                `}
+                              >
+                                {exerciseStatus.given_peer_or_self_review_submissions.length}
+                              </span>
+                            </h4>
+                            {exerciseStatus.given_peer_or_self_review_submissions.map((given) => {
                               const peerOrSelfReviewQuestionSubmissions =
-                                exerciseStatus.received_peer_or_self_review_question_submissions.filter(
-                                  (prqs) => prqs.peer_or_self_review_submission_id === received.id,
+                                exerciseStatus.given_peer_or_self_review_question_submissions.filter(
+                                  (prqs) => prqs.peer_or_self_review_submission_id === given.id,
                                 )
                               return (
                                 <PeerOrSelfReviewSubmissionSummaryAccordion
-                                  key={received.id}
-                                  peerOrSelfReviewSubmission={received}
+                                  key={given.id}
+                                  peerOrSelfReviewSubmission={given}
+                                  showSubmissionBeingReviewed
                                   peerOrSelfReviewQuestionSubmissions={
                                     peerOrSelfReviewQuestionSubmissions
                                   }
                                   peerOrSelfReviewQuestions={
                                     exerciseStatus.peer_or_self_review_questions
                                   }
-                                  showSubmissionBeingReviewed={
-                                    exerciseStatus.exercise_slide_submissions.length > 1
-                                  }
                                 />
                               )
-                            },
-                          )}
-                        </div>
-                      ) : (
-                        <p
-                          className={css`
-                            color: ${baseTheme.colors.gray[500]};
-                            font-style: italic;
-                            margin: 0 0 1.5rem;
-                          `}
-                        >
-                          {t("no-peer-reviews-received")}
-                        </p>
-                      )}
-
-                      {exerciseStatus.given_peer_or_self_review_submissions.length > 0 ? (
-                        <div>
-                          <h4
+                            })}
+                          </div>
+                        ) : (
+                          <p
                             className={css`
-                              color: ${baseTheme.colors.gray[700]};
-                              margin: 0 0 1rem;
-                              font-size: 1rem;
-                              border-bottom: 1px solid ${baseTheme.colors.clear[200]};
-                              padding-bottom: 0.25rem;
+                              color: ${baseTheme.colors.gray[600]};
+                              font-style: italic;
+                              margin: 0;
+                              font-size: 0.85rem;
                             `}
                           >
-                            {t("peer-reviews-given")} (
-                            {exerciseStatus.given_peer_or_self_review_submissions.length})
-                          </h4>
-                          {exerciseStatus.given_peer_or_self_review_submissions.map((given) => {
-                            const peerOrSelfReviewQuestionSubmissions =
-                              exerciseStatus.given_peer_or_self_review_question_submissions.filter(
-                                (prqs) => prqs.peer_or_self_review_submission_id === given.id,
-                              )
-                            return (
-                              <PeerOrSelfReviewSubmissionSummaryAccordion
-                                key={given.id}
-                                peerOrSelfReviewSubmission={given}
-                                showSubmissionBeingReviewed
-                                peerOrSelfReviewQuestionSubmissions={
-                                  peerOrSelfReviewQuestionSubmissions
-                                }
-                                peerOrSelfReviewQuestions={
-                                  exerciseStatus.peer_or_self_review_questions
-                                }
-                              />
-                            )
-                          })}
-                        </div>
-                      ) : (
-                        <p
-                          className={css`
-                            color: ${baseTheme.colors.gray[500]};
-                            font-style: italic;
-                            margin: 0;
-                          `}
-                        >
-                          {t("no-peer-reviews-given")}
-                        </p>
-                      )}
+                            {t("no-peer-reviews-given")}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
               ) : (
                 <p
                   className={css`
-                    color: ${baseTheme.colors.gray[500]};
+                    color: ${baseTheme.colors.gray[600]};
                     font-style: italic;
                     margin: 0;
+                    padding: 1.25rem;
+                    font-size: 0.9rem;
                   `}
                 >
                   {t("no-submissions")}
                 </p>
               )}
-              <div
-                className={css`
-                  margin-top: 1.5rem;
-                  padding-top: 1.5rem;
-                  border-top: 1px solid ${baseTheme.colors.clear[200]};
-                  display: flex;
-                  gap: 1rem;
-                  align-items: center;
-                `}
-              >
-                <DebugModal data={exerciseStatus} />
-                <CustomPointsPopup
-                  exerciseMaxPoints={exerciseStatus.exercise.score_maximum || 0}
-                  onSubmit={handleCustomPoints}
-                  longButtonName
-                />
-              </div>
+            </div>
+            <div
+              className={css`
+                padding: 0.75rem 1.25rem;
+                background-color: ${baseTheme.colors.primary[100]};
+                border-top: 1px solid ${baseTheme.colors.clear[300]};
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+              `}
+            >
+              <DebugModal data={exerciseStatus} />
+              <CustomPointsPopup
+                exerciseMaxPoints={exerciseStatus.exercise.score_maximum || 0}
+                onSubmit={handleCustomPoints}
+                longButtonName
+              />
             </div>
           </div>
         </div>

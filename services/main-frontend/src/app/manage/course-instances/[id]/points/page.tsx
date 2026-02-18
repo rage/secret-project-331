@@ -19,7 +19,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { fontWeights, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { roundDown } from "@/shared-module/common/utils/numbers"
-import { courseInstanceUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
+import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ProcessedUser {
@@ -79,6 +79,12 @@ const CourseInstancePointsList: React.FC = () => {
   const instanceTotalPoints = getPointsList.isSuccess
     ? getPointsList.data.chapter_points.reduce((prev, curr) => prev + curr.score_total, 0)
     : 0
+
+  const courseId =
+    courseInstanceQuery.data?.course_id ??
+    (getPointsList.isSuccess && getPointsList.data.chapter_points.length > 0
+      ? getPointsList.data.chapter_points[0].course_id
+      : undefined)
 
   return (
     <div
@@ -201,14 +207,13 @@ const CourseInstancePointsList: React.FC = () => {
                   return (
                     <FullWidthTableRow key={user.user_id}>
                       <td>
-                        <Link
-                          href={courseInstanceUserStatusSummaryRoute(
-                            courseInstanceId,
-                            user.user_id,
-                          )}
-                        >
-                          {user.user_id}
-                        </Link>
+                        {courseId ? (
+                          <Link href={courseUserStatusSummaryRoute(courseId, user.user_id)}>
+                            {user.user_id}
+                          </Link>
+                        ) : (
+                          user.user_id
+                        )}
                       </td>
                       <td>
                         {user.first_name} {user.last_name}

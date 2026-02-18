@@ -474,6 +474,20 @@ export interface CourseCustomPrivacyPolicyCheckboxText {
   text_slug: string
 }
 
+export interface CourseEnrollmentInfo {
+  course_id: string
+  course: Course
+  course_instances: Array<CourseInstance>
+  user_course_settings: UserCourseSettings | null
+  course_module_completions: Array<CourseModuleCompletion>
+  first_enrolled_at: string
+  is_current: boolean
+}
+
+export interface CourseEnrollmentsInfo {
+  course_enrollments: Array<CourseEnrollmentInfo>
+}
+
 export interface CourseInstanceEnrollment {
   user_id: string
   course_id: string
@@ -1134,9 +1148,9 @@ export interface ExerciseStatusSummaryForUser {
   exercise: Exercise
   user_exercise_state: UserExerciseState | null
   exercise_slide_submissions: Array<ExerciseSlideSubmission>
-  given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+  given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
   given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
-  received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+  received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
   received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   peer_review_queue_entry: PeerReviewQueueEntry | null
   teacher_grading_decision: TeacherGradingDecision | null
@@ -1971,6 +1985,19 @@ export interface PeerOrSelfReviewSubmission {
   course_id: string
   peer_or_self_review_config_id: string
   exercise_slide_submission_id: string
+}
+
+export interface PeerOrSelfReviewSubmissionWithSubmissionOwner {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  user_id: string
+  exercise_id: string
+  course_id: string
+  peer_or_self_review_config_id: string
+  exercise_slide_submission_id: string
+  submission_owner_user_id: string | null
 }
 
 export interface PeerReviewQueueEntry {

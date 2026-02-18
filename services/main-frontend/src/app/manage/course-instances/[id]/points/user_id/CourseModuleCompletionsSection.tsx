@@ -70,18 +70,16 @@ const Value = styled.span`
 `
 
 interface CourseModuleCompletionsSectionProps {
-  courseInstanceId: string
   userId: string
   courseId: string
 }
 
 const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionProps> = ({
-  courseInstanceId,
   userId,
   courseId,
 }) => {
   const { t } = useTranslation()
-  const courseModuleCompletionsQuery = useCourseModuleCompletions(courseInstanceId, userId)
+  const courseModuleCompletionsQuery = useCourseModuleCompletions(courseId, userId)
   const courseStructure = useCourseStructure(courseId)
 
   if (courseModuleCompletionsQuery.isError || courseStructure.isError) {

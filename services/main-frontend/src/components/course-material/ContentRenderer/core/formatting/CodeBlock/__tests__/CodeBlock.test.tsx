@@ -262,9 +262,10 @@ describe("CodeBlock", () => {
       const content = "line1 // HIGHLIGHT LINE\nline2\nline3 // HIGHLIGHT LINE"
       const { container } = renderCodeBlock(content)
       const preParent = container.querySelector("pre")?.parentElement
-      const srOnlySpan = preParent?.querySelector(":scope > span")
-      expect(srOnlySpan).toBeInTheDocument()
-      expect(srOnlySpan?.textContent?.length).toBeGreaterThan(0)
+      const srOnlyEl =
+        preParent?.querySelector(":scope > span") ?? preParent?.querySelector(":scope > div")
+      expect(srOnlyEl).toBeInTheDocument()
+      expect(srOnlyEl?.textContent?.length).toBeGreaterThan(0)
     })
   })
 })

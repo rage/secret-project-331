@@ -8,12 +8,14 @@ import {
   CourseBreadcrumbInfo,
   CourseInstance,
   CourseInstanceForm,
+  CourseModuleCompletion,
   CourseStructure,
   CourseUpdate,
   Exercise,
   ExerciseAnswersInCourseRequiringAttentionCount,
   ExerciseSlideSubmissionCount,
   ExerciseSlideSubmissionCountByWeekAndHour,
+  ExerciseStatusSummaryForUser,
   ExerciseUserCounts,
   MaterialReference,
   NewCourse,
@@ -28,16 +30,19 @@ import {
   Term,
   TermUpdate,
   ThresholdData,
+  UserCourseProgress,
   UserCourseSettings,
 } from "@/shared-module/common/bindings"
 import {
   isCourse,
   isCourseBreadcrumbInfo,
   isCourseInstance,
+  isCourseModuleCompletion,
   isCourseStructure,
   isExercise,
   isExerciseAnswersInCourseRequiringAttentionCount,
   isExerciseSlideSubmissionCountByWeekAndHour,
+  isExerciseStatusSummaryForUser,
   isExerciseUserCounts,
   isPageVisitDatumSummaryByCourse,
   isPageVisitDatumSummaryByCourseDeviceTypes,
@@ -46,6 +51,7 @@ import {
   isPartnersBlock,
   isSuspectedCheaters,
   isTerm,
+  isUserCourseProgress,
   isUserCourseSettings,
 } from "@/shared-module/common/bindings.guard"
 import {
@@ -59,6 +65,34 @@ import {
 export const getCourse = async (courseId: string): Promise<Course> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}`)
   return validateResponse(response, isCourse)
+}
+
+export const getUserProgressForCourse = async (
+  courseId: string,
+  userId: string,
+): Promise<UserCourseProgress[]> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/progress/${userId}`)
+  return validateResponse(response, isArray(isUserCourseProgress))
+}
+
+export const getAllExerciseStatusSummariesForUserAndCourse = async (
+  courseId: string,
+  userId: string,
+): Promise<ExerciseStatusSummaryForUser[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/status-for-all-exercises/${userId}`,
+  )
+  return validateResponse(response, isArray(isExerciseStatusSummaryForUser))
+}
+
+export const getAllCourseModuleCompletionsForUserAndCourse = async (
+  courseId: string,
+  userId: string,
+): Promise<CourseModuleCompletion[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/course-module-completions/${userId}`,
+  )
+  return validateResponse(response, isArray(isCourseModuleCompletion))
 }
 
 export const getCourseBreadCrumbInfo = async (courseId: string): Promise<CourseBreadcrumbInfo> => {

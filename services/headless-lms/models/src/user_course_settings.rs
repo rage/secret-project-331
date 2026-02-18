@@ -159,6 +159,26 @@ WHERE current_course_id = ANY($1)
     Ok(res)
 }
 
+/// Returns all non-deleted user course settings for a user.
+pub async fn get_all_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<UserCourseSettings>> {
+    let res = sqlx::query_as!(
+        UserCourseSettings,
+        "
+SELECT *
+FROM user_course_settings
+WHERE user_id = $1
+  AND deleted_at IS NULL
+        ",
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_all_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

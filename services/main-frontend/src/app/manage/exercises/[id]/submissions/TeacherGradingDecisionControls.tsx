@@ -19,9 +19,9 @@ interface TeacherGradingDecisionControlsProps {
 }
 
 const ControlPanel = styled.div`
-  background: #f5f5f5;
+  background: #fff;
   width: 100%;
-  height: 150px;
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -95,7 +95,9 @@ const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsPro
       <div
         className={css`
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
+          gap: 0.5rem;
         `}
       >
         <Button
@@ -103,8 +105,6 @@ const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsPro
             font-family: ${primaryFont};
             font-weight: 600;
             font-size: 16px;
-            margin-left: 1em;
-            margin-right: 0.5em;
           `}
           size="medium"
           variant="reject"
@@ -112,26 +112,11 @@ const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsPro
         >
           {t("button-text-zero-points")}
         </Button>
-        <Button
-          size="medium"
-          variant="primary"
-          className={css`
-            margin-right: 0.5em;
-          `}
-          onClick={handleFullPoints}
-        >
+        <Button size="medium" variant="primary" onClick={handleFullPoints}>
           {t("button-text-full-points")}
         </Button>
         <CustomPointsPopup exerciseMaxPoints={exerciseMaxPoints} onSubmit={handleCustomPoints} />
-        <Button
-          size="medium"
-          variant="reject"
-          className={css`
-            margin-left: 1em;
-            margin-right: 0.5em;
-          `}
-          onClick={handleRejectAndReset}
-        >
+        <Button size="medium" variant="reject" onClick={handleRejectAndReset}>
           {t("button-text-reject-and-reset")}
         </Button>
       </div>

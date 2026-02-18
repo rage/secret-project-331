@@ -857,6 +857,7 @@
   "message-please-confirm-your-email-address": "Please confirm your email address.",
   "message-saved-successfully": "Tallennus onnistui",
   "message-saving-failed": "Jotakin meni pieleen, tallennus ei onnistunut",
+  "message-suggestions": "Viestiehdotukset",
   "message-the-exam-has-not-started-yet": "Et voi vielä aloittaa koetta. Ole hyvä ja palaa myöhemmin.",
   "message-this-submission-has-been-graded-automatically": "Tämä palautus on arvosteltu automaattisesti",
   "message-this-task-has-been-deleted": "Tämä tehtävän osa on poistettu",

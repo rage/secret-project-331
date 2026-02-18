@@ -70,43 +70,60 @@ pub async fn generate_suggested_messages(
     let prompt = SYSTEM_PROMPT.to_owned()
         + &format!("The course is: {}\n\n", course_name)
         // if there are initial suggested messages, then include <=5 of them as examples
-        + &(if let Some(ism) = initial_suggested_messages {format!("Example suggested messages: {}\n\n", ism.into_iter().take(5).collect::<Vec<String>>().join(" "))} else {"".to_string()})
-        + &(if let Some(c_d) = course_desc {format!("Description for course: {:?}\n\n", c_d)} else {"".to_string()})
+        + &(if let Some(ism) = initial_suggested_messages {
+            let examples = ism.into_iter().take(5).collect::<Vec<String>>().join(" ");
+            format!("Example suggested messages: {}\n\n", examples)} else {"".to_string()})
+        + &(if let Some(c_d) = course_desc {format!("Description for course: {}\n\n", c_d)} else {"".to_string()})
         + "The conversation so far:\n";
 
-    let used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
+    let mut used_tokens = estimate_tokens(&prompt) + estimate_tokens(USER_PROMPT);
     let token_budget =
         calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
     let conv_len = conversation_messages.len();
 
     // calculate how many messages to include in the conversation context
-    let (_, order_n) = conversation_messages
+    let order_n = conversation_messages
         .iter()
-        // iterate through the messages starting from the newest until token limit is hit
-        // initial values: tokens already used are in the accumulator,
-        // the msg n to cut off the convo from is the convo len (take no msgs)
-        .rfold((used_tokens, conv_len), |(accum_tokens, nth_msg), el| {
+        // we want to take messages starting from the newest (=last)
+        .rev()
+        .map_while(|el| {
             if el.message.is_some() {
-                // add previous tokens, this message's tokens and extra 1 tokens for newline to the accumulator
-                let new_accum_tokens = accum_tokens + el.used_tokens + 4;
-                if new_accum_tokens > token_budget {
-                    return (accum_tokens, nth_msg);
-                }
-                let new_order_n = el.order_number as usize;
-                (new_accum_tokens, new_order_n)
-            } else if el.tool_output.is_some() {
-                (accum_tokens, nth_msg) // todo
+                // add this message's tokens and extra 4 tokens for newline and
+                // tag to used_tokens
+                used_tokens += el.used_tokens + 4;
+            } else if let Some(output) = &el.tool_output {
+                // add the tokens needed for the tool info to used_tokens
+                let s = format!("{}:\n{}\n\n", output.tool_name, output.tool_output);
+                used_tokens += estimate_tokens(&s);
             } else {
-                (accum_tokens, nth_msg)
+                // if there is no message or tool output, skip this element.
+                // big number won't affect the truncation later as we take min.
+                return Some(conv_len);
             }
-        });
+            if used_tokens > token_budget {
+                return None;
+            }
+            let new_order_n = el.order_number as usize;
+            // include this element's order_number as a potential cutoff point
+            Some(new_order_n)
+        })
+        // fuse to cut off the iterator at the first None, i.e. the first msg that
+        // didn't fit into the context
+        .fuse()
+        // select the minimum order_number i.e. oldest message to include
+        .min()
+        .ok_or(ChatbotError::new(
+            ChatbotErrorType::ChatbotMessageSuggestError,
+            "Failed to create context for message suggestion LLM, there were no conversation messages or none of them fit into the context.",
+            None,
+        ))?;
     // cut off messages older than order_n from the conversation to keep context short
     let conversation = &conversation_messages[order_n..]
         .iter()
-        .map(|x| create_msg_string(x))
+        .map(create_msg_string)
         .collect::<Vec<String>>()
         .join("");
-    if conversation.trim().len() == 0 {
+    if conversation.trim().is_empty() {
         // this happens only if the conversation contains only ChatbotConversationMessages
         // that have no message property, which should never happen in practice
         return Err(ChatbotError::new(
@@ -185,34 +202,29 @@ pub async fn generate_suggested_messages(
     };
     let completion =
         make_blocking_llm_request(chat_request, app_config, &task_lm, endpoint_path).await?;
-    let suggested_messages: Vec<String> = match &completion
+
+    // parse chat completion
+    let completion_content: &String = &completion
         .choices
-        .first()
-        .ok_or_else(|| {
+        .into_iter()
+        .map(|x| match x.message.fields {
+            APIMessageKind::Text(message) => message.content,
+            _ => "".to_string(),
+        })
+        .collect::<Vec<String>>()
+        .join("");
+    // parse structured output
+    let suggestions: ChatbotNextMessageSuggestionResponse =
+        serde_json::from_str(completion_content).map_err(|_| {
             ChatbotError::new(
                 ChatbotErrorType::ChatbotMessageSuggestError,
-                "The message suggestion LLM didn't send a response with content. Weird.",
+                "The message suggestion LLM returned an incorrectly formatted response."
+                    .to_string(),
                 None,
             )
-        })?
-        .message
-        .fields
-    {
-        APIMessageKind::Text(message) => {
-            // parse structured output
-            let suggestions: ChatbotNextMessageSuggestionResponse =
-                serde_json::from_str(&message.content)?;
-            suggestions.suggestions
-        }
-        _ => {
-            return Err(ChatbotError::new(
-                ChatbotErrorType::ChatbotMessageSuggestError,
-                "The message suggestion LLM returned something other than a text response. This was unexpected and incorrect.".to_string(),
-                None,
-            ));
-        }
-    };
-    Ok(suggested_messages)
+        })?;
+
+    Ok(suggestions.suggestions)
 }
 
 fn create_msg_string(m: &ChatbotConversationMessage) -> String {

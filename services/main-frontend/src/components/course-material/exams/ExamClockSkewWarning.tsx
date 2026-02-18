@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { addMilliseconds, differenceInMilliseconds, parseISO } from "date-fns"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -27,14 +28,15 @@ const sampleClockOffset = async (): Promise<ClockSkewSample | null> => {
   const t0 = Date.now()
   const serverTime = await fetchCurrentServerTime()
   const t1 = Date.now()
-  const serverMs = Date.parse(serverTime)
+  const serverDate = parseISO(serverTime)
+  const serverMs = serverDate.getTime()
 
   if (Number.isNaN(serverMs)) {
     return null
   }
 
-  const rttMs = Math.max(0, t1 - t0)
-  const estimatedServerAtReceiveMs = serverMs + rttMs / 2
+  const rttMs = Math.max(0, differenceInMilliseconds(t1, t0))
+  const estimatedServerAtReceiveMs = addMilliseconds(serverDate, rttMs / 2).getTime()
   const offsetMs = estimatedServerAtReceiveMs - t1
 
   return {
@@ -236,7 +238,7 @@ const ExamClockSkewWarning: React.FC = () => {
     const timezoneOffset = formatUtcOffset(now)
 
     const deviceNowMs = now.getTime()
-    const correctNowMs = deviceNowMs + estimate.finalOffsetMs
+    const correctNowMs = addMilliseconds(now, estimate.finalOffsetMs).getTime()
     const correctTime = formatDateTimeInTimezone(correctNowMs, timezoneForFormatting, i18n.language)
     const deviceTime = formatDateTimeInTimezone(deviceNowMs, timezoneForFormatting, i18n.language)
 

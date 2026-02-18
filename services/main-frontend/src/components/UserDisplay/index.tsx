@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, keyframes } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import Link from "next/link"
 import React, { useRef } from "react"
@@ -22,11 +22,61 @@ function hasName(value: string | null | undefined): boolean {
   return !!value && value.trim().length > 0
 }
 
-/** Renders user avatar (first letter) and display name or email. */
+/** Props: userId (required), courseId (optional). */
 export interface UserDisplayProps {
   userId: string
   courseId: string | null | undefined
 }
+
+const popEnterKeyframes = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`
+
+const popoverStyle = css`
+  background: ${baseTheme.colors.primary[100]};
+  border: 1px solid ${baseTheme.colors.clear[300]};
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  min-width: 280px;
+  max-width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+  &[data-entering] {
+    animation: ${popEnterKeyframes} 120ms ease-out;
+  }
+`
+
+const badgeStyle = css`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  background: ${baseTheme.colors.clear[200]};
+  border: 1px solid ${baseTheme.colors.clear[300]};
+  font-family: ${primaryFont};
+  color: ${baseTheme.colors.gray[700]};
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: ${baseTheme.colors.clear[300]};
+  }
+  &:focus {
+    outline: 2px solid ${baseTheme.colors.blue[500]};
+    outline-offset: 2px;
+  }
+`
 
 /** Renders user avatar (first letter) and display name or email. */
 const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
@@ -109,55 +159,6 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
       {displayText}
     </>
   )
-
-  const popoverStyle = css`
-    background: ${baseTheme.colors.primary[100]};
-    border: 1px solid ${baseTheme.colors.clear[300]};
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
-    min-width: 280px;
-    max-width: 360px;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-
-    &[data-entering] {
-      animation: pop-enter 120ms ease-out;
-    }
-    @keyframes pop-enter {
-      from {
-        opacity: 0;
-        transform: scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-  `
-
-  const badgeStyle = css`
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 9999px;
-    background: ${baseTheme.colors.clear[200]};
-    border: 1px solid ${baseTheme.colors.clear[300]};
-    font-family: ${primaryFont};
-    color: ${baseTheme.colors.gray[700]};
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-
-    &:hover {
-      background: ${baseTheme.colors.clear[300]};
-    }
-    &:focus {
-      outline: 2px solid ${baseTheme.colors.blue[500]};
-      outline-offset: 2px;
-    }
-  `
 
   return (
     <>

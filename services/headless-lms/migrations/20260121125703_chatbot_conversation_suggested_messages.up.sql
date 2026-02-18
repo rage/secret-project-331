@@ -10,6 +10,9 @@ CREATE TABLE chatbot_conversation_suggested_messages (
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON chatbot_conversation_suggested_messages FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
+CREATE INDEX ON chatbot_conversation_suggested_messages(conversation_message_id)
+WHERE deleted_at IS NULL;
+
 COMMENT ON TABLE chatbot_conversation_suggested_messages IS 'Messages that the user is suggested to prompt the chatbot with. New messages are generated after every chatbot message';
 COMMENT ON COLUMN chatbot_conversation_suggested_messages.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN chatbot_conversation_suggested_messages.created_at IS 'Timestamp when the record was created.';

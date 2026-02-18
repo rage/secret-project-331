@@ -7,14 +7,17 @@ CREATE TABLE application_task_default_language_models (
   deleted_at TIMESTAMP WITH TIME ZONE,
   task application_task NOT NULL,
   model_id UUID NOT NULL REFERENCES chatbot_configurations_models(id),
-  context_utilization real NOT NULL,
+  context_utilization real NOT NULL CONSTRAINT valid_context_utilization CHECK (
+    context_utilization > 0.0
+    AND context_utilization < 1.0
+  ),
   UNIQUE NULLS NOT DISTINCT (task, deleted_at)
 );
 
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON application_task_default_language_models FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE application_task_default_language_models IS '';
+COMMENT ON TABLE application_task_default_language_models IS 'Info about the model and context utilization for LLMs to be used in application tasks, like cleaning course material content and generating chatbot suggested messages.';
 COMMENT ON COLUMN application_task_default_language_models.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN application_task_default_language_models.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN application_task_default_language_models.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';

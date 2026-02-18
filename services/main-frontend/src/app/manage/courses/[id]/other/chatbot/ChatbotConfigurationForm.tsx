@@ -185,7 +185,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       use_semantic_reranking: data.use_semantic_reranking,
       use_tools: data.use_tools,
       suggest_next_messages: data.suggest_next_messages,
-      initial_suggested_messages: data.suggested_messages?.map((v) => v.message),
+      initial_suggested_messages: data.suggested_messages.map((v) => v.message),
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
       chatbotconf_id: null,
     })

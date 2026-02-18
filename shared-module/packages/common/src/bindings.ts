@@ -474,6 +474,20 @@ export interface CourseCustomPrivacyPolicyCheckboxText {
   text_slug: string
 }
 
+export interface CourseEnrollmentInfo {
+  course_id: string
+  course: Course
+  course_instances: Array<CourseInstance>
+  user_course_settings: UserCourseSettings | null
+  course_module_completions: Array<CourseModuleCompletion>
+  first_enrolled_at: string
+  is_current: boolean
+}
+
+export interface CourseEnrollmentsInfo {
+  course_enrollments: Array<CourseEnrollmentInfo>
+}
+
 export interface CourseInstanceEnrollment {
   user_id: string
   course_id: string

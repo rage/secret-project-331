@@ -219,12 +219,7 @@ ORDER BY first_enrolled_at
     let all_course_module_completions =
         crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
     let user_course_settings =
-        crate::user_course_settings::get_all_by_user_and_multiple_current_courses(
-            conn,
-            &course_ids,
-            user_id,
-        )
-        .await?;
+        crate::user_course_settings::get_all_by_user_id(conn, user_id).await?;
     let courses = crate::courses::get_by_ids(conn, &course_ids).await?;
     let course_instance_ids: Vec<Uuid> = course_instance_enrollments
         .iter()

@@ -86,6 +86,8 @@ fn models(target: &mut File) {
         course_background_questions::CourseBackgroundQuestionType,
         course_background_questions::CourseBackgroundQuestionsAndAnswers,
         course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
+        course_instance_enrollments::CourseEnrollmentInfo,
+        course_instance_enrollments::CourseEnrollmentsInfo,
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instance_enrollments::CourseInstanceEnrollmentsInfo,
         course_instances::ChapterScore,

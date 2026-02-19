@@ -31,12 +31,14 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
 
   const handleStart = async () => {
     if (await confirm(t("exam-start-confirmation", { "time-minutes": timeMinutes }))) {
-      setDisabled(false)
-      await onStart()
       setDisabled(true)
-      // If the instructions are long, a student might have scrolled down a lot. We'll scroll up so that the student sees the exam from the beginning.
-      // eslint-disable-next-line i18next/no-literal-string
-      window.scrollTo({ top: 0, behavior: "smooth" })
+      try {
+        await onStart()
+        // eslint-disable-next-line i18next/no-literal-string
+        window.scrollTo({ top: 0, behavior: "smooth" })
+      } catch {
+        setDisabled(false)
+      }
     }
   }
 

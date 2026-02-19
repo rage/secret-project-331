@@ -7,7 +7,7 @@ import { useHydrateAtoms } from "jotai/utils"
 import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
+import ExamClockSkewWarning from "./ExamClockSkewWarning"
 import ExamInfoHeader from "./ExamInfoHeader"
 import ExamRunningSection from "./ExamRunningSection"
 import ExamStartBanner from "./ExamStartBanner"
@@ -16,8 +16,10 @@ import ContentRenderer from "@/components/course-material/ContentRenderer"
 import useTime from "@/hooks/course-material/useTime"
 import { Block, enrollInExam } from "@/services/course-material/backend"
 import type { ExamData, ExamEnrollmentData } from "@/shared-module/common/bindings"
+import Centered from "@/shared-module/common/components/Centering/Centered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
@@ -118,9 +120,14 @@ export default function ExamPageShell({
 
   if (enrollmentTag === "NotEnrolled" || enrollmentTag === "NotYetStarted") {
     return (
-      <>
+      <Centered variant="default">
+        <div
+          className={css`
+            padding-top: 2rem;
+          `}
+        />
         <ExamInfoHeader examData={examData} />
-        <CenteredClockSkewWarning />
+        <ExamClockSkewWarning />
         <div id="exam-instructions">
           <ExamStartBanner
             onStart={async () => {
@@ -132,12 +139,7 @@ export default function ExamPageShell({
             examHasEnded={examHasEnded}
             timeMinutes={examData.time_minutes}
           >
-            <div
-              id="maincontent"
-              className={css`
-                opacity: 80%;
-              `}
-            >
+            <div id="maincontent">
               <ContentRenderer
                 data={(examData.instructions as Array<Block<unknown>>) ?? []}
                 isExam={false}
@@ -146,31 +148,57 @@ export default function ExamPageShell({
             </div>
           </ExamStartBanner>
         </div>
-      </>
+      </Centered>
     )
   }
 
   if (enrollmentTag === "StudentTimeUp") {
+    const timeUpMessageClass = css`
+      background: linear-gradient(
+        140deg,
+        ${baseTheme.colors.blue[100]},
+        ${baseTheme.colors.clear[100]}
+      );
+      border: 1px solid ${baseTheme.colors.blue[300]};
+      border-left: 8px solid ${baseTheme.colors.blue[600]};
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-family: ${primaryFont};
+      font-size: clamp(0.95rem, 2.2vw, 1rem);
+      line-height: 1.45;
+      color: ${baseTheme.colors.gray[700]};
+    `
     return (
-      <>
-        <CenteredClockSkewWarning />
+      <Centered variant="default">
+        <div
+          className={css`
+            padding-top: 2rem;
+          `}
+        />
+        <ExamClockSkewWarning />
         <ExamInfoHeader examData={examData} />
-        <div>
+        <div className={timeUpMessageClass}>
           {t("exam-time-up", {
             "ends-at": humanReadableDateTime(examData.ends_at, i18n.language),
           })}
         </div>
-      </>
+      </Centered>
     )
   }
 
   if (enrollmentTag === "StudentCanViewGrading" && renderGradingView) {
     return (
-      <>
-        <CenteredClockSkewWarning />
+      <Centered variant="default">
+        <div
+          className={css`
+            padding-top: 2rem;
+          `}
+        />
+        <ExamClockSkewWarning />
         <ExamInfoHeader examData={examData} />
         {renderGradingView(examData)}
-      </>
+      </Centered>
     )
   }
 

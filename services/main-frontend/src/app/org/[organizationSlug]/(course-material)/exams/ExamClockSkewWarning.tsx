@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import useTime from "@/hooks/course-material/useTime"
 import { fetchCurrentServerTime } from "@/services/course-material/backend"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 const MINUTE_MS = 60_000
@@ -120,7 +119,7 @@ const severityStyles = (isSevere: boolean) => css`
   border-left: 10px solid ${isSevere ? baseTheme.colors.red[600] : baseTheme.colors.yellow[600]};
   border-radius: 10px;
   padding: 1rem 1.15rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   box-shadow: 0 6px 20px ${baseTheme.colors.clear[300]};
   color: ${baseTheme.colors.gray[700]};
   font-family: ${primaryFont};
@@ -255,50 +254,48 @@ const ExamClockSkewWarning: React.FC = () => {
     const deviceTime = formatTime(deviceNowMs, timezoneForFormatting, i18n.language)
 
     return (
-      <BreakFromCentered sidebar={false}>
-        <section className={severityStyles(isSevere)} data-testid="exam-clock-skew-warning">
-          <div className={cardContentClass}>
-            <div className={labelClass(isSevere)}>{t("exam-clock-warning-label")}</div>
-            <h2 className={headingClass}>
-              {t(isFast ? "exam-clock-warning-title-fast" : "exam-clock-warning-title-slow", {
-                difference,
-              })}
-            </h2>
-            <p className={bodyClass}>
-              {showDetailedInformation
-                ? t("exam-clock-warning-summary-detailed")
-                : t("exam-clock-warning-summary-mild")}
-            </p>
+      <section className={severityStyles(isSevere)} data-testid="exam-clock-skew-warning">
+        <div className={cardContentClass}>
+          <div className={labelClass(isSevere)}>{t("exam-clock-warning-label")}</div>
+          <h2 className={headingClass}>
+            {t(isFast ? "exam-clock-warning-title-fast" : "exam-clock-warning-title-slow", {
+              difference,
+            })}
+          </h2>
+          <p className={bodyClass}>
+            {showDetailedInformation
+              ? t("exam-clock-warning-summary-detailed")
+              : t("exam-clock-warning-summary-mild")}
+          </p>
 
-            {showDetailedInformation ? (
-              <div className={detailsContainerClass}>
-                <div className={detailsClass}>
-                  <p className={detailRowClass}>
-                    {t("exam-clock-warning-timezone", {
-                      timezone: displayedTimezone,
-                      offset: timezoneOffset,
-                    })}
-                  </p>
-                  <p className={detailRowClass}>
-                    {t("exam-clock-warning-correct-time", { time: correctTime })}
-                  </p>
-                  <p className={detailRowClass}>
-                    {t("exam-clock-warning-device-time", { time: deviceTime })}
-                  </p>
-                  <p className={`${detailRowClass} ${highlightedDetailRowClass(isSevere)}`}>
-                    {t(
-                      isFast
-                        ? "exam-clock-warning-difference-fast"
-                        : "exam-clock-warning-difference-slow",
-                      { difference },
-                    )}
-                  </p>
-                </div>
+          {showDetailedInformation ? (
+            <div className={detailsContainerClass}>
+              <div className={detailsClass}>
+                <p className={detailRowClass}>
+                  {t("exam-clock-warning-timezone", {
+                    timezone: displayedTimezone,
+                    offset: timezoneOffset,
+                  })}
+                </p>
+                <p className={detailRowClass}>
+                  {t("exam-clock-warning-correct-time", { time: correctTime })}
+                </p>
+                <p className={detailRowClass}>
+                  {t("exam-clock-warning-device-time", { time: deviceTime })}
+                </p>
+                <p className={`${detailRowClass} ${highlightedDetailRowClass(isSevere)}`}>
+                  {t(
+                    isFast
+                      ? "exam-clock-warning-difference-fast"
+                      : "exam-clock-warning-difference-slow",
+                    { difference },
+                  )}
+                </p>
               </div>
-            ) : null}
-          </div>
-        </section>
-      </BreakFromCentered>
+            </div>
+          ) : null}
+        </div>
+      </section>
     )
   }, [estimate, i18n.language, now, t])
 

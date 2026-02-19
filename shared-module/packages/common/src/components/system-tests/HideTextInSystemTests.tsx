@@ -5,7 +5,7 @@ import React from "react"
 import useShouldHideStuffFromSystemTestScreenshots from "../../hooks/useShouldHideStuffForSystemTestScreenshots"
 
 interface HideTextInSystemTestProps {
-  text: string
+  text: React.ReactNode
   testPlaceholder: string
 }
 

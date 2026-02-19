@@ -43,25 +43,34 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
   }
 
   return (
-    <div>
-      {/* Once again, need to rethink in regards to contrast. */}
+    <div
+      className={css`
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid ${baseTheme.colors.clear[300]};
+      `}
+    >
       <div
         className={css`
-          background: ${baseTheme.colors.blue[500]};
+          background: linear-gradient(
+            140deg,
+            ${baseTheme.colors.blue[500]},
+            ${baseTheme.colors.blue[600]}
+          );
           color: white;
           flex: 1;
-          padding: 0.5rem;
+          padding: 0.75rem 1rem;
           text-align: center;
           text-transform: uppercase;
+          font-weight: 600;
+          letter-spacing: 0.02em;
         `}
       >
         {t("things-to-know-before-you-start")}
       </div>
       <div
         className={css`
-          flex: 1;
-          border-style: none solid solid;
-          border-color: ${baseTheme.colors.blue[500]};
           padding: 2rem;
         `}
       >
@@ -86,7 +95,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
         <div
           className={css`
             text-align: center;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
           `}
         >
           <Button
@@ -98,7 +107,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
               disabled
             }
             variant="primary"
-            size="medium"
+            size="large"
           >
             {t("start-the-exam")}
           </Button>

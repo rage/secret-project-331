@@ -9,6 +9,7 @@ export interface PyodideInterface {
   runPythonAsync(code: string): Promise<unknown>
   setStdout(options: { batched?: (msg: string) => void; raw?: (byte: number) => void }): void
   setStderr(options: { batched?: (msg: string) => void; raw?: (byte: number) => void }): void
+  setStdin?(options: { stdin?: () => string | undefined }): void
   FS: {
     mkdirTree(path: string): void
     writeFile(path: string, data: string | Uint8Array, opts?: { encoding?: string }): void

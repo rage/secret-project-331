@@ -23,7 +23,15 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
     publicSpec.stub_download_url,
     setState,
   )
-  const { runOutput, runError, pyodideLoading, runExecuting, runPython } = useRunOutput()
+  const {
+    runOutput,
+    runError,
+    pyodideLoading,
+    runExecuting,
+    runPython,
+    waitingForInput,
+    submitStdinLine,
+  } = useRunOutput()
   const { testResults, testInProgress, runTests } = useTestRun(publicSpec)
   // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
   const [lastOutputKind, setLastOutputKind] = useState<"run" | "test">("run")
@@ -49,6 +57,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
       runExecuting ||
       !!runOutput ||
       runError != null ||
+      waitingForInput ||
       testInProgress ||
       testResults != null)
   const outputMode: "run" | "test-running" | "test-results" = testInProgress
@@ -104,6 +113,8 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
           runExecuting={runExecuting}
           runOutput={runOutput}
           runError={runError}
+          waitingForInput={waitingForInput}
+          submitStdinLine={submitStdinLine}
           testResults={testResults}
         />
       )}

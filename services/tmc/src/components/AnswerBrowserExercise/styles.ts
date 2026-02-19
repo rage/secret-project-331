@@ -177,6 +177,40 @@ export const OutputPre = styled.pre`
   color: #252525;
 `
 
+export const StdinWaitingBanner = styled.div`
+  background-color: rgb(255, 128, 0);
+  color: #252525;
+  padding: 8px 10px;
+  margin: 0 -10px 10px -10px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 0.875rem;
+`
+
+export const StdinPromptLine = styled.div`
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-size: 0.875rem;
+  color: #252525;
+  margin-bottom: 4px;
+`
+
+export const StdinHint = styled.div`
+  font-size: 0.8125rem;
+  color: #666;
+  margin-bottom: 6px;
+`
+
+export const StdinInput = styled.input`
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-size: 0.875rem;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+`
+
 export const TestResultCard = styled.div<{ passed: boolean }>`
   border-left: 10px solid ${(p) => (p.passed ? "#4caf50" : "#f44336")};
   margin: 5px;

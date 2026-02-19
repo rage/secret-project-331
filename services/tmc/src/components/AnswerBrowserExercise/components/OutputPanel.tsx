@@ -19,6 +19,8 @@ interface OutputPanelProps {
   runExecuting?: boolean
   runOutput?: string
   runError?: string | null
+  waitingForInput?: boolean
+  submitStdinLine?: (line: string) => void
   /** For test-results mode */
   testResults?: RunResult | null
 }
@@ -29,21 +31,26 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
   runExecuting = false,
   runOutput = "",
   runError = null,
+  waitingForInput = false,
+  submitStdinLine,
   testResults = null,
 }) => {
   const { t } = useTranslation()
   const headerOrange =
-    (mode === "run" && (pyodideLoading || runExecuting)) || mode === "test-running"
+    (mode === "run" && (pyodideLoading || runExecuting || waitingForInput)) ||
+    mode === "test-running"
   const headerTitle =
     mode === "test-running"
       ? t("running-tests", "Running tests...")
       : mode === "test-results"
         ? t("test-results", "Test results")
-        : pyodideLoading
-          ? t("loading-pyodide", "Loading Pyodide...")
-          : runExecuting
-            ? t("running", "Running...")
-            : t("output", "Output")
+        : waitingForInput
+          ? t("waiting-for-input", "Waiting for input")
+          : pyodideLoading
+            ? t("loading-pyodide", "Loading Pyodide...")
+            : runExecuting
+              ? t("running", "Running...")
+              : t("output", "Output")
 
   return (
     <OutputContainer>
@@ -61,6 +68,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
             runExecuting={runExecuting}
             runOutput={runOutput}
             runError={runError}
+            waitingForInput={waitingForInput}
+            submitStdinLine={submitStdinLine}
           />
         )}
       </OutputBody>

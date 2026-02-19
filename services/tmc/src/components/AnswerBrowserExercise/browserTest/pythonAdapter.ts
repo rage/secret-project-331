@@ -1,10 +1,8 @@
 import type { BrowserTestRunnerAdapter } from "./types"
 
-const TEST_TIMEOUT_MS = 30_000
-
 function getTestWorkerUrl(): string {
   const base = typeof process !== "undefined" && process.env?.NEXT_PUBLIC_BASE_PATH
-  return `${base ?? ""}/pythonTestWorker.js`
+  return `${base ?? ""}/browserTestWorker.js`
 }
 
 /**
@@ -17,13 +15,12 @@ function buildScript(specScript: string, userCode: string): string {
   return `__webeditor_user_code_b64 = "${safeBase64}"\n${specScript}`
 }
 
-export const TEST_TIMEOUT_MS_EXPORT = TEST_TIMEOUT_MS
-
 export function getPythonBrowserTestAdapter(): BrowserTestRunnerAdapter {
   return {
     canRun(filepath: string): boolean {
       return filepath.endsWith(".py")
     },
+    getCannotRunMessage: () => "Only Python files can be tested.",
     buildScript,
     getWorkerUrl: getTestWorkerUrl,
   }

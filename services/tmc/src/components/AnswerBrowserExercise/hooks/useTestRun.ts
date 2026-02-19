@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react"
 
-import { getBrowserTestAdapter, TEST_TIMEOUT_MS_EXPORT as TEST_TIMEOUT_MS } from "../browserTest"
+import { getBrowserTestAdapter, TEST_TIMEOUT_MS } from "../browserTest"
 
 import { RunResult } from "@/tmc/cli"
 import { PublicSpec } from "@/util/stateInterfaces"
@@ -33,8 +33,12 @@ export function useTestRun(publicSpec: PublicSpec) {
       }
       const adapter =
         browserTest?.runtime != null ? getBrowserTestAdapter(browserTest.runtime) : null
-      if (!adapter?.canRun(filepath)) {
-        setTestResults(runResultFromError("Only Python files can be tested."))
+      if (!adapter) {
+        setTestResults(runResultFromError("Tests are not available for this exercise."))
+        return
+      }
+      if (!adapter.canRun(filepath)) {
+        setTestResults(runResultFromError(adapter.getCannotRunMessage()))
         return
       }
 

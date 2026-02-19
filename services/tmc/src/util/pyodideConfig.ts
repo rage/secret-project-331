@@ -1,6 +1,6 @@
 /**
  * Single source of truth for Pyodide version and CDN URL.
- * Used by pyodideLoader (main thread) and by public/pythonTestWorker.js (worker).
+ * Used by pyodideLoader (main thread) and by public/browserTestWorker.js (worker).
  * Keep the worker's PYODIDE_CDN_VERSION in sync with PYODIDE_VERSION when changing.
  */
 export const PYODIDE_VERSION = "0.29.3"

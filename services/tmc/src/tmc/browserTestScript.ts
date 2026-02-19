@@ -1,12 +1,11 @@
 import * as fs from "node:fs/promises"
 import path from "node:path"
 
-interface FileEntry {
-  fullName: string
-  shortName: string
-  originalContent: string
-  content: string
-}
+import {
+  escapeForTripleQuotedString,
+  type FileEntry,
+  readFilesByExtension,
+} from "./browserTestScriptHelpers"
 
 export type BuildBrowserTestScriptResult = { script: string } | { error: string }
 
@@ -36,8 +35,8 @@ export async function buildBrowserTestScript(
   } catch {
     return { error: `template missing tmc directory: ${tmcDir}` }
   }
-  const testFiles = await readPyFiles(testDir)
-  const tmcFiles = await readPyFiles(tmcDir)
+  const testFiles = await readFilesByExtension(testDir, ".py")
+  const tmcFiles = await readFilesByExtension(tmcDir, ".py")
   if (testFiles.length === 0) {
     return { error: "template test/ has no .py files" }
   }
@@ -53,28 +52,8 @@ export async function buildBrowserTestScript(
   }
 }
 
-async function readPyFiles(dir: string): Promise<FileEntry[]> {
-  const entries = await fs.readdir(dir, { withFileTypes: true })
-  const files: FileEntry[] = []
-  for (const e of entries) {
-    if (!e.isFile() || !e.name.endsWith(".py")) {
-      continue
-    }
-    const fullPath = path.join(dir, e.name)
-    const content = await fs.readFile(fullPath, "utf-8")
-    files.push({
-      fullName: fullPath,
-      shortName: e.name,
-      originalContent: content,
-      content,
-    })
-  }
-  return files.sort((a, b) => a.shortName.localeCompare(b.shortName))
-}
-
 function stringifyPythonCode(code: string): string {
-  const escaped = code.replace(/\\/g, "\\\\").replace(/"""/g, '\\"\\"\\"')
-  return `"""\n${escaped}\n"""`
+  return `"""\n${escapeForTripleQuotedString(code)}\n"""`
 }
 
 function findFileByShortName(name: string, files: FileEntry[], defaultFile?: FileEntry): FileEntry {

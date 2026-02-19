@@ -1,7 +1,7 @@
 /**
  * Types for the in-browser test worker protocol.
  *
- * Worker runtime: public/pythonTestWorker.js (classic worker, loads Pyodide via importScripts).
+ * Worker runtime: public/browserTestWorker.js (classic worker, loads Pyodide via importScripts).
  *
  * Protocol:
  * - Input: { script: string } — full script to run (e.g. Python for Pyodide).

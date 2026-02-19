@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useMemo } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
@@ -22,18 +23,6 @@ const containerStyles = css`
   position: relative;
   max-width: 1000px;
   margin: 0 auto;
-`
-
-const srOnlyStyles = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
 `
 
 const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
@@ -90,9 +79,9 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
     <BreakFromCentered sidebar={false}>
       <div className={containerStyles}>
         {highlightedLinesSummary && (
-          <span className={srOnlyStyles}>
+          <VisuallyHidden>
             {t("code-block-highlighted-lines", { lines: highlightedLinesSummary })}
-          </span>
+          </VisuallyHidden>
         )}
         {cleanCode && <CopyButton content={cleanCode} />}
         <pre

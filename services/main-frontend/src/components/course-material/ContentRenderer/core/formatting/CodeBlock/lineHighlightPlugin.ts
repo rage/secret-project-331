@@ -120,6 +120,12 @@ export function applyLineWrapping(el: HTMLElement): void {
     for (const node of lines[i]) {
       span.appendChild(node)
     }
+    // Preserve visible height for blank lines in the browser.
+    // Without a placeholder, empty block spans collapse to zero height.
+    const hasVisibleText = lines[i].some((node) => (node.textContent ?? "").length > 0)
+    if (!hasVisibleText) {
+      span.appendChild(document.createElement("br"))
+    }
     fragment.appendChild(span)
   }
   el.innerHTML = ""

@@ -153,6 +153,23 @@ describe("CodeBlock", () => {
       expect(String(copied).replace(/\r\n/g, "\n")).toBe(expected)
     })
 
+    it("copies code with blank lines preserved when marker-only lines are removed", async () => {
+      const writeText = jest.fn(() => Promise.resolve())
+      Object.defineProperty(navigator, "clipboard", {
+        value: { writeText },
+        configurable: true,
+      })
+      const content = "a\n// BEGIN HIGHLIGHT\n\nb\n// END HIGHLIGHT\n\nc"
+      const { container } = renderCodeBlock(content)
+      const copyButton = container.querySelector('button[aria-label="copy-to-clipboard"]')
+      expect(copyButton).toBeInTheDocument()
+      fireEvent.click(copyButton!)
+      await waitFor(() => {
+        expect(writeText).toHaveBeenCalled()
+      })
+      expect(writeText).toHaveBeenCalledWith("a\n\nb\n\nc")
+    })
+
     it("should highlight range between BEGIN HIGHLIGHT and END HIGHLIGHT", async () => {
       const contentWithRange = "before\n// BEGIN HIGHLIGHT\nmid1\nmid2\n// END HIGHLIGHT\nafter"
       const { container } = renderCodeBlock(contentWithRange)
@@ -163,6 +180,49 @@ describe("CodeBlock", () => {
           expect(codeElement?.textContent).not.toContain("// END HIGHLIGHT")
           const highlighted = container.querySelectorAll(".highlighted-line")
           expect(highlighted.length).toBeGreaterThanOrEqual(2)
+        },
+        { timeout: 2000 },
+      )
+    })
+
+    it("preserves blank lines around marker-only lines in rendered output", async () => {
+      const content = "top\n\n// BEGIN HIGHLIGHT\n\ninside\n\n// END HIGHLIGHT\n\nbottom"
+      const { container } = renderCodeBlock(content)
+      await waitFor(
+        () => {
+          const lines = container.querySelectorAll(".code-line")
+          expect(lines.length).toBe(7)
+          expect(lines[0].textContent).toBe("top")
+          expect(lines[1].textContent).toBe("")
+          expect(lines[2].textContent).toBe("")
+          expect(lines[3].textContent).toBe("inside")
+          expect(lines[4].textContent).toBe("")
+          expect(lines[5].textContent).toBe("")
+          expect(lines[6].textContent).toBe("bottom")
+          expect(lines[1].querySelector("br")).not.toBeNull()
+          expect(lines[2].querySelector("br")).not.toBeNull()
+          expect(lines[4].querySelector("br")).not.toBeNull()
+          expect(lines[5].querySelector("br")).not.toBeNull()
+          expect(lines[2].classList.contains("highlighted-line")).toBe(true)
+          expect(lines[3].classList.contains("highlighted-line")).toBe(true)
+          expect(lines[4].classList.contains("highlighted-line")).toBe(true)
+          expect(lines[5].classList.contains("highlighted-line")).toBe(false)
+        },
+        { timeout: 2000 },
+      )
+    })
+
+    it("preserves leading and trailing empty lines when markers are present", async () => {
+      const content = "<br>// BEGIN HIGHLIGHT<br>inside<br>// END HIGHLIGHT<br>"
+      const { container } = renderCodeBlock(content)
+      await waitFor(
+        () => {
+          const lines = container.querySelectorAll(".code-line")
+          expect(lines.length).toBe(3)
+          expect(lines[0].textContent).toBe("")
+          expect(lines[1].textContent).toBe("inside")
+          expect(lines[2].textContent).toBe("")
+          expect(lines[1].classList.contains("highlighted-line")).toBe(true)
         },
         { timeout: 2000 },
       )

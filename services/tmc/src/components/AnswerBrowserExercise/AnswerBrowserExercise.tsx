@@ -25,6 +25,8 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
   )
   const { runOutput, runError, pyodideLoading, runExecuting, runPython } = useRunOutput()
   const { testResults, testInProgress, runTests } = useTestRun(publicSpec)
+  // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
+  const [lastOutputKind, setLastOutputKind] = useState<"run" | "test">("run")
 
   if (editorFiles.length === 0) {
     return <div>{t("no-exercise-files")}</div>
@@ -52,7 +54,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
   const outputMode: "run" | "test-running" | "test-results" = testInProgress
     ? // eslint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
       "test-running"
-    : testResults != null
+    : lastOutputKind === "test" && testResults != null
       ? // eslint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
         "test-results"
       : // eslint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
@@ -74,8 +76,16 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
         testInProgress={testInProgress}
         showRun={showRun}
         contents={contents}
-        onRun={runPython}
-        onTest={() => runTests(filepath, contents)}
+        onRun={(code) => {
+          // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
+          setLastOutputKind("run")
+          runPython(code)
+        }}
+        onTest={() => {
+          // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
+          setLastOutputKind("test")
+          runTests(filepath, contents)
+        }}
         onResetClick={() => setResetConfirmOpen(true)}
         testUnavailableReason={publicSpec.browser_test?.error}
       />

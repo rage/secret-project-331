@@ -7,6 +7,7 @@ import { ActionButtons, EditorSection, OutputPanel, ResetConfirmDialog } from ".
 import { useEditorState, useRunOutput, useTestRun } from "./hooks"
 import { Card } from "./styles"
 import { AnswerBrowserExerciseProps } from "./types"
+import { isSupportedForBrowserTest } from "./utils"
 
 const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerciseProps>> = ({
   publicSpec,
@@ -23,7 +24,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
     setState,
   )
   const { runOutput, runError, pyodideLoading, runExecuting, runPython } = useRunOutput()
-  const { testResults, testInProgress, runTests } = useTestRun(publicSpec.stub_download_url)
+  const { testResults, testInProgress, runTests } = useTestRun(publicSpec)
 
   if (editorFiles.length === 0) {
     return <div>{t("no-exercise-files")}</div>
@@ -31,7 +32,14 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
 
   const { filepath, contents } = editorFiles[0]
   const isPython = filepath.endsWith(".py")
-  const runOrTestDisabled = pyodideLoading || runExecuting
+  const runDisabled = pyodideLoading || runExecuting
+  const hasBrowserTestScript =
+    publicSpec.browser_test != null && publicSpec.browser_test.script.length > 0
+  const canRunBrowserTest =
+    hasBrowserTestScript &&
+    (publicSpec.browser_test?.runtime == null ||
+      isSupportedForBrowserTest(filepath, publicSpec.browser_test.runtime))
+  const testDisabled = runDisabled || testInProgress || !canRunBrowserTest
   const showRun = !runExecuting && !pyodideLoading
   const showOutput =
     isPython &&
@@ -61,13 +69,15 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
       />
       <ActionButtons
         isPython={isPython}
-        runOrTestDisabled={runOrTestDisabled}
+        runDisabled={runDisabled}
+        testDisabled={testDisabled}
         testInProgress={testInProgress}
         showRun={showRun}
         contents={contents}
         onRun={runPython}
         onTest={() => runTests(filepath, contents)}
         onResetClick={() => setResetConfirmOpen(true)}
+        testUnavailableReason={publicSpec.browser_test?.error}
       />
       <ResetConfirmDialog
         open={resetConfirmOpen}

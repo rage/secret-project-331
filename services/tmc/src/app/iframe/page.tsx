@@ -228,7 +228,16 @@ const publicSpecToIframeUserAnswer = async (publicSpec: PublicSpec): Promise<Use
     const stubResponse = await fetch(publicSpec.stub_download_url)
 
     const tarZstdArchive = await stubResponse.arrayBuffer()
-    const files = await extractTarZstd(Buffer.from(tarZstdArchive))
+    let files = await extractTarZstd(Buffer.from(tarZstdArchive))
+    // Order by student_file_paths so the main code file is shown first, not config (e.g. tmcproject.yml)
+    const order = publicSpec.student_file_paths
+    if (order.length > 0) {
+      const indexOf = (path: string) => {
+        const i = order.indexOf(path)
+        return i === -1 ? 1e9 : i
+      }
+      files = [...files].sort((a, b) => indexOf(a.filepath) - indexOf(b.filepath))
+    }
 
     return { type: "browser", files }
   } else if (publicSpec.type == "editor") {

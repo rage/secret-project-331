@@ -129,6 +129,12 @@ export const TestButtonLabel = styled.span`
   padding-left: 5px;
 `
 
+export const TestUnavailableHint = styled.small`
+  display: block;
+  margin-top: 4px;
+  color: #666;
+`
+
 export const OutputContainer = styled.div`
   width: 100%;
   min-height: 100px;

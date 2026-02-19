@@ -3,9 +3,7 @@
  * Avoids bundler "expression is too dynamic" by not using import("pyodide").
  */
 
-const PYODIDE_CDN_VERSION = "0.29.3"
-const INDEX_URL = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_CDN_VERSION}/full/`
-const SCRIPT_URL = `${INDEX_URL}pyodide.js`
+import { PYODIDE_INDEX_URL, PYODIDE_SCRIPT_URL } from "@/util/pyodideConfig"
 
 export interface PyodideInterface {
   runPythonAsync(code: string): Promise<unknown>
@@ -50,12 +48,12 @@ export async function getPyodide(): Promise<PyodideInterface> {
     return pyodidePromise
   }
   pyodidePromise = (async () => {
-    await loadScript(SCRIPT_URL)
+    await loadScript(PYODIDE_SCRIPT_URL)
     const loadPyodide = window.loadPyodide
     if (!loadPyodide) {
       throw new Error("loadPyodide not found on window after loading pyodide.js")
     }
-    return loadPyodide({ indexURL: INDEX_URL })
+    return loadPyodide({ indexURL: PYODIDE_INDEX_URL })
   })()
   return pyodidePromise
 }

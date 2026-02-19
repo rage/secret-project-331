@@ -3,7 +3,7 @@ Handlers for HTTP requests to `/api/v0/main-frontend/time`.
 */
 
 use crate::prelude::*;
-use chrono::{Duration, SecondsFormat, Utc};
+use chrono::{SecondsFormat, Utc};
 
 /**
 GET `/api/v0/main-frontend/time` Returns the server's current UTC time as an RFC3339 timestamp string.
@@ -12,8 +12,7 @@ Response body example:
 `"2026-02-18T12:34:56.789Z"`
 */
 pub async fn get_current_time() -> ControllerResult<HttpResponse> {
-    let server_time = (Utc::now() + Duration::hours(2) + Duration::minutes(3))
-        .to_rfc3339_opts(SecondsFormat::Millis, true);
+    let server_time = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
     let token = skip_authorize();
 
     token.authorized_ok(
@@ -57,5 +56,14 @@ mod tests {
 
         let body: String = test::read_body_json(resp).await;
         assert!(chrono::DateTime::parse_from_rfc3339(&body).is_ok());
+
+        let parsed = chrono::DateTime::parse_from_rfc3339(&body).unwrap();
+        let server_utc = parsed.with_timezone(&chrono::Utc);
+        let now = chrono::Utc::now();
+        let diff = (server_utc - now).abs();
+        assert!(
+            diff < chrono::Duration::seconds(5),
+            "server time should be close to now"
+        );
     }
 }

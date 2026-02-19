@@ -163,7 +163,12 @@ const ManageExam: React.FC = () => {
             <Button
               size="medium"
               variant="primary"
-              onClick={() => setEditExamFormOpen(true)}
+              disabled={!organizationId}
+              onClick={() => {
+                if (organizationId) {
+                  setEditExamFormOpen(true)
+                }
+              }}
               className={css`
                 margin-top: 0.75rem;
               `}
@@ -172,16 +177,18 @@ const ManageExam: React.FC = () => {
             </Button>
           </div>
 
-          <EditExamDialog
-            initialData={getExam.data}
-            examId={getExam.data.id}
-            organizationId={organizationId ?? ""}
-            open={editExamFormOpen}
-            close={() => {
-              setEditExamFormOpen(false)
-              getExam.refetch()
-            }}
-          />
+          {organizationId && (
+            <EditExamDialog
+              initialData={getExam.data}
+              examId={getExam.data.id}
+              organizationId={organizationId}
+              open={editExamFormOpen}
+              close={() => {
+                setEditExamFormOpen(false)
+                getExam.refetch()
+              }}
+            />
+          )}
 
           <ul
             className={css`
@@ -267,6 +274,7 @@ const ManageExam: React.FC = () => {
           ))}
           <TextField
             label={t("add-course")}
+            value={newCourse}
             onChange={(event) => setNewCourse(event.target.value)}
             placeholder={t("course-id")}
             className={css`

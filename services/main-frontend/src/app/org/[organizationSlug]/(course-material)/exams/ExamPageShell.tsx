@@ -7,6 +7,7 @@ import { useHydrateAtoms } from "jotai/utils"
 import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
 import ExamClockSkewWarning from "./ExamClockSkewWarning"
 import ExamInfoHeader from "./ExamInfoHeader"
 import ExamRunningSection from "./ExamRunningSection"
@@ -19,6 +20,7 @@ import type { ExamData, ExamEnrollmentData } from "@/shared-module/common/bindin
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import { courseMaterialAtom } from "@/state/course-material"
@@ -81,6 +83,12 @@ export default function ExamPageShell({
     await triggerRefetch()
   }, [triggerRefetch])
 
+  const enrollMutation = useToastMutation(
+    () => enrollInExam(examId, mode === "testexam"),
+    { notify: true, method: "POST" },
+    { onSuccess: handleRefresh },
+  )
+
   useEffect(() => {
     if (!courseMaterialState.examData) {
       return
@@ -131,8 +139,7 @@ export default function ExamPageShell({
         <div id="exam-instructions">
           <ExamStartBanner
             onStart={async () => {
-              await enrollInExam(examId, mode === "testexam")
-              await handleRefresh()
+              await enrollMutation.mutateAsync()
             }}
             examEnrollmentData={bannerEnrollmentData}
             examHasStarted={examHasStarted}
@@ -187,7 +194,24 @@ export default function ExamPageShell({
     )
   }
 
-  if (enrollmentTag === "StudentCanViewGrading" && renderGradingView) {
+  if (enrollmentTag === "StudentCanViewGrading") {
+    if (renderGradingView) {
+      return (
+        <Centered variant="default">
+          <div
+            className={css`
+              padding-top: 2rem;
+            `}
+          />
+          <ExamClockSkewWarning />
+          <ExamInfoHeader examData={examData} />
+          {renderGradingView(examData)}
+        </Centered>
+      )
+    }
+    if (typeof console !== "undefined" && console.warn) {
+      console.warn("ExamPageShell: renderGradingView not provided for StudentCanViewGrading")
+    }
     return (
       <Centered variant="default">
         <div
@@ -195,9 +219,8 @@ export default function ExamPageShell({
             padding-top: 2rem;
           `}
         />
-        <ExamClockSkewWarning />
+        <CenteredClockSkewWarning />
         <ExamInfoHeader examData={examData} />
-        {renderGradingView(examData)}
       </Centered>
     )
   }

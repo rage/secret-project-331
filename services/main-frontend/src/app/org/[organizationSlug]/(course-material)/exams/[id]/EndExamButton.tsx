@@ -19,13 +19,13 @@ export default function EndExamButton({ examId, disabled, onEnded }: EndExamButt
   const { confirm } = useDialog()
 
   const endExamMutation = useToastMutation(
-    ({ id }: { id: string }) => endExamTime(id),
+    () => endExamTime(examId),
     { notify: true, method: "POST" },
     { onSuccess: onEnded },
   )
 
   const handleEndExam = () => {
-    endExamMutation.mutate({ id: examId })
+    endExamMutation.mutate()
   }
 
   if (disabled) {

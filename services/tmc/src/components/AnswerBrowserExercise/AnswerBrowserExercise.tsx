@@ -132,10 +132,10 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
             runPython(code)
           }}
           onStop={stopRun}
-          onTest={() => {
+          onTest={async () => {
             // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
             setLastOutputKind("test")
-            runTests(filepath, contents)
+            await runTests(filepath, contents)
           }}
           onResetClick={() => setResetConfirmOpen(true)}
           testUnavailableReason={publicSpec.browser_test?.error}

@@ -1,5 +1,4 @@
 export function extensionToLanguage(path: string): string | undefined {
-  /* eslint-disable i18next/no-literal-string */
   const separator = path.lastIndexOf(".")
   if (separator == -1) {
     return undefined
@@ -18,5 +17,4 @@ export function extensionToLanguage(path: string): string | undefined {
     default:
       return extension
   }
-  /* eslint-enable i18next/no-literal-string */
 }

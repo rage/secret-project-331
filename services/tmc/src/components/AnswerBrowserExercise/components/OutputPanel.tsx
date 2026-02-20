@@ -3,6 +3,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import type { OutputSegment } from "../hooks/useRunOutput"
 import { OutputBody, OutputContainer, OutputHeader, OutputHeaderText, OutputPre } from "../styles"
 
 import { RunOutputContent } from "./RunOutputContent"
@@ -20,6 +21,8 @@ interface OutputPanelProps {
   runOutput?: string
   runError?: string | null
   waitingForInput?: boolean
+  stdinPrompt?: string
+  segments?: OutputSegment[]
   submitStdinLine?: (line: string) => void
   /** For test-results mode */
   testResults?: RunResult | null
@@ -32,6 +35,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
   runOutput = "",
   runError = null,
   waitingForInput = false,
+  stdinPrompt = "",
+  segments = [],
   submitStdinLine,
   testResults = null,
 }) => {
@@ -69,6 +74,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
             runOutput={runOutput}
             runError={runError}
             waitingForInput={waitingForInput}
+            stdinPrompt={stdinPrompt}
+            segments={segments}
             submitStdinLine={submitStdinLine}
           />
         )}

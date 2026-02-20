@@ -1,39 +1,69 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 
 function getRunWorkerUrl(): string {
   const base = typeof process !== "undefined" && process.env?.NEXT_PUBLIC_BASE_PATH
   return `${base ?? ""}/runWorker.js`
 }
 
+export type OutputSegment =
+  | { type: "stdout"; text: string }
+  | { type: "input"; prompt: string; line: string }
+
 export function useRunOutput() {
-  const [runOutput, setRunOutput] = useState("")
+  const [segments, setSegments] = useState<OutputSegment[]>([])
   const [runError, setRunError] = useState<string | null>(null)
   const [pyodideLoading, setPyodideLoading] = useState(false)
   const [runExecuting, setRunExecuting] = useState(false)
   const [waitingForInput, setWaitingForInput] = useState(false)
+  const [stdinPrompt, setStdinPrompt] = useState("")
   const workerRef = useRef<Worker | null>(null)
   const runOutputBufferRef = useRef("")
 
+  const runOutput = useMemo(
+    () =>
+      segments
+        .filter((s) => s.type === "stdout")
+        .map((s) => s.text)
+        .join(""),
+    [segments],
+  )
+
   const submitStdinLine = useCallback((line: string) => {
+    setSegments((prev) => {
+      let i = prev.length - 1
+      while (i >= 0) {
+        const seg = prev[i]
+        if (seg.type === "input" && seg.line === "") {
+          return [
+            ...prev.slice(0, i),
+            { type: "input" as const, prompt: seg.prompt, line },
+            ...prev.slice(i + 1),
+          ]
+        }
+        i -= 1
+      }
+      return prev
+    })
     workerRef.current?.postMessage({ type: "stdin_line", line })
   }, [])
 
   const runPython = useCallback(async (contents: string) => {
     setRunError(null)
     runOutputBufferRef.current = ""
-    setRunOutput("")
+    setSegments([])
     setWaitingForInput(false)
+    setStdinPrompt("")
     setPyodideLoading(true)
     setRunExecuting(true)
 
-    const finish = (output: string, error: string | null) => {
-      setRunOutput(output)
+    const finish = (_output: string, error: string | null) => {
       setRunError(error)
       setPyodideLoading(false)
       setRunExecuting(false)
       setWaitingForInput(false)
+      setStdinPrompt("")
     }
 
     let worker = workerRef.current
@@ -50,11 +80,21 @@ export function useRunOutput() {
     const handleMessage = (e: MessageEvent) => {
       const data = e.data
       switch (data.type) {
-        case "stdout":
-          runOutputBufferRef.current += data.chunk ?? ""
-          setRunOutput(runOutputBufferRef.current)
+        case "stdout": {
+          const chunk = data.chunk ?? ""
+          runOutputBufferRef.current += chunk
+          setSegments((prev) => {
+            const last = prev[prev.length - 1]
+            if (last?.type === "stdout") {
+              return [...prev.slice(0, -1), { type: "stdout", text: last.text + chunk }]
+            }
+            return [...prev, { type: "stdout", text: chunk }]
+          })
           break
+        }
         case "stdin_request":
+          setSegments((prev) => [...prev, { type: "input", prompt: data.prompt ?? "", line: "" }])
+          setStdinPrompt(data.prompt ?? "")
           setWaitingForInput(true)
           break
         case "run_done":
@@ -84,12 +124,14 @@ export function useRunOutput() {
   }, [])
 
   return {
+    segments,
     runOutput,
     runError,
     pyodideLoading,
     runExecuting,
     runPython,
     waitingForInput,
+    stdinPrompt,
     submitStdinLine,
   }
 }

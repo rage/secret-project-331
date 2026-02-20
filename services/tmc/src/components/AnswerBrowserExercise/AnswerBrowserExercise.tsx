@@ -30,6 +30,8 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
     runExecuting,
     runPython,
     waitingForInput,
+    stdinPrompt,
+    segments,
     submitStdinLine,
   } = useRunOutput()
   const { testResults, testInProgress, runTests } = useTestRun(publicSpec)
@@ -114,6 +116,8 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
           runOutput={runOutput}
           runError={runError}
           waitingForInput={waitingForInput}
+          stdinPrompt={stdinPrompt}
+          segments={segments}
           submitStdinLine={submitStdinLine}
           testResults={testResults}
         />

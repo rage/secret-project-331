@@ -3,7 +3,16 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { OutputPre, StdinHint, StdinInput, StdinPromptLine, StdinWaitingBanner } from "../styles"
+import type { OutputSegment } from "../hooks/useRunOutput"
+import {
+  OutputPre,
+  StdinHint,
+  StdinInput,
+  StdinLineRow,
+  StdinPromptLine,
+  StdinSubmittedLine,
+  StdinWaitingBanner,
+} from "../styles"
 
 interface RunOutputContentProps {
   pyodideLoading: boolean
@@ -11,19 +20,34 @@ interface RunOutputContentProps {
   runOutput: string
   runError: string | null
   waitingForInput?: boolean
+  /** Prompt string from input() when waiting for input (e.g. "Give x: ") */
+  stdinPrompt?: string
+  /** Ordered stdout + input segments (so input prompt + submitted line stay visible after run) */
+  segments?: OutputSegment[]
   submitStdinLine?: (line: string) => void
 }
 
-/** Last non-empty line of output (e.g. Python input() prompt). */
-function lastOutputLine(output: string): string {
-  const lines = output.trim().split(/\r?\n/)
-  for (let i = lines.length - 1; i >= 0; i--) {
-    const s = lines[i]?.trim()
-    if (s !== "") {
-      return lines[i] ?? ""
+/** Merge consecutive stdout segments into one for a single pre block */
+function mergeStdoutSegments(
+  segments: OutputSegment[],
+): Array<{ type: "stdout"; text: string } | OutputSegment> {
+  const result: Array<{ type: "stdout"; text: string } | OutputSegment> = []
+  let stdoutAcc = ""
+  for (const seg of segments) {
+    if (seg.type === "stdout") {
+      stdoutAcc += seg.text
+    } else {
+      if (stdoutAcc) {
+        result.push({ type: "stdout", text: stdoutAcc })
+        stdoutAcc = ""
+      }
+      result.push(seg)
     }
   }
-  return ""
+  if (stdoutAcc) {
+    result.push({ type: "stdout", text: stdoutAcc })
+  }
+  return result
 }
 
 export const RunOutputContent: React.FC<RunOutputContentProps> = ({
@@ -32,6 +56,8 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
   runOutput,
   runError,
   waitingForInput = false,
+  stdinPrompt = "",
+  segments = [],
   submitStdinLine,
 }) => {
   const { t } = useTranslation()
@@ -61,23 +87,68 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
     }
   }, [waitingForInput])
 
+  const blocks = mergeStdoutSegments(segments)
+  const lastSegment = segments[segments.length - 1]
+  const lastIsInputWaiting =
+    lastSegment?.type === "input" && lastSegment.line === "" && waitingForInput
+
   return (
     <>
-      <OutputPre>
-        {pyodideLoading && t("loading-pyodide", "Loading Pyodide...")}
-        {runExecuting && !pyodideLoading && runOutput === "" && t("running", "Running...")}
-        {runOutput}
-        {/* eslint-disable-next-line i18next/no-literal-string -- Python runtime error */}
-        {runError != null && `\n${runError}`}
-      </OutputPre>
-      {waitingForInput && submitStdinLine != null && (
+      {pyodideLoading && <OutputPre>{t("loading-pyodide", "Loading Pyodide...")}</OutputPre>}
+      {runExecuting && !pyodideLoading && segments.length === 0 && (
+        <OutputPre>{t("running", "Running...")}</OutputPre>
+      )}
+      {blocks.map((block, index) => {
+        if (block.type === "stdout") {
+          return <OutputPre key={`stdout-${index}`}>{block.text}</OutputPre>
+        }
+        const isLastWaiting = lastIsInputWaiting && index === blocks.length - 1
+        return (
+          <React.Fragment key={`input-${index}`}>
+            {block.line !== "" ? (
+              <StdinLineRow>
+                {block.prompt != null && block.prompt !== "" && (
+                  <StdinPromptLine>{block.prompt}</StdinPromptLine>
+                )}
+                <StdinSubmittedLine>{block.line}</StdinSubmittedLine>
+              </StdinLineRow>
+            ) : (
+              <>
+                {block.prompt != null && block.prompt !== "" && (
+                  <StdinLineRow>
+                    <StdinPromptLine>{block.prompt}</StdinPromptLine>
+                  </StdinLineRow>
+                )}
+                {isLastWaiting && submitStdinLine != null ? (
+                  <>
+                    <StdinWaitingBanner role="status">
+                      {t("waiting-for-input", "Waiting for input")}
+                    </StdinWaitingBanner>
+                    <StdinHint>
+                      {t("enter-input-press-enter", "Enter input and press Enter")}
+                    </StdinHint>
+                    <StdinInput
+                      ref={inputRef}
+                      type="text"
+                      value={stdinValue}
+                      onChange={(e) => setStdinValue(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      aria-label={t("program-input", "Program input")}
+                    />
+                  </>
+                ) : null}
+              </>
+            )}
+          </React.Fragment>
+        )
+      })}
+      {/* Show current waiting UI if we have no segments yet (e.g. very first stdin_request before any stdout) */}
+      {waitingForInput && submitStdinLine != null && !lastIsInputWaiting && segments.length > 0 && (
         <>
           <StdinWaitingBanner role="status">
             {t("waiting-for-input", "Waiting for input")}
           </StdinWaitingBanner>
-          {lastOutputLine(runOutput) && (
-            <StdinPromptLine>{lastOutputLine(runOutput)}</StdinPromptLine>
-          )}
+          {stdinPrompt && <StdinPromptLine>{stdinPrompt}</StdinPromptLine>}
           <StdinHint>{t("enter-input-press-enter", "Enter input and press Enter")}</StdinHint>
           <StdinInput
             ref={inputRef}
@@ -88,6 +159,13 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
             aria-label={t("program-input", "Program input")}
           />
         </>
+      )}
+      {runError != null && (
+        <OutputPre>
+          {runOutput}
+          {/* eslint-disable-next-line i18next/no-literal-string -- Python runtime error */}
+          {`\n${runError}`}
+        </OutputPre>
       )}
     </>
   )

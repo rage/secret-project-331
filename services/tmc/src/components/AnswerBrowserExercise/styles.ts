@@ -187,11 +187,35 @@ export const StdinWaitingBanner = styled.div`
   font-size: 0.875rem;
 `
 
-export const StdinPromptLine = styled.div`
+/** Single line: prompt + optional submitted input (grey) on same line */
+export const StdinLineRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0;
   font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
   font-size: 0.875rem;
   color: #252525;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+`
+
+export const StdinPromptLine = styled.span`
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+`
+
+/** Submitted stdin (grey background, inline so it ends at end of string) */
+export const StdinSubmittedLine = styled.span`
+  display: inline;
+  font-family: inherit;
+  font-size: inherit;
+  background-color: #e8e8e8;
+  color: #252525;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-break: break-all;
 `
 
 export const StdinHint = styled.div`

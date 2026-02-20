@@ -22,8 +22,11 @@ function getPyodide() {
   return pyodidePromise
 }
 
-self.inputPromise = function () {
-  self.postMessage({ type: "stdin_request" })
+self.inputPromise = function (prompt) {
+  self.postMessage({
+    type: "stdin_request",
+    prompt: prompt != null ? String(prompt) : "",
+  })
   return new Promise(function (resolve) {
     pendingStdinResolve = resolve
   })
@@ -100,9 +103,7 @@ self.onmessage = function (e) {
         "import asyncio, sys, traceback\n" +
         "from js import exit, inputPromise, printError\n\n" +
         "async def input(prompt=None):\n" +
-        " if prompt:\n" +
-        '  __builtins__.print(prompt, end="")\n' +
-        " return await inputPromise()\n\n" +
+        " return await inputPromise(prompt)\n\n" +
         "async def wrap_execution():\n" +
         " try:\n" +
         "  await execute()\n" +

@@ -22,6 +22,7 @@ interface ActionButtonsProps {
   showRun: boolean
   contents: string
   onRun: (contents: string) => void
+  onStop: () => void
   onTest: () => Promise<void>
   onResetClick: () => void
   /** When Test is disabled because the server could not build the test script (e.g. template missing test/tmc). */
@@ -45,7 +46,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = (p) => {
               <span>{t("run", "Run")}</span>
             </RunButton>
           ) : (
-            <StopButton type="button" disabled data-cy="stop-btn">
+            <StopButton type="button" onClick={p.onStop} data-cy="stop-btn">
               <StopIcon />
               <span>{t("stop", "Stop")}</span>
             </StopButton>

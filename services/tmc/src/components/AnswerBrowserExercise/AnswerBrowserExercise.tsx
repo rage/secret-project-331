@@ -29,6 +29,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
     pyodideLoading,
     runExecuting,
     runPython,
+    stopRun,
     waitingForInput,
     stdinPrompt,
     segments,
@@ -92,6 +93,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
           setLastOutputKind("run")
           runPython(code)
         }}
+        onStop={stopRun}
         onTest={() => {
           // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
           setLastOutputKind("test")

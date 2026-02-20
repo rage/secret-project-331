@@ -123,6 +123,21 @@ export function useRunOutput() {
     worker.postMessage({ type: "run", script: contents })
   }, [])
 
+  const stopRun = useCallback(() => {
+    const worker = workerRef.current
+    if (!worker) {
+      return
+    }
+    worker.onmessage = null
+    worker.onerror = null
+    setPyodideLoading(false)
+    setRunExecuting(false)
+    setWaitingForInput(false)
+    setStdinPrompt("")
+    worker.terminate()
+    workerRef.current = null
+  }, [])
+
   return {
     segments,
     runOutput,
@@ -130,6 +145,7 @@ export function useRunOutput() {
     pyodideLoading,
     runExecuting,
     runPython,
+    stopRun,
     waitingForInput,
     stdinPrompt,
     submitStdinLine,

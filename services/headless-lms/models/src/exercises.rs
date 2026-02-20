@@ -972,7 +972,7 @@ WHERE ues.user_id = ANY($1)
   )
   AND (
     $5 = FALSE
-    OR ues.reviewing_stage = 'reviewed_and_locked'
+    OR ues.reviewing_stage IN ('reviewed_and_locked', 'locked')
   )
             "#,
         user_ids,

@@ -123,6 +123,8 @@ function getStatusMessageText(
   switch (reviewingStage) {
     case "ReviewedAndLocked":
       return t("help-text-answer-has-been-reviewed-and-locked")
+    case "Locked":
+      return t("help-text-answer-has-been-locked")
     case "WaitingForManualGrading":
       return t("help-text-waiting-for-manual-grading")
     case "WaitingForPeerReviews":

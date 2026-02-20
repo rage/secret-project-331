@@ -15,12 +15,13 @@ interface EditorSectionProps {
   editorKey: number
   editorFiles: Array<ExerciseFile>
   setEditorState: (files: Array<ExerciseFile>) => void
+  readOnly?: boolean
 }
 
 export const EditorSection: React.FC<EditorSectionProps> = (props) => {
-  const { filepath, contents, editorKey, editorFiles, setEditorState } = props
+  const { filepath, contents, editorKey, editorFiles, setEditorState, readOnly = false } = props
   const onChange = (newContents: string | undefined) => {
-    if (newContents === undefined) {
+    if (readOnly || newContents === undefined) {
       return
     }
     const newState = _.cloneDeep(editorFiles)
@@ -40,6 +41,7 @@ export const EditorSection: React.FC<EditorSectionProps> = (props) => {
           language={extensionToLanguage(filepath)}
           value={contents}
           onChange={onChange}
+          options={{ readOnly }}
         />
       </EditorWrapper>
     </EditorSectionStyled>

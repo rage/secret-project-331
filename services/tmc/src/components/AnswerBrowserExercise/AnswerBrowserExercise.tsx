@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -14,9 +15,13 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
   initialState,
   testRequestResponse: _testRequestResponse,
   setState,
+  grading,
+  readOnly = false,
 }) => {
   const { t } = useTranslation()
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
+  const passed =
+    grading != null && grading.score_given >= grading.score_maximum && grading.score_maximum > 0
 
   const { editorFiles, editorKey, setEditorState, resetToInitial } = useEditorState(
     initialState,
@@ -74,42 +79,78 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
 
   return (
     <Card>
+      {grading != null && (
+        <div
+          className={css`
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background-color: ${passed ? "#dcfce7" : "#fef3c7"};
+            color: ${passed ? "#166534" : "#92400e"};
+            font-size: 0.9375rem;
+          `}
+        >
+          {passed
+            ? t("submit-result-passed", {
+                score: grading.score_given,
+                max: grading.score_maximum,
+              })
+            : t("submit-result-failed", {
+                score: grading.score_given,
+                max: grading.score_maximum,
+              })}
+          {grading.feedback_text != null && grading.feedback_text.trim() !== "" && (
+            <div
+              className={css`
+                margin-top: 0.5rem;
+              `}
+            >
+              {grading.feedback_text}
+            </div>
+          )}
+        </div>
+      )}
       <EditorSection
         filepath={filepath}
         contents={contents}
         editorKey={editorKey}
         editorFiles={editorFiles}
         setEditorState={setEditorState}
+        readOnly={readOnly}
       />
-      <ActionButtons
-        isPython={isPython}
-        runDisabled={runDisabled}
-        testDisabled={testDisabled}
-        testInProgress={testInProgress}
-        showRun={showRun}
-        contents={contents}
-        onRun={(code) => {
-          // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
-          setLastOutputKind("run")
-          runPython(code)
-        }}
-        onStop={stopRun}
-        onTest={() => {
-          // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
-          setLastOutputKind("test")
-          runTests(filepath, contents)
-        }}
-        onResetClick={() => setResetConfirmOpen(true)}
-        testUnavailableReason={publicSpec.browser_test?.error}
-      />
-      <ResetConfirmDialog
-        open={resetConfirmOpen}
-        onCancel={() => setResetConfirmOpen(false)}
-        onConfirm={() => {
-          resetToInitial()
-          setResetConfirmOpen(false)
-        }}
-      />
+      {!readOnly && (
+        <ActionButtons
+          isPython={isPython}
+          runDisabled={runDisabled}
+          testDisabled={testDisabled}
+          testInProgress={testInProgress}
+          showRun={showRun}
+          contents={contents}
+          onRun={(code) => {
+            // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
+            setLastOutputKind("run")
+            runPython(code)
+          }}
+          onStop={stopRun}
+          onTest={() => {
+            // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
+            setLastOutputKind("test")
+            runTests(filepath, contents)
+          }}
+          onResetClick={() => setResetConfirmOpen(true)}
+          testUnavailableReason={publicSpec.browser_test?.error}
+        />
+      )}
+      {!readOnly && (
+        <ResetConfirmDialog
+          open={resetConfirmOpen}
+          onCancel={() => setResetConfirmOpen(false)}
+          onConfirm={() => {
+            resetToInitial()
+            setResetConfirmOpen(false)
+          }}
+        />
+      )}
       {showOutput && (
         <OutputPanel
           mode={outputMode}

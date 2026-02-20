@@ -88,15 +88,13 @@ const Iframe: React.FC = () => {
                     public_spec:
                       oldState?.view_type === "answer-exercise"
                         ? oldState.public_spec
-                        : // cloneDeep prevents setState from changing the initial spec
-                          _.cloneDeep(newPublicSpec),
+                        : _.cloneDeep(newPublicSpec),
                     user_answer: userAnswer,
                     previous_submission: previousSubmission,
                   }
                 })
               })
               .catch((error) => {
-                // todo: proper error handling
                 throw new Error(`Failed to process public spec: ${error}`)
               })
           } else if (messageData.view_type === "view-submission") {

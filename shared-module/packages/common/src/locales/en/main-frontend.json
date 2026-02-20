@@ -751,7 +751,7 @@
   "label-reset-by": "Reset by",
   "label-reset-only-if-less-than-max-points": "Reset only if less than max points",
   "label-reset-only-if-less-than-threshold": "Reset only if received less than {{threshold}} points from the exercise",
-  "label-reset-only-if-reviewedAndLocked": "Reset only if the exercise is locked (reviewed-and-locked or chapter-locked)",
+  "label-reset-only-if-reviewedAndLocked": "Reset only if the exercise has been self or peer reviewed and the reviewing process is complete",
   "label-result-after-merging": "Result after merging:",
   "label-review": "Review",
   "label-role": "Role",

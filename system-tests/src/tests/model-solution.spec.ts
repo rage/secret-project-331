@@ -10,7 +10,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 test.describe("Model solutions", () => {
-  test("model-solutions are displayed in submissions", async ({ page, headless }, testInfo) => {
+  test("model-solutions are displayed in submissions", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
 
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")

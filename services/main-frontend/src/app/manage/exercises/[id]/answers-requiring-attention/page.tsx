@@ -8,8 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
 
-import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
-import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
 import { fetchAnswersRequiringAttention } from "@/services/backend/answers-requiring-attention"
@@ -20,17 +19,16 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { manageCourseExercisesRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
   <h5
     className={css`
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
-      margin-bottom: 2rem;
-      margin-top: -0.5rem;
-      color: ${baseTheme.colors.gray[600]};
+      margin-bottom: 2.5rem;
+      margin-top: 0.5rem;
+      color: ${baseTheme.colors.gray[500]};
       font-family: ${primaryFont};
       text-align: center;
     `}
@@ -45,7 +43,17 @@ const SubmissionsPage: React.FC = () => {
   const exerciseQuery = useExerciseQuery(id)
   const paginationInfo = usePaginationInfo()
   const courseStructure = useCourseStructure(exerciseQuery.data?.course_id ?? null)
-  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(exerciseQuery.data?.course_id ?? null)
+
+  const crumbs = useMemo(
+    () => [{ isLoading: false as const, label: t("header-answers-requiring-attention") }],
+    [t],
+  )
+
+  useRegisterBreadcrumbs({
+    key: `exercise:${id}:answers-requiring-attention`,
+    order: 60,
+    crumbs,
+  })
 
   const exerciseContext = useMemo(() => {
     if (!courseStructure.data || !exerciseQuery.data) {
@@ -81,25 +89,17 @@ const SubmissionsPage: React.FC = () => {
 
   return (
     <div>
-      <MainFrontendBreadCrumbs
-        organizationSlug={courseBreadcrumbInfo.data?.organization_slug ?? null}
-        courseId={exerciseContext?.exercise.course_id ?? null}
-        exerciseName={exerciseContext?.exercise.name}
-        exerciseUrl={manageCourseExercisesRoute(exerciseContext?.exercise.course_id ?? "")}
-        additionalPieces={[{ text: t("header-answers-requiring-attention"), url: "" }]}
-      />
-
       <h4
         className={css`
-          color: #313947;
+          color: ${baseTheme.colors.gray[700]};
           font-family: ${primaryFont};
-          font-size: 30px;
-          font-weight: 500;
-          line-height: 30px;
-          letter-spacing: 0em;
+          font-size: 28px;
+          font-weight: 600;
+          line-height: 1.2;
+          letter-spacing: -0.01em;
           text-align: center;
-          opacity: 0.8;
-          margin-bottom: 1em;
+          margin-bottom: 0.75rem;
+          margin-top: 1rem;
         `}
       >
         {t("header-answers-requiring-attention")}
@@ -128,6 +128,7 @@ const SubmissionsPage: React.FC = () => {
           <AnswersRequiringAttentionList
             answersRequiringAttention={answersQuery.data.data}
             exercise_max_points={answersQuery.data.exercise_max_points}
+            courseId={exerciseQuery.data?.course_id ?? null}
             refetch={answersQuery.refetch}
           />
           <Pagination totalPages={answersQuery.data?.total_pages} paginationInfo={paginationInfo} />

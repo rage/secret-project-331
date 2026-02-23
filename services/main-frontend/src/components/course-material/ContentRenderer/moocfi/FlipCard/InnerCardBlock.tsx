@@ -5,8 +5,6 @@ import React from "react"
 
 import { BlockRendererProps } from "../.."
 
-import FlipButton from "./FlipButton"
-
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import { Block } from "@/services/course-material/backend"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

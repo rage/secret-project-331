@@ -15,7 +15,7 @@ use crate::{
     peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
     peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
-    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmissionWithSubmissionOwner,
     peer_review_queue_entries::PeerReviewQueueEntry,
     prelude::*,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
@@ -47,6 +47,7 @@ pub struct Exercise {
     pub needs_self_review: bool,
     pub use_course_default_peer_or_self_review_config: bool,
     pub exercise_language_group_id: Option<Uuid>,
+    pub teacher_reviews_answer_after_locking: bool,
 }
 
 impl Exercise {
@@ -79,9 +80,10 @@ pub struct ExerciseStatusSummaryForUser {
     pub exercise: Exercise,
     pub user_exercise_state: Option<UserExerciseState>,
     pub exercise_slide_submissions: Vec<ExerciseSlideSubmission>,
-    pub given_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub given_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmissionWithSubmissionOwner>,
     pub given_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
-    pub received_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub received_peer_or_self_review_submissions:
+        Vec<PeerOrSelfReviewSubmissionWithSubmissionOwner>,
     pub received_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
     pub teacher_grading_decision: Option<TeacherGradingDecision>,
@@ -699,6 +701,29 @@ RETURNING id;
     Ok(deleted_ids)
 }
 
+pub async fn update_teacher_reviews_answer_after_locking(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    teacher_reviews_answer_after_locking: bool,
+) -> ModelResult<Exercise> {
+    let exercise = sqlx::query_as!(
+        Exercise,
+        r#"
+UPDATE exercises
+SET teacher_reviews_answer_after_locking = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING *
+        "#,
+        exercise_id,
+        teacher_reviews_answer_after_locking
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(exercise)
+}
+
 pub async fn set_exercise_to_use_exercise_specific_peer_or_self_review_config(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -755,6 +780,17 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_id(
         .into_group_map_by(|o| o.exercise_id);
     let mut given_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_given_peer_or_self_review_submissions_for_user_and_course(&mut *conn, user_id, course_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
+    let given_submission_ids: Vec<Uuid> = given_peer_or_self_review_submissions
+        .values()
+        .flatten()
+        .map(|prs| prs.exercise_slide_submission_id)
+        .collect();
+    let submission_owner_user_ids =
+        crate::exercise_slide_submissions::get_user_ids_by_submission_ids(
+            &mut *conn,
+            &given_submission_ids,
+        )
+        .await?;
     let mut received_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_received_peer_or_self_review_submissions_for_user_and_course(&mut *conn, user_id, course_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
     let given_peer_or_self_review_submission_ids = given_peer_or_self_review_submissions
@@ -821,10 +857,27 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_id(
                 .unwrap_or_default();
             let given_peer_or_self_review_submissions = given_peer_or_self_review_submissions
                 .remove(&exercise.id)
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into_iter()
+                .map(|prs| {
+                    let submission_owner_user_id = submission_owner_user_ids
+                        .get(&prs.exercise_slide_submission_id)
+                        .copied();
+                    PeerOrSelfReviewSubmissionWithSubmissionOwner {
+                        submission: prs,
+                        submission_owner_user_id,
+                    }
+                })
+                .collect();
             let received_peer_or_self_review_submissions = received_peer_or_self_review_submissions
                 .remove(&exercise.id)
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into_iter()
+                .map(|prs| PeerOrSelfReviewSubmissionWithSubmissionOwner {
+                    submission: prs,
+                    submission_owner_user_id: None,
+                })
+                .collect();
             let given_peer_or_self_review_question_submissions =
                 given_peer_or_self_review_question_submissions
                     .remove(&exercise.id)

@@ -5,6 +5,7 @@ import { useTabListState } from "@react-stately/tabs"
 import { usePathname } from "next/navigation"
 import React, { useMemo, useRef } from "react"
 import { useTabList } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { RouteTab, type RouteTabDefinition } from "./RouteTab"
 import { useRouteTabListContext } from "./RouteTabListContext"
@@ -37,6 +38,7 @@ function RouteTabListStandalone({
   orientation,
 }: RouteTabListProps & { tabs: RouteTabDefinition[] }) {
   const pathname = usePathname()
+  const { t } = useTranslation()
   const tabListRef = useRef<HTMLDivElement>(null)
 
   const selectedKey = useMemo(() => {
@@ -68,8 +70,7 @@ function RouteTabListStandalone({
   const { tabListProps } = useTabList(
     {
       orientation,
-      // eslint-disable-next-line i18next/no-literal-string
-      "aria-label": "Tabs",
+      "aria-label": t("tab-aria-label-default"),
     },
     state,
     tabListRef,
@@ -90,6 +91,7 @@ function RouteTabListStandalone({
 
 function RouteTabListFromContext() {
   const context = useRouteTabListContext()
+  const { t } = useTranslation()
   const tabListRef = useRef<HTMLDivElement>(null)
   if (!context) {
     throw new Error("RouteTabList must be used with tabs prop or inside RouteTabListProvider")
@@ -99,8 +101,7 @@ function RouteTabListFromContext() {
   const { tabListProps } = useTabList(
     {
       orientation,
-      // eslint-disable-next-line i18next/no-literal-string
-      "aria-label": "Tabs",
+      "aria-label": t("tab-aria-label-default"),
     },
     state,
     tabListRef,

@@ -20,6 +20,11 @@ import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
 import YellowBox from "@/components/course-material/YellowBox"
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
+import {
+  ExerciseCardHeader,
+  ExerciseCardPointsBadge,
+  ExerciseCardWrapper,
+} from "@/components/exercise-card"
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
@@ -44,8 +49,6 @@ import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
-
-const FORWARD_SLASH = "/"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -371,207 +374,153 @@ const ExerciseBlock: React.FC<
   const gradingState = getCourseMaterialExercise.data.exercise_status?.grading_progress
   return (
     <>
-      {/* Exercises are so important part of the pages that we will use section to make it easy-to-find
-      for screenreader users */}
-      <section
-        className={css`
-          width: 100%;
-          background: #f2f2f2;
-          border-radius: 1rem;
-          margin-bottom: 1rem;
-          padding-bottom: 1.25rem;
-          position: relative;
-        `}
-        id={getExerciseBlockBeginningScrollingId(id)}
-        aria-labelledby={exerciseTitleId}
+      <ExerciseCardWrapper
         ref={sectionRef}
+        id={getExerciseBlockBeginningScrollingId(id)}
+        ariaLabelledby={exerciseTitleId}
       >
-        <div>
-          <div>
+        <ExerciseCardHeader
+          title={
+            <h2
+              id={exerciseTitleId}
+              className={css`
+                font-size: ${exerciseNameIsLong ? "1.4rem" : "1.7rem"};
+                font-weight: 500;
+                font-family: ${headingFont} !important;
+                overflow-wrap: anywhere;
+                overflow: hidden;
+                margin-top: -2px;
+              `}
+            >
+              <div
+                className={css`
+                  font-weight: 600;
+                  font-size: 18px;
+                  margin-bottom: 0.25rem;
+                  color: #1b222c;
+                `}
+              >
+                {t("label-exercise")}:
+              </div>
+              <div
+                className={css`
+                  line-height: 30px;
+                  overflow: hidden;
+                  max-height: 80px;
+                  /* Prevents some characters, like 3, from clipping */
+                  padding-bottom: 0.2rem;
+
+                  ${respondToOrLarger.xs} {
+                    max-height: 60px;
+                  }
+                `}
+              >
+                {getCourseMaterialExercise.data.exercise.name}
+              </div>
+            </h2>
+          }
+          rightContent={
             <div
               className={css`
+                font-size: 9px;
+                text-align: center;
+                font-family: ${secondaryFont} !important;
+                text-transform: uppercase;
+                color: #57606f;
                 display: flex;
-                gap: 5px;
-                align-items: center;
-                margin-bottom: 1.5rem;
-                padding: 1.5rem 1.2rem;
-                background: #718dbf;
-                border-radius: 1rem 1rem 0 0;
-                color: white;
+                justify-content: center;
                 flex-direction: column;
+                gap: 16px;
 
+                .tries {
+                  font-family: ${headingFont} !important;
+                  display: flex;
+                  color: #57606f;
+                  font-size: 14px;
+                  font-weight: 500;
+                  line-height: 0.8;
+                }
+
+                p {
+                  font-size: 16px;
+                }
+
+                width: 100%;
                 ${respondToOrLarger.xxs} {
-                  flex-direction: row;
+                  width: auto;
                 }
               `}
             >
-              <h2
-                id={exerciseTitleId}
-                className={css`
-                  font-size: ${exerciseNameIsLong ? "1.4rem" : "1.7rem"};
-                  font-weight: 500;
-                  font-family: ${headingFont} !important;
-                  overflow-wrap: anywhere;
-                  overflow: hidden;
-                  margin-top: -2px;
-                `}
-              >
+              {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
                 <div
                   className={css`
-                    font-weight: 600;
-                    font-size: 18px;
-                    margin-bottom: 0.25rem;
-                    color: #1b222c;
+                    display: block;
                   `}
                 >
-                  {t("label-exercise")}:
+                  <span
+                    className={css`
+                      color: #57606f;
+                      font-size: 12px;
+                      display: inline-block;
+                      margin-bottom: 2px;
+                    `}
+                  >
+                    {t("tries")}
+                  </span>
+                  <div className="tries">
+                    <PlusHeart size={16} weight="bold" color="#394F77" />
+                    <p>{triesRemaining}</p>
+                  </div>
                 </div>
+              )}
+              {isExam && points === null ? (
                 <div
                   className={css`
-                    line-height: 30px;
-                    overflow: hidden;
-                    max-height: 80px;
-                    /* Prevents some characters, like 3, from clipping */
-                    padding-bottom: 0.2rem;
-
-                    ${respondToOrLarger.xs} {
-                      max-height: 60px;
-                    }
-                  `}
-                >
-                  {getCourseMaterialExercise.data.exercise.name}
-                </div>
-              </h2>
-              <div
-                className={css`
-                  flex-grow: 1;
-                `}
-              />
-              <div
-                className={css`
-                  font-size: 9px;
-                  text-align: center;
-                  font-family: ${secondaryFont} !important;
-                  text-transform: uppercase;
-                  border-radius: 10px;
-                  background: #f0f0f0;
-                  height: 60px;
-                  padding: 8px 16px 6px 16px;
-
-                  color: #57606f;
-                  display: flex;
-                  justify-content: center;
-                  flex-direction: columns;
-                  gap: 16px;
-                  box-shadow:
-                    rgba(45, 35, 66, 0) 0 2px 4px,
-                    rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                    #c4c4c4 0 -3px 0 inset;
-
-                  .points {
-                    line-height: 100%;
-                    color: #57606f;
-                    z-index: 999;
-                  }
-
-                  .heading {
-                    color: #57606f;
-                    font-size: 12px;
-                    display: inline-block;
-                    margin-bottom: 2px;
-                  }
-
-                  sup,
-                  sub {
-                    font-family: ${headingFont} !important;
-                    color: #57606f;
-                    font-size: 15px;
-                    font-weight: 500;
-                    margin: 0;
-                  }
-
-                  svg {
-                    margin-right: 4px;
-                  }
-
-                  .tries {
-                    font-family: ${headingFont} !important;
                     display: flex;
-                    color: #57606f;
-                    font-size: 14px;
-                    font-weight: 500;
-                    line-height: 0.8;
-                  }
-
-                  p {
-                    font-size: 16px;
-                  }
-
-                  width: 100%;
-                  ${respondToOrLarger.xxs} {
-                    width: auto;
-                  }
-                `}
-              >
-                {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
+                    flex-direction: column;
+                    border-radius: 10px;
+                    background: #f0f0f0;
+                    height: 60px;
+                    padding: 8px 16px 6px 16px;
+                    box-shadow:
+                      rgba(45, 35, 66, 0) 0 2px 4px,
+                      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                      #c4c4c4 0 -3px 0 inset;
+                  `}
+                >
+                  <div>{t("max-points")}</div>
                   <div
                     className={css`
-                      display: block;
+                      font-size: 1rem;
+                      margin-top: 3px;
                     `}
                   >
-                    <span className="heading">{t("tries")}</span>
-                    <div className="tries">
-                      <PlusHeart size={16} weight="bold" color="#394F77" />
-                      <p>{triesRemaining}</p>
-                    </div>
+                    {getCourseMaterialExercise.data.exercise.score_maximum}
                   </div>
-                )}
-                {isExam && points === null ? (
-                  <div
-                    className={css`
-                      display: flex;
-                      flex-direction: column;
-                    `}
-                  >
-                    <div>{t("max-points")}</div>{" "}
-                    <div
-                      className={css`
-                        font-size: 1rem;
-                        margin-top: 3px;
-                      `}
-                    >
-                      {getCourseMaterialExercise.data.exercise.score_maximum}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <span className="heading">{t("points-label")}</span>
-                    <div className="points">
-                      <CheckCircle size={16} weight="bold" color="#394F77" />
-                      <span data-testid="exercise-points">
-                        {}
-                        <sup>{points ?? 0}</sup>
-                        {FORWARD_SLASH}
-                        <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <ExerciseCardPointsBadge
+                  score={points ?? 0}
+                  maxScore={getCourseMaterialExercise.data.exercise.score_maximum}
+                />
+              )}
             </div>
-          </div>
-        </div>
+          }
+        />
 
-        {chapterLockingEnabled && getCourseMaterialExercise.data && !isChapterLocked && (
-          <div
-            className={css`
-              padding: 0 1.5rem;
-              margin-bottom: 1rem;
-            `}
-          >
-            <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
-          </div>
-        )}
+        {chapterLockingEnabled &&
+          getCourseMaterialExercise.data &&
+          !isChapterLocked &&
+          getCourseMaterialExercise.data.exercise.teacher_reviews_answer_after_locking && (
+            <div
+              className={css`
+                padding: 0 1.5rem;
+                margin-bottom: 1rem;
+              `}
+            >
+              <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
+            </div>
+          )}
 
         {!loginState.isLoading && !loginState.signedIn && (
           <div
@@ -669,7 +618,8 @@ const ExerciseBlock: React.FC<
             />
           )}
           {(reviewingStage === "WaitingForPeerReviews" ||
-            reviewingStage === "ReviewedAndLocked") && (
+            reviewingStage === "ReviewedAndLocked" ||
+            reviewingStage === "Locked") && (
             <div
               className={css`
                 padding: 0.5rem 0.45rem;
@@ -684,29 +634,35 @@ const ExerciseBlock: React.FC<
                 getCourseMaterialExercise.data.exercise.needs_peer_review &&
                 exerciseSlideSubmissionId &&
                 (reviewingStage === "WaitingForPeerReviews" ||
-                  reviewingStage === "ReviewedAndLocked") && (
+                  reviewingStage === "ReviewedAndLocked" ||
+                  reviewingStage === "Locked") && (
                   <PeerOrSelfReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
                 )}
             </div>
           )}
-          {isChapterLocked && reviewingStage !== "ReviewedAndLocked" && (
-            <YellowBox>
-              <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  gap: 0.75rem;
-                `}
-              >
-                <Padlock size={24} />
-                <div>
-                  {isChapterNotAccessible
-                    ? t("chapter-locked-complete-previous")
-                    : t("chapter-locked-description")}
+          {isChapterLocked &&
+            reviewingStage !== "ReviewedAndLocked" &&
+            reviewingStage !== "Locked" &&
+            (isChapterNotAccessible ||
+              getCourseMaterialExercise.data?.exercise.teacher_reviews_answer_after_locking !==
+                false) && (
+              <YellowBox>
+                <div
+                  className={css`
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                  `}
+                >
+                  <Padlock size={24} />
+                  <div>
+                    {isChapterNotAccessible
+                      ? t("chapter-locked-complete-previous")
+                      : t("chapter-locked-description")}
+                  </div>
                 </div>
-              </div>
-            </YellowBox>
-          )}
+              </YellowBox>
+            )}
           <div>
             {getCourseMaterialExercise.data.can_post_submission &&
               !userOnWrongLanguageVersion &&
@@ -862,7 +818,7 @@ const ExerciseBlock: React.FC<
             )}
           </div>
         </div>
-      </section>
+      </ExerciseCardWrapper>
     </>
   )
 }

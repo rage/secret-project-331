@@ -28,12 +28,7 @@ import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
-import {
-  CmsPageUpdate,
-  ContentManagementPage,
-  GutenbergBlock,
-  Page,
-} from "@/shared-module/common/bindings"
+import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"

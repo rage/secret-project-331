@@ -1,0 +1,44 @@
+"use client"
+
+import { useSetAtom } from "jotai"
+import { useLayoutEffect } from "react"
+
+import { breadcrumbEntriesAtom, type Crumb } from "./breadcrumbAtoms"
+
+/**
+ * Register breadcrumb entries for this layout. Unregisters on unmount (e.g. navigation away).
+ * Order scheme: 0=home, 10=org, 20=entity (course/exam/org), 30=section, 40=sub-section, 50+=page-specific. Use distinct orders per level to avoid unstable sort.
+ * @param opts.crumbs - Must be memoized (e.g. useMemo); an un-memoized array will cause repeated effect runs and can flicker or loop.
+ * @param opts.disabled - When true, skips registering while still keeping hook order stable.
+ */
+export function useRegisterBreadcrumbs(opts: {
+  key: string
+  order: number
+  crumbs: Crumb[]
+  disabled?: boolean
+}) {
+  const setEntries = useSetAtom(breadcrumbEntriesAtom)
+
+  useLayoutEffect(() => {
+    if (opts.disabled) {
+      return
+    }
+    return () => {
+      setEntries((prev) => {
+        const next = { ...prev }
+        delete next[opts.key]
+        return next
+      })
+    }
+  }, [setEntries, opts.key, opts.disabled])
+
+  useLayoutEffect(() => {
+    if (opts.disabled) {
+      return
+    }
+    setEntries((prev) => ({
+      ...prev,
+      [opts.key]: { key: opts.key, order: opts.order, crumbs: opts.crumbs },
+    }))
+  }, [setEntries, opts.key, opts.order, opts.crumbs, opts.disabled])
+}

@@ -135,18 +135,21 @@ fn derive_new_score_given(
         return Some(teacher_grading_decision.score_given);
     };
 
-    // If chapter_locking_enabled is enabled for the course, don't give automatic points
-    // Points will only be given after teacher manual review
+    // In chapter-locking courses, suppress automatic points only when this exercise
+    // requires teacher review after locking.
     if let Some(course) = &input_data.course
         && course.chapter_locking_enabled
+        && input_data.exercise.teacher_reviews_answer_after_locking
     {
         // Don't give automatic points - wait for teacher manual review
         return None;
     }
     // We want to give or remove points only when the peer review/self review completes. If the answer receives reviews after this, we won't take away or we won't give more points.
     // If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review. That's why we haved the locked state. If the state is and stays locked, the score won't be changed.
-    if input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
-        && new_reviewing_stage == &ReviewingStage::ReviewedAndLocked
+    if (input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+        || input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::Locked)
+        && (new_reviewing_stage == &ReviewingStage::ReviewedAndLocked
+            || new_reviewing_stage == &ReviewingStage::Locked)
         && input_data.current_user_exercise_state.score_given.is_some()
     {
         return input_data.current_user_exercise_state.score_given;
@@ -178,11 +181,12 @@ fn derive_new_reviewing_stage(
             .map(|o| o.reviewing_stage)
             .unwrap_or_else(|| input_data.current_user_exercise_state.reviewing_stage)
     } else {
-        // Valid states for exercises without peer review are `ReviewingStage::NotStarted` or `ReviewingStage::ReviewedAndLocked`.
+        // Valid states for exercises without peer review are `ReviewingStage::NotStarted`, `ReviewingStage::ReviewedAndLocked`, or `ReviewingStage::Locked`.
         // If the state is one of those, we'll keep it but if the state is something not allowed, we'll reset it to the default.
         // Most states need to stay in the ReviewingStage::NotStarted stage
         if user_exercise_state.reviewing_stage == ReviewingStage::NotStarted
             || user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+            || user_exercise_state.reviewing_stage == ReviewingStage::Locked
         {
             user_exercise_state.reviewing_stage
         } else {
@@ -488,6 +492,78 @@ mod tests {
                 Some(1.0),
                 ActivityProgress::Completed,
                 // Exercises that don't have peer review new leave the not started stage
+                ReviewingStage::NotStarted,
+            );
+        }
+
+        #[test]
+        fn gives_automatic_points_for_chapter_locking_course_when_teacher_review_is_skipped() {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let mut exercise = create_exercise(CourseOrExamId::Course(id), false, false, false);
+            exercise.teacher_reviews_answer_after_locking = false;
+            let user_exercise_state = create_user_exercise_state(
+                &exercise,
+                None,
+                ActivityProgress::Initialized,
+                ReviewingStage::NotStarted,
+            );
+            let mut course = create_course(id);
+            course.chapter_locking_enabled = true;
+            let new_user_exercise_state =
+                derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                    exercise: exercise.clone(),
+                    current_user_exercise_state: user_exercise_state,
+                    peer_or_self_review_information: None,
+                    latest_teacher_grading_decision: None,
+                    user_exercise_slide_state_grading_summary:
+                        UserExerciseSlideStateGradingSummary {
+                            score_given: Some(1.0),
+                            grading_progress: GradingProgress::FullyGraded,
+                        },
+                    chapter: None,
+                    course: Some(course),
+                })
+                .unwrap();
+            assert_results(
+                &new_user_exercise_state,
+                Some(1.0),
+                ActivityProgress::Completed,
+                ReviewingStage::NotStarted,
+            );
+        }
+
+        #[test]
+        fn suppresses_automatic_points_for_chapter_locking_course_when_teacher_review_is_required()
+        {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let exercise = create_exercise(CourseOrExamId::Course(id), false, false, false);
+            let user_exercise_state = create_user_exercise_state(
+                &exercise,
+                None,
+                ActivityProgress::Initialized,
+                ReviewingStage::NotStarted,
+            );
+            let mut course = create_course(id);
+            course.chapter_locking_enabled = true;
+            let new_user_exercise_state =
+                derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                    exercise: exercise.clone(),
+                    current_user_exercise_state: user_exercise_state,
+                    peer_or_self_review_information: None,
+                    latest_teacher_grading_decision: None,
+                    user_exercise_slide_state_grading_summary:
+                        UserExerciseSlideStateGradingSummary {
+                            score_given: Some(1.0),
+                            grading_progress: GradingProgress::FullyGraded,
+                        },
+                    chapter: None,
+                    course: Some(course),
+                })
+                .unwrap();
+            assert_results(
+                &new_user_exercise_state,
+                None,
+                ActivityProgress::Completed,
                 ReviewingStage::NotStarted,
             );
         }
@@ -1122,6 +1198,7 @@ mod tests {
                 use_course_default_peer_or_self_review_config,
                 exercise_language_group_id: None,
                 needs_self_review,
+                teacher_reviews_answer_after_locking: true,
             }
         }
 

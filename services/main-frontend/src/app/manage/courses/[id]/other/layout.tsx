@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import {
   courseChatbotSettingsRoute,
@@ -29,6 +30,19 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
   const courseId = params.id
   const { t } = useTranslation()
   const courseQuery = useCourseQuery(courseId)
+
+  const crumbs = useMemo(
+    () => [
+      {
+        isLoading: false as const,
+        label: t("title-other"),
+        href: manageCourseOtherReferencesRoute(courseId),
+      },
+    ],
+    [courseId, t],
+  )
+
+  useRegisterBreadcrumbs({ key: `course:${courseId}:other`, order: 30, crumbs })
 
   const showChatbotTab = courseQuery.data?.can_add_chatbot === true
 

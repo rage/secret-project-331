@@ -47,6 +47,8 @@ pub enum ReviewingStage {
     If the teacher for some reasoon feels bad for the student and wants to give them a new chance, the answers for this exercise should be reset, the reason should be recorded somewhere in the database, and the value of this column should be set to `NotStarted`. Deleting the whole user_exercise_state may also be wise. However, if we end up doing this for a teacher, we should make sure that the teacher realizes that they should not give an unfair advantage to anyone.
     */
     ReviewedAndLocked,
+    /// In this stage the exercise has been locked due to chapter locking, but no review has been performed.
+    Locked,
 }
 
 #[cfg_attr(feature = "ts_rs", derive(TS))]

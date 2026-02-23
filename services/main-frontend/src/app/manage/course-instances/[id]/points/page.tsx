@@ -4,13 +4,14 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ChapterPointsDashboard from "../ChapterPointsDashboard"
 
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { getPoints } from "@/services/backend/course-instances"
+import { fetchCourseInstance, getPoints } from "@/services/backend/course-instances"
 import { UserDetail } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -18,7 +19,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { fontWeights, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { roundDown } from "@/shared-module/common/utils/numbers"
-import { courseInstanceUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
+import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ProcessedUser {
@@ -38,6 +39,21 @@ const CourseInstancePointsList: React.FC = () => {
   const { t } = useTranslation()
 
   const [sorting, setSorting] = useState(NAME)
+
+  const courseInstanceQuery = useQuery({
+    queryKey: ["course-instance", courseInstanceId],
+    queryFn: () => fetchCourseInstance(courseInstanceId),
+  })
+
+  const instanceLabel = courseInstanceQuery.data?.name || t("default-instance")
+
+  const crumbs = useMemo(() => [{ isLoading: false as const, label: t("point-summary") }], [t])
+
+  useRegisterBreadcrumbs({
+    key: `course-instance:${courseInstanceId}:points`,
+    order: 60,
+    crumbs,
+  })
 
   function sortUsers(first: ProcessedUser, second: ProcessedUser): number {
     if (sorting == NAME) {
@@ -64,6 +80,12 @@ const CourseInstancePointsList: React.FC = () => {
     ? getPointsList.data.chapter_points.reduce((prev, curr) => prev + curr.score_total, 0)
     : 0
 
+  const courseId =
+    courseInstanceQuery.data?.course_id ??
+    (getPointsList.isSuccess && getPointsList.data.chapter_points.length > 0
+      ? getPointsList.data.chapter_points[0].course_id
+      : undefined)
+
   return (
     <div
       className={css`
@@ -85,7 +107,7 @@ const CourseInstancePointsList: React.FC = () => {
           line-height: 45px;
         `}
       >
-        {t("point-summary")}: {courseInstanceId}
+        {t("point-summary")}: {instanceLabel}
       </h2>
       {getPointsList.isError && <ErrorBanner variant={"readOnly"} error={getPointsList.error} />}
       {getPointsList.isLoading && <Spinner variant={"medium"} />}
@@ -185,14 +207,13 @@ const CourseInstancePointsList: React.FC = () => {
                   return (
                     <FullWidthTableRow key={user.user_id}>
                       <td>
-                        <Link
-                          href={courseInstanceUserStatusSummaryRoute(
-                            courseInstanceId,
-                            user.user_id,
-                          )}
-                        >
-                          {user.user_id}
-                        </Link>
+                        {courseId ? (
+                          <Link href={courseUserStatusSummaryRoute(courseId, user.user_id)}>
+                            {user.user_id}
+                          </Link>
+                        ) : (
+                          user.user_id
+                        )}
                       </td>
                       <td>
                         {user.first_name} {user.last_name}

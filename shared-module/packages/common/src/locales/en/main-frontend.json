@@ -585,6 +585,7 @@
   "heading-pages-in-this-chapter": "Pages in this chapter",
   "heading-text-welcome": "Welcome!",
   "heading-top-level-pages": "Top level pages",
+  "help-text-answer-has-been-locked": "Your answer has been locked. New submissions are no longer allowed.",
   "help-text-answer-has-been-reviewed-and-locked": "Your answer has been reviewed and graded. New submissions are no longer allowed.",
   "help-text-exercise-involves-only-peer-review": "After you submit this exercise, you will need to peer review {{peer_reviews_to_give}} answers from fellow students. Following that, your peers will review your submission before you earn any points.",
   "help-text-exercise-involves-only-self-review": "After you submit this exercise, you will need to self review your own answer. Following that, course staff will review your submission before you earn any points.",

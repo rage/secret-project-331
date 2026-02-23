@@ -1,0 +1,94 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  id,\n  created_at,\n  updated_at,\n  stage AS \"stage: CourseDesignerStage\",\n  status AS \"status: CourseDesignerPlanStageStatus\",\n  planned_starts_on,\n  planned_ends_on,\n  actual_started_at,\n  actual_completed_at\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1\n  AND deleted_at IS NULL\nORDER BY\n  CASE stage\n    WHEN 'analysis' THEN 1\n    WHEN 'design' THEN 2\n    WHEN 'development' THEN 3\n    WHEN 'implementation' THEN 4\n    WHEN 'evaluation' THEN 5\n  END,\n  id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "status: CourseDesignerPlanStageStatus",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_plan_stage_status",
+            "kind": {
+              "Enum": [
+                "not_started",
+                "in_progress",
+                "completed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "planned_starts_on",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 6,
+        "name": "planned_ends_on",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 7,
+        "name": "actual_started_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "actual_completed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "92a1fcd6a7140887b2349bc5112b0d3e7469e388a07a31ef6a1b919e24acd7ce"
+}

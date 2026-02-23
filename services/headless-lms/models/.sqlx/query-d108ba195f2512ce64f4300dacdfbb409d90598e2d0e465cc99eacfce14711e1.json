@@ -1,0 +1,92 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  p.id,\n  p.created_at,\n  p.updated_at,\n  p.created_by_user_id,\n  p.name,\n  p.status AS \"status: CourseDesignerPlanStatus\",\n  p.active_stage AS \"active_stage: CourseDesignerStage\",\n  p.last_weekly_stage_email_sent_at\nFROM course_designer_plans p\nJOIN course_designer_plan_members m\n  ON m.course_designer_plan_id = p.id\n  AND m.user_id = $2\n  AND m.deleted_at IS NULL\nWHERE p.id = $1\n  AND p.deleted_at IS NULL\nFOR UPDATE\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_by_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "status: CourseDesignerPlanStatus",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_plan_status",
+            "kind": {
+              "Enum": [
+                "draft",
+                "scheduling",
+                "ready_to_start",
+                "in_progress",
+                "completed",
+                "archived"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "active_stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "last_weekly_stage_email_sent_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "d108ba195f2512ce64f4300dacdfbb409d90598e2d0e465cc99eacfce14711e1"
+}

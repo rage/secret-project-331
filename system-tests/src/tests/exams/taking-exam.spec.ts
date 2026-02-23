@@ -3,6 +3,7 @@ import { test } from "@playwright/test"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
+import { hideToasts } from "@/utils/notificationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -31,6 +32,9 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     testInfo,
     screenshotTarget: page,
     snapshotName: "exam-started",
+    beforeScreenshot: async () => {
+      await hideToasts(page)
+    },
     waitForTheseToBeVisibleAndStable: [
       page.getByText("In this exam you're supposed to answer to two easy questions. Good luck!"),
     ],

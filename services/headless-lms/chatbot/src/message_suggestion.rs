@@ -59,6 +59,7 @@ Constraints:
 /// User prompt instructions for generating suggested next messages
 const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could send next."#;
 
+/// Calls an LLM and generates suggested messages for a chatbot conversation
 pub async fn generate_suggested_messages(
     app_config: &ApplicationConfiguration,
     task_lm: TaskLMSpec,
@@ -218,8 +219,7 @@ fn create_conversation_from_msgs(
         .iter()
         .map(create_msg_string)
         .collect::<Vec<String>>()
-        .join("")
-        .to_owned();
+        .join("");
     if conversation.trim().is_empty() {
         // this happens only if the conversation contains only ChatbotConversationMessages
         // that have no message property, which should never happen in practice

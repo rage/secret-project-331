@@ -2,6 +2,9 @@ use std::sync::Arc;
 
 use headless_lms_models::{
     PKeyPolicy,
+    application_task_default_language_models::{
+        self, ApplicationTask, ApplicationTaskDefaultLanguageModel,
+    },
     chatbot_configurations::{self, NewChatbotConf},
     chatbot_configurations_models::{self, NewChatbotConfigurationModel},
     course_instances::{self, NewCourseInstance},
@@ -360,6 +363,27 @@ pub async fn seed_organization_uh_mathstat(
             default_model: true,
             deployment_name: "mock-gpt".to_string(),
             context_size: 10000,
+        },
+    )
+    .await?;
+    application_task_default_language_models::insert(
+        &mut conn,
+        ApplicationTaskDefaultLanguageModel {
+            model_id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
+            task: ApplicationTask::ContentCleaning,
+            context_utilization: 0.75,
+            ..Default::default()
+        },
+    )
+    .await?;
+
+    application_task_default_language_models::insert(
+        &mut conn,
+        ApplicationTaskDefaultLanguageModel {
+            model_id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
+            task: ApplicationTask::MessageSuggestion,
+            context_utilization: 0.75,
+            ..Default::default()
         },
     )
     .await?;

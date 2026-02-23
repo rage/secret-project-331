@@ -18,6 +18,20 @@ pub struct ApplicationTaskDefaultLanguageModel {
     pub context_utilization: f32,
 }
 
+impl Default for ApplicationTaskDefaultLanguageModel {
+    fn default() -> Self {
+        Self {
+            id: Uuid::nil(),
+            created_at: Default::default(),
+            updated_at: Default::default(),
+            deleted_at: None,
+            model_id: Default::default(),
+            task: ApplicationTask::ContentCleaning,
+            context_utilization: 0.75,
+        }
+    }
+}
+
 pub struct TaskLMSpec {
     pub id: Uuid,
     pub task: ApplicationTask,

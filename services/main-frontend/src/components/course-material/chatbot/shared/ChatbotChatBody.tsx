@@ -405,7 +405,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
                 ${newMessageMutation.isPending ||
                 currentConversationInfo.isLoading ||
                 currentConversationInfo.isRefetching
-                  ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%); height: `
+                  ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%);`
                   : ""}
                 &:hover {
                   filter: brightness(0.9) contrast(1.1);

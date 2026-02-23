@@ -1,6 +1,9 @@
 UPDATE user_exercise_states
 SET reviewing_stage = 'reviewed_and_locked'
 WHERE reviewing_stage = 'locked';
+UPDATE user_exercise_states_copy
+SET reviewing_stage = 'reviewed_and_locked'
+WHERE reviewing_stage = 'locked';
 
 ALTER TYPE reviewing_stage
 RENAME TO reviewing_stage_old;

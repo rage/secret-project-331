@@ -146,8 +146,10 @@ fn derive_new_score_given(
     }
     // We want to give or remove points only when the peer review/self review completes. If the answer receives reviews after this, we won't take away or we won't give more points.
     // If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review. That's why we haved the locked state. If the state is and stays locked, the score won't be changed.
-    if input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
-        && new_reviewing_stage == &ReviewingStage::ReviewedAndLocked
+    if (input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+        || input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::Locked)
+        && (new_reviewing_stage == &ReviewingStage::ReviewedAndLocked
+            || new_reviewing_stage == &ReviewingStage::Locked)
         && input_data.current_user_exercise_state.score_given.is_some()
     {
         return input_data.current_user_exercise_state.score_given;
@@ -179,11 +181,12 @@ fn derive_new_reviewing_stage(
             .map(|o| o.reviewing_stage)
             .unwrap_or_else(|| input_data.current_user_exercise_state.reviewing_stage)
     } else {
-        // Valid states for exercises without peer review are `ReviewingStage::NotStarted` or `ReviewingStage::ReviewedAndLocked`.
+        // Valid states for exercises without peer review are `ReviewingStage::NotStarted`, `ReviewingStage::ReviewedAndLocked`, or `ReviewingStage::Locked`.
         // If the state is one of those, we'll keep it but if the state is something not allowed, we'll reset it to the default.
         // Most states need to stay in the ReviewingStage::NotStarted stage
         if user_exercise_state.reviewing_stage == ReviewingStage::NotStarted
             || user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+            || user_exercise_state.reviewing_stage == ReviewingStage::Locked
         {
             user_exercise_state.reviewing_stage
         } else {

@@ -2353,6 +2353,7 @@ export type ReviewingStage =
   | "WaitingForPeerReviews"
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
+  | "Locked"
 
 export interface UserCourseChapterExerciseProgress {
   exercise_id: string

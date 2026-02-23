@@ -98,6 +98,7 @@ describe("lineHighlightPlugin", () => {
       const lines = el.querySelectorAll(".code-line")
       expect(lines.length).toBe(3)
       expect(lines[1].textContent).toBe("")
+      expect(lines[1].querySelector("br")).not.toBeNull()
       expect(lines[2].classList.contains("highlighted-line")).toBe(true)
     })
 
@@ -128,6 +129,7 @@ describe("lineHighlightPlugin", () => {
       expect(lines.length).toBe(2)
       expect(lines[0].textContent).toBe("a")
       expect(lines[1].textContent).toBe("")
+      expect(lines[1].querySelector("br")).not.toBeNull()
     })
 
     it("has no extra text nodes between code-line spans", () => {

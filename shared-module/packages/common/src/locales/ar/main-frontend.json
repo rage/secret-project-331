@@ -568,6 +568,7 @@
   "heading-pages-in-this-chapter": "الصفحات في هذا الفصل",
   "heading-text-welcome": "مرحبًا!",
   "heading-top-level-pages": "الصفحات الرئيسية",
+  "help-text-answer-has-been-locked": "تم قفل إجابتك. لم تعد الإرسالات الجديدة مسموحة.",
   "help-text-answer-has-been-reviewed-and-locked": "تمت مراجعة إجابتك وتصحيحها. لم تعد الإرسالات الجديدة مسموحة.",
   "help-text-exercise-involves-only-peer-review": "بعد إرسال هذا التمرين، ستحتاج إلى مراجعة {{peer_reviews_to_give}} إجابات من زملائك الطلاب. بعد ذلك، سيقوم زملاؤك بمراجعة إرسالك قبل أن تكسب أي نقاط.",
   "help-text-exercise-involves-only-self-review": "بعد إرسال هذا التمرين، ستحتاج إلى مراجعة إجابتك بنفسك. بعد ذلك، سيقوم موظفو الدورة بمراجعة إرسالك قبل أن تكسب أي نقاط.",

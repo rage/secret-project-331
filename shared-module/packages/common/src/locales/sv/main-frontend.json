@@ -567,6 +567,7 @@
   "heading-pages-in-this-chapter": "Sidor i detta kapitel",
   "heading-text-welcome": "Välkommen!",
   "heading-top-level-pages": "Topnivå sidor",
+  "help-text-answer-has-been-locked": "Ditt svar har låsts. Nya inlämningar är inte längre tillåtna.",
   "help-text-answer-has-been-reviewed-and-locked": "Ditt svar har granskats och bedömts. Nya inlämningar är inte längre tillåtna.",
   "help-text-exercise-involves-only-peer-review": "Efter att du har lämnat in denna övning måste du göra peer review på {{peer_reviews_to_give}} svar från andra studenter. Därefter kommer dina kamrater att granska din inlämning innan du får några poäng.",
   "help-text-exercise-involves-only-self-review": "Efter att du har lämnat in denna övning måste du göra självgranskning av ditt eget svar. Därefter kommer kursens personal att granska din inlämning innan du får några poäng.",

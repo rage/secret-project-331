@@ -103,6 +103,14 @@ describe("parseHighlightedCode", () => {
       expect(result.highlightedLines).toEqual(new Set([1, 2]))
     })
 
+    it("preserves blank lines when marker-only lines are removed", () => {
+      const input = "top\n\n// BEGIN HIGHLIGHT\n\ninside\n\n// END HIGHLIGHT\n\nbottom"
+      const result = parseHighlightedCode(input)
+      expect(result.cleanCode).toBe("top\n\n\ninside\n\n\nbottom")
+      expect(result.cleanCode.split("\n").length).toBe(7)
+      expect(result.highlightedLines).toEqual(new Set([3, 4, 5]))
+    })
+
     it("should treat overlapping regions as highlight (second start extends range)", () => {
       const input =
         "// BEGIN HIGHLIGHT\na\n// BEGIN HIGHLIGHT\nb\n// END HIGHLIGHT\nc\n// END HIGHLIGHT"

@@ -4762,7 +4762,8 @@ export function isReviewingStage(obj: unknown): obj is ReviewingStage {
             typedObj === "SelfReview" ||
             typedObj === "WaitingForPeerReviews" ||
             typedObj === "WaitingForManualGrading" ||
-            typedObj === "ReviewedAndLocked")
+            typedObj === "ReviewedAndLocked" ||
+            typedObj === "Locked")
     )
 }
 

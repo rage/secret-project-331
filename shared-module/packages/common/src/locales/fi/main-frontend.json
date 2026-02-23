@@ -573,6 +573,7 @@
   "heading-pages-in-this-chapter": "Tässä luvussa olevat sivut",
   "heading-text-welcome": "Tervetuloa!",
   "heading-top-level-pages": "Yleiset sivut",
+  "help-text-answer-has-been-locked": "Vastauksesi on lukittu. Uusia palautuksia ei enää hyväksytä.",
   "help-text-answer-has-been-reviewed-and-locked": "Vastauksesi on arvioitu ja arvosteltu. Uusia palautuksia ei enää hyväksytä",
   "help-text-exercise-involves-only-peer-review": "Kun olet palauttanut tämän tehtävän, sinun tulee arvioida {{peer_reviews_to_give}} muiden opiskelijoiden vastauksia. Tämän jälkeen muut oppilaat arvioivat vastauksesi ennen kun saat pisteet.",
   "help-text-exercise-involves-only-self-review": "Kun olet palauttanut tämän tehtävän, sinun tulee itsearvioida oma vastauksesi. Tämän jälkeen kurssin henkilökunta arvioi vastauksesi ennen kuin saat pisteet.",

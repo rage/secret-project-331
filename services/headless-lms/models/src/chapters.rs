@@ -943,6 +943,7 @@ pub async fn move_chapter_exercises_to_manual_review(
         };
         if user_exercise_state.reviewing_stage == ReviewingStage::WaitingForManualGrading
             || user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+            || user_exercise_state.reviewing_stage == ReviewingStage::Locked
             || user_exercise_state.selected_exercise_slide_id.is_none()
         {
             continue;
@@ -968,7 +969,7 @@ pub async fn move_chapter_exercises_to_manual_review(
                 user_id,
                 CourseOrExamId::Course(course_id),
                 exercise.id,
-                ReviewingStage::ReviewedAndLocked,
+                ReviewingStage::Locked,
             )
             .await?;
             user_exercise_state_updater::update_user_exercise_state(conn, user_exercise_state.id)
@@ -1216,7 +1217,7 @@ mod tests {
         };
 
         #[tokio::test]
-        async fn fully_graded_auto_review_exercise_becomes_reviewed_and_locked() {
+        async fn fully_graded_auto_review_exercise_becomes_locked() {
             insert_data!(
                 :tx,
                 :user,
@@ -1294,10 +1295,7 @@ mod tests {
                 user_exercise_states::get_users_current_by_exercise(tx.as_mut(), user, &exercise)
                     .await
                     .unwrap();
-            assert_eq!(
-                user_exercise_state.reviewing_stage,
-                ReviewingStage::ReviewedAndLocked
-            );
+            assert_eq!(user_exercise_state.reviewing_stage, ReviewingStage::Locked);
         }
     }
 

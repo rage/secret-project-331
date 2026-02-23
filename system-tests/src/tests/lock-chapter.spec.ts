@@ -331,7 +331,7 @@ test.describe("Chapter locking feature", () => {
       await studentPage.getByText("Chapter locked").waitFor()
     })
 
-    await test.step("Verify auto-graded exercise shows points and reviewed state", async () => {
+    await test.step("Verify auto-graded exercise shows points and locked state", async () => {
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
       const chapterSelector = new ChapterSelector(studentPage)
       await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
@@ -339,7 +339,7 @@ test.describe("Chapter locking feature", () => {
       await selectCourseInstanceIfPrompted(studentPage)
       await studentPage.reload()
       await expect(studentPage.getByTestId("exercise-points")).toContainText("1/1")
-      await studentPage.getByText("Your answer has been reviewed").waitFor()
+      await studentPage.getByText("Your answer has been locked").waitFor()
       await expect(studentPage.getByRole("button", { name: "Submit" })).toBeHidden()
     })
 

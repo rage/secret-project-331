@@ -618,7 +618,8 @@ const ExerciseBlock: React.FC<
             />
           )}
           {(reviewingStage === "WaitingForPeerReviews" ||
-            reviewingStage === "ReviewedAndLocked") && (
+            reviewingStage === "ReviewedAndLocked" ||
+            reviewingStage === "Locked") && (
             <div
               className={css`
                 padding: 0.5rem 0.45rem;
@@ -633,13 +634,15 @@ const ExerciseBlock: React.FC<
                 getCourseMaterialExercise.data.exercise.needs_peer_review &&
                 exerciseSlideSubmissionId &&
                 (reviewingStage === "WaitingForPeerReviews" ||
-                  reviewingStage === "ReviewedAndLocked") && (
+                  reviewingStage === "ReviewedAndLocked" ||
+                  reviewingStage === "Locked") && (
                   <PeerOrSelfReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
                 )}
             </div>
           )}
           {isChapterLocked &&
             reviewingStage !== "ReviewedAndLocked" &&
+            reviewingStage !== "Locked" &&
             (isChapterNotAccessible ||
               getCourseMaterialExercise.data?.exercise.teacher_reviews_answer_after_locking !==
                 false) && (

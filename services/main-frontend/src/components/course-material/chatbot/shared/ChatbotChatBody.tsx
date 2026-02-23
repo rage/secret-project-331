@@ -402,8 +402,10 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
                 );
                 background-size: 200% 100%;
                 background-position: 100% 0;
-                ${newMessageMutation.isPending
-                  ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%);`
+                ${newMessageMutation.isPending ||
+                currentConversationInfo.isLoading ||
+                currentConversationInfo.isRefetching
+                  ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%); height: `
                   : ""}
                 &:hover {
                   filter: brightness(0.9) contrast(1.1);
@@ -415,7 +417,11 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
                 setSuggestedNewMessage(m.message)
                 setNewMessage(m.message)
               }}
-              isDisabled={newMessageMutation.isPending || currentConversationInfo.isLoading}
+              isDisabled={
+                newMessageMutation.isPending ||
+                currentConversationInfo.isLoading ||
+                currentConversationInfo.isRefetching
+              }
             >
               <Idea
                 className={css`

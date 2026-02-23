@@ -147,13 +147,11 @@ pub async fn generate_suggested_messages(
         info!("Test mode. Using mock azure endpoint for LLM message suggestion.");
         Some("/chat/suggestions".to_string())
     } else {
-        // if it's not test mode, the default, actual endpoint is used
         None
     };
     let completion =
         make_blocking_llm_request(chat_request, app_config, &task_lm, endpoint_path).await?;
 
-    // parse chat completion
     let completion_content: &String = &completion
         .choices
         .into_iter()
@@ -163,7 +161,6 @@ pub async fn generate_suggested_messages(
         })
         .collect::<Vec<String>>()
         .join("");
-    // parse structured output
     let suggestions: ChatbotNextMessageSuggestionResponse =
         serde_json::from_str(completion_content).map_err(|_| {
             ChatbotError::new(
@@ -184,13 +181,12 @@ fn create_conversation_from_msgs(
 ) -> ChatbotResult<String> {
     let conv_len = conversation_messages.len();
     // calculate how many messages to include in the conversation context
-    let order_n = conversation_messages
+    let cutoff = conversation_messages
         .iter()
         .enumerate()
         // we want to take messages starting from the newest (=last)
         .rev()
         .map_while(|(idx, el)| {
-            println!("🐈🐈🐈🐈🐈{:?}", used_tokens);
             if el.message.is_some() {
                 // add this message's tokens and extra 5 tokens for newline and
                 // tag to used_tokens
@@ -201,7 +197,7 @@ fn create_conversation_from_msgs(
                 used_tokens += estimate_tokens(&s);
             } else {
                 // if there is no message or tool output, skip this element.
-                // big number won't affect the truncation later as we take min.
+                // putting in conv_len won't affect the truncation later as we take min.
                 return Some(conv_len);
             }
             if used_tokens > token_budget {
@@ -210,16 +206,15 @@ fn create_conversation_from_msgs(
             // include this element's index as a potential cutoff point
             Some(idx)
         })
-        // select the minimum order_number i.e. oldest message to include
+        // select the minimum index i.e. oldest message to include
         .min()
         .ok_or(ChatbotError::new(
             ChatbotErrorType::ChatbotMessageSuggestError,
             "Failed to create context for message suggestion LLM, there were no conversation messages or none of them fit into the context.",
             None,
         ))?;
-    println!("🐈🐈🐈{:?}", used_tokens);
     // cut off messages older than order_n from the conversation to keep context short
-    let conversation = conversation_messages[order_n..]
+    let conversation = conversation_messages[cutoff..]
         .iter()
         .map(create_msg_string)
         .collect::<Vec<String>>()

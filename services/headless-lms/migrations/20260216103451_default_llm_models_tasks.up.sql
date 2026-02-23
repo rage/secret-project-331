@@ -24,9 +24,9 @@ COMMENT ON COLUMN application_task_default_language_models.updated_at IS 'Timest
 COMMENT ON COLUMN application_task_default_language_models.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN application_task_default_language_models.task IS 'The task that the settings in this record are associated with.';
 COMMENT ON COLUMN application_task_default_language_models.model_id IS 'The id of the LLM model that is associated with the task specified in this record.';
-COMMENT ON COLUMN application_task_default_language_models.context_utilization IS 'The fraction of the LLMs context size to be utilized. Filling the whole context can have a negative effect on the model`s performance. The best fraction to choose depends on the model and the task.';
+COMMENT ON COLUMN application_task_default_language_models.context_utilization IS 'The fraction of the LLM''s context size to be utilized. Filling the whole context can have a negative effect on the model''s performance. The best fraction to choose depends on the model and the task.';
 
 ALTER TABLE chatbot_configurations_models
 ADD COLUMN context_size integer NOT NULL DEFAULT 16000;
 
-COMMENT ON COLUMN chatbot_configurations_models.context_size IS 'The length of the LLMs context window in tokens.';
+COMMENT ON COLUMN chatbot_configurations_models.context_size IS 'The length of the LLM''s context window in tokens.';

@@ -326,6 +326,7 @@ export interface ChatbotConfigurationModel {
   thinking: boolean
   default_model: boolean
   deployment_name: string
+  context_size: number
 }
 
 export interface ChatbotConversationMessage {

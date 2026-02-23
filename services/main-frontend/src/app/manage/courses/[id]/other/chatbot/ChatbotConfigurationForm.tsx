@@ -243,20 +243,22 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
             <h4>{t("message-suggestions")}</h4>
             <div
               className={css`
-                flex-flow: column nowrap;
                 margin: 20px 20px;
-                gap: 0 30px;
               `}
             >
               {fields.map((item, idx) => (
                 <div
                   key={item.id}
                   className={css`
+                    display: flex;
                     flex-flow: row nowrap;
-                    margin: 20px 0;
+                    margin: 10px 0;
                   `}
                 >
                   <TextField
+                    className={css`
+                      flex-grow: 3;
+                    `}
                     key={item.id}
                     error={errors.suggested_messages?.[idx]?.message}
                     label={t("label-message")}
@@ -264,7 +266,16 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       required: t("required-field"),
                     })}
                   />
-                  <Button size="small" type="button" variant="tertiary" onClick={() => remove(idx)}>
+                  <Button
+                    className={css`
+                      height: fit-content;
+                      margin: 1.7rem 0 0 0.5rem;
+                    `}
+                    size="small"
+                    type="button"
+                    variant="tertiary"
+                    onClick={() => remove(idx)}
+                  >
                     {t("button-remove")}
                   </Button>
                 </div>

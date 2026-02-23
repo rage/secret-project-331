@@ -696,7 +696,8 @@ export function isChatbotConfigurationModel(obj: unknown): obj is ChatbotConfigu
         typeof typedObj["model"] === "string" &&
         typeof typedObj["thinking"] === "boolean" &&
         typeof typedObj["default_model"] === "boolean" &&
-        typeof typedObj["deployment_name"] === "string"
+        typeof typedObj["deployment_name"] === "string" &&
+        typeof typedObj["context_size"] === "number"
     )
 }
 

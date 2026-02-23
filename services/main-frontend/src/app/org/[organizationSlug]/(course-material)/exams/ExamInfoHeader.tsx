@@ -68,9 +68,13 @@ export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
                     components={{ 1: <span className={dateValueClass} /> }}
                   />
                 }
-                testPlaceholder={t("exam-can-be-started-after", {
-                  "starts-at": "1/1/1970, 0:00:00 AM",
-                })}
+                testPlaceholder={
+                  <Trans
+                    i18nKey="exam-can-be-started-after"
+                    values={{ "starts-at": "1/1/1970, 0:00:00 AM" }}
+                    components={{ 1: <span className={dateValueClass} /> }}
+                  />
+                }
               />
             ) : (
               t("exam-no-start-time")
@@ -88,9 +92,13 @@ export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
                     components={{ 1: <span className={dateValueClass} /> }}
                   />
                 }
-                testPlaceholder={t("exam-submissions-not-accepted-after", {
-                  "ends-at": "1/1/1970, 7:00:00 PM",
-                })}
+                testPlaceholder={
+                  <Trans
+                    i18nKey="exam-submissions-not-accepted-after"
+                    values={{ "ends-at": "1/1/1970, 7:00:00 PM" }}
+                    components={{ 1: <span className={dateValueClass} /> }}
+                  />
+                }
               />
             ) : (
               t("exam-no-end-time")

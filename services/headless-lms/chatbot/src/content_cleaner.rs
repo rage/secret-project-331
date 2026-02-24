@@ -369,7 +369,7 @@ async fn process_block_chunk(
             }
         };
 
-    match &completion
+    match &completion //parse_text_completion
         .choices
         .first()
         .ok_or_else(|| {

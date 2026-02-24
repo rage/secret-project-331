@@ -1,19 +1,10 @@
 "use client"
 
-import { css, keyframes } from "@emotion/css"
+import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, {
-  useCallback,
-  useEffect,
-  useEffectEvent,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react"
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
-import { Button as AriaButton } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -21,8 +12,8 @@ import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
+import SuggestedMessageChip from "./SuggestedMessageChip"
 
-import Idea from "@/img/course-material/idea.svg"
 import { sendChatbotMessage } from "@/services/course-material/backend"
 import {
   ChatbotConversation,
@@ -35,12 +26,6 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
-
-const loadAnimation = keyframes`
-100%{
-      background-position: -100% 0;
-  }
-`
 
 interface ChatbotChatBodyProps {
   chatbotConfigurationId: string
@@ -87,21 +72,19 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
-  const [suggestedNewMessage, setSuggestedNewMessage] = useState<string>("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
     streamingMessage: null,
   })
 
   const newMessageMutation = useToastMutation(
-    async () => {
+    async (messageToSend: string) => {
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
       setChatbotMessageAnnouncement(t("chatbot-is-responding"))
-      const message = newMessage.trim()
+      const message = messageToSend.trim()
       dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
-      setNewMessage("")
       const stream = await sendChatbotMessage(
         chatbotConfigurationId,
         currentConversationInfo.data.current_conversation.id,
@@ -153,21 +136,6 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       },
     },
   )
-
-  useEffect(() => {
-    if (suggestedNewMessage.trim().length > 0) {
-      sendSuggestedNewMessage()
-    }
-  }, [suggestedNewMessage])
-
-  const sendSuggestedNewMessage = useEffectEvent(() => {
-    if (suggestedNewMessage.trim().length > 0 && suggestedNewMessage === newMessage) {
-      if (canSubmit) {
-        newMessageMutation.mutate()
-        setSuggestedNewMessage("")
-      }
-    }
-  })
 
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
@@ -382,66 +350,20 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
           `}
         >
           {currentConversationInfo.data.suggested_messages?.map((m) => (
-            <AriaButton
+            <SuggestedMessageChip
               key={m.id}
-              className={css`
-                align-self: flex-end;
-                text-align: start;
-                border: none;
-                overflow-wrap: break-word;
-                padding: 0.3rem 0.5rem;
-                margin: 0.2rem 0;
-                border-radius: 12px;
-                font-size: 0.8rem;
-                background: linear-gradient(
-                  120deg,
-                  ${baseTheme.colors.blue[100]} 30%,
-                  #ffffff 38%,
-                  #f2f2f2 40%,
-                  ${baseTheme.colors.blue[100]} 48%
-                );
-                background-size: 200% 100%;
-                background-position: 100% 0;
-                ${newMessageMutation.isPending ||
-                currentConversationInfo.isLoading ||
-                currentConversationInfo.isRefetching
-                  ? `animation: ${loadAnimation} 2s infinite; color: rgb(0 0 0 / 0%);`
-                  : ""}
-                &:hover {
-                  filter: brightness(0.9) contrast(1.1);
-                  cursor: pointer;
-                }
-              `}
-              onClick={(e) => {
-                e.preventDefault()
-                setSuggestedNewMessage(m.message)
-                setNewMessage(m.message)
-              }}
-              isDisabled={
+              isLoading={
                 newMessageMutation.isPending ||
                 currentConversationInfo.isLoading ||
                 currentConversationInfo.isRefetching
               }
-            >
-              <Idea
-                className={css`
-                  position: relative;
-                  opacity: ${newMessageMutation.isPending || currentConversationInfo.isLoading
-                    ? `0%`
-                    : "80%"};
-                  top: 3px;
-                  margin-right: 5px;
-                `}
-              />
-              <span
-                className={css`
-                  position: relative;
-                  top: -5px;
-                `}
-              >
-                {m.message}
-              </span>
-            </AriaButton>
+              message={m.message}
+              handleClick={() => {
+                if (!newMessageMutation.isPending) {
+                  newMessageMutation.mutate(m.message)
+                }
+              }}
+            />
           ))}
         </div>
       </div>
@@ -479,7 +401,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
                 setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
-                  newMessageMutation.mutate()
+                  newMessageMutation.mutate(newMessage)
                 }
               }
             }}
@@ -523,7 +445,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             aria-label={t("send")}
             onClick={() => {
               setChatbotMessageAnnouncement("")
-              newMessageMutation.mutate()
+              newMessageMutation.mutate(newMessage)
             }}
           >
             <PaperAirplane />

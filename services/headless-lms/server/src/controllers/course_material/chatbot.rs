@@ -3,6 +3,7 @@ use chrono::Utc;
 
 use headless_lms_chatbot::azure_chatbot::{ChatbotUserContext, send_chat_request_and_parse_stream};
 use headless_lms_chatbot::llm_utils::estimate_tokens;
+use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::chatbot_conversation_messages::MessageRole;
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
@@ -193,8 +194,9 @@ async fn current_conversation_info(
                     .await?
                     .description;
             let message_suggest_llm =
-                models::application_task_default_language_models::get_for_message_suggestion(
+                models::application_task_default_language_models::get_for_task(
                     &mut conn,
+                    ApplicationTask::MessageSuggestion,
                 )
                 .await?;
             headless_lms_chatbot::message_suggestion::generate_suggested_messages(

@@ -27,6 +27,13 @@ COMMENT ON COLUMN application_task_default_language_models.model_id IS 'The id o
 COMMENT ON COLUMN application_task_default_language_models.context_utilization IS 'The fraction of the LLM''s context size to be utilized. Filling the whole context can have a negative effect on the model''s performance. The best fraction to choose depends on the model and the task.';
 
 ALTER TABLE chatbot_configurations_models
-ADD COLUMN context_size integer NOT NULL DEFAULT 16000;
+ADD COLUMN context_size integer;
+
+UPDATE chatbot_configurations_models
+SET context_size = 16000;
+
+ALTER TABLE chatbot_configurations_models
+ALTER COLUMN context_size
+SET NOT NULL;
 
 COMMENT ON COLUMN chatbot_configurations_models.context_size IS 'The length of the LLM''s context window in tokens.';

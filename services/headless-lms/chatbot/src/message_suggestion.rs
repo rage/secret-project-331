@@ -8,6 +8,7 @@ use crate::{
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
+        parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -16,6 +17,7 @@ use headless_lms_models::{
     chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
 };
 use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
+use rand::seq::IndexedRandom;
 use tracing::info;
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in
@@ -72,7 +74,8 @@ pub async fn generate_suggested_messages(
         + &format!("The course is: {}\n\n", course_name)
         // if there are initial suggested messages, then include <=5 of them as examples
         + &(if let Some(ism) = initial_suggested_messages {
-            let examples = ism.into_iter().take(5).collect::<Vec<String>>().join(" ");
+            let mut rng = rand::rng();
+            let examples = ism.choose_multiple(&mut rng, 5).cloned().collect::<Vec<String>>().join(" ");
             format!("Example suggested messages: {}\n\n", examples)} else {"".to_string()})
         + &(if let Some(c_d) = course_desc {format!("Description for course: {}\n\n", c_d)} else {"".to_string()})
         + "The conversation so far:\n";
@@ -153,15 +156,7 @@ pub async fn generate_suggested_messages(
     let completion =
         make_blocking_llm_request(chat_request, app_config, &task_lm, endpoint_path).await?;
 
-    let completion_content: &String = &completion
-        .choices
-        .into_iter()
-        .map(|x| match x.message.fields {
-            APIMessageKind::Text(message) => message.content,
-            _ => "".to_string(),
-        })
-        .collect::<Vec<String>>()
-        .join("");
+    let completion_content: &String = &parse_text_completion(completion)?;
     let suggestions: ChatbotNextMessageSuggestionResponse =
         serde_json::from_str(completion_content).map_err(|_| {
             ChatbotError::new(
@@ -175,11 +170,16 @@ pub async fn generate_suggested_messages(
     Ok(suggestions.suggestions)
 }
 
+/// Take ChatbotConversationMessages from a list until no more fit into the token budget.
+/// Transcribe the conversation's messages' content into a string.
 fn create_conversation_from_msgs(
     conversation_messages: &[ChatbotConversationMessage],
     mut used_tokens: i32,
     token_budget: i32,
 ) -> ChatbotResult<String> {
+    conversation_messages
+        .to_vec()
+        .sort_by_key(|el| el.order_number);
     let conv_len = conversation_messages.len();
     // calculate how many messages to include in the conversation context
     let cutoff = conversation_messages
@@ -236,15 +236,15 @@ fn create_conversation_from_msgs(
 fn create_msg_string(m: &ChatbotConversationMessage) -> String {
     match m.message_role {
         MessageRole::User => {
-            if let Some(msg) = &m.message {
-                format!("Student:\n{msg}\n\n")
+            if let Some(message) = &m.message {
+                format!("Student:\n{message}\n\n")
             } else {
                 "".to_string()
             }
         }
         MessageRole::Assistant => {
-            if let Some(msg) = &m.message {
-                format!("Assistant:\n{msg}\n\n")
+            if let Some(message) = &m.message {
+                format!("Assistant:\n{message}\n\n")
             } else {
                 "".to_string()
             }

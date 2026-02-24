@@ -84,7 +84,10 @@ AND deleted_at IS NULL
     Ok(())
 }
 
-pub async fn get_for_content_cleaning(conn: &mut PgConnection) -> ModelResult<TaskLMSpec> {
+pub async fn get_for_task(
+    conn: &mut PgConnection,
+    task: ApplicationTask,
+) -> ModelResult<TaskLMSpec> {
     let res = sqlx::query_as!(
         TaskLMSpec,
         r#"
@@ -98,34 +101,11 @@ SELECT
     model.context_size
 FROM application_task_default_language_models AS a
 JOIN chatbot_configurations_models AS model ON model.id = a.model_id
-WHERE a.task = 'content-cleaning'
+WHERE a.task = $1
 AND a.deleted_at IS NULL
 AND model.deleted_at IS NULL
         "#,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_for_message_suggestion(conn: &mut PgConnection) -> ModelResult<TaskLMSpec> {
-    let res = sqlx::query_as!(
-        TaskLMSpec,
-        r#"
-SELECT
-    a.id,
-    a.task as "task: ApplicationTask",
-    a.context_utilization,
-    model.model,
-    model.thinking,
-    model.deployment_name,
-    model.context_size
-FROM application_task_default_language_models AS a
-JOIN chatbot_configurations_models AS model ON model.id = a.model_id
-WHERE a.task = 'message-suggestion'
-AND a.deleted_at IS NULL
-AND model.deleted_at IS NULL
-        "#,
+        task as ApplicationTask
     )
     .fetch_one(conn)
     .await?;

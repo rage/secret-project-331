@@ -2,9 +2,31 @@
 
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  Berries,
+  Cabin,
+  Campfire,
+  CandleLight,
+  Leaf,
+  MapleLeaf,
+  MistyCloud,
+  PineTree,
+  Sleigh,
+  Sunrise,
+  WaterLiquid,
+  WinterSnowflake,
+} from "@vectopus/atlas-icons-react"
+import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useParams } from "next/navigation"
-import React, { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+
+import {
+  addMonthToStageAtomFamily,
+  draftStagesAtomFamily,
+  removeMonthFromStageAtomFamily,
+} from "./scheduleAtoms"
 
 import {
   CourseDesignerCourseSize,
@@ -20,7 +42,49 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+const STAGE_ORDER: CourseDesignerStage[] = [
+  "Analysis",
+  "Design",
+  "Development",
+  "Implementation",
+  "Evaluation",
+]
+
+const MONTH_ICONS = [
+  WinterSnowflake,
+  Sleigh,
+  Sunrise,
+  WaterLiquid,
+  Leaf,
+  Campfire,
+  Cabin,
+  Berries,
+  MapleLeaf,
+  MistyCloud,
+  CandleLight,
+  PineTree,
+] as const
+
+/** Returns for each stage the list of month labels (e.g. "Feb 2026") in that stage's range. */
+function getStageMonthLabels(
+  stages: Array<CourseDesignerScheduleStageInput>,
+): Array<{ stage: CourseDesignerStage; labels: string[] }> {
+  return stages.map((s) => {
+    const start = parseISO(s.planned_starts_on)
+    const end = parseISO(s.planned_ends_on)
+    const labels: string[] = []
+    let d = startOfMonth(start)
+    const endMonth = endOfMonth(end)
+    while (d <= endMonth) {
+      labels.push(format(d, "MMM yyyy"))
+      d = addMonths(d, 1)
+    }
+    return { stage: s.stage, labels }
+  })
+}
 
 const containerStyles = css`
   max-width: 1100px;
@@ -34,18 +98,6 @@ const sectionStyles = css`
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
-`
-
-const rowStyles = css`
-  display: grid;
-  grid-template-columns: 180px minmax(140px, 1fr) minmax(140px, 1fr);
-  gap: 0.75rem;
-  align-items: center;
-  margin-bottom: 0.75rem;
-
-  @media (max-width: 700px) {
-    grid-template-columns: 1fr;
-  }
 `
 
 const toolbarStyles = css`
@@ -69,17 +121,89 @@ const fieldStyles = css`
   }
 `
 
-const tableHeaderStyles = css`
-  ${rowStyles};
-  font-weight: 700;
-  color: #4f5b6d;
+const stageCardStyles = css`
+  display: flex;
+  gap: 1rem;
+  border: 1px solid ${baseTheme.colors.gray[300]};
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: ${baseTheme.colors.gray[50]};
+`
+
+const stageMonthBlocksStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+  flex-shrink: 0;
+  width: 72px;
+`
+
+const stageMonthBlockStyles = css`
+  width: 72px;
+  height: 72px;
+  background: ${baseTheme.colors.green[400]};
+  border: 1px solid ${baseTheme.colors.green[600]};
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.25rem;
+  color: white;
+`
+
+const stageMonthBlockMonthStyles = css`
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+`
+
+const stageMonthBlockYearStyles = css`
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.85;
+  line-height: 1.2;
+`
+
+const stageMonthBlockIconStyles = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+`
+
+const stageCardRightStyles = css`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`
+
+const stageDescriptionPlaceholderStyles = css`
+  font-size: 0.85rem;
+  color: ${baseTheme.colors.gray[500]};
+  font-style: italic;
+`
+
+const stageCardActionsStyles = css`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 `
 
 const todayDateInputValue = () => new Date().toISOString().slice(0, 10)
 
-// eslint-disable-next-line i18next/no-literal-string
 const COURSE_DESIGNER_PLAN_QUERY_KEY = "course-designer-plan"
-// eslint-disable-next-line i18next/no-literal-string
+
 const COURSE_DESIGNER_PLANS_QUERY_KEY = "course-designer-plans"
 
 function CoursePlanSchedulePage() {
@@ -97,24 +221,27 @@ function CoursePlanSchedulePage() {
   // eslint-disable-next-line i18next/no-literal-string
   const [courseSize, setCourseSize] = useState<CourseDesignerCourseSize>("medium")
   const [startsOn, setStartsOn] = useState(todayDateInputValue())
-  const [draftStages, setDraftStages] = useState<Array<CourseDesignerScheduleStageInput>>([])
   const [initializedFromQuery, setInitializedFromQuery] = useState<string | null>(null)
+
+  const draftStages = useAtomValue(draftStagesAtomFamily(planId))
+  const setDraftStages = useSetAtom(draftStagesAtomFamily(planId))
+  const addStageMonth = useSetAtom(addMonthToStageAtomFamily(planId))
+  const removeStageMonth = useSetAtom(removeMonthFromStageAtomFamily(planId))
 
   const stageLabel = (stage: CourseDesignerStage) => {
     switch (stage) {
-      // eslint-disable-next-line i18next/no-literal-string
       case "Analysis":
         return t("course-plans-stage-analysis")
-      // eslint-disable-next-line i18next/no-literal-string
+
       case "Design":
         return t("course-plans-stage-design")
-      // eslint-disable-next-line i18next/no-literal-string
+
       case "Development":
         return t("course-plans-stage-development")
-      // eslint-disable-next-line i18next/no-literal-string
+
       case "Implementation":
         return t("course-plans-stage-implementation")
-      // eslint-disable-next-line i18next/no-literal-string
+
       case "Evaluation":
         return t("course-plans-stage-evaluation")
     }
@@ -150,17 +277,16 @@ function CoursePlanSchedulePage() {
     }
     setPlanName(planQuery.data.plan.name ?? "")
     if (planQuery.data.stages.length > 0) {
-      setDraftStages(
-        planQuery.data.stages.map((stage) => ({
-          stage: stage.stage,
-          planned_starts_on: stage.planned_starts_on,
-          planned_ends_on: stage.planned_ends_on,
-        })),
-      )
+      const stages = planQuery.data.stages.map((stage) => ({
+        stage: stage.stage,
+        planned_starts_on: stage.planned_starts_on,
+        planned_ends_on: stage.planned_ends_on,
+      }))
+      setDraftStages(stages)
       setStartsOn(planQuery.data.stages[0].planned_starts_on)
     }
     setInitializedFromQuery(planId)
-  }, [initializedFromQuery, planId, planQuery.data])
+  }, [initializedFromQuery, planId, planQuery.data, setDraftStages])
 
   const suggestionMutation = useToastMutation(
     () =>
@@ -185,13 +311,12 @@ function CoursePlanSchedulePage() {
     { notify: true, method: "PUT" },
     {
       onSuccess: async (details) => {
-        setDraftStages(
-          details.stages.map((stage) => ({
-            stage: stage.stage,
-            planned_starts_on: stage.planned_starts_on,
-            planned_ends_on: stage.planned_ends_on,
-          })),
-        )
+        const stages = details.stages.map((stage) => ({
+          stage: stage.stage,
+          planned_starts_on: stage.planned_starts_on,
+          planned_ends_on: stage.planned_ends_on,
+        }))
+        setDraftStages(stages)
         await queryClient.invalidateQueries({ queryKey: [COURSE_DESIGNER_PLAN_QUERY_KEY, planId] })
         await queryClient.invalidateQueries({ queryKey: [COURSE_DESIGNER_PLANS_QUERY_KEY] })
       },
@@ -210,6 +335,8 @@ function CoursePlanSchedulePage() {
   )
 
   const validationError = useMemo(() => validateStages(draftStages), [draftStages, t])
+
+  const stageMonths = useMemo(() => getStageMonthLabels(draftStages), [draftStages])
 
   if (planQuery.isError) {
     return <ErrorBanner variant="readOnly" error={planQuery.error} />
@@ -260,11 +387,11 @@ function CoursePlanSchedulePage() {
               value={courseSize}
               onChange={(event) => setCourseSize(event.target.value as CourseDesignerCourseSize)}
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <option value="small">{t("course-plans-course-size-small")}</option>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <option value="medium">{t("course-plans-course-size-medium")}</option>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <option value="large">{t("course-plans-course-size-large")}</option>
             </select>
           </div>
@@ -292,45 +419,85 @@ function CoursePlanSchedulePage() {
 
       <div className={sectionStyles}>
         <h2>{t("course-plans-schedule-editor-title")}</h2>
-        <div className={tableHeaderStyles}>
-          <div>{t("course-plans-stage-column")}</div>
-          <div>{t("course-plans-start-date-column")}</div>
-          <div>{t("course-plans-end-date-column")}</div>
-        </div>
 
         {draftStages.length === 0 && <p>{t("course-plans-schedule-empty-help")}</p>}
 
-        {draftStages.map((stage, index) => (
-          <div key={stage.stage} className={rowStyles}>
-            <div>{stageLabel(stage.stage)}</div>
-            <input
-              type="date"
-              value={stage.planned_starts_on}
-              onChange={(event) => {
-                setDraftStages((current) =>
-                  current.map((item, currentIndex) =>
-                    currentIndex === index
-                      ? { ...item, planned_starts_on: event.target.value }
-                      : item,
-                  ),
-                )
-              }}
-            />
-            <input
-              type="date"
-              value={stage.planned_ends_on}
-              onChange={(event) => {
-                setDraftStages((current) =>
-                  current.map((item, currentIndex) =>
-                    currentIndex === index
-                      ? { ...item, planned_ends_on: event.target.value }
-                      : item,
-                  ),
-                )
-              }}
-            />
+        {draftStages.length === 5 && (
+          <div
+            className={css`
+              margin-top: 1rem;
+            `}
+          >
+            {STAGE_ORDER.map((stage, stageIndex) => {
+              const { labels } = stageMonths[stageIndex] ?? { labels: [] }
+              const canShrink = labels.length > 1
+              const stageInput = draftStages[stageIndex]
+              const monthDates: Date[] = []
+              if (stageInput) {
+                let d = startOfMonth(parseISO(stageInput.planned_starts_on))
+                const endMonth = endOfMonth(parseISO(stageInput.planned_ends_on))
+                while (d <= endMonth) {
+                  monthDates.push(d)
+                  d = addMonths(d, 1)
+                }
+              }
+              return (
+                <div
+                  key={stage}
+                  className={stageCardStyles}
+                  data-testid={`course-plan-stage-${stage}`}
+                >
+                  <div className={stageMonthBlocksStyles}>
+                    {monthDates.map((d, i) => {
+                      const MonthIcon = MONTH_ICONS[d.getMonth()]
+                      return (
+                        <div key={i} className={stageMonthBlockStyles} title={labels[i]}>
+                          <div className={stageMonthBlockIconStyles}>
+                            <MonthIcon />
+                          </div>
+                          <span className={stageMonthBlockMonthStyles}>{format(d, "MMMM")}</span>
+                          <span className={stageMonthBlockYearStyles}>{format(d, "yyyy")}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className={stageCardRightStyles}>
+                    <h3
+                      className={css`
+                        margin: 0;
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        color: ${baseTheme.colors.gray[700]};
+                      `}
+                    >
+                      {stageLabel(stage)}
+                    </h3>
+                    <p className={stageDescriptionPlaceholderStyles}>
+                      {t("course-plans-stage-description-placeholder")}
+                    </p>
+                    <div className={stageCardActionsStyles}>
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        onClick={() => addStageMonth(stageIndex)}
+                      >
+                        {t("course-plans-add-one-month")}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        onClick={() => removeStageMonth(stageIndex)}
+                        disabled={!canShrink}
+                      >
+                        {t("course-plans-remove-one-month")}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
-        ))}
+        )}
 
         {validationError && (
           <div

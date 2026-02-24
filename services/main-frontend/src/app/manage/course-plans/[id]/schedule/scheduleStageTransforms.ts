@@ -26,19 +26,36 @@ export const buildMonthTimeline = (stages: StageInput[]): MonthWithStage[] | nul
     return null
   }
 
-  const firstStage = stages[0]
-  const lastStage = stages[stages.length - 1]
+  const byStage = new Map<CourseDesignerStage, StageInput>()
+  stages.forEach((stage) => {
+    byStage.set(stage.stage, stage)
+  })
 
-  const planStart = startOfMonth(parseISO(firstStage.planned_starts_on))
-  const planEnd = endOfMonth(parseISO(lastStage.planned_ends_on))
+  for (const stage of STAGE_ORDER) {
+    if (!byStage.has(stage)) {
+      return null
+    }
+  }
+
+  const starts = STAGE_ORDER.map((stage) =>
+    startOfMonth(parseISO(byStage.get(stage)!.planned_starts_on)),
+  )
+  const ends = STAGE_ORDER.map((stage) => endOfMonth(parseISO(byStage.get(stage)!.planned_ends_on)))
+
+  const planStart = starts.reduce((a, b) => (a < b ? a : b))
+  const planEnd = ends.reduce((a, b) => (a > b ? a : b))
 
   const months: MonthWithStage[] = []
   let current = planStart
 
   while (current <= planEnd) {
-    const owningStage = stages.find((stage) => {
-      const stageStart = startOfMonth(parseISO(stage.planned_starts_on))
-      const stageEnd = endOfMonth(parseISO(stage.planned_ends_on))
+    const owningStage = STAGE_ORDER.find((stage) => {
+      const input = byStage.get(stage)
+      if (!input) {
+        return false
+      }
+      const stageStart = startOfMonth(parseISO(input.planned_starts_on))
+      const stageEnd = endOfMonth(parseISO(input.planned_ends_on))
       return current >= stageStart && current <= stageEnd
     })
 
@@ -46,20 +63,20 @@ export const buildMonthTimeline = (stages: StageInput[]): MonthWithStage[] | nul
       return null
     }
 
-    months.push({ date: current, stage: owningStage.stage })
+    months.push({ date: current, stage: owningStage })
     current = addMonths(current, 1)
   }
 
   return months
 }
 
-const toStageRanges = (months: MonthWithStage[]): StageInput[] => {
+const toStageRanges = (months: MonthWithStage[]): StageInput[] | null => {
   const result: StageInput[] = []
 
-  STAGE_ORDER.forEach((stage) => {
+  for (const stage of STAGE_ORDER) {
     const stageMonths = months.filter((m) => m.stage === stage)
     if (stageMonths.length === 0) {
-      throw new Error("Stage has no months when rebuilding ranges")
+      return null
     }
     const first = stageMonths[0].date
     const last = stageMonths[stageMonths.length - 1].date
@@ -68,7 +85,7 @@ const toStageRanges = (months: MonthWithStage[]): StageInput[] => {
       planned_starts_on: format(startOfMonth(first), "yyyy-MM-dd"),
       planned_ends_on: format(endOfMonth(last), "yyyy-MM-dd"),
     })
-  })
+  }
 
   return result
 }
@@ -99,17 +116,18 @@ export const addMonthToStage = (stages: StageInput[], stageIndex: number): Stage
 
   const newMonths: MonthWithStage[] = []
   let cursor = 0
-  STAGE_ORDER.forEach((stage, idx) => {
+  for (let idx = 0; idx < STAGE_ORDER.length; idx += 1) {
+    const stage = STAGE_ORDER[idx]
     const len = lengths[idx]
     for (let i = 0; i < len; i += 1) {
       const source = months[cursor]
       if (!source) {
-        throw new Error("Month index out of bounds while assigning stages")
+        return null
       }
       newMonths.push({ date: source.date, stage })
       cursor += 1
     }
-  })
+  }
 
   return toStageRanges(newMonths)
 }
@@ -140,17 +158,18 @@ export const removeMonthFromStage = (
 
   const newMonths: MonthWithStage[] = []
   let cursor = 0
-  STAGE_ORDER.forEach((stage, idx) => {
+  for (let idx = 0; idx < STAGE_ORDER.length; idx += 1) {
+    const stage = STAGE_ORDER[idx]
     const len = lengths[idx]
     for (let i = 0; i < len; i += 1) {
       const source = months[cursor]
       if (!source) {
-        throw new Error("Month index out of bounds while assigning stages")
+        return null
       }
       newMonths.push({ date: source.date, stage })
       cursor += 1
     }
-  })
+  }
 
   return toStageRanges(newMonths)
 }

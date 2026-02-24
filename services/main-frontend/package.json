@@ -54,6 +54,7 @@
     "katex": "^0.16.25",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.52.2",
+    "motion": "^12.34.3",
     "next": "16.0.7",
     "papaparse": "^5.5.3",
     "react": "19.2.1",

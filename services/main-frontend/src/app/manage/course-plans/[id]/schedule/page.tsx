@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Berries,
@@ -18,10 +18,10 @@ import {
 } from "@vectopus/atlas-icons-react"
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 import { useAtomValue, useSetAtom } from "jotai"
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react"
 import { useParams } from "next/navigation"
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { animated, to, useSprings } from "react-spring"
 
 import {
   addMonthToStageAtomFamily,
@@ -69,34 +69,26 @@ const MONTH_ICONS = [
   PineTree,
 ] as const
 
-const BLOCK = 72
-const GAP = 4
-const COL_W = 72
-
-type MonthNode = {
+type StageMonth = {
   id: string
   date: Date
-  stageIndex: number
-  slotIndex: number
   label: string
 }
 
-/** Returns for each stage the list of month labels (e.g. "Feb 2026") in that stage's range. */
-function getStageMonthLabels(
-  stages: Array<CourseDesignerScheduleStageInput>,
-): Array<{ stage: CourseDesignerStage; labels: string[] }> {
-  return stages.map((s) => {
-    const start = parseISO(s.planned_starts_on)
-    const end = parseISO(s.planned_ends_on)
-    const labels: string[] = []
-    let d = startOfMonth(start)
-    const endMonth = endOfMonth(end)
-    while (d <= endMonth) {
-      labels.push(format(d, "MMM yyyy"))
-      d = addMonths(d, 1)
-    }
-    return { stage: s.stage, labels }
-  })
+function getStageMonths(stage: CourseDesignerScheduleStageInput): StageMonth[] {
+  const start = startOfMonth(parseISO(stage.planned_starts_on))
+  const end = endOfMonth(parseISO(stage.planned_ends_on))
+  const months: StageMonth[] = []
+  let d = start
+  while (d <= end) {
+    months.push({
+      id: format(d, "yyyy-MM"),
+      date: d,
+      label: format(d, "MMM yyyy"),
+    })
+    d = addMonths(d, 1)
+  }
+  return months
 }
 
 const containerStyles = css`
@@ -135,6 +127,8 @@ const fieldStyles = css`
 `
 
 const stageCardStyles = css`
+  position: relative;
+  transform-origin: center;
   display: flex;
   gap: 1rem;
   border: 1px solid ${baseTheme.colors.gray[300]};
@@ -213,29 +207,7 @@ const stageCardActionsStyles = css`
   flex-wrap: wrap;
 `
 
-const scheduleEditorTimelineRootStyles = css`
-  position: relative;
-  contain: layout paint;
-`
-
-const scheduleMonthOverlayStyles = css`
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: visible;
-`
-
-const scheduleMonthOverlayHiddenStyles = css`
-  opacity: 0;
-`
-
 const todayDateInputValue = () => format(new Date(), "yyyy-MM-dd")
-
-function awaitable(x: unknown): Promise<unknown> {
-  return Array.isArray(x)
-    ? Promise.all(x.map((v) => (v != null ? Promise.resolve(v) : Promise.resolve())))
-    : Promise.resolve(x)
-}
 
 const COURSE_DESIGNER_PLAN_QUERY_KEY = "course-designer-plan"
 
@@ -371,297 +343,20 @@ function CoursePlanSchedulePage() {
 
   const validationError = useMemo(() => validateStages(draftStages), [draftStages, validateStages])
 
-  const stageMonths = useMemo(() => getStageMonthLabels(draftStages), [draftStages])
-
-  const monthNodes: MonthNode[] = useMemo(() => {
+  const stageMonthsByStage = useMemo(() => {
     if (draftStages.length !== 5) {
-      return []
+      return {} as Record<CourseDesignerStage, StageMonth[]>
     }
-    const nodes: MonthNode[] = []
-    draftStages.forEach((s, stageIndex) => {
-      const start = startOfMonth(parseISO(s.planned_starts_on))
-      const end = endOfMonth(parseISO(s.planned_ends_on))
-      let d = start
-      let slot = 0
-      while (d <= end) {
-        nodes.push({
-          id: format(d, "yyyy-MM"),
-          date: d,
-          stageIndex,
-          slotIndex: slot,
-          label: format(d, "MMM yyyy"),
-        })
-        d = addMonths(d, 1)
-        slot += 1
-      }
-    })
-    return nodes
+    const byStage = {} as Record<CourseDesignerStage, StageMonth[]>
+    for (const stage of STAGE_ORDER) {
+      const stageInput = draftStages.find((s) => s.stage === stage)
+      byStage[stage] = stageInput ? getStageMonths(stageInput) : []
+    }
+    return byStage
   }, [draftStages])
 
-  const scheduleEditorRootRef = useRef<HTMLDivElement | null>(null)
-  const monthColRefs = useRef<Array<HTMLDivElement | null>>([])
-  const [anchors, setAnchors] = useState<Array<{ x: number; y: number }>>([])
-  const [layoutTick, setLayoutTick] = useState(0)
-  const pendingAnimRef = useRef(false)
-  const prevIdsRef = useRef<Set<string>>(new Set())
-  const prevMonthNodesRef = useRef<MonthNode[]>([])
-  const prevTargetByIdRef = useRef(new Map<string, { x: number; y: number }>())
-  const leavingSnapshotRef = useRef<MonthNode[] | null>(null)
-  const leaveAnimGenRef = useRef(0)
-  const [leavingNodes, setLeavingNodes] = useState<MonthNode[]>([])
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-  const [lastChangedStageIndex, setLastChangedStageIndex] = useState<number | null>(null)
-
-  const [cardPulseSprings, cardPulseApi] = useSprings(STAGE_ORDER.length, () => ({
-    scale: 1,
-    config: { tension: 300, friction: 20 },
-  }))
-
-  useEffect(() => {
-    if (lastChangedStageIndex === null || anchors.length !== STAGE_ORDER.length) {
-      return
-    }
-    const idx = lastChangedStageIndex
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
-    const raf2 = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        cardPulseApi.start((i) => (i === idx ? { scale: 1.02 } : {}))
-        timeoutId = setTimeout(() => {
-          cardPulseApi.start((i) => (i === idx ? { scale: 1 } : {}))
-          setLastChangedStageIndex(null)
-        }, 400)
-      })
-    })
-    return () => {
-      cancelAnimationFrame(raf2)
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [lastChangedStageIndex, cardPulseApi, anchors.length])
-
-  useEffect(() => {
-    // eslint-disable-next-line i18next/no-literal-string -- media query, not user-facing
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-    setPrefersReducedMotion(mq.matches)
-    const handler = () => {
-      setPrefersReducedMotion(mq.matches)
-    }
-    mq.addEventListener("change", handler)
-    return () => {
-      mq.removeEventListener("change", handler)
-    }
-  }, [])
-
-  const renderedMonthNodes = useMemo(
-    () => [...monthNodes, ...leavingNodes],
-    [monthNodes, leavingNodes],
-  )
-
-  useEffect(() => {
-    pendingAnimRef.current = true
-  }, [monthNodes])
-
-  useLayoutEffect(() => {
-    const root = scheduleEditorRootRef.current
-    if (!root || draftStages.length !== 5) {
-      return
-    }
-
-    const measure = () => {
-      const rootRect = root.getBoundingClientRect()
-      const next = STAGE_ORDER.map((_, i) => {
-        const el = monthColRefs.current[i]
-        if (!el) {
-          return null
-        }
-        const r = el.getBoundingClientRect()
-        return { x: r.left - rootRect.left, y: r.top - rootRect.top }
-      })
-      if (next.every(Boolean)) {
-        requestAnimationFrame(() => {
-          setAnchors(next as Array<{ x: number; y: number }>)
-          setLayoutTick((t) => t + 1)
-        })
-      }
-    }
-
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(root)
-    monthColRefs.current.forEach((el) => el && ro.observe(el))
-    window.addEventListener("resize", measure)
-    return () => {
-      ro.disconnect()
-      window.removeEventListener("resize", measure)
-    }
-  }, [draftStages.length])
-
-  const springConfig = useMemo(
-    () =>
-      prefersReducedMotion ? { tension: 1000, friction: 100 } : { tension: 160, friction: 32 },
-    [prefersReducedMotion],
-  )
-
-  const [springs, springsApi] = useSprings(renderedMonthNodes.length, () => ({
-    x: 0,
-    y: 0,
-    scale: 1,
-    opacity: 1,
-    zIndex: 1,
-    config: springConfig,
-  }))
-
-  useLayoutEffect(() => {
-    if (!pendingAnimRef.current) {
-      return
-    }
-    if (anchors.length !== STAGE_ORDER.length) {
-      return
-    }
-    pendingAnimRef.current = false
-
-    const prev = prevIdsRef.current
-    const nextIds = new Set(monthNodes.map((m) => m.id))
-    const entering = new Set(Array.from(nextIds).filter((id) => !prev.has(id)))
-    const leavingIds = new Set(Array.from(prev).filter((id) => !nextIds.has(id)))
-    if (leavingIds.size > 0 && leavingSnapshotRef.current === null) {
-      leavingSnapshotRef.current = prevMonthNodesRef.current.filter((m) => leavingIds.has(m.id))
-      queueMicrotask(() => setLeavingNodes(leavingSnapshotRef.current ?? []))
-    }
-    prevMonthNodesRef.current = monthNodes
-    prevIdsRef.current = nextIds
-
-    const nodes = renderedMonthNodes
-    const nCurrent = monthNodes.length
-
-    springsApi.start((i) => {
-      if (i >= nCurrent) {
-        return null
-      }
-      const m = nodes[i]
-      const a = anchors[m.stageIndex] ?? { x: 0, y: 0 }
-      const tx = a.x
-      const ty = a.y + m.slotIndex * (BLOCK + GAP)
-      const prevTarget = prevTargetByIdRef.current.get(m.id)
-      const isMoving = prevTarget !== undefined && (prevTarget.x !== tx || prevTarget.y !== ty)
-      const isEntering = entering.has(m.id)
-
-      if (isEntering) {
-        if (prefersReducedMotion) {
-          return { x: tx, y: ty, scale: 1, opacity: 1, zIndex: 1, immediate: true }
-        }
-        return {
-          to: [
-            {
-              x: tx,
-              y: ty,
-              opacity: 0,
-              scale: 0.98,
-              zIndex: 1,
-              immediate: true,
-            },
-            {
-              x: tx,
-              y: ty,
-              opacity: 1,
-              scale: 1,
-              immediate: false,
-              config: springConfig,
-            },
-          ],
-        }
-      }
-
-      if (isMoving && !prefersReducedMotion) {
-        return {
-          to: [
-            { zIndex: 10, immediate: true },
-            {
-              x: tx,
-              y: ty,
-              scale: 1,
-              opacity: 1,
-              immediate: false,
-              config: springConfig,
-            },
-            { zIndex: 1, immediate: true },
-          ],
-        }
-      }
-
-      return { x: tx, y: ty, scale: 1, opacity: 1, zIndex: 1 }
-    })
-
-    const nextMap = new Map<string, { x: number; y: number }>()
-    for (const node of monthNodes) {
-      const a = anchors[node.stageIndex] ?? { x: 0, y: 0 }
-      nextMap.set(node.id, {
-        x: a.x,
-        y: a.y + node.slotIndex * (BLOCK + GAP),
-      })
-    }
-    const snapshot = leavingSnapshotRef.current
-    if (snapshot) {
-      for (const m of snapshot) {
-        const pos = prevTargetByIdRef.current.get(m.id)
-        if (pos) {
-          nextMap.set(m.id, pos)
-        }
-      }
-    }
-    prevTargetByIdRef.current = nextMap
-  }, [
-    layoutTick,
-    anchors,
-    monthNodes,
-    renderedMonthNodes,
-    springsApi,
-    springConfig,
-    prefersReducedMotion,
-  ])
-
-  useLayoutEffect(() => {
-    if (anchors.length !== STAGE_ORDER.length || leavingNodes.length === 0) {
-      return
-    }
-    leaveAnimGenRef.current += 1
-    const gen = leaveAnimGenRef.current
-    const nCurrent = monthNodes.length
-    const nodes = renderedMonthNodes
-    const p = springsApi.start((i) => {
-      if (i < nCurrent) {
-        return null
-      }
-      const m = nodes[i]
-      const a = anchors[m.stageIndex] ?? { x: 0, y: 0 }
-      const prevPos = prevTargetByIdRef.current.get(m.id)
-      const tx = prevPos?.x ?? a.x
-      const ty = prevPos?.y ?? a.y + m.slotIndex * (BLOCK + GAP)
-      return {
-        x: tx,
-        y: ty,
-        opacity: 0,
-        scale: 0.98,
-        zIndex: 1,
-        config: springConfig,
-      }
-    })
-    void awaitable(p).then(() => {
-      if (leaveAnimGenRef.current !== gen) {
-        return
-      }
-      leavingSnapshotRef.current = null
-      setLeavingNodes([])
-    })
-  }, [
-    anchors,
-    leavingNodes.length,
-    monthNodes.length,
-    renderedMonthNodes,
-    springsApi,
-    springConfig,
-  ])
+  const reduceMotion = useReducedMotion()
+  const [pulseStage, setPulseStage] = useState<number | null>(null)
 
   if (planQuery.isError) {
     return <ErrorBanner variant="readOnly" error={planQuery.error} />
@@ -748,120 +443,139 @@ function CoursePlanSchedulePage() {
         {draftStages.length === 0 && <p>{t("course-plans-schedule-empty-help")}</p>}
 
         {draftStages.length === 5 && (
-          <div ref={scheduleEditorRootRef} className={scheduleEditorTimelineRootStyles}>
+          <LayoutGroup>
             <div
               className={css`
                 margin-top: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
               `}
             >
               {STAGE_ORDER.map((stage, stageIndex) => {
-                const { labels } = stageMonths[stageIndex] ?? { labels: [] }
-                const canShrink = labels.length > 1
-                const placeholderHeight =
-                  labels.length * (BLOCK + GAP) - (labels.length > 0 ? GAP : 0)
+                const months = stageMonthsByStage[stage] ?? []
+                const canShrink = months.length > 1
                 return (
-                  <animated.div
+                  <motion.div
                     key={stage}
+                    layout
                     className={stageCardStyles}
                     data-testid={`course-plan-stage-${stage}`}
-                    style={{
-                      transform: cardPulseSprings[stageIndex].scale.to((s) => `scale(${s})`),
-                    }}
+                    transition={
+                      reduceMotion
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 300, damping: 30 }
+                    }
                   >
-                    <div
-                      className={stageMonthBlocksStyles}
-                      ref={(el) => {
-                        monthColRefs.current[stageIndex] = el
+                    <motion.div
+                      className={css`
+                        display: flex;
+                        gap: 1rem;
+                        width: 100%;
+                      `}
+                      animate={pulseStage === stageIndex ? { scale: [1, 1.02, 1] } : { scale: 1 }}
+                      transition={
+                        pulseStage === stageIndex
+                          ? reduceMotion
+                            ? { duration: 0 }
+                            : {
+                                type: "tween",
+                                duration: 0.18,
+                                // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
+                                ease: "easeOut",
+                              }
+                          : reduceMotion
+                            ? { duration: 0 }
+                            : { type: "spring", stiffness: 300, damping: 30 }
+                      }
+                      onAnimationComplete={() => {
+                        if (pulseStage === stageIndex) {
+                          setPulseStage(null)
+                        }
                       }}
                     >
-                      <div
-                        className={css`
-                          height: ${placeholderHeight}px;
-                        `}
-                        aria-hidden
-                      />
-                    </div>
-                    <div className={stageCardRightStyles}>
-                      <h3
-                        className={css`
-                          margin: 0;
-                          font-size: 1.1rem;
-                          font-weight: 600;
-                          color: ${baseTheme.colors.gray[700]};
-                        `}
-                      >
-                        {stageLabel(stage)}
-                      </h3>
-                      <p className={stageDescriptionPlaceholderStyles}>
-                        {t("course-plans-stage-description-placeholder")}
-                      </p>
-                      <div className={stageCardActionsStyles}>
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          onClick={() => {
-                            setLastChangedStageIndex(stageIndex)
-                            addStageMonth(stageIndex)
-                          }}
-                        >
-                          {t("course-plans-add-one-month")}
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          onClick={() => {
-                            setLastChangedStageIndex(stageIndex)
-                            removeStageMonth(stageIndex)
-                          }}
-                          disabled={!canShrink}
-                        >
-                          {t("course-plans-remove-one-month")}
-                        </Button>
+                      <div className={stageMonthBlocksStyles}>
+                        {/* eslint-disable-next-line i18next/no-literal-string -- Motion API value */}
+                        <AnimatePresence initial={false} mode="popLayout">
+                          {months.map((m) => {
+                            const MonthIcon = MONTH_ICONS[m.date.getMonth()]
+                            return (
+                              <motion.div
+                                key={m.id}
+                                layout
+                                layoutId={
+                                  // eslint-disable-next-line i18next/no-literal-string -- Motion layoutId, not user-facing
+                                  `month-${m.id}`
+                                }
+                                initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
+                                transition={
+                                  reduceMotion
+                                    ? { duration: 0 }
+                                    : { type: "spring", stiffness: 300, damping: 30 }
+                                }
+                              >
+                                <div className={stageMonthBlockStyles} title={m.label}>
+                                  <div className={stageMonthBlockIconStyles}>
+                                    <MonthIcon />
+                                  </div>
+                                  <span className={stageMonthBlockMonthStyles}>
+                                    {format(m.date, "MMMM")}
+                                  </span>
+                                  <span className={stageMonthBlockYearStyles}>
+                                    {format(m.date, "yyyy")}
+                                  </span>
+                                </div>
+                              </motion.div>
+                            )
+                          })}
+                        </AnimatePresence>
                       </div>
-                    </div>
-                  </animated.div>
+                      <div className={stageCardRightStyles}>
+                        <h3
+                          className={css`
+                            margin: 0;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            color: ${baseTheme.colors.gray[700]};
+                          `}
+                        >
+                          {stageLabel(stage)}
+                        </h3>
+                        <p className={stageDescriptionPlaceholderStyles}>
+                          {t("course-plans-stage-description-placeholder")}
+                        </p>
+                        <div className={stageCardActionsStyles}>
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => {
+                              setPulseStage(stageIndex)
+                              addStageMonth(stageIndex)
+                            }}
+                          >
+                            {t("course-plans-add-one-month")}
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => {
+                              setPulseStage(stageIndex)
+                              removeStageMonth(stageIndex)
+                            }}
+                            disabled={!canShrink}
+                          >
+                            {t("course-plans-remove-one-month")}
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
                 )
               })}
             </div>
-            <div
-              className={cx(
-                scheduleMonthOverlayStyles,
-                anchors.length !== STAGE_ORDER.length && scheduleMonthOverlayHiddenStyles,
-              )}
-            >
-              {springs.map((s, i) => {
-                const m = renderedMonthNodes[i]
-                const MonthIcon = MONTH_ICONS[m.date.getMonth()]
-                return (
-                  <animated.div
-                    key={m.id}
-                    className={css`
-                      position: absolute;
-                      width: ${COL_W}px;
-                      height: ${BLOCK}px;
-                      will-change: transform;
-                    `}
-                    style={{
-                      transform: to(
-                        [s.x, s.y, s.scale],
-                        (x, y, scale) => `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
-                      ),
-                      opacity: s.opacity,
-                      zIndex: s.zIndex,
-                    }}
-                  >
-                    <div className={stageMonthBlockStyles} title={m.label}>
-                      <div className={stageMonthBlockIconStyles}>
-                        <MonthIcon />
-                      </div>
-                      <span className={stageMonthBlockMonthStyles}>{format(m.date, "MMMM")}</span>
-                      <span className={stageMonthBlockYearStyles}>{format(m.date, "yyyy")}</span>
-                    </div>
-                  </animated.div>
-                )
-              })}
-            </div>
-          </div>
+          </LayoutGroup>
         )}
 
         {validationError && (

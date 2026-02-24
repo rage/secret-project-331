@@ -165,6 +165,16 @@ pub fn validate_schedule_input(stages: &[CourseDesignerScheduleStageInput]) -> M
     Ok(())
 }
 
+fn first_day_of_month(date: NaiveDate) -> ModelResult<NaiveDate> {
+    NaiveDate::from_ymd_opt(date.year(), date.month(), 1).ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Invalid date while generating schedule suggestion.".to_string(),
+            None,
+        )
+    })
+}
+
 fn last_day_of_month(year: i32, month: u32) -> ModelResult<u32> {
     for day in (28..=31).rev() {
         if NaiveDate::from_ymd_opt(year, month, day).is_some() {
@@ -209,7 +219,7 @@ pub fn build_schedule_suggestion(
     size: CourseDesignerCourseSize,
     starts_on: NaiveDate,
 ) -> ModelResult<Vec<CourseDesignerScheduleStageInput>> {
-    let mut current_start = starts_on;
+    let mut current_start = first_day_of_month(starts_on)?;
     let stage_order = fixed_stage_order();
     let month_durations = suggestion_months(size);
     let mut out = Vec::with_capacity(stage_order.len());

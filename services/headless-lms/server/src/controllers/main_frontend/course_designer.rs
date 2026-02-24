@@ -4,7 +4,7 @@ Handlers for HTTP requests to `/api/v0/main-frontend/course-plans`.
 
 use chrono::NaiveDate;
 use models::course_designer_plans::{
-    self, CourseDesignerCourseSize, CourseDesignerPlan, CourseDesignerPlanDetails,
+    CourseDesignerCourseSize, CourseDesignerPlan, CourseDesignerPlanDetails,
     CourseDesignerPlanSummary, CourseDesignerScheduleStageInput,
 };
 
@@ -54,7 +54,7 @@ async fn post_new_plan(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlan>> {
     let mut conn = pool.acquire().await?;
-    let plan = course_designer::create_plan(
+    let plan = models::course_designer_plans::create_plan(
         &mut conn,
         user.id,
         sanitize_optional_name(payload.name.clone()),
@@ -70,7 +70,7 @@ async fn get_plans(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CourseDesignerPlanSummary>>> {
     let mut conn = pool.acquire().await?;
-    let plans = course_designer::list_plans_for_user(&mut conn, user.id).await?;
+    let plans = models::course_designer_plans::list_plans_for_user(&mut conn, user.id).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(plans))
 }
@@ -82,7 +82,9 @@ async fn get_plan(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlanDetails>> {
     let mut conn = pool.acquire().await?;
-    let plan = course_designer::get_plan_details_for_user(&mut conn, *plan_id, user.id).await?;
+    let plan =
+        models::course_designer_plans::get_plan_details_for_user(&mut conn, *plan_id, user.id)
+            .await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(plan))
 }
@@ -96,9 +98,11 @@ async fn post_schedule_suggestion(
 ) -> ControllerResult<web::Json<CourseDesignerScheduleSuggestionResponse>> {
     let mut conn = pool.acquire().await?;
     // Membership check by fetching the plan; suggestions are only available to plan members.
-    course_designer::get_plan_for_user(&mut conn, *plan_id, user.id).await?;
-    let stages =
-        course_designer::build_schedule_suggestion(payload.course_size, payload.starts_on)?;
+    models::course_designer_plans::get_plan_for_user(&mut conn, *plan_id, user.id).await?;
+    let stages = models::course_designer_plans::build_schedule_suggestion(
+        payload.course_size,
+        payload.starts_on,
+    )?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(CourseDesignerScheduleSuggestionResponse {
         stages,
@@ -112,9 +116,9 @@ async fn put_schedule(
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlanDetails>> {
-    course_designer::validate_schedule_input(&payload.stages)?;
+    models::course_designer_plans::validate_schedule_input(&payload.stages)?;
     let mut conn = pool.acquire().await?;
-    let details = course_designer::replace_schedule_for_user(
+    let details = models::course_designer_plans::replace_schedule_for_user(
         &mut conn,
         *plan_id,
         user.id,
@@ -133,7 +137,9 @@ async fn post_finalize_schedule(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlan>> {
     let mut conn = pool.acquire().await?;
-    let plan = course_designer::finalize_schedule_for_user(&mut conn, *plan_id, user.id).await?;
+    let plan =
+        models::course_designer_plans::finalize_schedule_for_user(&mut conn, *plan_id, user.id)
+            .await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(plan))
 }

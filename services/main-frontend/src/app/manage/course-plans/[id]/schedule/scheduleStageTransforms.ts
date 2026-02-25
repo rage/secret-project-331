@@ -1,17 +1,13 @@
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
+import { SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
+
 import {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/services/backend/courseDesigner"
 
-const STAGE_ORDER: CourseDesignerStage[] = [
-  "Analysis",
-  "Design",
-  "Development",
-  "Implementation",
-  "Evaluation",
-]
+const STAGE_ORDER: CourseDesignerStage[] = SCHEDULE_STAGE_ORDER
 
 type StageInput = CourseDesignerScheduleStageInput
 

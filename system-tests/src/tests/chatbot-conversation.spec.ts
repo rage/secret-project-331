@@ -244,4 +244,100 @@ test.describe("Test chatbot chat box", () => {
       await expect(student1Page.getByText("Hello! How can I assist you")).toHaveCount(0)
     })
   })
+
+  test("course material block chatbot with suggested messages", async ({ headless }, testInfo) => {
+    const studentPage = await context1.newPage()
+
+    await test.step("student views material block chatbot that suggests", async () => {
+      await studentPage.goto(
+        "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1/page-3",
+      )
+      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.getByRole("heading", { name: "Suggestions bot" }).scrollIntoViewIfNeeded()
+      await studentPage.getByRole("button", { name: "Agree" }).click()
+      await waitForAnimationsToEnd(studentPage.getByText("How are we doing this fine evening?"))
+      await expect(studentPage.getByText("Tell me more about your fascinating self.")).toBeVisible()
+
+      await accessibilityCheck(
+        studentPage,
+        "Block Chatbot with Suggestions New Conversation / View",
+        [],
+      )
+      await expectScreenshotsToMatchSnapshots({
+        screenshotTarget: studentPage,
+        headless,
+        testInfo,
+        snapshotName: "block-chatbot-new-conversation-with-suggested-messages",
+        scrollToYCoordinate: {
+          "desktop-regular": 0,
+          "mobile-tall": 140,
+        },
+      })
+    })
+
+    await test.step("student sends a suggested message", async () => {
+      await studentPage.getByRole("button", { name: "What is going on?" }).click()
+      await expect(studentPage.getByText("Hello! How can I assist you")).toBeVisible()
+      await studentPage
+        .getByRole("button", { name: "Nice weather we're having." })
+        .scrollIntoViewIfNeeded()
+      await expectScreenshotsToMatchSnapshots({
+        screenshotTarget: studentPage,
+        headless,
+        testInfo,
+        snapshotName: "block-chatbot-long-conversation-with-suggested-messages",
+        scrollToYCoordinate: {
+          "desktop-regular": 0,
+          "mobile-tall": 140,
+        },
+      })
+    })
+  })
+
+  test("default chatbot with suggested messages", async ({ page, headless }, testInfo) => {
+    const studentPage = await context2.newPage()
+
+    await test.step("teacher changes the default chatbot", async () => {
+      await page.goto(
+        "http://project-331.local/manage/courses/ced2f632-25ba-4e93-8e38-8df53ef7ab41/other/chatbot",
+      )
+      // this should be Suggestion bot's button
+      await page.getByRole("button", { name: "Set as the default chatbot" }).first().click()
+    })
+
+    await test.step("student views the default chatbot that suggests", async () => {
+      await studentPage.goto(
+        "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course",
+      )
+      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.getByRole("button", { name: "Open chatbot" }).click()
+      await waitForAnimationsToEnd(studentPage.getByText("About the chatbot"))
+      await studentPage.getByRole("button", { name: "Agree" }).click()
+      await waitForAnimationsToEnd(studentPage.getByText("How are we doing this fine evening?"))
+      await accessibilityCheck(
+        studentPage,
+        "Default Chatbot with Suggestions New Conversation / View",
+        [],
+      )
+      await expectScreenshotsToMatchSnapshots({
+        screenshotTarget: studentPage,
+        headless,
+        testInfo,
+        snapshotName: "default-chatbot-new-conversation-with-suggested-messages",
+      })
+    })
+    await test.step("student sends suggested message", async () => {
+      await studentPage.getByRole("button", { name: "What is going on?" }).click()
+      await expect(studentPage.getByText("Hello! How can I assist you")).toBeVisible()
+      await studentPage
+        .getByRole("button", { name: "Nice weather we're having." })
+        .scrollIntoViewIfNeeded()
+      await expectScreenshotsToMatchSnapshots({
+        screenshotTarget: studentPage,
+        headless,
+        testInfo,
+        snapshotName: "default-chatbot-long-conversation-with-suggested-messages",
+      })
+    })
+  })
 })

@@ -30,6 +30,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     headless,
     testInfo,
     screenshotTarget: page,
+    clearNotifications: true,
     snapshotName: "exam-started",
     waitForTheseToBeVisibleAndStable: [
       page.getByText("In this exam you're supposed to answer to two easy questions. Good luck!"),

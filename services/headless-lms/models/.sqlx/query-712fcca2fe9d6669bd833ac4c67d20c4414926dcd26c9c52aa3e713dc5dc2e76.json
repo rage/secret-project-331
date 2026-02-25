@@ -1,0 +1,78 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    a.id,\n    a.task as \"task: ApplicationTask\",\n    a.context_utilization,\n    model.model,\n    model.thinking,\n    model.deployment_name,\n    model.context_size\nFROM application_task_default_language_models AS a\nJOIN chatbot_configurations_models AS model ON model.id = a.model_id\nWHERE a.task = $1\nAND a.deleted_at IS NULL\nAND model.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "task: ApplicationTask",
+        "type_info": {
+          "Custom": {
+            "name": "application_task",
+            "kind": {
+              "Enum": [
+                "content-cleaning",
+                "message-suggestion"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "context_utilization",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 3,
+        "name": "model",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "thinking",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "deployment_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "context_size",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "application_task",
+            "kind": {
+              "Enum": [
+                "content-cleaning",
+                "message-suggestion"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "712fcca2fe9d6669bd833ac4c67d20c4414926dcd26c9c52aa3e713dc5dc2e76"
+}

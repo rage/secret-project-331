@@ -2,7 +2,8 @@ UPDATE user_exercise_states
 SET reviewing_stage = 'reviewed_and_locked'
 WHERE reviewing_stage = 'locked';
 
-ALTER TYPE reviewing_stage RENAME TO reviewing_stage_old;
+ALTER TYPE reviewing_stage
+RENAME TO reviewing_stage_old;
 
 CREATE TYPE reviewing_stage AS ENUM (
   'not_started',

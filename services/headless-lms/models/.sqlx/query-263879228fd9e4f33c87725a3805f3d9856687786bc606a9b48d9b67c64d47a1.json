@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_configurations_models (id, model, thinking, deployment_name, default_model) VALUES ($1, $2, $3, $4, $5) RETURNING *\n        ",
+  "query": "\nINSERT INTO chatbot_configurations_models (id, model, thinking, deployment_name, default_model, context_size) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -42,6 +42,11 @@
         "ordinal": 7,
         "name": "deleted_at",
         "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "context_size",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
@@ -50,7 +55,8 @@
         "Varchar",
         "Bool",
         "Varchar",
-        "Bool"
+        "Bool",
+        "Int4"
       ]
     },
     "nullable": [
@@ -61,8 +67,9 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
-  "hash": "41ba72044d010771e961809cfec728182810bcd22b3b71e309a524dd8b0592b9"
+  "hash": "263879228fd9e4f33c87725a3805f3d9856687786bc606a9b48d9b67c64d47a1"
 }

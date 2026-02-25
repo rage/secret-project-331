@@ -1,6 +1,7 @@
 #![allow(clippy::unwrap_used)]
 
 pub mod builder;
+pub mod seed_application_task_llms;
 pub mod seed_certificate_fonts;
 pub mod seed_courses;
 pub mod seed_exercise_services;
@@ -17,7 +18,11 @@ pub mod seed_users;
 use std::{env, process::Command, sync::Arc, time::Duration};
 
 use crate::{
-    domain::models_requests::JwtKey, programs::seed::seed_oauth_clients::seed_oauth_clients,
+    domain::models_requests::JwtKey,
+    programs::seed::{
+        seed_application_task_llms::seed_application_task_llms,
+        seed_oauth_clients::seed_oauth_clients,
+    },
     setup_tracing,
 };
 
@@ -38,7 +43,7 @@ pub async fn main() -> anyhow::Result<()> {
         .expect("Failed to initialize seed spec fetcher");
 
     // Run parallelly to improve performance.
-    let (_, seed_users_result, _) = try_join!(
+    let (_, seed_users_result, _, seed_llms_result) = try_join!(
         run_parallelly(seed_exercise_services::seed_exercise_services(
             db_pool.clone()
         )),
@@ -46,6 +51,7 @@ pub async fn main() -> anyhow::Result<()> {
         run_parallelly(seed_playground_examples::seed_playground_examples(
             db_pool.clone()
         )),
+        run_parallelly(seed_application_task_llms(db_pool.clone()))
     )?;
 
     // Not run parallely because waits another future that is not send.
@@ -63,6 +69,7 @@ pub async fn main() -> anyhow::Result<()> {
             seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
                 db_pool.clone(),
                 seed_users_result,
+                seed_llms_result,
                 base_url.clone(),
                 Arc::clone(&jwt_key),
                 seed_file_storage_result.clone()

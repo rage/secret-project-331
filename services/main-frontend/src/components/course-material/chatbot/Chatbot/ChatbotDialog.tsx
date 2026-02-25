@@ -124,7 +124,8 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
               right: 1rem;
               width: ${CHATBOX_WIDTH_PX}px;
               max-width: 90vw;
-              height: ${CHATBOX_HEIGHT_PX}px;
+              min-height: 60vh;
+              height: fit-content;
               max-height: 90vh;
               position: fixed;
               bottom: 4rem;
@@ -132,7 +133,18 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
             `}
             onAnimationEnd={handleAnimationEnd}
           >
-            <div ref={dialogRef} {...dialogProps}>
+            <div
+              ref={dialogRef}
+              className={css`
+                width: inherit;
+                max-width: inherit;
+                min-width: inherit;
+                height: inherit;
+                max-height: inherit;
+                min-height: inherit;
+              `}
+              {...dialogProps}
+            >
               <ChatbotChat
                 chatbotConfigurationId={chatbotConfigurationId}
                 isCourseMaterialBlock={false}

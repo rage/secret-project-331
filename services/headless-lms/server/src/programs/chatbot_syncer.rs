@@ -24,6 +24,7 @@ use headless_lms_chatbot::{
     content_cleaner::convert_material_blocks_to_markdown_with_llm,
 };
 use headless_lms_models::{
+    application_task_default_language_models::ApplicationTask,
     chapters::DatabaseChapter,
     page_history::PageHistory,
     pages::{Page, PageVisibility},
@@ -345,6 +346,11 @@ async fn sync_pages_batch(
     let course = headless_lms_models::courses::get_course(conn, course_id).await?;
     let organization =
         headless_lms_models::organizations::get_organization(conn, course.organization_id).await?;
+    let task_lm = headless_lms_models::application_task_default_language_models::get_for_task(
+        conn,
+        ApplicationTask::ContentCleaning,
+    )
+    .await?;
 
     let mut base_url = base_url.clone();
     base_url.set_path(&format!(
@@ -366,6 +372,7 @@ async fn sync_pages_batch(
         let content_to_upload = match convert_material_blocks_to_markdown_with_llm(
             &sanitized_blocks,
             app_config,
+            &task_lm,
         )
         .await
         {

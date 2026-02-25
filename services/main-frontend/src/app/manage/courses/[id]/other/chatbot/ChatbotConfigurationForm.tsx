@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import React from "react"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { getChatbotModels } from "@/services/backend/chatbotModels"
@@ -35,10 +35,14 @@ interface Props {
   chatbotQueryRefetch: () => void
 }
 
+interface Message {
+  message: string
+}
+
 type ConfigureChatbotFields = Omit<
   NewChatbotConf,
   "course_id" | "maintain_azure_search_index" | "chatbotconf_id"
->
+> & { suggested_messages: Message[] }
 
 const itemCss = css`
   flex: 1;
@@ -61,6 +65,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const { confirm } = useDialog()
   const {
     register,
+    control,
     handleSubmit,
     watch,
     formState: { errors },
@@ -86,8 +91,16 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       use_tools: oldChatbotConf.use_tools,
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
+      suggest_next_messages: oldChatbotConf.suggest_next_messages,
+      initial_suggested_messages: oldChatbotConf.initial_suggested_messages,
+      suggested_messages: oldChatbotConf.initial_suggested_messages?.map((v) => ({
+        message: v,
+      })),
     },
   })
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const { fields, append, remove } = useFieldArray({ control, name: "suggested_messages" })
 
   const getChatbotModelsList = useQuery({
     queryKey: ["chatbot-models", oldChatbotConf.course_id],
@@ -96,6 +109,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   })
 
   const modelFieldValue = watch("model_id")
+  const suggestMessagesFieldValue = watch("suggest_next_messages")
 
   let selectedModel: ChatbotConfigurationModel | null = null
 
@@ -170,6 +184,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
       use_tools: data.use_tools,
+      suggest_next_messages: data.suggest_next_messages,
+      initial_suggested_messages: data.suggested_messages.map((v) => v.message),
       default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
       chatbotconf_id: null,
     })
@@ -221,6 +237,60 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           showDefaultOption={false}
           {...register("model_id")}
         />
+        <CheckBox label={t("suggest-next-messages")} {...register("suggest_next_messages")} />
+        {suggestMessagesFieldValue && (
+          <div className={itemCss}>
+            <h4>{t("message-suggestions")}</h4>
+            <div
+              className={css`
+                margin: 20px 20px;
+              `}
+            >
+              {fields.map((item, idx) => (
+                <div
+                  key={item.id}
+                  className={css`
+                    display: flex;
+                    flex-flow: row nowrap;
+                    margin: 10px 0;
+                  `}
+                >
+                  <TextField
+                    className={css`
+                      flex-grow: 3;
+                    `}
+                    key={item.id}
+                    error={errors.suggested_messages?.[idx]?.message}
+                    label={t("label-message")}
+                    {...register(`suggested_messages.${idx}.message` as const, {
+                      required: t("required-field"),
+                    })}
+                  />
+                  <Button
+                    className={css`
+                      height: fit-content;
+                      margin: 1.7rem 0 0 0.5rem;
+                    `}
+                    size="small"
+                    type="button"
+                    variant="tertiary"
+                    onClick={() => remove(idx)}
+                  >
+                    {t("button-remove")}
+                  </Button>
+                </div>
+              ))}
+              <Button
+                size="medium"
+                type="button"
+                variant="secondary"
+                onClick={() => append({ message: "" })}
+              >
+                {t("add-new-message")}
+              </Button>
+            </div>
+          </div>
+        )}
         {selectedModel?.thinking ? (
           <div className={itemCss}>
             <h4>{t("configure-reasoning")}</h4>

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\nFROM chatbot_configurations\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    suggest_next_messages,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\",\n    initial_suggested_messages\nFROM chatbot_configurations\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -130,6 +130,11 @@
       },
       {
         "ordinal": 25,
+        "name": "suggest_next_messages",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 26,
         "name": "verbosity: VerbosityLevel",
         "type_info": {
           "Custom": {
@@ -145,7 +150,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 27,
         "name": "reasoning_effort: ReasoningEffortLevel",
         "type_info": {
           "Custom": {
@@ -160,6 +165,11 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 28,
+        "name": "initial_suggested_messages",
+        "type_info": "VarcharArray"
       }
     ],
     "parameters": {
@@ -194,8 +204,10 @@
       false,
       false,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "d50ed53248e02e1dbe76c6f5317aa116418ae3311ac3704a6388142c6202aa99"
+  "hash": "f8199db570ef866f62da9587a3325655782d8acd3dee433bb5a7894a3e8e61e1"
 }

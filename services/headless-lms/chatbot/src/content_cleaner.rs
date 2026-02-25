@@ -1,9 +1,9 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams};
 use crate::llm_utils::{
     APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
+    parse_text_completion,
 };
 use crate::prelude::*;
-use anyhow::Error;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
 use headless_lms_models::chatbot_conversation_messages::MessageRole;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
@@ -329,7 +329,7 @@ async fn process_block_chunk(
     system_message: &APIMessage,
     app_config: &ApplicationConfiguration,
     task_lm: &TaskLMSpec,
-) -> anyhow::Result<String> {
+) -> ChatbotResult<String> {
     let messages = prepare_llm_messages(chunk, system_message)?;
     let params = if task_lm.thinking {
         LLMRequestParams::Thinking(ThinkingParams {
@@ -364,25 +364,11 @@ async fn process_block_chunk(
         Ok(completion) => completion,
         Err(e) => {
             error!("Failed to process chunk: {}", e);
-            return Err(e);
+            return Err(ChatbotError::from(e));
         }
     };
 
-    match &completion //parse_text_completion
-        .choices
-        .first()
-        .ok_or_else(|| {
-            error!("No content returned from LLM");
-            anyhow::anyhow!("No content returned from LLM")
-        })?
-        .message
-        .fields
-    {
-        APIMessageKind::Text(msg) => Ok(msg.content.clone()),
-        _ => Err(Error::msg(
-            "Didn't receive a text LLM response in content cleaner, this shouldn't happen!",
-        )),
-    }
+    parse_text_completion(completion)
 }
 
 /// Prepare messages for the LLM request

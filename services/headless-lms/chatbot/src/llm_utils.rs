@@ -487,7 +487,8 @@ pub async fn make_blocking_llm_request(
 /// Collects all the completion choices to a string. Assumes the completion has only
 /// text message content, no tool calls or responses.
 pub fn parse_text_completion(completion: LLMCompletionResponse) -> ChatbotResult<String> {
-    Ok(completion
+    let res =
+    completion
         .choices
         .into_iter()
         .map(|x| match x.message.fields {
@@ -495,7 +496,15 @@ pub fn parse_text_completion(completion: LLMCompletionResponse) -> ChatbotResult
             _ =>  Err(ChatbotError::new( ChatbotErrorType::InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.", None)),
         })
         .collect::<ChatbotResult<Vec<String>>>()?
-        .join(""))
+        .join("");
+    if res.is_empty() {
+        return Err(ChatbotError::new(
+            ChatbotErrorType::InvalidMessageShape,
+            "No content returned from LLM",
+            None,
+        ));
+    };
+    Ok(res)
 }
 
 #[cfg(test)]

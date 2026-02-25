@@ -543,7 +543,12 @@ WHERE course_designer_plan_id = $1
     .fetch_one(&mut *tx)
     .await?;
 
-    let updated_status = CourseDesignerPlanStatus::Scheduling;
+    // Keep finalized plans finalized when the schedule is re-saved (including no-op saves).
+    let updated_status = if matches!(locked_plan.status, CourseDesignerPlanStatus::ReadyToStart) {
+        locked_plan.status
+    } else {
+        CourseDesignerPlanStatus::Scheduling
+    };
 
     let updated_plan: CourseDesignerPlan = sqlx::query_as!(
         CourseDesignerPlan,

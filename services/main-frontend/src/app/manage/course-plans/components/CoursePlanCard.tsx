@@ -40,6 +40,40 @@ interface CoursePlanCardProps {
 export default function CoursePlanCard({ plan }: CoursePlanCardProps) {
   const router = useRouter()
   const { t } = useTranslation()
+  const statusLabel = (() => {
+    switch (plan.status) {
+      case "Draft":
+        return t("course-plans-status-draft")
+      case "Scheduling":
+        return t("course-plans-status-scheduling")
+      case "ReadyToStart":
+        return t("course-plans-status-ready-to-start")
+      case "InProgress":
+        return t("course-plans-status-in-progress")
+      case "Completed":
+        return t("course-plans-status-completed")
+      case "Archived":
+        return t("course-plans-status-archived")
+    }
+  })()
+
+  const activeStageLabel = (() => {
+    switch (plan.active_stage) {
+      case "Analysis":
+        return t("course-plans-stage-analysis")
+      case "Design":
+        return t("course-plans-stage-design")
+      case "Development":
+        return t("course-plans-stage-development")
+      case "Implementation":
+        return t("course-plans-stage-implementation")
+      case "Evaluation":
+        return t("course-plans-stage-evaluation")
+      case null:
+      case undefined:
+        return t("course-plans-none")
+    }
+  })()
 
   return (
     <button
@@ -49,14 +83,14 @@ export default function CoursePlanCard({ plan }: CoursePlanCardProps) {
     >
       <div className={headerStyles}>
         <strong>{plan.name ?? t("course-plans-untitled-plan")}</strong>
-        <span>{plan.status}</span>
+        <span>{statusLabel}</span>
       </div>
       <div className={metaStyles}>
         <span>{t("course-plans-members-count", { count: plan.member_count })}</span>
         <span>{t("course-plans-scheduled-stages-count", { count: plan.stage_count })}</span>
         <span>
           {t("course-plans-active-stage-value", {
-            stage: plan.active_stage ?? t("course-plans-none"),
+            stage: activeStageLabel,
           })}
         </span>
       </div>

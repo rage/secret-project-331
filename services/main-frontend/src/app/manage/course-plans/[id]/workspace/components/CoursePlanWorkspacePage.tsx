@@ -6,7 +6,7 @@ import { useParams } from "next/navigation"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { coursePlanQueryKeys } from "../../coursePlanQueryKeys"
+import { coursePlanQueryKeys } from "../../../coursePlanQueryKeys"
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 
 import WorkspaceStageSection from "./WorkspaceStageSection"
@@ -118,7 +118,14 @@ export default function CoursePlanWorkspacePage() {
     (stage: CourseDesignerStage) => {
       // eslint-disable-next-line i18next/no-literal-string
       const key = `course-plans-stage-${stage.toLowerCase()}`
-      return t(key)
+      return t(
+        key as
+          | "course-plans-stage-analysis"
+          | "course-plans-stage-design"
+          | "course-plans-stage-development"
+          | "course-plans-stage-implementation"
+          | "course-plans-stage-evaluation",
+      )
     },
     [t],
   )

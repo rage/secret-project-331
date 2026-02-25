@@ -221,7 +221,9 @@ function WorkspaceTaskRow({
   return (
     <li className={taskRowStyles}>
       <CheckBox
+        aria-label={task.title}
         checked={task.is_completed}
+        label=""
         onChange={(e) => onToggle(e.target.checked)}
         disabled={isUpdating}
       />

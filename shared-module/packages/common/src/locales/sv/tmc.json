@@ -18,6 +18,8 @@
   "solve-in-editor-label": "Lös i en extern editor",
   "submission-archive-download-label": "Det inlämnade arkivet kan laddas ner från följande länk",
   "submit": "Skicka in",
+  "submit-result-failed": "Tests failed. Score: {{score}}/{{max}}. You can edit your code and submit again.",
+  "submit-result-passed": "All tests passed! Score: {{score}}/{{max}}.",
   "test": "Testa",
   "upload-solution-instructions": "Ladda upp lösningsarkiv. Stödda arkivtyper: .tar.zst",
   "waiting-for-content": "Väntar på innehåll...",

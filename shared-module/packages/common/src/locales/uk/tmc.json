@@ -18,6 +18,8 @@
   "solve-in-editor-label": "Вирішити у зовнішньому редакторі",
   "submission-archive-download-label": "Поданий архів можна завантажити за наступним посиланням",
   "submit": "Подати",
+  "submit-result-failed": "Tests failed. Score: {{score}}/{{max}}. You can edit your code and submit again.",
+  "submit-result-passed": "All tests passed! Score: {{score}}/{{max}}.",
   "test": "Тест",
   "upload-solution-instructions": "Завантажте архів з рішенням. Підтримувані типи архівів: .tar.zst",
   "waiting-for-content": "Очікування вмісту...",

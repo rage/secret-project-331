@@ -18,6 +18,8 @@
   "solve-in-editor-label": "حل في محرر خارجي",
   "submission-archive-download-label": "يمكن تحميل الأرشيف المقدم من الرابط التالي",
   "submit": "تقديم",
+  "submit-result-failed": "Tests failed. Score: {{score}}/{{max}}. You can edit your code and submit again.",
+  "submit-result-passed": "All tests passed! Score: {{score}}/{{max}}.",
   "test": "اختبار",
   "upload-solution-instructions": "رفع أرشيف الحل. أنواع الأرشيف المدعومة: .tar.zst",
   "waiting-for-content": "في انتظار المحتوى...",

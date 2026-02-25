@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","courses_moocfi_password_change","courses_moocfi_password_login"],"struct":["LoginRequest","PasswordChangeRequest"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","courses_moocfi_password_change","courses_moocfi_password_login","create_user"],"struct":["CreateUserRequest","CreateUserResponse","LoginRequest","PasswordChangeRequest"]};

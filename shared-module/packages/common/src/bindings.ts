@@ -447,7 +447,7 @@ export interface CourseDesignerPlan {
 export interface CourseDesignerPlanDetails {
   plan: CourseDesignerPlan
   members: Array<CourseDesignerPlanMember>
-  stages: Array<CourseDesignerPlanStage>
+  stages: Array<CourseDesignerPlanStageWithTasks>
 }
 
 export interface CourseDesignerPlanMember {
@@ -470,6 +470,34 @@ export interface CourseDesignerPlanStage {
 }
 
 export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
+
+export interface CourseDesignerPlanStageTask {
+  id: string
+  created_at: string
+  updated_at: string
+  course_designer_plan_stage_id: string
+  title: string
+  description: string | null
+  order_number: number
+  is_completed: boolean
+  completed_at: string | null
+  completed_by_user_id: string | null
+  is_auto_generated: boolean
+  created_by_user_id: string | null
+}
+
+export interface CourseDesignerPlanStageWithTasks {
+  id: string
+  created_at: string
+  updated_at: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  planned_starts_on: string
+  planned_ends_on: string
+  actual_started_at: string | null
+  actual_completed_at: string | null
+  tasks: Array<CourseDesignerPlanStageTask>
+}
 
 export type CourseDesignerPlanStatus =
   | "Draft"
@@ -2609,9 +2637,20 @@ export interface CreateCourseDesignerPlanRequest {
   name: string | null
 }
 
+export interface CreateCourseDesignerStageTaskRequest {
+  title: string
+  description: string | null
+}
+
 export interface SaveCourseDesignerScheduleRequest {
   name: string | null
   stages: Array<CourseDesignerScheduleStageInput>
+}
+
+export interface UpdateCourseDesignerStageTaskRequest {
+  title: string | null
+  description: string | null
+  is_completed: boolean | null
 }
 
 export interface GetFeedbackQuery {

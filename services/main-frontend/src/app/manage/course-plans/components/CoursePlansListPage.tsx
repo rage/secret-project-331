@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import { coursePlanQueryKeys } from "../coursePlanQueryKeys"
-import { coursePlanScheduleRoute } from "../coursePlanRoutes"
+import { coursePlanHubRoute } from "../coursePlanRoutes"
 
 import CoursePlanList from "./CoursePlanList"
 
@@ -49,7 +49,7 @@ export default function CoursePlansListPage() {
     {
       onSuccess: async (plan) => {
         await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.list() })
-        router.push(coursePlanScheduleRoute(plan.id))
+        router.push(coursePlanHubRoute(plan.id))
       },
     },
   )

@@ -54,10 +54,29 @@ export interface CourseDesignerPlanStage {
   actual_completed_at: string | null
 }
 
+export interface CourseDesignerPlanStageTask {
+  id: string
+  created_at: string
+  updated_at: string
+  course_designer_plan_stage_id: string
+  title: string
+  description: string | null
+  order_number: number
+  is_completed: boolean
+  completed_at: string | null
+  completed_by_user_id: string | null
+  is_auto_generated: boolean
+  created_by_user_id: string | null
+}
+
+export type CourseDesignerPlanStageWithTasks = CourseDesignerPlanStage & {
+  tasks: Array<CourseDesignerPlanStageTask>
+}
+
 export interface CourseDesignerPlanDetails {
   plan: CourseDesignerPlan
   members: Array<CourseDesignerPlanMember>
-  stages: Array<CourseDesignerPlanStage>
+  stages: Array<CourseDesignerPlanStageWithTasks>
 }
 
 export interface CourseDesignerScheduleStageInput {
@@ -125,4 +144,71 @@ export const finalizeCourseDesignerSchedule = async (
 ): Promise<CourseDesignerPlan> => {
   const response = await mainFrontendClient.post(`/course-plans/${planId}/schedule/finalize`)
   return response.data as CourseDesignerPlan
+}
+
+export const startCourseDesignerPlan = async (planId: string): Promise<CourseDesignerPlan> => {
+  const response = await mainFrontendClient.post(`/course-plans/${planId}/start`)
+  return response.data as CourseDesignerPlan
+}
+
+export const extendCourseDesignerStage = async (
+  planId: string,
+  stage: CourseDesignerStage,
+  months: number,
+): Promise<CourseDesignerPlanDetails> => {
+  const stagePath = stage.toLowerCase()
+  const response = await mainFrontendClient.post(
+    `/course-plans/${planId}/stages/${stagePath}/extend`,
+    { months },
+  )
+  return response.data as CourseDesignerPlanDetails
+}
+
+export const advanceCourseDesignerStage = async (
+  planId: string,
+): Promise<CourseDesignerPlanDetails> => {
+  const response = await mainFrontendClient.post(`/course-plans/${planId}/stages/advance`)
+  return response.data as CourseDesignerPlanDetails
+}
+
+export interface CreateCourseDesignerStageTaskRequest {
+  title: string
+  description?: string | null
+}
+
+export const createCourseDesignerStageTask = async (
+  planId: string,
+  stageId: string,
+  payload: CreateCourseDesignerStageTaskRequest,
+): Promise<CourseDesignerPlanStageTask> => {
+  const response = await mainFrontendClient.post(
+    `/course-plans/${planId}/stages/${stageId}/tasks`,
+    payload,
+  )
+  return response.data as CourseDesignerPlanStageTask
+}
+
+export interface UpdateCourseDesignerStageTaskRequest {
+  title?: string | null
+  description?: string | null
+  is_completed?: boolean
+}
+
+export const updateCourseDesignerStageTask = async (
+  planId: string,
+  taskId: string,
+  payload: UpdateCourseDesignerStageTaskRequest,
+): Promise<CourseDesignerPlanStageTask> => {
+  const response = await mainFrontendClient.patch(
+    `/course-plans/${planId}/tasks/${taskId}`,
+    payload,
+  )
+  return response.data as CourseDesignerPlanStageTask
+}
+
+export const deleteCourseDesignerStageTask = async (
+  planId: string,
+  taskId: string,
+): Promise<void> => {
+  await mainFrontendClient.delete(`/course-plans/${planId}/tasks/${taskId}`)
 }

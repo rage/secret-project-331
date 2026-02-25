@@ -2,10 +2,11 @@
 
 import { css, cx } from "@emotion/css"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { coursePlanWorkspaceRoute } from "../../coursePlanRoutes"
 import useScheduleWizardController from "../hooks/useScheduleWizardController"
 import { ScheduleWizardStepId } from "../scheduleConstants"
 
@@ -67,8 +68,9 @@ function stepTransitionDirection(step: ScheduleWizardStepId): string {
 
 export default function ScheduleWizardPage() {
   const { t } = useTranslation()
+  const router = useRouter()
   const params = useParams<{ id: string }>()
-  const planId = params.id
+  const planId = params.id ?? ""
   const controller = useScheduleWizardController(planId)
   const reduceMotion = !!useReducedMotion()
 
@@ -192,8 +194,11 @@ export default function ScheduleWizardPage() {
               onSave={() => {
                 void controller.actions.saveDraft()
               }}
-              onFinalize={() => {
-                void controller.actions.finalizeDraft()
+              onFinalize={async () => {
+                const ok = await controller.actions.finalizeDraft()
+                if (ok) {
+                  router.push(coursePlanWorkspaceRoute(planId))
+                }
               }}
             />
           )}

@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_designer_plan_stage_tasks t\nSET\n  title = $2,\n  description = $3,\n  is_completed = $4,\n  completed_at = $5,\n  completed_by_user_id = $6\nFROM course_designer_plan_stages s\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $7 AND m.deleted_at IS NULL\nWHERE t.course_designer_plan_stage_id = s.id AND s.course_designer_plan_id = $1\n  AND t.id = $8 AND t.deleted_at IS NULL\nRETURNING\n  t.id,\n  t.created_at,\n  t.updated_at,\n  t.course_designer_plan_stage_id,\n  t.title,\n  t.description,\n  t.order_number,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  t.is_auto_generated,\n  t.created_by_user_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_designer_plan_stage_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "order_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "is_completed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "completed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "completed_by_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "is_auto_generated",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_by_user_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Text",
+        "Bool",
+        "Timestamptz",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "312d1160a49c0f40c4abcc13327c2a95f1c1454590c5629950969a32ce5fa70b"
+}

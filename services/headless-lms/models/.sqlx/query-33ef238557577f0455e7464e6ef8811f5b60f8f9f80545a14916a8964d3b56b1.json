@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT MAX(order_number)::INTEGER\nFROM course_designer_plan_stage_tasks\nWHERE course_designer_plan_stage_id = $1 AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "max",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "33ef238557577f0455e7464e6ef8811f5b60f8f9f80545a14916a8964d3b56b1"
+}

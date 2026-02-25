@@ -28,3 +28,9 @@ export const removeMonthFromStageAtomFamily = atomFamily((planId: string) =>
     }
   }),
 )
+
+export type ScheduleWizardStep = 0 | 1 | 2
+
+export const scheduleWizardStepAtomFamily = atomFamily((_planId: string) =>
+  atom<ScheduleWizardStep>(0),
+)

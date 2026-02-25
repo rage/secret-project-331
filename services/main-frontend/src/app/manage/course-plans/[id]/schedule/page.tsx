@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Berries,
@@ -21,12 +21,14 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react"
 import { useParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { useProgressBar } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import {
   addMonthToStageAtomFamily,
   draftStagesAtomFamily,
   removeMonthFromStageAtomFamily,
+  scheduleWizardStepAtomFamily,
 } from "./scheduleAtoms"
 
 import {
@@ -97,12 +99,145 @@ const containerStyles = css`
   padding: 2rem;
 `
 
+const wizardStepsStripStyles = css`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  position: relative;
+  gap: 0.5rem;
+`
+
+const wizardStepPillStyles = (isActive: boolean, isCompleted: boolean) => css`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+
+  .wizard-step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      border-color 0.2s,
+      box-shadow 0.2s;
+    border: 2px solid ${baseTheme.colors.gray[300]};
+    background: white;
+    color: ${baseTheme.colors.gray[500]};
+  }
+
+  ${isCompleted &&
+  css`
+    .wizard-step-circle {
+      background: ${baseTheme.colors.green[500]};
+      border-color: ${baseTheme.colors.green[600]};
+      color: white;
+    }
+  `}
+
+  ${isActive &&
+  css`
+    .wizard-step-circle {
+      background: ${baseTheme.colors.green[600]};
+      border-color: ${baseTheme.colors.green[700]};
+      color: white;
+      box-shadow: 0 0 0 4px ${baseTheme.colors.green[100]};
+    }
+  `}
+
+  .wizard-step-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: ${isActive ? baseTheme.colors.green[700] : baseTheme.colors.gray[500]};
+    text-align: center;
+    line-height: 1.2;
+  }
+`
+
+const wizardStepsConnectorStyles = css`
+  position: absolute;
+  top: 19px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: ${baseTheme.colors.gray[200]};
+  z-index: 0;
+  pointer-events: none;
+`
+
+const wizardProgressFillBaseStyles = css`
+  position: absolute;
+  top: 19px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: ${baseTheme.colors.green[500]};
+  z-index: 0;
+  pointer-events: none;
+  transform-origin: left;
+`
+
 const sectionStyles = css`
   background: white;
   border: 1px solid #d9dde4;
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
+`
+
+const wizardStepCardStyles = css`
+  background: white;
+  border-radius: 16px;
+  padding: 2rem 2.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.06),
+    0 0 1px rgba(0, 0, 0, 0.04);
+  border-left: 4px solid ${baseTheme.colors.green[500]};
+
+  h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: ${baseTheme.colors.gray[800]};
+    margin: 0 0 1.5rem 0;
+    letter-spacing: -0.02em;
+  }
+
+  input[type="text"],
+  input[type="month"],
+  select {
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid ${baseTheme.colors.gray[300]};
+    font-size: 1rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+
+    :focus {
+      outline: none;
+      border-color: ${baseTheme.colors.green[500]};
+      box-shadow: 0 0 0 3px ${baseTheme.colors.green[100]};
+    }
+  }
+
+  label {
+    font-weight: 600;
+    color: ${baseTheme.colors.gray[700]};
+    font-size: 0.9rem;
+    margin-bottom: 0.15rem;
+  }
 `
 
 const toolbarStyles = css`
@@ -207,7 +342,18 @@ const stageCardActionsStyles = css`
   flex-wrap: wrap;
 `
 
-const todayDateInputValue = () => format(new Date(), "yyyy-MM-dd")
+const wizardNavStyles = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+`
+
+const todayMonthValue = () => format(new Date(), "yyyy-MM")
+
+function monthToStartsOnDate(month: string): string {
+  return month ? `${month}-01` : ""
+}
 
 const COURSE_DESIGNER_PLAN_QUERY_KEY = "course-designer-plan"
 
@@ -227,9 +373,19 @@ function CoursePlanSchedulePage() {
   const [planName, setPlanName] = useState("")
   // eslint-disable-next-line i18next/no-literal-string
   const [courseSize, setCourseSize] = useState<CourseDesignerCourseSize>("medium")
-  const [startsOn, setStartsOn] = useState(todayDateInputValue())
+  const [startsOnMonth, setStartsOnMonth] = useState(todayMonthValue())
   const [initializedFromQuery, setInitializedFromQuery] = useState<string | null>(null)
 
+  const wizardStep = useAtomValue(scheduleWizardStepAtomFamily(planId))
+  const setWizardStep = useSetAtom(scheduleWizardStepAtomFamily(planId))
+  const [wizardDirection, setWizardDirection] = useState<1 | -1>(1)
+  const goToStep = useCallback(
+    (step: 0 | 1 | 2, direction: 1 | -1) => {
+      setWizardDirection(direction)
+      setWizardStep(step)
+    },
+    [setWizardStep],
+  )
   const draftStages = useAtomValue(draftStagesAtomFamily(planId))
   const setDraftStages = useSetAtom(draftStagesAtomFamily(planId))
   const addStageMonth = useSetAtom(addMonthToStageAtomFamily(planId))
@@ -290,16 +446,19 @@ function CoursePlanSchedulePage() {
         planned_ends_on: stage.planned_ends_on,
       }))
       setDraftStages(stages)
-      setStartsOn(planQuery.data.stages[0].planned_starts_on)
+      setStartsOnMonth(planQuery.data.stages[0].planned_starts_on.slice(0, 7))
+      setWizardStep(2)
+    } else {
+      setWizardStep(0)
     }
     setInitializedFromQuery(planId)
-  }, [initializedFromQuery, planId, planQuery.data, setDraftStages])
+  }, [initializedFromQuery, planId, planQuery.data, setDraftStages, setWizardStep])
 
   const suggestionMutation = useToastMutation(
     () =>
       generateCourseDesignerScheduleSuggestion(planId, {
         course_size: courseSize,
-        starts_on: startsOn,
+        starts_on: monthToStartsOnDate(startsOnMonth),
       }),
     { notify: true, method: "POST" },
     {
@@ -358,6 +517,54 @@ function CoursePlanSchedulePage() {
   const reduceMotion = useReducedMotion()
   const [pulseStage, setPulseStage] = useState<number | null>(null)
 
+  const progressPercentage = ((wizardStep + 1 - 1) / (3 - 1)) * 100
+  const progressBar = useProgressBar({
+    label: t("course-plans-wizard-progress-label"),
+    value: wizardStep + 1,
+    minValue: 1,
+    maxValue: 3,
+    // eslint-disable-next-line i18next/no-literal-string -- step counter, not user-facing copy
+    valueLabel: `Step ${wizardStep + 1} of 3`,
+  })
+
+  const stepTransition = reduceMotion
+    ? { duration: 0 }
+    : {
+        type: "tween" as const,
+        duration: 0.25,
+        // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
+        ease: "easeOut" as const,
+      }
+  const stepVariants = {
+    initial: (dir: number) =>
+      reduceMotion ? { opacity: 0 } : { x: dir === 1 ? 40 : -40, opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: (dir: number) =>
+      reduceMotion ? { opacity: 0 } : { x: dir === 1 ? -40 : 40, opacity: 0 },
+  }
+
+  const staggerContainerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: reduceMotion ? 0 : 0.05,
+        delayChildren: reduceMotion ? 0 : 0.02,
+      },
+    },
+  }
+  const staggerChildVariants = {
+    hidden: reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 },
+    visible: reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 },
+  }
+  const staggerTransition = reduceMotion
+    ? { duration: 0 }
+    : {
+        type: "tween" as const,
+        duration: 0.2,
+        // eslint-disable-next-line i18next/no-literal-string -- Motion ease
+        ease: "easeOut" as const,
+      }
+
   if (planQuery.isError) {
     return <ErrorBanner variant="readOnly" error={planQuery.error} />
   }
@@ -368,261 +575,493 @@ function CoursePlanSchedulePage() {
 
   return (
     <div className={containerStyles}>
-      <h1>{t("course-plans-schedule-title")}</h1>
+      <h1
+        className={css`
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: ${baseTheme.colors.gray[800]};
+          margin: 0 0 0.5rem 0;
+          letter-spacing: -0.02em;
+        `}
+      >
+        {t("course-plans-schedule-title")}
+      </h1>
+      <p
+        className={css`
+          font-size: 0.95rem;
+          color: ${baseTheme.colors.gray[500]};
+          margin: 0 0 2rem 0;
+        `}
+      >
+        {t("course-plans-wizard-progress-label")}: {progressBar.progressBarProps["aria-valuetext"]}
+      </p>
 
-      <div className={sectionStyles}>
-        <div className={fieldStyles}>
-          <label htmlFor="course-plan-name">{t("course-plans-plan-name-label")}</label>
-          <input
-            id="course-plan-name"
-            type="text"
-            value={planName}
-            onChange={(event) => setPlanName(event.target.value)}
-            placeholder={t("course-plans-untitled-plan")}
-          />
-        </div>
-        <p
-          className={css`
-            margin-top: 0.75rem;
-            color: #5d6776;
-          `}
-        >
-          {t("course-plans-schedule-summary", {
-            status: planQuery.data.plan.status,
-            members: planQuery.data.members.length,
-            activeStage: planQuery.data.plan.active_stage
-              ? stageLabel(planQuery.data.plan.active_stage)
-              : t("course-plans-none"),
-          })}
-        </p>
-      </div>
-
-      <div className={sectionStyles}>
-        <h2>{t("course-plans-generate-suggested-schedule")}</h2>
-        <div className={toolbarStyles}>
-          <div className={fieldStyles}>
-            <label htmlFor="course-size">{t("course-plans-course-size-label")}</label>
-            <select
-              id="course-size"
-              value={courseSize}
-              onChange={(event) => setCourseSize(event.target.value as CourseDesignerCourseSize)}
-            >
-              {}
-              <option value="small">{t("course-plans-course-size-small")}</option>
-              {}
-              <option value="medium">{t("course-plans-course-size-medium")}</option>
-              {}
-              <option value="large">{t("course-plans-course-size-large")}</option>
-            </select>
-          </div>
-
-          <div className={fieldStyles}>
-            <label htmlFor="starts-on">{t("course-plans-starts-on-label")}</label>
-            <input
-              id="starts-on"
-              type="date"
-              value={startsOn}
-              onChange={(event) => setStartsOn(event.target.value)}
-            />
-          </div>
-
-          <Button
-            variant="secondary"
-            size="medium"
-            onClick={() => suggestionMutation.mutate()}
-            disabled={suggestionMutation.isPending || startsOn.trim() === ""}
+      <div className={wizardStepsStripStyles}>
+        <div className={wizardStepsConnectorStyles} aria-hidden />
+        <motion.div
+          className={wizardProgressFillBaseStyles}
+          aria-hidden
+          initial={false}
+          animate={{ scaleX: progressPercentage / 100 }}
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : {
+                  type: "tween",
+                  duration: 0.35,
+                  // eslint-disable-next-line i18next/no-literal-string -- Motion ease
+                  ease: "easeOut",
+                }
+          }
+        />
+        <div className={wizardStepPillStyles(wizardStep === 0, wizardStep > 0)}>
+          <motion.div
+            className="wizard-step-circle"
+            aria-hidden
+            animate={
+              reduceMotion
+                ? {}
+                : wizardStep === 0
+                  ? { scale: [1, 1.05, 1] }
+                  : wizardStep > 0
+                    ? { scale: [1, 1.12, 1] }
+                    : {}
+            }
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : {
+                    type: "tween",
+                    duration: 0.25,
+                    // eslint-disable-next-line i18next/no-literal-string -- Motion ease
+                    ease: "easeOut",
+                  }
+            }
           >
-            {t("course-plans-generate-suggestion")}
-          </Button>
+            {/* eslint-disable-next-line i18next/no-literal-string -- step indicator */}
+            {wizardStep > 0 ? "✓" : "1"}
+          </motion.div>
+          <span className="wizard-step-label">{t("course-plans-wizard-step-name")}</span>
+        </div>
+        <div className={wizardStepPillStyles(wizardStep === 1, wizardStep > 1)}>
+          <motion.div
+            className="wizard-step-circle"
+            aria-hidden
+            animate={
+              reduceMotion
+                ? {}
+                : wizardStep === 1
+                  ? { scale: [1, 1.05, 1] }
+                  : wizardStep > 1
+                    ? { scale: [1, 1.12, 1] }
+                    : {}
+            }
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : {
+                    type: "tween",
+                    duration: 0.25,
+                    // eslint-disable-next-line i18next/no-literal-string -- Motion ease
+                    ease: "easeOut",
+                  }
+            }
+          >
+            {/* eslint-disable-next-line i18next/no-literal-string -- step indicator */}
+            {wizardStep > 1 ? "✓" : "2"}
+          </motion.div>
+          <span className="wizard-step-label">{t("course-plans-wizard-step-size-and-date")}</span>
+        </div>
+        <div className={wizardStepPillStyles(wizardStep === 2, false)}>
+          <motion.div
+            className="wizard-step-circle"
+            aria-hidden
+            animate={reduceMotion ? {} : wizardStep === 2 ? { scale: [1, 1.05, 1] } : {}}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : {
+                    type: "tween",
+                    duration: 0.2,
+                    // eslint-disable-next-line i18next/no-literal-string -- Motion ease
+                    ease: "easeOut",
+                  }
+            }
+          >
+            3
+          </motion.div>
+          <span className="wizard-step-label">{t("course-plans-wizard-step-schedule")}</span>
         </div>
       </div>
 
-      <div className={sectionStyles}>
-        <h2>{t("course-plans-schedule-editor-title")}</h2>
+      <div
+        {...progressBar.progressBarProps}
+        className={css`
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip-path: inset(50%);
+          white-space: nowrap;
+          border: 0;
+        `}
+      >
+        {t("course-plans-wizard-progress-label")}: {progressBar.progressBarProps["aria-valuetext"]}
+      </div>
 
-        {draftStages.length === 0 && <p>{t("course-plans-schedule-empty-help")}</p>}
-
-        {draftStages.length === 5 && (
-          <LayoutGroup>
-            <div
-              className={css`
-                margin-top: 1rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
-              `}
+      {/* eslint-disable i18next/no-literal-string -- Motion API uses literal mode/variant names */}
+      <AnimatePresence mode="wait" custom={wizardDirection}>
+        <motion.div
+          key={wizardStep}
+          custom={wizardDirection}
+          variants={stepVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={stepTransition}
+          className={cx(sectionStyles, wizardStepCardStyles)}
+          layout={!reduceMotion}
+        >
+          {wizardStep === 0 && (
+            <motion.div
+              variants={staggerContainerVariants}
+              initial="hidden"
+              animate="visible"
+              style={{ display: "contents" }}
             >
-              {STAGE_ORDER.map((stage, stageIndex) => {
-                const months = stageMonthsByStage[stage] ?? []
-                const canShrink = months.length > 1
-                return (
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <h2>{t("course-plans-wizard-step-name")}</h2>
+              </motion.div>
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <div className={fieldStyles}>
+                  <label htmlFor="course-plan-name">{t("course-plans-plan-name-label")}</label>
+                  <input
+                    id="course-plan-name"
+                    type="text"
+                    value={planName}
+                    onChange={(event) => setPlanName(event.target.value)}
+                    placeholder={t("course-plans-untitled-plan")}
+                  />
+                </div>
+              </motion.div>
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <p
+                  className={css`
+                    margin-top: 0.75rem;
+                    color: ${baseTheme.colors.gray[500]};
+                    font-size: 0.9rem;
+                  `}
+                >
+                  {t("course-plans-wizard-name-hint")}
+                </p>
+              </motion.div>
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <div className={wizardNavStyles}>
+                  <Button variant="primary" size="medium" onClick={() => goToStep(1, 1)}>
+                    {t("continue")}
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {wizardStep === 1 && (
+            <motion.div
+              variants={staggerContainerVariants}
+              initial="hidden"
+              animate="visible"
+              style={{ display: "contents" }}
+            >
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <h2>{t("course-plans-wizard-step-size-and-date")}</h2>
+              </motion.div>
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <div className={toolbarStyles}>
+                  <div className={fieldStyles}>
+                    <label htmlFor="course-size">{t("course-plans-course-size-label")}</label>
+                    <select
+                      id="course-size"
+                      value={courseSize}
+                      onChange={(event) =>
+                        setCourseSize(event.target.value as CourseDesignerCourseSize)
+                      }
+                    >
+                      {}
+                      <option value="small">{t("course-plans-course-size-small")}</option>
+                      {}
+                      <option value="medium">{t("course-plans-course-size-medium")}</option>
+                      {}
+                      <option value="large">{t("course-plans-course-size-large")}</option>
+                    </select>
+                  </div>
+                  <div className={fieldStyles}>
+                    <label htmlFor="starts-on-month">
+                      {t("course-plans-wizard-starts-on-month-label")}
+                    </label>
+                    <input
+                      id="starts-on-month"
+                      type="month"
+                      value={startsOnMonth}
+                      onChange={(event) => setStartsOnMonth(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <div className={wizardNavStyles}>
+                  <Button variant="secondary" size="medium" onClick={() => goToStep(0, -1)}>
+                    {t("back")}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="medium"
+                    onClick={() =>
+                      suggestionMutation.mutate(undefined, {
+                        onSuccess: () => goToStep(2, 1),
+                      })
+                    }
+                    disabled={!startsOnMonth.trim() || suggestionMutation.isPending}
+                  >
+                    {suggestionMutation.isPending ? t("loading") : t("continue")}
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {wizardStep === 2 && (
+            <motion.div
+              variants={staggerContainerVariants}
+              initial="hidden"
+              animate="visible"
+              style={{ display: "contents" }}
+            >
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <h2>{t("course-plans-wizard-step-schedule")}</h2>
+              </motion.div>
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <div className={toolbarStyles}>
+                  <Button
+                    variant="secondary"
+                    size="medium"
+                    onClick={() => suggestionMutation.mutate()}
+                    disabled={suggestionMutation.isPending || !startsOnMonth.trim()}
+                  >
+                    {t("course-plans-reset-suggestion")}
+                  </Button>
+                </div>
+              </motion.div>
+
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                {draftStages.length === 0 && <p>{t("course-plans-schedule-empty-help")}</p>}
+              </motion.div>
+
+              {draftStages.length === 5 && (
+                <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                  <LayoutGroup>
+                    <div
+                      className={css`
+                        margin-top: 1rem;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.75rem;
+                      `}
+                    >
+                      {STAGE_ORDER.map((stage, stageIndex) => {
+                        const months = stageMonthsByStage[stage] ?? []
+                        const canShrink = months.length > 1
+                        return (
+                          <motion.div
+                            key={stage}
+                            layout
+                            className={stageCardStyles}
+                            data-testid={`course-plan-stage-${stage}`}
+                            transition={
+                              reduceMotion
+                                ? { duration: 0 }
+                                : { type: "spring", stiffness: 300, damping: 30 }
+                            }
+                          >
+                            <motion.div
+                              className={css`
+                                display: flex;
+                                gap: 1rem;
+                                width: 100%;
+                              `}
+                              animate={
+                                pulseStage === stageIndex ? { scale: [1, 1.02, 1] } : { scale: 1 }
+                              }
+                              transition={
+                                pulseStage === stageIndex
+                                  ? reduceMotion
+                                    ? { duration: 0 }
+                                    : {
+                                        type: "tween",
+                                        duration: 0.18,
+
+                                        ease: "easeOut",
+                                      }
+                                  : reduceMotion
+                                    ? { duration: 0 }
+                                    : { type: "spring", stiffness: 300, damping: 30 }
+                              }
+                              onAnimationComplete={() => {
+                                if (pulseStage === stageIndex) {
+                                  setPulseStage(null)
+                                }
+                              }}
+                            >
+                              <div className={stageMonthBlocksStyles}>
+                                {}
+                                <AnimatePresence initial={false} mode="popLayout">
+                                  {months.map((m) => {
+                                    const MonthIcon = MONTH_ICONS[m.date.getMonth()]
+                                    return (
+                                      <motion.div
+                                        key={m.id}
+                                        layout
+                                        layoutId={`month-${m.id}`}
+                                        initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={
+                                          reduceMotion
+                                            ? { opacity: 0 }
+                                            : { opacity: 0, scale: 0.98 }
+                                        }
+                                        transition={
+                                          reduceMotion
+                                            ? { duration: 0 }
+                                            : { type: "spring", stiffness: 300, damping: 30 }
+                                        }
+                                      >
+                                        <div className={stageMonthBlockStyles} title={m.label}>
+                                          <div className={stageMonthBlockIconStyles}>
+                                            <MonthIcon />
+                                          </div>
+                                          <span className={stageMonthBlockMonthStyles}>
+                                            {format(m.date, "MMMM")}
+                                          </span>
+                                          <span className={stageMonthBlockYearStyles}>
+                                            {format(m.date, "yyyy")}
+                                          </span>
+                                        </div>
+                                      </motion.div>
+                                    )
+                                  })}
+                                </AnimatePresence>
+                              </div>
+                              <div className={stageCardRightStyles}>
+                                <h3
+                                  className={css`
+                                    margin: 0;
+                                    font-size: 1.1rem;
+                                    font-weight: 600;
+                                    color: ${baseTheme.colors.gray[700]};
+                                  `}
+                                >
+                                  {stageLabel(stage)}
+                                </h3>
+                                <p className={stageDescriptionPlaceholderStyles}>
+                                  {t("course-plans-stage-description-placeholder")}
+                                </p>
+                                <div className={stageCardActionsStyles}>
+                                  <Button
+                                    variant="secondary"
+                                    size="small"
+                                    onClick={() => {
+                                      setPulseStage(stageIndex)
+                                      addStageMonth(stageIndex)
+                                    }}
+                                  >
+                                    {t("course-plans-add-one-month")}
+                                  </Button>
+                                  <Button
+                                    variant="secondary"
+                                    size="small"
+                                    onClick={() => {
+                                      setPulseStage(stageIndex)
+                                      removeStageMonth(stageIndex)
+                                    }}
+                                    disabled={!canShrink}
+                                  >
+                                    {t("course-plans-remove-one-month")}
+                                  </Button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+                  </LayoutGroup>
+                </motion.div>
+              )}
+
+              <AnimatePresence>
+                {validationError && (
                   <motion.div
-                    key={stage}
-                    layout
-                    className={stageCardStyles}
-                    data-testid={`course-plan-stage-${stage}`}
+                    key="validation-error"
+                    layout={!reduceMotion}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={
                       reduceMotion
                         ? { duration: 0 }
-                        : { type: "spring", stiffness: 300, damping: 30 }
+                        : {
+                            duration: 0.2,
+
+                            ease: "easeOut",
+                          }
                     }
+                    className={css`
+                      margin-top: 0.75rem;
+                      color: #8d2323;
+                      font-weight: 600;
+                    `}
                   >
-                    <motion.div
-                      className={css`
-                        display: flex;
-                        gap: 1rem;
-                        width: 100%;
-                      `}
-                      animate={pulseStage === stageIndex ? { scale: [1, 1.02, 1] } : { scale: 1 }}
-                      transition={
-                        pulseStage === stageIndex
-                          ? reduceMotion
-                            ? { duration: 0 }
-                            : {
-                                type: "tween",
-                                duration: 0.18,
-                                // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
-                                ease: "easeOut",
-                              }
-                          : reduceMotion
-                            ? { duration: 0 }
-                            : { type: "spring", stiffness: 300, damping: 30 }
-                      }
-                      onAnimationComplete={() => {
-                        if (pulseStage === stageIndex) {
-                          setPulseStage(null)
-                        }
-                      }}
-                    >
-                      <div className={stageMonthBlocksStyles}>
-                        {/* eslint-disable-next-line i18next/no-literal-string -- Motion API value */}
-                        <AnimatePresence initial={false} mode="popLayout">
-                          {months.map((m) => {
-                            const MonthIcon = MONTH_ICONS[m.date.getMonth()]
-                            return (
-                              <motion.div
-                                key={m.id}
-                                layout
-                                layoutId={
-                                  // eslint-disable-next-line i18next/no-literal-string -- Motion layoutId, not user-facing
-                                  `month-${m.id}`
-                                }
-                                initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
-                                transition={
-                                  reduceMotion
-                                    ? { duration: 0 }
-                                    : { type: "spring", stiffness: 300, damping: 30 }
-                                }
-                              >
-                                <div className={stageMonthBlockStyles} title={m.label}>
-                                  <div className={stageMonthBlockIconStyles}>
-                                    <MonthIcon />
-                                  </div>
-                                  <span className={stageMonthBlockMonthStyles}>
-                                    {format(m.date, "MMMM")}
-                                  </span>
-                                  <span className={stageMonthBlockYearStyles}>
-                                    {format(m.date, "yyyy")}
-                                  </span>
-                                </div>
-                              </motion.div>
-                            )
-                          })}
-                        </AnimatePresence>
-                      </div>
-                      <div className={stageCardRightStyles}>
-                        <h3
-                          className={css`
-                            margin: 0;
-                            font-size: 1.1rem;
-                            font-weight: 600;
-                            color: ${baseTheme.colors.gray[700]};
-                          `}
-                        >
-                          {stageLabel(stage)}
-                        </h3>
-                        <p className={stageDescriptionPlaceholderStyles}>
-                          {t("course-plans-stage-description-placeholder")}
-                        </p>
-                        <div className={stageCardActionsStyles}>
-                          <Button
-                            variant="secondary"
-                            size="small"
-                            onClick={() => {
-                              setPulseStage(stageIndex)
-                              addStageMonth(stageIndex)
-                            }}
-                          >
-                            {t("course-plans-add-one-month")}
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="small"
-                            onClick={() => {
-                              setPulseStage(stageIndex)
-                              removeStageMonth(stageIndex)
-                            }}
-                            disabled={!canShrink}
-                          >
-                            {t("course-plans-remove-one-month")}
-                          </Button>
-                        </div>
-                      </div>
-                    </motion.div>
+                    {validationError}
                   </motion.div>
-                )
-              })}
-            </div>
-          </LayoutGroup>
-        )}
+                )}
+              </AnimatePresence>
 
-        {validationError && (
-          <div
-            className={css`
-              margin-top: 0.75rem;
-              color: #8d2323;
-              font-weight: 600;
-            `}
-          >
-            {validationError}
-          </div>
-        )}
-
-        <div
-          className={css`
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-top: 1rem;
-          `}
-        >
-          <Button
-            variant="primary"
-            size="medium"
-            disabled={
-              draftStages.length !== 5 || validationError !== null || saveMutation.isPending
-            }
-            onClick={() => saveMutation.mutate()}
-          >
-            {t("course-plans-save-schedule")}
-          </Button>
-          <Button
-            variant="secondary"
-            size="medium"
-            disabled={
-              draftStages.length !== 5 ||
-              validationError !== null ||
-              finalizeMutation.isPending ||
-              saveMutation.isPending
-            }
-            onClick={() => finalizeMutation.mutate()}
-          >
-            {t("course-plans-finalize-schedule")}
-          </Button>
-        </div>
-      </div>
+              <motion.div variants={staggerChildVariants} transition={staggerTransition}>
+                <div className={wizardNavStyles}>
+                  <Button variant="secondary" size="medium" onClick={() => goToStep(1, -1)}>
+                    {t("back")}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="medium"
+                    disabled={
+                      draftStages.length !== 5 || validationError !== null || saveMutation.isPending
+                    }
+                    onClick={() => saveMutation.mutate()}
+                  >
+                    {t("course-plans-save-schedule")}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="medium"
+                    disabled={
+                      draftStages.length !== 5 ||
+                      validationError !== null ||
+                      finalizeMutation.isPending ||
+                      saveMutation.isPending
+                    }
+                    onClick={() => finalizeMutation.mutate()}
+                  >
+                    {t("course-plans-finalize-schedule")}
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+      {/* eslint-enable i18next/no-literal-string */}
     </div>
   )
 }

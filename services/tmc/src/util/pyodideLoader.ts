@@ -32,7 +32,7 @@ function loadScript(src: string): Promise<void> {
     }
     const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`)
     if (existing) {
-      const rs = existing.readyState
+      const rs = (existing as HTMLScriptElement & { readyState?: string }).readyState
       if (rs === "loaded" || rs === "complete") {
         resolve()
         return

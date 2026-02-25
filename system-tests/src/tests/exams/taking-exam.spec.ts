@@ -26,6 +26,10 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
   await page
     .getByText("In this exam you're supposed to answer to two easy questions. Good luck!")
     .waitFor()
+  await page
+    .getByTestId("toast-notification")
+    .waitFor({ state: "hidden", timeout: 6000 })
+    .catch(() => {})
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,

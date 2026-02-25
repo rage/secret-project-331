@@ -501,6 +501,14 @@ function CoursePlanSchedulePage() {
   )
 
   const validationError = useMemo(() => validateStages(draftStages), [draftStages, validateStages])
+  const handleFinalizeSchedule = () => {
+    void saveMutation
+      .mutateAsync()
+      .then(() => finalizeMutation.mutateAsync())
+      .catch(() => {
+        // Mutation hooks already surface errors to the user; stop the chain on failure.
+      })
+  }
 
   const stageMonthsByStage = useMemo(() => {
     if (draftStages.length !== 5) {
@@ -1036,7 +1044,10 @@ function CoursePlanSchedulePage() {
                     variant="primary"
                     size="medium"
                     disabled={
-                      draftStages.length !== 5 || validationError !== null || saveMutation.isPending
+                      draftStages.length !== 5 ||
+                      validationError !== null ||
+                      saveMutation.isPending ||
+                      finalizeMutation.isPending
                     }
                     onClick={() => saveMutation.mutate()}
                   >
@@ -1051,7 +1062,7 @@ function CoursePlanSchedulePage() {
                       finalizeMutation.isPending ||
                       saveMutation.isPending
                     }
-                    onClick={() => finalizeMutation.mutate()}
+                    onClick={handleFinalizeSchedule}
                   >
                     {t("course-plans-finalize-schedule")}
                   </Button>

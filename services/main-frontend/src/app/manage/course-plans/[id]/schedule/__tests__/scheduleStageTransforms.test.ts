@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import { addMonths, endOfMonth, format, startOfMonth } from "date-fns"
+import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
 import { addMonthToStage, removeMonthFromStage } from "../scheduleStageTransforms"
 
@@ -47,8 +47,8 @@ const buildContiguousStages = (
 }
 
 const countMonthsForStage = (stage: CourseDesignerScheduleStageInput): number => {
-  const start = startOfMonth(new Date(stage.planned_starts_on))
-  const end = endOfMonth(new Date(stage.planned_ends_on))
+  const start = startOfMonth(parseISO(stage.planned_starts_on))
+  const end = endOfMonth(parseISO(stage.planned_ends_on))
   let count = 0
   let current = start
   while (current <= end) {

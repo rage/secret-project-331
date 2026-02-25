@@ -360,14 +360,13 @@ async fn process_block_chunk(
         estimate_tokens(chunk)
     );
 
-    let completion =
-        match make_blocking_llm_request(llm_base_request, app_config, task_lm, None).await {
-            Ok(completion) => completion,
-            Err(e) => {
-                error!("Failed to process chunk: {}", e);
-                return Err(e);
-            }
-        };
+    let completion = match make_blocking_llm_request(llm_base_request, app_config, task_lm).await {
+        Ok(completion) => completion,
+        Err(e) => {
+            error!("Failed to process chunk: {}", e);
+            return Err(e);
+        }
+    };
 
     match &completion //parse_text_completion
         .choices

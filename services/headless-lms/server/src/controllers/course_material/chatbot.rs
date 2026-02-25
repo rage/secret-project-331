@@ -170,22 +170,25 @@ async fn current_conversation_info(
 
     if chatbot_configuration.suggest_next_messages
         // suggested_messages is None if suggest_next_messages=false
-        && let Some(msgs) = &res.suggested_messages
-        && msgs.is_empty()
-        && let Some(ccm) = &res.current_conversation_messages
-        && let Some(last_ccm) = ccm.last()
+        && let Some(suggested_messages) = &res.suggested_messages
+        && suggested_messages.is_empty()
+        && let Some(current_conversation_messages) = &res.current_conversation_messages
+        && let Some(last_message) = current_conversation_messages.last()
     {
-        let sm = if last_ccm.order_number == 0 {
+        let initial_suggested_messages = if last_message.order_number == 0 {
             // for the first message, get initial_suggested_messages
-            let sm = chatbot_configuration
+            let initial_suggested_messages = chatbot_configuration
                 .initial_suggested_messages
                 .unwrap_or(vec![]);
             // take 3 random elements
-            if sm.len() > 3 {
+            if initial_suggested_messages.len() > 3 {
                 let mut rng = rand::rng();
-                sm.choose_multiple(&mut rng, 3).cloned().collect()
+                initial_suggested_messages
+                    .choose_multiple(&mut rng, 3)
+                    .cloned()
+                    .collect()
             } else {
-                sm
+                initial_suggested_messages
             }
         } else {
             // for other messages, generate suggested messages
@@ -202,7 +205,7 @@ async fn current_conversation_info(
             headless_lms_chatbot::message_suggestion::generate_suggested_messages(
                 &app_conf,
                 message_suggest_llm,
-                ccm,
+                current_conversation_messages,
                 chatbot_configuration.initial_suggested_messages,
                 &res.course_name,
                 course_description,
@@ -210,11 +213,11 @@ async fn current_conversation_info(
             .await?
         };
 
-        if !sm.is_empty() {
+        if !initial_suggested_messages.is_empty() {
             headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(
                 &mut conn,
-                &last_ccm.id,
-                sm,
+                &last_message.id,
+                initial_suggested_messages,
             )
             .await?;
         }

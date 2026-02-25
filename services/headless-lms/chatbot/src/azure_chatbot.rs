@@ -215,7 +215,7 @@ pub struct LLMRequestResponseFormatParam {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LLMRequest {
     pub messages: Vec<APIMessage>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub data_sources: Vec<DataSource>,
     #[serde(flatten)]
     pub params: LLMRequestParams,

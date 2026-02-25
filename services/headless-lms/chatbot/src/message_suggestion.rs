@@ -18,7 +18,6 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 use rand::seq::IndexedRandom;
-use tracing::info;
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in
 /// generate_suggested_messages
@@ -59,7 +58,7 @@ Constraints:
 "#;
 
 /// User prompt instructions for generating suggested next messages
-const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could send next."#;
+pub const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could send next."#;
 
 /// Calls an LLM and generates suggested messages for a chatbot conversation
 pub async fn generate_suggested_messages(
@@ -147,14 +146,7 @@ pub async fn generate_suggested_messages(
         stop: None,
     };
 
-    let endpoint_path = if app_config.test_chatbot && app_config.test_mode {
-        info!("Test mode. Using mock azure endpoint for LLM message suggestion.");
-        Some("/chat/suggestions".to_string())
-    } else {
-        None
-    };
-    let completion =
-        make_blocking_llm_request(chat_request, app_config, &task_lm, endpoint_path).await?;
+    let completion = make_blocking_llm_request(chat_request, app_config, &task_lm).await?;
 
     let completion_content: &String = &parse_text_completion(completion)?;
     let suggestions: ChatbotNextMessageSuggestionResponse =

@@ -460,7 +460,6 @@ pub async fn make_blocking_llm_request(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
     task_lm: &TaskLMSpec,
-    endpoint_path: Option<String>,
 ) -> anyhow::Result<LLMCompletionResponse> {
     debug!(
         "Preparing blocking LLM request with {} messages",
@@ -477,11 +476,7 @@ pub async fn make_blocking_llm_request(
     })?;
 
     let model = task_lm.deployment_name.to_owned();
-    let path = if let Some(p) = endpoint_path {
-        model + &p
-    } else {
-        model + "/chat/completions"
-    };
+    let path = model + "/chat/completions";
 
     let api_endpoint = chatbot_config.api_endpoint.join(&path)?;
 

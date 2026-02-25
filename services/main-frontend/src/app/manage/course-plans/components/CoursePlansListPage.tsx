@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import { coursePlanQueryKeys } from "../coursePlanQueryKeys"
-import { coursePlanHubRoute } from "../coursePlanRoutes"
 
 import CoursePlanList from "./CoursePlanList"
 
@@ -18,6 +17,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
 
 const containerStyles = css`
   max-width: 1000px;
@@ -49,7 +49,7 @@ export default function CoursePlansListPage() {
     {
       onSuccess: async (plan) => {
         await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.list() })
-        router.push(coursePlanHubRoute(plan.id))
+        router.push(manageCoursePlanRoute(plan.id))
       },
     },
   )

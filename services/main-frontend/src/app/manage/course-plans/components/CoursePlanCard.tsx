@@ -4,9 +4,8 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import { coursePlanHubRoute } from "../coursePlanRoutes"
-
 import { CourseDesignerPlanSummary } from "@/services/backend/courseDesigner"
+import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
 
 const cardStyles = css`
   border: 1px solid #d9dde4;
@@ -79,7 +78,7 @@ export default function CoursePlanCard({ plan }: CoursePlanCardProps) {
     <button
       type="button"
       className={cardStyles}
-      onClick={() => router.push(coursePlanHubRoute(plan.id))}
+      onClick={() => router.push(manageCoursePlanRoute(plan.id))}
     >
       <div className={headerStyles}>
         <strong>{plan.name ?? t("course-plans-untitled-plan")}</strong>

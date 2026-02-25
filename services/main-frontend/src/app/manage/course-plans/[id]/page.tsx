@@ -5,11 +5,14 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 import { coursePlanQueryKeys } from "../coursePlanQueryKeys"
-import { coursePlanScheduleRoute, coursePlanWorkspaceRoute } from "../coursePlanRoutes"
 
 import { getCourseDesignerPlan } from "@/services/backend/courseDesigner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import {
+  manageCoursePlanScheduleRoute,
+  manageCoursePlanWorkspaceRoute,
+} from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 function CoursePlanHubRedirect() {
@@ -29,7 +32,7 @@ function CoursePlanHubRedirect() {
     }
     const { plan } = planQuery.data
     if (plan.status === "Draft" || plan.status === "Scheduling") {
-      router.replace(coursePlanScheduleRoute(planId))
+      router.replace(manageCoursePlanScheduleRoute(planId))
       return
     }
     if (
@@ -37,7 +40,7 @@ function CoursePlanHubRedirect() {
       plan.status === "InProgress" ||
       plan.status === "Completed"
     ) {
-      router.replace(coursePlanWorkspaceRoute(planId))
+      router.replace(manageCoursePlanWorkspaceRoute(planId))
     }
   }, [planQuery.data, planId, router])
 

@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { coursePlanWorkspaceRoute } from "../../coursePlanRoutes"
 import useScheduleWizardController from "../hooks/useScheduleWizardController"
 import { ScheduleWizardStepId } from "../scheduleConstants"
 
@@ -19,6 +18,7 @@ import { CourseDesignerStage } from "@/services/backend/courseDesigner"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { manageCoursePlanWorkspaceRoute } from "@/shared-module/common/utils/routes"
 
 const containerStyles = css`
   max-width: 1100px;
@@ -197,7 +197,7 @@ export default function ScheduleWizardPage() {
               onFinalize={async () => {
                 const ok = await controller.actions.finalizeDraft()
                 if (ok) {
-                  router.push(coursePlanWorkspaceRoute(planId))
+                  router.push(manageCoursePlanWorkspaceRoute(planId))
                 }
               }}
             />

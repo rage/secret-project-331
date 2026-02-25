@@ -37,6 +37,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     waitForTheseToBeVisibleAndStable: [
       page.getByText("In this exam you're supposed to answer to two easy questions. Good luck!"),
     ],
+    clearNotifications: true,
     // Only should happen in seeded data
     axeSkip: ["frame-title-unique"],
   })

@@ -2,11 +2,7 @@ use std::sync::Arc;
 
 use headless_lms_models::{
     PKeyPolicy,
-    application_task_default_language_models::{
-        self, ApplicationTask, ApplicationTaskDefaultLanguageModel,
-    },
     chatbot_configurations::{self, NewChatbotConf},
-    chatbot_configurations_models::{self, NewChatbotConfigurationModel},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -21,6 +17,7 @@ use sqlx::{Pool, Postgres};
 use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
+        seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
             seed_course_with_peer_review::seed_peer_review_course, seed_lock_chapter_course,
@@ -37,6 +34,7 @@ use super::super::seed_users::SeedUsersResult;
 pub async fn seed_organization_uh_mathstat(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    seed_llm_result: SeedApplicationLLMsResult,
     base_url: String,
     jwt_key: Arc<JwtKey>,
     // Passed to this function to ensure the seed file storage has been ran before this. This function will not work is seed file storage has not been ran
@@ -354,40 +352,6 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let llm = chatbot_configurations_models::insert(
-        &mut conn,
-        NewChatbotConfigurationModel {
-            id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
-            model: "mock-gpt".to_string(),
-            thinking: false,
-            default_model: true,
-            deployment_name: "mock-gpt".to_string(),
-            context_size: 10000,
-        },
-    )
-    .await?;
-    application_task_default_language_models::insert(
-        &mut conn,
-        ApplicationTaskDefaultLanguageModel {
-            model_id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
-            task: ApplicationTask::ContentCleaning,
-            context_utilization: 0.75,
-            ..Default::default()
-        },
-    )
-    .await?;
-
-    application_task_default_language_models::insert(
-        &mut conn,
-        ApplicationTaskDefaultLanguageModel {
-            model_id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
-            task: ApplicationTask::MessageSuggestion,
-            context_utilization: 0.75,
-            ..Default::default()
-        },
-    )
-    .await?;
-
     chatbot_configurations::insert(
         &mut conn,
         PKeyPolicy::Generate,
@@ -399,8 +363,8 @@ pub async fn seed_organization_uh_mathstat(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             default_chatbot: true,
-            model_id: llm.id,
-            thinking_model: llm.thinking,
+            model_id: seed_llm_result.llm_default_model_id,
+            thinking_model: seed_llm_result.llm_default_model_thinking,
             ..Default::default()
         },
     )

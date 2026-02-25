@@ -13,6 +13,27 @@ importScripts(INDEX_URL + "pyodide.js")
 
 var pyodidePromise = null
 var pendingStdinResolve = null
+var templatePromise = null
+
+function base64EncodeUtf8(str) {
+  var bytes = new TextEncoder().encode(str)
+  var binary = ""
+  for (var i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+}
+
+function getTemplate() {
+  if (templatePromise !== null) {
+    return templatePromise
+  }
+  var templateUrl = new URL("runWorkerTemplate.py", self.location.href).href
+  templatePromise = fetch(templateUrl).then(function (r) {
+    return r.text()
+  })
+  return templatePromise
+}
 
 function getPyodide() {
   if (pyodidePromise !== null) {
@@ -73,89 +94,44 @@ self.onmessage = function (e) {
   getPyodide()
     .then(function (pyodide) {
       stdout = ""
+      var stdoutDecoder = new TextDecoder("utf-8", { fatal: false })
+      var stderrDecoder = new TextDecoder("utf-8", { fatal: false })
       pyodide.setStdout({
         raw: function (byte) {
-          var ch = String.fromCharCode(byte)
-          stdout += ch
-          self.postMessage({ type: "stdout", chunk: ch })
+          var chunk = stdoutDecoder.decode(new Uint8Array([byte]), { stream: true })
+          if (chunk.length > 0) {
+            stdout += chunk
+            self.postMessage({ type: "stdout", chunk: chunk })
+          }
         },
       })
       pyodide.setStderr({
         raw: function (byte) {
-          var ch = String.fromCharCode(byte)
-          stdout += ch
-          self.postMessage({ type: "stdout", chunk: ch })
+          var chunk = stderrDecoder.decode(new Uint8Array([byte]), { stream: true })
+          if (chunk.length > 0) {
+            stdout += chunk
+            self.postMessage({ type: "stdout", chunk: chunk })
+          }
         },
       })
 
-      var code =
-        "async def execute():\n" +
-        ' __name__ = "__main__"\n' +
-        script
-          .replace(/\\/g, "\\\\")
-          .replace(/"""/g, '\\"\\"\\"')
-          .split("\n")
-          .map(function (x) {
-            return " " + x
-          })
-          .join("\n") +
-        "\n pass\n\n" +
-        "import asyncio, sys, traceback\n" +
-        "from js import exit, inputPromise, printError\n\n" +
-        "async def input(prompt=None):\n" +
-        " return await inputPromise(prompt)\n\n" +
-        "async def wrap_execution():\n" +
-        " try:\n" +
-        "  await execute()\n" +
-        "  exit()\n" +
-        " except Exception:\n" +
-        "  t, v, tb = sys.exc_info()\n" +
-        "  frames = traceback.extract_tb(tb)\n" +
-        '  tb2 = ["Line " + str(f.lineno - 2) + " in " + f.name + "()" for f in frames[2:]]\n' +
-        "  printError(str(v), type(v).__name__, frames[-1].lineno - 2, tb2)\n" +
-        "  exit()\n\n" +
-        "asyncio.create_task(wrap_execution())\n"
-
-      var escapedCode = code.replace(/\\/g, "\\\\").replace(/"""/g, '\\"\\"\\"')
-
-      var parsedCode =
-        "import ast, re, sys, traceback\n" +
-        "from js import exit, printError\n\n" +
-        "class PatchCode(ast.NodeTransformer):\n" +
-        " def generic_visit(self, node):\n" +
-        "  super().generic_visit(node)\n" +
-        "  if isinstance(node, ast.Constant) and isinstance(node.value, str):\n" +
-        "   remove_padding = re.sub(r'[\\n] ', '\\n', node.value)\n" +
-        "   result = ast.Constant(remove_padding)\n" +
-        "   return ast.copy_location(result, node)\n" +
-        "  input_conditions = (\n" +
-        "   isinstance(node, ast.Call)\n" +
-        "   and isinstance(node.func, ast.Name)\n" +
-        "   and node.func.id == 'input'\n" +
-        "  )\n" +
-        "  if input_conditions:\n" +
-        "   result = ast.Await(node)\n" +
-        "   return ast.copy_location(result, node)\n" +
-        "  return node\n\n" +
-        "try:\n" +
-        ' tree = ast.parse("""' +
-        escapedCode +
-        '""")\n' +
-        " optimizer = PatchCode()\n" +
-        " tree = optimizer.visit(tree)\n" +
-        ' code = compile(tree, " ", "exec")\n' +
-        " exec(code)\n" +
-        "except Exception:\n" +
-        " t, v, tb = sys.exc_info()\n" +
-        " try:\n" +
-        "  frames = traceback.extract_tb(tb)\n" +
-        "  line = frames[-1].lineno - 2 if frames else 0\n" +
-        " except Exception:\n" +
-        "  line = 0\n" +
-        " printError(str(v), type(v).__name__, line, [])\n" +
-        " exit()\n"
-
-      return pyodide.runPythonAsync(parsedCode)
+      self.userScriptB64 = base64EncodeUtf8(script)
+      return getTemplate()
+        .then(function (template) {
+          return pyodide.runPythonAsync(template)
+        })
+        .then(function () {
+          var flushOut = stdoutDecoder.decode(new Uint8Array(0), { stream: false })
+          var flushErr = stderrDecoder.decode(new Uint8Array(0), { stream: false })
+          if (flushOut.length > 0) {
+            stdout += flushOut
+            self.postMessage({ type: "stdout", chunk: flushOut })
+          }
+          if (flushErr.length > 0) {
+            stdout += flushErr
+            self.postMessage({ type: "stdout", chunk: flushErr })
+          }
+        })
     })
     .then(function () {
       /* run_done is posted by exit() when user code finishes */

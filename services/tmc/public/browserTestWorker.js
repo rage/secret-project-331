@@ -24,19 +24,22 @@ self.onmessage = function (e) {
   getPyodide()
     .then(function (pyodide) {
       var stdout = ""
+      var stderr = ""
       pyodide.setStdout({
         batched: function (msg) {
-          stdout += msg
+          stdout += msg + "\n"
         },
       })
       pyodide.setStderr({
         batched: function (msg) {
-          stdout += msg
+          stderr += msg + "\n"
         },
       })
       return pyodide.runPythonAsync(script).then(function () {
-        var lines = stdout.trim().split("\n")
-        var lastLine = lines[lines.length - 1] ?? ""
+        var lines = stdout.split("\n").filter(function (s) {
+          return s.trim().length > 0
+        })
+        var lastLine = lines.length > 0 ? lines[lines.length - 1] : ""
         var runResult = JSON.parse(lastLine)
         self.postMessage({ runResult: runResult })
       })

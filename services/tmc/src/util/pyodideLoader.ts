@@ -49,12 +49,22 @@ export async function getPyodide(): Promise<PyodideInterface> {
     return pyodidePromise
   }
   pyodidePromise = (async () => {
-    await loadScript(PYODIDE_SCRIPT_URL)
-    const loadPyodide = window.loadPyodide
-    if (!loadPyodide) {
-      throw new Error("loadPyodide not found on window after loading pyodide.js")
+    try {
+      await loadScript(PYODIDE_SCRIPT_URL)
+      const loadPyodide = window.loadPyodide
+      if (!loadPyodide) {
+        throw new Error("loadPyodide not found on window after loading pyodide.js")
+      }
+      return await loadPyodide({ indexURL: PYODIDE_INDEX_URL })
+    } catch (err) {
+      pyodidePromise = null
+      const message = err instanceof Error ? err.message : String(err)
+      const wrapped = new Error(`Pyodide load failed: ${message}`)
+      if (err instanceof Error && err.stack) {
+        wrapped.cause = err
+      }
+      throw wrapped
     }
-    return loadPyodide({ indexURL: PYODIDE_INDEX_URL })
   })()
   return pyodidePromise
 }

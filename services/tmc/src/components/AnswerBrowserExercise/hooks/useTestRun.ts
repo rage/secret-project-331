@@ -55,6 +55,10 @@ export function useTestRun(publicSpec: PublicSpec) {
           const timeout = setTimeout(() => {
             worker.onmessage = null
             worker.onerror = null
+            worker.terminate()
+            if (workerRef.current === worker) {
+              workerRef.current = null
+            }
             reject(new Error("Test run timed out"))
           }, TEST_TIMEOUT_MS)
 
@@ -64,11 +68,19 @@ export function useTestRun(publicSpec: PublicSpec) {
             worker.onerror = null
             resolve(e.data)
           }
-          worker.onerror = () => {
+          worker.onerror = (ev: ErrorEvent) => {
             clearTimeout(timeout)
             worker.onmessage = null
             worker.onerror = null
-            reject(new Error("Worker error"))
+            worker.terminate()
+            if (workerRef.current === worker) {
+              workerRef.current = null
+            }
+            const message =
+              ev?.message != null && String(ev.message).trim() !== ""
+                ? String(ev.message)
+                : "Worker error"
+            reject(new Error(message))
           }
           worker.postMessage({ script: fullScript })
         })

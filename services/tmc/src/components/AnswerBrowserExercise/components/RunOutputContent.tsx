@@ -142,8 +142,8 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
           </React.Fragment>
         )
       })}
-      {/* Show current waiting UI if we have no segments yet (e.g. very first stdin_request before any stdout) */}
-      {waitingForInput && submitStdinLine != null && !lastIsInputWaiting && segments.length > 0 && (
+      {/* Show current waiting UI when no segment is last-waiting (e.g. very first stdin_request before any stdout) */}
+      {waitingForInput && submitStdinLine != null && !lastIsInputWaiting && (
         <>
           <StdinWaitingBanner role="status">
             {t("waiting-for-input", "Waiting for input")}
@@ -160,13 +160,7 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
           />
         </>
       )}
-      {runError != null && (
-        <OutputPre>
-          {runOutput}
-          {/* eslint-disable-next-line i18next/no-literal-string -- Python runtime error */}
-          {`\n${runError}`}
-        </OutputPre>
-      )}
+      {runError != null && <OutputPre>{runError}</OutputPre>}
     </>
   )
 }

@@ -53,7 +53,7 @@ function mergeStdoutSegments(
 export const RunOutputContent: React.FC<RunOutputContentProps> = ({
   pyodideLoading,
   runExecuting,
-  runOutput,
+  runOutput: _runOutput,
   runError,
   waitingForInput = false,
   stdinPrompt = "",

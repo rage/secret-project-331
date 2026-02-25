@@ -59,11 +59,7 @@ export async function getPyodide(): Promise<PyodideInterface> {
     } catch (err) {
       pyodidePromise = null
       const message = err instanceof Error ? err.message : String(err)
-      const wrapped = new Error(`Pyodide load failed: ${message}`)
-      if (err instanceof Error && err.stack) {
-        wrapped.cause = err
-      }
-      throw wrapped
+      throw new Error(`Pyodide load failed: ${message}`)
     }
   })()
   return pyodidePromise

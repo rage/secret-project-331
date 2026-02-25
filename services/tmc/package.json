@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "packageManager": "pnpm@10.26.2",
   "scripts": {
-    "build": "NODE_ENV=production next build",
-    "dev": "next dev --port 3005 --turbopack",
+    "build": "node scripts/inject-pyodide-version.cjs && NODE_ENV=production next build",
+    "dev": "node scripts/inject-pyodide-version.cjs && next dev --port 3005 --turbopack",
     "export": "next export",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
@@ -59,7 +59,8 @@
     "use-debounce": "^10.0.6",
     "uuid": "^13.0.0",
     "workerpool": "^9.3.4",
-    "zstddec": "^0.1.0"
+    "zstddec": "^0.1.0",
+    "pyodide": "^0.29.3"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",

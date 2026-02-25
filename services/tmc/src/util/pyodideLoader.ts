@@ -30,16 +30,28 @@ function loadScript(src: string): Promise<void> {
       reject(new Error("Document not available"))
       return
     }
-    const existing = document.querySelector(`script[src="${src}"]`)
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`)
     if (existing) {
-      resolve()
+      const rs = existing.readyState
+      if (rs === "loaded" || rs === "complete") {
+        resolve()
+        return
+      }
+      existing.onload = () => resolve()
+      existing.onerror = () => {
+        existing.remove()
+        reject(new Error(`Failed to load script: ${src}`))
+      }
       return
     }
     const script = document.createElement("script")
     script.src = src
     script.async = true
     script.onload = () => resolve()
-    script.onerror = () => reject(new Error(`Failed to load script: ${src}`))
+    script.onerror = () => {
+      script.remove()
+      reject(new Error(`Failed to load script: ${src}`))
+    }
     document.head.appendChild(script)
   })
 }

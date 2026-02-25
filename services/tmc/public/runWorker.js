@@ -3,13 +3,12 @@
  * When the program calls input(), the worker posts "stdin_request", waits for
  * the main thread to send "stdin_line" via postMessage, then returns that line
  * to Python. No SharedArrayBuffer required (works without cross-origin isolation).
- * Keep PYODIDE_CDN_VERSION in sync with util/pyodideConfig.ts PYODIDE_VERSION.
+ * PYODIDE_INDEX_URL is injected at build time from src/util/pyodide-version.json.
  */
 /* global importScripts, loadPyodide */
-var PYODIDE_CDN_VERSION = "0.29.3"
-var INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v" + PYODIDE_CDN_VERSION + "/full/"
+var PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/"
 
-importScripts(INDEX_URL + "pyodide.js")
+importScripts(PYODIDE_INDEX_URL + "pyodide.js")
 
 var pyodidePromise = null
 var pendingStdinResolve = null
@@ -29,9 +28,18 @@ function getTemplate() {
     return templatePromise
   }
   var templateUrl = new URL("runWorkerTemplate.py", self.location.href).href
-  templatePromise = fetch(templateUrl).then(function (r) {
-    return r.text()
-  })
+  templatePromise = fetch(templateUrl)
+    .then(function (r) {
+      if (!r.ok) {
+        templatePromise = null
+        throw new Error("Template fetch failed: " + r.status + " " + r.statusText)
+      }
+      return r.text()
+    })
+    .catch(function (err) {
+      templatePromise = null
+      throw err
+    })
   return templatePromise
 }
 
@@ -39,7 +47,10 @@ function getPyodide() {
   if (pyodidePromise !== null) {
     return pyodidePromise
   }
-  pyodidePromise = loadPyodide({ indexURL: INDEX_URL })
+  pyodidePromise = loadPyodide({ indexURL: PYODIDE_INDEX_URL }).catch(function (err) {
+    pyodidePromise = null
+    throw err
+  })
   return pyodidePromise
 }
 
@@ -61,6 +72,7 @@ self.printError = function (message, kind, line, tb) {
 
 var runHadError = false
 var stdout = ""
+var stderr = ""
 
 self.exit = function () {
   if (!runHadError) {
@@ -94,6 +106,7 @@ self.onmessage = function (e) {
   getPyodide()
     .then(function (pyodide) {
       stdout = ""
+      stderr = ""
       var stdoutDecoder = new TextDecoder("utf-8", { fatal: false })
       var stderrDecoder = new TextDecoder("utf-8", { fatal: false })
       pyodide.setStdout({
@@ -109,8 +122,8 @@ self.onmessage = function (e) {
         raw: function (byte) {
           var chunk = stderrDecoder.decode(new Uint8Array([byte]), { stream: true })
           if (chunk.length > 0) {
-            stdout += chunk
-            self.postMessage({ type: "stdout", chunk: chunk })
+            stderr += chunk
+            self.postMessage({ type: "stderr", chunk: chunk })
           }
         },
       })
@@ -128,8 +141,8 @@ self.onmessage = function (e) {
             self.postMessage({ type: "stdout", chunk: flushOut })
           }
           if (flushErr.length > 0) {
-            stdout += flushErr
-            self.postMessage({ type: "stdout", chunk: flushErr })
+            stderr += flushErr
+            self.postMessage({ type: "stderr", chunk: flushErr })
           }
         })
     })

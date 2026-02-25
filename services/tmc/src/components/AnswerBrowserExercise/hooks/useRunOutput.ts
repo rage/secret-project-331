@@ -50,122 +50,6 @@ export function useRunOutput() {
     workerRef.current?.postMessage({ type: "stdin_line", line })
   }, [])
 
-  const runPython = useCallback(async (contents: string) => {
-    setRunError(null)
-    runOutputBufferRef.current = ""
-    setSegments([])
-    setWaitingForInput(false)
-    setStdinPrompt("")
-    setPyodideLoading(true)
-    setRunExecuting(true)
-
-    const finish = (_output: string, error: string | null) => {
-      setRunError(error)
-      setPyodideLoading(false)
-      setRunExecuting(false)
-      setWaitingForInput(false)
-      setStdinPrompt("")
-    }
-
-    let worker = workerRef.current
-    if (!worker) {
-      try {
-        worker = new Worker(getRunWorkerUrl())
-        workerRef.current = worker
-      } catch (err) {
-        finish("", err instanceof Error ? err.message : String(err))
-        return
-      }
-    }
-
-    const flushStdout = () => {
-      const pending = runOutputBufferRef.current
-      if (pending.length === 0) {
-        return
-      }
-      runOutputBufferRef.current = ""
-      setSegments((prev) => {
-        const last = prev[prev.length - 1]
-        if (last?.type === "stdout") {
-          return [...prev.slice(0, -1), { type: "stdout", text: last.text + pending }]
-        }
-        return [...prev, { type: "stdout", text: pending }]
-      })
-    }
-
-    const handleMessage = (e: MessageEvent) => {
-      const data = e.data
-      switch (data.type) {
-        case "stdout": {
-          const chunk = data.chunk ?? ""
-          runOutputBufferRef.current += chunk
-          if (chunk.includes("\n")) {
-            flushStdout()
-          }
-          break
-        }
-        case "stdin_request":
-          flushStdout()
-          setSegments((prev) => [...prev, { type: "input", prompt: data.prompt ?? "", line: "" }])
-          setStdinPrompt(data.prompt ?? "")
-          setWaitingForInput(true)
-          break
-        case "run_done":
-          if (flushTimerRef.current != null) {
-            clearInterval(flushTimerRef.current)
-            flushTimerRef.current = null
-          }
-          flushStdout()
-          worker!.onmessage = null
-          worker!.onerror = null
-          finish(data.output ?? runOutputBufferRef.current, null)
-          break
-        case "run_error":
-          if (flushTimerRef.current != null) {
-            clearInterval(flushTimerRef.current)
-            flushTimerRef.current = null
-          }
-          flushStdout()
-          worker!.onmessage = null
-          worker!.onerror = null
-          finish(data.output ?? runOutputBufferRef.current, data.message ?? "Unknown error")
-          break
-        default:
-          break
-      }
-    }
-
-    const handleError = () => {
-      if (flushTimerRef.current != null) {
-        clearInterval(flushTimerRef.current)
-        flushTimerRef.current = null
-      }
-      flushStdout()
-      worker!.onmessage = null
-      worker!.onerror = null
-      finish(runOutputBufferRef.current, "Worker error")
-    }
-
-    if (flushTimerRef.current != null) {
-      clearInterval(flushTimerRef.current)
-      flushTimerRef.current = null
-    }
-    flushTimerRef.current = setInterval(flushStdout, 50)
-
-    worker.onmessage = handleMessage
-    worker.onerror = handleError
-    worker.postMessage({ type: "run", script: contents })
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (flushTimerRef.current != null) {
-        clearInterval(flushTimerRef.current)
-        flushTimerRef.current = null
-      }
-    }
-  }, [])
-
   const stopRun = useCallback(() => {
     const worker = workerRef.current
     if (!worker) {
@@ -184,6 +68,127 @@ export function useRunOutput() {
     worker.terminate()
     workerRef.current = null
   }, [])
+
+  const runPython = useCallback(
+    async (contents: string) => {
+      if (runExecuting) {
+        stopRun()
+      }
+
+      setRunError(null)
+      runOutputBufferRef.current = ""
+      setSegments([])
+      setWaitingForInput(false)
+      setStdinPrompt("")
+      setPyodideLoading(true)
+      setRunExecuting(true)
+
+      const finish = (_output: string, error: string | null) => {
+        setRunError(error)
+        setPyodideLoading(false)
+        setRunExecuting(false)
+        setWaitingForInput(false)
+        setStdinPrompt("")
+      }
+
+      let worker = workerRef.current
+      if (!worker) {
+        try {
+          worker = new Worker(getRunWorkerUrl())
+          workerRef.current = worker
+        } catch (err) {
+          finish("", err instanceof Error ? err.message : String(err))
+          return
+        }
+      }
+
+      const flushStdout = () => {
+        const pending = runOutputBufferRef.current
+        if (pending.length === 0) {
+          return
+        }
+        runOutputBufferRef.current = ""
+        setSegments((prev) => {
+          const last = prev[prev.length - 1]
+          if (last?.type === "stdout") {
+            return [...prev.slice(0, -1), { type: "stdout", text: last.text + pending }]
+          }
+          return [...prev, { type: "stdout", text: pending }]
+        })
+      }
+
+      const handleMessage = (e: MessageEvent) => {
+        const data = e.data
+        switch (data.type) {
+          case "stdout":
+          case "stderr": {
+            const chunk = data.chunk ?? ""
+            runOutputBufferRef.current += chunk
+            if (chunk.includes("\n")) {
+              flushStdout()
+            }
+            break
+          }
+          case "stdin_request":
+            flushStdout()
+            setSegments((prev) => [...prev, { type: "input", prompt: data.prompt ?? "", line: "" }])
+            setStdinPrompt(data.prompt ?? "")
+            setWaitingForInput(true)
+            break
+          case "run_done":
+            if (flushTimerRef.current != null) {
+              clearInterval(flushTimerRef.current)
+              flushTimerRef.current = null
+            }
+            flushStdout()
+            worker!.onmessage = null
+            worker!.onerror = null
+            finish(data.output ?? runOutputBufferRef.current, null)
+            break
+          case "run_error":
+            if (flushTimerRef.current != null) {
+              clearInterval(flushTimerRef.current)
+              flushTimerRef.current = null
+            }
+            flushStdout()
+            worker!.onmessage = null
+            worker!.onerror = null
+            finish(data.output ?? runOutputBufferRef.current, data.message ?? "Unknown error")
+            break
+          default:
+            break
+        }
+      }
+
+      const handleError = () => {
+        if (flushTimerRef.current != null) {
+          clearInterval(flushTimerRef.current)
+          flushTimerRef.current = null
+        }
+        flushStdout()
+        worker!.onmessage = null
+        worker!.onerror = null
+        finish(runOutputBufferRef.current, "Worker error")
+      }
+
+      if (flushTimerRef.current != null) {
+        clearInterval(flushTimerRef.current)
+        flushTimerRef.current = null
+      }
+      flushTimerRef.current = setInterval(flushStdout, 50)
+
+      worker.onmessage = handleMessage
+      worker.onerror = handleError
+      worker.postMessage({ type: "run", script: contents })
+    },
+    [runExecuting, stopRun],
+  )
+
+  useEffect(() => {
+    return () => {
+      stopRun()
+    }
+  }, [stopRun])
 
   return {
     segments,

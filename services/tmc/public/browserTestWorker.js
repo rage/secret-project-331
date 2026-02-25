@@ -1,13 +1,12 @@
 /**
  * Classic Web Worker: runs the inlined Python test script in Pyodide.
  * Loads Pyodide from CDN via importScripts, captures stdout, parses JSON RunResult, posts back.
- * Keep PYODIDE_CDN_VERSION in sync with util/pyodideConfig.ts PYODIDE_VERSION.
+ * PYODIDE_INDEX_URL is injected at build time from src/util/pyodide-version.json.
  */
 /* global importScripts, loadPyodide */
-var PYODIDE_CDN_VERSION = "0.29.3"
-var INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v" + PYODIDE_CDN_VERSION + "/full/"
+var PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/"
 
-importScripts(INDEX_URL + "pyodide.js")
+importScripts(PYODIDE_INDEX_URL + "pyodide.js")
 
 var pyodidePromise = null
 
@@ -15,7 +14,7 @@ function getPyodide() {
   if (pyodidePromise !== null) {
     return pyodidePromise
   }
-  pyodidePromise = loadPyodide({ indexURL: INDEX_URL })
+  pyodidePromise = loadPyodide({ indexURL: PYODIDE_INDEX_URL })
   return pyodidePromise
 }
 

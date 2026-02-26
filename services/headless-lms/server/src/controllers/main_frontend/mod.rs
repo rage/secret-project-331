@@ -22,6 +22,7 @@ pub mod exercises;
 pub mod feedback;
 pub mod global_stats;
 pub mod glossary;
+pub mod groups;
 pub mod oauth;
 pub mod org;
 pub mod organizations;
@@ -62,6 +63,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/users").configure(users::_add_routes))
         .service(web::scope("/exams").configure(exams::_add_routes))
         .service(web::scope("/glossary").configure(glossary::_add_routes))
+        .service(web::scope("/groups").configure(groups::_add_routes))
         .service(web::scope("/roles").configure(roles::_add_routes))
         .service(web::scope("/exercise-repositories").configure(exercise_repositories::_add_routes))
         .service(web::scope("/regradings").configure(regradings::_add_routes))

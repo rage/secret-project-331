@@ -4,22 +4,31 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { t as globalT, TFunction } from "i18next"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { assert, Equals } from "tsafe"
 
+import { fetchGroupsWithAccessForDomain } from "../services/backend/groups"
 import { fetchPendingRoles } from "../services/backend/pendingRoles"
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
 import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
-import { RoleDomain, RoleQuery, RoleUser, UserRole } from "@/shared-module/common/bindings"
+import {
+  GroupAccessRow,
+  RoleDomain,
+  RoleQuery,
+  RoleUser,
+  UserRole,
+} from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { manageOrganizationGroupRoute } from "@/shared-module/common/utils/routes"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
@@ -127,6 +136,11 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   const pendingRolesQuery = useQuery({
     queryKey: [`pending-roles`, domain, query],
     queryFn: () => fetchPendingRoles(query),
+  })
+  const groupAccessQuery = useQuery({
+    queryKey: [`group-access`, domain, query],
+    queryFn: () => fetchGroupsWithAccessForDomain(query),
+    enabled: domain.tag !== "Global",
   })
   const addMutation = useToastMutation(
     () => {
@@ -427,6 +441,73 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     )
   }
 
+  let groupAccessSection: React.ReactNode = null
+  if (domain.tag !== "Global" && groupAccessQuery.isError) {
+    groupAccessSection = <ErrorBanner variant="readOnly" error={groupAccessQuery.error} />
+  }
+  if (domain.tag !== "Global" && groupAccessQuery.isSuccess && groupAccessQuery.data.length > 0) {
+    groupAccessSection = (
+      <div
+        className={css`
+          margin-top: 2rem;
+        `}
+      >
+        <h3>{t("groups-with-access")}</h3>
+        <div
+          className={css`
+            overflow: auto;
+          `}
+        >
+          <table
+            className={css`
+              width: 100%;
+              border-spacing: 0 8px;
+              th {
+                text-align: left;
+                font-weight: 500;
+                opacity: 0.7;
+                padding-right: 16px;
+              }
+              td {
+                background: #f5f6f7;
+                padding: 12px 16px;
+              }
+              td:first-child {
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+              }
+              td:last-child {
+                border-top-right-radius: 4px;
+                border-bottom-right-radius: 4px;
+              }
+            `}
+          >
+            <thead>
+              <tr>
+                <th>{t("label-name")}</th>
+                <th>{t("label-role")}</th>
+                <th>{t("group-members-count")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groupAccessQuery.data.map((row: GroupAccessRow) => (
+                <tr key={`${row.group_id}-${row.role}`}>
+                  <td>
+                    <Link href={manageOrganizationGroupRoute(row.organization_id, row.group_id)}>
+                      {row.group_name}
+                    </Link>
+                  </td>
+                  <td>{row.role}</td>
+                  <td>{row.member_count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
       {mutationError && <ErrorBanner variant="readOnly" error={mutationError} />}
@@ -501,6 +582,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
         </Button>
       </div>
 
+      {groupAccessSection}
       {userList}
       {pendingRolesQuery.data && pendingRolesQuery.data.length > 0 && (
         <div

@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT g.id,\n  g.created_at,\n  g.updated_at,\n  g.deleted_at,\n  g.organization_id,\n  g.name\nFROM groups g\n  JOIN group_memberships gm ON gm.group_id = g.id\nWHERE g.organization_id = $1\n  AND g.deleted_at IS NULL\n  AND gm.user_id = $2\n  AND gm.deleted_at IS NULL\nORDER BY LOWER(g.name),\n  g.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "a7d81e939bfe92e0151b09c6ec55955f73c632afb2c01d69691fe802b5112e30"
+}

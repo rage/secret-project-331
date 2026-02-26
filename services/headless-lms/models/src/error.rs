@@ -256,6 +256,32 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             Some(err.into()),
                         ),
+                        "groups_organization_id_lower_name_deleted_at_unique_idx" => {
+                            ModelError::new(
+                                ModelErrorType::DatabaseConstraint {
+                                    constraint: constraint.to_string(),
+                                    description: "A group with this name already exists in the organization.",
+                                },
+                                err.to_string(),
+                                Some(err.into()),
+                            )
+                        }
+                        "group_memberships_group_id_user_id_deleted_at_key" => ModelError::new(
+                            ModelErrorType::DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "The user is already a member of this group.",
+                            },
+                            err.to_string(),
+                            Some(err.into()),
+                        ),
+                        "group_roles_group_role_domain_deleted_at_key" => ModelError::new(
+                            ModelErrorType::DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "This group role assignment already exists for the selected scope.",
+                            },
+                            err.to_string(),
+                            Some(err.into()),
+                        ),
                         _ => ModelError::new(
                             ModelErrorType::Database,
                             err.to_string(),

@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT g.id AS \"group_id!\",\n  g.organization_id AS \"organization_id!\",\n  g.name AS \"group_name!\",\n  gr.role AS \"role!: UserRole\",\n  (\n    SELECT COUNT(*)::bigint\n    FROM group_memberships gm\n    WHERE gm.group_id = g.id\n      AND gm.deleted_at IS NULL\n  ) AS \"member_count!\"\nFROM group_roles gr\n  JOIN groups g ON g.id = gr.group_id\nWHERE gr.organization_id = $1\n  AND gr.deleted_at IS NULL\n  AND g.deleted_at IS NULL\nORDER BY LOWER(g.name),\n  gr.role,\n  g.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "group_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "organization_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "group_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "role!: UserRole",
+        "type_info": {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "assistant",
+                "teacher",
+                "reviewer",
+                "course_or_exam_creator",
+                "material_viewer",
+                "teaching_and_learning_services",
+                "stats_viewer"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "member_count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "e601b3d9fda7a8750eaf9a9638a43d7ad9bffc0343b0faa4b78979ee26700b04"
+}

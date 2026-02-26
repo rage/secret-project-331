@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE group_memberships\nSET deleted_at = NOW()\nWHERE group_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f752652cb840844f60c7af3d4ce9004289d039b5b38e17e608713919f5a21af9"
+}

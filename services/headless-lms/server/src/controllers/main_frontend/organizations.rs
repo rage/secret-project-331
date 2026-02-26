@@ -96,7 +96,7 @@ async fn get_organization_duplicatable_courses(
 
     // We filter out the courses the user does not have permission to duplicate.
     // Prefetch roles so that we can do multiple authorization checks without repeteadly querying the database.
-    let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
+    let user_roles = models::roles::get_effective_roles(&mut conn, user.id).await?;
 
     let mut duplicatable_courses = Vec::new();
     for course in courses {

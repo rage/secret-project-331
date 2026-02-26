@@ -724,7 +724,7 @@ async fn get_all_course_language_versions_navigation_info_from_page(
 
     // If user is logged in, check access if we need to add draft courses
     if let Some(user_id) = user.map(|u| u.id) {
-        let user_roles = models::roles::get_roles(&mut conn, user_id).await?;
+        let user_roles = models::roles::get_effective_roles(&mut conn, user_id).await?;
 
         for course_version in unfiltered_language_versions.iter().filter(|c| c.is_draft) {
             if authorize_with_fetched_list_of_roles(

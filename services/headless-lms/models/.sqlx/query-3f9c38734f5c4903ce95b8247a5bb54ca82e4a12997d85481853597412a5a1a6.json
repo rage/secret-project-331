@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_designer_plan_stages\nSET planned_ends_on = $2\nWHERE id = $1 AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Date"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3f9c38734f5c4903ce95b8247a5bb54ca82e4a12997d85481853597412a5a1a6"
+}

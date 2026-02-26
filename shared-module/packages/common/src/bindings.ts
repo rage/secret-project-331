@@ -2642,6 +2642,10 @@ export interface CreateCourseDesignerStageTaskRequest {
   description: string | null
 }
 
+export interface ExtendStageRequest {
+  months: number
+}
+
 export interface SaveCourseDesignerScheduleRequest {
   name: string | null
   stages: Array<CourseDesignerScheduleStageInput>

@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_designer_plans\nSET status = $2, active_stage = $3\nWHERE id = $1 AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "course_designer_plan_status",
+            "kind": {
+              "Enum": [
+                "draft",
+                "scheduling",
+                "ready_to_start",
+                "in_progress",
+                "completed",
+                "archived"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1fbf00a624ec709faa946fa91da6458b3ca008d637740412ca17affb621e7d97"
+}

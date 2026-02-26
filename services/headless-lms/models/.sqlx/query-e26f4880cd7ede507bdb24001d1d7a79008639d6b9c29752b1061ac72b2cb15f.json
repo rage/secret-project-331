@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH course_org AS (\n  SELECT organization_id\n  FROM courses\n  WHERE id = $1\n    AND deleted_at IS NULL\n)\nSELECT is_global,\n  organization_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  role AS \"role: UserRole\",\n  user_id\nFROM roles\nWHERE (\n    is_global = TRUE\n    OR organization_id = (\n      SELECT organization_id\n      FROM course_org\n    )\n    OR course_id = $1\n    OR course_instance_id IN (\n      SELECT id\n      FROM course_instances\n      WHERE course_id = $1\n        AND deleted_at IS NULL\n    )\n  )\n  AND deleted_at IS NULL\n",
+  "query": "\nSELECT is_global AS \"is_global!\",\n  organization_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  role AS \"role!: UserRole\",\n  user_id AS \"user_id!\"\nFROM roles\nWHERE user_id = $1\n  AND roles.deleted_at IS NULL\nUNION\nSELECT FALSE AS \"is_global!\",\n  gr.organization_id,\n  gr.course_id,\n  gr.course_instance_id,\n  gr.exam_id,\n  gr.role AS \"role: UserRole\",\n  gm.user_id\nFROM group_memberships gm\n  JOIN groups g ON g.id = gm.group_id\n  JOIN group_roles gr ON gr.group_id = gm.group_id\nWHERE gm.user_id = $1\n  AND gm.deleted_at IS NULL\n  AND g.deleted_at IS NULL\n  AND gr.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "is_global",
+        "name": "is_global!",
         "type_info": "Bool"
       },
       {
@@ -30,7 +30,7 @@
       },
       {
         "ordinal": 5,
-        "name": "role: UserRole",
+        "name": "role!: UserRole",
         "type_info": {
           "Custom": {
             "name": "user_role",
@@ -51,7 +51,7 @@
       },
       {
         "ordinal": 6,
-        "name": "user_id",
+        "name": "user_id!",
         "type_info": "Uuid"
       }
     ],
@@ -61,14 +61,14 @@
       ]
     },
     "nullable": [
-      false,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
     ]
   },
-  "hash": "b4874c7155562f7d4c97e593f521201a3def0d69516efda5afe17296928c0896"
+  "hash": "e26f4880cd7ede507bdb24001d1d7a79008639d6b9c29752b1061ac72b2cb15f"
 }

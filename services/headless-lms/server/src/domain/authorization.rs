@@ -400,7 +400,7 @@ pub async fn authorize(
     resource: Resource,
 ) -> Result<AuthorizationToken, ControllerError> {
     let user_roles = if let Some(user_id) = user_id {
-        models::roles::get_roles(conn, user_id)
+        models::roles::get_effective_roles(conn, user_id)
             .await
             .map_err(|original_err| {
                 ControllerError::new(
@@ -1136,5 +1136,92 @@ mod test {
         authorize(tx.as_mut(), Action::View, None, Resource::Course(course))
             .await
             .unwrap();
+    }
+
+    #[actix_web::test]
+    async fn fetched_role_prefetch_authorization_matches_single_authorize_for_group_roles() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "group-auth@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let org = organizations::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "group-auth-org",
+            "group-auth-org",
+            Some("auth"),
+            false,
+        )
+        .await
+        .unwrap();
+        let other_org = organizations::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "group-auth-other",
+            "group-auth-other",
+            Some("auth"),
+            false,
+        )
+        .await
+        .unwrap();
+
+        let group = groups::create(tx.as_mut(), org, "Teachers").await.unwrap();
+        group_memberships::add_member(tx.as_mut(), group.id, user)
+            .await
+            .unwrap();
+        group_roles::insert(
+            tx.as_mut(),
+            group.id,
+            roles::UserRole::Teacher,
+            RoleDomain::Organization(org),
+        )
+        .await
+        .unwrap();
+
+        let effective_roles = roles::get_effective_roles(tx.as_mut(), user).await.unwrap();
+
+        authorize(
+            tx.as_mut(),
+            Action::Edit,
+            Some(user),
+            Resource::Organization(org),
+        )
+        .await
+        .unwrap();
+        authorize_with_fetched_list_of_roles(
+            tx.as_mut(),
+            Action::Edit,
+            Some(user),
+            Resource::Organization(org),
+            &effective_roles,
+        )
+        .await
+        .unwrap();
+
+        authorize(
+            tx.as_mut(),
+            Action::Edit,
+            Some(user),
+            Resource::Organization(other_org),
+        )
+        .await
+        .unwrap_err();
+        authorize_with_fetched_list_of_roles(
+            tx.as_mut(),
+            Action::Edit,
+            Some(user),
+            Resource::Organization(other_org),
+            &effective_roles,
+        )
+        .await
+        .unwrap_err();
     }
 }

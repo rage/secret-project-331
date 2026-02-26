@@ -385,7 +385,7 @@ pub async fn get_roles(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<Ve
     let roles = sqlx::query_as!(
         Role,
         r#"
-SELECT is_global,
+SELECT is_global AS "is_global!",
   organization_id,
   course_id,
   course_instance_id,
@@ -403,12 +403,50 @@ AND roles.deleted_at IS NULL
     Ok(roles)
 }
 
+pub async fn get_effective_roles(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<Vec<Role>> {
+    let roles = sqlx::query_as!(
+        Role,
+        r#"
+SELECT is_global AS "is_global!",
+  organization_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  role AS "role!: UserRole",
+  user_id AS "user_id!"
+FROM roles
+WHERE user_id = $1
+  AND roles.deleted_at IS NULL
+UNION
+SELECT FALSE AS "is_global!",
+  gr.organization_id,
+  gr.course_id,
+  gr.course_instance_id,
+  gr.exam_id,
+  gr.role AS "role: UserRole",
+  gm.user_id
+FROM group_memberships gm
+  JOIN groups g ON g.id = gm.group_id
+  JOIN group_roles gr ON gr.group_id = gm.group_id
+WHERE gm.user_id = $1
+  AND gm.deleted_at IS NULL
+  AND g.deleted_at IS NULL
+  AND gr.deleted_at IS NULL
+"#,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(roles)
+}
+
 /// Gets all roles related to a specific course.
 /// This includes:
 /// - Global roles
 /// - Organization roles for the organization that owns the course
 /// - Course roles for this specific course
 /// - Course instance roles for any instance of this course
+/// - Group-derived roles for the same scopes above
 pub async fn get_course_related_roles(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -422,13 +460,13 @@ WITH course_org AS (
   WHERE id = $1
     AND deleted_at IS NULL
 )
-SELECT is_global,
+SELECT is_global AS "is_global!",
   organization_id,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
-  user_id
+  role AS "role!: UserRole",
+  user_id AS "user_id!"
 FROM roles
 WHERE (
     is_global = TRUE
@@ -445,6 +483,33 @@ WHERE (
     )
   )
   AND deleted_at IS NULL
+UNION
+SELECT FALSE AS "is_global!",
+  gr.organization_id,
+  gr.course_id,
+  gr.course_instance_id,
+  gr.exam_id,
+  gr.role AS "role: UserRole",
+  gm.user_id
+FROM group_roles gr
+  JOIN group_memberships gm ON gm.group_id = gr.group_id
+  JOIN groups g ON g.id = gm.group_id
+WHERE (
+    gr.organization_id = (
+      SELECT organization_id
+      FROM course_org
+    )
+    OR gr.course_id = $1
+    OR gr.course_instance_id IN (
+      SELECT id
+      FROM course_instances
+      WHERE course_id = $1
+        AND deleted_at IS NULL
+    )
+  )
+  AND gr.deleted_at IS NULL
+  AND gm.deleted_at IS NULL
+  AND g.deleted_at IS NULL
 "#,
         course_id
     )
@@ -456,7 +521,8 @@ WHERE (
 
 /// Gets all roles related to any course in a language group.
 /// This includes global roles, organization roles for any organization that has a course in the group,
-/// course roles for any course in the group, and course instance roles for any instance of those courses.
+/// course roles for any course in the group, course instance roles for any instance of those courses,
+/// and group-derived roles for the same scopes.
 pub async fn get_course_language_group_related_roles(
     conn: &mut PgConnection,
     course_language_group_id: Uuid,
@@ -470,13 +536,13 @@ WITH course_org AS (
   WHERE course_language_group_id = $1
     AND deleted_at IS NULL
 )
-SELECT is_global,
+SELECT is_global AS "is_global!",
   organization_id,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
-  user_id
+  role AS "role!: UserRole",
+  user_id AS "user_id!"
 FROM roles
 WHERE (
     is_global = TRUE
@@ -499,6 +565,39 @@ WHERE (
     )
   )
   AND deleted_at IS NULL
+UNION
+SELECT FALSE AS "is_global!",
+  gr.organization_id,
+  gr.course_id,
+  gr.course_instance_id,
+  gr.exam_id,
+  gr.role AS "role: UserRole",
+  gm.user_id
+FROM group_roles gr
+  JOIN group_memberships gm ON gm.group_id = gr.group_id
+  JOIN groups g ON g.id = gm.group_id
+WHERE (
+    gr.organization_id IN (
+      SELECT organization_id
+      FROM course_org
+    )
+    OR gr.course_id IN (
+      SELECT id
+      FROM courses
+      WHERE course_language_group_id = $1
+        AND deleted_at IS NULL
+    )
+    OR gr.course_instance_id IN (
+      SELECT ci.id
+      FROM course_instances ci
+        JOIN courses c ON ci.course_id = c.id
+      WHERE c.course_language_group_id = $1
+        AND ci.deleted_at IS NULL
+    )
+  )
+  AND gr.deleted_at IS NULL
+  AND gm.deleted_at IS NULL
+  AND g.deleted_at IS NULL
 "#,
         course_language_group_id
     )
@@ -506,4 +605,117 @@ WHERE (
     .await?;
 
     Ok(roles)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{group_memberships, group_roles, groups, organizations, test_helper::Conn, users};
+
+    fn unique_text(prefix: &str) -> String {
+        format!("{prefix}-{}", Uuid::new_v4())
+    }
+
+    async fn setup_user_and_org(conn: &mut PgConnection) -> (Uuid, Uuid) {
+        let email = format!("{}@example.com", unique_text("user"));
+        let user_id = users::insert(
+            conn,
+            PKeyPolicy::Generate,
+            &email,
+            Some("Test"),
+            Some("User"),
+        )
+        .await
+        .unwrap();
+        let org_name = unique_text("org");
+        let org_slug = unique_text("slug");
+        let organization_id = organizations::insert(
+            conn,
+            PKeyPolicy::Generate,
+            &org_name,
+            &org_slug,
+            None,
+            false,
+        )
+        .await
+        .unwrap();
+        (user_id, organization_id)
+    }
+
+    #[tokio::test]
+    async fn effective_roles_include_direct_and_group_roles() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let (user_id, organization_id) = setup_user_and_org(tx.as_mut()).await;
+
+        insert(
+            tx.as_mut(),
+            user_id,
+            UserRole::Admin,
+            RoleDomain::Organization(organization_id),
+        )
+        .await
+        .unwrap();
+
+        let group = groups::create(tx.as_mut(), organization_id, "Teaching team")
+            .await
+            .unwrap();
+        group_memberships::add_member(tx.as_mut(), group.id, user_id)
+            .await
+            .unwrap();
+        group_roles::insert(
+            tx.as_mut(),
+            group.id,
+            UserRole::Assistant,
+            RoleDomain::Organization(organization_id),
+        )
+        .await
+        .unwrap();
+
+        let direct_roles = get_roles(tx.as_mut(), user_id).await.unwrap();
+        assert_eq!(direct_roles.len(), 1);
+        assert_eq!(direct_roles[0].role, UserRole::Admin);
+
+        let effective_roles = get_effective_roles(tx.as_mut(), user_id).await.unwrap();
+        assert_eq!(effective_roles.len(), 2);
+        assert!(effective_roles.iter().any(|r| r.role == UserRole::Admin));
+        assert!(
+            effective_roles
+                .iter()
+                .any(|r| r.role == UserRole::Assistant)
+        );
+    }
+
+    #[tokio::test]
+    async fn soft_deleted_group_stops_granting_effective_roles_immediately() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let (user_id, organization_id) = setup_user_and_org(tx.as_mut()).await;
+
+        let group = groups::create(tx.as_mut(), organization_id, "Graders")
+            .await
+            .unwrap();
+        group_memberships::add_member(tx.as_mut(), group.id, user_id)
+            .await
+            .unwrap();
+        group_roles::insert(
+            tx.as_mut(),
+            group.id,
+            UserRole::Assistant,
+            RoleDomain::Organization(organization_id),
+        )
+        .await
+        .unwrap();
+
+        let before_delete = get_effective_roles(tx.as_mut(), user_id).await.unwrap();
+        assert_eq!(before_delete.len(), 1);
+        assert_eq!(before_delete[0].role, UserRole::Assistant);
+
+        groups::soft_delete_with_dependents(tx.as_mut(), group.id)
+            .await
+            .unwrap();
+
+        let after_delete = get_effective_roles(tx.as_mut(), user_id).await.unwrap();
+        assert!(after_delete.is_empty());
+    }
 }

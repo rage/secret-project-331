@@ -1266,6 +1266,43 @@ export interface TermUpdate {
   definition: string
 }
 
+export interface GroupMember {
+  user_id: string
+  first_name: string | null
+  last_name: string | null
+  email: string
+}
+
+export interface GroupAccessRow {
+  group_id: string
+  organization_id: string
+  group_name: string
+  role: UserRole
+  member_count: number
+}
+
+export interface GroupRoleAssignment {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  group_id: string
+  role: UserRole
+  organization_id: string | null
+  course_id: string | null
+  course_instance_id: string | null
+  exam_id: string | null
+}
+
+export interface Group {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  organization_id: string
+  name: string
+}
+
 export interface AverageMetric {
   period: string | null
   average: number | null
@@ -2578,6 +2615,45 @@ export interface ExerciseSubmissions {
 
 export interface MarkAsRead {
   read: boolean
+}
+
+export interface AddGroupMemberRequest {
+  email: string
+}
+
+export interface CreateGroupRequest {
+  organization_id: string
+  name: string
+}
+
+export interface GroupCapabilities {
+  is_member: boolean
+  can_manage_group: boolean
+  can_manage_members: boolean
+  can_manage_group_roles: boolean
+}
+
+export interface GroupDetailResponse {
+  group: Group
+  capabilities: GroupCapabilities
+}
+
+export interface GroupListQuery {
+  organization_id: string
+}
+
+export interface GroupListResponse {
+  groups: Array<Group>
+  can_create_groups: boolean
+}
+
+export interface GroupRoleMutationRequest {
+  role: UserRole
+  domain: RoleDomain
+}
+
+export interface RenameGroupRequest {
+  name: string
 }
 
 export type PlaygroundViewsMessage =

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT gm.id\nFROM group_memberships gm\n  JOIN groups g ON g.id = gm.group_id\nWHERE gm.group_id = $1\n  AND gm.user_id = $2\n  AND gm.deleted_at IS NULL\n  AND g.deleted_at IS NULL\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2720a4fea3e99e7f63a6a1c7481fb4c4a33e112b8a017a6b96c0361e7c559e42"
+}

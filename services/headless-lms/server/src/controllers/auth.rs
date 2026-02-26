@@ -285,7 +285,7 @@ pub async fn authorize_multiple_actions_on_resources(
     let mut results = Vec::with_capacity(input.len());
     if let Some(user) = user {
         // Prefetch roles so that we can do multiple authorizations without repeteadly querying the database.
-        let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
+        let user_roles = models::roles::get_effective_roles(&mut conn, user.id).await?;
 
         for action_on_resource in input {
             if (authorize_with_fetched_list_of_roles(

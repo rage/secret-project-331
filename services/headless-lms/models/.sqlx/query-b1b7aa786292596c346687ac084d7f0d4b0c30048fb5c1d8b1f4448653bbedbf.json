@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT is_global,\n  organization_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  role AS \"role: UserRole\",\n  user_id\nFROM roles\nWHERE user_id = $1\nAND roles.deleted_at IS NULL\n",
+  "query": "\nSELECT is_global AS \"is_global!\",\n  organization_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  role AS \"role: UserRole\",\n  user_id\nFROM roles\nWHERE user_id = $1\nAND roles.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "is_global",
+        "name": "is_global!",
         "type_info": "Bool"
       },
       {
@@ -70,5 +70,5 @@
       false
     ]
   },
-  "hash": "d4f5381981d5516f892c9654d02dcdb49410121d13842c27ba83336d1bfb23a2"
+  "hash": "b1b7aa786292596c346687ac084d7f0d4b0c30048fb5c1d8b1f4448653bbedbf"
 }

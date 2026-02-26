@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
+import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -23,7 +24,10 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
+import {
+  allOrganizationsRoute,
+  manageOrganizationGroupsRoute,
+} from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   actionButtonStyle,
@@ -220,6 +224,7 @@ const ManageOrganization: React.FC = () => {
       setHidden,
       updateOrgMutation,
       organization,
+      id,
       showDeletePopup,
       setShowDeletePopup,
       deleteMutation,
@@ -286,6 +291,7 @@ const content = (
     unknown
   >,
   organization: UseQueryResult<Organization>,
+  organizationId: string,
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
   deleteMutation: UseMutationResult<unknown, unknown, void, unknown>,
@@ -407,7 +413,7 @@ const content = (
       </div>
     ) : (
       <div id="tab-panel-permissions" role="tabpanel" aria-labelledby="tab-permissions">
-        {permissionContent(t, setShowAddUserPopup, users, handleDelete, handleEdit)}
+        {permissionContent(t, organizationId, setShowAddUserPopup, users, handleDelete, handleEdit)}
       </div>
     )}
   </div>
@@ -679,6 +685,7 @@ const designContent = (
 
 const permissionContent = (
   t: TFunction,
+  organizationId: string,
   setShowAddUserPopup: React.Dispatch<React.SetStateAction<boolean>>,
   users: NamedRoleUser[],
   handleDelete: (user: NamedRoleUser) => void,
@@ -714,6 +721,15 @@ const permissionContent = (
       <button onClick={() => setShowAddUserPopup(true)} className={primaryButton}>
         {t("label-add-user")}
       </button>
+      <Link
+        href={manageOrganizationGroupsRoute(organizationId)}
+        className={css`
+          ${primaryButton};
+          text-decoration: none;
+        `}
+      >
+        {t("groups")}
+      </Link>
     </div>
 
     <div

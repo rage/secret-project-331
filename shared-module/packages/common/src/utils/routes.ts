@@ -82,6 +82,14 @@ export function manageOrganizationRoute(organizationId: string) {
   return `/manage/organizations/${organizationId}`
 }
 
+export function manageOrganizationGroupsRoute(organizationId: string) {
+  return `/manage/organizations/${organizationId}/groups`
+}
+
+export function manageOrganizationGroupRoute(organizationId: string, groupId: string) {
+  return `/manage/organizations/${organizationId}/groups/${groupId}`
+}
+
 export function searchUsersRoute() {
   return "/manage/search-users"
 }

@@ -106,6 +106,7 @@ export default function ScheduleEditorStep({
               return (
                 <StageCard
                   key={card.stage}
+                  stage={card.stage}
                   title={stageLabel(card.stage)}
                   months={card.months}
                   canShrink={card.canShrink}

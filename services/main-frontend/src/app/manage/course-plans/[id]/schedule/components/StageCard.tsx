@@ -8,6 +8,7 @@ import { StageMonth } from "../scheduleMappers"
 
 import MonthBlock from "./MonthBlock"
 
+import { CourseDesignerStage } from "@/services/backend/courseDesigner"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -57,6 +58,17 @@ const stageDescriptionPlaceholderStyles = css`
   color: ${baseTheme.colors.gray[500]};
 `
 
+const stageDescriptionListStyles = css`
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+  color: ${baseTheme.colors.gray[500]};
+`
+
+const stageDescriptionItemStyles = css`
+  margin: 0.1rem 0;
+`
+
 const stageCardActionsStyles = css`
   display: flex;
   gap: 0.5rem;
@@ -65,6 +77,7 @@ const stageCardActionsStyles = css`
 `
 
 interface StageCardProps {
+  stage: CourseDesignerStage
   title: string
   months: Array<StageMonth>
   canShrink: boolean
@@ -77,6 +90,7 @@ interface StageCardProps {
 }
 
 export default function StageCard({
+  stage,
   title,
   months,
   canShrink,
@@ -88,6 +102,41 @@ export default function StageCard({
   testId,
 }: StageCardProps) {
   const { t } = useTranslation()
+
+  const descriptionLines =
+    stage === "Analysis"
+      ? [
+          t("course-plans-stage-description-analysis-1"),
+          t("course-plans-stage-description-analysis-2"),
+          t("course-plans-stage-description-analysis-3"),
+          t("course-plans-stage-description-analysis-4"),
+          t("course-plans-stage-description-analysis-5"),
+        ]
+      : stage === "Design"
+        ? [
+            t("course-plans-stage-description-design-1"),
+            t("course-plans-stage-description-design-2"),
+            t("course-plans-stage-description-design-3"),
+            t("course-plans-stage-description-design-4"),
+            t("course-plans-stage-description-design-5"),
+          ]
+        : stage === "Development"
+          ? [
+              t("course-plans-stage-description-development-1"),
+              t("course-plans-stage-description-development-2"),
+            ]
+          : stage === "Implementation"
+            ? [
+                t("course-plans-stage-description-implementation-1"),
+                t("course-plans-stage-description-implementation-2"),
+                t("course-plans-stage-description-implementation-3"),
+              ]
+            : stage === "Evaluation"
+              ? [
+                  t("course-plans-stage-description-evaluation-1"),
+                  t("course-plans-stage-description-evaluation-2"),
+                ]
+              : []
 
   return (
     <motion.div
@@ -139,9 +188,19 @@ export default function StageCard({
 
         <div className={stageCardRightStyles}>
           <h3 className={stageTitleStyles}>{title}</h3>
-          <p className={stageDescriptionPlaceholderStyles}>
-            {t("course-plans-stage-description-placeholder")}
-          </p>
+          {descriptionLines.length > 0 ? (
+            <ul className={stageDescriptionListStyles}>
+              {descriptionLines.map((line) => (
+                <li key={line} className={stageDescriptionItemStyles}>
+                  {line}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={stageDescriptionPlaceholderStyles}>
+              {t("course-plans-stage-description-placeholder")}
+            </p>
+          )}
 
           <div className={stageCardActionsStyles}>
             <Button variant="secondary" size="small" onClick={onAddMonth}>

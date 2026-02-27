@@ -44,12 +44,13 @@ test.describe("Chapter locking feature", () => {
       await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
       await clickPageInChapterByTitle(studentPage, "Exercise in Chapter 1")
       await selectCourseInstanceIfPrompted(studentPage)
+      const exerciseFrame = await getLocatorForNthExerciseServiceIframe(studentPage, "quizzes", 1)
+      await exerciseFrame.getByRole("button", { name: "Correct answer" }).waitFor()
       await expect(
         studentPage.getByText(
           "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
         ),
       ).toBeVisible()
-      const exerciseFrame = await getLocatorForNthExerciseServiceIframe(studentPage, "quizzes", 1)
       await exerciseFrame.getByRole("button", { name: "Correct answer" }).click()
       await studentPage.getByRole("button", { name: "Submit" }).click()
       await studentPage.getByText("Try again").waitFor()

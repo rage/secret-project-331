@@ -2,12 +2,14 @@
 
 import { css } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 
 import { type CourseDesignerStage } from "@/services/backend/courseDesigner"
 import Button from "@/shared-module/common/components/Button"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -218,24 +220,6 @@ const overviewActionsSecondaryStyles = css`
   flex-wrap: wrap;
 `
 
-const textLinkStyles = css`
-  font-size: 0.8rem;
-  padding: 0.2rem 0.4rem;
-  min-height: 0;
-  text-transform: none;
-  letter-spacing: 0;
-  color: ${baseTheme.colors.gray[500]};
-  background: transparent;
-  border: none;
-  font-weight: 400;
-
-  :hover:not(:disabled) {
-    color: ${baseTheme.colors.green[700]};
-    background: transparent;
-    text-decoration: underline;
-  }
-`
-
 export interface OverviewStage {
   id: string
   planned_starts_on: string
@@ -252,7 +236,7 @@ export interface PlanOverviewPanelProps {
   activeStage: CourseDesignerStage | null
   stageLabel: (stage: CourseDesignerStage) => string
   canActOnCurrentStage: boolean
-  onExtendCurrentStage: () => void
+  onExtendCurrentStage: (months: number) => void
   onAdvanceStage: () => void
   isExtendPending: boolean
   isAdvancePending: boolean
@@ -284,14 +268,55 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   nextStageLabel = null,
 }) => {
   const { t, i18n } = useTranslation()
+  const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false)
+  const [extendMonths, setExtendMonths] = useState(1)
 
-  const formatMonthYear = (isoDate: string): string =>
-    new Date(isoDate).toLocaleDateString(i18n.language, {
+  /** Formats a Date as localized month and year. */
+  const formatMonthYearFromDate = (date: Date): string =>
+    date.toLocaleDateString(i18n.language, {
       // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
       month: "long",
       // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
       year: "numeric",
     })
+
+  const formatMonthYear = (isoDate: string): string => formatMonthYearFromDate(new Date(isoDate))
+
+  /** Adds a month offset to a Date while preserving other fields. */
+  const addMonths = (date: Date, months: number): Date => {
+    const result = new Date(date)
+    result.setMonth(result.getMonth() + months)
+    return result
+  }
+
+  const activeStageData =
+    activeStage != null ? (stages.find((stage) => stage.stage === activeStage) ?? null) : null
+
+  const currentPhaseEndLabel =
+    currentPhaseEndDateFormatted ??
+    (activeStageData != null ? formatMonthYear(activeStageData.planned_ends_on) : null)
+
+  const latestStageEndIso =
+    stages.length > 0
+      ? stages.reduce(
+          (latest, stage) => (stage.planned_ends_on > latest ? stage.planned_ends_on : latest),
+          stages[0]!.planned_ends_on,
+        )
+      : null
+
+  const currentPlanEndLabel = latestStageEndIso != null ? formatMonthYear(latestStageEndIso) : null
+
+  const newPhaseEndLabel =
+    activeStageData != null && extendMonths > 0
+      ? formatMonthYearFromDate(addMonths(new Date(activeStageData.planned_ends_on), extendMonths))
+      : null
+
+  const newPlanEndLabel =
+    latestStageEndIso != null && extendMonths > 0
+      ? formatMonthYearFromDate(addMonths(new Date(latestStageEndIso), extendMonths))
+      : null
+
+  const canAdjustSchedule = activeStage != null && activeStageData != null
 
   if (!isOpen) {
     return null
@@ -419,28 +444,24 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
                       ? t("course-plans-overview-complete-phase-move-to", {
                           stage: nextStageLabel,
                         })
-                      : t("course-plans-mark-phase-done-proceed")}
+                      : t("course-plans-overview-complete-final-phase")}
                   </Button>
                 </div>
-                <div className={overviewActionsSecondaryStyles}>
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    onClick={onExtendCurrentStage}
-                    disabled={isExtendPending || isAdvancePending}
-                  >
-                    {t("course-plans-overview-adjust-timeline")}
-                  </Button>
-                  <Button
-                    variant="tertiary"
-                    size="small"
-                    onClick={onAdvanceStage}
-                    disabled={isAdvancePending}
-                    className={textLinkStyles}
-                  >
-                    {t("course-plans-overview-start-next-phase-now")}
-                  </Button>
-                </div>
+                {canAdjustSchedule && (
+                  <div className={overviewActionsSecondaryStyles}>
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      onClick={() => {
+                        setExtendMonths(1)
+                        setIsAdjustDialogOpen(true)
+                      }}
+                      disabled={isExtendPending || isAdvancePending}
+                    >
+                      {t("course-plans-overview-adjust-schedule")}
+                    </Button>
+                  </div>
+                )}
               </>
             ) : (
               <span>{t("course-plans-overview-no-actions")}</span>
@@ -448,6 +469,104 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
           </div>
         </div>
       </div>
+
+      {canAdjustSchedule && (
+        <StandardDialog
+          open={isAdjustDialogOpen}
+          onClose={() => setIsAdjustDialogOpen(false)}
+          title={t("course-plans-adjust-schedule-title")}
+          isDismissable
+          leftAlignTitle
+        >
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+            `}
+          >
+            <p
+              className={css`
+                font-size: 0.9rem;
+              `}
+            >
+              {t("course-plans-adjust-schedule-description", {
+                phase: activeStage ? stageLabel(activeStage) : "",
+              })}
+            </p>
+
+            <SelectField
+              id="course-plan-adjust-schedule-months"
+              label={t("course-plans-adjust-schedule-months-label")}
+              defaultValue="1"
+              onChangeByValue={(value) => setExtendMonths(Number(value))}
+              options={Array.from({ length: 6 }, (_item, index) => {
+                const months = index + 1
+                return {
+                  value: String(months),
+                  label: t("course-plans-adjust-schedule-month-option", { count: months }),
+                }
+              })}
+            />
+
+            {currentPhaseEndLabel && newPhaseEndLabel && (
+              <p
+                className={css`
+                  font-size: 0.85rem;
+                `}
+              >
+                {t("course-plans-adjust-schedule-phase-dates", {
+                  currentEnd: currentPhaseEndLabel,
+                  newEnd: newPhaseEndLabel,
+                })}
+              </p>
+            )}
+
+            {currentPlanEndLabel && newPlanEndLabel && (
+              <p
+                className={css`
+                  font-size: 0.85rem;
+                `}
+              >
+                {t("course-plans-adjust-schedule-plan-dates", {
+                  delayMonths: extendMonths,
+                  currentPlanEnd: currentPlanEndLabel,
+                  newPlanEnd: newPlanEndLabel,
+                })}
+              </p>
+            )}
+
+            <div
+              className={css`
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.75rem;
+                margin-top: 0.5rem;
+              `}
+            >
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => setIsAdjustDialogOpen(false)}
+                disabled={isExtendPending || isAdvancePending}
+              >
+                {t("button-text-cancel")}
+              </Button>
+              <Button
+                variant="primary"
+                size="small"
+                onClick={() => {
+                  onExtendCurrentStage(extendMonths)
+                  setIsAdjustDialogOpen(false)
+                }}
+                disabled={isExtendPending || isAdvancePending}
+              >
+                {t("course-plans-adjust-schedule-apply", { months: extendMonths })}
+              </Button>
+            </div>
+          </div>
+        </StandardDialog>
+      )}
     </StandardDialog>
   )
 }

@@ -183,7 +183,8 @@ export default function CoursePlanWorkspacePage() {
   )
 
   const extendMutation = useToastMutation(
-    (stage: CourseDesignerStage) => extendCourseDesignerStage(planId, stage, 1),
+    (params: { stage: CourseDesignerStage; months: number }) =>
+      extendCourseDesignerStage(planId, params.stage, params.months),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
@@ -414,7 +415,9 @@ export default function CoursePlanWorkspacePage() {
         activeStage={currentStage ?? null}
         stageLabel={stageLabel}
         canActOnCurrentStage={Boolean(canAct)}
-        onExtendCurrentStage={() => currentStage && extendMutation.mutate(currentStage)}
+        onExtendCurrentStage={(months) =>
+          currentStage && extendMutation.mutate({ stage: currentStage, months })
+        }
         onAdvanceStage={() => advanceMutation.mutate()}
         isExtendPending={extendMutation.isPending}
         isAdvancePending={advanceMutation.isPending}

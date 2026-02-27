@@ -22,6 +22,7 @@ import {
   startCourseDesignerPlan,
 } from "@/services/backend/courseDesigner"
 import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -33,13 +34,25 @@ const pageRootStyles = css`
   min-height: 100vh;
 `
 
-const contentWrapperStyles = css`
-  max-width: 72rem;
+const workspaceShellStyles = css`
+  width: 100%;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.25rem 3rem;
+
+  ${respondToOrLarger.md} {
+    padding: 0 1.75rem 3rem;
+  }
 
   ${respondToOrLarger.lg} {
-    padding: 0 3rem;
+    padding: 0 2.25rem 3rem;
+  }
+
+  ${respondToOrLarger.xl} {
+    padding: 0 2.75rem 3rem;
+  }
+
+  ${respondToOrLarger.xxxl} {
+    padding: 0 3rem 3rem;
   }
 `
 
@@ -70,15 +83,87 @@ const metadataRowStyles = css`
   margin: 0;
 `
 
-const mainLayoutStyles = css`
+const workspaceGridStyles = css`
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "header"
+    "instructions"
+    "tasks"
+    "workspace"
+    "chatbot";
+  grid-auto-rows: minmax(0, auto);
+  gap: 1.25rem;
+
+  ${respondToOrLarger.sm} {
+    gap: 1.5rem;
+  }
 
   ${respondToOrLarger.md} {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 1.6rem;
+  }
+
+  ${respondToOrLarger.lg} {
+    gap: 1.6rem;
+  }
+
+  ${respondToOrLarger.xl} {
+    grid-template-columns:
+      minmax(24rem, 1.35fr)
+      minmax(34rem, 2.1fr);
+    grid-template-areas:
+      "header header"
+      "tasks instructions"
+      "tasks workspace"
+      "chatbot workspace";
+    gap: 1.75rem;
+  }
+
+  ${respondToOrLarger.xxl} {
+    grid-template-columns:
+      minmax(26rem, 1.35fr)
+      minmax(40rem, 2.1fr);
+    grid-template-areas:
+      "header header"
+      "tasks instructions"
+      "tasks workspace"
+      "chatbot workspace";
+    gap: 2rem;
+  }
+
+  ${respondToOrLarger.xxxxl} {
+    grid-template-columns:
+      minmax(24rem, 1.2fr)
+      minmax(40rem, 2.6fr)
+      minmax(24rem, 1.3fr);
+    grid-template-areas:
+      "header header header"
+      "tasks instructions chatbot"
+      "tasks workspace chatbot"
+      "tasks workspace chatbot";
+    gap: 2.25rem;
     align-items: flex-start;
   }
+`
+
+const headerAreaStyles = css`
+  grid-area: header;
+`
+
+const instructionsAreaStyles = css`
+  grid-area: instructions;
+`
+
+const tasksAreaStyles = css`
+  grid-area: tasks;
+`
+
+const workspaceAreaStyles = css`
+  grid-area: workspace;
+`
+
+const chatbotAreaStyles = css`
+  grid-area: chatbot;
 `
 
 const cardStyles = css`
@@ -87,6 +172,24 @@ const cardStyles = css`
   padding: 1.5rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   border: 1px solid ${baseTheme.colors.gray[200]};
+`
+
+const tasksCardStyles = css`
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+`
+
+const workspaceCardStyles = css`
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+`
+
+const chatbotCardStyles = css`
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh;
 `
 
 const sectionTitleStyles = css`
@@ -222,7 +325,7 @@ export default function CoursePlanWorkspacePage() {
   if (planQuery.isError) {
     return (
       <div className={pageRootStyles}>
-        <div className={contentWrapperStyles}>
+        <div className={workspaceShellStyles}>
           <ErrorBanner variant="readOnly" error={planQuery.error} />
         </div>
       </div>
@@ -232,7 +335,7 @@ export default function CoursePlanWorkspacePage() {
   if (planQuery.isLoading || !planQuery.data) {
     return (
       <div className={pageRootStyles}>
-        <div className={contentWrapperStyles}>
+        <div className={workspaceShellStyles}>
           <Spinner variant="medium" />
         </div>
       </div>
@@ -244,7 +347,7 @@ export default function CoursePlanWorkspacePage() {
   if (plan.status === "ReadyToStart" && !plan.active_stage) {
     return (
       <div className={pageRootStyles}>
-        <div className={contentWrapperStyles}>
+        <div className={workspaceShellStyles}>
           <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
           <div className={cardStyles}>
             <p>{t("course-plans-status-ready-to-start")}</p>
@@ -406,82 +509,118 @@ export default function CoursePlanWorkspacePage() {
         ]
 
   return (
-    <div className={pageRootStyles}>
-      <PlanOverviewPanel
-        isOpen={isOverviewOpen}
-        onClose={() => setIsOverviewOpen(false)}
-        planName={plan.name ?? t("course-plans-untitled-plan")}
-        stages={stages as OverviewStage[]}
-        activeStage={currentStage ?? null}
-        stageLabel={stageLabel}
-        canActOnCurrentStage={Boolean(canAct)}
-        onExtendCurrentStage={(months) =>
-          currentStage && extendMutation.mutate({ stage: currentStage, months })
-        }
-        onAdvanceStage={() => advanceMutation.mutate()}
-        isExtendPending={extendMutation.isPending}
-        isAdvancePending={advanceMutation.isPending}
-        timeRemainingText={timeRemainingText}
-        timeRemainingShort={timeRemainingShort}
-        currentPhaseEndDateFormatted={currentPhaseEndDateFormatted}
-        activeStageTaskCompleted={activeStageTaskCompleted}
-        activeStageTaskTotal={activeStageTaskTotal}
-        nextStageLabel={nextStageLabel}
-      />
+    <BreakFromCentered sidebar={false}>
+      <div className={pageRootStyles}>
+        <PlanOverviewPanel
+          isOpen={isOverviewOpen}
+          onClose={() => setIsOverviewOpen(false)}
+          planName={plan.name ?? t("course-plans-untitled-plan")}
+          stages={stages as OverviewStage[]}
+          activeStage={currentStage ?? null}
+          stageLabel={stageLabel}
+          canActOnCurrentStage={Boolean(canAct)}
+          onExtendCurrentStage={(months) =>
+            currentStage && extendMutation.mutate({ stage: currentStage, months })
+          }
+          onAdvanceStage={() => advanceMutation.mutate()}
+          isExtendPending={extendMutation.isPending}
+          isAdvancePending={advanceMutation.isPending}
+          timeRemainingText={timeRemainingText}
+          timeRemainingShort={timeRemainingShort}
+          currentPhaseEndDateFormatted={currentPhaseEndDateFormatted}
+          activeStageTaskCompleted={activeStageTaskCompleted}
+          activeStageTaskTotal={activeStageTaskTotal}
+          nextStageLabel={nextStageLabel}
+        />
 
-      <div className={contentWrapperStyles}>
-        <div className={headerRowStyles}>
-          <div className={headerBlockStyles}>
-            <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
-            {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
+        <div className={workspaceShellStyles}>
+          <div className={workspaceGridStyles}>
+            <div className={headerAreaStyles}>
+              <div className={headerRowStyles}>
+                <div className={headerBlockStyles}>
+                  <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
+                  {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
+                </div>
+                {currentStage && (
+                  <CompactPhaseStatusWidget
+                    phaseName={stageLabel(currentStage)}
+                    statusTimeLine={
+                      (timeRemainingShort ?? timeRemainingText)
+                        ? t("course-plans-status-with-time", {
+                            time: timeRemainingShort ?? timeRemainingText,
+                          })
+                        : t("course-plans-status-in-progress")
+                    }
+                    tasksRemainingCount={tasksRemainingCount}
+                    isUrgent={isUrgent}
+                    onClick={() => setIsOverviewOpen(true)}
+                  />
+                )}
+              </div>
+            </div>
+
+            <section
+              className={`${cardStyles} ${instructionsAreaStyles}`}
+              aria-label={t("course-plans-instructions-aria-label")}
+            >
+              <h2 className={instructionsSectionTitleStyles}>
+                {t("course-plans-instructions-heading")}
+              </h2>
+              <p className={aboutHeadingStyles}>{t("course-plans-about-this-phase")}</p>
+              <p className={aboutTextStyles}>
+                {currentStage
+                  ? t(
+                      `course-plans-phase-brief-${currentStage.toLowerCase()}` as
+                        | "course-plans-phase-brief-analysis"
+                        | "course-plans-phase-brief-design"
+                        | "course-plans-phase-brief-development"
+                        | "course-plans-phase-brief-implementation"
+                        | "course-plans-phase-brief-evaluation",
+                    )
+                  : t("course-plans-instructions-placeholder")}
+              </p>
+              <p className={keyGoalsHeadingStyles}>{t("course-plans-key-goals")}</p>
+              <ul className={keyGoalsListStyles}>{keyGoalsContent}</ul>
+            </section>
+
+            <section
+              className={`${cardStyles} ${tasksAreaStyles} ${tasksCardStyles}`}
+              aria-label={t("course-plans-tasks-aria-label")}
+            >
+              <h2 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h2>
+              {currentStageSection ?? (
+                <p className={emptyStateStyles}>{t("course-plans-no-active-stage")}</p>
+              )}
+            </section>
+
+            <section
+              className={`${cardStyles} ${workspaceAreaStyles} ${workspaceCardStyles}`}
+              aria-label={t("course-plans-workspace-aria-label")}
+            >
+              {/* eslint-disable-next-line i18next/no-literal-string */}
+              <h2 className={sectionTitleStyles}>Workspace</h2>
+              {/* eslint-disable-next-line i18next/no-literal-string */}
+              <p className={aboutTextStyles}>
+                This area will host tools and editors for working on the current stage of your
+                course design.
+              </p>
+            </section>
+
+            <section
+              className={`${cardStyles} ${chatbotAreaStyles} ${chatbotCardStyles}`}
+              aria-label={t("course-plans-assistant-aria-label")}
+            >
+              {/* eslint-disable-next-line i18next/no-literal-string */}
+              <h2 className={sectionTitleStyles}>Assistant</h2>
+              {/* eslint-disable-next-line i18next/no-literal-string */}
+              <p className={aboutTextStyles}>
+                A course design assistant chatbot will appear here to help you with tasks and
+                questions about each stage.
+              </p>
+            </section>
           </div>
-          {currentStage && (
-            <CompactPhaseStatusWidget
-              phaseName={stageLabel(currentStage)}
-              statusTimeLine={
-                (timeRemainingShort ?? timeRemainingText)
-                  ? t("course-plans-status-with-time", {
-                      time: timeRemainingShort ?? timeRemainingText,
-                    })
-                  : t("course-plans-status-in-progress")
-              }
-              tasksRemainingCount={tasksRemainingCount}
-              isUrgent={isUrgent}
-              onClick={() => setIsOverviewOpen(true)}
-            />
-          )}
-        </div>
-
-        <div className={mainLayoutStyles}>
-          <section className={cardStyles} aria-label={t("course-plans-instructions-aria-label")}>
-            <h2 className={instructionsSectionTitleStyles}>
-              {t("course-plans-instructions-heading")}
-            </h2>
-            <p className={aboutHeadingStyles}>{t("course-plans-about-this-phase")}</p>
-            <p className={aboutTextStyles}>
-              {currentStage
-                ? t(
-                    `course-plans-phase-brief-${currentStage.toLowerCase()}` as
-                      | "course-plans-phase-brief-analysis"
-                      | "course-plans-phase-brief-design"
-                      | "course-plans-phase-brief-development"
-                      | "course-plans-phase-brief-implementation"
-                      | "course-plans-phase-brief-evaluation",
-                  )
-                : t("course-plans-instructions-placeholder")}
-            </p>
-            <p className={keyGoalsHeadingStyles}>{t("course-plans-key-goals")}</p>
-            <ul className={keyGoalsListStyles}>{keyGoalsContent}</ul>
-          </section>
-
-          <section className={cardStyles} aria-label={t("course-plans-tasks-aria-label")}>
-            <h2 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h2>
-            {currentStageSection ?? (
-              <p className={emptyStateStyles}>{t("course-plans-no-active-stage")}</p>
-            )}
-          </section>
         </div>
       </div>
-    </div>
+    </BreakFromCentered>
   )
 }

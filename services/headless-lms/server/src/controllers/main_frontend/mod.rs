@@ -10,6 +10,7 @@ pub mod chapters;
 pub mod chatbot_models;
 pub mod chatbots;
 pub mod code_giveaways;
+pub mod course_designer;
 pub mod course_instances;
 pub mod course_modules;
 pub mod courses;
@@ -44,6 +45,7 @@ use actix_web::web::{self, ServiceConfig};
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/chapters").configure(chapters::_add_routes))
         .service(web::scope("/course-instances").configure(course_instances::_add_routes))
+        .service(web::scope("/course-plans").configure(course_designer::_add_routes))
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/courses").configure(courses::_add_routes))
         .service(web::scope("/email-templates").configure(email_templates::_add_routes))

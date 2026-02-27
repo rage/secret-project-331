@@ -394,6 +394,7 @@ const config = [
               "querySelectorAll",
               "getAttribute",
               "useRegisterBreadcrumbs",
+              "format",
             ],
           },
           "object-properties": {

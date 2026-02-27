@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_designer_plan_stage_tasks t\nSET deleted_at = $4\nFROM course_designer_plan_stages s\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE t.course_designer_plan_stage_id = s.id AND s.course_designer_plan_id = $1\n  AND t.id = $3 AND t.deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a1608b5e88488bef17d4766885c8bceb0796b17c7f2b06c55f3f37d2ee1f6476"
+}

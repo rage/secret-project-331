@@ -1,17 +1,57 @@
 import { FullConfig } from "@playwright/test"
-import { spawnSync } from "child_process"
+import { spawn, spawnSync } from "child_process"
 import fs from "fs"
+import http from "http"
 import { load as yamlLoad } from "js-yaml"
 import path from "path"
 import playWrightPackageJson from "playwright/package.json"
 import which from "which"
+
+const OAUTH_REDIRECT_PID_FILE = path.join(__dirname, "..", ".oauth-redirect-pid")
 
 async function globalSetup(config: FullConfig): Promise<void> {
   await makeSureNecessaryProgramsAreInstalled(config)
   await makeSurePnpmInstallHasBeenRan()
   await downloadTmcLangsCli()
   await setupSystemTestDb()
+  await startOAuthRedirectServer()
   // After this global.setup.spec.ts is ran
+}
+
+/** Start OAuth redirect server in a child process so all workers share one server (workers are separate processes). */
+async function startOAuthRedirectServer(): Promise<void> {
+  const scriptPath = path.join(__dirname, "oauthRedirectServer.ts")
+  const child = spawn(process.execPath, ["--require", "ts-node/register", scriptPath], {
+    cwd: path.join(__dirname, ".."),
+    stdio: "ignore",
+    detached: true,
+  })
+  child.unref()
+
+  const uri = "http://127.0.0.1:8765/callback?test=1"
+  const deadline = Date.now() + 10000
+  while (Date.now() < deadline) {
+    const ok = await new Promise<boolean>((resolve) => {
+      const req = http.get(uri, { timeout: 1000 }, (res) => {
+        let data = ""
+        res.on("data", (ch: Buffer) => {
+          data += ch.toString()
+        })
+        res.on("end", () => resolve(data.includes("Callback OK") || res.statusCode === 200))
+      })
+      req.on("error", () => resolve(false))
+      req.on("timeout", () => {
+        req.destroy()
+        resolve(false)
+      })
+    })
+    if (ok) {
+      fs.writeFileSync(OAUTH_REDIRECT_PID_FILE, String(child.pid))
+      return
+    }
+    await new Promise((r) => setTimeout(r, 100))
+  }
+  throw new Error("OAuth redirect server did not become ready on 127.0.0.1:8765")
 }
 
 async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {

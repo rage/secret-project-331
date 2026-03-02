@@ -43,3 +43,6 @@ test-results
 *firefox-*.png
 
 playwright-report
+
+# OAuth redirect server PID (globalSetup child process)
+.oauth-redirect-pid

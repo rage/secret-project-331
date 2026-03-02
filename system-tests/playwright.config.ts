@@ -32,6 +32,7 @@ const defaultWorkersAmount = freeMemoryGB < 10 ? "50%" : "85%"
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
+  globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
   reporter: [["line"]],
   // We like keeping retries to 0 because by disallowing retries we are forced to keep the tests stable. If were not forced to keep the tests stable, all tests would eventually become flaky. This would slow down test execution a lot and would be major pain. The only exception is when we're deploying master because we don't want flaky tests to randomly prevent urgent deploys.
   retries: process.env.GITHUB_REF === "refs/heads/master" ? 2 : 0,

@@ -63,6 +63,20 @@ export async function setupRedirectServer(): Promise<void> {
       _redirectServer.once("error", (err: NodeJS.ErrnoException) => {
         // If port is already in use (EADDRINUSE), another worker already set it up
         if (err.code === "EADDRINUSE") {
+          // #region agent log
+          fetch("http://localhost:7242/ingest/6801920c-561f-4f92-8fae-979fe02985e7", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "bd02c5" },
+            body: JSON.stringify({
+              sessionId: "bd02c5",
+              hypothesisId: "H2",
+              location: "redirectServer.ts:EADDRINUSE",
+              message: "eaddrinuse using shared",
+              data: { pid: process.pid },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {})
+          // #endregion
           _redirectServer = null // Don't track it in this worker
           _setupCount-- // Adjust counter since we didn't actually set it up
 
@@ -78,8 +92,20 @@ export async function setupRedirectServer(): Promise<void> {
       })
 
       _redirectServer.listen(Number(uri.port || 80), uri.hostname, () => {
-        // Server is listening, resolve immediately
-        // No need to verify - if listen() succeeded, the server is ready
+        // #region agent log
+        fetch("http://localhost:7242/ingest/6801920c-561f-4f92-8fae-979fe02985e7", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "bd02c5" },
+          body: JSON.stringify({
+            sessionId: "bd02c5",
+            hypothesisId: "H1",
+            location: "redirectServer.ts:listen",
+            message: "listen success",
+            data: { pid: process.pid },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {})
+        // #endregion
         _setupPromise = null
         resolve()
       })
@@ -114,6 +140,20 @@ export async function ensureRedirectServer(): Promise<void> {
   }
   if (_isSharedServer) {
     const ok = await _verifyServerRunning(new URL(REDIRECT_URI))
+    // #region agent log
+    fetch("http://localhost:7242/ingest/6801920c-561f-4f92-8fae-979fe02985e7", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "bd02c5" },
+      body: JSON.stringify({
+        sessionId: "bd02c5",
+        hypothesisId: "H3",
+        location: "redirectServer.ts:ensureRedirectServer",
+        message: "shared verify result",
+        data: { pid: process.pid, ok },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
     if (ok) {
       return
     }

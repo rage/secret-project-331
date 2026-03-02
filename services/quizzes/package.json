@@ -1,7 +1,7 @@
 {
   "name": "quizzes-dashboard",
   "version": "0.1.0",
-  "packageManager": "pnpm@10.26.2",
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3004 --turbopack",

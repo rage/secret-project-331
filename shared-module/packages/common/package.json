@@ -4,7 +4,7 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "keywords": [],
   "license": "Apache-2.0",
-  "packageManager": "pnpm@10.26.2",
+  "packageManager": "pnpm@10.30.3",
   "private": true,
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"

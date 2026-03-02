@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","mock_azure"]};
+window.SIDEBAR_ITEMS = {"constant":["COMPLETION","SUGGESTION"],"fn":["_add_routes","mock_azure_chat_completions"]};

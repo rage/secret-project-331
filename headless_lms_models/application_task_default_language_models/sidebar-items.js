@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ApplicationTask"],"fn":["delete","get_for_task","insert"],"struct":["ApplicationTaskDefaultLanguageModel","TaskLMSpec"]};

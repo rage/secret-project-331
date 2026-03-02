@@ -166,30 +166,33 @@ macro_rules! insert_data {
         let mut $tx = conn.begin().await;
     };
     (@inner tx: $tx:ident; user: $user:ident) => {
-        let rs = ::rand::Rng::sample_iter(::rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $user =
             headless_lms_models::users::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, &format!("{rs}@example.com"), None, None)
                 .await
                 .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident; org: $org:ident) => {
-        let rs = rand::Rng::sample_iter(rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $org =
             headless_lms_models::organizations::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, "", &rs, Some(""), false)
                 .await
                 .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident; course: $course: ident) => {
-        let rs = ::rand::Rng::sample_iter(::rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $course = headless_lms_models::library::content_management::create_new_course(
             $tx.as_mut(),
             headless_lms_models::PKeyPolicy::Generate,

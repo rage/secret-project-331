@@ -24,7 +24,6 @@ use headless_lms_utils::{
     prelude::UtilErrorType,
     tmc::{NewUserInfo, TmcClient},
 };
-use rand::Rng;
 use secrecy::SecretString;
 use tracing_log::log;
 

@@ -10,7 +10,6 @@ use headless_lms_models::{
     partner_block::PartnersBlock,
     suspected_cheaters::{SuspectedCheaters, Threshold},
 };
-use rand::Rng;
 use std::sync::Arc;
 
 use headless_lms_utils::strings::is_ietf_language_code_like;

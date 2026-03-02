@@ -32,7 +32,7 @@ export type OAuthTestUser = {
 }
 
 // One user per spec: 8 non-students + 6 students (3–8). No admin (conflicts with other tests).
-const OAUTH_SPEC_USERS: Record<string, OAuthTestUser> = {
+const OAUTH_SPEC_USERS = {
   "code-issuance": {
     email: "user@example.com",
     password: "user",
@@ -103,7 +103,7 @@ const OAUTH_SPEC_USERS: Record<string, OAuthTestUser> = {
     password: "student7",
     storageStatePath: "src/states/student7@example.com.json",
   },
-}
+} satisfies Record<string, OAuthTestUser>
 
 /** Returns credentials and storage state path for the given OAuth spec (one user per spec for parallel runs). */
 export function getOAuthTestUser(specKey: keyof typeof OAUTH_SPEC_USERS): OAuthTestUser {

@@ -1,5 +1,7 @@
 import { Page } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
 /**
  * Log in on the current page (OAuth flow: we are on /login?return_to=...).
  * Does not use the global login helper. If the app shows the research consent
@@ -11,7 +13,9 @@ export async function performLogin(page: Page, email: string, password: string) 
   const consentDialog = page.getByTestId("research-consent-dialog")
   if (await consentDialog.isVisible()) {
     await page.getByLabel(/I want to participate in the educational research/).click()
-    await page.getByRole("button", { name: "Save" }).click()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
     await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, { timeout: 10000 })
     return
   }
@@ -32,7 +36,9 @@ export async function performLogin(page: Page, email: string, password: string) 
 
   if (await page.getByTestId("research-consent-dialog").isVisible()) {
     await page.getByLabel(/I want to participate in the educational research/).click()
-    await page.getByRole("button", { name: "Save" }).click()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
     await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, { timeout: 10000 })
   }
 }

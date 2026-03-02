@@ -5,6 +5,7 @@ Each submodule corresponds to a database table.
 */
 // we always use --document-private-items, so this warning is moot
 #![allow(rustdoc::private_intra_doc_links)]
+pub mod application_task_default_language_models;
 pub mod certificate_configuration_to_requirements;
 pub mod certificate_configurations;
 pub mod certificate_fonts;
@@ -15,6 +16,7 @@ pub mod chatbot_conversation_message_tool_calls;
 pub mod chatbot_conversation_message_tool_outputs;
 pub mod chatbot_conversation_messages;
 pub mod chatbot_conversation_messages_citations;
+pub mod chatbot_conversation_suggested_messages;
 pub mod chatbot_conversations;
 pub mod chatbot_page_sync_statuses;
 pub mod code_giveaway_codes;

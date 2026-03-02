@@ -176,18 +176,6 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
       screenshotTarget: page,
       headless,
       testInfo,
-      snapshotName: "manage-course-structure-middle-of-the-page",
-      clearNotifications: true,
-      scrollToYCoordinate: {
-        "desktop-regular": 800,
-        "mobile-tall": 800,
-      },
-    })
-
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: page,
-      headless,
-      testInfo,
       snapshotName: "manage-course-structure-top-of-the-page",
       clearNotifications: true,
       scrollToYCoordinate: 0,

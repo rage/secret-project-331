@@ -51,6 +51,8 @@ pub struct ChatbotConfiguration {
     pub use_semantic_reranking: bool,
     pub use_tools: bool,
     pub default_chatbot: bool,
+    pub suggest_next_messages: bool,
+    pub initial_suggested_messages: Option<Vec<String>>,
 }
 
 impl Default for ChatbotConfiguration {
@@ -83,6 +85,8 @@ impl Default for ChatbotConfiguration {
             use_semantic_reranking: false,
             use_tools: false,
             default_chatbot: false,
+            suggest_next_messages: false,
+            initial_suggested_messages: None,
         }
     }
 }
@@ -114,6 +118,8 @@ pub struct NewChatbotConf {
     pub use_tools: bool,
     pub default_chatbot: bool,
     pub chatbotconf_id: Option<Uuid>,
+    pub suggest_next_messages: bool,
+    pub initial_suggested_messages: Option<Vec<String>>,
 }
 
 impl Default for NewChatbotConf {
@@ -144,6 +150,8 @@ impl Default for NewChatbotConf {
             use_tools: chatbot_conf.use_tools,
             default_chatbot: chatbot_conf.default_chatbot,
             chatbotconf_id: None,
+            suggest_next_messages: chatbot_conf.suggest_next_messages,
+            initial_suggested_messages: chatbot_conf.initial_suggested_messages,
         }
     }
 }
@@ -178,8 +186,10 @@ SELECT
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    initial_suggested_messages
 FROM chatbot_configurations
 WHERE id = $1
 AND deleted_at IS NULL
@@ -223,9 +233,11 @@ INSERT INTO chatbot_configurations (
     use_azure_search,
     use_tools,
     maintain_azure_search_index,
-    default_chatbot
+    default_chatbot,
+    suggest_next_messages,
+    initial_suggested_messages
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
 RETURNING
     id,
     created_at,
@@ -252,8 +264,10 @@ RETURNING
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    initial_suggested_messages
         "#,
         pkey_policy.into_uuid(),
         input.course_id,
@@ -277,7 +291,9 @@ RETURNING
         input.use_azure_search,
         input.use_tools,
         maintain_azure_search_index,
-        input.default_chatbot
+        input.default_chatbot,
+        input.suggest_next_messages,
+        input.initial_suggested_messages.as_deref()
     )
     .fetch_one(conn)
     .await?;
@@ -315,8 +331,11 @@ SET
     max_completion_tokens = $19,
     verbosity = $20,
     reasoning_effort = $21,
-    use_tools = $22
-WHERE id = $23
+    use_tools = $22,
+    suggest_next_messages = $23,
+    initial_suggested_messages = $24
+WHERE id = $25
+    AND deleted_at IS NULL
 RETURNING
     id,
     created_at,
@@ -342,9 +361,11 @@ RETURNING
     hide_citations,
     use_semantic_reranking,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
     reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
-    use_tools
+    use_tools,
+    initial_suggested_messages
 "#,
         input.enabled_to_students,
         input.chatbot_name,
@@ -368,6 +389,8 @@ RETURNING
         input.verbosity as VerbosityLevel,
         input.reasoning_effort as ReasoningEffortLevel,
         input.use_tools,
+        input.suggest_next_messages,
+        input.initial_suggested_messages.as_deref(),
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -423,8 +446,10 @@ SELECT
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    initial_suggested_messages
 FROM chatbot_configurations
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -469,8 +494,10 @@ SELECT
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    initial_suggested_messages
 FROM chatbot_configurations
 WHERE course_id = $1
 AND default_chatbot IS false
@@ -516,9 +543,10 @@ SELECT
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
-
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    initial_suggested_messages
 FROM chatbot_configurations
 WHERE maintain_azure_search_index = true
 AND deleted_at IS NULL
@@ -584,8 +612,10 @@ RETURNING
     use_semantic_reranking,
     use_tools,
     default_chatbot,
+    suggest_next_messages,
     verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel"
+    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    initial_suggested_messages
 "#,
         chatbot_configuration_id,
     )

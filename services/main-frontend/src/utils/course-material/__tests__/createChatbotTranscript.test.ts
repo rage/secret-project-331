@@ -136,6 +136,8 @@ describe("getChatbotTranscript", () => {
     current_conversation_message_citations: [],
     chatbot_name: "Test bot",
     hide_citations: true,
+    course_name: "",
+    suggested_messages: null,
   }
 
   const info2: ChatbotConversationInfo = {
@@ -438,6 +440,8 @@ Any further questions?`,
     ],
     chatbot_name: "Test bot",
     hide_citations: true,
+    course_name: "",
+    suggested_messages: null,
   }
   const info3: ChatbotConversationInfo = {
     current_conversation: {
@@ -576,6 +580,8 @@ Any further questions?`,
     current_conversation_message_citations: [],
     chatbot_name: "Test bot",
     hide_citations: false,
+    course_name: "",
+    suggested_messages: null,
   }
 
   it("works in simple case with tool call", () => {

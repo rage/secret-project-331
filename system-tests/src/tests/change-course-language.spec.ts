@@ -28,6 +28,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
     headless,
     testInfo,
+    scrollToYCoordinate: 0,
     snapshotName: "course-lang-selection-eng-to-fi",
   })
   const value = page.locator("#changeLanguage")
@@ -49,6 +50,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
     headless,
     testInfo,
+    scrollToYCoordinate: 0,
     snapshotName: "course-lang-selection-fi-to-eng",
     waitForTheseToBeVisibleAndStable: [page.getByText("Valitse kieli")],
   })

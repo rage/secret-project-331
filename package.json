@@ -26,8 +26,13 @@
   "dependencies": {
     "@vectopus/atlas-icons": "^0.0.7"
   },
+  "pnpm": {
+    "overrides": {
+      "eslint-plugin-jsx-a11y>minimatch": "3.1.2"
+    }
+  },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.39.3",
     "@next/eslint-plugin-next": "^16.1.6",
     "@stylelint/postcss-css-in-js": "^0.38.0",
     "@tanstack/eslint-plugin-query": "^5.91.4",
@@ -36,7 +41,7 @@
     "@typescript-eslint/parser": "^8.56.1",
     "concurrently": "^9.2.0",
     "esbuild": "^0.27.3",
-    "eslint": "^10.0.2",
+    "eslint": "^9.39.3",
     "eslint-config-next": "^16.1.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-explicit-use-directives": "^0.0.3",

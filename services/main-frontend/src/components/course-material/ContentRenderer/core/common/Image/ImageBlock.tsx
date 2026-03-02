@@ -44,9 +44,7 @@ const ImageBlock: React.FC<
   } = data.attributes
 
   const focalPointPos =
-    focalPoint &&
-    typeof focalPoint.x === "number" &&
-    typeof focalPoint.y === "number"
+    focalPoint && typeof focalPoint.x === "number" && typeof focalPoint.y === "number"
       ? `${focalPoint.x * 100}% ${focalPoint.y * 100}%`
       : undefined
 

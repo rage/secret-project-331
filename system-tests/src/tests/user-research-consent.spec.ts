@@ -7,6 +7,7 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
 test("Research consent form is visible on login, if not yet answered", async ({
   page,
   headless,

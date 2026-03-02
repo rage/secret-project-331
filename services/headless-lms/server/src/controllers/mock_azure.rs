@@ -48,8 +48,7 @@ async fn mock_azure_chat_completions(
     assert!(app_conf.test_chatbot && app_conf.test_mode);
     let message_suggestion_user_prompt = USER_PROMPT;
 
-    let request = payload;
-    let message_kind = &request
+    let message_kind = &payload
         .base
         .messages
         .last()

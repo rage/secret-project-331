@@ -214,6 +214,7 @@ test.describe("Test chatbot chat box", () => {
       await scrollToYCoordinate(studentPage, 0)
       await citation1.click()
       const textInPopover = studentPage.getByText("Mock test page content")
+      await textInPopover.waitFor({ state: "visible" })
       // eslint-disable-next-line playwright/no-wait-for-timeout
       await studentPage.waitForTimeout(100)
       await expectScreenshotsToMatchSnapshots({
@@ -232,14 +233,17 @@ test.describe("Test chatbot chat box", () => {
           })
           await scrollElementContainerToTop(citation1)
           await citation1.click()
-          await textInPopover.waitFor()
-          await waitToBeStable([textInPopover])
+          // Get a fresh reference to the text after reopening the popover
+          const freshTextInPopover = studentPage.getByText("Mock test page content")
+          await freshTextInPopover.waitFor()
+          await waitToBeStable([freshTextInPopover])
         },
         scrollToYCoordinate: {
           "desktop-regular": 0,
           "mobile-tall": 140,
         },
       })
+      await closePopover(studentPage)
     })
   })
 
@@ -282,6 +286,7 @@ test.describe("Test chatbot chat box", () => {
       await scrollToYCoordinate(studentPage, 0)
       await citation1.click()
       const textInPopover = studentPage.getByText("Mock test page content")
+      await textInPopover.waitFor({ state: "visible" })
       // eslint-disable-next-line playwright/no-wait-for-timeout
       await studentPage.waitForTimeout(100)
       await expectScreenshotsToMatchSnapshots({
@@ -300,10 +305,12 @@ test.describe("Test chatbot chat box", () => {
           })
           await scrollElementContainerToTop(citation1)
           await citation1.click()
-          await textInPopover.waitFor()
-          await waitToBeStable([textInPopover])
+          const freshTextInPopover = studentPage.getByText("Mock test page content")
+          await freshTextInPopover.waitFor()
+          await waitToBeStable([freshTextInPopover])
         },
       })
+      await closePopover(studentPage)
     })
   })
 })

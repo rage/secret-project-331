@@ -11,7 +11,7 @@ import { CourseProgressSection } from "./CourseProgressSection"
 import { UserDetailsContent } from "./UserDetailsContent"
 import { UserDetailsPopover } from "./UserDetailsPopover"
 
-import { useUserDetails } from "@/hooks/useUserDetails"
+import { extractUserDetail, useUserDetails } from "@/hooks/useUserDetails"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -90,6 +90,7 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
+  const user = extractUserDetail(data)
 
   const { buttonProps } = useButton(
     mergeProps(triggerProps, {
@@ -106,7 +107,7 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     return <ErrorBanner error={error} />
   }
 
-  if (!data) {
+  if (!user) {
     return (
       <span
         className={css`
@@ -120,9 +121,9 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     )
   }
 
-  const firstName = data.first_name?.trim() ?? ""
-  const lastName = data.last_name?.trim() ?? ""
-  const email = data.email?.trim() ?? ""
+  const firstName = user.first_name?.trim() ?? ""
+  const lastName = user.last_name?.trim() ?? ""
+  const email = user.email?.trim() ?? ""
 
   const displayText =
     hasName(firstName) || hasName(lastName)
@@ -179,7 +180,7 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
           className={popoverStyle}
           aria-label={t("header-user-details")}
         >
-          <UserDetailsContent data={data} userId={userId} />
+          <UserDetailsContent data={user} userId={userId} />
           {courseId && <CourseProgressSection courseId={courseId} userId={userId} />}
           {courseId && (
             <div

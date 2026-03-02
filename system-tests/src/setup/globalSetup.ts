@@ -20,9 +20,9 @@ async function globalSetup(config: FullConfig): Promise<void> {
 
 /** Start OAuth redirect server in a child process so all workers share one server (workers are separate processes). */
 async function startOAuthRedirectServer(): Promise<void> {
-  const scriptPath = path.join(__dirname, "oauthRedirectServer.ts")
-  const child = spawn(process.execPath, ["--require", "ts-node/register", scriptPath], {
-    cwd: path.join(__dirname, ".."),
+  const scriptPath = path.resolve(__dirname, "oauthRedirectServer.js")
+  const child = spawn(process.execPath, [scriptPath], {
+    cwd: path.resolve(__dirname, ".."),
     stdio: "ignore",
     detached: true,
   })

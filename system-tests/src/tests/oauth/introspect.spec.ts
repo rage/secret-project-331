@@ -51,7 +51,6 @@ test.describe("Token Introspection (RFC 7662)", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
     return tok.access_token
@@ -81,7 +80,6 @@ test.describe("Token Introspection (RFC 7662)", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const key = await createDPoPKey()
     const tok = await exchangeCodeForToken(code, { kind: "dpop", key }, codeVerifier)

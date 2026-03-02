@@ -47,7 +47,6 @@ test.describe("/userinfo endpoint - DPoP Token Validation", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const key = await createDPoPKey()
     const tok = await exchangeCodeForToken(code, { kind: "dpop", key }, codeVerifier)

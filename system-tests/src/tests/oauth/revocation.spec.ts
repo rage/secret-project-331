@@ -58,8 +58,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
       await consent.approve()
     } catch {
-      // Consent page didn't appear (already granted), wait for callback instead
-      await page.waitForURL(/callback/, { timeout: 10000 })
+      // Consent page didn't appear (already granted)
     }
 
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
@@ -97,8 +96,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
       await consent.approve()
     } catch {
-      // Consent page didn't appear (already granted), wait for callback instead
-      await page.waitForURL(/callback/, { timeout: 10000 })
+      // Consent page didn't appear (already granted)
     }
 
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)

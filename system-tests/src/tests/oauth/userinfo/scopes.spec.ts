@@ -43,7 +43,6 @@ test.describe("/userinfo endpoint - Scope-Based Claims", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
     return tok.access_token

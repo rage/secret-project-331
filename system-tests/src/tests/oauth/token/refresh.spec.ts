@@ -49,7 +49,6 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
     expect(tok.refresh_token).toBeTruthy()

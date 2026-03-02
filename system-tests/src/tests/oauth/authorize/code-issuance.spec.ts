@@ -42,7 +42,6 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       if (page.url().includes("/oauth_authorize_scopes")) {
         const consent = new ConsentPage(page, ["openid"])
         await consent.approve()
-        await page.waitForURL(/callback/, { timeout: 10000 })
       }
       const code = await assertAndExtractCodeFromCallbackUrl(page, state)
       expect(code).toBeTruthy()
@@ -73,7 +72,6 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       if (page.url().includes("/oauth_authorize_scopes")) {
         const consent1 = new ConsentPage(page, scopes)
         await consent1.approve()
-        await page.waitForURL(/callback/, { timeout: 10000 })
       }
       const code1 = await assertAndExtractCodeFromCallbackUrl(page, first.state)
 
@@ -91,7 +89,6 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       if (page.url().includes("/oauth_authorize_scopes")) {
         const consent2 = new ConsentPage(page, scopes)
         await consent2.approve()
-        await page.waitForURL(/callback/, { timeout: 10000 })
       }
       const code2 = await assertAndExtractCodeFromCallbackUrl(page, second.state)
 

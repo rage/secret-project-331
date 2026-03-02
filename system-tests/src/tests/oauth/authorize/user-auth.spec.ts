@@ -66,7 +66,6 @@ test.describe("/authorize endpoint - User Authentication State", () => {
         // Consent already granted, proceed to callback
       }
 
-      await page.waitForURL(/callback/, { timeout: 10000 })
       await assertAndExtractCodeFromCallbackUrl(page, first.state)
 
       // Now try again - should get code immediately without consent
@@ -78,7 +77,6 @@ test.describe("/authorize endpoint - User Authentication State", () => {
       })
       await page.goto(second.url)
       // Should redirect directly to callback without consent
-      await page.waitForURL(/callback/, { timeout: 10000 })
       const code = await assertAndExtractCodeFromCallbackUrl(page, second.state)
       expect(code).toBeTruthy()
 

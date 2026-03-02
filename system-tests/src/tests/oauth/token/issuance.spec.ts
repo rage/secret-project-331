@@ -49,7 +49,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
 
@@ -85,7 +84,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
 
@@ -121,7 +119,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code1 = await assertAndExtractCodeFromCallbackUrl(page, first.state)
     const tok1 = await exchangeCodeForToken(code1, { kind: "bearer" }, codeVerifier1)
 
@@ -149,7 +146,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code2 = await assertAndExtractCodeFromCallbackUrl(page, second.state)
     const tok2 = await exchangeCodeForToken(code2, { kind: "bearer" }, codeVerifier2)
 
@@ -180,7 +176,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
 
     // Exchange code for token and check headers

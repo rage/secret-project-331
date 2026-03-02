@@ -94,14 +94,11 @@ export async function setupRedirectServer(): Promise<void> {
 
 export async function teardownRedirectServer(): Promise<void> {
   _setupCount--
-  // Only tear down if we actually set up the server in this worker
-  // If we're using a shared server (_isSharedServer), don't tear it down
-  if (_setupCount <= 0 && _redirectServer && !_isSharedServer) {
-    await new Promise<void>((resolve) => _redirectServer!.close(() => resolve()))
-    _redirectServer = null
-    _setupCount = 0
-  } else if (_isSharedServer) {
-    // Reset the flag if we're done with this worker's tests
+  // Do not close the server: with parallel workers, the worker that owns the server
+  // may run afterAll while other workers still need the callback. Closing here would
+  // cause their redirects to 127.0.0.1:8765 to fail (chrome-error). The process
+  // exits when the run ends, so the server is cleaned up then.
+  if (_setupCount <= 0) {
     _setupCount = 0
   }
 }

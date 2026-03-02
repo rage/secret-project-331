@@ -49,7 +49,6 @@ test.describe("/token endpoint - Client Authentication", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     return { code, codeVerifier }
   }

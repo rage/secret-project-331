@@ -1,5 +1,7 @@
 import { Page } from "@playwright/test"
 
+import { ensureRedirectServer } from "./redirectServer"
+
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 /**
@@ -10,13 +12,18 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
  * If the consent dialog is already visible (e.g. from storage state), we only submit consent.
  */
 export async function performLogin(page: Page, email: string, password: string) {
+  await ensureRedirectServer()
+
   const consentDialog = page.getByTestId("research-consent-dialog")
   if (await consentDialog.isVisible()) {
     await page.getByLabel(/I want to participate in the educational research/).click()
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
-    await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, { timeout: 10000 })
+    await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
+      timeout: 10000,
+      waitUntil: "domcontentloaded",
+    })
     return
   }
 
@@ -30,7 +37,10 @@ export async function performLogin(page: Page, email: string, password: string) 
 
   // After submit: either we navigate to authorize/scopes/callback, or research consent dialog appears
   await Promise.race([
-    page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, { timeout: 10000 }),
+    page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
+      timeout: 10000,
+      waitUntil: "domcontentloaded",
+    }),
     page.getByTestId("research-consent-dialog").waitFor({ state: "visible", timeout: 10000 }),
   ])
 
@@ -39,6 +49,9 @@ export async function performLogin(page: Page, email: string, password: string) 
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
-    await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, { timeout: 10000 })
+    await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
+      timeout: 10000,
+      waitUntil: "domcontentloaded",
+    })
   }
 }

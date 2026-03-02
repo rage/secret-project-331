@@ -104,7 +104,6 @@ test.describe("/token endpoint - Parameter Validation", () => {
       // Already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
 
     const body = new URLSearchParams({

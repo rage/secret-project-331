@@ -7,11 +7,14 @@ import {
   APP_DISPLAY_NAME,
   AUTHORIZE,
   getOAuthTestUser,
-  REDIRECT_URI,
   TEST_CLIENT_ID,
 } from "../../../utils/oauth/constants"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
+import {
+  getRedirectUri,
+  setupRedirectServer,
+  teardownRedirectServer,
+} from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
 test.beforeAll(async () => {
@@ -92,7 +95,7 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
       const params = new URLSearchParams({
         response_type: "code",
         client_id: TEST_CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
+        redirect_uri: getRedirectUri(),
         scope: "openid   profile\n\temail", // Extra whitespace
         state: "test-state",
       })

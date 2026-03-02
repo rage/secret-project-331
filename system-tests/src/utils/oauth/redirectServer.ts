@@ -1,45 +1,24 @@
 import http from "http"
 
-import { REDIRECT_URI } from "./constants"
+const REDIRECT_BASE_PORT = 8765
+const REDIRECT_PORT_COUNT = 20
 
 let _redirectServer: http.Server | null = null
+let _boundPort: number | null = null
 let _setupCount = 0
-let _isSharedServer = false // Track if this worker is using a server set up by another worker
-let _setupPromise: Promise<void> | null = null // Track ongoing setup to avoid race conditions
+let _setupPromise: Promise<void> | null = null
 
-async function _verifyServerRunning(uri: URL): Promise<boolean> {
-  return new Promise((resolve) => {
-    const testReq = http.get(
-      {
-        hostname: uri.hostname,
-        port: uri.port || 80,
-        path: "/callback?test=1",
-        timeout: 2000,
-      },
-      (res) => {
-        // Server is responding, verify it's our redirect server
-        let data = ""
-        res.on("data", (chunk) => {
-          data += chunk.toString()
-        })
-        res.on("end", () => {
-          // Our server returns "Callback OK" in the body
-          resolve(data.includes("Callback OK") || res.statusCode === 200)
-        })
-      },
-    )
-    testReq.on("error", () => {
-      resolve(false)
-    })
-    testReq.on("timeout", () => {
-      testReq.destroy()
-      resolve(false)
-    })
-  })
+/**
+ * Redirect URI for this worker's callback server. Must be called after ensureRedirectServer().
+ */
+export function getRedirectUri(): string {
+  if (_boundPort === null) {
+    throw new Error("Redirect server not set up; call ensureRedirectServer() first")
+  }
+  return `http://127.0.0.1:${_boundPort}/callback`
 }
 
 export async function setupRedirectServer(): Promise<void> {
-  // If setup is already in progress, wait for it
   if (_setupPromise) {
     await _setupPromise
     return
@@ -47,72 +26,38 @@ export async function setupRedirectServer(): Promise<void> {
 
   _setupCount++
   if (_redirectServer) {
-    // Already set up in this worker
     return
   }
 
-  const uri = new URL(REDIRECT_URI)
-
   _setupPromise = new Promise<void>((resolve, reject) => {
-    try {
-      _redirectServer = http.createServer((_req, res) => {
-        res.writeHead(200, { "Content-Type": "text/html" })
-        res.end("<!doctype html><title>OAuth Callback</title><h1>Callback OK</h1>")
-      })
+    const server = http.createServer((_req, res) => {
+      res.writeHead(200, { "Content-Type": "text/html" })
+      res.end("<!doctype html><title>OAuth Callback</title><h1>Callback OK</h1>")
+    })
 
-      _redirectServer.once("error", (err: NodeJS.ErrnoException) => {
-        // If port is already in use (EADDRINUSE), another worker already set it up
+    function tryPort(port: number) {
+      if (port > REDIRECT_BASE_PORT + REDIRECT_PORT_COUNT - 1) {
+        _setupPromise = null
+        reject(new Error("No free port in OAuth redirect range 8765..8784"))
+        return
+      }
+      server.once("error", (err: NodeJS.ErrnoException) => {
         if (err.code === "EADDRINUSE") {
-          // #region agent log
-          fetch("http://localhost:7242/ingest/6801920c-561f-4f92-8fae-979fe02985e7", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "bd02c5" },
-            body: JSON.stringify({
-              sessionId: "bd02c5",
-              hypothesisId: "H2",
-              location: "redirectServer.ts:EADDRINUSE",
-              message: "eaddrinuse using shared",
-              data: { pid: process.pid },
-              timestamp: Date.now(),
-            }),
-          }).catch(() => {})
-          // #endregion
-          _redirectServer = null // Don't track it in this worker
-          _setupCount-- // Adjust counter since we didn't actually set it up
-
-          // Another worker has the server - mark as shared and continue
-          // The server should be ready since the other worker's listen() succeeded
-          _isSharedServer = true
-          _setupPromise = null
-          resolve()
+          tryPort(port + 1)
         } else {
           _setupPromise = null
           reject(err)
         }
       })
-
-      _redirectServer.listen(Number(uri.port || 80), uri.hostname, () => {
-        // #region agent log
-        fetch("http://localhost:7242/ingest/6801920c-561f-4f92-8fae-979fe02985e7", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "bd02c5" },
-          body: JSON.stringify({
-            sessionId: "bd02c5",
-            hypothesisId: "H1",
-            location: "redirectServer.ts:listen",
-            message: "listen success",
-            data: { pid: process.pid },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {})
-        // #endregion
+      server.listen(port, "127.0.0.1", () => {
+        _redirectServer = server
+        _boundPort = port
         _setupPromise = null
         resolve()
       })
-    } catch (err) {
-      _setupPromise = null
-      reject(err)
     }
+
+    tryPort(REDIRECT_BASE_PORT)
   })
 
   await _setupPromise
@@ -120,45 +65,18 @@ export async function setupRedirectServer(): Promise<void> {
 
 export async function teardownRedirectServer(): Promise<void> {
   _setupCount--
-  // Do not close the server: with parallel workers, the worker that owns the server
-  // may run afterAll while other workers still need the callback. Closing here would
-  // cause their redirects to 127.0.0.1:8765 to fail (chrome-error). The process
-  // exits when the run ends, so the server is cleaned up then.
   if (_setupCount <= 0) {
     _setupCount = 0
+    // Do not close the server; process exit cleans up. Avoids races with in-flight redirects.
   }
 }
 
 /**
- * Ensure the redirect server is set up and running.
- * This function is safe to call multiple times and will ensure the server is ready.
- * Use this in helper functions that need the redirect server, rather than relying on beforeAll hooks.
+ * Ensure this worker has its own callback server (one port in 8765..8784 per worker).
  */
 export async function ensureRedirectServer(): Promise<void> {
   if (_redirectServer) {
     return
   }
-  if (_isSharedServer) {
-    const ok = await _verifyServerRunning(new URL(REDIRECT_URI))
-    // #region agent log
-    fetch("http://localhost:7242/ingest/6801920c-561f-4f92-8fae-979fe02985e7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "bd02c5" },
-      body: JSON.stringify({
-        sessionId: "bd02c5",
-        hypothesisId: "H3",
-        location: "redirectServer.ts:ensureRedirectServer",
-        message: "shared verify result",
-        data: { pid: process.pid, ok },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {})
-    // #endregion
-    if (ok) {
-      return
-    }
-    _isSharedServer = false
-  }
-
   await setupRedirectServer()
 }

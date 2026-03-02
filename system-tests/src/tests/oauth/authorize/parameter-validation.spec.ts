@@ -1,8 +1,12 @@
 import { expect, test } from "@playwright/test"
 
-import { AUTHORIZE, REDIRECT_URI, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
+import { AUTHORIZE, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
+import {
+  getRedirectUri,
+  setupRedirectServer,
+  teardownRedirectServer,
+} from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
 test.beforeAll(async () => {
@@ -18,7 +22,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
   test("missing client_id -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       response_type: "code",
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: validState,
     })
@@ -44,7 +48,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       state: validState,
     })
     const url = `${AUTHORIZE}?${params.toString()}`
@@ -55,7 +59,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
   test("missing response_type -> invalid_request error response", async () => {
     const params = new URLSearchParams({
       client_id: TEST_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: validState,
     })
@@ -68,7 +72,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: "",
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: validState,
     })
@@ -94,7 +98,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "",
       state: validState,
     })
@@ -107,7 +111,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     const params = new URLSearchParams({
       response_type: "token",
       client_id: TEST_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: validState,
     })
@@ -142,7 +146,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: "non-existent-client-id",
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: validState,
     })
@@ -178,7 +182,7 @@ test.describe("/authorize endpoint - Parameter Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
-      redirect_uri: `${REDIRECT_URI}#fragment`,
+      redirect_uri: `${getRedirectUri()}#fragment`,
       scope: "openid",
       state: validState,
     })

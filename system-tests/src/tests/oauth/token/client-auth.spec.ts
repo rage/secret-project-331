@@ -4,13 +4,13 @@ import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callba
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
   getOAuthTestUser,
-  REDIRECT_URI,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
@@ -59,7 +59,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       code_verifier: codeVerifier,
     })
@@ -82,7 +82,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: "wrong-secret",
       code_verifier: codeVerifier,
@@ -111,7 +111,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code: "some-code",
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: "non-existent-client-id",
       client_secret: TEST_CLIENT_SECRET,
     })

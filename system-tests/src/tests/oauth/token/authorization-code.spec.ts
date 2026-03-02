@@ -4,13 +4,13 @@ import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callba
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
   getOAuthTestUser,
-  REDIRECT_URI,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
@@ -56,7 +56,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
   test("missing code parameter -> invalid_request error", async () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
     })
@@ -77,7 +77,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code: "",
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
     })
@@ -98,7 +98,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code: "invalid-code-that-does-not-exist",
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
     })
@@ -124,7 +124,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
       code_verifier: codeVerifier,
@@ -150,7 +150,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
     })
@@ -174,7 +174,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
       code_verifier: wrongVerifier,

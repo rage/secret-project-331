@@ -12,7 +12,7 @@ export const INTROSPECT = `${BASE}/api/v0/main-frontend/oauth/introspect`
 export const TEST_CLIENT_ID = "test-client-id"
 export const TEST_CLIENT_SECRET = "very-secret" // <- hardcoded as requested
 export const APP_DISPLAY_NAME = "Test Client" // shown on consent <h2> and settings <strong>
-export const REDIRECT_URI = "http://127.0.0.1:8765/callback" // MUST match the registered redirect for TEST_CLIENT_ID
+// Redirect URI is per-worker (getRedirectUri() from redirectServer after ensureRedirectServer()). Ports 8765..8784.
 
 // Test users: student1/2 used by flows.spec; other OAuth specs use existing seed users
 // (non-students + student3–7) so we don't rely on consent state or users not returned from seed.

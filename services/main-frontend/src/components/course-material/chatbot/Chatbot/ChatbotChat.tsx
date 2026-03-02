@@ -6,8 +6,6 @@ import React, { DOMAttributes, useState } from "react"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
 
-import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "./ChatbotDialog"
-
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
 
@@ -42,10 +40,12 @@ const ChatbotChat: React.FC<ChatbotDialogProps> = (props) => {
   return (
     <div
       className={css`
-        width: ${CHATBOX_WIDTH_PX}px;
-        max-width: 90vw;
-        height: ${CHATBOX_HEIGHT_PX}px;
-        max-height: 90vh;
+        width: inherit;
+        max-width: inherit;
+        min-width: inherit;
+        height: inherit;
+        max-height: inherit;
+        min-height: inherit;
         bottom: 70px;
         right: 1rem;
         background: white;

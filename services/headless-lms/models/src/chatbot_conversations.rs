@@ -2,7 +2,8 @@ use futures::future::OptionFuture;
 
 use crate::{
     chatbot_conversation_messages::ChatbotConversationMessage,
-    chatbot_conversation_messages_citations::ChatbotConversationMessageCitation, prelude::*,
+    chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
+    chatbot_conversation_suggested_messages::ChatbotConversationSuggestedMessage, prelude::*,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -25,7 +26,9 @@ pub struct ChatbotConversationInfo {
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,
     pub current_conversation_message_citations: Option<Vec<ChatbotConversationMessageCitation>>,
     pub chatbot_name: String,
+    pub course_name: String,
     pub hide_citations: bool,
+    pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
 }
 
 pub async fn insert(
@@ -80,10 +83,12 @@ pub async fn get_current_conversation_info(
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
         crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
+    let course = crate::courses::get_course(tx, chatbot_configuration.course_id).await?;
     let current_conversation =
         get_latest_conversation_for_user(tx, user_id, chatbot_configuration_id)
             .await
             .optional()?;
+    // the messages are sorted by response_order_number
     let current_conversation_messages = OptionFuture::from(
         current_conversation
             .clone()
@@ -99,12 +104,29 @@ pub async fn get_current_conversation_info(
         .await
         .transpose()?;
 
+    let suggested_messages = if chatbot_configuration.suggest_next_messages
+        && let Some(ccm) = &current_conversation_messages
+        && let Some(last_ccm) = ccm.last()
+    {
+        let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
+            tx,
+            last_ccm.id.to_owned(),
+        )
+        .await?;
+        // return an empty vec if there are not yet any suggested messages
+        Some(sm)
+    } else {
+        None
+    };
+
     Ok(ChatbotConversationInfo {
         current_conversation,
         current_conversation_messages,
         current_conversation_message_citations,
+        suggested_messages,
         // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         chatbot_name: chatbot_configuration.chatbot_name,
+        course_name: course.name,
         hide_citations: chatbot_configuration.hide_citations,
     })
 }

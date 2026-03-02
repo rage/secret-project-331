@@ -12,6 +12,7 @@ import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
+import SuggestedMessageChip from "./SuggestedMessageChip"
 
 import { sendChatbotMessage } from "@/services/course-material/backend"
 import {
@@ -77,14 +78,13 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
   })
 
   const newMessageMutation = useToastMutation(
-    async () => {
+    async (messageToSend: string) => {
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
       setChatbotMessageAnnouncement(t("chatbot-is-responding"))
-      const message = newMessage.trim()
+      const message = messageToSend.trim()
       dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
-      setNewMessage("")
       const stream = await sendChatbotMessage(
         chatbotConfigurationId,
         currentConversationInfo.data.current_conversation.id,
@@ -341,6 +341,31 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}
+        <div
+          className={css`
+            display: flex;
+            flex-flow: column nowrap;
+            margin-top: auto;
+            margin-left: 2rem;
+          `}
+        >
+          {currentConversationInfo.data.suggested_messages?.map((m) => (
+            <SuggestedMessageChip
+              key={m.id}
+              isLoading={
+                newMessageMutation.isPending ||
+                currentConversationInfo.isLoading ||
+                currentConversationInfo.isRefetching
+              }
+              message={m.message}
+              handleClick={() => {
+                if (!newMessageMutation.isPending) {
+                  newMessageMutation.mutate(m.message)
+                }
+              }}
+            />
+          ))}
+        </div>
       </div>
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
@@ -376,7 +401,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
                 setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
-                  newMessageMutation.mutate()
+                  newMessageMutation.mutate(newMessage)
                 }
               }
             }}
@@ -420,7 +445,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             aria-label={t("send")}
             onClick={() => {
               setChatbotMessageAnnouncement("")
-              newMessageMutation.mutate()
+              newMessageMutation.mutate(newMessage)
             }}
           >
             <PaperAirplane />

@@ -280,6 +280,8 @@ export interface ChatbotConfiguration {
   use_semantic_reranking: boolean
   use_tools: boolean
   default_chatbot: boolean
+  suggest_next_messages: boolean
+  initial_suggested_messages: Array<string> | null
 }
 
 export interface NewChatbotConf {
@@ -307,6 +309,8 @@ export interface NewChatbotConf {
   use_tools: boolean
   default_chatbot: boolean
   chatbotconf_id: string | null
+  suggest_next_messages: boolean
+  initial_suggested_messages: Array<string> | null
 }
 
 export type VerbosityLevel = "low" | "medium" | "high"
@@ -322,6 +326,7 @@ export interface ChatbotConfigurationModel {
   thinking: boolean
   default_model: boolean
   deployment_name: string
+  context_size: number
 }
 
 export interface ChatbotConversationMessage {
@@ -377,6 +382,15 @@ export interface ChatbotConversationMessageToolOutput {
   tool_call_id: string
 }
 
+export interface ChatbotConversationSuggestedMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_message_id: string
+  message: string
+}
+
 export interface ChatbotConversation {
   id: string
   created_at: string
@@ -392,7 +406,9 @@ export interface ChatbotConversationInfo {
   current_conversation_messages: Array<ChatbotConversationMessage> | null
   current_conversation_message_citations: Array<ChatbotConversationMessageCitation> | null
   chatbot_name: string
+  course_name: string
   hide_citations: boolean
+  suggested_messages: Array<ChatbotConversationSuggestedMessage> | null
 }
 
 export interface CodeGiveawayCode {

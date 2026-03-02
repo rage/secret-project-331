@@ -17,10 +17,11 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         Digest::from_str("396b544a35b29f7d613452a165dcaebf4d71b80e981e687e91ce6d9ba9679cb2")
             .unwrap(); // "very-secret"
     let mut conn = db_pool.acquire().await?;
-    let redirect_uris = vec![
-        "http://127.0.0.1:8765/callback".to_string(),
-        "https://localhost.emobix.co.uk:8443/test/a/testing/callback".to_string(),
-    ];
+    // One redirect URI per Playwright worker (ports 8765..8784) so each worker has its own callback server.
+    let mut redirect_uris: Vec<String> = (8765..=8784)
+        .map(|p| format!("http://127.0.0.1:{p}/callback"))
+        .collect();
+    redirect_uris.push("https://localhost.emobix.co.uk:8443/test/a/testing/callback".to_string());
     let scopes = vec![
         "openid".to_string(),
         "profile".to_string(),

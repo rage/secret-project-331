@@ -7,7 +7,7 @@ managePackageManagerVersions: true
 # minimumReleaseAge: 1440
 minimumReleaseAgeExclude: ["next", "react", "@next/*"]
 
-nodeVersion: 22.20.0
+nodeVersion: 24.14.0
 
 onlyBuiltDependencies: []
 
@@ -33,6 +33,6 @@ strictDepBuilds: true
 
 updateNotifier: false
 
-useNodeVersion: 22.20.0
+useNodeVersion: 24.14.0
 
 verifyDepsBeforeRun: install

@@ -4,6 +4,21 @@ import { ensureRedirectServer } from "./redirectServer"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
+async function submitConsentIfVisible(page: Page): Promise<void> {
+  const consentDialog = page.getByTestId("research-consent-dialog")
+  if (!(await consentDialog.isVisible())) {
+    return
+  }
+  await page.getByLabel(/I want to participate in the educational research/).click()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save" }).click()
+  })
+  await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
+    timeout: 10000,
+    waitUntil: "domcontentloaded",
+  })
+}
+
 /**
  * Log in on the current page (OAuth flow: we are on /login?return_to=...).
  * Does not use the global login helper. If the app shows the research consent
@@ -14,16 +29,8 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 export async function performLogin(page: Page, email: string, password: string) {
   await ensureRedirectServer()
 
-  const consentDialog = page.getByTestId("research-consent-dialog")
-  if (await consentDialog.isVisible()) {
-    await page.getByLabel(/I want to participate in the educational research/).click()
-    await waitForSuccessNotification(page, async () => {
-      await page.getByRole("button", { name: "Save" }).click()
-    })
-    await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
-      timeout: 10000,
-      waitUntil: "domcontentloaded",
-    })
+  if (await page.getByTestId("research-consent-dialog").isVisible()) {
+    await submitConsentIfVisible(page)
     return
   }
 
@@ -44,14 +51,5 @@ export async function performLogin(page: Page, email: string, password: string) 
     page.getByTestId("research-consent-dialog").waitFor({ state: "visible", timeout: 10000 }),
   ])
 
-  if (await page.getByTestId("research-consent-dialog").isVisible()) {
-    await page.getByLabel(/I want to participate in the educational research/).click()
-    await waitForSuccessNotification(page, async () => {
-      await page.getByRole("button", { name: "Save" }).click()
-    })
-    await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
-      timeout: 10000,
-      waitUntil: "domcontentloaded",
-    })
-  }
+  await submitConsentIfVisible(page)
 }

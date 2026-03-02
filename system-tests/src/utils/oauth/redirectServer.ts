@@ -109,13 +109,16 @@ export async function teardownRedirectServer(): Promise<void> {
  * Use this in helper functions that need the redirect server, rather than relying on beforeAll hooks.
  */
 export async function ensureRedirectServer(): Promise<void> {
-  // Quick check: if server is already set up in this worker, assume it's running
-  // (we verify during setup, so no need to verify again on every call)
-  if (_redirectServer || _isSharedServer) {
+  if (_redirectServer) {
     return
   }
+  if (_isSharedServer) {
+    const ok = await _verifyServerRunning(new URL(REDIRECT_URI))
+    if (ok) {
+      return
+    }
+    _isSharedServer = false
+  }
 
-  // Set up the server (this is idempotent and thread-safe)
-  // The setup function already verifies the server is running before resolving
   await setupRedirectServer()
 }

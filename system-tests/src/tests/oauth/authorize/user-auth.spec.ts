@@ -34,11 +34,10 @@ test.describe("/authorize endpoint - User Authentication State", () => {
   })
 
   test("logged in, all scopes already granted -> issue code immediately", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: USER_AUTH_USER.storageStatePath })
+    const ctx = await browser.newContext()
     const page = await ctx.newPage()
 
     try {
-      // First, grant the scopes
       const scopes = ["openid"]
       const codeVerifier1 = generateCodeVerifier()
       const codeChallenge1 = generateCodeChallenge(codeVerifier1)
@@ -48,23 +47,13 @@ test.describe("/authorize endpoint - User Authentication State", () => {
       })
       await page.goto(first.url)
 
-      // Handle login if needed
-      try {
-        await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-        await performLogin(page, USER_AUTH_USER.email, USER_AUTH_USER.password)
-      } catch {
-        // Already logged in
-      }
+      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 10000 })
+      await performLogin(page, USER_AUTH_USER.email, USER_AUTH_USER.password)
 
-      // Wait for consent page or callback
-      try {
-        await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-        const consent = new ConsentPage(page, scopes)
-        await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
-        await consent.approve()
-      } catch {
-        // Consent already granted, proceed to callback
-      }
+      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 10000 })
+      const consent = new ConsentPage(page, scopes)
+      await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
+      await consent.approve()
 
       await assertAndExtractCodeFromCallbackUrl(page, first.state)
 

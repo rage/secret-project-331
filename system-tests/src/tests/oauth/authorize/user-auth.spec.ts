@@ -3,16 +3,20 @@ import { expect, test } from "@playwright/test"
 import { resetClientAuthorization } from "../../../utils/oauth/authorizedClients"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
-import {
-  APP_DISPLAY_NAME,
-  STUDENT_STORAGE_STATE,
-  TEST_CLIENT_ID,
-  USER_EMAIL,
-  USER_PASSWORD,
-} from "../../../utils/oauth/constants"
+import { APP_DISPLAY_NAME, getOAuthTestUser, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const USER_AUTH_USER = getOAuthTestUser("user-auth")
 
 test.describe("/authorize endpoint - User Authentication State", () => {
   test("not logged in -> redirect to /login?return_to=...", async ({ page }) => {
@@ -30,7 +34,7 @@ test.describe("/authorize endpoint - User Authentication State", () => {
   })
 
   test("logged in, all scopes already granted -> issue code immediately", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: USER_AUTH_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {
@@ -47,7 +51,7 @@ test.describe("/authorize endpoint - User Authentication State", () => {
       // Handle login if needed
       try {
         await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-        await performLogin(page, USER_EMAIL, USER_PASSWORD)
+        await performLogin(page, USER_AUTH_USER.email, USER_AUTH_USER.password)
       } catch {
         // Already logged in
       }
@@ -88,7 +92,7 @@ test.describe("/authorize endpoint - User Authentication State", () => {
   })
 
   test("logged in, missing scopes -> redirect to consent page", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: USER_AUTH_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {

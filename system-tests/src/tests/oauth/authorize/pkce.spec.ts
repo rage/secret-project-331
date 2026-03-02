@@ -3,7 +3,15 @@ import { expect, test } from "@playwright/test"
 import { AUTHORIZE, REDIRECT_URI, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
 import { navigateAndWaitForOAuthError } from "../../../utils/oauth/errorHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
 
 test.describe("/authorize endpoint - PKCE Validation", () => {
   test("client requires PKCE, missing code_challenge -> invalid_request error redirect", async ({

@@ -3,19 +3,28 @@ import { expect, Page, test } from "@playwright/test"
 import { assertAndExtractCodeFromCallbackUrl } from "../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../utils/oauth/consentPage"
 import {
+  getOAuthTestUser,
   INTROSPECT,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
-  USER_EMAIL,
-  USER_PASSWORD,
 } from "../../utils/oauth/constants"
 import { createDPoPKey } from "../../utils/oauth/dpop"
 import { introspectToken } from "../../utils/oauth/introspectHelpers"
 import { performLogin } from "../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../utils/oauth/redirectServer"
 import { revokeToken } from "../../utils/oauth/revokeHelpers"
 import { exchangeCodeForToken } from "../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const { email: INTROSPECT_EMAIL, password: INTROSPECT_PASSWORD } = getOAuthTestUser("introspect")
 
 test.describe("Token Introspection (RFC 7662)", () => {
   async function getBearerToken(page: Page): Promise<string> {
@@ -29,7 +38,7 @@ test.describe("Token Introspection (RFC 7662)", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, INTROSPECT_EMAIL, INTROSPECT_PASSWORD)
     } catch {
       // Already logged in or consent already granted
     }
@@ -59,7 +68,7 @@ test.describe("Token Introspection (RFC 7662)", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, INTROSPECT_EMAIL, INTROSPECT_PASSWORD)
     } catch {
       // Already logged in or consent already granted
     }

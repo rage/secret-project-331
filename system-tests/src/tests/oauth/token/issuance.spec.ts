@@ -3,17 +3,26 @@ import { expect, test } from "@playwright/test"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
+  getOAuthTestUser,
   REDIRECT_URI,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
-  USER_EMAIL,
-  USER_PASSWORD,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const ISSUANCE_USER = getOAuthTestUser("issuance")
 
 test.describe("/token endpoint - Token Issuance", () => {
   test("access token issued with correct format", async ({ page }) => {
@@ -27,7 +36,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -63,7 +72,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -99,7 +108,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -127,7 +136,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -158,7 +167,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }

@@ -1,18 +1,38 @@
 import { Page } from "@playwright/test"
 
+/**
+ * Log in on the current page (OAuth flow: we are on /login?return_to=...).
+ * Does not use the global login helper. If the app shows the research consent
+ * dialog after login (users without consent), we accept it so the flow continues
+ * to /authorize or /oauth_authorize_scopes (same pattern as PermissionsTab / other tests).
+ * If the consent dialog is already visible (e.g. from storage state), we only submit consent.
+ */
 export async function performLogin(page: Page, email: string, password: string) {
-  // Scope to the actual login <form> via the submit button id
+  const consentDialog = page.getByTestId("research-consent-dialog")
+  if (await consentDialog.isVisible()) {
+    await page.getByLabel(/I want to participate in the educational research/).click()
+    await page.getByRole("button", { name: "Save" }).click()
+    await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, { timeout: 10000 })
+    return
+  }
+
   const form = page
     .locator("form")
     .filter({ has: page.locator("#login-button") })
     .first()
   await form.locator("input").first().fill(email)
   await form.locator("input").nth(1).fill(password)
+  await form.locator("#login-button").click()
 
-  // In OAuth flow, after login we get redirected back to /authorize via return_to
-  // Wait for navigation away from the login page
-  await Promise.all([
+  // After submit: either we navigate to authorize/scopes/callback, or research consent dialog appears
+  await Promise.race([
     page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, { timeout: 10000 }),
-    form.locator("#login-button").click(),
+    page.getByTestId("research-consent-dialog").waitFor({ state: "visible", timeout: 10000 }),
   ])
+
+  if (await page.getByTestId("research-consent-dialog").isVisible()) {
+    await page.getByLabel(/I want to participate in the educational research/).click()
+    await page.getByRole("button", { name: "Save" }).click()
+    await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, { timeout: 10000 })
+  }
 }

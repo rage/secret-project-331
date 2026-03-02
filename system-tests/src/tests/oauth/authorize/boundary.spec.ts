@@ -6,16 +6,26 @@ import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
   APP_DISPLAY_NAME,
   AUTHORIZE,
+  getOAuthTestUser,
   REDIRECT_URI,
-  STUDENT_STORAGE_STATE,
   TEST_CLIENT_ID,
 } from "../../../utils/oauth/constants"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const BOUNDARY_USER = getOAuthTestUser("boundary")
 
 test.describe("/authorize endpoint - Boundary Conditions", () => {
   test("very long state parameter -> should work", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: BOUNDARY_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {
@@ -40,7 +50,7 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
   })
 
   test("state with special characters -> should be preserved", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: BOUNDARY_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {
@@ -73,7 +83,7 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
   test("multiple scopes with various whitespace -> should normalize correctly", async ({
     browser,
   }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: BOUNDARY_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {

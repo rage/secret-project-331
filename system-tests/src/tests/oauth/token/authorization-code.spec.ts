@@ -3,17 +3,26 @@ import { expect, Page, test } from "@playwright/test"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
+  getOAuthTestUser,
   REDIRECT_URI,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
-  USER_EMAIL,
-  USER_PASSWORD,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const AUTH_CODE_USER = getOAuthTestUser("authorization-code")
 
 test.describe("/token endpoint - Authorization Code Grant", () => {
   async function getValidAuthCode(page: Page): Promise<{ code: string; codeVerifier: string }> {
@@ -27,7 +36,7 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, AUTH_CODE_USER.email, AUTH_CODE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }

@@ -3,16 +3,25 @@ import { expect, test } from "@playwright/test"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
+  getOAuthTestUser,
   REDIRECT_URI,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
-  USER_EMAIL,
-  USER_PASSWORD,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const TOKEN_PARAM_USER = getOAuthTestUser("token-parameter-validation")
 
 test.describe("/token endpoint - Parameter Validation", () => {
   test("missing client_id -> invalid_client error", async () => {
@@ -82,7 +91,7 @@ test.describe("/token endpoint - Parameter Validation", () => {
     // Handle login and consent
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, TOKEN_PARAM_USER.email, TOKEN_PARAM_USER.password)
     } catch {
       // Already logged in
     }

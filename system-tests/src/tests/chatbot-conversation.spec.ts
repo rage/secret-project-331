@@ -196,6 +196,7 @@ test.describe("Test chatbot chat box", () => {
       await scrollToYCoordinate(student1Page, 0)
       await citation1.click()
       const textInPopover = student1Page.getByText("Mock test page content")
+      await textInPopover.waitFor({ state: "visible" })
       // eslint-disable-next-line playwright/no-wait-for-timeout
       await student1Page.waitForTimeout(100)
       await expectScreenshotsToMatchSnapshots({
@@ -203,7 +204,6 @@ test.describe("Test chatbot chat box", () => {
         headless,
         testInfo,
         snapshotName: "block-chatbot-references-and-citation-popover",
-        waitForTheseToBeVisibleAndStable: [textInPopover],
         beforeScreenshot: async () => {
           // Scroll position of the messages container is unstable when resizing the browser window for the mobile screenshot, so we close the popover so that we can scroll, scroll the container to the bottom and open the popover again.
           await expect(async () => {
@@ -214,8 +214,10 @@ test.describe("Test chatbot chat box", () => {
           })
           await scrollElementContainerToTop(citation1)
           await citation1.click()
-          await textInPopover.waitFor()
-          await waitToBeStable([textInPopover])
+          // Get a fresh reference to the text after reopening the popover
+          const freshTextInPopover = student1Page.getByText("Mock test page content")
+          await freshTextInPopover.waitFor()
+          await waitToBeStable([freshTextInPopover])
         },
         scrollToYCoordinate: {
           "desktop-regular": 0,

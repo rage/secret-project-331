@@ -26,7 +26,8 @@ const P = "p"
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
 > = ({ data, id }) => {
-  const { textColor, backgroundColor, fontSize, content, dropCap, align } = data.attributes
+  const { textColor, backgroundColor, fontSize, content, dropCap, align, fitText } =
+    data.attributes
   const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
   const isEditing = type === "proposed-edits"
 
@@ -52,11 +53,12 @@ const ParagraphBlock: React.FC<
             hideOverflow,
             dropCap,
             align,
+            fitText,
           )}
         />
       )
     },
-    [textColor, backgroundColor, fontSize, dropCap, align],
+    [textColor, backgroundColor, fontSize, dropCap, align, fitText],
   )
 
   if (isEditing) {

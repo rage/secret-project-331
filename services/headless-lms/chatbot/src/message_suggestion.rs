@@ -102,7 +102,7 @@ pub async fn generate_suggested_messages(
 
     let params = if task_lm.thinking {
         LLMRequestParams::Thinking(ThinkingParams {
-            max_completion_tokens: None,
+            max_completion_tokens: Some(7000),
             verbosity: None,
             reasoning_effort: None,
             tools: vec![],
@@ -110,7 +110,7 @@ pub async fn generate_suggested_messages(
         })
     } else {
         LLMRequestParams::NonThinking(NonThinkingParams {
-            max_tokens: None,
+            max_tokens: Some(4000),
             temperature: None,
             top_p: None,
             frequency_penalty: None,

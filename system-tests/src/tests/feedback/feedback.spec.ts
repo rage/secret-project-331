@@ -32,7 +32,9 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await frame.getByText("b").waitFor()
 
-  await page.click("text=So big", {
+  const textToSelect = page.locator("text=So big")
+  await textToSelect.scrollIntoViewIfNeeded()
+  await textToSelect.click({
     clickCount: 3,
   })
 

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\nFROM user_chapter_locking_statuses\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\nFROM user_chapter_locking_statuses\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n            ",
   "describe": {
     "columns": [
       {
@@ -61,5 +61,5 @@
       null
     ]
   },
-  "hash": "ad89bf18b3c9959137babdde6e08c9a5d30dde7718fd0ef09c24a970a3bc7c7e"
+  "hash": "fc53b337ca86ac2ca953989a6e18f198c9aaa261346b070507f5f92eef12e7bc"
 }

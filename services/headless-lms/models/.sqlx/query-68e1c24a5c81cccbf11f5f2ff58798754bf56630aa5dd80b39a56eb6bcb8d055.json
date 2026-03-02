@@ -1,0 +1,108 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id, created_at, updated_at,\n  stage AS \"stage: CourseDesignerStage\",\n  status AS \"status: CourseDesignerPlanStageStatus\",\n  planned_starts_on,\n  planned_ends_on,\n  actual_started_at,\n  actual_completed_at\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1 AND stage = $2 AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "status: CourseDesignerPlanStageStatus",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_plan_stage_status",
+            "kind": {
+              "Enum": [
+                "not_started",
+                "in_progress",
+                "completed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "planned_starts_on",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 6,
+        "name": "planned_ends_on",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 7,
+        "name": "actual_started_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "actual_completed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "68e1c24a5c81cccbf11f5f2ff58798754bf56630aa5dd80b39a56eb6bcb8d055"
+}

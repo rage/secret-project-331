@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*)::BIGINT AS \"count!\"\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "2194bc23a7b6ed52a4205be56b8033004eca24a7b62694f2a138a38a9e4cc519"
+}

@@ -431,6 +431,108 @@ export interface NewCodeGiveaway {
   require_course_specific_consent_form_question_id: string | null
 }
 
+export type CourseDesignerCourseSize = "small" | "medium" | "large"
+
+export interface CourseDesignerPlan {
+  id: string
+  created_at: string
+  updated_at: string
+  created_by_user_id: string
+  name: string | null
+  status: CourseDesignerPlanStatus
+  active_stage: CourseDesignerStage | null
+  last_weekly_stage_email_sent_at: string | null
+}
+
+export interface CourseDesignerPlanDetails {
+  plan: CourseDesignerPlan
+  members: Array<CourseDesignerPlanMember>
+  stages: Array<CourseDesignerPlanStageWithTasks>
+}
+
+export interface CourseDesignerPlanMember {
+  id: string
+  created_at: string
+  updated_at: string
+  user_id: string
+}
+
+export interface CourseDesignerPlanStage {
+  id: string
+  created_at: string
+  updated_at: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  planned_starts_on: string
+  planned_ends_on: string
+  actual_started_at: string | null
+  actual_completed_at: string | null
+}
+
+export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
+
+export interface CourseDesignerPlanStageTask {
+  id: string
+  created_at: string
+  updated_at: string
+  course_designer_plan_stage_id: string
+  title: string
+  description: string | null
+  order_number: number
+  is_completed: boolean
+  completed_at: string | null
+  completed_by_user_id: string | null
+  is_auto_generated: boolean
+  created_by_user_id: string | null
+}
+
+export interface CourseDesignerPlanStageWithTasks {
+  id: string
+  created_at: string
+  updated_at: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  planned_starts_on: string
+  planned_ends_on: string
+  actual_started_at: string | null
+  actual_completed_at: string | null
+  tasks: Array<CourseDesignerPlanStageTask>
+}
+
+export type CourseDesignerPlanStatus =
+  | "Draft"
+  | "Scheduling"
+  | "ReadyToStart"
+  | "InProgress"
+  | "Completed"
+  | "Archived"
+
+export interface CourseDesignerPlanSummary {
+  id: string
+  created_at: string
+  updated_at: string
+  created_by_user_id: string
+  name: string | null
+  status: CourseDesignerPlanStatus
+  active_stage: CourseDesignerStage | null
+  last_weekly_stage_email_sent_at: string | null
+  member_count: number
+  stage_count: number
+}
+
+export interface CourseDesignerScheduleStageInput {
+  stage: CourseDesignerStage
+  planned_starts_on: string
+  planned_ends_on: string
+}
+
+export type CourseDesignerStage =
+  | "Analysis"
+  | "Design"
+  | "Development"
+  | "Implementation"
+  | "Evaluation"
+
 export interface CourseBackgroundQuestionAnswer {
   id: string
   created_at: string
@@ -2520,6 +2622,39 @@ export interface CertificateConfigurationUpdate {
   certificate_grade_font_size: string | null
   certificate_grade_text_color: string | null
   certificate_grade_text_anchor: CertificateTextAnchor | null
+}
+
+export interface CourseDesignerScheduleSuggestionRequest {
+  course_size: CourseDesignerCourseSize
+  starts_on: string
+}
+
+export interface CourseDesignerScheduleSuggestionResponse {
+  stages: Array<CourseDesignerScheduleStageInput>
+}
+
+export interface CreateCourseDesignerPlanRequest {
+  name: string | null
+}
+
+export interface CreateCourseDesignerStageTaskRequest {
+  title: string
+  description: string | null
+}
+
+export interface ExtendStageRequest {
+  months: number
+}
+
+export interface SaveCourseDesignerScheduleRequest {
+  name: string | null
+  stages: Array<CourseDesignerScheduleStageInput>
+}
+
+export interface UpdateCourseDesignerStageTaskRequest {
+  title: string | null
+  description: string | null
+  is_completed: boolean | null
 }
 
 export interface GetFeedbackQuery {

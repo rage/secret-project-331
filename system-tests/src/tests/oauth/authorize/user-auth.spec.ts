@@ -50,6 +50,9 @@ test.describe("/authorize endpoint - User Authentication State", () => {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 10000 })
       await performLogin(page, USER_AUTH_USER.email, USER_AUTH_USER.password)
 
+      await resetClientAuthorization(page)
+      await page.goto(first.url)
+
       await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 10000 })
       const consent = new ConsentPage(page, scopes)
       await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))

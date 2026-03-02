@@ -1,5 +1,5 @@
 use crate::{course_module_completions, prelude::*};
-use rand::Rng;
+use rand::RngExt;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct CourseModuleCompletionRegisteredToStudyRegistry {

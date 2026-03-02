@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use rand::Rng;
+use rand::RngExt;
 use rand::distr::{Alphanumeric, SampleString};
 
 #[derive(sqlx::FromRow, Debug, Clone)]

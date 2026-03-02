@@ -916,6 +916,7 @@
   "message-this-task-has-been-deleted": "This task has been deleted",
   "message-update-failed": "Something went wrong, couldn't complete updating",
   "message-update-succesful": "Update succesful",
+  "message-user-likely-deleted": "This user was not found and is likely deleted.",
   "message-you-have-not-met-the-requirements-for-taking-this-exam": "You have not met the requirements for taking this exam.",
   "message-you-have-not-selected-an-action-for-every-change-yet": "You have not selected an action for every change yet.",
   "message-your-account-has-been-deleted": "Your account has been deleted.",

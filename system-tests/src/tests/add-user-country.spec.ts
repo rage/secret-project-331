@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { Topbar } from "@/utils/components/Topbar"
 import { UserSettingsPage } from "@/utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { logoutViaTopbar } from "@/utils/flows/topbar.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test("User can add missing country information", async ({ page }) => {
@@ -43,7 +44,7 @@ test("User can add missing country information", async ({ page }) => {
       { field: "country", expectedValue: "Finland" },
     )
 
-    await topbar.logout()
+    await logoutViaTopbar(page)
   })
 
   await test.step("Add country when creating a new user and see that pop-up form doesn't show", async () => {

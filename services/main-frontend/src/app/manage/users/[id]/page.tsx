@@ -10,7 +10,8 @@ import { useTranslation } from "react-i18next"
 import CourseEnrollmentsList from "./CourseEnrollmentsList"
 import ExerciseResetLogList from "./ExerciseResetLogList"
 
-import { useUserDetails } from "@/hooks/useUserDetails"
+import DeletedUserNotice from "@/components/DeletedUserNotice"
+import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
 import { getCourseEnrollmentsInfo } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -35,6 +36,8 @@ const UserPage: React.FC = () => {
   const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? []
 
   const userDetailsQuery = useUserDetails(courseIds, id)
+  const userDetails = extractUserDetail(userDetailsQuery.data)
+  const userDetailsNotFound = isUserDetailsNotFound(userDetailsQuery.data)
 
   if (courseEnrollmentsQuery.isError) {
     return <ErrorBanner error={courseEnrollmentsQuery.error} variant="readOnly" />
@@ -57,15 +60,21 @@ const UserPage: React.FC = () => {
         <p>
           {t("label-user-id")}: {id}
         </p>
-        <p>
-          {t("label-email")}: {userDetailsQuery.data.email}
-        </p>
-        <p>
-          {t("first-name")}: {userDetailsQuery.data.first_name}
-        </p>
-        <p>
-          {t("last-name")}: {userDetailsQuery.data.last_name}
-        </p>
+        {userDetailsNotFound ? (
+          <DeletedUserNotice userId={id} />
+        ) : (
+          <>
+            <p>
+              {t("label-email")}: {userDetails?.email}
+            </p>
+            <p>
+              {t("first-name")}: {userDetails?.first_name}
+            </p>
+            <p>
+              {t("last-name")}: {userDetails?.last_name}
+            </p>
+          </>
+        )}
       </Area>
       <Area>
         <h2>{t("header-course-enrollments")}</h2>

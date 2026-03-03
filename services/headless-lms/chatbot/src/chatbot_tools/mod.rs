@@ -1,15 +1,25 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use serde_json;
 use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
-    chatbot_tools::course_progress::CourseProgressTool,
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
+    chatbot_tools::{course_progress::CourseProgressTool, search::SearchTool},
+    prelude::{ApplicationConfiguration, BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
 pub mod course_progress;
+pub mod search;
+
+/// Result of executing a chatbot tool, ready to send back to the LLM.
+pub struct ToolCallResult {
+    /// JSON-serialized arguments that were actually used for the call.
+    pub serialized_arguments: String,
+    /// Human-readable output string for the LLM.
+    pub tool_output: String,
+}
 
 pub trait ChatbotTool {
     type State;
@@ -18,11 +28,12 @@ pub trait ChatbotTool {
     /// Parse the LLM-generated function arguments and clean them
     fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments>;
 
-    /// Create a new instance after parsing arguments
+    /// Create a new instance after parsing arguments.
     fn from_db_and_arguments(
         conn: &mut PgConnection,
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
+        app_config: &ApplicationConfiguration,
     ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
     where
         Self: Sized;
@@ -34,7 +45,7 @@ pub trait ChatbotTool {
     /// communicate the tool output. Just-in-time prompt.
     fn output_description_instructions(&self) -> Option<String>;
 
-    /// Get and format tool output and instructions for LLM
+    /// Get and format tool output and instructions for LLM.
     fn get_tool_output(&self) -> String {
         let output = self.output();
         let instructions = self.output_description_instructions();
@@ -48,25 +59,26 @@ pub trait ChatbotTool {
         }
     }
 
-    /// Get parsed arguments
+    /// Get parsed arguments.
     fn get_arguments(&self) -> &Self::Arguments;
 
     /// Get a AzureLLMToolDefinition struct that represents this tool.
     /// The definition is sent to the LLM as part of a chat request.
     fn get_tool_definition() -> AzureLLMToolDefinition;
 
-    /// Create a new instance from connection, args and context
+    /// Create a new instance from connection, args and context.
     fn new(
         conn: &mut PgConnection,
         args_string: String,
         user_context: &ChatbotUserContext,
+        app_config: &ApplicationConfiguration,
     ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
     where
         Self: Sized,
     {
-        async {
+        async move {
             let parsed = Self::parse_arguments(args_string)?;
-            Self::from_db_and_arguments(conn, parsed, user_context).await
+            Self::from_db_and_arguments(conn, parsed, user_context, app_config).await
         }
     }
 }
@@ -123,7 +135,10 @@ pub enum LLMToolType {
 
 /// Get a vec of AzureLLMToolDefinitions for all available chatbot tools
 pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
-    vec![CourseProgressTool::get_tool_definition()]
+    vec![
+        CourseProgressTool::get_tool_definition(),
+        SearchTool::get_tool_definition(),
+    ]
 }
 
 /// Create a chatbot tool with LLM-provided arguments by matching the tool call
@@ -131,11 +146,23 @@ pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
 pub async fn get_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
-    _fn_args: &str, // used in the future in other tool
+    fn_args: &str,
     user_context: &ChatbotUserContext,
-) -> ChatbotResult<impl ChatbotTool> {
-    let tool = match fn_name {
-        "course_progress" => CourseProgressTool::new(conn, "".to_string(), user_context).await?,
+    app_config: &ApplicationConfiguration,
+) -> ChatbotResult<ToolCallResult> {
+    let (serialized_arguments, tool_output) = match fn_name {
+        "course_progress" => {
+            let tool =
+                CourseProgressTool::new(conn, fn_args.to_string(), user_context, app_config).await?;
+            let args = serde_json::to_string(tool.get_arguments())?;
+            (args, tool.get_tool_output())
+        }
+        "course_search" => {
+            let tool =
+                SearchTool::new(conn, fn_args.to_string(), user_context, app_config).await?;
+            let args = serde_json::to_string(tool.get_arguments())?;
+            (args, tool.get_tool_output())
+        }
         _ => {
             return Err(ChatbotError::new(
                 ChatbotErrorType::InvalidToolName,
@@ -144,5 +171,8 @@ pub async fn get_chatbot_tool(
             ));
         }
     };
-    Result::Ok(tool)
+    Ok(ToolCallResult {
+        serialized_arguments,
+        tool_output,
+    })
 }

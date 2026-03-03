@@ -8,7 +8,7 @@ use sqlx::PgConnection;
 use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_tools::{AzureLLMToolDefinition, ChatbotTool, LLMTool, LLMToolType, ToolProperties},
-    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
+    prelude::{ApplicationConfiguration, ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
 pub type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
@@ -26,6 +26,7 @@ impl ChatbotTool for CourseProgressTool {
         conn: &mut PgConnection,
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
+        _app_config: &ApplicationConfiguration,
     ) -> ChatbotResult<Self> {
         let user_progress = headless_lms_models::user_exercise_states::get_user_course_progress(
             conn,

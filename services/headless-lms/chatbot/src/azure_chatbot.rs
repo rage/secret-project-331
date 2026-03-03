@@ -29,7 +29,7 @@ use url::Url;
 
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::{
-    AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
+    AzureLLMToolDefinition, ToolCallResult, get_chatbot_tool, get_chatbot_tool_definitions,
 };
 use crate::llm_utils::{
     APIMessage, APIMessageKind, APIMessageText, APIMessageToolCall, APIMessageToolResponse,
@@ -634,6 +634,7 @@ pub async fn parse_tool<'a>(
     conn: &mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     user_context: &ChatbotUserContext,
+    app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<Vec<APIMessage>> {
     let mut function_name_id_args: Vec<(String, String, String)> = vec![];
     let mut currently_streamed_function_name_id: Option<(String, String)> = None;
@@ -659,12 +660,15 @@ pub async fn parse_tool<'a>(
             let mut tool_result_msgs = Vec::new();
 
             for (name, id, args) in function_name_id_args.iter() {
-                let tool = get_chatbot_tool(conn, name, args, user_context).await?;
+                let ToolCallResult {
+                    serialized_arguments,
+                    tool_output,
+                } = get_chatbot_tool(conn, name, args, user_context, app_config).await?;
 
                 assistant_tool_calls.push(APIToolCall {
                     function: APITool {
                         name: name.to_owned(),
-                        arguments: serde_json::to_string(tool.get_arguments())?,
+                        arguments: serialized_arguments,
                     },
                     id: id.to_owned(),
                     tool_type: ToolCallType::Function,
@@ -672,7 +676,7 @@ pub async fn parse_tool<'a>(
                 tool_result_msgs.push(APIMessage {
                     role: MessageRole::Tool,
                     fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
-                        content: tool.get_tool_output(),
+                        content: tool_output,
                         name: name.to_owned(),
                         tool_call_id: id.to_owned(),
                     }),
@@ -929,7 +933,9 @@ pub async fn send_chat_request_and_parse_stream(
                 .await?;
 
         let new_tool_msgs = match response_type {
-            ResponseStreamType::Toolcall(stream) => parse_tool(conn, stream, &user_context).await?,
+            ResponseStreamType::Toolcall(stream) => {
+                parse_tool(conn, stream, &user_context, app_config).await?
+            }
             ResponseStreamType::TextResponse(stream) => {
                 return parse_and_stream_to_user(
                     conn,

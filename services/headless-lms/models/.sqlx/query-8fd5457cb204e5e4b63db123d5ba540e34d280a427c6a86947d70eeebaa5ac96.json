@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\"\n\nFROM chatbot_configurations\nWHERE maintain_azure_search_index = true\nAND deleted_at IS NULL\n",
+  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = true\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    max_completion_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    suggest_next_messages,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\",\n    initial_suggested_messages\n",
   "describe": {
     "columns": [
       {
@@ -130,6 +130,11 @@
       },
       {
         "ordinal": 25,
+        "name": "suggest_next_messages",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 26,
         "name": "verbosity: VerbosityLevel",
         "type_info": {
           "Custom": {
@@ -145,7 +150,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 27,
         "name": "reasoning_effort: ReasoningEffortLevel",
         "type_info": {
           "Custom": {
@@ -160,10 +165,17 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 28,
+        "name": "initial_suggested_messages",
+        "type_info": "VarcharArray"
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -192,8 +204,10 @@
       false,
       false,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "1b050af88d37b36d6e6b45e051f1fcdd681768424cdf78d558c0b83c1f863077"
+  "hash": "8fd5457cb204e5e4b63db123d5ba540e34d280a427c6a86947d70eeebaa5ac96"
 }

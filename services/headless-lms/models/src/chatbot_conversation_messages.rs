@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::{
     chatbot_conversation_message_tool_calls::{self, ChatbotConversationMessageToolCall},
     chatbot_conversation_message_tool_outputs::{self, ChatbotConversationMessageToolOutput},
@@ -13,6 +15,12 @@ pub enum MessageRole {
     User,
     Tool,
     System,
+}
+
+impl fmt::Display for MessageRole {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

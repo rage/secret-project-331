@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
+import { useAtom } from "jotai"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -26,6 +27,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
+import { newChatbotMessageMutationAtom } from "@/stores/course-material/chatbotDialogStore"
 
 interface ChatbotChatBodyProps {
   chatbotConfigurationId: string
@@ -42,7 +44,7 @@ interface MessageState {
   streamingMessage: string | null
 }
 
-type MessageAction =
+export type MessageAction =
   | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
   | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
   | { type: "RESET_MESSAGES" }
@@ -76,8 +78,9 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
     optimisticMessage: null,
     streamingMessage: null,
   })
+  const [newMessageMutation] = useAtom(newChatbotMessageMutationAtom)
 
-  const newMessageMutation = useToastMutation(
+  const newMessageMutation2 = useToastMutation(
     async (messageToSend: string) => {
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
@@ -222,6 +225,19 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
     [newMessage, newMessageMutation.isPending],
   )
 
+  const doTheThing = (newMessage: string) => {
+    if (!currentConversationInfo.data?.current_conversation) {
+      throw new Error("No active conversation")
+    }
+    setChatbotMessageAnnouncement(t("chatbot-is-responding"))
+    newMessageMutation.mutate({
+      messageToSend: newMessage,
+      chatbotConfigurationId,
+      currentConversationId: currentConversationInfo.data.current_conversation.id,
+      dispatch,
+    })
+  }
+
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
   }
@@ -360,7 +376,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
               message={m.message}
               handleClick={() => {
                 if (!newMessageMutation.isPending) {
-                  newMessageMutation.mutate(m.message)
+                  doTheThing(m.message)
                 }
               }}
             />
@@ -401,7 +417,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
                 setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
-                  newMessageMutation.mutate(newMessage)
+                  doTheThing(newMessage)
                 }
               }
             }}
@@ -445,7 +461,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             aria-label={t("send")}
             onClick={() => {
               setChatbotMessageAnnouncement("")
-              newMessageMutation.mutate(newMessage)
+              doTheThing(newMessage)
             }}
           >
             <PaperAirplane />

@@ -593,12 +593,29 @@ mod tests {
         .unwrap();
 
         // Enable chapter locking for the course
+        let existing_course = crate::courses::get_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+
         crate::courses::update_course(
             tx.as_mut(),
             course,
             crate::courses::CourseUpdate {
+                name: existing_course.name,
+                description: existing_course.description,
+                is_draft: existing_course.is_draft,
+                is_test_mode: existing_course.is_test_mode,
+                can_add_chatbot: existing_course.can_add_chatbot,
+                is_unlisted: existing_course.is_unlisted,
+                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
+                ask_marketing_consent: existing_course.ask_marketing_consent,
+                flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
+                flagged_answers_skip_manual_review_and_allow_retry: existing_course
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: existing_course.closed_at,
+                closed_additional_message: existing_course.closed_additional_message,
+                closed_course_successor_id: existing_course.closed_course_successor_id,
                 chapter_locking_enabled: true,
-                ..Default::default()
             },
         )
         .await

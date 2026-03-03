@@ -50,6 +50,7 @@
     "i18next": "^25.8.13",
     "immer": "^11.1.4",
     "jotai": "^2.18.0",
+    "jotai-family": "^1.0.1",
     "jotai-tanstack-query": "^0.11.0",
     "katex": "^0.16.33",
     "lodash": "^4.17.23",

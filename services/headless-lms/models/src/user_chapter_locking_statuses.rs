@@ -498,6 +498,16 @@ mod tests {
     #[tokio::test]
     async fn get_or_init_all_for_course_returns_all_statuses() {
         insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+        // Use the base module (order_number == 0) so that the unlocking logic,
+        // which operates on the base module, affects these chapters.
+        let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let base_module = all_modules
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+
         let chapter1 = crate::chapters::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
@@ -509,7 +519,7 @@ mod tests {
                 front_page_id: None,
                 opens_at: None,
                 deadline: None,
-                course_module_id: Some(course_module.id),
+                course_module_id: Some(base_module.id),
             },
         )
         .await
@@ -525,7 +535,7 @@ mod tests {
                 front_page_id: None,
                 opens_at: None,
                 deadline: None,
-                course_module_id: Some(course_module.id),
+                course_module_id: Some(base_module.id),
             },
         )
         .await

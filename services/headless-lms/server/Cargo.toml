@@ -16,6 +16,7 @@ headless-lms-utils = { path = "../utils" }
 headless-lms-chatbot = { path = "../chatbot" }
 mooc-langs-api = { path = "../langs-api" }
 doc-macro = { path = "../doc-macro" }
+rustls.workspace = true
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "4.13.0"

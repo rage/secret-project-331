@@ -47,6 +47,8 @@ tokio = { version = "1.49.0", features = [
   "rt-multi-thread"
 ] }
 
+rustls = { version = "0.23.37", default-features = false, features = ["ring"] }
+
 sqlx = { version = "0.8.6", features = [
   "postgres",
   "runtime-tokio",

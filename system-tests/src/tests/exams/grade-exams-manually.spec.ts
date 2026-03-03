@@ -109,7 +109,7 @@ test("Grade exams manually", async ({}) => {
   await teacherPage.getByRole("link", { name: "Grading", exact: true }).click()
 
   // Check that there are both students submissions
-  await teacherPage.getByRole("cell", { name: "Number of answered" }).waitFor()
+  await teacherPage.getByRole("columnheader", { name: "Number of answered" }).waitFor()
   await expect(teacherPage.getByRole("cell", { name: "2" }).first()).toBeVisible()
 
   await teacherPage.getByRole("row", { name: "Grade Question 1" }).getByRole("button").click()

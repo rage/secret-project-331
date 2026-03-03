@@ -1,6 +1,7 @@
 "use client"
 
 import { css, keyframes } from "@emotion/css"
+import { useAtom } from "jotai"
 import React, { useEffect, useId, useRef, useState } from "react"
 import {
   FocusScope,
@@ -15,6 +16,8 @@ import ChatbotChat from "./ChatbotChat"
 import OpenChatbotButton from "./OpenChatbotButton"
 
 import { ChatbotProps } from "."
+
+import { chatbotOpenAtom } from "@/stores/course-material/chatbotDialogStore"
 
 export const CHATBOX_WIDTH_PX = 500
 export const CHATBOX_HEIGHT_PX = 900
@@ -46,7 +49,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useAtom(chatbotOpenAtom)
 
   let state = {
     isOpen,

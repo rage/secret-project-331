@@ -3,7 +3,7 @@
 import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 
-import { FEEDBACK_TOOLTIP_ID } from "./FeedbackTooltip"
+import { FEEDBACK_TOOLTIP_ID } from "./TextSelectionTooltip"
 
 import { selectedBlockIdAtom, selectionAtom } from "@/stores/course-material/materialFeedbackStore"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"

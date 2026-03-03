@@ -4,11 +4,15 @@ import { css } from "@emotion/css"
 import type { VirtualElement } from "@popperjs/core"
 import { useAtom, useSetAtom } from "jotai"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
+import AIChat from "@/img/course-material/ai-chat.svg"
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
+import { baseTheme } from "@/shared-module/common/styles"
 import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
+import { chatbotOpenAtom } from "@/stores/course-material/chatbotDialogStore"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -16,10 +20,20 @@ import {
 
 export const FEEDBACK_TOOLTIP_ID = "feedback-tooltip"
 
-const FeedbackTooltip: React.FC = () => {
+const svgCss = css`
+  color: #111827;
+  height: 1.25rem;
+  position: relative;
+  top: 4px;
+  right: 0;
+`
+
+const TextSelectionTooltip: React.FC = () => {
+  // todo rename all feedback tooltip stuff?
   const { t } = useTranslation()
   const [selection] = useAtom(selectionAtom)
   const setCurrentlyOpenFeedbackDialog = useSetAtom(currentlyOpenFeedbackDialogAtom)
+  const setChatbotOpen = useSetAtom(chatbotOpenAtom)
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
@@ -121,7 +135,7 @@ const FeedbackTooltip: React.FC = () => {
     return null
   }
 
-  const handleClick = () => {
+  const giveFeedbackHandleClick = () => {
     // eslint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type" as const)
   }
@@ -133,6 +147,22 @@ const FeedbackTooltip: React.FC = () => {
     animation: fadeIn 0.2s ease-in-out;
     pointer-events: auto;
     user-select: none;
+
+    button {
+      color: #111827;
+      border: none;
+      border-radius: 5px;
+      background-color: transparent;
+      cursor: pointer;
+      padding: 0.5rem 0.7rem;
+
+      text-align: left;
+
+      &:hover {
+        filter: brightness(0.925);
+        background: ${baseTheme.colors.gray[25]};
+      }
+    }
 
     @keyframes fadeIn {
       from {
@@ -156,9 +186,30 @@ const FeedbackTooltip: React.FC = () => {
       id={FEEDBACK_TOOLTIP_ID}
       data-testid={feedbackTooltipTestId}
     >
-      <SpeechBalloon onClick={handleClick}>{t("give-feedback")}</SpeechBalloon>
+      <SpeechBalloon
+        className={css`
+          padding: 0.3rem;
+        `}
+      >
+        <div
+          className={css`
+            display: flex;
+            flex-flow: column nowrap;
+          `}
+        >
+          <Button onClick={() => setChatbotOpen(true)}>
+            {"Summarize..."}
+            <AIChat className={svgCss} />
+          </Button>
+          <Button onClick={() => setChatbotOpen(true)}>
+            {"Explain this..."}
+            <AIChat className={svgCss} />
+          </Button>
+          <Button onClick={giveFeedbackHandleClick}>{t("give-feedback")}</Button>
+        </div>
+      </SpeechBalloon>
     </div>
   )
 }
 
-export default FeedbackTooltip
+export default TextSelectionTooltip

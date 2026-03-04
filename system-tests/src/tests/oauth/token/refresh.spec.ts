@@ -3,23 +3,32 @@ import { expect, Page, test } from "@playwright/test"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
-  REDIRECT_URI,
+  getOAuthTestUser,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
-  USER_EMAIL,
-  USER_PASSWORD,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
+import { revokeToken } from "../../../utils/oauth/revokeHelpers"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
-test.describe("/token endpoint - Authorization Code Grant", () => {
-  async function getValidAuthCode(page: Page): Promise<{ code: string; codeVerifier: string }> {
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const REFRESH_USER = getOAuthTestUser("refresh")
+
+test.describe("/token endpoint - Refresh Token Grant", () => {
+  async function getRefreshToken(page: Page): Promise<string> {
     const codeVerifier = generateCodeVerifier()
     const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state } = await oauthUrl(["openid"], {
+    const { url, state } = await oauthUrl(["openid", "offline_access"], {
       codeChallenge,
       codeChallengeMethod: "S256",
     })
@@ -27,28 +36,28 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, REFRESH_USER.email, REFRESH_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
 
     try {
       await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      const consent = new ConsentPage(page, ["openid"])
+      const consent = new ConsentPage(page, ["openid", "offline_access"])
       await consent.approve()
     } catch {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-    return { code, codeVerifier }
+    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
+    expect(tok.refresh_token).toBeTruthy()
+    return tok.refresh_token!
   }
 
-  test("missing code parameter -> invalid_request error", async () => {
+  test("missing refresh_token parameter -> invalid_request error", async () => {
     const body = new URLSearchParams({
-      grant_type: "authorization_code",
-      redirect_uri: REDIRECT_URI,
+      grant_type: "refresh_token",
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
     })
@@ -65,11 +74,10 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_request")
   })
 
-  test("empty code parameter -> invalid_request error", async () => {
+  test("empty refresh_token parameter -> invalid_request error", async () => {
     const body = new URLSearchParams({
-      grant_type: "authorization_code",
-      code: "",
-      redirect_uri: REDIRECT_URI,
+      grant_type: "refresh_token",
+      refresh_token: "",
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
     })
@@ -86,11 +94,10 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_request")
   })
 
-  test("invalid/unknown authorization code -> invalid_grant error", async () => {
+  test("invalid/unknown refresh token -> invalid_grant error", async () => {
     const body = new URLSearchParams({
-      grant_type: "authorization_code",
-      code: "invalid-code-that-does-not-exist",
-      redirect_uri: REDIRECT_URI,
+      grant_type: "refresh_token",
+      refresh_token: "invalid-refresh-token-that-does-not-exist",
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
     })
@@ -107,19 +114,76 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(data.error).toBe("invalid_grant")
   })
 
-  test("already used authorization code -> invalid_grant error", async ({ page }) => {
-    const { code, codeVerifier } = await getValidAuthCode(page)
-
-    const tok1 = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    expect(tok1.access_token).toBeTruthy()
+  test("refresh token rotation - old token revoked after use", async ({ page }) => {
+    const refreshToken1 = await getRefreshToken(page)
 
     const body = new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: REDIRECT_URI,
+      grant_type: "refresh_token",
+      refresh_token: refreshToken1,
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
-      code_verifier: codeVerifier,
+    })
+    const response = await fetch(TOKEN, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.access_token).toBeTruthy()
+    expect(data.refresh_token).toBeTruthy()
+    const refreshToken2 = data.refresh_token
+
+    const body2 = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken1,
+      client_id: TEST_CLIENT_ID,
+      client_secret: TEST_CLIENT_SECRET,
+    })
+    const response2 = await fetch(TOKEN, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body2.toString(),
+    })
+    expect(response2.status).toBe(400)
+    const data2 = await response2.json()
+    expect(data2.error).toBe("invalid_grant")
+
+    const body3 = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken2,
+      client_id: TEST_CLIENT_ID,
+      client_secret: TEST_CLIENT_SECRET,
+    })
+    const response3 = await fetch(TOKEN, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body3.toString(),
+    })
+    expect(response3.status).toBe(200)
+    const data3 = await response3.json()
+    expect(data3.access_token).toBeTruthy()
+  })
+
+  test("revoked refresh token -> invalid_grant error", async ({ page }) => {
+    const refreshToken = await getRefreshToken(page)
+
+    await revokeToken({ token: refreshToken })
+
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+      client_id: TEST_CLIENT_ID,
+      client_secret: TEST_CLIENT_SECRET,
     })
     const response = await fetch(TOKEN, {
       method: "POST",
@@ -132,62 +196,5 @@ test.describe("/token endpoint - Authorization Code Grant", () => {
     expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.error).toBe("invalid_grant")
-  })
-
-  test("code with PKCE challenge, missing code_verifier -> invalid_grant error", async ({
-    page,
-  }) => {
-    const { code } = await getValidAuthCode(page)
-
-    const body = new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: REDIRECT_URI,
-      client_id: TEST_CLIENT_ID,
-      client_secret: TEST_CLIENT_SECRET,
-    })
-    const response = await fetch(TOKEN, {
-      method: "POST",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: body.toString(),
-    })
-    expect(response.status).toBe(400)
-    const data = await response.json()
-    expect(data.error).toBe("invalid_grant")
-  })
-
-  test("code with PKCE challenge, wrong code_verifier -> invalid_grant error", async ({ page }) => {
-    const { code } = await getValidAuthCode(page)
-
-    const wrongVerifier = generateCodeVerifier()
-    const body = new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: REDIRECT_URI,
-      client_id: TEST_CLIENT_ID,
-      client_secret: TEST_CLIENT_SECRET,
-      code_verifier: wrongVerifier,
-    })
-    const response = await fetch(TOKEN, {
-      method: "POST",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: body.toString(),
-    })
-    expect(response.status).toBe(400)
-    const data = await response.json()
-    expect(data.error).toBe("invalid_grant")
-  })
-
-  test("code with PKCE challenge, correct code_verifier -> succeed", async ({ page }) => {
-    const { code, codeVerifier } = await getValidAuthCode(page)
-
-    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    expect(tok.access_token).toBeTruthy()
   })
 })

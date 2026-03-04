@@ -4,20 +4,25 @@ import { expect, test } from "@playwright/test"
 import { resetClientAuthorization } from "../../../utils/oauth/authorizedClients"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
-import {
-  BASE,
-  STUDENT_STORAGE_STATE,
-  USER_EMAIL,
-  USER_PASSWORD,
-} from "../../../utils/oauth/constants"
+import { BASE, getOAuthTestUser } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const CODE_ISSUANCE_USER = getOAuthTestUser("code-issuance")
+
 test.describe("/authorize endpoint - Authorization Code Issuance", () => {
   test("code issued with state parameter if provided", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: CODE_ISSUANCE_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {
@@ -37,7 +42,6 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       if (page.url().includes("/oauth_authorize_scopes")) {
         const consent = new ConsentPage(page, ["openid"])
         await consent.approve()
-        await page.waitForURL(/callback/, { timeout: 10000 })
       }
       const code = await assertAndExtractCodeFromCallbackUrl(page, state)
       expect(code).toBeTruthy()
@@ -47,7 +51,7 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
   })
 
   test("code is unique (different codes for different requests)", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: CODE_ISSUANCE_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {
@@ -68,7 +72,6 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       if (page.url().includes("/oauth_authorize_scopes")) {
         const consent1 = new ConsentPage(page, scopes)
         await consent1.approve()
-        await page.waitForURL(/callback/, { timeout: 10000 })
       }
       const code1 = await assertAndExtractCodeFromCallbackUrl(page, first.state)
 
@@ -86,7 +89,6 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
       if (page.url().includes("/oauth_authorize_scopes")) {
         const consent2 = new ConsentPage(page, scopes)
         await consent2.approve()
-        await page.waitForURL(/callback/, { timeout: 10000 })
       }
       const code2 = await assertAndExtractCodeFromCallbackUrl(page, second.state)
 
@@ -115,7 +117,7 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
     expect(returnToUrl.searchParams.get("code_challenge_method")).toBe("S256")
 
     // Complete login
-    await performLogin(page, USER_EMAIL, USER_PASSWORD)
+    await performLogin(page, CODE_ISSUANCE_USER.email, CODE_ISSUANCE_USER.password)
     // After login, PKCE parameters should be preserved in the authorize URL
     // (They'll be in the URL if we go to consent, or in the code if scopes are already granted)
     // Wait for navigation to one of the expected routes
@@ -137,7 +139,7 @@ test.describe("/authorize endpoint - Authorization Code Issuance", () => {
   })
 
   test("PKCE parameters preserved through consent redirect", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: CODE_ISSUANCE_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {

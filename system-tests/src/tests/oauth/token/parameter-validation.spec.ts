@@ -1,18 +1,18 @@
-import { expect, test } from "@playwright/test"
-
+import { expect, test } from "../../../fixtures/oauth"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
-  REDIRECT_URI,
+  getOAuthTestUser,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
-  USER_EMAIL,
-  USER_PASSWORD,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+const TOKEN_PARAM_USER = getOAuthTestUser("token-parameter-validation")
 
 test.describe("/token endpoint - Parameter Validation", () => {
   test("missing client_id -> invalid_client error", async () => {
@@ -82,7 +82,7 @@ test.describe("/token endpoint - Parameter Validation", () => {
     // Handle login and consent
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, TOKEN_PARAM_USER.email, TOKEN_PARAM_USER.password)
     } catch {
       // Already logged in
     }
@@ -95,13 +95,12 @@ test.describe("/token endpoint - Parameter Validation", () => {
       // Already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
 
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
       code_verifier: codeVerifier,

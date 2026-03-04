@@ -1,19 +1,19 @@
-import { expect, test } from "@playwright/test"
-
+import { expect, test } from "../../../fixtures/oauth"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
-  REDIRECT_URI,
+  getOAuthTestUser,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
-  USER_EMAIL,
-  USER_PASSWORD,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+const ISSUANCE_USER = getOAuthTestUser("issuance")
 
 test.describe("/token endpoint - Token Issuance", () => {
   test("access token issued with correct format", async ({ page }) => {
@@ -27,7 +27,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -40,7 +40,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
 
@@ -63,7 +62,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -76,7 +75,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
 
@@ -99,7 +97,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -112,7 +110,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code1 = await assertAndExtractCodeFromCallbackUrl(page, first.state)
     const tok1 = await exchangeCodeForToken(code1, { kind: "bearer" }, codeVerifier1)
 
@@ -127,7 +124,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -140,7 +137,6 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code2 = await assertAndExtractCodeFromCallbackUrl(page, second.state)
     const tok2 = await exchangeCodeForToken(code2, { kind: "bearer" }, codeVerifier2)
 
@@ -158,7 +154,7 @@ test.describe("/token endpoint - Token Issuance", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, ISSUANCE_USER.email, ISSUANCE_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -171,14 +167,13 @@ test.describe("/token endpoint - Token Issuance", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
 
     // Exchange code for token and check headers
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: TEST_CLIENT_SECRET,
       code_verifier: codeVerifier,

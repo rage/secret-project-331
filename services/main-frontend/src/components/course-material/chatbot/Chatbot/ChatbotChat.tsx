@@ -1,19 +1,35 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { DOMAttributes, useState } from "react"
+import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import React, { DOMAttributes } from "react"
 
+import { MessageAction, MessageState } from "../Chatbot/ChatbotDialog"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
 
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
+import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 
 interface ChatbotDialogProps {
   chatbotConfigurationId: string
+  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
+  newMessage: string
+  setNewMessage: React.Dispatch<React.SetStateAction<string>>
+  error: Error | null
+  setError: (value: React.SetStateAction<Error | null>) => void
   closeChatbot: () => void
   isCourseMaterialBlock: false
   titleProps: DOMAttributes<Element>
+  messageState: MessageState
+  chatbotMessageAnnouncement: string
+  dispatch: React.ActionDispatch<[action: MessageAction]>
+  newMessageMutation: UseMutationResult<
+    ReadableStream<Uint8Array<ArrayBufferLike>>,
+    unknown,
+    string,
+    unknown
+  >
 }
 
 interface ChatbotNoDialogProps {
@@ -24,15 +40,11 @@ interface ChatbotNoDialogProps {
 export type DiscrChatbotDialogProps = ChatbotDialogProps | ChatbotNoDialogProps
 
 const ChatbotChat: React.FC<ChatbotDialogProps> = (props) => {
-  const { chatbotConfigurationId } = props
+  const { chatbotConfigurationId, currentConversationInfo, setNewMessage, setError } = props
 
-  const [newMessage, setNewMessage] = React.useState("")
-  const [error, setError] = useState<Error | null>(null)
-
-  const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
   const newConversationMutation = useNewConversationMutation(
     chatbotConfigurationId,
-    currentConversationInfoQuery,
+    currentConversationInfo,
     setNewMessage,
     setError,
   )
@@ -58,19 +70,10 @@ const ChatbotChat: React.FC<ChatbotDialogProps> = (props) => {
     >
       <ChatbotChatHeader
         {...props}
-        currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
         isCourseMaterialBlock={false}
       />
-      <ChatbotChatBody
-        {...props}
-        currentConversationInfo={currentConversationInfoQuery}
-        newConversation={newConversationMutation}
-        newMessage={newMessage}
-        setNewMessage={setNewMessage}
-        error={error}
-        setError={setError}
-      />
+      <ChatbotChatBody {...props} newConversation={newConversationMutation} />
     </div>
   )
 }

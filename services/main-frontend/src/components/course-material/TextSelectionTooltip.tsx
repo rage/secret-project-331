@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { VirtualElement } from "@popperjs/core"
-import { useAtom, useSetAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -12,7 +12,10 @@ import AIChat from "@/img/course-material/ai-chat.svg"
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { baseTheme } from "@/shared-module/common/styles"
 import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
-import { chatbotOpenAtom } from "@/stores/course-material/chatbotDialogStore"
+import {
+  chatbotOpenAtom,
+  defaultChatbotCommunicationChannel,
+} from "@/stores/course-material/chatbotDialogStore"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -37,6 +40,8 @@ const TextSelectionTooltip: React.FC = () => {
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
+
+  const chatbotCommunicationChannel = useAtomValue(defaultChatbotCommunicationChannel)
 
   // Show tooltip after a delay so that it's less annoying
   useEffect(() => {
@@ -197,11 +202,23 @@ const TextSelectionTooltip: React.FC = () => {
             flex-flow: column nowrap;
           `}
         >
-          <Button onClick={() => setChatbotOpen(true)}>
+          <Button
+            onClick={() => {
+              console.log(chatbotCommunicationChannel)
+              setChatbotOpen(true)
+              chatbotCommunicationChannel?.newMessageMutation.mutate(t("button"))
+            }}
+          >
             {"Summarize..."}
             <AIChat className={svgCss} />
           </Button>
-          <Button onClick={() => setChatbotOpen(true)}>
+          <Button
+            onClick={() => {
+              console.log(chatbotCommunicationChannel)
+              setChatbotOpen(true)
+              chatbotCommunicationChannel?.newMessageMutation.mutate(t("button"))
+            }}
+          >
             {"Explain this..."}
             <AIChat className={svgCss} />
           </Button>

@@ -3,18 +3,17 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
+import { CHATBOX_HEIGHT_PX, MessageAction, MessageState } from "../Chatbot/ChatbotDialog"
 
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 
-import { sendChatbotMessage } from "@/services/course-material/backend"
 import {
   ChatbotConversation,
   ChatbotConversationInfo,
@@ -24,7 +23,6 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface ChatbotChatBodyProps {
@@ -34,30 +32,15 @@ interface ChatbotChatBodyProps {
   newMessage: string
   setNewMessage: React.Dispatch<React.SetStateAction<string>>
   error: Error | null
-  setError: (error: Error | null) => void
-}
-
-interface MessageState {
-  optimisticMessage: string | null
-  streamingMessage: string | null
-}
-
-type MessageAction =
-  | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
-  | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
-  | { type: "RESET_MESSAGES" }
-
-const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
-  switch (action.type) {
-    case "SET_OPTIMISTIC_MESSAGE":
-      return { ...state, optimisticMessage: action.payload }
-    case "APPEND_STREAMING_MESSAGE":
-      return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
-    case "RESET_MESSAGES":
-      return { optimisticMessage: null, streamingMessage: null }
-    default:
-      return state
-  }
+  messageState: MessageState
+  chatbotMessageAnnouncement: string
+  dispatch: React.ActionDispatch<[action: MessageAction]>
+  newMessageMutation: UseMutationResult<
+    ReadableStream<Uint8Array<ArrayBufferLike>>,
+    unknown,
+    string,
+    unknown
+  >
 }
 
 const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
@@ -67,75 +50,13 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
   newMessage,
   setNewMessage,
   error,
-  setError,
+  messageState,
+  chatbotMessageAnnouncement,
+  dispatch,
+  newMessageMutation,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-  const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
-  const [messageState, dispatch] = useReducer(messageReducer, {
-    optimisticMessage: null,
-    streamingMessage: null,
-  })
-
-  const newMessageMutation = useToastMutation(
-    async (messageToSend: string) => {
-      if (!currentConversationInfo.data?.current_conversation) {
-        throw new Error("No active conversation")
-      }
-      setChatbotMessageAnnouncement(t("chatbot-is-responding"))
-      const message = messageToSend.trim()
-      dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
-      const stream = await sendChatbotMessage(
-        chatbotConfigurationId,
-        currentConversationInfo.data.current_conversation.id,
-        message,
-      )
-      const reader = stream.getReader()
-
-      let done = false
-      while (!done) {
-        const { done: doneReading, value } = await reader.read()
-        done = doneReading
-        if (value) {
-          const valueAsString = new TextDecoder().decode(value)
-          const lines = valueAsString.split("\n")
-          for (const line of lines) {
-            if (line?.indexOf("{") !== 0) {
-              continue
-            }
-            try {
-              const parsedValue = JSON.parse(line)
-              if (parsedValue.text) {
-                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.text })
-              }
-            } catch (e) {
-              console.error(e)
-            }
-          }
-        }
-      }
-      return stream
-    },
-    { notify: false },
-    {
-      onSuccess: async () => {
-        await currentConversationInfo.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
-        setError(null)
-        setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
-      },
-      onError: async (error) => {
-        if (error instanceof Error) {
-          setError(error)
-          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
-        } else {
-          console.error(`Failed to send chat message: ${error}`)
-          setError(new Error("Unknown error occurred"))
-        }
-        await currentConversationInfo.refetch()
-      },
-    },
-  )
 
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
@@ -338,7 +259,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             message={message.message ?? ""}
             citations={citations.get(message.id)}
             isFromChatbot={message.message_role === "assistant"}
-            isPending={!message.message_is_complete && newMessageMutation.isPending}
+            isPending={(!message.message_is_complete && newMessageMutation.isPending) ?? false}
           />
         ))}
         <div
@@ -398,7 +319,6 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
                   newMessageMutation.mutate(newMessage)
@@ -444,7 +364,6 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             disabled={!canSubmit}
             aria-label={t("send")}
             onClick={() => {
-              setChatbotMessageAnnouncement("")
               newMessageMutation.mutate(newMessage)
             }}
           >

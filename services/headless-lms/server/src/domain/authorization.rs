@@ -894,6 +894,12 @@ pub async fn authenticate_test_user(
         models::users::get_by_email(conn, "student4@example.com").await?
     } else if email == "student5@example.com" && password == "student5" {
         models::users::get_by_email(conn, "student5@example.com").await?
+    } else if email == "student6@example.com" && password == "student6" {
+        models::users::get_by_email(conn, "student6@example.com").await?
+    } else if email == "student7@example.com" && password == "student7" {
+        models::users::get_by_email(conn, "student7@example.com").await?
+    } else if email == "student8@example.com" && password == "student8" {
+        models::users::get_by_email(conn, "student8@example.com").await?
     } else if email == "teaching-and-learning-services@example.com"
         && password == "teaching-and-learning-services"
     {

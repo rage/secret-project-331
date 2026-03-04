@@ -1,8 +1,8 @@
-import { expect, test } from "@playwright/test"
-
-import { AUTHORIZE, REDIRECT_URI, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
+import { expect, test } from "../../../fixtures/oauth"
+import { AUTHORIZE, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
 import { navigateAndWaitForOAuthError } from "../../../utils/oauth/errorHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
 test.describe("/authorize endpoint - PKCE Validation", () => {
@@ -13,7 +13,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: "test-state",
     })
@@ -31,7 +31,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: "test-state",
       code_challenge: codeChallenge,
@@ -48,7 +48,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: "test-state",
       code_challenge_method: "S256",
@@ -67,7 +67,7 @@ test.describe("/authorize endpoint - PKCE Validation", () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: TEST_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       scope: "openid",
       state: "test-state",
       code_challenge: codeChallenge,

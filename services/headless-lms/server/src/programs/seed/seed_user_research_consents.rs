@@ -28,6 +28,8 @@ pub async fn seed_user_research_consents(
         student_4_user_id,
         student_5_user_id,
         student_6_user_id,
+        student_7_user_id: _,
+        student_8_user_id: _,
         langs_user_id,
         sign_up_user,
     } = seed_users_result;

@@ -1,8 +1,9 @@
 import { expect } from "@playwright/test"
 import crypto from "crypto"
 
-import { REDIRECT_URI, TEST_CLIENT_ID, TEST_CLIENT_SECRET, TOKEN, USERINFO } from "./constants"
+import { TEST_CLIENT_ID, TEST_CLIENT_SECRET, TOKEN, USERINFO } from "./constants"
 import { type AuthMode, makeDPoP, toB64Url } from "./dpop"
+import { getRedirectUri } from "./redirectServer"
 
 export async function exchangeCodeForToken(code: string, mode: AuthMode, codeVerifier?: string) {
   const headers: Record<string, string> = {
@@ -12,7 +13,7 @@ export async function exchangeCodeForToken(code: string, mode: AuthMode, codeVer
   const body = new URLSearchParams({
     grant_type: "authorization_code",
     code,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: getRedirectUri(),
     client_id: TEST_CLIENT_ID,
   })
 

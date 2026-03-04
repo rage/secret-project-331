@@ -1,5 +1,7 @@
 import { expect, Page } from "@playwright/test"
 
+import { ensureRedirectServer } from "./redirectServer"
+
 export class ConsentPage {
   constructor(
     private page: Page,
@@ -34,6 +36,7 @@ export class ConsentPage {
   }
 
   async approve() {
+    await ensureRedirectServer()
     const approveButton = this.page.getByTestId("oauth-consent-approve-button")
     await approveButton.click()
     // Wait for redirect to callback or success indicator

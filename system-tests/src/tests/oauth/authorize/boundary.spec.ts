@@ -1,21 +1,22 @@
-import { expect, test } from "@playwright/test"
-
+import { expect, test } from "../../../fixtures/oauth"
 import { resetClientAuthorization } from "../../../utils/oauth/authorizedClients"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
   APP_DISPLAY_NAME,
   AUTHORIZE,
-  REDIRECT_URI,
-  STUDENT_STORAGE_STATE,
+  getOAuthTestUser,
   TEST_CLIENT_ID,
 } from "../../../utils/oauth/constants"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+const BOUNDARY_USER = getOAuthTestUser("boundary")
 
 test.describe("/authorize endpoint - Boundary Conditions", () => {
   test("very long state parameter -> should work", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: BOUNDARY_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {
@@ -40,7 +41,7 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
   })
 
   test("state with special characters -> should be preserved", async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: BOUNDARY_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {
@@ -73,7 +74,7 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
   test("multiple scopes with various whitespace -> should normalize correctly", async ({
     browser,
   }) => {
-    const ctx = await browser.newContext({ storageState: STUDENT_STORAGE_STATE })
+    const ctx = await browser.newContext({ storageState: BOUNDARY_USER.storageStatePath })
     const page = await ctx.newPage()
 
     try {
@@ -82,7 +83,7 @@ test.describe("/authorize endpoint - Boundary Conditions", () => {
       const params = new URLSearchParams({
         response_type: "code",
         client_id: TEST_CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
+        redirect_uri: getRedirectUri(),
         scope: "openid   profile\n\temail", // Extra whitespace
         state: "test-state",
       })

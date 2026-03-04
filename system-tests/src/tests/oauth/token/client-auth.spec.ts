@@ -1,19 +1,19 @@
-import { expect, Page, test } from "@playwright/test"
-
+import { expect, Page, test } from "../../../fixtures/oauth"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
-  REDIRECT_URI,
+  getOAuthTestUser,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
-  USER_EMAIL,
-  USER_PASSWORD,
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+const CLIENT_AUTH_USER = getOAuthTestUser("client-auth")
 
 test.describe("/token endpoint - Client Authentication", () => {
   async function getValidAuthCode(page: Page): Promise<{ code: string; codeVerifier: string }> {
@@ -27,7 +27,7 @@ test.describe("/token endpoint - Client Authentication", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, CLIENT_AUTH_USER.email, CLIENT_AUTH_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -40,7 +40,6 @@ test.describe("/token endpoint - Client Authentication", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     return { code, codeVerifier }
   }
@@ -51,7 +50,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       code_verifier: codeVerifier,
     })
@@ -74,7 +73,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: TEST_CLIENT_ID,
       client_secret: "wrong-secret",
       code_verifier: codeVerifier,
@@ -103,7 +102,7 @@ test.describe("/token endpoint - Client Authentication", () => {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code: "some-code",
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: getRedirectUri(),
       client_id: "non-existent-client-id",
       client_secret: TEST_CLIENT_SECRET,
     })

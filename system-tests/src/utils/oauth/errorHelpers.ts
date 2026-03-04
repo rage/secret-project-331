@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test"
 
-import { REDIRECT_URI } from "./constants"
+import { getRedirectUri } from "./redirectServer"
 
 export interface OAuthError {
   error: string
@@ -11,12 +11,13 @@ export interface OAuthError {
 /**
  * Extract OAuth error parameters from a redirect URL.
  * Waits for the page to navigate to the redirect_uri with error parameters.
+ * Call ensureRedirectServer() before using in tests.
  */
 export async function extractOAuthErrorFromRedirect(
   page: Page,
   expectedState?: string,
 ): Promise<OAuthError> {
-  const redirectBase = new URL(REDIRECT_URI)
+  const redirectBase = new URL(getRedirectUri())
 
   // Wait for navigation to redirect URI
   await page.waitForURL(

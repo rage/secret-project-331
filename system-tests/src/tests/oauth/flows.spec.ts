@@ -1,5 +1,4 @@
-import { BrowserContext, expect, Page, test } from "@playwright/test"
-
+import { BrowserContext, expect, Page, test } from "../../fixtures/oauth"
 import { resetClientAuthorization } from "../../utils/oauth/authorizedClients"
 import { assertAndExtractCodeFromCallbackUrl } from "../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../utils/oauth/consentPage"

@@ -55,6 +55,7 @@
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
+    "diff": "^8.0.3",
     "express": "^5.1.0",
     "http-proxy-middleware": "^3.0.5",
     "i18next": "^25.5.3",
@@ -79,6 +80,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@types/diff": "^8.0.0",
     "@types/jest": "^30.0.0",
     "@types/jsdom": "^27.0.0",
     "@types/lodash": "^4.17.20",

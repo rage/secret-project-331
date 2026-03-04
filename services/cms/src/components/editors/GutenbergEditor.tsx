@@ -54,6 +54,7 @@ import { useTranslation } from "react-i18next"
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import { registerEditorAiAbilities } from "../../utils/Gutenberg/ai/abilities"
 import {
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
@@ -63,6 +64,7 @@ import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenberg
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
+import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -202,6 +204,14 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector")
+    }
+  }, [])
+
+  useEffect(() => {
+    registerEditorAiAbilities()
+    addFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar", withParagraphAiToolbarAction)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar")
     }
   }, [])
 

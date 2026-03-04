@@ -18,6 +18,8 @@
   "solve-in-editor-label": "Solve in an external editor",
   "submission-archive-download-label": "The submitted archive can be downloaded from the following link",
   "submit": "Submit",
+  "submit-result-failed": "Tests failed. Score: {{score}}/{{max}}. You can edit your code and submit again.",
+  "submit-result-passed": "All tests passed! Score: {{score}}/{{max}}.",
   "test": "Test",
   "upload-solution-instructions": "Upload solution archive. Supported archive types: .tar.zst",
   "waiting-for-content": "Waiting for content...",

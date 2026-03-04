@@ -88,15 +88,13 @@ const Iframe: React.FC = () => {
                     public_spec:
                       oldState?.view_type === "answer-exercise"
                         ? oldState.public_spec
-                        : // cloneDeep prevents setState from changing the initial spec
-                          _.cloneDeep(newPublicSpec),
+                        : _.cloneDeep(newPublicSpec),
                     user_answer: userAnswer,
                     previous_submission: previousSubmission,
                   }
                 })
               })
               .catch((error) => {
-                // todo: proper error handling
                 throw new Error(`Failed to process public spec: ${error}`)
               })
           } else if (messageData.view_type === "view-submission") {
@@ -160,12 +158,14 @@ const Iframe: React.FC = () => {
     }
   })
 
+  const contentMaxWidth =
+    state?.view_type === "answer-exercise" ? undefined : (maxWidth ?? undefined)
   return (
     <HeightTrackingContainer port={port}>
       <div
         className={css`
           width: 100%;
-          ${maxWidth && `max-width: ${maxWidth}px;`}
+          ${contentMaxWidth != null ? `max-width: ${contentMaxWidth}px;` : ""}
           margin: 0 auto;
         `}
       >
@@ -221,13 +221,21 @@ const requestRepositoryExercises = (port: MessagePort | null) => {
 
 const publicSpecToIframeUserAnswer = async (publicSpec: PublicSpec): Promise<UserAnswer> => {
   if (publicSpec.type == "browser") {
-    // dl archive
+    // Fetch stub archive (student files only)
     debug("fetching ", publicSpec.stub_download_url)
     const stubResponse = await fetch(publicSpec.stub_download_url)
 
-    // unpack zstd
     const tarZstdArchive = await stubResponse.arrayBuffer()
-    const files = await extractTarZstd(Buffer.from(tarZstdArchive))
+    let files = await extractTarZstd(Buffer.from(tarZstdArchive))
+    // Order by student_file_paths so the main code file is shown first, not config (e.g. tmcproject.yml)
+    const order = publicSpec.student_file_paths
+    if (order.length > 0) {
+      const indexOf = (path: string) => {
+        const i = order.indexOf(path)
+        return i === -1 ? 1e9 : i
+      }
+      files = [...files].sort((a, b) => indexOf(a.filepath) - indexOf(b.filepath))
+    }
 
     return { type: "browser", files }
   } else if (publicSpec.type == "editor") {

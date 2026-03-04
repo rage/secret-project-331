@@ -8,6 +8,7 @@ import { ClientErrorResponse, downloadStream } from "@/lib"
 import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap } from "@/shared-module/common/utils/fetching"
+import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
   compressProject,
   extractProject,
@@ -54,7 +55,10 @@ async function processPublicSpec(
     }
 
     debug(requestId, "preparing stub dir")
-    const stubDir = await prepareStubDir(requestId, privateSpec.repository_exercise.download_url)
+    const { stubDir, templateDir } = await prepareStubDir(
+      privateSpec.repository_exercise.download_url,
+      makeLog(requestId),
+    )
     let publicSpec: PublicSpec
     debug(requestId, "uploading public spec")
     publicSpec = await uploadPublicSpec(
@@ -65,24 +69,43 @@ async function processPublicSpec(
       upload_url,
       uploadClaim,
     )
+    if (privateSpec.type === "browser") {
+      const browserTestResult = await buildBrowserTestScript(templateDir)
+      if ("script" in browserTestResult) {
+        publicSpec = {
+          ...publicSpec,
+          browser_test: { runtime: "python", script: browserTestResult.script },
+        }
+      } else {
+        debug(requestId, "browser test script not generated:", browserTestResult.error)
+        publicSpec = {
+          ...publicSpec,
+          browser_test: { runtime: "python", script: "", error: browserTestResult.error },
+        }
+      }
+    }
     return ok(publicSpec)
   } catch (err) {
     return internalServerError(requestId, "Error while processing the public spec", err)
   }
 }
 
-const prepareStubDir = async (requestId: string, downloadUrl: string): Promise<string> => {
+const prepareStubDir = async (
+  downloadUrl: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<{ stubDir: string; templateDir: string }> => {
   const templateArchive = temporaryFile()
   await downloadStream(downloadUrl, templateArchive)
 
   const templateDir = temporaryDirectory()
-  debug("extracting template to", templateDir)
-  await extractProject(templateArchive, templateDir, makeLog(requestId))
+  log("extracting template to " + templateDir)
+  await extractProject(templateArchive, templateDir, log)
 
   const stubDir = temporaryDirectory()
-  debug("preparing stub to", stubDir)
-  await prepareStub(templateDir, stubDir, makeLog(requestId))
-  return stubDir
+  log("preparing stub to " + stubDir)
+  await prepareStub(templateDir, stubDir, log)
+
+  return { stubDir, templateDir }
 }
 
 const uploadPublicSpec = async (

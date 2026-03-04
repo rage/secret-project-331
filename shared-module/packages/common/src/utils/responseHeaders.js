@@ -71,7 +71,7 @@ const externallyEmbeddableIFrameResponseHeaders = [
     key: "Content-Security-Policy",
     // Permissive because of this Safari bug: https://bugs.webkit.org/show_bug.cgi?id=223848
     // Should be ok because the iframes are sandboxed
-    value: "default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'", // "default-src 'self'; connect-src 'self'; font-src 'self'; frame-src *; img-src 'self' data: blob: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'",
+    value: "default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:", // "default-src 'self'; connect-src 'self'; font-src 'self'; frame-src *; img-src 'self' data: blob: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'",
   },
   {
     key: "X-XSS-Protection",

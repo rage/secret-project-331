@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test"
-
+import { expect, test } from "../../../fixtures/oauth"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
@@ -10,19 +9,8 @@ import {
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import {
-  getRedirectUri,
-  setupRedirectServer,
-  teardownRedirectServer,
-} from "../../../utils/oauth/redirectServer"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
-
-test.beforeAll(async () => {
-  await setupRedirectServer()
-})
-test.afterAll(async () => {
-  await teardownRedirectServer()
-})
 
 const TOKEN_PARAM_USER = getOAuthTestUser("token-parameter-validation")
 

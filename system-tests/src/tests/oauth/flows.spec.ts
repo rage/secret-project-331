@@ -1,5 +1,4 @@
-import { BrowserContext, expect, Page, test } from "@playwright/test"
-
+import { BrowserContext, expect, Page, test } from "../../fixtures/oauth"
 import { resetClientAuthorization } from "../../utils/oauth/authorizedClients"
 import { assertAndExtractCodeFromCallbackUrl } from "../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../utils/oauth/consentPage"
@@ -15,16 +14,8 @@ import {
 import { createDPoPKey } from "../../utils/oauth/dpop"
 import { performLogin } from "../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../utils/oauth/pkce"
-import { setupRedirectServer, teardownRedirectServer } from "../../utils/oauth/redirectServer"
 import { callUserInfo, exchangeCodeForToken } from "../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../utils/oauth/urlHelpers"
-
-test.beforeAll(async () => {
-  await setupRedirectServer()
-})
-test.afterAll(async () => {
-  await teardownRedirectServer()
-})
 
 test.describe("OAuth flow (login during flow)", () => {
   test("DPoP: prompts for scopes, logs in, approves, exchanges code, and hits userinfo", async ({

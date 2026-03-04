@@ -1,5 +1,4 @@
-import { expect, Page, test } from "@playwright/test"
-
+import { expect, Page, test } from "../../../fixtures/oauth"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
@@ -11,16 +10,8 @@ import {
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
 import { getRedirectUri } from "../../../utils/oauth/redirectServer"
-import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
-
-test.beforeAll(async () => {
-  await setupRedirectServer()
-})
-test.afterAll(async () => {
-  await teardownRedirectServer()
-})
 
 const AUTH_CODE_USER = getOAuthTestUser("authorization-code")
 

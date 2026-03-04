@@ -1,20 +1,8 @@
-import { expect, test } from "@playwright/test"
-
+import { expect, test } from "../../../fixtures/oauth"
 import { AUTHORIZE, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import {
-  getRedirectUri,
-  setupRedirectServer,
-  teardownRedirectServer,
-} from "../../../utils/oauth/redirectServer"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
-
-test.beforeAll(async () => {
-  await setupRedirectServer()
-})
-test.afterAll(async () => {
-  await teardownRedirectServer()
-})
 
 test.describe("/authorize endpoint - Parameter Validation", () => {
   const validState = "test-state-123"

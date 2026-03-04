@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test"
-
+import { expect, test } from "../../../fixtures/oauth"
 import { resetClientAuthorization } from "../../../utils/oauth/authorizedClients"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
@@ -10,19 +9,8 @@ import {
   TEST_CLIENT_ID,
 } from "../../../utils/oauth/constants"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import {
-  getRedirectUri,
-  setupRedirectServer,
-  teardownRedirectServer,
-} from "../../../utils/oauth/redirectServer"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
-
-test.beforeAll(async () => {
-  await setupRedirectServer()
-})
-test.afterAll(async () => {
-  await teardownRedirectServer()
-})
 
 const BOUNDARY_USER = getOAuthTestUser("boundary")
 

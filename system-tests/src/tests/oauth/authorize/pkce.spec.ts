@@ -1,21 +1,9 @@
-import { expect, test } from "@playwright/test"
-
+import { expect, test } from "../../../fixtures/oauth"
 import { AUTHORIZE, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
 import { navigateAndWaitForOAuthError } from "../../../utils/oauth/errorHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import {
-  getRedirectUri,
-  setupRedirectServer,
-  teardownRedirectServer,
-} from "../../../utils/oauth/redirectServer"
+import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
-
-test.beforeAll(async () => {
-  await setupRedirectServer()
-})
-test.afterAll(async () => {
-  await teardownRedirectServer()
-})
 
 test.describe("/authorize endpoint - PKCE Validation", () => {
   test("client requires PKCE, missing code_challenge -> invalid_request error redirect", async ({

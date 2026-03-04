@@ -1,20 +1,11 @@
-import { expect, test } from "@playwright/test"
-
+import { expect, test } from "../../../fixtures/oauth"
 import { resetClientAuthorization } from "../../../utils/oauth/authorizedClients"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import { APP_DISPLAY_NAME, getOAuthTestUser, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
-
-test.beforeAll(async () => {
-  await setupRedirectServer()
-})
-test.afterAll(async () => {
-  await teardownRedirectServer()
-})
 
 const USER_AUTH_USER = getOAuthTestUser("user-auth")
 

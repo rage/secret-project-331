@@ -59,6 +59,8 @@ pub async fn seed_organization_uh_mathstat(
         student_4_user_id: _,
         student_5_user_id: _,
         student_6_user_id: _,
+        student_7_user_id: _,
+        student_8_user_id: _,
         langs_user_id,
         sign_up_user: _,
     } = seed_users_result;

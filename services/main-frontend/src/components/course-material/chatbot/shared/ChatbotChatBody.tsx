@@ -3,8 +3,6 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import { useAtom } from "jotai"
-import { atomWithMutation } from "jotai-tanstack-query"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -26,6 +24,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface ChatbotChatBodyProps {
@@ -43,7 +42,7 @@ interface MessageState {
   streamingMessage: string | null
 }
 
-export type MessageAction =
+type MessageAction =
   | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
   | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
   | { type: "RESET_MESSAGES" }
@@ -62,9 +61,9 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
 }
 
 const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
+  chatbotConfigurationId,
   currentConversationInfo,
   newConversation,
-  chatbotConfigurationId,
   newMessage,
   setNewMessage,
   error,
@@ -77,8 +76,9 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
     optimisticMessage: null,
     streamingMessage: null,
   })
-  const newChatbotMessageMutationAtom = atomWithMutation(() => ({
-    mutationFn: async (messageToSend: string) => {
+
+  const newMessageMutation = useToastMutation(
+    async (messageToSend: string) => {
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
@@ -116,25 +116,26 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       }
       return stream
     },
-    onError: async (error) => {
-      if (error instanceof Error) {
-        setError(error)
-        dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
-      } else {
-        console.error(`Failed to send chat message: ${error}`)
-        setError(new Error("Unknown error occurred"))
-      }
-      await currentConversationInfo.refetch()
+    { notify: false },
+    {
+      onSuccess: async () => {
+        await currentConversationInfo.refetch()
+        dispatch({ type: "RESET_MESSAGES" })
+        setError(null)
+        setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
+      },
+      onError: async (error) => {
+        if (error instanceof Error) {
+          setError(error)
+          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
+        } else {
+          console.error(`Failed to send chat message: ${error}`)
+          setError(new Error("Unknown error occurred"))
+        }
+        await currentConversationInfo.refetch()
+      },
     },
-    onSuccess: async () => {
-      await currentConversationInfo.refetch()
-      dispatch({ type: "RESET_MESSAGES" })
-      setError(null)
-      setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
-    },
-  }))
-
-  const [newMessageMutation] = useAtom(newChatbotMessageMutationAtom)
+  )
 
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()

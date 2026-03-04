@@ -9,7 +9,9 @@ import { setupRedirectServer, teardownRedirectServer } from "../utils/oauth/redi
  * any test in that worker and torn down when the worker exits.
  * See: https://playwright.dev/docs/test-fixtures#worker-scoped-fixtures
  */
-export const test = base.extend<Record<string, never>, { oauthCallbackServer: void }>({
+// Empty object type required by Playwright's extend() for "no extra test fixtures"
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export const test = base.extend<{}, { oauthCallbackServer: void }>({
   oauthCallbackServer: [
     async ({}, use) => {
       await setupRedirectServer()
@@ -20,3 +22,4 @@ export const test = base.extend<Record<string, never>, { oauthCallbackServer: vo
   ],
 })
 export { expect } from "@playwright/test"
+export type { BrowserContext, Page } from "@playwright/test"

@@ -3,6 +3,7 @@ import { registerAbility } from "./registry"
 import type { AbilityDefinition } from "./types"
 
 import { requestParagraphSuggestions } from "@/services/backend/ai-suggestions"
+import type { ParagraphSuggestionRequest } from "@/shared-module/common/bindings"
 
 export interface ParagraphAbilityInputMeta {
   tone?: string
@@ -41,11 +42,19 @@ const fixSpellingAbility: AbilityDefinition<
   input_schema: BASE_INPUT_SCHEMA,
   output_schema: BASE_OUTPUT_SCHEMA,
   callback: async (input) => {
-    const response = await requestParagraphSuggestions({
+    const payload: ParagraphSuggestionRequest = {
       action: "moocfi/fix-spelling",
       text: input.text,
-      meta: input.meta,
-    })
+      meta: input.meta
+        ? {
+            tone: input.meta.tone ?? null,
+            language: input.meta.language ?? null,
+            setting_type: input.meta.settingType ?? null,
+          }
+        : null,
+      context: null,
+    }
+    const response = await requestParagraphSuggestions(payload)
 
     const suggestions = response.suggestions ?? []
 
@@ -73,11 +82,19 @@ function createPlaceholderAbility(
     input_schema: BASE_INPUT_SCHEMA,
     output_schema: BASE_OUTPUT_SCHEMA,
     callback: async (input) => {
-      const response = await requestParagraphSuggestions({
+      const payload: ParagraphSuggestionRequest = {
         action: abilityName,
         text: input.text,
-        meta: input.meta,
-      })
+        meta: input.meta
+          ? {
+              tone: input.meta.tone ?? null,
+              language: input.meta.language ?? null,
+              setting_type: input.meta.settingType ?? null,
+            }
+          : null,
+        context: null,
+      }
+      const response = await requestParagraphSuggestions(payload)
 
       const suggestions = response.suggestions ?? []
 

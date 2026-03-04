@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import { useAtom } from "jotai"
+import { atomWithMutation } from "jotai-tanstack-query"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -25,9 +26,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
-import { newChatbotMessageMutationAtom } from "@/stores/course-material/chatbotDialogStore"
 
 interface ChatbotChatBodyProps {
   chatbotConfigurationId: string
@@ -78,10 +77,8 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
     optimisticMessage: null,
     streamingMessage: null,
   })
-  const [newMessageMutation] = useAtom(newChatbotMessageMutationAtom)
-
-  const newMessageMutation2 = useToastMutation(
-    async (messageToSend: string) => {
+  const newChatbotMessageMutationAtom = atomWithMutation(() => ({
+    mutationFn: async (messageToSend: string) => {
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
@@ -119,26 +116,25 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       }
       return stream
     },
-    { notify: false },
-    {
-      onSuccess: async () => {
-        await currentConversationInfo.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
-        setError(null)
-        setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
-      },
-      onError: async (error) => {
-        if (error instanceof Error) {
-          setError(error)
-          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
-        } else {
-          console.error(`Failed to send chat message: ${error}`)
-          setError(new Error("Unknown error occurred"))
-        }
-        await currentConversationInfo.refetch()
-      },
+    onError: async (error) => {
+      if (error instanceof Error) {
+        setError(error)
+        dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
+      } else {
+        console.error(`Failed to send chat message: ${error}`)
+        setError(new Error("Unknown error occurred"))
+      }
+      await currentConversationInfo.refetch()
     },
-  )
+    onSuccess: async () => {
+      await currentConversationInfo.refetch()
+      dispatch({ type: "RESET_MESSAGES" })
+      setError(null)
+      setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
+    },
+  }))
+
+  const [newMessageMutation] = useAtom(newChatbotMessageMutationAtom)
 
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
@@ -224,19 +220,6 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
     () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
     [newMessage, newMessageMutation.isPending],
   )
-
-  const doTheThing = (newMessage: string) => {
-    if (!currentConversationInfo.data?.current_conversation) {
-      throw new Error("No active conversation")
-    }
-    setChatbotMessageAnnouncement(t("chatbot-is-responding"))
-    newMessageMutation.mutate({
-      messageToSend: newMessage,
-      chatbotConfigurationId,
-      currentConversationId: currentConversationInfo.data.current_conversation.id,
-      dispatch,
-    })
-  }
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -376,7 +359,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
               message={m.message}
               handleClick={() => {
                 if (!newMessageMutation.isPending) {
-                  doTheThing(m.message)
+                  newMessageMutation.mutate(m.message)
                 }
               }}
             />
@@ -417,7 +400,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
                 setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
-                  doTheThing(newMessage)
+                  newMessageMutation.mutate(newMessage)
                 }
               }
             }}
@@ -461,7 +444,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             aria-label={t("send")}
             onClick={() => {
               setChatbotMessageAnnouncement("")
-              doTheThing(newMessage)
+              newMessageMutation.mutate(newMessage)
             }}
           >
             <PaperAirplane />

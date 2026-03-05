@@ -6,11 +6,35 @@ import expectScreenshotsToMatchSnapshots, { waitToBeStable } from "@/utils/scree
 import { scrollElementContainerToTop, scrollToYCoordinate } from "@/utils/scrollUtils"
 import { waitForAnimationsToEnd } from "@/utils/waitForAnimationsToEnd"
 
+/** Returns whether the chatbot citation popover appears to be open. */
+async function isCitationPopoverOpen(page: Page) {
+  const popover = page.getByTestId("chatbot-citation-popover")
+  const count = await popover.count()
+
+  if (count === 0) {
+    return false
+  }
+
+  try {
+    return await popover.isVisible()
+  } catch {
+    return false
+  }
+}
+
 async function closePopover(page: Page) {
-  await page.locator("body").press("Escape")
-  // Wait a moment while the popover is closing.
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100)
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const isOpen = await isCitationPopoverOpen(page)
+
+    if (!isOpen) {
+      break
+    }
+
+    await page.locator("body").press("Escape")
+    // Wait a moment while the popover is closing.
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(100)
+  }
 }
 
 test.describe("Test chatbot chat box", () => {
@@ -273,6 +297,7 @@ test.describe("Test chatbot chat box", () => {
         [],
       )
     })
+
     await test.step("student sends suggested message", async () => {
       await studentPage.getByRole("button", { name: "What is going on?" }).click()
       await expect(studentPage.getByText("Hello! How can I assist you")).toBeVisible()

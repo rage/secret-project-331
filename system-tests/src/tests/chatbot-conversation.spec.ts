@@ -15,25 +15,21 @@ async function isCitationPopoverOpen(page: Page) {
     return false
   }
 
-  try {
-    return await popover.isVisible()
-  } catch {
-    return false
-  }
+  return true
 }
 
 async function closePopover(page: Page) {
   for (let attempt = 0; attempt < 5; attempt++) {
+    // Clicking closes the popover only, esc would close the chatbot also if repeated
+    await page.locator("body").click({ position: { x: 0, y: 0 } })
+    // Wait a moment while the popover is closing.
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(100)
     const isOpen = await isCitationPopoverOpen(page)
 
     if (!isOpen) {
       break
     }
-
-    await page.locator("body").press("Escape")
-    // Wait a moment while the popover is closing.
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(100)
   }
 }
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.2/src/enc/entropy_encode.rs`."><title>entropy_encode.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">brotli/enc/</div>entropy_encode.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">/* Copyright 2010 Google Inc. All Rights Reserved.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.2/src/enc/entropy_encode.rs`."><title>entropy_encode.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">brotli/enc/</div>entropy_encode.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">/* Copyright 2010 Google Inc. All Rights Reserved.
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a>   Distributed under MIT license.
 <a href=#4 id=4 data-nosnippet>4</a>   See file LICENSE for detail or copy at https://opensource.org/licenses/MIT
@@ -61,7 +61,7 @@
 <a href=#61 id=61 data-nosnippet>61</a><span class="kw">pub struct </span>SortHuffmanTree {}
 <a href=#62 id=62 data-nosnippet>62</a><span class="kw">impl </span>HuffmanComparator <span class="kw">for </span>SortHuffmanTree {
 <a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">fn </span>Cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, v0: <span class="kw-2">&amp;</span>HuffmanTree, v1: <span class="kw-2">&amp;</span>HuffmanTree) -&gt; bool {
-<a href=#64 id=64 data-nosnippet>64</a>        <span class="kw">if </span>v0.total_count_ != v1.total_count_ {
+<a href=#64 id=64 data-nosnippet>64</a>        <span class="kw">if </span>v0.<span class="macro">total_count_ !</span>= v1.total_count_ {
 <a href=#65 id=65 data-nosnippet>65</a>            v0.total_count_ &lt; v1.total_count_
 <a href=#66 id=66 data-nosnippet>66</a>        } <span class="kw">else </span>{
 <a href=#67 id=67 data-nosnippet>67</a>            v0.index_right_or_value_ &gt; v1.index_right_or_value_
@@ -146,7 +146,7 @@
 <a href=#146 id=146 data-nosnippet>146</a>            <span class="kw">let </span><span class="kw-2">mut </span>j: usize;
 <a href=#147 id=147 data-nosnippet>147</a>            <span class="kw">let </span><span class="kw-2">mut </span>k: usize;
 <a href=#148 id=148 data-nosnippet>148</a>            i = length;
-<a href=#149 id=149 data-nosnippet>149</a>            <span class="kw">while </span>i != <span class="number">0usize </span>{
+<a href=#149 id=149 data-nosnippet>149</a>            <span class="kw">while </span><span class="macro">i !</span>= <span class="number">0usize </span>{
 <a href=#150 id=150 data-nosnippet>150</a>                i = i.wrapping_sub(<span class="number">1</span>);
 <a href=#151 id=151 data-nosnippet>151</a>                <span class="kw">if </span>data[i] != <span class="number">0 </span>{
 <a href=#152 id=152 data-nosnippet>152</a>                    <span class="kw">let </span>count: u32 = max(data[i], count_limit);
@@ -166,7 +166,7 @@
 <a href=#166 id=166 data-nosnippet>166</a>            i = <span class="number">0usize</span>;
 <a href=#167 id=167 data-nosnippet>167</a>            j = n.wrapping_add(<span class="number">1</span>);
 <a href=#168 id=168 data-nosnippet>168</a>            k = n.wrapping_sub(<span class="number">1</span>);
-<a href=#169 id=169 data-nosnippet>169</a>            <span class="kw">while </span>k != <span class="number">0usize </span>{
+<a href=#169 id=169 data-nosnippet>169</a>            <span class="kw">while </span><span class="macro">k !</span>= <span class="number">0usize </span>{
 <a href=#170 id=170 data-nosnippet>170</a>                {
 <a href=#171 id=171 data-nosnippet>171</a>                    <span class="kw">let </span>left: usize;
 <a href=#172 id=172 data-nosnippet>172</a>                    <span class="kw">let </span>right: usize;
@@ -226,7 +226,7 @@
 <a href=#226 id=226 data-nosnippet>226</a>    <span class="kw">if </span>nonzero_count &lt; <span class="number">16usize </span>{
 <a href=#227 id=227 data-nosnippet>227</a>        <span class="kw">return</span>;
 <a href=#228 id=228 data-nosnippet>228</a>    }
-<a href=#229 id=229 data-nosnippet>229</a>    <span class="kw">while </span>length != <span class="number">0usize </span>&amp;&amp; (counts[length.wrapping_sub(<span class="number">1</span>)] == <span class="number">0u32</span>) {
+<a href=#229 id=229 data-nosnippet>229</a>    <span class="kw">while </span><span class="macro">length !</span>= <span class="number">0usize </span>&amp;&amp; (counts[length.wrapping_sub(<span class="number">1</span>)] == <span class="number">0u32</span>) {
 <a href=#230 id=230 data-nosnippet>230</a>        length = length.wrapping_sub(<span class="number">1</span>);
 <a href=#231 id=231 data-nosnippet>231</a>    }
 <a href=#232 id=232 data-nosnippet>232</a>    <span class="kw">if </span>length == <span class="number">0usize </span>{
@@ -268,13 +268,13 @@
 <a href=#268 id=268 data-nosnippet>268</a>        <span class="kw">let </span><span class="kw-2">mut </span>step: usize = <span class="number">0usize</span>;
 <a href=#269 id=269 data-nosnippet>269</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=length {
 <a href=#270 id=270 data-nosnippet>270</a>            <span class="kw">if </span>i == length || counts[i] != symbol {
-<a href=#271 id=271 data-nosnippet>271</a>                <span class="kw">if </span>symbol == <span class="number">0u32 </span>&amp;&amp; (step &gt;= <span class="number">5usize</span>) || symbol != <span class="number">0u32 </span>&amp;&amp; (step &gt;= <span class="number">7usize</span>) {
+<a href=#271 id=271 data-nosnippet>271</a>                <span class="kw">if </span>symbol == <span class="number">0u32 </span>&amp;&amp; (step &gt;= <span class="number">5usize</span>) || <span class="macro">symbol !</span>= <span class="number">0u32 </span>&amp;&amp; (step &gt;= <span class="number">7usize</span>) {
 <a href=#272 id=272 data-nosnippet>272</a>                    <span class="kw">for </span>k <span class="kw">in </span><span class="number">0usize</span>..step {
 <a href=#273 id=273 data-nosnippet>273</a>                        good_for_rle[i.wrapping_sub(k).wrapping_sub(<span class="number">1</span>)] = <span class="number">1u8</span>;
 <a href=#274 id=274 data-nosnippet>274</a>                    }
 <a href=#275 id=275 data-nosnippet>275</a>                }
 <a href=#276 id=276 data-nosnippet>276</a>                step = <span class="number">1</span>;
-<a href=#277 id=277 data-nosnippet>277</a>                <span class="kw">if </span>i != length {
+<a href=#277 id=277 data-nosnippet>277</a>                <span class="kw">if </span><span class="macro">i !</span>= length {
 <a href=#278 id=278 data-nosnippet>278</a>                    symbol = counts[i];
 <a href=#279 id=279 data-nosnippet>279</a>                }
 <a href=#280 id=280 data-nosnippet>280</a>            } <span class="kw">else </span>{
@@ -291,7 +291,7 @@
 <a href=#291 id=291 data-nosnippet>291</a>    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=length {
 <a href=#292 id=292 data-nosnippet>292</a>        <span class="kw">if </span>i == length
 <a href=#293 id=293 data-nosnippet>293</a>            || good_for_rle[i] != <span class="number">0
-<a href=#294 id=294 data-nosnippet>294</a>            </span>|| i != <span class="number">0usize </span>&amp;&amp; (good_for_rle[i.wrapping_sub(<span class="number">1</span>)] != <span class="number">0</span>)
+<a href=#294 id=294 data-nosnippet>294</a>            </span>|| <span class="macro">i !</span>= <span class="number">0usize </span>&amp;&amp; (good_for_rle[i.wrapping_sub(<span class="number">1</span>)] != <span class="number">0</span>)
 <a href=#295 id=295 data-nosnippet>295</a>            || ((<span class="number">256u32</span>).wrapping_mul(counts[i]) <span class="kw">as </span>usize)
 <a href=#296 id=296 data-nosnippet>296</a>                .wrapping_sub(limit)
 <a href=#297 id=297 data-nosnippet>297</a>                .wrapping_add(streak_limit)
@@ -329,7 +329,7 @@
 <a href=#329 id=329 data-nosnippet>329</a>            }
 <a href=#330 id=330 data-nosnippet>330</a>        }
 <a href=#331 id=331 data-nosnippet>331</a>        stride = stride.wrapping_add(<span class="number">1</span>);
-<a href=#332 id=332 data-nosnippet>332</a>        <span class="kw">if </span>i != length {
+<a href=#332 id=332 data-nosnippet>332</a>        <span class="kw">if </span><span class="macro">i !</span>= length {
 <a href=#333 id=333 data-nosnippet>333</a>            sum = sum.wrapping_add(counts[i] <span class="kw">as </span>usize);
 <a href=#334 id=334 data-nosnippet>334</a>            <span class="kw">if </span>stride &gt;= <span class="number">4usize </span>{
 <a href=#335 id=335 data-nosnippet>335</a>                limit = (<span class="number">256usize</span>)
@@ -367,7 +367,7 @@
 <a href=#367 id=367 data-nosnippet>367</a>            total_reps_zero = total_reps_zero.wrapping_add(reps);
 <a href=#368 id=368 data-nosnippet>368</a>            count_reps_zero = count_reps_zero.wrapping_add(<span class="number">1</span>);
 <a href=#369 id=369 data-nosnippet>369</a>        }
-<a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">if </span>reps &gt;= <span class="number">4usize </span>&amp;&amp; (value <span class="kw">as </span>i32 != <span class="number">0i32</span>) {
+<a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">if </span>reps &gt;= <span class="number">4usize </span>&amp;&amp; (value <span class="kw">as </span><span class="macro">i32 !</span>= <span class="number">0i32</span>) {
 <a href=#371 id=371 data-nosnippet>371</a>            total_reps_non_zero = total_reps_non_zero.wrapping_add(reps);
 <a href=#372 id=372 data-nosnippet>372</a>            count_reps_non_zero = count_reps_non_zero.wrapping_add(<span class="number">1</span>);
 <a href=#373 id=373 data-nosnippet>373</a>        }
@@ -396,7 +396,7 @@
 <a href=#396 id=396 data-nosnippet>396</a>    tree: <span class="kw-2">&amp;mut </span>[u8],
 <a href=#397 id=397 data-nosnippet>397</a>    extra_bits_data: <span class="kw-2">&amp;mut </span>[u8],
 <a href=#398 id=398 data-nosnippet>398</a>) {
-<a href=#399 id=399 data-nosnippet>399</a>    <span class="kw">if </span>previous_value <span class="kw">as </span>i32 != value <span class="kw">as </span>i32 {
+<a href=#399 id=399 data-nosnippet>399</a>    <span class="kw">if </span>previous_value <span class="kw">as </span><span class="macro">i32 !</span>= value <span class="kw">as </span>i32 {
 <a href=#400 id=400 data-nosnippet>400</a>        tree[<span class="kw-2">*</span>tree_size] = value;
 <a href=#401 id=401 data-nosnippet>401</a>        extra_bits_data[<span class="kw-2">*</span>tree_size] = <span class="number">0u8</span>;
 <a href=#402 id=402 data-nosnippet>402</a>        <span class="kw-2">*</span>tree_size = tree_size.wrapping_add(<span class="number">1</span>);
@@ -498,7 +498,7 @@
 <a href=#498 id=498 data-nosnippet>498</a>    <span class="kw">while </span>i &lt; new_length {
 <a href=#499 id=499 data-nosnippet>499</a>        <span class="kw">let </span>value: u8 = depth[i];
 <a href=#500 id=500 data-nosnippet>500</a>        <span class="kw">let </span><span class="kw-2">mut </span>reps: usize = <span class="number">1</span>;
-<a href=#501 id=501 data-nosnippet>501</a>        <span class="kw">if </span>value != <span class="number">0 </span>&amp;&amp; use_rle_for_non_zero || value == <span class="number">0 </span>&amp;&amp; use_rle_for_zero {
+<a href=#501 id=501 data-nosnippet>501</a>        <span class="kw">if </span><span class="macro">value !</span>= <span class="number">0 </span>&amp;&amp; use_rle_for_non_zero || value == <span class="number">0 </span>&amp;&amp; use_rle_for_zero {
 <a href=#502 id=502 data-nosnippet>502</a>            <span class="kw">let </span><span class="kw-2">mut </span>k: usize;
 <a href=#503 id=503 data-nosnippet>503</a>            k = i.wrapping_add(<span class="number">1</span>);
 <a href=#504 id=504 data-nosnippet>504</a>            <span class="kw">while </span>k &lt; new_length &amp;&amp; (depth[k] <span class="kw">as </span>i32 == value <span class="kw">as </span>i32) {
@@ -573,4 +573,5 @@
 <a href=#573 id=573 data-nosnippet>573</a>            });
 <a href=#574 id=574 data-nosnippet>574</a>        }
 <a href=#575 id=575 data-nosnippet>575</a>    }
-<a href=#576 id=576 data-nosnippet>576</a>}</code></pre></div></section></main></body></html>
+<a href=#576 id=576 data-nosnippet>576</a>}
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/miniz_oxide-0.8.9/src/deflate/core.rs`."><title>core.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="miniz_oxide" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">miniz_oxide/deflate/</div>core.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Streaming compression functionality.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/miniz_oxide-0.8.9/src/deflate/core.rs`."><title>core.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="miniz_oxide" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">miniz_oxide/deflate/</div>core.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Streaming compression functionality.
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>alloc::boxed::Box;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>core::convert::TryInto;
@@ -479,7 +479,7 @@
 <a href=#479 id=479 data-nosnippet>479</a>                .copy_from_slice(<span class="kw-2">&amp;</span>params.local_buf.b[..n]);
 <a href=#480 id=480 data-nosnippet>480</a>
 <a href=#481 id=481 data-nosnippet>481</a>            params.out_buf_ofs += n;
-<a href=#482 id=482 data-nosnippet>482</a>            <span class="kw">if </span>saved_output.pos != n {
+<a href=#482 id=482 data-nosnippet>482</a>            <span class="kw">if </span>saved_output.<span class="macro">pos !</span>= n {
 <a href=#483 id=483 data-nosnippet>483</a>                params.flush_ofs = n <span class="kw">as </span>u32;
 <a href=#484 id=484 data-nosnippet>484</a>                params.flush_remaining = (saved_output.pos - n) <span class="kw">as </span>u32;
 <a href=#485 id=485 data-nosnippet>485</a>            }
@@ -638,7 +638,7 @@
 <a href=#638 id=638 data-nosnippet>638</a>    </span><span class="doccomment">/// Pad the bit buffer to a whole byte with
 <a href=#639 id=639 data-nosnippet>639</a>    /// zeroes and write that byte to the output buffer.
 <a href=#640 id=640 data-nosnippet>640</a>    </span><span class="kw">fn </span>pad_to_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-<a href=#641 id=641 data-nosnippet>641</a>        <span class="kw">if </span><span class="self">self</span>.bits_in != <span class="number">0 </span>{
+<a href=#641 id=641 data-nosnippet>641</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">bits_in !</span>= <span class="number">0 </span>{
 <a href=#642 id=642 data-nosnippet>642</a>            <span class="kw">let </span>len = <span class="number">8 </span>- <span class="self">self</span>.bits_in;
 <a href=#643 id=643 data-nosnippet>643</a>            <span class="self">self</span>.put_bits(<span class="number">0</span>, len);
 <a href=#644 id=644 data-nosnippet>644</a>        }
@@ -725,7 +725,7 @@
 <a href=#725 id=725 data-nosnippet>725</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
 <a href=#726 id=726 data-nosnippet>726</a>        <span class="kw">let </span><span class="kw-2">mut </span>write = |buf| write(buf, packed_code_sizes, packed_pos);
 <a href=#727 id=727 data-nosnippet>727</a>        <span class="kw">let </span>counts = <span class="kw-2">&amp;mut </span>h.count[HUFF_CODES_TABLE];
-<a href=#728 id=728 data-nosnippet>728</a>        <span class="kw">if </span><span class="self">self</span>.repeat_count != <span class="number">0 </span>{
+<a href=#728 id=728 data-nosnippet>728</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">repeat_count !</span>= <span class="number">0 </span>{
 <a href=#729 id=729 data-nosnippet>729</a>            <span class="kw">if </span><span class="self">self</span>.repeat_count &lt; <span class="number">3 </span>{
 <a href=#730 id=730 data-nosnippet>730</a>                counts[<span class="self">self</span>.prev_code_size <span class="kw">as </span>usize] =
 <a href=#731 id=731 data-nosnippet>731</a>                    counts[<span class="self">self</span>.prev_code_size <span class="kw">as </span>usize].wrapping_add(<span class="self">self</span>.repeat_count);
@@ -749,7 +749,7 @@
 <a href=#749 id=749 data-nosnippet>749</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
 <a href=#750 id=750 data-nosnippet>750</a>        <span class="kw">let </span><span class="kw-2">mut </span>write = |buf| write(buf, packed_code_sizes, packed_pos);
 <a href=#751 id=751 data-nosnippet>751</a>        <span class="kw">let </span>counts = <span class="kw-2">&amp;mut </span>h.count[HUFF_CODES_TABLE];
-<a href=#752 id=752 data-nosnippet>752</a>        <span class="kw">if </span><span class="self">self</span>.z_count != <span class="number">0 </span>{
+<a href=#752 id=752 data-nosnippet>752</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">z_count !</span>= <span class="number">0 </span>{
 <a href=#753 id=753 data-nosnippet>753</a>            <span class="kw">if </span><span class="self">self</span>.z_count &lt; <span class="number">3 </span>{
 <a href=#754 id=754 data-nosnippet>754</a>                counts[<span class="number">0</span>] = counts[<span class="number">0</span>].wrapping_add(<span class="self">self</span>.z_count <span class="kw">as </span>u16);
 <a href=#755 id=755 data-nosnippet>755</a>                write(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>][..<span class="self">self</span>.z_count <span class="kw">as </span>usize])<span class="question-mark">?</span>;
@@ -1060,7 +1060,7 @@
 <a href=#1060 id=1060 data-nosnippet>1060</a>                }
 <a href=#1061 id=1061 data-nosnippet>1061</a>            } <span class="kw">else </span>{
 <a href=#1062 id=1062 data-nosnippet>1062</a>                rle.zero_code_size(<span class="kw-2">&amp;mut </span>packed_code_sizes, <span class="kw-2">&amp;mut </span>packed_pos, <span class="self">self</span>)<span class="question-mark">?</span>;
-<a href=#1063 id=1063 data-nosnippet>1063</a>                <span class="kw">if </span>code_size != rle.prev_code_size {
+<a href=#1063 id=1063 data-nosnippet>1063</a>                <span class="kw">if </span><span class="macro">code_size !</span>= rle.prev_code_size {
 <a href=#1064 id=1064 data-nosnippet>1064</a>                    rle.prev_code_size(<span class="kw-2">&amp;mut </span>packed_code_sizes, <span class="kw-2">&amp;mut </span>packed_pos, <span class="self">self</span>)<span class="question-mark">?</span>;
 <a href=#1065 id=1065 data-nosnippet>1065</a>                    <span class="self">self</span>.count[HUFF_CODES_TABLE][code_size <span class="kw">as </span>usize] =
 <a href=#1066 id=1066 data-nosnippet>1066</a>                        <span class="self">self</span>.count[HUFF_CODES_TABLE][code_size <span class="kw">as </span>usize].wrapping_add(<span class="number">1</span>);
@@ -1075,7 +1075,7 @@
 <a href=#1075 id=1075 data-nosnippet>1075</a>            rle.prev_code_size = code_size;
 <a href=#1076 id=1076 data-nosnippet>1076</a>        }
 <a href=#1077 id=1077 data-nosnippet>1077</a>
-<a href=#1078 id=1078 data-nosnippet>1078</a>        <span class="kw">if </span>rle.repeat_count != <span class="number">0 </span>{
+<a href=#1078 id=1078 data-nosnippet>1078</a>        <span class="kw">if </span>rle.<span class="macro">repeat_count !</span>= <span class="number">0 </span>{
 <a href=#1079 id=1079 data-nosnippet>1079</a>            rle.prev_code_size(<span class="kw-2">&amp;mut </span>packed_code_sizes, <span class="kw-2">&amp;mut </span>packed_pos, <span class="self">self</span>)<span class="question-mark">?</span>;
 <a href=#1080 id=1080 data-nosnippet>1080</a>        } <span class="kw">else </span>{
 <a href=#1081 id=1081 data-nosnippet>1081</a>            rle.zero_code_size(<span class="kw-2">&amp;mut </span>packed_code_sizes, <span class="kw-2">&amp;mut </span>packed_pos, <span class="self">self</span>)<span class="question-mark">?</span>;
@@ -1370,7 +1370,7 @@
 <a href=#1370 id=1370 data-nosnippet>1370</a>    <span class="kw">fn </span>new(flags: u32) -&gt; <span class="self">Self </span>{
 <a href=#1371 id=1371 data-nosnippet>1371</a>        ParamsOxide {
 <a href=#1372 id=1372 data-nosnippet>1372</a>            flags,
-<a href=#1373 id=1373 data-nosnippet>1373</a>            greedy_parsing: flags &amp; TDEFL_GREEDY_PARSING_FLAG != <span class="number">0</span>,
+<a href=#1373 id=1373 data-nosnippet>1373</a>            greedy_parsing: flags &amp; <span class="macro">TDEFL_GREEDY_PARSING_FLAG !</span>= <span class="number">0</span>,
 <a href=#1374 id=1374 data-nosnippet>1374</a>            block_index: <span class="number">0</span>,
 <a href=#1375 id=1375 data-nosnippet>1375</a>            saved_match_dist: <span class="number">0</span>,
 <a href=#1376 id=1376 data-nosnippet>1376</a>            saved_match_len: <span class="number">0</span>,
@@ -1391,7 +1391,7 @@
 <a href=#1391 id=1391 data-nosnippet>1391</a>
 <a href=#1392 id=1392 data-nosnippet>1392</a>    <span class="kw">fn </span>update_flags(<span class="kw-2">&amp;mut </span><span class="self">self</span>, flags: u32) {
 <a href=#1393 id=1393 data-nosnippet>1393</a>        <span class="self">self</span>.flags = flags;
-<a href=#1394 id=1394 data-nosnippet>1394</a>        <span class="self">self</span>.greedy_parsing = <span class="self">self</span>.flags &amp; TDEFL_GREEDY_PARSING_FLAG != <span class="number">0</span>;
+<a href=#1394 id=1394 data-nosnippet>1394</a>        <span class="self">self</span>.greedy_parsing = <span class="self">self</span>.flags &amp; <span class="macro">TDEFL_GREEDY_PARSING_FLAG !</span>= <span class="number">0</span>;
 <a href=#1395 id=1395 data-nosnippet>1395</a>    }
 <a href=#1396 id=1396 data-nosnippet>1396</a>
 <a href=#1397 id=1397 data-nosnippet>1397</a>    <span class="doccomment">/// Reset state, saving settings.
@@ -1561,7 +1561,7 @@
 <a href=#1561 id=1561 data-nosnippet>1561</a>
 <a href=#1562 id=1562 data-nosnippet>1562</a>    output.bits_in = <span class="number">0</span>;
 <a href=#1563 id=1563 data-nosnippet>1563</a>    output.bit_buffer = <span class="number">0</span>;
-<a href=#1564 id=1564 data-nosnippet>1564</a>    <span class="kw">while </span>bb.bits_in != <span class="number">0 </span>{
+<a href=#1564 id=1564 data-nosnippet>1564</a>    <span class="kw">while </span>bb.<span class="macro">bits_in !</span>= <span class="number">0 </span>{
 <a href=#1565 id=1565 data-nosnippet>1565</a>        <span class="kw">let </span>n = cmp::min(bb.bits_in, <span class="number">16</span>);
 <a href=#1566 id=1566 data-nosnippet>1566</a>        output.put_bits(bb.bit_buffer <span class="kw">as </span>u32 &amp; BITMASKS[n <span class="kw">as </span>usize], n);
 <a href=#1567 id=1567 data-nosnippet>1567</a>        bb.bit_buffer &gt;&gt;= n;
@@ -1606,11 +1606,11 @@
 <a href=#1606 id=1606 data-nosnippet>1606</a>        output.bits_in = d.params.saved_bits_in;
 <a href=#1607 id=1607 data-nosnippet>1607</a>
 <a href=#1608 id=1608 data-nosnippet>1608</a>        <span class="comment">// TODO: Don't think this second condition should be here but need to verify.
-<a href=#1609 id=1609 data-nosnippet>1609</a>        </span><span class="kw">let </span>use_raw_block = (d.params.flags &amp; TDEFL_FORCE_ALL_RAW_BLOCKS != <span class="number">0</span>)
+<a href=#1609 id=1609 data-nosnippet>1609</a>        </span><span class="kw">let </span>use_raw_block = (d.params.flags &amp; <span class="macro">TDEFL_FORCE_ALL_RAW_BLOCKS !</span>= <span class="number">0</span>)
 <a href=#1610 id=1610 data-nosnippet>1610</a>            &amp;&amp; (d.dict.lookahead_pos - d.dict.code_buf_dict_pos) &lt;= d.dict.size;
 <a href=#1611 id=1611 data-nosnippet>1611</a>        <span class="macro">debug_assert_eq!</span>(
 <a href=#1612 id=1612 data-nosnippet>1612</a>            use_raw_block,
-<a href=#1613 id=1613 data-nosnippet>1613</a>            d.params.flags &amp; TDEFL_FORCE_ALL_RAW_BLOCKS != <span class="number">0
+<a href=#1613 id=1613 data-nosnippet>1613</a>            d.params.flags &amp; <span class="macro">TDEFL_FORCE_ALL_RAW_BLOCKS !</span>= <span class="number">0
 <a href=#1614 id=1614 data-nosnippet>1614</a>        </span>);
 <a href=#1615 id=1615 data-nosnippet>1615</a>
 <a href=#1616 id=1616 data-nosnippet>1616</a>        <span class="macro">assert!</span>(d.params.flush_remaining == <span class="number">0</span>);
@@ -1620,7 +1620,7 @@
 <a href=#1620 id=1620 data-nosnippet>1620</a>        d.lz.init_flag();
 <a href=#1621 id=1621 data-nosnippet>1621</a>
 <a href=#1622 id=1622 data-nosnippet>1622</a>        <span class="comment">// If we are at the start of the stream, write the zlib header if requested.
-<a href=#1623 id=1623 data-nosnippet>1623</a>        </span><span class="kw">if </span>d.params.flags &amp; TDEFL_WRITE_ZLIB_HEADER != <span class="number">0 </span>&amp;&amp; d.params.block_index == <span class="number">0 </span>{
+<a href=#1623 id=1623 data-nosnippet>1623</a>        </span><span class="kw">if </span>d.params.flags &amp; <span class="macro">TDEFL_WRITE_ZLIB_HEADER !</span>= <span class="number">0 </span>&amp;&amp; d.params.block_index == <span class="number">0 </span>{
 <a href=#1624 id=1624 data-nosnippet>1624</a>            <span class="kw">let </span>header = zlib::header_from_flags(d.params.flags);
 <a href=#1625 id=1625 data-nosnippet>1625</a>            output.put_bits_no_flush(header[<span class="number">0</span>].into(), <span class="number">8</span>);
 <a href=#1626 id=1626 data-nosnippet>1626</a>            output.put_bits(header[<span class="number">1</span>].into(), <span class="number">8</span>);
@@ -1633,7 +1633,7 @@
 <a href=#1633 id=1633 data-nosnippet>1633</a>
 <a href=#1634 id=1634 data-nosnippet>1634</a>        <span class="kw">let </span>comp_success = <span class="kw">if </span>!use_raw_block {
 <a href=#1635 id=1635 data-nosnippet>1635</a>            <span class="kw">let </span>use_static =
-<a href=#1636 id=1636 data-nosnippet>1636</a>                (d.params.flags &amp; TDEFL_FORCE_ALL_STATIC_BLOCKS != <span class="number">0</span>) || (d.lz.total_bytes &lt; <span class="number">48</span>);
+<a href=#1636 id=1636 data-nosnippet>1636</a>                (d.params.flags &amp; <span class="macro">TDEFL_FORCE_ALL_STATIC_BLOCKS !</span>= <span class="number">0</span>) || (d.lz.total_bytes &lt; <span class="number">48</span>);
 <a href=#1637 id=1637 data-nosnippet>1637</a>            compress_block(<span class="kw-2">&amp;mut </span>d.huff, <span class="kw-2">&amp;mut </span>output, <span class="kw-2">&amp;</span>d.lz, use_static)<span class="question-mark">?
 <a href=#1638 id=1638 data-nosnippet>1638</a>        </span>} <span class="kw">else </span>{
 <a href=#1639 id=1639 data-nosnippet>1639</a>            <span class="bool-val">false
@@ -1682,10 +1682,10 @@
 <a href=#1682 id=1682 data-nosnippet>1682</a>            compress_block(<span class="kw-2">&amp;mut </span>d.huff, <span class="kw-2">&amp;mut </span>output, <span class="kw-2">&amp;</span>d.lz, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
 <a href=#1683 id=1683 data-nosnippet>1683</a>        }
 <a href=#1684 id=1684 data-nosnippet>1684</a>
-<a href=#1685 id=1685 data-nosnippet>1685</a>        <span class="kw">if </span>flush != TDEFLFlush::None {
+<a href=#1685 id=1685 data-nosnippet>1685</a>        <span class="kw">if </span><span class="macro">flush !</span>= TDEFLFlush::None {
 <a href=#1686 id=1686 data-nosnippet>1686</a>            <span class="kw">if </span>flush == TDEFLFlush::Finish {
 <a href=#1687 id=1687 data-nosnippet>1687</a>                output.pad_to_bytes();
-<a href=#1688 id=1688 data-nosnippet>1688</a>                <span class="kw">if </span>d.params.flags &amp; TDEFL_WRITE_ZLIB_HEADER != <span class="number">0 </span>{
+<a href=#1688 id=1688 data-nosnippet>1688</a>                <span class="kw">if </span>d.params.flags &amp; <span class="macro">TDEFL_WRITE_ZLIB_HEADER !</span>= <span class="number">0 </span>{
 <a href=#1689 id=1689 data-nosnippet>1689</a>                    <span class="kw">let </span><span class="kw-2">mut </span>adler = d.params.adler32;
 <a href=#1690 id=1690 data-nosnippet>1690</a>                    <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
 <a href=#1691 id=1691 data-nosnippet>1691</a>                        output.put_bits((adler &gt;&gt; <span class="number">24</span>) &amp; <span class="number">0xFF</span>, <span class="number">8</span>);
@@ -1772,7 +1772,7 @@
 <a href=#1772 id=1772 data-nosnippet>1772</a>    <span class="kw">let </span><span class="kw-2">mut </span>saved_match_dist = d.params.saved_match_dist;
 <a href=#1773 id=1773 data-nosnippet>1773</a>    <span class="kw">let </span><span class="kw-2">mut </span>saved_match_len = d.params.saved_match_len;
 <a href=#1774 id=1774 data-nosnippet>1774</a>
-<a href=#1775 id=1775 data-nosnippet>1775</a>    <span class="kw">while </span>src_pos &lt; in_buf.len() || (d.params.flush != TDEFLFlush::None &amp;&amp; lookahead_size != <span class="number">0</span>) {
+<a href=#1775 id=1775 data-nosnippet>1775</a>    <span class="kw">while </span>src_pos &lt; in_buf.len() || (d.params.<span class="macro">flush !</span>= TDEFLFlush::None &amp;&amp; <span class="macro">lookahead_size !</span>= <span class="number">0</span>) {
 <a href=#1776 id=1776 data-nosnippet>1776</a>        <span class="kw">let </span>src_buf_left = in_buf.len() - src_pos;
 <a href=#1777 id=1777 data-nosnippet>1777</a>        <span class="kw">let </span>num_bytes_to_process = cmp::min(src_buf_left, MAX_MATCH_LEN - lookahead_size);
 <a href=#1778 id=1778 data-nosnippet>1778</a>
@@ -1842,15 +1842,15 @@
 <a href=#1842 id=1842 data-nosnippet>1842</a>
 <a href=#1843 id=1843 data-nosnippet>1843</a>        <span class="kw">let </span><span class="kw-2">mut </span>len_to_move = <span class="number">1</span>;
 <a href=#1844 id=1844 data-nosnippet>1844</a>        <span class="kw">let </span><span class="kw-2">mut </span>cur_match_dist = <span class="number">0</span>;
-<a href=#1845 id=1845 data-nosnippet>1845</a>        <span class="kw">let </span><span class="kw-2">mut </span>cur_match_len = <span class="kw">if </span>saved_match_len != <span class="number">0 </span>{
+<a href=#1845 id=1845 data-nosnippet>1845</a>        <span class="kw">let </span><span class="kw-2">mut </span>cur_match_len = <span class="kw">if </span><span class="macro">saved_match_len !</span>= <span class="number">0 </span>{
 <a href=#1846 id=1846 data-nosnippet>1846</a>            saved_match_len
 <a href=#1847 id=1847 data-nosnippet>1847</a>        } <span class="kw">else </span>{
 <a href=#1848 id=1848 data-nosnippet>1848</a>            u32::from(MIN_MATCH_LEN) - <span class="number">1
 <a href=#1849 id=1849 data-nosnippet>1849</a>        </span>};
 <a href=#1850 id=1850 data-nosnippet>1850</a>        <span class="kw">let </span>cur_pos = lookahead_pos &amp; LZ_DICT_SIZE_MASK;
-<a href=#1851 id=1851 data-nosnippet>1851</a>        <span class="kw">if </span>d.params.flags &amp; TDEFL_RLE_MATCHES != <span class="number">0 </span>{
+<a href=#1851 id=1851 data-nosnippet>1851</a>        <span class="kw">if </span>d.params.flags &amp; <span class="macro">TDEFL_RLE_MATCHES !</span>= <span class="number">0 </span>{
 <a href=#1852 id=1852 data-nosnippet>1852</a>            <span class="comment">// If TDEFL_RLE_MATCHES is set, we only look for repeating sequences of the current byte.
-<a href=#1853 id=1853 data-nosnippet>1853</a>            </span><span class="kw">if </span>d.dict.size != <span class="number">0 </span>{
+<a href=#1853 id=1853 data-nosnippet>1853</a>            </span><span class="kw">if </span>d.dict.<span class="macro">size !</span>= <span class="number">0 </span>{
 <a href=#1854 id=1854 data-nosnippet>1854</a>                <span class="kw">let </span>c = d.dict.b.dict[(cur_pos.wrapping_sub(<span class="number">1</span>)) &amp; LZ_DICT_SIZE_MASK];
 <a href=#1855 id=1855 data-nosnippet>1855</a>                cur_match_len = d.dict.b.dict[cur_pos..(cur_pos + lookahead_size)]
 <a href=#1856 id=1856 data-nosnippet>1856</a>                    .iter()
@@ -1876,13 +1876,13 @@
 <a href=#1876 id=1876 data-nosnippet>1876</a>        }
 <a href=#1877 id=1877 data-nosnippet>1877</a>
 <a href=#1878 id=1878 data-nosnippet>1878</a>        <span class="kw">let </span>far_and_small = cur_match_len == MIN_MATCH_LEN.into() &amp;&amp; cur_match_dist &gt;= <span class="number">8 </span>* <span class="number">1024</span>;
-<a href=#1879 id=1879 data-nosnippet>1879</a>        <span class="kw">let </span>filter_small = d.params.flags &amp; TDEFL_FILTER_MATCHES != <span class="number">0 </span>&amp;&amp; cur_match_len &lt;= <span class="number">5</span>;
+<a href=#1879 id=1879 data-nosnippet>1879</a>        <span class="kw">let </span>filter_small = d.params.flags &amp; <span class="macro">TDEFL_FILTER_MATCHES !</span>= <span class="number">0 </span>&amp;&amp; cur_match_len &lt;= <span class="number">5</span>;
 <a href=#1880 id=1880 data-nosnippet>1880</a>        <span class="kw">if </span>far_and_small || filter_small || cur_pos == cur_match_dist <span class="kw">as </span>usize {
 <a href=#1881 id=1881 data-nosnippet>1881</a>            cur_match_dist = <span class="number">0</span>;
 <a href=#1882 id=1882 data-nosnippet>1882</a>            cur_match_len = <span class="number">0</span>;
 <a href=#1883 id=1883 data-nosnippet>1883</a>        }
 <a href=#1884 id=1884 data-nosnippet>1884</a>
-<a href=#1885 id=1885 data-nosnippet>1885</a>        <span class="kw">if </span>saved_match_len != <span class="number">0 </span>{
+<a href=#1885 id=1885 data-nosnippet>1885</a>        <span class="kw">if </span><span class="macro">saved_match_len !</span>= <span class="number">0 </span>{
 <a href=#1886 id=1886 data-nosnippet>1886</a>            <span class="kw">if </span>cur_match_len &gt; saved_match_len {
 <a href=#1887 id=1887 data-nosnippet>1887</a>                record_literal(<span class="kw-2">&amp;mut </span>d.huff, <span class="kw-2">&amp;mut </span>d.lz, saved_lit);
 <a href=#1888 id=1888 data-nosnippet>1888</a>                <span class="kw">if </span>cur_match_len &gt;= <span class="number">128 </span>{
@@ -1906,7 +1906,7 @@
 <a href=#1906 id=1906 data-nosnippet>1906</a>                d.dict.b.dict[cmp::min(cur_pos, d.dict.b.dict.len() - <span class="number">1</span>)],
 <a href=#1907 id=1907 data-nosnippet>1907</a>            );
 <a href=#1908 id=1908 data-nosnippet>1908</a>        } <span class="kw">else if </span>d.params.greedy_parsing
-<a href=#1909 id=1909 data-nosnippet>1909</a>            || (d.params.flags &amp; TDEFL_RLE_MATCHES != <span class="number">0</span>)
+<a href=#1909 id=1909 data-nosnippet>1909</a>            || (d.params.flags &amp; <span class="macro">TDEFL_RLE_MATCHES !</span>= <span class="number">0</span>)
 <a href=#1910 id=1910 data-nosnippet>1910</a>            || cur_match_len &gt;= <span class="number">128
 <a href=#1911 id=1911 data-nosnippet>1911</a>        </span>{
 <a href=#1912 id=1912 data-nosnippet>1912</a>            <span class="comment">// If we are using lazy matching, check for matches at the next byte if the current
@@ -1936,7 +1936,7 @@
 <a href=#1936 id=1936 data-nosnippet>1936</a>
 <a href=#1937 id=1937 data-nosnippet>1937</a>            <span class="kw">let </span>n = flush_block(d, callback, TDEFLFlush::None)
 <a href=#1938 id=1938 data-nosnippet>1938</a>                .unwrap_or(TDEFLStatus::PutBufFailed <span class="kw">as </span>i32);
-<a href=#1939 id=1939 data-nosnippet>1939</a>            <span class="kw">if </span>n != <span class="number">0 </span>{
+<a href=#1939 id=1939 data-nosnippet>1939</a>            <span class="kw">if </span><span class="macro">n !</span>= <span class="number">0 </span>{
 <a href=#1940 id=1940 data-nosnippet>1940</a>                d.params.saved_lit = saved_lit;
 <a href=#1941 id=1941 data-nosnippet>1941</a>                d.params.saved_match_dist = saved_match_dist;
 <a href=#1942 id=1942 data-nosnippet>1942</a>                d.params.saved_match_len = saved_match_len;
@@ -1969,7 +1969,7 @@
 <a href=#1969 id=1969 data-nosnippet>1969</a>
 <a href=#1970 id=1970 data-nosnippet>1970</a>    <span class="macro">debug_assert!</span>(d.lz.code_position &lt; LZ_CODE_BUF_SIZE - <span class="number">2</span>);
 <a href=#1971 id=1971 data-nosnippet>1971</a>
-<a href=#1972 id=1972 data-nosnippet>1972</a>    <span class="kw">while </span>src_pos &lt; in_buf.len() || (d.params.flush != TDEFLFlush::None &amp;&amp; lookahead_size &gt; <span class="number">0</span>) {
+<a href=#1972 id=1972 data-nosnippet>1972</a>    <span class="kw">while </span>src_pos &lt; in_buf.len() || (d.params.<span class="macro">flush !</span>= TDEFLFlush::None &amp;&amp; lookahead_size &gt; <span class="number">0</span>) {
 <a href=#1973 id=1973 data-nosnippet>1973</a>        <span class="kw">let </span><span class="kw-2">mut </span>dst_pos = (lookahead_pos + lookahead_size) &amp; LZ_DICT_SIZE_MASK;
 <a href=#1974 id=1974 data-nosnippet>1974</a>        <span class="kw">let </span><span class="kw-2">mut </span>num_bytes_to_process = cmp::min(
 <a href=#1975 id=1975 data-nosnippet>1975</a>            in_buf.len() - src_pos,
@@ -1977,7 +1977,7 @@
 <a href=#1977 id=1977 data-nosnippet>1977</a>        );
 <a href=#1978 id=1978 data-nosnippet>1978</a>        lookahead_size += num_bytes_to_process;
 <a href=#1979 id=1979 data-nosnippet>1979</a>
-<a href=#1980 id=1980 data-nosnippet>1980</a>        <span class="kw">while </span>num_bytes_to_process != <span class="number">0 </span>{
+<a href=#1980 id=1980 data-nosnippet>1980</a>        <span class="kw">while </span><span class="macro">num_bytes_to_process !</span>= <span class="number">0 </span>{
 <a href=#1981 id=1981 data-nosnippet>1981</a>            <span class="kw">let </span>n = cmp::min(LZ_DICT_SIZE - dst_pos, num_bytes_to_process);
 <a href=#1982 id=1982 data-nosnippet>1982</a>            d.dict.b.dict[dst_pos..dst_pos + n].copy_from_slice(<span class="kw-2">&amp;</span>in_buf[src_pos..src_pos + n]);
 <a href=#1983 id=1983 data-nosnippet>1983</a>
@@ -2102,7 +2102,7 @@
 <a href=#2102 id=2102 data-nosnippet>2102</a>                        }
 <a href=#2103 id=2103 data-nosnippet>2103</a>                        <span class="prelude-val">Ok</span>(status) =&gt; status,
 <a href=#2104 id=2104 data-nosnippet>2104</a>                    };
-<a href=#2105 id=2105 data-nosnippet>2105</a>                    <span class="kw">if </span>n != <span class="number">0 </span>{
+<a href=#2105 id=2105 data-nosnippet>2105</a>                    <span class="kw">if </span><span class="macro">n !</span>= <span class="number">0 </span>{
 <a href=#2106 id=2106 data-nosnippet>2106</a>                        d.params.src_pos = src_pos;
 <a href=#2107 id=2107 data-nosnippet>2107</a>                        <span class="kw">return </span>n &gt; <span class="number">0</span>;
 <a href=#2108 id=2108 data-nosnippet>2108</a>                    }
@@ -2114,7 +2114,7 @@
 <a href=#2114 id=2114 data-nosnippet>2114</a>            }
 <a href=#2115 id=2115 data-nosnippet>2115</a>        }
 <a href=#2116 id=2116 data-nosnippet>2116</a>
-<a href=#2117 id=2117 data-nosnippet>2117</a>        <span class="kw">while </span>lookahead_size != <span class="number">0 </span>{
+<a href=#2117 id=2117 data-nosnippet>2117</a>        <span class="kw">while </span><span class="macro">lookahead_size !</span>= <span class="number">0 </span>{
 <a href=#2118 id=2118 data-nosnippet>2118</a>            <span class="kw">let </span>lit = d.dict.b.dict[cur_pos];
 <a href=#2119 id=2119 data-nosnippet>2119</a>            d.lz.total_bytes += <span class="number">1</span>;
 <a href=#2120 id=2120 data-nosnippet>2120</a>            d.lz.write_code(lit);
@@ -2140,7 +2140,7 @@
 <a href=#2140 id=2140 data-nosnippet>2140</a>                    }
 <a href=#2141 id=2141 data-nosnippet>2141</a>                    <span class="prelude-val">Ok</span>(status) =&gt; status,
 <a href=#2142 id=2142 data-nosnippet>2142</a>                };
-<a href=#2143 id=2143 data-nosnippet>2143</a>                <span class="kw">if </span>n != <span class="number">0 </span>{
+<a href=#2143 id=2143 data-nosnippet>2143</a>                <span class="kw">if </span><span class="macro">n !</span>= <span class="number">0 </span>{
 <a href=#2144 id=2144 data-nosnippet>2144</a>                    d.params.src_pos = src_pos;
 <a href=#2145 id=2145 data-nosnippet>2145</a>                    <span class="kw">return </span>n &gt; <span class="number">0</span>;
 <a href=#2146 id=2146 data-nosnippet>2146</a>                }
@@ -2161,7 +2161,7 @@
 <a href=#2161 id=2161 data-nosnippet>2161</a>    <span class="kw">let </span><span class="kw-2">mut </span>res = (TDEFLStatus::Okay, p.src_pos, <span class="number">0</span>);
 <a href=#2162 id=2162 data-nosnippet>2162</a>    <span class="kw">if let </span>CallbackOut::Buf(<span class="kw-2">ref mut </span>cb) = c.out {
 <a href=#2163 id=2163 data-nosnippet>2163</a>        <span class="kw">let </span>n = cmp::min(cb.out_buf.len() - p.out_buf_ofs, p.flush_remaining <span class="kw">as </span>usize);
-<a href=#2164 id=2164 data-nosnippet>2164</a>        <span class="kw">if </span>n != <span class="number">0 </span>{
+<a href=#2164 id=2164 data-nosnippet>2164</a>        <span class="kw">if </span><span class="macro">n !</span>= <span class="number">0 </span>{
 <a href=#2165 id=2165 data-nosnippet>2165</a>            cb.out_buf[p.out_buf_ofs..p.out_buf_ofs + n]
 <a href=#2166 id=2166 data-nosnippet>2166</a>                .copy_from_slice(<span class="kw-2">&amp;</span>p.local_buf.b[p.flush_ofs <span class="kw">as </span>usize..p.flush_ofs <span class="kw">as </span>usize + n]);
 <a href=#2167 id=2167 data-nosnippet>2167</a>        }
@@ -2243,7 +2243,7 @@
 <a href=#2243 id=2243 data-nosnippet>2243</a>    d.params.src_pos = <span class="number">0</span>;
 <a href=#2244 id=2244 data-nosnippet>2244</a>
 <a href=#2245 id=2245 data-nosnippet>2245</a>    <span class="kw">let </span>prev_ok = d.params.prev_return_status == TDEFLStatus::Okay;
-<a href=#2246 id=2246 data-nosnippet>2246</a>    <span class="kw">let </span>flush_finish_once = d.params.flush != TDEFLFlush::Finish || flush == TDEFLFlush::Finish;
+<a href=#2246 id=2246 data-nosnippet>2246</a>    <span class="kw">let </span>flush_finish_once = d.params.<span class="macro">flush !</span>= TDEFLFlush::Finish || flush == TDEFLFlush::Finish;
 <a href=#2247 id=2247 data-nosnippet>2247</a>
 <a href=#2248 id=2248 data-nosnippet>2248</a>    d.params.flush = flush;
 <a href=#2249 id=2249 data-nosnippet>2249</a>    <span class="kw">if </span>!prev_ok || !flush_finish_once {
@@ -2251,17 +2251,17 @@
 <a href=#2251 id=2251 data-nosnippet>2251</a>        <span class="kw">return </span>(d.params.prev_return_status, <span class="number">0</span>, <span class="number">0</span>);
 <a href=#2252 id=2252 data-nosnippet>2252</a>    }
 <a href=#2253 id=2253 data-nosnippet>2253</a>
-<a href=#2254 id=2254 data-nosnippet>2254</a>    <span class="kw">if </span>d.params.flush_remaining != <span class="number">0 </span>|| d.params.finished {
+<a href=#2254 id=2254 data-nosnippet>2254</a>    <span class="kw">if </span>d.params.<span class="macro">flush_remaining !</span>= <span class="number">0 </span>|| d.params.finished {
 <a href=#2255 id=2255 data-nosnippet>2255</a>        <span class="kw">let </span>res = flush_output_buffer(callback, <span class="kw-2">&amp;mut </span>d.params);
 <a href=#2256 id=2256 data-nosnippet>2256</a>        d.params.prev_return_status = res.<span class="number">0</span>;
 <a href=#2257 id=2257 data-nosnippet>2257</a>        <span class="kw">return </span>res;
 <a href=#2258 id=2258 data-nosnippet>2258</a>    }
 <a href=#2259 id=2259 data-nosnippet>2259</a>
 <a href=#2260 id=2260 data-nosnippet>2260</a>    <span class="kw">let </span>one_probe = d.params.flags &amp; MAX_PROBES_MASK == <span class="number">1</span>;
-<a href=#2261 id=2261 data-nosnippet>2261</a>    <span class="kw">let </span>greedy = d.params.flags &amp; TDEFL_GREEDY_PARSING_FLAG != <span class="number">0</span>;
+<a href=#2261 id=2261 data-nosnippet>2261</a>    <span class="kw">let </span>greedy = d.params.flags &amp; <span class="macro">TDEFL_GREEDY_PARSING_FLAG !</span>= <span class="number">0</span>;
 <a href=#2262 id=2262 data-nosnippet>2262</a>    <span class="kw">let </span>filter_or_rle = d.params.flags &amp; (TDEFL_FILTER_MATCHES | TDEFL_FORCE_ALL_RAW_BLOCKS) != <span class="number">0</span>;
 <a href=#2263 id=2263 data-nosnippet>2263</a>
-<a href=#2264 id=2264 data-nosnippet>2264</a>    <span class="kw">let </span>raw = d.params.flags &amp; TDEFL_FORCE_ALL_RAW_BLOCKS != <span class="number">0</span>;
+<a href=#2264 id=2264 data-nosnippet>2264</a>    <span class="kw">let </span>raw = d.params.flags &amp; <span class="macro">TDEFL_FORCE_ALL_RAW_BLOCKS !</span>= <span class="number">0</span>;
 <a href=#2265 id=2265 data-nosnippet>2265</a>
 <a href=#2266 id=2266 data-nosnippet>2266</a>    <span class="kw">let </span>compress_success = <span class="kw">if </span>raw {
 <a href=#2267 id=2267 data-nosnippet>2267</a>        compress_stored(d, callback)
@@ -2287,7 +2287,7 @@
 <a href=#2287 id=2287 data-nosnippet>2287</a>
 <a href=#2288 id=2288 data-nosnippet>2288</a>    <span class="kw">let </span>flush_none = d.params.flush == TDEFLFlush::None;
 <a href=#2289 id=2289 data-nosnippet>2289</a>    <span class="kw">let </span>in_left = callback.in_buf.map_or(<span class="number">0</span>, |buf| buf.len()) - d.params.src_pos;
-<a href=#2290 id=2290 data-nosnippet>2290</a>    <span class="kw">let </span>remaining = in_left != <span class="number">0 </span>|| d.params.flush_remaining != <span class="number">0</span>;
+<a href=#2290 id=2290 data-nosnippet>2290</a>    <span class="kw">let </span>remaining = <span class="macro">in_left !</span>= <span class="number">0 </span>|| d.params.<span class="macro">flush_remaining !</span>= <span class="number">0</span>;
 <a href=#2291 id=2291 data-nosnippet>2291</a>    <span class="kw">if </span>!flush_none &amp;&amp; d.dict.lookahead_size == <span class="number">0 </span>&amp;&amp; !remaining {
 <a href=#2292 id=2292 data-nosnippet>2292</a>        <span class="kw">let </span>flush = d.params.flush;
 <a href=#2293 id=2293 data-nosnippet>2293</a>        <span class="kw">match </span>flush_block(d, callback, flush) {
@@ -2488,4 +2488,5 @@
 <a href=#2488 id=2488 data-nosnippet>2488</a>        <span class="macro">assert_eq!</span>(cmf, <span class="number">8</span>);
 <a href=#2489 id=2489 data-nosnippet>2489</a>        <span class="macro">assert_eq!</span>(output, slice)
 <a href=#2490 id=2490 data-nosnippet>2490</a>    }
-<a href=#2491 id=2491 data-nosnippet>2491</a>}</code></pre></div></section></main></body></html>
+<a href=#2491 id=2491 data-nosnippet>2491</a>}
+</code></pre></div></section></main></body></html>

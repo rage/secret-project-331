@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerovec-0.11.4/src/map2d/serde.rs`."><title>serde.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zerovec/map2d/</div>serde.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerovec-0.11.5/src/map2d/serde.rs`."><title>serde.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zerovec/map2d/</div>serde.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 <a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
 <a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -354,84 +354,93 @@
 <a href=#354 id=354 data-nosnippet>354</a>    <span class="kw">use </span><span class="kw">crate</span>::map2d::{ZeroMap2d, ZeroMap2dBorrowed};
 <a href=#355 id=355 data-nosnippet>355</a>
 <a href=#356 id=356 data-nosnippet>356</a>    <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
-<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="kw">struct </span>DeriveTest_ZeroMap2d&lt;<span class="lifetime">'data</span>&gt; {
-<a href=#358 id=358 data-nosnippet>358</a>        <span class="attr">#[serde(borrow)]
-<a href=#359 id=359 data-nosnippet>359</a>        </span>_data: ZeroMap2d&lt;<span class="lifetime">'data</span>, u16, str, [u8]&gt;,
-<a href=#360 id=360 data-nosnippet>360</a>    }
-<a href=#361 id=361 data-nosnippet>361</a>
-<a href=#362 id=362 data-nosnippet>362</a>    <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
-<a href=#363 id=363 data-nosnippet>363</a>    </span><span class="kw">struct </span>DeriveTest_ZeroMap2dBorrowed&lt;<span class="lifetime">'data</span>&gt; {
-<a href=#364 id=364 data-nosnippet>364</a>        <span class="attr">#[serde(borrow)]
-<a href=#365 id=365 data-nosnippet>365</a>        </span>_data: ZeroMap2dBorrowed&lt;<span class="lifetime">'data</span>, u16, str, [u8]&gt;,
-<a href=#366 id=366 data-nosnippet>366</a>    }
-<a href=#367 id=367 data-nosnippet>367</a>
-<a href=#368 id=368 data-nosnippet>368</a>    <span class="kw">const </span>JSON_STR: <span class="kw-2">&amp;</span>str = <span class="string">"{\"1\":{\"1\":\"uno\"},\"2\":{\"2\":\"dos\",\"3\":\"tres\"}}"</span>;
-<a href=#369 id=369 data-nosnippet>369</a>    <span class="kw">const </span>BINCODE_BYTES: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-<a href=#370 id=370 data-nosnippet>370</a>        <span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>,
-<a href=#371 id=371 data-nosnippet>371</a>        <span class="number">0</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">16</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">0</span>,
-<a href=#372 id=372 data-nosnippet>372</a>        <span class="number">117</span>, <span class="number">110</span>, <span class="number">111</span>, <span class="number">100</span>, <span class="number">111</span>, <span class="number">115</span>, <span class="number">116</span>, <span class="number">114</span>, <span class="number">101</span>, <span class="number">115</span>,
-<a href=#373 id=373 data-nosnippet>373</a>    ];
-<a href=#374 id=374 data-nosnippet>374</a>
-<a href=#375 id=375 data-nosnippet>375</a>    <span class="kw">fn </span>make_map() -&gt; ZeroMap2d&lt;<span class="lifetime">'static</span>, u32, u16, str&gt; {
-<a href=#376 id=376 data-nosnippet>376</a>        <span class="kw">let </span><span class="kw-2">mut </span>map = ZeroMap2d::new();
-<a href=#377 id=377 data-nosnippet>377</a>        map.insert(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">1</span>, <span class="string">"uno"</span>);
-<a href=#378 id=378 data-nosnippet>378</a>        map.insert(<span class="kw-2">&amp;</span><span class="number">2</span>, <span class="kw-2">&amp;</span><span class="number">2</span>, <span class="string">"dos"</span>);
-<a href=#379 id=379 data-nosnippet>379</a>        map.insert(<span class="kw-2">&amp;</span><span class="number">2</span>, <span class="kw-2">&amp;</span><span class="number">3</span>, <span class="string">"tres"</span>);
-<a href=#380 id=380 data-nosnippet>380</a>        map
-<a href=#381 id=381 data-nosnippet>381</a>    }
+<a href=#357 id=357 data-nosnippet>357</a>    #[allow(
+<a href=#358 id=358 data-nosnippet>358</a>        dead_code,
+<a href=#359 id=359 data-nosnippet>359</a>        reason = <span class="string">"We are testing that these types can be deserialized, and Tests compatibility of custom impl with Serde derive."
+<a href=#360 id=360 data-nosnippet>360</a>    </span>)]
+<a href=#361 id=361 data-nosnippet>361</a>    </span><span class="kw">struct </span>DeriveTest_ZeroMap2d&lt;<span class="lifetime">'data</span>&gt; {
+<a href=#362 id=362 data-nosnippet>362</a>        <span class="attr">#[serde(borrow)]
+<a href=#363 id=363 data-nosnippet>363</a>        </span>_data: ZeroMap2d&lt;<span class="lifetime">'data</span>, u16, str, [u8]&gt;,
+<a href=#364 id=364 data-nosnippet>364</a>    }
+<a href=#365 id=365 data-nosnippet>365</a>
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
+<a href=#367 id=367 data-nosnippet>367</a>    #[allow(
+<a href=#368 id=368 data-nosnippet>368</a>        dead_code,
+<a href=#369 id=369 data-nosnippet>369</a>        reason = <span class="string">"We are testing that these types can be deserialized, and Tests compatibility of custom impl with Serde derive."
+<a href=#370 id=370 data-nosnippet>370</a>    </span>)]
+<a href=#371 id=371 data-nosnippet>371</a>    </span><span class="kw">struct </span>DeriveTest_ZeroMap2dBorrowed&lt;<span class="lifetime">'data</span>&gt; {
+<a href=#372 id=372 data-nosnippet>372</a>        <span class="attr">#[serde(borrow)]
+<a href=#373 id=373 data-nosnippet>373</a>        </span>_data: ZeroMap2dBorrowed&lt;<span class="lifetime">'data</span>, u16, str, [u8]&gt;,
+<a href=#374 id=374 data-nosnippet>374</a>    }
+<a href=#375 id=375 data-nosnippet>375</a>
+<a href=#376 id=376 data-nosnippet>376</a>    <span class="kw">const </span>JSON_STR: <span class="kw-2">&amp;</span>str = <span class="string">"{\"1\":{\"1\":\"uno\"},\"2\":{\"2\":\"dos\",\"3\":\"tres\"}}"</span>;
+<a href=#377 id=377 data-nosnippet>377</a>    <span class="kw">const </span>BINCODE_BYTES: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
+<a href=#378 id=378 data-nosnippet>378</a>        <span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>,
+<a href=#379 id=379 data-nosnippet>379</a>        <span class="number">0</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">16</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">0</span>,
+<a href=#380 id=380 data-nosnippet>380</a>        <span class="number">117</span>, <span class="number">110</span>, <span class="number">111</span>, <span class="number">100</span>, <span class="number">111</span>, <span class="number">115</span>, <span class="number">116</span>, <span class="number">114</span>, <span class="number">101</span>, <span class="number">115</span>,
+<a href=#381 id=381 data-nosnippet>381</a>    ];
 <a href=#382 id=382 data-nosnippet>382</a>
-<a href=#383 id=383 data-nosnippet>383</a>    <span class="attr">#[test]
-<a href=#384 id=384 data-nosnippet>384</a>    </span><span class="kw">fn </span>test_serde_json() {
-<a href=#385 id=385 data-nosnippet>385</a>        <span class="kw">let </span>map = make_map();
-<a href=#386 id=386 data-nosnippet>386</a>        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
-<a href=#387 id=387 data-nosnippet>387</a>        <span class="macro">assert_eq!</span>(JSON_STR, json_str);
-<a href=#388 id=388 data-nosnippet>388</a>        <span class="kw">let </span>new_map: ZeroMap2d&lt;u32, u16, str&gt; =
-<a href=#389 id=389 data-nosnippet>389</a>            serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">"deserialize"</span>);
-<a href=#390 id=390 data-nosnippet>390</a>        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{new_map:?}"</span>), <span class="macro">format!</span>(<span class="string">"{map:?}"</span>));
-<a href=#391 id=391 data-nosnippet>391</a>    }
-<a href=#392 id=392 data-nosnippet>392</a>
-<a href=#393 id=393 data-nosnippet>393</a>    <span class="attr">#[test]
-<a href=#394 id=394 data-nosnippet>394</a>    </span><span class="kw">fn </span>test_bincode() {
-<a href=#395 id=395 data-nosnippet>395</a>        <span class="kw">let </span>map = make_map();
-<a href=#396 id=396 data-nosnippet>396</a>        <span class="kw">let </span>bincode_bytes = bincode::serialize(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
-<a href=#397 id=397 data-nosnippet>397</a>        <span class="macro">assert_eq!</span>(BINCODE_BYTES, bincode_bytes);
-<a href=#398 id=398 data-nosnippet>398</a>        <span class="kw">let </span>new_map: ZeroMap2d&lt;u32, u16, str&gt; =
-<a href=#399 id=399 data-nosnippet>399</a>            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_bytes).expect(<span class="string">"deserialize"</span>);
-<a href=#400 id=400 data-nosnippet>400</a>        <span class="macro">assert_eq!</span>(
-<a href=#401 id=401 data-nosnippet>401</a>            <span class="macro">format!</span>(<span class="string">"{new_map:?}"</span>),
-<a href=#402 id=402 data-nosnippet>402</a>            <span class="macro">format!</span>(<span class="string">"{map:?}"</span>).replace(<span class="string">"Owned"</span>, <span class="string">"Borrowed"</span>),
-<a href=#403 id=403 data-nosnippet>403</a>        );
-<a href=#404 id=404 data-nosnippet>404</a>
-<a href=#405 id=405 data-nosnippet>405</a>        <span class="kw">let </span>new_map: ZeroMap2dBorrowed&lt;u32, u16, str&gt; =
-<a href=#406 id=406 data-nosnippet>406</a>            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_bytes).expect(<span class="string">"deserialize"</span>);
-<a href=#407 id=407 data-nosnippet>407</a>        <span class="macro">assert_eq!</span>(
-<a href=#408 id=408 data-nosnippet>408</a>            <span class="macro">format!</span>(<span class="string">"{new_map:?}"</span>),
-<a href=#409 id=409 data-nosnippet>409</a>            <span class="macro">format!</span>(<span class="string">"{map:?}"</span>)
-<a href=#410 id=410 data-nosnippet>410</a>                .replace(<span class="string">"Owned"</span>, <span class="string">"Borrowed"</span>)
-<a href=#411 id=411 data-nosnippet>411</a>                .replace(<span class="string">"ZeroMap2d"</span>, <span class="string">"ZeroMap2dBorrowed"</span>)
-<a href=#412 id=412 data-nosnippet>412</a>        );
-<a href=#413 id=413 data-nosnippet>413</a>    }
-<a href=#414 id=414 data-nosnippet>414</a>
-<a href=#415 id=415 data-nosnippet>415</a>    <span class="attr">#[test]
-<a href=#416 id=416 data-nosnippet>416</a>    </span><span class="kw">fn </span>test_serde_rmp() {
-<a href=#417 id=417 data-nosnippet>417</a>        <span class="kw">let </span>map = make_map();
-<a href=#418 id=418 data-nosnippet>418</a>        <span class="kw">let </span>rmp_buf = rmp_serde::to_vec(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
-<a href=#419 id=419 data-nosnippet>419</a>        <span class="kw">let </span>new_map: ZeroMap2d&lt;u32, u16, str&gt; = rmp_serde::from_slice(<span class="kw-2">&amp;</span>rmp_buf).unwrap();
-<a href=#420 id=420 data-nosnippet>420</a>        <span class="macro">assert_eq!</span>(map, new_map);
+<a href=#383 id=383 data-nosnippet>383</a>    <span class="kw">fn </span>make_map() -&gt; ZeroMap2d&lt;<span class="lifetime">'static</span>, u32, u16, str&gt; {
+<a href=#384 id=384 data-nosnippet>384</a>        <span class="kw">let </span><span class="kw-2">mut </span>map = ZeroMap2d::new();
+<a href=#385 id=385 data-nosnippet>385</a>        map.insert(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">1</span>, <span class="string">"uno"</span>);
+<a href=#386 id=386 data-nosnippet>386</a>        map.insert(<span class="kw-2">&amp;</span><span class="number">2</span>, <span class="kw-2">&amp;</span><span class="number">2</span>, <span class="string">"dos"</span>);
+<a href=#387 id=387 data-nosnippet>387</a>        map.insert(<span class="kw-2">&amp;</span><span class="number">2</span>, <span class="kw-2">&amp;</span><span class="number">3</span>, <span class="string">"tres"</span>);
+<a href=#388 id=388 data-nosnippet>388</a>        map
+<a href=#389 id=389 data-nosnippet>389</a>    }
+<a href=#390 id=390 data-nosnippet>390</a>
+<a href=#391 id=391 data-nosnippet>391</a>    <span class="attr">#[test]
+<a href=#392 id=392 data-nosnippet>392</a>    </span><span class="kw">fn </span>test_serde_json() {
+<a href=#393 id=393 data-nosnippet>393</a>        <span class="kw">let </span>map = make_map();
+<a href=#394 id=394 data-nosnippet>394</a>        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
+<a href=#395 id=395 data-nosnippet>395</a>        <span class="macro">assert_eq!</span>(JSON_STR, json_str);
+<a href=#396 id=396 data-nosnippet>396</a>        <span class="kw">let </span>new_map: ZeroMap2d&lt;u32, u16, str&gt; =
+<a href=#397 id=397 data-nosnippet>397</a>            serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">"deserialize"</span>);
+<a href=#398 id=398 data-nosnippet>398</a>        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{new_map:?}"</span>), <span class="macro">format!</span>(<span class="string">"{map:?}"</span>));
+<a href=#399 id=399 data-nosnippet>399</a>    }
+<a href=#400 id=400 data-nosnippet>400</a>
+<a href=#401 id=401 data-nosnippet>401</a>    <span class="attr">#[test]
+<a href=#402 id=402 data-nosnippet>402</a>    </span><span class="kw">fn </span>test_bincode() {
+<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">let </span>map = make_map();
+<a href=#404 id=404 data-nosnippet>404</a>        <span class="kw">let </span>bincode_bytes = bincode::serialize(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
+<a href=#405 id=405 data-nosnippet>405</a>        <span class="macro">assert_eq!</span>(BINCODE_BYTES, bincode_bytes);
+<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">let </span>new_map: ZeroMap2d&lt;u32, u16, str&gt; =
+<a href=#407 id=407 data-nosnippet>407</a>            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_bytes).expect(<span class="string">"deserialize"</span>);
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="macro">assert_eq!</span>(
+<a href=#409 id=409 data-nosnippet>409</a>            <span class="macro">format!</span>(<span class="string">"{new_map:?}"</span>),
+<a href=#410 id=410 data-nosnippet>410</a>            <span class="macro">format!</span>(<span class="string">"{map:?}"</span>).replace(<span class="string">"Owned"</span>, <span class="string">"Borrowed"</span>),
+<a href=#411 id=411 data-nosnippet>411</a>        );
+<a href=#412 id=412 data-nosnippet>412</a>
+<a href=#413 id=413 data-nosnippet>413</a>        <span class="kw">let </span>new_map: ZeroMap2dBorrowed&lt;u32, u16, str&gt; =
+<a href=#414 id=414 data-nosnippet>414</a>            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_bytes).expect(<span class="string">"deserialize"</span>);
+<a href=#415 id=415 data-nosnippet>415</a>        <span class="macro">assert_eq!</span>(
+<a href=#416 id=416 data-nosnippet>416</a>            <span class="macro">format!</span>(<span class="string">"{new_map:?}"</span>),
+<a href=#417 id=417 data-nosnippet>417</a>            <span class="macro">format!</span>(<span class="string">"{map:?}"</span>)
+<a href=#418 id=418 data-nosnippet>418</a>                .replace(<span class="string">"Owned"</span>, <span class="string">"Borrowed"</span>)
+<a href=#419 id=419 data-nosnippet>419</a>                .replace(<span class="string">"ZeroMap2d"</span>, <span class="string">"ZeroMap2dBorrowed"</span>)
+<a href=#420 id=420 data-nosnippet>420</a>        );
 <a href=#421 id=421 data-nosnippet>421</a>    }
 <a href=#422 id=422 data-nosnippet>422</a>
 <a href=#423 id=423 data-nosnippet>423</a>    <span class="attr">#[test]
-<a href=#424 id=424 data-nosnippet>424</a>    </span><span class="kw">fn </span>test_sample_bincode() {
-<a href=#425 id=425 data-nosnippet>425</a>        <span class="comment">// This is the map from the main docs page for ZeroMap2d
-<a href=#426 id=426 data-nosnippet>426</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>map: ZeroMap2d&lt;u16, u16, str&gt; = ZeroMap2d::new();
-<a href=#427 id=427 data-nosnippet>427</a>        map.insert(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>, <span class="string">"three"</span>);
-<a href=#428 id=428 data-nosnippet>428</a>        <span class="kw">let </span>bincode_bytes: Vec&lt;u8&gt; = bincode::serialize(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
-<a href=#429 id=429 data-nosnippet>429</a>        <span class="macro">assert_eq!</span>(
-<a href=#430 id=430 data-nosnippet>430</a>            bincode_bytes.as_slice(),
-<a href=#431 id=431 data-nosnippet>431</a>            <span class="kw-2">&amp;</span>[
-<a href=#432 id=432 data-nosnippet>432</a>                <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-<a href=#433 id=433 data-nosnippet>433</a>                <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">7</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">116</span>, <span class="number">104</span>, <span class="number">114</span>, <span class="number">101</span>, <span class="number">101
-<a href=#434 id=434 data-nosnippet>434</a>            </span>]
-<a href=#435 id=435 data-nosnippet>435</a>        );
-<a href=#436 id=436 data-nosnippet>436</a>    }
-<a href=#437 id=437 data-nosnippet>437</a>}</code></pre></div></section></main></body></html>
+<a href=#424 id=424 data-nosnippet>424</a>    </span><span class="kw">fn </span>test_serde_rmp() {
+<a href=#425 id=425 data-nosnippet>425</a>        <span class="kw">let </span>map = make_map();
+<a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">let </span>rmp_buf = rmp_serde::to_vec(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
+<a href=#427 id=427 data-nosnippet>427</a>        <span class="kw">let </span>new_map: ZeroMap2d&lt;u32, u16, str&gt; = rmp_serde::from_slice(<span class="kw-2">&amp;</span>rmp_buf).unwrap();
+<a href=#428 id=428 data-nosnippet>428</a>        <span class="macro">assert_eq!</span>(map, new_map);
+<a href=#429 id=429 data-nosnippet>429</a>    }
+<a href=#430 id=430 data-nosnippet>430</a>
+<a href=#431 id=431 data-nosnippet>431</a>    <span class="attr">#[test]
+<a href=#432 id=432 data-nosnippet>432</a>    </span><span class="kw">fn </span>test_sample_bincode() {
+<a href=#433 id=433 data-nosnippet>433</a>        <span class="comment">// This is the map from the main docs page for ZeroMap2d
+<a href=#434 id=434 data-nosnippet>434</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>map: ZeroMap2d&lt;u16, u16, str&gt; = ZeroMap2d::new();
+<a href=#435 id=435 data-nosnippet>435</a>        map.insert(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>, <span class="string">"three"</span>);
+<a href=#436 id=436 data-nosnippet>436</a>        <span class="kw">let </span>bincode_bytes: Vec&lt;u8&gt; = bincode::serialize(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
+<a href=#437 id=437 data-nosnippet>437</a>        <span class="macro">assert_eq!</span>(
+<a href=#438 id=438 data-nosnippet>438</a>            bincode_bytes.as_slice(),
+<a href=#439 id=439 data-nosnippet>439</a>            <span class="kw-2">&amp;</span>[
+<a href=#440 id=440 data-nosnippet>440</a>                <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+<a href=#441 id=441 data-nosnippet>441</a>                <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">7</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">116</span>, <span class="number">104</span>, <span class="number">114</span>, <span class="number">101</span>, <span class="number">101
+<a href=#442 id=442 data-nosnippet>442</a>            </span>]
+<a href=#443 id=443 data-nosnippet>443</a>        );
+<a href=#444 id=444 data-nosnippet>444</a>    }
+<a href=#445 id=445 data-nosnippet>445</a>}
+</code></pre></div></section></main></body></html>

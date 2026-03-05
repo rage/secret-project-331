@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tower-0.5.2/src/builder/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tower" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tower/builder/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Builder types to compose layers and services
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tower-0.5.3/src/builder/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tower" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tower/builder/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Builder types to compose layers and services
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>tower_layer::{Identity, Layer, Stack};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>tower_service::Service;
@@ -635,7 +635,7 @@
 <a href=#635 id=635 data-nosnippet>635</a>    /// impl Service&lt;Request&gt; for MyService {
 <a href=#636 id=636 data-nosnippet>636</a>    ///   type Response = Response;
 <a href=#637 id=637 data-nosnippet>637</a>    ///   type Error = Error;
-<a href=#638 id=638 data-nosnippet>638</a>    ///   type Future = futures_util::future::Ready&lt;Result&lt;Response, Error&gt;&gt;;
+<a href=#638 id=638 data-nosnippet>638</a>    ///   type Future = std::future::Ready&lt;Result&lt;Response, Error&gt;&gt;;
 <a href=#639 id=639 data-nosnippet>639</a>    ///
 <a href=#640 id=640 data-nosnippet>640</a>    ///   fn poll_ready(&amp;mut self, cx: &amp;mut Context&lt;'_&gt;) -&gt; Poll&lt;Result&lt;(), Self::Error&gt;&gt; {
 <a href=#641 id=641 data-nosnippet>641</a>    ///       // ...
@@ -789,21 +789,84 @@
 <a href=#789 id=789 data-nosnippet>789</a>    {
 <a href=#790 id=790 data-nosnippet>790</a>        <span class="self">self</span>.layer(<span class="kw">crate</span>::util::BoxCloneService::layer())
 <a href=#791 id=791 data-nosnippet>791</a>    }
-<a href=#792 id=792 data-nosnippet>792</a>}
-<a href=#793 id=793 data-nosnippet>793</a>
-<a href=#794 id=794 data-nosnippet>794</a><span class="kw">impl</span>&lt;L: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>ServiceBuilder&lt;L&gt; {
-<a href=#795 id=795 data-nosnippet>795</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-<a href=#796 id=796 data-nosnippet>796</a>        f.debug_tuple(<span class="string">"ServiceBuilder"</span>).field(<span class="kw-2">&amp;</span><span class="self">self</span>.layer).finish()
-<a href=#797 id=797 data-nosnippet>797</a>    }
-<a href=#798 id=798 data-nosnippet>798</a>}
-<a href=#799 id=799 data-nosnippet>799</a>
-<a href=#800 id=800 data-nosnippet>800</a><span class="kw">impl</span>&lt;S, L&gt; Layer&lt;S&gt; <span class="kw">for </span>ServiceBuilder&lt;L&gt;
-<a href=#801 id=801 data-nosnippet>801</a><span class="kw">where
-<a href=#802 id=802 data-nosnippet>802</a>    </span>L: Layer&lt;S&gt;,
-<a href=#803 id=803 data-nosnippet>803</a>{
-<a href=#804 id=804 data-nosnippet>804</a>    <span class="kw">type </span>Service = L::Service;
-<a href=#805 id=805 data-nosnippet>805</a>
-<a href=#806 id=806 data-nosnippet>806</a>    <span class="kw">fn </span>layer(<span class="kw-2">&amp;</span><span class="self">self</span>, inner: S) -&gt; <span class="self">Self</span>::Service {
-<a href=#807 id=807 data-nosnippet>807</a>        <span class="self">self</span>.layer.layer(inner)
-<a href=#808 id=808 data-nosnippet>808</a>    }
-<a href=#809 id=809 data-nosnippet>809</a>}</code></pre></div></section></main></body></html>
+<a href=#792 id=792 data-nosnippet>792</a>
+<a href=#793 id=793 data-nosnippet>793</a>    <span class="doccomment">/// This wraps the inner service with the [`Layer`] returned by [`BoxCloneSyncServiceLayer`].
+<a href=#794 id=794 data-nosnippet>794</a>    ///
+<a href=#795 id=795 data-nosnippet>795</a>    /// This is similar to the [`boxed_clone`] method, but it requires that `Self` implement
+<a href=#796 id=796 data-nosnippet>796</a>    /// [`Sync`], and the returned boxed service implements [`Sync`].
+<a href=#797 id=797 data-nosnippet>797</a>    ///
+<a href=#798 id=798 data-nosnippet>798</a>    /// See [`BoxCloneSyncService`] for more details.
+<a href=#799 id=799 data-nosnippet>799</a>    ///
+<a href=#800 id=800 data-nosnippet>800</a>    /// # Example
+<a href=#801 id=801 data-nosnippet>801</a>    ///
+<a href=#802 id=802 data-nosnippet>802</a>    /// ```
+<a href=#803 id=803 data-nosnippet>803</a>    /// use tower::{Service, ServiceBuilder, BoxError, util::BoxCloneSyncService};
+<a href=#804 id=804 data-nosnippet>804</a>    /// use std::time::Duration;
+<a href=#805 id=805 data-nosnippet>805</a>    /// #
+<a href=#806 id=806 data-nosnippet>806</a>    /// # struct Request;
+<a href=#807 id=807 data-nosnippet>807</a>    /// # struct Response;
+<a href=#808 id=808 data-nosnippet>808</a>    /// # impl Response {
+<a href=#809 id=809 data-nosnippet>809</a>    /// #     fn new() -&gt; Self { Self }
+<a href=#810 id=810 data-nosnippet>810</a>    /// # }
+<a href=#811 id=811 data-nosnippet>811</a>    ///
+<a href=#812 id=812 data-nosnippet>812</a>    /// let service: BoxCloneSyncService&lt;Request, Response, BoxError&gt; = ServiceBuilder::new()
+<a href=#813 id=813 data-nosnippet>813</a>    ///     .load_shed()
+<a href=#814 id=814 data-nosnippet>814</a>    ///     .concurrency_limit(64)
+<a href=#815 id=815 data-nosnippet>815</a>    ///     .timeout(Duration::from_secs(10))
+<a href=#816 id=816 data-nosnippet>816</a>    ///     .boxed_clone_sync()
+<a href=#817 id=817 data-nosnippet>817</a>    ///     .service_fn(|req: Request| async {
+<a href=#818 id=818 data-nosnippet>818</a>    ///         Ok::&lt;_, BoxError&gt;(Response::new())
+<a href=#819 id=819 data-nosnippet>819</a>    ///     });
+<a href=#820 id=820 data-nosnippet>820</a>    /// # let service = assert_service(service);
+<a href=#821 id=821 data-nosnippet>821</a>    ///
+<a href=#822 id=822 data-nosnippet>822</a>    /// // The boxed service can still be cloned.
+<a href=#823 id=823 data-nosnippet>823</a>    /// service.clone();
+<a href=#824 id=824 data-nosnippet>824</a>    /// # fn assert_service&lt;S, R&gt;(svc: S) -&gt; S
+<a href=#825 id=825 data-nosnippet>825</a>    /// # where S: Service&lt;R&gt; { svc }
+<a href=#826 id=826 data-nosnippet>826</a>    /// ```
+<a href=#827 id=827 data-nosnippet>827</a>    ///
+<a href=#828 id=828 data-nosnippet>828</a>    /// [`BoxCloneSyncServiceLayer`]: crate::util::BoxCloneSyncServiceLayer
+<a href=#829 id=829 data-nosnippet>829</a>    /// [`BoxCloneSyncService`]: crate::util::BoxCloneSyncService
+<a href=#830 id=830 data-nosnippet>830</a>    /// [`boxed_clone`]: Self::boxed_clone
+<a href=#831 id=831 data-nosnippet>831</a>    </span><span class="attr">#[cfg(feature = <span class="string">"util"</span>)]
+<a href=#832 id=832 data-nosnippet>832</a>    </span><span class="kw">pub fn </span>boxed_clone_sync&lt;S, R&gt;(
+<a href=#833 id=833 data-nosnippet>833</a>        <span class="self">self</span>,
+<a href=#834 id=834 data-nosnippet>834</a>    ) -&gt; ServiceBuilder&lt;
+<a href=#835 id=835 data-nosnippet>835</a>        Stack&lt;
+<a href=#836 id=836 data-nosnippet>836</a>            <span class="kw">crate</span>::util::BoxCloneSyncServiceLayer&lt;
+<a href=#837 id=837 data-nosnippet>837</a>                S,
+<a href=#838 id=838 data-nosnippet>838</a>                R,
+<a href=#839 id=839 data-nosnippet>839</a>                &lt;L::Service <span class="kw">as </span>Service&lt;R&gt;&gt;::Response,
+<a href=#840 id=840 data-nosnippet>840</a>                &lt;L::Service <span class="kw">as </span>Service&lt;R&gt;&gt;::Error,
+<a href=#841 id=841 data-nosnippet>841</a>            &gt;,
+<a href=#842 id=842 data-nosnippet>842</a>            Identity,
+<a href=#843 id=843 data-nosnippet>843</a>        &gt;,
+<a href=#844 id=844 data-nosnippet>844</a>    &gt;
+<a href=#845 id=845 data-nosnippet>845</a>    <span class="kw">where
+<a href=#846 id=846 data-nosnippet>846</a>        </span>L: Layer&lt;S&gt; + Send + Sync + <span class="lifetime">'static</span>,
+<a href=#847 id=847 data-nosnippet>847</a>        L::Service: Service&lt;R&gt; + Clone + Send + Sync + <span class="lifetime">'static</span>,
+<a href=#848 id=848 data-nosnippet>848</a>        &lt;L::Service <span class="kw">as </span>Service&lt;R&gt;&gt;::Future: Send + Sync + <span class="lifetime">'static</span>,
+<a href=#849 id=849 data-nosnippet>849</a>    {
+<a href=#850 id=850 data-nosnippet>850</a>        <span class="kw">let </span>layer = <span class="self">self</span>.into_inner();
+<a href=#851 id=851 data-nosnippet>851</a>
+<a href=#852 id=852 data-nosnippet>852</a>        ServiceBuilder::new().layer(<span class="kw">crate</span>::util::BoxCloneSyncServiceLayer::new(layer))
+<a href=#853 id=853 data-nosnippet>853</a>    }
+<a href=#854 id=854 data-nosnippet>854</a>}
+<a href=#855 id=855 data-nosnippet>855</a>
+<a href=#856 id=856 data-nosnippet>856</a><span class="kw">impl</span>&lt;L: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>ServiceBuilder&lt;L&gt; {
+<a href=#857 id=857 data-nosnippet>857</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#858 id=858 data-nosnippet>858</a>        f.debug_tuple(<span class="string">"ServiceBuilder"</span>).field(<span class="kw-2">&amp;</span><span class="self">self</span>.layer).finish()
+<a href=#859 id=859 data-nosnippet>859</a>    }
+<a href=#860 id=860 data-nosnippet>860</a>}
+<a href=#861 id=861 data-nosnippet>861</a>
+<a href=#862 id=862 data-nosnippet>862</a><span class="kw">impl</span>&lt;S, L&gt; Layer&lt;S&gt; <span class="kw">for </span>ServiceBuilder&lt;L&gt;
+<a href=#863 id=863 data-nosnippet>863</a><span class="kw">where
+<a href=#864 id=864 data-nosnippet>864</a>    </span>L: Layer&lt;S&gt;,
+<a href=#865 id=865 data-nosnippet>865</a>{
+<a href=#866 id=866 data-nosnippet>866</a>    <span class="kw">type </span>Service = L::Service;
+<a href=#867 id=867 data-nosnippet>867</a>
+<a href=#868 id=868 data-nosnippet>868</a>    <span class="kw">fn </span>layer(<span class="kw-2">&amp;</span><span class="self">self</span>, inner: S) -&gt; <span class="self">Self</span>::Service {
+<a href=#869 id=869 data-nosnippet>869</a>        <span class="self">self</span>.layer.layer(inner)
+<a href=#870 id=870 data-nosnippet>870</a>    }
+<a href=#871 id=871 data-nosnippet>871</a>}
+</code></pre></div></section></main></body></html>

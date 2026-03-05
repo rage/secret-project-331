@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-webp-0.2.4/src/vp8.rs`."><title>vp8.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="image_webp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">image_webp/</div>vp8.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! An implementation of the VP8 Video Codec
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-webp-0.2.4/src/vp8.rs`."><title>vp8.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="image_webp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">image_webp/</div>vp8.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! An implementation of the VP8 Video Codec
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! This module contains a partial implementation of the
 <a href=#4 id=4 data-nosnippet>4</a>//! VP8 video format as defined in RFC-6386.
@@ -131,7 +131,7 @@
 <a href=#131 id=131 data-nosnippet>131</a>    tree: [i8; N],
 <a href=#132 id=132 data-nosnippet>132</a>    probs: [Prob; M],
 <a href=#133 id=133 data-nosnippet>133</a>) -&gt; [TreeNode; M] {
-<a href=#134 id=134 data-nosnippet>134</a>    <span class="kw">if </span>N != <span class="number">2 </span>* M {
+<a href=#134 id=134 data-nosnippet>134</a>    <span class="kw">if </span><span class="macro">N !</span>= <span class="number">2 </span>* M {
 <a href=#135 id=135 data-nosnippet>135</a>        <span class="macro">panic!</span>(<span class="string">"invalid tree with probs"</span>);
 <a href=#136 id=136 data-nosnippet>136</a>    }
 <a href=#137 id=137 data-nosnippet>137</a>    <span class="kw">let </span><span class="kw-2">mut </span>nodes = [TreeNode::UNINIT; M];
@@ -1180,7 +1180,7 @@
 <a href=#1180 id=1180 data-nosnippet>1180</a>            <span class="kw">let </span><span class="kw-2">mut </span>tag = [<span class="number">0u8</span>; <span class="number">3</span>];
 <a href=#1181 id=1181 data-nosnippet>1181</a>            <span class="self">self</span>.r.read_exact(<span class="kw-2">&amp;mut </span>tag)<span class="question-mark">?</span>;
 <a href=#1182 id=1182 data-nosnippet>1182</a>
-<a href=#1183 id=1183 data-nosnippet>1183</a>            <span class="kw">if </span>tag != [<span class="number">0x9d</span>, <span class="number">0x01</span>, <span class="number">0x2a</span>] {
+<a href=#1183 id=1183 data-nosnippet>1183</a>            <span class="kw">if </span><span class="macro">tag !</span>= [<span class="number">0x9d</span>, <span class="number">0x01</span>, <span class="number">0x2a</span>] {
 <a href=#1184 id=1184 data-nosnippet>1184</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Vp8MagicInvalid(tag));
 <a href=#1185 id=1185 data-nosnippet>1185</a>            }
 <a href=#1186 id=1186 data-nosnippet>1186</a>
@@ -1228,7 +1228,7 @@
 <a href=#1228 id=1228 data-nosnippet>1228</a>            <span class="kw">let </span>color_space = <span class="self">self</span>.b.read_literal(<span class="number">1</span>).or_accumulate(<span class="kw-2">&amp;mut </span>res);
 <a href=#1229 id=1229 data-nosnippet>1229</a>            <span class="self">self</span>.frame.pixel_type = <span class="self">self</span>.b.read_literal(<span class="number">1</span>).or_accumulate(<span class="kw-2">&amp;mut </span>res);
 <a href=#1230 id=1230 data-nosnippet>1230</a>
-<a href=#1231 id=1231 data-nosnippet>1231</a>            <span class="kw">if </span>color_space != <span class="number">0 </span>{
+<a href=#1231 id=1231 data-nosnippet>1231</a>            <span class="kw">if </span><span class="macro">color_space !</span>= <span class="number">0 </span>{
 <a href=#1232 id=1232 data-nosnippet>1232</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::ColorSpaceInvalid(color_space));
 <a href=#1233 id=1233 data-nosnippet>1233</a>            }
 <a href=#1234 id=1234 data-nosnippet>1234</a>        }
@@ -1374,11 +1374,11 @@
 <a href=#1374 id=1374 data-nosnippet>1374</a>            LumaMode::V =&gt; predict_vpred(<span class="kw-2">&amp;mut </span>ws, <span class="number">16</span>, <span class="number">1</span>, <span class="number">1</span>, stride),
 <a href=#1375 id=1375 data-nosnippet>1375</a>            LumaMode::H =&gt; predict_hpred(<span class="kw-2">&amp;mut </span>ws, <span class="number">16</span>, <span class="number">1</span>, <span class="number">1</span>, stride),
 <a href=#1376 id=1376 data-nosnippet>1376</a>            LumaMode::TM =&gt; predict_tmpred(<span class="kw-2">&amp;mut </span>ws, <span class="number">16</span>, <span class="number">1</span>, <span class="number">1</span>, stride),
-<a href=#1377 id=1377 data-nosnippet>1377</a>            LumaMode::DC =&gt; predict_dcpred(<span class="kw-2">&amp;mut </span>ws, <span class="number">16</span>, stride, mby != <span class="number">0</span>, mbx != <span class="number">0</span>),
+<a href=#1377 id=1377 data-nosnippet>1377</a>            LumaMode::DC =&gt; predict_dcpred(<span class="kw-2">&amp;mut </span>ws, <span class="number">16</span>, stride, <span class="macro">mby !</span>= <span class="number">0</span>, <span class="macro">mbx !</span>= <span class="number">0</span>),
 <a href=#1378 id=1378 data-nosnippet>1378</a>            LumaMode::B =&gt; predict_4x4(<span class="kw-2">&amp;mut </span>ws, stride, <span class="kw-2">&amp;</span>mb.bpred, resdata),
 <a href=#1379 id=1379 data-nosnippet>1379</a>        }
 <a href=#1380 id=1380 data-nosnippet>1380</a>
-<a href=#1381 id=1381 data-nosnippet>1381</a>        <span class="kw">if </span>mb.luma_mode != LumaMode::B {
+<a href=#1381 id=1381 data-nosnippet>1381</a>        <span class="kw">if </span>mb.<span class="macro">luma_mode !</span>= LumaMode::B {
 <a href=#1382 id=1382 data-nosnippet>1382</a>            <span class="kw">for </span>y <span class="kw">in </span><span class="number">0usize</span>..<span class="number">4 </span>{
 <a href=#1383 id=1383 data-nosnippet>1383</a>                <span class="kw">for </span>x <span class="kw">in </span><span class="number">0usize</span>..<span class="number">4 </span>{
 <a href=#1384 id=1384 data-nosnippet>1384</a>                    <span class="kw">let </span>i = x + y * <span class="number">4</span>;
@@ -1426,8 +1426,8 @@
 <a href=#1426 id=1426 data-nosnippet>1426</a>
 <a href=#1427 id=1427 data-nosnippet>1427</a>        <span class="kw">match </span>mb.chroma_mode {
 <a href=#1428 id=1428 data-nosnippet>1428</a>            ChromaMode::DC =&gt; {
-<a href=#1429 id=1429 data-nosnippet>1429</a>                predict_dcpred(<span class="kw-2">&amp;mut </span>uws, <span class="number">8</span>, stride, mby != <span class="number">0</span>, mbx != <span class="number">0</span>);
-<a href=#1430 id=1430 data-nosnippet>1430</a>                predict_dcpred(<span class="kw-2">&amp;mut </span>vws, <span class="number">8</span>, stride, mby != <span class="number">0</span>, mbx != <span class="number">0</span>);
+<a href=#1429 id=1429 data-nosnippet>1429</a>                predict_dcpred(<span class="kw-2">&amp;mut </span>uws, <span class="number">8</span>, stride, <span class="macro">mby !</span>= <span class="number">0</span>, <span class="macro">mbx !</span>= <span class="number">0</span>);
+<a href=#1430 id=1430 data-nosnippet>1430</a>                predict_dcpred(<span class="kw-2">&amp;mut </span>vws, <span class="number">8</span>, stride, <span class="macro">mby !</span>= <span class="number">0</span>, <span class="macro">mbx !</span>= <span class="number">0</span>);
 <a href=#1431 id=1431 data-nosnippet>1431</a>            }
 <a href=#1432 id=1432 data-nosnippet>1432</a>            ChromaMode::V =&gt; {
 <a href=#1433 id=1433 data-nosnippet>1433</a>                predict_vpred(<span class="kw-2">&amp;mut </span>uws, <span class="number">8</span>, <span class="number">1</span>, <span class="number">1</span>, stride);
@@ -1959,7 +1959,7 @@
 <a href=#1959 id=1959 data-nosnippet>1959</a>                <span class="kw">let </span>blocks = <span class="kw">if </span>!mb.coeffs_skipped {
 <a href=#1960 id=1960 data-nosnippet>1960</a>                    <span class="self">self</span>.read_residual_data(<span class="kw-2">&amp;mut </span>mb, mbx, p)<span class="question-mark">?
 <a href=#1961 id=1961 data-nosnippet>1961</a>                </span>} <span class="kw">else </span>{
-<a href=#1962 id=1962 data-nosnippet>1962</a>                    <span class="kw">if </span>mb.luma_mode != LumaMode::B {
+<a href=#1962 id=1962 data-nosnippet>1962</a>                    <span class="kw">if </span>mb.<span class="macro">luma_mode !</span>= LumaMode::B {
 <a href=#1963 id=1963 data-nosnippet>1963</a>                        <span class="self">self</span>.left.complexity[<span class="number">0</span>] = <span class="number">0</span>;
 <a href=#1964 id=1964 data-nosnippet>1964</a>                        <span class="self">self</span>.top[mbx].complexity[<span class="number">0</span>] = <span class="number">0</span>;
 <a href=#1965 id=1965 data-nosnippet>1965</a>                    }
@@ -2894,4 +2894,5 @@
 <a href=#2894 id=2894 data-nosnippet>2894</a>        <span class="macro">assert_eq!</span>(im[<span class="number">39</span>], avg_3);
 <a href=#2895 id=2895 data-nosnippet>2895</a>        <span class="macro">assert_eq!</span>(im[<span class="number">40</span>], avg_4);
 <a href=#2896 id=2896 data-nosnippet>2896</a>    }
-<a href=#2897 id=2897 data-nosnippet>2897</a>}</code></pre></div></section></main></body></html>
+<a href=#2897 id=2897 data-nosnippet>2897</a>}
+</code></pre></div></section></main></body></html>

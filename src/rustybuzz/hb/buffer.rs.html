@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustybuzz-0.20.1/src/hb/buffer.rs`."><title>buffer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustybuzz/hb/</div>buffer.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::{string::String, vec::Vec};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustybuzz-0.20.1/src/hb/buffer.rs`."><title>buffer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustybuzz/hb/</div>buffer.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::{string::String, vec::Vec};
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>core::cmp::min;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>core::convert::TryFrom;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>ttf_parser::GlyphId;
@@ -190,7 +190,7 @@
 <a href=#190 id=190 data-nosnippet>190</a>    /// after line-breaking, or limiting the reshaping to a small piece around
 <a href=#191 id=191 data-nosnippet>191</a>    /// the breaking point only.
 <a href=#192 id=192 data-nosnippet>192</a>    </span><span class="kw">pub fn </span>unsafe_to_break(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#193 id=193 data-nosnippet>193</a>        <span class="self">self</span>.mask &amp; glyph_flag::UNSAFE_TO_BREAK != <span class="number">0
+<a href=#193 id=193 data-nosnippet>193</a>        <span class="self">self</span>.mask &amp; <span class="macro">glyph_flag::UNSAFE_TO_BREAK !</span>= <span class="number">0
 <a href=#194 id=194 data-nosnippet>194</a>    </span>}
 <a href=#195 id=195 data-nosnippet>195</a>
 <a href=#196 id=196 data-nosnippet>196</a>    <span class="attr">#[inline]
@@ -724,7 +724,7 @@
 <a href=#724 id=724 data-nosnippet>724</a>    }
 <a href=#725 id=725 data-nosnippet>725</a>
 <a href=#726 id=726 data-nosnippet>726</a>    <span class="kw">pub fn </span>replace_glyph(<span class="kw-2">&amp;mut </span><span class="self">self</span>, glyph_index: u32) {
-<a href=#727 id=727 data-nosnippet>727</a>        <span class="kw">if </span><span class="self">self</span>.have_separate_output || <span class="self">self</span>.out_len != <span class="self">self</span>.idx {
+<a href=#727 id=727 data-nosnippet>727</a>        <span class="kw">if </span><span class="self">self</span>.have_separate_output || <span class="self">self</span>.<span class="macro">out_len !</span>= <span class="self">self</span>.idx {
 <a href=#728 id=728 data-nosnippet>728</a>            <span class="kw">if </span>!<span class="self">self</span>.make_room_for(<span class="number">1</span>, <span class="number">1</span>) {
 <a href=#729 id=729 data-nosnippet>729</a>                <span class="kw">return</span>;
 <a href=#730 id=730 data-nosnippet>730</a>            }
@@ -785,7 +785,7 @@
 <a href=#785 id=785 data-nosnippet>785</a>    /// If there's no output, just advance idx.
 <a href=#786 id=786 data-nosnippet>786</a>    </span><span class="kw">pub fn </span>next_glyph(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
 <a href=#787 id=787 data-nosnippet>787</a>        <span class="kw">if </span><span class="self">self</span>.have_output {
-<a href=#788 id=788 data-nosnippet>788</a>            <span class="kw">if </span><span class="self">self</span>.have_separate_output || <span class="self">self</span>.out_len != <span class="self">self</span>.idx {
+<a href=#788 id=788 data-nosnippet>788</a>            <span class="kw">if </span><span class="self">self</span>.have_separate_output || <span class="self">self</span>.<span class="macro">out_len !</span>= <span class="self">self</span>.idx {
 <a href=#789 id=789 data-nosnippet>789</a>                <span class="kw">if </span>!<span class="self">self</span>.make_room_for(<span class="number">1</span>, <span class="number">1</span>) {
 <a href=#790 id=790 data-nosnippet>790</a>                    <span class="kw">return</span>;
 <a href=#791 id=791 data-nosnippet>791</a>                }
@@ -804,7 +804,7 @@
 <a href=#804 id=804 data-nosnippet>804</a>    /// If there's no output, just advance idx.
 <a href=#805 id=805 data-nosnippet>805</a>    </span><span class="kw">pub fn </span>next_glyphs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) {
 <a href=#806 id=806 data-nosnippet>806</a>        <span class="kw">if </span><span class="self">self</span>.have_output {
-<a href=#807 id=807 data-nosnippet>807</a>            <span class="kw">if </span><span class="self">self</span>.have_separate_output || <span class="self">self</span>.out_len != <span class="self">self</span>.idx {
+<a href=#807 id=807 data-nosnippet>807</a>            <span class="kw">if </span><span class="self">self</span>.have_separate_output || <span class="self">self</span>.<span class="macro">out_len !</span>= <span class="self">self</span>.idx {
 <a href=#808 id=808 data-nosnippet>808</a>                <span class="kw">if </span>!<span class="self">self</span>.make_room_for(n, n) {
 <a href=#809 id=809 data-nosnippet>809</a>                    <span class="kw">return</span>;
 <a href=#810 id=810 data-nosnippet>810</a>                }
@@ -881,23 +881,23 @@
 <a href=#881 id=881 data-nosnippet>881</a>        }
 <a href=#882 id=882 data-nosnippet>882</a>
 <a href=#883 id=883 data-nosnippet>883</a>        <span class="comment">// Extend end
-<a href=#884 id=884 data-nosnippet>884</a>        </span><span class="kw">if </span>cluster != <span class="self">self</span>.info[end - <span class="number">1</span>].cluster {
+<a href=#884 id=884 data-nosnippet>884</a>        </span><span class="kw">if </span><span class="macro">cluster !</span>= <span class="self">self</span>.info[end - <span class="number">1</span>].cluster {
 <a href=#885 id=885 data-nosnippet>885</a>            <span class="kw">while </span>end &lt; <span class="self">self</span>.len &amp;&amp; <span class="self">self</span>.info[end - <span class="number">1</span>].cluster == <span class="self">self</span>.info[end].cluster {
 <a href=#886 id=886 data-nosnippet>886</a>                end += <span class="number">1</span>;
 <a href=#887 id=887 data-nosnippet>887</a>            }
 <a href=#888 id=888 data-nosnippet>888</a>        }
 <a href=#889 id=889 data-nosnippet>889</a>
 <a href=#890 id=890 data-nosnippet>890</a>        <span class="comment">// Extend start
-<a href=#891 id=891 data-nosnippet>891</a>        </span><span class="kw">if </span>cluster != <span class="self">self</span>.info[start].cluster {
+<a href=#891 id=891 data-nosnippet>891</a>        </span><span class="kw">if </span><span class="macro">cluster !</span>= <span class="self">self</span>.info[start].cluster {
 <a href=#892 id=892 data-nosnippet>892</a>            <span class="kw">while </span>end &lt; start &amp;&amp; <span class="self">self</span>.info[start - <span class="number">1</span>].cluster == <span class="self">self</span>.info[start].cluster {
 <a href=#893 id=893 data-nosnippet>893</a>                start -= <span class="number">1</span>;
 <a href=#894 id=894 data-nosnippet>894</a>            }
 <a href=#895 id=895 data-nosnippet>895</a>        }
 <a href=#896 id=896 data-nosnippet>896</a>
 <a href=#897 id=897 data-nosnippet>897</a>        <span class="comment">// If we hit the start of buffer, continue in out-buffer.
-<a href=#898 id=898 data-nosnippet>898</a>        </span><span class="kw">if </span><span class="self">self</span>.idx == start &amp;&amp; <span class="self">self</span>.info[start].cluster != cluster {
+<a href=#898 id=898 data-nosnippet>898</a>        </span><span class="kw">if </span><span class="self">self</span>.idx == start &amp;&amp; <span class="self">self</span>.info[start].<span class="macro">cluster !</span>= cluster {
 <a href=#899 id=899 data-nosnippet>899</a>            <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">self</span>.out_len;
-<a href=#900 id=900 data-nosnippet>900</a>            <span class="kw">while </span>i != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.out_info()[i - <span class="number">1</span>].cluster == <span class="self">self</span>.info[start].cluster {
+<a href=#900 id=900 data-nosnippet>900</a>            <span class="kw">while </span><span class="macro">i !</span>= <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.out_info()[i - <span class="number">1</span>].cluster == <span class="self">self</span>.info[start].cluster {
 <a href=#901 id=901 data-nosnippet>901</a>                <span class="self">Self</span>::set_cluster(<span class="kw-2">&amp;mut </span><span class="self">self</span>.out_info_mut()[i - <span class="number">1</span>], cluster, <span class="number">0</span>);
 <a href=#902 id=902 data-nosnippet>902</a>                i -= <span class="number">1</span>;
 <a href=#903 id=903 data-nosnippet>903</a>            }
@@ -924,7 +924,7 @@
 <a href=#924 id=924 data-nosnippet>924</a>        }
 <a href=#925 id=925 data-nosnippet>925</a>
 <a href=#926 id=926 data-nosnippet>926</a>        <span class="comment">// Extend start
-<a href=#927 id=927 data-nosnippet>927</a>        </span><span class="kw">while </span>start != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.out_info()[start - <span class="number">1</span>].cluster == <span class="self">self</span>.out_info()[start].cluster {
+<a href=#927 id=927 data-nosnippet>927</a>        </span><span class="kw">while </span><span class="macro">start !</span>= <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.out_info()[start - <span class="number">1</span>].cluster == <span class="self">self</span>.out_info()[start].cluster {
 <a href=#928 id=928 data-nosnippet>928</a>            start -= <span class="number">1</span>;
 <a href=#929 id=929 data-nosnippet>929</a>        }
 <a href=#930 id=930 data-nosnippet>930</a>
@@ -953,21 +953,21 @@
 <a href=#953 id=953 data-nosnippet>953</a>        <span class="kw">let </span>cluster = <span class="self">self</span>.info[<span class="self">self</span>.idx].cluster;
 <a href=#954 id=954 data-nosnippet>954</a>
 <a href=#955 id=955 data-nosnippet>955</a>        <span class="kw">if </span>(<span class="self">self</span>.idx + <span class="number">1 </span>&lt; <span class="self">self</span>.len &amp;&amp; cluster == <span class="self">self</span>.info[<span class="self">self</span>.idx + <span class="number">1</span>].cluster)
-<a href=#956 id=956 data-nosnippet>956</a>            || (<span class="self">self</span>.out_len != <span class="number">0 </span>&amp;&amp; cluster == <span class="self">self</span>.out_info()[<span class="self">self</span>.out_len - <span class="number">1</span>].cluster)
+<a href=#956 id=956 data-nosnippet>956</a>            || (<span class="self">self</span>.<span class="macro">out_len !</span>= <span class="number">0 </span>&amp;&amp; cluster == <span class="self">self</span>.out_info()[<span class="self">self</span>.out_len - <span class="number">1</span>].cluster)
 <a href=#957 id=957 data-nosnippet>957</a>        {
 <a href=#958 id=958 data-nosnippet>958</a>            <span class="comment">// Cluster survives; do nothing.
 <a href=#959 id=959 data-nosnippet>959</a>            </span><span class="self">self</span>.skip_glyph();
 <a href=#960 id=960 data-nosnippet>960</a>            <span class="kw">return</span>;
 <a href=#961 id=961 data-nosnippet>961</a>        }
 <a href=#962 id=962 data-nosnippet>962</a>
-<a href=#963 id=963 data-nosnippet>963</a>        <span class="kw">if </span><span class="self">self</span>.out_len != <span class="number">0 </span>{
+<a href=#963 id=963 data-nosnippet>963</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">out_len !</span>= <span class="number">0 </span>{
 <a href=#964 id=964 data-nosnippet>964</a>            <span class="comment">// Merge cluster backward.
 <a href=#965 id=965 data-nosnippet>965</a>            </span><span class="kw">if </span>cluster &lt; <span class="self">self</span>.out_info()[<span class="self">self</span>.out_len - <span class="number">1</span>].cluster {
 <a href=#966 id=966 data-nosnippet>966</a>                <span class="kw">let </span>mask = <span class="self">self</span>.info[<span class="self">self</span>.idx].mask;
 <a href=#967 id=967 data-nosnippet>967</a>                <span class="kw">let </span>old_cluster = <span class="self">self</span>.out_info()[<span class="self">self</span>.out_len - <span class="number">1</span>].cluster;
 <a href=#968 id=968 data-nosnippet>968</a>
 <a href=#969 id=969 data-nosnippet>969</a>                <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">self</span>.out_len;
-<a href=#970 id=970 data-nosnippet>970</a>                <span class="kw">while </span>i != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.out_info()[i - <span class="number">1</span>].cluster == old_cluster {
+<a href=#970 id=970 data-nosnippet>970</a>                <span class="kw">while </span><span class="macro">i !</span>= <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.out_info()[i - <span class="number">1</span>].cluster == old_cluster {
 <a href=#971 id=971 data-nosnippet>971</a>                    <span class="self">Self</span>::set_cluster(<span class="kw-2">&amp;mut </span><span class="self">self</span>.out_info_mut()[i - <span class="number">1</span>], cluster, mask);
 <a href=#972 id=972 data-nosnippet>972</a>                    i -= <span class="number">1</span>;
 <a href=#973 id=973 data-nosnippet>973</a>                }
@@ -1001,7 +1001,7 @@
 <a href=#1001 id=1001 data-nosnippet>1001</a>                    </span><span class="kw">continue</span>;
 <a href=#1002 id=1002 data-nosnippet>1002</a>                }
 <a href=#1003 id=1003 data-nosnippet>1003</a>
-<a href=#1004 id=1004 data-nosnippet>1004</a>                <span class="kw">if </span>j != <span class="number">0 </span>{
+<a href=#1004 id=1004 data-nosnippet>1004</a>                <span class="kw">if </span><span class="macro">j !</span>= <span class="number">0 </span>{
 <a href=#1005 id=1005 data-nosnippet>1005</a>                    <span class="comment">// Merge cluster backward.
 <a href=#1006 id=1006 data-nosnippet>1006</a>                    </span><span class="kw">if </span>cluster &lt; <span class="self">self</span>.info[j - <span class="number">1</span>].cluster {
 <a href=#1007 id=1007 data-nosnippet>1007</a>                        <span class="kw">let </span>mask = <span class="self">self</span>.info[i].mask;
@@ -1024,7 +1024,7 @@
 <a href=#1024 id=1024 data-nosnippet>1024</a>                <span class="kw">continue</span>;
 <a href=#1025 id=1025 data-nosnippet>1025</a>            }
 <a href=#1026 id=1026 data-nosnippet>1026</a>
-<a href=#1027 id=1027 data-nosnippet>1027</a>            <span class="kw">if </span>j != i {
+<a href=#1027 id=1027 data-nosnippet>1027</a>            <span class="kw">if </span><span class="macro">j !</span>= i {
 <a href=#1028 id=1028 data-nosnippet>1028</a>                <span class="self">self</span>.info[j] = <span class="self">self</span>.info[i];
 <a href=#1029 id=1029 data-nosnippet>1029</a>                <span class="self">self</span>.pos[j] = <span class="self">self</span>.pos[i];
 <a href=#1030 id=1030 data-nosnippet>1030</a>            }
@@ -1286,7 +1286,7 @@
 <a href=#1286 id=1286 data-nosnippet>1286</a>    }
 <a href=#1287 id=1287 data-nosnippet>1287</a>
 <a href=#1288 id=1288 data-nosnippet>1288</a>    <span class="kw">pub fn </span>set_cluster(info: <span class="kw-2">&amp;mut </span>hb_glyph_info_t, cluster: u32, mask: hb_mask_t) {
-<a href=#1289 id=1289 data-nosnippet>1289</a>        <span class="kw">if </span>info.cluster != cluster {
+<a href=#1289 id=1289 data-nosnippet>1289</a>        <span class="kw">if </span>info.<span class="macro">cluster !</span>= cluster {
 <a href=#1290 id=1290 data-nosnippet>1290</a>            info.mask = (info.mask &amp; !glyph_flag::DEFINED) | (mask &amp; glyph_flag::DEFINED);
 <a href=#1291 id=1291 data-nosnippet>1291</a>        }
 <a href=#1292 id=1292 data-nosnippet>1292</a>
@@ -1366,10 +1366,10 @@
 <a href=#1366 id=1366 data-nosnippet>1366</a>        <span class="kw">let </span>cluster_last = infos[end - <span class="number">1</span>].cluster;
 <a href=#1367 id=1367 data-nosnippet>1367</a>
 <a href=#1368 id=1368 data-nosnippet>1368</a>        <span class="kw">if </span>cluster_level == HB_BUFFER_CLUSTER_LEVEL_CHARACTERS
-<a href=#1369 id=1369 data-nosnippet>1369</a>            || (cluster != cluster_first &amp;&amp; cluster != cluster_last)
+<a href=#1369 id=1369 data-nosnippet>1369</a>            || (<span class="macro">cluster !</span>= cluster_first &amp;&amp; <span class="macro">cluster !</span>= cluster_last)
 <a href=#1370 id=1370 data-nosnippet>1370</a>        {
 <a href=#1371 id=1371 data-nosnippet>1371</a>            <span class="kw">for </span>i <span class="kw">in </span>start..end {
-<a href=#1372 id=1372 data-nosnippet>1372</a>                <span class="kw">if </span>infos[i].cluster != cluster {
+<a href=#1372 id=1372 data-nosnippet>1372</a>                <span class="kw">if </span>infos[i].<span class="macro">cluster !</span>= cluster {
 <a href=#1373 id=1373 data-nosnippet>1373</a>                    apply_scratch_flags = <span class="bool-val">true</span>;
 <a href=#1374 id=1374 data-nosnippet>1374</a>                    infos[i].mask |= mask;
 <a href=#1375 id=1375 data-nosnippet>1375</a>                }
@@ -1385,8 +1385,8 @@
 <a href=#1385 id=1385 data-nosnippet>1385</a>        <span class="comment">// Monotone clusters
 <a href=#1386 id=1386 data-nosnippet>1386</a>        </span><span class="kw">if </span>cluster == cluster_first {
 <a href=#1387 id=1387 data-nosnippet>1387</a>            <span class="kw">let </span><span class="kw-2">mut </span>i = end;
-<a href=#1388 id=1388 data-nosnippet>1388</a>            <span class="kw">while </span>start &lt; i &amp;&amp; infos[i - <span class="number">1</span>].cluster != cluster_first {
-<a href=#1389 id=1389 data-nosnippet>1389</a>                <span class="kw">if </span>cluster != infos[i - <span class="number">1</span>].cluster {
+<a href=#1388 id=1388 data-nosnippet>1388</a>            <span class="kw">while </span>start &lt; i &amp;&amp; infos[i - <span class="number">1</span>].<span class="macro">cluster !</span>= cluster_first {
+<a href=#1389 id=1389 data-nosnippet>1389</a>                <span class="kw">if </span><span class="macro">cluster !</span>= infos[i - <span class="number">1</span>].cluster {
 <a href=#1390 id=1390 data-nosnippet>1390</a>                    apply_scratch_flags = <span class="bool-val">true</span>;
 <a href=#1391 id=1391 data-nosnippet>1391</a>                    infos[i - <span class="number">1</span>].mask |= mask;
 <a href=#1392 id=1392 data-nosnippet>1392</a>                }
@@ -1395,8 +1395,8 @@
 <a href=#1395 id=1395 data-nosnippet>1395</a>            }
 <a href=#1396 id=1396 data-nosnippet>1396</a>        } <span class="kw">else </span>{
 <a href=#1397 id=1397 data-nosnippet>1397</a>            <span class="kw">let </span><span class="kw-2">mut </span>i = start;
-<a href=#1398 id=1398 data-nosnippet>1398</a>            <span class="kw">while </span>i &lt; end &amp;&amp; infos[i].cluster != cluster_last {
-<a href=#1399 id=1399 data-nosnippet>1399</a>                <span class="kw">if </span>cluster != infos[i].cluster {
+<a href=#1398 id=1398 data-nosnippet>1398</a>            <span class="kw">while </span>i &lt; end &amp;&amp; infos[i].<span class="macro">cluster !</span>= cluster_last {
+<a href=#1399 id=1399 data-nosnippet>1399</a>                <span class="kw">if </span><span class="macro">cluster !</span>= infos[i].cluster {
 <a href=#1400 id=1400 data-nosnippet>1400</a>                    apply_scratch_flags = <span class="bool-val">true</span>;
 <a href=#1401 id=1401 data-nosnippet>1401</a>                    infos[i].mask |= mask;
 <a href=#1402 id=1402 data-nosnippet>1402</a>                }
@@ -1796,20 +1796,20 @@
 <a href=#1796 id=1796 data-nosnippet>1796</a>            }
 <a href=#1797 id=1797 data-nosnippet>1797</a>
 <a href=#1798 id=1798 data-nosnippet>1798</a>            <span class="kw">if </span>!flags.contains(SerializeFlags::NO_POSITIONS) {
-<a href=#1799 id=1799 data-nosnippet>1799</a>                <span class="kw">if </span>x + pos.x_offset != <span class="number">0 </span>|| y + pos.y_offset != <span class="number">0 </span>{
+<a href=#1799 id=1799 data-nosnippet>1799</a>                <span class="kw">if </span>x + pos.<span class="macro">x_offset !</span>= <span class="number">0 </span>|| y + pos.<span class="macro">y_offset !</span>= <span class="number">0 </span>{
 <a href=#1800 id=1800 data-nosnippet>1800</a>                    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>s, <span class="string">"@{},{}"</span>, x + pos.x_offset, y + pos.y_offset)<span class="question-mark">?</span>;
 <a href=#1801 id=1801 data-nosnippet>1801</a>                }
 <a href=#1802 id=1802 data-nosnippet>1802</a>
 <a href=#1803 id=1803 data-nosnippet>1803</a>                <span class="kw">if </span>!flags.contains(SerializeFlags::NO_ADVANCES) {
 <a href=#1804 id=1804 data-nosnippet>1804</a>                    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>s, <span class="string">"+{}"</span>, pos.x_advance)<span class="question-mark">?</span>;
-<a href=#1805 id=1805 data-nosnippet>1805</a>                    <span class="kw">if </span>pos.y_advance != <span class="number">0 </span>{
+<a href=#1805 id=1805 data-nosnippet>1805</a>                    <span class="kw">if </span>pos.<span class="macro">y_advance !</span>= <span class="number">0 </span>{
 <a href=#1806 id=1806 data-nosnippet>1806</a>                        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>s, <span class="string">",{}"</span>, pos.y_advance)<span class="question-mark">?</span>;
 <a href=#1807 id=1807 data-nosnippet>1807</a>                    }
 <a href=#1808 id=1808 data-nosnippet>1808</a>                }
 <a href=#1809 id=1809 data-nosnippet>1809</a>            }
 <a href=#1810 id=1810 data-nosnippet>1810</a>
 <a href=#1811 id=1811 data-nosnippet>1811</a>            <span class="kw">if </span>flags.contains(SerializeFlags::GLYPH_FLAGS) {
-<a href=#1812 id=1812 data-nosnippet>1812</a>                <span class="kw">if </span>info.mask &amp; glyph_flag::DEFINED != <span class="number">0 </span>{
+<a href=#1812 id=1812 data-nosnippet>1812</a>                <span class="kw">if </span>info.mask &amp; <span class="macro">glyph_flag::DEFINED !</span>= <span class="number">0 </span>{
 <a href=#1813 id=1813 data-nosnippet>1813</a>                    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>s, <span class="string">"#{:X}"</span>, info.mask &amp; glyph_flag::DEFINED)<span class="question-mark">?</span>;
 <a href=#1814 id=1814 data-nosnippet>1814</a>                }
 <a href=#1815 id=1815 data-nosnippet>1815</a>            }
@@ -1848,4 +1848,5 @@
 <a href=#1848 id=1848 data-nosnippet>1848</a>            .field(<span class="string">"glyph_infos"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.glyph_infos())
 <a href=#1849 id=1849 data-nosnippet>1849</a>            .finish()
 <a href=#1850 id=1850 data-nosnippet>1850</a>    }
-<a href=#1851 id=1851 data-nosnippet>1851</a>}</code></pre></div></section></main></body></html>
+<a href=#1851 id=1851 data-nosnippet>1851</a>}
+</code></pre></div></section></main></body></html>

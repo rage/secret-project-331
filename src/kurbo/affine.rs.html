@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kurbo-0.11.3/src/affine.rs`."><title>affine.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kurbo/</div>affine.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Kurbo Authors
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kurbo-0.13.0/src/affine.rs`."><title>affine.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kurbo/</div>affine.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Kurbo Authors
 <a href=#2 id=2 data-nosnippet>2</a>// SPDX-License-Identifier: Apache-2.0 OR MIT
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="doccomment">//! Affine transforms.
@@ -122,7 +122,7 @@
 <a href=#122 id=122 data-nosnippet>122</a>    /// let oblique_transform = kurbo::Affine::skew(20f64.to_radians().tan(), 0.0);
 <a href=#123 id=123 data-nosnippet>123</a>    /// ```
 <a href=#124 id=124 data-nosnippet>124</a>    </span><span class="attr">#[inline(always)]
-<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="kw">pub fn </span>skew(skew_x: f64, skew_y: f64) -&gt; Affine {
+<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="kw">pub const fn </span>skew(skew_x: f64, skew_y: f64) -&gt; Affine {
 <a href=#126 id=126 data-nosnippet>126</a>        Affine([<span class="number">1.0</span>, skew_y, skew_x, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>])
 <a href=#127 id=127 data-nosnippet>127</a>    }
 <a href=#128 id=128 data-nosnippet>128</a>
@@ -287,7 +287,7 @@
 <a href=#287 id=287 data-nosnippet>287</a>    /// [translation]: Affine::translate
 <a href=#288 id=288 data-nosnippet>288</a>    </span><span class="attr">#[inline]
 <a href=#289 id=289 data-nosnippet>289</a>    #[must_use]
-<a href=#290 id=290 data-nosnippet>290</a>    </span><span class="kw">pub fn </span>then_translate(<span class="kw-2">mut </span><span class="self">self</span>, trans: Vec2) -&gt; <span class="self">Self </span>{
+<a href=#290 id=290 data-nosnippet>290</a>    </span><span class="kw">pub const fn </span>then_translate(<span class="kw-2">mut </span><span class="self">self</span>, trans: Vec2) -&gt; <span class="self">Self </span>{
 <a href=#291 id=291 data-nosnippet>291</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>] += trans.x;
 <a href=#292 id=292 data-nosnippet>292</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>] += trans.y;
 <a href=#293 id=293 data-nosnippet>293</a>        <span class="self">self
@@ -297,25 +297,25 @@
 <a href=#297 id=297 data-nosnippet>297</a>    ///
 <a href=#298 id=298 data-nosnippet>298</a>    /// Useful when you want to draw into the unit square but have your output fill any rectangle.
 <a href=#299 id=299 data-nosnippet>299</a>    /// In this case push the `Affine` onto the transform stack.
-<a href=#300 id=300 data-nosnippet>300</a>    </span><span class="kw">pub fn </span>map_unit_square(rect: Rect) -&gt; Affine {
+<a href=#300 id=300 data-nosnippet>300</a>    </span><span class="kw">pub const fn </span>map_unit_square(rect: Rect) -&gt; Affine {
 <a href=#301 id=301 data-nosnippet>301</a>        Affine([rect.width(), <span class="number">0.</span>, <span class="number">0.</span>, rect.height(), rect.x0, rect.y0])
 <a href=#302 id=302 data-nosnippet>302</a>    }
 <a href=#303 id=303 data-nosnippet>303</a>
 <a href=#304 id=304 data-nosnippet>304</a>    <span class="doccomment">/// Get the coefficients of the transform.
 <a href=#305 id=305 data-nosnippet>305</a>    </span><span class="attr">#[inline(always)]
-<a href=#306 id=306 data-nosnippet>306</a>    </span><span class="kw">pub fn </span>as_coeffs(<span class="self">self</span>) -&gt; [f64; <span class="number">6</span>] {
+<a href=#306 id=306 data-nosnippet>306</a>    </span><span class="kw">pub const fn </span>as_coeffs(<span class="self">self</span>) -&gt; [f64; <span class="number">6</span>] {
 <a href=#307 id=307 data-nosnippet>307</a>        <span class="self">self</span>.<span class="number">0
 <a href=#308 id=308 data-nosnippet>308</a>    </span>}
 <a href=#309 id=309 data-nosnippet>309</a>
 <a href=#310 id=310 data-nosnippet>310</a>    <span class="doccomment">/// Compute the determinant of this transform.
-<a href=#311 id=311 data-nosnippet>311</a>    </span><span class="kw">pub fn </span>determinant(<span class="self">self</span>) -&gt; f64 {
+<a href=#311 id=311 data-nosnippet>311</a>    </span><span class="kw">pub const fn </span>determinant(<span class="self">self</span>) -&gt; f64 {
 <a href=#312 id=312 data-nosnippet>312</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] - <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>]
 <a href=#313 id=313 data-nosnippet>313</a>    }
 <a href=#314 id=314 data-nosnippet>314</a>
 <a href=#315 id=315 data-nosnippet>315</a>    <span class="doccomment">/// Compute the inverse transform.
 <a href=#316 id=316 data-nosnippet>316</a>    ///
 <a href=#317 id=317 data-nosnippet>317</a>    /// Produces NaN values when the determinant is zero.
-<a href=#318 id=318 data-nosnippet>318</a>    </span><span class="kw">pub fn </span>inverse(<span class="self">self</span>) -&gt; Affine {
+<a href=#318 id=318 data-nosnippet>318</a>    </span><span class="kw">pub const fn </span>inverse(<span class="self">self</span>) -&gt; Affine {
 <a href=#319 id=319 data-nosnippet>319</a>        <span class="kw">let </span>inv_det = <span class="self">self</span>.determinant().recip();
 <a href=#320 id=320 data-nosnippet>320</a>        Affine([
 <a href=#321 id=321 data-nosnippet>321</a>            inv_det * <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>],
@@ -346,7 +346,7 @@
 <a href=#346 id=346 data-nosnippet>346</a>    ///
 <a href=#347 id=347 data-nosnippet>347</a>    /// [finite]: f64::is_finite
 <a href=#348 id=348 data-nosnippet>348</a>    </span><span class="attr">#[inline]
-<a href=#349 id=349 data-nosnippet>349</a>    </span><span class="kw">pub fn </span>is_finite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#349 id=349 data-nosnippet>349</a>    </span><span class="kw">pub const fn </span>is_finite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
 <a href=#350 id=350 data-nosnippet>350</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>].is_finite()
 <a href=#351 id=351 data-nosnippet>351</a>            &amp;&amp; <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>].is_finite()
 <a href=#352 id=352 data-nosnippet>352</a>            &amp;&amp; <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>].is_finite()
@@ -359,7 +359,7 @@
 <a href=#359 id=359 data-nosnippet>359</a>    ///
 <a href=#360 id=360 data-nosnippet>360</a>    /// [NaN]: f64::is_nan
 <a href=#361 id=361 data-nosnippet>361</a>    </span><span class="attr">#[inline]
-<a href=#362 id=362 data-nosnippet>362</a>    </span><span class="kw">pub fn </span>is_nan(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#362 id=362 data-nosnippet>362</a>    </span><span class="kw">pub const fn </span>is_nan(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
 <a href=#363 id=363 data-nosnippet>363</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>].is_nan()
 <a href=#364 id=364 data-nosnippet>364</a>            || <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>].is_nan()
 <a href=#365 id=365 data-nosnippet>365</a>            || <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>].is_nan()
@@ -389,252 +389,336 @@
 <a href=#389 id=389 data-nosnippet>389</a>    /// Will return NaNs if the matrix (or equivalently the linear map) is non-finite.
 <a href=#390 id=390 data-nosnippet>390</a>    ///
 <a href=#391 id=391 data-nosnippet>391</a>    /// The first part of the returned tuple is the scaling, the second part is the angle of
-<a href=#392 id=392 data-nosnippet>392</a>    /// rotation (in radians).
-<a href=#393 id=393 data-nosnippet>393</a>    </span><span class="attr">#[inline]
-<a href=#394 id=394 data-nosnippet>394</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>svd(<span class="self">self</span>) -&gt; (Vec2, f64) {
-<a href=#395 id=395 data-nosnippet>395</a>        <span class="kw">let </span>a = <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>];
-<a href=#396 id=396 data-nosnippet>396</a>        <span class="kw">let </span>a2 = a * a;
-<a href=#397 id=397 data-nosnippet>397</a>        <span class="kw">let </span>b = <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>];
-<a href=#398 id=398 data-nosnippet>398</a>        <span class="kw">let </span>b2 = b * b;
-<a href=#399 id=399 data-nosnippet>399</a>        <span class="kw">let </span>c = <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>];
-<a href=#400 id=400 data-nosnippet>400</a>        <span class="kw">let </span>c2 = c * c;
-<a href=#401 id=401 data-nosnippet>401</a>        <span class="kw">let </span>d = <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>];
-<a href=#402 id=402 data-nosnippet>402</a>        <span class="kw">let </span>d2 = d * d;
-<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">let </span>ab = a * b;
-<a href=#404 id=404 data-nosnippet>404</a>        <span class="kw">let </span>cd = c * d;
-<a href=#405 id=405 data-nosnippet>405</a>        <span class="kw">let </span>angle = <span class="number">0.5 </span>* (<span class="number">2.0 </span>* (ab + cd)).atan2(a2 - b2 + c2 - d2);
-<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">let </span>s1 = a2 + b2 + c2 + d2;
-<a href=#407 id=407 data-nosnippet>407</a>        <span class="kw">let </span>s2 = ((a2 - b2 + c2 - d2).powi(<span class="number">2</span>) + <span class="number">4.0 </span>* (ab + cd).powi(<span class="number">2</span>)).sqrt();
-<a href=#408 id=408 data-nosnippet>408</a>        (
-<a href=#409 id=409 data-nosnippet>409</a>            Vec2 {
-<a href=#410 id=410 data-nosnippet>410</a>                x: (<span class="number">0.5 </span>* (s1 + s2)).sqrt(),
-<a href=#411 id=411 data-nosnippet>411</a>                y: (<span class="number">0.5 </span>* (s1 - s2)).sqrt(),
-<a href=#412 id=412 data-nosnippet>412</a>            },
-<a href=#413 id=413 data-nosnippet>413</a>            angle,
-<a href=#414 id=414 data-nosnippet>414</a>        )
-<a href=#415 id=415 data-nosnippet>415</a>    }
-<a href=#416 id=416 data-nosnippet>416</a>
-<a href=#417 id=417 data-nosnippet>417</a>    <span class="doccomment">/// Returns the translation part of this affine map (`(self.0[4], self.0[5])`).
-<a href=#418 id=418 data-nosnippet>418</a>    </span><span class="attr">#[inline(always)]
-<a href=#419 id=419 data-nosnippet>419</a>    </span><span class="kw">pub fn </span>translation(<span class="self">self</span>) -&gt; Vec2 {
-<a href=#420 id=420 data-nosnippet>420</a>        Vec2 {
-<a href=#421 id=421 data-nosnippet>421</a>            x: <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>],
-<a href=#422 id=422 data-nosnippet>422</a>            y: <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>],
-<a href=#423 id=423 data-nosnippet>423</a>        }
-<a href=#424 id=424 data-nosnippet>424</a>    }
-<a href=#425 id=425 data-nosnippet>425</a>
-<a href=#426 id=426 data-nosnippet>426</a>    <span class="doccomment">/// Replaces the translation portion of this affine map
-<a href=#427 id=427 data-nosnippet>427</a>    ///
-<a href=#428 id=428 data-nosnippet>428</a>    /// The translation can be seen as being applied after the linear part of the map.
-<a href=#429 id=429 data-nosnippet>429</a>    </span><span class="attr">#[must_use]
-<a href=#430 id=430 data-nosnippet>430</a>    #[inline(always)]
-<a href=#431 id=431 data-nosnippet>431</a>    </span><span class="kw">pub fn </span>with_translation(<span class="kw-2">mut </span><span class="self">self</span>, trans: Vec2) -&gt; Affine {
-<a href=#432 id=432 data-nosnippet>432</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>] = trans.x;
-<a href=#433 id=433 data-nosnippet>433</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>] = trans.y;
-<a href=#434 id=434 data-nosnippet>434</a>        <span class="self">self
-<a href=#435 id=435 data-nosnippet>435</a>    </span>}
-<a href=#436 id=436 data-nosnippet>436</a>}
-<a href=#437 id=437 data-nosnippet>437</a>
-<a href=#438 id=438 data-nosnippet>438</a><span class="kw">impl </span>Default <span class="kw">for </span>Affine {
-<a href=#439 id=439 data-nosnippet>439</a>    <span class="attr">#[inline(always)]
-<a href=#440 id=440 data-nosnippet>440</a>    </span><span class="kw">fn </span>default() -&gt; Affine {
-<a href=#441 id=441 data-nosnippet>441</a>        Affine::IDENTITY
-<a href=#442 id=442 data-nosnippet>442</a>    }
-<a href=#443 id=443 data-nosnippet>443</a>}
-<a href=#444 id=444 data-nosnippet>444</a>
-<a href=#445 id=445 data-nosnippet>445</a><span class="kw">impl </span>Mul&lt;Point&gt; <span class="kw">for </span>Affine {
-<a href=#446 id=446 data-nosnippet>446</a>    <span class="kw">type </span>Output = Point;
-<a href=#447 id=447 data-nosnippet>447</a>
-<a href=#448 id=448 data-nosnippet>448</a>    <span class="attr">#[inline]
-<a href=#449 id=449 data-nosnippet>449</a>    </span><span class="kw">fn </span>mul(<span class="self">self</span>, other: Point) -&gt; Point {
-<a href=#450 id=450 data-nosnippet>450</a>        Point::new(
-<a href=#451 id=451 data-nosnippet>451</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * other.x + <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] * other.y + <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>],
-<a href=#452 id=452 data-nosnippet>452</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * other.x + <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] * other.y + <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>],
-<a href=#453 id=453 data-nosnippet>453</a>        )
-<a href=#454 id=454 data-nosnippet>454</a>    }
-<a href=#455 id=455 data-nosnippet>455</a>}
-<a href=#456 id=456 data-nosnippet>456</a>
-<a href=#457 id=457 data-nosnippet>457</a><span class="kw">impl </span>Mul <span class="kw">for </span>Affine {
-<a href=#458 id=458 data-nosnippet>458</a>    <span class="kw">type </span>Output = Affine;
-<a href=#459 id=459 data-nosnippet>459</a>
-<a href=#460 id=460 data-nosnippet>460</a>    <span class="attr">#[inline]
-<a href=#461 id=461 data-nosnippet>461</a>    </span><span class="kw">fn </span>mul(<span class="self">self</span>, other: Affine) -&gt; Affine {
-<a href=#462 id=462 data-nosnippet>462</a>        Affine([
-<a href=#463 id=463 data-nosnippet>463</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * other.<span class="number">0</span>[<span class="number">0</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] * other.<span class="number">0</span>[<span class="number">1</span>],
-<a href=#464 id=464 data-nosnippet>464</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * other.<span class="number">0</span>[<span class="number">0</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] * other.<span class="number">0</span>[<span class="number">1</span>],
-<a href=#465 id=465 data-nosnippet>465</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * other.<span class="number">0</span>[<span class="number">2</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] * other.<span class="number">0</span>[<span class="number">3</span>],
-<a href=#466 id=466 data-nosnippet>466</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * other.<span class="number">0</span>[<span class="number">2</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] * other.<span class="number">0</span>[<span class="number">3</span>],
-<a href=#467 id=467 data-nosnippet>467</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * other.<span class="number">0</span>[<span class="number">4</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] * other.<span class="number">0</span>[<span class="number">5</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>],
-<a href=#468 id=468 data-nosnippet>468</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * other.<span class="number">0</span>[<span class="number">4</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] * other.<span class="number">0</span>[<span class="number">5</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>],
-<a href=#469 id=469 data-nosnippet>469</a>        ])
-<a href=#470 id=470 data-nosnippet>470</a>    }
-<a href=#471 id=471 data-nosnippet>471</a>}
-<a href=#472 id=472 data-nosnippet>472</a>
-<a href=#473 id=473 data-nosnippet>473</a><span class="kw">impl </span>MulAssign <span class="kw">for </span>Affine {
-<a href=#474 id=474 data-nosnippet>474</a>    <span class="attr">#[inline]
-<a href=#475 id=475 data-nosnippet>475</a>    </span><span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Affine) {
-<a href=#476 id=476 data-nosnippet>476</a>        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.mul(other);
-<a href=#477 id=477 data-nosnippet>477</a>    }
-<a href=#478 id=478 data-nosnippet>478</a>}
-<a href=#479 id=479 data-nosnippet>479</a>
-<a href=#480 id=480 data-nosnippet>480</a><span class="kw">impl </span>Mul&lt;Affine&gt; <span class="kw">for </span>f64 {
-<a href=#481 id=481 data-nosnippet>481</a>    <span class="kw">type </span>Output = Affine;
-<a href=#482 id=482 data-nosnippet>482</a>
-<a href=#483 id=483 data-nosnippet>483</a>    <span class="attr">#[inline]
-<a href=#484 id=484 data-nosnippet>484</a>    </span><span class="kw">fn </span>mul(<span class="self">self</span>, other: Affine) -&gt; Affine {
-<a href=#485 id=485 data-nosnippet>485</a>        Affine([
-<a href=#486 id=486 data-nosnippet>486</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">0</span>],
-<a href=#487 id=487 data-nosnippet>487</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">1</span>],
-<a href=#488 id=488 data-nosnippet>488</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">2</span>],
-<a href=#489 id=489 data-nosnippet>489</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">3</span>],
-<a href=#490 id=490 data-nosnippet>490</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">4</span>],
-<a href=#491 id=491 data-nosnippet>491</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">5</span>],
-<a href=#492 id=492 data-nosnippet>492</a>        ])
-<a href=#493 id=493 data-nosnippet>493</a>    }
-<a href=#494 id=494 data-nosnippet>494</a>}
+<a href=#392 id=392 data-nosnippet>392</a>    /// rotation (in radians). The scaling along the x-axis is guaranteed to be greater than or
+<a href=#393 id=393 data-nosnippet>393</a>    /// equal to the scaling along the y-axis.
+<a href=#394 id=394 data-nosnippet>394</a>    </span><span class="comment">//
+<a href=#395 id=395 data-nosnippet>395</a>    // Note: though this does quite some computation, we are often interested only in specific
+<a href=#396 id=396 data-nosnippet>396</a>    // components of the result. Hence this is marked `#[inline(always)]`, to give the compiler a
+<a href=#397 id=397 data-nosnippet>397</a>    // good chance at eliminating dead code.
+<a href=#398 id=398 data-nosnippet>398</a>    </span><span class="attr">#[inline(always)]
+<a href=#399 id=399 data-nosnippet>399</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>svd(<span class="self">self</span>) -&gt; (Vec2, f64) {
+<a href=#400 id=400 data-nosnippet>400</a>        <span class="kw">let </span>[a, b, c, d, <span class="kw">_</span>, <span class="kw">_</span>] = <span class="self">self</span>.<span class="number">0</span>;
+<a href=#401 id=401 data-nosnippet>401</a>        <span class="kw">let </span>a2 = a * a;
+<a href=#402 id=402 data-nosnippet>402</a>        <span class="kw">let </span>b2 = b * b;
+<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">let </span>c2 = c * c;
+<a href=#404 id=404 data-nosnippet>404</a>        <span class="kw">let </span>d2 = d * d;
+<a href=#405 id=405 data-nosnippet>405</a>        <span class="kw">let </span>ab = a * b;
+<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">let </span>cd = c * d;
+<a href=#407 id=407 data-nosnippet>407</a>        <span class="kw">let </span>angle = <span class="number">0.5 </span>* (<span class="number">2.0 </span>* (ab + cd)).atan2(a2 - b2 + c2 - d2);
+<a href=#408 id=408 data-nosnippet>408</a>
+<a href=#409 id=409 data-nosnippet>409</a>        <span class="comment">// Given matrix A = [ a c ]
+<a href=#410 id=410 data-nosnippet>410</a>        //                  [ b d ]
+<a href=#411 id=411 data-nosnippet>411</a>        //
+<a href=#412 id=412 data-nosnippet>412</a>        // The two singular values σ1, σ2 of A are the square roots of the two eigen values λ1, λ2
+<a href=#413 id=413 data-nosnippet>413</a>        // of M = A^T A. The common formula for 2x2 eigenvalues requires evaluating a square root,
+<a href=#414 id=414 data-nosnippet>414</a>        // but we'd like to compute the singular values of the matrix without nested square roots.
+<a href=#415 id=415 data-nosnippet>415</a>        //
+<a href=#416 id=416 data-nosnippet>416</a>        // M = A^T A = [ aa+cc   ab+cd ]
+<a href=#417 id=417 data-nosnippet>417</a>        //             [ ab+cd   bb+dd ]
+<a href=#418 id=418 data-nosnippet>418</a>        //
+<a href=#419 id=419 data-nosnippet>419</a>        // We have
+<a href=#420 id=420 data-nosnippet>420</a>        // λ = 1/2 (tr(M) ± sqrt(tr(M)^2 - 4 det(M))).
+<a href=#421 id=421 data-nosnippet>421</a>        //
+<a href=#422 id=422 data-nosnippet>422</a>        // Note det(M) = det(A^T A) = det(A)^2.
+<a href=#423 id=423 data-nosnippet>423</a>        // =&gt; 2λ = tr(M) ± sqrt(tr(M)^2 - 4 det(A)^2)
+<a href=#424 id=424 data-nosnippet>424</a>        // =&gt; 2λ = tr(M) ± sqrt[(a^2+b^2+c^2+d^2)^2 - 4 (ad-bc)^2]
+<a href=#425 id=425 data-nosnippet>425</a>        // By factorizing the inner term,
+<a href=#426 id=426 data-nosnippet>426</a>        // =&gt; 2λ = tr(M) ± sqrt[((a+d)^2 + (b-c)^2) ((a-d)^2 + (b+c)^2)]
+<a href=#427 id=427 data-nosnippet>427</a>        // =&gt; 2λ = tr(M) ± sqrt[(a+d)^2 + (b-c)^2] sqrt[(a-d)^2 + (b+c)^2]
+<a href=#428 id=428 data-nosnippet>428</a>        //
+<a href=#429 id=429 data-nosnippet>429</a>        // Define S1 = sqrt[(a+d)^2 + (b-c)^2]
+<a href=#430 id=430 data-nosnippet>430</a>        //        S2 = sqrt[(a-d)^2 + (b+c)^2].
+<a href=#431 id=431 data-nosnippet>431</a>        //
+<a href=#432 id=432 data-nosnippet>432</a>        // =&gt; 2λ = tr(M) ± S1 S2
+<a href=#433 id=433 data-nosnippet>433</a>        // =&gt; 2λ = 1/2 (S1^2 + S2^2) ± S1 S2
+<a href=#434 id=434 data-nosnippet>434</a>        // =&gt; λ = 1/4 (S1^2 + S2^2 ± 2 S1 S2)
+<a href=#435 id=435 data-nosnippet>435</a>        // =&gt; λ = 1/4 (S1 ± S2)^2
+<a href=#436 id=436 data-nosnippet>436</a>        //
+<a href=#437 id=437 data-nosnippet>437</a>        // Note we're interested in
+<a href=#438 id=438 data-nosnippet>438</a>        // σ = sqrt(λ).
+<a href=#439 id=439 data-nosnippet>439</a>        //
+<a href=#440 id=440 data-nosnippet>440</a>        // =&gt; σ1 = 1/2 (S1 + S2)
+<a href=#441 id=441 data-nosnippet>441</a>        // and similarly σ2 = 1/2 |S1 - S2|
+<a href=#442 id=442 data-nosnippet>442</a>        </span><span class="kw">let </span>s1 = ((a + d).powi(<span class="number">2</span>) + (b - c).powi(<span class="number">2</span>)).sqrt();
+<a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">let </span>s2 = ((a - d).powi(<span class="number">2</span>) + (b + c).powi(<span class="number">2</span>)).sqrt();
+<a href=#444 id=444 data-nosnippet>444</a>        (
+<a href=#445 id=445 data-nosnippet>445</a>            Vec2 {
+<a href=#446 id=446 data-nosnippet>446</a>                x: <span class="number">0.5 </span>* (s1 + s2),
+<a href=#447 id=447 data-nosnippet>447</a>                y: <span class="number">0.5 </span>* (s1 - s2).abs(),
+<a href=#448 id=448 data-nosnippet>448</a>            },
+<a href=#449 id=449 data-nosnippet>449</a>            angle,
+<a href=#450 id=450 data-nosnippet>450</a>        )
+<a href=#451 id=451 data-nosnippet>451</a>    }
+<a href=#452 id=452 data-nosnippet>452</a>
+<a href=#453 id=453 data-nosnippet>453</a>    <span class="doccomment">/// Returns the translation part of this affine map (`(self.0[4], self.0[5])`).
+<a href=#454 id=454 data-nosnippet>454</a>    </span><span class="attr">#[inline(always)]
+<a href=#455 id=455 data-nosnippet>455</a>    </span><span class="kw">pub const fn </span>translation(<span class="self">self</span>) -&gt; Vec2 {
+<a href=#456 id=456 data-nosnippet>456</a>        Vec2 {
+<a href=#457 id=457 data-nosnippet>457</a>            x: <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>],
+<a href=#458 id=458 data-nosnippet>458</a>            y: <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>],
+<a href=#459 id=459 data-nosnippet>459</a>        }
+<a href=#460 id=460 data-nosnippet>460</a>    }
+<a href=#461 id=461 data-nosnippet>461</a>
+<a href=#462 id=462 data-nosnippet>462</a>    <span class="doccomment">/// Replaces the translation portion of this affine map
+<a href=#463 id=463 data-nosnippet>463</a>    ///
+<a href=#464 id=464 data-nosnippet>464</a>    /// The translation can be seen as being applied after the linear part of the map.
+<a href=#465 id=465 data-nosnippet>465</a>    </span><span class="attr">#[must_use]
+<a href=#466 id=466 data-nosnippet>466</a>    #[inline(always)]
+<a href=#467 id=467 data-nosnippet>467</a>    </span><span class="kw">pub const fn </span>with_translation(<span class="kw-2">mut </span><span class="self">self</span>, trans: Vec2) -&gt; Affine {
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>] = trans.x;
+<a href=#469 id=469 data-nosnippet>469</a>        <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>] = trans.y;
+<a href=#470 id=470 data-nosnippet>470</a>        <span class="self">self
+<a href=#471 id=471 data-nosnippet>471</a>    </span>}
+<a href=#472 id=472 data-nosnippet>472</a>}
+<a href=#473 id=473 data-nosnippet>473</a>
+<a href=#474 id=474 data-nosnippet>474</a><span class="kw">impl </span>Default <span class="kw">for </span>Affine {
+<a href=#475 id=475 data-nosnippet>475</a>    <span class="attr">#[inline(always)]
+<a href=#476 id=476 data-nosnippet>476</a>    </span><span class="kw">fn </span>default() -&gt; Affine {
+<a href=#477 id=477 data-nosnippet>477</a>        Affine::IDENTITY
+<a href=#478 id=478 data-nosnippet>478</a>    }
+<a href=#479 id=479 data-nosnippet>479</a>}
+<a href=#480 id=480 data-nosnippet>480</a>
+<a href=#481 id=481 data-nosnippet>481</a><span class="kw">impl </span>Mul&lt;Point&gt; <span class="kw">for </span>Affine {
+<a href=#482 id=482 data-nosnippet>482</a>    <span class="kw">type </span>Output = Point;
+<a href=#483 id=483 data-nosnippet>483</a>
+<a href=#484 id=484 data-nosnippet>484</a>    <span class="attr">#[inline]
+<a href=#485 id=485 data-nosnippet>485</a>    </span><span class="kw">fn </span>mul(<span class="self">self</span>, other: Point) -&gt; Point {
+<a href=#486 id=486 data-nosnippet>486</a>        Point::new(
+<a href=#487 id=487 data-nosnippet>487</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * other.x + <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] * other.y + <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>],
+<a href=#488 id=488 data-nosnippet>488</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * other.x + <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] * other.y + <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>],
+<a href=#489 id=489 data-nosnippet>489</a>        )
+<a href=#490 id=490 data-nosnippet>490</a>    }
+<a href=#491 id=491 data-nosnippet>491</a>}
+<a href=#492 id=492 data-nosnippet>492</a>
+<a href=#493 id=493 data-nosnippet>493</a><span class="kw">impl </span>Mul <span class="kw">for </span>Affine {
+<a href=#494 id=494 data-nosnippet>494</a>    <span class="kw">type </span>Output = Affine;
 <a href=#495 id=495 data-nosnippet>495</a>
-<a href=#496 id=496 data-nosnippet>496</a><span class="comment">// Conversions to and from mint
-<a href=#497 id=497 data-nosnippet>497</a></span><span class="attr">#[cfg(feature = <span class="string">"mint"</span>)]
-<a href=#498 id=498 data-nosnippet>498</a></span><span class="kw">impl </span>From&lt;Affine&gt; <span class="kw">for </span>mint::ColumnMatrix2x3&lt;f64&gt; {
-<a href=#499 id=499 data-nosnippet>499</a>    <span class="attr">#[inline(always)]
-<a href=#500 id=500 data-nosnippet>500</a>    </span><span class="kw">fn </span>from(a: Affine) -&gt; mint::ColumnMatrix2x3&lt;f64&gt; {
-<a href=#501 id=501 data-nosnippet>501</a>        mint::ColumnMatrix2x3 {
-<a href=#502 id=502 data-nosnippet>502</a>            x: mint::Vector2 {
-<a href=#503 id=503 data-nosnippet>503</a>                x: a.<span class="number">0</span>[<span class="number">0</span>],
-<a href=#504 id=504 data-nosnippet>504</a>                y: a.<span class="number">0</span>[<span class="number">1</span>],
-<a href=#505 id=505 data-nosnippet>505</a>            },
-<a href=#506 id=506 data-nosnippet>506</a>            y: mint::Vector2 {
-<a href=#507 id=507 data-nosnippet>507</a>                x: a.<span class="number">0</span>[<span class="number">2</span>],
-<a href=#508 id=508 data-nosnippet>508</a>                y: a.<span class="number">0</span>[<span class="number">3</span>],
-<a href=#509 id=509 data-nosnippet>509</a>            },
-<a href=#510 id=510 data-nosnippet>510</a>            z: mint::Vector2 {
-<a href=#511 id=511 data-nosnippet>511</a>                x: a.<span class="number">0</span>[<span class="number">4</span>],
-<a href=#512 id=512 data-nosnippet>512</a>                y: a.<span class="number">0</span>[<span class="number">5</span>],
-<a href=#513 id=513 data-nosnippet>513</a>            },
-<a href=#514 id=514 data-nosnippet>514</a>        }
-<a href=#515 id=515 data-nosnippet>515</a>    }
-<a href=#516 id=516 data-nosnippet>516</a>}
-<a href=#517 id=517 data-nosnippet>517</a>
-<a href=#518 id=518 data-nosnippet>518</a><span class="attr">#[cfg(feature = <span class="string">"mint"</span>)]
-<a href=#519 id=519 data-nosnippet>519</a></span><span class="kw">impl </span>From&lt;mint::ColumnMatrix2x3&lt;f64&gt;&gt; <span class="kw">for </span>Affine {
-<a href=#520 id=520 data-nosnippet>520</a>    <span class="attr">#[inline(always)]
-<a href=#521 id=521 data-nosnippet>521</a>    </span><span class="kw">fn </span>from(m: mint::ColumnMatrix2x3&lt;f64&gt;) -&gt; Affine {
-<a href=#522 id=522 data-nosnippet>522</a>        Affine([m.x.x, m.x.y, m.y.x, m.y.y, m.z.x, m.z.y])
-<a href=#523 id=523 data-nosnippet>523</a>    }
-<a href=#524 id=524 data-nosnippet>524</a>}
-<a href=#525 id=525 data-nosnippet>525</a>
-<a href=#526 id=526 data-nosnippet>526</a><span class="attr">#[cfg(test)]
-<a href=#527 id=527 data-nosnippet>527</a></span><span class="kw">mod </span>tests {
-<a href=#528 id=528 data-nosnippet>528</a>    <span class="kw">use crate</span>::{Affine, Point, Vec2};
-<a href=#529 id=529 data-nosnippet>529</a>    <span class="kw">use </span>std::f64::consts::PI;
-<a href=#530 id=530 data-nosnippet>530</a>
-<a href=#531 id=531 data-nosnippet>531</a>    <span class="kw">fn </span>assert_near(p0: Point, p1: Point) {
-<a href=#532 id=532 data-nosnippet>532</a>        <span class="macro">assert!</span>((p1 - p0).hypot() &lt; <span class="number">1e-9</span>, <span class="string">"{p0:?} != {p1:?}"</span>);
-<a href=#533 id=533 data-nosnippet>533</a>    }
-<a href=#534 id=534 data-nosnippet>534</a>
-<a href=#535 id=535 data-nosnippet>535</a>    <span class="kw">fn </span>affine_assert_near(a0: Affine, a1: Affine) {
-<a href=#536 id=536 data-nosnippet>536</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">6 </span>{
-<a href=#537 id=537 data-nosnippet>537</a>            <span class="macro">assert!</span>((a0.<span class="number">0</span>[i] - a1.<span class="number">0</span>[i]).abs() &lt; <span class="number">1e-9</span>, <span class="string">"{a0:?} != {a1:?}"</span>);
-<a href=#538 id=538 data-nosnippet>538</a>        }
-<a href=#539 id=539 data-nosnippet>539</a>    }
-<a href=#540 id=540 data-nosnippet>540</a>
-<a href=#541 id=541 data-nosnippet>541</a>    <span class="attr">#[test]
-<a href=#542 id=542 data-nosnippet>542</a>    </span><span class="kw">fn </span>affine_basic() {
-<a href=#543 id=543 data-nosnippet>543</a>        <span class="kw">let </span>p = Point::new(<span class="number">3.0</span>, <span class="number">4.0</span>);
-<a href=#544 id=544 data-nosnippet>544</a>
-<a href=#545 id=545 data-nosnippet>545</a>        assert_near(Affine::default() * p, p);
-<a href=#546 id=546 data-nosnippet>546</a>        assert_near(Affine::scale(<span class="number">2.0</span>) * p, Point::new(<span class="number">6.0</span>, <span class="number">8.0</span>));
-<a href=#547 id=547 data-nosnippet>547</a>        assert_near(Affine::rotate(<span class="number">0.0</span>) * p, p);
-<a href=#548 id=548 data-nosnippet>548</a>        assert_near(Affine::rotate(PI / <span class="number">2.0</span>) * p, Point::new(-<span class="number">4.0</span>, <span class="number">3.0</span>));
-<a href=#549 id=549 data-nosnippet>549</a>        assert_near(Affine::translate((<span class="number">5.0</span>, <span class="number">6.0</span>)) * p, Point::new(<span class="number">8.0</span>, <span class="number">10.0</span>));
-<a href=#550 id=550 data-nosnippet>550</a>        assert_near(Affine::skew(<span class="number">0.0</span>, <span class="number">0.0</span>) * p, p);
-<a href=#551 id=551 data-nosnippet>551</a>        assert_near(Affine::skew(<span class="number">2.0</span>, <span class="number">4.0</span>) * p, Point::new(<span class="number">11.0</span>, <span class="number">16.0</span>));
-<a href=#552 id=552 data-nosnippet>552</a>    }
+<a href=#496 id=496 data-nosnippet>496</a>    <span class="attr">#[inline]
+<a href=#497 id=497 data-nosnippet>497</a>    </span><span class="kw">fn </span>mul(<span class="self">self</span>, other: Affine) -&gt; Affine {
+<a href=#498 id=498 data-nosnippet>498</a>        Affine([
+<a href=#499 id=499 data-nosnippet>499</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * other.<span class="number">0</span>[<span class="number">0</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] * other.<span class="number">0</span>[<span class="number">1</span>],
+<a href=#500 id=500 data-nosnippet>500</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * other.<span class="number">0</span>[<span class="number">0</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] * other.<span class="number">0</span>[<span class="number">1</span>],
+<a href=#501 id=501 data-nosnippet>501</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * other.<span class="number">0</span>[<span class="number">2</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] * other.<span class="number">0</span>[<span class="number">3</span>],
+<a href=#502 id=502 data-nosnippet>502</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * other.<span class="number">0</span>[<span class="number">2</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] * other.<span class="number">0</span>[<span class="number">3</span>],
+<a href=#503 id=503 data-nosnippet>503</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] * other.<span class="number">0</span>[<span class="number">4</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] * other.<span class="number">0</span>[<span class="number">5</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">4</span>],
+<a href=#504 id=504 data-nosnippet>504</a>            <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] * other.<span class="number">0</span>[<span class="number">4</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] * other.<span class="number">0</span>[<span class="number">5</span>] + <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>],
+<a href=#505 id=505 data-nosnippet>505</a>        ])
+<a href=#506 id=506 data-nosnippet>506</a>    }
+<a href=#507 id=507 data-nosnippet>507</a>}
+<a href=#508 id=508 data-nosnippet>508</a>
+<a href=#509 id=509 data-nosnippet>509</a><span class="kw">impl </span>MulAssign <span class="kw">for </span>Affine {
+<a href=#510 id=510 data-nosnippet>510</a>    <span class="attr">#[inline]
+<a href=#511 id=511 data-nosnippet>511</a>    </span><span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Affine) {
+<a href=#512 id=512 data-nosnippet>512</a>        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.mul(other);
+<a href=#513 id=513 data-nosnippet>513</a>    }
+<a href=#514 id=514 data-nosnippet>514</a>}
+<a href=#515 id=515 data-nosnippet>515</a>
+<a href=#516 id=516 data-nosnippet>516</a><span class="kw">impl </span>Mul&lt;Affine&gt; <span class="kw">for </span>f64 {
+<a href=#517 id=517 data-nosnippet>517</a>    <span class="kw">type </span>Output = Affine;
+<a href=#518 id=518 data-nosnippet>518</a>
+<a href=#519 id=519 data-nosnippet>519</a>    <span class="attr">#[inline]
+<a href=#520 id=520 data-nosnippet>520</a>    </span><span class="kw">fn </span>mul(<span class="self">self</span>, other: Affine) -&gt; Affine {
+<a href=#521 id=521 data-nosnippet>521</a>        Affine([
+<a href=#522 id=522 data-nosnippet>522</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">0</span>],
+<a href=#523 id=523 data-nosnippet>523</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">1</span>],
+<a href=#524 id=524 data-nosnippet>524</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">2</span>],
+<a href=#525 id=525 data-nosnippet>525</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">3</span>],
+<a href=#526 id=526 data-nosnippet>526</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">4</span>],
+<a href=#527 id=527 data-nosnippet>527</a>            <span class="self">self </span>* other.<span class="number">0</span>[<span class="number">5</span>],
+<a href=#528 id=528 data-nosnippet>528</a>        ])
+<a href=#529 id=529 data-nosnippet>529</a>    }
+<a href=#530 id=530 data-nosnippet>530</a>}
+<a href=#531 id=531 data-nosnippet>531</a>
+<a href=#532 id=532 data-nosnippet>532</a><span class="comment">// Conversions to and from mint
+<a href=#533 id=533 data-nosnippet>533</a></span><span class="attr">#[cfg(feature = <span class="string">"mint"</span>)]
+<a href=#534 id=534 data-nosnippet>534</a></span><span class="kw">impl </span>From&lt;Affine&gt; <span class="kw">for </span>mint::ColumnMatrix2x3&lt;f64&gt; {
+<a href=#535 id=535 data-nosnippet>535</a>    <span class="attr">#[inline(always)]
+<a href=#536 id=536 data-nosnippet>536</a>    </span><span class="kw">fn </span>from(a: Affine) -&gt; mint::ColumnMatrix2x3&lt;f64&gt; {
+<a href=#537 id=537 data-nosnippet>537</a>        mint::ColumnMatrix2x3 {
+<a href=#538 id=538 data-nosnippet>538</a>            x: mint::Vector2 {
+<a href=#539 id=539 data-nosnippet>539</a>                x: a.<span class="number">0</span>[<span class="number">0</span>],
+<a href=#540 id=540 data-nosnippet>540</a>                y: a.<span class="number">0</span>[<span class="number">1</span>],
+<a href=#541 id=541 data-nosnippet>541</a>            },
+<a href=#542 id=542 data-nosnippet>542</a>            y: mint::Vector2 {
+<a href=#543 id=543 data-nosnippet>543</a>                x: a.<span class="number">0</span>[<span class="number">2</span>],
+<a href=#544 id=544 data-nosnippet>544</a>                y: a.<span class="number">0</span>[<span class="number">3</span>],
+<a href=#545 id=545 data-nosnippet>545</a>            },
+<a href=#546 id=546 data-nosnippet>546</a>            z: mint::Vector2 {
+<a href=#547 id=547 data-nosnippet>547</a>                x: a.<span class="number">0</span>[<span class="number">4</span>],
+<a href=#548 id=548 data-nosnippet>548</a>                y: a.<span class="number">0</span>[<span class="number">5</span>],
+<a href=#549 id=549 data-nosnippet>549</a>            },
+<a href=#550 id=550 data-nosnippet>550</a>        }
+<a href=#551 id=551 data-nosnippet>551</a>    }
+<a href=#552 id=552 data-nosnippet>552</a>}
 <a href=#553 id=553 data-nosnippet>553</a>
-<a href=#554 id=554 data-nosnippet>554</a>    <span class="attr">#[test]
-<a href=#555 id=555 data-nosnippet>555</a>    </span><span class="kw">fn </span>affine_mul() {
-<a href=#556 id=556 data-nosnippet>556</a>        <span class="kw">let </span>a1 = Affine::new([<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">6.0</span>]);
-<a href=#557 id=557 data-nosnippet>557</a>        <span class="kw">let </span>a2 = Affine::new([<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">2.3</span>, <span class="number">3.4</span>, <span class="number">4.5</span>, <span class="number">5.6</span>]);
-<a href=#558 id=558 data-nosnippet>558</a>
-<a href=#559 id=559 data-nosnippet>559</a>        <span class="kw">let </span>px = Point::new(<span class="number">1.0</span>, <span class="number">0.0</span>);
-<a href=#560 id=560 data-nosnippet>560</a>        <span class="kw">let </span>py = Point::new(<span class="number">0.0</span>, <span class="number">1.0</span>);
-<a href=#561 id=561 data-nosnippet>561</a>        <span class="kw">let </span>pxy = Point::new(<span class="number">1.0</span>, <span class="number">1.0</span>);
-<a href=#562 id=562 data-nosnippet>562</a>        assert_near(a1 * (a2 * px), (a1 * a2) * px);
-<a href=#563 id=563 data-nosnippet>563</a>        assert_near(a1 * (a2 * py), (a1 * a2) * py);
-<a href=#564 id=564 data-nosnippet>564</a>        assert_near(a1 * (a2 * pxy), (a1 * a2) * pxy);
-<a href=#565 id=565 data-nosnippet>565</a>    }
+<a href=#554 id=554 data-nosnippet>554</a><span class="attr">#[cfg(feature = <span class="string">"mint"</span>)]
+<a href=#555 id=555 data-nosnippet>555</a></span><span class="kw">impl </span>From&lt;mint::ColumnMatrix2x3&lt;f64&gt;&gt; <span class="kw">for </span>Affine {
+<a href=#556 id=556 data-nosnippet>556</a>    <span class="attr">#[inline(always)]
+<a href=#557 id=557 data-nosnippet>557</a>    </span><span class="kw">fn </span>from(m: mint::ColumnMatrix2x3&lt;f64&gt;) -&gt; Affine {
+<a href=#558 id=558 data-nosnippet>558</a>        Affine([m.x.x, m.x.y, m.y.x, m.y.y, m.z.x, m.z.y])
+<a href=#559 id=559 data-nosnippet>559</a>    }
+<a href=#560 id=560 data-nosnippet>560</a>}
+<a href=#561 id=561 data-nosnippet>561</a>
+<a href=#562 id=562 data-nosnippet>562</a><span class="attr">#[cfg(test)]
+<a href=#563 id=563 data-nosnippet>563</a></span><span class="kw">mod </span>tests {
+<a href=#564 id=564 data-nosnippet>564</a>    <span class="kw">use crate</span>::{Affine, Point, Vec2};
+<a href=#565 id=565 data-nosnippet>565</a>    <span class="kw">use </span>std::f64::consts::PI;
 <a href=#566 id=566 data-nosnippet>566</a>
-<a href=#567 id=567 data-nosnippet>567</a>    <span class="attr">#[test]
-<a href=#568 id=568 data-nosnippet>568</a>    </span><span class="kw">fn </span>affine_inv() {
-<a href=#569 id=569 data-nosnippet>569</a>        <span class="kw">let </span>a = Affine::new([<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">2.3</span>, <span class="number">3.4</span>, <span class="number">4.5</span>, <span class="number">5.6</span>]);
-<a href=#570 id=570 data-nosnippet>570</a>        <span class="kw">let </span>a_inv = a.inverse();
-<a href=#571 id=571 data-nosnippet>571</a>
-<a href=#572 id=572 data-nosnippet>572</a>        <span class="kw">let </span>px = Point::new(<span class="number">1.0</span>, <span class="number">0.0</span>);
-<a href=#573 id=573 data-nosnippet>573</a>        <span class="kw">let </span>py = Point::new(<span class="number">0.0</span>, <span class="number">1.0</span>);
-<a href=#574 id=574 data-nosnippet>574</a>        <span class="kw">let </span>pxy = Point::new(<span class="number">1.0</span>, <span class="number">1.0</span>);
-<a href=#575 id=575 data-nosnippet>575</a>        assert_near(a * (a_inv * px), px);
-<a href=#576 id=576 data-nosnippet>576</a>        assert_near(a * (a_inv * py), py);
-<a href=#577 id=577 data-nosnippet>577</a>        assert_near(a * (a_inv * pxy), pxy);
-<a href=#578 id=578 data-nosnippet>578</a>        assert_near(a_inv * (a * px), px);
-<a href=#579 id=579 data-nosnippet>579</a>        assert_near(a_inv * (a * py), py);
-<a href=#580 id=580 data-nosnippet>580</a>        assert_near(a_inv * (a * pxy), pxy);
-<a href=#581 id=581 data-nosnippet>581</a>    }
-<a href=#582 id=582 data-nosnippet>582</a>
-<a href=#583 id=583 data-nosnippet>583</a>    <span class="attr">#[test]
-<a href=#584 id=584 data-nosnippet>584</a>    </span><span class="kw">fn </span>reflection() {
-<a href=#585 id=585 data-nosnippet>585</a>        affine_assert_near(
-<a href=#586 id=586 data-nosnippet>586</a>            Affine::reflect(Point::ZERO, (<span class="number">1.</span>, <span class="number">0.</span>)),
-<a href=#587 id=587 data-nosnippet>587</a>            Affine::new([<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, -<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>]),
-<a href=#588 id=588 data-nosnippet>588</a>        );
-<a href=#589 id=589 data-nosnippet>589</a>        affine_assert_near(
-<a href=#590 id=590 data-nosnippet>590</a>            Affine::reflect(Point::ZERO, (<span class="number">0.</span>, <span class="number">1.</span>)),
-<a href=#591 id=591 data-nosnippet>591</a>            Affine::new([-<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>]),
-<a href=#592 id=592 data-nosnippet>592</a>        );
-<a href=#593 id=593 data-nosnippet>593</a>        <span class="comment">// y = x
-<a href=#594 id=594 data-nosnippet>594</a>        </span>affine_assert_near(
-<a href=#595 id=595 data-nosnippet>595</a>            Affine::reflect(Point::ZERO, (<span class="number">1.</span>, <span class="number">1.</span>)),
-<a href=#596 id=596 data-nosnippet>596</a>            Affine::new([<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>]),
-<a href=#597 id=597 data-nosnippet>597</a>        );
-<a href=#598 id=598 data-nosnippet>598</a>
-<a href=#599 id=599 data-nosnippet>599</a>        <span class="comment">// no translate
-<a href=#600 id=600 data-nosnippet>600</a>        </span><span class="kw">let </span>point = Point::new(<span class="number">0.</span>, <span class="number">0.</span>);
-<a href=#601 id=601 data-nosnippet>601</a>        <span class="kw">let </span>vec = Vec2::new(<span class="number">1.</span>, <span class="number">1.</span>);
-<a href=#602 id=602 data-nosnippet>602</a>        <span class="kw">let </span>map = Affine::reflect(point, vec);
-<a href=#603 id=603 data-nosnippet>603</a>        assert_near(map * Point::new(<span class="number">0.</span>, <span class="number">0.</span>), Point::new(<span class="number">0.</span>, <span class="number">0.</span>));
-<a href=#604 id=604 data-nosnippet>604</a>        assert_near(map * Point::new(<span class="number">1.</span>, <span class="number">1.</span>), Point::new(<span class="number">1.</span>, <span class="number">1.</span>));
-<a href=#605 id=605 data-nosnippet>605</a>        assert_near(map * Point::new(<span class="number">1.</span>, <span class="number">2.</span>), Point::new(<span class="number">2.</span>, <span class="number">1.</span>));
-<a href=#606 id=606 data-nosnippet>606</a>
-<a href=#607 id=607 data-nosnippet>607</a>        <span class="comment">// with translate
-<a href=#608 id=608 data-nosnippet>608</a>        </span><span class="kw">let </span>point = Point::new(<span class="number">1.</span>, <span class="number">0.</span>);
-<a href=#609 id=609 data-nosnippet>609</a>        <span class="kw">let </span>vec = Vec2::new(<span class="number">1.</span>, <span class="number">1.</span>);
-<a href=#610 id=610 data-nosnippet>610</a>        <span class="kw">let </span>map = Affine::reflect(point, vec);
-<a href=#611 id=611 data-nosnippet>611</a>        assert_near(map * Point::new(<span class="number">1.</span>, <span class="number">0.</span>), Point::new(<span class="number">1.</span>, <span class="number">0.</span>));
-<a href=#612 id=612 data-nosnippet>612</a>        assert_near(map * Point::new(<span class="number">2.</span>, <span class="number">1.</span>), Point::new(<span class="number">2.</span>, <span class="number">1.</span>));
-<a href=#613 id=613 data-nosnippet>613</a>        assert_near(map * Point::new(<span class="number">2.</span>, <span class="number">2.</span>), Point::new(<span class="number">3.</span>, <span class="number">1.</span>));
-<a href=#614 id=614 data-nosnippet>614</a>    }
-<a href=#615 id=615 data-nosnippet>615</a>
-<a href=#616 id=616 data-nosnippet>616</a>    <span class="attr">#[test]
-<a href=#617 id=617 data-nosnippet>617</a>    </span><span class="kw">fn </span>svd() {
-<a href=#618 id=618 data-nosnippet>618</a>        <span class="kw">let </span>a = Affine::new([<span class="number">1.</span>, <span class="number">2.</span>, <span class="number">3.</span>, <span class="number">4.</span>, <span class="number">5.</span>, <span class="number">6.</span>]);
-<a href=#619 id=619 data-nosnippet>619</a>        <span class="kw">let </span>a_no_translate = a.with_translation(Vec2::ZERO);
-<a href=#620 id=620 data-nosnippet>620</a>
-<a href=#621 id=621 data-nosnippet>621</a>        <span class="comment">// translation should have no effect
-<a href=#622 id=622 data-nosnippet>622</a>        </span><span class="kw">let </span>(scale, rotation) = a.svd();
-<a href=#623 id=623 data-nosnippet>623</a>        <span class="kw">let </span>(scale_no_translate, rotation_no_translate) = a_no_translate.svd();
-<a href=#624 id=624 data-nosnippet>624</a>        assert_near(scale.to_point(), scale_no_translate.to_point());
-<a href=#625 id=625 data-nosnippet>625</a>        <span class="macro">assert!</span>((rotation - rotation_no_translate).abs() &lt;= <span class="number">1e-9</span>);
-<a href=#626 id=626 data-nosnippet>626</a>
-<a href=#627 id=627 data-nosnippet>627</a>        assert_near(
-<a href=#628 id=628 data-nosnippet>628</a>            scale.to_point(),
-<a href=#629 id=629 data-nosnippet>629</a>            Point::new(<span class="number">5.4649857042190427</span>, <span class="number">0.36596619062625782</span>),
-<a href=#630 id=630 data-nosnippet>630</a>        );
-<a href=#631 id=631 data-nosnippet>631</a>        <span class="macro">assert!</span>((rotation - <span class="number">0.95691013360780001</span>).abs() &lt;= <span class="number">1e-9</span>);
-<a href=#632 id=632 data-nosnippet>632</a>
-<a href=#633 id=633 data-nosnippet>633</a>        <span class="comment">// singular affine
-<a href=#634 id=634 data-nosnippet>634</a>        </span><span class="kw">let </span>a = Affine::new([<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">5.</span>, <span class="number">6.</span>]);
-<a href=#635 id=635 data-nosnippet>635</a>        <span class="macro">assert_eq!</span>(a.determinant(), <span class="number">0.</span>);
-<a href=#636 id=636 data-nosnippet>636</a>        <span class="kw">let </span>(scale, rotation) = a.svd();
-<a href=#637 id=637 data-nosnippet>637</a>        <span class="macro">assert_eq!</span>(scale, Vec2::new(<span class="number">0.</span>, <span class="number">0.</span>));
-<a href=#638 id=638 data-nosnippet>638</a>        <span class="macro">assert_eq!</span>(rotation, <span class="number">0.</span>);
-<a href=#639 id=639 data-nosnippet>639</a>    }
-<a href=#640 id=640 data-nosnippet>640</a>}</code></pre></div></section></main></body></html>
+<a href=#567 id=567 data-nosnippet>567</a>    <span class="kw">fn </span>assert_near(p0: Point, p1: Point) {
+<a href=#568 id=568 data-nosnippet>568</a>        <span class="macro">assert!</span>((p1 - p0).hypot() &lt; <span class="number">1e-9</span>, <span class="string">"{p0:?} != {p1:?}"</span>);
+<a href=#569 id=569 data-nosnippet>569</a>    }
+<a href=#570 id=570 data-nosnippet>570</a>
+<a href=#571 id=571 data-nosnippet>571</a>    <span class="kw">fn </span>affine_assert_near(a0: Affine, a1: Affine) {
+<a href=#572 id=572 data-nosnippet>572</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">6 </span>{
+<a href=#573 id=573 data-nosnippet>573</a>            <span class="macro">assert!</span>((a0.<span class="number">0</span>[i] - a1.<span class="number">0</span>[i]).abs() &lt; <span class="number">1e-9</span>, <span class="string">"{a0:?} != {a1:?}"</span>);
+<a href=#574 id=574 data-nosnippet>574</a>        }
+<a href=#575 id=575 data-nosnippet>575</a>    }
+<a href=#576 id=576 data-nosnippet>576</a>
+<a href=#577 id=577 data-nosnippet>577</a>    <span class="attr">#[test]
+<a href=#578 id=578 data-nosnippet>578</a>    </span><span class="kw">fn </span>affine_basic() {
+<a href=#579 id=579 data-nosnippet>579</a>        <span class="kw">let </span>p = Point::new(<span class="number">3.0</span>, <span class="number">4.0</span>);
+<a href=#580 id=580 data-nosnippet>580</a>
+<a href=#581 id=581 data-nosnippet>581</a>        assert_near(Affine::default() * p, p);
+<a href=#582 id=582 data-nosnippet>582</a>        assert_near(Affine::scale(<span class="number">2.0</span>) * p, Point::new(<span class="number">6.0</span>, <span class="number">8.0</span>));
+<a href=#583 id=583 data-nosnippet>583</a>        assert_near(Affine::rotate(<span class="number">0.0</span>) * p, p);
+<a href=#584 id=584 data-nosnippet>584</a>        assert_near(Affine::rotate(PI / <span class="number">2.0</span>) * p, Point::new(-<span class="number">4.0</span>, <span class="number">3.0</span>));
+<a href=#585 id=585 data-nosnippet>585</a>        assert_near(Affine::translate((<span class="number">5.0</span>, <span class="number">6.0</span>)) * p, Point::new(<span class="number">8.0</span>, <span class="number">10.0</span>));
+<a href=#586 id=586 data-nosnippet>586</a>        assert_near(Affine::skew(<span class="number">0.0</span>, <span class="number">0.0</span>) * p, p);
+<a href=#587 id=587 data-nosnippet>587</a>        assert_near(Affine::skew(<span class="number">2.0</span>, <span class="number">4.0</span>) * p, Point::new(<span class="number">11.0</span>, <span class="number">16.0</span>));
+<a href=#588 id=588 data-nosnippet>588</a>    }
+<a href=#589 id=589 data-nosnippet>589</a>
+<a href=#590 id=590 data-nosnippet>590</a>    <span class="attr">#[test]
+<a href=#591 id=591 data-nosnippet>591</a>    </span><span class="kw">fn </span>affine_mul() {
+<a href=#592 id=592 data-nosnippet>592</a>        <span class="kw">let </span>a1 = Affine::new([<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">6.0</span>]);
+<a href=#593 id=593 data-nosnippet>593</a>        <span class="kw">let </span>a2 = Affine::new([<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">2.3</span>, <span class="number">3.4</span>, <span class="number">4.5</span>, <span class="number">5.6</span>]);
+<a href=#594 id=594 data-nosnippet>594</a>
+<a href=#595 id=595 data-nosnippet>595</a>        <span class="kw">let </span>px = Point::new(<span class="number">1.0</span>, <span class="number">0.0</span>);
+<a href=#596 id=596 data-nosnippet>596</a>        <span class="kw">let </span>py = Point::new(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#597 id=597 data-nosnippet>597</a>        <span class="kw">let </span>pxy = Point::new(<span class="number">1.0</span>, <span class="number">1.0</span>);
+<a href=#598 id=598 data-nosnippet>598</a>        assert_near(a1 * (a2 * px), (a1 * a2) * px);
+<a href=#599 id=599 data-nosnippet>599</a>        assert_near(a1 * (a2 * py), (a1 * a2) * py);
+<a href=#600 id=600 data-nosnippet>600</a>        assert_near(a1 * (a2 * pxy), (a1 * a2) * pxy);
+<a href=#601 id=601 data-nosnippet>601</a>    }
+<a href=#602 id=602 data-nosnippet>602</a>
+<a href=#603 id=603 data-nosnippet>603</a>    <span class="attr">#[test]
+<a href=#604 id=604 data-nosnippet>604</a>    </span><span class="kw">fn </span>affine_inv() {
+<a href=#605 id=605 data-nosnippet>605</a>        <span class="kw">let </span>a = Affine::new([<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">2.3</span>, <span class="number">3.4</span>, <span class="number">4.5</span>, <span class="number">5.6</span>]);
+<a href=#606 id=606 data-nosnippet>606</a>        <span class="kw">let </span>a_inv = a.inverse();
+<a href=#607 id=607 data-nosnippet>607</a>
+<a href=#608 id=608 data-nosnippet>608</a>        <span class="kw">let </span>px = Point::new(<span class="number">1.0</span>, <span class="number">0.0</span>);
+<a href=#609 id=609 data-nosnippet>609</a>        <span class="kw">let </span>py = Point::new(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#610 id=610 data-nosnippet>610</a>        <span class="kw">let </span>pxy = Point::new(<span class="number">1.0</span>, <span class="number">1.0</span>);
+<a href=#611 id=611 data-nosnippet>611</a>        assert_near(a * (a_inv * px), px);
+<a href=#612 id=612 data-nosnippet>612</a>        assert_near(a * (a_inv * py), py);
+<a href=#613 id=613 data-nosnippet>613</a>        assert_near(a * (a_inv * pxy), pxy);
+<a href=#614 id=614 data-nosnippet>614</a>        assert_near(a_inv * (a * px), px);
+<a href=#615 id=615 data-nosnippet>615</a>        assert_near(a_inv * (a * py), py);
+<a href=#616 id=616 data-nosnippet>616</a>        assert_near(a_inv * (a * pxy), pxy);
+<a href=#617 id=617 data-nosnippet>617</a>    }
+<a href=#618 id=618 data-nosnippet>618</a>
+<a href=#619 id=619 data-nosnippet>619</a>    <span class="attr">#[test]
+<a href=#620 id=620 data-nosnippet>620</a>    </span><span class="kw">fn </span>reflection() {
+<a href=#621 id=621 data-nosnippet>621</a>        affine_assert_near(
+<a href=#622 id=622 data-nosnippet>622</a>            Affine::reflect(Point::ZERO, (<span class="number">1.</span>, <span class="number">0.</span>)),
+<a href=#623 id=623 data-nosnippet>623</a>            Affine::new([<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, -<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>]),
+<a href=#624 id=624 data-nosnippet>624</a>        );
+<a href=#625 id=625 data-nosnippet>625</a>        affine_assert_near(
+<a href=#626 id=626 data-nosnippet>626</a>            Affine::reflect(Point::ZERO, (<span class="number">0.</span>, <span class="number">1.</span>)),
+<a href=#627 id=627 data-nosnippet>627</a>            Affine::new([-<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>]),
+<a href=#628 id=628 data-nosnippet>628</a>        );
+<a href=#629 id=629 data-nosnippet>629</a>        <span class="comment">// y = x
+<a href=#630 id=630 data-nosnippet>630</a>        </span>affine_assert_near(
+<a href=#631 id=631 data-nosnippet>631</a>            Affine::reflect(Point::ZERO, (<span class="number">1.</span>, <span class="number">1.</span>)),
+<a href=#632 id=632 data-nosnippet>632</a>            Affine::new([<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>]),
+<a href=#633 id=633 data-nosnippet>633</a>        );
+<a href=#634 id=634 data-nosnippet>634</a>
+<a href=#635 id=635 data-nosnippet>635</a>        <span class="comment">// no translate
+<a href=#636 id=636 data-nosnippet>636</a>        </span><span class="kw">let </span>point = Point::new(<span class="number">0.</span>, <span class="number">0.</span>);
+<a href=#637 id=637 data-nosnippet>637</a>        <span class="kw">let </span>vec = Vec2::new(<span class="number">1.</span>, <span class="number">1.</span>);
+<a href=#638 id=638 data-nosnippet>638</a>        <span class="kw">let </span>map = Affine::reflect(point, vec);
+<a href=#639 id=639 data-nosnippet>639</a>        assert_near(map * Point::new(<span class="number">0.</span>, <span class="number">0.</span>), Point::new(<span class="number">0.</span>, <span class="number">0.</span>));
+<a href=#640 id=640 data-nosnippet>640</a>        assert_near(map * Point::new(<span class="number">1.</span>, <span class="number">1.</span>), Point::new(<span class="number">1.</span>, <span class="number">1.</span>));
+<a href=#641 id=641 data-nosnippet>641</a>        assert_near(map * Point::new(<span class="number">1.</span>, <span class="number">2.</span>), Point::new(<span class="number">2.</span>, <span class="number">1.</span>));
+<a href=#642 id=642 data-nosnippet>642</a>
+<a href=#643 id=643 data-nosnippet>643</a>        <span class="comment">// with translate
+<a href=#644 id=644 data-nosnippet>644</a>        </span><span class="kw">let </span>point = Point::new(<span class="number">1.</span>, <span class="number">0.</span>);
+<a href=#645 id=645 data-nosnippet>645</a>        <span class="kw">let </span>vec = Vec2::new(<span class="number">1.</span>, <span class="number">1.</span>);
+<a href=#646 id=646 data-nosnippet>646</a>        <span class="kw">let </span>map = Affine::reflect(point, vec);
+<a href=#647 id=647 data-nosnippet>647</a>        assert_near(map * Point::new(<span class="number">1.</span>, <span class="number">0.</span>), Point::new(<span class="number">1.</span>, <span class="number">0.</span>));
+<a href=#648 id=648 data-nosnippet>648</a>        assert_near(map * Point::new(<span class="number">2.</span>, <span class="number">1.</span>), Point::new(<span class="number">2.</span>, <span class="number">1.</span>));
+<a href=#649 id=649 data-nosnippet>649</a>        assert_near(map * Point::new(<span class="number">2.</span>, <span class="number">2.</span>), Point::new(<span class="number">3.</span>, <span class="number">1.</span>));
+<a href=#650 id=650 data-nosnippet>650</a>    }
+<a href=#651 id=651 data-nosnippet>651</a>
+<a href=#652 id=652 data-nosnippet>652</a>    <span class="attr">#[test]
+<a href=#653 id=653 data-nosnippet>653</a>    </span><span class="kw">fn </span>svd() {
+<a href=#654 id=654 data-nosnippet>654</a>        <span class="kw">let </span>a = Affine::new([<span class="number">1.</span>, <span class="number">2.</span>, <span class="number">3.</span>, <span class="number">4.</span>, <span class="number">5.</span>, <span class="number">6.</span>]);
+<a href=#655 id=655 data-nosnippet>655</a>        <span class="kw">let </span>a_no_translate = a.with_translation(Vec2::ZERO);
+<a href=#656 id=656 data-nosnippet>656</a>
+<a href=#657 id=657 data-nosnippet>657</a>        <span class="comment">// translation should have no effect
+<a href=#658 id=658 data-nosnippet>658</a>        </span><span class="kw">let </span>(scale, rotation) = a.svd();
+<a href=#659 id=659 data-nosnippet>659</a>        <span class="kw">let </span>(scale_no_translate, rotation_no_translate) = a_no_translate.svd();
+<a href=#660 id=660 data-nosnippet>660</a>        assert_near(scale.to_point(), scale_no_translate.to_point());
+<a href=#661 id=661 data-nosnippet>661</a>        <span class="macro">assert!</span>((rotation - rotation_no_translate).abs() &lt;= <span class="number">1e-9</span>);
+<a href=#662 id=662 data-nosnippet>662</a>
+<a href=#663 id=663 data-nosnippet>663</a>        assert_near(
+<a href=#664 id=664 data-nosnippet>664</a>            scale.to_point(),
+<a href=#665 id=665 data-nosnippet>665</a>            Point::new(<span class="number">5.4649857042190427</span>, <span class="number">0.36596619062625782</span>),
+<a href=#666 id=666 data-nosnippet>666</a>        );
+<a href=#667 id=667 data-nosnippet>667</a>        <span class="macro">assert!</span>((rotation - <span class="number">0.95691013360780001</span>).abs() &lt;= <span class="number">1e-9</span>);
+<a href=#668 id=668 data-nosnippet>668</a>
+<a href=#669 id=669 data-nosnippet>669</a>        <span class="comment">// singular affine
+<a href=#670 id=670 data-nosnippet>670</a>        </span><span class="kw">let </span>a = Affine::new([<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">5.</span>, <span class="number">6.</span>]);
+<a href=#671 id=671 data-nosnippet>671</a>        <span class="macro">assert_eq!</span>(a.determinant(), <span class="number">0.</span>);
+<a href=#672 id=672 data-nosnippet>672</a>        <span class="kw">let </span>(scale, rotation) = a.svd();
+<a href=#673 id=673 data-nosnippet>673</a>        <span class="macro">assert_eq!</span>(scale, Vec2::new(<span class="number">0.</span>, <span class="number">0.</span>));
+<a href=#674 id=674 data-nosnippet>674</a>        <span class="macro">assert_eq!</span>(rotation, <span class="number">0.</span>);
+<a href=#675 id=675 data-nosnippet>675</a>    }
+<a href=#676 id=676 data-nosnippet>676</a>
+<a href=#677 id=677 data-nosnippet>677</a>    <span class="attr">#[test]
+<a href=#678 id=678 data-nosnippet>678</a>    </span><span class="kw">fn </span>svd_singular_values() {
+<a href=#679 id=679 data-nosnippet>679</a>        <span class="comment">// Test a few known singular values.
+<a href=#680 id=680 data-nosnippet>680</a>        </span><span class="kw">let </span>mat = |a, b, c, d| Affine::new([a, b, c, d, <span class="number">0.</span>, <span class="number">0.</span>]);
+<a href=#681 id=681 data-nosnippet>681</a>
+<a href=#682 id=682 data-nosnippet>682</a>        <span class="kw">let </span>s = mat(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>).svd().<span class="number">0</span>;
+<a href=#683 id=683 data-nosnippet>683</a>        assert_near(s.to_point(), Point::new(<span class="number">1.</span>, <span class="number">1.</span>));
+<a href=#684 id=684 data-nosnippet>684</a>
+<a href=#685 id=685 data-nosnippet>685</a>        <span class="kw">let </span>s = mat(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, -<span class="number">1.</span>).svd().<span class="number">0</span>;
+<a href=#686 id=686 data-nosnippet>686</a>        assert_near(s.to_point(), Point::new(<span class="number">1.</span>, <span class="number">1.</span>));
+<a href=#687 id=687 data-nosnippet>687</a>
+<a href=#688 id=688 data-nosnippet>688</a>        <span class="kw">let </span>s = mat(<span class="number">1.</span>, <span class="number">1.</span>, <span class="number">1.</span>, <span class="number">1.</span>).svd().<span class="number">0</span>;
+<a href=#689 id=689 data-nosnippet>689</a>        assert_near(s.to_point(), Point::new(<span class="number">2.</span>, <span class="number">0.</span>));
+<a href=#690 id=690 data-nosnippet>690</a>
+<a href=#691 id=691 data-nosnippet>691</a>        <span class="kw">let </span>s = mat(<span class="number">1.</span>, <span class="number">1.</span>, <span class="number">1.</span>, <span class="number">1.</span>).svd().<span class="number">0</span>;
+<a href=#692 id=692 data-nosnippet>692</a>        assert_near(s.to_point(), Point::new(<span class="number">2.</span>, <span class="number">0.</span>));
+<a href=#693 id=693 data-nosnippet>693</a>
+<a href=#694 id=694 data-nosnippet>694</a>        <span class="kw">let </span>s = mat(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>).svd().<span class="number">0</span>;
+<a href=#695 id=695 data-nosnippet>695</a>        assert_near(s.to_point(), Point::new(<span class="number">1.</span>, <span class="number">0.</span>));
+<a href=#696 id=696 data-nosnippet>696</a>
+<a href=#697 id=697 data-nosnippet>697</a>        <span class="comment">// The singular values are the scaling of the affine map. So let's test that.
+<a href=#698 id=698 data-nosnippet>698</a>        </span><span class="kw">let </span>s = Affine::scale_non_uniform(<span class="number">4.</span>, <span class="number">8.</span>)
+<a href=#699 id=699 data-nosnippet>699</a>            .then_rotate_about(<span class="number">42_f64</span>.to_radians(), (-<span class="number">2.</span>, <span class="number">50.</span>))
+<a href=#700 id=700 data-nosnippet>700</a>            .svd()
+<a href=#701 id=701 data-nosnippet>701</a>            .<span class="number">0</span>;
+<a href=#702 id=702 data-nosnippet>702</a>        assert_near(s.to_point(), Point::new(<span class="number">8.</span>, <span class="number">4.</span>));
+<a href=#703 id=703 data-nosnippet>703</a>
+<a href=#704 id=704 data-nosnippet>704</a>        <span class="comment">// Correctly handles negative scaling (singular values are necessarily non-negative).
+<a href=#705 id=705 data-nosnippet>705</a>        </span><span class="kw">let </span>s = Affine::scale_non_uniform(-<span class="number">20.</span>, <span class="number">3.</span>).svd().<span class="number">0</span>;
+<a href=#706 id=706 data-nosnippet>706</a>        assert_near(s.to_point(), Point::new(<span class="number">20.</span>, <span class="number">3.</span>));
+<a href=#707 id=707 data-nosnippet>707</a>        <span class="kw">let </span>s = Affine::scale_non_uniform(-<span class="number">20.</span>, -<span class="number">3.</span>).svd().<span class="number">0</span>;
+<a href=#708 id=708 data-nosnippet>708</a>        assert_near(s.to_point(), Point::new(<span class="number">20.</span>, <span class="number">3.</span>));
+<a href=#709 id=709 data-nosnippet>709</a>        <span class="kw">let </span>s = Affine::scale_non_uniform(<span class="number">20.</span>, -<span class="number">3.</span>).svd().<span class="number">0</span>;
+<a href=#710 id=710 data-nosnippet>710</a>        assert_near(s.to_point(), Point::new(<span class="number">20.</span>, <span class="number">3.</span>));
+<a href=#711 id=711 data-nosnippet>711</a>
+<a href=#712 id=712 data-nosnippet>712</a>        <span class="comment">// One more property: given a full-rank transform, the product of its singular values
+<a href=#713 id=713 data-nosnippet>713</a>        // should be equal to its absolute determinant.
+<a href=#714 id=714 data-nosnippet>714</a>        </span><span class="kw">let </span>m = mat(<span class="number">10.</span>, <span class="number">9.</span>, -<span class="number">2.5</span>, <span class="number">3.3333</span>);
+<a href=#715 id=715 data-nosnippet>715</a>        <span class="kw">let </span>s = m.svd().<span class="number">0</span>;
+<a href=#716 id=716 data-nosnippet>716</a>        <span class="kw">let </span>prod = s.x * s.y;
+<a href=#717 id=717 data-nosnippet>717</a>        <span class="kw">let </span>det = m.determinant().abs();
+<a href=#718 id=718 data-nosnippet>718</a>        <span class="macro">assert!</span>(
+<a href=#719 id=719 data-nosnippet>719</a>            (prod - det) &lt; <span class="number">1e-9</span>,
+<a href=#720 id=720 data-nosnippet>720</a>            <span class="string">"The product of the singular values {s:?} ({prod}) should be equal to the absolute determinant {det}."</span>,
+<a href=#721 id=721 data-nosnippet>721</a>        );
+<a href=#722 id=722 data-nosnippet>722</a>    }
+<a href=#723 id=723 data-nosnippet>723</a>}
+</code></pre></div></section></main></body></html>

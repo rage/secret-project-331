@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tiny-skia-path-0.11.4/src/path.rs`."><title>path.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tiny_skia_path/</div>path.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2006 The Android Open Source Project
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tiny-skia-path-0.12.0/src/path.rs`."><title>path.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tiny_skia_path/</div>path.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2006 The Android Open Source Project
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright 2020 Yevhenii Reizner
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// Use of this source code is governed by a BSD-style license that can be
@@ -15,7 +15,7 @@
 <a href=#15 id=15 data-nosnippet>15</a>
 <a href=#16 id=16 data-nosnippet>16</a><span class="doccomment">/// A path verb.
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="attr">#[allow(missing_docs)]
-<a href=#18 id=18 data-nosnippet>18</a>#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+<a href=#18 id=18 data-nosnippet>18</a>#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
 <a href=#19 id=19 data-nosnippet>19</a></span><span class="kw">pub enum </span>PathVerb {
 <a href=#20 id=20 data-nosnippet>20</a>    Move,
 <a href=#21 id=21 data-nosnippet>21</a>    Line,
@@ -140,7 +140,7 @@
 <a href=#140 id=140 data-nosnippet>140</a>    }
 <a href=#141 id=141 data-nosnippet>141</a>
 <a href=#142 id=142 data-nosnippet>142</a>    <span class="doccomment">/// Returns an iterator over path's segments.
-<a href=#143 id=143 data-nosnippet>143</a>    </span><span class="kw">pub fn </span>segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathSegmentsIter {
+<a href=#143 id=143 data-nosnippet>143</a>    </span><span class="kw">pub fn </span>segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathSegmentsIter&lt;<span class="lifetime">'_</span>&gt; {
 <a href=#144 id=144 data-nosnippet>144</a>        PathSegmentsIter {
 <a href=#145 id=145 data-nosnippet>145</a>            path: <span class="self">self</span>,
 <a href=#146 id=146 data-nosnippet>146</a>            verb_index: <span class="number">0</span>,
@@ -265,7 +265,7 @@
 <a href=#265 id=265 data-nosnippet>265</a>    last_point: Point,
 <a href=#266 id=266 data-nosnippet>266</a>}
 <a href=#267 id=267 data-nosnippet>267</a>
-<a href=#268 id=268 data-nosnippet>268</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PathSegmentsIter&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#268 id=268 data-nosnippet>268</a><span class="kw">impl </span>PathSegmentsIter&lt;<span class="lifetime">'_</span>&gt; {
 <a href=#269 id=269 data-nosnippet>269</a>    <span class="doccomment">/// Sets the auto closing mode. Off by default.
 <a href=#270 id=270 data-nosnippet>270</a>    ///
 <a href=#271 id=271 data-nosnippet>271</a>    /// When enabled, emits an additional `PathSegment::Line` from the current position
@@ -275,7 +275,7 @@
 <a href=#275 id=275 data-nosnippet>275</a>    }
 <a href=#276 id=276 data-nosnippet>276</a>
 <a href=#277 id=277 data-nosnippet>277</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>auto_close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; PathSegment {
-<a href=#278 id=278 data-nosnippet>278</a>        <span class="kw">if </span><span class="self">self</span>.is_auto_close &amp;&amp; <span class="self">self</span>.last_point != <span class="self">self</span>.last_move_to {
+<a href=#278 id=278 data-nosnippet>278</a>        <span class="kw">if </span><span class="self">self</span>.is_auto_close &amp;&amp; <span class="self">self</span>.<span class="macro">last_point !</span>= <span class="self">self</span>.last_move_to {
 <a href=#279 id=279 data-nosnippet>279</a>            <span class="self">self</span>.verb_index -= <span class="number">1</span>;
 <a href=#280 id=280 data-nosnippet>280</a>            PathSegment::LineTo(<span class="self">self</span>.last_move_to)
 <a href=#281 id=281 data-nosnippet>281</a>        } <span class="kw">else </span>{
@@ -331,7 +331,7 @@
 <a href=#331 id=331 data-nosnippet>331</a>    }
 <a href=#332 id=332 data-nosnippet>332</a>}
 <a href=#333 id=333 data-nosnippet>333</a>
-<a href=#334 id=334 data-nosnippet>334</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>PathSegmentsIter&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#334 id=334 data-nosnippet>334</a><span class="kw">impl </span>Iterator <span class="kw">for </span>PathSegmentsIter&lt;<span class="lifetime">'_</span>&gt; {
 <a href=#335 id=335 data-nosnippet>335</a>    <span class="kw">type </span>Item = PathSegment;
 <a href=#336 id=336 data-nosnippet>336</a>
 <a href=#337 id=337 data-nosnippet>337</a>    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -378,4 +378,5 @@
 <a href=#378 id=378 data-nosnippet>378</a>            <span class="prelude-val">None
 <a href=#379 id=379 data-nosnippet>379</a>        </span>}
 <a href=#380 id=380 data-nosnippet>380</a>    }
-<a href=#381 id=381 data-nosnippet>381</a>}</code></pre></div></section></main></body></html>
+<a href=#381 id=381 data-nosnippet>381</a>}
+</code></pre></div></section></main></body></html>

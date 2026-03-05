@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ttf-parser-0.25.1/src/tables/gvar.rs`."><title>gvar.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ttf_parser/tables/</div>gvar.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! A [Glyph Variations Table](
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ttf-parser-0.25.1/src/tables/gvar.rs`."><title>gvar.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ttf_parser/tables/</div>gvar.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! A [Glyph Variations Table](
 <a href=#2 id=2 data-nosnippet>2</a>//! https://docs.microsoft.com/en-us/typography/opentype/spec/gvar) implementation.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">// https://docs.microsoft.com/en-us/typography/opentype/spec/otvarcommonformats#tuple-variation-store
@@ -347,9 +347,9 @@
 <a href=#347 id=347 data-nosnippet>347</a>    <span class="kw">let </span>serialized_data_size = s.read::&lt;u16&gt;()<span class="question-mark">?</span>;
 <a href=#348 id=348 data-nosnippet>348</a>    <span class="kw">let </span>tuple_index = s.read::&lt;u16&gt;()<span class="question-mark">?</span>;
 <a href=#349 id=349 data-nosnippet>349</a>
-<a href=#350 id=350 data-nosnippet>350</a>    <span class="kw">let </span>has_embedded_peak_tuple = tuple_index &amp; EMBEDDED_PEAK_TUPLE_FLAG != <span class="number">0</span>;
-<a href=#351 id=351 data-nosnippet>351</a>    <span class="kw">let </span>has_intermediate_region = tuple_index &amp; INTERMEDIATE_REGION_FLAG != <span class="number">0</span>;
-<a href=#352 id=352 data-nosnippet>352</a>    <span class="kw">let </span>has_private_point_numbers = tuple_index &amp; PRIVATE_POINT_NUMBERS_FLAG != <span class="number">0</span>;
+<a href=#350 id=350 data-nosnippet>350</a>    <span class="kw">let </span>has_embedded_peak_tuple = tuple_index &amp; <span class="macro">EMBEDDED_PEAK_TUPLE_FLAG !</span>= <span class="number">0</span>;
+<a href=#351 id=351 data-nosnippet>351</a>    <span class="kw">let </span>has_intermediate_region = tuple_index &amp; <span class="macro">INTERMEDIATE_REGION_FLAG !</span>= <span class="number">0</span>;
+<a href=#352 id=352 data-nosnippet>352</a>    <span class="kw">let </span>has_private_point_numbers = tuple_index &amp; <span class="macro">PRIVATE_POINT_NUMBERS_FLAG !</span>= <span class="number">0</span>;
 <a href=#353 id=353 data-nosnippet>353</a>    <span class="kw">let </span>tuple_index = tuple_index &amp; TUPLE_INDEX_MASK;
 <a href=#354 id=354 data-nosnippet>354</a>
 <a href=#355 id=355 data-nosnippet>355</a>    <span class="kw">let </span>axis_count = coordinates.len() <span class="kw">as </span>u16;
@@ -394,7 +394,7 @@
 <a href=#394 id=394 data-nosnippet>394</a>        <span class="kw">if </span>has_intermediate_region {
 <a href=#395 id=395 data-nosnippet>395</a>            <span class="kw">let </span>start = start_tuple.get(i)<span class="question-mark">?</span>.<span class="number">0</span>;
 <a href=#396 id=396 data-nosnippet>396</a>            <span class="kw">let </span>end = end_tuple.get(i)<span class="question-mark">?</span>.<span class="number">0</span>;
-<a href=#397 id=397 data-nosnippet>397</a>            <span class="kw">if </span>start &gt; peak || peak &gt; end || (start &lt; <span class="number">0 </span>&amp;&amp; end &gt; <span class="number">0 </span>&amp;&amp; peak != <span class="number">0</span>) {
+<a href=#397 id=397 data-nosnippet>397</a>            <span class="kw">if </span>start &gt; peak || peak &gt; end || (start &lt; <span class="number">0 </span>&amp;&amp; end &gt; <span class="number">0 </span>&amp;&amp; <span class="macro">peak !</span>= <span class="number">0</span>) {
 <a href=#398 id=398 data-nosnippet>398</a>                <span class="kw">continue</span>;
 <a href=#399 id=399 data-nosnippet>399</a>            }
 <a href=#400 id=400 data-nosnippet>400</a>
@@ -403,11 +403,11 @@
 <a href=#403 id=403 data-nosnippet>403</a>            }
 <a href=#404 id=404 data-nosnippet>404</a>
 <a href=#405 id=405 data-nosnippet>405</a>            <span class="kw">if </span>v &lt; peak {
-<a href=#406 id=406 data-nosnippet>406</a>                <span class="kw">if </span>peak != start {
+<a href=#406 id=406 data-nosnippet>406</a>                <span class="kw">if </span><span class="macro">peak !</span>= start {
 <a href=#407 id=407 data-nosnippet>407</a>                    scalar <span class="kw-2">*</span>= f32::from(v - start) / f32::from(peak - start);
 <a href=#408 id=408 data-nosnippet>408</a>                }
 <a href=#409 id=409 data-nosnippet>409</a>            } <span class="kw">else </span>{
-<a href=#410 id=410 data-nosnippet>410</a>                <span class="kw">if </span>peak != end {
+<a href=#410 id=410 data-nosnippet>410</a>                <span class="kw">if </span><span class="macro">peak !</span>= end {
 <a href=#411 id=411 data-nosnippet>411</a>                    scalar <span class="kw-2">*</span>= f32::from(end - v) / f32::from(end - peak);
 <a href=#412 id=412 data-nosnippet>412</a>                }
 <a href=#413 id=413 data-nosnippet>413</a>            }
@@ -436,7 +436,7 @@
 <a href=#436 id=436 data-nosnippet>436</a>
 <a href=#437 id=437 data-nosnippet>437</a>        <span class="attr">#[inline]
 <a href=#438 id=438 data-nosnippet>438</a>        </span><span class="kw">fn </span>is_points_are_words(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#439 id=439 data-nosnippet>439</a>            <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="self">Self</span>::POINTS_ARE_WORDS_FLAG != <span class="number">0
+<a href=#439 id=439 data-nosnippet>439</a>            <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="macro">Self::POINTS_ARE_WORDS_FLAG !</span>= <span class="number">0
 <a href=#440 id=440 data-nosnippet>440</a>        </span>}
 <a href=#441 id=441 data-nosnippet>441</a>
 <a href=#442 id=442 data-nosnippet>442</a>        <span class="comment">// 'Mask for the low 7 bits to provide the number of point values in the run, minus one.'
@@ -484,7 +484,7 @@
 <a href=#484 id=484 data-nosnippet>484</a>            // depending on the first bit.
 <a href=#485 id=485 data-nosnippet>485</a>            </span><span class="kw">let </span>b1 = s.read::&lt;u8&gt;()<span class="question-mark">?</span>;
 <a href=#486 id=486 data-nosnippet>486</a>            <span class="kw">let </span><span class="kw-2">mut </span>count = u16::from(b1);
-<a href=#487 id=487 data-nosnippet>487</a>            <span class="kw">if </span>b1 &amp; Control::POINTS_ARE_WORDS_FLAG != <span class="number">0 </span>{
+<a href=#487 id=487 data-nosnippet>487</a>            <span class="kw">if </span>b1 &amp; <span class="macro">Control::POINTS_ARE_WORDS_FLAG !</span>= <span class="number">0 </span>{
 <a href=#488 id=488 data-nosnippet>488</a>                <span class="kw">let </span>b2 = s.read::&lt;u8&gt;()<span class="question-mark">?</span>;
 <a href=#489 id=489 data-nosnippet>489</a>                count = (u16::from(b1 &amp; Control::POINT_RUN_COUNT_MASK) &lt;&lt; <span class="number">8</span>) | u16::from(b2);
 <a href=#490 id=490 data-nosnippet>490</a>            }
@@ -614,14 +614,14 @@
 <a href=#614 id=614 data-nosnippet>614</a>
 <a href=#615 id=615 data-nosnippet>615</a>        <span class="attr">#[inline]
 <a href=#616 id=616 data-nosnippet>616</a>        </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-<a href=#617 id=617 data-nosnippet>617</a>            <span class="kw">if </span><span class="self">self</span>.unref_count != <span class="number">0 </span>{
+<a href=#617 id=617 data-nosnippet>617</a>            <span class="kw">if </span><span class="self">self</span>.<span class="macro">unref_count !</span>= <span class="number">0 </span>{
 <a href=#618 id=618 data-nosnippet>618</a>                <span class="self">self</span>.unref_count -= <span class="number">1</span>;
 <a href=#619 id=619 data-nosnippet>619</a>                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="bool-val">false</span>);
 <a href=#620 id=620 data-nosnippet>620</a>            }
 <a href=#621 id=621 data-nosnippet>621</a>
 <a href=#622 id=622 data-nosnippet>622</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(unref_count) = <span class="self">self</span>.iter.next() {
 <a href=#623 id=623 data-nosnippet>623</a>                <span class="self">self</span>.unref_count = unref_count;
-<a href=#624 id=624 data-nosnippet>624</a>                <span class="kw">if </span><span class="self">self</span>.unref_count != <span class="number">0 </span>{
+<a href=#624 id=624 data-nosnippet>624</a>                <span class="kw">if </span><span class="self">self</span>.<span class="macro">unref_count !</span>= <span class="number">0 </span>{
 <a href=#625 id=625 data-nosnippet>625</a>                    <span class="self">self</span>.unref_count -= <span class="number">1</span>;
 <a href=#626 id=626 data-nosnippet>626</a>                }
 <a href=#627 id=627 data-nosnippet>627</a>            }
@@ -907,12 +907,12 @@
 <a href=#907 id=907 data-nosnippet>907</a>
 <a href=#908 id=908 data-nosnippet>908</a>        <span class="attr">#[inline]
 <a href=#909 id=909 data-nosnippet>909</a>        </span><span class="kw">fn </span>is_deltas_are_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#910 id=910 data-nosnippet>910</a>            <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="self">Self</span>::DELTAS_ARE_ZERO_FLAG != <span class="number">0
+<a href=#910 id=910 data-nosnippet>910</a>            <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="macro">Self::DELTAS_ARE_ZERO_FLAG !</span>= <span class="number">0
 <a href=#911 id=911 data-nosnippet>911</a>        </span>}
 <a href=#912 id=912 data-nosnippet>912</a>
 <a href=#913 id=913 data-nosnippet>913</a>        <span class="attr">#[inline]
 <a href=#914 id=914 data-nosnippet>914</a>        </span><span class="kw">fn </span>is_deltas_are_words(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#915 id=915 data-nosnippet>915</a>            <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="self">Self</span>::DELTAS_ARE_WORDS_FLAG != <span class="number">0
+<a href=#915 id=915 data-nosnippet>915</a>            <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="macro">Self::DELTAS_ARE_WORDS_FLAG !</span>= <span class="number">0
 <a href=#916 id=916 data-nosnippet>916</a>        </span>}
 <a href=#917 id=917 data-nosnippet>917</a>
 <a href=#918 id=918 data-nosnippet>918</a>        <span class="comment">// 'Mask for the low 6 bits to provide the number of delta values in the run, minus one.'
@@ -1464,7 +1464,7 @@
 <a href=#1464 id=1464 data-nosnippet>1464</a>    curr_point: glyf::GlyphPoint,
 <a href=#1465 id=1465 data-nosnippet>1465</a>) -&gt; (f32, f32) {
 <a href=#1466 id=1466 data-nosnippet>1466</a>    <span class="kw">let </span><span class="kw-2">mut </span>current_contour = points.current_contour();
-<a href=#1467 id=1467 data-nosnippet>1467</a>    <span class="kw">if </span>curr_point.last_point &amp;&amp; current_contour != <span class="number">0 </span>{
+<a href=#1467 id=1467 data-nosnippet>1467</a>    <span class="kw">if </span>curr_point.last_point &amp;&amp; <span class="macro">current_contour !</span>= <span class="number">0 </span>{
 <a href=#1468 id=1468 data-nosnippet>1468</a>        <span class="comment">// When we parsed the last point of a contour,
 <a href=#1469 id=1469 data-nosnippet>1469</a>        // an iterator had switched to the next contour.
 <a href=#1470 id=1470 data-nosnippet>1470</a>        // So we have to move to the previous one.
@@ -1543,7 +1543,7 @@
 <a href=#1543 id=1543 data-nosnippet>1543</a>        <span class="kw">let </span><span class="kw-2">mut </span>contour = <span class="number">0</span>;
 <a href=#1544 id=1544 data-nosnippet>1544</a>        <span class="kw">while let </span>(<span class="prelude-val">Some</span>(point), <span class="prelude-val">Some</span>(is_set)) = (all_points.next(), points_set.next()) {
 <a href=#1545 id=1545 data-nosnippet>1545</a>            <span class="comment">// First, we have to skip already processed contours.
-<a href=#1546 id=1546 data-nosnippet>1546</a>            </span><span class="kw">if </span>contour != current_contour {
+<a href=#1546 id=1546 data-nosnippet>1546</a>            </span><span class="kw">if </span><span class="macro">contour !</span>= current_contour {
 <a href=#1547 id=1547 data-nosnippet>1547</a>                <span class="kw">if </span>is_set {
 <a href=#1548 id=1548 data-nosnippet>1548</a>                    <span class="kw">let _ </span>= deltas.next();
 <a href=#1549 id=1549 data-nosnippet>1549</a>                }
@@ -1651,7 +1651,7 @@
 <a href=#1651 id=1651 data-nosnippet>1651</a>    </span><span class="kw">pub fn </span>parse(data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
 <a href=#1652 id=1652 data-nosnippet>1652</a>        <span class="kw">let </span><span class="kw-2">mut </span>s = Stream::new(data);
 <a href=#1653 id=1653 data-nosnippet>1653</a>        <span class="kw">let </span>version = s.read::&lt;u32&gt;()<span class="question-mark">?</span>;
-<a href=#1654 id=1654 data-nosnippet>1654</a>        <span class="kw">if </span>version != <span class="number">0x00010000 </span>{
+<a href=#1654 id=1654 data-nosnippet>1654</a>        <span class="kw">if </span><span class="macro">version !</span>= <span class="number">0x00010000 </span>{
 <a href=#1655 id=1655 data-nosnippet>1655</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
 <a href=#1656 id=1656 data-nosnippet>1656</a>        }
 <a href=#1657 id=1657 data-nosnippet>1657</a>
@@ -1899,7 +1899,7 @@
 <a href=#1899 id=1899 data-nosnippet>1899</a>
 <a href=#1900 id=1900 data-nosnippet>1900</a>    <span class="comment">// 'The high 4 bits are flags, and the low 12 bits
 <a href=#1901 id=1901 data-nosnippet>1901</a>    // are the number of tuple variation tables for this glyph.'
-<a href=#1902 id=1902 data-nosnippet>1902</a>    </span><span class="kw">let </span>has_shared_point_numbers = tuple_variation_count &amp; SHARED_POINT_NUMBERS_FLAG != <span class="number">0</span>;
+<a href=#1902 id=1902 data-nosnippet>1902</a>    </span><span class="kw">let </span>has_shared_point_numbers = tuple_variation_count &amp; <span class="macro">SHARED_POINT_NUMBERS_FLAG !</span>= <span class="number">0</span>;
 <a href=#1903 id=1903 data-nosnippet>1903</a>    <span class="kw">let </span>tuple_variation_count = tuple_variation_count &amp; COUNT_MASK;
 <a href=#1904 id=1904 data-nosnippet>1904</a>
 <a href=#1905 id=1905 data-nosnippet>1905</a>    <span class="comment">// 'The number of tuple variation tables can be any number between 1 and 4095.'
@@ -1937,4 +1937,5 @@
 <a href=#1937 id=1937 data-nosnippet>1937</a>        serialized_stream,
 <a href=#1938 id=1938 data-nosnippet>1938</a>        tuples,
 <a href=#1939 id=1939 data-nosnippet>1939</a>    )
-<a href=#1940 id=1940 data-nosnippet>1940</a>}</code></pre></div></section></main></body></html>
+<a href=#1940 id=1940 data-nosnippet>1940</a>}
+</code></pre></div></section></main></body></html>

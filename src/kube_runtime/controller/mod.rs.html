@@ -1,338 +1,338 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kube-runtime-2.0.1/src/controller/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="kube_runtime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kube_runtime/controller/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Runs a user-supplied reconciler function on objects when they (or related objects) are updated
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kube-runtime-3.0.1/src/controller/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="kube_runtime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kube_runtime/controller/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Runs a user-supplied reconciler function on objects when they (or related objects) are updated
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span><span class="self">self</span>::runner::Runner;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use crate</span>::{
 <a href=#5 id=5 data-nosnippet>5</a>    reflector::{
-<a href=#6 id=6 data-nosnippet>6</a>        <span class="self">self</span>, reflector,
+<a href=#6 id=6 data-nosnippet>6</a>        <span class="self">self</span>, ObjectRef, reflector,
 <a href=#7 id=7 data-nosnippet>7</a>        store::{Store, Writer},
-<a href=#8 id=8 data-nosnippet>8</a>        ObjectRef,
-<a href=#9 id=9 data-nosnippet>9</a>    },
-<a href=#10 id=10 data-nosnippet>10</a>    scheduler::{debounced_scheduler, ScheduleRequest},
-<a href=#11 id=11 data-nosnippet>11</a>    utils::{
-<a href=#12 id=12 data-nosnippet>12</a>        trystream_try_via, Backoff, CancelableJoinHandle, KubeRuntimeStreamExt, StreamBackoff, WatchStreamExt,
-<a href=#13 id=13 data-nosnippet>13</a>    },
-<a href=#14 id=14 data-nosnippet>14</a>    watcher::{<span class="self">self</span>, metadata_watcher, watcher, DefaultBackoff},
-<a href=#15 id=15 data-nosnippet>15</a>};
-<a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>educe::Educe;
-<a href=#17 id=17 data-nosnippet>17</a><span class="kw">use </span>futures::{
-<a href=#18 id=18 data-nosnippet>18</a>    channel,
-<a href=#19 id=19 data-nosnippet>19</a>    future::{<span class="self">self</span>, BoxFuture},
-<a href=#20 id=20 data-nosnippet>20</a>    stream, FutureExt, Stream, StreamExt, TryFuture, TryFutureExt, TryStream, TryStreamExt,
-<a href=#21 id=21 data-nosnippet>21</a>};
-<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>kube_client::api::{Api, DynamicObject, Resource};
-<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>pin_project::pin_project;
-<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>serde::de::DeserializeOwned;
-<a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>std::{
-<a href=#26 id=26 data-nosnippet>26</a>    fmt::{Debug, Display},
-<a href=#27 id=27 data-nosnippet>27</a>    hash::Hash,
-<a href=#28 id=28 data-nosnippet>28</a>    sync::Arc,
-<a href=#29 id=29 data-nosnippet>29</a>    task::{ready, Poll},
-<a href=#30 id=30 data-nosnippet>30</a>    time::Duration,
-<a href=#31 id=31 data-nosnippet>31</a>};
-<a href=#32 id=32 data-nosnippet>32</a><span class="kw">use </span>stream::BoxStream;
-<a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>thiserror::Error;
-<a href=#34 id=34 data-nosnippet>34</a><span class="kw">use </span>tokio::{runtime::Handle, time::Instant};
-<a href=#35 id=35 data-nosnippet>35</a><span class="kw">use </span>tracing::{info_span, Instrument};
-<a href=#36 id=36 data-nosnippet>36</a>
-<a href=#37 id=37 data-nosnippet>37</a><span class="kw">mod </span>future_hash_map;
-<a href=#38 id=38 data-nosnippet>38</a><span class="kw">mod </span>runner;
-<a href=#39 id=39 data-nosnippet>39</a>
-<a href=#40 id=40 data-nosnippet>40</a><span class="kw">pub type </span>RunnerError = runner::Error&lt;reflector::store::WriterDropped&gt;;
-<a href=#41 id=41 data-nosnippet>41</a>
-<a href=#42 id=42 data-nosnippet>42</a><span class="attr">#[derive(Debug, Error)]
-<a href=#43 id=43 data-nosnippet>43</a></span><span class="kw">pub enum </span>Error&lt;ReconcilerErr: <span class="lifetime">'static</span>, QueueErr: <span class="lifetime">'static</span>&gt; {
-<a href=#44 id=44 data-nosnippet>44</a>    <span class="attr">#[error(<span class="string">"tried to reconcile object {0} that was not found in local store"</span>)]
-<a href=#45 id=45 data-nosnippet>45</a>    </span>ObjectNotFound(ObjectRef&lt;DynamicObject&gt;),
-<a href=#46 id=46 data-nosnippet>46</a>    <span class="attr">#[error(<span class="string">"reconciler for object {1} failed"</span>)]
-<a href=#47 id=47 data-nosnippet>47</a>    </span>ReconcilerFailed(<span class="attr">#[source] </span>ReconcilerErr, ObjectRef&lt;DynamicObject&gt;),
-<a href=#48 id=48 data-nosnippet>48</a>    <span class="attr">#[error(<span class="string">"event queue error"</span>)]
-<a href=#49 id=49 data-nosnippet>49</a>    </span>QueueError(<span class="attr">#[source] </span>QueueErr),
-<a href=#50 id=50 data-nosnippet>50</a>    <span class="attr">#[error(<span class="string">"runner error"</span>)]
-<a href=#51 id=51 data-nosnippet>51</a>    </span>RunnerError(<span class="attr">#[source] </span>RunnerError),
-<a href=#52 id=52 data-nosnippet>52</a>}
-<a href=#53 id=53 data-nosnippet>53</a>
-<a href=#54 id=54 data-nosnippet>54</a><span class="doccomment">/// Results of the reconciliation attempt
-<a href=#55 id=55 data-nosnippet>55</a></span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
-<a href=#56 id=56 data-nosnippet>56</a></span><span class="kw">pub struct </span>Action {
-<a href=#57 id=57 data-nosnippet>57</a>    <span class="doccomment">/// Whether (and when) to next trigger the reconciliation if no external watch triggers hit
-<a href=#58 id=58 data-nosnippet>58</a>    ///
-<a href=#59 id=59 data-nosnippet>59</a>    /// For example, use this to query external systems for updates, expire time-limited resources, or
-<a href=#60 id=60 data-nosnippet>60</a>    /// (in your `error_policy`) retry after errors.
-<a href=#61 id=61 data-nosnippet>61</a>    </span>requeue_after: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
-<a href=#62 id=62 data-nosnippet>62</a>}
-<a href=#63 id=63 data-nosnippet>63</a>
-<a href=#64 id=64 data-nosnippet>64</a><span class="kw">impl </span>Action {
-<a href=#65 id=65 data-nosnippet>65</a>    <span class="doccomment">/// Action to the reconciliation at this time even if no external watch triggers hit
-<a href=#66 id=66 data-nosnippet>66</a>    ///
-<a href=#67 id=67 data-nosnippet>67</a>    /// This is the best-practice action that ensures eventual consistency of your controller
-<a href=#68 id=68 data-nosnippet>68</a>    /// even in the case of missed changes (which can happen).
-<a href=#69 id=69 data-nosnippet>69</a>    ///
-<a href=#70 id=70 data-nosnippet>70</a>    /// Watch events are not normally missed, so running this once per hour (`Default`) as a fallback is reasonable.
-<a href=#71 id=71 data-nosnippet>71</a>    </span><span class="attr">#[must_use]
-<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">pub const fn </span>requeue(duration: Duration) -&gt; <span class="self">Self </span>{
-<a href=#73 id=73 data-nosnippet>73</a>        <span class="self">Self </span>{
-<a href=#74 id=74 data-nosnippet>74</a>            requeue_after: <span class="prelude-val">Some</span>(duration),
-<a href=#75 id=75 data-nosnippet>75</a>        }
-<a href=#76 id=76 data-nosnippet>76</a>    }
-<a href=#77 id=77 data-nosnippet>77</a>
-<a href=#78 id=78 data-nosnippet>78</a>    <span class="doccomment">/// Do nothing until a change is detected
-<a href=#79 id=79 data-nosnippet>79</a>    ///
-<a href=#80 id=80 data-nosnippet>80</a>    /// This stops the controller periodically reconciling this object until a relevant watch event
-<a href=#81 id=81 data-nosnippet>81</a>    /// was **detected**.
-<a href=#82 id=82 data-nosnippet>82</a>    ///
-<a href=#83 id=83 data-nosnippet>83</a>    /// **Warning**: If you have watch desyncs, it is possible to miss changes entirely.
-<a href=#84 id=84 data-nosnippet>84</a>    /// It is therefore not recommended to disable requeuing this way, unless you have
-<a href=#85 id=85 data-nosnippet>85</a>    /// frequent changes to the underlying object, or some other hook to retain eventual consistency.
-<a href=#86 id=86 data-nosnippet>86</a>    </span><span class="attr">#[must_use]
-<a href=#87 id=87 data-nosnippet>87</a>    </span><span class="kw">pub const fn </span>await_change() -&gt; <span class="self">Self </span>{
-<a href=#88 id=88 data-nosnippet>88</a>        <span class="self">Self </span>{ requeue_after: <span class="prelude-val">None </span>}
-<a href=#89 id=89 data-nosnippet>89</a>    }
-<a href=#90 id=90 data-nosnippet>90</a>}
-<a href=#91 id=91 data-nosnippet>91</a>
-<a href=#92 id=92 data-nosnippet>92</a><span class="doccomment">/// Helper for building custom trigger filters, see the implementations of [`trigger_self`] and [`trigger_owners`] for some examples.
-<a href=#93 id=93 data-nosnippet>93</a></span><span class="kw">pub fn </span>trigger_with&lt;T, K, I, S&gt;(
-<a href=#94 id=94 data-nosnippet>94</a>    stream: S,
-<a href=#95 id=95 data-nosnippet>95</a>    mapper: <span class="kw">impl </span>Fn(T) -&gt; I,
-<a href=#96 id=96 data-nosnippet>96</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
-<a href=#97 id=97 data-nosnippet>97</a><span class="kw">where
-<a href=#98 id=98 data-nosnippet>98</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= T&gt;,
-<a href=#99 id=99 data-nosnippet>99</a>    I: IntoIterator,
-<a href=#100 id=100 data-nosnippet>100</a>    I::Item: Into&lt;ReconcileRequest&lt;K&gt;&gt;,
-<a href=#101 id=101 data-nosnippet>101</a>    K: Resource,
-<a href=#102 id=102 data-nosnippet>102</a>{
-<a href=#103 id=103 data-nosnippet>103</a>    stream
-<a href=#104 id=104 data-nosnippet>104</a>        .map_ok(<span class="kw">move </span>|obj| stream::iter(mapper(obj).into_iter().map(Into::into).map(<span class="prelude-val">Ok</span>)))
-<a href=#105 id=105 data-nosnippet>105</a>        .try_flatten()
-<a href=#106 id=106 data-nosnippet>106</a>}
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a><span class="doccomment">/// Enqueues the object itself for reconciliation
-<a href=#109 id=109 data-nosnippet>109</a></span><span class="kw">pub fn </span>trigger_self&lt;K, S&gt;(
-<a href=#110 id=110 data-nosnippet>110</a>    stream: S,
-<a href=#111 id=111 data-nosnippet>111</a>    dyntype: K::DynamicType,
-<a href=#112 id=112 data-nosnippet>112</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
-<a href=#113 id=113 data-nosnippet>113</a><span class="kw">where
-<a href=#114 id=114 data-nosnippet>114</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= K&gt;,
-<a href=#115 id=115 data-nosnippet>115</a>    K: Resource,
-<a href=#116 id=116 data-nosnippet>116</a>    K::DynamicType: Clone,
-<a href=#117 id=117 data-nosnippet>117</a>{
-<a href=#118 id=118 data-nosnippet>118</a>    trigger_with(stream, <span class="kw">move </span>|obj| {
-<a href=#119 id=119 data-nosnippet>119</a>        <span class="prelude-val">Some</span>(ReconcileRequest {
-<a href=#120 id=120 data-nosnippet>120</a>            obj_ref: ObjectRef::from_obj_with(<span class="kw-2">&amp;</span>obj, dyntype.clone()),
-<a href=#121 id=121 data-nosnippet>121</a>            reason: ReconcileReason::ObjectUpdated,
-<a href=#122 id=122 data-nosnippet>122</a>        })
-<a href=#123 id=123 data-nosnippet>123</a>    })
-<a href=#124 id=124 data-nosnippet>124</a>}
-<a href=#125 id=125 data-nosnippet>125</a>
-<a href=#126 id=126 data-nosnippet>126</a><span class="doccomment">/// Enqueues the object itself for reconciliation when the object is behind a
-<a href=#127 id=127 data-nosnippet>127</a>/// shared pointer
-<a href=#128 id=128 data-nosnippet>128</a></span><span class="attr">#[cfg(feature = <span class="string">"unstable-runtime-subscribe"</span>)]
-<a href=#129 id=129 data-nosnippet>129</a></span><span class="kw">fn </span>trigger_self_shared&lt;K, S&gt;(
-<a href=#130 id=130 data-nosnippet>130</a>    stream: S,
-<a href=#131 id=131 data-nosnippet>131</a>    dyntype: K::DynamicType,
-<a href=#132 id=132 data-nosnippet>132</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
-<a href=#133 id=133 data-nosnippet>133</a><span class="kw">where
-<a href=#134 id=134 data-nosnippet>134</a>    </span><span class="comment">// Input stream has item as some Arc'd Resource (via
-<a href=#135 id=135 data-nosnippet>135</a>    // Controller::for_shared_stream)
-<a href=#136 id=136 data-nosnippet>136</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= Arc&lt;K&gt;&gt;,
-<a href=#137 id=137 data-nosnippet>137</a>    K: Resource,
-<a href=#138 id=138 data-nosnippet>138</a>    K::DynamicType: Clone,
-<a href=#139 id=139 data-nosnippet>139</a>{
-<a href=#140 id=140 data-nosnippet>140</a>    trigger_with(stream, <span class="kw">move </span>|obj| {
-<a href=#141 id=141 data-nosnippet>141</a>        <span class="prelude-val">Some</span>(ReconcileRequest {
-<a href=#142 id=142 data-nosnippet>142</a>            obj_ref: ObjectRef::from_obj_with(obj.as_ref(), dyntype.clone()),
-<a href=#143 id=143 data-nosnippet>143</a>            reason: ReconcileReason::ObjectUpdated,
-<a href=#144 id=144 data-nosnippet>144</a>        })
-<a href=#145 id=145 data-nosnippet>145</a>    })
-<a href=#146 id=146 data-nosnippet>146</a>}
-<a href=#147 id=147 data-nosnippet>147</a>
-<a href=#148 id=148 data-nosnippet>148</a><span class="doccomment">/// Enqueues any mapper returned `K` types for reconciliation
-<a href=#149 id=149 data-nosnippet>149</a></span><span class="kw">fn </span>trigger_others&lt;S, K, I&gt;(
-<a href=#150 id=150 data-nosnippet>150</a>    stream: S,
-<a href=#151 id=151 data-nosnippet>151</a>    mapper: <span class="kw">impl </span>Fn(S::Ok) -&gt; I + Sync + Send + <span class="lifetime">'static</span>,
-<a href=#152 id=152 data-nosnippet>152</a>    dyntype: &lt;S::Ok <span class="kw">as </span>Resource&gt;::DynamicType,
-<a href=#153 id=153 data-nosnippet>153</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
-<a href=#154 id=154 data-nosnippet>154</a><span class="kw">where
-<a href=#155 id=155 data-nosnippet>155</a>    </span><span class="comment">// Input stream has items as some Resource (via Controller::watches)
-<a href=#156 id=156 data-nosnippet>156</a>    </span>S: TryStream,
-<a href=#157 id=157 data-nosnippet>157</a>    S::Ok: Resource,
-<a href=#158 id=158 data-nosnippet>158</a>    &lt;S::Ok <span class="kw">as </span>Resource&gt;::DynamicType: Clone,
-<a href=#159 id=159 data-nosnippet>159</a>    <span class="comment">// Output stream is requests for the root type K
-<a href=#160 id=160 data-nosnippet>160</a>    </span>K: Resource,
-<a href=#161 id=161 data-nosnippet>161</a>    K::DynamicType: Clone,
-<a href=#162 id=162 data-nosnippet>162</a>    <span class="comment">// but the mapper can produce many of them
-<a href=#163 id=163 data-nosnippet>163</a>    </span>I: <span class="lifetime">'static </span>+ IntoIterator&lt;Item = ObjectRef&lt;K&gt;&gt;,
-<a href=#164 id=164 data-nosnippet>164</a>    I::IntoIter: Send,
-<a href=#165 id=165 data-nosnippet>165</a>{
-<a href=#166 id=166 data-nosnippet>166</a>    trigger_with(stream, <span class="kw">move </span>|obj| {
-<a href=#167 id=167 data-nosnippet>167</a>        <span class="kw">let </span>watch_ref = ObjectRef::from_obj_with(<span class="kw-2">&amp;</span>obj, dyntype.clone()).erase();
-<a href=#168 id=168 data-nosnippet>168</a>        mapper(obj)
-<a href=#169 id=169 data-nosnippet>169</a>            .into_iter()
-<a href=#170 id=170 data-nosnippet>170</a>            .map(<span class="kw">move </span>|mapped_obj_ref| ReconcileRequest {
-<a href=#171 id=171 data-nosnippet>171</a>                obj_ref: mapped_obj_ref,
-<a href=#172 id=172 data-nosnippet>172</a>                reason: ReconcileReason::RelatedObjectUpdated {
-<a href=#173 id=173 data-nosnippet>173</a>                    obj_ref: Box::new(watch_ref.clone()),
-<a href=#174 id=174 data-nosnippet>174</a>                },
-<a href=#175 id=175 data-nosnippet>175</a>            })
-<a href=#176 id=176 data-nosnippet>176</a>    })
-<a href=#177 id=177 data-nosnippet>177</a>}
-<a href=#178 id=178 data-nosnippet>178</a>
-<a href=#179 id=179 data-nosnippet>179</a><span class="doccomment">/// Enqueues any mapper returned `Arc&lt;K&gt;` types for reconciliation
-<a href=#180 id=180 data-nosnippet>180</a></span><span class="attr">#[cfg(feature = <span class="string">"unstable-runtime-subscribe"</span>)]
-<a href=#181 id=181 data-nosnippet>181</a></span><span class="kw">fn </span>trigger_others_shared&lt;S, O, K, I&gt;(
-<a href=#182 id=182 data-nosnippet>182</a>    stream: S,
-<a href=#183 id=183 data-nosnippet>183</a>    mapper: <span class="kw">impl </span>Fn(S::Ok) -&gt; I + Sync + Send + <span class="lifetime">'static</span>,
-<a href=#184 id=184 data-nosnippet>184</a>    dyntype: O::DynamicType,
-<a href=#185 id=185 data-nosnippet>185</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
-<a href=#186 id=186 data-nosnippet>186</a><span class="kw">where
-<a href=#187 id=187 data-nosnippet>187</a>    </span><span class="comment">// Input is some shared resource (`Arc&lt;O&gt;`) obtained via `reflect`
-<a href=#188 id=188 data-nosnippet>188</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= Arc&lt;O&gt;&gt;,
-<a href=#189 id=189 data-nosnippet>189</a>    O: Resource,
-<a href=#190 id=190 data-nosnippet>190</a>    O::DynamicType: Clone,
-<a href=#191 id=191 data-nosnippet>191</a>    <span class="comment">// Output stream is requests for the root type K
-<a href=#192 id=192 data-nosnippet>192</a>    </span>K: Resource,
-<a href=#193 id=193 data-nosnippet>193</a>    K::DynamicType: Clone,
-<a href=#194 id=194 data-nosnippet>194</a>    <span class="comment">// but the mapper can produce many of them
-<a href=#195 id=195 data-nosnippet>195</a>    </span>I: <span class="lifetime">'static </span>+ IntoIterator&lt;Item = ObjectRef&lt;K&gt;&gt;,
-<a href=#196 id=196 data-nosnippet>196</a>    I::IntoIter: Send,
-<a href=#197 id=197 data-nosnippet>197</a>{
-<a href=#198 id=198 data-nosnippet>198</a>    trigger_with(stream, <span class="kw">move </span>|obj| {
-<a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">let </span>watch_ref = ObjectRef::from_obj_with(obj.as_ref(), dyntype.clone()).erase();
-<a href=#200 id=200 data-nosnippet>200</a>        mapper(obj)
-<a href=#201 id=201 data-nosnippet>201</a>            .into_iter()
-<a href=#202 id=202 data-nosnippet>202</a>            .map(<span class="kw">move </span>|mapped_obj_ref| ReconcileRequest {
-<a href=#203 id=203 data-nosnippet>203</a>                obj_ref: mapped_obj_ref,
-<a href=#204 id=204 data-nosnippet>204</a>                reason: ReconcileReason::RelatedObjectUpdated {
-<a href=#205 id=205 data-nosnippet>205</a>                    obj_ref: Box::new(watch_ref.clone()),
-<a href=#206 id=206 data-nosnippet>206</a>                },
-<a href=#207 id=207 data-nosnippet>207</a>            })
-<a href=#208 id=208 data-nosnippet>208</a>    })
-<a href=#209 id=209 data-nosnippet>209</a>}
-<a href=#210 id=210 data-nosnippet>210</a>
-<a href=#211 id=211 data-nosnippet>211</a><span class="doccomment">/// Enqueues any owners of type `KOwner` for reconciliation
-<a href=#212 id=212 data-nosnippet>212</a></span><span class="kw">pub fn </span>trigger_owners&lt;KOwner, S&gt;(
-<a href=#213 id=213 data-nosnippet>213</a>    stream: S,
-<a href=#214 id=214 data-nosnippet>214</a>    owner_type: KOwner::DynamicType,
-<a href=#215 id=215 data-nosnippet>215</a>    child_type: &lt;S::Ok <span class="kw">as </span>Resource&gt;::DynamicType,
-<a href=#216 id=216 data-nosnippet>216</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;KOwner&gt;, S::Error&gt;&gt;
-<a href=#217 id=217 data-nosnippet>217</a><span class="kw">where
-<a href=#218 id=218 data-nosnippet>218</a>    </span>S: TryStream,
-<a href=#219 id=219 data-nosnippet>219</a>    S::Ok: Resource,
-<a href=#220 id=220 data-nosnippet>220</a>    &lt;S::Ok <span class="kw">as </span>Resource&gt;::DynamicType: Clone,
-<a href=#221 id=221 data-nosnippet>221</a>    KOwner: Resource,
-<a href=#222 id=222 data-nosnippet>222</a>    KOwner::DynamicType: Clone,
-<a href=#223 id=223 data-nosnippet>223</a>{
-<a href=#224 id=224 data-nosnippet>224</a>    <span class="kw">let </span>mapper = <span class="kw">move </span>|obj: S::Ok| {
-<a href=#225 id=225 data-nosnippet>225</a>        <span class="kw">let </span>meta = obj.meta().clone();
-<a href=#226 id=226 data-nosnippet>226</a>        <span class="kw">let </span>ns = meta.namespace;
-<a href=#227 id=227 data-nosnippet>227</a>        <span class="kw">let </span>owner_type = owner_type.clone();
-<a href=#228 id=228 data-nosnippet>228</a>        meta.owner_references
-<a href=#229 id=229 data-nosnippet>229</a>            .into_iter()
-<a href=#230 id=230 data-nosnippet>230</a>            .flatten()
-<a href=#231 id=231 data-nosnippet>231</a>            .filter_map(<span class="kw">move </span>|owner| ObjectRef::from_owner_ref(ns.as_deref(), <span class="kw-2">&amp;</span>owner, owner_type.clone()))
-<a href=#232 id=232 data-nosnippet>232</a>    };
-<a href=#233 id=233 data-nosnippet>233</a>    trigger_others(stream, mapper, child_type)
-<a href=#234 id=234 data-nosnippet>234</a>}
-<a href=#235 id=235 data-nosnippet>235</a>
-<a href=#236 id=236 data-nosnippet>236</a><span class="comment">// TODO: do we really need to deal with a trystream? can we simplify this at
-<a href=#237 id=237 data-nosnippet>237</a>// all?
-<a href=#238 id=238 data-nosnippet>238</a></span><span class="doccomment">/// Enqueues any owners of type `KOwner` for reconciliation based on a stream of
-<a href=#239 id=239 data-nosnippet>239</a>/// owned `K` objects
-<a href=#240 id=240 data-nosnippet>240</a></span><span class="attr">#[cfg(feature = <span class="string">"unstable-runtime-subscribe"</span>)]
-<a href=#241 id=241 data-nosnippet>241</a></span><span class="kw">fn </span>trigger_owners_shared&lt;KOwner, S, K&gt;(
-<a href=#242 id=242 data-nosnippet>242</a>    stream: S,
-<a href=#243 id=243 data-nosnippet>243</a>    owner_type: KOwner::DynamicType,
-<a href=#244 id=244 data-nosnippet>244</a>    child_type: K::DynamicType,
-<a href=#245 id=245 data-nosnippet>245</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;KOwner&gt;, S::Error&gt;&gt;
-<a href=#246 id=246 data-nosnippet>246</a><span class="kw">where
-<a href=#247 id=247 data-nosnippet>247</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= Arc&lt;K&gt;&gt;,
-<a href=#248 id=248 data-nosnippet>248</a>    K: Resource,
-<a href=#249 id=249 data-nosnippet>249</a>    K::DynamicType: Clone,
-<a href=#250 id=250 data-nosnippet>250</a>    KOwner: Resource,
-<a href=#251 id=251 data-nosnippet>251</a>    KOwner::DynamicType: Clone,
-<a href=#252 id=252 data-nosnippet>252</a>{
-<a href=#253 id=253 data-nosnippet>253</a>    <span class="kw">let </span>mapper = <span class="kw">move </span>|obj: S::Ok| {
-<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">let </span>meta = obj.meta().clone();
-<a href=#255 id=255 data-nosnippet>255</a>        <span class="kw">let </span>ns = meta.namespace;
-<a href=#256 id=256 data-nosnippet>256</a>        <span class="kw">let </span>owner_type = owner_type.clone();
-<a href=#257 id=257 data-nosnippet>257</a>        meta.owner_references
-<a href=#258 id=258 data-nosnippet>258</a>            .into_iter()
-<a href=#259 id=259 data-nosnippet>259</a>            .flatten()
-<a href=#260 id=260 data-nosnippet>260</a>            .filter_map(<span class="kw">move </span>|owner| ObjectRef::from_owner_ref(ns.as_deref(), <span class="kw-2">&amp;</span>owner, owner_type.clone()))
-<a href=#261 id=261 data-nosnippet>261</a>    };
-<a href=#262 id=262 data-nosnippet>262</a>    trigger_others_shared(stream, mapper, child_type)
-<a href=#263 id=263 data-nosnippet>263</a>}
-<a href=#264 id=264 data-nosnippet>264</a>
-<a href=#265 id=265 data-nosnippet>265</a><span class="doccomment">/// A request to reconcile an object, annotated with why that request was made.
-<a href=#266 id=266 data-nosnippet>266</a>///
-<a href=#267 id=267 data-nosnippet>267</a>/// NOTE: The reason is ignored for comparison purposes. This means that, for example,
-<a href=#268 id=268 data-nosnippet>268</a>/// an object can only occupy one scheduler slot, even if it has been scheduled for multiple reasons.
-<a href=#269 id=269 data-nosnippet>269</a>/// In this case, only *the first* reason is stored.
-<a href=#270 id=270 data-nosnippet>270</a></span><span class="attr">#[derive(Educe)]
-<a href=#271 id=271 data-nosnippet>271</a>#[educe(
-<a href=#272 id=272 data-nosnippet>272</a>    Debug(bound(<span class="string">"K::DynamicType: Debug"</span>)),
-<a href=#273 id=273 data-nosnippet>273</a>    Clone(bound(<span class="string">"K::DynamicType: Clone"</span>)),
-<a href=#274 id=274 data-nosnippet>274</a>    PartialEq(bound(<span class="string">"K::DynamicType: PartialEq"</span>)),
-<a href=#275 id=275 data-nosnippet>275</a>    Hash(bound(<span class="string">"K::DynamicType: Hash"</span>))
-<a href=#276 id=276 data-nosnippet>276</a>)]
-<a href=#277 id=277 data-nosnippet>277</a></span><span class="kw">pub struct </span>ReconcileRequest&lt;K: Resource&gt; {
-<a href=#278 id=278 data-nosnippet>278</a>    <span class="kw">pub </span>obj_ref: ObjectRef&lt;K&gt;,
-<a href=#279 id=279 data-nosnippet>279</a>    <span class="attr">#[educe(PartialEq(ignore), Hash(ignore))]
-<a href=#280 id=280 data-nosnippet>280</a>    </span><span class="kw">pub </span>reason: ReconcileReason,
-<a href=#281 id=281 data-nosnippet>281</a>}
-<a href=#282 id=282 data-nosnippet>282</a>
-<a href=#283 id=283 data-nosnippet>283</a><span class="kw">impl</span>&lt;K: Resource&gt; Eq <span class="kw">for </span>ReconcileRequest&lt;K&gt; <span class="kw">where </span>K::DynamicType: Eq {}
-<a href=#284 id=284 data-nosnippet>284</a>
-<a href=#285 id=285 data-nosnippet>285</a><span class="kw">impl</span>&lt;K: Resource&gt; From&lt;ObjectRef&lt;K&gt;&gt; <span class="kw">for </span>ReconcileRequest&lt;K&gt; {
-<a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">fn </span>from(obj_ref: ObjectRef&lt;K&gt;) -&gt; <span class="self">Self </span>{
-<a href=#287 id=287 data-nosnippet>287</a>        ReconcileRequest {
-<a href=#288 id=288 data-nosnippet>288</a>            obj_ref,
-<a href=#289 id=289 data-nosnippet>289</a>            reason: ReconcileReason::Unknown,
-<a href=#290 id=290 data-nosnippet>290</a>        }
-<a href=#291 id=291 data-nosnippet>291</a>    }
-<a href=#292 id=292 data-nosnippet>292</a>}
-<a href=#293 id=293 data-nosnippet>293</a>
-<a href=#294 id=294 data-nosnippet>294</a><span class="attr">#[derive(Debug, Clone)]
-<a href=#295 id=295 data-nosnippet>295</a></span><span class="kw">pub enum </span>ReconcileReason {
-<a href=#296 id=296 data-nosnippet>296</a>    Unknown,
-<a href=#297 id=297 data-nosnippet>297</a>    ObjectUpdated,
-<a href=#298 id=298 data-nosnippet>298</a>    RelatedObjectUpdated { obj_ref: Box&lt;ObjectRef&lt;DynamicObject&gt;&gt; },
-<a href=#299 id=299 data-nosnippet>299</a>    ReconcilerRequestedRetry,
-<a href=#300 id=300 data-nosnippet>300</a>    ErrorPolicyRequestedRetry,
-<a href=#301 id=301 data-nosnippet>301</a>    BulkReconcile,
-<a href=#302 id=302 data-nosnippet>302</a>    Custom { reason: String },
-<a href=#303 id=303 data-nosnippet>303</a>}
-<a href=#304 id=304 data-nosnippet>304</a>
-<a href=#305 id=305 data-nosnippet>305</a><span class="kw">impl </span>Display <span class="kw">for </span>ReconcileReason {
-<a href=#306 id=306 data-nosnippet>306</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
-<a href=#307 id=307 data-nosnippet>307</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#308 id=308 data-nosnippet>308</a>            ReconcileReason::Unknown =&gt; f.write_str(<span class="string">"unknown"</span>),
-<a href=#309 id=309 data-nosnippet>309</a>            ReconcileReason::ObjectUpdated =&gt; f.write_str(<span class="string">"object updated"</span>),
-<a href=#310 id=310 data-nosnippet>310</a>            ReconcileReason::RelatedObjectUpdated { obj_ref: object } =&gt; {
-<a href=#311 id=311 data-nosnippet>311</a>                f.write_fmt(<span class="macro">format_args!</span>(<span class="string">"related object updated: {object}"</span>))
-<a href=#312 id=312 data-nosnippet>312</a>            }
-<a href=#313 id=313 data-nosnippet>313</a>            ReconcileReason::BulkReconcile =&gt; f.write_str(<span class="string">"bulk reconcile requested"</span>),
-<a href=#314 id=314 data-nosnippet>314</a>            ReconcileReason::ReconcilerRequestedRetry =&gt; f.write_str(<span class="string">"reconciler requested retry"</span>),
-<a href=#315 id=315 data-nosnippet>315</a>            ReconcileReason::ErrorPolicyRequestedRetry =&gt; f.write_str(<span class="string">"error policy requested retry"</span>),
-<a href=#316 id=316 data-nosnippet>316</a>            ReconcileReason::Custom { reason } =&gt; f.write_str(reason),
-<a href=#317 id=317 data-nosnippet>317</a>        }
-<a href=#318 id=318 data-nosnippet>318</a>    }
-<a href=#319 id=319 data-nosnippet>319</a>}
-<a href=#320 id=320 data-nosnippet>320</a>
-<a href=#321 id=321 data-nosnippet>321</a><span class="kw">const </span>APPLIER_REQUEUE_BUF_SIZE: usize = <span class="number">100</span>;
-<a href=#322 id=322 data-nosnippet>322</a>
-<a href=#323 id=323 data-nosnippet>323</a><span class="doccomment">/// Apply a reconciler to an input stream, with a given retry policy
-<a href=#324 id=324 data-nosnippet>324</a>///
-<a href=#325 id=325 data-nosnippet>325</a>/// Takes a `store` parameter for the core objects, which should usually be updated by a [`reflector()`].
-<a href=#326 id=326 data-nosnippet>326</a>///
-<a href=#327 id=327 data-nosnippet>327</a>/// The `queue` indicates which objects should be reconciled. For the core objects this will usually be
-<a href=#328 id=328 data-nosnippet>328</a>/// the [`reflector()`] (piped through [`trigger_self`]). If your core objects own any subobjects then you
-<a href=#329 id=329 data-nosnippet>329</a>/// can also make them trigger reconciliations by [merging](`futures::stream::select`) the [`reflector()`]
-<a href=#330 id=330 data-nosnippet>330</a>/// with a [`watcher()`] or [`reflector()`] for the subobject.
-<a href=#331 id=331 data-nosnippet>331</a>///
-<a href=#332 id=332 data-nosnippet>332</a>/// This is the "hard-mode" version of [`Controller`], which allows you some more customization
-<a href=#333 id=333 data-nosnippet>333</a>/// (such as triggering from arbitrary [`Stream`]s), at the cost of being a bit more verbose.
-<a href=#334 id=334 data-nosnippet>334</a></span><span class="attr">#[allow(clippy::needless_pass_by_value)]
-<a href=#335 id=335 data-nosnippet>335</a>#[allow(clippy::type_complexity)]
+<a href=#8 id=8 data-nosnippet>8</a>    },
+<a href=#9 id=9 data-nosnippet>9</a>    scheduler::{ScheduleRequest, debounced_scheduler},
+<a href=#10 id=10 data-nosnippet>10</a>    utils::{
+<a href=#11 id=11 data-nosnippet>11</a>        Backoff, CancelableJoinHandle, KubeRuntimeStreamExt, StreamBackoff, WatchStreamExt, trystream_try_via,
+<a href=#12 id=12 data-nosnippet>12</a>    },
+<a href=#13 id=13 data-nosnippet>13</a>    watcher::{<span class="self">self</span>, DefaultBackoff, metadata_watcher, watcher},
+<a href=#14 id=14 data-nosnippet>14</a>};
+<a href=#15 id=15 data-nosnippet>15</a><span class="kw">use </span>educe::Educe;
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>futures::{
+<a href=#17 id=17 data-nosnippet>17</a>    FutureExt, Stream, StreamExt, TryFuture, TryFutureExt, TryStream, TryStreamExt, channel,
+<a href=#18 id=18 data-nosnippet>18</a>    future::{<span class="self">self</span>, BoxFuture},
+<a href=#19 id=19 data-nosnippet>19</a>    stream,
+<a href=#20 id=20 data-nosnippet>20</a>};
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span>kube_client::api::{Api, DynamicObject, Resource};
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>pin_project::pin_project;
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>serde::de::DeserializeOwned;
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>std::{
+<a href=#25 id=25 data-nosnippet>25</a>    fmt::{Debug, Display},
+<a href=#26 id=26 data-nosnippet>26</a>    hash::Hash,
+<a href=#27 id=27 data-nosnippet>27</a>    sync::Arc,
+<a href=#28 id=28 data-nosnippet>28</a>    task::{Poll, ready},
+<a href=#29 id=29 data-nosnippet>29</a>    time::Duration,
+<a href=#30 id=30 data-nosnippet>30</a>};
+<a href=#31 id=31 data-nosnippet>31</a><span class="kw">use </span>stream::BoxStream;
+<a href=#32 id=32 data-nosnippet>32</a><span class="kw">use </span>thiserror::Error;
+<a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>tokio::{runtime::Handle, time::Instant};
+<a href=#34 id=34 data-nosnippet>34</a><span class="kw">use </span>tracing::{Instrument, info_span};
+<a href=#35 id=35 data-nosnippet>35</a>
+<a href=#36 id=36 data-nosnippet>36</a><span class="kw">mod </span>future_hash_map;
+<a href=#37 id=37 data-nosnippet>37</a><span class="kw">mod </span>runner;
+<a href=#38 id=38 data-nosnippet>38</a>
+<a href=#39 id=39 data-nosnippet>39</a><span class="kw">pub type </span>RunnerError = runner::Error&lt;reflector::store::WriterDropped&gt;;
+<a href=#40 id=40 data-nosnippet>40</a>
+<a href=#41 id=41 data-nosnippet>41</a><span class="attr">#[derive(Debug, Error)]
+<a href=#42 id=42 data-nosnippet>42</a></span><span class="kw">pub enum </span>Error&lt;ReconcilerErr: <span class="lifetime">'static</span>, QueueErr: <span class="lifetime">'static</span>&gt; {
+<a href=#43 id=43 data-nosnippet>43</a>    <span class="attr">#[error(<span class="string">"tried to reconcile object {0} that was not found in local store"</span>)]
+<a href=#44 id=44 data-nosnippet>44</a>    </span>ObjectNotFound(ObjectRef&lt;DynamicObject&gt;),
+<a href=#45 id=45 data-nosnippet>45</a>    <span class="attr">#[error(<span class="string">"reconciler for object {1} failed"</span>)]
+<a href=#46 id=46 data-nosnippet>46</a>    </span>ReconcilerFailed(<span class="attr">#[source] </span>ReconcilerErr, ObjectRef&lt;DynamicObject&gt;),
+<a href=#47 id=47 data-nosnippet>47</a>    <span class="attr">#[error(<span class="string">"event queue error"</span>)]
+<a href=#48 id=48 data-nosnippet>48</a>    </span>QueueError(<span class="attr">#[source] </span>QueueErr),
+<a href=#49 id=49 data-nosnippet>49</a>    <span class="attr">#[error(<span class="string">"runner error"</span>)]
+<a href=#50 id=50 data-nosnippet>50</a>    </span>RunnerError(<span class="attr">#[source] </span>RunnerError),
+<a href=#51 id=51 data-nosnippet>51</a>}
+<a href=#52 id=52 data-nosnippet>52</a>
+<a href=#53 id=53 data-nosnippet>53</a><span class="doccomment">/// Results of the reconciliation attempt
+<a href=#54 id=54 data-nosnippet>54</a></span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
+<a href=#55 id=55 data-nosnippet>55</a></span><span class="kw">pub struct </span>Action {
+<a href=#56 id=56 data-nosnippet>56</a>    <span class="doccomment">/// Whether (and when) to next trigger the reconciliation if no external watch triggers hit
+<a href=#57 id=57 data-nosnippet>57</a>    ///
+<a href=#58 id=58 data-nosnippet>58</a>    /// For example, use this to query external systems for updates, expire time-limited resources, or
+<a href=#59 id=59 data-nosnippet>59</a>    /// (in your `error_policy`) retry after errors.
+<a href=#60 id=60 data-nosnippet>60</a>    </span>requeue_after: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+<a href=#61 id=61 data-nosnippet>61</a>}
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a><span class="kw">impl </span>Action {
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="doccomment">/// Action to the reconciliation at this time even if no external watch triggers hit
+<a href=#65 id=65 data-nosnippet>65</a>    ///
+<a href=#66 id=66 data-nosnippet>66</a>    /// This is the best-practice action that ensures eventual consistency of your controller
+<a href=#67 id=67 data-nosnippet>67</a>    /// even in the case of missed changes (which can happen).
+<a href=#68 id=68 data-nosnippet>68</a>    ///
+<a href=#69 id=69 data-nosnippet>69</a>    /// Watch events are not normally missed, so running this once per hour (`Default`) as a fallback is reasonable.
+<a href=#70 id=70 data-nosnippet>70</a>    </span><span class="attr">#[must_use]
+<a href=#71 id=71 data-nosnippet>71</a>    </span><span class="kw">pub const fn </span>requeue(duration: Duration) -&gt; <span class="self">Self </span>{
+<a href=#72 id=72 data-nosnippet>72</a>        <span class="self">Self </span>{
+<a href=#73 id=73 data-nosnippet>73</a>            requeue_after: <span class="prelude-val">Some</span>(duration),
+<a href=#74 id=74 data-nosnippet>74</a>        }
+<a href=#75 id=75 data-nosnippet>75</a>    }
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="doccomment">/// Do nothing until a change is detected
+<a href=#78 id=78 data-nosnippet>78</a>    ///
+<a href=#79 id=79 data-nosnippet>79</a>    /// This stops the controller periodically reconciling this object until a relevant watch event
+<a href=#80 id=80 data-nosnippet>80</a>    /// was **detected**.
+<a href=#81 id=81 data-nosnippet>81</a>    ///
+<a href=#82 id=82 data-nosnippet>82</a>    /// **Warning**: If you have watch desyncs, it is possible to miss changes entirely.
+<a href=#83 id=83 data-nosnippet>83</a>    /// It is therefore not recommended to disable requeuing this way, unless you have
+<a href=#84 id=84 data-nosnippet>84</a>    /// frequent changes to the underlying object, or some other hook to retain eventual consistency.
+<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="attr">#[must_use]
+<a href=#86 id=86 data-nosnippet>86</a>    </span><span class="kw">pub const fn </span>await_change() -&gt; <span class="self">Self </span>{
+<a href=#87 id=87 data-nosnippet>87</a>        <span class="self">Self </span>{ requeue_after: <span class="prelude-val">None </span>}
+<a href=#88 id=88 data-nosnippet>88</a>    }
+<a href=#89 id=89 data-nosnippet>89</a>}
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a><span class="doccomment">/// Helper for building custom trigger filters, see the implementations of [`trigger_self`] and [`trigger_owners`] for some examples.
+<a href=#92 id=92 data-nosnippet>92</a></span><span class="kw">pub fn </span>trigger_with&lt;T, K, I, S&gt;(
+<a href=#93 id=93 data-nosnippet>93</a>    stream: S,
+<a href=#94 id=94 data-nosnippet>94</a>    mapper: <span class="kw">impl </span>Fn(T) -&gt; I,
+<a href=#95 id=95 data-nosnippet>95</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
+<a href=#96 id=96 data-nosnippet>96</a><span class="kw">where
+<a href=#97 id=97 data-nosnippet>97</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= T&gt;,
+<a href=#98 id=98 data-nosnippet>98</a>    I: IntoIterator,
+<a href=#99 id=99 data-nosnippet>99</a>    I::Item: Into&lt;ReconcileRequest&lt;K&gt;&gt;,
+<a href=#100 id=100 data-nosnippet>100</a>    K: Resource,
+<a href=#101 id=101 data-nosnippet>101</a>{
+<a href=#102 id=102 data-nosnippet>102</a>    stream
+<a href=#103 id=103 data-nosnippet>103</a>        .map_ok(<span class="kw">move </span>|obj| stream::iter(mapper(obj).into_iter().map(Into::into).map(<span class="prelude-val">Ok</span>)))
+<a href=#104 id=104 data-nosnippet>104</a>        .try_flatten()
+<a href=#105 id=105 data-nosnippet>105</a>}
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a><span class="doccomment">/// Enqueues the object itself for reconciliation
+<a href=#108 id=108 data-nosnippet>108</a></span><span class="kw">pub fn </span>trigger_self&lt;K, S&gt;(
+<a href=#109 id=109 data-nosnippet>109</a>    stream: S,
+<a href=#110 id=110 data-nosnippet>110</a>    dyntype: K::DynamicType,
+<a href=#111 id=111 data-nosnippet>111</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
+<a href=#112 id=112 data-nosnippet>112</a><span class="kw">where
+<a href=#113 id=113 data-nosnippet>113</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= K&gt;,
+<a href=#114 id=114 data-nosnippet>114</a>    K: Resource,
+<a href=#115 id=115 data-nosnippet>115</a>    K::DynamicType: Clone,
+<a href=#116 id=116 data-nosnippet>116</a>{
+<a href=#117 id=117 data-nosnippet>117</a>    trigger_with(stream, <span class="kw">move </span>|obj| {
+<a href=#118 id=118 data-nosnippet>118</a>        <span class="prelude-val">Some</span>(ReconcileRequest {
+<a href=#119 id=119 data-nosnippet>119</a>            obj_ref: ObjectRef::from_obj_with(<span class="kw-2">&amp;</span>obj, dyntype.clone()),
+<a href=#120 id=120 data-nosnippet>120</a>            reason: ReconcileReason::ObjectUpdated,
+<a href=#121 id=121 data-nosnippet>121</a>        })
+<a href=#122 id=122 data-nosnippet>122</a>    })
+<a href=#123 id=123 data-nosnippet>123</a>}
+<a href=#124 id=124 data-nosnippet>124</a>
+<a href=#125 id=125 data-nosnippet>125</a><span class="doccomment">/// Enqueues the object itself for reconciliation when the object is behind a
+<a href=#126 id=126 data-nosnippet>126</a>/// shared pointer
+<a href=#127 id=127 data-nosnippet>127</a></span><span class="attr">#[cfg(feature = <span class="string">"unstable-runtime-subscribe"</span>)]
+<a href=#128 id=128 data-nosnippet>128</a></span><span class="kw">fn </span>trigger_self_shared&lt;K, S&gt;(
+<a href=#129 id=129 data-nosnippet>129</a>    stream: S,
+<a href=#130 id=130 data-nosnippet>130</a>    dyntype: K::DynamicType,
+<a href=#131 id=131 data-nosnippet>131</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
+<a href=#132 id=132 data-nosnippet>132</a><span class="kw">where
+<a href=#133 id=133 data-nosnippet>133</a>    </span><span class="comment">// Input stream has item as some Arc'd Resource (via
+<a href=#134 id=134 data-nosnippet>134</a>    // Controller::for_shared_stream)
+<a href=#135 id=135 data-nosnippet>135</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= Arc&lt;K&gt;&gt;,
+<a href=#136 id=136 data-nosnippet>136</a>    K: Resource,
+<a href=#137 id=137 data-nosnippet>137</a>    K::DynamicType: Clone,
+<a href=#138 id=138 data-nosnippet>138</a>{
+<a href=#139 id=139 data-nosnippet>139</a>    trigger_with(stream, <span class="kw">move </span>|obj| {
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="prelude-val">Some</span>(ReconcileRequest {
+<a href=#141 id=141 data-nosnippet>141</a>            obj_ref: ObjectRef::from_obj_with(obj.as_ref(), dyntype.clone()),
+<a href=#142 id=142 data-nosnippet>142</a>            reason: ReconcileReason::ObjectUpdated,
+<a href=#143 id=143 data-nosnippet>143</a>        })
+<a href=#144 id=144 data-nosnippet>144</a>    })
+<a href=#145 id=145 data-nosnippet>145</a>}
+<a href=#146 id=146 data-nosnippet>146</a>
+<a href=#147 id=147 data-nosnippet>147</a><span class="doccomment">/// Enqueues any mapper returned `K` types for reconciliation
+<a href=#148 id=148 data-nosnippet>148</a></span><span class="kw">fn </span>trigger_others&lt;S, K, I&gt;(
+<a href=#149 id=149 data-nosnippet>149</a>    stream: S,
+<a href=#150 id=150 data-nosnippet>150</a>    mapper: <span class="kw">impl </span>Fn(S::Ok) -&gt; I + Sync + Send + <span class="lifetime">'static</span>,
+<a href=#151 id=151 data-nosnippet>151</a>    dyntype: &lt;S::Ok <span class="kw">as </span>Resource&gt;::DynamicType,
+<a href=#152 id=152 data-nosnippet>152</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
+<a href=#153 id=153 data-nosnippet>153</a><span class="kw">where
+<a href=#154 id=154 data-nosnippet>154</a>    </span><span class="comment">// Input stream has items as some Resource (via Controller::watches)
+<a href=#155 id=155 data-nosnippet>155</a>    </span>S: TryStream,
+<a href=#156 id=156 data-nosnippet>156</a>    S::Ok: Resource,
+<a href=#157 id=157 data-nosnippet>157</a>    &lt;S::Ok <span class="kw">as </span>Resource&gt;::DynamicType: Clone,
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="comment">// Output stream is requests for the root type K
+<a href=#159 id=159 data-nosnippet>159</a>    </span>K: Resource,
+<a href=#160 id=160 data-nosnippet>160</a>    K::DynamicType: Clone,
+<a href=#161 id=161 data-nosnippet>161</a>    <span class="comment">// but the mapper can produce many of them
+<a href=#162 id=162 data-nosnippet>162</a>    </span>I: <span class="lifetime">'static </span>+ IntoIterator&lt;Item = ObjectRef&lt;K&gt;&gt;,
+<a href=#163 id=163 data-nosnippet>163</a>    I::IntoIter: Send,
+<a href=#164 id=164 data-nosnippet>164</a>{
+<a href=#165 id=165 data-nosnippet>165</a>    trigger_with(stream, <span class="kw">move </span>|obj| {
+<a href=#166 id=166 data-nosnippet>166</a>        <span class="kw">let </span>watch_ref = ObjectRef::from_obj_with(<span class="kw-2">&amp;</span>obj, dyntype.clone()).erase();
+<a href=#167 id=167 data-nosnippet>167</a>        mapper(obj)
+<a href=#168 id=168 data-nosnippet>168</a>            .into_iter()
+<a href=#169 id=169 data-nosnippet>169</a>            .map(<span class="kw">move </span>|mapped_obj_ref| ReconcileRequest {
+<a href=#170 id=170 data-nosnippet>170</a>                obj_ref: mapped_obj_ref,
+<a href=#171 id=171 data-nosnippet>171</a>                reason: ReconcileReason::RelatedObjectUpdated {
+<a href=#172 id=172 data-nosnippet>172</a>                    obj_ref: Box::new(watch_ref.clone()),
+<a href=#173 id=173 data-nosnippet>173</a>                },
+<a href=#174 id=174 data-nosnippet>174</a>            })
+<a href=#175 id=175 data-nosnippet>175</a>    })
+<a href=#176 id=176 data-nosnippet>176</a>}
+<a href=#177 id=177 data-nosnippet>177</a>
+<a href=#178 id=178 data-nosnippet>178</a><span class="doccomment">/// Enqueues any mapper returned `Arc&lt;K&gt;` types for reconciliation
+<a href=#179 id=179 data-nosnippet>179</a></span><span class="attr">#[cfg(feature = <span class="string">"unstable-runtime-subscribe"</span>)]
+<a href=#180 id=180 data-nosnippet>180</a></span><span class="kw">fn </span>trigger_others_shared&lt;S, O, K, I&gt;(
+<a href=#181 id=181 data-nosnippet>181</a>    stream: S,
+<a href=#182 id=182 data-nosnippet>182</a>    mapper: <span class="kw">impl </span>Fn(S::Ok) -&gt; I + Sync + Send + <span class="lifetime">'static</span>,
+<a href=#183 id=183 data-nosnippet>183</a>    dyntype: O::DynamicType,
+<a href=#184 id=184 data-nosnippet>184</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;K&gt;, S::Error&gt;&gt;
+<a href=#185 id=185 data-nosnippet>185</a><span class="kw">where
+<a href=#186 id=186 data-nosnippet>186</a>    </span><span class="comment">// Input is some shared resource (`Arc&lt;O&gt;`) obtained via `reflect`
+<a href=#187 id=187 data-nosnippet>187</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= Arc&lt;O&gt;&gt;,
+<a href=#188 id=188 data-nosnippet>188</a>    O: Resource,
+<a href=#189 id=189 data-nosnippet>189</a>    O::DynamicType: Clone,
+<a href=#190 id=190 data-nosnippet>190</a>    <span class="comment">// Output stream is requests for the root type K
+<a href=#191 id=191 data-nosnippet>191</a>    </span>K: Resource,
+<a href=#192 id=192 data-nosnippet>192</a>    K::DynamicType: Clone,
+<a href=#193 id=193 data-nosnippet>193</a>    <span class="comment">// but the mapper can produce many of them
+<a href=#194 id=194 data-nosnippet>194</a>    </span>I: <span class="lifetime">'static </span>+ IntoIterator&lt;Item = ObjectRef&lt;K&gt;&gt;,
+<a href=#195 id=195 data-nosnippet>195</a>    I::IntoIter: Send,
+<a href=#196 id=196 data-nosnippet>196</a>{
+<a href=#197 id=197 data-nosnippet>197</a>    trigger_with(stream, <span class="kw">move </span>|obj| {
+<a href=#198 id=198 data-nosnippet>198</a>        <span class="kw">let </span>watch_ref = ObjectRef::from_obj_with(obj.as_ref(), dyntype.clone()).erase();
+<a href=#199 id=199 data-nosnippet>199</a>        mapper(obj)
+<a href=#200 id=200 data-nosnippet>200</a>            .into_iter()
+<a href=#201 id=201 data-nosnippet>201</a>            .map(<span class="kw">move </span>|mapped_obj_ref| ReconcileRequest {
+<a href=#202 id=202 data-nosnippet>202</a>                obj_ref: mapped_obj_ref,
+<a href=#203 id=203 data-nosnippet>203</a>                reason: ReconcileReason::RelatedObjectUpdated {
+<a href=#204 id=204 data-nosnippet>204</a>                    obj_ref: Box::new(watch_ref.clone()),
+<a href=#205 id=205 data-nosnippet>205</a>                },
+<a href=#206 id=206 data-nosnippet>206</a>            })
+<a href=#207 id=207 data-nosnippet>207</a>    })
+<a href=#208 id=208 data-nosnippet>208</a>}
+<a href=#209 id=209 data-nosnippet>209</a>
+<a href=#210 id=210 data-nosnippet>210</a><span class="doccomment">/// Enqueues any owners of type `KOwner` for reconciliation
+<a href=#211 id=211 data-nosnippet>211</a></span><span class="kw">pub fn </span>trigger_owners&lt;KOwner, S&gt;(
+<a href=#212 id=212 data-nosnippet>212</a>    stream: S,
+<a href=#213 id=213 data-nosnippet>213</a>    owner_type: KOwner::DynamicType,
+<a href=#214 id=214 data-nosnippet>214</a>    child_type: &lt;S::Ok <span class="kw">as </span>Resource&gt;::DynamicType,
+<a href=#215 id=215 data-nosnippet>215</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;KOwner&gt;, S::Error&gt;&gt;
+<a href=#216 id=216 data-nosnippet>216</a><span class="kw">where
+<a href=#217 id=217 data-nosnippet>217</a>    </span>S: TryStream,
+<a href=#218 id=218 data-nosnippet>218</a>    S::Ok: Resource,
+<a href=#219 id=219 data-nosnippet>219</a>    &lt;S::Ok <span class="kw">as </span>Resource&gt;::DynamicType: Clone,
+<a href=#220 id=220 data-nosnippet>220</a>    KOwner: Resource,
+<a href=#221 id=221 data-nosnippet>221</a>    KOwner::DynamicType: Clone,
+<a href=#222 id=222 data-nosnippet>222</a>{
+<a href=#223 id=223 data-nosnippet>223</a>    <span class="kw">let </span>mapper = <span class="kw">move </span>|obj: S::Ok| {
+<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw">let </span>meta = obj.meta().clone();
+<a href=#225 id=225 data-nosnippet>225</a>        <span class="kw">let </span>ns = meta.namespace;
+<a href=#226 id=226 data-nosnippet>226</a>        <span class="kw">let </span>owner_type = owner_type.clone();
+<a href=#227 id=227 data-nosnippet>227</a>        meta.owner_references
+<a href=#228 id=228 data-nosnippet>228</a>            .into_iter()
+<a href=#229 id=229 data-nosnippet>229</a>            .flatten()
+<a href=#230 id=230 data-nosnippet>230</a>            .filter_map(<span class="kw">move </span>|owner| ObjectRef::from_owner_ref(ns.as_deref(), <span class="kw-2">&amp;</span>owner, owner_type.clone()))
+<a href=#231 id=231 data-nosnippet>231</a>    };
+<a href=#232 id=232 data-nosnippet>232</a>    trigger_others(stream, mapper, child_type)
+<a href=#233 id=233 data-nosnippet>233</a>}
+<a href=#234 id=234 data-nosnippet>234</a>
+<a href=#235 id=235 data-nosnippet>235</a><span class="comment">// TODO: do we really need to deal with a trystream? can we simplify this at
+<a href=#236 id=236 data-nosnippet>236</a>// all?
+<a href=#237 id=237 data-nosnippet>237</a></span><span class="doccomment">/// Enqueues any owners of type `KOwner` for reconciliation based on a stream of
+<a href=#238 id=238 data-nosnippet>238</a>/// owned `K` objects
+<a href=#239 id=239 data-nosnippet>239</a></span><span class="attr">#[cfg(feature = <span class="string">"unstable-runtime-subscribe"</span>)]
+<a href=#240 id=240 data-nosnippet>240</a></span><span class="kw">fn </span>trigger_owners_shared&lt;KOwner, S, K&gt;(
+<a href=#241 id=241 data-nosnippet>241</a>    stream: S,
+<a href=#242 id=242 data-nosnippet>242</a>    owner_type: KOwner::DynamicType,
+<a href=#243 id=243 data-nosnippet>243</a>    child_type: K::DynamicType,
+<a href=#244 id=244 data-nosnippet>244</a>) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;ReconcileRequest&lt;KOwner&gt;, S::Error&gt;&gt;
+<a href=#245 id=245 data-nosnippet>245</a><span class="kw">where
+<a href=#246 id=246 data-nosnippet>246</a>    </span>S: TryStream&lt;<span class="prelude-val">Ok </span>= Arc&lt;K&gt;&gt;,
+<a href=#247 id=247 data-nosnippet>247</a>    K: Resource,
+<a href=#248 id=248 data-nosnippet>248</a>    K::DynamicType: Clone,
+<a href=#249 id=249 data-nosnippet>249</a>    KOwner: Resource,
+<a href=#250 id=250 data-nosnippet>250</a>    KOwner::DynamicType: Clone,
+<a href=#251 id=251 data-nosnippet>251</a>{
+<a href=#252 id=252 data-nosnippet>252</a>    <span class="kw">let </span>mapper = <span class="kw">move </span>|obj: S::Ok| {
+<a href=#253 id=253 data-nosnippet>253</a>        <span class="kw">let </span>meta = obj.meta().clone();
+<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">let </span>ns = meta.namespace;
+<a href=#255 id=255 data-nosnippet>255</a>        <span class="kw">let </span>owner_type = owner_type.clone();
+<a href=#256 id=256 data-nosnippet>256</a>        meta.owner_references
+<a href=#257 id=257 data-nosnippet>257</a>            .into_iter()
+<a href=#258 id=258 data-nosnippet>258</a>            .flatten()
+<a href=#259 id=259 data-nosnippet>259</a>            .filter_map(<span class="kw">move </span>|owner| ObjectRef::from_owner_ref(ns.as_deref(), <span class="kw-2">&amp;</span>owner, owner_type.clone()))
+<a href=#260 id=260 data-nosnippet>260</a>    };
+<a href=#261 id=261 data-nosnippet>261</a>    trigger_others_shared(stream, mapper, child_type)
+<a href=#262 id=262 data-nosnippet>262</a>}
+<a href=#263 id=263 data-nosnippet>263</a>
+<a href=#264 id=264 data-nosnippet>264</a><span class="doccomment">/// A request to reconcile an object, annotated with why that request was made.
+<a href=#265 id=265 data-nosnippet>265</a>///
+<a href=#266 id=266 data-nosnippet>266</a>/// NOTE: The reason is ignored for comparison purposes. This means that, for example,
+<a href=#267 id=267 data-nosnippet>267</a>/// an object can only occupy one scheduler slot, even if it has been scheduled for multiple reasons.
+<a href=#268 id=268 data-nosnippet>268</a>/// In this case, only *the first* reason is stored.
+<a href=#269 id=269 data-nosnippet>269</a></span><span class="attr">#[derive(Educe)]
+<a href=#270 id=270 data-nosnippet>270</a>#[educe(
+<a href=#271 id=271 data-nosnippet>271</a>    Debug(bound(<span class="string">"K::DynamicType: Debug"</span>)),
+<a href=#272 id=272 data-nosnippet>272</a>    Clone(bound(<span class="string">"K::DynamicType: Clone"</span>)),
+<a href=#273 id=273 data-nosnippet>273</a>    PartialEq(bound(<span class="string">"K::DynamicType: PartialEq"</span>)),
+<a href=#274 id=274 data-nosnippet>274</a>    Hash(bound(<span class="string">"K::DynamicType: Hash"</span>))
+<a href=#275 id=275 data-nosnippet>275</a>)]
+<a href=#276 id=276 data-nosnippet>276</a></span><span class="kw">pub struct </span>ReconcileRequest&lt;K: Resource&gt; {
+<a href=#277 id=277 data-nosnippet>277</a>    <span class="kw">pub </span>obj_ref: ObjectRef&lt;K&gt;,
+<a href=#278 id=278 data-nosnippet>278</a>    <span class="attr">#[educe(PartialEq(ignore), Hash(ignore))]
+<a href=#279 id=279 data-nosnippet>279</a>    </span><span class="kw">pub </span>reason: ReconcileReason,
+<a href=#280 id=280 data-nosnippet>280</a>}
+<a href=#281 id=281 data-nosnippet>281</a>
+<a href=#282 id=282 data-nosnippet>282</a><span class="kw">impl</span>&lt;K: Resource&gt; Eq <span class="kw">for </span>ReconcileRequest&lt;K&gt; <span class="kw">where </span>K::DynamicType: Eq {}
+<a href=#283 id=283 data-nosnippet>283</a>
+<a href=#284 id=284 data-nosnippet>284</a><span class="kw">impl</span>&lt;K: Resource&gt; From&lt;ObjectRef&lt;K&gt;&gt; <span class="kw">for </span>ReconcileRequest&lt;K&gt; {
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">fn </span>from(obj_ref: ObjectRef&lt;K&gt;) -&gt; <span class="self">Self </span>{
+<a href=#286 id=286 data-nosnippet>286</a>        ReconcileRequest {
+<a href=#287 id=287 data-nosnippet>287</a>            obj_ref,
+<a href=#288 id=288 data-nosnippet>288</a>            reason: ReconcileReason::Unknown,
+<a href=#289 id=289 data-nosnippet>289</a>        }
+<a href=#290 id=290 data-nosnippet>290</a>    }
+<a href=#291 id=291 data-nosnippet>291</a>}
+<a href=#292 id=292 data-nosnippet>292</a>
+<a href=#293 id=293 data-nosnippet>293</a><span class="attr">#[derive(Debug, Clone)]
+<a href=#294 id=294 data-nosnippet>294</a></span><span class="kw">pub enum </span>ReconcileReason {
+<a href=#295 id=295 data-nosnippet>295</a>    Unknown,
+<a href=#296 id=296 data-nosnippet>296</a>    ObjectUpdated,
+<a href=#297 id=297 data-nosnippet>297</a>    RelatedObjectUpdated { obj_ref: Box&lt;ObjectRef&lt;DynamicObject&gt;&gt; },
+<a href=#298 id=298 data-nosnippet>298</a>    ReconcilerRequestedRetry,
+<a href=#299 id=299 data-nosnippet>299</a>    ErrorPolicyRequestedRetry,
+<a href=#300 id=300 data-nosnippet>300</a>    BulkReconcile,
+<a href=#301 id=301 data-nosnippet>301</a>    Custom { reason: String },
+<a href=#302 id=302 data-nosnippet>302</a>}
+<a href=#303 id=303 data-nosnippet>303</a>
+<a href=#304 id=304 data-nosnippet>304</a><span class="kw">impl </span>Display <span class="kw">for </span>ReconcileReason {
+<a href=#305 id=305 data-nosnippet>305</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+<a href=#306 id=306 data-nosnippet>306</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#307 id=307 data-nosnippet>307</a>            ReconcileReason::Unknown =&gt; f.write_str(<span class="string">"unknown"</span>),
+<a href=#308 id=308 data-nosnippet>308</a>            ReconcileReason::ObjectUpdated =&gt; f.write_str(<span class="string">"object updated"</span>),
+<a href=#309 id=309 data-nosnippet>309</a>            ReconcileReason::RelatedObjectUpdated { obj_ref: object } =&gt; {
+<a href=#310 id=310 data-nosnippet>310</a>                f.write_fmt(<span class="macro">format_args!</span>(<span class="string">"related object updated: {object}"</span>))
+<a href=#311 id=311 data-nosnippet>311</a>            }
+<a href=#312 id=312 data-nosnippet>312</a>            ReconcileReason::BulkReconcile =&gt; f.write_str(<span class="string">"bulk reconcile requested"</span>),
+<a href=#313 id=313 data-nosnippet>313</a>            ReconcileReason::ReconcilerRequestedRetry =&gt; f.write_str(<span class="string">"reconciler requested retry"</span>),
+<a href=#314 id=314 data-nosnippet>314</a>            ReconcileReason::ErrorPolicyRequestedRetry =&gt; f.write_str(<span class="string">"error policy requested retry"</span>),
+<a href=#315 id=315 data-nosnippet>315</a>            ReconcileReason::Custom { reason } =&gt; f.write_str(reason),
+<a href=#316 id=316 data-nosnippet>316</a>        }
+<a href=#317 id=317 data-nosnippet>317</a>    }
+<a href=#318 id=318 data-nosnippet>318</a>}
+<a href=#319 id=319 data-nosnippet>319</a>
+<a href=#320 id=320 data-nosnippet>320</a><span class="kw">const </span>APPLIER_REQUEUE_BUF_SIZE: usize = <span class="number">100</span>;
+<a href=#321 id=321 data-nosnippet>321</a>
+<a href=#322 id=322 data-nosnippet>322</a><span class="doccomment">/// Apply a reconciler to an input stream, with a given retry policy
+<a href=#323 id=323 data-nosnippet>323</a>///
+<a href=#324 id=324 data-nosnippet>324</a>/// Takes a `store` parameter for the core objects, which should usually be updated by a [`reflector()`].
+<a href=#325 id=325 data-nosnippet>325</a>///
+<a href=#326 id=326 data-nosnippet>326</a>/// The `queue` indicates which objects should be reconciled. For the core objects this will usually be
+<a href=#327 id=327 data-nosnippet>327</a>/// the [`reflector()`] (piped through [`trigger_self`]). If your core objects own any subobjects then you
+<a href=#328 id=328 data-nosnippet>328</a>/// can also make them trigger reconciliations by [merging](`futures::stream::select`) the [`reflector()`]
+<a href=#329 id=329 data-nosnippet>329</a>/// with a [`watcher()`] or [`reflector()`] for the subobject.
+<a href=#330 id=330 data-nosnippet>330</a>///
+<a href=#331 id=331 data-nosnippet>331</a>/// This is the "hard-mode" version of [`Controller`], which allows you some more customization
+<a href=#332 id=332 data-nosnippet>332</a>/// (such as triggering from arbitrary [`Stream`]s), at the cost of being a bit more verbose.
+<a href=#333 id=333 data-nosnippet>333</a></span><span class="attr">#[allow(clippy::needless_pass_by_value)]
+<a href=#334 id=334 data-nosnippet>334</a>#[allow(clippy::type_complexity)]
+<a href=#335 id=335 data-nosnippet>335</a>#[allow(clippy::result_large_err)] </span><span class="comment">// see #1880 as an alt; https://github.com/kube-rs/kube/pull/1880
 <a href=#336 id=336 data-nosnippet>336</a></span><span class="kw">pub fn </span>applier&lt;K, QueueStream, ReconcilerFut, Ctx&gt;(
 <a href=#337 id=337 data-nosnippet>337</a>    <span class="kw-2">mut </span>reconciler: <span class="kw">impl </span>FnMut(Arc&lt;K&gt;, Arc&lt;Ctx&gt;) -&gt; ReconcilerFut,
 <a href=#338 id=338 data-nosnippet>338</a>    error_policy: <span class="kw">impl </span>Fn(Arc&lt;K&gt;, <span class="kw-2">&amp;</span>ReconcilerFut::Error, Arc&lt;Ctx&gt;) -&gt; Action,
@@ -603,9 +603,9 @@
 <a href=#603 id=603 data-nosnippet>603</a>/// }
 <a href=#604 id=604 data-nosnippet>604</a>///
 <a href=#605 id=605 data-nosnippet>605</a>/// /// something to drive the controller
-<a href=#606 id=606 data-nosnippet>606</a>/// #[tokio::main]
-<a href=#607 id=607 data-nosnippet>607</a>/// async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
-<a href=#608 id=608 data-nosnippet>608</a>///     let client = Client::try_default().await?;
+<a href=#606 id=606 data-nosnippet>606</a>///
+<a href=#607 id=607 data-nosnippet>607</a>/// async fn wrapper() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+<a href=#608 id=608 data-nosnippet>608</a>/// #   let client: Client = todo!();
 <a href=#609 id=609 data-nosnippet>609</a>///     let context = Arc::new(()); // bad empty context - put client in here
 <a href=#610 id=610 data-nosnippet>610</a>///     let cmgs = Api::&lt;ConfigMapGenerator&gt;::all(client.clone());
 <a href=#611 id=611 data-nosnippet>611</a>///     let cms = Api::&lt;ConfigMap&gt;::all(client.clone());
@@ -619,8 +619,8 @@
 <a href=#619 id=619 data-nosnippet>619</a>///             }
 <a href=#620 id=620 data-nosnippet>620</a>///         })
 <a href=#621 id=621 data-nosnippet>621</a>///         .await; // controller does nothing unless polled
-<a href=#622 id=622 data-nosnippet>622</a>///     Ok(())
-<a href=#623 id=623 data-nosnippet>623</a>/// }
+<a href=#622 id=622 data-nosnippet>622</a>/// #    Ok(())
+<a href=#623 id=623 data-nosnippet>623</a>/// # }
 <a href=#624 id=624 data-nosnippet>624</a>/// ```
 <a href=#625 id=625 data-nosnippet>625</a></span><span class="kw">pub struct </span>Controller&lt;K&gt;
 <a href=#626 id=626 data-nosnippet>626</a><span class="kw">where
@@ -730,7 +730,7 @@
 <a href=#730 id=730 data-nosnippet>730</a>    ///     .default_backoff()
 <a href=#731 id=731 data-nosnippet>731</a>    ///     .reflect(writer)
 <a href=#732 id=732 data-nosnippet>732</a>    ///     .applied_objects()
-<a href=#733 id=733 data-nosnippet>733</a>    ///     .predicate_filter(predicates::generation);
+<a href=#733 id=733 data-nosnippet>733</a>    ///     .predicate_filter(predicates::generation, Default::default());
 <a href=#734 id=734 data-nosnippet>734</a>    ///
 <a href=#735 id=735 data-nosnippet>735</a>    /// Controller::for_stream(deploys, reader)
 <a href=#736 id=736 data-nosnippet>736</a>    ///     .run(reconcile, error_policy, Arc::new(()))
@@ -993,7 +993,7 @@
 <a href=#993 id=993 data-nosnippet>993</a>    /// # async fn doc(client: kube::Client) {
 <a href=#994 id=994 data-nosnippet>994</a>    /// let sts_stream = metadata_watcher(Api::&lt;StatefulSet&gt;::all(client.clone()), watcher::Config::default())
 <a href=#995 id=995 data-nosnippet>995</a>    ///     .touched_objects()
-<a href=#996 id=996 data-nosnippet>996</a>    ///     .predicate_filter(predicates::generation);
+<a href=#996 id=996 data-nosnippet>996</a>    ///     .predicate_filter(predicates::generation, Default::default());
 <a href=#997 id=997 data-nosnippet>997</a>    ///
 <a href=#998 id=998 data-nosnippet>998</a>    /// Controller::new(Api::&lt;CustomResource&gt;::all(client), watcher::Config::default())
 <a href=#999 id=999 data-nosnippet>999</a>    ///     .owns_stream(sts_stream)
@@ -1271,7 +1271,7 @@
 <a href=#1271 id=1271 data-nosnippet>1271</a>    /// let cr: Api&lt;CustomResource&gt; = Api::all(client.clone());
 <a href=#1272 id=1272 data-nosnippet>1272</a>    /// let daemons = watcher(api, watcher::Config::default())
 <a href=#1273 id=1273 data-nosnippet>1273</a>    ///     .touched_objects()
-<a href=#1274 id=1274 data-nosnippet>1274</a>    ///     .predicate_filter(predicates::generation);
+<a href=#1274 id=1274 data-nosnippet>1274</a>    ///     .predicate_filter(predicates::generation, Default::default());
 <a href=#1275 id=1275 data-nosnippet>1275</a>    ///
 <a href=#1276 id=1276 data-nosnippet>1276</a>    /// Controller::new(cr, watcher::Config::default())
 <a href=#1277 id=1277 data-nosnippet>1277</a>    ///     .watches_stream(daemons, mapper)
@@ -1679,125 +1679,125 @@
 <a href=#1679 id=1679 data-nosnippet>1679</a></span><span class="kw">mod </span>tests {
 <a href=#1680 id=1680 data-nosnippet>1680</a>    <span class="kw">use </span>std::{convert::Infallible, pin::pin, sync::Arc, time::Duration};
 <a href=#1681 id=1681 data-nosnippet>1681</a>
-<a href=#1682 id=1682 data-nosnippet>1682</a>    <span class="kw">use super</span>::{Action, APPLIER_REQUEUE_BUF_SIZE};
+<a href=#1682 id=1682 data-nosnippet>1682</a>    <span class="kw">use super</span>::{APPLIER_REQUEUE_BUF_SIZE, Action};
 <a href=#1683 id=1683 data-nosnippet>1683</a>    <span class="kw">use crate</span>::{
-<a href=#1684 id=1684 data-nosnippet>1684</a>        applier,
+<a href=#1684 id=1684 data-nosnippet>1684</a>        Config, Controller, applier,
 <a href=#1685 id=1685 data-nosnippet>1685</a>        reflector::{<span class="self">self</span>, ObjectRef},
-<a href=#1686 id=1686 data-nosnippet>1686</a>        watcher::{<span class="self">self</span>, metadata_watcher, watcher, Event},
-<a href=#1687 id=1687 data-nosnippet>1687</a>        Config, Controller,
-<a href=#1688 id=1688 data-nosnippet>1688</a>    };
-<a href=#1689 id=1689 data-nosnippet>1689</a>    <span class="kw">use </span>futures::{Stream, StreamExt, TryStreamExt};
-<a href=#1690 id=1690 data-nosnippet>1690</a>    <span class="kw">use </span>k8s_openapi::api::core::v1::ConfigMap;
-<a href=#1691 id=1691 data-nosnippet>1691</a>    <span class="kw">use </span>kube_client::{core::ObjectMeta, Api, Resource};
-<a href=#1692 id=1692 data-nosnippet>1692</a>    <span class="kw">use </span>serde::de::DeserializeOwned;
-<a href=#1693 id=1693 data-nosnippet>1693</a>    <span class="kw">use </span>tokio::time::timeout;
-<a href=#1694 id=1694 data-nosnippet>1694</a>
-<a href=#1695 id=1695 data-nosnippet>1695</a>    <span class="kw">fn </span>assert_send&lt;T: Send&gt;(x: T) -&gt; T {
-<a href=#1696 id=1696 data-nosnippet>1696</a>        x
-<a href=#1697 id=1697 data-nosnippet>1697</a>    }
-<a href=#1698 id=1698 data-nosnippet>1698</a>
-<a href=#1699 id=1699 data-nosnippet>1699</a>    <span class="comment">// Used to typecheck that a type T is a generic type that implements Stream
-<a href=#1700 id=1700 data-nosnippet>1700</a>    // and returns a WatchEvent generic over a resource `K`
-<a href=#1701 id=1701 data-nosnippet>1701</a>    </span><span class="kw">fn </span>assert_stream&lt;T, K&gt;(x: T) -&gt; T
-<a href=#1702 id=1702 data-nosnippet>1702</a>    <span class="kw">where
-<a href=#1703 id=1703 data-nosnippet>1703</a>        </span>T: Stream&lt;Item = watcher::Result&lt;Event&lt;K&gt;&gt;&gt; + Send,
-<a href=#1704 id=1704 data-nosnippet>1704</a>        K: Resource + Clone + DeserializeOwned + std::fmt::Debug + Send + <span class="lifetime">'static</span>,
-<a href=#1705 id=1705 data-nosnippet>1705</a>    {
-<a href=#1706 id=1706 data-nosnippet>1706</a>        x
-<a href=#1707 id=1707 data-nosnippet>1707</a>    }
-<a href=#1708 id=1708 data-nosnippet>1708</a>
-<a href=#1709 id=1709 data-nosnippet>1709</a>    <span class="kw">fn </span>mock_type&lt;T&gt;() -&gt; T {
-<a href=#1710 id=1710 data-nosnippet>1710</a>        <span class="macro">unimplemented!</span>(
-<a href=#1711 id=1711 data-nosnippet>1711</a>            <span class="string">"mock_type is not supposed to be called, only used for filling holes in type assertions"
-<a href=#1712 id=1712 data-nosnippet>1712</a>        </span>)
-<a href=#1713 id=1713 data-nosnippet>1713</a>    }
-<a href=#1714 id=1714 data-nosnippet>1714</a>
-<a href=#1715 id=1715 data-nosnippet>1715</a>    <span class="comment">// not #[test] because we don't want to actually run it, we just want to assert that it typechecks
-<a href=#1716 id=1716 data-nosnippet>1716</a>    </span><span class="attr">#[allow(dead_code, unused_must_use)]
-<a href=#1717 id=1717 data-nosnippet>1717</a>    </span><span class="kw">fn </span>test_controller_should_be_send() {
-<a href=#1718 id=1718 data-nosnippet>1718</a>        assert_send(
-<a href=#1719 id=1719 data-nosnippet>1719</a>            Controller::new(mock_type::&lt;Api&lt;ConfigMap&gt;&gt;(), Default::default()).run(
-<a href=#1720 id=1720 data-nosnippet>1720</a>                |<span class="kw">_</span>, <span class="kw">_</span>| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>(mock_type::&lt;Action&gt;()) },
-<a href=#1721 id=1721 data-nosnippet>1721</a>                |<span class="kw">_</span>: Arc&lt;ConfigMap&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>std::io::Error, <span class="kw">_</span>| mock_type::&lt;Action&gt;(),
-<a href=#1722 id=1722 data-nosnippet>1722</a>                Arc::new(()),
-<a href=#1723 id=1723 data-nosnippet>1723</a>            ),
-<a href=#1724 id=1724 data-nosnippet>1724</a>        );
-<a href=#1725 id=1725 data-nosnippet>1725</a>    }
-<a href=#1726 id=1726 data-nosnippet>1726</a>
-<a href=#1727 id=1727 data-nosnippet>1727</a>    <span class="comment">// not #[test] because we don't want to actually run it, we just want to
-<a href=#1728 id=1728 data-nosnippet>1728</a>    // assert that it typechecks
-<a href=#1729 id=1729 data-nosnippet>1729</a>    //
-<a href=#1730 id=1730 data-nosnippet>1730</a>    // will check return types for `watcher` and `watch_metadata` do not drift
-<a href=#1731 id=1731 data-nosnippet>1731</a>    // given an arbitrary K that implements `Resource` (e.g ConfigMap)
-<a href=#1732 id=1732 data-nosnippet>1732</a>    </span><span class="attr">#[allow(dead_code, unused_must_use)]
-<a href=#1733 id=1733 data-nosnippet>1733</a>    </span><span class="kw">fn </span>test_watcher_stream_type_drift() {
-<a href=#1734 id=1734 data-nosnippet>1734</a>        assert_stream(watcher(mock_type::&lt;Api&lt;ConfigMap&gt;&gt;(), Default::default()));
-<a href=#1735 id=1735 data-nosnippet>1735</a>        assert_stream(metadata_watcher(
-<a href=#1736 id=1736 data-nosnippet>1736</a>            mock_type::&lt;Api&lt;ConfigMap&gt;&gt;(),
-<a href=#1737 id=1737 data-nosnippet>1737</a>            Default::default(),
-<a href=#1738 id=1738 data-nosnippet>1738</a>        ));
-<a href=#1739 id=1739 data-nosnippet>1739</a>    }
-<a href=#1740 id=1740 data-nosnippet>1740</a>
-<a href=#1741 id=1741 data-nosnippet>1741</a>    <span class="attr">#[tokio::test]
-<a href=#1742 id=1742 data-nosnippet>1742</a>    </span><span class="kw">async fn </span>applier_must_not_deadlock_if_reschedule_buffer_fills() {
-<a href=#1743 id=1743 data-nosnippet>1743</a>        <span class="comment">// This tests that `applier` handles reschedule queue backpressure correctly, by trying to flood it with no-op reconciles
-<a href=#1744 id=1744 data-nosnippet>1744</a>        // This is intended to avoid regressing on https://github.com/kube-rs/kube/issues/926
-<a href=#1745 id=1745 data-nosnippet>1745</a>
-<a href=#1746 id=1746 data-nosnippet>1746</a>        // Assume that we can keep APPLIER_REQUEUE_BUF_SIZE flooded if we have 100x the number of objects "in rotation"
-<a href=#1747 id=1747 data-nosnippet>1747</a>        // On my (@nightkr)'s 3900X I can reliably trigger this with 10x, but let's have some safety margin to avoid false negatives
-<a href=#1748 id=1748 data-nosnippet>1748</a>        </span><span class="kw">let </span>items = APPLIER_REQUEUE_BUF_SIZE * <span class="number">50</span>;
-<a href=#1749 id=1749 data-nosnippet>1749</a>        <span class="comment">// Assume that everything's OK if we can reconcile every object 3 times on average
-<a href=#1750 id=1750 data-nosnippet>1750</a>        </span><span class="kw">let </span>reconciles = items * <span class="number">3</span>;
-<a href=#1751 id=1751 data-nosnippet>1751</a>
-<a href=#1752 id=1752 data-nosnippet>1752</a>        <span class="kw">let </span>(queue_tx, queue_rx) = futures::channel::mpsc::unbounded::&lt;ObjectRef&lt;ConfigMap&gt;&gt;();
-<a href=#1753 id=1753 data-nosnippet>1753</a>        <span class="kw">let </span>(store_rx, <span class="kw-2">mut </span>store_tx) = reflector::store();
-<a href=#1754 id=1754 data-nosnippet>1754</a>        <span class="kw">let </span><span class="kw-2">mut </span>applier = <span class="macro">pin!</span>(applier(
-<a href=#1755 id=1755 data-nosnippet>1755</a>            |_obj, <span class="kw">_</span>| {
-<a href=#1756 id=1756 data-nosnippet>1756</a>                Box::pin(<span class="kw">async move </span>{
-<a href=#1757 id=1757 data-nosnippet>1757</a>                    <span class="comment">// Try to flood the rescheduling buffer buffer by just putting it back in the queue immediately
-<a href=#1758 id=1758 data-nosnippet>1758</a>                    //println!("reconciling {:?}", obj.metadata.name);
-<a href=#1759 id=1759 data-nosnippet>1759</a>                    </span><span class="prelude-val">Ok</span>(Action::requeue(Duration::ZERO))
-<a href=#1760 id=1760 data-nosnippet>1760</a>                })
-<a href=#1761 id=1761 data-nosnippet>1761</a>            },
-<a href=#1762 id=1762 data-nosnippet>1762</a>            |<span class="kw">_</span>: Arc&lt;ConfigMap&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Infallible, <span class="kw">_</span>| <span class="macro">todo!</span>(),
-<a href=#1763 id=1763 data-nosnippet>1763</a>            Arc::new(()),
-<a href=#1764 id=1764 data-nosnippet>1764</a>            store_rx,
-<a href=#1765 id=1765 data-nosnippet>1765</a>            queue_rx.map(<span class="prelude-ty">Result</span>::&lt;<span class="kw">_</span>, Infallible&gt;::Ok),
-<a href=#1766 id=1766 data-nosnippet>1766</a>            Config::default(),
-<a href=#1767 id=1767 data-nosnippet>1767</a>        ));
-<a href=#1768 id=1768 data-nosnippet>1768</a>        store_tx.apply_watcher_event(<span class="kw-2">&amp;</span>watcher::Event::InitDone);
-<a href=#1769 id=1769 data-nosnippet>1769</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..items {
-<a href=#1770 id=1770 data-nosnippet>1770</a>            <span class="kw">let </span>obj = ConfigMap {
-<a href=#1771 id=1771 data-nosnippet>1771</a>                metadata: ObjectMeta {
-<a href=#1772 id=1772 data-nosnippet>1772</a>                    name: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"cm-{i}"</span>)),
-<a href=#1773 id=1773 data-nosnippet>1773</a>                    namespace: <span class="prelude-val">Some</span>(<span class="string">"default"</span>.to_string()),
-<a href=#1774 id=1774 data-nosnippet>1774</a>                    ..Default::default()
-<a href=#1775 id=1775 data-nosnippet>1775</a>                },
-<a href=#1776 id=1776 data-nosnippet>1776</a>                ..Default::default()
-<a href=#1777 id=1777 data-nosnippet>1777</a>            };
-<a href=#1778 id=1778 data-nosnippet>1778</a>            store_tx.apply_watcher_event(<span class="kw-2">&amp;</span>watcher::Event::Apply(obj.clone()));
-<a href=#1779 id=1779 data-nosnippet>1779</a>            queue_tx.unbounded_send(ObjectRef::from_obj(<span class="kw-2">&amp;</span>obj)).unwrap();
-<a href=#1780 id=1780 data-nosnippet>1780</a>        }
-<a href=#1781 id=1781 data-nosnippet>1781</a>
-<a href=#1782 id=1782 data-nosnippet>1782</a>        timeout(
-<a href=#1783 id=1783 data-nosnippet>1783</a>            Duration::from_secs(<span class="number">10</span>),
-<a href=#1784 id=1784 data-nosnippet>1784</a>            applier
-<a href=#1785 id=1785 data-nosnippet>1785</a>                .as_mut()
-<a href=#1786 id=1786 data-nosnippet>1786</a>                .take(reconciles)
-<a href=#1787 id=1787 data-nosnippet>1787</a>                .try_for_each(|<span class="kw">_</span>| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>(()) }),
-<a href=#1788 id=1788 data-nosnippet>1788</a>        )
-<a href=#1789 id=1789 data-nosnippet>1789</a>        .<span class="kw">await
-<a href=#1790 id=1790 data-nosnippet>1790</a>        </span>.expect(<span class="string">"test timeout expired, applier likely deadlocked"</span>)
-<a href=#1791 id=1791 data-nosnippet>1791</a>        .unwrap();
-<a href=#1792 id=1792 data-nosnippet>1792</a>
-<a href=#1793 id=1793 data-nosnippet>1793</a>        <span class="comment">// Do an orderly shutdown to ensure that no individual reconcilers are stuck
-<a href=#1794 id=1794 data-nosnippet>1794</a>        </span>drop(queue_tx);
-<a href=#1795 id=1795 data-nosnippet>1795</a>        timeout(
-<a href=#1796 id=1796 data-nosnippet>1796</a>            Duration::from_secs(<span class="number">10</span>),
-<a href=#1797 id=1797 data-nosnippet>1797</a>            applier.try_for_each(|<span class="kw">_</span>| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>(()) }),
-<a href=#1798 id=1798 data-nosnippet>1798</a>        )
-<a href=#1799 id=1799 data-nosnippet>1799</a>        .<span class="kw">await
-<a href=#1800 id=1800 data-nosnippet>1800</a>        </span>.expect(<span class="string">"applier cleanup timeout expired, individual reconciler likely deadlocked?"</span>)
-<a href=#1801 id=1801 data-nosnippet>1801</a>        .unwrap();
-<a href=#1802 id=1802 data-nosnippet>1802</a>    }
-<a href=#1803 id=1803 data-nosnippet>1803</a>}</code></pre></div></section></main></body></html>
+<a href=#1686 id=1686 data-nosnippet>1686</a>        watcher::{<span class="self">self</span>, Event, metadata_watcher, watcher},
+<a href=#1687 id=1687 data-nosnippet>1687</a>    };
+<a href=#1688 id=1688 data-nosnippet>1688</a>    <span class="kw">use </span>futures::{Stream, StreamExt, TryStreamExt};
+<a href=#1689 id=1689 data-nosnippet>1689</a>    <span class="kw">use </span>k8s_openapi::api::core::v1::ConfigMap;
+<a href=#1690 id=1690 data-nosnippet>1690</a>    <span class="kw">use </span>kube_client::{Api, Resource, core::ObjectMeta};
+<a href=#1691 id=1691 data-nosnippet>1691</a>    <span class="kw">use </span>serde::de::DeserializeOwned;
+<a href=#1692 id=1692 data-nosnippet>1692</a>    <span class="kw">use </span>tokio::time::timeout;
+<a href=#1693 id=1693 data-nosnippet>1693</a>
+<a href=#1694 id=1694 data-nosnippet>1694</a>    <span class="kw">fn </span>assert_send&lt;T: Send&gt;(x: T) -&gt; T {
+<a href=#1695 id=1695 data-nosnippet>1695</a>        x
+<a href=#1696 id=1696 data-nosnippet>1696</a>    }
+<a href=#1697 id=1697 data-nosnippet>1697</a>
+<a href=#1698 id=1698 data-nosnippet>1698</a>    <span class="comment">// Used to typecheck that a type T is a generic type that implements Stream
+<a href=#1699 id=1699 data-nosnippet>1699</a>    // and returns a WatchEvent generic over a resource `K`
+<a href=#1700 id=1700 data-nosnippet>1700</a>    </span><span class="kw">fn </span>assert_stream&lt;T, K&gt;(x: T) -&gt; T
+<a href=#1701 id=1701 data-nosnippet>1701</a>    <span class="kw">where
+<a href=#1702 id=1702 data-nosnippet>1702</a>        </span>T: Stream&lt;Item = watcher::Result&lt;Event&lt;K&gt;&gt;&gt; + Send,
+<a href=#1703 id=1703 data-nosnippet>1703</a>        K: Resource + Clone + DeserializeOwned + std::fmt::Debug + Send + <span class="lifetime">'static</span>,
+<a href=#1704 id=1704 data-nosnippet>1704</a>    {
+<a href=#1705 id=1705 data-nosnippet>1705</a>        x
+<a href=#1706 id=1706 data-nosnippet>1706</a>    }
+<a href=#1707 id=1707 data-nosnippet>1707</a>
+<a href=#1708 id=1708 data-nosnippet>1708</a>    <span class="kw">fn </span>mock_type&lt;T&gt;() -&gt; T {
+<a href=#1709 id=1709 data-nosnippet>1709</a>        <span class="macro">unimplemented!</span>(
+<a href=#1710 id=1710 data-nosnippet>1710</a>            <span class="string">"mock_type is not supposed to be called, only used for filling holes in type assertions"
+<a href=#1711 id=1711 data-nosnippet>1711</a>        </span>)
+<a href=#1712 id=1712 data-nosnippet>1712</a>    }
+<a href=#1713 id=1713 data-nosnippet>1713</a>
+<a href=#1714 id=1714 data-nosnippet>1714</a>    <span class="comment">// not #[test] because we don't want to actually run it, we just want to assert that it typechecks
+<a href=#1715 id=1715 data-nosnippet>1715</a>    </span><span class="attr">#[allow(dead_code, unused_must_use)]
+<a href=#1716 id=1716 data-nosnippet>1716</a>    </span><span class="kw">fn </span>test_controller_should_be_send() {
+<a href=#1717 id=1717 data-nosnippet>1717</a>        assert_send(
+<a href=#1718 id=1718 data-nosnippet>1718</a>            Controller::new(mock_type::&lt;Api&lt;ConfigMap&gt;&gt;(), Default::default()).run(
+<a href=#1719 id=1719 data-nosnippet>1719</a>                |<span class="kw">_</span>, <span class="kw">_</span>| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>(mock_type::&lt;Action&gt;()) },
+<a href=#1720 id=1720 data-nosnippet>1720</a>                |<span class="kw">_</span>: Arc&lt;ConfigMap&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>std::io::Error, <span class="kw">_</span>| mock_type::&lt;Action&gt;(),
+<a href=#1721 id=1721 data-nosnippet>1721</a>                Arc::new(()),
+<a href=#1722 id=1722 data-nosnippet>1722</a>            ),
+<a href=#1723 id=1723 data-nosnippet>1723</a>        );
+<a href=#1724 id=1724 data-nosnippet>1724</a>    }
+<a href=#1725 id=1725 data-nosnippet>1725</a>
+<a href=#1726 id=1726 data-nosnippet>1726</a>    <span class="comment">// not #[test] because we don't want to actually run it, we just want to
+<a href=#1727 id=1727 data-nosnippet>1727</a>    // assert that it typechecks
+<a href=#1728 id=1728 data-nosnippet>1728</a>    //
+<a href=#1729 id=1729 data-nosnippet>1729</a>    // will check return types for `watcher` and `watch_metadata` do not drift
+<a href=#1730 id=1730 data-nosnippet>1730</a>    // given an arbitrary K that implements `Resource` (e.g ConfigMap)
+<a href=#1731 id=1731 data-nosnippet>1731</a>    </span><span class="attr">#[allow(dead_code, unused_must_use)]
+<a href=#1732 id=1732 data-nosnippet>1732</a>    </span><span class="kw">fn </span>test_watcher_stream_type_drift() {
+<a href=#1733 id=1733 data-nosnippet>1733</a>        assert_stream(watcher(mock_type::&lt;Api&lt;ConfigMap&gt;&gt;(), Default::default()));
+<a href=#1734 id=1734 data-nosnippet>1734</a>        assert_stream(metadata_watcher(
+<a href=#1735 id=1735 data-nosnippet>1735</a>            mock_type::&lt;Api&lt;ConfigMap&gt;&gt;(),
+<a href=#1736 id=1736 data-nosnippet>1736</a>            Default::default(),
+<a href=#1737 id=1737 data-nosnippet>1737</a>        ));
+<a href=#1738 id=1738 data-nosnippet>1738</a>    }
+<a href=#1739 id=1739 data-nosnippet>1739</a>
+<a href=#1740 id=1740 data-nosnippet>1740</a>    <span class="attr">#[tokio::test]
+<a href=#1741 id=1741 data-nosnippet>1741</a>    </span><span class="kw">async fn </span>applier_must_not_deadlock_if_reschedule_buffer_fills() {
+<a href=#1742 id=1742 data-nosnippet>1742</a>        <span class="comment">// This tests that `applier` handles reschedule queue backpressure correctly, by trying to flood it with no-op reconciles
+<a href=#1743 id=1743 data-nosnippet>1743</a>        // This is intended to avoid regressing on https://github.com/kube-rs/kube/issues/926
+<a href=#1744 id=1744 data-nosnippet>1744</a>
+<a href=#1745 id=1745 data-nosnippet>1745</a>        // Assume that we can keep APPLIER_REQUEUE_BUF_SIZE flooded if we have 100x the number of objects "in rotation"
+<a href=#1746 id=1746 data-nosnippet>1746</a>        // On my (@nightkr)'s 3900X I can reliably trigger this with 10x, but let's have some safety margin to avoid false negatives
+<a href=#1747 id=1747 data-nosnippet>1747</a>        </span><span class="kw">let </span>items = APPLIER_REQUEUE_BUF_SIZE * <span class="number">50</span>;
+<a href=#1748 id=1748 data-nosnippet>1748</a>        <span class="comment">// Assume that everything's OK if we can reconcile every object 3 times on average
+<a href=#1749 id=1749 data-nosnippet>1749</a>        </span><span class="kw">let </span>reconciles = items * <span class="number">3</span>;
+<a href=#1750 id=1750 data-nosnippet>1750</a>
+<a href=#1751 id=1751 data-nosnippet>1751</a>        <span class="kw">let </span>(queue_tx, queue_rx) = futures::channel::mpsc::unbounded::&lt;ObjectRef&lt;ConfigMap&gt;&gt;();
+<a href=#1752 id=1752 data-nosnippet>1752</a>        <span class="kw">let </span>(store_rx, <span class="kw-2">mut </span>store_tx) = reflector::store();
+<a href=#1753 id=1753 data-nosnippet>1753</a>        <span class="kw">let </span><span class="kw-2">mut </span>applier = <span class="macro">pin!</span>(applier(
+<a href=#1754 id=1754 data-nosnippet>1754</a>            |_obj, <span class="kw">_</span>| {
+<a href=#1755 id=1755 data-nosnippet>1755</a>                Box::pin(<span class="kw">async move </span>{
+<a href=#1756 id=1756 data-nosnippet>1756</a>                    <span class="comment">// Try to flood the rescheduling buffer buffer by just putting it back in the queue immediately
+<a href=#1757 id=1757 data-nosnippet>1757</a>                    //println!("reconciling {:?}", obj.metadata.name);
+<a href=#1758 id=1758 data-nosnippet>1758</a>                    </span><span class="prelude-val">Ok</span>(Action::requeue(Duration::ZERO))
+<a href=#1759 id=1759 data-nosnippet>1759</a>                })
+<a href=#1760 id=1760 data-nosnippet>1760</a>            },
+<a href=#1761 id=1761 data-nosnippet>1761</a>            |<span class="kw">_</span>: Arc&lt;ConfigMap&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Infallible, <span class="kw">_</span>| <span class="macro">todo!</span>(),
+<a href=#1762 id=1762 data-nosnippet>1762</a>            Arc::new(()),
+<a href=#1763 id=1763 data-nosnippet>1763</a>            store_rx,
+<a href=#1764 id=1764 data-nosnippet>1764</a>            queue_rx.map(<span class="prelude-ty">Result</span>::&lt;<span class="kw">_</span>, Infallible&gt;::Ok),
+<a href=#1765 id=1765 data-nosnippet>1765</a>            Config::default(),
+<a href=#1766 id=1766 data-nosnippet>1766</a>        ));
+<a href=#1767 id=1767 data-nosnippet>1767</a>        store_tx.apply_watcher_event(<span class="kw-2">&amp;</span>watcher::Event::InitDone);
+<a href=#1768 id=1768 data-nosnippet>1768</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..items {
+<a href=#1769 id=1769 data-nosnippet>1769</a>            <span class="kw">let </span>obj = ConfigMap {
+<a href=#1770 id=1770 data-nosnippet>1770</a>                metadata: ObjectMeta {
+<a href=#1771 id=1771 data-nosnippet>1771</a>                    name: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"cm-{i}"</span>)),
+<a href=#1772 id=1772 data-nosnippet>1772</a>                    namespace: <span class="prelude-val">Some</span>(<span class="string">"default"</span>.to_string()),
+<a href=#1773 id=1773 data-nosnippet>1773</a>                    ..Default::default()
+<a href=#1774 id=1774 data-nosnippet>1774</a>                },
+<a href=#1775 id=1775 data-nosnippet>1775</a>                ..Default::default()
+<a href=#1776 id=1776 data-nosnippet>1776</a>            };
+<a href=#1777 id=1777 data-nosnippet>1777</a>            store_tx.apply_watcher_event(<span class="kw-2">&amp;</span>watcher::Event::Apply(obj.clone()));
+<a href=#1778 id=1778 data-nosnippet>1778</a>            queue_tx.unbounded_send(ObjectRef::from_obj(<span class="kw-2">&amp;</span>obj)).unwrap();
+<a href=#1779 id=1779 data-nosnippet>1779</a>        }
+<a href=#1780 id=1780 data-nosnippet>1780</a>
+<a href=#1781 id=1781 data-nosnippet>1781</a>        timeout(
+<a href=#1782 id=1782 data-nosnippet>1782</a>            Duration::from_secs(<span class="number">10</span>),
+<a href=#1783 id=1783 data-nosnippet>1783</a>            applier
+<a href=#1784 id=1784 data-nosnippet>1784</a>                .as_mut()
+<a href=#1785 id=1785 data-nosnippet>1785</a>                .take(reconciles)
+<a href=#1786 id=1786 data-nosnippet>1786</a>                .try_for_each(|<span class="kw">_</span>| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>(()) }),
+<a href=#1787 id=1787 data-nosnippet>1787</a>        )
+<a href=#1788 id=1788 data-nosnippet>1788</a>        .<span class="kw">await
+<a href=#1789 id=1789 data-nosnippet>1789</a>        </span>.expect(<span class="string">"test timeout expired, applier likely deadlocked"</span>)
+<a href=#1790 id=1790 data-nosnippet>1790</a>        .unwrap();
+<a href=#1791 id=1791 data-nosnippet>1791</a>
+<a href=#1792 id=1792 data-nosnippet>1792</a>        <span class="comment">// Do an orderly shutdown to ensure that no individual reconcilers are stuck
+<a href=#1793 id=1793 data-nosnippet>1793</a>        </span>drop(queue_tx);
+<a href=#1794 id=1794 data-nosnippet>1794</a>        timeout(
+<a href=#1795 id=1795 data-nosnippet>1795</a>            Duration::from_secs(<span class="number">10</span>),
+<a href=#1796 id=1796 data-nosnippet>1796</a>            applier.try_for_each(|<span class="kw">_</span>| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>(()) }),
+<a href=#1797 id=1797 data-nosnippet>1797</a>        )
+<a href=#1798 id=1798 data-nosnippet>1798</a>        .<span class="kw">await
+<a href=#1799 id=1799 data-nosnippet>1799</a>        </span>.expect(<span class="string">"applier cleanup timeout expired, individual reconciler likely deadlocked?"</span>)
+<a href=#1800 id=1800 data-nosnippet>1800</a>        .unwrap();
+<a href=#1801 id=1801 data-nosnippet>1801</a>    }
+<a href=#1802 id=1802 data-nosnippet>1802</a>}
+</code></pre></div></section></main></body></html>

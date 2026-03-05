@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/redis-1.0.2/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! redis-rs is a Rust implementation of a client library for Redis.  It exposes
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/redis-1.0.4/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! redis-rs is a Rust implementation of a client library for Redis.  It exposes
 <a href=#2 id=2 data-nosnippet>2</a>//! a general purpose interface to Redis and also provides specific helpers for
 <a href=#3 id=3 data-nosnippet>3</a>//! commonly used functionality.
 <a href=#4 id=4 data-nosnippet>4</a>//!
@@ -592,233 +592,258 @@
 <a href=#592 id=592 data-nosnippet>592</a>//!
 <a href=#593 id=593 data-nosnippet>593</a>//! * Iterators are now safe by default, without an opt out. This means that the iterators return `RedisResult&lt;Value&gt;` instead of `Value`. See [this PR](https://github.com/redis-rs/redis-rs/pull/1641) for background. If you previously used the "safe_iterators" feature to opt-in to this behavior, just remove the feature declaration. Otherwise you will need to adjust your usage of iterators to account for potential conversion failures.
 <a href=#594 id=594 data-nosnippet>594</a>//! * Parsing values using [FromRedisValue] no longer returns [RedisError] on failure, in order to save the users checking for various server &amp; client errors in such scenarios. if you rely on the error type when using this trait, you will need to adjust your error handling code. [ParsingError] should only be printed, since it does not contain any user actionable info outside of its error message.
-<a href=#595 id=595 data-nosnippet>595</a>//! * If you used the `tcp_nodelay`, `keep-alive`, or `disable-client-setinfo` features, you'll need to set these values on the connection info you pass to the client use [ConnectionInfo::set_tcp_settings].
-<a href=#596 id=596 data-nosnippet>596</a>//! * If you create [ConnectionInfo], [RedisConnectionInfo], or [sentinel::SentinelNodeConnectionInfo] objects explicitly, now you need to use the builder pattern setters instead of setting fields.
-<a href=#597 id=597 data-nosnippet>597</a>//! * if you used `MultiplexedConnection::new_with_response_timeout`, it is replaced by [aio::MultiplexedConnection::new_with_config]. `Client::get_multiplexed_tokio_connection_with_response_timeouts`, `Client::get_multiplexed_tokio_connection`, `Client::create_multiplexed_tokio_connection_with_response_timeout`, `Client::create_multiplexed_tokio_connection` were replaced by [Client::get_multiplexed_async_connection_with_config].
-<a href=#598 id=598 data-nosnippet>598</a>//! * If you're using `tokio::time::pause()` or otherwise manipulating time, you might need to opt out of timeouts using `AsyncConnectionConfig::new().set_connection_timeout(None).set_response_timeout(None)`.
-<a href=#599 id=599 data-nosnippet>599</a>//! * Async connections now have default timeouts. If you're using blocking commands or other potentially long running commands, you should adjust the timeouts accordingly.
-<a href=#600 id=600 data-nosnippet>600</a>//! * If you're manually setting `ConnectionManager`'s retry setting, then please re-examine the values you set. `exponential_base` has been made a f32, and `factor` was replaced by `min_delay`, in order to match the documented behavior, instead of the actual erroneous behavior of past versions.
-<a href=#601 id=601 data-nosnippet>601</a>//! * Vector set types have been moved into the `vector_sets` module, instead of being exposed directly.
-<a href=#602 id=602 data-nosnippet>602</a>//! * ErrorKind::TypeError was renamed ErrorKind::UnexpectedReturnType, to clarify its meaning. Also fixed some cases where it and ErrorKind::Parse were used interchangeably.
-<a href=#603 id=603 data-nosnippet>603</a>//! * Connecting to a wildcard address (`0.0.0.0` or `::`) is now explicitly disallowed and will return an error. This change prevents connection timeouts and provides a clearer error message. This affects both standalone and cluster connections. Users relying on this behavior should now connect to a specific, non-wildcard address.
-<a href=#604 id=604 data-nosnippet>604</a>//! * If you implemented [crate::FromRedisValue] directly, or used `FromRedisValue::from_redis_value`/`FromRedisValue::from_owned_redis_value`, notice that the trait's semantics changed - now the trait requires an owned value by default, instead of a reference. See [the PR](https://github.com/redis-rs/redis-rs/pull/1784) for details.
-<a href=#605 id=605 data-nosnippet>605</a>//! * The implicit replacement of `GET` with `MGET` or `SET` with `MSET` has been replaced, and limited these and other commands to only take values that serialize into single redis values, as enforced by a compilation failure. Example:
-<a href=#606 id=606 data-nosnippet>606</a>//!
-<a href=#607 id=607 data-nosnippet>607</a>//! ```rust,no_run,compile_fail
-<a href=#608 id=608 data-nosnippet>608</a>//! use redis::Commands;
-<a href=#609 id=609 data-nosnippet>609</a>//! fn main() -&gt; redis::RedisResult&lt;()&gt; {
-<a href=#610 id=610 data-nosnippet>610</a>//!     let client = redis::Client::open("redis://127.0.0.1/")?;
-<a href=#611 id=611 data-nosnippet>611</a>//!     let mut con = client.get_connection()?;
-<a href=#612 id=612 data-nosnippet>612</a>//!     // `get` should fail compilation, because it receives multiple values
-<a href=#613 id=613 data-nosnippet>613</a>//!     _ = con.get(["foo","bar"]);
-<a href=#614 id=614 data-nosnippet>614</a>//!     Ok(())
-<a href=#615 id=615 data-nosnippet>615</a>//! }
-<a href=#616 id=616 data-nosnippet>616</a>//! ```
-<a href=#617 id=617 data-nosnippet>617</a>//!
+<a href=#595 id=595 data-nosnippet>595</a>//! * If you used the `tcp_nodelay` or `keep-alive` features, you'll need to set these values on the connection info you pass to the client use [ConnectionInfo::set_tcp_settings].
+<a href=#596 id=596 data-nosnippet>596</a>//! * If you used the `disable-client-setinfo` features, you'll need to set [RedisConnectionInfo::skip_set_lib_name].
+<a href=#597 id=597 data-nosnippet>597</a>//! * If you create [ConnectionInfo], [RedisConnectionInfo], or [sentinel::SentinelNodeConnectionInfo] objects explicitly, now you need to use the builder pattern setters instead of setting fields.
+<a href=#598 id=598 data-nosnippet>598</a>//! * if you used `MultiplexedConnection::new_with_response_timeout`, it is replaced by [aio::MultiplexedConnection::new_with_config]. `Client::get_multiplexed_tokio_connection_with_response_timeouts`, `Client::get_multiplexed_tokio_connection`, `Client::create_multiplexed_tokio_connection_with_response_timeout`, `Client::create_multiplexed_tokio_connection` were replaced by [Client::get_multiplexed_async_connection_with_config].
+<a href=#599 id=599 data-nosnippet>599</a>//! * If you're using `tokio::time::pause()` or otherwise manipulating time, you might need to opt out of timeouts using `AsyncConnectionConfig::new().set_connection_timeout(None).set_response_timeout(None)`.
+<a href=#600 id=600 data-nosnippet>600</a>//! * Async connections now have default timeouts. If you're using blocking commands or other potentially long running commands, you should adjust the timeouts accordingly.
+<a href=#601 id=601 data-nosnippet>601</a>//! * If you're manually setting `ConnectionManager`'s retry setting, then please re-examine the values you set. `exponential_base` has been made a f32, and `factor` was replaced by `min_delay`, in order to match the documented behavior, instead of the actual erroneous behavior of past versions.
+<a href=#602 id=602 data-nosnippet>602</a>//! * Vector set types have been moved into the `vector_sets` module, instead of being exposed directly.
+<a href=#603 id=603 data-nosnippet>603</a>//! * ErrorKind::TypeError was renamed ErrorKind::UnexpectedReturnType, to clarify its meaning. Also fixed some cases where it and ErrorKind::Parse were used interchangeably.
+<a href=#604 id=604 data-nosnippet>604</a>//! * Connecting to a wildcard address (`0.0.0.0` or `::`) is now explicitly disallowed and will return an error. This change prevents connection timeouts and provides a clearer error message. This affects both standalone and cluster connections. Users relying on this behavior should now connect to a specific, non-wildcard address.
+<a href=#605 id=605 data-nosnippet>605</a>//! * If you implemented [crate::FromRedisValue] directly, or used `FromRedisValue::from_redis_value`/`FromRedisValue::from_owned_redis_value`, notice that the trait's semantics changed - now the trait requires an owned value by default, instead of a reference. See [the PR](https://github.com/redis-rs/redis-rs/pull/1784) for details.
+<a href=#606 id=606 data-nosnippet>606</a>//! * The implicit replacement of `GET` with `MGET` or `SET` with `MSET` has been replaced, and limited these and other commands to only take values that serialize into single redis values, as enforced by a compilation failure. Example:
+<a href=#607 id=607 data-nosnippet>607</a>//!
+<a href=#608 id=608 data-nosnippet>608</a>//! ```rust,no_run,compile_fail
+<a href=#609 id=609 data-nosnippet>609</a>//! use redis::Commands;
+<a href=#610 id=610 data-nosnippet>610</a>//! fn main() -&gt; redis::RedisResult&lt;()&gt; {
+<a href=#611 id=611 data-nosnippet>611</a>//!     let client = redis::Client::open("redis://127.0.0.1/")?;
+<a href=#612 id=612 data-nosnippet>612</a>//!     let mut con = client.get_connection()?;
+<a href=#613 id=613 data-nosnippet>613</a>//!     // `get` should fail compilation, because it receives multiple values
+<a href=#614 id=614 data-nosnippet>614</a>//!     _ = con.get(["foo","bar"]);
+<a href=#615 id=615 data-nosnippet>615</a>//!     Ok(())
+<a href=#616 id=616 data-nosnippet>616</a>//! }
+<a href=#617 id=617 data-nosnippet>617</a>//! ```
 <a href=#618 id=618 data-nosnippet>618</a>//!
-<a href=#619 id=619 data-nosnippet>619</a>
-<a href=#620 id=620 data-nosnippet>620</a></span><span class="attr">#![deny(non_camel_case_types)]
-<a href=#621 id=621 data-nosnippet>621</a>#![warn(missing_docs)]
-<a href=#622 id=622 data-nosnippet>622</a>#![cfg_attr(docsrs, warn(rustdoc::broken_intra_doc_links))]
-<a href=#623 id=623 data-nosnippet>623</a></span><span class="comment">// When on docs.rs we want to show tuple variadics in the docs.
-<a href=#624 id=624 data-nosnippet>624</a>// This currently requires internal/unstable features in Rustdoc.
-<a href=#625 id=625 data-nosnippet>625</a></span><span class="attr">#![cfg_attr(
-<a href=#626 id=626 data-nosnippet>626</a>    docsrs,
-<a href=#627 id=627 data-nosnippet>627</a>    feature(doc_cfg, rustdoc_internals),
-<a href=#628 id=628 data-nosnippet>628</a>    expect(
-<a href=#629 id=629 data-nosnippet>629</a>        internal_features,
-<a href=#630 id=630 data-nosnippet>630</a>        reason = <span class="string">"rustdoc_internals is needed for fake_variadic"
-<a href=#631 id=631 data-nosnippet>631</a>    </span>)
-<a href=#632 id=632 data-nosnippet>632</a>)]
-<a href=#633 id=633 data-nosnippet>633</a>
-<a href=#634 id=634 data-nosnippet>634</a></span><span class="comment">// public api
-<a href=#635 id=635 data-nosnippet>635</a></span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
-<a href=#636 id=636 data-nosnippet>636</a></span><span class="kw">pub use </span><span class="kw">crate</span>::client::AsyncConnectionConfig;
-<a href=#637 id=637 data-nosnippet>637</a><span class="kw">pub use </span><span class="kw">crate</span>::client::Client;
-<a href=#638 id=638 data-nosnippet>638</a><span class="attr">#[cfg(feature = <span class="string">"cache-aio"</span>)]
-<a href=#639 id=639 data-nosnippet>639</a></span><span class="kw">pub use </span><span class="kw">crate</span>::cmd::CommandCacheConfig;
-<a href=#640 id=640 data-nosnippet>640</a><span class="kw">pub use </span><span class="kw">crate</span>::cmd::{cmd, pack_command, pipe, Arg, Cmd, Iter};
-<a href=#641 id=641 data-nosnippet>641</a><span class="kw">pub use </span><span class="kw">crate</span>::commands::{
-<a href=#642 id=642 data-nosnippet>642</a>    Commands, ControlFlow, CopyOptions, Direction, FlushAllOptions, FlushDbOptions,
-<a href=#643 id=643 data-nosnippet>643</a>    HashFieldExpirationOptions, LposOptions, MSetOptions, PubSubCommands, ScanOptions, SetOptions,
-<a href=#644 id=644 data-nosnippet>644</a>    SortedSetAddOptions, TypedCommands, UpdateCheck,
-<a href=#645 id=645 data-nosnippet>645</a>};
-<a href=#646 id=646 data-nosnippet>646</a><span class="kw">pub use </span><span class="kw">crate</span>::connection::{
-<a href=#647 id=647 data-nosnippet>647</a>    parse_redis_url, transaction, Connection, ConnectionAddr, ConnectionInfo, ConnectionLike,
-<a href=#648 id=648 data-nosnippet>648</a>    IntoConnectionInfo, Msg, PubSub, RedisConnectionInfo, TlsMode,
-<a href=#649 id=649 data-nosnippet>649</a>};
-<a href=#650 id=650 data-nosnippet>650</a><span class="kw">pub use </span><span class="kw">crate</span>::parser::{parse_redis_value, Parser};
-<a href=#651 id=651 data-nosnippet>651</a><span class="kw">pub use </span><span class="kw">crate</span>::pipeline::Pipeline;
-<a href=#652 id=652 data-nosnippet>652</a>
+<a href=#619 id=619 data-nosnippet>619</a>//!
+<a href=#620 id=620 data-nosnippet>620</a>
+<a href=#621 id=621 data-nosnippet>621</a></span><span class="attr">#![deny(non_camel_case_types)]
+<a href=#622 id=622 data-nosnippet>622</a>#![warn(missing_docs)]
+<a href=#623 id=623 data-nosnippet>623</a>#![cfg_attr(docsrs, warn(rustdoc::broken_intra_doc_links))]
+<a href=#624 id=624 data-nosnippet>624</a></span><span class="comment">// When on docs.rs we want to show tuple variadics in the docs.
+<a href=#625 id=625 data-nosnippet>625</a>// This currently requires internal/unstable features in Rustdoc.
+<a href=#626 id=626 data-nosnippet>626</a></span><span class="attr">#![cfg_attr(
+<a href=#627 id=627 data-nosnippet>627</a>    docsrs,
+<a href=#628 id=628 data-nosnippet>628</a>    feature(doc_cfg, rustdoc_internals),
+<a href=#629 id=629 data-nosnippet>629</a>    expect(
+<a href=#630 id=630 data-nosnippet>630</a>        internal_features,
+<a href=#631 id=631 data-nosnippet>631</a>        reason = <span class="string">"rustdoc_internals is needed for fake_variadic"
+<a href=#632 id=632 data-nosnippet>632</a>    </span>)
+<a href=#633 id=633 data-nosnippet>633</a>)]
+<a href=#634 id=634 data-nosnippet>634</a>
+<a href=#635 id=635 data-nosnippet>635</a></span><span class="comment">// public api
+<a href=#636 id=636 data-nosnippet>636</a></span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+<a href=#637 id=637 data-nosnippet>637</a></span><span class="kw">pub use </span><span class="kw">crate</span>::client::AsyncConnectionConfig;
+<a href=#638 id=638 data-nosnippet>638</a><span class="kw">pub use </span><span class="kw">crate</span>::client::Client;
+<a href=#639 id=639 data-nosnippet>639</a><span class="attr">#[cfg(feature = <span class="string">"cache-aio"</span>)]
+<a href=#640 id=640 data-nosnippet>640</a></span><span class="kw">pub use </span><span class="kw">crate</span>::cmd::CommandCacheConfig;
+<a href=#641 id=641 data-nosnippet>641</a><span class="kw">pub use </span><span class="kw">crate</span>::cmd::{Arg, Cmd, Iter, cmd, pack_command, pipe};
+<a href=#642 id=642 data-nosnippet>642</a><span class="kw">pub use </span><span class="kw">crate</span>::commands::{
+<a href=#643 id=643 data-nosnippet>643</a>    Commands, ControlFlow, CopyOptions, Direction, FlushAllOptions, FlushDbOptions,
+<a href=#644 id=644 data-nosnippet>644</a>    HashFieldExpirationOptions, LposOptions, MSetOptions, PubSubCommands, ScanOptions, SetOptions,
+<a href=#645 id=645 data-nosnippet>645</a>    SortedSetAddOptions, TypedCommands, UpdateCheck,
+<a href=#646 id=646 data-nosnippet>646</a>};
+<a href=#647 id=647 data-nosnippet>647</a><span class="kw">pub use </span><span class="kw">crate</span>::connection::{
+<a href=#648 id=648 data-nosnippet>648</a>    Connection, ConnectionAddr, ConnectionInfo, ConnectionLike, IntoConnectionInfo, Msg, PubSub,
+<a href=#649 id=649 data-nosnippet>649</a>    RedisConnectionInfo, TlsMode, parse_redis_url, transaction,
+<a href=#650 id=650 data-nosnippet>650</a>};
+<a href=#651 id=651 data-nosnippet>651</a><span class="kw">pub use </span><span class="kw">crate</span>::parser::{Parser, parse_redis_value};
+<a href=#652 id=652 data-nosnippet>652</a><span class="kw">pub use </span><span class="kw">crate</span>::pipeline::Pipeline;
 <a href=#653 id=653 data-nosnippet>653</a><span class="attr">#[cfg(feature = <span class="string">"script"</span>)]
 <a href=#654 id=654 data-nosnippet>654</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"script"</span>)))]
 <a href=#655 id=655 data-nosnippet>655</a></span><span class="kw">pub use </span><span class="kw">crate</span>::script::{Script, ScriptInvocation};
-<a href=#656 id=656 data-nosnippet>656</a>
-<a href=#657 id=657 data-nosnippet>657</a><span class="comment">// preserve grouping and order
-<a href=#658 id=658 data-nosnippet>658</a></span><span class="attr">#[rustfmt::skip]
-<a href=#659 id=659 data-nosnippet>659</a></span><span class="kw">pub use </span><span class="kw">crate</span>::types::{
-<a href=#660 id=660 data-nosnippet>660</a>    <span class="comment">// utility functions
-<a href=#661 id=661 data-nosnippet>661</a>    </span>from_redis_value_ref,
-<a href=#662 id=662 data-nosnippet>662</a>    from_redis_value,
-<a href=#663 id=663 data-nosnippet>663</a>
-<a href=#664 id=664 data-nosnippet>664</a>    <span class="comment">// conversion traits
-<a href=#665 id=665 data-nosnippet>665</a>    </span>FromRedisValue,
-<a href=#666 id=666 data-nosnippet>666</a>
-<a href=#667 id=667 data-nosnippet>667</a>    <span class="comment">// utility types
-<a href=#668 id=668 data-nosnippet>668</a>    </span>InfoDict,
-<a href=#669 id=669 data-nosnippet>669</a>    NumericBehavior,
-<a href=#670 id=670 data-nosnippet>670</a>    Expiry,
-<a href=#671 id=671 data-nosnippet>671</a>    SetExpiry,
-<a href=#672 id=672 data-nosnippet>672</a>    ExistenceCheck,
-<a href=#673 id=673 data-nosnippet>673</a>    FieldExistenceCheck,
-<a href=#674 id=674 data-nosnippet>674</a>    ExpireOption,
-<a href=#675 id=675 data-nosnippet>675</a>    Role,
-<a href=#676 id=676 data-nosnippet>676</a>    ReplicaInfo,
-<a href=#677 id=677 data-nosnippet>677</a>    IntegerReplyOrNoOp,
-<a href=#678 id=678 data-nosnippet>678</a>	ValueType,
-<a href=#679 id=679 data-nosnippet>679</a>    RedisResult,
-<a href=#680 id=680 data-nosnippet>680</a>    RedisWrite,
-<a href=#681 id=681 data-nosnippet>681</a>    ToRedisArgs,
-<a href=#682 id=682 data-nosnippet>682</a>    ToSingleRedisArg,
-<a href=#683 id=683 data-nosnippet>683</a>    ValueComparison,
-<a href=#684 id=684 data-nosnippet>684</a>
-<a href=#685 id=685 data-nosnippet>685</a>    <span class="comment">// low level values
-<a href=#686 id=686 data-nosnippet>686</a>    </span>Value,
-<a href=#687 id=687 data-nosnippet>687</a>    PushKind,
-<a href=#688 id=688 data-nosnippet>688</a>    VerbatimFormat,
-<a href=#689 id=689 data-nosnippet>689</a>    ProtocolVersion,
-<a href=#690 id=690 data-nosnippet>690</a>    PushInfo,
-<a href=#691 id=691 data-nosnippet>691</a>};
-<a href=#692 id=692 data-nosnippet>692</a>
-<a href=#693 id=693 data-nosnippet>693</a><span class="kw">pub use </span><span class="kw">crate</span>::types::{calculate_value_digest, is_valid_16_bytes_hex_digest};
-<a href=#694 id=694 data-nosnippet>694</a>
-<a href=#695 id=695 data-nosnippet>695</a><span class="kw">pub use </span><span class="kw">crate</span>::errors::{
-<a href=#696 id=696 data-nosnippet>696</a>    make_extension_error, ErrorKind, ParsingError, RedisError, RetryMethod, ServerError,
-<a href=#697 id=697 data-nosnippet>697</a>    ServerErrorKind,
-<a href=#698 id=698 data-nosnippet>698</a>};
-<a href=#699 id=699 data-nosnippet>699</a>
-<a href=#700 id=700 data-nosnippet>700</a><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
-<a href=#701 id=701 data-nosnippet>701</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"aio"</span>)))]
-<a href=#702 id=702 data-nosnippet>702</a></span><span class="kw">pub use crate</span>::{
-<a href=#703 id=703 data-nosnippet>703</a>    cmd::AsyncIter, commands::AsyncCommands, commands::AsyncTypedCommands,
-<a href=#704 id=704 data-nosnippet>704</a>    parser::parse_redis_value_async, types::RedisFuture,
-<a href=#705 id=705 data-nosnippet>705</a>};
-<a href=#706 id=706 data-nosnippet>706</a>
-<a href=#707 id=707 data-nosnippet>707</a><span class="kw">mod </span>macros;
-<a href=#708 id=708 data-nosnippet>708</a><span class="kw">mod </span>pipeline;
-<a href=#709 id=709 data-nosnippet>709</a>
-<a href=#710 id=710 data-nosnippet>710</a><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
-<a href=#711 id=711 data-nosnippet>711</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
-<a href=#712 id=712 data-nosnippet>712</a></span><span class="kw">pub use </span>commands::acl;
-<a href=#713 id=713 data-nosnippet>713</a>
-<a href=#714 id=714 data-nosnippet>714</a><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
-<a href=#715 id=715 data-nosnippet>715</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"aio"</span>)))]
-<a href=#716 id=716 data-nosnippet>716</a></span><span class="kw">pub mod </span>aio;
-<a href=#717 id=717 data-nosnippet>717</a>
-<a href=#718 id=718 data-nosnippet>718</a><span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
-<a href=#719 id=719 data-nosnippet>719</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"json"</span>)))]
-<a href=#720 id=720 data-nosnippet>720</a></span><span class="kw">pub use </span><span class="kw">crate</span>::commands::JsonCommands;
-<a href=#721 id=721 data-nosnippet>721</a>
-<a href=#722 id=722 data-nosnippet>722</a><span class="attr">#[cfg(all(feature = <span class="string">"json"</span>, feature = <span class="string">"aio"</span>))]
-<a href=#723 id=723 data-nosnippet>723</a>#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"json"</span>, feature = <span class="string">"aio"</span>))))]
-<a href=#724 id=724 data-nosnippet>724</a></span><span class="kw">pub use </span><span class="kw">crate</span>::commands::JsonAsyncCommands;
-<a href=#725 id=725 data-nosnippet>725</a>
-<a href=#726 id=726 data-nosnippet>726</a><span class="attr">#[cfg(feature = <span class="string">"vector-sets"</span>)]
-<a href=#727 id=727 data-nosnippet>727</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"vector-sets"</span>)))]
-<a href=#728 id=728 data-nosnippet>728</a></span><span class="kw">pub use </span><span class="kw">crate</span>::commands::vector_sets;
-<a href=#729 id=729 data-nosnippet>729</a>
-<a href=#730 id=730 data-nosnippet>730</a><span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
-<a href=#731 id=731 data-nosnippet>731</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
-<a href=#732 id=732 data-nosnippet>732</a></span><span class="kw">pub use </span>commands::geo;
-<a href=#733 id=733 data-nosnippet>733</a>
-<a href=#734 id=734 data-nosnippet>734</a><span class="attr">#[cfg(any(feature = <span class="string">"connection-manager"</span>, feature = <span class="string">"cluster-async"</span>))]
-<a href=#735 id=735 data-nosnippet>735</a></span><span class="kw">mod </span>subscription_tracker;
-<a href=#736 id=736 data-nosnippet>736</a>
-<a href=#737 id=737 data-nosnippet>737</a><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
-<a href=#738 id=738 data-nosnippet>738</a></span><span class="kw">mod </span>cluster_handling;
-<a href=#739 id=739 data-nosnippet>739</a>
-<a href=#740 id=740 data-nosnippet>740</a><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
-<a href=#741 id=741 data-nosnippet>741</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"cluster"</span>)))]
-<a href=#742 id=742 data-nosnippet>742</a></span><span class="kw">pub use </span>cluster_handling::sync_connection <span class="kw">as </span>cluster;
-<a href=#743 id=743 data-nosnippet>743</a>
-<a href=#744 id=744 data-nosnippet>744</a><span class="doccomment">/// Routing information for cluster commands.
-<a href=#745 id=745 data-nosnippet>745</a></span><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
-<a href=#746 id=746 data-nosnippet>746</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"cluster"</span>)))]
-<a href=#747 id=747 data-nosnippet>747</a></span><span class="kw">pub use </span>cluster_handling::routing <span class="kw">as </span>cluster_routing;
-<a href=#748 id=748 data-nosnippet>748</a>
-<a href=#749 id=749 data-nosnippet>749</a><span class="attr">#[cfg(feature = <span class="string">"r2d2"</span>)]
-<a href=#750 id=750 data-nosnippet>750</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"r2d2"</span>)))]
-<a href=#751 id=751 data-nosnippet>751</a></span><span class="kw">mod </span>r2d2;
+<a href=#656 id=656 data-nosnippet>656</a><span class="attr">#[cfg(feature = <span class="string">"token-based-authentication"</span>)]
+<a href=#657 id=657 data-nosnippet>657</a></span><span class="kw">pub use crate</span>::{
+<a href=#658 id=658 data-nosnippet>658</a>    auth::{BasicAuth, StreamingCredentialsProvider},
+<a href=#659 id=659 data-nosnippet>659</a>    auth_management::{RetryConfig, TokenRefreshConfig},
+<a href=#660 id=660 data-nosnippet>660</a>};
+<a href=#661 id=661 data-nosnippet>661</a><span class="attr">#[cfg(feature = <span class="string">"entra-id"</span>)]
+<a href=#662 id=662 data-nosnippet>662</a></span><span class="kw">pub use </span>{
+<a href=#663 id=663 data-nosnippet>663</a>    <span class="kw">crate</span>::entra_id::{ClientCertificate, EntraIdCredentialsProvider, REDIS_SCOPE_DEFAULT},
+<a href=#664 id=664 data-nosnippet>664</a>    azure_identity::{
+<a href=#665 id=665 data-nosnippet>665</a>        ClientCertificateCredentialOptions, ClientSecretCredentialOptions,
+<a href=#666 id=666 data-nosnippet>666</a>        DeveloperToolsCredentialOptions, ManagedIdentityCredentialOptions, UserAssignedId,
+<a href=#667 id=667 data-nosnippet>667</a>    },
+<a href=#668 id=668 data-nosnippet>668</a>};
+<a href=#669 id=669 data-nosnippet>669</a>
+<a href=#670 id=670 data-nosnippet>670</a><span class="comment">// preserve grouping and order
+<a href=#671 id=671 data-nosnippet>671</a></span><span class="attr">#[rustfmt::skip]
+<a href=#672 id=672 data-nosnippet>672</a></span><span class="kw">pub use </span><span class="kw">crate</span>::types::{
+<a href=#673 id=673 data-nosnippet>673</a>    <span class="comment">// utility functions
+<a href=#674 id=674 data-nosnippet>674</a>    </span>from_redis_value_ref,
+<a href=#675 id=675 data-nosnippet>675</a>    from_redis_value,
+<a href=#676 id=676 data-nosnippet>676</a>
+<a href=#677 id=677 data-nosnippet>677</a>    <span class="comment">// conversion traits
+<a href=#678 id=678 data-nosnippet>678</a>    </span>FromRedisValue,
+<a href=#679 id=679 data-nosnippet>679</a>
+<a href=#680 id=680 data-nosnippet>680</a>    <span class="comment">// utility types
+<a href=#681 id=681 data-nosnippet>681</a>    </span>InfoDict,
+<a href=#682 id=682 data-nosnippet>682</a>    NumericBehavior,
+<a href=#683 id=683 data-nosnippet>683</a>    Expiry,
+<a href=#684 id=684 data-nosnippet>684</a>    SetExpiry,
+<a href=#685 id=685 data-nosnippet>685</a>    ExistenceCheck,
+<a href=#686 id=686 data-nosnippet>686</a>    FieldExistenceCheck,
+<a href=#687 id=687 data-nosnippet>687</a>    ExpireOption,
+<a href=#688 id=688 data-nosnippet>688</a>    Role,
+<a href=#689 id=689 data-nosnippet>689</a>    ReplicaInfo,
+<a href=#690 id=690 data-nosnippet>690</a>    IntegerReplyOrNoOp,
+<a href=#691 id=691 data-nosnippet>691</a>	ValueType,
+<a href=#692 id=692 data-nosnippet>692</a>    RedisResult,
+<a href=#693 id=693 data-nosnippet>693</a>    RedisWrite,
+<a href=#694 id=694 data-nosnippet>694</a>    ToRedisArgs,
+<a href=#695 id=695 data-nosnippet>695</a>    ToSingleRedisArg,
+<a href=#696 id=696 data-nosnippet>696</a>    ValueComparison,
+<a href=#697 id=697 data-nosnippet>697</a>
+<a href=#698 id=698 data-nosnippet>698</a>    <span class="comment">// low level values
+<a href=#699 id=699 data-nosnippet>699</a>    </span>Value,
+<a href=#700 id=700 data-nosnippet>700</a>    PushKind,
+<a href=#701 id=701 data-nosnippet>701</a>    VerbatimFormat,
+<a href=#702 id=702 data-nosnippet>702</a>    ProtocolVersion,
+<a href=#703 id=703 data-nosnippet>703</a>    PushInfo,
+<a href=#704 id=704 data-nosnippet>704</a>};
+<a href=#705 id=705 data-nosnippet>705</a>
+<a href=#706 id=706 data-nosnippet>706</a><span class="kw">pub use </span><span class="kw">crate</span>::types::{calculate_value_digest, is_valid_16_bytes_hex_digest};
+<a href=#707 id=707 data-nosnippet>707</a>
+<a href=#708 id=708 data-nosnippet>708</a><span class="kw">pub use </span><span class="kw">crate</span>::errors::{
+<a href=#709 id=709 data-nosnippet>709</a>    ErrorKind, ParsingError, RedisError, RetryMethod, ServerError, ServerErrorKind,
+<a href=#710 id=710 data-nosnippet>710</a>    make_extension_error,
+<a href=#711 id=711 data-nosnippet>711</a>};
+<a href=#712 id=712 data-nosnippet>712</a>
+<a href=#713 id=713 data-nosnippet>713</a><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+<a href=#714 id=714 data-nosnippet>714</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"aio"</span>)))]
+<a href=#715 id=715 data-nosnippet>715</a></span><span class="kw">pub use crate</span>::{
+<a href=#716 id=716 data-nosnippet>716</a>    cmd::AsyncIter, commands::AsyncCommands, commands::AsyncTypedCommands,
+<a href=#717 id=717 data-nosnippet>717</a>    parser::parse_redis_value_async, types::RedisFuture,
+<a href=#718 id=718 data-nosnippet>718</a>};
+<a href=#719 id=719 data-nosnippet>719</a>
+<a href=#720 id=720 data-nosnippet>720</a><span class="kw">mod </span>macros;
+<a href=#721 id=721 data-nosnippet>721</a><span class="kw">mod </span>pipeline;
+<a href=#722 id=722 data-nosnippet>722</a>
+<a href=#723 id=723 data-nosnippet>723</a><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+<a href=#724 id=724 data-nosnippet>724</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
+<a href=#725 id=725 data-nosnippet>725</a></span><span class="kw">pub use </span>commands::acl;
+<a href=#726 id=726 data-nosnippet>726</a>
+<a href=#727 id=727 data-nosnippet>727</a><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+<a href=#728 id=728 data-nosnippet>728</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"aio"</span>)))]
+<a href=#729 id=729 data-nosnippet>729</a></span><span class="kw">pub mod </span>aio;
+<a href=#730 id=730 data-nosnippet>730</a>
+<a href=#731 id=731 data-nosnippet>731</a><span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+<a href=#732 id=732 data-nosnippet>732</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"json"</span>)))]
+<a href=#733 id=733 data-nosnippet>733</a></span><span class="kw">pub use </span><span class="kw">crate</span>::commands::JsonCommands;
+<a href=#734 id=734 data-nosnippet>734</a>
+<a href=#735 id=735 data-nosnippet>735</a><span class="attr">#[cfg(all(feature = <span class="string">"json"</span>, feature = <span class="string">"aio"</span>))]
+<a href=#736 id=736 data-nosnippet>736</a>#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"json"</span>, feature = <span class="string">"aio"</span>))))]
+<a href=#737 id=737 data-nosnippet>737</a></span><span class="kw">pub use </span><span class="kw">crate</span>::commands::JsonAsyncCommands;
+<a href=#738 id=738 data-nosnippet>738</a>
+<a href=#739 id=739 data-nosnippet>739</a><span class="attr">#[cfg(feature = <span class="string">"vector-sets"</span>)]
+<a href=#740 id=740 data-nosnippet>740</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"vector-sets"</span>)))]
+<a href=#741 id=741 data-nosnippet>741</a></span><span class="kw">pub use </span><span class="kw">crate</span>::commands::vector_sets;
+<a href=#742 id=742 data-nosnippet>742</a>
+<a href=#743 id=743 data-nosnippet>743</a><span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
+<a href=#744 id=744 data-nosnippet>744</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
+<a href=#745 id=745 data-nosnippet>745</a></span><span class="kw">pub use </span>commands::geo;
+<a href=#746 id=746 data-nosnippet>746</a>
+<a href=#747 id=747 data-nosnippet>747</a><span class="attr">#[cfg(any(feature = <span class="string">"connection-manager"</span>, feature = <span class="string">"cluster-async"</span>))]
+<a href=#748 id=748 data-nosnippet>748</a></span><span class="kw">mod </span>subscription_tracker;
+<a href=#749 id=749 data-nosnippet>749</a>
+<a href=#750 id=750 data-nosnippet>750</a><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
+<a href=#751 id=751 data-nosnippet>751</a></span><span class="kw">mod </span>cluster_handling;
 <a href=#752 id=752 data-nosnippet>752</a>
-<a href=#753 id=753 data-nosnippet>753</a><span class="attr">#[cfg(all(feature = <span class="string">"bb8"</span>, feature = <span class="string">"aio"</span>))]
-<a href=#754 id=754 data-nosnippet>754</a>#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"bb8"</span>, feature = <span class="string">"aio"</span>))))]
-<a href=#755 id=755 data-nosnippet>755</a></span><span class="kw">mod </span>bb8;
+<a href=#753 id=753 data-nosnippet>753</a><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
+<a href=#754 id=754 data-nosnippet>754</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"cluster"</span>)))]
+<a href=#755 id=755 data-nosnippet>755</a></span><span class="kw">pub use </span>cluster_handling::sync_connection <span class="kw">as </span>cluster;
 <a href=#756 id=756 data-nosnippet>756</a>
-<a href=#757 id=757 data-nosnippet>757</a><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
-<a href=#758 id=758 data-nosnippet>758</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
-<a href=#759 id=759 data-nosnippet>759</a></span><span class="kw">pub use </span>commands::streams;
-<a href=#760 id=760 data-nosnippet>760</a>
-<a href=#761 id=761 data-nosnippet>761</a><span class="attr">#[cfg(feature = <span class="string">"cluster-async"</span>)]
-<a href=#762 id=762 data-nosnippet>762</a>#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"cluster"</span>, feature = <span class="string">"aio"</span>))))]
-<a href=#763 id=763 data-nosnippet>763</a></span><span class="kw">pub use </span>cluster_handling::async_connection <span class="kw">as </span>cluster_async;
-<a href=#764 id=764 data-nosnippet>764</a>
-<a href=#765 id=765 data-nosnippet>765</a><span class="attr">#[cfg(feature = <span class="string">"sentinel"</span>)]
-<a href=#766 id=766 data-nosnippet>766</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"sentinel"</span>)))]
-<a href=#767 id=767 data-nosnippet>767</a></span><span class="kw">pub mod </span>sentinel;
-<a href=#768 id=768 data-nosnippet>768</a>
-<a href=#769 id=769 data-nosnippet>769</a><span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
-<a href=#770 id=770 data-nosnippet>770</a></span><span class="kw">mod </span>tls;
-<a href=#771 id=771 data-nosnippet>771</a>
-<a href=#772 id=772 data-nosnippet>772</a><span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
-<a href=#773 id=773 data-nosnippet>773</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"tls-rustls"</span>)))]
-<a href=#774 id=774 data-nosnippet>774</a></span><span class="kw">pub use </span><span class="kw">crate</span>::tls::{ClientTlsConfig, TlsCertificates};
-<a href=#775 id=775 data-nosnippet>775</a>
-<a href=#776 id=776 data-nosnippet>776</a><span class="attr">#[cfg(feature = <span class="string">"cache-aio"</span>)]
-<a href=#777 id=777 data-nosnippet>777</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"cache-aio"</span>)))]
-<a href=#778 id=778 data-nosnippet>778</a></span><span class="kw">pub mod </span>caching;
-<a href=#779 id=779 data-nosnippet>779</a>
-<a href=#780 id=780 data-nosnippet>780</a><span class="kw">mod </span>client;
-<a href=#781 id=781 data-nosnippet>781</a><span class="kw">mod </span>cmd;
-<a href=#782 id=782 data-nosnippet>782</a><span class="kw">mod </span>commands;
-<a href=#783 id=783 data-nosnippet>783</a><span class="kw">mod </span>connection;
-<a href=#784 id=784 data-nosnippet>784</a><span class="kw">mod </span>errors;
-<a href=#785 id=785 data-nosnippet>785</a><span class="doccomment">/// Module for defining I/O behavior.
-<a href=#786 id=786 data-nosnippet>786</a></span><span class="kw">pub mod </span>io;
-<a href=#787 id=787 data-nosnippet>787</a><span class="kw">mod </span>parser;
-<a href=#788 id=788 data-nosnippet>788</a><span class="kw">mod </span>script;
-<a href=#789 id=789 data-nosnippet>789</a><span class="kw">mod </span>types;
-<a href=#790 id=790 data-nosnippet>790</a>
-<a href=#791 id=791 data-nosnippet>791</a><span class="macro">macro_rules!</span> check_resp3 {
-<a href=#792 id=792 data-nosnippet>792</a>    (<span class="macro-nonterminal">$protocol</span>: expr) =&gt; {
-<a href=#793 id=793 data-nosnippet>793</a>        <span class="kw">if </span>!<span class="macro-nonterminal">$protocol</span>.supports_resp3() {
-<a href=#794 id=794 data-nosnippet>794</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(RedisError::from((
-<a href=#795 id=795 data-nosnippet>795</a>                <span class="kw">crate</span>::ErrorKind::InvalidClientConfig,
-<a href=#796 id=796 data-nosnippet>796</a>                <span class="string">"RESP3 is required for this command"</span>,
-<a href=#797 id=797 data-nosnippet>797</a>            )));
-<a href=#798 id=798 data-nosnippet>798</a>        }
-<a href=#799 id=799 data-nosnippet>799</a>    };
-<a href=#800 id=800 data-nosnippet>800</a>
-<a href=#801 id=801 data-nosnippet>801</a>    (<span class="macro-nonterminal">$protocol</span>: expr, <span class="macro-nonterminal">$message</span>: expr) =&gt; {
-<a href=#802 id=802 data-nosnippet>802</a>        <span class="kw">if </span>!<span class="macro-nonterminal">$protocol</span>.supports_resp3() {
-<a href=#803 id=803 data-nosnippet>803</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(RedisError::from((
-<a href=#804 id=804 data-nosnippet>804</a>                <span class="kw">crate</span>::ErrorKind::InvalidClientConfig,
-<a href=#805 id=805 data-nosnippet>805</a>                <span class="macro-nonterminal">$message</span>,
-<a href=#806 id=806 data-nosnippet>806</a>            )));
-<a href=#807 id=807 data-nosnippet>807</a>        }
-<a href=#808 id=808 data-nosnippet>808</a>    };
-<a href=#809 id=809 data-nosnippet>809</a>}
-<a href=#810 id=810 data-nosnippet>810</a>
-<a href=#811 id=811 data-nosnippet>811</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>check_resp3;
-<a href=#812 id=812 data-nosnippet>812</a>
-<a href=#813 id=813 data-nosnippet>813</a><span class="attr">#[cfg(test)]
-<a href=#814 id=814 data-nosnippet>814</a></span><span class="kw">mod </span>tests {
-<a href=#815 id=815 data-nosnippet>815</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#816 id=816 data-nosnippet>816</a>    <span class="attr">#[test]
-<a href=#817 id=817 data-nosnippet>817</a>    </span><span class="kw">fn </span>test_is_send() {
-<a href=#818 id=818 data-nosnippet>818</a>        <span class="kw">const fn </span>assert_send&lt;T: Send&gt;() {}
-<a href=#819 id=819 data-nosnippet>819</a>
-<a href=#820 id=820 data-nosnippet>820</a>        assert_send::&lt;Connection&gt;();
-<a href=#821 id=821 data-nosnippet>821</a>        <span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
-<a href=#822 id=822 data-nosnippet>822</a>        </span>assert_send::&lt;cluster::ClusterConnection&gt;();
-<a href=#823 id=823 data-nosnippet>823</a>    }
-<a href=#824 id=824 data-nosnippet>824</a>}</code></pre></div></section></main></body></html>
+<a href=#757 id=757 data-nosnippet>757</a><span class="doccomment">/// Routing information for cluster commands.
+<a href=#758 id=758 data-nosnippet>758</a></span><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
+<a href=#759 id=759 data-nosnippet>759</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"cluster"</span>)))]
+<a href=#760 id=760 data-nosnippet>760</a></span><span class="kw">pub use </span>cluster_handling::routing <span class="kw">as </span>cluster_routing;
+<a href=#761 id=761 data-nosnippet>761</a>
+<a href=#762 id=762 data-nosnippet>762</a><span class="attr">#[cfg(feature = <span class="string">"r2d2"</span>)]
+<a href=#763 id=763 data-nosnippet>763</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"r2d2"</span>)))]
+<a href=#764 id=764 data-nosnippet>764</a></span><span class="kw">mod </span>r2d2;
+<a href=#765 id=765 data-nosnippet>765</a>
+<a href=#766 id=766 data-nosnippet>766</a><span class="attr">#[cfg(all(feature = <span class="string">"bb8"</span>, feature = <span class="string">"aio"</span>))]
+<a href=#767 id=767 data-nosnippet>767</a>#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"bb8"</span>, feature = <span class="string">"aio"</span>))))]
+<a href=#768 id=768 data-nosnippet>768</a></span><span class="kw">mod </span>bb8;
+<a href=#769 id=769 data-nosnippet>769</a>
+<a href=#770 id=770 data-nosnippet>770</a><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+<a href=#771 id=771 data-nosnippet>771</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
+<a href=#772 id=772 data-nosnippet>772</a></span><span class="kw">pub use </span>commands::streams;
+<a href=#773 id=773 data-nosnippet>773</a>
+<a href=#774 id=774 data-nosnippet>774</a><span class="attr">#[cfg(feature = <span class="string">"cluster-async"</span>)]
+<a href=#775 id=775 data-nosnippet>775</a>#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"cluster"</span>, feature = <span class="string">"aio"</span>))))]
+<a href=#776 id=776 data-nosnippet>776</a></span><span class="kw">pub use </span>cluster_handling::async_connection <span class="kw">as </span>cluster_async;
+<a href=#777 id=777 data-nosnippet>777</a>
+<a href=#778 id=778 data-nosnippet>778</a><span class="attr">#[cfg(feature = <span class="string">"sentinel"</span>)]
+<a href=#779 id=779 data-nosnippet>779</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"sentinel"</span>)))]
+<a href=#780 id=780 data-nosnippet>780</a></span><span class="kw">pub mod </span>sentinel;
+<a href=#781 id=781 data-nosnippet>781</a>
+<a href=#782 id=782 data-nosnippet>782</a><span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
+<a href=#783 id=783 data-nosnippet>783</a></span><span class="kw">mod </span>tls;
+<a href=#784 id=784 data-nosnippet>784</a>
+<a href=#785 id=785 data-nosnippet>785</a><span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
+<a href=#786 id=786 data-nosnippet>786</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"tls-rustls"</span>)))]
+<a href=#787 id=787 data-nosnippet>787</a></span><span class="kw">pub use </span><span class="kw">crate</span>::tls::{ClientTlsConfig, TlsCertificates};
+<a href=#788 id=788 data-nosnippet>788</a>
+<a href=#789 id=789 data-nosnippet>789</a><span class="attr">#[cfg(feature = <span class="string">"cache-aio"</span>)]
+<a href=#790 id=790 data-nosnippet>790</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"cache-aio"</span>)))]
+<a href=#791 id=791 data-nosnippet>791</a></span><span class="kw">pub mod </span>caching;
+<a href=#792 id=792 data-nosnippet>792</a>
+<a href=#793 id=793 data-nosnippet>793</a><span class="attr">#[cfg(feature = <span class="string">"entra-id"</span>)]
+<a href=#794 id=794 data-nosnippet>794</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"entra-id"</span>)))]
+<a href=#795 id=795 data-nosnippet>795</a></span><span class="kw">pub mod </span>entra_id;
+<a href=#796 id=796 data-nosnippet>796</a>
+<a href=#797 id=797 data-nosnippet>797</a><span class="attr">#[cfg(feature = <span class="string">"token-based-authentication"</span>)]
+<a href=#798 id=798 data-nosnippet>798</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"token-based-authentication"</span>)))]
+<a href=#799 id=799 data-nosnippet>799</a></span><span class="kw">pub mod </span>auth;
+<a href=#800 id=800 data-nosnippet>800</a><span class="attr">#[cfg(feature = <span class="string">"token-based-authentication"</span>)]
+<a href=#801 id=801 data-nosnippet>801</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"token-based-authentication"</span>)))]
+<a href=#802 id=802 data-nosnippet>802</a></span><span class="kw">pub mod </span>auth_management;
+<a href=#803 id=803 data-nosnippet>803</a>
+<a href=#804 id=804 data-nosnippet>804</a><span class="kw">mod </span>client;
+<a href=#805 id=805 data-nosnippet>805</a><span class="kw">mod </span>cmd;
+<a href=#806 id=806 data-nosnippet>806</a><span class="kw">mod </span>commands;
+<a href=#807 id=807 data-nosnippet>807</a><span class="kw">mod </span>connection;
+<a href=#808 id=808 data-nosnippet>808</a><span class="kw">mod </span>errors;
+<a href=#809 id=809 data-nosnippet>809</a><span class="doccomment">/// Module for defining I/O behavior.
+<a href=#810 id=810 data-nosnippet>810</a></span><span class="kw">pub mod </span>io;
+<a href=#811 id=811 data-nosnippet>811</a><span class="kw">mod </span>parser;
+<a href=#812 id=812 data-nosnippet>812</a><span class="kw">mod </span>script;
+<a href=#813 id=813 data-nosnippet>813</a><span class="kw">mod </span>types;
+<a href=#814 id=814 data-nosnippet>814</a>
+<a href=#815 id=815 data-nosnippet>815</a><span class="macro">macro_rules!</span> check_resp3 {
+<a href=#816 id=816 data-nosnippet>816</a>    (<span class="macro-nonterminal">$protocol</span>: expr) =&gt; {
+<a href=#817 id=817 data-nosnippet>817</a>        <span class="kw">if </span>!<span class="macro-nonterminal">$protocol</span>.supports_resp3() {
+<a href=#818 id=818 data-nosnippet>818</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(RedisError::from((
+<a href=#819 id=819 data-nosnippet>819</a>                <span class="kw">crate</span>::ErrorKind::InvalidClientConfig,
+<a href=#820 id=820 data-nosnippet>820</a>                <span class="string">"RESP3 is required for this command"</span>,
+<a href=#821 id=821 data-nosnippet>821</a>            )));
+<a href=#822 id=822 data-nosnippet>822</a>        }
+<a href=#823 id=823 data-nosnippet>823</a>    };
+<a href=#824 id=824 data-nosnippet>824</a>
+<a href=#825 id=825 data-nosnippet>825</a>    (<span class="macro-nonterminal">$protocol</span>: expr, <span class="macro-nonterminal">$message</span>: expr) =&gt; {
+<a href=#826 id=826 data-nosnippet>826</a>        <span class="kw">if </span>!<span class="macro-nonterminal">$protocol</span>.supports_resp3() {
+<a href=#827 id=827 data-nosnippet>827</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(RedisError::from((
+<a href=#828 id=828 data-nosnippet>828</a>                <span class="kw">crate</span>::ErrorKind::InvalidClientConfig,
+<a href=#829 id=829 data-nosnippet>829</a>                <span class="macro-nonterminal">$message</span>,
+<a href=#830 id=830 data-nosnippet>830</a>            )));
+<a href=#831 id=831 data-nosnippet>831</a>        }
+<a href=#832 id=832 data-nosnippet>832</a>    };
+<a href=#833 id=833 data-nosnippet>833</a>}
+<a href=#834 id=834 data-nosnippet>834</a>
+<a href=#835 id=835 data-nosnippet>835</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>check_resp3;
+<a href=#836 id=836 data-nosnippet>836</a>
+<a href=#837 id=837 data-nosnippet>837</a><span class="attr">#[cfg(test)]
+<a href=#838 id=838 data-nosnippet>838</a></span><span class="kw">mod </span>tests {
+<a href=#839 id=839 data-nosnippet>839</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#840 id=840 data-nosnippet>840</a>    <span class="attr">#[test]
+<a href=#841 id=841 data-nosnippet>841</a>    </span><span class="kw">fn </span>test_is_send() {
+<a href=#842 id=842 data-nosnippet>842</a>        <span class="kw">const fn </span>assert_send&lt;T: Send&gt;() {}
+<a href=#843 id=843 data-nosnippet>843</a>
+<a href=#844 id=844 data-nosnippet>844</a>        assert_send::&lt;Connection&gt;();
+<a href=#845 id=845 data-nosnippet>845</a>        <span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
+<a href=#846 id=846 data-nosnippet>846</a>        </span>assert_send::&lt;cluster::ClusterConnection&gt;();
+<a href=#847 id=847 data-nosnippet>847</a>    }
+<a href=#848 id=848 data-nosnippet>848</a>}
+</code></pre></div></section></main></body></html>

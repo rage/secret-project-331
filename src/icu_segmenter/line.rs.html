@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_segmenter-2.1.2/src/line.rs`."><title>line.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_segmenter/</div>line.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_segmenter-2.1.2/src/line.rs`."><title>line.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_segmenter/</div>line.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 <a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
 <a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -876,13 +876,13 @@
 <a href=#876 id=876 data-nosnippet>876</a>            // a test, but eventually that option should just be simplified to call the extended
 <a href=#877 id=877 data-nosnippet>877</a>            // grapheme cluster segmenter.
 <a href=#878 id=878 data-nosnippet>878</a>            </span><span class="kw">if </span>(right_prop == CM
-<a href=#879 id=879 data-nosnippet>879</a>                || (right_prop == ZWJ &amp;&amp; <span class="self">self</span>.options.strictness != LineBreakStrictness::Anywhere))
-<a href=#880 id=880 data-nosnippet>880</a>                &amp;&amp; left_prop != BK
-<a href=#881 id=881 data-nosnippet>881</a>                &amp;&amp; left_prop != CR
-<a href=#882 id=882 data-nosnippet>882</a>                &amp;&amp; left_prop != LF
-<a href=#883 id=883 data-nosnippet>883</a>                &amp;&amp; left_prop != NL
-<a href=#884 id=884 data-nosnippet>884</a>                &amp;&amp; left_prop != SP
-<a href=#885 id=885 data-nosnippet>885</a>                &amp;&amp; left_prop != ZW
+<a href=#879 id=879 data-nosnippet>879</a>                || (right_prop == ZWJ &amp;&amp; <span class="self">self</span>.options.<span class="macro">strictness !</span>= LineBreakStrictness::Anywhere))
+<a href=#880 id=880 data-nosnippet>880</a>                &amp;&amp; <span class="macro">left_prop !</span>= BK
+<a href=#881 id=881 data-nosnippet>881</a>                &amp;&amp; <span class="macro">left_prop !</span>= CR
+<a href=#882 id=882 data-nosnippet>882</a>                &amp;&amp; <span class="macro">left_prop !</span>= LF
+<a href=#883 id=883 data-nosnippet>883</a>                &amp;&amp; <span class="macro">left_prop !</span>= NL
+<a href=#884 id=884 data-nosnippet>884</a>                &amp;&amp; <span class="macro">left_prop !</span>= SP
+<a href=#885 id=885 data-nosnippet>885</a>                &amp;&amp; <span class="macro">left_prop !</span>= ZW
 <a href=#886 id=886 data-nosnippet>886</a>            {
 <a href=#887 id=887 data-nosnippet>887</a>                lb9_left = <span class="prelude-val">Some</span>(left_prop);
 <a href=#888 id=888 data-nosnippet>888</a>                lb8a_after_lb9 = right_prop == ZWJ;
@@ -938,7 +938,7 @@
 <a href=#938 id=938 data-nosnippet>938</a>            };
 <a href=#939 id=939 data-nosnippet>939</a>
 <a href=#940 id=940 data-nosnippet>940</a>            <span class="comment">// UAX14 doesn't have Thai etc, so use another way.
-<a href=#941 id=941 data-nosnippet>941</a>            </span><span class="kw">if </span><span class="self">self</span>.options.word_option != LineBreakWordOption::BreakAll
+<a href=#941 id=941 data-nosnippet>941</a>            </span><span class="kw">if </span><span class="self">self</span>.options.<span class="macro">word_option !</span>= LineBreakWordOption::BreakAll
 <a href=#942 id=942 data-nosnippet>942</a>                &amp;&amp; Y::use_complex_breaking(<span class="self">self</span>, left_codepoint)
 <a href=#943 id=943 data-nosnippet>943</a>                &amp;&amp; Y::use_complex_breaking(<span class="self">self</span>, right_codepoint)
 <a href=#944 id=944 data-nosnippet>944</a>            {
@@ -1007,12 +1007,12 @@
 <a href=#1007 id=1007 data-nosnippet>1007</a>                        };
 <a href=#1008 id=1008 data-nosnippet>1008</a>
 <a href=#1009 id=1009 data-nosnippet>1009</a>                        <span class="kw">if </span>(prop == CM || prop == ZWJ)
-<a href=#1010 id=1010 data-nosnippet>1010</a>                            &amp;&amp; left_prop_pre_lb9 != BK
-<a href=#1011 id=1011 data-nosnippet>1011</a>                            &amp;&amp; left_prop_pre_lb9 != CR
-<a href=#1012 id=1012 data-nosnippet>1012</a>                            &amp;&amp; left_prop_pre_lb9 != LF
-<a href=#1013 id=1013 data-nosnippet>1013</a>                            &amp;&amp; left_prop_pre_lb9 != NL
-<a href=#1014 id=1014 data-nosnippet>1014</a>                            &amp;&amp; left_prop_pre_lb9 != SP
-<a href=#1015 id=1015 data-nosnippet>1015</a>                            &amp;&amp; left_prop_pre_lb9 != ZW
+<a href=#1010 id=1010 data-nosnippet>1010</a>                            &amp;&amp; <span class="macro">left_prop_pre_lb9 !</span>= BK
+<a href=#1011 id=1011 data-nosnippet>1011</a>                            &amp;&amp; <span class="macro">left_prop_pre_lb9 !</span>= CR
+<a href=#1012 id=1012 data-nosnippet>1012</a>                            &amp;&amp; <span class="macro">left_prop_pre_lb9 !</span>= LF
+<a href=#1013 id=1013 data-nosnippet>1013</a>                            &amp;&amp; <span class="macro">left_prop_pre_lb9 !</span>= NL
+<a href=#1014 id=1014 data-nosnippet>1014</a>                            &amp;&amp; <span class="macro">left_prop_pre_lb9 !</span>= SP
+<a href=#1015 id=1015 data-nosnippet>1015</a>                            &amp;&amp; <span class="macro">left_prop_pre_lb9 !</span>= ZW
 <a href=#1016 id=1016 data-nosnippet>1016</a>                        {
 <a href=#1017 id=1017 data-nosnippet>1017</a>                            left_prop_pre_lb9 = prop;
 <a href=#1018 id=1018 data-nosnippet>1018</a>                            <span class="kw">continue</span>;
@@ -1712,4 +1712,5 @@
 <a href=#1712 id=1712 data-nosnippet>1712</a>        <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(<span class="string">""</span>).collect();
 <a href=#1713 id=1713 data-nosnippet>1713</a>        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>]);
 <a href=#1714 id=1714 data-nosnippet>1714</a>    }
-<a href=#1715 id=1715 data-nosnippet>1715</a>}</code></pre></div></section></main></body></html>
+<a href=#1715 id=1715 data-nosnippet>1715</a>}
+</code></pre></div></section></main></body></html>

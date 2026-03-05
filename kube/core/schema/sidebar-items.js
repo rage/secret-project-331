@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["StructuralSchemaRewriter"]};
+window.SIDEBAR_ITEMS = {"struct":["OptionalEnum","OptionalIntOrString","StructuralSchemaRewriter"]};

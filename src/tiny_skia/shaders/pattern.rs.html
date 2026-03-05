@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tiny-skia-0.11.4/src/shaders/pattern.rs`."><title>pattern.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tiny_skia/shaders/</div>pattern.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2006 The Android Open Source Project
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tiny-skia-0.12.0/src/shaders/pattern.rs`."><title>pattern.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tiny_skia/shaders/</div>pattern.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2006 The Android Open Source Project
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright 2020 Yevhenii Reizner
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// Use of this source code is governed by a BSD-style license that can be
@@ -6,7 +6,7 @@
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">use </span>tiny_skia_path::NormalizedF32;
 <a href=#8 id=8 data-nosnippet>8</a>
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use crate</span>::{BlendMode, PixmapRef, Shader, SpreadMode, Transform};
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use crate</span>::{BlendMode, ColorSpace, PixmapRef, Shader, SpreadMode, Transform};
 <a href=#10 id=10 data-nosnippet>10</a>
 <a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span><span class="kw">crate</span>::pipeline;
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span><span class="kw">crate</span>::pipeline::RasterPipelineBuilder;
@@ -84,7 +84,7 @@
 <a href=#84 id=84 data-nosnippet>84</a>        quality: FilterQuality,
 <a href=#85 id=85 data-nosnippet>85</a>        opacity: f32,
 <a href=#86 id=86 data-nosnippet>86</a>        transform: Transform,
-<a href=#87 id=87 data-nosnippet>87</a>    ) -&gt; Shader {
+<a href=#87 id=87 data-nosnippet>87</a>    ) -&gt; Shader&lt;<span class="lifetime">'a</span>&gt; {
 <a href=#88 id=88 data-nosnippet>88</a>        Shader::Pattern(Pattern {
 <a href=#89 id=89 data-nosnippet>89</a>            pixmap,
 <a href=#90 id=90 data-nosnippet>90</a>            spread_mode,
@@ -94,7 +94,7 @@
 <a href=#94 id=94 data-nosnippet>94</a>        })
 <a href=#95 id=95 data-nosnippet>95</a>    }
 <a href=#96 id=96 data-nosnippet>96</a>
-<a href=#97 id=97 data-nosnippet>97</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>push_stages(<span class="kw-2">&amp;</span><span class="self">self</span>, p: <span class="kw-2">&amp;mut </span>RasterPipelineBuilder) -&gt; bool {
+<a href=#97 id=97 data-nosnippet>97</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>push_stages(<span class="kw-2">&amp;</span><span class="self">self</span>, cs: ColorSpace, p: <span class="kw-2">&amp;mut </span>RasterPipelineBuilder) -&gt; bool {
 <a href=#98 id=98 data-nosnippet>98</a>        <span class="kw">let </span>ts = <span class="kw">match </span><span class="self">self</span>.transform.invert() {
 <a href=#99 id=99 data-nosnippet>99</a>            <span class="prelude-val">Some</span>(v) =&gt; v,
 <a href=#100 id=100 data-nosnippet>100</a>            <span class="prelude-val">None </span>=&gt; {
@@ -167,7 +167,7 @@
 <a href=#167 id=167 data-nosnippet>167</a>        }
 <a href=#168 id=168 data-nosnippet>168</a>
 <a href=#169 id=169 data-nosnippet>169</a>        <span class="comment">// Unlike Skia, we do not support global opacity and only Pattern allows it.
-<a href=#170 id=170 data-nosnippet>170</a>        </span><span class="kw">if </span><span class="self">self</span>.opacity != NormalizedF32::ONE {
+<a href=#170 id=170 data-nosnippet>170</a>        </span><span class="kw">if </span><span class="self">self</span>.<span class="macro">opacity !</span>= NormalizedF32::ONE {
 <a href=#171 id=171 data-nosnippet>171</a>            <span class="macro">debug_assert_eq!</span>(
 <a href=#172 id=172 data-nosnippet>172</a>                core::mem::size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>.opacity),
 <a href=#173 id=173 data-nosnippet>173</a>                <span class="number">4</span>,
@@ -177,6 +177,13 @@
 <a href=#177 id=177 data-nosnippet>177</a>            p.push(pipeline::Stage::Scale1Float);
 <a href=#178 id=178 data-nosnippet>178</a>        }
 <a href=#179 id=179 data-nosnippet>179</a>
-<a href=#180 id=180 data-nosnippet>180</a>        <span class="bool-val">true
-<a href=#181 id=181 data-nosnippet>181</a>    </span>}
-<a href=#182 id=182 data-nosnippet>182</a>}</code></pre></div></section></main></body></html>
+<a href=#180 id=180 data-nosnippet>180</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(stage) = cs.expand_stage() {
+<a href=#181 id=181 data-nosnippet>181</a>            <span class="comment">// TODO: it would be better to gamma-expand prior to sampling, but
+<a href=#182 id=182 data-nosnippet>182</a>            // there isn't currently an intermediate pipeline stage for that.
+<a href=#183 id=183 data-nosnippet>183</a>            </span>p.push(stage);
+<a href=#184 id=184 data-nosnippet>184</a>        }
+<a href=#185 id=185 data-nosnippet>185</a>
+<a href=#186 id=186 data-nosnippet>186</a>        <span class="bool-val">true
+<a href=#187 id=187 data-nosnippet>187</a>    </span>}
+<a href=#188 id=188 data-nosnippet>188</a>}
+</code></pre></div></section></main></body></html>

@@ -1,14 +1,14 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/redis-1.0.2/src/pipeline.rs`."><title>pipeline.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/</div>pipeline.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![macro_use]
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/redis-1.0.4/src/pipeline.rs`."><title>pipeline.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/</div>pipeline.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![macro_use]
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a>#[cfg(feature = <span class="string">"cache-aio"</span>)]
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">use </span><span class="kw">crate</span>::cmd::CommandCacheConfig;
-<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span><span class="kw">crate</span>::cmd::{cmd, cmd_len, Cmd};
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span><span class="kw">crate</span>::cmd::{Cmd, cmd, cmd_len};
 <a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span><span class="kw">crate</span>::connection::ConnectionLike;
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span><span class="kw">crate</span>::errors::ErrorKind;
-<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span><span class="kw">crate</span>::types::{from_redis_value, FromRedisValue, HashSet, RedisResult, ToRedisArgs, Value};
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span><span class="kw">crate</span>::types::{FromRedisValue, HashSet, RedisResult, ToRedisArgs, Value, from_redis_value};
 <a href=#9 id=9 data-nosnippet>9</a>
 <a href=#10 id=10 data-nosnippet>10</a><span class="doccomment">/// Represents a redis command pipeline.
-<a href=#11 id=11 data-nosnippet>11</a></span><span class="attr">#[derive(Clone)]
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="attr">#[derive(Clone, Debug)]
 <a href=#12 id=12 data-nosnippet>12</a></span><span class="kw">pub struct </span>Pipeline {
 <a href=#13 id=13 data-nosnippet>13</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) commands: Vec&lt;Cmd&gt;,
 <a href=#14 id=14 data-nosnippet>14</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) transaction_mode: bool,
@@ -422,64 +422,68 @@
 <a href=#422 id=422 data-nosnippet>422</a><span class="attr">#[cfg(test)]
 <a href=#423 id=423 data-nosnippet>423</a></span><span class="kw">mod </span>tests {
 <a href=#424 id=424 data-nosnippet>424</a>    <span class="kw">use crate</span>::{
-<a href=#425 id=425 data-nosnippet>425</a>        errors::{RedisError, Repr, ServerError},
-<a href=#426 id=426 data-nosnippet>426</a>        pipe, ServerErrorKind,
-<a href=#427 id=427 data-nosnippet>427</a>    };
-<a href=#428 id=428 data-nosnippet>428</a>
-<a href=#429 id=429 data-nosnippet>429</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#430 id=430 data-nosnippet>430</a>
-<a href=#431 id=431 data-nosnippet>431</a>    <span class="kw">fn </span>test_pipe() -&gt; Pipeline {
-<a href=#432 id=432 data-nosnippet>432</a>        <span class="kw">let </span><span class="kw-2">mut </span>pipeline = pipe();
-<a href=#433 id=433 data-nosnippet>433</a>        pipeline
-<a href=#434 id=434 data-nosnippet>434</a>            .cmd(<span class="string">"FOO"</span>)
-<a href=#435 id=435 data-nosnippet>435</a>            .cmd(<span class="string">"BAR"</span>)
-<a href=#436 id=436 data-nosnippet>436</a>            .ignore()
-<a href=#437 id=437 data-nosnippet>437</a>            .cmd(<span class="string">"baz"</span>)
-<a href=#438 id=438 data-nosnippet>438</a>            .ignore()
-<a href=#439 id=439 data-nosnippet>439</a>            .cmd(<span class="string">"barvaz"</span>);
-<a href=#440 id=440 data-nosnippet>440</a>        pipeline
-<a href=#441 id=441 data-nosnippet>441</a>    }
-<a href=#442 id=442 data-nosnippet>442</a>
-<a href=#443 id=443 data-nosnippet>443</a>    <span class="kw">fn </span>server_error() -&gt; Value {
-<a href=#444 id=444 data-nosnippet>444</a>        Value::ServerError(ServerError(Repr::Known {
-<a href=#445 id=445 data-nosnippet>445</a>            kind: ServerErrorKind::CrossSlot,
-<a href=#446 id=446 data-nosnippet>446</a>            detail: <span class="prelude-val">None</span>,
-<a href=#447 id=447 data-nosnippet>447</a>        }))
-<a href=#448 id=448 data-nosnippet>448</a>    }
-<a href=#449 id=449 data-nosnippet>449</a>
-<a href=#450 id=450 data-nosnippet>450</a>    <span class="attr">#[test]
-<a href=#451 id=451 data-nosnippet>451</a>    </span><span class="kw">fn </span>test_pipeline_passes_values_only_from_non_ignored_commands() {
-<a href=#452 id=452 data-nosnippet>452</a>        <span class="kw">let </span>pipeline = test_pipe();
-<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw">let </span>inputs = <span class="macro">vec!</span>[Value::Int(<span class="number">1</span>), Value::Int(<span class="number">2</span>), Value::Int(<span class="number">3</span>), Value::Okay];
-<a href=#454 id=454 data-nosnippet>454</a>        <span class="kw">let </span>result = pipeline.complete_request(inputs);
-<a href=#455 id=455 data-nosnippet>455</a>
-<a href=#456 id=456 data-nosnippet>456</a>        <span class="kw">let </span>expected = <span class="macro">vec!</span>[<span class="string">"1"</span>.to_string(), <span class="string">"OK"</span>.to_string()];
-<a href=#457 id=457 data-nosnippet>457</a>        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>(expected));
-<a href=#458 id=458 data-nosnippet>458</a>    }
-<a href=#459 id=459 data-nosnippet>459</a>
-<a href=#460 id=460 data-nosnippet>460</a>    <span class="attr">#[test]
-<a href=#461 id=461 data-nosnippet>461</a>    </span><span class="kw">fn </span>test_pipeline_passes_errors_from_ignored_commands() {
-<a href=#462 id=462 data-nosnippet>462</a>        <span class="kw">let </span>pipeline = test_pipe();
-<a href=#463 id=463 data-nosnippet>463</a>        <span class="kw">let </span>inputs = <span class="macro">vec!</span>[Value::Okay, server_error(), Value::Okay, server_error()];
-<a href=#464 id=464 data-nosnippet>464</a>        <span class="kw">let </span>error = pipeline.compose_response::&lt;Vec&lt;Value&gt;&gt;(inputs).unwrap_err();
-<a href=#465 id=465 data-nosnippet>465</a>        <span class="kw">let </span>error_message = error.to_string();
-<a href=#466 id=466 data-nosnippet>466</a>
-<a href=#467 id=467 data-nosnippet>467</a>        <span class="macro">assert!</span>(error_message.contains(<span class="string">"Index 1"</span>), <span class="string">"{error_message}"</span>);
-<a href=#468 id=468 data-nosnippet>468</a>        <span class="macro">assert!</span>(error_message.contains(<span class="string">"Index 3"</span>), <span class="string">"{error_message}"</span>);
-<a href=#469 id=469 data-nosnippet>469</a>    }
-<a href=#470 id=470 data-nosnippet>470</a>
-<a href=#471 id=471 data-nosnippet>471</a>    <span class="attr">#[test]
-<a href=#472 id=472 data-nosnippet>472</a>    </span><span class="kw">fn </span>test_pipeline_passes_response_from_each_commands_despite_errors() {
-<a href=#473 id=473 data-nosnippet>473</a>        <span class="kw">let </span><span class="kw-2">mut </span>pipeline = test_pipe();
-<a href=#474 id=474 data-nosnippet>474</a>        <span class="kw">let </span>inputs = <span class="macro">vec!</span>[Value::Okay, server_error(), Value::Okay, server_error()];
-<a href=#475 id=475 data-nosnippet>475</a>        <span class="kw">let </span>result = pipeline
-<a href=#476 id=476 data-nosnippet>476</a>            .ignore_errors()
-<a href=#477 id=477 data-nosnippet>477</a>            .compose_response::&lt;Vec&lt;RedisResult&lt;Value&gt;&gt;&gt;(inputs)
-<a href=#478 id=478 data-nosnippet>478</a>            .unwrap();
-<a href=#479 id=479 data-nosnippet>479</a>
-<a href=#480 id=480 data-nosnippet>480</a>        <span class="macro">assert_eq!</span>(result[<span class="number">0</span>], <span class="prelude-val">Ok</span>::&lt;Value, RedisError&gt;(Value::Okay));
-<a href=#481 id=481 data-nosnippet>481</a>        <span class="macro">assert!</span>(result[<span class="number">1</span>]
-<a href=#482 id=482 data-nosnippet>482</a>            .clone()
-<a href=#483 id=483 data-nosnippet>483</a>            .is_err_and(|e| e.to_string().contains(<span class="string">"CrossSlot"</span>)))
-<a href=#484 id=484 data-nosnippet>484</a>    }
-<a href=#485 id=485 data-nosnippet>485</a>}</code></pre></div></section></main></body></html>
+<a href=#425 id=425 data-nosnippet>425</a>        ServerErrorKind,
+<a href=#426 id=426 data-nosnippet>426</a>        errors::{RedisError, Repr, ServerError},
+<a href=#427 id=427 data-nosnippet>427</a>        pipe,
+<a href=#428 id=428 data-nosnippet>428</a>    };
+<a href=#429 id=429 data-nosnippet>429</a>
+<a href=#430 id=430 data-nosnippet>430</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#431 id=431 data-nosnippet>431</a>
+<a href=#432 id=432 data-nosnippet>432</a>    <span class="kw">fn </span>test_pipe() -&gt; Pipeline {
+<a href=#433 id=433 data-nosnippet>433</a>        <span class="kw">let </span><span class="kw-2">mut </span>pipeline = pipe();
+<a href=#434 id=434 data-nosnippet>434</a>        pipeline
+<a href=#435 id=435 data-nosnippet>435</a>            .cmd(<span class="string">"FOO"</span>)
+<a href=#436 id=436 data-nosnippet>436</a>            .cmd(<span class="string">"BAR"</span>)
+<a href=#437 id=437 data-nosnippet>437</a>            .ignore()
+<a href=#438 id=438 data-nosnippet>438</a>            .cmd(<span class="string">"baz"</span>)
+<a href=#439 id=439 data-nosnippet>439</a>            .ignore()
+<a href=#440 id=440 data-nosnippet>440</a>            .cmd(<span class="string">"barvaz"</span>);
+<a href=#441 id=441 data-nosnippet>441</a>        pipeline
+<a href=#442 id=442 data-nosnippet>442</a>    }
+<a href=#443 id=443 data-nosnippet>443</a>
+<a href=#444 id=444 data-nosnippet>444</a>    <span class="kw">fn </span>server_error() -&gt; Value {
+<a href=#445 id=445 data-nosnippet>445</a>        Value::ServerError(ServerError(Repr::Known {
+<a href=#446 id=446 data-nosnippet>446</a>            kind: ServerErrorKind::CrossSlot,
+<a href=#447 id=447 data-nosnippet>447</a>            detail: <span class="prelude-val">None</span>,
+<a href=#448 id=448 data-nosnippet>448</a>        }))
+<a href=#449 id=449 data-nosnippet>449</a>    }
+<a href=#450 id=450 data-nosnippet>450</a>
+<a href=#451 id=451 data-nosnippet>451</a>    <span class="attr">#[test]
+<a href=#452 id=452 data-nosnippet>452</a>    </span><span class="kw">fn </span>test_pipeline_passes_values_only_from_non_ignored_commands() {
+<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw">let </span>pipeline = test_pipe();
+<a href=#454 id=454 data-nosnippet>454</a>        <span class="kw">let </span>inputs = <span class="macro">vec!</span>[Value::Int(<span class="number">1</span>), Value::Int(<span class="number">2</span>), Value::Int(<span class="number">3</span>), Value::Okay];
+<a href=#455 id=455 data-nosnippet>455</a>        <span class="kw">let </span>result = pipeline.complete_request(inputs);
+<a href=#456 id=456 data-nosnippet>456</a>
+<a href=#457 id=457 data-nosnippet>457</a>        <span class="kw">let </span>expected = <span class="macro">vec!</span>[<span class="string">"1"</span>.to_string(), <span class="string">"OK"</span>.to_string()];
+<a href=#458 id=458 data-nosnippet>458</a>        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>(expected));
+<a href=#459 id=459 data-nosnippet>459</a>    }
+<a href=#460 id=460 data-nosnippet>460</a>
+<a href=#461 id=461 data-nosnippet>461</a>    <span class="attr">#[test]
+<a href=#462 id=462 data-nosnippet>462</a>    </span><span class="kw">fn </span>test_pipeline_passes_errors_from_ignored_commands() {
+<a href=#463 id=463 data-nosnippet>463</a>        <span class="kw">let </span>pipeline = test_pipe();
+<a href=#464 id=464 data-nosnippet>464</a>        <span class="kw">let </span>inputs = <span class="macro">vec!</span>[Value::Okay, server_error(), Value::Okay, server_error()];
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="kw">let </span>error = pipeline.compose_response::&lt;Vec&lt;Value&gt;&gt;(inputs).unwrap_err();
+<a href=#466 id=466 data-nosnippet>466</a>        <span class="kw">let </span>error_message = error.to_string();
+<a href=#467 id=467 data-nosnippet>467</a>
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="macro">assert!</span>(error_message.contains(<span class="string">"Index 1"</span>), <span class="string">"{error_message}"</span>);
+<a href=#469 id=469 data-nosnippet>469</a>        <span class="macro">assert!</span>(error_message.contains(<span class="string">"Index 3"</span>), <span class="string">"{error_message}"</span>);
+<a href=#470 id=470 data-nosnippet>470</a>    }
+<a href=#471 id=471 data-nosnippet>471</a>
+<a href=#472 id=472 data-nosnippet>472</a>    <span class="attr">#[test]
+<a href=#473 id=473 data-nosnippet>473</a>    </span><span class="kw">fn </span>test_pipeline_passes_response_from_each_commands_despite_errors() {
+<a href=#474 id=474 data-nosnippet>474</a>        <span class="kw">let </span><span class="kw-2">mut </span>pipeline = test_pipe();
+<a href=#475 id=475 data-nosnippet>475</a>        <span class="kw">let </span>inputs = <span class="macro">vec!</span>[Value::Okay, server_error(), Value::Okay, server_error()];
+<a href=#476 id=476 data-nosnippet>476</a>        <span class="kw">let </span>result = pipeline
+<a href=#477 id=477 data-nosnippet>477</a>            .ignore_errors()
+<a href=#478 id=478 data-nosnippet>478</a>            .compose_response::&lt;Vec&lt;RedisResult&lt;Value&gt;&gt;&gt;(inputs)
+<a href=#479 id=479 data-nosnippet>479</a>            .unwrap();
+<a href=#480 id=480 data-nosnippet>480</a>
+<a href=#481 id=481 data-nosnippet>481</a>        <span class="macro">assert_eq!</span>(result[<span class="number">0</span>], <span class="prelude-val">Ok</span>::&lt;Value, RedisError&gt;(Value::Okay));
+<a href=#482 id=482 data-nosnippet>482</a>        <span class="macro">assert!</span>(
+<a href=#483 id=483 data-nosnippet>483</a>            result[<span class="number">1</span>]
+<a href=#484 id=484 data-nosnippet>484</a>                .clone()
+<a href=#485 id=485 data-nosnippet>485</a>                .is_err_and(|e| e.to_string().contains(<span class="string">"CrossSlot"</span>))
+<a href=#486 id=486 data-nosnippet>486</a>        )
+<a href=#487 id=487 data-nosnippet>487</a>    }
+<a href=#488 id=488 data-nosnippet>488</a>}
+</code></pre></div></section></main></body></html>

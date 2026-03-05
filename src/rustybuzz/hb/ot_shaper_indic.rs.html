@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustybuzz-0.20.1/src/hb/ot_shaper_indic.rs`."><title>ot_shaper_indic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustybuzz/hb/</div>ot_shaper_indic.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::boxed::Box;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustybuzz-0.20.1/src/hb/ot_shaper_indic.rs`."><title>ot_shaper_indic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustybuzz/hb/</div>ot_shaper_indic.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::boxed::Box;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>core::cmp;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>core::convert::TryFrom;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>core::ops::Range;
@@ -470,11 +470,11 @@
 <a href=#470 id=470 data-nosnippet>470</a>        // context.  Testing with Bengali new-spec however shows that it doesn't.
 <a href=#471 id=471 data-nosnippet>471</a>        // So, the heuristic here is the way it is.  It should *only* be changed,
 <a href=#472 id=472 data-nosnippet>472</a>        // as we discover more cases of what Windows does.  DON'T TOUCH OTHERWISE.
-<a href=#473 id=473 data-nosnippet>473</a>        </span><span class="kw">let </span>zero_context = is_old_spec &amp;&amp; script != <span class="prelude-val">Some</span>(script::MALAYALAM);
+<a href=#473 id=473 data-nosnippet>473</a>        </span><span class="kw">let </span>zero_context = is_old_spec &amp;&amp; <span class="macro">script !</span>= <span class="prelude-val">Some</span>(script::MALAYALAM);
 <a href=#474 id=474 data-nosnippet>474</a>
 <a href=#475 id=475 data-nosnippet>475</a>        <span class="kw">let </span><span class="kw-2">mut </span>mask_array = [<span class="number">0</span>; INDIC_FEATURES.len()];
 <a href=#476 id=476 data-nosnippet>476</a>        <span class="kw">for </span>(i, feature) <span class="kw">in </span>INDIC_FEATURES.iter().enumerate() {
-<a href=#477 id=477 data-nosnippet>477</a>            mask_array[i] = <span class="kw">if </span>feature.<span class="number">1 </span>&amp; F_GLOBAL != <span class="number">0 </span>{
+<a href=#477 id=477 data-nosnippet>477</a>            mask_array[i] = <span class="kw">if </span>feature.<span class="number">1 </span>&amp; <span class="macro">F_GLOBAL !</span>= <span class="number">0 </span>{
 <a href=#478 id=478 data-nosnippet>478</a>                <span class="number">0
 <a href=#479 id=479 data-nosnippet>479</a>            </span>} <span class="kw">else </span>{
 <a href=#480 id=480 data-nosnippet>480</a>                plan.ot_map.get_1_mask(feature.<span class="number">0</span>)
@@ -566,7 +566,7 @@
 <a href=#566 id=566 data-nosnippet>566</a>            <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#567 id=567 data-nosnippet>567</a>        }
 <a href=#568 id=568 data-nosnippet>568</a>
-<a href=#569 id=569 data-nosnippet>569</a>        rb_flag_unsafe(<span class="self">self</span>.indic_category() <span class="kw">as </span>u32) &amp; flags != <span class="number">0
+<a href=#569 id=569 data-nosnippet>569</a>        rb_flag_unsafe(<span class="self">self</span>.indic_category() <span class="kw">as </span>u32) &amp; <span class="macro">flags !</span>= <span class="number">0
 <a href=#570 id=570 data-nosnippet>570</a>    </span>}
 <a href=#571 id=571 data-nosnippet>571</a>
 <a href=#572 id=572 data-nosnippet>572</a>    <span class="kw">fn </span>is_joiner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -723,7 +723,7 @@
 <a href=#723 id=723 data-nosnippet>723</a>    buffer: <span class="kw-2">&amp;mut </span>hb_buffer_t,
 <a href=#724 id=724 data-nosnippet>724</a>) {
 <a href=#725 id=725 data-nosnippet>725</a>    <span class="kw">let </span><span class="kw-2">mut </span>virama_glyph = <span class="prelude-val">None</span>;
-<a href=#726 id=726 data-nosnippet>726</a>    <span class="kw">if </span>indic_plan.config.virama != <span class="number">0 </span>{
+<a href=#726 id=726 data-nosnippet>726</a>    <span class="kw">if </span>indic_plan.config.<span class="macro">virama !</span>= <span class="number">0 </span>{
 <a href=#727 id=727 data-nosnippet>727</a>        virama_glyph = face.get_nominal_glyph(indic_plan.config.virama);
 <a href=#728 id=728 data-nosnippet>728</a>    }
 <a href=#729 id=729 data-nosnippet>729</a>
@@ -1231,7 +1231,7 @@
 <a href=#1231 id=1231 data-nosnippet>1231</a>                    <span class="kw">let </span><span class="kw-2">mut </span>min = i;
 <a href=#1232 id=1232 data-nosnippet>1232</a>                    <span class="kw">let </span><span class="kw-2">mut </span>max = i;
 <a href=#1233 id=1233 data-nosnippet>1233</a>                    <span class="kw">let </span><span class="kw-2">mut </span>j = start + buffer.info[i].syllable() <span class="kw">as </span>usize;
-<a href=#1234 id=1234 data-nosnippet>1234</a>                    <span class="kw">while </span>j != i {
+<a href=#1234 id=1234 data-nosnippet>1234</a>                    <span class="kw">while </span><span class="macro">j !</span>= i {
 <a href=#1235 id=1235 data-nosnippet>1235</a>                        min = cmp::min(min, j);
 <a href=#1236 id=1236 data-nosnippet>1236</a>                        max = cmp::max(max, j);
 <a href=#1237 id=1237 data-nosnippet>1237</a>                        <span class="kw">let </span>next = start + buffer.info[j].syllable() <span class="kw">as </span>usize;
@@ -1397,7 +1397,7 @@
 <a href=#1397 id=1397 data-nosnippet>1397</a>    //
 <a href=#1398 id=1398 data-nosnippet>1398</a>    // We don't call load_virama_glyph(), since we know it's already loaded.
 <a href=#1399 id=1399 data-nosnippet>1399</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>virama_glyph = <span class="prelude-val">None</span>;
-<a href=#1400 id=1400 data-nosnippet>1400</a>    <span class="kw">if </span>indic_plan.config.virama != <span class="number">0 </span>{
+<a href=#1400 id=1400 data-nosnippet>1400</a>    <span class="kw">if </span>indic_plan.config.<span class="macro">virama !</span>= <span class="number">0 </span>{
 <a href=#1401 id=1401 data-nosnippet>1401</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(g) = face.get_nominal_glyph(indic_plan.config.virama) {
 <a href=#1402 id=1402 data-nosnippet>1402</a>            virama_glyph = <span class="prelude-val">Some</span>(g.<span class="number">0 </span><span class="kw">as </span>u32);
 <a href=#1403 id=1403 data-nosnippet>1403</a>        }
@@ -1551,7 +1551,7 @@
 <a href=#1551 id=1551 data-nosnippet>1551</a>        <span class="comment">// Malayalam / Tamil do not have "half" forms or explicit virama forms.
 <a href=#1552 id=1552 data-nosnippet>1552</a>        // The glyphs formed by 'half' are Chillus or ligated explicit viramas.
 <a href=#1553 id=1553 data-nosnippet>1553</a>        // We want to position matra after them.
-<a href=#1554 id=1554 data-nosnippet>1554</a>        </span><span class="kw">if </span>buffer.script != <span class="prelude-val">Some</span>(script::MALAYALAM) &amp;&amp; buffer.script != <span class="prelude-val">Some</span>(script::TAMIL) {
+<a href=#1554 id=1554 data-nosnippet>1554</a>        </span><span class="kw">if </span>buffer.<span class="macro">script !</span>= <span class="prelude-val">Some</span>(script::MALAYALAM) &amp;&amp; buffer.<span class="macro">script !</span>= <span class="prelude-val">Some</span>(script::TAMIL) {
 <a href=#1555 id=1555 data-nosnippet>1555</a>            <span class="kw">loop </span>{
 <a href=#1556 id=1556 data-nosnippet>1556</a>                <span class="kw">while </span>new_pos &gt; start
 <a href=#1557 id=1557 data-nosnippet>1557</a>                    &amp;&amp; !buffer.info[new_pos].is_one_of(
@@ -1656,7 +1656,7 @@
 <a href=#1656 id=1656 data-nosnippet>1656</a>
 <a href=#1657 id=1657 data-nosnippet>1657</a>            <span class="comment">// 1. If reph should be positioned after post-base consonant forms,
 <a href=#1658 id=1658 data-nosnippet>1658</a>            //    proceed to step 5.
-<a href=#1659 id=1659 data-nosnippet>1659</a>            </span><span class="kw">if </span>reph_pos != RephPosition::AfterPost {
+<a href=#1659 id=1659 data-nosnippet>1659</a>            </span><span class="kw">if </span><span class="macro">reph_pos !</span>= RephPosition::AfterPost {
 <a href=#1660 id=1660 data-nosnippet>1660</a>                <span class="comment">// 2. If the reph repositioning class is not after post-base: target
 <a href=#1661 id=1661 data-nosnippet>1661</a>                //    position is after the first explicit halant glyph between the
 <a href=#1662 id=1662 data-nosnippet>1662</a>                //    first post-reph consonant and last main consonant. If ZWJ or ZWNJ
@@ -1819,8 +1819,8 @@
 <a href=#1819 id=1819 data-nosnippet>1819</a>                    <span class="comment">// Malayalam / Tamil do not have "half" forms or explicit virama forms.
 <a href=#1820 id=1820 data-nosnippet>1820</a>                    // The glyphs formed by 'half' are Chillus or ligated explicit viramas.
 <a href=#1821 id=1821 data-nosnippet>1821</a>                    // We want to position matra after them.
-<a href=#1822 id=1822 data-nosnippet>1822</a>                    </span><span class="kw">if </span>buffer.script != <span class="prelude-val">Some</span>(script::MALAYALAM)
-<a href=#1823 id=1823 data-nosnippet>1823</a>                        &amp;&amp; buffer.script != <span class="prelude-val">Some</span>(script::TAMIL)
+<a href=#1822 id=1822 data-nosnippet>1822</a>                    </span><span class="kw">if </span>buffer.<span class="macro">script !</span>= <span class="prelude-val">Some</span>(script::MALAYALAM)
+<a href=#1823 id=1823 data-nosnippet>1823</a>                        &amp;&amp; buffer.<span class="macro">script !</span>= <span class="prelude-val">Some</span>(script::TAMIL)
 <a href=#1824 id=1824 data-nosnippet>1824</a>                    {
 <a href=#1825 id=1825 data-nosnippet>1825</a>                        <span class="kw">while </span>new_pos &gt; start
 <a href=#1826 id=1826 data-nosnippet>1826</a>                            &amp;&amp; !buffer.info[new_pos - <span class="number">1</span>].is_one_of(
@@ -1880,4 +1880,5 @@
 <a href=#1880 id=1880 data-nosnippet>1880</a>            buffer.unsafe_to_break(<span class="prelude-val">Some</span>(start - <span class="number">1</span>), <span class="prelude-val">Some</span>(start + <span class="number">1</span>));
 <a href=#1881 id=1881 data-nosnippet>1881</a>        }
 <a href=#1882 id=1882 data-nosnippet>1882</a>    }
-<a href=#1883 id=1883 data-nosnippet>1883</a>}</code></pre></div></section></main></body></html>
+<a href=#1883 id=1883 data-nosnippet>1883</a>}
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.2/src/enc/backward_references/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">brotli/enc/backward_references/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">mod </span>benchmark;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.2/src/enc/backward_references/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">brotli/enc/backward_references/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">mod </span>benchmark;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">pub mod </span>hash_to_binary_tree;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">pub mod </span>hq;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">mod </span>test;
@@ -324,7 +324,7 @@
 <a href=#324 id=324 data-nosnippet>324</a>        <span class="self">self</span>.StoreRange(data, mask, ix_start, ix_end);
 <a href=#325 id=325 data-nosnippet>325</a>    }
 <a href=#326 id=326 data-nosnippet>326</a>    <span class="kw">fn </span>Prepare(<span class="kw-2">&amp;mut </span><span class="self">self</span>, one_shot: bool, input_size: usize, data: <span class="kw-2">&amp;</span>[u8]) -&gt; HowPrepared {
-<a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">if </span><span class="self">self</span>.GetHasherCommon.is_prepared_ != <span class="number">0 </span>{
+<a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">if </span><span class="self">self</span>.GetHasherCommon.<span class="macro">is_prepared_ !</span>= <span class="number">0 </span>{
 <a href=#328 id=328 data-nosnippet>328</a>            <span class="kw">return </span>HowPrepared::ALREADY_PREPARED;
 <a href=#329 id=329 data-nosnippet>329</a>        }
 <a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">let </span>partial_prepare_threshold = (<span class="number">4 </span>&lt;&lt; <span class="self">self</span>.buckets_.BUCKET_BITS()) &gt;&gt; <span class="number">7</span>;
@@ -379,7 +379,7 @@
 <a href=#379 id=379 data-nosnippet>379</a>                    <span class="kw-2">&amp;</span>data[cur_ix_masked..],
 <a href=#380 id=380 data-nosnippet>380</a>                    max_length,
 <a href=#381 id=381 data-nosnippet>381</a>                );
-<a href=#382 id=382 data-nosnippet>382</a>                <span class="kw">if </span>unbroken_len != <span class="number">0 </span>{
+<a href=#382 id=382 data-nosnippet>382</a>                <span class="kw">if </span><span class="macro">unbroken_len !</span>= <span class="number">0 </span>{
 <a href=#383 id=383 data-nosnippet>383</a>                    <span class="kw">let </span>len = fix_unbroken_len(unbroken_len, prev_ix, cur_ix_masked, ring_buffer_break);
 <a href=#384 id=384 data-nosnippet>384</a>                    best_score = BackwardReferenceScoreUsingLastDistance(len, opts);
 <a href=#385 id=385 data-nosnippet>385</a>                    best_len = len;
@@ -402,7 +402,7 @@
 <a href=#402 id=402 data-nosnippet>402</a>            <span class="self">self</span>.buckets_.slice_mut()[key <span class="kw">as </span>usize] = cur_ix <span class="kw">as </span>u32;
 <a href=#403 id=403 data-nosnippet>403</a>            <span class="kw">let </span>backward: usize = cur_ix.wrapping_sub(prev_ix);
 <a href=#404 id=404 data-nosnippet>404</a>            prev_ix &amp;= ring_buffer_mask <span class="kw">as </span>u32 <span class="kw">as </span>usize;
-<a href=#405 id=405 data-nosnippet>405</a>            <span class="kw">if </span>compare_char != data[prev_ix.wrapping_add(best_len_in)] <span class="kw">as </span>i32 {
+<a href=#405 id=405 data-nosnippet>405</a>            <span class="kw">if </span><span class="macro">compare_char !</span>= data[prev_ix.wrapping_add(best_len_in)] <span class="kw">as </span>i32 {
 <a href=#406 id=406 data-nosnippet>406</a>                <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#407 id=407 data-nosnippet>407</a>            }
 <a href=#408 id=408 data-nosnippet>408</a>            <span class="kw">if </span>backward == <span class="number">0usize </span>|| backward &gt; max_backward {
@@ -410,7 +410,7 @@
 <a href=#410 id=410 data-nosnippet>410</a>            }
 <a href=#411 id=411 data-nosnippet>411</a>            <span class="kw">let </span>unbroken_len: usize =
 <a href=#412 id=412 data-nosnippet>412</a>                FindMatchLengthWithLimitMin4(<span class="kw-2">&amp;</span>data[prev_ix..], <span class="kw-2">&amp;</span>data[cur_ix_masked..], max_length);
-<a href=#413 id=413 data-nosnippet>413</a>            <span class="kw">if </span>unbroken_len != <span class="number">0 </span>{
+<a href=#413 id=413 data-nosnippet>413</a>            <span class="kw">if </span><span class="macro">unbroken_len !</span>= <span class="number">0 </span>{
 <a href=#414 id=414 data-nosnippet>414</a>                <span class="kw">let </span>len = fix_unbroken_len(unbroken_len, prev_ix, cur_ix_masked, ring_buffer_break);
 <a href=#415 id=415 data-nosnippet>415</a>                out.len = len;
 <a href=#416 id=416 data-nosnippet>416</a>                out.distance = backward;
@@ -424,7 +424,7 @@
 <a href=#424 id=424 data-nosnippet>424</a>                <span class="kw">let </span><span class="kw-2">mut </span>prev_ix = <span class="kw-2">*</span>prev_ix_ref <span class="kw">as </span>usize;
 <a href=#425 id=425 data-nosnippet>425</a>                <span class="kw">let </span>backward: usize = cur_ix.wrapping_sub(prev_ix);
 <a href=#426 id=426 data-nosnippet>426</a>                prev_ix &amp;= ring_buffer_mask <span class="kw">as </span>u32 <span class="kw">as </span>usize;
-<a href=#427 id=427 data-nosnippet>427</a>                <span class="kw">if </span>compare_char != data[prev_ix.wrapping_add(best_len)] <span class="kw">as </span>i32 {
+<a href=#427 id=427 data-nosnippet>427</a>                <span class="kw">if </span><span class="macro">compare_char !</span>= data[prev_ix.wrapping_add(best_len)] <span class="kw">as </span>i32 {
 <a href=#428 id=428 data-nosnippet>428</a>                    <span class="kw">continue</span>;
 <a href=#429 id=429 data-nosnippet>429</a>                }
 <a href=#430 id=430 data-nosnippet>430</a>                <span class="kw">if </span>backward == <span class="number">0usize </span>|| backward &gt; max_backward {
@@ -436,7 +436,7 @@
 <a href=#436 id=436 data-nosnippet>436</a>                    max_length,
 <a href=#437 id=437 data-nosnippet>437</a>                );
 <a href=#438 id=438 data-nosnippet>438</a>                
-<a href=#439 id=439 data-nosnippet>439</a>                <span class="kw">if </span>unbroken_len != <span class="number">0 </span>{
+<a href=#439 id=439 data-nosnippet>439</a>                <span class="kw">if </span><span class="macro">unbroken_len !</span>= <span class="number">0 </span>{
 <a href=#440 id=440 data-nosnippet>440</a>                    <span class="kw">let </span>len = fix_unbroken_len(unbroken_len, prev_ix, cur_ix_masked, ring_buffer_break);
 <a href=#441 id=441 data-nosnippet>441</a>                    <span class="kw">let </span>score: u64 = BackwardReferenceScore(len, backward, opts);
 <a href=#442 id=442 data-nosnippet>442</a>                    <span class="kw">if </span>best_score &lt; score {
@@ -593,7 +593,7 @@
 <a href=#593 id=593 data-nosnippet>593</a><span class="kw">impl </span>H9Opts {
 <a href=#594 id=594 data-nosnippet>594</a>    <span class="kw">pub fn </span>new(params: <span class="kw-2">&amp;</span>BrotliHasherParams) -&gt; H9Opts {
 <a href=#595 id=595 data-nosnippet>595</a>        H9Opts {
-<a href=#596 id=596 data-nosnippet>596</a>            literal_byte_score: <span class="kw">if </span>params.literal_byte_score != <span class="number">0 </span>{
+<a href=#596 id=596 data-nosnippet>596</a>            literal_byte_score: <span class="kw">if </span>params.<span class="macro">literal_byte_score !</span>= <span class="number">0 </span>{
 <a href=#597 id=597 data-nosnippet>597</a>                params.literal_byte_score <span class="kw">as </span>u32
 <a href=#598 id=598 data-nosnippet>598</a>            } <span class="kw">else </span>{
 <a href=#599 id=599 data-nosnippet>599</a>                <span class="number">540
@@ -808,7 +808,7 @@
 <a href=#808 id=808 data-nosnippet>808</a>                }
 <a href=#809 id=809 data-nosnippet>809</a>                prev_ix &amp;= ring_buffer_mask;
 <a href=#810 id=810 data-nosnippet>810</a>                <span class="kw">if </span>(prev_ix.wrapping_add(best_len) &gt; ring_buffer_mask
-<a href=#811 id=811 data-nosnippet>811</a>                    || prev_best_val != data[prev_ix.wrapping_add(best_len)])
+<a href=#811 id=811 data-nosnippet>811</a>                    || <span class="macro">prev_best_val !</span>= data[prev_ix.wrapping_add(best_len)])
 <a href=#812 id=812 data-nosnippet>812</a>                {
 <a href=#813 id=813 data-nosnippet>813</a>                    <span class="kw">continue</span>;
 <a href=#814 id=814 data-nosnippet>814</a>                }
@@ -879,7 +879,7 @@
 <a href=#879 id=879 data-nosnippet>879</a>        }
 <a href=#880 id=880 data-nosnippet>880</a>    }
 <a href=#881 id=881 data-nosnippet>881</a>    <span class="kw">fn </span>Prepare(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _one_shot: bool, _input_size: usize, _data: <span class="kw-2">&amp;</span>[u8]) -&gt; HowPrepared {
-<a href=#882 id=882 data-nosnippet>882</a>        <span class="kw">if </span><span class="self">self</span>.GetHasherCommon().is_prepared_ != <span class="number">0 </span>{
+<a href=#882 id=882 data-nosnippet>882</a>        <span class="kw">if </span><span class="self">self</span>.GetHasherCommon().<span class="macro">is_prepared_ !</span>= <span class="number">0 </span>{
 <a href=#883 id=883 data-nosnippet>883</a>            <span class="kw">return </span>HowPrepared::ALREADY_PREPARED;
 <a href=#884 id=884 data-nosnippet>884</a>        }
 <a href=#885 id=885 data-nosnippet>885</a>        <span class="kw">for </span>item <span class="kw">in </span><span class="self">self</span>.num_.slice_mut().iter_mut() {
@@ -1472,7 +1472,7 @@
 <a href=#1472 id=1472 data-nosnippet>1472</a>        StitchToPreviousBlockInternal(<span class="self">self</span>, num_bytes, position, ringbuffer, ringbuffer_mask);
 <a href=#1473 id=1473 data-nosnippet>1473</a>    }
 <a href=#1474 id=1474 data-nosnippet>1474</a>    <span class="kw">fn </span>Prepare(<span class="kw-2">&amp;mut </span><span class="self">self</span>, one_shot: bool, input_size: usize, data: <span class="kw-2">&amp;</span>[u8]) -&gt; HowPrepared {
-<a href=#1475 id=1475 data-nosnippet>1475</a>        <span class="kw">if </span><span class="self">self</span>.GetHasherCommon.is_prepared_ != <span class="number">0 </span>{
+<a href=#1475 id=1475 data-nosnippet>1475</a>        <span class="kw">if </span><span class="self">self</span>.GetHasherCommon.<span class="macro">is_prepared_ !</span>= <span class="number">0 </span>{
 <a href=#1476 id=1476 data-nosnippet>1476</a>            <span class="kw">return </span>HowPrepared::ALREADY_PREPARED;
 <a href=#1477 id=1477 data-nosnippet>1477</a>        }
 <a href=#1478 id=1478 data-nosnippet>1478</a>        <span class="kw">let </span>partial_prepare_threshold = <span class="self">self</span>.specialization.bucket_size() <span class="kw">as </span>usize &gt;&gt; <span class="number">6</span>;
@@ -1707,7 +1707,7 @@
 <a href=#1707 id=1707 data-nosnippet>1707</a>                <span class="kw">let </span>len = fix_unbroken_len(unbroken_len, prev_ix, cur_ix_masked, ring_buffer_break);
 <a href=#1708 id=1708 data-nosnippet>1708</a>                <span class="kw">let </span><span class="kw-2">mut </span>score: u64 = BackwardReferenceScoreUsingLastDistance(len, opts);
 <a href=#1709 id=1709 data-nosnippet>1709</a>                <span class="kw">if </span>best_score &lt; score {
-<a href=#1710 id=1710 data-nosnippet>1710</a>                    <span class="kw">if </span>i != <span class="number">0 </span>{
+<a href=#1710 id=1710 data-nosnippet>1710</a>                    <span class="kw">if </span><span class="macro">i !</span>= <span class="number">0 </span>{
 <a href=#1711 id=1711 data-nosnippet>1711</a>                        score = score.wrapping_sub(BackwardReferencePenaltyUsingLastDistance(i));
 <a href=#1712 id=1712 data-nosnippet>1712</a>                    }
 <a href=#1713 id=1713 data-nosnippet>1713</a>                    <span class="kw">if </span>best_score &lt; score {
@@ -1734,7 +1734,7 @@
 <a href=#1734 id=1734 data-nosnippet>1734</a>            </span>.split_at_mut(<span class="self">self</span>.specialization.block_size() <span class="kw">as </span>usize)
 <a href=#1735 id=1735 data-nosnippet>1735</a>            .<span class="number">0</span>;
 <a href=#1736 id=1736 data-nosnippet>1736</a>        <span class="macro">assert!</span>(bucket.len() &gt; <span class="self">self</span>.specialization.block_mask() <span class="kw">as </span>usize);
-<a href=#1737 id=1737 data-nosnippet>1737</a>        <span class="kw">if </span>num_copy != <span class="number">0 </span>{
+<a href=#1737 id=1737 data-nosnippet>1737</a>        <span class="kw">if </span><span class="macro">num_copy !</span>= <span class="number">0 </span>{
 <a href=#1738 id=1738 data-nosnippet>1738</a>            <span class="kw">let </span>down: usize = max(
 <a href=#1739 id=1739 data-nosnippet>1739</a>                i32::from(num_copy) - <span class="self">self</span>.specialization.block_size() <span class="kw">as </span>i32,
 <a href=#1740 id=1740 data-nosnippet>1740</a>                <span class="number">0</span>,
@@ -1759,7 +1759,7 @@
 <a href=#1759 id=1759 data-nosnippet>1759</a>                }
 <a href=#1760 id=1760 data-nosnippet>1760</a>                <span class="kw">let </span>prev_data = data.split_at(prev_ix).<span class="number">1</span>;
 <a href=#1761 id=1761 data-nosnippet>1761</a>                <span class="kw">let </span>unbroken_len = FindMatchLengthWithLimitMin4(prev_data, cur_data, max_length);
-<a href=#1762 id=1762 data-nosnippet>1762</a>                <span class="kw">if </span>unbroken_len != <span class="number">0 </span>{
+<a href=#1762 id=1762 data-nosnippet>1762</a>                <span class="kw">if </span><span class="macro">unbroken_len !</span>= <span class="number">0 </span>{
 <a href=#1763 id=1763 data-nosnippet>1763</a>                    <span class="kw">let </span>len = fix_unbroken_len(unbroken_len, prev_ix, cur_ix_masked, ring_buffer_break);
 <a href=#1764 id=1764 data-nosnippet>1764</a>                    <span class="kw">let </span>score: u64 = BackwardReferenceScore(len, backward, opts);
 <a href=#1765 id=1765 data-nosnippet>1765</a>                    <span class="kw">if </span>best_score &lt; score {
@@ -1946,7 +1946,7 @@
 <a href=#1946 id=1946 data-nosnippet>1946</a>        {
 <a href=#1947 id=1947 data-nosnippet>1947</a>            <span class="kw">let </span>item: usize = dictionary_hash[key] <span class="kw">as </span>usize;
 <a href=#1948 id=1948 data-nosnippet>1948</a>            xself.dict_num_lookups = xself.dict_num_lookups.wrapping_add(<span class="number">1</span>);
-<a href=#1949 id=1949 data-nosnippet>1949</a>            <span class="kw">if </span>item != <span class="number">0usize </span>{
+<a href=#1949 id=1949 data-nosnippet>1949</a>            <span class="kw">if </span><span class="macro">item !</span>= <span class="number">0usize </span>{
 <a href=#1950 id=1950 data-nosnippet>1950</a>                <span class="kw">let </span>item_matches: i32 = TestStaticDictionaryItem(
 <a href=#1951 id=1951 data-nosnippet>1951</a>                    dictionary,
 <a href=#1952 id=1952 data-nosnippet>1952</a>                    item,
@@ -1957,7 +1957,7 @@
 <a href=#1957 id=1957 data-nosnippet>1957</a>                    opts,
 <a href=#1958 id=1958 data-nosnippet>1958</a>                    out,
 <a href=#1959 id=1959 data-nosnippet>1959</a>                );
-<a href=#1960 id=1960 data-nosnippet>1960</a>                <span class="kw">if </span>item_matches != <span class="number">0 </span>{
+<a href=#1960 id=1960 data-nosnippet>1960</a>                <span class="kw">if </span><span class="macro">item_matches !</span>= <span class="number">0 </span>{
 <a href=#1961 id=1961 data-nosnippet>1961</a>                    xself.dict_num_matches = xself.dict_num_matches.wrapping_add(<span class="number">1</span>);
 <a href=#1962 id=1962 data-nosnippet>1962</a>                    is_match_found = <span class="bool-val">true</span>;
 <a href=#1963 id=1963 data-nosnippet>1963</a>                }
@@ -2783,4 +2783,5 @@
 <a href=#2783 id=2783 data-nosnippet>2783</a>            num_literals,
 <a href=#2784 id=2784 data-nosnippet>2784</a>        ),
 <a href=#2785 id=2785 data-nosnippet>2785</a>    }
-<a href=#2786 id=2786 data-nosnippet>2786</a>}</code></pre></div></section></main></body></html>
+<a href=#2786 id=2786 data-nosnippet>2786</a>}
+</code></pre></div></section></main></body></html>

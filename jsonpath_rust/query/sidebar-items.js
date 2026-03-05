@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["js_path","js_path_path","js_path_process","js_path_vals"],"mod":["queryable","state"],"struct":["QueryRef"],"trait":["Query"],"type":["Queried","QueryPath"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand-0.9.2/src/distr/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/distr/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 Developers of the Rand project.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand-0.10.0/src/distr/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/distr/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 Developers of the Rand project.
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright 2013-2017 The Rust Project Developers.
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
@@ -11,8 +11,8 @@
 <a href=#11 id=11 data-nosnippet>11</a>//!
 <a href=#12 id=12 data-nosnippet>12</a>//! This module is the home of the [`Distribution`] trait and several of its
 <a href=#13 id=13 data-nosnippet>13</a>//! implementations. It is the workhorse behind some of the convenient
-<a href=#14 id=14 data-nosnippet>14</a>//! functionality of the [`Rng`] trait, e.g. [`Rng::random`] and of course
-<a href=#15 id=15 data-nosnippet>15</a>//! [`Rng::sample`].
+<a href=#14 id=14 data-nosnippet>14</a>//! functionality of the [`RngExt`] trait, e.g. [`RngExt::random`] and of course
+<a href=#15 id=15 data-nosnippet>15</a>//! [`RngExt::sample`].
 <a href=#16 id=16 data-nosnippet>16</a>//!
 <a href=#17 id=17 data-nosnippet>17</a>//! Abstractly, a [probability distribution] describes the probability of
 <a href=#18 id=18 data-nosnippet>18</a>//! occurrence of each value in its sample space.
@@ -31,13 +31,13 @@
 <a href=#31 id=31 data-nosnippet>31</a>//! # The Standard Uniform distribution
 <a href=#32 id=32 data-nosnippet>32</a>//!
 <a href=#33 id=33 data-nosnippet>33</a>//! The [`StandardUniform`] distribution is important to mention. This is the
-<a href=#34 id=34 data-nosnippet>34</a>//! distribution used by [`Rng::random`] and represents the "default" way to
+<a href=#34 id=34 data-nosnippet>34</a>//! distribution used by [`RngExt::random`] and represents the "default" way to
 <a href=#35 id=35 data-nosnippet>35</a>//! produce a random value for many different types, including most primitive
 <a href=#36 id=36 data-nosnippet>36</a>//! types, tuples, arrays, and a few derived types. See the documentation of
 <a href=#37 id=37 data-nosnippet>37</a>//! [`StandardUniform`] for more details.
 <a href=#38 id=38 data-nosnippet>38</a>//!
 <a href=#39 id=39 data-nosnippet>39</a>//! Implementing [`Distribution&lt;T&gt;`] for [`StandardUniform`] for user types `T` makes it
-<a href=#40 id=40 data-nosnippet>40</a>//! possible to generate type `T` with [`Rng::random`], and by extension also
+<a href=#40 id=40 data-nosnippet>40</a>//! possible to generate type `T` with [`RngExt::random`], and by extension also
 <a href=#41 id=41 data-nosnippet>41</a>//! with the [`random`] function.
 <a href=#42 id=42 data-nosnippet>42</a>//!
 <a href=#43 id=43 data-nosnippet>43</a>//! ## Other standard uniform distributions
@@ -62,7 +62,7 @@
 <a href=#62 id=62 data-nosnippet>62</a>//! range on a subset of the types supported by the above distributions.
 <a href=#63 id=63 data-nosnippet>63</a>//!
 <a href=#64 id=64 data-nosnippet>64</a>//! Implementations support single-value-sampling via
-<a href=#65 id=65 data-nosnippet>65</a>//! [`Rng::random_range(Range)`](Rng::random_range).
+<a href=#65 id=65 data-nosnippet>65</a>//! [`Rng::random_range(Range)`](RngExt::random_range).
 <a href=#66 id=66 data-nosnippet>66</a>//! Where a fixed (non-`const`) range will be sampled many times, it is likely
 <a href=#67 id=67 data-nosnippet>67</a>//! faster to pre-construct a [`Distribution`] object using
 <a href=#68 id=68 data-nosnippet>68</a>//! [`Uniform::new`], [`Uniform::new_inclusive`] or `From&lt;Range&gt;`.
@@ -70,7 +70,7 @@
 <a href=#70 id=70 data-nosnippet>70</a>//! # Non-uniform sampling
 <a href=#71 id=71 data-nosnippet>71</a>//!
 <a href=#72 id=72 data-nosnippet>72</a>//! Sampling a simple true/false outcome with a given probability has a name:
-<a href=#73 id=73 data-nosnippet>73</a>//! the [`Bernoulli`] distribution (this is used by [`Rng::random_bool`]).
+<a href=#73 id=73 data-nosnippet>73</a>//! the [`Bernoulli`] distribution (this is used by [`RngExt::random_bool`]).
 <a href=#74 id=74 data-nosnippet>74</a>//!
 <a href=#75 id=75 data-nosnippet>75</a>//! For weighted sampling of discrete values see the [`weighted`] module.
 <a href=#76 id=76 data-nosnippet>76</a>//!
@@ -112,7 +112,7 @@
 <a href=#112 id=112 data-nosnippet>112</a></span><span class="kw">pub use </span><span class="self">self</span>::uniform::Uniform;
 <a href=#113 id=113 data-nosnippet>113</a>
 <a href=#114 id=114 data-nosnippet>114</a><span class="attr">#[allow(unused)]
-<a href=#115 id=115 data-nosnippet>115</a></span><span class="kw">use </span><span class="kw">crate</span>::Rng;
+<a href=#115 id=115 data-nosnippet>115</a></span><span class="kw">use </span><span class="kw">crate</span>::RngExt;
 <a href=#116 id=116 data-nosnippet>116</a>
 <a href=#117 id=117 data-nosnippet>117</a><span class="doccomment">/// The Standard Uniform distribution
 <a href=#118 id=118 data-nosnippet>118</a>///
@@ -147,7 +147,7 @@
 <a href=#147 id=147 data-nosnippet>147</a>///   between elements).
 <a href=#148 id=148 data-nosnippet>148</a>/// * Arrays `[T; n]` where `T` is supported. Each element is sampled
 <a href=#149 id=149 data-nosnippet>149</a>///   sequentially and independently. Note that for small `T` this usually
-<a href=#150 id=150 data-nosnippet>150</a>///   results in the RNG discarding random bits; see also [`Rng::fill`] which
+<a href=#150 id=150 data-nosnippet>150</a>///   results in the RNG discarding random bits; see also [`RngExt::fill`] which
 <a href=#151 id=151 data-nosnippet>151</a>///   offers a more efficient approach to filling an array of integer types
 <a href=#152 id=152 data-nosnippet>152</a>///   with random data.
 <a href=#153 id=153 data-nosnippet>153</a>/// * SIMD types (requires [`simd_support`] feature) like x86's [`__m128i`]
@@ -163,7 +163,7 @@
 <a href=#163 id=163 data-nosnippet>163</a>///
 <a href=#164 id=164 data-nosnippet>164</a>/// ```
 <a href=#165 id=165 data-nosnippet>165</a>/// # #![allow(dead_code)]
-<a href=#166 id=166 data-nosnippet>166</a>/// use rand::Rng;
+<a href=#166 id=166 data-nosnippet>166</a>/// use rand::{Rng, RngExt};
 <a href=#167 id=167 data-nosnippet>167</a>/// use rand::distr::{Distribution, StandardUniform};
 <a href=#168 id=168 data-nosnippet>168</a>///
 <a href=#169 id=169 data-nosnippet>169</a>/// struct MyF32 {
@@ -211,4 +211,5 @@
 <a href=#211 id=211 data-nosnippet>211</a>/// [`simd_support`]: https://github.com/rust-random/rand#crate-features
 <a href=#212 id=212 data-nosnippet>212</a></span><span class="attr">#[derive(Clone, Copy, Debug, Default)]
 <a href=#213 id=213 data-nosnippet>213</a>#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
-<a href=#214 id=214 data-nosnippet>214</a></span><span class="kw">pub struct </span>StandardUniform;</code></pre></div></section></main></body></html>
+<a href=#214 id=214 data-nosnippet>214</a></span><span class="kw">pub struct </span>StandardUniform;
+</code></pre></div></section></main></body></html>

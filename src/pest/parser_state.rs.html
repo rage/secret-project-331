@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pest-2.8.3/src/parser_state.rs`."><title>parser_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="pest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/pest-parser/pest/master/pest-logo.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pest/</div>parser_state.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// pest. The Elegant Parser
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pest-2.8.6/src/parser_state.rs`."><title>parser_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="pest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/pest-parser/pest/master/pest-logo.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pest/</div>parser_state.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// pest. The Elegant Parser
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright (c) 2018 Dragoș Tiselice
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// Licensed under the Apache License, Version 2.0
@@ -137,7 +137,7 @@
 <a href=#137 id=137 data-nosnippet>137</a><span class="kw">impl </span>CallLimitTracker {
 <a href=#138 id=138 data-nosnippet>138</a>    <span class="kw">fn </span>limit_reached(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
 <a href=#139 id=139 data-nosnippet>139</a>        <span class="self">self</span>.current_call_limit
-<a href=#140 id=140 data-nosnippet>140</a>            .map_or(<span class="bool-val">false</span>, |(current, limit)| current &gt;= limit)
+<a href=#140 id=140 data-nosnippet>140</a>            .is_some_and(|(current, limit)| current &gt;= limit)
 <a href=#141 id=141 data-nosnippet>141</a>    }
 <a href=#142 id=142 data-nosnippet>142</a>
 <a href=#143 id=143 data-nosnippet>143</a>    <span class="kw">fn </span>increment_depth(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -428,7 +428,7 @@
 <a href=#428 id=428 data-nosnippet>428</a>    }
 <a href=#429 id=429 data-nosnippet>429</a>
 <a href=#430 id=430 data-nosnippet>430</a>    <span class="doccomment">/// Reset state in case we've successfully parsed some token in
-<a href=#431 id=431 data-nosnippet>431</a>    /// `match_string` or `match_insensetive`.
+<a href=#431 id=431 data-nosnippet>431</a>    /// `match_string` or `match_insensitive`.
 <a href=#432 id=432 data-nosnippet>432</a>    </span><span class="kw">fn </span>nullify_expected_tokens(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_max_position: usize) {
 <a href=#433 id=433 data-nosnippet>433</a>        <span class="self">self</span>.call_stacks.clear();
 <a href=#434 id=434 data-nosnippet>434</a>        <span class="self">self</span>.expected_tokens.clear();
@@ -673,7 +673,7 @@
 <a href=#673 id=673 data-nosnippet>673</a>            </span>(<span class="number">0</span>, <span class="number">0</span>)
 <a href=#674 id=674 data-nosnippet>674</a>        };
 <a href=#675 id=675 data-nosnippet>675</a>
-<a href=#676 id=676 data-nosnippet>676</a>        <span class="kw">if </span><span class="self">self</span>.lookahead == Lookahead::None &amp;&amp; <span class="self">self</span>.atomicity != Atomicity::Atomic {
+<a href=#676 id=676 data-nosnippet>676</a>        <span class="kw">if </span><span class="self">self</span>.lookahead == Lookahead::None &amp;&amp; <span class="self">self</span>.<span class="macro">atomicity !</span>= Atomicity::Atomic {
 <a href=#677 id=677 data-nosnippet>677</a>            <span class="comment">// Pair's position will only be known after running the closure.
 <a href=#678 id=678 data-nosnippet>678</a>            </span><span class="self">self</span>.queue.push(QueueableToken::Start {
 <a href=#679 id=679 data-nosnippet>679</a>                end_token_index: <span class="number">0</span>,
@@ -701,7 +701,7 @@
 <a href=#701 id=701 data-nosnippet>701</a>
 <a href=#702 id=702 data-nosnippet>702</a>        <span class="kw">let </span><span class="kw-2">mut </span>try_add_rule_to_stack = |new_state: <span class="kw-2">&amp;mut </span>Box&lt;ParserState&lt;<span class="lifetime">'_</span>, R&gt;&gt;| {
 <a href=#703 id=703 data-nosnippet>703</a>            <span class="kw">if </span>new_state.parse_attempts.max_position &gt; remember_max_position {
-<a href=#704 id=704 data-nosnippet>704</a>                <span class="comment">// It means that one of `match_string` or e.g. `match_insensetive` function calls
+<a href=#704 id=704 data-nosnippet>704</a>                <span class="comment">// It means that one of `match_string` or e.g. `match_insensitive` function calls
 <a href=#705 id=705 data-nosnippet>705</a>                // have already erased `self.parse_attempts.call_stacks` and that previously
 <a href=#706 id=706 data-nosnippet>706</a>                // remembered values are not valid anymore.
 <a href=#707 id=707 data-nosnippet>707</a>                </span>remember_call_stacks_number = <span class="number">0</span>;
@@ -726,7 +726,7 @@
 <a href=#726 id=726 data-nosnippet>726</a>                }
 <a href=#727 id=727 data-nosnippet>727</a>
 <a href=#728 id=728 data-nosnippet>728</a>                <span class="kw">if </span>new_state.lookahead == Lookahead::None
-<a href=#729 id=729 data-nosnippet>729</a>                    &amp;&amp; new_state.atomicity != Atomicity::Atomic
+<a href=#729 id=729 data-nosnippet>729</a>                    &amp;&amp; new_state.<span class="macro">atomicity !</span>= Atomicity::Atomic
 <a href=#730 id=730 data-nosnippet>730</a>                {
 <a href=#731 id=731 data-nosnippet>731</a>                    <span class="comment">// Index of `QueueableToken::End` token added below
 <a href=#732 id=732 data-nosnippet>732</a>                    // that corresponds to previously added `QueueableToken::Start` token.
@@ -758,7 +758,7 @@
 <a href=#758 id=758 data-nosnippet>758</a>                <span class="prelude-val">Ok</span>(new_state)
 <a href=#759 id=759 data-nosnippet>759</a>            }
 <a href=#760 id=760 data-nosnippet>760</a>            <span class="prelude-val">Err</span>(<span class="kw-2">mut </span>new_state) =&gt; {
-<a href=#761 id=761 data-nosnippet>761</a>                <span class="kw">if </span>new_state.lookahead != Lookahead::Negative {
+<a href=#761 id=761 data-nosnippet>761</a>                <span class="kw">if </span>new_state.<span class="macro">lookahead !</span>= Lookahead::Negative {
 <a href=#762 id=762 data-nosnippet>762</a>                    new_state.track(
 <a href=#763 id=763 data-nosnippet>763</a>                        rule,
 <a href=#764 id=764 data-nosnippet>764</a>                        actual_pos,
@@ -772,7 +772,7 @@
 <a href=#772 id=772 data-nosnippet>772</a>                }
 <a href=#773 id=773 data-nosnippet>773</a>
 <a href=#774 id=774 data-nosnippet>774</a>                <span class="kw">if </span>new_state.lookahead == Lookahead::None
-<a href=#775 id=775 data-nosnippet>775</a>                    &amp;&amp; new_state.atomicity != Atomicity::Atomic
+<a href=#775 id=775 data-nosnippet>775</a>                    &amp;&amp; new_state.<span class="macro">atomicity !</span>= Atomicity::Atomic
 <a href=#776 id=776 data-nosnippet>776</a>                {
 <a href=#777 id=777 data-nosnippet>777</a>                    new_state.queue.truncate(index);
 <a href=#778 id=778 data-nosnippet>778</a>                }
@@ -862,7 +862,7 @@
 <a href=#862 id=862 data-nosnippet>862</a>            <span class="self">self</span>.attempt_pos = pos;
 <a href=#863 id=863 data-nosnippet>863</a>        }
 <a href=#864 id=864 data-nosnippet>864</a>
-<a href=#865 id=865 data-nosnippet>865</a>        <span class="kw">let </span>attempts = <span class="kw">if </span><span class="self">self</span>.lookahead != Lookahead::Negative {
+<a href=#865 id=865 data-nosnippet>865</a>        <span class="kw">let </span>attempts = <span class="kw">if </span><span class="self">self</span>.<span class="macro">lookahead !</span>= Lookahead::Negative {
 <a href=#866 id=866 data-nosnippet>866</a>            <span class="kw-2">&amp;mut </span><span class="self">self</span>.pos_attempts
 <a href=#867 id=867 data-nosnippet>867</a>        } <span class="kw">else </span>{
 <a href=#868 id=868 data-nosnippet>868</a>            <span class="kw-2">&amp;mut </span><span class="self">self</span>.neg_attempts
@@ -1016,7 +1016,7 @@
 <a href=#1016 id=1016 data-nosnippet>1016</a>        token: ParsingToken,
 <a href=#1017 id=1017 data-nosnippet>1017</a>        parse_succeeded: bool,
 <a href=#1018 id=1018 data-nosnippet>1018</a>    ) {
-<a href=#1019 id=1019 data-nosnippet>1019</a>        <span class="comment">// New position after tracked parsed element for case of `parse_succeded` is true.
+<a href=#1019 id=1019 data-nosnippet>1019</a>        <span class="comment">// New position after tracked parsed element for case of `parse_succeeded` is true.
 <a href=#1020 id=1020 data-nosnippet>1020</a>        // Position of parsing failure otherwise.
 <a href=#1021 id=1021 data-nosnippet>1021</a>        </span><span class="kw">let </span>current_pos = <span class="self">self</span>.position.pos();
 <a href=#1022 id=1022 data-nosnippet>1022</a>
@@ -1027,7 +1027,7 @@
 <a href=#1027 id=1027 data-nosnippet>1027</a>            } <span class="kw">else if </span>current_pos &gt; <span class="self">self</span>.parse_attempts.max_position {
 <a href=#1028 id=1028 data-nosnippet>1028</a>                <span class="self">self</span>.parse_attempts.nullify_expected_tokens(current_pos);
 <a href=#1029 id=1029 data-nosnippet>1029</a>            }
-<a href=#1030 id=1030 data-nosnippet>1030</a>        } <span class="kw">else if </span><span class="self">self</span>.lookahead != Lookahead::Negative {
+<a href=#1030 id=1030 data-nosnippet>1030</a>        } <span class="kw">else if </span><span class="self">self</span>.<span class="macro">lookahead !</span>= Lookahead::Negative {
 <a href=#1031 id=1031 data-nosnippet>1031</a>            <span class="self">self</span>.parse_attempts
 <a href=#1032 id=1032 data-nosnippet>1032</a>                .try_add_new_token(token, start_position, current_pos, <span class="bool-val">false</span>);
 <a href=#1033 id=1033 data-nosnippet>1033</a>        }
@@ -1447,7 +1447,7 @@
 <a href=#1447 id=1447 data-nosnippet>1447</a>        // E.g. we have the following rules:
 <a href=#1448 id=1448 data-nosnippet>1448</a>        // * RootRule = @{ InnerRule }
 <a href=#1449 id=1449 data-nosnippet>1449</a>        // * InnerRule = @{ ... }
-<a href=#1450 id=1450 data-nosnippet>1450</a>        </span><span class="kw">let </span>should_toggle = <span class="self">self</span>.atomicity != atomicity;
+<a href=#1450 id=1450 data-nosnippet>1450</a>        </span><span class="kw">let </span>should_toggle = <span class="self">self</span>.<span class="macro">atomicity !</span>= atomicity;
 <a href=#1451 id=1451 data-nosnippet>1451</a>
 <a href=#1452 id=1452 data-nosnippet>1452</a>        <span class="comment">// Note that we take atomicity of the top rule and not of the leaf (inner).
 <a href=#1453 id=1453 data-nosnippet>1453</a>        </span><span class="kw">if </span>should_toggle {
@@ -1813,4 +1813,5 @@
 <a href=#1813 id=1813 data-nosnippet>1813</a>        <span class="macro">assert_eq!</span>(normalize_index(-<span class="number">5</span>, <span class="number">5</span>), <span class="prelude-val">Some</span>(<span class="number">0</span>));
 <a href=#1814 id=1814 data-nosnippet>1814</a>        <span class="macro">assert_eq!</span>(normalize_index(-<span class="number">6</span>, <span class="number">3</span>), <span class="prelude-val">None</span>);
 <a href=#1815 id=1815 data-nosnippet>1815</a>    }
-<a href=#1816 id=1816 data-nosnippet>1816</a>}</code></pre></div></section></main></body></html>
+<a href=#1816 id=1816 data-nosnippet>1816</a>}
+</code></pre></div></section></main></body></html>

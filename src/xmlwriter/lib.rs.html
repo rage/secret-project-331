@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xmlwriter-0.1.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="xmlwriter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">xmlwriter/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">/*!
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xmlwriter-0.1.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="xmlwriter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">xmlwriter/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">/*!
 <a href=#2 id=2 data-nosnippet>2</a>A simple, streaming, partially-validating XML writer that writes XML data into an internal buffer.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a>## Features
@@ -199,7 +199,7 @@
 <a href=#199 id=199 data-nosnippet>199</a>    /// - When called twice.
 <a href=#200 id=200 data-nosnippet>200</a>    </span><span class="attr">#[inline(never)]
 <a href=#201 id=201 data-nosnippet>201</a>    </span><span class="kw">pub fn </span>write_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw">if </span><span class="self">self</span>.state != State::Empty {
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">state !</span>= State::Empty {
 <a href=#203 id=203 data-nosnippet>203</a>            <span class="macro">panic!</span>(<span class="string">"declaration was already written"</span>);
 <a href=#204 id=204 data-nosnippet>204</a>        }
 <a href=#205 id=205 data-nosnippet>205</a>
@@ -228,7 +228,7 @@
 <a href=#228 id=228 data-nosnippet>228</a>            <span class="self">self</span>.write_open_element();
 <a href=#229 id=229 data-nosnippet>229</a>        }
 <a href=#230 id=230 data-nosnippet>230</a>
-<a href=#231 id=231 data-nosnippet>231</a>        <span class="kw">if </span><span class="self">self</span>.state != State::Empty {
+<a href=#231 id=231 data-nosnippet>231</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">state !</span>= State::Empty {
 <a href=#232 id=232 data-nosnippet>232</a>            <span class="self">self</span>.write_new_line();
 <a href=#233 id=233 data-nosnippet>233</a>        }
 <a href=#234 id=234 data-nosnippet>234</a>
@@ -258,7 +258,7 @@
 <a href=#258 id=258 data-nosnippet>258</a>            <span class="self">self</span>.write_open_element();
 <a href=#259 id=259 data-nosnippet>259</a>        }
 <a href=#260 id=260 data-nosnippet>260</a>
-<a href=#261 id=261 data-nosnippet>261</a>        <span class="kw">if </span><span class="self">self</span>.state != State::Empty {
+<a href=#261 id=261 data-nosnippet>261</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">state !</span>= State::Empty {
 <a href=#262 id=262 data-nosnippet>262</a>            <span class="self">self</span>.write_new_line();
 <a href=#263 id=263 data-nosnippet>263</a>        }
 <a href=#264 id=264 data-nosnippet>264</a>
@@ -323,7 +323,7 @@
 <a href=#323 id=323 data-nosnippet>323</a>    /// ```
 <a href=#324 id=324 data-nosnippet>324</a>    </span><span class="attr">#[inline(never)]
 <a href=#325 id=325 data-nosnippet>325</a>    </span><span class="kw">pub fn </span>write_attribute_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, fmt: fmt::Arguments) {
-<a href=#326 id=326 data-nosnippet>326</a>        <span class="kw">if </span><span class="self">self</span>.state != State::Attributes {
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">state !</span>= State::Attributes {
 <a href=#327 id=327 data-nosnippet>327</a>            <span class="macro">panic!</span>(<span class="string">"must be called after start_element()"</span>);
 <a href=#328 id=328 data-nosnippet>328</a>        }
 <a href=#329 id=329 data-nosnippet>329</a>
@@ -360,7 +360,7 @@
 <a href=#360 id=360 data-nosnippet>360</a>    </span><span class="kw">pub fn </span>write_attribute_raw&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, f: F)
 <a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">where </span>F: FnOnce(<span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;)
 <a href=#362 id=362 data-nosnippet>362</a>    {
-<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">if </span><span class="self">self</span>.state != State::Attributes {
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">state !</span>= State::Attributes {
 <a href=#364 id=364 data-nosnippet>364</a>            <span class="macro">panic!</span>(<span class="string">"must be called after start_element()"</span>);
 <a href=#365 id=365 data-nosnippet>365</a>        }
 <a href=#366 id=366 data-nosnippet>366</a>
@@ -465,7 +465,7 @@
 <a href=#465 id=465 data-nosnippet>465</a>            <span class="self">self</span>.write_open_element();
 <a href=#466 id=466 data-nosnippet>466</a>        }
 <a href=#467 id=467 data-nosnippet>467</a>
-<a href=#468 id=468 data-nosnippet>468</a>        <span class="kw">if </span><span class="self">self</span>.state != State::Empty {
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">state !</span>= State::Empty {
 <a href=#469 id=469 data-nosnippet>469</a>            <span class="self">self</span>.write_new_line();
 <a href=#470 id=470 data-nosnippet>470</a>        }
 <a href=#471 id=471 data-nosnippet>471</a>
@@ -601,8 +601,9 @@
 <a href=#601 id=601 data-nosnippet>601</a>    }
 <a href=#602 id=602 data-nosnippet>602</a>
 <a href=#603 id=603 data-nosnippet>603</a>    <span class="kw">fn </span>write_new_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-<a href=#604 id=604 data-nosnippet>604</a>        <span class="kw">if </span><span class="self">self</span>.opt.indent != Indent::None &amp;&amp; !<span class="self">self</span>.preserve_whitespaces {
+<a href=#604 id=604 data-nosnippet>604</a>        <span class="kw">if </span><span class="self">self</span>.opt.<span class="macro">indent !</span>= Indent::None &amp;&amp; !<span class="self">self</span>.preserve_whitespaces {
 <a href=#605 id=605 data-nosnippet>605</a>            <span class="self">self</span>.push_byte(<span class="string">b'\n'</span>);
 <a href=#606 id=606 data-nosnippet>606</a>        }
 <a href=#607 id=607 data-nosnippet>607</a>    }
-<a href=#608 id=608 data-nosnippet>608</a>}</code></pre></div></section></main></body></html>
+<a href=#608 id=608 data-nosnippet>608</a>}
+</code></pre></div></section></main></body></html>

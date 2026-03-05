@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/reqwest-0.12.28/src/connect.rs`."><title>connect.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">reqwest/</div>connect.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/reqwest-0.13.2/src/connect.rs`."><title>connect.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">reqwest/</div>connect.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
 <a href=#2 id=2 data-nosnippet>2</a></span><span class="kw">use </span>http::header::HeaderValue;
 <a href=#3 id=3 data-nosnippet>3</a><span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">use </span>http::uri::Scheme;
@@ -7,7 +7,7 @@
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>hyper_util::client::legacy::connect::{Connected, Connection};
 <a href=#8 id=8 data-nosnippet>8</a><span class="attr">#[cfg(any(feature = <span class="string">"socks"</span>, feature = <span class="string">"__tls"</span>, unix, target_os = <span class="string">"windows"</span>))]
 <a href=#9 id=9 data-nosnippet>9</a></span><span class="kw">use </span>hyper_util::rt::TokioIo;
-<a href=#10 id=10 data-nosnippet>10</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#10 id=10 data-nosnippet>10</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">use </span>native_tls_crate::{TlsConnector, TlsConnectorBuilder};
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span>pin_project_lite::pin_project;
 <a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span>tower::util::{BoxCloneSyncServiceLayer, MapRequestLayer};
@@ -22,7 +22,7 @@
 <a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>std::task::{Context, Poll};
 <a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>std::time::Duration;
 <a href=#24 id=24 data-nosnippet>24</a>
-<a href=#25 id=25 data-nosnippet>25</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#25 id=25 data-nosnippet>25</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#26 id=26 data-nosnippet>26</a></span><span class="kw">use </span><span class="self">self</span>::native_tls_conn::NativeTlsConn;
 <a href=#27 id=27 data-nosnippet>27</a><span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
 <a href=#28 id=28 data-nosnippet>28</a></span><span class="kw">use </span><span class="self">self</span>::rustls_tls_conn::RustlsTlsConn;
@@ -222,8 +222,8 @@
 <a href=#222 id=222 data-nosnippet>222</a>        }
 <a href=#223 id=223 data-nosnippet>223</a>    }
 <a href=#224 id=224 data-nosnippet>224</a>
-<a href=#225 id=225 data-nosnippet>225</a>    <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#226 id=226 data-nosnippet>226</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_default_tls&lt;T&gt;(
+<a href=#225 id=225 data-nosnippet>225</a>    <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#226 id=226 data-nosnippet>226</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_native_tls&lt;T&gt;(
 <a href=#227 id=227 data-nosnippet>227</a>        http: HttpConnector,
 <a href=#228 id=228 data-nosnippet>228</a>        tls: TlsConnectorBuilder,
 <a href=#229 id=229 data-nosnippet>229</a>        proxies: Arc&lt;Vec&lt;ProxyMatcher&gt;&gt;,
@@ -249,7 +249,7 @@
 <a href=#249 id=249 data-nosnippet>249</a>        </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;IpAddr&gt;&gt;,
 <a href=#250 id=250 data-nosnippet>250</a>    {
 <a href=#251 id=251 data-nosnippet>251</a>        <span class="kw">let </span>tls = tls.build().map_err(<span class="kw">crate</span>::error::builder)<span class="question-mark">?</span>;
-<a href=#252 id=252 data-nosnippet>252</a>        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_built_default_tls(
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_built_native_tls(
 <a href=#253 id=253 data-nosnippet>253</a>            http,
 <a href=#254 id=254 data-nosnippet>254</a>            tls,
 <a href=#255 id=255 data-nosnippet>255</a>            proxies,
@@ -273,8 +273,8 @@
 <a href=#273 id=273 data-nosnippet>273</a>        ))
 <a href=#274 id=274 data-nosnippet>274</a>    }
 <a href=#275 id=275 data-nosnippet>275</a>
-<a href=#276 id=276 data-nosnippet>276</a>    <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#277 id=277 data-nosnippet>277</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_built_default_tls&lt;T&gt;(
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#277 id=277 data-nosnippet>277</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_built_native_tls&lt;T&gt;(
 <a href=#278 id=278 data-nosnippet>278</a>        <span class="kw-2">mut </span>http: HttpConnector,
 <a href=#279 id=279 data-nosnippet>279</a>        tls: TlsConnector,
 <a href=#280 id=280 data-nosnippet>280</a>        proxies: Arc&lt;Vec&lt;ProxyMatcher&gt;&gt;,
@@ -319,7 +319,7 @@
 <a href=#319 id=319 data-nosnippet>319</a>        http.enforce_http(<span class="bool-val">false</span>);
 <a href=#320 id=320 data-nosnippet>320</a>
 <a href=#321 id=321 data-nosnippet>321</a>        ConnectorBuilder {
-<a href=#322 id=322 data-nosnippet>322</a>            inner: Inner::DefaultTls(http, tls),
+<a href=#322 id=322 data-nosnippet>322</a>            inner: Inner::NativeTls(http, tls),
 <a href=#323 id=323 data-nosnippet>323</a>            proxies,
 <a href=#324 id=324 data-nosnippet>324</a>            verbose: verbose::OFF,
 <a href=#325 id=325 data-nosnippet>325</a>            nodelay,
@@ -420,8 +420,8 @@
 <a href=#420 id=420 data-nosnippet>420</a>
 <a href=#421 id=421 data-nosnippet>421</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_keepalive(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) {
 <a href=#422 id=422 data-nosnippet>422</a>        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
-<a href=#423 id=423 data-nosnippet>423</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#424 id=424 data-nosnippet>424</a>            </span>Inner::DefaultTls(http, _tls) =&gt; http.set_keepalive(dur),
+<a href=#423 id=423 data-nosnippet>423</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#424 id=424 data-nosnippet>424</a>            </span>Inner::NativeTls(http, _tls) =&gt; http.set_keepalive(dur),
 <a href=#425 id=425 data-nosnippet>425</a>            <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
 <a href=#426 id=426 data-nosnippet>426</a>            </span>Inner::RustlsTls { http, .. } =&gt; http.set_keepalive(dur),
 <a href=#427 id=427 data-nosnippet>427</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
@@ -431,8 +431,8 @@
 <a href=#431 id=431 data-nosnippet>431</a>
 <a href=#432 id=432 data-nosnippet>432</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_keepalive_interval(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) {
 <a href=#433 id=433 data-nosnippet>433</a>        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
-<a href=#434 id=434 data-nosnippet>434</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#435 id=435 data-nosnippet>435</a>            </span>Inner::DefaultTls(http, _tls) =&gt; http.set_keepalive_interval(dur),
+<a href=#434 id=434 data-nosnippet>434</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#435 id=435 data-nosnippet>435</a>            </span>Inner::NativeTls(http, _tls) =&gt; http.set_keepalive_interval(dur),
 <a href=#436 id=436 data-nosnippet>436</a>            <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
 <a href=#437 id=437 data-nosnippet>437</a>            </span>Inner::RustlsTls { http, .. } =&gt; http.set_keepalive_interval(dur),
 <a href=#438 id=438 data-nosnippet>438</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
@@ -442,8 +442,8 @@
 <a href=#442 id=442 data-nosnippet>442</a>
 <a href=#443 id=443 data-nosnippet>443</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_keepalive_retries(<span class="kw-2">&amp;mut </span><span class="self">self</span>, retries: <span class="prelude-ty">Option</span>&lt;u32&gt;) {
 <a href=#444 id=444 data-nosnippet>444</a>        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
-<a href=#445 id=445 data-nosnippet>445</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#446 id=446 data-nosnippet>446</a>            </span>Inner::DefaultTls(http, _tls) =&gt; http.set_keepalive_retries(retries),
+<a href=#445 id=445 data-nosnippet>445</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#446 id=446 data-nosnippet>446</a>            </span>Inner::NativeTls(http, _tls) =&gt; http.set_keepalive_retries(retries),
 <a href=#447 id=447 data-nosnippet>447</a>            <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
 <a href=#448 id=448 data-nosnippet>448</a>            </span>Inner::RustlsTls { http, .. } =&gt; http.set_keepalive_retries(retries),
 <a href=#449 id=449 data-nosnippet>449</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
@@ -459,8 +459,8 @@
 <a href=#459 id=459 data-nosnippet>459</a>    <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
 <a href=#460 id=460 data-nosnippet>460</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_tcp_user_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) {
 <a href=#461 id=461 data-nosnippet>461</a>        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
-<a href=#462 id=462 data-nosnippet>462</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#463 id=463 data-nosnippet>463</a>            </span>Inner::DefaultTls(http, _tls) =&gt; http.set_tcp_user_timeout(dur),
+<a href=#462 id=462 data-nosnippet>462</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#463 id=463 data-nosnippet>463</a>            </span>Inner::NativeTls(http, _tls) =&gt; http.set_tcp_user_timeout(dur),
 <a href=#464 id=464 data-nosnippet>464</a>            <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
 <a href=#465 id=465 data-nosnippet>465</a>            </span>Inner::RustlsTls { http, .. } =&gt; http.set_tcp_user_timeout(dur),
 <a href=#466 id=466 data-nosnippet>466</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
@@ -509,9 +509,9 @@
 <a href=#509 id=509 data-nosnippet>509</a></span><span class="kw">enum </span>Inner {
 <a href=#510 id=510 data-nosnippet>510</a>    <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
 <a href=#511 id=511 data-nosnippet>511</a>    </span>Http(HttpConnector),
-<a href=#512 id=512 data-nosnippet>512</a>    <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#513 id=513 data-nosnippet>513</a>    </span>DefaultTls(HttpConnector, TlsConnector),
-<a href=#514 id=514 data-nosnippet>514</a>    <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
+<a href=#512 id=512 data-nosnippet>512</a>    <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#513 id=513 data-nosnippet>513</a>    </span>NativeTls(HttpConnector, TlsConnector),
+<a href=#514 id=514 data-nosnippet>514</a>    <span class="attr">#[cfg(any(feature = <span class="string">"__rustls"</span>))]
 <a href=#515 id=515 data-nosnippet>515</a>    </span>RustlsTls {
 <a href=#516 id=516 data-nosnippet>516</a>        http: HttpConnector,
 <a href=#517 id=517 data-nosnippet>517</a>        tls: Arc&lt;rustls::ClientConfig&gt;,
@@ -523,8 +523,8 @@
 <a href=#523 id=523 data-nosnippet>523</a>    <span class="attr">#[cfg(feature = <span class="string">"socks"</span>)]
 <a href=#524 id=524 data-nosnippet>524</a>    </span><span class="kw">fn </span>get_http_connector(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::connect::HttpConnector {
 <a href=#525 id=525 data-nosnippet>525</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#526 id=526 data-nosnippet>526</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#527 id=527 data-nosnippet>527</a>            </span>Inner::DefaultTls(http, <span class="kw">_</span>) =&gt; http,
+<a href=#526 id=526 data-nosnippet>526</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#527 id=527 data-nosnippet>527</a>            </span>Inner::NativeTls(http, <span class="kw">_</span>) =&gt; http,
 <a href=#528 id=528 data-nosnippet>528</a>            <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
 <a href=#529 id=529 data-nosnippet>529</a>            </span>Inner::RustlsTls { http, .. } =&gt; http,
 <a href=#530 id=530 data-nosnippet>530</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
@@ -545,8 +545,8 @@
 <a href=#545 id=545 data-nosnippet>545</a>        };
 <a href=#546 id=546 data-nosnippet>546</a>
 <a href=#547 id=547 data-nosnippet>547</a>        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
-<a href=#548 id=548 data-nosnippet>548</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#549 id=549 data-nosnippet>549</a>            </span>Inner::DefaultTls(http, tls) =&gt; {
+<a href=#548 id=548 data-nosnippet>548</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#549 id=549 data-nosnippet>549</a>            </span>Inner::NativeTls(http, tls) =&gt; {
 <a href=#550 id=550 data-nosnippet>550</a>                <span class="kw">if </span>dst.scheme() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>Scheme::HTTPS) {
 <a href=#551 id=551 data-nosnippet>551</a>                    <span class="kw">let </span>host = dst.host().ok_or(<span class="string">"no host in url"</span>)<span class="question-mark">?</span>.to_string();
 <a href=#552 id=552 data-nosnippet>552</a>                    <span class="kw">let </span>conn = socks::connect(proxy, dst, dns, <span class="kw-2">&amp;</span><span class="self">self</span>.resolver, http).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -621,8 +621,8 @@
 <a href=#621 id=621 data-nosnippet>621</a>                    tls_info: <span class="bool-val">false</span>,
 <a href=#622 id=622 data-nosnippet>622</a>                })
 <a href=#623 id=623 data-nosnippet>623</a>            }
-<a href=#624 id=624 data-nosnippet>624</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#625 id=625 data-nosnippet>625</a>            </span>Inner::DefaultTls(http, tls) =&gt; {
+<a href=#624 id=624 data-nosnippet>624</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#625 id=625 data-nosnippet>625</a>            </span>Inner::NativeTls(http, tls) =&gt; {
 <a href=#626 id=626 data-nosnippet>626</a>                <span class="kw">let </span><span class="kw-2">mut </span>http = http.clone();
 <a href=#627 id=627 data-nosnippet>627</a>
 <a href=#628 id=628 data-nosnippet>628</a>                <span class="comment">// Disable Nagle's algorithm for TLS handshake
@@ -738,8 +738,8 @@
 <a href=#738 id=738 data-nosnippet>738</a>                    tls_info: <span class="bool-val">false</span>,
 <a href=#739 id=739 data-nosnippet>739</a>                })
 <a href=#740 id=740 data-nosnippet>740</a>            }
-<a href=#741 id=741 data-nosnippet>741</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#742 id=742 data-nosnippet>742</a>            </span>Inner::DefaultTls(<span class="kw">_</span>, tls) =&gt; {
+<a href=#741 id=741 data-nosnippet>741</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#742 id=742 data-nosnippet>742</a>            </span>Inner::NativeTls(<span class="kw">_</span>, tls) =&gt; {
 <a href=#743 id=743 data-nosnippet>743</a>                <span class="kw">let </span>tls_connector = tokio_native_tls::TlsConnector::from(tls.clone());
 <a href=#744 id=744 data-nosnippet>744</a>                <span class="kw">let </span><span class="kw-2">mut </span>http = hyper_tls::HttpsConnector::from((svc, tls_connector));
 <a href=#745 id=745 data-nosnippet>745</a>                <span class="kw">let </span>io = http.call(dst).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -799,8 +799,8 @@
 <a href=#799 id=799 data-nosnippet>799</a>        </span><span class="kw">let </span>misc = proxy.custom_headers().clone();
 <a href=#800 id=800 data-nosnippet>800</a>
 <a href=#801 id=801 data-nosnippet>801</a>        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.inner {
-<a href=#802 id=802 data-nosnippet>802</a>            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-<a href=#803 id=803 data-nosnippet>803</a>            </span>Inner::DefaultTls(http, tls) =&gt; {
+<a href=#802 id=802 data-nosnippet>802</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
+<a href=#803 id=803 data-nosnippet>803</a>            </span>Inner::NativeTls(http, tls) =&gt; {
 <a href=#804 id=804 data-nosnippet>804</a>                <span class="kw">if </span>dst.scheme() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>Scheme::HTTPS) {
 <a href=#805 id=805 data-nosnippet>805</a>                    <span class="macro">log::trace!</span>(<span class="string">"tunneling HTTPS over proxy"</span>);
 <a href=#806 id=806 data-nosnippet>806</a>                    <span class="kw">let </span>tls_connector = tokio_native_tls::TlsConnector::from(tls.clone());
@@ -975,7 +975,7 @@
 <a href=#975 id=975 data-nosnippet>975</a>    </span>}
 <a href=#976 id=976 data-nosnippet>976</a>}
 <a href=#977 id=977 data-nosnippet>977</a>
-<a href=#978 id=978 data-nosnippet>978</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#978 id=978 data-nosnippet>978</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#979 id=979 data-nosnippet>979</a></span><span class="kw">impl </span>TlsInfoFactory <span class="kw">for </span>tokio_native_tls::TlsStream&lt;TokioIo&lt;TokioIo&lt;tokio::net::TcpStream&gt;&gt;&gt; {
 <a href=#980 id=980 data-nosnippet>980</a>    <span class="kw">fn </span>tls_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::tls::TlsInfo&gt; {
 <a href=#981 id=981 data-nosnippet>981</a>        <span class="kw">let </span>peer_certificate = <span class="self">self
@@ -988,7 +988,7 @@
 <a href=#988 id=988 data-nosnippet>988</a>    }
 <a href=#989 id=989 data-nosnippet>989</a>}
 <a href=#990 id=990 data-nosnippet>990</a>
-<a href=#991 id=991 data-nosnippet>991</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#991 id=991 data-nosnippet>991</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#992 id=992 data-nosnippet>992</a></span><span class="kw">impl </span>TlsInfoFactory
 <a href=#993 id=993 data-nosnippet>993</a>    <span class="kw">for </span>tokio_native_tls::TlsStream&lt;
 <a href=#994 id=994 data-nosnippet>994</a>        TokioIo&lt;hyper_tls::MaybeHttpsStream&lt;TokioIo&lt;tokio::net::TcpStream&gt;&gt;&gt;,
@@ -1005,7 +1005,7 @@
 <a href=#1005 id=1005 data-nosnippet>1005</a>    }
 <a href=#1006 id=1006 data-nosnippet>1006</a>}
 <a href=#1007 id=1007 data-nosnippet>1007</a>
-<a href=#1008 id=1008 data-nosnippet>1008</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#1008 id=1008 data-nosnippet>1008</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#1009 id=1009 data-nosnippet>1009</a></span><span class="kw">impl </span>TlsInfoFactory <span class="kw">for </span>hyper_tls::MaybeHttpsStream&lt;TokioIo&lt;tokio::net::TcpStream&gt;&gt; {
 <a href=#1010 id=1010 data-nosnippet>1010</a>    <span class="kw">fn </span>tls_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::tls::TlsInfo&gt; {
 <a href=#1011 id=1011 data-nosnippet>1011</a>        <span class="kw">match </span><span class="self">self </span>{
@@ -1065,7 +1065,7 @@
 <a href=#1065 id=1065 data-nosnippet>1065</a>    </span>}
 <a href=#1066 id=1066 data-nosnippet>1066</a>}
 <a href=#1067 id=1067 data-nosnippet>1067</a>
-<a href=#1068 id=1068 data-nosnippet>1068</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#1068 id=1068 data-nosnippet>1068</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#1069 id=1069 data-nosnippet>1069</a>#[cfg(unix)]
 <a href=#1070 id=1070 data-nosnippet>1070</a></span><span class="kw">impl </span>TlsInfoFactory <span class="kw">for </span>tokio_native_tls::TlsStream&lt;TokioIo&lt;TokioIo&lt;tokio::net::UnixStream&gt;&gt;&gt; {
 <a href=#1071 id=1071 data-nosnippet>1071</a>    <span class="kw">fn </span>tls_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::tls::TlsInfo&gt; {
@@ -1079,7 +1079,7 @@
 <a href=#1079 id=1079 data-nosnippet>1079</a>    }
 <a href=#1080 id=1080 data-nosnippet>1080</a>}
 <a href=#1081 id=1081 data-nosnippet>1081</a>
-<a href=#1082 id=1082 data-nosnippet>1082</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#1082 id=1082 data-nosnippet>1082</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#1083 id=1083 data-nosnippet>1083</a>#[cfg(unix)]
 <a href=#1084 id=1084 data-nosnippet>1084</a></span><span class="kw">impl </span>TlsInfoFactory
 <a href=#1085 id=1085 data-nosnippet>1085</a>    <span class="kw">for </span>tokio_native_tls::TlsStream&lt;
@@ -1097,7 +1097,7 @@
 <a href=#1097 id=1097 data-nosnippet>1097</a>    }
 <a href=#1098 id=1098 data-nosnippet>1098</a>}
 <a href=#1099 id=1099 data-nosnippet>1099</a>
-<a href=#1100 id=1100 data-nosnippet>1100</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#1100 id=1100 data-nosnippet>1100</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#1101 id=1101 data-nosnippet>1101</a>#[cfg(unix)]
 <a href=#1102 id=1102 data-nosnippet>1102</a></span><span class="kw">impl </span>TlsInfoFactory <span class="kw">for </span>hyper_tls::MaybeHttpsStream&lt;TokioIo&lt;tokio::net::UnixStream&gt;&gt; {
 <a href=#1103 id=1103 data-nosnippet>1103</a>    <span class="kw">fn </span>tls_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::tls::TlsInfo&gt; {
@@ -1161,7 +1161,7 @@
 <a href=#1161 id=1161 data-nosnippet>1161</a>    </span>}
 <a href=#1162 id=1162 data-nosnippet>1162</a>}
 <a href=#1163 id=1163 data-nosnippet>1163</a>
-<a href=#1164 id=1164 data-nosnippet>1164</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#1164 id=1164 data-nosnippet>1164</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#1165 id=1165 data-nosnippet>1165</a>#[cfg(target_os = <span class="string">"windows"</span>)]
 <a href=#1166 id=1166 data-nosnippet>1166</a></span><span class="kw">impl </span>TlsInfoFactory
 <a href=#1167 id=1167 data-nosnippet>1167</a>    <span class="kw">for </span>tokio_native_tls::TlsStream&lt;
@@ -1179,7 +1179,7 @@
 <a href=#1179 id=1179 data-nosnippet>1179</a>    }
 <a href=#1180 id=1180 data-nosnippet>1180</a>}
 <a href=#1181 id=1181 data-nosnippet>1181</a>
-<a href=#1182 id=1182 data-nosnippet>1182</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#1182 id=1182 data-nosnippet>1182</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#1183 id=1183 data-nosnippet>1183</a>#[cfg(target_os = <span class="string">"windows"</span>)]
 <a href=#1184 id=1184 data-nosnippet>1184</a></span><span class="kw">impl </span>TlsInfoFactory
 <a href=#1185 id=1185 data-nosnippet>1185</a>    <span class="kw">for </span>tokio_native_tls::TlsStream&lt;
@@ -1199,7 +1199,7 @@
 <a href=#1199 id=1199 data-nosnippet>1199</a>    }
 <a href=#1200 id=1200 data-nosnippet>1200</a>}
 <a href=#1201 id=1201 data-nosnippet>1201</a>
-<a href=#1202 id=1202 data-nosnippet>1202</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#1202 id=1202 data-nosnippet>1202</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#1203 id=1203 data-nosnippet>1203</a>#[cfg(target_os = <span class="string">"windows"</span>)]
 <a href=#1204 id=1204 data-nosnippet>1204</a></span><span class="kw">impl </span>TlsInfoFactory
 <a href=#1205 id=1205 data-nosnippet>1205</a>    <span class="kw">for </span>hyper_tls::MaybeHttpsStream&lt;TokioIo&lt;tokio::net::windows::named_pipe::NamedPipeClient&gt;&gt;
@@ -1452,7 +1452,7 @@
 <a href=#1452 id=1452 data-nosnippet>1452</a>
 <a href=#1453 id=1453 data-nosnippet>1453</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>Connecting = Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Conn, BoxError&gt;&gt; + Send&gt;&gt;;
 <a href=#1454 id=1454 data-nosnippet>1454</a>
-<a href=#1455 id=1455 data-nosnippet>1455</a><span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+<a href=#1455 id=1455 data-nosnippet>1455</a><span class="attr">#[cfg(feature = <span class="string">"__native-tls"</span>)]
 <a href=#1456 id=1456 data-nosnippet>1456</a></span><span class="kw">mod </span>native_tls_conn {
 <a href=#1457 id=1457 data-nosnippet>1457</a>    <span class="kw">use </span><span class="kw">super</span>::TlsInfoFactory;
 <a href=#1458 id=1458 data-nosnippet>1458</a>    <span class="kw">use </span>hyper::rt::{Read, ReadBufCursor, Write};
@@ -1485,12 +1485,12 @@
 <a href=#1485 id=1485 data-nosnippet>1485</a>                .get_ref()
 <a href=#1486 id=1486 data-nosnippet>1486</a>                .inner()
 <a href=#1487 id=1487 data-nosnippet>1487</a>                .connected();
-<a href=#1488 id=1488 data-nosnippet>1488</a>            <span class="attr">#[cfg(feature = <span class="string">"native-tls-alpn"</span>)]
+<a href=#1488 id=1488 data-nosnippet>1488</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls-alpn"</span>)]
 <a href=#1489 id=1489 data-nosnippet>1489</a>            </span><span class="kw">match </span><span class="self">self</span>.inner.inner().get_ref().negotiated_alpn().ok() {
 <a href=#1490 id=1490 data-nosnippet>1490</a>                <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(alpn_protocol)) <span class="kw">if </span>alpn_protocol == <span class="string">b"h2" </span>=&gt; connected.negotiated_h2(),
 <a href=#1491 id=1491 data-nosnippet>1491</a>                <span class="kw">_ </span>=&gt; connected,
 <a href=#1492 id=1492 data-nosnippet>1492</a>            }
-<a href=#1493 id=1493 data-nosnippet>1493</a>            <span class="attr">#[cfg(not(feature = <span class="string">"native-tls-alpn"</span>))]
+<a href=#1493 id=1493 data-nosnippet>1493</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__native-tls-alpn"</span>))]
 <a href=#1494 id=1494 data-nosnippet>1494</a>            </span>connected
 <a href=#1495 id=1495 data-nosnippet>1495</a>        }
 <a href=#1496 id=1496 data-nosnippet>1496</a>    }
@@ -1505,12 +1505,12 @@
 <a href=#1505 id=1505 data-nosnippet>1505</a>                .get_ref()
 <a href=#1506 id=1506 data-nosnippet>1506</a>                .inner()
 <a href=#1507 id=1507 data-nosnippet>1507</a>                .connected();
-<a href=#1508 id=1508 data-nosnippet>1508</a>            <span class="attr">#[cfg(feature = <span class="string">"native-tls-alpn"</span>)]
+<a href=#1508 id=1508 data-nosnippet>1508</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls-alpn"</span>)]
 <a href=#1509 id=1509 data-nosnippet>1509</a>            </span><span class="kw">match </span><span class="self">self</span>.inner.inner().get_ref().negotiated_alpn().ok() {
 <a href=#1510 id=1510 data-nosnippet>1510</a>                <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(alpn_protocol)) <span class="kw">if </span>alpn_protocol == <span class="string">b"h2" </span>=&gt; connected.negotiated_h2(),
 <a href=#1511 id=1511 data-nosnippet>1511</a>                <span class="kw">_ </span>=&gt; connected,
 <a href=#1512 id=1512 data-nosnippet>1512</a>            }
-<a href=#1513 id=1513 data-nosnippet>1513</a>            <span class="attr">#[cfg(not(feature = <span class="string">"native-tls-alpn"</span>))]
+<a href=#1513 id=1513 data-nosnippet>1513</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__native-tls-alpn"</span>))]
 <a href=#1514 id=1514 data-nosnippet>1514</a>            </span>connected
 <a href=#1515 id=1515 data-nosnippet>1515</a>        }
 <a href=#1516 id=1516 data-nosnippet>1516</a>    }
@@ -1519,12 +1519,12 @@
 <a href=#1519 id=1519 data-nosnippet>1519</a>    </span><span class="kw">impl </span>Connection <span class="kw">for </span>NativeTlsConn&lt;TokioIo&lt;TokioIo&lt;tokio::net::UnixStream&gt;&gt;&gt; {
 <a href=#1520 id=1520 data-nosnippet>1520</a>        <span class="kw">fn </span>connected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Connected {
 <a href=#1521 id=1521 data-nosnippet>1521</a>            <span class="kw">let </span>connected = Connected::new();
-<a href=#1522 id=1522 data-nosnippet>1522</a>            <span class="attr">#[cfg(feature = <span class="string">"native-tls-alpn"</span>)]
+<a href=#1522 id=1522 data-nosnippet>1522</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls-alpn"</span>)]
 <a href=#1523 id=1523 data-nosnippet>1523</a>            </span><span class="kw">match </span><span class="self">self</span>.inner.inner().get_ref().negotiated_alpn().ok() {
 <a href=#1524 id=1524 data-nosnippet>1524</a>                <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(alpn_protocol)) <span class="kw">if </span>alpn_protocol == <span class="string">b"h2" </span>=&gt; connected.negotiated_h2(),
 <a href=#1525 id=1525 data-nosnippet>1525</a>                <span class="kw">_ </span>=&gt; connected,
 <a href=#1526 id=1526 data-nosnippet>1526</a>            }
-<a href=#1527 id=1527 data-nosnippet>1527</a>            <span class="attr">#[cfg(not(feature = <span class="string">"native-tls-alpn"</span>))]
+<a href=#1527 id=1527 data-nosnippet>1527</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__native-tls-alpn"</span>))]
 <a href=#1528 id=1528 data-nosnippet>1528</a>            </span>connected
 <a href=#1529 id=1529 data-nosnippet>1529</a>        }
 <a href=#1530 id=1530 data-nosnippet>1530</a>    }
@@ -1533,12 +1533,12 @@
 <a href=#1533 id=1533 data-nosnippet>1533</a>    </span><span class="kw">impl </span>Connection <span class="kw">for </span>NativeTlsConn&lt;TokioIo&lt;MaybeHttpsStream&lt;TokioIo&lt;tokio::net::UnixStream&gt;&gt;&gt;&gt; {
 <a href=#1534 id=1534 data-nosnippet>1534</a>        <span class="kw">fn </span>connected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Connected {
 <a href=#1535 id=1535 data-nosnippet>1535</a>            <span class="kw">let </span>connected = Connected::new();
-<a href=#1536 id=1536 data-nosnippet>1536</a>            <span class="attr">#[cfg(feature = <span class="string">"native-tls-alpn"</span>)]
+<a href=#1536 id=1536 data-nosnippet>1536</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls-alpn"</span>)]
 <a href=#1537 id=1537 data-nosnippet>1537</a>            </span><span class="kw">match </span><span class="self">self</span>.inner.inner().get_ref().negotiated_alpn().ok() {
 <a href=#1538 id=1538 data-nosnippet>1538</a>                <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(alpn_protocol)) <span class="kw">if </span>alpn_protocol == <span class="string">b"h2" </span>=&gt; connected.negotiated_h2(),
 <a href=#1539 id=1539 data-nosnippet>1539</a>                <span class="kw">_ </span>=&gt; connected,
 <a href=#1540 id=1540 data-nosnippet>1540</a>            }
-<a href=#1541 id=1541 data-nosnippet>1541</a>            <span class="attr">#[cfg(not(feature = <span class="string">"native-tls-alpn"</span>))]
+<a href=#1541 id=1541 data-nosnippet>1541</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__native-tls-alpn"</span>))]
 <a href=#1542 id=1542 data-nosnippet>1542</a>            </span>connected
 <a href=#1543 id=1543 data-nosnippet>1543</a>        }
 <a href=#1544 id=1544 data-nosnippet>1544</a>    }
@@ -1549,12 +1549,12 @@
 <a href=#1549 id=1549 data-nosnippet>1549</a>    {
 <a href=#1550 id=1550 data-nosnippet>1550</a>        <span class="kw">fn </span>connected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Connected {
 <a href=#1551 id=1551 data-nosnippet>1551</a>            <span class="kw">let </span>connected = Connected::new();
-<a href=#1552 id=1552 data-nosnippet>1552</a>            <span class="attr">#[cfg(feature = <span class="string">"native-tls-alpn"</span>)]
+<a href=#1552 id=1552 data-nosnippet>1552</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls-alpn"</span>)]
 <a href=#1553 id=1553 data-nosnippet>1553</a>            </span><span class="kw">match </span><span class="self">self</span>.inner.inner().get_ref().negotiated_alpn().ok() {
 <a href=#1554 id=1554 data-nosnippet>1554</a>                <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(alpn_protocol)) <span class="kw">if </span>alpn_protocol == <span class="string">b"h2" </span>=&gt; connected.negotiated_h2(),
 <a href=#1555 id=1555 data-nosnippet>1555</a>                <span class="kw">_ </span>=&gt; connected,
 <a href=#1556 id=1556 data-nosnippet>1556</a>            }
-<a href=#1557 id=1557 data-nosnippet>1557</a>            <span class="attr">#[cfg(not(feature = <span class="string">"native-tls-alpn"</span>))]
+<a href=#1557 id=1557 data-nosnippet>1557</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__native-tls-alpn"</span>))]
 <a href=#1558 id=1558 data-nosnippet>1558</a>            </span>connected
 <a href=#1559 id=1559 data-nosnippet>1559</a>        }
 <a href=#1560 id=1560 data-nosnippet>1560</a>    }
@@ -1567,12 +1567,12 @@
 <a href=#1567 id=1567 data-nosnippet>1567</a>    {
 <a href=#1568 id=1568 data-nosnippet>1568</a>        <span class="kw">fn </span>connected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Connected {
 <a href=#1569 id=1569 data-nosnippet>1569</a>            <span class="kw">let </span>connected = Connected::new();
-<a href=#1570 id=1570 data-nosnippet>1570</a>            <span class="attr">#[cfg(feature = <span class="string">"native-tls-alpn"</span>)]
+<a href=#1570 id=1570 data-nosnippet>1570</a>            <span class="attr">#[cfg(feature = <span class="string">"__native-tls-alpn"</span>)]
 <a href=#1571 id=1571 data-nosnippet>1571</a>            </span><span class="kw">match </span><span class="self">self</span>.inner.inner().get_ref().negotiated_alpn().ok() {
 <a href=#1572 id=1572 data-nosnippet>1572</a>                <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(alpn_protocol)) <span class="kw">if </span>alpn_protocol == <span class="string">b"h2" </span>=&gt; connected.negotiated_h2(),
 <a href=#1573 id=1573 data-nosnippet>1573</a>                <span class="kw">_ </span>=&gt; connected,
 <a href=#1574 id=1574 data-nosnippet>1574</a>            }
-<a href=#1575 id=1575 data-nosnippet>1575</a>            <span class="attr">#[cfg(not(feature = <span class="string">"native-tls-alpn"</span>))]
+<a href=#1575 id=1575 data-nosnippet>1575</a>            <span class="attr">#[cfg(not(feature = <span class="string">"__native-tls-alpn"</span>))]
 <a href=#1576 id=1576 data-nosnippet>1576</a>            </span>connected
 <a href=#1577 id=1577 data-nosnippet>1577</a>        }
 <a href=#1578 id=1578 data-nosnippet>1578</a>    }
@@ -2088,4 +2088,5 @@
 <a href=#2088 id=2088 data-nosnippet>2088</a>            <span class="prelude-val">Ok</span>(())
 <a href=#2089 id=2089 data-nosnippet>2089</a>        }
 <a href=#2090 id=2090 data-nosnippet>2090</a>    }
-<a href=#2091 id=2091 data-nosnippet>2091</a>}</code></pre></div></section></main></body></html>
+<a href=#2091 id=2091 data-nosnippet>2091</a>}
+</code></pre></div></section></main></body></html>

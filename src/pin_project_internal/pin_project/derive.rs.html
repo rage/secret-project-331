@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pin-project-internal-1.1.10/src/pin_project/derive.rs`."><title>derive.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="pin_project_internal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pin_project_internal/pin_project/</div>derive.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// SPDX-License-Identifier: Apache-2.0 OR MIT
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pin-project-internal-1.1.11/src/pin_project/derive.rs`."><title>derive.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="pin_project_internal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pin_project_internal/pin_project/</div>derive.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// SPDX-License-Identifier: Apache-2.0 OR MIT
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>proc_macro2::{Delimiter, Group, Span, TokenStream};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>quote::{ToTokens <span class="kw">as _</span>, format_ident, quote, quote_spanned};
@@ -252,7 +252,7 @@
 <a href=#252 id=252 data-nosnippet>252</a>    }
 <a href=#253 id=253 data-nosnippet>253</a>}
 <a href=#254 id=254 data-nosnippet>254</a>
-<a href=#255 id=255 data-nosnippet>255</a><span class="attr">#[derive(Copy, Clone, PartialEq)]
+<a href=#255 id=255 data-nosnippet>255</a><span class="attr">#[derive(Clone, Copy, PartialEq)]
 <a href=#256 id=256 data-nosnippet>256</a></span><span class="kw">enum </span>TypeKind {
 <a href=#257 id=257 data-nosnippet>257</a>    Enum,
 <a href=#258 id=258 data-nosnippet>258</a>    Struct,
@@ -1065,79 +1065,77 @@
 <a href=#1065 id=1065 data-nosnippet>1065</a>        }
 <a href=#1066 id=1066 data-nosnippet>1066</a>    }
 <a href=#1067 id=1067 data-nosnippet>1067</a>
-<a href=#1068 id=1068 data-nosnippet>1068</a>    <span class="kw">let </span>fields = <span class="kw">match </span>fields {
-<a href=#1069 id=1069 data-nosnippet>1069</a>        <span class="prelude-val">Some</span>(fields) =&gt; fields,
-<a href=#1070 id=1070 data-nosnippet>1070</a>        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(TokenStream::new()),
-<a href=#1071 id=1071 data-nosnippet>1071</a>    };
-<a href=#1072 id=1072 data-nosnippet>1072</a>
-<a href=#1073 id=1073 data-nosnippet>1073</a>    <span class="comment">// Workaround for https://github.com/taiki-e/pin-project/issues/32
-<a href=#1074 id=1074 data-nosnippet>1074</a>    // Through the tricky use of proc macros, it's possible to bypass
-<a href=#1075 id=1075 data-nosnippet>1075</a>    // the above check for the `repr` attribute.
-<a href=#1076 id=1076 data-nosnippet>1076</a>    // To ensure that it's impossible to use pin projections on a `#[repr(packed)]`
-<a href=#1077 id=1077 data-nosnippet>1077</a>    // struct, we generate code like this:
-<a href=#1078 id=1078 data-nosnippet>1078</a>    //
-<a href=#1079 id=1079 data-nosnippet>1079</a>    // ```
-<a href=#1080 id=1080 data-nosnippet>1080</a>    // #[forbid(unaligned_references)]
-<a href=#1081 id=1081 data-nosnippet>1081</a>    // fn assert_not_repr_packed(val: &amp;MyStruct) {
-<a href=#1082 id=1082 data-nosnippet>1082</a>    //     let _field_1 = &amp;val.field_1;
-<a href=#1083 id=1083 data-nosnippet>1083</a>    //     let _field_2 = &amp;val.field_2;
-<a href=#1084 id=1084 data-nosnippet>1084</a>    //     ...
-<a href=#1085 id=1085 data-nosnippet>1085</a>    //     let _field_n = &amp;val.field_n;
-<a href=#1086 id=1086 data-nosnippet>1086</a>    // }
-<a href=#1087 id=1087 data-nosnippet>1087</a>    // ```
+<a href=#1068 id=1068 data-nosnippet>1068</a>    <span class="kw">let </span><span class="prelude-val">Some</span>(fields) = fields <span class="kw">else </span>{ <span class="kw">return </span><span class="prelude-val">Ok</span>(TokenStream::new()) };
+<a href=#1069 id=1069 data-nosnippet>1069</a>
+<a href=#1070 id=1070 data-nosnippet>1070</a>    <span class="comment">// Workaround for https://github.com/taiki-e/pin-project/issues/32
+<a href=#1071 id=1071 data-nosnippet>1071</a>    // Through the tricky use of proc macros, it's possible to bypass
+<a href=#1072 id=1072 data-nosnippet>1072</a>    // the above check for the `repr` attribute.
+<a href=#1073 id=1073 data-nosnippet>1073</a>    // To ensure that it's impossible to use pin projections on a `#[repr(packed)]`
+<a href=#1074 id=1074 data-nosnippet>1074</a>    // struct, we generate code like this:
+<a href=#1075 id=1075 data-nosnippet>1075</a>    //
+<a href=#1076 id=1076 data-nosnippet>1076</a>    // ```
+<a href=#1077 id=1077 data-nosnippet>1077</a>    // #[forbid(unaligned_references)]
+<a href=#1078 id=1078 data-nosnippet>1078</a>    // fn assert_not_repr_packed(val: &amp;MyStruct) {
+<a href=#1079 id=1079 data-nosnippet>1079</a>    //     let _field_1 = &amp;val.field_1;
+<a href=#1080 id=1080 data-nosnippet>1080</a>    //     let _field_2 = &amp;val.field_2;
+<a href=#1081 id=1081 data-nosnippet>1081</a>    //     ...
+<a href=#1082 id=1082 data-nosnippet>1082</a>    //     let _field_n = &amp;val.field_n;
+<a href=#1083 id=1083 data-nosnippet>1083</a>    // }
+<a href=#1084 id=1084 data-nosnippet>1084</a>    // ```
+<a href=#1085 id=1085 data-nosnippet>1085</a>    //
+<a href=#1086 id=1086 data-nosnippet>1086</a>    // Taking a reference to a packed field is UB, and applying
+<a href=#1087 id=1087 data-nosnippet>1087</a>    // `#[forbid(unaligned_references)]` makes sure that doing this is a hard error.
 <a href=#1088 id=1088 data-nosnippet>1088</a>    //
-<a href=#1089 id=1089 data-nosnippet>1089</a>    // Taking a reference to a packed field is UB, and applying
-<a href=#1090 id=1090 data-nosnippet>1090</a>    // `#[forbid(unaligned_references)]` makes sure that doing this is a hard error.
-<a href=#1091 id=1091 data-nosnippet>1091</a>    //
-<a href=#1092 id=1092 data-nosnippet>1092</a>    // If the struct ends up having `#[repr(packed)]` applied somehow,
-<a href=#1093 id=1093 data-nosnippet>1093</a>    // this will generate an (unfriendly) error message. Under all reasonable
-<a href=#1094 id=1094 data-nosnippet>1094</a>    // circumstances, we'll detect the `#[repr(packed)]` attribute, and generate
-<a href=#1095 id=1095 data-nosnippet>1095</a>    // a much nicer error above.
-<a href=#1096 id=1096 data-nosnippet>1096</a>    //
-<a href=#1097 id=1097 data-nosnippet>1097</a>    // There is one exception: If the type of a struct field has an alignment of 1
-<a href=#1098 id=1098 data-nosnippet>1098</a>    // (e.g. u8), it is always safe to take a reference to it, even if the struct
-<a href=#1099 id=1099 data-nosnippet>1099</a>    // is `#[repr(packed)]`. If the struct is composed entirely of types of
-<a href=#1100 id=1100 data-nosnippet>1100</a>    // alignment 1, our generated method will not trigger an error if the
-<a href=#1101 id=1101 data-nosnippet>1101</a>    // struct is `#[repr(packed)]`.
-<a href=#1102 id=1102 data-nosnippet>1102</a>    //
-<a href=#1103 id=1103 data-nosnippet>1103</a>    // Fortunately, this should have no observable consequence - `#[repr(packed)]`
-<a href=#1104 id=1104 data-nosnippet>1104</a>    // is essentially a no-op on such a type. Nevertheless, we include a test
-<a href=#1105 id=1105 data-nosnippet>1105</a>    // to ensure that the compiler doesn't ever try to copy the fields on
-<a href=#1106 id=1106 data-nosnippet>1106</a>    // such a struct when trying to drop it - which is reason we prevent
-<a href=#1107 id=1107 data-nosnippet>1107</a>    // `#[repr(packed)]` in the first place.
-<a href=#1108 id=1108 data-nosnippet>1108</a>    //
-<a href=#1109 id=1109 data-nosnippet>1109</a>    // See also https://github.com/taiki-e/pin-project/pull/34.
-<a href=#1110 id=1110 data-nosnippet>1110</a>    //
-<a href=#1111 id=1111 data-nosnippet>1111</a>    // Note:
-<a href=#1112 id=1112 data-nosnippet>1112</a>    // - Lint-based tricks aren't perfect, but they're much better than nothing:
-<a href=#1113 id=1113 data-nosnippet>1113</a>    //   https://github.com/taiki-e/pin-project-lite/issues/26
-<a href=#1114 id=1114 data-nosnippet>1114</a>    //
-<a href=#1115 id=1115 data-nosnippet>1115</a>    // - Enable both unaligned_references and safe_packed_borrows lints
-<a href=#1116 id=1116 data-nosnippet>1116</a>    //   because unaligned_references lint does not exist in older compilers:
-<a href=#1117 id=1117 data-nosnippet>1117</a>    //   https://github.com/taiki-e/pin-project-lite/pull/55
-<a href=#1118 id=1118 data-nosnippet>1118</a>    //   https://github.com/rust-lang/rust/pull/82525
-<a href=#1119 id=1119 data-nosnippet>1119</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>field_refs = <span class="macro">vec!</span>[];
-<a href=#1120 id=1120 data-nosnippet>1120</a>    <span class="kw">match </span>fields {
-<a href=#1121 id=1121 data-nosnippet>1121</a>        Fields::Named(FieldsNamed { named, .. }) =&gt; {
-<a href=#1122 id=1122 data-nosnippet>1122</a>            <span class="kw">for </span>Field { ident, .. } <span class="kw">in </span>named {
-<a href=#1123 id=1123 data-nosnippet>1123</a>                field_refs.push(<span class="macro">quote!</span>(<span class="kw-2">&amp;</span>this.#ident));
-<a href=#1124 id=1124 data-nosnippet>1124</a>            }
-<a href=#1125 id=1125 data-nosnippet>1125</a>        }
-<a href=#1126 id=1126 data-nosnippet>1126</a>        Fields::Unnamed(FieldsUnnamed { unnamed, .. }) =&gt; {
-<a href=#1127 id=1127 data-nosnippet>1127</a>            <span class="kw">for </span>(index, <span class="kw">_</span>) <span class="kw">in </span>unnamed.iter().enumerate() {
-<a href=#1128 id=1128 data-nosnippet>1128</a>                <span class="kw">let </span>index = Index::from(index);
-<a href=#1129 id=1129 data-nosnippet>1129</a>                field_refs.push(<span class="macro">quote!</span>(<span class="kw-2">&amp;</span>this.#index));
-<a href=#1130 id=1130 data-nosnippet>1130</a>            }
-<a href=#1131 id=1131 data-nosnippet>1131</a>        }
-<a href=#1132 id=1132 data-nosnippet>1132</a>        Fields::Unit =&gt; {}
-<a href=#1133 id=1133 data-nosnippet>1133</a>    }
-<a href=#1134 id=1134 data-nosnippet>1134</a>
-<a href=#1135 id=1135 data-nosnippet>1135</a>    <span class="kw">let </span>(impl_generics, ty_generics, where_clause) = orig.generics.split_for_impl();
-<a href=#1136 id=1136 data-nosnippet>1136</a>    <span class="kw">let </span>ident = orig.ident;
-<a href=#1137 id=1137 data-nosnippet>1137</a>    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
-<a href=#1138 id=1138 data-nosnippet>1138</a>        <span class="attr">#[forbid(unaligned_references, safe_packed_borrows)]
-<a href=#1139 id=1139 data-nosnippet>1139</a>        </span><span class="kw">fn </span>__assert_not_repr_packed #impl_generics (this: <span class="kw-2">&amp;</span>#ident #ty_generics) #where_clause {
-<a href=#1140 id=1140 data-nosnippet>1140</a>            #(<span class="kw">let _ </span>= #field_refs;)*
-<a href=#1141 id=1141 data-nosnippet>1141</a>        }
-<a href=#1142 id=1142 data-nosnippet>1142</a>    })
-<a href=#1143 id=1143 data-nosnippet>1143</a>}</code></pre></div></section></main></body></html>
+<a href=#1089 id=1089 data-nosnippet>1089</a>    // If the struct ends up having `#[repr(packed)]` applied somehow,
+<a href=#1090 id=1090 data-nosnippet>1090</a>    // this will generate an (unfriendly) error message. Under all reasonable
+<a href=#1091 id=1091 data-nosnippet>1091</a>    // circumstances, we'll detect the `#[repr(packed)]` attribute, and generate
+<a href=#1092 id=1092 data-nosnippet>1092</a>    // a much nicer error above.
+<a href=#1093 id=1093 data-nosnippet>1093</a>    //
+<a href=#1094 id=1094 data-nosnippet>1094</a>    // There is one exception: If the type of a struct field has an alignment of 1
+<a href=#1095 id=1095 data-nosnippet>1095</a>    // (e.g. u8), it is always safe to take a reference to it, even if the struct
+<a href=#1096 id=1096 data-nosnippet>1096</a>    // is `#[repr(packed)]`. If the struct is composed entirely of types of
+<a href=#1097 id=1097 data-nosnippet>1097</a>    // alignment 1, our generated method will not trigger an error if the
+<a href=#1098 id=1098 data-nosnippet>1098</a>    // struct is `#[repr(packed)]`.
+<a href=#1099 id=1099 data-nosnippet>1099</a>    //
+<a href=#1100 id=1100 data-nosnippet>1100</a>    // Fortunately, this should have no observable consequence - `#[repr(packed)]`
+<a href=#1101 id=1101 data-nosnippet>1101</a>    // is essentially a no-op on such a type. Nevertheless, we include a test
+<a href=#1102 id=1102 data-nosnippet>1102</a>    // to ensure that the compiler doesn't ever try to copy the fields on
+<a href=#1103 id=1103 data-nosnippet>1103</a>    // such a struct when trying to drop it - which is reason we prevent
+<a href=#1104 id=1104 data-nosnippet>1104</a>    // `#[repr(packed)]` in the first place.
+<a href=#1105 id=1105 data-nosnippet>1105</a>    //
+<a href=#1106 id=1106 data-nosnippet>1106</a>    // See also https://github.com/taiki-e/pin-project/pull/34.
+<a href=#1107 id=1107 data-nosnippet>1107</a>    //
+<a href=#1108 id=1108 data-nosnippet>1108</a>    // Note:
+<a href=#1109 id=1109 data-nosnippet>1109</a>    // - Lint-based tricks aren't perfect, but they're much better than nothing:
+<a href=#1110 id=1110 data-nosnippet>1110</a>    //   https://github.com/taiki-e/pin-project-lite/issues/26
+<a href=#1111 id=1111 data-nosnippet>1111</a>    //
+<a href=#1112 id=1112 data-nosnippet>1112</a>    // - Enable both unaligned_references and safe_packed_borrows lints
+<a href=#1113 id=1113 data-nosnippet>1113</a>    //   because unaligned_references lint does not exist in older compilers:
+<a href=#1114 id=1114 data-nosnippet>1114</a>    //   https://github.com/taiki-e/pin-project-lite/pull/55
+<a href=#1115 id=1115 data-nosnippet>1115</a>    //   https://github.com/rust-lang/rust/pull/82525
+<a href=#1116 id=1116 data-nosnippet>1116</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>field_refs = <span class="macro">vec!</span>[];
+<a href=#1117 id=1117 data-nosnippet>1117</a>    <span class="kw">match </span>fields {
+<a href=#1118 id=1118 data-nosnippet>1118</a>        Fields::Named(FieldsNamed { named, .. }) =&gt; {
+<a href=#1119 id=1119 data-nosnippet>1119</a>            <span class="kw">for </span>Field { ident, .. } <span class="kw">in </span>named {
+<a href=#1120 id=1120 data-nosnippet>1120</a>                field_refs.push(<span class="macro">quote!</span>(<span class="kw-2">&amp;</span>this.#ident));
+<a href=#1121 id=1121 data-nosnippet>1121</a>            }
+<a href=#1122 id=1122 data-nosnippet>1122</a>        }
+<a href=#1123 id=1123 data-nosnippet>1123</a>        Fields::Unnamed(FieldsUnnamed { unnamed, .. }) =&gt; {
+<a href=#1124 id=1124 data-nosnippet>1124</a>            <span class="kw">for </span>(index, <span class="kw">_</span>) <span class="kw">in </span>unnamed.iter().enumerate() {
+<a href=#1125 id=1125 data-nosnippet>1125</a>                <span class="kw">let </span>index = Index::from(index);
+<a href=#1126 id=1126 data-nosnippet>1126</a>                field_refs.push(<span class="macro">quote!</span>(<span class="kw-2">&amp;</span>this.#index));
+<a href=#1127 id=1127 data-nosnippet>1127</a>            }
+<a href=#1128 id=1128 data-nosnippet>1128</a>        }
+<a href=#1129 id=1129 data-nosnippet>1129</a>        Fields::Unit =&gt; {}
+<a href=#1130 id=1130 data-nosnippet>1130</a>    }
+<a href=#1131 id=1131 data-nosnippet>1131</a>
+<a href=#1132 id=1132 data-nosnippet>1132</a>    <span class="kw">let </span>(impl_generics, ty_generics, where_clause) = orig.generics.split_for_impl();
+<a href=#1133 id=1133 data-nosnippet>1133</a>    <span class="kw">let </span>ident = orig.ident;
+<a href=#1134 id=1134 data-nosnippet>1134</a>    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
+<a href=#1135 id=1135 data-nosnippet>1135</a>        <span class="attr">#[forbid(unaligned_references, safe_packed_borrows)]
+<a href=#1136 id=1136 data-nosnippet>1136</a>        </span><span class="kw">fn </span>__assert_not_repr_packed #impl_generics (this: <span class="kw-2">&amp;</span>#ident #ty_generics) #where_clause {
+<a href=#1137 id=1137 data-nosnippet>1137</a>            #(<span class="kw">let _ </span>= #field_refs;)*
+<a href=#1138 id=1138 data-nosnippet>1138</a>        }
+<a href=#1139 id=1139 data-nosnippet>1139</a>    })
+<a href=#1140 id=1140 data-nosnippet>1140</a>}
+</code></pre></div></section></main></body></html>

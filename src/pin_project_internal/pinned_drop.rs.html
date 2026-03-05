@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pin-project-internal-1.1.10/src/pinned_drop.rs`."><title>pinned_drop.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="pin_project_internal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pin_project_internal/</div>pinned_drop.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// SPDX-License-Identifier: Apache-2.0 OR MIT
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pin-project-internal-1.1.11/src/pinned_drop.rs`."><title>pinned_drop.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="pin_project_internal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pin_project_internal/</div>pinned_drop.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// SPDX-License-Identifier: Apache-2.0 OR MIT
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>proc_macro2::{Span, TokenStream};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>quote::{ToTokens <span class="kw">as _</span>, format_ident, quote};
@@ -107,7 +107,7 @@
 <a href=#107 id=107 data-nosnippet>107</a>
 <a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">const </span>INVALID_ARGUMENT: <span class="kw-2">&amp;</span>str = <span class="string">"method `drop` must take an argument `self: Pin&lt;&amp;mut Self&gt;`"</span>;
 <a href=#109 id=109 data-nosnippet>109</a>
-<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">if </span>sig.ident != <span class="string">"drop" </span>{
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">if </span>sig.<span class="macro">ident !</span>= <span class="string">"drop" </span>{
 <a href=#111 id=111 data-nosnippet>111</a>        <span class="macro">bail!</span>(sig.ident, <span class="string">"method `{}` is not a member of trait `PinnedDrop`"</span>, sig.ident);
 <a href=#112 id=112 data-nosnippet>112</a>    }
 <a href=#113 id=113 data-nosnippet>113</a>
@@ -140,7 +140,7 @@
 <a href=#140 id=140 data-nosnippet>140</a>                    <span class="comment">// (mut) self: (&lt;path&gt;::)Pin&lt;&amp;mut Self&gt;
 <a href=#141 id=141 data-nosnippet>141</a>                    </span><span class="kw">if </span>args.args.len() == <span class="number">1
 <a href=#142 id=142 data-nosnippet>142</a>                        </span>&amp;&amp; ty.ident == <span class="string">"Pin"
-<a href=#143 id=143 data-nosnippet>143</a>                        </span>&amp;&amp; get_ty_path(elem).map_or(<span class="bool-val">false</span>, |path| path.is_ident(<span class="string">"Self"</span>))
+<a href=#143 id=143 data-nosnippet>143</a>                        </span>&amp;&amp; get_ty_path(elem).is_some_and(|path| path.is_ident(<span class="string">"Self"</span>))
 <a href=#144 id=144 data-nosnippet>144</a>                    {
 <a href=#145 id=145 data-nosnippet>145</a>                        <span class="kw">if </span>sig.unsafety.is_some() {
 <a href=#146 id=146 data-nosnippet>146</a>                            <span class="macro">bail!</span>(sig.unsafety, <span class="string">"implementing the method `drop` is not unsafe"</span>);
@@ -180,54 +180,54 @@
 <a href=#180 id=180 data-nosnippet>180</a>        ::pin_project::__private::PinnedDrop
 <a href=#181 id=181 data-nosnippet>181</a>    };
 <a href=#182 id=182 data-nosnippet>182</a>
-<a href=#183 id=183 data-nosnippet>183</a>    <span class="kw">let </span>method =
-<a href=#184 id=184 data-nosnippet>184</a>        <span class="kw">if let </span>ImplItem::Fn(method) = <span class="kw-2">&amp;mut </span>item.items[<span class="number">0</span>] { method } <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
-<a href=#185 id=185 data-nosnippet>185</a>
-<a href=#186 id=186 data-nosnippet>186</a>    <span class="comment">// `fn drop(mut self: Pin&lt;&amp;mut Self&gt;)` -&gt; `fn __drop_inner&lt;T&gt;(mut __self: Pin&lt;&amp;mut Receiver&gt;)`
-<a href=#187 id=187 data-nosnippet>187</a>    </span><span class="kw">let </span>drop_inner = {
-<a href=#188 id=188 data-nosnippet>188</a>        <span class="kw">let </span><span class="kw-2">mut </span>drop_inner = method.clone();
-<a href=#189 id=189 data-nosnippet>189</a>        <span class="kw">let </span>ident = <span class="macro">format_ident!</span>(<span class="string">"__drop_inner"</span>);
-<a href=#190 id=190 data-nosnippet>190</a>        <span class="comment">// Add a dummy `__drop_inner` function to prevent users call outer `__drop_inner`.
-<a href=#191 id=191 data-nosnippet>191</a>        </span>drop_inner.block.stmts.insert(<span class="number">0</span>, <span class="macro">parse_quote!</span>(<span class="kw">fn </span>#ident() {}));
-<a href=#192 id=192 data-nosnippet>192</a>        drop_inner.sig.ident = ident;
-<a href=#193 id=193 data-nosnippet>193</a>        drop_inner.sig.generics = item.generics.clone();
-<a href=#194 id=194 data-nosnippet>194</a>        <span class="kw">let </span>receiver = drop_inner.sig.receiver().expect(<span class="string">"drop() should have a receiver"</span>).clone();
-<a href=#195 id=195 data-nosnippet>195</a>        <span class="kw">let </span>pat = Box::new(Pat::Ident(PatIdent {
-<a href=#196 id=196 data-nosnippet>196</a>            attrs: <span class="macro">vec!</span>[],
-<a href=#197 id=197 data-nosnippet>197</a>            by_ref: <span class="prelude-val">None</span>,
-<a href=#198 id=198 data-nosnippet>198</a>            mutability: receiver.mutability,
-<a href=#199 id=199 data-nosnippet>199</a>            ident: Ident::new(<span class="string">"__self"</span>, receiver.self_token.span()),
-<a href=#200 id=200 data-nosnippet>200</a>            subpat: <span class="prelude-val">None</span>,
-<a href=#201 id=201 data-nosnippet>201</a>        }));
-<a href=#202 id=202 data-nosnippet>202</a>        drop_inner.sig.inputs[<span class="number">0</span>] = FnArg::Typed(PatType {
-<a href=#203 id=203 data-nosnippet>203</a>            attrs: receiver.attrs,
-<a href=#204 id=204 data-nosnippet>204</a>            pat,
-<a href=#205 id=205 data-nosnippet>205</a>            colon_token: Colon::default(),
-<a href=#206 id=206 data-nosnippet>206</a>            ty: receiver.ty,
-<a href=#207 id=207 data-nosnippet>207</a>        });
-<a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">let </span>self_ty = <span class="kw">if let </span>Type::Path(ty) = <span class="kw-2">&amp;*</span>item.self_ty { ty } <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
-<a href=#209 id=209 data-nosnippet>209</a>        <span class="kw">let </span><span class="kw-2">mut </span>visitor = ReplaceReceiver(self_ty);
-<a href=#210 id=210 data-nosnippet>210</a>        visitor.visit_signature_mut(<span class="kw-2">&amp;mut </span>drop_inner.sig);
-<a href=#211 id=211 data-nosnippet>211</a>        visitor.visit_block_mut(<span class="kw-2">&amp;mut </span>drop_inner.block);
-<a href=#212 id=212 data-nosnippet>212</a>        drop_inner
-<a href=#213 id=213 data-nosnippet>213</a>    };
-<a href=#214 id=214 data-nosnippet>214</a>
-<a href=#215 id=215 data-nosnippet>215</a>    <span class="comment">// `fn drop(mut self: Pin&lt;&amp;mut Self&gt;)` -&gt; `unsafe fn drop(self: Pin&lt;&amp;mut Self&gt;)`
-<a href=#216 id=216 data-nosnippet>216</a>    </span>method.sig.unsafety = <span class="prelude-val">Some</span>(&lt;<span class="macro">Token!</span>[<span class="kw">unsafe</span>]&gt;::default());
-<a href=#217 id=217 data-nosnippet>217</a>    <span class="kw">let </span>self_token = <span class="kw">if let </span>FnArg::Receiver(<span class="kw-2">ref mut </span>rec) = method.sig.inputs[<span class="number">0</span>] {
-<a href=#218 id=218 data-nosnippet>218</a>        rec.mutability = <span class="prelude-val">None</span>;
-<a href=#219 id=219 data-nosnippet>219</a>        <span class="kw-2">&amp;</span>rec.self_token
-<a href=#220 id=220 data-nosnippet>220</a>    } <span class="kw">else </span>{
-<a href=#221 id=221 data-nosnippet>221</a>        <span class="macro">panic!</span>(<span class="string">"drop() should have a receiver"</span>)
-<a href=#222 id=222 data-nosnippet>222</a>    };
-<a href=#223 id=223 data-nosnippet>223</a>
-<a href=#224 id=224 data-nosnippet>224</a>    method.block.stmts = <span class="macro">parse_quote!</span> {
-<a href=#225 id=225 data-nosnippet>225</a>        <span class="attr">#[allow(
-<a href=#226 id=226 data-nosnippet>226</a>            clippy::missing_const_for_fn,
-<a href=#227 id=227 data-nosnippet>227</a>            clippy::needless_pass_by_value, <span class="comment">// This lint does not warn the receiver.
-<a href=#228 id=228 data-nosnippet>228</a>            </span>clippy::single_call_fn
-<a href=#229 id=229 data-nosnippet>229</a>        )]
-<a href=#230 id=230 data-nosnippet>230</a>        </span>#drop_inner
-<a href=#231 id=231 data-nosnippet>231</a>        __drop_inner(#self_token);
-<a href=#232 id=232 data-nosnippet>232</a>    };
-<a href=#233 id=233 data-nosnippet>233</a>}</code></pre></div></section></main></body></html>
+<a href=#183 id=183 data-nosnippet>183</a>    <span class="kw">let </span>ImplItem::Fn(method) = <span class="kw-2">&amp;mut </span>item.items[<span class="number">0</span>] <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
+<a href=#184 id=184 data-nosnippet>184</a>
+<a href=#185 id=185 data-nosnippet>185</a>    <span class="comment">// `fn drop(mut self: Pin&lt;&amp;mut Self&gt;)` -&gt; `fn __drop_inner&lt;T&gt;(mut __self: Pin&lt;&amp;mut Receiver&gt;)`
+<a href=#186 id=186 data-nosnippet>186</a>    </span><span class="kw">let </span>drop_inner = {
+<a href=#187 id=187 data-nosnippet>187</a>        <span class="kw">let </span><span class="kw-2">mut </span>drop_inner = method.clone();
+<a href=#188 id=188 data-nosnippet>188</a>        <span class="kw">let </span>ident = <span class="macro">format_ident!</span>(<span class="string">"__drop_inner"</span>);
+<a href=#189 id=189 data-nosnippet>189</a>        <span class="comment">// Add a dummy `__drop_inner` function to prevent users call outer `__drop_inner`.
+<a href=#190 id=190 data-nosnippet>190</a>        </span>drop_inner.block.stmts.insert(<span class="number">0</span>, <span class="macro">parse_quote!</span>(<span class="kw">fn </span>#ident() {}));
+<a href=#191 id=191 data-nosnippet>191</a>        drop_inner.sig.ident = ident;
+<a href=#192 id=192 data-nosnippet>192</a>        drop_inner.sig.generics = item.generics.clone();
+<a href=#193 id=193 data-nosnippet>193</a>        <span class="kw">let </span>receiver = drop_inner.sig.receiver().expect(<span class="string">"drop() should have a receiver"</span>).clone();
+<a href=#194 id=194 data-nosnippet>194</a>        <span class="kw">let </span>pat = Box::new(Pat::Ident(PatIdent {
+<a href=#195 id=195 data-nosnippet>195</a>            attrs: <span class="macro">vec!</span>[],
+<a href=#196 id=196 data-nosnippet>196</a>            by_ref: <span class="prelude-val">None</span>,
+<a href=#197 id=197 data-nosnippet>197</a>            mutability: receiver.mutability,
+<a href=#198 id=198 data-nosnippet>198</a>            ident: Ident::new(<span class="string">"__self"</span>, receiver.self_token.span()),
+<a href=#199 id=199 data-nosnippet>199</a>            subpat: <span class="prelude-val">None</span>,
+<a href=#200 id=200 data-nosnippet>200</a>        }));
+<a href=#201 id=201 data-nosnippet>201</a>        drop_inner.sig.inputs[<span class="number">0</span>] = FnArg::Typed(PatType {
+<a href=#202 id=202 data-nosnippet>202</a>            attrs: receiver.attrs,
+<a href=#203 id=203 data-nosnippet>203</a>            pat,
+<a href=#204 id=204 data-nosnippet>204</a>            colon_token: Colon::default(),
+<a href=#205 id=205 data-nosnippet>205</a>            ty: receiver.ty,
+<a href=#206 id=206 data-nosnippet>206</a>        });
+<a href=#207 id=207 data-nosnippet>207</a>        <span class="kw">let </span>Type::Path(self_ty) = <span class="kw-2">&amp;*</span>item.self_ty <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
+<a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">let </span><span class="kw-2">mut </span>visitor = ReplaceReceiver(self_ty);
+<a href=#209 id=209 data-nosnippet>209</a>        visitor.visit_signature_mut(<span class="kw-2">&amp;mut </span>drop_inner.sig);
+<a href=#210 id=210 data-nosnippet>210</a>        visitor.visit_block_mut(<span class="kw-2">&amp;mut </span>drop_inner.block);
+<a href=#211 id=211 data-nosnippet>211</a>        drop_inner
+<a href=#212 id=212 data-nosnippet>212</a>    };
+<a href=#213 id=213 data-nosnippet>213</a>
+<a href=#214 id=214 data-nosnippet>214</a>    <span class="comment">// `fn drop(mut self: Pin&lt;&amp;mut Self&gt;)` -&gt; `unsafe fn drop(self: Pin&lt;&amp;mut Self&gt;)`
+<a href=#215 id=215 data-nosnippet>215</a>    </span>method.sig.unsafety = <span class="prelude-val">Some</span>(&lt;<span class="macro">Token!</span>[<span class="kw">unsafe</span>]&gt;::default());
+<a href=#216 id=216 data-nosnippet>216</a>    <span class="kw">let </span>self_token = <span class="kw">if let </span>FnArg::Receiver(<span class="kw-2">ref mut </span>rec) = method.sig.inputs[<span class="number">0</span>] {
+<a href=#217 id=217 data-nosnippet>217</a>        rec.mutability = <span class="prelude-val">None</span>;
+<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw-2">&amp;</span>rec.self_token
+<a href=#219 id=219 data-nosnippet>219</a>    } <span class="kw">else </span>{
+<a href=#220 id=220 data-nosnippet>220</a>        <span class="macro">panic!</span>(<span class="string">"drop() should have a receiver"</span>)
+<a href=#221 id=221 data-nosnippet>221</a>    };
+<a href=#222 id=222 data-nosnippet>222</a>
+<a href=#223 id=223 data-nosnippet>223</a>    method.block.stmts = <span class="macro">parse_quote!</span> {
+<a href=#224 id=224 data-nosnippet>224</a>        <span class="attr">#[allow(
+<a href=#225 id=225 data-nosnippet>225</a>            clippy::missing_const_for_fn,
+<a href=#226 id=226 data-nosnippet>226</a>            clippy::needless_pass_by_value, <span class="comment">// This lint does not warn the receiver.
+<a href=#227 id=227 data-nosnippet>227</a>            </span>clippy::single_call_fn
+<a href=#228 id=228 data-nosnippet>228</a>        )]
+<a href=#229 id=229 data-nosnippet>229</a>        </span>#drop_inner
+<a href=#230 id=230 data-nosnippet>230</a>        __drop_inner(#self_token);
+<a href=#231 id=231 data-nosnippet>231</a>    };
+<a href=#232 id=232 data-nosnippet>232</a>}
+</code></pre></div></section></main></body></html>

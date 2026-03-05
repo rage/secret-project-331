@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fixed_decimal-0.7.0/src/decimal.rs`."><title>decimal.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">fixed_decimal/</div>decimal.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fixed_decimal-0.7.1/src/decimal.rs`."><title>decimal.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">fixed_decimal/</div>decimal.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 <a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
 <a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -172,10 +172,10 @@
 <a href=#172 id=172 data-nosnippet>172</a>            }
 <a href=#173 id=173 data-nosnippet>173</a>            <span class="comment">// TODO: Should we check here that `d` is between 0 and 9?
 <a href=#174 id=174 data-nosnippet>174</a>            // That should always be the case if IntIterator is used.
-<a href=#175 id=175 data-nosnippet>175</a>            </span><span class="kw">if </span>i != <span class="number">0 </span>|| d != <span class="number">0 </span>{
+<a href=#175 id=175 data-nosnippet>175</a>            </span><span class="kw">if </span><span class="macro">i !</span>= <span class="number">0 </span>|| <span class="macro">d !</span>= <span class="number">0 </span>{
 <a href=#176 id=176 data-nosnippet>176</a>                i += <span class="number">1</span>;
 <a href=#177 id=177 data-nosnippet>177</a>                <span class="kw">match </span>X.checked_sub(i) {
-<a href=#178 id=178 data-nosnippet>178</a>                    <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// X - i &lt; X
+<a href=#178 id=178 data-nosnippet>178</a>                    <span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// X - i &lt; X
 <a href=#179 id=179 data-nosnippet>179</a>                    </span><span class="prelude-val">Some</span>(v) =&gt; mem[v] = d,
 <a href=#180 id=180 data-nosnippet>180</a>                    <span class="comment">// This error should be obsolete after X is made generic
 <a href=#181 id=181 data-nosnippet>181</a>                    </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Limit),
@@ -185,13 +185,13 @@
 <a href=#185 id=185 data-nosnippet>185</a>            }
 <a href=#186 id=186 data-nosnippet>186</a>        }
 <a href=#187 id=187 data-nosnippet>187</a>        <span class="kw">let </span><span class="kw-2">mut </span>result: <span class="self">Self </span>= Default::default();
-<a href=#188 id=188 data-nosnippet>188</a>        <span class="kw">if </span>i != <span class="number">0 </span>{
+<a href=#188 id=188 data-nosnippet>188</a>        <span class="kw">if </span><span class="macro">i !</span>= <span class="number">0 </span>{
 <a href=#189 id=189 data-nosnippet>189</a>            <span class="kw">let </span>magnitude = trailing_zeros + i - <span class="number">1</span>;
 <a href=#190 id=190 data-nosnippet>190</a>            <span class="macro">debug_assert!</span>(magnitude &lt;= i16::MAX <span class="kw">as </span>usize);
 <a href=#191 id=191 data-nosnippet>191</a>            result.magnitude = magnitude <span class="kw">as </span>i16;
 <a href=#192 id=192 data-nosnippet>192</a>            result.upper_magnitude = result.magnitude;
 <a href=#193 id=193 data-nosnippet>193</a>            <span class="macro">debug_assert!</span>(i &lt;= X);
-<a href=#194 id=194 data-nosnippet>194</a>            <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// X - i &lt; X
+<a href=#194 id=194 data-nosnippet>194</a>            <span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// X - i &lt; X
 <a href=#195 id=195 data-nosnippet>195</a>            </span>result.digits.extend_from_slice(<span class="kw-2">&amp;</span>mem[(X - i)..]);
 <a href=#196 id=196 data-nosnippet>196</a>        }
 <a href=#197 id=197 data-nosnippet>197</a>        <span class="attr">#[cfg(debug_assertions)]
@@ -955,7 +955,7 @@
 <a href=#955 id=955 data-nosnippet>955</a>            <span class="kw">let </span>cut = <span class="kw">crate</span>::ops::i16_abs_sub(<span class="self">self</span>.magnitude, magnitude) <span class="kw">as </span>usize;
 <a href=#956 id=956 data-nosnippet>956</a>            <span class="kw">let _ </span>= <span class="self">self</span>.digits.drain(<span class="number">0</span>..cut).count();
 <a href=#957 id=957 data-nosnippet>957</a>            <span class="comment">// Count number of leading zeroes
-<a href=#958 id=958 data-nosnippet>958</a>            </span><span class="kw">let </span>extra_zeroes = <span class="self">self</span>.digits.iter().position(|x| <span class="kw-2">*</span>x != <span class="number">0</span>).unwrap_or(<span class="number">0</span>);
+<a href=#958 id=958 data-nosnippet>958</a>            </span><span class="kw">let </span>extra_zeroes = <span class="self">self</span>.digits.iter().position(|x| <span class="kw-2">*</span><span class="macro">x !</span>= <span class="number">0</span>).unwrap_or(<span class="number">0</span>);
 <a href=#959 id=959 data-nosnippet>959</a>            <span class="kw">let _ </span>= <span class="self">self</span>.digits.drain(<span class="number">0</span>..extra_zeroes).count();
 <a href=#960 id=960 data-nosnippet>960</a>            <span class="macro">debug_assert!</span>(!<span class="self">self</span>.digits.is_empty());
 <a href=#961 id=961 data-nosnippet>961</a>            <span class="self">self</span>.magnitude = <span class="kw">crate</span>::ops::i16_sub_unsigned(magnitude, extra_zeroes <span class="kw">as </span>u16);
@@ -1616,7 +1616,7 @@
 <a href=#1616 id=1616 data-nosnippet>1616</a>            </span><span class="kw">let </span>position_last_nonzero_digit = <span class="self">self
 <a href=#1617 id=1617 data-nosnippet>1617</a>                </span>.digits
 <a href=#1618 id=1618 data-nosnippet>1618</a>                .iter()
-<a href=#1619 id=1619 data-nosnippet>1619</a>                .rposition(|x| <span class="kw-2">*</span>x != <span class="number">0</span>)
+<a href=#1619 id=1619 data-nosnippet>1619</a>                .rposition(|x| <span class="kw-2">*</span><span class="macro">x !</span>= <span class="number">0</span>)
 <a href=#1620 id=1620 data-nosnippet>1620</a>                .map(|x| x + <span class="number">1</span>)
 <a href=#1621 id=1621 data-nosnippet>1621</a>                .unwrap_or(<span class="number">0</span>);
 <a href=#1622 id=1622 data-nosnippet>1622</a>            <span class="self">self</span>.digits.truncate(position_last_nonzero_digit);
@@ -1815,7 +1815,7 @@
 <a href=#1815 id=1815 data-nosnippet>1815</a>    ///
 <a href=#1816 id=1816 data-nosnippet>1816</a>    /// Example: `debug_assert!(self.check_invariants())`
 <a href=#1817 id=1817 data-nosnippet>1817</a>    </span><span class="attr">#[cfg(debug_assertions)]
-<a href=#1818 id=1818 data-nosnippet>1818</a>    #[allow(clippy::indexing_slicing)]
+<a href=#1818 id=1818 data-nosnippet>1818</a>    #[expect(clippy::indexing_slicing)]
 <a href=#1819 id=1819 data-nosnippet>1819</a>    </span><span class="kw">fn </span>check_invariants(<span class="kw-2">&amp;</span><span class="self">self</span>) {
 <a href=#1820 id=1820 data-nosnippet>1820</a>        <span class="comment">// magnitude invariants:
 <a href=#1821 id=1821 data-nosnippet>1821</a>        </span><span class="macro">debug_assert!</span>(
@@ -1974,7 +1974,7 @@
 <a href=#1974 id=1974 data-nosnippet>1974</a>        <span class="comment">// The string without the exponent (or sign)
 <a href=#1975 id=1975 data-nosnippet>1975</a>        // We do the bulk of the calculation on this string,
 <a href=#1976 id=1976 data-nosnippet>1976</a>        // and extract the exponent at the end
-<a href=#1977 id=1977 data-nosnippet>1977</a>        </span><span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// exponent_index comes from enumerate
+<a href=#1977 id=1977 data-nosnippet>1977</a>        </span><span class="attr">#[expect(clippy::indexing_slicing)] </span><span class="comment">// exponent_index comes from enumerate
 <a href=#1978 id=1978 data-nosnippet>1978</a>        </span><span class="kw">let </span>no_exponent_str = <span class="kw-2">&amp;</span>no_sign_str[..exponent_index];
 <a href=#1979 id=1979 data-nosnippet>1979</a>
 <a href=#1980 id=1980 data-nosnippet>1980</a>        <span class="comment">// If there was no dot, truncate the dot index
@@ -2020,7 +2020,7 @@
 <a href=#2020 id=2020 data-nosnippet>2020</a>        // Compute leftmost_digit
 <a href=#2021 id=2021 data-nosnippet>2021</a>        </span><span class="kw">let </span>leftmost_digit = no_exponent_str
 <a href=#2022 id=2022 data-nosnippet>2022</a>            .iter()
-<a href=#2023 id=2023 data-nosnippet>2023</a>            .position(|c| <span class="kw-2">*</span>c != <span class="string">b'.' </span>&amp;&amp; <span class="kw-2">*</span>c != <span class="string">b'0'</span>);
+<a href=#2023 id=2023 data-nosnippet>2023</a>            .position(|c| <span class="kw-2">*</span><span class="macro">c !</span>= <span class="string">b'.' </span>&amp;&amp; <span class="kw-2">*</span><span class="macro">c !</span>= <span class="string">b'0'</span>);
 <a href=#2024 id=2024 data-nosnippet>2024</a>
 <a href=#2025 id=2025 data-nosnippet>2025</a>        <span class="comment">// If the input only has zeros (like 000, 00.0, -00.000) we handle the situation here
 <a href=#2026 id=2026 data-nosnippet>2026</a>        // by returning the dec and don't running the rest of the code
@@ -2041,7 +2041,7 @@
 <a href=#2041 id=2041 data-nosnippet>2041</a>        <span class="comment">// Compute the index where the rightmost_digit ends
 <a href=#2042 id=2042 data-nosnippet>2042</a>        </span><span class="kw">let </span>rightmost_digit_end = no_exponent_str
 <a href=#2043 id=2043 data-nosnippet>2043</a>            .iter()
-<a href=#2044 id=2044 data-nosnippet>2044</a>            .rposition(|c| <span class="kw-2">*</span>c != <span class="string">b'.' </span>&amp;&amp; <span class="kw-2">*</span>c != <span class="string">b'0'</span>)
+<a href=#2044 id=2044 data-nosnippet>2044</a>            .rposition(|c| <span class="kw-2">*</span><span class="macro">c !</span>= <span class="string">b'.' </span>&amp;&amp; <span class="kw-2">*</span><span class="macro">c !</span>= <span class="string">b'0'</span>)
 <a href=#2045 id=2045 data-nosnippet>2045</a>            .map(|p| p + <span class="number">1</span>)
 <a href=#2046 id=2046 data-nosnippet>2046</a>            .unwrap_or(no_exponent_str.len());
 <a href=#2047 id=2047 data-nosnippet>2047</a>
@@ -2052,11 +2052,11 @@
 <a href=#2052 id=2052 data-nosnippet>2052</a>        }
 <a href=#2053 id=2053 data-nosnippet>2053</a>
 <a href=#2054 id=2054 data-nosnippet>2054</a>        <span class="comment">// Constructing DecimalFixed.digits
-<a href=#2055 id=2055 data-nosnippet>2055</a>        </span><span class="attr">#[allow(clippy::indexing_slicing)]
+<a href=#2055 id=2055 data-nosnippet>2055</a>        </span><span class="attr">#[expect(clippy::indexing_slicing)]
 <a href=#2056 id=2056 data-nosnippet>2056</a>        </span><span class="comment">// leftmost_digit  and rightmost_digit_end come from Iterator::position and Iterator::rposition.
 <a href=#2057 id=2057 data-nosnippet>2057</a>        </span><span class="kw">let </span>v: SmallVec&lt;[u8; <span class="number">8</span>]&gt; = no_exponent_str[leftmost_digit..rightmost_digit_end]
 <a href=#2058 id=2058 data-nosnippet>2058</a>            .iter()
-<a href=#2059 id=2059 data-nosnippet>2059</a>            .filter(|c| <span class="kw-2">**</span>c != <span class="string">b'.'</span>)
+<a href=#2059 id=2059 data-nosnippet>2059</a>            .filter(|c| <span class="kw-2">**</span><span class="macro">c !</span>= <span class="string">b'.'</span>)
 <a href=#2060 id=2060 data-nosnippet>2060</a>            .map(|c| c - <span class="string">b'0'</span>)
 <a href=#2061 id=2061 data-nosnippet>2061</a>            .collect();
 <a href=#2062 id=2062 data-nosnippet>2062</a>
@@ -2068,7 +2068,7 @@
 <a href=#2068 id=2068 data-nosnippet>2068</a>        </span><span class="kw">if </span>has_exponent {
 <a href=#2069 id=2069 data-nosnippet>2069</a>            <span class="kw">let </span><span class="kw-2">mut </span>pow = <span class="number">0</span>;
 <a href=#2070 id=2070 data-nosnippet>2070</a>            <span class="kw">let </span><span class="kw-2">mut </span>pos_neg = <span class="number">1</span>;
-<a href=#2071 id=2071 data-nosnippet>2071</a>            <span class="attr">#[allow(clippy::indexing_slicing)]
+<a href=#2071 id=2071 data-nosnippet>2071</a>            <span class="attr">#[expect(clippy::indexing_slicing)]
 <a href=#2072 id=2072 data-nosnippet>2072</a>            </span><span class="comment">// exponent_index is exist, then exponent_index + 1 will equal at most no_sign_str.len().
 <a href=#2073 id=2073 data-nosnippet>2073</a>            </span><span class="kw">for </span>digit <span class="kw">in </span><span class="kw-2">&amp;</span>no_sign_str[exponent_index + <span class="number">1</span>..] {
 <a href=#2074 id=2074 data-nosnippet>2074</a>                <span class="kw">if </span><span class="kw-2">*</span>digit == <span class="string">b'-' </span>{
@@ -2538,7 +2538,7 @@
 <a href=#2538 id=2538 data-nosnippet>2538</a>        },
 <a href=#2539 id=2539 data-nosnippet>2539</a>    ];
 <a href=#2540 id=2540 data-nosnippet>2540</a>    <span class="kw">for </span>cas <span class="kw">in </span><span class="kw-2">&amp;</span>cases {
-<a href=#2541 id=2541 data-nosnippet>2541</a>        <span class="macro">println!</span>(<span class="string">"cas: {:?}"</span>, cas);
+<a href=#2541 id=2541 data-nosnippet>2541</a>        <span class="macro">println!</span>(<span class="string">"cas: {cas:?}"</span>);
 <a href=#2542 id=2542 data-nosnippet>2542</a>        <span class="kw">let </span>fd = UnsignedDecimal::from_str(cas.input_str).unwrap();
 <a href=#2543 id=2543 data-nosnippet>2543</a>        <span class="macro">assert_eq!</span>(
 <a href=#2544 id=2544 data-nosnippet>2544</a>            fd.magnitude_range(),
@@ -4173,4 +4173,5 @@
 <a href=#4173 id=4173 data-nosnippet>4173</a>        RoundingIncrement::MultiplesOf25,
 <a href=#4174 id=4174 data-nosnippet>4174</a>    );
 <a href=#4175 id=4175 data-nosnippet>4175</a>    <span class="macro">assert_eq!</span>(<span class="string">"2.50"</span>, dec.to_string());
-<a href=#4176 id=4176 data-nosnippet>4176</a>}</code></pre></div></section></main></body></html>
+<a href=#4176 id=4176 data-nosnippet>4176</a>}
+</code></pre></div></section></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["CubicOffset"]};
+window.SIDEBAR_ITEMS = {"fn":["offset_cubic"]};

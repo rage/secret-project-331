@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/usvg-0.45.1/src/parser/image.rs`."><title>image.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">usvg/parser/</div>image.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Resvg Authors
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/usvg-0.47.0/src/parser/image.rs`."><title>image.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">usvg/parser/</div>image.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Resvg Authors
 <a href=#2 id=2 data-nosnippet>2</a>// SPDX-License-Identifier: Apache-2.0 OR MIT
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">use </span>std::sync::Arc;
@@ -6,7 +6,7 @@
 <a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span>svgtypes::{AspectRatio, Length};
 <a href=#7 id=7 data-nosnippet>7</a>
 <a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span><span class="kw">super</span>::svgtree::{AId, SvgNode};
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use super</span>::{converter, OptionLog, Options};
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use super</span>::{OptionLog, Options, converter};
 <a href=#10 id=10 data-nosnippet>10</a><span class="kw">use crate</span>::{
 <a href=#11 id=11 data-nosnippet>11</a>    ClipPath, Group, Image, ImageKind, ImageRendering, Node, NonZeroRect, Path, Size, Transform,
 <a href=#12 id=12 data-nosnippet>12</a>    Tree, Visibility,
@@ -234,7 +234,7 @@
 <a href=#234 id=234 data-nosnippet>234</a>    );
 <a href=#235 id=235 data-nosnippet>235</a>
 <a href=#236 id=236 data-nosnippet>236</a>    <span class="kw">let </span>abs_transform = parent.abs_transform.pre_concat(image_ts);
-<a href=#237 id=237 data-nosnippet>237</a>    <span class="kw">let </span>abs_bounding_box = rect.transform(abs_transform)<span class="question-mark">?</span>;
+<a href=#237 id=237 data-nosnippet>237</a>    <span class="kw">let </span>abs_bounding_box = view_box.transform(parent.abs_transform)<span class="question-mark">?</span>;
 <a href=#238 id=238 data-nosnippet>238</a>
 <a href=#239 id=239 data-nosnippet>239</a>    <span class="kw">let </span><span class="kw-2">mut </span>g = Group::empty();
 <a href=#240 id=240 data-nosnippet>240</a>    g.id = id;
@@ -323,62 +323,27 @@
 <a href=#323 id=323 data-nosnippet>323</a>    }
 <a href=#324 id=324 data-nosnippet>324</a>}
 <a href=#325 id=325 data-nosnippet>325</a>
-<a href=#326 id=326 data-nosnippet>326</a><span class="doccomment">/// Tries to load the `ImageData` content as an SVG image.
-<a href=#327 id=327 data-nosnippet>327</a>///
-<a href=#328 id=328 data-nosnippet>328</a>/// Unlike `Tree::from_*` methods, this one will also remove all `image` elements
-<a href=#329 id=329 data-nosnippet>329</a>/// from the loaded SVG, as required by the spec.
-<a href=#330 id=330 data-nosnippet>330</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>load_sub_svg(data: <span class="kw-2">&amp;</span>[u8], opt: <span class="kw-2">&amp;</span>Options) -&gt; <span class="prelude-ty">Option</span>&lt;ImageKind&gt; {
-<a href=#331 id=331 data-nosnippet>331</a>    <span class="kw">let </span>sub_opt = Options {
-<a href=#332 id=332 data-nosnippet>332</a>        resources_dir: <span class="prelude-val">None</span>,
-<a href=#333 id=333 data-nosnippet>333</a>        dpi: opt.dpi,
-<a href=#334 id=334 data-nosnippet>334</a>        font_size: opt.font_size,
-<a href=#335 id=335 data-nosnippet>335</a>        languages: opt.languages.clone(),
-<a href=#336 id=336 data-nosnippet>336</a>        shape_rendering: opt.shape_rendering,
-<a href=#337 id=337 data-nosnippet>337</a>        text_rendering: opt.text_rendering,
-<a href=#338 id=338 data-nosnippet>338</a>        image_rendering: opt.image_rendering,
-<a href=#339 id=339 data-nosnippet>339</a>        default_size: opt.default_size,
-<a href=#340 id=340 data-nosnippet>340</a>        <span class="comment">// The referenced SVG image cannot have any 'image' elements by itself.
-<a href=#341 id=341 data-nosnippet>341</a>        // Not only recursive. Any. Don't know why.
-<a href=#342 id=342 data-nosnippet>342</a>        </span>image_href_resolver: ImageHrefResolver {
-<a href=#343 id=343 data-nosnippet>343</a>            resolve_data: Box::new(|<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="prelude-val">None</span>),
-<a href=#344 id=344 data-nosnippet>344</a>            resolve_string: Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| <span class="prelude-val">None</span>),
-<a href=#345 id=345 data-nosnippet>345</a>        },
-<a href=#346 id=346 data-nosnippet>346</a>        <span class="comment">// In the referenced SVG, we start with the unmodified user-provided
-<a href=#347 id=347 data-nosnippet>347</a>        // fontdb, not the one from the cache.
-<a href=#348 id=348 data-nosnippet>348</a>        </span><span class="attr">#[cfg(feature = <span class="string">"text"</span>)]
-<a href=#349 id=349 data-nosnippet>349</a>        </span>fontdb: opt.fontdb.clone(),
-<a href=#350 id=350 data-nosnippet>350</a>        <span class="comment">// Can't clone the resolver, so we create a new one that forwards to it.
-<a href=#351 id=351 data-nosnippet>351</a>        </span><span class="attr">#[cfg(feature = <span class="string">"text"</span>)]
-<a href=#352 id=352 data-nosnippet>352</a>        </span>font_resolver: <span class="kw">crate</span>::FontResolver {
-<a href=#353 id=353 data-nosnippet>353</a>            select_font: Box::new(|font, db| (opt.font_resolver.select_font)(font, db)),
-<a href=#354 id=354 data-nosnippet>354</a>            select_fallback: Box::new(|c, used_fonts, db| {
-<a href=#355 id=355 data-nosnippet>355</a>                (opt.font_resolver.select_fallback)(c, used_fonts, db)
-<a href=#356 id=356 data-nosnippet>356</a>            }),
-<a href=#357 id=357 data-nosnippet>357</a>        },
-<a href=#358 id=358 data-nosnippet>358</a>        ..Options::default()
-<a href=#359 id=359 data-nosnippet>359</a>    };
-<a href=#360 id=360 data-nosnippet>360</a>
-<a href=#361 id=361 data-nosnippet>361</a>    <span class="kw">let </span>tree = Tree::from_data(data, <span class="kw-2">&amp;</span>sub_opt);
-<a href=#362 id=362 data-nosnippet>362</a>    <span class="kw">let </span>tree = <span class="kw">match </span>tree {
-<a href=#363 id=363 data-nosnippet>363</a>        <span class="prelude-val">Ok</span>(tree) =&gt; tree,
-<a href=#364 id=364 data-nosnippet>364</a>        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-<a href=#365 id=365 data-nosnippet>365</a>            <span class="macro">log::warn!</span>(<span class="string">"Failed to load subsvg image."</span>);
-<a href=#366 id=366 data-nosnippet>366</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#367 id=367 data-nosnippet>367</a>        }
-<a href=#368 id=368 data-nosnippet>368</a>    };
-<a href=#369 id=369 data-nosnippet>369</a>
-<a href=#370 id=370 data-nosnippet>370</a>    <span class="prelude-val">Some</span>(ImageKind::SVG(tree))
-<a href=#371 id=371 data-nosnippet>371</a>}
-<a href=#372 id=372 data-nosnippet>372</a>
-<a href=#373 id=373 data-nosnippet>373</a><span class="doccomment">/// Fits size into a viewbox.
-<a href=#374 id=374 data-nosnippet>374</a></span><span class="kw">fn </span>fit_view_box(size: Size, rect: NonZeroRect, aspect: AspectRatio) -&gt; Size {
-<a href=#375 id=375 data-nosnippet>375</a>    <span class="kw">let </span>s = rect.size();
-<a href=#376 id=376 data-nosnippet>376</a>
-<a href=#377 id=377 data-nosnippet>377</a>    <span class="kw">if </span>aspect.align == svgtypes::Align::None {
-<a href=#378 id=378 data-nosnippet>378</a>        s
-<a href=#379 id=379 data-nosnippet>379</a>    } <span class="kw">else if </span>aspect.slice {
-<a href=#380 id=380 data-nosnippet>380</a>        size.expand_to(s)
-<a href=#381 id=381 data-nosnippet>381</a>    } <span class="kw">else </span>{
-<a href=#382 id=382 data-nosnippet>382</a>        size.scale_to(s)
-<a href=#383 id=383 data-nosnippet>383</a>    }
-<a href=#384 id=384 data-nosnippet>384</a>}</code></pre></div></section></main></body></html>
+<a href=#326 id=326 data-nosnippet>326</a><span class="doccomment">/// Tries to load the `ImageData` content as an SVG image or emits a warning and returns `None`.
+<a href=#327 id=327 data-nosnippet>327</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>load_sub_svg(data: <span class="kw-2">&amp;</span>[u8], opt: <span class="kw-2">&amp;</span>Options) -&gt; <span class="prelude-ty">Option</span>&lt;ImageKind&gt; {
+<a href=#328 id=328 data-nosnippet>328</a>    <span class="kw">match </span>Tree::from_data_nested(data, opt) {
+<a href=#329 id=329 data-nosnippet>329</a>        <span class="prelude-val">Ok</span>(tree) =&gt; <span class="prelude-val">Some</span>(ImageKind::SVG(tree)),
+<a href=#330 id=330 data-nosnippet>330</a>        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+<a href=#331 id=331 data-nosnippet>331</a>            <span class="macro">log::warn!</span>(<span class="string">"Failed to load nested SVG image."</span>);
+<a href=#332 id=332 data-nosnippet>332</a>            <span class="prelude-val">None
+<a href=#333 id=333 data-nosnippet>333</a>        </span>}
+<a href=#334 id=334 data-nosnippet>334</a>    }
+<a href=#335 id=335 data-nosnippet>335</a>}
+<a href=#336 id=336 data-nosnippet>336</a>
+<a href=#337 id=337 data-nosnippet>337</a><span class="doccomment">/// Fits size into a viewbox.
+<a href=#338 id=338 data-nosnippet>338</a></span><span class="kw">fn </span>fit_view_box(size: Size, rect: NonZeroRect, aspect: AspectRatio) -&gt; Size {
+<a href=#339 id=339 data-nosnippet>339</a>    <span class="kw">let </span>s = rect.size();
+<a href=#340 id=340 data-nosnippet>340</a>
+<a href=#341 id=341 data-nosnippet>341</a>    <span class="kw">if </span>aspect.align == svgtypes::Align::None {
+<a href=#342 id=342 data-nosnippet>342</a>        s
+<a href=#343 id=343 data-nosnippet>343</a>    } <span class="kw">else if </span>aspect.slice {
+<a href=#344 id=344 data-nosnippet>344</a>        size.expand_to(s)
+<a href=#345 id=345 data-nosnippet>345</a>    } <span class="kw">else </span>{
+<a href=#346 id=346 data-nosnippet>346</a>        size.scale_to(s)
+<a href=#347 id=347 data-nosnippet>347</a>    }
+<a href=#348 id=348 data-nosnippet>348</a>}
+</code></pre></div></section></main></body></html>

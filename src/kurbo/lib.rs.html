@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kurbo-0.11.3/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kurbo/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Kurbo Authors
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kurbo-0.13.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kurbo/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Kurbo Authors
 <a href=#2 id=2 data-nosnippet>2</a>// SPDX-License-Identifier: Apache-2.0 OR MIT
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="doccomment">//! 2D geometry, with a focus on curves.
@@ -55,128 +55,134 @@
 <a href=#55 id=55 data-nosnippet>55</a>//! assert!(hit.distance(expectation) &lt;= DESIRED_ACCURACY);
 <a href=#56 id=56 data-nosnippet>56</a>//! ```
 <a href=#57 id=57 data-nosnippet>57</a>//!
-<a href=#58 id=58 data-nosnippet>58</a>//! # Features
+<a href=#58 id=58 data-nosnippet>58</a>//! # Feature Flags
 <a href=#59 id=59 data-nosnippet>59</a>//!
-<a href=#60 id=60 data-nosnippet>60</a>//! This crate either uses the standard library or the [`libm`] crate for
-<a href=#61 id=61 data-nosnippet>61</a>//! math functionality. The `std` feature is enabled by default, but can be
-<a href=#62 id=62 data-nosnippet>62</a>//! disabled, as long as the `libm` feature is enabled. This is useful for
-<a href=#63 id=63 data-nosnippet>63</a>//! `no_std` environments. However, note that the `libm` crate is not as
-<a href=#64 id=64 data-nosnippet>64</a>//! efficient as the standard library, and that this crate still uses the
-<a href=#65 id=65 data-nosnippet>65</a>//! `alloc` crate regardless.
-<a href=#66 id=66 data-nosnippet>66</a>//!
-<a href=#67 id=67 data-nosnippet>67</a>//! [`libm`]: https://docs.rs/libm
-<a href=#68 id=68 data-nosnippet>68</a>
-<a href=#69 id=69 data-nosnippet>69</a></span><span class="comment">// LINEBENDER LINT SET - lib.rs - v1
-<a href=#70 id=70 data-nosnippet>70</a>// See https://linebender.org/wiki/canonical-lints/
-<a href=#71 id=71 data-nosnippet>71</a>// These lints aren't included in Cargo.toml because they
-<a href=#72 id=72 data-nosnippet>72</a>// shouldn't apply to examples and tests
-<a href=#73 id=73 data-nosnippet>73</a></span><span class="attr">#![warn(unused_crate_dependencies)]
-<a href=#74 id=74 data-nosnippet>74</a>#![warn(clippy::print_stdout, clippy::print_stderr)]
-<a href=#75 id=75 data-nosnippet>75</a></span><span class="comment">// END LINEBENDER LINT SET
-<a href=#76 id=76 data-nosnippet>76</a></span><span class="attr">#![cfg_attr(docsrs, feature(doc_auto_cfg))]
-<a href=#77 id=77 data-nosnippet>77</a>#![cfg_attr(all(not(feature = <span class="string">"std"</span>), not(test)), no_std)]
-<a href=#78 id=78 data-nosnippet>78</a>#![allow(
-<a href=#79 id=79 data-nosnippet>79</a>    clippy::unreadable_literal,
-<a href=#80 id=80 data-nosnippet>80</a>    clippy::many_single_char_names,
-<a href=#81 id=81 data-nosnippet>81</a>    clippy::excessive_precision,
-<a href=#82 id=82 data-nosnippet>82</a>    clippy::bool_to_int_with_if
-<a href=#83 id=83 data-nosnippet>83</a>)]
-<a href=#84 id=84 data-nosnippet>84</a></span><span class="comment">// The following lints are part of the Linebender standard set,
-<a href=#85 id=85 data-nosnippet>85</a>// but resolving them has been deferred for now.
-<a href=#86 id=86 data-nosnippet>86</a>// Feel free to send a PR that solves one or more of these.
-<a href=#87 id=87 data-nosnippet>87</a></span><span class="attr">#![allow(
-<a href=#88 id=88 data-nosnippet>88</a>    missing_debug_implementations,
-<a href=#89 id=89 data-nosnippet>89</a>    elided_lifetimes_in_paths,
-<a href=#90 id=90 data-nosnippet>90</a>    single_use_lifetimes,
-<a href=#91 id=91 data-nosnippet>91</a>    trivial_numeric_casts,
-<a href=#92 id=92 data-nosnippet>92</a>    unnameable_types,
-<a href=#93 id=93 data-nosnippet>93</a>    clippy::use_self,
-<a href=#94 id=94 data-nosnippet>94</a>    clippy::return_self_not_must_use,
-<a href=#95 id=95 data-nosnippet>95</a>    clippy::cast_possible_truncation,
-<a href=#96 id=96 data-nosnippet>96</a>    clippy::wildcard_imports,
-<a href=#97 id=97 data-nosnippet>97</a>    clippy::shadow_unrelated,
-<a href=#98 id=98 data-nosnippet>98</a>    clippy::missing_assert_message,
-<a href=#99 id=99 data-nosnippet>99</a>    clippy::missing_errors_doc,
-<a href=#100 id=100 data-nosnippet>100</a>    clippy::missing_panics_doc,
-<a href=#101 id=101 data-nosnippet>101</a>    clippy::exhaustive_enums,
-<a href=#102 id=102 data-nosnippet>102</a>    clippy::match_same_arms,
-<a href=#103 id=103 data-nosnippet>103</a>    clippy::partial_pub_fields,
-<a href=#104 id=104 data-nosnippet>104</a>    clippy::unseparated_literal_suffix,
-<a href=#105 id=105 data-nosnippet>105</a>    clippy::duplicated_attributes
-<a href=#106 id=106 data-nosnippet>106</a>)]
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a>#[cfg(not(any(feature = <span class="string">"std"</span>, feature = <span class="string">"libm"</span>)))]
-<a href=#109 id=109 data-nosnippet>109</a></span><span class="macro">compile_error!</span>(<span class="string">"kurbo requires either the `std` or `libm` feature"</span>);
+<a href=#60 id=60 data-nosnippet>60</a>//! The following crate [feature flags](https://doc.rust-lang.org/cargo/reference/features.html#dependency-features) are available:
+<a href=#61 id=61 data-nosnippet>61</a>//!
+<a href=#62 id=62 data-nosnippet>62</a>//! - `std` (enabled by default): Get floating point functions from the standard library
+<a href=#63 id=63 data-nosnippet>63</a>//!   (likely using your target's libc).
+<a href=#64 id=64 data-nosnippet>64</a>//! - `libm`: Use floating point implementations from [libm][].
+<a href=#65 id=65 data-nosnippet>65</a>//!   This is useful for `no_std` environments.
+<a href=#66 id=66 data-nosnippet>66</a>//!   However, note that the `libm` crate is not as efficient as the standard library.
+<a href=#67 id=67 data-nosnippet>67</a>//! - `mint`: Enable `From`/`Into` conversion of Kurbo and [mint][] types, enabling interoperability
+<a href=#68 id=68 data-nosnippet>68</a>//!   with other graphics libraries.
+<a href=#69 id=69 data-nosnippet>69</a>//! - `euclid`: Enable `From`/`Into` conversion of Kurbo and [euclid][] types.
+<a href=#70 id=70 data-nosnippet>70</a>//!   Note that if you're using both Kurbo and euclid at the same time, you *must*
+<a href=#71 id=71 data-nosnippet>71</a>//!   also enable one of euclid's `std` or `libm` features.
+<a href=#72 id=72 data-nosnippet>72</a>//! - `serde`: Implement `serde::Deserialize` and `serde::Serialize` on various types.
+<a href=#73 id=73 data-nosnippet>73</a>//! - `schemars`: Add best-effort support for using Kurbo types in JSON schemas using [schemars][].
+<a href=#74 id=74 data-nosnippet>74</a>//!
+<a href=#75 id=75 data-nosnippet>75</a>//! At least one of `std` and `libm` is required; `std` overrides `libm`.
+<a href=#76 id=76 data-nosnippet>76</a>//! Note that Kurbo does require that an allocator is available (i.e. it uses [alloc]).
+<a href=#77 id=77 data-nosnippet>77</a>
+<a href=#78 id=78 data-nosnippet>78</a></span><span class="comment">// LINEBENDER LINT SET - lib.rs - v4
+<a href=#79 id=79 data-nosnippet>79</a>// See https://linebender.org/wiki/canonical-lints/
+<a href=#80 id=80 data-nosnippet>80</a>// These lints shouldn't apply to examples or tests.
+<a href=#81 id=81 data-nosnippet>81</a></span><span class="attr">#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+<a href=#82 id=82 data-nosnippet>82</a></span><span class="comment">// These lints shouldn't apply to examples.
+<a href=#83 id=83 data-nosnippet>83</a></span><span class="attr">#![warn(clippy::print_stdout, clippy::print_stderr)]
+<a href=#84 id=84 data-nosnippet>84</a></span><span class="comment">// Targeting e.g. 32-bit means structs containing usize can give false positives for 64-bit.
+<a href=#85 id=85 data-nosnippet>85</a></span><span class="attr">#![cfg_attr(target_pointer_width = <span class="string">"64"</span>, warn(clippy::trivially_copy_pass_by_ref))]
+<a href=#86 id=86 data-nosnippet>86</a></span><span class="comment">// END LINEBENDER LINT SET
+<a href=#87 id=87 data-nosnippet>87</a></span><span class="attr">#![cfg_attr(docsrs, feature(doc_cfg))]
+<a href=#88 id=88 data-nosnippet>88</a>#![cfg_attr(all(not(feature = <span class="string">"std"</span>), not(test)), no_std)]
+<a href=#89 id=89 data-nosnippet>89</a>#![allow(
+<a href=#90 id=90 data-nosnippet>90</a>    clippy::unreadable_literal,
+<a href=#91 id=91 data-nosnippet>91</a>    clippy::many_single_char_names,
+<a href=#92 id=92 data-nosnippet>92</a>    clippy::excessive_precision,
+<a href=#93 id=93 data-nosnippet>93</a>    clippy::bool_to_int_with_if
+<a href=#94 id=94 data-nosnippet>94</a>)]
+<a href=#95 id=95 data-nosnippet>95</a></span><span class="comment">// The following lints are part of the Linebender standard set,
+<a href=#96 id=96 data-nosnippet>96</a>// but resolving them has been deferred for now.
+<a href=#97 id=97 data-nosnippet>97</a>// Feel free to send a PR that solves one or more of these.
+<a href=#98 id=98 data-nosnippet>98</a></span><span class="attr">#![allow(
+<a href=#99 id=99 data-nosnippet>99</a>    missing_debug_implementations,
+<a href=#100 id=100 data-nosnippet>100</a>    elided_lifetimes_in_paths,
+<a href=#101 id=101 data-nosnippet>101</a>    trivial_numeric_casts,
+<a href=#102 id=102 data-nosnippet>102</a>    unnameable_types,
+<a href=#103 id=103 data-nosnippet>103</a>    clippy::use_self,
+<a href=#104 id=104 data-nosnippet>104</a>    clippy::cast_possible_truncation,
+<a href=#105 id=105 data-nosnippet>105</a>    clippy::missing_assert_message,
+<a href=#106 id=106 data-nosnippet>106</a>    clippy::unseparated_literal_suffix,
+<a href=#107 id=107 data-nosnippet>107</a>    clippy::duplicated_attributes,
+<a href=#108 id=108 data-nosnippet>108</a>    clippy::allow_attributes_without_reason
+<a href=#109 id=109 data-nosnippet>109</a>)]
 <a href=#110 id=110 data-nosnippet>110</a>
-<a href=#111 id=111 data-nosnippet>111</a><span class="comment">// Suppress the unused_crate_dependencies lint when both std and libm are specified.
-<a href=#112 id=112 data-nosnippet>112</a></span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"libm"</span>))]
-<a href=#113 id=113 data-nosnippet>113</a></span><span class="kw">use </span>libm <span class="kw">as _</span>;
-<a href=#114 id=114 data-nosnippet>114</a>
-<a href=#115 id=115 data-nosnippet>115</a><span class="kw">extern crate </span>alloc;
-<a href=#116 id=116 data-nosnippet>116</a>
-<a href=#117 id=117 data-nosnippet>117</a><span class="kw">mod </span>affine;
-<a href=#118 id=118 data-nosnippet>118</a><span class="kw">mod </span>arc;
-<a href=#119 id=119 data-nosnippet>119</a><span class="kw">mod </span>bezpath;
-<a href=#120 id=120 data-nosnippet>120</a><span class="kw">mod </span>circle;
-<a href=#121 id=121 data-nosnippet>121</a><span class="kw">pub mod </span>common;
-<a href=#122 id=122 data-nosnippet>122</a><span class="kw">mod </span>cubicbez;
-<a href=#123 id=123 data-nosnippet>123</a><span class="kw">mod </span>ellipse;
-<a href=#124 id=124 data-nosnippet>124</a><span class="kw">mod </span>fit;
-<a href=#125 id=125 data-nosnippet>125</a><span class="kw">mod </span>insets;
-<a href=#126 id=126 data-nosnippet>126</a><span class="kw">mod </span>line;
-<a href=#127 id=127 data-nosnippet>127</a><span class="kw">mod </span>mindist;
-<a href=#128 id=128 data-nosnippet>128</a><span class="kw">mod </span>moments;
-<a href=#129 id=129 data-nosnippet>129</a><span class="kw">pub mod </span>offset;
-<a href=#130 id=130 data-nosnippet>130</a><span class="kw">mod </span>param_curve;
-<a href=#131 id=131 data-nosnippet>131</a><span class="kw">mod </span>point;
-<a href=#132 id=132 data-nosnippet>132</a><span class="kw">mod </span>quadbez;
-<a href=#133 id=133 data-nosnippet>133</a><span class="kw">mod </span>quadspline;
-<a href=#134 id=134 data-nosnippet>134</a><span class="kw">mod </span>rect;
-<a href=#135 id=135 data-nosnippet>135</a><span class="kw">mod </span>rounded_rect;
-<a href=#136 id=136 data-nosnippet>136</a><span class="kw">mod </span>rounded_rect_radii;
-<a href=#137 id=137 data-nosnippet>137</a><span class="kw">mod </span>shape;
-<a href=#138 id=138 data-nosnippet>138</a><span class="kw">pub mod </span>simplify;
-<a href=#139 id=139 data-nosnippet>139</a><span class="kw">mod </span>size;
-<a href=#140 id=140 data-nosnippet>140</a><span class="kw">mod </span>stroke;
-<a href=#141 id=141 data-nosnippet>141</a><span class="kw">mod </span>svg;
-<a href=#142 id=142 data-nosnippet>142</a><span class="kw">mod </span>translate_scale;
-<a href=#143 id=143 data-nosnippet>143</a><span class="kw">mod </span>triangle;
-<a href=#144 id=144 data-nosnippet>144</a><span class="kw">mod </span>vec2;
-<a href=#145 id=145 data-nosnippet>145</a>
-<a href=#146 id=146 data-nosnippet>146</a><span class="attr">#[cfg(feature = <span class="string">"euclid"</span>)]
-<a href=#147 id=147 data-nosnippet>147</a></span><span class="kw">mod </span>interop_euclid;
-<a href=#148 id=148 data-nosnippet>148</a>
-<a href=#149 id=149 data-nosnippet>149</a><span class="kw">pub use </span><span class="kw">crate</span>::affine::Affine;
-<a href=#150 id=150 data-nosnippet>150</a><span class="kw">pub use </span><span class="kw">crate</span>::arc::{Arc, ArcAppendIter};
-<a href=#151 id=151 data-nosnippet>151</a><span class="kw">pub use </span><span class="kw">crate</span>::bezpath::{
-<a href=#152 id=152 data-nosnippet>152</a>    flatten, segments, BezPath, LineIntersection, MinDistance, PathEl, PathSeg, PathSegIter,
-<a href=#153 id=153 data-nosnippet>153</a>    Segments,
-<a href=#154 id=154 data-nosnippet>154</a>};
-<a href=#155 id=155 data-nosnippet>155</a><span class="kw">pub use </span><span class="kw">crate</span>::circle::{Circle, CirclePathIter, CircleSegment};
-<a href=#156 id=156 data-nosnippet>156</a><span class="kw">pub use </span><span class="kw">crate</span>::cubicbez::{cubics_to_quadratic_splines, CubicBez, CubicBezIter, CuspType};
-<a href=#157 id=157 data-nosnippet>157</a><span class="kw">pub use </span><span class="kw">crate</span>::ellipse::Ellipse;
-<a href=#158 id=158 data-nosnippet>158</a><span class="kw">pub use </span><span class="kw">crate</span>::fit::{
-<a href=#159 id=159 data-nosnippet>159</a>    fit_to_bezpath, fit_to_bezpath_opt, fit_to_cubic, CurveFitSample, ParamCurveFit,
-<a href=#160 id=160 data-nosnippet>160</a>};
-<a href=#161 id=161 data-nosnippet>161</a><span class="kw">pub use </span><span class="kw">crate</span>::insets::Insets;
-<a href=#162 id=162 data-nosnippet>162</a><span class="kw">pub use </span><span class="kw">crate</span>::line::{ConstPoint, Line, LinePathIter};
-<a href=#163 id=163 data-nosnippet>163</a><span class="kw">pub use </span><span class="kw">crate</span>::moments::{Moments, ParamCurveMoments};
-<a href=#164 id=164 data-nosnippet>164</a><span class="kw">pub use </span><span class="kw">crate</span>::param_curve::{
-<a href=#165 id=165 data-nosnippet>165</a>    Nearest, ParamCurve, ParamCurveArclen, ParamCurveArea, ParamCurveCurvature, ParamCurveDeriv,
-<a href=#166 id=166 data-nosnippet>166</a>    ParamCurveExtrema, ParamCurveNearest, DEFAULT_ACCURACY, MAX_EXTREMA,
-<a href=#167 id=167 data-nosnippet>167</a>};
-<a href=#168 id=168 data-nosnippet>168</a><span class="kw">pub use </span><span class="kw">crate</span>::point::Point;
-<a href=#169 id=169 data-nosnippet>169</a><span class="kw">pub use </span><span class="kw">crate</span>::quadbez::{QuadBez, QuadBezIter};
-<a href=#170 id=170 data-nosnippet>170</a><span class="kw">pub use </span><span class="kw">crate</span>::quadspline::QuadSpline;
-<a href=#171 id=171 data-nosnippet>171</a><span class="kw">pub use </span><span class="kw">crate</span>::rect::{Rect, RectPathIter};
-<a href=#172 id=172 data-nosnippet>172</a><span class="kw">pub use </span><span class="kw">crate</span>::rounded_rect::{RoundedRect, RoundedRectPathIter};
-<a href=#173 id=173 data-nosnippet>173</a><span class="kw">pub use </span><span class="kw">crate</span>::rounded_rect_radii::RoundedRectRadii;
-<a href=#174 id=174 data-nosnippet>174</a><span class="kw">pub use </span><span class="kw">crate</span>::shape::Shape;
-<a href=#175 id=175 data-nosnippet>175</a><span class="kw">pub use </span><span class="kw">crate</span>::size::Size;
-<a href=#176 id=176 data-nosnippet>176</a><span class="kw">pub use </span><span class="kw">crate</span>::stroke::{
-<a href=#177 id=177 data-nosnippet>177</a>    dash, stroke, Cap, DashIterator, Dashes, Join, Stroke, StrokeOptLevel, StrokeOpts,
-<a href=#178 id=178 data-nosnippet>178</a>};
-<a href=#179 id=179 data-nosnippet>179</a><span class="kw">pub use </span><span class="kw">crate</span>::svg::{SvgArc, SvgParseError};
-<a href=#180 id=180 data-nosnippet>180</a><span class="kw">pub use </span><span class="kw">crate</span>::translate_scale::TranslateScale;
-<a href=#181 id=181 data-nosnippet>181</a><span class="kw">pub use </span><span class="kw">crate</span>::triangle::{Triangle, TrianglePathIter};
-<a href=#182 id=182 data-nosnippet>182</a><span class="kw">pub use </span><span class="kw">crate</span>::vec2::Vec2;</code></pre></div></section></main></body></html>
+<a href=#111 id=111 data-nosnippet>111</a>#[cfg(not(any(feature = <span class="string">"std"</span>, feature = <span class="string">"libm"</span>)))]
+<a href=#112 id=112 data-nosnippet>112</a></span><span class="macro">compile_error!</span>(<span class="string">"kurbo requires either the `std` or `libm` feature"</span>);
+<a href=#113 id=113 data-nosnippet>113</a>
+<a href=#114 id=114 data-nosnippet>114</a><span class="comment">// Suppress the unused_crate_dependencies lint when both std and libm are specified.
+<a href=#115 id=115 data-nosnippet>115</a></span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"libm"</span>))]
+<a href=#116 id=116 data-nosnippet>116</a></span><span class="kw">use </span>libm <span class="kw">as _</span>;
+<a href=#117 id=117 data-nosnippet>117</a>
+<a href=#118 id=118 data-nosnippet>118</a><span class="kw">extern crate </span>alloc;
+<a href=#119 id=119 data-nosnippet>119</a>
+<a href=#120 id=120 data-nosnippet>120</a><span class="kw">mod </span>affine;
+<a href=#121 id=121 data-nosnippet>121</a><span class="kw">mod </span>arc;
+<a href=#122 id=122 data-nosnippet>122</a><span class="kw">mod </span>axis;
+<a href=#123 id=123 data-nosnippet>123</a><span class="kw">mod </span>bezpath;
+<a href=#124 id=124 data-nosnippet>124</a><span class="kw">mod </span>circle;
+<a href=#125 id=125 data-nosnippet>125</a><span class="kw">pub mod </span>common;
+<a href=#126 id=126 data-nosnippet>126</a><span class="kw">mod </span>cubicbez;
+<a href=#127 id=127 data-nosnippet>127</a><span class="kw">mod </span>ellipse;
+<a href=#128 id=128 data-nosnippet>128</a><span class="kw">mod </span>fit;
+<a href=#129 id=129 data-nosnippet>129</a><span class="kw">mod </span>insets;
+<a href=#130 id=130 data-nosnippet>130</a><span class="kw">mod </span>line;
+<a href=#131 id=131 data-nosnippet>131</a><span class="kw">mod </span>mindist;
+<a href=#132 id=132 data-nosnippet>132</a><span class="kw">mod </span>moments;
+<a href=#133 id=133 data-nosnippet>133</a><span class="kw">pub mod </span>offset;
+<a href=#134 id=134 data-nosnippet>134</a><span class="kw">mod </span>param_curve;
+<a href=#135 id=135 data-nosnippet>135</a><span class="kw">mod </span>point;
+<a href=#136 id=136 data-nosnippet>136</a><span class="kw">mod </span>quadbez;
+<a href=#137 id=137 data-nosnippet>137</a><span class="kw">mod </span>quadspline;
+<a href=#138 id=138 data-nosnippet>138</a><span class="kw">mod </span>rect;
+<a href=#139 id=139 data-nosnippet>139</a><span class="kw">mod </span>rounded_rect;
+<a href=#140 id=140 data-nosnippet>140</a><span class="kw">mod </span>rounded_rect_radii;
+<a href=#141 id=141 data-nosnippet>141</a><span class="kw">mod </span>shape;
+<a href=#142 id=142 data-nosnippet>142</a><span class="kw">pub mod </span>simplify;
+<a href=#143 id=143 data-nosnippet>143</a><span class="kw">mod </span>size;
+<a href=#144 id=144 data-nosnippet>144</a><span class="kw">mod </span>stroke;
+<a href=#145 id=145 data-nosnippet>145</a><span class="kw">mod </span>svg;
+<a href=#146 id=146 data-nosnippet>146</a><span class="kw">mod </span>translate_scale;
+<a href=#147 id=147 data-nosnippet>147</a><span class="kw">mod </span>triangle;
+<a href=#148 id=148 data-nosnippet>148</a><span class="kw">mod </span>vec2;
+<a href=#149 id=149 data-nosnippet>149</a>
+<a href=#150 id=150 data-nosnippet>150</a><span class="attr">#[cfg(feature = <span class="string">"euclid"</span>)]
+<a href=#151 id=151 data-nosnippet>151</a></span><span class="kw">mod </span>interop_euclid;
+<a href=#152 id=152 data-nosnippet>152</a>
+<a href=#153 id=153 data-nosnippet>153</a><span class="kw">pub use </span><span class="kw">crate</span>::affine::Affine;
+<a href=#154 id=154 data-nosnippet>154</a><span class="kw">pub use </span><span class="kw">crate</span>::arc::{Arc, ArcAppendIter};
+<a href=#155 id=155 data-nosnippet>155</a><span class="kw">pub use </span><span class="kw">crate</span>::axis::Axis;
+<a href=#156 id=156 data-nosnippet>156</a><span class="kw">pub use </span><span class="kw">crate</span>::bezpath::{
+<a href=#157 id=157 data-nosnippet>157</a>    flatten, segments, BezPath, LineIntersection, MinDistance, PathEl, PathSeg, PathSegIter,
+<a href=#158 id=158 data-nosnippet>158</a>    Segments,
+<a href=#159 id=159 data-nosnippet>159</a>};
+<a href=#160 id=160 data-nosnippet>160</a><span class="kw">pub use </span><span class="kw">crate</span>::circle::{Circle, CirclePathIter, CircleSegment};
+<a href=#161 id=161 data-nosnippet>161</a><span class="kw">pub use </span><span class="kw">crate</span>::cubicbez::{cubics_to_quadratic_splines, CubicBez, CubicBezIter, CuspType};
+<a href=#162 id=162 data-nosnippet>162</a><span class="kw">pub use </span><span class="kw">crate</span>::ellipse::Ellipse;
+<a href=#163 id=163 data-nosnippet>163</a><span class="kw">pub use </span><span class="kw">crate</span>::fit::{
+<a href=#164 id=164 data-nosnippet>164</a>    fit_to_bezpath, fit_to_bezpath_opt, fit_to_cubic, CurveFitSample, ParamCurveFit,
+<a href=#165 id=165 data-nosnippet>165</a>};
+<a href=#166 id=166 data-nosnippet>166</a><span class="kw">pub use </span><span class="kw">crate</span>::insets::Insets;
+<a href=#167 id=167 data-nosnippet>167</a><span class="kw">pub use </span><span class="kw">crate</span>::line::{ConstPoint, Line, LinePathIter};
+<a href=#168 id=168 data-nosnippet>168</a><span class="kw">pub use </span><span class="kw">crate</span>::moments::{Moments, ParamCurveMoments};
+<a href=#169 id=169 data-nosnippet>169</a><span class="kw">pub use </span><span class="kw">crate</span>::param_curve::{
+<a href=#170 id=170 data-nosnippet>170</a>    Nearest, ParamCurve, ParamCurveArclen, ParamCurveArea, ParamCurveCurvature, ParamCurveDeriv,
+<a href=#171 id=171 data-nosnippet>171</a>    ParamCurveExtrema, ParamCurveNearest, DEFAULT_ACCURACY, MAX_EXTREMA,
+<a href=#172 id=172 data-nosnippet>172</a>};
+<a href=#173 id=173 data-nosnippet>173</a><span class="kw">pub use </span><span class="kw">crate</span>::point::Point;
+<a href=#174 id=174 data-nosnippet>174</a><span class="kw">pub use </span><span class="kw">crate</span>::quadbez::{QuadBez, QuadBezIter};
+<a href=#175 id=175 data-nosnippet>175</a><span class="kw">pub use </span><span class="kw">crate</span>::quadspline::QuadSpline;
+<a href=#176 id=176 data-nosnippet>176</a><span class="kw">pub use </span><span class="kw">crate</span>::rect::{Rect, RectPathIter};
+<a href=#177 id=177 data-nosnippet>177</a><span class="kw">pub use </span><span class="kw">crate</span>::rounded_rect::{RoundedRect, RoundedRectPathIter};
+<a href=#178 id=178 data-nosnippet>178</a><span class="kw">pub use </span><span class="kw">crate</span>::rounded_rect_radii::RoundedRectRadii;
+<a href=#179 id=179 data-nosnippet>179</a><span class="kw">pub use </span><span class="kw">crate</span>::shape::Shape;
+<a href=#180 id=180 data-nosnippet>180</a><span class="kw">pub use </span><span class="kw">crate</span>::size::Size;
+<a href=#181 id=181 data-nosnippet>181</a><span class="kw">pub use </span><span class="kw">crate</span>::stroke::{
+<a href=#182 id=182 data-nosnippet>182</a>    dash, stroke, stroke_with, Cap, Dashes, Join, Stroke, StrokeCtx, StrokeOptLevel, StrokeOpts,
+<a href=#183 id=183 data-nosnippet>183</a>};
+<a href=#184 id=184 data-nosnippet>184</a><span class="kw">pub use </span><span class="kw">crate</span>::svg::{SvgArc, SvgParseError};
+<a href=#185 id=185 data-nosnippet>185</a><span class="kw">pub use </span><span class="kw">crate</span>::translate_scale::TranslateScale;
+<a href=#186 id=186 data-nosnippet>186</a><span class="kw">pub use </span><span class="kw">crate</span>::triangle::{Triangle, TrianglePathIter};
+<a href=#187 id=187 data-nosnippet>187</a><span class="kw">pub use </span><span class="kw">crate</span>::vec2::Vec2;
+</code></pre></div></section></main></body></html>

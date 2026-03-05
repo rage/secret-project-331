@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_datetime-2.1.1/src/fieldsets.rs`."><title>fieldsets.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_datetime/</div>fieldsets.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_datetime-2.1.1/src/fieldsets.rs`."><title>fieldsets.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_datetime/</div>fieldsets.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 <a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
 <a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -103,21 +103,21 @@
 <a href=#103 id=103 data-nosnippet>103</a>
 <a href=#104 id=104 data-nosnippet>104</a><span class="doccomment">/// Generates the options argument passed into the docs test constructor
 <a href=#105 id=105 data-nosnippet>105</a></span><span class="macro">macro_rules!</span> length_option_helper {
-<a href=#106 id=106 data-nosnippet>106</a>    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>, <span class="macro-nonterminal">$length</span>:ident) =&gt; {
-<a href=#107 id=107 data-nosnippet>107</a>        <span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$length</span>), <span class="string">"()"</span>)
+<a href=#106 id=106 data-nosnippet>106</a>    (<span class="macro-nonterminal">$type</span>:ty, <span class="macro-nonterminal">$length</span>:ident) =&gt; {
+<a href=#107 id=107 data-nosnippet>107</a>        <span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$length</span>), <span class="string">"()"</span>)
 <a href=#108 id=108 data-nosnippet>108</a>    };
 <a href=#109 id=109 data-nosnippet>109</a>}
 <a href=#110 id=110 data-nosnippet>110</a>
 <a href=#111 id=111 data-nosnippet>111</a><span class="macro">macro_rules!</span> impl_composite {
-<a href=#112 id=112 data-nosnippet>112</a>    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$variant</span>:ident, <span class="macro-nonterminal">$</span><span class="kw">enum</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
-<a href=#113 id=113 data-nosnippet>113</a>        <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#114 id=114 data-nosnippet>114</a>            <span class="attr">#[<span class="macro-nonterminal">inline</span>]
-<a href=#115 id=115 data-nosnippet>115</a>            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_enum(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$</span><span class="kw">enum </span>{
-<a href=#116 id=116 data-nosnippet>116</a>                <span class="macro-nonterminal">$</span><span class="kw">enum</span>::<span class="macro-nonterminal">$</span><span class="kw">type</span>(<span class="macro-nonterminal">self</span>)
+<a href=#112 id=112 data-nosnippet>112</a>    (<span class="macro-nonterminal">$type</span>:ident, <span class="macro-nonterminal">$variant</span>:ident, <span class="macro-nonterminal">$enum</span>:ident) =&gt; {
+<a href=#113 id=113 data-nosnippet>113</a>        <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
+<a href=#114 id=114 data-nosnippet>114</a>            <span class="attr">#[inline]
+<a href=#115 id=115 data-nosnippet>115</a>            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_enum(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$enum </span>{
+<a href=#116 id=116 data-nosnippet>116</a>                <span class="macro-nonterminal">$enum</span>::<span class="macro-nonterminal">$type</span>(<span class="self">self</span>)
 <a href=#117 id=117 data-nosnippet>117</a>            }
 <a href=#118 id=118 data-nosnippet>118</a>        }
-<a href=#119 id=119 data-nosnippet>119</a>        <span class="kw">impl </span>GetField&lt;CompositeFieldSet&gt; <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#120 id=120 data-nosnippet>120</a>            <span class="attr">#[<span class="macro-nonterminal">inline</span>]
+<a href=#119 id=119 data-nosnippet>119</a>        <span class="kw">impl </span>GetField&lt;CompositeFieldSet&gt; <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#120 id=120 data-nosnippet>120</a>            <span class="attr">#[inline]
 <a href=#121 id=121 data-nosnippet>121</a>            </span><span class="kw">fn </span>get_field(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CompositeFieldSet {
 <a href=#122 id=122 data-nosnippet>122</a>                CompositeFieldSet::<span class="macro-nonterminal">$variant</span>(<span class="self">self</span>.to_enum())
 <a href=#123 id=123 data-nosnippet>123</a>            }
@@ -127,14 +127,14 @@
 <a href=#127 id=127 data-nosnippet>127</a>
 <a href=#128 id=128 data-nosnippet>128</a><span class="macro">macro_rules!</span> impl_marker_length_constructors {
 <a href=#129 id=129 data-nosnippet>129</a>    (
-<a href=#130 id=130 data-nosnippet>130</a>        <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#130 id=130 data-nosnippet>130</a>        <span class="macro-nonterminal">$type</span>:ident,
 <a href=#131 id=131 data-nosnippet>131</a>        $(alignment: <span class="macro-nonterminal">$alignment_yes</span>:ident,)<span class="question-mark">?
 <a href=#132 id=132 data-nosnippet>132</a>        </span>$(year_style: <span class="macro-nonterminal">$yearstyle_yes</span>:ident,)<span class="question-mark">?
 <a href=#133 id=133 data-nosnippet>133</a>        </span>$(time_precision: <span class="macro-nonterminal">$timeprecision_yes</span>:ident,)<span class="question-mark">?
 <a href=#134 id=134 data-nosnippet>134</a>    </span>) =&gt; {
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#136 id=136 data-nosnippet>136</a>            <span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" skeleton with the given formatting length."</span>)]
-<a href=#137 id=137 data-nosnippet>137</a>            </span><span class="kw">pub const fn </span><span class="macro-nonterminal">for_length</span>(length: Length) -&gt; <span class="self">Self </span>{
+<a href=#135 id=135 data-nosnippet>135</a>        <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
+<a href=#136 id=136 data-nosnippet>136</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">" skeleton with the given formatting length."</span>)]
+<a href=#137 id=137 data-nosnippet>137</a>            </span><span class="kw">pub const fn </span>for_length(length: Length) -&gt; <span class="self">Self </span>{
 <a href=#138 id=138 data-nosnippet>138</a>                <span class="self">Self </span>{
 <a href=#139 id=139 data-nosnippet>139</a>                    length,
 <a href=#140 id=140 data-nosnippet>140</a>                    $(
@@ -148,16 +148,16 @@
 <a href=#148 id=148 data-nosnippet>148</a>                    )<span class="question-mark">?
 <a href=#149 id=149 data-nosnippet>149</a>                </span>}
 <a href=#150 id=150 data-nosnippet>150</a>            }
-<a href=#151 id=151 data-nosnippet>151</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" skeleton with a long length."</span>)]
-<a href=#152 id=152 data-nosnippet>152</a>            </span><span class="kw">pub const fn </span><span class="macro-nonterminal">long</span>() -&gt; <span class="self">Self </span>{
+<a href=#151 id=151 data-nosnippet>151</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">" skeleton with a long length."</span>)]
+<a href=#152 id=152 data-nosnippet>152</a>            </span><span class="kw">pub const fn </span>long() -&gt; <span class="self">Self </span>{
 <a href=#153 id=153 data-nosnippet>153</a>                <span class="self">Self</span>::for_length(Length::Long)
 <a href=#154 id=154 data-nosnippet>154</a>            }
-<a href=#155 id=155 data-nosnippet>155</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" skeleton with a medium length."</span>)]
-<a href=#156 id=156 data-nosnippet>156</a>            </span><span class="kw">pub const fn </span><span class="macro-nonterminal">medium</span>() -&gt; <span class="self">Self </span>{
+<a href=#155 id=155 data-nosnippet>155</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">" skeleton with a medium length."</span>)]
+<a href=#156 id=156 data-nosnippet>156</a>            </span><span class="kw">pub const fn </span>medium() -&gt; <span class="self">Self </span>{
 <a href=#157 id=157 data-nosnippet>157</a>                <span class="self">Self</span>::for_length(Length::Medium)
 <a href=#158 id=158 data-nosnippet>158</a>            }
-<a href=#159 id=159 data-nosnippet>159</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" skeleton with a short length."</span>)]
-<a href=#160 id=160 data-nosnippet>160</a>            </span><span class="kw">pub const fn </span><span class="macro-nonterminal">short</span>() -&gt; <span class="self">Self </span>{
+<a href=#159 id=159 data-nosnippet>159</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">" skeleton with a short length."</span>)]
+<a href=#160 id=160 data-nosnippet>160</a>            </span><span class="kw">pub const fn </span>short() -&gt; <span class="self">Self </span>{
 <a href=#161 id=161 data-nosnippet>161</a>                <span class="self">Self</span>::for_length(Length::Short)
 <a href=#162 id=162 data-nosnippet>162</a>            }
 <a href=#163 id=163 data-nosnippet>163</a>        }
@@ -169,16 +169,16 @@
 <a href=#169 id=169 data-nosnippet>169</a>        <span class="macro-nonterminal">$time_type</span>:ident,
 <a href=#170 id=170 data-nosnippet>170</a>    ) =&gt; {
 <a href=#171 id=171 data-nosnippet>171</a>        <span class="kw">impl </span><span class="macro-nonterminal">$time_type </span>{
-<a href=#172 id=172 data-nosnippet>172</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" that formats hours and minutes with the default length."</span>)]
-<a href=#173 id=173 data-nosnippet>173</a>            </span><span class="kw">pub fn </span><span class="macro-nonterminal">hm</span>() -&gt; <span class="self">Self </span>{
+<a href=#172 id=172 data-nosnippet>172</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">" that formats hours and minutes with the default length."</span>)]
+<a href=#173 id=173 data-nosnippet>173</a>            </span><span class="kw">pub fn </span>hm() -&gt; <span class="self">Self </span>{
 <a href=#174 id=174 data-nosnippet>174</a>                <span class="self">Self</span>::for_length(Default::default()).with_time_precision(TimePrecision::Minute)
 <a href=#175 id=175 data-nosnippet>175</a>            }
-<a href=#176 id=176 data-nosnippet>176</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" that formats hours, minutes, and seconds with the default length."</span>)]
-<a href=#177 id=177 data-nosnippet>177</a>            </span><span class="kw">pub fn </span><span class="macro-nonterminal">hms</span>() -&gt; <span class="self">Self </span>{
+<a href=#176 id=176 data-nosnippet>176</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">" that formats hours, minutes, and seconds with the default length."</span>)]
+<a href=#177 id=177 data-nosnippet>177</a>            </span><span class="kw">pub fn </span>hms() -&gt; <span class="self">Self </span>{
 <a href=#178 id=178 data-nosnippet>178</a>                <span class="self">Self</span>::for_length(Default::default()).with_time_precision(TimePrecision::Second)
 <a href=#179 id=179 data-nosnippet>179</a>            }
-<a href=#180 id=180 data-nosnippet>180</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" that formats hours, minutes, seconds, and subseconds with the default length."</span>)]
-<a href=#181 id=181 data-nosnippet>181</a>            </span><span class="kw">pub fn </span><span class="macro-nonterminal">hmss</span>(subsecond_digits: SubsecondDigits) -&gt; <span class="self">Self </span>{
+<a href=#180 id=180 data-nosnippet>180</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">" that formats hours, minutes, seconds, and subseconds with the default length."</span>)]
+<a href=#181 id=181 data-nosnippet>181</a>            </span><span class="kw">pub fn </span>hmss(subsecond_digits: SubsecondDigits) -&gt; <span class="self">Self </span>{
 <a href=#182 id=182 data-nosnippet>182</a>                <span class="self">Self</span>::for_length(Default::default()).with_time_precision(TimePrecision::Subsecond(subsecond_digits))
 <a href=#183 id=183 data-nosnippet>183</a>            }
 <a href=#184 id=184 data-nosnippet>184</a>        }
@@ -188,7 +188,7 @@
 <a href=#188 id=188 data-nosnippet>188</a><span class="macro">macro_rules!</span> impl_marker_with_options {
 <a href=#189 id=189 data-nosnippet>189</a>    (
 <a href=#190 id=190 data-nosnippet>190</a>        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
-<a href=#191 id=191 data-nosnippet>191</a>        <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="macro-nonterminal">$type</span>:ident,
 <a href=#192 id=192 data-nosnippet>192</a>        $(sample_length: <span class="macro-nonterminal">$sample_length</span>:ident,)<span class="question-mark">?
 <a href=#193 id=193 data-nosnippet>193</a>        </span>$(date_fields: <span class="macro-nonterminal">$date_fields</span>:expr,)<span class="question-mark">?
 <a href=#194 id=194 data-nosnippet>194</a>        </span>$(alignment: <span class="macro-nonterminal">$alignment_yes</span>:ident,)<span class="question-mark">?
@@ -199,12 +199,12 @@
 <a href=#199 id=199 data-nosnippet>199</a>        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
 <a href=#200 id=200 data-nosnippet>200</a>        <span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 <a href=#201 id=201 data-nosnippet>201</a>        #[non_exhaustive]
-<a href=#202 id=202 data-nosnippet>202</a>        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+<a href=#202 id=202 data-nosnippet>202</a>        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$type </span>{
 <a href=#203 id=203 data-nosnippet>203</a>            $(
 <a href=#204 id=204 data-nosnippet>204</a>                <span class="doccomment">/// The desired length of the formatted string.
 <a href=#205 id=205 data-nosnippet>205</a>                ///
 <a href=#206 id=206 data-nosnippet>206</a>                /// See: [`Length`]
-<a href=#207 id=207 data-nosnippet>207</a>                </span><span class="kw">pub </span><span class="macro-nonterminal">length</span>: <span class="macro">datetime_marker_helper!</span>(@option/length, <span class="macro-nonterminal">$sample_length</span>),
+<a href=#207 id=207 data-nosnippet>207</a>                </span><span class="kw">pub </span>length: <span class="macro">datetime_marker_helper!</span>(@option/length, <span class="macro-nonterminal">$sample_length</span>),
 <a href=#208 id=208 data-nosnippet>208</a>            )<span class="question-mark">?
 <a href=#209 id=209 data-nosnippet>209</a>            </span>$(
 <a href=#210 id=210 data-nosnippet>210</a>                <span class="doccomment">/// Whether fields should be aligned for a column-like layout.
@@ -225,8 +225,8 @@
 <a href=#225 id=225 data-nosnippet>225</a>                </span><span class="kw">pub </span>time_precision: <span class="macro">datetime_marker_helper!</span>(@option/timeprecision, <span class="macro-nonterminal">$timeprecision_yes</span>),
 <a href=#226 id=226 data-nosnippet>226</a>            )<span class="question-mark">?
 <a href=#227 id=227 data-nosnippet>227</a>        </span>}
-<a href=#228 id=228 data-nosnippet>228</a>        <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#229 id=229 data-nosnippet>229</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span><span class="macro-nonterminal">to_raw_options</span>(<span class="self">self</span>) -&gt; RawOptions {
+<a href=#228 id=228 data-nosnippet>228</a>        <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
+<a href=#229 id=229 data-nosnippet>229</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_raw_options(<span class="self">self</span>) -&gt; RawOptions {
 <a href=#230 id=230 data-nosnippet>230</a>                RawOptions {
 <a href=#231 id=231 data-nosnippet>231</a>                    length: <span class="macro">yes_or!</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.length), $(<span class="prelude-val">Some</span>(Length::<span class="macro-nonterminal">$length_override</span>))<span class="question-mark">?</span>),
 <a href=#232 id=232 data-nosnippet>232</a>                    date_fields: <span class="macro">yes_or!</span>(<span class="prelude-val">None</span>, $(<span class="macro-nonterminal">$date_fields</span>)<span class="question-mark">?</span>),
@@ -248,36 +248,36 @@
 <a href=#248 id=248 data-nosnippet>248</a>            }
 <a href=#249 id=249 data-nosnippet>249</a>        }
 <a href=#250 id=250 data-nosnippet>250</a>        $(
-<a href=#251 id=251 data-nosnippet>251</a>            <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+<a href=#251 id=251 data-nosnippet>251</a>            <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
 <a href=#252 id=252 data-nosnippet>252</a>                <span class="doccomment">/// Sets the length option.
-<a href=#253 id=253 data-nosnippet>253</a>                </span><span class="kw">pub const fn </span><span class="macro-nonterminal">with_length</span>(<span class="kw-2">mut </span><span class="self">self</span>, length: Length) -&gt; <span class="self">Self </span>{
+<a href=#253 id=253 data-nosnippet>253</a>                </span><span class="kw">pub const fn </span>with_length(<span class="kw-2">mut </span><span class="self">self</span>, length: Length) -&gt; <span class="self">Self </span>{
 <a href=#254 id=254 data-nosnippet>254</a>                    <span class="self">self</span>.length = <span class="macro">yes_to!</span>(length, <span class="macro-nonterminal">$sample_length</span>);
 <a href=#255 id=255 data-nosnippet>255</a>                    <span class="self">self
 <a href=#256 id=256 data-nosnippet>256</a>                </span>}
 <a href=#257 id=257 data-nosnippet>257</a>            }
 <a href=#258 id=258 data-nosnippet>258</a>        )<span class="question-mark">?
 <a href=#259 id=259 data-nosnippet>259</a>        </span>$(
-<a href=#260 id=260 data-nosnippet>260</a>            <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+<a href=#260 id=260 data-nosnippet>260</a>            <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
 <a href=#261 id=261 data-nosnippet>261</a>                <span class="doccomment">/// Sets the alignment option.
-<a href=#262 id=262 data-nosnippet>262</a>                </span><span class="kw">pub const fn </span><span class="macro-nonterminal">with_alignment</span>(<span class="kw-2">mut </span><span class="self">self</span>, alignment: Alignment) -&gt; <span class="self">Self </span>{
+<a href=#262 id=262 data-nosnippet>262</a>                </span><span class="kw">pub const fn </span>with_alignment(<span class="kw-2">mut </span><span class="self">self</span>, alignment: Alignment) -&gt; <span class="self">Self </span>{
 <a href=#263 id=263 data-nosnippet>263</a>                    <span class="self">self</span>.alignment = <span class="prelude-val">Some</span>(<span class="macro">yes_to!</span>(alignment, <span class="macro-nonterminal">$alignment_yes</span>));
 <a href=#264 id=264 data-nosnippet>264</a>                    <span class="self">self
 <a href=#265 id=265 data-nosnippet>265</a>                </span>}
 <a href=#266 id=266 data-nosnippet>266</a>            }
 <a href=#267 id=267 data-nosnippet>267</a>        )<span class="question-mark">?
 <a href=#268 id=268 data-nosnippet>268</a>        </span>$(
-<a href=#269 id=269 data-nosnippet>269</a>            <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+<a href=#269 id=269 data-nosnippet>269</a>            <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
 <a href=#270 id=270 data-nosnippet>270</a>                <span class="doccomment">/// Sets the year style option.
-<a href=#271 id=271 data-nosnippet>271</a>                </span><span class="kw">pub const fn </span><span class="macro-nonterminal">with_year_style</span>(<span class="kw-2">mut </span><span class="self">self</span>, year_style: YearStyle) -&gt; <span class="self">Self </span>{
+<a href=#271 id=271 data-nosnippet>271</a>                </span><span class="kw">pub const fn </span>with_year_style(<span class="kw-2">mut </span><span class="self">self</span>, year_style: YearStyle) -&gt; <span class="self">Self </span>{
 <a href=#272 id=272 data-nosnippet>272</a>                    <span class="self">self</span>.year_style = <span class="prelude-val">Some</span>(<span class="macro">yes_to!</span>(year_style, <span class="macro-nonterminal">$yearstyle_yes</span>));
 <a href=#273 id=273 data-nosnippet>273</a>                    <span class="self">self
 <a href=#274 id=274 data-nosnippet>274</a>                </span>}
 <a href=#275 id=275 data-nosnippet>275</a>            }
 <a href=#276 id=276 data-nosnippet>276</a>        )<span class="question-mark">?
 <a href=#277 id=277 data-nosnippet>277</a>        </span>$(
-<a href=#278 id=278 data-nosnippet>278</a>            <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+<a href=#278 id=278 data-nosnippet>278</a>            <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
 <a href=#279 id=279 data-nosnippet>279</a>                <span class="doccomment">/// Sets the time precision option.
-<a href=#280 id=280 data-nosnippet>280</a>                </span><span class="kw">pub const fn </span><span class="macro-nonterminal">with_time_precision</span>(<span class="kw-2">mut </span><span class="self">self</span>, time_precision: TimePrecision) -&gt; <span class="self">Self </span>{
+<a href=#280 id=280 data-nosnippet>280</a>                </span><span class="kw">pub const fn </span>with_time_precision(<span class="kw-2">mut </span><span class="self">self</span>, time_precision: TimePrecision) -&gt; <span class="self">Self </span>{
 <a href=#281 id=281 data-nosnippet>281</a>                    <span class="self">self</span>.time_precision = <span class="prelude-val">Some</span>(<span class="macro">yes_to!</span>(time_precision, <span class="macro-nonterminal">$timeprecision_yes</span>));
 <a href=#282 id=282 data-nosnippet>282</a>                    <span class="self">self
 <a href=#283 id=283 data-nosnippet>283</a>                </span>}
@@ -288,14 +288,14 @@
 <a href=#288 id=288 data-nosnippet>288</a>
 <a href=#289 id=289 data-nosnippet>289</a><span class="macro">macro_rules!</span> impl_date_to_time_helpers {
 <a href=#290 id=290 data-nosnippet>290</a>    (
-<a href=#291 id=291 data-nosnippet>291</a>        <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#291 id=291 data-nosnippet>291</a>        <span class="macro-nonterminal">$type</span>:ident,
 <a href=#292 id=292 data-nosnippet>292</a>        <span class="macro-nonterminal">$type_time</span>:ident,
 <a href=#293 id=293 data-nosnippet>293</a>        $(alignment = <span class="macro-nonterminal">$alignment_yes</span>:ident,)<span class="question-mark">?
 <a href=#294 id=294 data-nosnippet>294</a>        </span>$(year_style = <span class="macro-nonterminal">$yearstyle_yes</span>:ident,)<span class="question-mark">?
 <a href=#295 id=295 data-nosnippet>295</a>    </span>) =&gt; {
-<a href=#296 id=296 data-nosnippet>296</a>        <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+<a href=#296 id=296 data-nosnippet>296</a>        <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
 <a href=#297 id=297 data-nosnippet>297</a>            <span class="doccomment">/// Associates this field set with a time precision.
-<a href=#298 id=298 data-nosnippet>298</a>            </span><span class="kw">pub fn </span><span class="macro-nonterminal">with_time</span>(<span class="self">self</span>, time_precision: TimePrecision) -&gt; <span class="macro-nonterminal">$type_time </span>{
+<a href=#298 id=298 data-nosnippet>298</a>            </span><span class="kw">pub fn </span>with_time(<span class="self">self</span>, time_precision: TimePrecision) -&gt; <span class="macro-nonterminal">$type_time </span>{
 <a href=#299 id=299 data-nosnippet>299</a>                <span class="macro-nonterminal">$type_time </span>{
 <a href=#300 id=300 data-nosnippet>300</a>                    length: <span class="self">self</span>.length,
 <a href=#301 id=301 data-nosnippet>301</a>                    time_precision: <span class="prelude-val">Some</span>(time_precision),
@@ -308,14 +308,14 @@
 <a href=#308 id=308 data-nosnippet>308</a>            /// # Examples
 <a href=#309 id=309 data-nosnippet>309</a>            ///
 <a href=#310 id=310 data-nosnippet>310</a>            /// ```
-<a href=#311 id=311 data-nosnippet>311</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">";"</span>)]
+<a href=#311 id=311 data-nosnippet>311</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">";"</span>)]
 <a href=#312 id=312 data-nosnippet>312</a>            </span><span class="doccomment">/// use icu::datetime::options::TimePrecision;
 <a href=#313 id=313 data-nosnippet>313</a>            ///
-<a href=#314 id=314 data-nosnippet>314</a>            </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fs1 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"::medium().with_time(TimePrecision::Minute);"</span>)]
-<a href=#315 id=315 data-nosnippet>315</a>            #[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fs2 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"::medium().with_time_hm();"</span>)]
+<a href=#314 id=314 data-nosnippet>314</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let fs1 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"::medium().with_time(TimePrecision::Minute);"</span>)]
+<a href=#315 id=315 data-nosnippet>315</a>            #[doc = <span class="macro">concat!</span>(<span class="string">"let fs2 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"::medium().with_time_hm();"</span>)]
 <a href=#316 id=316 data-nosnippet>316</a>            </span><span class="doccomment">/// assert_eq!(fs1, fs2);
 <a href=#317 id=317 data-nosnippet>317</a>            /// ```
-<a href=#318 id=318 data-nosnippet>318</a>            </span><span class="kw">pub fn </span><span class="macro-nonterminal">with_time_hm</span>(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$type_time </span>{
+<a href=#318 id=318 data-nosnippet>318</a>            </span><span class="kw">pub fn </span>with_time_hm(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$type_time </span>{
 <a href=#319 id=319 data-nosnippet>319</a>                <span class="macro-nonterminal">$type_time </span>{
 <a href=#320 id=320 data-nosnippet>320</a>                    length: <span class="self">self</span>.length,
 <a href=#321 id=321 data-nosnippet>321</a>                    time_precision: <span class="prelude-val">Some</span>(TimePrecision::Minute),
@@ -328,14 +328,14 @@
 <a href=#328 id=328 data-nosnippet>328</a>            /// # Examples
 <a href=#329 id=329 data-nosnippet>329</a>            ///
 <a href=#330 id=330 data-nosnippet>330</a>            /// ```
-<a href=#331 id=331 data-nosnippet>331</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">";"</span>)]
+<a href=#331 id=331 data-nosnippet>331</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">";"</span>)]
 <a href=#332 id=332 data-nosnippet>332</a>            </span><span class="doccomment">/// use icu::datetime::options::TimePrecision;
 <a href=#333 id=333 data-nosnippet>333</a>            ///
-<a href=#334 id=334 data-nosnippet>334</a>            </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fs1 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"::medium().with_time(TimePrecision::Second);"</span>)]
-<a href=#335 id=335 data-nosnippet>335</a>            #[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fs2 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"::medium().with_time_hms();"</span>)]
+<a href=#334 id=334 data-nosnippet>334</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let fs1 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"::medium().with_time(TimePrecision::Second);"</span>)]
+<a href=#335 id=335 data-nosnippet>335</a>            #[doc = <span class="macro">concat!</span>(<span class="string">"let fs2 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"::medium().with_time_hms();"</span>)]
 <a href=#336 id=336 data-nosnippet>336</a>            </span><span class="doccomment">/// assert_eq!(fs1, fs2);
 <a href=#337 id=337 data-nosnippet>337</a>            /// ```
-<a href=#338 id=338 data-nosnippet>338</a>            </span><span class="kw">pub fn </span><span class="macro-nonterminal">with_time_hms</span>(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$type_time </span>{
+<a href=#338 id=338 data-nosnippet>338</a>            </span><span class="kw">pub fn </span>with_time_hms(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$type_time </span>{
 <a href=#339 id=339 data-nosnippet>339</a>                <span class="macro-nonterminal">$type_time </span>{
 <a href=#340 id=340 data-nosnippet>340</a>                    length: <span class="self">self</span>.length,
 <a href=#341 id=341 data-nosnippet>341</a>                    time_precision: <span class="prelude-val">Some</span>(TimePrecision::Second),
@@ -348,15 +348,15 @@
 <a href=#348 id=348 data-nosnippet>348</a>            /// # Examples
 <a href=#349 id=349 data-nosnippet>349</a>            ///
 <a href=#350 id=350 data-nosnippet>350</a>            /// ```
-<a href=#351 id=351 data-nosnippet>351</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">";"</span>)]
+<a href=#351 id=351 data-nosnippet>351</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">";"</span>)]
 <a href=#352 id=352 data-nosnippet>352</a>            </span><span class="doccomment">/// use icu::datetime::options::TimePrecision;
 <a href=#353 id=353 data-nosnippet>353</a>            /// use icu::datetime::options::SubsecondDigits::S2;
 <a href=#354 id=354 data-nosnippet>354</a>            ///
-<a href=#355 id=355 data-nosnippet>355</a>            </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fs1 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"::medium().with_time(TimePrecision::Subsecond(S2));"</span>)]
-<a href=#356 id=356 data-nosnippet>356</a>            #[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fs2 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"::medium().with_time_hmss(S2);"</span>)]
+<a href=#355 id=355 data-nosnippet>355</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let fs1 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"::medium().with_time(TimePrecision::Subsecond(S2));"</span>)]
+<a href=#356 id=356 data-nosnippet>356</a>            #[doc = <span class="macro">concat!</span>(<span class="string">"let fs2 = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"::medium().with_time_hmss(S2);"</span>)]
 <a href=#357 id=357 data-nosnippet>357</a>            </span><span class="doccomment">/// assert_eq!(fs1, fs2);
 <a href=#358 id=358 data-nosnippet>358</a>            /// ```
-<a href=#359 id=359 data-nosnippet>359</a>            </span><span class="kw">pub fn </span><span class="macro-nonterminal">with_time_hmss</span>(<span class="self">self</span>, subsecond_digits: SubsecondDigits) -&gt; <span class="macro-nonterminal">$type_time </span>{
+<a href=#359 id=359 data-nosnippet>359</a>            </span><span class="kw">pub fn </span>with_time_hmss(<span class="self">self</span>, subsecond_digits: SubsecondDigits) -&gt; <span class="macro-nonterminal">$type_time </span>{
 <a href=#360 id=360 data-nosnippet>360</a>                <span class="macro-nonterminal">$type_time </span>{
 <a href=#361 id=361 data-nosnippet>361</a>                    length: <span class="self">self</span>.length,
 <a href=#362 id=362 data-nosnippet>362</a>                    time_precision: <span class="prelude-val">Some</span>(TimePrecision::Subsecond(subsecond_digits)),
@@ -369,19 +369,19 @@
 <a href=#369 id=369 data-nosnippet>369</a>}
 <a href=#370 id=370 data-nosnippet>370</a>
 <a href=#371 id=371 data-nosnippet>371</a><span class="macro">macro_rules!</span> impl_combo_get_field {
-<a href=#372 id=372 data-nosnippet>372</a>    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$composite</span>:ident, <span class="macro-nonterminal">$</span><span class="kw">enum</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$variant</span>:path) =&gt; {
-<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">impl </span>GetField&lt;CompositeFieldSet&gt; <span class="kw">for </span>Combo&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$variant</span>&gt; {
+<a href=#372 id=372 data-nosnippet>372</a>    (<span class="macro-nonterminal">$type</span>:ident, <span class="macro-nonterminal">$composite</span>:ident, <span class="macro-nonterminal">$enum</span>:ident, <span class="macro-nonterminal">$variant</span>:path) =&gt; {
+<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">impl </span>GetField&lt;CompositeFieldSet&gt; <span class="kw">for </span>Combo&lt;<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$variant</span>&gt; {
 <a href=#374 id=374 data-nosnippet>374</a>            <span class="attr">#[inline]
 <a href=#375 id=375 data-nosnippet>375</a>            </span><span class="kw">fn </span>get_field(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CompositeFieldSet {
 <a href=#376 id=376 data-nosnippet>376</a>                CompositeFieldSet::<span class="macro-nonterminal">$composite</span>(Combo::new(<span class="self">self</span>.dt().to_enum(), <span class="self">self</span>.z().to_enum()))
 <a href=#377 id=377 data-nosnippet>377</a>            }
 <a href=#378 id=378 data-nosnippet>378</a>        }
-<a href=#379 id=379 data-nosnippet>379</a>        <span class="kw">impl </span>Combo&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$variant</span>&gt; {
+<a href=#379 id=379 data-nosnippet>379</a>        <span class="kw">impl </span>Combo&lt;<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$variant</span>&gt; {
 <a href=#380 id=380 data-nosnippet>380</a>            <span class="doccomment">/// Convert this specific [`Combo`] into a more general [`Combo`].
 <a href=#381 id=381 data-nosnippet>381</a>            /// Useful when adding to the field of a [`CompositeFieldSet`].
 <a href=#382 id=382 data-nosnippet>382</a>            ///
 <a href=#383 id=383 data-nosnippet>383</a>            /// [`CompositeFieldSet`]: enums::CompositeFieldSet
-<a href=#384 id=384 data-nosnippet>384</a>            </span><span class="kw">pub fn </span>into_enums(<span class="self">self</span>) -&gt; Combo&lt;<span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">ZoneFieldSet</span>&gt; {
+<a href=#384 id=384 data-nosnippet>384</a>            </span><span class="kw">pub fn </span>into_enums(<span class="self">self</span>) -&gt; Combo&lt;<span class="macro-nonterminal">$enum</span>, ZoneFieldSet&gt; {
 <a href=#385 id=385 data-nosnippet>385</a>                Combo::new(<span class="self">self</span>.dt().to_enum(), <span class="self">self</span>.z().to_enum())
 <a href=#386 id=386 data-nosnippet>386</a>            }
 <a href=#387 id=387 data-nosnippet>387</a>        }
@@ -390,26 +390,26 @@
 <a href=#390 id=390 data-nosnippet>390</a>
 <a href=#391 id=391 data-nosnippet>391</a><span class="macro">macro_rules!</span> impl_zone_combo_helpers {
 <a href=#392 id=392 data-nosnippet>392</a>    (
-<a href=#393 id=393 data-nosnippet>393</a>        <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#393 id=393 data-nosnippet>393</a>        <span class="macro-nonterminal">$type</span>:ident,
 <a href=#394 id=394 data-nosnippet>394</a>        <span class="macro-nonterminal">$composite</span>:ident,
-<a href=#395 id=395 data-nosnippet>395</a>        <span class="macro-nonterminal">$</span><span class="kw">enum</span>:<span class="macro-nonterminal">ident
-<a href=#396 id=396 data-nosnippet>396</a>    </span>) =&gt; {
-<a href=#397 id=397 data-nosnippet>397</a>        <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#398 id=398 data-nosnippet>398</a>            <span class="attr">#[<span class="macro-nonterminal">inline</span>]
+<a href=#395 id=395 data-nosnippet>395</a>        <span class="macro-nonterminal">$enum</span>:ident
+<a href=#396 id=396 data-nosnippet>396</a>    ) =&gt; {
+<a href=#397 id=397 data-nosnippet>397</a>        <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
+<a href=#398 id=398 data-nosnippet>398</a>            <span class="attr">#[inline]
 <a href=#399 id=399 data-nosnippet>399</a>            </span><span class="doccomment">/// Associates this field set with a time zone field set.
 <a href=#400 id=400 data-nosnippet>400</a>            </span><span class="kw">pub fn </span>with_zone&lt;Z: ZoneMarkers&gt;(<span class="self">self</span>, zone: Z) -&gt; Combo&lt;<span class="self">Self</span>, Z&gt; {
 <a href=#401 id=401 data-nosnippet>401</a>                Combo::new(<span class="self">self</span>, zone)
 <a href=#402 id=402 data-nosnippet>402</a>            }
 <a href=#403 id=403 data-nosnippet>403</a>        }
-<a href=#404 id=404 data-nosnippet>404</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">zone::SpecificLong</span>);
-<a href=#405 id=405 data-nosnippet>405</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">zone::SpecificShort</span>);
-<a href=#406 id=406 data-nosnippet>406</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">zone::LocalizedOffsetLong</span>);
-<a href=#407 id=407 data-nosnippet>407</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">zone::LocalizedOffsetShort</span>);
-<a href=#408 id=408 data-nosnippet>408</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">zone::GenericLong</span>);
-<a href=#409 id=409 data-nosnippet>409</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">zone::GenericShort</span>);
-<a href=#410 id=410 data-nosnippet>410</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">zone::Location</span>);
-<a href=#411 id=411 data-nosnippet>411</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">zone::ExemplarCity</span>);
-<a href=#412 id=412 data-nosnippet>412</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$</span><span class="kw">enum</span>, <span class="macro-nonterminal">ZoneFieldSet</span>);
+<a href=#404 id=404 data-nosnippet>404</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, zone::SpecificLong);
+<a href=#405 id=405 data-nosnippet>405</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, zone::SpecificShort);
+<a href=#406 id=406 data-nosnippet>406</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, zone::LocalizedOffsetLong);
+<a href=#407 id=407 data-nosnippet>407</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, zone::LocalizedOffsetShort);
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, zone::GenericLong);
+<a href=#409 id=409 data-nosnippet>409</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, zone::GenericShort);
+<a href=#410 id=410 data-nosnippet>410</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, zone::Location);
+<a href=#411 id=411 data-nosnippet>411</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, zone::ExemplarCity);
+<a href=#412 id=412 data-nosnippet>412</a>        <span class="macro">impl_combo_get_field!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$composite</span>, <span class="macro-nonterminal">$enum</span>, ZoneFieldSet);
 <a href=#413 id=413 data-nosnippet>413</a>    };
 <a href=#414 id=414 data-nosnippet>414</a>}
 <a href=#415 id=415 data-nosnippet>415</a>
@@ -418,7 +418,7 @@
 <a href=#418 id=418 data-nosnippet>418</a>    (
 <a href=#419 id=419 data-nosnippet>419</a>        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
 <a href=#420 id=420 data-nosnippet>420</a>        <span class="comment">// The name of the type being created.
-<a href=#421 id=421 data-nosnippet>421</a>        </span><span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#421 id=421 data-nosnippet>421</a>        </span><span class="macro-nonterminal">$type</span>:ident,
 <a href=#422 id=422 data-nosnippet>422</a>        <span class="comment">// A plain language description of the field set for documentation.
 <a href=#423 id=423 data-nosnippet>423</a>        </span>description = <span class="macro-nonterminal">$description</span>:literal,
 <a href=#424 id=424 data-nosnippet>424</a>        <span class="comment">// Length of the sample string below.
@@ -461,12 +461,12 @@
 <a href=#461 id=461 data-nosnippet>461</a>            /// ```
 <a href=#462 id=462 data-nosnippet>462</a>            /// use icu::datetime::input::Date;
 <a href=#463 id=463 data-nosnippet>463</a>            /// use icu::datetime::DateTimeFormatter;
-<a href=#464 id=464 data-nosnippet>464</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">";"</span>)]
+<a href=#464 id=464 data-nosnippet>464</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">";"</span>)]
 <a href=#465 id=465 data-nosnippet>465</a>            </span><span class="doccomment">/// use icu::locale::locale;
 <a href=#466 id=466 data-nosnippet>466</a>            /// use writeable::assert_writeable_eq;
-<a href=#467 id=467 data-nosnippet>467</a>            </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fmt = DateTimeFormatter::&lt;"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"&gt;::try_new("</span>)]
+<a href=#467 id=467 data-nosnippet>467</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let fmt = DateTimeFormatter::&lt;"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"&gt;::try_new("</span>)]
 <a href=#468 id=468 data-nosnippet>468</a>            </span><span class="doccomment">///     locale!("en").into(),
-<a href=#469 id=469 data-nosnippet>469</a>            </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"    "</span>, <span class="macro">length_option_helper!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$sample_length</span>), <span class="string">","</span>)]
+<a href=#469 id=469 data-nosnippet>469</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"    "</span>, <span class="macro">length_option_helper!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$sample_length</span>), <span class="string">","</span>)]
 <a href=#470 id=470 data-nosnippet>470</a>            </span><span class="doccomment">/// )
 <a href=#471 id=471 data-nosnippet>471</a>            /// .unwrap();
 <a href=#472 id=472 data-nosnippet>472</a>            /// let dt = Date::try_new_iso(2024, 5, 17).unwrap();
@@ -483,13 +483,13 @@
 <a href=#483 id=483 data-nosnippet>483</a>            /// use icu::datetime::input::Date;
 <a href=#484 id=484 data-nosnippet>484</a>            /// use icu::calendar::Gregorian;
 <a href=#485 id=485 data-nosnippet>485</a>            /// use icu::datetime::FixedCalendarDateTimeFormatter;
-<a href=#486 id=486 data-nosnippet>486</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">";"</span>)]
+<a href=#486 id=486 data-nosnippet>486</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">";"</span>)]
 <a href=#487 id=487 data-nosnippet>487</a>            </span><span class="doccomment">/// use icu::locale::locale;
 <a href=#488 id=488 data-nosnippet>488</a>            /// use writeable::assert_writeable_eq;
 <a href=#489 id=489 data-nosnippet>489</a>            ///
-<a href=#490 id=490 data-nosnippet>490</a>            </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fmt = FixedCalendarDateTimeFormatter::&lt;Gregorian, "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"&gt;::try_new("</span>)]
+<a href=#490 id=490 data-nosnippet>490</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let fmt = FixedCalendarDateTimeFormatter::&lt;Gregorian, "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">"&gt;::try_new("</span>)]
 <a href=#491 id=491 data-nosnippet>491</a>            </span><span class="doccomment">///     locale!("en").into(),
-<a href=#492 id=492 data-nosnippet>492</a>            </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"    "</span>, <span class="macro">length_option_helper!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$sample_length</span>), <span class="string">","</span>)]
+<a href=#492 id=492 data-nosnippet>492</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"    "</span>, <span class="macro">length_option_helper!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$sample_length</span>), <span class="string">","</span>)]
 <a href=#493 id=493 data-nosnippet>493</a>            </span><span class="doccomment">/// )
 <a href=#494 id=494 data-nosnippet>494</a>            /// .unwrap();
 <a href=#495 id=495 data-nosnippet>495</a>            /// let dt = Date::try_new_gregorian(2024, 5, 17).unwrap();
@@ -500,20 +500,20 @@
 <a href=#500 id=500 data-nosnippet>500</a>            </span><span class="doccomment">/// );
 <a href=#501 id=501 data-nosnippet>501</a>            /// ```
 <a href=#502 id=502 data-nosnippet>502</a>            </span>$(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-<a href=#503 id=503 data-nosnippet>503</a>            <span class="macro-nonterminal">$</span><span class="kw">type</span>,
-<a href=#504 id=504 data-nosnippet>504</a>            <span class="macro-nonterminal">sample_length</span>: <span class="macro-nonterminal">$sample_length</span>,
-<a href=#505 id=505 data-nosnippet>505</a>            date_fields: <span class="prelude-val">Some</span>(builder::DateFields::<span class="macro-nonterminal">$</span><span class="kw">type</span>),
-<a href=#506 id=506 data-nosnippet>506</a>            $(<span class="macro-nonterminal">alignment</span>: <span class="macro-nonterminal">$option_alignment_yes</span>,)<span class="question-mark">?
+<a href=#503 id=503 data-nosnippet>503</a>            <span class="macro-nonterminal">$type</span>,
+<a href=#504 id=504 data-nosnippet>504</a>            sample_length: <span class="macro-nonterminal">$sample_length</span>,
+<a href=#505 id=505 data-nosnippet>505</a>            date_fields: <span class="prelude-val">Some</span>(builder::DateFields::<span class="macro-nonterminal">$type</span>),
+<a href=#506 id=506 data-nosnippet>506</a>            $(alignment: <span class="macro-nonterminal">$option_alignment_yes</span>,)<span class="question-mark">?
 <a href=#507 id=507 data-nosnippet>507</a>            </span>$(year_style: <span class="macro-nonterminal">$year_yes</span>,)<span class="question-mark">?
 <a href=#508 id=508 data-nosnippet>508</a>        </span>);
 <a href=#509 id=509 data-nosnippet>509</a>        <span class="macro">impl_marker_length_constructors!</span>(
-<a href=#510 id=510 data-nosnippet>510</a>            <span class="macro-nonterminal">$</span><span class="kw">type</span>,
-<a href=#511 id=511 data-nosnippet>511</a>            $(<span class="macro-nonterminal">alignment</span>: <span class="macro-nonterminal">$option_alignment_yes</span>,)<span class="question-mark">?
+<a href=#510 id=510 data-nosnippet>510</a>            <span class="macro-nonterminal">$type</span>,
+<a href=#511 id=511 data-nosnippet>511</a>            $(alignment: <span class="macro-nonterminal">$option_alignment_yes</span>,)<span class="question-mark">?
 <a href=#512 id=512 data-nosnippet>512</a>            </span>$(year_style: <span class="macro-nonterminal">$year_yes</span>,)<span class="question-mark">?
 <a href=#513 id=513 data-nosnippet>513</a>        </span>);
-<a href=#514 id=514 data-nosnippet>514</a>        <span class="kw">impl </span>UnstableSealed <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{}
-<a href=#515 id=515 data-nosnippet>515</a>        <span class="kw">impl </span><span class="macro-nonterminal">DateTimeNamesMarker </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#516 id=516 data-nosnippet>516</a>            <span class="kw">type </span><span class="macro-nonterminal">YearNames </span>= <span class="macro">datetime_marker_helper!</span>(@names/year, $(<span class="macro-nonterminal">$years_yes</span>)<span class="question-mark">?</span>);
+<a href=#514 id=514 data-nosnippet>514</a>        <span class="kw">impl </span>UnstableSealed <span class="kw">for </span><span class="macro-nonterminal">$type </span>{}
+<a href=#515 id=515 data-nosnippet>515</a>        <span class="kw">impl </span>DateTimeNamesMarker <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#516 id=516 data-nosnippet>516</a>            <span class="kw">type </span>YearNames = <span class="macro">datetime_marker_helper!</span>(@names/year, $(<span class="macro-nonterminal">$years_yes</span>)<span class="question-mark">?</span>);
 <a href=#517 id=517 data-nosnippet>517</a>            <span class="kw">type </span>MonthNames = <span class="macro">datetime_marker_helper!</span>(@names/month, $(<span class="macro-nonterminal">$months_yes</span>)<span class="question-mark">?</span>);
 <a href=#518 id=518 data-nosnippet>518</a>            <span class="kw">type </span>WeekdayNames = <span class="macro">datetime_marker_helper!</span>(@names/weekday, $(<span class="macro-nonterminal">$weekdays_yes</span>)<span class="question-mark">?</span>);
 <a href=#519 id=519 data-nosnippet>519</a>            <span class="kw">type </span>DayPeriodNames = <span class="macro">datetime_marker_helper!</span>(@names/dayperiod,);
@@ -529,28 +529,28 @@
 <a href=#529 id=529 data-nosnippet>529</a>            <span class="kw">type </span>ZoneSpecificShort = <span class="macro">datetime_marker_helper!</span>(@names/zone/specific_short,);
 <a href=#530 id=530 data-nosnippet>530</a>            <span class="kw">type </span>MetazoneLookup = <span class="macro">datetime_marker_helper!</span>(@names/zone/metazone_periods,);
 <a href=#531 id=531 data-nosnippet>531</a>        }
-<a href=#532 id=532 data-nosnippet>532</a>        <span class="kw">impl </span>DateInputMarkers <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#533 id=533 data-nosnippet>533</a>            <span class="kw">type </span><span class="macro-nonterminal">YearInput </span>= <span class="macro">datetime_marker_helper!</span>(@input/year, $(<span class="macro-nonterminal">$year_yes</span>)<span class="question-mark">?</span>);
+<a href=#532 id=532 data-nosnippet>532</a>        <span class="kw">impl </span>DateInputMarkers <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#533 id=533 data-nosnippet>533</a>            <span class="kw">type </span>YearInput = <span class="macro">datetime_marker_helper!</span>(@input/year, $(<span class="macro-nonterminal">$year_yes</span>)<span class="question-mark">?</span>);
 <a href=#534 id=534 data-nosnippet>534</a>            <span class="kw">type </span>MonthInput = <span class="macro">datetime_marker_helper!</span>(@input/month, $(<span class="macro-nonterminal">$month_yes</span>)<span class="question-mark">?</span>);
 <a href=#535 id=535 data-nosnippet>535</a>            <span class="kw">type </span>DayOfMonthInput = <span class="macro">datetime_marker_helper!</span>(@input/day_of_month, $(<span class="macro-nonterminal">$day_of_month_yes</span>)<span class="question-mark">?</span>);
 <a href=#536 id=536 data-nosnippet>536</a>            <span class="kw">type </span>DayOfYearInput = <span class="macro">datetime_marker_helper!</span>(@input/day_of_year, $(<span class="macro-nonterminal">$day_of_year_yes</span>)<span class="question-mark">?</span>);
 <a href=#537 id=537 data-nosnippet>537</a>            <span class="kw">type </span>RataDieInput = <span class="macro">datetime_marker_helper!</span>(@input/rata_die, $(<span class="macro-nonterminal">$rata_die_yes</span>)<span class="question-mark">?</span>);
 <a href=#538 id=538 data-nosnippet>538</a>            <span class="kw">type </span>DayOfWeekInput = <span class="macro">datetime_marker_helper!</span>(@input/day_of_week, $(<span class="macro-nonterminal">$day_of_week_yes</span>)<span class="question-mark">?</span>);
 <a href=#539 id=539 data-nosnippet>539</a>        }
-<a href=#540 id=540 data-nosnippet>540</a>        <span class="kw">impl</span>&lt;C: CldrCalendar&gt; TypedDateDataMarkers&lt;C&gt; <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#541 id=541 data-nosnippet>541</a>            <span class="kw">type </span><span class="macro-nonterminal">DateSkeletonPatternsV1 </span>= <span class="macro">datetime_marker_helper!</span>(@dates/typed, yes);
+<a href=#540 id=540 data-nosnippet>540</a>        <span class="kw">impl</span>&lt;C: CldrCalendar&gt; TypedDateDataMarkers&lt;C&gt; <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#541 id=541 data-nosnippet>541</a>            <span class="kw">type </span>DateSkeletonPatternsV1 = <span class="macro">datetime_marker_helper!</span>(@dates/typed, yes);
 <a href=#542 id=542 data-nosnippet>542</a>            <span class="kw">type </span>YearNamesV1 = <span class="macro">datetime_marker_helper!</span>(@years/typed, $(<span class="macro-nonterminal">$years_yes</span>)<span class="question-mark">?</span>);
 <a href=#543 id=543 data-nosnippet>543</a>            <span class="kw">type </span>MonthNamesV1 = <span class="macro">datetime_marker_helper!</span>(@months/typed, $(<span class="macro-nonterminal">$months_yes</span>)<span class="question-mark">?</span>);
 <a href=#544 id=544 data-nosnippet>544</a>            <span class="kw">type </span>WeekdayNamesV1 = <span class="macro">datetime_marker_helper!</span>(@weekdays, $(<span class="macro-nonterminal">$weekdays_yes</span>)<span class="question-mark">?</span>);
 <a href=#545 id=545 data-nosnippet>545</a>        }
-<a href=#546 id=546 data-nosnippet>546</a>        <span class="kw">impl </span>DateDataMarkers <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#547 id=547 data-nosnippet>547</a>            <span class="kw">type </span><span class="macro-nonterminal">Skel </span>= <span class="macro">datetime_marker_helper!</span>(@calmarkers, yes);
+<a href=#546 id=546 data-nosnippet>546</a>        <span class="kw">impl </span>DateDataMarkers <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#547 id=547 data-nosnippet>547</a>            <span class="kw">type </span>Skel = <span class="macro">datetime_marker_helper!</span>(@calmarkers, yes);
 <a href=#548 id=548 data-nosnippet>548</a>            <span class="kw">type </span>Year = <span class="macro">datetime_marker_helper!</span>(@calmarkers, $(<span class="macro-nonterminal">$years_yes</span>)<span class="question-mark">?</span>);
 <a href=#549 id=549 data-nosnippet>549</a>            <span class="kw">type </span>Month = <span class="macro">datetime_marker_helper!</span>(@calmarkers, $(<span class="macro-nonterminal">$months_yes</span>)<span class="question-mark">?</span>);
 <a href=#550 id=550 data-nosnippet>550</a>            <span class="kw">type </span>WeekdayNamesV1 = <span class="macro">datetime_marker_helper!</span>(@weekdays, $(<span class="macro-nonterminal">$weekdays_yes</span>)<span class="question-mark">?</span>);
 <a href=#551 id=551 data-nosnippet>551</a>        }
-<a href=#552 id=552 data-nosnippet>552</a>        <span class="kw">impl </span>DateTimeMarkers <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#553 id=553 data-nosnippet>553</a>            <span class="kw">type </span><span class="macro-nonterminal">D </span>= <span class="self">Self</span>;
+<a href=#552 id=552 data-nosnippet>552</a>        <span class="kw">impl </span>DateTimeMarkers <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#553 id=553 data-nosnippet>553</a>            <span class="kw">type </span>D = <span class="self">Self</span>;
 <a href=#554 id=554 data-nosnippet>554</a>            <span class="kw">type </span>T = ();
 <a href=#555 id=555 data-nosnippet>555</a>            <span class="kw">type </span>Z = ();
 <a href=#556 id=556 data-nosnippet>556</a>            <span class="kw">type </span>GluePatternV1 = <span class="macro">datetime_marker_helper!</span>(@glue,);
@@ -568,7 +568,7 @@
 <a href=#568 id=568 data-nosnippet>568</a></span><span class="macro">macro_rules!</span> impl_date_marker {
 <a href=#569 id=569 data-nosnippet>569</a>    (
 <a href=#570 id=570 data-nosnippet>570</a>        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
-<a href=#571 id=571 data-nosnippet>571</a>        <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#571 id=571 data-nosnippet>571</a>        <span class="macro-nonterminal">$type</span>:ident,
 <a href=#572 id=572 data-nosnippet>572</a>        <span class="macro-nonterminal">$type_time</span>:ident,
 <a href=#573 id=573 data-nosnippet>573</a>        description = <span class="macro-nonterminal">$description</span>:literal,
 <a href=#574 id=574 data-nosnippet>574</a>        sample_length = <span class="macro-nonterminal">$sample_length</span>:ident,
@@ -589,8 +589,8 @@
 <a href=#589 id=589 data-nosnippet>589</a>    </span>) =&gt; {
 <a href=#590 id=590 data-nosnippet>590</a>        <span class="macro">impl_date_or_calendar_period_marker!</span>(
 <a href=#591 id=591 data-nosnippet>591</a>            $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-<a href=#592 id=592 data-nosnippet>592</a>            <span class="macro-nonterminal">$</span><span class="kw">type</span>,
-<a href=#593 id=593 data-nosnippet>593</a>            <span class="macro-nonterminal">description </span>= <span class="macro-nonterminal">$description</span>,
+<a href=#592 id=592 data-nosnippet>592</a>            <span class="macro-nonterminal">$type</span>,
+<a href=#593 id=593 data-nosnippet>593</a>            description = <span class="macro-nonterminal">$description</span>,
 <a href=#594 id=594 data-nosnippet>594</a>            sample_length = <span class="macro-nonterminal">$sample_length</span>,
 <a href=#595 id=595 data-nosnippet>595</a>            sample = <span class="macro-nonterminal">$sample</span>,
 <a href=#596 id=596 data-nosnippet>596</a>            $(years = <span class="macro-nonterminal">$years_yes</span>,)<span class="question-mark">?
@@ -606,9 +606,9 @@
 <a href=#606 id=606 data-nosnippet>606</a>            </span>$(input_any_calendar_kind = <span class="macro-nonterminal">$any_calendar_kind_yes</span>,)<span class="question-mark">?
 <a href=#607 id=607 data-nosnippet>607</a>            </span>$(option_alignment = <span class="macro-nonterminal">$option_alignment_yes</span>,)<span class="question-mark">?
 <a href=#608 id=608 data-nosnippet>608</a>        </span>);
-<a href=#609 id=609 data-nosnippet>609</a>        <span class="macro">impl_zone_combo_helpers!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">DateZone</span>, DateFieldSet);
-<a href=#610 id=610 data-nosnippet>610</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">Date</span>, DateFieldSet);
-<a href=#611 id=611 data-nosnippet>611</a>        <span class="macro">impl_date_to_time_helpers!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$type_time</span>, $(alignment = <span class="macro-nonterminal">$option_alignment_yes</span>,)<span class="question-mark">? </span>$(year_style = <span class="macro-nonterminal">$year_yes</span>,)<span class="question-mark">?</span>);
+<a href=#609 id=609 data-nosnippet>609</a>        <span class="macro">impl_zone_combo_helpers!</span>(<span class="macro-nonterminal">$type</span>, DateZone, DateFieldSet);
+<a href=#610 id=610 data-nosnippet>610</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$type</span>, Date, DateFieldSet);
+<a href=#611 id=611 data-nosnippet>611</a>        <span class="macro">impl_date_to_time_helpers!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$type_time</span>, $(alignment = <span class="macro-nonterminal">$option_alignment_yes</span>,)<span class="question-mark">? </span>$(year_style = <span class="macro-nonterminal">$year_yes</span>,)<span class="question-mark">?</span>);
 <a href=#612 id=612 data-nosnippet>612</a>        <span class="macro">impl_marker_with_options!</span>(
 <a href=#613 id=613 data-nosnippet>613</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"**“"</span>, <span class="macro-nonterminal">$sample_time</span>, <span class="string">"**” ⇒ "</span>, <span class="macro-nonterminal">$description</span>, <span class="string">" with time"</span>)]
 <a href=#614 id=614 data-nosnippet>614</a>            </span><span class="doccomment">///
@@ -663,8 +663,8 @@
 <a href=#663 id=663 data-nosnippet>663</a>            </span>$(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
 <a href=#664 id=664 data-nosnippet>664</a>            <span class="macro-nonterminal">$type_time</span>,
 <a href=#665 id=665 data-nosnippet>665</a>            sample_length: <span class="macro-nonterminal">$sample_length</span>,
-<a href=#666 id=666 data-nosnippet>666</a>            date_fields: <span class="prelude-val">Some</span>(builder::DateFields::<span class="macro-nonterminal">$</span><span class="kw">type</span>),
-<a href=#667 id=667 data-nosnippet>667</a>            <span class="macro-nonterminal">alignment</span>: yes,
+<a href=#666 id=666 data-nosnippet>666</a>            date_fields: <span class="prelude-val">Some</span>(builder::DateFields::<span class="macro-nonterminal">$type</span>),
+<a href=#667 id=667 data-nosnippet>667</a>            alignment: yes,
 <a href=#668 id=668 data-nosnippet>668</a>            $(year_style: <span class="macro-nonterminal">$year_yes</span>,)<span class="question-mark">?
 <a href=#669 id=669 data-nosnippet>669</a>            </span>time_precision: yes,
 <a href=#670 id=670 data-nosnippet>670</a>        );
@@ -730,9 +730,9 @@
 <a href=#730 id=730 data-nosnippet>730</a>        }
 <a href=#731 id=731 data-nosnippet>731</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$type_time</span>, DateTime, DateAndTimeFieldSet);
 <a href=#732 id=732 data-nosnippet>732</a>        <span class="kw">impl </span><span class="macro-nonterminal">$type_time </span>{
-<a href=#733 id=733 data-nosnippet>733</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_date_field_set(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#734 id=734 data-nosnippet>734</a>                <span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#735 id=735 data-nosnippet>735</a>                    <span class="macro-nonterminal">length</span>: <span class="self">self</span>.length,
+<a href=#733 id=733 data-nosnippet>733</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_date_field_set(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$type </span>{
+<a href=#734 id=734 data-nosnippet>734</a>                <span class="macro-nonterminal">$type </span>{
+<a href=#735 id=735 data-nosnippet>735</a>                    length: <span class="self">self</span>.length,
 <a href=#736 id=736 data-nosnippet>736</a>                    $(alignment: <span class="macro">yes_to!</span>(<span class="self">self</span>.alignment, <span class="macro-nonterminal">$option_alignment_yes</span>),)<span class="question-mark">?
 <a href=#737 id=737 data-nosnippet>737</a>                    </span>$(year_style: <span class="macro">yes_to!</span>(<span class="self">self</span>.year_style, <span class="macro-nonterminal">$years_yes</span>),)<span class="question-mark">?
 <a href=#738 id=738 data-nosnippet>738</a>                </span>}
@@ -751,7 +751,7 @@
 <a href=#751 id=751 data-nosnippet>751</a></span><span class="macro">macro_rules!</span> impl_calendar_period_marker {
 <a href=#752 id=752 data-nosnippet>752</a>    (
 <a href=#753 id=753 data-nosnippet>753</a>        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
-<a href=#754 id=754 data-nosnippet>754</a>        <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#754 id=754 data-nosnippet>754</a>        <span class="macro-nonterminal">$type</span>:ident,
 <a href=#755 id=755 data-nosnippet>755</a>        description = <span class="macro-nonterminal">$description</span>:literal,
 <a href=#756 id=756 data-nosnippet>756</a>        sample_length = <span class="macro-nonterminal">$sample_length</span>:ident,
 <a href=#757 id=757 data-nosnippet>757</a>        sample = <span class="macro-nonterminal">$sample</span>:literal,
@@ -765,8 +765,8 @@
 <a href=#765 id=765 data-nosnippet>765</a>    </span>) =&gt; {
 <a href=#766 id=766 data-nosnippet>766</a>        <span class="macro">impl_date_or_calendar_period_marker!</span>(
 <a href=#767 id=767 data-nosnippet>767</a>            $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-<a href=#768 id=768 data-nosnippet>768</a>            <span class="macro-nonterminal">$</span><span class="kw">type</span>,
-<a href=#769 id=769 data-nosnippet>769</a>            <span class="macro-nonterminal">description </span>= <span class="macro-nonterminal">$description</span>,
+<a href=#768 id=768 data-nosnippet>768</a>            <span class="macro-nonterminal">$type</span>,
+<a href=#769 id=769 data-nosnippet>769</a>            description = <span class="macro-nonterminal">$description</span>,
 <a href=#770 id=770 data-nosnippet>770</a>            sample_length = <span class="macro-nonterminal">$sample_length</span>,
 <a href=#771 id=771 data-nosnippet>771</a>            sample = <span class="macro-nonterminal">$sample</span>,
 <a href=#772 id=772 data-nosnippet>772</a>            $(years = <span class="macro-nonterminal">$years_yes</span>,)<span class="question-mark">?
@@ -777,7 +777,7 @@
 <a href=#777 id=777 data-nosnippet>777</a>            </span>$(input_any_calendar_kind = <span class="macro-nonterminal">$any_calendar_kind_yes</span>,)<span class="question-mark">?
 <a href=#778 id=778 data-nosnippet>778</a>            </span>$(option_alignment = <span class="macro-nonterminal">$option_alignment_yes</span>,)<span class="question-mark">?
 <a href=#779 id=779 data-nosnippet>779</a>        </span>);
-<a href=#780 id=780 data-nosnippet>780</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">CalendarPeriod</span>, CalendarPeriodFieldSet);
+<a href=#780 id=780 data-nosnippet>780</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$type</span>, CalendarPeriod, CalendarPeriodFieldSet);
 <a href=#781 id=781 data-nosnippet>781</a>    };
 <a href=#782 id=782 data-nosnippet>782</a>}
 <a href=#783 id=783 data-nosnippet>783</a>
@@ -792,7 +792,7 @@
 <a href=#792 id=792 data-nosnippet>792</a>    (
 <a href=#793 id=793 data-nosnippet>793</a>        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
 <a href=#794 id=794 data-nosnippet>794</a>        <span class="comment">// The name of the type being created.
-<a href=#795 id=795 data-nosnippet>795</a>        </span><span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#795 id=795 data-nosnippet>795</a>        </span><span class="macro-nonterminal">$type</span>:ident,
 <a href=#796 id=796 data-nosnippet>796</a>        <span class="comment">// A plain language description of the field set for documentation.
 <a href=#797 id=797 data-nosnippet>797</a>        </span>description = <span class="macro-nonterminal">$description</span>:literal,
 <a href=#798 id=798 data-nosnippet>798</a>        <span class="comment">// Length of the sample string below.
@@ -818,13 +818,13 @@
 <a href=#818 id=818 data-nosnippet>818</a>            /// ```
 <a href=#819 id=819 data-nosnippet>819</a>            /// use icu::datetime::input::Time;
 <a href=#820 id=820 data-nosnippet>820</a>            /// use icu::datetime::NoCalendarFormatter;
-<a href=#821 id=821 data-nosnippet>821</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">";"</span>)]
+<a href=#821 id=821 data-nosnippet>821</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">";"</span>)]
 <a href=#822 id=822 data-nosnippet>822</a>            </span><span class="doccomment">/// use icu::locale::locale;
 <a href=#823 id=823 data-nosnippet>823</a>            /// use writeable::assert_writeable_eq;
 <a href=#824 id=824 data-nosnippet>824</a>            ///
-<a href=#825 id=825 data-nosnippet>825</a>            </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"let fmt = NoCalendarFormatter::try_new("</span>)]
+<a href=#825 id=825 data-nosnippet>825</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let fmt = NoCalendarFormatter::try_new("</span>)]
 <a href=#826 id=826 data-nosnippet>826</a>            </span><span class="doccomment">///     locale!("en").into(),
-<a href=#827 id=827 data-nosnippet>827</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"    "</span>, <span class="macro">length_option_helper!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$sample_length</span>), <span class="string">","</span>)]
+<a href=#827 id=827 data-nosnippet>827</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"    "</span>, <span class="macro">length_option_helper!</span>(<span class="macro-nonterminal">$type</span>, <span class="macro-nonterminal">$sample_length</span>), <span class="string">","</span>)]
 <a href=#828 id=828 data-nosnippet>828</a>            </span><span class="doccomment">/// )
 <a href=#829 id=829 data-nosnippet>829</a>            /// .unwrap();
 <a href=#830 id=830 data-nosnippet>830</a>            /// let time = Time::try_new(15, 47, 50, 0).unwrap();
@@ -835,23 +835,23 @@
 <a href=#835 id=835 data-nosnippet>835</a>            </span><span class="doccomment">/// );
 <a href=#836 id=836 data-nosnippet>836</a>            /// ```
 <a href=#837 id=837 data-nosnippet>837</a>            </span>$(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-<a href=#838 id=838 data-nosnippet>838</a>            <span class="macro-nonterminal">$</span><span class="kw">type</span>,
-<a href=#839 id=839 data-nosnippet>839</a>            <span class="macro-nonterminal">sample_length</span>: <span class="macro-nonterminal">$sample_length</span>,
+<a href=#838 id=838 data-nosnippet>838</a>            <span class="macro-nonterminal">$type</span>,
+<a href=#839 id=839 data-nosnippet>839</a>            sample_length: <span class="macro-nonterminal">$sample_length</span>,
 <a href=#840 id=840 data-nosnippet>840</a>            alignment: yes,
 <a href=#841 id=841 data-nosnippet>841</a>            time_precision: yes,
 <a href=#842 id=842 data-nosnippet>842</a>        );
 <a href=#843 id=843 data-nosnippet>843</a>        <span class="macro">impl_marker_length_constructors!</span>(
-<a href=#844 id=844 data-nosnippet>844</a>            <span class="macro-nonterminal">$</span><span class="kw">type</span>,
-<a href=#845 id=845 data-nosnippet>845</a>            <span class="macro-nonterminal">alignment</span>: yes,
+<a href=#844 id=844 data-nosnippet>844</a>            <span class="macro-nonterminal">$type</span>,
+<a href=#845 id=845 data-nosnippet>845</a>            alignment: yes,
 <a href=#846 id=846 data-nosnippet>846</a>            time_precision: yes,
 <a href=#847 id=847 data-nosnippet>847</a>        );
 <a href=#848 id=848 data-nosnippet>848</a>        <span class="macro">impl_time_precision_constructors!</span>(
-<a href=#849 id=849 data-nosnippet>849</a>            <span class="macro-nonterminal">$</span><span class="kw">type</span>,
+<a href=#849 id=849 data-nosnippet>849</a>            <span class="macro-nonterminal">$type</span>,
 <a href=#850 id=850 data-nosnippet>850</a>        );
-<a href=#851 id=851 data-nosnippet>851</a>        <span class="macro">impl_zone_combo_helpers!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">TimeZone</span>, TimeFieldSet);
-<a href=#852 id=852 data-nosnippet>852</a>        <span class="kw">impl </span>UnstableSealed <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{}
-<a href=#853 id=853 data-nosnippet>853</a>        <span class="kw">impl </span><span class="macro-nonterminal">DateTimeNamesMarker </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#854 id=854 data-nosnippet>854</a>            <span class="kw">type </span><span class="macro-nonterminal">YearNames </span>= <span class="macro">datetime_marker_helper!</span>(@names/year,);
+<a href=#851 id=851 data-nosnippet>851</a>        <span class="macro">impl_zone_combo_helpers!</span>(<span class="macro-nonterminal">$type</span>, TimeZone, TimeFieldSet);
+<a href=#852 id=852 data-nosnippet>852</a>        <span class="kw">impl </span>UnstableSealed <span class="kw">for </span><span class="macro-nonterminal">$type </span>{}
+<a href=#853 id=853 data-nosnippet>853</a>        <span class="kw">impl </span>DateTimeNamesMarker <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#854 id=854 data-nosnippet>854</a>            <span class="kw">type </span>YearNames = <span class="macro">datetime_marker_helper!</span>(@names/year,);
 <a href=#855 id=855 data-nosnippet>855</a>            <span class="kw">type </span>MonthNames = <span class="macro">datetime_marker_helper!</span>(@names/month,);
 <a href=#856 id=856 data-nosnippet>856</a>            <span class="kw">type </span>WeekdayNames = <span class="macro">datetime_marker_helper!</span>(@names/weekday,);
 <a href=#857 id=857 data-nosnippet>857</a>            <span class="kw">type </span>DayPeriodNames = <span class="macro">datetime_marker_helper!</span>(@names/dayperiod, $(<span class="macro-nonterminal">$dayperiods_yes</span>)<span class="question-mark">?</span>);
@@ -867,21 +867,21 @@
 <a href=#867 id=867 data-nosnippet>867</a>            <span class="kw">type </span>ZoneSpecificShort = <span class="macro">datetime_marker_helper!</span>(@names/zone/specific_short,);
 <a href=#868 id=868 data-nosnippet>868</a>            <span class="kw">type </span>MetazoneLookup = <span class="macro">datetime_marker_helper!</span>(@names/zone/metazone_periods,);
 <a href=#869 id=869 data-nosnippet>869</a>        }
-<a href=#870 id=870 data-nosnippet>870</a>        <span class="kw">impl </span>TimeMarkers <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#871 id=871 data-nosnippet>871</a>            <span class="kw">type </span><span class="macro-nonterminal">DayPeriodNamesV1 </span>= <span class="macro">datetime_marker_helper!</span>(@dayperiods, $(<span class="macro-nonterminal">$dayperiods_yes</span>)<span class="question-mark">?</span>);
+<a href=#870 id=870 data-nosnippet>870</a>        <span class="kw">impl </span>TimeMarkers <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#871 id=871 data-nosnippet>871</a>            <span class="kw">type </span>DayPeriodNamesV1 = <span class="macro">datetime_marker_helper!</span>(@dayperiods, $(<span class="macro-nonterminal">$dayperiods_yes</span>)<span class="question-mark">?</span>);
 <a href=#872 id=872 data-nosnippet>872</a>            <span class="kw">type </span>TimeSkeletonPatternsV1 = <span class="macro">datetime_marker_helper!</span>(@times, yes);
 <a href=#873 id=873 data-nosnippet>873</a>            <span class="kw">type </span>HourInput = <span class="macro">datetime_marker_helper!</span>(@input/hour, $(<span class="macro-nonterminal">$hour_yes</span>)<span class="question-mark">?</span>);
 <a href=#874 id=874 data-nosnippet>874</a>            <span class="kw">type </span>MinuteInput = <span class="macro">datetime_marker_helper!</span>(@input/minute, $(<span class="macro-nonterminal">$minute_yes</span>)<span class="question-mark">?</span>);
 <a href=#875 id=875 data-nosnippet>875</a>            <span class="kw">type </span>SecondInput = <span class="macro">datetime_marker_helper!</span>(@input/second, $(<span class="macro-nonterminal">$second_yes</span>)<span class="question-mark">?</span>);
 <a href=#876 id=876 data-nosnippet>876</a>            <span class="kw">type </span>NanosecondInput = <span class="macro">datetime_marker_helper!</span>(@input/Nanosecond, $(<span class="macro-nonterminal">$Nanosecond_yes</span>)<span class="question-mark">?</span>);
 <a href=#877 id=877 data-nosnippet>877</a>        }
-<a href=#878 id=878 data-nosnippet>878</a>        <span class="kw">impl </span>DateTimeMarkers <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#879 id=879 data-nosnippet>879</a>            <span class="kw">type </span><span class="macro-nonterminal">D </span>= ();
+<a href=#878 id=878 data-nosnippet>878</a>        <span class="kw">impl </span>DateTimeMarkers <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#879 id=879 data-nosnippet>879</a>            <span class="kw">type </span>D = ();
 <a href=#880 id=880 data-nosnippet>880</a>            <span class="kw">type </span>T = <span class="self">Self</span>;
 <a href=#881 id=881 data-nosnippet>881</a>            <span class="kw">type </span>Z = ();
 <a href=#882 id=882 data-nosnippet>882</a>            <span class="kw">type </span>GluePatternV1 = <span class="macro">datetime_marker_helper!</span>(@glue,);
 <a href=#883 id=883 data-nosnippet>883</a>        }
-<a href=#884 id=884 data-nosnippet>884</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">Time</span>, TimeFieldSet);
+<a href=#884 id=884 data-nosnippet>884</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$type</span>, Time, TimeFieldSet);
 <a href=#885 id=885 data-nosnippet>885</a>    };
 <a href=#886 id=886 data-nosnippet>886</a>}
 <a href=#887 id=887 data-nosnippet>887</a>
@@ -896,7 +896,7 @@
 <a href=#896 id=896 data-nosnippet>896</a>    (
 <a href=#897 id=897 data-nosnippet>897</a>        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
 <a href=#898 id=898 data-nosnippet>898</a>        <span class="comment">// The name of the type being created.
-<a href=#899 id=899 data-nosnippet>899</a>        </span><span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+<a href=#899 id=899 data-nosnippet>899</a>        </span><span class="macro-nonterminal">$type</span>:ident,
 <a href=#900 id=900 data-nosnippet>900</a>        <span class="comment">// A plain language description of the field set for documentation.
 <a href=#901 id=901 data-nosnippet>901</a>        </span>description = <span class="macro-nonterminal">$description</span>:literal,
 <a href=#902 id=902 data-nosnippet>902</a>        <span class="comment">// Length of the skeleton if this is the only field.
@@ -936,13 +936,13 @@
 <a href=#936 id=936 data-nosnippet>936</a>        /// ```
 <a href=#937 id=937 data-nosnippet>937</a>        /// use icu::datetime::input::{Date, DateTime, Time, TimeZone, TimeZoneInfo, UtcOffset};
 <a href=#938 id=938 data-nosnippet>938</a>        /// use icu::datetime::NoCalendarFormatter;
-<a href=#939 id=939 data-nosnippet>939</a>        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::zone::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">";"</span>)]
+<a href=#939 id=939 data-nosnippet>939</a>        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use icu::datetime::fieldsets::zone::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>), <span class="string">";"</span>)]
 <a href=#940 id=940 data-nosnippet>940</a>        </span><span class="doccomment">/// use icu::locale::{locale, subtags::subtag};
 <a href=#941 id=941 data-nosnippet>941</a>        /// use writeable::assert_writeable_eq;
 <a href=#942 id=942 data-nosnippet>942</a>        ///
 <a href=#943 id=943 data-nosnippet>943</a>        /// let fmt = NoCalendarFormatter::try_new(
 <a href=#944 id=944 data-nosnippet>944</a>        ///     locale!("en").into(),
-<a href=#945 id=945 data-nosnippet>945</a>        </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"    "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>))]
+<a href=#945 id=945 data-nosnippet>945</a>        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"    "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$type</span>))]
 <a href=#946 id=946 data-nosnippet>946</a>        </span><span class="doccomment">/// )
 <a href=#947 id=947 data-nosnippet>947</a>        /// .unwrap();
 <a href=#948 id=948 data-nosnippet>948</a>        ///
@@ -953,16 +953,16 @@
 <a href=#953 id=953 data-nosnippet>953</a>        ///
 <a href=#954 id=954 data-nosnippet>954</a>        /// assert_writeable_eq!(
 <a href=#955 id=955 data-nosnippet>955</a>        ///     fmt.format(&amp;zone),
-<a href=#956 id=956 data-nosnippet>956</a>        </span><span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="macro">concat!</span>(<span class="string">"    \""</span>, <span class="macro-nonterminal">$sample</span>, <span class="string">"\""</span>)]
+<a href=#956 id=956 data-nosnippet>956</a>        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"    \""</span>, <span class="macro-nonterminal">$sample</span>, <span class="string">"\""</span>)]
 <a href=#957 id=957 data-nosnippet>957</a>        </span><span class="doccomment">/// );
 <a href=#958 id=958 data-nosnippet>958</a>        /// ```
 <a href=#959 id=959 data-nosnippet>959</a>        </span>$(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
 <a href=#960 id=960 data-nosnippet>960</a>        <span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 <a href=#961 id=961 data-nosnippet>961</a>        #[allow(clippy::exhaustive_structs)] </span><span class="comment">// singleton marker
-<a href=#962 id=962 data-nosnippet>962</a>        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$</span><span class="kw">type</span>;
-<a href=#963 id=963 data-nosnippet>963</a>        <span class="kw">impl </span><span class="macro-nonterminal">UnstableSealed </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{}
-<a href=#964 id=964 data-nosnippet>964</a>        <span class="kw">impl </span><span class="macro-nonterminal">DateTimeNamesMarker </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#965 id=965 data-nosnippet>965</a>            <span class="kw">type </span><span class="macro-nonterminal">YearNames </span>= <span class="macro">datetime_marker_helper!</span>(@names/year,);
+<a href=#962 id=962 data-nosnippet>962</a>        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$type</span>;
+<a href=#963 id=963 data-nosnippet>963</a>        <span class="kw">impl </span>UnstableSealed <span class="kw">for </span><span class="macro-nonterminal">$type </span>{}
+<a href=#964 id=964 data-nosnippet>964</a>        <span class="kw">impl </span>DateTimeNamesMarker <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#965 id=965 data-nosnippet>965</a>            <span class="kw">type </span>YearNames = <span class="macro">datetime_marker_helper!</span>(@names/year,);
 <a href=#966 id=966 data-nosnippet>966</a>            <span class="kw">type </span>MonthNames = <span class="macro">datetime_marker_helper!</span>(@names/month,);
 <a href=#967 id=967 data-nosnippet>967</a>            <span class="kw">type </span>WeekdayNames = <span class="macro">datetime_marker_helper!</span>(@names/weekday,);
 <a href=#968 id=968 data-nosnippet>968</a>            <span class="kw">type </span>DayPeriodNames = <span class="macro">datetime_marker_helper!</span>(@names/dayperiod,);
@@ -978,8 +978,8 @@
 <a href=#978 id=978 data-nosnippet>978</a>            <span class="kw">type </span>ZoneSpecificShort = <span class="macro">datetime_marker_helper!</span>(@names/zone/specific_short, $(<span class="macro-nonterminal">$zone_specific_short_yes</span>)<span class="question-mark">?</span>);
 <a href=#979 id=979 data-nosnippet>979</a>            <span class="kw">type </span>MetazoneLookup = <span class="macro">datetime_marker_helper!</span>(@names/zone/metazone_periods, $(<span class="macro-nonterminal">$metazone_periods_yes</span>)<span class="question-mark">?</span>);
 <a href=#980 id=980 data-nosnippet>980</a>        }
-<a href=#981 id=981 data-nosnippet>981</a>        <span class="kw">impl </span>ZoneMarkers <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#982 id=982 data-nosnippet>982</a>            <span class="kw">type </span><span class="macro-nonterminal">TimeZoneIdInput </span>= <span class="macro">datetime_marker_helper!</span>(@input/timezone/id, $(<span class="macro-nonterminal">$tzid_input_yes</span>)<span class="question-mark">?</span>);
+<a href=#981 id=981 data-nosnippet>981</a>        <span class="kw">impl </span>ZoneMarkers <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#982 id=982 data-nosnippet>982</a>            <span class="kw">type </span>TimeZoneIdInput = <span class="macro">datetime_marker_helper!</span>(@input/timezone/id, $(<span class="macro-nonterminal">$tzid_input_yes</span>)<span class="question-mark">?</span>);
 <a href=#983 id=983 data-nosnippet>983</a>            <span class="kw">type </span>TimeZoneOffsetInput = <span class="macro">datetime_marker_helper!</span>(@input/timezone/offset, yes);
 <a href=#984 id=984 data-nosnippet>984</a>            <span class="kw">type </span>TimeZoneNameTimestampInput = <span class="macro">datetime_marker_helper!</span>(@input/timezone/timestamp, $(<span class="macro-nonterminal">$timestamp_input_yes</span>)<span class="question-mark">?</span>);
 <a href=#985 id=985 data-nosnippet>985</a>            <span class="kw">type </span>EssentialsV1 = <span class="macro">datetime_marker_helper!</span>(@data/zone/essentials, $(<span class="macro-nonterminal">$zone_essentials_yes</span>)<span class="question-mark">?</span>);
@@ -994,15 +994,15 @@
 <a href=#994 id=994 data-nosnippet>994</a>            <span class="kw">type </span>SpecificShortV1 = <span class="macro">datetime_marker_helper!</span>(@data/zone/specific_short, $(<span class="macro-nonterminal">$zone_specific_short_yes</span>)<span class="question-mark">?</span>);
 <a href=#995 id=995 data-nosnippet>995</a>            <span class="kw">type </span>MetazonePeriodV1 = <span class="macro">datetime_marker_helper!</span>(@data/zone/metazone_periods, $(<span class="macro-nonterminal">$metazone_periods_yes</span>)<span class="question-mark">?</span>);
 <a href=#996 id=996 data-nosnippet>996</a>        }
-<a href=#997 id=997 data-nosnippet>997</a>        <span class="kw">impl </span>DateTimeMarkers <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#998 id=998 data-nosnippet>998</a>            <span class="kw">type </span><span class="macro-nonterminal">D </span>= ();
+<a href=#997 id=997 data-nosnippet>997</a>        <span class="kw">impl </span>DateTimeMarkers <span class="kw">for </span><span class="macro-nonterminal">$type </span>{
+<a href=#998 id=998 data-nosnippet>998</a>            <span class="kw">type </span>D = ();
 <a href=#999 id=999 data-nosnippet>999</a>            <span class="kw">type </span>T = ();
 <a href=#1000 id=1000 data-nosnippet>1000</a>            <span class="kw">type </span>Z = <span class="self">Self</span>;
 <a href=#1001 id=1001 data-nosnippet>1001</a>            <span class="kw">type </span>GluePatternV1 = <span class="macro">datetime_marker_helper!</span>(@glue,);
 <a href=#1002 id=1002 data-nosnippet>1002</a>        }
-<a href=#1003 id=1003 data-nosnippet>1003</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">Zone</span>, ZoneFieldSet);
-<a href=#1004 id=1004 data-nosnippet>1004</a>        <span class="kw">impl </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#1005 id=1005 data-nosnippet>1005</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span><span class="macro-nonterminal">to_field</span>(<span class="self">self</span>) -&gt; (fields::TimeZone, fields::FieldLength) {
+<a href=#1003 id=1003 data-nosnippet>1003</a>        <span class="macro">impl_composite!</span>(<span class="macro-nonterminal">$type</span>, Zone, ZoneFieldSet);
+<a href=#1004 id=1004 data-nosnippet>1004</a>        <span class="kw">impl </span><span class="macro-nonterminal">$type </span>{
+<a href=#1005 id=1005 data-nosnippet>1005</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_field(<span class="self">self</span>) -&gt; (fields::TimeZone, fields::FieldLength) {
 <a href=#1006 id=1006 data-nosnippet>1006</a>                <span class="macro-nonterminal">$field
 <a href=#1007 id=1007 data-nosnippet>1007</a>            </span>}
 <a href=#1008 id=1008 data-nosnippet>1008</a>        }
@@ -1822,4 +1822,5 @@
 <a href=#1822 id=1822 data-nosnippet>1822</a>
 <a href=#1823 id=1823 data-nosnippet>1823</a><span class="macro">impl_zone_combo_helpers!</span>(TimeFieldSet, TimeZone, TimeFieldSet);
 <a href=#1824 id=1824 data-nosnippet>1824</a>
-<a href=#1825 id=1825 data-nosnippet>1825</a><span class="macro">impl_zone_combo_helpers!</span>(DateAndTimeFieldSet, DateTimeZone, DateAndTimeFieldSet);</code></pre></div></section></main></body></html>
+<a href=#1825 id=1825 data-nosnippet>1825</a><span class="macro">impl_zone_combo_helpers!</span>(DateAndTimeFieldSet, DateTimeZone, DateAndTimeFieldSet);
+</code></pre></div></section></main></body></html>

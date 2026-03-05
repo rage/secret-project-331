@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["DiscoveryError","Error"],"struct":["ErrorResponse"]};
+window.SIDEBAR_ITEMS = {"enum":["DiscoveryError","Error"],"struct":["Status"],"type":["ErrorResponse"]};

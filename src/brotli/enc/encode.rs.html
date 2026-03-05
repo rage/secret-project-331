@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.2/src/enc/encode.rs`."><title>encode.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">brotli/enc/</div>encode.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::Allocator;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.2/src/enc/encode.rs`."><title>encode.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">brotli/enc/</div>encode.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::Allocator;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>core;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>core::cmp::{max, min};
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -218,7 +218,7 @@
 <a href=#218 id=218 data-nosnippet>218</a>            params.high_entropy_detection_quality = value <span class="kw">as </span>u8
 <a href=#219 id=219 data-nosnippet>219</a>        }
 <a href=#220 id=220 data-nosnippet>220</a>        BROTLI_PARAM_CDF_ADAPTATION_DETECTION =&gt; params.cdf_adaptation_detection = value <span class="kw">as </span>u8,
-<a href=#221 id=221 data-nosnippet>221</a>        BROTLI_PARAM_Q9_5 =&gt; params.q9_5 = (value != <span class="number">0</span>),
+<a href=#221 id=221 data-nosnippet>221</a>        BROTLI_PARAM_Q9_5 =&gt; params.q9_5 = (<span class="macro">value !</span>= <span class="number">0</span>),
 <a href=#222 id=222 data-nosnippet>222</a>        BROTLI_PARAM_PRIOR_BITMASK_DETECTION =&gt; params.prior_bitmask_detection = value <span class="kw">as </span>u8,
 <a href=#223 id=223 data-nosnippet>223</a>        BROTLI_PARAM_SPEED =&gt; {
 <a href=#224 id=224 data-nosnippet>224</a>            params.literal_adaptation[<span class="number">1</span>].<span class="number">0 </span>= value <span class="kw">as </span>u16;
@@ -249,30 +249,30 @@
 <a href=#249 id=249 data-nosnippet>249</a>        BROTLI_PARAM_CM_SPEED_LOW =&gt; params.literal_adaptation[<span class="number">2</span>].<span class="number">0 </span>= value <span class="kw">as </span>u16,
 <a href=#250 id=250 data-nosnippet>250</a>        BROTLI_PARAM_CM_SPEED_LOW_MAX =&gt; params.literal_adaptation[<span class="number">2</span>].<span class="number">1 </span>= value <span class="kw">as </span>u16,
 <a href=#251 id=251 data-nosnippet>251</a>        BROTLI_PARAM_LITERAL_BYTE_SCORE =&gt; params.hasher.literal_byte_score = value <span class="kw">as </span>i32,
-<a href=#252 id=252 data-nosnippet>252</a>        BROTLI_METABLOCK_CALLBACK =&gt; params.log_meta_block = value != <span class="number">0</span>,
+<a href=#252 id=252 data-nosnippet>252</a>        BROTLI_METABLOCK_CALLBACK =&gt; params.log_meta_block = <span class="macro">value !</span>= <span class="number">0</span>,
 <a href=#253 id=253 data-nosnippet>253</a>        BROTLI_PARAM_LGWIN =&gt; params.lgwin = value <span class="kw">as </span>i32,
 <a href=#254 id=254 data-nosnippet>254</a>        BROTLI_PARAM_LGBLOCK =&gt; params.lgblock = value <span class="kw">as </span>i32,
 <a href=#255 id=255 data-nosnippet>255</a>        BROTLI_PARAM_DISABLE_LITERAL_CONTEXT_MODELING =&gt; {
-<a href=#256 id=256 data-nosnippet>256</a>            <span class="kw">if </span>value != <span class="number">0 </span>&amp;&amp; value != <span class="number">1 </span>{
+<a href=#256 id=256 data-nosnippet>256</a>            <span class="kw">if </span><span class="macro">value !</span>= <span class="number">0 </span>&amp;&amp; <span class="macro">value !</span>= <span class="number">1 </span>{
 <a href=#257 id=257 data-nosnippet>257</a>                <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#258 id=258 data-nosnippet>258</a>            }
-<a href=#259 id=259 data-nosnippet>259</a>            params.disable_literal_context_modeling = <span class="kw">if </span>value != <span class="number">0 </span>{ <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+<a href=#259 id=259 data-nosnippet>259</a>            params.disable_literal_context_modeling = <span class="kw">if </span><span class="macro">value !</span>= <span class="number">0 </span>{ <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
 <a href=#260 id=260 data-nosnippet>260</a>        }
 <a href=#261 id=261 data-nosnippet>261</a>        BROTLI_PARAM_SIZE_HINT =&gt; params.size_hint = value <span class="kw">as </span>usize,
-<a href=#262 id=262 data-nosnippet>262</a>        BROTLI_PARAM_LARGE_WINDOW =&gt; params.large_window = value != <span class="number">0</span>,
+<a href=#262 id=262 data-nosnippet>262</a>        BROTLI_PARAM_LARGE_WINDOW =&gt; params.large_window = <span class="macro">value !</span>= <span class="number">0</span>,
 <a href=#263 id=263 data-nosnippet>263</a>        BROTLI_PARAM_AVOID_DISTANCE_PREFIX_SEARCH =&gt; {
-<a href=#264 id=264 data-nosnippet>264</a>            params.avoid_distance_prefix_search = value != <span class="number">0
+<a href=#264 id=264 data-nosnippet>264</a>            params.avoid_distance_prefix_search = <span class="macro">value !</span>= <span class="number">0
 <a href=#265 id=265 data-nosnippet>265</a>        </span>}
 <a href=#266 id=266 data-nosnippet>266</a>        BROTLI_PARAM_CATABLE =&gt; {
-<a href=#267 id=267 data-nosnippet>267</a>            params.catable = value != <span class="number">0</span>;
+<a href=#267 id=267 data-nosnippet>267</a>            params.catable = <span class="macro">value !</span>= <span class="number">0</span>;
 <a href=#268 id=268 data-nosnippet>268</a>            <span class="kw">if </span>!params.appendable {
-<a href=#269 id=269 data-nosnippet>269</a>                params.appendable = value != <span class="number">0</span>;
+<a href=#269 id=269 data-nosnippet>269</a>                params.appendable = <span class="macro">value !</span>= <span class="number">0</span>;
 <a href=#270 id=270 data-nosnippet>270</a>            }
 <a href=#271 id=271 data-nosnippet>271</a>            params.use_dictionary = (value == <span class="number">0</span>);
 <a href=#272 id=272 data-nosnippet>272</a>        }
-<a href=#273 id=273 data-nosnippet>273</a>        BROTLI_PARAM_APPENDABLE =&gt; params.appendable = value != <span class="number">0</span>,
-<a href=#274 id=274 data-nosnippet>274</a>        BROTLI_PARAM_MAGIC_NUMBER =&gt; params.magic_number = value != <span class="number">0</span>,
-<a href=#275 id=275 data-nosnippet>275</a>        BROTLI_PARAM_FAVOR_EFFICIENCY =&gt; params.favor_cpu_efficiency = value != <span class="number">0</span>,
+<a href=#273 id=273 data-nosnippet>273</a>        BROTLI_PARAM_APPENDABLE =&gt; params.appendable = <span class="macro">value !</span>= <span class="number">0</span>,
+<a href=#274 id=274 data-nosnippet>274</a>        BROTLI_PARAM_MAGIC_NUMBER =&gt; params.magic_number = <span class="macro">value !</span>= <span class="number">0</span>,
+<a href=#275 id=275 data-nosnippet>275</a>        BROTLI_PARAM_FAVOR_EFFICIENCY =&gt; params.favor_cpu_efficiency = <span class="macro">value !</span>= <span class="number">0</span>,
 <a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
 <a href=#277 id=277 data-nosnippet>277</a>    }
 <a href=#278 id=278 data-nosnippet>278</a>    <span class="bool-val">true
@@ -366,7 +366,7 @@
 <a href=#366 id=366 data-nosnippet>366</a>            || distance_code <span class="kw">as </span>u64 - (BROTLI_NUM_DISTANCE_SHORT_CODES - <span class="number">1</span>) <span class="kw">as </span>u64 == cmd_dist)
 <a href=#367 id=367 data-nosnippet>367</a>        {
 <a href=#368 id=368 data-nosnippet>368</a>            <span class="kw">if </span>(cmd_dist &lt;= max_distance) {
-<a href=#369 id=369 data-nosnippet>369</a>                <span class="kw">while </span>(<span class="kw-2">*</span>bytes != <span class="number">0
+<a href=#369 id=369 data-nosnippet>369</a>                <span class="kw">while </span>(<span class="kw-2">*</span><span class="macro">bytes !</span>= <span class="number">0
 <a href=#370 id=370 data-nosnippet>370</a>                    </span>&amp;&amp; <span class="self">self</span>.ringbuffer_.data_mo.slice()[<span class="self">self</span>.ringbuffer_.buffer_index
 <a href=#371 id=371 data-nosnippet>371</a>                        + (<span class="kw-2">*</span>wrapped_last_processed_pos <span class="kw">as </span>usize &amp; mask <span class="kw">as </span>usize)]
 <a href=#372 id=372 data-nosnippet>372</a>                        == <span class="self">self</span>.ringbuffer_.data_mo.slice()[<span class="self">self</span>.ringbuffer_.buffer_index
@@ -1502,7 +1502,7 @@
 <a href=#1502 id=1502 data-nosnippet>1502</a>            BrotliEncoderDestroyInstance(s);
 <a href=#1503 id=1503 data-nosnippet>1503</a>        }
 <a href=#1504 id=1504 data-nosnippet>1504</a>        <span class="kw">let _ </span>= core::mem::replace(m8, s_orig.m8);
-<a href=#1505 id=1505 data-nosnippet>1505</a>        <span class="kw">if </span>!result || max_out_size != <span class="number">0 </span>&amp;&amp; (<span class="kw-2">*</span>encoded_size &gt; max_out_size) {
+<a href=#1505 id=1505 data-nosnippet>1505</a>        <span class="kw">if </span>!result || <span class="macro">max_out_size !</span>= <span class="number">0 </span>&amp;&amp; (<span class="kw-2">*</span>encoded_size &gt; max_out_size) {
 <a href=#1506 id=1506 data-nosnippet>1506</a>            is_fallback = <span class="bool-val">true</span>;
 <a href=#1507 id=1507 data-nosnippet>1507</a>        } <span class="kw">else </span>{
 <a href=#1508 id=1508 data-nosnippet>1508</a>            <span class="kw">return </span><span class="bool-val">true</span>;
@@ -1557,12 +1557,12 @@
 <a href=#1557 id=1557 data-nosnippet>1557</a>    ) -&gt; bool {
 <a href=#1558 id=1558 data-nosnippet>1558</a>        <span class="kw">if </span><span class="self">self</span>.stream_state_ <span class="kw">as </span>i32
 <a href=#1559 id=1559 data-nosnippet>1559</a>            == BrotliEncoderStreamState::BROTLI_STREAM_FLUSH_REQUESTED <span class="kw">as </span>i32
-<a href=#1560 id=1560 data-nosnippet>1560</a>            &amp;&amp; (<span class="self">self</span>.last_bytes_bits_ <span class="kw">as </span>i32 != <span class="number">0i32</span>)
+<a href=#1560 id=1560 data-nosnippet>1560</a>            &amp;&amp; (<span class="self">self</span>.last_bytes_bits_ <span class="kw">as </span><span class="macro">i32 !</span>= <span class="number">0i32</span>)
 <a href=#1561 id=1561 data-nosnippet>1561</a>        {
 <a href=#1562 id=1562 data-nosnippet>1562</a>            <span class="self">self</span>.inject_byte_padding_block();
 <a href=#1563 id=1563 data-nosnippet>1563</a>            <span class="kw">return </span><span class="bool-val">true</span>;
 <a href=#1564 id=1564 data-nosnippet>1564</a>        }
-<a href=#1565 id=1565 data-nosnippet>1565</a>        <span class="kw">if </span><span class="self">self</span>.available_out_ != <span class="number">0usize </span>&amp;&amp; (<span class="kw-2">*</span>available_out != <span class="number">0usize</span>) {
+<a href=#1565 id=1565 data-nosnippet>1565</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">available_out_ !</span>= <span class="number">0usize </span>&amp;&amp; (<span class="kw-2">*</span><span class="macro">available_out !</span>= <span class="number">0usize</span>) {
 <a href=#1566 id=1566 data-nosnippet>1566</a>            <span class="kw">let </span>copy_output_size: usize = min(<span class="self">self</span>.available_out_, <span class="kw-2">*</span>available_out);
 <a href=#1567 id=1567 data-nosnippet>1567</a>            (<span class="kw-2">*</span>next_out_array)[(<span class="kw-2">*</span>next_out_offset)..(<span class="kw-2">*</span>next_out_offset + copy_output_size)]
 <a href=#1568 id=1568 data-nosnippet>1568</a>                .clone_from_slice(<span class="kw-2">&amp;</span><span class="macro">GetNextOut!</span>(<span class="self">self</span>)[..copy_output_size]);
@@ -1977,7 +1977,7 @@
 <a href=#1977 id=1977 data-nosnippet>1977</a>            <span class="bool-val">false</span>,
 <a href=#1978 id=1978 data-nosnippet>1978</a>            cb,
 <a href=#1979 id=1979 data-nosnippet>1979</a>        );
-<a href=#1980 id=1980 data-nosnippet>1980</a>        <span class="kw">if </span>actual_is_last != is_last {
+<a href=#1980 id=1980 data-nosnippet>1980</a>        <span class="kw">if </span><span class="macro">actual_is_last !</span>= is_last {
 <a href=#1981 id=1981 data-nosnippet>1981</a>            BrotliWriteEmptyLastMetaBlock(storage_ix, storage)
 <a href=#1982 id=1982 data-nosnippet>1982</a>        }
 <a href=#1983 id=1983 data-nosnippet>1983</a>        <span class="kw">return</span>;
@@ -2132,7 +2132,7 @@
 <a href=#2132 id=2132 data-nosnippet>2132</a>            cb,
 <a href=#2133 id=2133 data-nosnippet>2133</a>        );
 <a href=#2134 id=2134 data-nosnippet>2134</a>    }
-<a href=#2135 id=2135 data-nosnippet>2135</a>    <span class="kw">if </span>actual_is_last != is_last {
+<a href=#2135 id=2135 data-nosnippet>2135</a>    <span class="kw">if </span><span class="macro">actual_is_last !</span>= is_last {
 <a href=#2136 id=2136 data-nosnippet>2136</a>        BrotliWriteEmptyLastMetaBlock(storage_ix, storage)
 <a href=#2137 id=2137 data-nosnippet>2137</a>    }
 <a href=#2138 id=2138 data-nosnippet>2138</a>}
@@ -2247,7 +2247,7 @@
 <a href=#2247 id=2247 data-nosnippet>2247</a>            <span class="comment">// nothing to do here, move along
 <a href=#2248 id=2248 data-nosnippet>2248</a>        </span>} <span class="kw">else if </span>!<span class="self">self</span>.params.catable {
 <a href=#2249 id=2249 data-nosnippet>2249</a>            <span class="self">self</span>.is_first_mb = IsFirst::BothCatableBytesWritten;
-<a href=#2250 id=2250 data-nosnippet>2250</a>        } <span class="kw">else if </span>bytes != <span class="number">0 </span>{
+<a href=#2250 id=2250 data-nosnippet>2250</a>        } <span class="kw">else if </span><span class="macro">bytes !</span>= <span class="number">0 </span>{
 <a href=#2251 id=2251 data-nosnippet>2251</a>            <span class="macro">assert!</span>(<span class="self">self</span>.last_processed_pos_ &lt; <span class="number">2 </span>|| <span class="self">self</span>.custom_dictionary);
 <a href=#2252 id=2252 data-nosnippet>2252</a>            <span class="kw">let </span>num_bytes_to_write_uncompressed: usize = min(<span class="number">2</span>, bytes <span class="kw">as </span>usize);
 <a href=#2253 id=2253 data-nosnippet>2253</a>            {
@@ -2395,7 +2395,7 @@
 <a href=#2395 id=2395 data-nosnippet>2395</a>            mask <span class="kw">as </span>usize,
 <a href=#2396 id=2396 data-nosnippet>2396</a>            (<span class="self">self</span>.input_pos_.wrapping_sub(<span class="self">self</span>.last_flush_pos_)) <span class="kw">as </span>usize,
 <a href=#2397 id=2397 data-nosnippet>2397</a>        );
-<a href=#2398 id=2398 data-nosnippet>2398</a>        <span class="kw">if </span><span class="self">self</span>.num_commands_ != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.last_insert_len_ == <span class="number">0 </span>{
+<a href=#2398 id=2398 data-nosnippet>2398</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">num_commands_ !</span>= <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.last_insert_len_ == <span class="number">0 </span>{
 <a href=#2399 id=2399 data-nosnippet>2399</a>            <span class="self">self</span>.extend_last_command(<span class="kw-2">&amp;mut </span>bytes, <span class="kw-2">&amp;mut </span>wrapped_last_processed_pos);
 <a href=#2400 id=2400 data-nosnippet>2400</a>        }
 <a href=#2401 id=2401 data-nosnippet>2401</a>        BrotliCreateBackwardReferences(
@@ -2564,9 +2564,9 @@
 <a href=#2564 id=2564 data-nosnippet>2564</a>            <span class="self">self</span>.remaining_metadata_bytes_ = <span class="kw-2">*</span>available_in <span class="kw">as </span>u32;
 <a href=#2565 id=2565 data-nosnippet>2565</a>            <span class="self">self</span>.stream_state_ = BrotliEncoderStreamState::BROTLI_STREAM_METADATA_HEAD;
 <a href=#2566 id=2566 data-nosnippet>2566</a>        }
-<a href=#2567 id=2567 data-nosnippet>2567</a>        <span class="kw">if </span><span class="self">self</span>.stream_state_ <span class="kw">as </span>i32 != BrotliEncoderStreamState::BROTLI_STREAM_METADATA_HEAD <span class="kw">as </span>i32
-<a href=#2568 id=2568 data-nosnippet>2568</a>            &amp;&amp; (<span class="self">self</span>.stream_state_ <span class="kw">as </span>i32
-<a href=#2569 id=2569 data-nosnippet>2569</a>                != BrotliEncoderStreamState::BROTLI_STREAM_METADATA_BODY <span class="kw">as </span>i32)
+<a href=#2567 id=2567 data-nosnippet>2567</a>        <span class="kw">if </span><span class="self">self</span>.stream_state_ <span class="kw">as </span><span class="macro">i32 !</span>= BrotliEncoderStreamState::BROTLI_STREAM_METADATA_HEAD <span class="kw">as </span>i32
+<a href=#2568 id=2568 data-nosnippet>2568</a>            &amp;&amp; (<span class="self">self</span>.stream_state_ <span class="kw">as </span><span class="macro">i32
+<a href=#2569 id=2569 data-nosnippet>2569</a>                !</span>= BrotliEncoderStreamState::BROTLI_STREAM_METADATA_BODY <span class="kw">as </span>i32)
 <a href=#2570 id=2570 data-nosnippet>2570</a>        {
 <a href=#2571 id=2571 data-nosnippet>2571</a>            <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2572 id=2572 data-nosnippet>2572</a>        }
@@ -2579,10 +2579,10 @@
 <a href=#2579 id=2579 data-nosnippet>2579</a>            ) {
 <a href=#2580 id=2580 data-nosnippet>2580</a>                <span class="kw">continue</span>;
 <a href=#2581 id=2581 data-nosnippet>2581</a>            }
-<a href=#2582 id=2582 data-nosnippet>2582</a>            <span class="kw">if </span><span class="self">self</span>.available_out_ != <span class="number">0usize </span>{
+<a href=#2582 id=2582 data-nosnippet>2582</a>            <span class="kw">if </span><span class="self">self</span>.<span class="macro">available_out_ !</span>= <span class="number">0usize </span>{
 <a href=#2583 id=2583 data-nosnippet>2583</a>                <span class="kw">break</span>;
 <a href=#2584 id=2584 data-nosnippet>2584</a>            }
-<a href=#2585 id=2585 data-nosnippet>2585</a>            <span class="kw">if </span><span class="self">self</span>.input_pos_ != <span class="self">self</span>.last_flush_pos_ {
+<a href=#2585 id=2585 data-nosnippet>2585</a>            <span class="kw">if </span><span class="self">self</span>.<span class="macro">input_pos_ !</span>= <span class="self">self</span>.last_flush_pos_ {
 <a href=#2586 id=2586 data-nosnippet>2586</a>                <span class="kw">let </span><span class="kw-2">mut </span>avail_out: usize = <span class="self">self</span>.available_out_;
 <a href=#2587 id=2587 data-nosnippet>2587</a>                <span class="kw">let </span>result = <span class="self">self</span>.encode_data(<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="kw-2">&amp;mut </span>avail_out, metablock_callback);
 <a href=#2588 id=2588 data-nosnippet>2588</a>                <span class="self">self</span>.available_out_ = avail_out;
@@ -2608,7 +2608,7 @@
 <a href=#2608 id=2608 data-nosnippet>2608</a>                        <span class="kw">break</span>;
 <a href=#2609 id=2609 data-nosnippet>2609</a>                    }
 <a href=#2610 id=2610 data-nosnippet>2610</a>                }
-<a href=#2611 id=2611 data-nosnippet>2611</a>                <span class="kw">if </span><span class="kw-2">*</span>available_out != <span class="number">0 </span>{
+<a href=#2611 id=2611 data-nosnippet>2611</a>                <span class="kw">if </span><span class="kw-2">*</span><span class="macro">available_out !</span>= <span class="number">0 </span>{
 <a href=#2612 id=2612 data-nosnippet>2612</a>                    <span class="kw">let </span>copy: u32 =
 <a href=#2613 id=2613 data-nosnippet>2613</a>                        min(<span class="self">self</span>.remaining_metadata_bytes_ <span class="kw">as </span>usize, <span class="kw-2">*</span>available_out) <span class="kw">as </span>u32;
 <a href=#2614 id=2614 data-nosnippet>2614</a>                    next_out_array[<span class="kw-2">*</span>next_out_offset..(<span class="kw-2">*</span>next_out_offset + copy <span class="kw">as </span>usize)]
@@ -2686,7 +2686,7 @@
 <a href=#2686 id=2686 data-nosnippet>2686</a>        );
 <a href=#2687 id=2687 data-nosnippet>2687</a>        <span class="kw">let </span><span class="kw-2">mut </span>command_buf = alloc_default::&lt;u32, Alloc&gt;();
 <a href=#2688 id=2688 data-nosnippet>2688</a>        <span class="kw">let </span><span class="kw-2">mut </span>literal_buf = alloc_default::&lt;u8, Alloc&gt;();
-<a href=#2689 id=2689 data-nosnippet>2689</a>        <span class="kw">if </span><span class="self">self</span>.params.quality != <span class="number">0i32 </span>&amp;&amp; (<span class="self">self</span>.params.quality != <span class="number">1i32</span>) {
+<a href=#2689 id=2689 data-nosnippet>2689</a>        <span class="kw">if </span><span class="self">self</span>.params.<span class="macro">quality !</span>= <span class="number">0i32 </span>&amp;&amp; (<span class="self">self</span>.params.<span class="macro">quality !</span>= <span class="number">1i32</span>) {
 <a href=#2690 id=2690 data-nosnippet>2690</a>            <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2691 id=2691 data-nosnippet>2691</a>        }
 <a href=#2692 id=2692 data-nosnippet>2692</a>        <span class="kw">if </span><span class="self">self</span>.params.quality == <span class="number">1i32 </span>{
@@ -2718,8 +2718,8 @@
 <a href=#2718 id=2718 data-nosnippet>2718</a>            <span class="kw">if </span><span class="self">self</span>.available_out_ == <span class="number">0usize
 <a href=#2719 id=2719 data-nosnippet>2719</a>                </span>&amp;&amp; (<span class="self">self</span>.stream_state_ <span class="kw">as </span>i32
 <a href=#2720 id=2720 data-nosnippet>2720</a>                    == BrotliEncoderStreamState::BROTLI_STREAM_PROCESSING <span class="kw">as </span>i32)
-<a href=#2721 id=2721 data-nosnippet>2721</a>                &amp;&amp; (<span class="kw-2">*</span>available_in != <span class="number">0usize
-<a href=#2722 id=2722 data-nosnippet>2722</a>                    </span>|| op <span class="kw">as </span>i32 != BrotliEncoderOperation::BROTLI_OPERATION_PROCESS <span class="kw">as </span>i32)
+<a href=#2721 id=2721 data-nosnippet>2721</a>                &amp;&amp; (<span class="kw-2">*</span><span class="macro">available_in !</span>= <span class="number">0usize
+<a href=#2722 id=2722 data-nosnippet>2722</a>                    </span>|| op <span class="kw">as </span><span class="macro">i32 !</span>= BrotliEncoderOperation::BROTLI_OPERATION_PROCESS <span class="kw">as </span>i32)
 <a href=#2723 id=2723 data-nosnippet>2723</a>            {
 <a href=#2724 id=2724 data-nosnippet>2724</a>                <span class="kw">let </span>block_size: usize = min(block_size_limit, <span class="kw-2">*</span>available_in);
 <a href=#2725 id=2725 data-nosnippet>2725</a>                <span class="kw">let </span>is_last = <span class="kw-2">*</span>available_in == block_size
@@ -2780,7 +2780,7 @@
 <a href=#2780 id=2780 data-nosnippet>2780</a>                }
 <a href=#2781 id=2781 data-nosnippet>2781</a>                <span class="kw-2">*</span>next_in_offset += block_size;
 <a href=#2782 id=2782 data-nosnippet>2782</a>                <span class="kw-2">*</span>available_in = available_in.wrapping_sub(block_size);
-<a href=#2783 id=2783 data-nosnippet>2783</a>                <span class="kw">if </span>inplace != <span class="number">0 </span>{
+<a href=#2783 id=2783 data-nosnippet>2783</a>                <span class="kw">if </span><span class="macro">inplace !</span>= <span class="number">0 </span>{
 <a href=#2784 id=2784 data-nosnippet>2784</a>                    <span class="kw">let </span>out_bytes: usize = storage_ix &gt;&gt; <span class="number">3</span>;
 <a href=#2785 id=2785 data-nosnippet>2785</a>                    <span class="kw-2">*</span>next_out_offset += out_bytes;
 <a href=#2786 id=2786 data-nosnippet>2786</a>                    <span class="kw-2">*</span>available_out = available_out.wrapping_sub(out_bytes);
@@ -2855,11 +2855,11 @@
 <a href=#2855 id=2855 data-nosnippet>2855</a>        <span class="kw">if </span>!<span class="self">self</span>.ensure_initialized() {
 <a href=#2856 id=2856 data-nosnippet>2856</a>            <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2857 id=2857 data-nosnippet>2857</a>        }
-<a href=#2858 id=2858 data-nosnippet>2858</a>        <span class="kw">if </span><span class="self">self</span>.remaining_metadata_bytes_ != u32::MAX {
-<a href=#2859 id=2859 data-nosnippet>2859</a>            <span class="kw">if </span><span class="kw-2">*</span>available_in != <span class="self">self</span>.remaining_metadata_bytes_ <span class="kw">as </span>usize {
+<a href=#2858 id=2858 data-nosnippet>2858</a>        <span class="kw">if </span><span class="self">self</span>.<span class="macro">remaining_metadata_bytes_ !</span>= u32::MAX {
+<a href=#2859 id=2859 data-nosnippet>2859</a>            <span class="kw">if </span><span class="kw-2">*</span><span class="macro">available_in !</span>= <span class="self">self</span>.remaining_metadata_bytes_ <span class="kw">as </span>usize {
 <a href=#2860 id=2860 data-nosnippet>2860</a>                <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2861 id=2861 data-nosnippet>2861</a>            }
-<a href=#2862 id=2862 data-nosnippet>2862</a>            <span class="kw">if </span>op <span class="kw">as </span>i32 != BrotliEncoderOperation::BROTLI_OPERATION_EMIT_METADATA <span class="kw">as </span>i32 {
+<a href=#2862 id=2862 data-nosnippet>2862</a>            <span class="kw">if </span>op <span class="kw">as </span><span class="macro">i32 !</span>= BrotliEncoderOperation::BROTLI_OPERATION_EMIT_METADATA <span class="kw">as </span>i32 {
 <a href=#2863 id=2863 data-nosnippet>2863</a>                <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2864 id=2864 data-nosnippet>2864</a>            }
 <a href=#2865 id=2865 data-nosnippet>2865</a>        }
@@ -2882,8 +2882,8 @@
 <a href=#2882 id=2882 data-nosnippet>2882</a>        {
 <a href=#2883 id=2883 data-nosnippet>2883</a>            <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2884 id=2884 data-nosnippet>2884</a>        }
-<a href=#2885 id=2885 data-nosnippet>2885</a>        <span class="kw">if </span><span class="self">self</span>.stream_state_ <span class="kw">as </span>i32 != BrotliEncoderStreamState::BROTLI_STREAM_PROCESSING <span class="kw">as </span>i32
-<a href=#2886 id=2886 data-nosnippet>2886</a>            &amp;&amp; (<span class="kw-2">*</span>available_in != <span class="number">0usize</span>)
+<a href=#2885 id=2885 data-nosnippet>2885</a>        <span class="kw">if </span><span class="self">self</span>.stream_state_ <span class="kw">as </span><span class="macro">i32 !</span>= BrotliEncoderStreamState::BROTLI_STREAM_PROCESSING <span class="kw">as </span>i32
+<a href=#2886 id=2886 data-nosnippet>2886</a>            &amp;&amp; (<span class="kw-2">*</span><span class="macro">available_in !</span>= <span class="number">0usize</span>)
 <a href=#2887 id=2887 data-nosnippet>2887</a>        {
 <a href=#2888 id=2888 data-nosnippet>2888</a>            <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2889 id=2889 data-nosnippet>2889</a>        }
@@ -2902,7 +2902,7 @@
 <a href=#2902 id=2902 data-nosnippet>2902</a>        }
 <a href=#2903 id=2903 data-nosnippet>2903</a>        <span class="kw">loop </span>{
 <a href=#2904 id=2904 data-nosnippet>2904</a>            <span class="kw">let </span>remaining_block_size: usize = <span class="self">self</span>.remaining_input_block_size();
-<a href=#2905 id=2905 data-nosnippet>2905</a>            <span class="kw">if </span>remaining_block_size != <span class="number">0usize </span>&amp;&amp; (<span class="kw-2">*</span>available_in != <span class="number">0usize</span>) {
+<a href=#2905 id=2905 data-nosnippet>2905</a>            <span class="kw">if </span><span class="macro">remaining_block_size !</span>= <span class="number">0usize </span>&amp;&amp; (<span class="kw-2">*</span><span class="macro">available_in !</span>= <span class="number">0usize</span>) {
 <a href=#2906 id=2906 data-nosnippet>2906</a>                <span class="kw">let </span>copy_input_size: usize = min(remaining_block_size, <span class="kw-2">*</span>available_in);
 <a href=#2907 id=2907 data-nosnippet>2907</a>                <span class="self">self</span>.copy_input_to_ring_buffer(copy_input_size, <span class="kw-2">&amp;</span>next_in_array[<span class="kw-2">*</span>next_in_offset..]);
 <a href=#2908 id=2908 data-nosnippet>2908</a>                <span class="kw-2">*</span>next_in_offset += copy_input_size;
@@ -2923,7 +2923,7 @@
 <a href=#2923 id=2923 data-nosnippet>2923</a>                </span>&amp;&amp; (<span class="self">self</span>.stream_state_ <span class="kw">as </span>i32
 <a href=#2924 id=2924 data-nosnippet>2924</a>                    == BrotliEncoderStreamState::BROTLI_STREAM_PROCESSING <span class="kw">as </span>i32)
 <a href=#2925 id=2925 data-nosnippet>2925</a>                &amp;&amp; (remaining_block_size == <span class="number">0usize
-<a href=#2926 id=2926 data-nosnippet>2926</a>                    </span>|| op <span class="kw">as </span>i32 != BrotliEncoderOperation::BROTLI_OPERATION_PROCESS <span class="kw">as </span>i32)
+<a href=#2926 id=2926 data-nosnippet>2926</a>                    </span>|| op <span class="kw">as </span><span class="macro">i32 !</span>= BrotliEncoderOperation::BROTLI_OPERATION_PROCESS <span class="kw">as </span>i32)
 <a href=#2927 id=2927 data-nosnippet>2927</a>            {
 <a href=#2928 id=2928 data-nosnippet>2928</a>                <span class="kw">let </span>is_last =
 <a href=#2929 id=2929 data-nosnippet>2929</a>                    <span class="kw-2">*</span>available_in == <span class="number">0 </span>&amp;&amp; op == BrotliEncoderOperation::BROTLI_OPERATION_FINISH;
@@ -2963,16 +2963,16 @@
 <a href=#2963 id=2963 data-nosnippet>2963</a>    }
 <a href=#2964 id=2964 data-nosnippet>2964</a>
 <a href=#2965 id=2965 data-nosnippet>2965</a>    <span class="kw">pub fn </span>has_more_output(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#2966 id=2966 data-nosnippet>2966</a>        <span class="self">self</span>.available_out_ != <span class="number">0
+<a href=#2966 id=2966 data-nosnippet>2966</a>        <span class="self">self</span>.<span class="macro">available_out_ !</span>= <span class="number">0
 <a href=#2967 id=2967 data-nosnippet>2967</a>    </span>}
 <a href=#2968 id=2968 data-nosnippet>2968</a>
 <a href=#2969 id=2969 data-nosnippet>2969</a>    <span class="kw">pub fn </span>take_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: <span class="kw-2">&amp;mut </span>usize) -&gt; <span class="kw-2">&amp;</span>[u8] {
 <a href=#2970 id=2970 data-nosnippet>2970</a>        <span class="kw">let </span><span class="kw-2">mut </span>consumed_size: usize = <span class="self">self</span>.available_out_;
 <a href=#2971 id=2971 data-nosnippet>2971</a>        <span class="kw">let </span><span class="kw-2">mut </span>result: <span class="kw-2">&amp;</span>[u8] = <span class="macro">GetNextOut!</span>(<span class="kw-2">*</span><span class="self">self</span>);
-<a href=#2972 id=2972 data-nosnippet>2972</a>        <span class="kw">if </span><span class="kw-2">*</span>size != <span class="number">0 </span>{
+<a href=#2972 id=2972 data-nosnippet>2972</a>        <span class="kw">if </span><span class="kw-2">*</span><span class="macro">size !</span>= <span class="number">0 </span>{
 <a href=#2973 id=2973 data-nosnippet>2973</a>            consumed_size = min(<span class="kw-2">*</span>size, <span class="self">self</span>.available_out_);
 <a href=#2974 id=2974 data-nosnippet>2974</a>        }
-<a href=#2975 id=2975 data-nosnippet>2975</a>        <span class="kw">if </span>consumed_size != <span class="number">0 </span>{
+<a href=#2975 id=2975 data-nosnippet>2975</a>        <span class="kw">if </span><span class="macro">consumed_size !</span>= <span class="number">0 </span>{
 <a href=#2976 id=2976 data-nosnippet>2976</a>            <span class="self">self</span>.next_out_ = NextOutIncrement(<span class="kw-2">&amp;</span><span class="self">self</span>.next_out_, consumed_size <span class="kw">as </span>i32);
 <a href=#2977 id=2977 data-nosnippet>2977</a>            <span class="self">self</span>.available_out_ = <span class="self">self</span>.available_out_.wrapping_sub(consumed_size);
 <a href=#2978 id=2978 data-nosnippet>2978</a>            <span class="self">self</span>.total_out_ = <span class="self">self</span>.total_out_.wrapping_add(consumed_size <span class="kw">as </span>u64);
@@ -3022,7 +3022,7 @@
 <a href=#3022 id=3022 data-nosnippet>3022</a>        </span>output: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut &amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8],
 <a href=#3023 id=3023 data-nosnippet>3023</a>        metablock_callback: <span class="kw-2">&amp;mut </span>MetablockCallback,
 <a href=#3024 id=3024 data-nosnippet>3024</a>    ) -&gt; bool {
-<a href=#3025 id=3025 data-nosnippet>3025</a>        <span class="kw">let </span>ret = <span class="self">self</span>.encode_data(is_last != <span class="number">0</span>, force_flush != <span class="number">0</span>, out_size, metablock_callback);
+<a href=#3025 id=3025 data-nosnippet>3025</a>        <span class="kw">let </span>ret = <span class="self">self</span>.encode_data(<span class="macro">is_last !</span>= <span class="number">0</span>, <span class="macro">force_flush !</span>= <span class="number">0</span>, out_size, metablock_callback);
 <a href=#3026 id=3026 data-nosnippet>3026</a>        <span class="kw-2">*</span>output = <span class="self">self</span>.storage_.slice_mut();
 <a href=#3027 id=3027 data-nosnippet>3027</a>        ret
 <a href=#3028 id=3028 data-nosnippet>3028</a>    }
@@ -3060,4 +3060,5 @@
 <a href=#3060 id=3060 data-nosnippet>3060</a>        <span class="macro">assert_eq!</span>(roundtrip[..t], input[..]);
 <a href=#3061 id=3061 data-nosnippet>3061</a>        <span class="macro">assert_eq!</span>(s, output_len);
 <a href=#3062 id=3062 data-nosnippet>3062</a>    }
-<a href=#3063 id=3063 data-nosnippet>3063</a>}</code></pre></div></section></main></body></html>
+<a href=#3063 id=3063 data-nosnippet>3063</a>}
+</code></pre></div></section></main></body></html>

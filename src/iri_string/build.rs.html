@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iri-string-0.7.8/src/build.rs`."><title>build.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="iri_string" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">iri_string/</div>build.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! URI/IRI builder.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iri-string-0.7.10/src/build.rs`."><title>build.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="iri_string" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">iri_string/</div>build.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! URI/IRI builder.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! See the documentation of [`Builder`] type.
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -20,7 +20,7 @@
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span><span class="kw">crate</span>::types::{RiAbsoluteStr, RiReferenceStr, RiRelativeStr, RiStr};
 <a href=#21 id=21 data-nosnippet>21</a><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 <a href=#22 id=22 data-nosnippet>22</a></span><span class="kw">use </span><span class="kw">crate</span>::types::{RiAbsoluteString, RiReferenceString, RiRelativeString, RiString};
-<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span><span class="kw">crate</span>::validate::Error;
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span><span class="kw">crate</span>::validate::{Error, ErrorKind};
 <a href=#24 id=24 data-nosnippet>24</a>
 <a href=#25 id=25 data-nosnippet>25</a><span class="doccomment">/// Port builder.
 <a href=#26 id=26 data-nosnippet>26</a>///
@@ -1068,7 +1068,7 @@
 <a href=#1068 id=1068 data-nosnippet>1068</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S: Spec&gt; private::Sealed&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>RiStr&lt;S&gt; {
 <a href=#1069 id=1069 data-nosnippet>1069</a>    <span class="kw">fn </span>validate_builder(builder: Builder&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Built&lt;<span class="lifetime">'a</span>, <span class="self">Self</span>&gt;, Error&gt; {
 <a href=#1070 id=1070 data-nosnippet>1070</a>        <span class="kw">if </span>builder.scheme.is_none() {
-<a href=#1071 id=1071 data-nosnippet>1071</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new());
+<a href=#1071 id=1071 data-nosnippet>1071</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::with_kind(ErrorKind::InvalidScheme));
 <a href=#1072 id=1072 data-nosnippet>1072</a>        }
 <a href=#1073 id=1073 data-nosnippet>1073</a>        <span class="kw">let </span>path_is_absolute = validate_builder_for_iri_reference::&lt;S&gt;(<span class="kw-2">&amp;</span>builder)<span class="question-mark">?</span>;
 <a href=#1074 id=1074 data-nosnippet>1074</a>
@@ -1084,10 +1084,10 @@
 <a href=#1084 id=1084 data-nosnippet>1084</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S: Spec&gt; private::Sealed&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>RiAbsoluteStr&lt;S&gt; {
 <a href=#1085 id=1085 data-nosnippet>1085</a>    <span class="kw">fn </span>validate_builder(builder: Builder&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Built&lt;<span class="lifetime">'a</span>, <span class="self">Self</span>&gt;, Error&gt; {
 <a href=#1086 id=1086 data-nosnippet>1086</a>        <span class="kw">if </span>builder.scheme.is_none() {
-<a href=#1087 id=1087 data-nosnippet>1087</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new());
+<a href=#1087 id=1087 data-nosnippet>1087</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::with_kind(ErrorKind::InvalidScheme));
 <a href=#1088 id=1088 data-nosnippet>1088</a>        }
 <a href=#1089 id=1089 data-nosnippet>1089</a>        <span class="kw">if </span>builder.fragment.is_some() {
-<a href=#1090 id=1090 data-nosnippet>1090</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new());
+<a href=#1090 id=1090 data-nosnippet>1090</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::with_kind(ErrorKind::UnexpectedFragment));
 <a href=#1091 id=1091 data-nosnippet>1091</a>        }
 <a href=#1092 id=1092 data-nosnippet>1092</a>        <span class="kw">let </span>path_is_absolute = validate_builder_for_iri_reference::&lt;S&gt;(<span class="kw-2">&amp;</span>builder)<span class="question-mark">?</span>;
 <a href=#1093 id=1093 data-nosnippet>1093</a>
@@ -1103,7 +1103,7 @@
 <a href=#1103 id=1103 data-nosnippet>1103</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S: Spec&gt; private::Sealed&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>RiRelativeStr&lt;S&gt; {
 <a href=#1104 id=1104 data-nosnippet>1104</a>    <span class="kw">fn </span>validate_builder(builder: Builder&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Built&lt;<span class="lifetime">'a</span>, <span class="self">Self</span>&gt;, Error&gt; {
 <a href=#1105 id=1105 data-nosnippet>1105</a>        <span class="kw">if </span>builder.scheme.is_some() {
-<a href=#1106 id=1106 data-nosnippet>1106</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new());
+<a href=#1106 id=1106 data-nosnippet>1106</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::with_kind(ErrorKind::UnexpectedAbsolute));
 <a href=#1107 id=1107 data-nosnippet>1107</a>        }
 <a href=#1108 id=1108 data-nosnippet>1108</a>        <span class="kw">let </span>path_is_absolute = validate_builder_for_iri_reference::&lt;S&gt;(<span class="kw-2">&amp;</span>builder)<span class="question-mark">?</span>;
 <a href=#1109 id=1109 data-nosnippet>1109</a>
@@ -1134,7 +1134,7 @@
 <a href=#1134 id=1134 data-nosnippet>1134</a>                <span class="comment">// `user` is not allowed to have a colon, since the characters
 <a href=#1135 id=1135 data-nosnippet>1135</a>                // after the colon is parsed as the password.
 <a href=#1136 id=1136 data-nosnippet>1136</a>                </span><span class="kw">if </span>user.contains(<span class="string">':'</span>) {
-<a href=#1137 id=1137 data-nosnippet>1137</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new());
+<a href=#1137 id=1137 data-nosnippet>1137</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::with_kind(ErrorKind::InvalidUserInfo));
 <a href=#1138 id=1138 data-nosnippet>1138</a>                }
 <a href=#1139 id=1139 data-nosnippet>1139</a>
 <a href=#1140 id=1140 data-nosnippet>1140</a>                <span class="comment">// Note that the syntax of components inside `authority`
@@ -1154,7 +1154,7 @@
 <a href=#1154 id=1154 data-nosnippet>1154</a>
 <a href=#1155 id=1155 data-nosnippet>1155</a>        <span class="kw">if let </span>PortBuilderRepr::String(s) = authority.port.<span class="number">0 </span>{
 <a href=#1156 id=1156 data-nosnippet>1156</a>            <span class="kw">if </span>!s.bytes().all(|b| b.is_ascii_digit()) {
-<a href=#1157 id=1157 data-nosnippet>1157</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new());
+<a href=#1157 id=1157 data-nosnippet>1157</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::with_kind(ErrorKind::InvalidPort));
 <a href=#1158 id=1158 data-nosnippet>1158</a>            }
 <a href=#1159 id=1159 data-nosnippet>1159</a>        }
 <a href=#1160 id=1160 data-nosnippet>1160</a>    }
@@ -1208,7 +1208,7 @@
 <a href=#1208 id=1208 data-nosnippet>1208</a>        };
 <a href=#1209 id=1209 data-nosnippet>1209</a>    }
 <a href=#1210 id=1210 data-nosnippet>1210</a>    <span class="kw">if </span>!is_path_acceptable {
-<a href=#1211 id=1211 data-nosnippet>1211</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new());
+<a href=#1211 id=1211 data-nosnippet>1211</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::with_kind(ErrorKind::InvalidPath));
 <a href=#1212 id=1212 data-nosnippet>1212</a>    }
 <a href=#1213 id=1213 data-nosnippet>1213</a>
 <a href=#1214 id=1214 data-nosnippet>1214</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(query) = builder.query {
@@ -1231,4 +1231,5 @@
 <a href=#1231 id=1231 data-nosnippet>1231</a>        <span class="doccomment">/// Validates the content of the builder and returns the validated type if possible.
 <a href=#1232 id=1232 data-nosnippet>1232</a>        </span><span class="kw">fn </span>validate_builder(builder: Builder&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Built&lt;<span class="lifetime">'a</span>, <span class="self">Self</span>&gt;, Error&gt;;
 <a href=#1233 id=1233 data-nosnippet>1233</a>    }
-<a href=#1234 id=1234 data-nosnippet>1234</a>}</code></pre></div></section></main></body></html>
+<a href=#1234 id=1234 data-nosnippet>1234</a>}
+</code></pre></div></section></main></body></html>

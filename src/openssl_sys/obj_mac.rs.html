@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/openssl-sys-0.9.109/src/./obj_mac.rs`."><title>obj_mac.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">openssl_sys/</div>obj_mac.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>libc::<span class="kw-2">*</span>;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/openssl-sys-0.9.111/src/./obj_mac.rs`."><title>obj_mac.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">openssl_sys/</div>obj_mac.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>libc::<span class="kw-2">*</span>;
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">pub const </span>NID_undef: c_int = <span class="number">0</span>;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">pub const </span>NID_itu_t: c_int = <span class="number">645</span>;
@@ -956,39 +956,39 @@
 <a href=#956 id=956 data-nosnippet>956</a></span><span class="kw">pub const </span>NID_sm2: c_int = <span class="number">1172</span>;
 <a href=#957 id=957 data-nosnippet>957</a><span class="attr">#[cfg(ossl111)]
 <a href=#958 id=958 data-nosnippet>958</a></span><span class="kw">pub const </span>NID_sm3: c_int = <span class="number">1143</span>;
-<a href=#959 id=959 data-nosnippet>959</a><span class="attr">#[cfg(libressl291)]
+<a href=#959 id=959 data-nosnippet>959</a><span class="attr">#[cfg(libressl)]
 <a href=#960 id=960 data-nosnippet>960</a></span><span class="kw">pub const </span>NID_sm3: c_int = <span class="number">968</span>;
 <a href=#961 id=961 data-nosnippet>961</a><span class="attr">#[cfg(ossl111)]
 <a href=#962 id=962 data-nosnippet>962</a></span><span class="kw">pub const </span>NID_sm3WithRSAEncryption: c_int = <span class="number">1144</span>;
-<a href=#963 id=963 data-nosnippet>963</a><span class="attr">#[cfg(libressl291)]
+<a href=#963 id=963 data-nosnippet>963</a><span class="attr">#[cfg(libressl)]
 <a href=#964 id=964 data-nosnippet>964</a></span><span class="kw">pub const </span>NID_sm3WithRSAEncryption: c_int = <span class="number">969</span>;
 <a href=#965 id=965 data-nosnippet>965</a><span class="attr">#[cfg(ossl111)]
 <a href=#966 id=966 data-nosnippet>966</a></span><span class="kw">pub const </span>NID_sm4_ecb: c_int = <span class="number">1133</span>;
-<a href=#967 id=967 data-nosnippet>967</a><span class="attr">#[cfg(libressl291)]
+<a href=#967 id=967 data-nosnippet>967</a><span class="attr">#[cfg(libressl)]
 <a href=#968 id=968 data-nosnippet>968</a></span><span class="kw">pub const </span>NID_sm4_ecb: c_int = <span class="number">973</span>;
 <a href=#969 id=969 data-nosnippet>969</a><span class="attr">#[cfg(ossl111)]
 <a href=#970 id=970 data-nosnippet>970</a></span><span class="kw">pub const </span>NID_sm4_cbc: c_int = <span class="number">1134</span>;
-<a href=#971 id=971 data-nosnippet>971</a><span class="attr">#[cfg(libressl291)]
+<a href=#971 id=971 data-nosnippet>971</a><span class="attr">#[cfg(libressl)]
 <a href=#972 id=972 data-nosnippet>972</a></span><span class="kw">pub const </span>NID_sm4_cbc: c_int = <span class="number">974</span>;
 <a href=#973 id=973 data-nosnippet>973</a><span class="attr">#[cfg(ossl111)]
 <a href=#974 id=974 data-nosnippet>974</a></span><span class="kw">pub const </span>NID_sm4_ofb128: c_int = <span class="number">1135</span>;
-<a href=#975 id=975 data-nosnippet>975</a><span class="attr">#[cfg(libressl291)]
+<a href=#975 id=975 data-nosnippet>975</a><span class="attr">#[cfg(libressl)]
 <a href=#976 id=976 data-nosnippet>976</a></span><span class="kw">pub const </span>NID_sm4_ofb128: c_int = <span class="number">975</span>;
 <a href=#977 id=977 data-nosnippet>977</a><span class="attr">#[cfg(ossl111)]
 <a href=#978 id=978 data-nosnippet>978</a></span><span class="kw">pub const </span>NID_sm4_cfb128: c_int = <span class="number">1137</span>;
-<a href=#979 id=979 data-nosnippet>979</a><span class="attr">#[cfg(libressl291)]
+<a href=#979 id=979 data-nosnippet>979</a><span class="attr">#[cfg(libressl)]
 <a href=#980 id=980 data-nosnippet>980</a></span><span class="kw">pub const </span>NID_sm4_cfb128: c_int = <span class="number">976</span>;
 <a href=#981 id=981 data-nosnippet>981</a><span class="attr">#[cfg(ossl111)]
 <a href=#982 id=982 data-nosnippet>982</a></span><span class="kw">pub const </span>NID_sm4_cfb1: c_int = <span class="number">1136</span>;
-<a href=#983 id=983 data-nosnippet>983</a><span class="attr">#[cfg(libressl291)]
+<a href=#983 id=983 data-nosnippet>983</a><span class="attr">#[cfg(libressl)]
 <a href=#984 id=984 data-nosnippet>984</a></span><span class="kw">pub const </span>NID_sm4_cfb1: c_int = <span class="number">977</span>;
 <a href=#985 id=985 data-nosnippet>985</a><span class="attr">#[cfg(ossl111)]
 <a href=#986 id=986 data-nosnippet>986</a></span><span class="kw">pub const </span>NID_sm4_cfb8: c_int = <span class="number">1138</span>;
-<a href=#987 id=987 data-nosnippet>987</a><span class="attr">#[cfg(libressl291)]
+<a href=#987 id=987 data-nosnippet>987</a><span class="attr">#[cfg(libressl)]
 <a href=#988 id=988 data-nosnippet>988</a></span><span class="kw">pub const </span>NID_sm4_cfb8: c_int = <span class="number">978</span>;
 <a href=#989 id=989 data-nosnippet>989</a><span class="attr">#[cfg(ossl111)]
 <a href=#990 id=990 data-nosnippet>990</a></span><span class="kw">pub const </span>NID_sm4_ctr: c_int = <span class="number">1139</span>;
-<a href=#991 id=991 data-nosnippet>991</a><span class="attr">#[cfg(libressl291)]
+<a href=#991 id=991 data-nosnippet>991</a><span class="attr">#[cfg(libressl)]
 <a href=#992 id=992 data-nosnippet>992</a></span><span class="kw">pub const </span>NID_sm4_ctr: c_int = <span class="number">979</span>;
 <a href=#993 id=993 data-nosnippet>993</a><span class="attr">#[cfg(ossl111)]
 <a href=#994 id=994 data-nosnippet>994</a></span><span class="kw">pub const </span>NID_sha3_224: c_int = <span class="number">1096</span>;
@@ -1012,7 +1012,7 @@
 <a href=#1012 id=1012 data-nosnippet>1012</a></span><span class="kw">pub const </span>NID_shake256: c_int = <span class="number">1101</span>;
 <a href=#1013 id=1013 data-nosnippet>1013</a><span class="attr">#[cfg(ossl110)]
 <a href=#1014 id=1014 data-nosnippet>1014</a></span><span class="kw">pub const </span>NID_chacha20_poly1305: c_int = <span class="number">1018</span>;
-<a href=#1015 id=1015 data-nosnippet>1015</a><span class="attr">#[cfg(libressl271)]
+<a href=#1015 id=1015 data-nosnippet>1015</a><span class="attr">#[cfg(libressl)]
 <a href=#1016 id=1016 data-nosnippet>1016</a></span><span class="kw">pub const </span>NID_chacha20_poly1305: c_int = <span class="number">967</span>;
 <a href=#1017 id=1017 data-nosnippet>1017</a><span class="macro">cfg_if!</span> {
 <a href=#1018 id=1018 data-nosnippet>1018</a>    <span class="kw">if </span><span class="attr">#[cfg(ossl340)] </span>{
@@ -1020,4 +1020,5 @@
 <a href=#1020 id=1020 data-nosnippet>1020</a>    } <span class="kw">else </span>{
 <a href=#1021 id=1021 data-nosnippet>1021</a>        <span class="kw">pub const </span>NID_ac_auditEntity: c_int = <span class="number">287</span>;
 <a href=#1022 id=1022 data-nosnippet>1022</a>    }
-<a href=#1023 id=1023 data-nosnippet>1023</a>}</code></pre></div></section></main></body></html>
+<a href=#1023 id=1023 data-nosnippet>1023</a>}
+</code></pre></div></section></main></body></html>

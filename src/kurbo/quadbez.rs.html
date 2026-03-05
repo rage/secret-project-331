@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kurbo-0.11.3/src/quadbez.rs`."><title>quadbez.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kurbo/</div>quadbez.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Kurbo Authors
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kurbo-0.13.0/src/quadbez.rs`."><title>quadbez.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kurbo/</div>quadbez.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Kurbo Authors
 <a href=#2 id=2 data-nosnippet>2</a>// SPDX-License-Identifier: Apache-2.0 OR MIT
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="doccomment">//! Quadratic Bézier segments.
@@ -101,13 +101,13 @@
 <a href=#101 id=101 data-nosnippet>101</a>
 <a href=#102 id=102 data-nosnippet>102</a>    <span class="doccomment">/// Is this quadratic Bezier curve finite?
 <a href=#103 id=103 data-nosnippet>103</a>    </span><span class="attr">#[inline]
-<a href=#104 id=104 data-nosnippet>104</a>    </span><span class="kw">pub fn </span>is_finite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#104 id=104 data-nosnippet>104</a>    </span><span class="kw">pub const fn </span>is_finite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
 <a href=#105 id=105 data-nosnippet>105</a>        <span class="self">self</span>.p0.is_finite() &amp;&amp; <span class="self">self</span>.p1.is_finite() &amp;&amp; <span class="self">self</span>.p2.is_finite()
 <a href=#106 id=106 data-nosnippet>106</a>    }
 <a href=#107 id=107 data-nosnippet>107</a>
 <a href=#108 id=108 data-nosnippet>108</a>    <span class="doccomment">/// Is this quadratic Bezier curve NaN?
 <a href=#109 id=109 data-nosnippet>109</a>    </span><span class="attr">#[inline]
-<a href=#110 id=110 data-nosnippet>110</a>    </span><span class="kw">pub fn </span>is_nan(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#110 id=110 data-nosnippet>110</a>    </span><span class="kw">pub const fn </span>is_nan(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
 <a href=#111 id=111 data-nosnippet>111</a>        <span class="self">self</span>.p0.is_nan() || <span class="self">self</span>.p1.is_nan() || <span class="self">self</span>.p2.is_nan()
 <a href=#112 id=112 data-nosnippet>112</a>    }
 <a href=#113 id=113 data-nosnippet>113</a>}
@@ -273,276 +273,292 @@
 <a href=#273 id=273 data-nosnippet>273</a>
 <a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">let </span>v0 = <span class="number">0.25 </span>* a2 * a2 * b * (<span class="number">2.0 </span>* sabc - c2) + sabc;
 <a href=#275 id=275 data-nosnippet>275</a>        <span class="comment">// TODO: justify and fine-tune this exact constant.
-<a href=#276 id=276 data-nosnippet>276</a>        </span><span class="kw">if </span>ba_c2 &lt; <span class="number">1e-13 </span>{
-<a href=#277 id=277 data-nosnippet>277</a>            <span class="comment">// This case happens for Béziers with a sharp kink.
-<a href=#278 id=278 data-nosnippet>278</a>            </span>v0
-<a href=#279 id=279 data-nosnippet>279</a>        } <span class="kw">else </span>{
-<a href=#280 id=280 data-nosnippet>280</a>            v0 + <span class="number">0.25
-<a href=#281 id=281 data-nosnippet>281</a>                </span>* a32
-<a href=#282 id=282 data-nosnippet>282</a>                * (<span class="number">4.0 </span>* c * a - b * b)
-<a href=#283 id=283 data-nosnippet>283</a>                * (((<span class="number">2.0 </span>* a + b) * a2 + <span class="number">2.0 </span>* sabc) / ba_c2).ln()
-<a href=#284 id=284 data-nosnippet>284</a>        }
-<a href=#285 id=285 data-nosnippet>285</a>    }
-<a href=#286 id=286 data-nosnippet>286</a>}
-<a href=#287 id=287 data-nosnippet>287</a>
-<a href=#288 id=288 data-nosnippet>288</a><span class="kw">impl </span>ParamCurveArea <span class="kw">for </span>QuadBez {
-<a href=#289 id=289 data-nosnippet>289</a>    <span class="attr">#[inline]
-<a href=#290 id=290 data-nosnippet>290</a>    </span><span class="kw">fn </span>signed_area(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
-<a href=#291 id=291 data-nosnippet>291</a>        (<span class="self">self</span>.p0.x * (<span class="number">2.0 </span>* <span class="self">self</span>.p1.y + <span class="self">self</span>.p2.y) + <span class="number">2.0 </span>* <span class="self">self</span>.p1.x * (<span class="self">self</span>.p2.y - <span class="self">self</span>.p0.y)
-<a href=#292 id=292 data-nosnippet>292</a>            - <span class="self">self</span>.p2.x * (<span class="self">self</span>.p0.y + <span class="number">2.0 </span>* <span class="self">self</span>.p1.y))
-<a href=#293 id=293 data-nosnippet>293</a>            * (<span class="number">1.0 </span>/ <span class="number">6.0</span>)
-<a href=#294 id=294 data-nosnippet>294</a>    }
-<a href=#295 id=295 data-nosnippet>295</a>}
-<a href=#296 id=296 data-nosnippet>296</a>
-<a href=#297 id=297 data-nosnippet>297</a><span class="kw">impl </span>ParamCurveNearest <span class="kw">for </span>QuadBez {
-<a href=#298 id=298 data-nosnippet>298</a>    <span class="doccomment">/// Find the nearest point, using analytical algorithm based on cubic root finding.
-<a href=#299 id=299 data-nosnippet>299</a>    </span><span class="kw">fn </span>nearest(<span class="kw-2">&amp;</span><span class="self">self</span>, p: Point, _accuracy: f64) -&gt; Nearest {
-<a href=#300 id=300 data-nosnippet>300</a>        <span class="kw">fn </span>eval_t(p: Point, t_best: <span class="kw-2">&amp;mut </span>f64, r_best: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;f64&gt;, t: f64, p0: Point) {
-<a href=#301 id=301 data-nosnippet>301</a>            <span class="kw">let </span>r = (p0 - p).hypot2();
-<a href=#302 id=302 data-nosnippet>302</a>            <span class="kw">if </span>r_best.map(|r_best| r &lt; r_best).unwrap_or(<span class="bool-val">true</span>) {
-<a href=#303 id=303 data-nosnippet>303</a>                <span class="kw-2">*</span>r_best = <span class="prelude-val">Some</span>(r);
-<a href=#304 id=304 data-nosnippet>304</a>                <span class="kw-2">*</span>t_best = t;
-<a href=#305 id=305 data-nosnippet>305</a>            }
-<a href=#306 id=306 data-nosnippet>306</a>        }
-<a href=#307 id=307 data-nosnippet>307</a>        <span class="kw">fn </span>try_t(
-<a href=#308 id=308 data-nosnippet>308</a>            q: <span class="kw-2">&amp;</span>QuadBez,
-<a href=#309 id=309 data-nosnippet>309</a>            p: Point,
-<a href=#310 id=310 data-nosnippet>310</a>            t_best: <span class="kw-2">&amp;mut </span>f64,
-<a href=#311 id=311 data-nosnippet>311</a>            r_best: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;f64&gt;,
-<a href=#312 id=312 data-nosnippet>312</a>            t: f64,
-<a href=#313 id=313 data-nosnippet>313</a>        ) -&gt; bool {
-<a href=#314 id=314 data-nosnippet>314</a>            <span class="kw">if </span>!(<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>t) {
-<a href=#315 id=315 data-nosnippet>315</a>                <span class="kw">return </span><span class="bool-val">true</span>;
-<a href=#316 id=316 data-nosnippet>316</a>            }
-<a href=#317 id=317 data-nosnippet>317</a>            eval_t(p, t_best, r_best, t, q.eval(t));
-<a href=#318 id=318 data-nosnippet>318</a>            <span class="bool-val">false
-<a href=#319 id=319 data-nosnippet>319</a>        </span>}
-<a href=#320 id=320 data-nosnippet>320</a>        <span class="kw">let </span>d0 = <span class="self">self</span>.p1 - <span class="self">self</span>.p0;
-<a href=#321 id=321 data-nosnippet>321</a>        <span class="kw">let </span>d1 = <span class="self">self</span>.p0.to_vec2() + <span class="self">self</span>.p2.to_vec2() - <span class="number">2.0 </span>* <span class="self">self</span>.p1.to_vec2();
-<a href=#322 id=322 data-nosnippet>322</a>        <span class="kw">let </span>d = <span class="self">self</span>.p0 - p;
-<a href=#323 id=323 data-nosnippet>323</a>        <span class="kw">let </span>c0 = d.dot(d0);
-<a href=#324 id=324 data-nosnippet>324</a>        <span class="kw">let </span>c1 = <span class="number">2.0 </span>* d0.hypot2() + d.dot(d1);
-<a href=#325 id=325 data-nosnippet>325</a>        <span class="kw">let </span>c2 = <span class="number">3.0 </span>* d1.dot(d0);
-<a href=#326 id=326 data-nosnippet>326</a>        <span class="kw">let </span>c3 = d1.hypot2();
-<a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">let </span>roots = solve_cubic(c0, c1, c2, c3);
-<a href=#328 id=328 data-nosnippet>328</a>        <span class="kw">let </span><span class="kw-2">mut </span>r_best = <span class="prelude-val">None</span>;
-<a href=#329 id=329 data-nosnippet>329</a>        <span class="kw">let </span><span class="kw-2">mut </span>t_best = <span class="number">0.0</span>;
-<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">let </span><span class="kw-2">mut </span>need_ends = <span class="bool-val">false</span>;
-<a href=#331 id=331 data-nosnippet>331</a>        <span class="kw">if </span>roots.is_empty() {
-<a href=#332 id=332 data-nosnippet>332</a>            need_ends = <span class="bool-val">true</span>;
-<a href=#333 id=333 data-nosnippet>333</a>        }
-<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw">for </span><span class="kw-2">&amp;</span>t <span class="kw">in </span><span class="kw-2">&amp;</span>roots {
-<a href=#335 id=335 data-nosnippet>335</a>            need_ends |= try_t(<span class="self">self</span>, p, <span class="kw-2">&amp;mut </span>t_best, <span class="kw-2">&amp;mut </span>r_best, t);
-<a href=#336 id=336 data-nosnippet>336</a>        }
-<a href=#337 id=337 data-nosnippet>337</a>        <span class="kw">if </span>need_ends {
-<a href=#338 id=338 data-nosnippet>338</a>            eval_t(p, <span class="kw-2">&amp;mut </span>t_best, <span class="kw-2">&amp;mut </span>r_best, <span class="number">0.0</span>, <span class="self">self</span>.p0);
-<a href=#339 id=339 data-nosnippet>339</a>            eval_t(p, <span class="kw-2">&amp;mut </span>t_best, <span class="kw-2">&amp;mut </span>r_best, <span class="number">1.0</span>, <span class="self">self</span>.p2);
-<a href=#340 id=340 data-nosnippet>340</a>        }
-<a href=#341 id=341 data-nosnippet>341</a>
-<a href=#342 id=342 data-nosnippet>342</a>        Nearest {
-<a href=#343 id=343 data-nosnippet>343</a>            t: t_best,
-<a href=#344 id=344 data-nosnippet>344</a>            distance_sq: r_best.unwrap(),
+<a href=#276 id=276 data-nosnippet>276</a>        // The factor of a2 here is a little arbitrary: we really want
+<a href=#277 id=277 data-nosnippet>277</a>        // to test whether ba_c2 is small, but it's also important for
+<a href=#278 id=278 data-nosnippet>278</a>        // this comparison to be scale-invariant. We chose a2 (instead of,
+<a href=#279 id=279 data-nosnippet>279</a>        // for example, c2 on the rhs) because it's unchanged under
+<a href=#280 id=280 data-nosnippet>280</a>        // reversing the parametrization.
+<a href=#281 id=281 data-nosnippet>281</a>        </span><span class="kw">if </span>ba_c2 * a2 &lt; <span class="number">1e-13 </span>{
+<a href=#282 id=282 data-nosnippet>282</a>            <span class="comment">// This case happens for Béziers with a sharp kink.
+<a href=#283 id=283 data-nosnippet>283</a>            </span>v0
+<a href=#284 id=284 data-nosnippet>284</a>        } <span class="kw">else </span>{
+<a href=#285 id=285 data-nosnippet>285</a>            v0 + <span class="number">0.25
+<a href=#286 id=286 data-nosnippet>286</a>                </span>* a32
+<a href=#287 id=287 data-nosnippet>287</a>                * (<span class="number">4.0 </span>* c * a - b * b)
+<a href=#288 id=288 data-nosnippet>288</a>                * (((<span class="number">2.0 </span>* a + b) * a2 + <span class="number">2.0 </span>* sabc) / ba_c2).ln()
+<a href=#289 id=289 data-nosnippet>289</a>        }
+<a href=#290 id=290 data-nosnippet>290</a>    }
+<a href=#291 id=291 data-nosnippet>291</a>}
+<a href=#292 id=292 data-nosnippet>292</a>
+<a href=#293 id=293 data-nosnippet>293</a><span class="kw">impl </span>ParamCurveArea <span class="kw">for </span>QuadBez {
+<a href=#294 id=294 data-nosnippet>294</a>    <span class="attr">#[inline]
+<a href=#295 id=295 data-nosnippet>295</a>    </span><span class="kw">fn </span>signed_area(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+<a href=#296 id=296 data-nosnippet>296</a>        (<span class="self">self</span>.p0.x * (<span class="number">2.0 </span>* <span class="self">self</span>.p1.y + <span class="self">self</span>.p2.y) + <span class="number">2.0 </span>* <span class="self">self</span>.p1.x * (<span class="self">self</span>.p2.y - <span class="self">self</span>.p0.y)
+<a href=#297 id=297 data-nosnippet>297</a>            - <span class="self">self</span>.p2.x * (<span class="self">self</span>.p0.y + <span class="number">2.0 </span>* <span class="self">self</span>.p1.y))
+<a href=#298 id=298 data-nosnippet>298</a>            * (<span class="number">1.0 </span>/ <span class="number">6.0</span>)
+<a href=#299 id=299 data-nosnippet>299</a>    }
+<a href=#300 id=300 data-nosnippet>300</a>}
+<a href=#301 id=301 data-nosnippet>301</a>
+<a href=#302 id=302 data-nosnippet>302</a><span class="kw">impl </span>ParamCurveNearest <span class="kw">for </span>QuadBez {
+<a href=#303 id=303 data-nosnippet>303</a>    <span class="doccomment">/// Find the nearest point, using analytical algorithm based on cubic root finding.
+<a href=#304 id=304 data-nosnippet>304</a>    </span><span class="kw">fn </span>nearest(<span class="kw-2">&amp;</span><span class="self">self</span>, p: Point, _accuracy: f64) -&gt; Nearest {
+<a href=#305 id=305 data-nosnippet>305</a>        <span class="kw">fn </span>eval_t(p: Point, t_best: <span class="kw-2">&amp;mut </span>f64, r_best: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;f64&gt;, t: f64, p0: Point) {
+<a href=#306 id=306 data-nosnippet>306</a>            <span class="kw">let </span>r = (p0 - p).hypot2();
+<a href=#307 id=307 data-nosnippet>307</a>            <span class="kw">if </span>r_best.map(|r_best| r &lt; r_best).unwrap_or(<span class="bool-val">true</span>) {
+<a href=#308 id=308 data-nosnippet>308</a>                <span class="kw-2">*</span>r_best = <span class="prelude-val">Some</span>(r);
+<a href=#309 id=309 data-nosnippet>309</a>                <span class="kw-2">*</span>t_best = t;
+<a href=#310 id=310 data-nosnippet>310</a>            }
+<a href=#311 id=311 data-nosnippet>311</a>        }
+<a href=#312 id=312 data-nosnippet>312</a>        <span class="kw">fn </span>try_t(
+<a href=#313 id=313 data-nosnippet>313</a>            q: <span class="kw-2">&amp;</span>QuadBez,
+<a href=#314 id=314 data-nosnippet>314</a>            p: Point,
+<a href=#315 id=315 data-nosnippet>315</a>            t_best: <span class="kw-2">&amp;mut </span>f64,
+<a href=#316 id=316 data-nosnippet>316</a>            r_best: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;f64&gt;,
+<a href=#317 id=317 data-nosnippet>317</a>            t: f64,
+<a href=#318 id=318 data-nosnippet>318</a>        ) -&gt; bool {
+<a href=#319 id=319 data-nosnippet>319</a>            <span class="kw">if </span>!(<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>t) {
+<a href=#320 id=320 data-nosnippet>320</a>                <span class="kw">return </span><span class="bool-val">true</span>;
+<a href=#321 id=321 data-nosnippet>321</a>            }
+<a href=#322 id=322 data-nosnippet>322</a>            eval_t(p, t_best, r_best, t, q.eval(t));
+<a href=#323 id=323 data-nosnippet>323</a>            <span class="bool-val">false
+<a href=#324 id=324 data-nosnippet>324</a>        </span>}
+<a href=#325 id=325 data-nosnippet>325</a>        <span class="kw">let </span>d0 = <span class="self">self</span>.p1 - <span class="self">self</span>.p0;
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="kw">let </span>d1 = <span class="self">self</span>.p0.to_vec2() + <span class="self">self</span>.p2.to_vec2() - <span class="number">2.0 </span>* <span class="self">self</span>.p1.to_vec2();
+<a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">let </span>d = <span class="self">self</span>.p0 - p;
+<a href=#328 id=328 data-nosnippet>328</a>        <span class="kw">let </span>c0 = d.dot(d0);
+<a href=#329 id=329 data-nosnippet>329</a>        <span class="kw">let </span>c1 = <span class="number">2.0 </span>* d0.hypot2() + d.dot(d1);
+<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">let </span>c2 = <span class="number">3.0 </span>* d1.dot(d0);
+<a href=#331 id=331 data-nosnippet>331</a>        <span class="kw">let </span>c3 = d1.hypot2();
+<a href=#332 id=332 data-nosnippet>332</a>        <span class="kw">let </span>roots = solve_cubic(c0, c1, c2, c3);
+<a href=#333 id=333 data-nosnippet>333</a>        <span class="kw">let </span><span class="kw-2">mut </span>r_best = <span class="prelude-val">None</span>;
+<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw">let </span><span class="kw-2">mut </span>t_best = <span class="number">0.0</span>;
+<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">let </span><span class="kw-2">mut </span>need_ends = <span class="bool-val">false</span>;
+<a href=#336 id=336 data-nosnippet>336</a>        <span class="kw">if </span>roots.is_empty() {
+<a href=#337 id=337 data-nosnippet>337</a>            need_ends = <span class="bool-val">true</span>;
+<a href=#338 id=338 data-nosnippet>338</a>        }
+<a href=#339 id=339 data-nosnippet>339</a>        <span class="kw">for </span><span class="kw-2">&amp;</span>t <span class="kw">in </span><span class="kw-2">&amp;</span>roots {
+<a href=#340 id=340 data-nosnippet>340</a>            need_ends |= try_t(<span class="self">self</span>, p, <span class="kw-2">&amp;mut </span>t_best, <span class="kw-2">&amp;mut </span>r_best, t);
+<a href=#341 id=341 data-nosnippet>341</a>        }
+<a href=#342 id=342 data-nosnippet>342</a>        <span class="kw">if </span>need_ends {
+<a href=#343 id=343 data-nosnippet>343</a>            eval_t(p, <span class="kw-2">&amp;mut </span>t_best, <span class="kw-2">&amp;mut </span>r_best, <span class="number">0.0</span>, <span class="self">self</span>.p0);
+<a href=#344 id=344 data-nosnippet>344</a>            eval_t(p, <span class="kw-2">&amp;mut </span>t_best, <span class="kw-2">&amp;mut </span>r_best, <span class="number">1.0</span>, <span class="self">self</span>.p2);
 <a href=#345 id=345 data-nosnippet>345</a>        }
-<a href=#346 id=346 data-nosnippet>346</a>    }
-<a href=#347 id=347 data-nosnippet>347</a>}
-<a href=#348 id=348 data-nosnippet>348</a>
-<a href=#349 id=349 data-nosnippet>349</a><span class="kw">impl </span>ParamCurveCurvature <span class="kw">for </span>QuadBez {}
-<a href=#350 id=350 data-nosnippet>350</a>
-<a href=#351 id=351 data-nosnippet>351</a><span class="kw">impl </span>ParamCurveExtrema <span class="kw">for </span>QuadBez {
-<a href=#352 id=352 data-nosnippet>352</a>    <span class="kw">fn </span>extrema(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ArrayVec&lt;f64, MAX_EXTREMA&gt; {
-<a href=#353 id=353 data-nosnippet>353</a>        <span class="kw">let </span><span class="kw-2">mut </span>result = ArrayVec::new();
-<a href=#354 id=354 data-nosnippet>354</a>        <span class="kw">let </span>d0 = <span class="self">self</span>.p1 - <span class="self">self</span>.p0;
-<a href=#355 id=355 data-nosnippet>355</a>        <span class="kw">let </span>d1 = <span class="self">self</span>.p2 - <span class="self">self</span>.p1;
-<a href=#356 id=356 data-nosnippet>356</a>        <span class="kw">let </span>dd = d1 - d0;
-<a href=#357 id=357 data-nosnippet>357</a>        <span class="kw">if </span>dd.x != <span class="number">0.0 </span>{
-<a href=#358 id=358 data-nosnippet>358</a>            <span class="kw">let </span>t = -d0.x / dd.x;
-<a href=#359 id=359 data-nosnippet>359</a>            <span class="kw">if </span>t &gt; <span class="number">0.0 </span>&amp;&amp; t &lt; <span class="number">1.0 </span>{
-<a href=#360 id=360 data-nosnippet>360</a>                result.push(t);
-<a href=#361 id=361 data-nosnippet>361</a>            }
-<a href=#362 id=362 data-nosnippet>362</a>        }
-<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">if </span>dd.y != <span class="number">0.0 </span>{
-<a href=#364 id=364 data-nosnippet>364</a>            <span class="kw">let </span>t = -d0.y / dd.y;
-<a href=#365 id=365 data-nosnippet>365</a>            <span class="kw">if </span>t &gt; <span class="number">0.0 </span>&amp;&amp; t &lt; <span class="number">1.0 </span>{
-<a href=#366 id=366 data-nosnippet>366</a>                result.push(t);
-<a href=#367 id=367 data-nosnippet>367</a>                <span class="kw">if </span>result.len() == <span class="number">2 </span>&amp;&amp; result[<span class="number">0</span>] &gt; t {
-<a href=#368 id=368 data-nosnippet>368</a>                    result.swap(<span class="number">0</span>, <span class="number">1</span>);
-<a href=#369 id=369 data-nosnippet>369</a>                }
-<a href=#370 id=370 data-nosnippet>370</a>            }
-<a href=#371 id=371 data-nosnippet>371</a>        }
-<a href=#372 id=372 data-nosnippet>372</a>        result
-<a href=#373 id=373 data-nosnippet>373</a>    }
-<a href=#374 id=374 data-nosnippet>374</a>}
-<a href=#375 id=375 data-nosnippet>375</a>
-<a href=#376 id=376 data-nosnippet>376</a><span class="kw">impl </span>Mul&lt;QuadBez&gt; <span class="kw">for </span>Affine {
-<a href=#377 id=377 data-nosnippet>377</a>    <span class="kw">type </span>Output = QuadBez;
-<a href=#378 id=378 data-nosnippet>378</a>
-<a href=#379 id=379 data-nosnippet>379</a>    <span class="attr">#[inline]
-<a href=#380 id=380 data-nosnippet>380</a>    </span><span class="kw">fn </span>mul(<span class="self">self</span>, other: QuadBez) -&gt; QuadBez {
-<a href=#381 id=381 data-nosnippet>381</a>        QuadBez {
-<a href=#382 id=382 data-nosnippet>382</a>            p0: <span class="self">self </span>* other.p0,
-<a href=#383 id=383 data-nosnippet>383</a>            p1: <span class="self">self </span>* other.p1,
-<a href=#384 id=384 data-nosnippet>384</a>            p2: <span class="self">self </span>* other.p2,
-<a href=#385 id=385 data-nosnippet>385</a>        }
-<a href=#386 id=386 data-nosnippet>386</a>    }
-<a href=#387 id=387 data-nosnippet>387</a>}
-<a href=#388 id=388 data-nosnippet>388</a>
-<a href=#389 id=389 data-nosnippet>389</a><span class="attr">#[cfg(test)]
-<a href=#390 id=390 data-nosnippet>390</a></span><span class="kw">mod </span>tests {
-<a href=#391 id=391 data-nosnippet>391</a>    <span class="kw">use crate</span>::{
-<a href=#392 id=392 data-nosnippet>392</a>        Affine, Nearest, ParamCurve, ParamCurveArclen, ParamCurveArea, ParamCurveDeriv,
-<a href=#393 id=393 data-nosnippet>393</a>        ParamCurveExtrema, ParamCurveNearest, Point, QuadBez,
-<a href=#394 id=394 data-nosnippet>394</a>    };
-<a href=#395 id=395 data-nosnippet>395</a>
-<a href=#396 id=396 data-nosnippet>396</a>    <span class="kw">fn </span>assert_near(p0: Point, p1: Point, epsilon: f64) {
-<a href=#397 id=397 data-nosnippet>397</a>        <span class="macro">assert!</span>((p1 - p0).hypot() &lt; epsilon, <span class="string">"{p0:?} != {p1:?}"</span>);
-<a href=#398 id=398 data-nosnippet>398</a>    }
-<a href=#399 id=399 data-nosnippet>399</a>
-<a href=#400 id=400 data-nosnippet>400</a>    <span class="attr">#[test]
-<a href=#401 id=401 data-nosnippet>401</a>    </span><span class="kw">fn </span>quadbez_deriv() {
-<a href=#402 id=402 data-nosnippet>402</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">0.0</span>, <span class="number">0.5</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
-<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">let </span>deriv = q.deriv();
+<a href=#346 id=346 data-nosnippet>346</a>
+<a href=#347 id=347 data-nosnippet>347</a>        Nearest {
+<a href=#348 id=348 data-nosnippet>348</a>            t: t_best,
+<a href=#349 id=349 data-nosnippet>349</a>            distance_sq: r_best.unwrap(),
+<a href=#350 id=350 data-nosnippet>350</a>        }
+<a href=#351 id=351 data-nosnippet>351</a>    }
+<a href=#352 id=352 data-nosnippet>352</a>}
+<a href=#353 id=353 data-nosnippet>353</a>
+<a href=#354 id=354 data-nosnippet>354</a><span class="kw">impl </span>ParamCurveCurvature <span class="kw">for </span>QuadBez {}
+<a href=#355 id=355 data-nosnippet>355</a>
+<a href=#356 id=356 data-nosnippet>356</a><span class="kw">impl </span>ParamCurveExtrema <span class="kw">for </span>QuadBez {
+<a href=#357 id=357 data-nosnippet>357</a>    <span class="kw">fn </span>extrema(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ArrayVec&lt;f64, MAX_EXTREMA&gt; {
+<a href=#358 id=358 data-nosnippet>358</a>        <span class="kw">let </span><span class="kw-2">mut </span>result = ArrayVec::new();
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw">let </span>d0 = <span class="self">self</span>.p1 - <span class="self">self</span>.p0;
+<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw">let </span>d1 = <span class="self">self</span>.p2 - <span class="self">self</span>.p1;
+<a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">let </span>dd = d1 - d0;
+<a href=#362 id=362 data-nosnippet>362</a>        <span class="kw">if </span>dd.<span class="macro">x !</span>= <span class="number">0.0 </span>{
+<a href=#363 id=363 data-nosnippet>363</a>            <span class="kw">let </span>t = -d0.x / dd.x;
+<a href=#364 id=364 data-nosnippet>364</a>            <span class="kw">if </span>t &gt; <span class="number">0.0 </span>&amp;&amp; t &lt; <span class="number">1.0 </span>{
+<a href=#365 id=365 data-nosnippet>365</a>                result.push(t);
+<a href=#366 id=366 data-nosnippet>366</a>            }
+<a href=#367 id=367 data-nosnippet>367</a>        }
+<a href=#368 id=368 data-nosnippet>368</a>        <span class="kw">if </span>dd.<span class="macro">y !</span>= <span class="number">0.0 </span>{
+<a href=#369 id=369 data-nosnippet>369</a>            <span class="kw">let </span>t = -d0.y / dd.y;
+<a href=#370 id=370 data-nosnippet>370</a>            <span class="kw">if </span>t &gt; <span class="number">0.0 </span>&amp;&amp; t &lt; <span class="number">1.0 </span>{
+<a href=#371 id=371 data-nosnippet>371</a>                result.push(t);
+<a href=#372 id=372 data-nosnippet>372</a>                <span class="kw">if </span>result.len() == <span class="number">2 </span>&amp;&amp; result[<span class="number">0</span>] &gt; t {
+<a href=#373 id=373 data-nosnippet>373</a>                    result.swap(<span class="number">0</span>, <span class="number">1</span>);
+<a href=#374 id=374 data-nosnippet>374</a>                }
+<a href=#375 id=375 data-nosnippet>375</a>            }
+<a href=#376 id=376 data-nosnippet>376</a>        }
+<a href=#377 id=377 data-nosnippet>377</a>        result
+<a href=#378 id=378 data-nosnippet>378</a>    }
+<a href=#379 id=379 data-nosnippet>379</a>}
+<a href=#380 id=380 data-nosnippet>380</a>
+<a href=#381 id=381 data-nosnippet>381</a><span class="kw">impl </span>Mul&lt;QuadBez&gt; <span class="kw">for </span>Affine {
+<a href=#382 id=382 data-nosnippet>382</a>    <span class="kw">type </span>Output = QuadBez;
+<a href=#383 id=383 data-nosnippet>383</a>
+<a href=#384 id=384 data-nosnippet>384</a>    <span class="attr">#[inline]
+<a href=#385 id=385 data-nosnippet>385</a>    </span><span class="kw">fn </span>mul(<span class="self">self</span>, other: QuadBez) -&gt; QuadBez {
+<a href=#386 id=386 data-nosnippet>386</a>        QuadBez {
+<a href=#387 id=387 data-nosnippet>387</a>            p0: <span class="self">self </span>* other.p0,
+<a href=#388 id=388 data-nosnippet>388</a>            p1: <span class="self">self </span>* other.p1,
+<a href=#389 id=389 data-nosnippet>389</a>            p2: <span class="self">self </span>* other.p2,
+<a href=#390 id=390 data-nosnippet>390</a>        }
+<a href=#391 id=391 data-nosnippet>391</a>    }
+<a href=#392 id=392 data-nosnippet>392</a>}
+<a href=#393 id=393 data-nosnippet>393</a>
+<a href=#394 id=394 data-nosnippet>394</a><span class="attr">#[cfg(test)]
+<a href=#395 id=395 data-nosnippet>395</a></span><span class="kw">mod </span>tests {
+<a href=#396 id=396 data-nosnippet>396</a>    <span class="kw">use crate</span>::{
+<a href=#397 id=397 data-nosnippet>397</a>        Affine, Nearest, ParamCurve, ParamCurveArclen, ParamCurveArea, ParamCurveDeriv,
+<a href=#398 id=398 data-nosnippet>398</a>        ParamCurveExtrema, ParamCurveNearest, Point, QuadBez,
+<a href=#399 id=399 data-nosnippet>399</a>    };
+<a href=#400 id=400 data-nosnippet>400</a>
+<a href=#401 id=401 data-nosnippet>401</a>    <span class="kw">fn </span>assert_near(p0: Point, p1: Point, epsilon: f64) {
+<a href=#402 id=402 data-nosnippet>402</a>        <span class="macro">assert!</span>((p1 - p0).hypot() &lt; epsilon, <span class="string">"{p0:?} != {p1:?}"</span>);
+<a href=#403 id=403 data-nosnippet>403</a>    }
 <a href=#404 id=404 data-nosnippet>404</a>
-<a href=#405 id=405 data-nosnippet>405</a>        <span class="kw">let </span>n = <span class="number">10</span>;
-<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=n {
-<a href=#407 id=407 data-nosnippet>407</a>            <span class="kw">let </span>t = (i <span class="kw">as </span>f64) * (n <span class="kw">as </span>f64).recip();
-<a href=#408 id=408 data-nosnippet>408</a>            <span class="kw">let </span>delta = <span class="number">1e-6</span>;
-<a href=#409 id=409 data-nosnippet>409</a>            <span class="kw">let </span>p = q.eval(t);
-<a href=#410 id=410 data-nosnippet>410</a>            <span class="kw">let </span>p1 = q.eval(t + delta);
-<a href=#411 id=411 data-nosnippet>411</a>            <span class="kw">let </span>d_approx = (p1 - p) * delta.recip();
-<a href=#412 id=412 data-nosnippet>412</a>            <span class="kw">let </span>d = deriv.eval(t).to_vec2();
-<a href=#413 id=413 data-nosnippet>413</a>            <span class="macro">assert!</span>((d - d_approx).hypot() &lt; delta * <span class="number">2.0</span>);
-<a href=#414 id=414 data-nosnippet>414</a>        }
-<a href=#415 id=415 data-nosnippet>415</a>    }
-<a href=#416 id=416 data-nosnippet>416</a>
-<a href=#417 id=417 data-nosnippet>417</a>    <span class="attr">#[test]
-<a href=#418 id=418 data-nosnippet>418</a>    </span><span class="kw">fn </span>quadbez_arclen() {
-<a href=#419 id=419 data-nosnippet>419</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">0.0</span>, <span class="number">0.5</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
-<a href=#420 id=420 data-nosnippet>420</a>        <span class="kw">let </span>true_arclen = <span class="number">0.5 </span>* <span class="number">5.0f64</span>.sqrt() + <span class="number">0.25 </span>* (<span class="number">2.0 </span>+ <span class="number">5.0f64</span>.sqrt()).ln();
-<a href=#421 id=421 data-nosnippet>421</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">12 </span>{
-<a href=#422 id=422 data-nosnippet>422</a>            <span class="kw">let </span>accuracy = <span class="number">0.1f64</span>.powi(i);
-<a href=#423 id=423 data-nosnippet>423</a>            <span class="kw">let </span>est = q.arclen(accuracy);
-<a href=#424 id=424 data-nosnippet>424</a>            <span class="kw">let </span>error = est - true_arclen;
-<a href=#425 id=425 data-nosnippet>425</a>            <span class="macro">assert!</span>(error.abs() &lt; accuracy, <span class="string">"{est} != {true_arclen}"</span>);
-<a href=#426 id=426 data-nosnippet>426</a>        }
-<a href=#427 id=427 data-nosnippet>427</a>    }
-<a href=#428 id=428 data-nosnippet>428</a>
-<a href=#429 id=429 data-nosnippet>429</a>    <span class="attr">#[test]
-<a href=#430 id=430 data-nosnippet>430</a>    </span><span class="kw">fn </span>quadbez_arclen_pathological() {
-<a href=#431 id=431 data-nosnippet>431</a>        <span class="kw">let </span>q = QuadBez::new((-<span class="number">1.0</span>, <span class="number">0.0</span>), (<span class="number">1.03</span>, <span class="number">0.0</span>), (<span class="number">1.0</span>, <span class="number">0.0</span>));
-<a href=#432 id=432 data-nosnippet>432</a>        <span class="kw">let </span>true_arclen = <span class="number">2.0008737864167325</span>; <span class="comment">// A rough empirical calculation
-<a href=#433 id=433 data-nosnippet>433</a>        </span><span class="kw">let </span>accuracy = <span class="number">1e-11</span>;
-<a href=#434 id=434 data-nosnippet>434</a>        <span class="kw">let </span>est = q.arclen(accuracy);
-<a href=#435 id=435 data-nosnippet>435</a>        <span class="macro">assert!</span>(
-<a href=#436 id=436 data-nosnippet>436</a>            (est - true_arclen).abs() &lt; accuracy,
-<a href=#437 id=437 data-nosnippet>437</a>            <span class="string">"{est} != {true_arclen}"
-<a href=#438 id=438 data-nosnippet>438</a>        </span>);
-<a href=#439 id=439 data-nosnippet>439</a>    }
-<a href=#440 id=440 data-nosnippet>440</a>
-<a href=#441 id=441 data-nosnippet>441</a>    <span class="attr">#[test]
-<a href=#442 id=442 data-nosnippet>442</a>    </span><span class="kw">fn </span>quadbez_subsegment() {
-<a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">3.1</span>, <span class="number">4.1</span>), (<span class="number">5.9</span>, <span class="number">2.6</span>), (<span class="number">5.3</span>, <span class="number">5.8</span>));
-<a href=#444 id=444 data-nosnippet>444</a>        <span class="kw">let </span>t0 = <span class="number">0.1</span>;
-<a href=#445 id=445 data-nosnippet>445</a>        <span class="kw">let </span>t1 = <span class="number">0.8</span>;
-<a href=#446 id=446 data-nosnippet>446</a>        <span class="kw">let </span>qs = q.subsegment(t0..t1);
-<a href=#447 id=447 data-nosnippet>447</a>        <span class="kw">let </span>epsilon = <span class="number">1e-12</span>;
-<a href=#448 id=448 data-nosnippet>448</a>        <span class="kw">let </span>n = <span class="number">10</span>;
-<a href=#449 id=449 data-nosnippet>449</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=n {
-<a href=#450 id=450 data-nosnippet>450</a>            <span class="kw">let </span>t = (i <span class="kw">as </span>f64) * (n <span class="kw">as </span>f64).recip();
-<a href=#451 id=451 data-nosnippet>451</a>            <span class="kw">let </span>ts = t0 + t * (t1 - t0);
-<a href=#452 id=452 data-nosnippet>452</a>            assert_near(q.eval(ts), qs.eval(t), epsilon);
-<a href=#453 id=453 data-nosnippet>453</a>        }
-<a href=#454 id=454 data-nosnippet>454</a>    }
-<a href=#455 id=455 data-nosnippet>455</a>
-<a href=#456 id=456 data-nosnippet>456</a>    <span class="attr">#[test]
-<a href=#457 id=457 data-nosnippet>457</a>    </span><span class="kw">fn </span>quadbez_raise() {
-<a href=#458 id=458 data-nosnippet>458</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">3.1</span>, <span class="number">4.1</span>), (<span class="number">5.9</span>, <span class="number">2.6</span>), (<span class="number">5.3</span>, <span class="number">5.8</span>));
-<a href=#459 id=459 data-nosnippet>459</a>        <span class="kw">let </span>c = q.raise();
-<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw">let </span>qd = q.deriv();
-<a href=#461 id=461 data-nosnippet>461</a>        <span class="kw">let </span>cd = c.deriv();
-<a href=#462 id=462 data-nosnippet>462</a>        <span class="kw">let </span>epsilon = <span class="number">1e-12</span>;
-<a href=#463 id=463 data-nosnippet>463</a>        <span class="kw">let </span>n = <span class="number">10</span>;
-<a href=#464 id=464 data-nosnippet>464</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=n {
-<a href=#465 id=465 data-nosnippet>465</a>            <span class="kw">let </span>t = (i <span class="kw">as </span>f64) * (n <span class="kw">as </span>f64).recip();
-<a href=#466 id=466 data-nosnippet>466</a>            assert_near(q.eval(t), c.eval(t), epsilon);
-<a href=#467 id=467 data-nosnippet>467</a>            assert_near(qd.eval(t), cd.eval(t), epsilon);
-<a href=#468 id=468 data-nosnippet>468</a>        }
-<a href=#469 id=469 data-nosnippet>469</a>    }
-<a href=#470 id=470 data-nosnippet>470</a>
-<a href=#471 id=471 data-nosnippet>471</a>    <span class="attr">#[test]
-<a href=#472 id=472 data-nosnippet>472</a>    </span><span class="kw">fn </span>quadbez_signed_area() {
-<a href=#473 id=473 data-nosnippet>473</a>        <span class="comment">// y = 1 - x^2
-<a href=#474 id=474 data-nosnippet>474</a>        </span><span class="kw">let </span>q = QuadBez::new((<span class="number">1.0</span>, <span class="number">0.0</span>), (<span class="number">0.5</span>, <span class="number">1.0</span>), (<span class="number">0.0</span>, <span class="number">1.0</span>));
-<a href=#475 id=475 data-nosnippet>475</a>        <span class="kw">let </span>epsilon = <span class="number">1e-12</span>;
-<a href=#476 id=476 data-nosnippet>476</a>        <span class="macro">assert!</span>((q.signed_area() - <span class="number">2.0 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
-<a href=#477 id=477 data-nosnippet>477</a>        <span class="macro">assert!</span>(((Affine::rotate(<span class="number">0.5</span>) * q).signed_area() - <span class="number">2.0 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
-<a href=#478 id=478 data-nosnippet>478</a>        <span class="macro">assert!</span>(((Affine::translate((<span class="number">0.0</span>, <span class="number">1.0</span>)) * q).signed_area() - <span class="number">3.5 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
-<a href=#479 id=479 data-nosnippet>479</a>        <span class="macro">assert!</span>(((Affine::translate((<span class="number">1.0</span>, <span class="number">0.0</span>)) * q).signed_area() - <span class="number">3.5 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
-<a href=#480 id=480 data-nosnippet>480</a>    }
-<a href=#481 id=481 data-nosnippet>481</a>
-<a href=#482 id=482 data-nosnippet>482</a>    <span class="kw">fn </span>verify(result: Nearest, expected: f64) {
-<a href=#483 id=483 data-nosnippet>483</a>        <span class="macro">assert!</span>(
-<a href=#484 id=484 data-nosnippet>484</a>            (result.t - expected).abs() &lt; <span class="number">1e-6</span>,
-<a href=#485 id=485 data-nosnippet>485</a>            <span class="string">"got {result:?} expected {expected}"
-<a href=#486 id=486 data-nosnippet>486</a>        </span>);
-<a href=#487 id=487 data-nosnippet>487</a>    }
-<a href=#488 id=488 data-nosnippet>488</a>
-<a href=#489 id=489 data-nosnippet>489</a>    <span class="attr">#[test]
-<a href=#490 id=490 data-nosnippet>490</a>    </span><span class="kw">fn </span>quadbez_nearest() {
-<a href=#491 id=491 data-nosnippet>491</a>        <span class="comment">// y = x^2
-<a href=#492 id=492 data-nosnippet>492</a>        </span><span class="kw">let </span>q = QuadBez::new((-<span class="number">1.0</span>, <span class="number">1.0</span>), (<span class="number">0.0</span>, -<span class="number">1.0</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
-<a href=#493 id=493 data-nosnippet>493</a>        verify(q.nearest((<span class="number">0.0</span>, <span class="number">0.0</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
-<a href=#494 id=494 data-nosnippet>494</a>        verify(q.nearest((<span class="number">0.0</span>, <span class="number">0.1</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
-<a href=#495 id=495 data-nosnippet>495</a>        verify(q.nearest((<span class="number">0.0</span>, -<span class="number">0.1</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
-<a href=#496 id=496 data-nosnippet>496</a>        verify(q.nearest((<span class="number">0.5</span>, <span class="number">0.25</span>).into(), <span class="number">1e-3</span>), <span class="number">0.75</span>);
-<a href=#497 id=497 data-nosnippet>497</a>        verify(q.nearest((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), <span class="number">1e-3</span>), <span class="number">1.0</span>);
-<a href=#498 id=498 data-nosnippet>498</a>        verify(q.nearest((<span class="number">1.1</span>, <span class="number">1.1</span>).into(), <span class="number">1e-3</span>), <span class="number">1.0</span>);
-<a href=#499 id=499 data-nosnippet>499</a>        verify(q.nearest((-<span class="number">1.1</span>, <span class="number">1.1</span>).into(), <span class="number">1e-3</span>), <span class="number">0.0</span>);
-<a href=#500 id=500 data-nosnippet>500</a>        <span class="kw">let </span>a = Affine::rotate(<span class="number">0.5</span>);
-<a href=#501 id=501 data-nosnippet>501</a>        verify((a * q).nearest(a * Point::new(<span class="number">0.5</span>, <span class="number">0.25</span>), <span class="number">1e-3</span>), <span class="number">0.75</span>);
-<a href=#502 id=502 data-nosnippet>502</a>    }
-<a href=#503 id=503 data-nosnippet>503</a>
-<a href=#504 id=504 data-nosnippet>504</a>    <span class="comment">// This test exposes a degenerate case in the solver used internally
-<a href=#505 id=505 data-nosnippet>505</a>    // by the "nearest" calculation - the cubic term is zero.
-<a href=#506 id=506 data-nosnippet>506</a>    </span><span class="attr">#[test]
-<a href=#507 id=507 data-nosnippet>507</a>    </span><span class="kw">fn </span>quadbez_nearest_low_order() {
-<a href=#508 id=508 data-nosnippet>508</a>        <span class="kw">let </span>q = QuadBez::new((-<span class="number">1.0</span>, <span class="number">0.0</span>), (<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">1.0</span>, <span class="number">0.0</span>));
-<a href=#509 id=509 data-nosnippet>509</a>
-<a href=#510 id=510 data-nosnippet>510</a>        verify(q.nearest((<span class="number">0.0</span>, <span class="number">0.0</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
-<a href=#511 id=511 data-nosnippet>511</a>        verify(q.nearest((<span class="number">0.0</span>, <span class="number">1.0</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
-<a href=#512 id=512 data-nosnippet>512</a>    }
-<a href=#513 id=513 data-nosnippet>513</a>
-<a href=#514 id=514 data-nosnippet>514</a>    <span class="attr">#[test]
-<a href=#515 id=515 data-nosnippet>515</a>    </span><span class="kw">fn </span>quadbez_nearest_rounding_panic() {
-<a href=#516 id=516 data-nosnippet>516</a>        <span class="kw">let </span>quad = QuadBez::new(
-<a href=#517 id=517 data-nosnippet>517</a>            (-<span class="number">1.0394736842105263</span>, <span class="number">0.0</span>),
-<a href=#518 id=518 data-nosnippet>518</a>            (<span class="number">0.8210526315789474</span>, -<span class="number">1.511111111111111</span>),
-<a href=#519 id=519 data-nosnippet>519</a>            (<span class="number">0.0</span>, <span class="number">1.9333333333333333</span>),
-<a href=#520 id=520 data-nosnippet>520</a>        );
-<a href=#521 id=521 data-nosnippet>521</a>        <span class="kw">let </span>test = Point::new(-<span class="number">1.7976931348623157e308</span>, <span class="number">0.8571428571428571</span>);
-<a href=#522 id=522 data-nosnippet>522</a>        <span class="comment">// accuracy ignored
-<a href=#523 id=523 data-nosnippet>523</a>        </span><span class="kw">let </span>_res = quad.nearest(test, <span class="number">1e-6</span>);
-<a href=#524 id=524 data-nosnippet>524</a>        <span class="comment">// if we got here then we didn't panic
-<a href=#525 id=525 data-nosnippet>525</a>    </span>}
-<a href=#526 id=526 data-nosnippet>526</a>
-<a href=#527 id=527 data-nosnippet>527</a>    <span class="attr">#[test]
-<a href=#528 id=528 data-nosnippet>528</a>    </span><span class="kw">fn </span>quadbez_extrema() {
-<a href=#529 id=529 data-nosnippet>529</a>        <span class="comment">// y = x^2
-<a href=#530 id=530 data-nosnippet>530</a>        </span><span class="kw">let </span>q = QuadBez::new((-<span class="number">1.0</span>, <span class="number">1.0</span>), (<span class="number">0.0</span>, -<span class="number">1.0</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
-<a href=#531 id=531 data-nosnippet>531</a>        <span class="kw">let </span>extrema = q.extrema();
-<a href=#532 id=532 data-nosnippet>532</a>        <span class="macro">assert_eq!</span>(extrema.len(), <span class="number">1</span>);
-<a href=#533 id=533 data-nosnippet>533</a>        <span class="macro">assert!</span>((extrema[<span class="number">0</span>] - <span class="number">0.5</span>).abs() &lt; <span class="number">1e-6</span>);
-<a href=#534 id=534 data-nosnippet>534</a>
-<a href=#535 id=535 data-nosnippet>535</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">0.0</span>, <span class="number">0.5</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>), (<span class="number">0.5</span>, <span class="number">0.0</span>));
+<a href=#405 id=405 data-nosnippet>405</a>    <span class="attr">#[test]
+<a href=#406 id=406 data-nosnippet>406</a>    </span><span class="kw">fn </span>quadbez_deriv() {
+<a href=#407 id=407 data-nosnippet>407</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">0.0</span>, <span class="number">0.5</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="kw">let </span>deriv = q.deriv();
+<a href=#409 id=409 data-nosnippet>409</a>
+<a href=#410 id=410 data-nosnippet>410</a>        <span class="kw">let </span>n = <span class="number">10</span>;
+<a href=#411 id=411 data-nosnippet>411</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=n {
+<a href=#412 id=412 data-nosnippet>412</a>            <span class="kw">let </span>t = (i <span class="kw">as </span>f64) * (n <span class="kw">as </span>f64).recip();
+<a href=#413 id=413 data-nosnippet>413</a>            <span class="kw">let </span>delta = <span class="number">1e-6</span>;
+<a href=#414 id=414 data-nosnippet>414</a>            <span class="kw">let </span>p = q.eval(t);
+<a href=#415 id=415 data-nosnippet>415</a>            <span class="kw">let </span>p1 = q.eval(t + delta);
+<a href=#416 id=416 data-nosnippet>416</a>            <span class="kw">let </span>d_approx = (p1 - p) * delta.recip();
+<a href=#417 id=417 data-nosnippet>417</a>            <span class="kw">let </span>d = deriv.eval(t).to_vec2();
+<a href=#418 id=418 data-nosnippet>418</a>            <span class="macro">assert!</span>((d - d_approx).hypot() &lt; delta * <span class="number">2.0</span>);
+<a href=#419 id=419 data-nosnippet>419</a>        }
+<a href=#420 id=420 data-nosnippet>420</a>    }
+<a href=#421 id=421 data-nosnippet>421</a>
+<a href=#422 id=422 data-nosnippet>422</a>    <span class="attr">#[test]
+<a href=#423 id=423 data-nosnippet>423</a>    </span><span class="kw">fn </span>quadbez_arclen() {
+<a href=#424 id=424 data-nosnippet>424</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">0.0</span>, <span class="number">0.5</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
+<a href=#425 id=425 data-nosnippet>425</a>        <span class="kw">let </span>true_arclen = <span class="number">0.5 </span>* <span class="number">5.0f64</span>.sqrt() + <span class="number">0.25 </span>* (<span class="number">2.0 </span>+ <span class="number">5.0f64</span>.sqrt()).ln();
+<a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">12 </span>{
+<a href=#427 id=427 data-nosnippet>427</a>            <span class="kw">let </span>accuracy = <span class="number">0.1f64</span>.powi(i);
+<a href=#428 id=428 data-nosnippet>428</a>            <span class="kw">let </span>est = q.arclen(accuracy);
+<a href=#429 id=429 data-nosnippet>429</a>            <span class="kw">let </span>error = est - true_arclen;
+<a href=#430 id=430 data-nosnippet>430</a>            <span class="macro">assert!</span>(error.abs() &lt; accuracy, <span class="string">"{est} != {true_arclen}"</span>);
+<a href=#431 id=431 data-nosnippet>431</a>        }
+<a href=#432 id=432 data-nosnippet>432</a>    }
+<a href=#433 id=433 data-nosnippet>433</a>
+<a href=#434 id=434 data-nosnippet>434</a>    <span class="attr">#[test]
+<a href=#435 id=435 data-nosnippet>435</a>    </span><span class="kw">fn </span>quadbez_arclen_pathological() {
+<a href=#436 id=436 data-nosnippet>436</a>        <span class="kw">let </span>q = QuadBez::new((-<span class="number">1.0</span>, <span class="number">0.0</span>), (<span class="number">1.03</span>, <span class="number">0.0</span>), (<span class="number">1.0</span>, <span class="number">0.0</span>));
+<a href=#437 id=437 data-nosnippet>437</a>        <span class="kw">let </span>true_arclen = <span class="number">2.0008737864167325</span>; <span class="comment">// A rough empirical calculation
+<a href=#438 id=438 data-nosnippet>438</a>        </span><span class="kw">let </span>accuracy = <span class="number">1e-11</span>;
+<a href=#439 id=439 data-nosnippet>439</a>        <span class="kw">let </span>est = q.arclen(accuracy);
+<a href=#440 id=440 data-nosnippet>440</a>        <span class="macro">assert!</span>(
+<a href=#441 id=441 data-nosnippet>441</a>            (est - true_arclen).abs() &lt; accuracy,
+<a href=#442 id=442 data-nosnippet>442</a>            <span class="string">"{est} != {true_arclen}"
+<a href=#443 id=443 data-nosnippet>443</a>        </span>);
+<a href=#444 id=444 data-nosnippet>444</a>    }
+<a href=#445 id=445 data-nosnippet>445</a>
+<a href=#446 id=446 data-nosnippet>446</a>    <span class="attr">#[test]
+<a href=#447 id=447 data-nosnippet>447</a>    </span><span class="kw">fn </span>quadbez_subsegment() {
+<a href=#448 id=448 data-nosnippet>448</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">3.1</span>, <span class="number">4.1</span>), (<span class="number">5.9</span>, <span class="number">2.6</span>), (<span class="number">5.3</span>, <span class="number">5.8</span>));
+<a href=#449 id=449 data-nosnippet>449</a>        <span class="kw">let </span>t0 = <span class="number">0.1</span>;
+<a href=#450 id=450 data-nosnippet>450</a>        <span class="kw">let </span>t1 = <span class="number">0.8</span>;
+<a href=#451 id=451 data-nosnippet>451</a>        <span class="kw">let </span>qs = q.subsegment(t0..t1);
+<a href=#452 id=452 data-nosnippet>452</a>        <span class="kw">let </span>epsilon = <span class="number">1e-12</span>;
+<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw">let </span>n = <span class="number">10</span>;
+<a href=#454 id=454 data-nosnippet>454</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=n {
+<a href=#455 id=455 data-nosnippet>455</a>            <span class="kw">let </span>t = (i <span class="kw">as </span>f64) * (n <span class="kw">as </span>f64).recip();
+<a href=#456 id=456 data-nosnippet>456</a>            <span class="kw">let </span>ts = t0 + t * (t1 - t0);
+<a href=#457 id=457 data-nosnippet>457</a>            assert_near(q.eval(ts), qs.eval(t), epsilon);
+<a href=#458 id=458 data-nosnippet>458</a>        }
+<a href=#459 id=459 data-nosnippet>459</a>    }
+<a href=#460 id=460 data-nosnippet>460</a>
+<a href=#461 id=461 data-nosnippet>461</a>    <span class="attr">#[test]
+<a href=#462 id=462 data-nosnippet>462</a>    </span><span class="kw">fn </span>quadbez_raise() {
+<a href=#463 id=463 data-nosnippet>463</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">3.1</span>, <span class="number">4.1</span>), (<span class="number">5.9</span>, <span class="number">2.6</span>), (<span class="number">5.3</span>, <span class="number">5.8</span>));
+<a href=#464 id=464 data-nosnippet>464</a>        <span class="kw">let </span>c = q.raise();
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="kw">let </span>qd = q.deriv();
+<a href=#466 id=466 data-nosnippet>466</a>        <span class="kw">let </span>cd = c.deriv();
+<a href=#467 id=467 data-nosnippet>467</a>        <span class="kw">let </span>epsilon = <span class="number">1e-12</span>;
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="kw">let </span>n = <span class="number">10</span>;
+<a href=#469 id=469 data-nosnippet>469</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=n {
+<a href=#470 id=470 data-nosnippet>470</a>            <span class="kw">let </span>t = (i <span class="kw">as </span>f64) * (n <span class="kw">as </span>f64).recip();
+<a href=#471 id=471 data-nosnippet>471</a>            assert_near(q.eval(t), c.eval(t), epsilon);
+<a href=#472 id=472 data-nosnippet>472</a>            assert_near(qd.eval(t), cd.eval(t), epsilon);
+<a href=#473 id=473 data-nosnippet>473</a>        }
+<a href=#474 id=474 data-nosnippet>474</a>    }
+<a href=#475 id=475 data-nosnippet>475</a>
+<a href=#476 id=476 data-nosnippet>476</a>    <span class="attr">#[test]
+<a href=#477 id=477 data-nosnippet>477</a>    </span><span class="kw">fn </span>quadbez_signed_area() {
+<a href=#478 id=478 data-nosnippet>478</a>        <span class="comment">// y = 1 - x^2
+<a href=#479 id=479 data-nosnippet>479</a>        </span><span class="kw">let </span>q = QuadBez::new((<span class="number">1.0</span>, <span class="number">0.0</span>), (<span class="number">0.5</span>, <span class="number">1.0</span>), (<span class="number">0.0</span>, <span class="number">1.0</span>));
+<a href=#480 id=480 data-nosnippet>480</a>        <span class="kw">let </span>epsilon = <span class="number">1e-12</span>;
+<a href=#481 id=481 data-nosnippet>481</a>        <span class="macro">assert!</span>((q.signed_area() - <span class="number">2.0 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
+<a href=#482 id=482 data-nosnippet>482</a>        <span class="macro">assert!</span>(((Affine::rotate(<span class="number">0.5</span>) * q).signed_area() - <span class="number">2.0 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
+<a href=#483 id=483 data-nosnippet>483</a>        <span class="macro">assert!</span>(((Affine::translate((<span class="number">0.0</span>, <span class="number">1.0</span>)) * q).signed_area() - <span class="number">3.5 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
+<a href=#484 id=484 data-nosnippet>484</a>        <span class="macro">assert!</span>(((Affine::translate((<span class="number">1.0</span>, <span class="number">0.0</span>)) * q).signed_area() - <span class="number">3.5 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
+<a href=#485 id=485 data-nosnippet>485</a>    }
+<a href=#486 id=486 data-nosnippet>486</a>
+<a href=#487 id=487 data-nosnippet>487</a>    <span class="kw">fn </span>verify(result: Nearest, expected: f64) {
+<a href=#488 id=488 data-nosnippet>488</a>        <span class="macro">assert!</span>(
+<a href=#489 id=489 data-nosnippet>489</a>            (result.t - expected).abs() &lt; <span class="number">1e-6</span>,
+<a href=#490 id=490 data-nosnippet>490</a>            <span class="string">"got {result:?} expected {expected}"
+<a href=#491 id=491 data-nosnippet>491</a>        </span>);
+<a href=#492 id=492 data-nosnippet>492</a>    }
+<a href=#493 id=493 data-nosnippet>493</a>
+<a href=#494 id=494 data-nosnippet>494</a>    <span class="attr">#[test]
+<a href=#495 id=495 data-nosnippet>495</a>    </span><span class="kw">fn </span>quadbez_nearest() {
+<a href=#496 id=496 data-nosnippet>496</a>        <span class="comment">// y = x^2
+<a href=#497 id=497 data-nosnippet>497</a>        </span><span class="kw">let </span>q = QuadBez::new((-<span class="number">1.0</span>, <span class="number">1.0</span>), (<span class="number">0.0</span>, -<span class="number">1.0</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
+<a href=#498 id=498 data-nosnippet>498</a>        verify(q.nearest((<span class="number">0.0</span>, <span class="number">0.0</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
+<a href=#499 id=499 data-nosnippet>499</a>        verify(q.nearest((<span class="number">0.0</span>, <span class="number">0.1</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
+<a href=#500 id=500 data-nosnippet>500</a>        verify(q.nearest((<span class="number">0.0</span>, -<span class="number">0.1</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
+<a href=#501 id=501 data-nosnippet>501</a>        verify(q.nearest((<span class="number">0.5</span>, <span class="number">0.25</span>).into(), <span class="number">1e-3</span>), <span class="number">0.75</span>);
+<a href=#502 id=502 data-nosnippet>502</a>        verify(q.nearest((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), <span class="number">1e-3</span>), <span class="number">1.0</span>);
+<a href=#503 id=503 data-nosnippet>503</a>        verify(q.nearest((<span class="number">1.1</span>, <span class="number">1.1</span>).into(), <span class="number">1e-3</span>), <span class="number">1.0</span>);
+<a href=#504 id=504 data-nosnippet>504</a>        verify(q.nearest((-<span class="number">1.1</span>, <span class="number">1.1</span>).into(), <span class="number">1e-3</span>), <span class="number">0.0</span>);
+<a href=#505 id=505 data-nosnippet>505</a>        <span class="kw">let </span>a = Affine::rotate(<span class="number">0.5</span>);
+<a href=#506 id=506 data-nosnippet>506</a>        verify((a * q).nearest(a * Point::new(<span class="number">0.5</span>, <span class="number">0.25</span>), <span class="number">1e-3</span>), <span class="number">0.75</span>);
+<a href=#507 id=507 data-nosnippet>507</a>    }
+<a href=#508 id=508 data-nosnippet>508</a>
+<a href=#509 id=509 data-nosnippet>509</a>    <span class="comment">// This test exposes a degenerate case in the solver used internally
+<a href=#510 id=510 data-nosnippet>510</a>    // by the "nearest" calculation - the cubic term is zero.
+<a href=#511 id=511 data-nosnippet>511</a>    </span><span class="attr">#[test]
+<a href=#512 id=512 data-nosnippet>512</a>    </span><span class="kw">fn </span>quadbez_nearest_low_order() {
+<a href=#513 id=513 data-nosnippet>513</a>        <span class="kw">let </span>q = QuadBez::new((-<span class="number">1.0</span>, <span class="number">0.0</span>), (<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">1.0</span>, <span class="number">0.0</span>));
+<a href=#514 id=514 data-nosnippet>514</a>
+<a href=#515 id=515 data-nosnippet>515</a>        verify(q.nearest((<span class="number">0.0</span>, <span class="number">0.0</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
+<a href=#516 id=516 data-nosnippet>516</a>        verify(q.nearest((<span class="number">0.0</span>, <span class="number">1.0</span>).into(), <span class="number">1e-3</span>), <span class="number">0.5</span>);
+<a href=#517 id=517 data-nosnippet>517</a>    }
+<a href=#518 id=518 data-nosnippet>518</a>
+<a href=#519 id=519 data-nosnippet>519</a>    <span class="attr">#[test]
+<a href=#520 id=520 data-nosnippet>520</a>    </span><span class="kw">fn </span>quadbez_nearest_rounding_panic() {
+<a href=#521 id=521 data-nosnippet>521</a>        <span class="kw">let </span>quad = QuadBez::new(
+<a href=#522 id=522 data-nosnippet>522</a>            (-<span class="number">1.0394736842105263</span>, <span class="number">0.0</span>),
+<a href=#523 id=523 data-nosnippet>523</a>            (<span class="number">0.8210526315789474</span>, -<span class="number">1.511111111111111</span>),
+<a href=#524 id=524 data-nosnippet>524</a>            (<span class="number">0.0</span>, <span class="number">1.9333333333333333</span>),
+<a href=#525 id=525 data-nosnippet>525</a>        );
+<a href=#526 id=526 data-nosnippet>526</a>        <span class="kw">let </span>test = Point::new(-<span class="number">1.7976931348623157e308</span>, <span class="number">0.8571428571428571</span>);
+<a href=#527 id=527 data-nosnippet>527</a>        <span class="comment">// accuracy ignored
+<a href=#528 id=528 data-nosnippet>528</a>        </span><span class="kw">let </span>_res = quad.nearest(test, <span class="number">1e-6</span>);
+<a href=#529 id=529 data-nosnippet>529</a>        <span class="comment">// if we got here then we didn't panic
+<a href=#530 id=530 data-nosnippet>530</a>    </span>}
+<a href=#531 id=531 data-nosnippet>531</a>
+<a href=#532 id=532 data-nosnippet>532</a>    <span class="attr">#[test]
+<a href=#533 id=533 data-nosnippet>533</a>    </span><span class="kw">fn </span>quadbez_extrema() {
+<a href=#534 id=534 data-nosnippet>534</a>        <span class="comment">// y = x^2
+<a href=#535 id=535 data-nosnippet>535</a>        </span><span class="kw">let </span>q = QuadBez::new((-<span class="number">1.0</span>, <span class="number">1.0</span>), (<span class="number">0.0</span>, -<span class="number">1.0</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
 <a href=#536 id=536 data-nosnippet>536</a>        <span class="kw">let </span>extrema = q.extrema();
-<a href=#537 id=537 data-nosnippet>537</a>        <span class="macro">assert_eq!</span>(extrema.len(), <span class="number">2</span>);
-<a href=#538 id=538 data-nosnippet>538</a>        <span class="macro">assert!</span>((extrema[<span class="number">0</span>] - <span class="number">1.0 </span>/ <span class="number">3.0</span>).abs() &lt; <span class="number">1e-6</span>);
-<a href=#539 id=539 data-nosnippet>539</a>        <span class="macro">assert!</span>((extrema[<span class="number">1</span>] - <span class="number">2.0 </span>/ <span class="number">3.0</span>).abs() &lt; <span class="number">1e-6</span>);
-<a href=#540 id=540 data-nosnippet>540</a>
-<a href=#541 id=541 data-nosnippet>541</a>        <span class="comment">// Reverse direction
-<a href=#542 id=542 data-nosnippet>542</a>        </span><span class="kw">let </span>q = QuadBez::new((<span class="number">0.5</span>, <span class="number">0.0</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>), (<span class="number">0.0</span>, <span class="number">0.5</span>));
-<a href=#543 id=543 data-nosnippet>543</a>        <span class="kw">let </span>extrema = q.extrema();
-<a href=#544 id=544 data-nosnippet>544</a>        <span class="macro">assert_eq!</span>(extrema.len(), <span class="number">2</span>);
-<a href=#545 id=545 data-nosnippet>545</a>        <span class="macro">assert!</span>((extrema[<span class="number">0</span>] - <span class="number">1.0 </span>/ <span class="number">3.0</span>).abs() &lt; <span class="number">1e-6</span>);
-<a href=#546 id=546 data-nosnippet>546</a>        <span class="macro">assert!</span>((extrema[<span class="number">1</span>] - <span class="number">2.0 </span>/ <span class="number">3.0</span>).abs() &lt; <span class="number">1e-6</span>);
-<a href=#547 id=547 data-nosnippet>547</a>    }
-<a href=#548 id=548 data-nosnippet>548</a>}</code></pre></div></section></main></body></html>
+<a href=#537 id=537 data-nosnippet>537</a>        <span class="macro">assert_eq!</span>(extrema.len(), <span class="number">1</span>);
+<a href=#538 id=538 data-nosnippet>538</a>        <span class="macro">assert!</span>((extrema[<span class="number">0</span>] - <span class="number">0.5</span>).abs() &lt; <span class="number">1e-6</span>);
+<a href=#539 id=539 data-nosnippet>539</a>
+<a href=#540 id=540 data-nosnippet>540</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">0.0</span>, <span class="number">0.5</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>), (<span class="number">0.5</span>, <span class="number">0.0</span>));
+<a href=#541 id=541 data-nosnippet>541</a>        <span class="kw">let </span>extrema = q.extrema();
+<a href=#542 id=542 data-nosnippet>542</a>        <span class="macro">assert_eq!</span>(extrema.len(), <span class="number">2</span>);
+<a href=#543 id=543 data-nosnippet>543</a>        <span class="macro">assert!</span>((extrema[<span class="number">0</span>] - <span class="number">1.0 </span>/ <span class="number">3.0</span>).abs() &lt; <span class="number">1e-6</span>);
+<a href=#544 id=544 data-nosnippet>544</a>        <span class="macro">assert!</span>((extrema[<span class="number">1</span>] - <span class="number">2.0 </span>/ <span class="number">3.0</span>).abs() &lt; <span class="number">1e-6</span>);
+<a href=#545 id=545 data-nosnippet>545</a>
+<a href=#546 id=546 data-nosnippet>546</a>        <span class="comment">// Reverse direction
+<a href=#547 id=547 data-nosnippet>547</a>        </span><span class="kw">let </span>q = QuadBez::new((<span class="number">0.5</span>, <span class="number">0.0</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>), (<span class="number">0.0</span>, <span class="number">0.5</span>));
+<a href=#548 id=548 data-nosnippet>548</a>        <span class="kw">let </span>extrema = q.extrema();
+<a href=#549 id=549 data-nosnippet>549</a>        <span class="macro">assert_eq!</span>(extrema.len(), <span class="number">2</span>);
+<a href=#550 id=550 data-nosnippet>550</a>        <span class="macro">assert!</span>((extrema[<span class="number">0</span>] - <span class="number">1.0 </span>/ <span class="number">3.0</span>).abs() &lt; <span class="number">1e-6</span>);
+<a href=#551 id=551 data-nosnippet>551</a>        <span class="macro">assert!</span>((extrema[<span class="number">1</span>] - <span class="number">2.0 </span>/ <span class="number">3.0</span>).abs() &lt; <span class="number">1e-6</span>);
+<a href=#552 id=552 data-nosnippet>552</a>    }
+<a href=#553 id=553 data-nosnippet>553</a>
+<a href=#554 id=554 data-nosnippet>554</a>    <span class="comment">// A regression test for #477: the approximate-linearity test for
+<a href=#555 id=555 data-nosnippet>555</a>    // using the analytic solution needs to be scale-invariant.
+<a href=#556 id=556 data-nosnippet>556</a>    </span><span class="attr">#[test]
+<a href=#557 id=557 data-nosnippet>557</a>    </span><span class="kw">fn </span>perimeter_not_nan() {
+<a href=#558 id=558 data-nosnippet>558</a>        <span class="kw">let </span>q = QuadBez::new((<span class="number">2685.</span>, -<span class="number">1251.</span>), (<span class="number">2253.</span>, -<span class="number">1303.</span>), (<span class="number">2253.</span>, -<span class="number">1303.</span>));
+<a href=#559 id=559 data-nosnippet>559</a>
+<a href=#560 id=560 data-nosnippet>560</a>        <span class="kw">let </span>len = q.arclen(<span class="kw">crate</span>::DEFAULT_ACCURACY);
+<a href=#561 id=561 data-nosnippet>561</a>        <span class="macro">assert!</span>(len.is_finite());
+<a href=#562 id=562 data-nosnippet>562</a>    }
+<a href=#563 id=563 data-nosnippet>563</a>}
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unsafe-libyaml-0.2.11/src/parser.rs`."><title>parser.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unsafe_libyaml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">unsafe_libyaml/</div>parser.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::api::{yaml_free, yaml_malloc, yaml_stack_extend, yaml_strdup};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unsafe-libyaml-0.2.11/src/parser.rs`."><title>parser.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unsafe_libyaml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">unsafe_libyaml/</div>parser.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::api::{yaml_free, yaml_malloc, yaml_stack_extend, yaml_strdup};
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span><span class="kw">crate</span>::externs::{memcpy, memset, strcmp, strlen};
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span><span class="kw">crate</span>::ops::ForceAdd <span class="kw">as _</span>;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><span class="kw">crate</span>::scanner::yaml_parser_fetch_more_tokens;
@@ -72,7 +72,7 @@
 <a href=#72 id=72 data-nosnippet>72</a>        size_of::&lt;yaml_event_t&gt;() <span class="kw">as </span>libc::c_ulong,
 <a href=#73 id=73 data-nosnippet>73</a>    );
 <a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).stream_end_produced
-<a href=#75 id=75 data-nosnippet>75</a>        || (<span class="kw-2">*</span>parser).error != YAML_NO_ERROR
+<a href=#75 id=75 data-nosnippet>75</a>        || (<span class="kw-2">*</span>parser).<span class="macro">error !</span>= YAML_NO_ERROR
 <a href=#76 id=76 data-nosnippet>76</a>        || (<span class="kw-2">*</span>parser).state == YAML_PARSE_END_STATE
 <a href=#77 id=77 data-nosnippet>77</a>    {
 <a href=#78 id=78 data-nosnippet>78</a>        <span class="kw">return </span>OK;
@@ -181,7 +181,7 @@
 <a href=#181 id=181 data-nosnippet>181</a>    <span class="kw">if </span>token.is_null() {
 <a href=#182 id=182 data-nosnippet>182</a>        <span class="kw">return </span>FAIL;
 <a href=#183 id=183 data-nosnippet>183</a>    }
-<a href=#184 id=184 data-nosnippet>184</a>    <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_STREAM_START_TOKEN {
+<a href=#184 id=184 data-nosnippet>184</a>    <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_STREAM_START_TOKEN {
 <a href=#185 id=185 data-nosnippet>185</a>        yaml_parser_set_parser_error(
 <a href=#186 id=186 data-nosnippet>186</a>            parser,
 <a href=#187 id=187 data-nosnippet>187</a>            <span class="string">b"did not find expected &lt;stream-start&gt;\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
@@ -233,10 +233,10 @@
 <a href=#233 id=233 data-nosnippet>233</a>        }
 <a href=#234 id=234 data-nosnippet>234</a>    }
 <a href=#235 id=235 data-nosnippet>235</a>    <span class="kw">if </span>implicit
-<a href=#236 id=236 data-nosnippet>236</a>        &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_VERSION_DIRECTIVE_TOKEN
-<a href=#237 id=237 data-nosnippet>237</a>        &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_TAG_DIRECTIVE_TOKEN
-<a href=#238 id=238 data-nosnippet>238</a>        &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_DOCUMENT_START_TOKEN
-<a href=#239 id=239 data-nosnippet>239</a>        &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_STREAM_END_TOKEN
+<a href=#236 id=236 data-nosnippet>236</a>        &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_VERSION_DIRECTIVE_TOKEN
+<a href=#237 id=237 data-nosnippet>237</a>        &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_TAG_DIRECTIVE_TOKEN
+<a href=#238 id=238 data-nosnippet>238</a>        &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_DOCUMENT_START_TOKEN
+<a href=#239 id=239 data-nosnippet>239</a>        &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_STREAM_END_TOKEN
 <a href=#240 id=240 data-nosnippet>240</a>    {
 <a href=#241 id=241 data-nosnippet>241</a>        <span class="kw">if </span>yaml_parser_process_directives(
 <a href=#242 id=242 data-nosnippet>242</a>            parser,
@@ -266,7 +266,7 @@
 <a href=#266 id=266 data-nosnippet>266</a>        <span class="kw-2">*</span>fresh11 = ptr::null_mut::&lt;yaml_tag_directive_t&gt;();
 <a href=#267 id=267 data-nosnippet>267</a>        (<span class="kw-2">*</span>event).data.document_start.implicit = <span class="bool-val">true</span>;
 <a href=#268 id=268 data-nosnippet>268</a>        OK
-<a href=#269 id=269 data-nosnippet>269</a>    } <span class="kw">else if </span>(<span class="kw-2">*</span>token).type_ != YAML_STREAM_END_TOKEN {
+<a href=#269 id=269 data-nosnippet>269</a>    } <span class="kw">else if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_STREAM_END_TOKEN {
 <a href=#270 id=270 data-nosnippet>270</a>        <span class="kw">let </span>end_mark: yaml_mark_t;
 <a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">let </span>start_mark: yaml_mark_t = (<span class="kw-2">*</span>token).start_mark;
 <a href=#272 id=272 data-nosnippet>272</a>        <span class="kw">if </span>yaml_parser_process_directives(
@@ -281,7 +281,7 @@
 <a href=#281 id=281 data-nosnippet>281</a>        }
 <a href=#282 id=282 data-nosnippet>282</a>        token = PEEK_TOKEN(parser);
 <a href=#283 id=283 data-nosnippet>283</a>        <span class="kw">if </span>!token.is_null() {
-<a href=#284 id=284 data-nosnippet>284</a>            <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_DOCUMENT_START_TOKEN {
+<a href=#284 id=284 data-nosnippet>284</a>            <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_DOCUMENT_START_TOKEN {
 <a href=#285 id=285 data-nosnippet>285</a>                yaml_parser_set_parser_error(
 <a href=#286 id=286 data-nosnippet>286</a>                    parser,
 <a href=#287 id=287 data-nosnippet>287</a>                    <span class="string">b"did not find expected &lt;document start&gt;\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
@@ -313,7 +313,7 @@
 <a href=#313 id=313 data-nosnippet>313</a>            }
 <a href=#314 id=314 data-nosnippet>314</a>        }
 <a href=#315 id=315 data-nosnippet>315</a>        yaml_free(version_directive <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
-<a href=#316 id=316 data-nosnippet>316</a>        <span class="kw">while </span>tag_directives.start != tag_directives.end {
+<a href=#316 id=316 data-nosnippet>316</a>        <span class="kw">while </span>tag_directives.<span class="macro">start !</span>= tag_directives.end {
 <a href=#317 id=317 data-nosnippet>317</a>            yaml_free((<span class="kw-2">*</span>tag_directives.end.wrapping_offset(-<span class="number">1_isize</span>)).handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#318 id=318 data-nosnippet>318</a>            yaml_free((<span class="kw-2">*</span>tag_directives.end.wrapping_offset(-<span class="number">1_isize</span>)).prefix <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#319 id=319 data-nosnippet>319</a>            tag_directives.end = tag_directives.end.wrapping_offset(-<span class="number">1</span>);
@@ -493,7 +493,7 @@
 <a href=#493 id=493 data-nosnippet>493</a>                    <span class="kw">let </span><span class="kw-2">mut </span>tag_directive: <span class="kw-2">*mut </span>yaml_tag_directive_t;
 <a href=#494 id=494 data-nosnippet>494</a>                    tag_directive = (<span class="kw-2">*</span>parser).tag_directives.start;
 <a href=#495 id=495 data-nosnippet>495</a>                    <span class="kw">loop </span>{
-<a href=#496 id=496 data-nosnippet>496</a>                        <span class="kw">if </span>!(tag_directive != (<span class="kw-2">*</span>parser).tag_directives.top) {
+<a href=#496 id=496 data-nosnippet>496</a>                        <span class="kw">if </span>!(<span class="macro">tag_directive !</span>= (<span class="kw-2">*</span>parser).tag_directives.top) {
 <a href=#497 id=497 data-nosnippet>497</a>                            current_block = <span class="number">17728966195399430138</span>;
 <a href=#498 id=498 data-nosnippet>498</a>                            <span class="kw">break</span>;
 <a href=#499 id=499 data-nosnippet>499</a>                        }
@@ -528,7 +528,7 @@
 <a href=#528 id=528 data-nosnippet>528</a>                            tag_directive = tag_directive.wrapping_offset(<span class="number">1</span>);
 <a href=#529 id=529 data-nosnippet>529</a>                        }
 <a href=#530 id=530 data-nosnippet>530</a>                    }
-<a href=#531 id=531 data-nosnippet>531</a>                    <span class="kw">if </span>current_block != <span class="number">17786380918591080555 </span>{
+<a href=#531 id=531 data-nosnippet>531</a>                    <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">17786380918591080555 </span>{
 <a href=#532 id=532 data-nosnippet>532</a>                        <span class="kw">if </span>tag.is_null() {
 <a href=#533 id=533 data-nosnippet>533</a>                            yaml_parser_set_parser_error_context(
 <a href=#534 id=534 data-nosnippet>534</a>                                parser,
@@ -546,7 +546,7 @@
 <a href=#546 id=546 data-nosnippet>546</a>            } <span class="kw">else </span>{
 <a href=#547 id=547 data-nosnippet>547</a>                current_block = <span class="number">9437013279121998969</span>;
 <a href=#548 id=548 data-nosnippet>548</a>            }
-<a href=#549 id=549 data-nosnippet>549</a>            <span class="kw">if </span>current_block != <span class="number">17786380918591080555 </span>{
+<a href=#549 id=549 data-nosnippet>549</a>            <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">17786380918591080555 </span>{
 <a href=#550 id=550 data-nosnippet>550</a>                implicit = tag.is_null() || <span class="kw-2">*</span>tag == <span class="number">0</span>;
 <a href=#551 id=551 data-nosnippet>551</a>                <span class="kw">if </span>indentless_sequence &amp;&amp; (<span class="kw-2">*</span>token).type_ == YAML_BLOCK_ENTRY_TOKEN {
 <a href=#552 id=552 data-nosnippet>552</a>                    end_mark = (<span class="kw-2">*</span>token).end_mark;
@@ -742,7 +742,7 @@
 <a href=#742 id=742 data-nosnippet>742</a>        <span class="kw">if </span>token.is_null() {
 <a href=#743 id=743 data-nosnippet>743</a>            <span class="kw">return </span>FAIL;
 <a href=#744 id=744 data-nosnippet>744</a>        }
-<a href=#745 id=745 data-nosnippet>745</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_BLOCK_ENTRY_TOKEN &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_BLOCK_END_TOKEN {
+<a href=#745 id=745 data-nosnippet>745</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_BLOCK_ENTRY_TOKEN &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_BLOCK_END_TOKEN {
 <a href=#746 id=746 data-nosnippet>746</a>            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YAML_PARSE_BLOCK_SEQUENCE_ENTRY_STATE);
 <a href=#747 id=747 data-nosnippet>747</a>            yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
 <a href=#748 id=748 data-nosnippet>748</a>        } <span class="kw">else </span>{
@@ -790,10 +790,10 @@
 <a href=#790 id=790 data-nosnippet>790</a>        <span class="kw">if </span>token.is_null() {
 <a href=#791 id=791 data-nosnippet>791</a>            <span class="kw">return </span>FAIL;
 <a href=#792 id=792 data-nosnippet>792</a>        }
-<a href=#793 id=793 data-nosnippet>793</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_BLOCK_ENTRY_TOKEN
-<a href=#794 id=794 data-nosnippet>794</a>            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_KEY_TOKEN
-<a href=#795 id=795 data-nosnippet>795</a>            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_VALUE_TOKEN
-<a href=#796 id=796 data-nosnippet>796</a>            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_BLOCK_END_TOKEN
+<a href=#793 id=793 data-nosnippet>793</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_BLOCK_ENTRY_TOKEN
+<a href=#794 id=794 data-nosnippet>794</a>            &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_KEY_TOKEN
+<a href=#795 id=795 data-nosnippet>795</a>            &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_VALUE_TOKEN
+<a href=#796 id=796 data-nosnippet>796</a>            &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_BLOCK_END_TOKEN
 <a href=#797 id=797 data-nosnippet>797</a>        {
 <a href=#798 id=798 data-nosnippet>798</a>            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YAML_PARSE_INDENTLESS_SEQUENCE_ENTRY_STATE);
 <a href=#799 id=799 data-nosnippet>799</a>            yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
@@ -837,9 +837,9 @@
 <a href=#837 id=837 data-nosnippet>837</a>        <span class="kw">if </span>token.is_null() {
 <a href=#838 id=838 data-nosnippet>838</a>            <span class="kw">return </span>FAIL;
 <a href=#839 id=839 data-nosnippet>839</a>        }
-<a href=#840 id=840 data-nosnippet>840</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_KEY_TOKEN
-<a href=#841 id=841 data-nosnippet>841</a>            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_VALUE_TOKEN
-<a href=#842 id=842 data-nosnippet>842</a>            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_BLOCK_END_TOKEN
+<a href=#840 id=840 data-nosnippet>840</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_KEY_TOKEN
+<a href=#841 id=841 data-nosnippet>841</a>            &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_VALUE_TOKEN
+<a href=#842 id=842 data-nosnippet>842</a>            &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_BLOCK_END_TOKEN
 <a href=#843 id=843 data-nosnippet>843</a>        {
 <a href=#844 id=844 data-nosnippet>844</a>            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YAML_PARSE_BLOCK_MAPPING_VALUE_STATE);
 <a href=#845 id=845 data-nosnippet>845</a>            yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">true</span>)
@@ -888,9 +888,9 @@
 <a href=#888 id=888 data-nosnippet>888</a>        <span class="kw">if </span>token.is_null() {
 <a href=#889 id=889 data-nosnippet>889</a>            <span class="kw">return </span>FAIL;
 <a href=#890 id=890 data-nosnippet>890</a>        }
-<a href=#891 id=891 data-nosnippet>891</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_KEY_TOKEN
-<a href=#892 id=892 data-nosnippet>892</a>            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_VALUE_TOKEN
-<a href=#893 id=893 data-nosnippet>893</a>            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_BLOCK_END_TOKEN
+<a href=#891 id=891 data-nosnippet>891</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_KEY_TOKEN
+<a href=#892 id=892 data-nosnippet>892</a>            &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_VALUE_TOKEN
+<a href=#893 id=893 data-nosnippet>893</a>            &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_BLOCK_END_TOKEN
 <a href=#894 id=894 data-nosnippet>894</a>        {
 <a href=#895 id=895 data-nosnippet>895</a>            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YAML_PARSE_BLOCK_MAPPING_KEY_STATE);
 <a href=#896 id=896 data-nosnippet>896</a>            yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">true</span>)
@@ -919,7 +919,7 @@
 <a href=#919 id=919 data-nosnippet>919</a>    <span class="kw">if </span>token.is_null() {
 <a href=#920 id=920 data-nosnippet>920</a>        <span class="kw">return </span>FAIL;
 <a href=#921 id=921 data-nosnippet>921</a>    }
-<a href=#922 id=922 data-nosnippet>922</a>    <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_FLOW_SEQUENCE_END_TOKEN {
+<a href=#922 id=922 data-nosnippet>922</a>    <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_SEQUENCE_END_TOKEN {
 <a href=#923 id=923 data-nosnippet>923</a>        <span class="kw">if </span>!first {
 <a href=#924 id=924 data-nosnippet>924</a>            <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ == YAML_FLOW_ENTRY_TOKEN {
 <a href=#925 id=925 data-nosnippet>925</a>                SKIP_TOKEN(parser);
@@ -956,7 +956,7 @@
 <a href=#956 id=956 data-nosnippet>956</a>            (<span class="kw-2">*</span>event).data.mapping_start.style = YAML_FLOW_MAPPING_STYLE;
 <a href=#957 id=957 data-nosnippet>957</a>            SKIP_TOKEN(parser);
 <a href=#958 id=958 data-nosnippet>958</a>            <span class="kw">return </span>OK;
-<a href=#959 id=959 data-nosnippet>959</a>        } <span class="kw">else if </span>(<span class="kw-2">*</span>token).type_ != YAML_FLOW_SEQUENCE_END_TOKEN {
+<a href=#959 id=959 data-nosnippet>959</a>        } <span class="kw">else if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_SEQUENCE_END_TOKEN {
 <a href=#960 id=960 data-nosnippet>960</a>            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YAML_PARSE_FLOW_SEQUENCE_ENTRY_STATE);
 <a href=#961 id=961 data-nosnippet>961</a>            <span class="kw">return </span>yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
 <a href=#962 id=962 data-nosnippet>962</a>        }
@@ -983,9 +983,9 @@
 <a href=#983 id=983 data-nosnippet>983</a>    <span class="kw">if </span>token.is_null() {
 <a href=#984 id=984 data-nosnippet>984</a>        <span class="kw">return </span>FAIL;
 <a href=#985 id=985 data-nosnippet>985</a>    }
-<a href=#986 id=986 data-nosnippet>986</a>    <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_VALUE_TOKEN
-<a href=#987 id=987 data-nosnippet>987</a>        &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_FLOW_ENTRY_TOKEN
-<a href=#988 id=988 data-nosnippet>988</a>        &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_FLOW_SEQUENCE_END_TOKEN
+<a href=#986 id=986 data-nosnippet>986</a>    <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_VALUE_TOKEN
+<a href=#987 id=987 data-nosnippet>987</a>        &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_ENTRY_TOKEN
+<a href=#988 id=988 data-nosnippet>988</a>        &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_SEQUENCE_END_TOKEN
 <a href=#989 id=989 data-nosnippet>989</a>    {
 <a href=#990 id=990 data-nosnippet>990</a>        <span class="macro">PUSH!</span>(
 <a href=#991 id=991 data-nosnippet>991</a>            (<span class="kw-2">*</span>parser).states,
@@ -1015,7 +1015,7 @@
 <a href=#1015 id=1015 data-nosnippet>1015</a>        <span class="kw">if </span>token.is_null() {
 <a href=#1016 id=1016 data-nosnippet>1016</a>            <span class="kw">return </span>FAIL;
 <a href=#1017 id=1017 data-nosnippet>1017</a>        }
-<a href=#1018 id=1018 data-nosnippet>1018</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_FLOW_ENTRY_TOKEN &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_FLOW_SEQUENCE_END_TOKEN
+<a href=#1018 id=1018 data-nosnippet>1018</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_ENTRY_TOKEN &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_SEQUENCE_END_TOKEN
 <a href=#1019 id=1019 data-nosnippet>1019</a>        {
 <a href=#1020 id=1020 data-nosnippet>1020</a>            <span class="macro">PUSH!</span>(
 <a href=#1021 id=1021 data-nosnippet>1021</a>                (<span class="kw-2">*</span>parser).states,
@@ -1063,7 +1063,7 @@
 <a href=#1063 id=1063 data-nosnippet>1063</a>    <span class="kw">if </span>token.is_null() {
 <a href=#1064 id=1064 data-nosnippet>1064</a>        <span class="kw">return </span>FAIL;
 <a href=#1065 id=1065 data-nosnippet>1065</a>    }
-<a href=#1066 id=1066 data-nosnippet>1066</a>    <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_FLOW_MAPPING_END_TOKEN {
+<a href=#1066 id=1066 data-nosnippet>1066</a>    <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_MAPPING_END_TOKEN {
 <a href=#1067 id=1067 data-nosnippet>1067</a>        <span class="kw">if </span>!first {
 <a href=#1068 id=1068 data-nosnippet>1068</a>            <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ == YAML_FLOW_ENTRY_TOKEN {
 <a href=#1069 id=1069 data-nosnippet>1069</a>                SKIP_TOKEN(parser);
@@ -1088,9 +1088,9 @@
 <a href=#1088 id=1088 data-nosnippet>1088</a>            <span class="kw">if </span>token.is_null() {
 <a href=#1089 id=1089 data-nosnippet>1089</a>                <span class="kw">return </span>FAIL;
 <a href=#1090 id=1090 data-nosnippet>1090</a>            }
-<a href=#1091 id=1091 data-nosnippet>1091</a>            <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_VALUE_TOKEN
-<a href=#1092 id=1092 data-nosnippet>1092</a>                &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_FLOW_ENTRY_TOKEN
-<a href=#1093 id=1093 data-nosnippet>1093</a>                &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_FLOW_MAPPING_END_TOKEN
+<a href=#1091 id=1091 data-nosnippet>1091</a>            <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_VALUE_TOKEN
+<a href=#1092 id=1092 data-nosnippet>1092</a>                &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_ENTRY_TOKEN
+<a href=#1093 id=1093 data-nosnippet>1093</a>                &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_MAPPING_END_TOKEN
 <a href=#1094 id=1094 data-nosnippet>1094</a>            {
 <a href=#1095 id=1095 data-nosnippet>1095</a>                <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YAML_PARSE_FLOW_MAPPING_VALUE_STATE);
 <a href=#1096 id=1096 data-nosnippet>1096</a>                <span class="kw">return </span>yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
@@ -1098,7 +1098,7 @@
 <a href=#1098 id=1098 data-nosnippet>1098</a>                (<span class="kw-2">*</span>parser).state = YAML_PARSE_FLOW_MAPPING_VALUE_STATE;
 <a href=#1099 id=1099 data-nosnippet>1099</a>                <span class="kw">return </span>yaml_parser_process_empty_scalar(event, (<span class="kw-2">*</span>token).start_mark);
 <a href=#1100 id=1100 data-nosnippet>1100</a>            }
-<a href=#1101 id=1101 data-nosnippet>1101</a>        } <span class="kw">else if </span>(<span class="kw-2">*</span>token).type_ != YAML_FLOW_MAPPING_END_TOKEN {
+<a href=#1101 id=1101 data-nosnippet>1101</a>        } <span class="kw">else if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_MAPPING_END_TOKEN {
 <a href=#1102 id=1102 data-nosnippet>1102</a>            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YAML_PARSE_FLOW_MAPPING_EMPTY_VALUE_STATE);
 <a href=#1103 id=1103 data-nosnippet>1103</a>            <span class="kw">return </span>yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
 <a href=#1104 id=1104 data-nosnippet>1104</a>        }
@@ -1137,7 +1137,7 @@
 <a href=#1137 id=1137 data-nosnippet>1137</a>        <span class="kw">if </span>token.is_null() {
 <a href=#1138 id=1138 data-nosnippet>1138</a>            <span class="kw">return </span>FAIL;
 <a href=#1139 id=1139 data-nosnippet>1139</a>        }
-<a href=#1140 id=1140 data-nosnippet>1140</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YAML_FLOW_ENTRY_TOKEN &amp;&amp; (<span class="kw-2">*</span>token).type_ != YAML_FLOW_MAPPING_END_TOKEN
+<a href=#1140 id=1140 data-nosnippet>1140</a>        <span class="kw">if </span>(<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_ENTRY_TOKEN &amp;&amp; (<span class="kw-2">*</span>token).<span class="macro">type_ !</span>= YAML_FLOW_MAPPING_END_TOKEN
 <a href=#1141 id=1141 data-nosnippet>1141</a>        {
 <a href=#1142 id=1142 data-nosnippet>1142</a>            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YAML_PARSE_FLOW_MAPPING_KEY_STATE);
 <a href=#1143 id=1143 data-nosnippet>1143</a>            <span class="kw">return </span>yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
@@ -1225,9 +1225,9 @@
 <a href=#1225 id=1225 data-nosnippet>1225</a>                    );
 <a href=#1226 id=1226 data-nosnippet>1226</a>                    current_block = <span class="number">17143798186130252483</span>;
 <a href=#1227 id=1227 data-nosnippet>1227</a>                    <span class="kw">break</span>;
-<a href=#1228 id=1228 data-nosnippet>1228</a>                } <span class="kw">else if </span>(<span class="kw-2">*</span>token).data.version_directive.major != <span class="number">1
-<a href=#1229 id=1229 data-nosnippet>1229</a>                    </span>|| (<span class="kw-2">*</span>token).data.version_directive.minor != <span class="number">1
-<a href=#1230 id=1230 data-nosnippet>1230</a>                        </span>&amp;&amp; (<span class="kw-2">*</span>token).data.version_directive.minor != <span class="number">2
+<a href=#1228 id=1228 data-nosnippet>1228</a>                } <span class="kw">else if </span>(<span class="kw-2">*</span>token).data.version_directive.<span class="macro">major !</span>= <span class="number">1
+<a href=#1229 id=1229 data-nosnippet>1229</a>                    </span>|| (<span class="kw-2">*</span>token).data.version_directive.<span class="macro">minor !</span>= <span class="number">1
+<a href=#1230 id=1230 data-nosnippet>1230</a>                        </span>&amp;&amp; (<span class="kw-2">*</span>token).data.version_directive.<span class="macro">minor !</span>= <span class="number">2
 <a href=#1231 id=1231 data-nosnippet>1231</a>                </span>{
 <a href=#1232 id=1232 data-nosnippet>1232</a>                    yaml_parser_set_parser_error(
 <a href=#1233 id=1233 data-nosnippet>1233</a>                        parser,
@@ -1262,7 +1262,7 @@
 <a href=#1262 id=1262 data-nosnippet>1262</a>                <span class="kw">break</span>;
 <a href=#1263 id=1263 data-nosnippet>1263</a>            }
 <a href=#1264 id=1264 data-nosnippet>1264</a>        }
-<a href=#1265 id=1265 data-nosnippet>1265</a>        <span class="kw">if </span>current_block != <span class="number">17143798186130252483 </span>{
+<a href=#1265 id=1265 data-nosnippet>1265</a>        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">17143798186130252483 </span>{
 <a href=#1266 id=1266 data-nosnippet>1266</a>            default_tag_directive = default_tag_directives.as_mut_ptr();
 <a href=#1267 id=1267 data-nosnippet>1267</a>            <span class="kw">loop </span>{
 <a href=#1268 id=1268 data-nosnippet>1268</a>                <span class="kw">if </span>(<span class="kw-2">*</span>default_tag_directive).handle.is_null() {
@@ -1282,7 +1282,7 @@
 <a href=#1282 id=1282 data-nosnippet>1282</a>                }
 <a href=#1283 id=1283 data-nosnippet>1283</a>                default_tag_directive = default_tag_directive.wrapping_offset(<span class="number">1</span>);
 <a href=#1284 id=1284 data-nosnippet>1284</a>            }
-<a href=#1285 id=1285 data-nosnippet>1285</a>            <span class="kw">if </span>current_block != <span class="number">17143798186130252483 </span>{
+<a href=#1285 id=1285 data-nosnippet>1285</a>            <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">17143798186130252483 </span>{
 <a href=#1286 id=1286 data-nosnippet>1286</a>                <span class="kw">if </span>!version_directive_ref.is_null() {
 <a href=#1287 id=1287 data-nosnippet>1287</a>                    <span class="kw-2">*</span>version_directive_ref = version_directive;
 <a href=#1288 id=1288 data-nosnippet>1288</a>                }
@@ -1327,7 +1327,7 @@
 <a href=#1327 id=1327 data-nosnippet>1327</a>        prefix: ptr::null_mut::&lt;yaml_char_t&gt;(),
 <a href=#1328 id=1328 data-nosnippet>1328</a>    };
 <a href=#1329 id=1329 data-nosnippet>1329</a>    tag_directive = (<span class="kw-2">*</span>parser).tag_directives.start;
-<a href=#1330 id=1330 data-nosnippet>1330</a>    <span class="kw">while </span>tag_directive != (<span class="kw-2">*</span>parser).tag_directives.top {
+<a href=#1330 id=1330 data-nosnippet>1330</a>    <span class="kw">while </span><span class="macro">tag_directive !</span>= (<span class="kw-2">*</span>parser).tag_directives.top {
 <a href=#1331 id=1331 data-nosnippet>1331</a>        <span class="kw">if </span>strcmp(
 <a href=#1332 id=1332 data-nosnippet>1332</a>            value.handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char,
 <a href=#1333 id=1333 data-nosnippet>1333</a>            (<span class="kw-2">*</span>tag_directive).handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char,
@@ -1349,4 +1349,5 @@
 <a href=#1349 id=1349 data-nosnippet>1349</a>    copy.prefix = yaml_strdup(value.prefix);
 <a href=#1350 id=1350 data-nosnippet>1350</a>    <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).tag_directives, copy);
 <a href=#1351 id=1351 data-nosnippet>1351</a>    OK
-<a href=#1352 id=1352 data-nosnippet>1352</a>}</code></pre></div></section></main></body></html>
+<a href=#1352 id=1352 data-nosnippet>1352</a>}
+</code></pre></div></section></main></body></html>

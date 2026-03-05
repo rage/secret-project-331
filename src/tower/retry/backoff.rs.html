@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tower-0.5.2/src/retry/backoff.rs`."><title>backoff.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tower" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tower/retry/</div>backoff.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! This module contains generic [backoff] utilities to be used with the retry
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tower-0.5.3/src/retry/backoff.rs`."><title>backoff.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tower" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tower/retry/</div>backoff.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! This module contains generic [backoff] utilities to be used with the retry
 <a href=#2 id=2 data-nosnippet>2</a>//! layer.
 <a href=#3 id=3 data-nosnippet>3</a>//!
 <a href=#4 id=4 data-nosnippet>4</a>//! The [`Backoff`] trait is a generic way to represent backoffs that can use
@@ -79,10 +79,10 @@
 <a href=#79 id=79 data-nosnippet>79</a>    ///
 <a href=#80 id=80 data-nosnippet>80</a>    /// Returns a config validation error if:
 <a href=#81 id=81 data-nosnippet>81</a>    /// - `min` &gt; `max`
-<a href=#82 id=82 data-nosnippet>82</a>    /// - `max` &gt; 0
-<a href=#83 id=83 data-nosnippet>83</a>    /// - `jitter` &gt;= `0.0`
-<a href=#84 id=84 data-nosnippet>84</a>    /// - `jitter` &lt; `100.0`
-<a href=#85 id=85 data-nosnippet>85</a>    /// - `jitter` is finite
+<a href=#82 id=82 data-nosnippet>82</a>    /// - `max` == 0
+<a href=#83 id=83 data-nosnippet>83</a>    /// - `jitter` &lt; `0.0`
+<a href=#84 id=84 data-nosnippet>84</a>    /// - `jitter` &gt; `100.0`
+<a href=#85 id=85 data-nosnippet>85</a>    /// - `jitter` is NaN
 <a href=#86 id=86 data-nosnippet>86</a>    </span><span class="kw">pub fn </span>new(
 <a href=#87 id=87 data-nosnippet>87</a>        min: time::Duration,
 <a href=#88 id=88 data-nosnippet>88</a>        max: time::Duration,
@@ -101,8 +101,8 @@
 <a href=#101 id=101 data-nosnippet>101</a>        <span class="kw">if </span>jitter &gt; <span class="number">100.0 </span>{
 <a href=#102 id=102 data-nosnippet>102</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidBackoff(<span class="string">"jitter must not be greater than 100"</span>));
 <a href=#103 id=103 data-nosnippet>103</a>        }
-<a href=#104 id=104 data-nosnippet>104</a>        <span class="kw">if </span>!jitter.is_finite() {
-<a href=#105 id=105 data-nosnippet>105</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidBackoff(<span class="string">"jitter must be finite"</span>));
+<a href=#104 id=104 data-nosnippet>104</a>        <span class="kw">if </span>jitter.is_nan() {
+<a href=#105 id=105 data-nosnippet>105</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidBackoff(<span class="string">"jitter must not be NaN"</span>));
 <a href=#106 id=106 data-nosnippet>106</a>        }
 <a href=#107 id=107 data-nosnippet>107</a>
 <a href=#108 id=108 data-nosnippet>108</a>        <span class="prelude-val">Ok</span>(ExponentialBackoffMaker {
@@ -260,4 +260,21 @@
 <a href=#260 id=260 data-nosnippet>260</a>            }
 <a href=#261 id=261 data-nosnippet>261</a>        }
 <a href=#262 id=262 data-nosnippet>262</a>    }
-<a href=#263 id=263 data-nosnippet>263</a>}</code></pre></div></section></main></body></html>
+<a href=#263 id=263 data-nosnippet>263</a>
+<a href=#264 id=264 data-nosnippet>264</a>    <span class="attr">#[test]
+<a href=#265 id=265 data-nosnippet>265</a>    </span><span class="kw">fn </span>jitter_must_be_finite() {
+<a href=#266 id=266 data-nosnippet>266</a>        <span class="kw">let </span>min = time::Duration::from_millis(<span class="number">0</span>);
+<a href=#267 id=267 data-nosnippet>267</a>        <span class="kw">let </span>max = time::Duration::from_millis(<span class="number">1</span>);
+<a href=#268 id=268 data-nosnippet>268</a>        <span class="kw">let </span>rng = HasherRng::default();
+<a href=#269 id=269 data-nosnippet>269</a>
+<a href=#270 id=270 data-nosnippet>270</a>        <span class="kw">for </span>n <span class="kw">in </span>[f64::INFINITY, f64::NEG_INFINITY, f64::NAN] {
+<a href=#271 id=271 data-nosnippet>271</a>            <span class="kw">let </span>result = ExponentialBackoffMaker::new(min, max, n, rng.clone());
+<a href=#272 id=272 data-nosnippet>272</a>            <span class="macro">assert!</span>(
+<a href=#273 id=273 data-nosnippet>273</a>                <span class="macro">matches!</span>(result, <span class="prelude-val">Err</span>(InvalidBackoff(<span class="kw">_</span>))),
+<a href=#274 id=274 data-nosnippet>274</a>                <span class="string">"{} should be an invalid jitter"</span>,
+<a href=#275 id=275 data-nosnippet>275</a>                n
+<a href=#276 id=276 data-nosnippet>276</a>            );
+<a href=#277 id=277 data-nosnippet>277</a>        }
+<a href=#278 id=278 data-nosnippet>278</a>    }
+<a href=#279 id=279 data-nosnippet>279</a>}
+</code></pre></div></section></main></body></html>

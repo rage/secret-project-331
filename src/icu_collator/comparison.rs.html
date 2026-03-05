@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_collator-2.1.1/src/comparison.rs`."><title>comparison.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_collator/</div>comparison.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_collator-2.1.1/src/comparison.rs`."><title>comparison.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_collator/</div>comparison.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 <a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
 <a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -265,7 +265,7 @@
 <a href=#265 id=265 data-nosnippet>265</a>        .zip(right.iter())
 <a href=#266 id=266 data-nosnippet>266</a>        .take_while(|(l, r)| l == r)
 <a href=#267 id=267 data-nosnippet>267</a>        .count();
-<a href=#268 id=268 data-nosnippet>268</a>    <span class="kw">if </span>i != <span class="number">0 </span>{
+<a href=#268 id=268 data-nosnippet>268</a>    <span class="kw">if </span><span class="macro">i !</span>= <span class="number">0 </span>{
 <a href=#269 id=269 data-nosnippet>269</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>last) = left.get(i.wrapping_sub(<span class="number">1</span>)) {
 <a href=#270 id=270 data-nosnippet>270</a>            <span class="kw">if </span>in_inclusive_range16(last, <span class="number">0xD800</span>, <span class="number">0xDBFF</span>) {
 <a href=#271 id=271 data-nosnippet>271</a>                i -= <span class="number">1</span>;
@@ -293,7 +293,7 @@
 <a href=#293 id=293 data-nosnippet>293</a>        .zip(right.iter())
 <a href=#294 id=294 data-nosnippet>294</a>        .take_while(|(l, r)| l == r)
 <a href=#295 id=295 data-nosnippet>295</a>        .count();
-<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">if </span>i != <span class="number">0 </span>{
+<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">if </span><span class="macro">i !</span>= <span class="number">0 </span>{
 <a href=#297 id=297 data-nosnippet>297</a>        <span class="comment">// Tails must not start with a UTF-8 continuation
 <a href=#298 id=298 data-nosnippet>298</a>        // byte unless it's the first byte of the original
 <a href=#299 id=299 data-nosnippet>299</a>        // slice.
@@ -306,7 +306,7 @@
 <a href=#306 id=306 data-nosnippet>306</a>                i -= <span class="number">1</span>;
 <a href=#307 id=307 data-nosnippet>307</a>            }
 <a href=#308 id=308 data-nosnippet>308</a>        }
-<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">while </span>i != <span class="number">0 </span>{
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">while </span><span class="macro">i !</span>= <span class="number">0 </span>{
 <a href=#310 id=310 data-nosnippet>310</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(left_first) = left.get(i) {
 <a href=#311 id=311 data-nosnippet>311</a>                <span class="kw">if </span>(left_first &amp; <span class="number">0b1100_0000</span>) == <span class="number">0b1000_0000 </span>{
 <a href=#312 id=312 data-nosnippet>312</a>                    i -= <span class="number">1</span>;
@@ -337,7 +337,7 @@
 <a href=#337 id=337 data-nosnippet>337</a>        .zip(right_bytes.iter())
 <a href=#338 id=338 data-nosnippet>338</a>        .take_while(|(l, r)| l == r)
 <a href=#339 id=339 data-nosnippet>339</a>        .count();
-<a href=#340 id=340 data-nosnippet>340</a>    <span class="kw">if </span>i != <span class="number">0 </span>{
+<a href=#340 id=340 data-nosnippet>340</a>    <span class="kw">if </span><span class="macro">i !</span>= <span class="number">0 </span>{
 <a href=#341 id=341 data-nosnippet>341</a>        <span class="comment">// Tails must not start with a UTF-8 continuation
 <a href=#342 id=342 data-nosnippet>342</a>        // byte.
 <a href=#343 id=343 data-nosnippet>343</a>
@@ -716,8 +716,8 @@
 <a href=#716 id=716 data-nosnippet>716</a>            }
 <a href=#717 id=717 data-nosnippet>717</a>            <span class="kw">let </span>ret = <span class="self">self</span>.compare_impl(left_tail.<span class="macro-nonterminal">$left_to_iter</span>(), right_tail.<span class="macro-nonterminal">$right_to_iter</span>(), head.<span class="macro-nonterminal">$left_to_iter</span>().rev());
 <a href=#718 id=718 data-nosnippet>718</a>            <span class="kw">if </span><span class="self">self</span>.options.strength() == Strength::Identical &amp;&amp; ret == Ordering::Equal {
-<a href=#719 id=719 data-nosnippet>719</a>                <span class="kw">return </span>Decomposition::new(left_tail.<span class="macro-nonterminal">$left_to_iter</span>(), <span class="self">self</span>.decompositions, <span class="self">self</span>.tables).map(|c| <span class="kw">if </span>c != MERGE_SEPARATOR { c <span class="kw">as </span>i32 } <span class="kw">else </span>{ -<span class="number">1i32 </span>}).cmp(
-<a href=#720 id=720 data-nosnippet>720</a>                    Decomposition::new(right_tail.<span class="macro-nonterminal">$right_to_iter</span>(), <span class="self">self</span>.decompositions, <span class="self">self</span>.tables).map(|c| <span class="kw">if </span>c != MERGE_SEPARATOR { c <span class="kw">as </span>i32 } <span class="kw">else </span>{ -<span class="number">1i32 </span>}),
+<a href=#719 id=719 data-nosnippet>719</a>                <span class="kw">return </span>Decomposition::new(left_tail.<span class="macro-nonterminal">$left_to_iter</span>(), <span class="self">self</span>.decompositions, <span class="self">self</span>.tables).map(|c| <span class="kw">if </span><span class="macro">c !</span>= MERGE_SEPARATOR { c <span class="kw">as </span>i32 } <span class="kw">else </span>{ -<span class="number">1i32 </span>}).cmp(
+<a href=#720 id=720 data-nosnippet>720</a>                    Decomposition::new(right_tail.<span class="macro-nonterminal">$right_to_iter</span>(), <span class="self">self</span>.decompositions, <span class="self">self</span>.tables).map(|c| <span class="kw">if </span><span class="macro">c !</span>= MERGE_SEPARATOR { c <span class="kw">as </span>i32 } <span class="kw">else </span>{ -<span class="number">1i32 </span>}),
 <a href=#721 id=721 data-nosnippet>721</a>                );
 <a href=#722 id=722 data-nosnippet>722</a>            }
 <a href=#723 id=723 data-nosnippet>723</a>            ret
@@ -1378,7 +1378,7 @@
 <a href=#1378 id=1378 data-nosnippet>1378</a>                        <span class="comment">// This loop is simpler than in ICU4C; unlike in C++, we get to break by label.
 <a href=#1379 id=1379 data-nosnippet>1379</a>                        </span><span class="kw">let </span>ce = left.next();
 <a href=#1380 id=1380 data-nosnippet>1380</a>                        left_primary = ce.primary();
-<a href=#1381 id=1381 data-nosnippet>1381</a>                        <span class="kw">if </span>left_primary != <span class="number">0
+<a href=#1381 id=1381 data-nosnippet>1381</a>                        <span class="kw">if </span><span class="macro">left_primary !</span>= <span class="number">0
 <a href=#1382 id=1382 data-nosnippet>1382</a>                            </span>&amp;&amp; !(left_primary &lt; variable_top
 <a href=#1383 id=1383 data-nosnippet>1383</a>                                &amp;&amp; left_primary &gt; MERGE_SEPARATOR_PRIMARY)
 <a href=#1384 id=1384 data-nosnippet>1384</a>                        {
@@ -1391,7 +1391,7 @@
 <a href=#1391 id=1391 data-nosnippet>1391</a>                        </span>left_ces.push(ce.clone_with_non_primary_zeroed());
 <a href=#1392 id=1392 data-nosnippet>1392</a>                    }
 <a href=#1393 id=1393 data-nosnippet>1393</a>                }
-<a href=#1394 id=1394 data-nosnippet>1394</a>                <span class="kw">if </span>left_primary != <span class="number">0 </span>{
+<a href=#1394 id=1394 data-nosnippet>1394</a>                <span class="kw">if </span><span class="macro">left_primary !</span>= <span class="number">0 </span>{
 <a href=#1395 id=1395 data-nosnippet>1395</a>                    <span class="kw">break</span>;
 <a href=#1396 id=1396 data-nosnippet>1396</a>                }
 <a href=#1397 id=1397 data-nosnippet>1397</a>            }
@@ -1416,7 +1416,7 @@
 <a href=#1416 id=1416 data-nosnippet>1416</a>                        <span class="comment">// This loop is simpler than in ICU4C; unlike in C++, we get to break by label.
 <a href=#1417 id=1417 data-nosnippet>1417</a>                        </span><span class="kw">let </span>ce = right.next();
 <a href=#1418 id=1418 data-nosnippet>1418</a>                        right_primary = ce.primary();
-<a href=#1419 id=1419 data-nosnippet>1419</a>                        <span class="kw">if </span>right_primary != <span class="number">0
+<a href=#1419 id=1419 data-nosnippet>1419</a>                        <span class="kw">if </span><span class="macro">right_primary !</span>= <span class="number">0
 <a href=#1420 id=1420 data-nosnippet>1420</a>                            </span>&amp;&amp; !(right_primary &lt; variable_top
 <a href=#1421 id=1421 data-nosnippet>1421</a>                                &amp;&amp; right_primary &gt; MERGE_SEPARATOR_PRIMARY)
 <a href=#1422 id=1422 data-nosnippet>1422</a>                        {
@@ -1429,11 +1429,11 @@
 <a href=#1429 id=1429 data-nosnippet>1429</a>                        </span>right_ces.push(ce.clone_with_non_primary_zeroed());
 <a href=#1430 id=1430 data-nosnippet>1430</a>                    }
 <a href=#1431 id=1431 data-nosnippet>1431</a>                }
-<a href=#1432 id=1432 data-nosnippet>1432</a>                <span class="kw">if </span>right_primary != <span class="number">0 </span>{
+<a href=#1432 id=1432 data-nosnippet>1432</a>                <span class="kw">if </span><span class="macro">right_primary !</span>= <span class="number">0 </span>{
 <a href=#1433 id=1433 data-nosnippet>1433</a>                    <span class="kw">break</span>;
 <a href=#1434 id=1434 data-nosnippet>1434</a>                }
 <a href=#1435 id=1435 data-nosnippet>1435</a>            }
-<a href=#1436 id=1436 data-nosnippet>1436</a>            <span class="kw">if </span>left_primary != right_primary {
+<a href=#1436 id=1436 data-nosnippet>1436</a>            <span class="kw">if </span><span class="macro">left_primary !</span>= right_primary {
 <a href=#1437 id=1437 data-nosnippet>1437</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(reordering) = <span class="kw-2">&amp;</span><span class="self">self</span>.reordering {
 <a href=#1438 id=1438 data-nosnippet>1438</a>                    left_primary = reordering.reorder(left_primary);
 <a href=#1439 id=1439 data-nosnippet>1439</a>                    right_primary = reordering.reorder(right_primary);
@@ -1474,17 +1474,17 @@
 <a href=#1474 id=1474 data-nosnippet>1474</a>                <span class="kw">loop </span>{
 <a href=#1475 id=1475 data-nosnippet>1475</a>                    <span class="kw">loop </span>{
 <a href=#1476 id=1476 data-nosnippet>1476</a>                        left_secondary = left_iter.next().unwrap_or_default().secondary();
-<a href=#1477 id=1477 data-nosnippet>1477</a>                        <span class="kw">if </span>left_secondary != <span class="number">0 </span>{
+<a href=#1477 id=1477 data-nosnippet>1477</a>                        <span class="kw">if </span><span class="macro">left_secondary !</span>= <span class="number">0 </span>{
 <a href=#1478 id=1478 data-nosnippet>1478</a>                            <span class="kw">break</span>;
 <a href=#1479 id=1479 data-nosnippet>1479</a>                        }
 <a href=#1480 id=1480 data-nosnippet>1480</a>                    }
 <a href=#1481 id=1481 data-nosnippet>1481</a>                    <span class="kw">loop </span>{
 <a href=#1482 id=1482 data-nosnippet>1482</a>                        right_secondary = right_iter.next().unwrap_or_default().secondary();
-<a href=#1483 id=1483 data-nosnippet>1483</a>                        <span class="kw">if </span>right_secondary != <span class="number">0 </span>{
+<a href=#1483 id=1483 data-nosnippet>1483</a>                        <span class="kw">if </span><span class="macro">right_secondary !</span>= <span class="number">0 </span>{
 <a href=#1484 id=1484 data-nosnippet>1484</a>                            <span class="kw">break</span>;
 <a href=#1485 id=1485 data-nosnippet>1485</a>                        }
 <a href=#1486 id=1486 data-nosnippet>1486</a>                    }
-<a href=#1487 id=1487 data-nosnippet>1487</a>                    <span class="kw">if </span>left_secondary != right_secondary {
+<a href=#1487 id=1487 data-nosnippet>1487</a>                    <span class="kw">if </span><span class="macro">left_secondary !</span>= right_secondary {
 <a href=#1488 id=1488 data-nosnippet>1488</a>                        <span class="kw">if </span>left_secondary &lt; right_secondary {
 <a href=#1489 id=1489 data-nosnippet>1489</a>                            <span class="kw">return </span>Ordering::Less;
 <a href=#1490 id=1490 data-nosnippet>1490</a>                        }
@@ -1506,7 +1506,7 @@
 <a href=#1506 id=1506 data-nosnippet>1506</a>                        <span class="kw">let </span><span class="kw-2">mut </span>left_iter = left_remaining.iter();
 <a href=#1507 id=1507 data-nosnippet>1507</a>                        <span class="kw">loop </span>{
 <a href=#1508 id=1508 data-nosnippet>1508</a>                            <span class="kw">let </span>left_primary = left_iter.next().unwrap_or_default().primary();
-<a href=#1509 id=1509 data-nosnippet>1509</a>                            <span class="kw">if </span>left_primary != <span class="number">0 </span>&amp;&amp; left_primary &lt;= MERGE_SEPARATOR_PRIMARY {
+<a href=#1509 id=1509 data-nosnippet>1509</a>                            <span class="kw">if </span><span class="macro">left_primary !</span>= <span class="number">0 </span>&amp;&amp; left_primary &lt;= MERGE_SEPARATOR_PRIMARY {
 <a href=#1510 id=1510 data-nosnippet>1510</a>                                <span class="kw">break</span>;
 <a href=#1511 id=1511 data-nosnippet>1511</a>                            }
 <a href=#1512 id=1512 data-nosnippet>1512</a>                            <span class="macro">debug_assert_ne!</span>(left_primary, NO_CE_PRIMARY);
@@ -1521,7 +1521,7 @@
 <a href=#1521 id=1521 data-nosnippet>1521</a>                        <span class="kw">let </span><span class="kw-2">mut </span>right_iter = right_remaining.iter();
 <a href=#1522 id=1522 data-nosnippet>1522</a>                        <span class="kw">loop </span>{
 <a href=#1523 id=1523 data-nosnippet>1523</a>                            <span class="kw">let </span>right_primary = right_iter.next().unwrap_or_default().primary();
-<a href=#1524 id=1524 data-nosnippet>1524</a>                            <span class="kw">if </span>right_primary != <span class="number">0 </span>&amp;&amp; right_primary &lt;= MERGE_SEPARATOR_PRIMARY {
+<a href=#1524 id=1524 data-nosnippet>1524</a>                            <span class="kw">if </span><span class="macro">right_primary !</span>= <span class="number">0 </span>&amp;&amp; right_primary &lt;= MERGE_SEPARATOR_PRIMARY {
 <a href=#1525 id=1525 data-nosnippet>1525</a>                                <span class="kw">break</span>;
 <a href=#1526 id=1526 data-nosnippet>1526</a>                            }
 <a href=#1527 id=1527 data-nosnippet>1527</a>                            <span class="macro">debug_assert_ne!</span>(right_primary, NO_CE_PRIMARY);
@@ -1543,18 +1543,18 @@
 <a href=#1543 id=1543 data-nosnippet>1543</a>                    <span class="kw">loop </span>{
 <a href=#1544 id=1544 data-nosnippet>1544</a>                        <span class="kw">loop </span>{
 <a href=#1545 id=1545 data-nosnippet>1545</a>                            left_secondary = left_iter.next_back().unwrap_or_default().secondary();
-<a href=#1546 id=1546 data-nosnippet>1546</a>                            <span class="kw">if </span>left_secondary != <span class="number">0 </span>{
+<a href=#1546 id=1546 data-nosnippet>1546</a>                            <span class="kw">if </span><span class="macro">left_secondary !</span>= <span class="number">0 </span>{
 <a href=#1547 id=1547 data-nosnippet>1547</a>                                <span class="kw">break</span>;
 <a href=#1548 id=1548 data-nosnippet>1548</a>                            }
 <a href=#1549 id=1549 data-nosnippet>1549</a>                        }
 <a href=#1550 id=1550 data-nosnippet>1550</a>                        <span class="kw">loop </span>{
 <a href=#1551 id=1551 data-nosnippet>1551</a>                            right_secondary =
 <a href=#1552 id=1552 data-nosnippet>1552</a>                                right_iter.next_back().unwrap_or_default().secondary();
-<a href=#1553 id=1553 data-nosnippet>1553</a>                            <span class="kw">if </span>right_secondary != <span class="number">0 </span>{
+<a href=#1553 id=1553 data-nosnippet>1553</a>                            <span class="kw">if </span><span class="macro">right_secondary !</span>= <span class="number">0 </span>{
 <a href=#1554 id=1554 data-nosnippet>1554</a>                                <span class="kw">break</span>;
 <a href=#1555 id=1555 data-nosnippet>1555</a>                            }
 <a href=#1556 id=1556 data-nosnippet>1556</a>                        }
-<a href=#1557 id=1557 data-nosnippet>1557</a>                        <span class="kw">if </span>left_secondary != right_secondary {
+<a href=#1557 id=1557 data-nosnippet>1557</a>                        <span class="kw">if </span><span class="macro">left_secondary !</span>= right_secondary {
 <a href=#1558 id=1558 data-nosnippet>1558</a>                            <span class="kw">if </span>left_secondary &lt; right_secondary {
 <a href=#1559 id=1559 data-nosnippet>1559</a>                                <span class="kw">return </span>Ordering::Less;
 <a href=#1560 id=1560 data-nosnippet>1560</a>                            }
@@ -1601,7 +1601,7 @@
 <a href=#1601 id=1601 data-nosnippet>1601</a>                    <span class="comment">// No need to handle NO_CE and MERGE_SEPARATOR specially:
 <a href=#1602 id=1602 data-nosnippet>1602</a>                    // There is one case weight for each previous-level weight,
 <a href=#1603 id=1603 data-nosnippet>1603</a>                    // so level length differences were handled there.
-<a href=#1604 id=1604 data-nosnippet>1604</a>                    </span><span class="kw">if </span>left_case != right_case {
+<a href=#1604 id=1604 data-nosnippet>1604</a>                    </span><span class="kw">if </span><span class="macro">left_case !</span>= right_case {
 <a href=#1605 id=1605 data-nosnippet>1605</a>                        <span class="kw">if </span>!<span class="self">self</span>.options.upper_first() {
 <a href=#1606 id=1606 data-nosnippet>1606</a>                            <span class="kw">if </span>left_case &lt; right_case {
 <a href=#1607 id=1607 data-nosnippet>1607</a>                                <span class="kw">return </span>Ordering::Less;
@@ -1656,7 +1656,7 @@
 <a href=#1656 id=1656 data-nosnippet>1656</a>                    <span class="comment">// No need to handle NO_CE and MERGE_SEPARATOR specially:
 <a href=#1657 id=1657 data-nosnippet>1657</a>                    // There is one case weight for each previous-level weight,
 <a href=#1658 id=1658 data-nosnippet>1658</a>                    // so level length differences were handled there.
-<a href=#1659 id=1659 data-nosnippet>1659</a>                    </span><span class="kw">if </span>left_case != right_case {
+<a href=#1659 id=1659 data-nosnippet>1659</a>                    </span><span class="kw">if </span><span class="macro">left_case !</span>= right_case {
 <a href=#1660 id=1660 data-nosnippet>1660</a>                        <span class="kw">if </span>!<span class="self">self</span>.options.upper_first() {
 <a href=#1661 id=1661 data-nosnippet>1661</a>                            <span class="kw">if </span>left_case &lt; right_case {
 <a href=#1662 id=1662 data-nosnippet>1662</a>                                <span class="kw">return </span>Ordering::Less;
@@ -1689,7 +1689,7 @@
 <a href=#1689 id=1689 data-nosnippet>1689</a>                        left_non_primary.tertiary() != <span class="number">0 </span>|| left_non_primary.case_quaternary() == <span class="number">0
 <a href=#1690 id=1690 data-nosnippet>1690</a>                    </span>);
 <a href=#1691 id=1691 data-nosnippet>1691</a>                    left_tertiary = left_non_primary.tertiary_case_quarternary(tertiary_mask);
-<a href=#1692 id=1692 data-nosnippet>1692</a>                    <span class="kw">if </span>left_tertiary != <span class="number">0 </span>{
+<a href=#1692 id=1692 data-nosnippet>1692</a>                    <span class="kw">if </span><span class="macro">left_tertiary !</span>= <span class="number">0 </span>{
 <a href=#1693 id=1693 data-nosnippet>1693</a>                        <span class="kw">break</span>;
 <a href=#1694 id=1694 data-nosnippet>1694</a>                    }
 <a href=#1695 id=1695 data-nosnippet>1695</a>                }
@@ -1704,12 +1704,12 @@
 <a href=#1704 id=1704 data-nosnippet>1704</a>                            </span>|| right_non_primary.case_quaternary() == <span class="number">0
 <a href=#1705 id=1705 data-nosnippet>1705</a>                    </span>);
 <a href=#1706 id=1706 data-nosnippet>1706</a>                    right_tertiary = right_non_primary.tertiary_case_quarternary(tertiary_mask);
-<a href=#1707 id=1707 data-nosnippet>1707</a>                    <span class="kw">if </span>right_tertiary != <span class="number">0 </span>{
+<a href=#1707 id=1707 data-nosnippet>1707</a>                    <span class="kw">if </span><span class="macro">right_tertiary !</span>= <span class="number">0 </span>{
 <a href=#1708 id=1708 data-nosnippet>1708</a>                        <span class="kw">break</span>;
 <a href=#1709 id=1709 data-nosnippet>1709</a>                    }
 <a href=#1710 id=1710 data-nosnippet>1710</a>                }
 <a href=#1711 id=1711 data-nosnippet>1711</a>
-<a href=#1712 id=1712 data-nosnippet>1712</a>                <span class="kw">if </span>left_tertiary != right_tertiary {
+<a href=#1712 id=1712 data-nosnippet>1712</a>                <span class="kw">if </span><span class="macro">left_tertiary !</span>= right_tertiary {
 <a href=#1713 id=1713 data-nosnippet>1713</a>                    <span class="kw">if </span><span class="self">self</span>.options.upper_first() {
 <a href=#1714 id=1714 data-nosnippet>1714</a>                        <span class="comment">// Pass through NO_CE and keep real tertiary weights larger than that.
 <a href=#1715 id=1715 data-nosnippet>1715</a>                        // Do not change the artificial uppercase weight of a tertiary CE (0.0.ut),
@@ -1764,7 +1764,7 @@
 <a href=#1764 id=1764 data-nosnippet>1764</a>                } <span class="kw">else </span>{
 <a href=#1765 id=1765 data-nosnippet>1765</a>                    left_quaternary = ce.quaternary();
 <a href=#1766 id=1766 data-nosnippet>1766</a>                }
-<a href=#1767 id=1767 data-nosnippet>1767</a>                <span class="kw">if </span>left_quaternary != <span class="number">0 </span>{
+<a href=#1767 id=1767 data-nosnippet>1767</a>                <span class="kw">if </span><span class="macro">left_quaternary !</span>= <span class="number">0 </span>{
 <a href=#1768 id=1768 data-nosnippet>1768</a>                    <span class="kw">break</span>;
 <a href=#1769 id=1769 data-nosnippet>1769</a>                }
 <a href=#1770 id=1770 data-nosnippet>1770</a>            }
@@ -1776,11 +1776,11 @@
 <a href=#1776 id=1776 data-nosnippet>1776</a>                } <span class="kw">else </span>{
 <a href=#1777 id=1777 data-nosnippet>1777</a>                    right_quaternary = ce.quaternary();
 <a href=#1778 id=1778 data-nosnippet>1778</a>                }
-<a href=#1779 id=1779 data-nosnippet>1779</a>                <span class="kw">if </span>right_quaternary != <span class="number">0 </span>{
+<a href=#1779 id=1779 data-nosnippet>1779</a>                <span class="kw">if </span><span class="macro">right_quaternary !</span>= <span class="number">0 </span>{
 <a href=#1780 id=1780 data-nosnippet>1780</a>                    <span class="kw">break</span>;
 <a href=#1781 id=1781 data-nosnippet>1781</a>                }
 <a href=#1782 id=1782 data-nosnippet>1782</a>            }
-<a href=#1783 id=1783 data-nosnippet>1783</a>            <span class="kw">if </span>left_quaternary != right_quaternary {
+<a href=#1783 id=1783 data-nosnippet>1783</a>            <span class="kw">if </span><span class="macro">left_quaternary !</span>= right_quaternary {
 <a href=#1784 id=1784 data-nosnippet>1784</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(reordering) = <span class="kw-2">&amp;</span><span class="self">self</span>.reordering {
 <a href=#1785 id=1785 data-nosnippet>1785</a>                    left_quaternary = reordering.reorder(left_quaternary);
 <a href=#1786 id=1786 data-nosnippet>1786</a>                    right_quaternary = reordering.reorder(right_quaternary);
@@ -1955,7 +1955,7 @@
 <a href=#1955 id=1955 data-nosnippet>1955</a>            <span class="kw">if </span>p &lt; variable_top &amp;&amp; p &gt; MERGE_SEPARATOR_PRIMARY {
 <a href=#1956 id=1956 data-nosnippet>1956</a>                <span class="comment">// Variable CE, shift it to quaternary level.  Ignore all following primary
 <a href=#1957 id=1957 data-nosnippet>1957</a>                // ignorables, and shift further variable CEs.
-<a href=#1958 id=1958 data-nosnippet>1958</a>                </span><span class="kw">if </span>common_quaternaries != <span class="number">0 </span>{
+<a href=#1958 id=1958 data-nosnippet>1958</a>                </span><span class="kw">if </span><span class="macro">common_quaternaries !</span>= <span class="number">0 </span>{
 <a href=#1959 id=1959 data-nosnippet>1959</a>                    common_quaternaries -= <span class="number">1</span>;
 <a href=#1960 id=1960 data-nosnippet>1960</a>                    <span class="kw">while </span>common_quaternaries &gt;= QUAT_COMMON[WEIGHT_MAX_COUNT] <span class="kw">as _ </span>{
 <a href=#1961 id=1961 data-nosnippet>1961</a>                        quaternaries.append_byte(QUAT_COMMON[WEIGHT_MIDDLE]);
@@ -1967,7 +1967,7 @@
 <a href=#1967 id=1967 data-nosnippet>1967</a>                }
 <a href=#1968 id=1968 data-nosnippet>1968</a>
 <a href=#1969 id=1969 data-nosnippet>1969</a>                <span class="kw">loop </span>{
-<a href=#1970 id=1970 data-nosnippet>1970</a>                    <span class="kw">if </span>levels &amp; QUATERNARY_LEVEL_FLAG != <span class="number">0 </span>{
+<a href=#1970 id=1970 data-nosnippet>1970</a>                    <span class="kw">if </span>levels &amp; <span class="macro">QUATERNARY_LEVEL_FLAG !</span>= <span class="number">0 </span>{
 <a href=#1971 id=1971 data-nosnippet>1971</a>                        <span class="kw">if let </span><span class="prelude-val">Some</span>(reordering) = <span class="kw-2">&amp;</span><span class="self">self</span>.reordering {
 <a href=#1972 id=1972 data-nosnippet>1972</a>                            p = reordering.reorder(p);
 <a href=#1973 id=1973 data-nosnippet>1973</a>                        }
@@ -1981,7 +1981,7 @@
 <a href=#1981 id=1981 data-nosnippet>1981</a>                    <span class="kw">loop </span>{
 <a href=#1982 id=1982 data-nosnippet>1982</a>                        ce = iter.next();
 <a href=#1983 id=1983 data-nosnippet>1983</a>                        p = ce.primary();
-<a href=#1984 id=1984 data-nosnippet>1984</a>                        <span class="kw">if </span>p != <span class="number">0 </span>{
+<a href=#1984 id=1984 data-nosnippet>1984</a>                        <span class="kw">if </span><span class="macro">p !</span>= <span class="number">0 </span>{
 <a href=#1985 id=1985 data-nosnippet>1985</a>                            <span class="kw">break</span>;
 <a href=#1986 id=1986 data-nosnippet>1986</a>                        }
 <a href=#1987 id=1987 data-nosnippet>1987</a>                    }
@@ -1994,15 +1994,15 @@
 <a href=#1994 id=1994 data-nosnippet>1994</a>            <span class="comment">// ce could be primary ignorable, or NO_CE, or the merge separator, or a regular
 <a href=#1995 id=1995 data-nosnippet>1995</a>            // primary CE, but it is not variable.  If ce == NO_CE, then write nothing for the
 <a href=#1996 id=1996 data-nosnippet>1996</a>            // primary level but terminate compression on all levels and then exit the loop.
-<a href=#1997 id=1997 data-nosnippet>1997</a>            </span><span class="kw">if </span>p &gt; NO_CE_PRIMARY &amp;&amp; levels &amp; PRIMARY_LEVEL_FLAG != <span class="number">0 </span>{
+<a href=#1997 id=1997 data-nosnippet>1997</a>            </span><span class="kw">if </span>p &gt; NO_CE_PRIMARY &amp;&amp; levels &amp; <span class="macro">PRIMARY_LEVEL_FLAG !</span>= <span class="number">0 </span>{
 <a href=#1998 id=1998 data-nosnippet>1998</a>                <span class="comment">// Test the un-reordered primary for compressibility.
 <a href=#1999 id=1999 data-nosnippet>1999</a>                </span><span class="kw">let </span>is_compressible = <span class="self">self</span>.special_primaries.is_compressible((p &gt;&gt; <span class="number">24</span>) <span class="kw">as _</span>);
 <a href=#2000 id=2000 data-nosnippet>2000</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(reordering) = <span class="kw-2">&amp;</span><span class="self">self</span>.reordering {
 <a href=#2001 id=2001 data-nosnippet>2001</a>                    p = reordering.reorder(p);
 <a href=#2002 id=2002 data-nosnippet>2002</a>                }
 <a href=#2003 id=2003 data-nosnippet>2003</a>                <span class="kw">let </span>p1 = (p &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
-<a href=#2004 id=2004 data-nosnippet>2004</a>                <span class="kw">if </span>!is_compressible || p1 != (prev_reordered_primary &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8 {
-<a href=#2005 id=2005 data-nosnippet>2005</a>                    <span class="kw">if </span>prev_reordered_primary != <span class="number">0 </span>{
+<a href=#2004 id=2004 data-nosnippet>2004</a>                <span class="kw">if </span>!is_compressible || <span class="macro">p1 !</span>= (prev_reordered_primary &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8 {
+<a href=#2005 id=2005 data-nosnippet>2005</a>                    <span class="kw">if </span><span class="macro">prev_reordered_primary !</span>= <span class="number">0 </span>{
 <a href=#2006 id=2006 data-nosnippet>2006</a>                        <span class="kw">if </span>p &lt; prev_reordered_primary {
 <a href=#2007 id=2007 data-nosnippet>2007</a>                            <span class="comment">// No primary compression terminator at the end of the level or
 <a href=#2008 id=2008 data-nosnippet>2008</a>                            // merged segment.
@@ -2018,12 +2018,12 @@
 <a href=#2018 id=2018 data-nosnippet>2018</a>                }
 <a href=#2019 id=2019 data-nosnippet>2019</a>
 <a href=#2020 id=2020 data-nosnippet>2020</a>                <span class="kw">let </span>p2 = (p &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
-<a href=#2021 id=2021 data-nosnippet>2021</a>                <span class="kw">if </span>p2 != <span class="number">0 </span>{
+<a href=#2021 id=2021 data-nosnippet>2021</a>                <span class="kw">if </span><span class="macro">p2 !</span>= <span class="number">0 </span>{
 <a href=#2022 id=2022 data-nosnippet>2022</a>                    <span class="kw">let </span>(b0, b1, b2) = (p2, (p &gt;&gt; <span class="number">8</span>) <span class="kw">as _</span>, p <span class="kw">as _</span>);
 <a href=#2023 id=2023 data-nosnippet>2023</a>                    sink.write_byte(state, b0)<span class="question-mark">?</span>;
-<a href=#2024 id=2024 data-nosnippet>2024</a>                    <span class="kw">if </span>b1 != <span class="number">0 </span>{
+<a href=#2024 id=2024 data-nosnippet>2024</a>                    <span class="kw">if </span><span class="macro">b1 !</span>= <span class="number">0 </span>{
 <a href=#2025 id=2025 data-nosnippet>2025</a>                        sink.write_byte(state, b1)<span class="question-mark">?</span>;
-<a href=#2026 id=2026 data-nosnippet>2026</a>                        <span class="kw">if </span>b2 != <span class="number">0 </span>{
+<a href=#2026 id=2026 data-nosnippet>2026</a>                        <span class="kw">if </span><span class="macro">b2 !</span>= <span class="number">0 </span>{
 <a href=#2027 id=2027 data-nosnippet>2027</a>                            sink.write_byte(state, b2)<span class="question-mark">?</span>;
 <a href=#2028 id=2028 data-nosnippet>2028</a>                        }
 <a href=#2029 id=2029 data-nosnippet>2029</a>                    }
@@ -2057,12 +2057,12 @@
 <a href=#2057 id=2057 data-nosnippet>2057</a>                };
 <a href=#2058 id=2058 data-nosnippet>2058</a>            }
 <a href=#2059 id=2059 data-nosnippet>2059</a>
-<a href=#2060 id=2060 data-nosnippet>2060</a>            <span class="kw">if </span>levels &amp; SECONDARY_LEVEL_FLAG != <span class="number">0 </span>{
+<a href=#2060 id=2060 data-nosnippet>2060</a>            <span class="kw">if </span>levels &amp; <span class="macro">SECONDARY_LEVEL_FLAG !</span>= <span class="number">0 </span>{
 <a href=#2061 id=2061 data-nosnippet>2061</a>                <span class="kw">let </span>s = non_primary.secondary();
 <a href=#2062 id=2062 data-nosnippet>2062</a>                <span class="kw">if </span>s == <span class="number">0 </span>{
 <a href=#2063 id=2063 data-nosnippet>2063</a>                    <span class="comment">// secondary ignorable
 <a href=#2064 id=2064 data-nosnippet>2064</a>                </span>} <span class="kw">else if </span>s == COMMON_WEIGHT16
-<a href=#2065 id=2065 data-nosnippet>2065</a>                    &amp;&amp; (!<span class="self">self</span>.options.backward_second_level() || p != MERGE_SEPARATOR_PRIMARY)
+<a href=#2065 id=2065 data-nosnippet>2065</a>                    &amp;&amp; (!<span class="self">self</span>.options.backward_second_level() || <span class="macro">p !</span>= MERGE_SEPARATOR_PRIMARY)
 <a href=#2066 id=2066 data-nosnippet>2066</a>                {
 <a href=#2067 id=2067 data-nosnippet>2067</a>                    <span class="comment">// s is a common secondary weight, and backwards-secondary is off or the ce
 <a href=#2068 id=2068 data-nosnippet>2068</a>                    // is not the merge separator.
@@ -2071,7 +2071,7 @@
 <a href=#2071 id=2071 data-nosnippet>2071</a>                    <span class="macro">handle_common!</span>(secondaries, s, common_secondaries, SEC_COMMON);
 <a href=#2072 id=2072 data-nosnippet>2072</a>                    secondaries.append_weight_16(s);
 <a href=#2073 id=2073 data-nosnippet>2073</a>                } <span class="kw">else </span>{
-<a href=#2074 id=2074 data-nosnippet>2074</a>                    <span class="kw">if </span>common_secondaries != <span class="number">0 </span>{
+<a href=#2074 id=2074 data-nosnippet>2074</a>                    <span class="kw">if </span><span class="macro">common_secondaries !</span>= <span class="number">0 </span>{
 <a href=#2075 id=2075 data-nosnippet>2075</a>                        common_secondaries -= <span class="number">1</span>;
 <a href=#2076 id=2076 data-nosnippet>2076</a>                        <span class="comment">// Append reverse weights.  The level will be re-reversed later.
 <a href=#2077 id=2077 data-nosnippet>2077</a>                        </span><span class="kw">let </span>remainder = common_secondaries % SEC_COMMON[WEIGHT_MAX_COUNT] <span class="kw">as </span>usize;
@@ -2124,7 +2124,7 @@
 <a href=#2124 id=2124 data-nosnippet>2124</a>                }
 <a href=#2125 id=2125 data-nosnippet>2125</a>            }
 <a href=#2126 id=2126 data-nosnippet>2126</a>
-<a href=#2127 id=2127 data-nosnippet>2127</a>            <span class="kw">if </span>levels &amp; CASE_LEVEL_FLAG != <span class="number">0 </span>{
+<a href=#2127 id=2127 data-nosnippet>2127</a>            <span class="kw">if </span>levels &amp; <span class="macro">CASE_LEVEL_FLAG !</span>= <span class="number">0 </span>{
 <a href=#2128 id=2128 data-nosnippet>2128</a>                <span class="kw">if </span><span class="self">self</span>.options.strength() == Strength::Primary &amp;&amp; p == <span class="number">0
 <a href=#2129 id=2129 data-nosnippet>2129</a>                    </span>|| non_primary.bits() &lt;= <span class="number">0xffff
 <a href=#2130 id=2130 data-nosnippet>2130</a>                </span>{
@@ -2143,7 +2143,7 @@
 <a href=#2143 id=2143 data-nosnippet>2143</a>                            // mixed=14, upper=15.  If there are only common (=lowest) weights
 <a href=#2144 id=2144 data-nosnippet>2144</a>                            // in the whole level, then we need not write anything.  Level
 <a href=#2145 id=2145 data-nosnippet>2145</a>                            // length differences are handled already on the next-higher level.
-<a href=#2146 id=2146 data-nosnippet>2146</a>                            </span><span class="kw">if </span>common_cases != <span class="number">0 </span>&amp;&amp; (c &gt; LEVEL_SEPARATOR_BYTE || !cases.is_empty())
+<a href=#2146 id=2146 data-nosnippet>2146</a>                            </span><span class="kw">if </span><span class="macro">common_cases !</span>= <span class="number">0 </span>&amp;&amp; (c &gt; LEVEL_SEPARATOR_BYTE || !cases.is_empty())
 <a href=#2147 id=2147 data-nosnippet>2147</a>                            {
 <a href=#2148 id=2148 data-nosnippet>2148</a>                                common_cases -= <span class="number">1</span>;
 <a href=#2149 id=2149 data-nosnippet>2149</a>                                <span class="kw">while </span>common_cases &gt;= CASE_LOWER_FIRST_COMMON[WEIGHT_MAX_COUNT] <span class="kw">as _
@@ -2169,7 +2169,7 @@
 <a href=#2169 id=2169 data-nosnippet>2169</a>                            // upper=1.  The compressed common case weights only go up from the
 <a href=#2170 id=2170 data-nosnippet>2170</a>                            // "low" value because with upperFirst the common weight is the
 <a href=#2171 id=2171 data-nosnippet>2171</a>                            // highest one.
-<a href=#2172 id=2172 data-nosnippet>2172</a>                            </span><span class="kw">if </span>common_cases != <span class="number">0 </span>{
+<a href=#2172 id=2172 data-nosnippet>2172</a>                            </span><span class="kw">if </span><span class="macro">common_cases !</span>= <span class="number">0 </span>{
 <a href=#2173 id=2173 data-nosnippet>2173</a>                                common_cases -= <span class="number">1</span>;
 <a href=#2174 id=2174 data-nosnippet>2174</a>                                <span class="kw">while </span>common_cases &gt;= CASE_UPPER_FIRST_COMMON[WEIGHT_MAX_COUNT] <span class="kw">as _
 <a href=#2175 id=2175 data-nosnippet>2175</a>                                </span>{
@@ -2194,7 +2194,7 @@
 <a href=#2194 id=2194 data-nosnippet>2194</a>                }
 <a href=#2195 id=2195 data-nosnippet>2195</a>            }
 <a href=#2196 id=2196 data-nosnippet>2196</a>
-<a href=#2197 id=2197 data-nosnippet>2197</a>            <span class="kw">if </span>levels &amp; TERTIARY_LEVEL_FLAG != <span class="number">0 </span>{
+<a href=#2197 id=2197 data-nosnippet>2197</a>            <span class="kw">if </span>levels &amp; <span class="macro">TERTIARY_LEVEL_FLAG !</span>= <span class="number">0 </span>{
 <a href=#2198 id=2198 data-nosnippet>2198</a>                <span class="kw">let </span><span class="kw-2">mut </span>t = non_primary.tertiary_case_quarternary(tertiary_mask);
 <a href=#2199 id=2199 data-nosnippet>2199</a>                <span class="macro">debug_assert_ne!</span>(non_primary.bits() &amp; <span class="number">0xc000</span>, <span class="number">0xc000</span>);
 <a href=#2200 id=2200 data-nosnippet>2200</a>                <span class="kw">if </span>t == COMMON_WEIGHT16 {
@@ -2252,7 +2252,7 @@
 <a href=#2252 id=2252 data-nosnippet>2252</a>                }
 <a href=#2253 id=2253 data-nosnippet>2253</a>            }
 <a href=#2254 id=2254 data-nosnippet>2254</a>
-<a href=#2255 id=2255 data-nosnippet>2255</a>            <span class="kw">if </span>levels &amp; QUATERNARY_LEVEL_FLAG != <span class="number">0 </span>{
+<a href=#2255 id=2255 data-nosnippet>2255</a>            <span class="kw">if </span>levels &amp; <span class="macro">QUATERNARY_LEVEL_FLAG !</span>= <span class="number">0 </span>{
 <a href=#2256 id=2256 data-nosnippet>2256</a>                <span class="kw">let </span>q = (non_primary.bits() &amp; <span class="number">0xffff</span>) <span class="kw">as </span>u16;
 <a href=#2257 id=2257 data-nosnippet>2257</a>                <span class="kw">if </span>q &amp; <span class="number">0xc0 </span>== <span class="number">0 </span>&amp;&amp; q &gt; NO_CE_QUATERNARY {
 <a href=#2258 id=2258 data-nosnippet>2258</a>                    common_quaternaries += <span class="number">1</span>;
@@ -2301,7 +2301,7 @@
 <a href=#2301 id=2301 data-nosnippet>2301</a>
 <a href=#2302 id=2302 data-nosnippet>2302</a>        <span class="macro">write_level!</span>(secondaries, SECONDARY_LEVEL_FLAG);
 <a href=#2303 id=2303 data-nosnippet>2303</a>
-<a href=#2304 id=2304 data-nosnippet>2304</a>        <span class="kw">if </span>levels &amp; CASE_LEVEL_FLAG != <span class="number">0 </span>{
+<a href=#2304 id=2304 data-nosnippet>2304</a>        <span class="kw">if </span>levels &amp; <span class="macro">CASE_LEVEL_FLAG !</span>= <span class="number">0 </span>{
 <a href=#2305 id=2305 data-nosnippet>2305</a>            sink.write(state, <span class="kw-2">&amp;</span>[LEVEL_SEPARATOR_BYTE])<span class="question-mark">?</span>;
 <a href=#2306 id=2306 data-nosnippet>2306</a>
 <a href=#2307 id=2307 data-nosnippet>2307</a>            <span class="comment">// Write pairs of nibbles as bytes, except separator bytes as themselves.
@@ -2321,7 +2321,7 @@
 <a href=#2321 id=2321 data-nosnippet>2321</a>            } <span class="kw">else </span>{
 <a href=#2322 id=2322 data-nosnippet>2322</a>                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>);
 <a href=#2323 id=2323 data-nosnippet>2323</a>            }
-<a href=#2324 id=2324 data-nosnippet>2324</a>            <span class="kw">if </span>b != <span class="number">0 </span>{
+<a href=#2324 id=2324 data-nosnippet>2324</a>            <span class="kw">if </span><span class="macro">b !</span>= <span class="number">0 </span>{
 <a href=#2325 id=2325 data-nosnippet>2325</a>                sink.write_byte(state, b)<span class="question-mark">?</span>;
 <a href=#2326 id=2326 data-nosnippet>2326</a>            }
 <a href=#2327 id=2327 data-nosnippet>2327</a>        }
@@ -2474,7 +2474,7 @@
 <a href=#2474 id=2474 data-nosnippet>2474</a>        <span class="kw">let </span>b0 = (w &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8;
 <a href=#2475 id=2475 data-nosnippet>2475</a>        <span class="kw">let </span>b1 = w <span class="kw">as </span>u8;
 <a href=#2476 id=2476 data-nosnippet>2476</a>        <span class="self">self</span>.append_byte(b0);
-<a href=#2477 id=2477 data-nosnippet>2477</a>        <span class="kw">if </span>b1 != <span class="number">0 </span>{
+<a href=#2477 id=2477 data-nosnippet>2477</a>        <span class="kw">if </span><span class="macro">b1 !</span>= <span class="number">0 </span>{
 <a href=#2478 id=2478 data-nosnippet>2478</a>            <span class="self">self</span>.append_byte(b1);
 <a href=#2479 id=2479 data-nosnippet>2479</a>        }
 <a href=#2480 id=2480 data-nosnippet>2480</a>    }
@@ -2483,7 +2483,7 @@
 <a href=#2483 id=2483 data-nosnippet>2483</a>        <span class="macro">debug_assert_ne!</span>(w, <span class="number">0</span>);
 <a href=#2484 id=2484 data-nosnippet>2484</a>        <span class="kw">let </span>b0 = (w &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8;
 <a href=#2485 id=2485 data-nosnippet>2485</a>        <span class="kw">let </span>b1 = w <span class="kw">as </span>u8;
-<a href=#2486 id=2486 data-nosnippet>2486</a>        <span class="kw">if </span>b1 != <span class="number">0 </span>{
+<a href=#2486 id=2486 data-nosnippet>2486</a>        <span class="kw">if </span><span class="macro">b1 !</span>= <span class="number">0 </span>{
 <a href=#2487 id=2487 data-nosnippet>2487</a>            <span class="self">self</span>.append_byte(b1);
 <a href=#2488 id=2488 data-nosnippet>2488</a>        }
 <a href=#2489 id=2489 data-nosnippet>2489</a>        <span class="self">self</span>.append_byte(b0);
@@ -2496,11 +2496,11 @@
 <a href=#2496 id=2496 data-nosnippet>2496</a>        <span class="kw">let </span>b2 = (w &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8;
 <a href=#2497 id=2497 data-nosnippet>2497</a>        <span class="kw">let </span>b3 = w <span class="kw">as </span>u8;
 <a href=#2498 id=2498 data-nosnippet>2498</a>        <span class="self">self</span>.append_byte(b0);
-<a href=#2499 id=2499 data-nosnippet>2499</a>        <span class="kw">if </span>b1 != <span class="number">0 </span>{
+<a href=#2499 id=2499 data-nosnippet>2499</a>        <span class="kw">if </span><span class="macro">b1 !</span>= <span class="number">0 </span>{
 <a href=#2500 id=2500 data-nosnippet>2500</a>            <span class="self">self</span>.append_byte(b1);
-<a href=#2501 id=2501 data-nosnippet>2501</a>            <span class="kw">if </span>b2 != <span class="number">0 </span>{
+<a href=#2501 id=2501 data-nosnippet>2501</a>            <span class="kw">if </span><span class="macro">b2 !</span>= <span class="number">0 </span>{
 <a href=#2502 id=2502 data-nosnippet>2502</a>                <span class="self">self</span>.append_byte(b2);
-<a href=#2503 id=2503 data-nosnippet>2503</a>                <span class="kw">if </span>b3 != <span class="number">0 </span>{
+<a href=#2503 id=2503 data-nosnippet>2503</a>                <span class="kw">if </span><span class="macro">b3 !</span>= <span class="number">0 </span>{
 <a href=#2504 id=2504 data-nosnippet>2504</a>                    <span class="self">self</span>.append_byte(b3);
 <a href=#2505 id=2505 data-nosnippet>2505</a>                }
 <a href=#2506 id=2506 data-nosnippet>2506</a>            }
@@ -2865,4 +2865,5 @@
 <a href=#2865 id=2865 data-nosnippet>2865</a>        check_sort_key_less(<span class="kw-2">&amp;</span>[<span class="number">0xfffe</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>], <span class="kw-2">&amp;</span>[<span class="number">0x0000</span>, <span class="number">0xfffe</span>, <span class="number">0x0000</span>]);
 <a href=#2866 id=2866 data-nosnippet>2866</a>        check_sort_key_less(<span class="kw-2">&amp;</span>[<span class="number">0x0000</span>, <span class="number">0xfffe</span>, <span class="number">0x0000</span>], <span class="kw-2">&amp;</span>[<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0xfffe</span>]);
 <a href=#2867 id=2867 data-nosnippet>2867</a>    }
-<a href=#2868 id=2868 data-nosnippet>2868</a>}</code></pre></div></section></main></body></html>
+<a href=#2868 id=2868 data-nosnippet>2868</a>}
+</code></pre></div></section></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ACCEPT_AGGREGATED_DISCOVERY_V2"],"struct":["APIGroupDiscovery","APIGroupDiscoveryList","APIResourceDiscovery","APISubresourceDiscovery","APIVersionDiscovery","GroupVersionKind"]};

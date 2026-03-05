@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/h2-0.4.12/src/client.rs`."><title>client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="h2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">h2/</div>client.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Client implementation of the HTTP/2 protocol.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/h2-0.4.13/src/client.rs`."><title>client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="h2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">h2/</div>client.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Client implementation of the HTTP/2 protocol.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! # Getting started
 <a href=#4 id=4 data-nosnippet>4</a>//!
@@ -1485,209 +1485,226 @@
 <a href=#1485 id=1485 data-nosnippet>1485</a>    </span><span class="kw">pub fn </span>stream_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::StreamId {
 <a href=#1486 id=1486 data-nosnippet>1486</a>        <span class="kw">crate</span>::StreamId::from_internal(<span class="self">self</span>.inner.stream_id())
 <a href=#1487 id=1487 data-nosnippet>1487</a>    }
-<a href=#1488 id=1488 data-nosnippet>1488</a>    <span class="doccomment">/// Returns a stream of PushPromises
-<a href=#1489 id=1489 data-nosnippet>1489</a>    ///
-<a href=#1490 id=1490 data-nosnippet>1490</a>    /// # Panics
-<a href=#1491 id=1491 data-nosnippet>1491</a>    ///
-<a href=#1492 id=1492 data-nosnippet>1492</a>    /// If this method has been called before
-<a href=#1493 id=1493 data-nosnippet>1493</a>    /// or the stream was itself was pushed
-<a href=#1494 id=1494 data-nosnippet>1494</a>    </span><span class="kw">pub fn </span>push_promises(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; PushPromises {
-<a href=#1495 id=1495 data-nosnippet>1495</a>        <span class="kw">if </span><span class="self">self</span>.push_promise_consumed {
-<a href=#1496 id=1496 data-nosnippet>1496</a>            <span class="macro">panic!</span>(<span class="string">"Reference to push promises stream taken!"</span>);
-<a href=#1497 id=1497 data-nosnippet>1497</a>        }
-<a href=#1498 id=1498 data-nosnippet>1498</a>        <span class="self">self</span>.push_promise_consumed = <span class="bool-val">true</span>;
-<a href=#1499 id=1499 data-nosnippet>1499</a>        PushPromises {
-<a href=#1500 id=1500 data-nosnippet>1500</a>            inner: <span class="self">self</span>.inner.clone(),
-<a href=#1501 id=1501 data-nosnippet>1501</a>        }
+<a href=#1488 id=1488 data-nosnippet>1488</a>
+<a href=#1489 id=1489 data-nosnippet>1489</a>    <span class="doccomment">/// Polls for informational responses (1xx status codes).
+<a href=#1490 id=1490 data-nosnippet>1490</a>    ///
+<a href=#1491 id=1491 data-nosnippet>1491</a>    /// This method should be called before polling the main response future
+<a href=#1492 id=1492 data-nosnippet>1492</a>    /// to check for any informational responses that have been received.
+<a href=#1493 id=1493 data-nosnippet>1493</a>    ///
+<a href=#1494 id=1494 data-nosnippet>1494</a>    /// Returns `Poll::Ready(Some(response))` if an informational response is available,
+<a href=#1495 id=1495 data-nosnippet>1495</a>    /// `Poll::Ready(None)` if no more informational responses are expected,
+<a href=#1496 id=1496 data-nosnippet>1496</a>    /// or `Poll::Pending` if no informational response is currently available.
+<a href=#1497 id=1497 data-nosnippet>1497</a>    </span><span class="kw">pub fn </span>poll_informational(
+<a href=#1498 id=1498 data-nosnippet>1498</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1499 id=1499 data-nosnippet>1499</a>        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
+<a href=#1500 id=1500 data-nosnippet>1500</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Response&lt;()&gt;, <span class="kw">crate</span>::Error&gt;&gt;&gt; {
+<a href=#1501 id=1501 data-nosnippet>1501</a>        <span class="self">self</span>.inner.poll_informational(cx).map_err(Into::into)
 <a href=#1502 id=1502 data-nosnippet>1502</a>    }
-<a href=#1503 id=1503 data-nosnippet>1503</a>}
-<a href=#1504 id=1504 data-nosnippet>1504</a>
-<a href=#1505 id=1505 data-nosnippet>1505</a><span class="comment">// ===== impl PushPromises =====
-<a href=#1506 id=1506 data-nosnippet>1506</a>
-<a href=#1507 id=1507 data-nosnippet>1507</a></span><span class="kw">impl </span>PushPromises {
-<a href=#1508 id=1508 data-nosnippet>1508</a>    <span class="doccomment">/// Get the next `PushPromise`.
-<a href=#1509 id=1509 data-nosnippet>1509</a>    </span><span class="kw">pub async fn </span>push_promise(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;PushPromise, <span class="kw">crate</span>::Error&gt;&gt; {
-<a href=#1510 id=1510 data-nosnippet>1510</a>        <span class="kw">crate</span>::poll_fn(<span class="kw">move </span>|cx| <span class="self">self</span>.poll_push_promise(cx)).<span class="kw">await
-<a href=#1511 id=1511 data-nosnippet>1511</a>    </span>}
-<a href=#1512 id=1512 data-nosnippet>1512</a>
-<a href=#1513 id=1513 data-nosnippet>1513</a>    <span class="attr">#[doc(hidden)]
-<a href=#1514 id=1514 data-nosnippet>1514</a>    </span><span class="kw">pub fn </span>poll_push_promise(
-<a href=#1515 id=1515 data-nosnippet>1515</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1516 id=1516 data-nosnippet>1516</a>        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-<a href=#1517 id=1517 data-nosnippet>1517</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;PushPromise, <span class="kw">crate</span>::Error&gt;&gt;&gt; {
-<a href=#1518 id=1518 data-nosnippet>1518</a>        <span class="kw">match </span><span class="self">self</span>.inner.poll_pushed(cx) {
-<a href=#1519 id=1519 data-nosnippet>1519</a>            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>((request, response)))) =&gt; {
-<a href=#1520 id=1520 data-nosnippet>1520</a>                <span class="kw">let </span>response = PushedResponseFuture {
-<a href=#1521 id=1521 data-nosnippet>1521</a>                    inner: ResponseFuture {
-<a href=#1522 id=1522 data-nosnippet>1522</a>                        inner: response,
-<a href=#1523 id=1523 data-nosnippet>1523</a>                        push_promise_consumed: <span class="bool-val">false</span>,
-<a href=#1524 id=1524 data-nosnippet>1524</a>                    },
-<a href=#1525 id=1525 data-nosnippet>1525</a>                };
-<a href=#1526 id=1526 data-nosnippet>1526</a>                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(PushPromise { request, response })))
-<a href=#1527 id=1527 data-nosnippet>1527</a>            }
-<a href=#1528 id=1528 data-nosnippet>1528</a>            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e))) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e.into()))),
-<a href=#1529 id=1529 data-nosnippet>1529</a>            Poll::Ready(<span class="prelude-val">None</span>) =&gt; Poll::Ready(<span class="prelude-val">None</span>),
-<a href=#1530 id=1530 data-nosnippet>1530</a>            Poll::Pending =&gt; Poll::Pending,
-<a href=#1531 id=1531 data-nosnippet>1531</a>        }
-<a href=#1532 id=1532 data-nosnippet>1532</a>    }
-<a href=#1533 id=1533 data-nosnippet>1533</a>}
-<a href=#1534 id=1534 data-nosnippet>1534</a>
-<a href=#1535 id=1535 data-nosnippet>1535</a><span class="attr">#[cfg(feature = <span class="string">"stream"</span>)]
-<a href=#1536 id=1536 data-nosnippet>1536</a></span><span class="kw">impl </span>futures_core::Stream <span class="kw">for </span>PushPromises {
-<a href=#1537 id=1537 data-nosnippet>1537</a>    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;PushPromise, <span class="kw">crate</span>::Error&gt;;
-<a href=#1538 id=1538 data-nosnippet>1538</a>
-<a href=#1539 id=1539 data-nosnippet>1539</a>    <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
-<a href=#1540 id=1540 data-nosnippet>1540</a>        <span class="self">self</span>.poll_push_promise(cx)
-<a href=#1541 id=1541 data-nosnippet>1541</a>    }
-<a href=#1542 id=1542 data-nosnippet>1542</a>}
-<a href=#1543 id=1543 data-nosnippet>1543</a>
-<a href=#1544 id=1544 data-nosnippet>1544</a><span class="comment">// ===== impl PushPromise =====
-<a href=#1545 id=1545 data-nosnippet>1545</a>
-<a href=#1546 id=1546 data-nosnippet>1546</a></span><span class="kw">impl </span>PushPromise {
-<a href=#1547 id=1547 data-nosnippet>1547</a>    <span class="doccomment">/// Returns a reference to the push promise's request headers.
-<a href=#1548 id=1548 data-nosnippet>1548</a>    </span><span class="kw">pub fn </span>request(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Request&lt;()&gt; {
-<a href=#1549 id=1549 data-nosnippet>1549</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.request
-<a href=#1550 id=1550 data-nosnippet>1550</a>    }
-<a href=#1551 id=1551 data-nosnippet>1551</a>
-<a href=#1552 id=1552 data-nosnippet>1552</a>    <span class="doccomment">/// Returns a mutable reference to the push promise's request headers.
-<a href=#1553 id=1553 data-nosnippet>1553</a>    </span><span class="kw">pub fn </span>request_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Request&lt;()&gt; {
-<a href=#1554 id=1554 data-nosnippet>1554</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.request
-<a href=#1555 id=1555 data-nosnippet>1555</a>    }
-<a href=#1556 id=1556 data-nosnippet>1556</a>
-<a href=#1557 id=1557 data-nosnippet>1557</a>    <span class="doccomment">/// Consumes `self`, returning the push promise's request headers and
-<a href=#1558 id=1558 data-nosnippet>1558</a>    /// response future.
-<a href=#1559 id=1559 data-nosnippet>1559</a>    </span><span class="kw">pub fn </span>into_parts(<span class="self">self</span>) -&gt; (Request&lt;()&gt;, PushedResponseFuture) {
-<a href=#1560 id=1560 data-nosnippet>1560</a>        (<span class="self">self</span>.request, <span class="self">self</span>.response)
-<a href=#1561 id=1561 data-nosnippet>1561</a>    }
-<a href=#1562 id=1562 data-nosnippet>1562</a>}
-<a href=#1563 id=1563 data-nosnippet>1563</a>
-<a href=#1564 id=1564 data-nosnippet>1564</a><span class="comment">// ===== impl PushedResponseFuture =====
-<a href=#1565 id=1565 data-nosnippet>1565</a>
-<a href=#1566 id=1566 data-nosnippet>1566</a></span><span class="kw">impl </span>Future <span class="kw">for </span>PushedResponseFuture {
-<a href=#1567 id=1567 data-nosnippet>1567</a>    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Response&lt;RecvStream&gt;, <span class="kw">crate</span>::Error&gt;;
-<a href=#1568 id=1568 data-nosnippet>1568</a>
-<a href=#1569 id=1569 data-nosnippet>1569</a>    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
-<a href=#1570 id=1570 data-nosnippet>1570</a>        Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner).poll(cx)
+<a href=#1503 id=1503 data-nosnippet>1503</a>
+<a href=#1504 id=1504 data-nosnippet>1504</a>    <span class="doccomment">/// Returns a stream of PushPromises
+<a href=#1505 id=1505 data-nosnippet>1505</a>    ///
+<a href=#1506 id=1506 data-nosnippet>1506</a>    /// # Panics
+<a href=#1507 id=1507 data-nosnippet>1507</a>    ///
+<a href=#1508 id=1508 data-nosnippet>1508</a>    /// If this method has been called before
+<a href=#1509 id=1509 data-nosnippet>1509</a>    /// or the stream was itself was pushed
+<a href=#1510 id=1510 data-nosnippet>1510</a>    </span><span class="kw">pub fn </span>push_promises(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; PushPromises {
+<a href=#1511 id=1511 data-nosnippet>1511</a>        <span class="kw">if </span><span class="self">self</span>.push_promise_consumed {
+<a href=#1512 id=1512 data-nosnippet>1512</a>            <span class="macro">panic!</span>(<span class="string">"Reference to push promises stream taken!"</span>);
+<a href=#1513 id=1513 data-nosnippet>1513</a>        }
+<a href=#1514 id=1514 data-nosnippet>1514</a>        <span class="self">self</span>.push_promise_consumed = <span class="bool-val">true</span>;
+<a href=#1515 id=1515 data-nosnippet>1515</a>        PushPromises {
+<a href=#1516 id=1516 data-nosnippet>1516</a>            inner: <span class="self">self</span>.inner.clone(),
+<a href=#1517 id=1517 data-nosnippet>1517</a>        }
+<a href=#1518 id=1518 data-nosnippet>1518</a>    }
+<a href=#1519 id=1519 data-nosnippet>1519</a>}
+<a href=#1520 id=1520 data-nosnippet>1520</a>
+<a href=#1521 id=1521 data-nosnippet>1521</a><span class="comment">// ===== impl PushPromises =====
+<a href=#1522 id=1522 data-nosnippet>1522</a>
+<a href=#1523 id=1523 data-nosnippet>1523</a></span><span class="kw">impl </span>PushPromises {
+<a href=#1524 id=1524 data-nosnippet>1524</a>    <span class="doccomment">/// Get the next `PushPromise`.
+<a href=#1525 id=1525 data-nosnippet>1525</a>    </span><span class="kw">pub async fn </span>push_promise(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;PushPromise, <span class="kw">crate</span>::Error&gt;&gt; {
+<a href=#1526 id=1526 data-nosnippet>1526</a>        <span class="kw">crate</span>::poll_fn(<span class="kw">move </span>|cx| <span class="self">self</span>.poll_push_promise(cx)).<span class="kw">await
+<a href=#1527 id=1527 data-nosnippet>1527</a>    </span>}
+<a href=#1528 id=1528 data-nosnippet>1528</a>
+<a href=#1529 id=1529 data-nosnippet>1529</a>    <span class="attr">#[doc(hidden)]
+<a href=#1530 id=1530 data-nosnippet>1530</a>    </span><span class="kw">pub fn </span>poll_push_promise(
+<a href=#1531 id=1531 data-nosnippet>1531</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1532 id=1532 data-nosnippet>1532</a>        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
+<a href=#1533 id=1533 data-nosnippet>1533</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;PushPromise, <span class="kw">crate</span>::Error&gt;&gt;&gt; {
+<a href=#1534 id=1534 data-nosnippet>1534</a>        <span class="kw">match </span><span class="self">self</span>.inner.poll_pushed(cx) {
+<a href=#1535 id=1535 data-nosnippet>1535</a>            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>((request, response)))) =&gt; {
+<a href=#1536 id=1536 data-nosnippet>1536</a>                <span class="kw">let </span>response = PushedResponseFuture {
+<a href=#1537 id=1537 data-nosnippet>1537</a>                    inner: ResponseFuture {
+<a href=#1538 id=1538 data-nosnippet>1538</a>                        inner: response,
+<a href=#1539 id=1539 data-nosnippet>1539</a>                        push_promise_consumed: <span class="bool-val">false</span>,
+<a href=#1540 id=1540 data-nosnippet>1540</a>                    },
+<a href=#1541 id=1541 data-nosnippet>1541</a>                };
+<a href=#1542 id=1542 data-nosnippet>1542</a>                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(PushPromise { request, response })))
+<a href=#1543 id=1543 data-nosnippet>1543</a>            }
+<a href=#1544 id=1544 data-nosnippet>1544</a>            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e))) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e.into()))),
+<a href=#1545 id=1545 data-nosnippet>1545</a>            Poll::Ready(<span class="prelude-val">None</span>) =&gt; Poll::Ready(<span class="prelude-val">None</span>),
+<a href=#1546 id=1546 data-nosnippet>1546</a>            Poll::Pending =&gt; Poll::Pending,
+<a href=#1547 id=1547 data-nosnippet>1547</a>        }
+<a href=#1548 id=1548 data-nosnippet>1548</a>    }
+<a href=#1549 id=1549 data-nosnippet>1549</a>}
+<a href=#1550 id=1550 data-nosnippet>1550</a>
+<a href=#1551 id=1551 data-nosnippet>1551</a><span class="attr">#[cfg(feature = <span class="string">"stream"</span>)]
+<a href=#1552 id=1552 data-nosnippet>1552</a></span><span class="kw">impl </span>futures_core::Stream <span class="kw">for </span>PushPromises {
+<a href=#1553 id=1553 data-nosnippet>1553</a>    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;PushPromise, <span class="kw">crate</span>::Error&gt;;
+<a href=#1554 id=1554 data-nosnippet>1554</a>
+<a href=#1555 id=1555 data-nosnippet>1555</a>    <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+<a href=#1556 id=1556 data-nosnippet>1556</a>        <span class="self">self</span>.poll_push_promise(cx)
+<a href=#1557 id=1557 data-nosnippet>1557</a>    }
+<a href=#1558 id=1558 data-nosnippet>1558</a>}
+<a href=#1559 id=1559 data-nosnippet>1559</a>
+<a href=#1560 id=1560 data-nosnippet>1560</a><span class="comment">// ===== impl PushPromise =====
+<a href=#1561 id=1561 data-nosnippet>1561</a>
+<a href=#1562 id=1562 data-nosnippet>1562</a></span><span class="kw">impl </span>PushPromise {
+<a href=#1563 id=1563 data-nosnippet>1563</a>    <span class="doccomment">/// Returns a reference to the push promise's request headers.
+<a href=#1564 id=1564 data-nosnippet>1564</a>    </span><span class="kw">pub fn </span>request(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Request&lt;()&gt; {
+<a href=#1565 id=1565 data-nosnippet>1565</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.request
+<a href=#1566 id=1566 data-nosnippet>1566</a>    }
+<a href=#1567 id=1567 data-nosnippet>1567</a>
+<a href=#1568 id=1568 data-nosnippet>1568</a>    <span class="doccomment">/// Returns a mutable reference to the push promise's request headers.
+<a href=#1569 id=1569 data-nosnippet>1569</a>    </span><span class="kw">pub fn </span>request_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Request&lt;()&gt; {
+<a href=#1570 id=1570 data-nosnippet>1570</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.request
 <a href=#1571 id=1571 data-nosnippet>1571</a>    }
-<a href=#1572 id=1572 data-nosnippet>1572</a>}
-<a href=#1573 id=1573 data-nosnippet>1573</a>
-<a href=#1574 id=1574 data-nosnippet>1574</a><span class="kw">impl </span>PushedResponseFuture {
-<a href=#1575 id=1575 data-nosnippet>1575</a>    <span class="doccomment">/// Returns the stream ID of the response stream.
-<a href=#1576 id=1576 data-nosnippet>1576</a>    ///
-<a href=#1577 id=1577 data-nosnippet>1577</a>    /// # Panics
-<a href=#1578 id=1578 data-nosnippet>1578</a>    ///
-<a href=#1579 id=1579 data-nosnippet>1579</a>    /// If the lock on the stream store has been poisoned.
-<a href=#1580 id=1580 data-nosnippet>1580</a>    </span><span class="kw">pub fn </span>stream_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::StreamId {
-<a href=#1581 id=1581 data-nosnippet>1581</a>        <span class="self">self</span>.inner.stream_id()
-<a href=#1582 id=1582 data-nosnippet>1582</a>    }
-<a href=#1583 id=1583 data-nosnippet>1583</a>}
+<a href=#1572 id=1572 data-nosnippet>1572</a>
+<a href=#1573 id=1573 data-nosnippet>1573</a>    <span class="doccomment">/// Consumes `self`, returning the push promise's request headers and
+<a href=#1574 id=1574 data-nosnippet>1574</a>    /// response future.
+<a href=#1575 id=1575 data-nosnippet>1575</a>    </span><span class="kw">pub fn </span>into_parts(<span class="self">self</span>) -&gt; (Request&lt;()&gt;, PushedResponseFuture) {
+<a href=#1576 id=1576 data-nosnippet>1576</a>        (<span class="self">self</span>.request, <span class="self">self</span>.response)
+<a href=#1577 id=1577 data-nosnippet>1577</a>    }
+<a href=#1578 id=1578 data-nosnippet>1578</a>}
+<a href=#1579 id=1579 data-nosnippet>1579</a>
+<a href=#1580 id=1580 data-nosnippet>1580</a><span class="comment">// ===== impl PushedResponseFuture =====
+<a href=#1581 id=1581 data-nosnippet>1581</a>
+<a href=#1582 id=1582 data-nosnippet>1582</a></span><span class="kw">impl </span>Future <span class="kw">for </span>PushedResponseFuture {
+<a href=#1583 id=1583 data-nosnippet>1583</a>    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Response&lt;RecvStream&gt;, <span class="kw">crate</span>::Error&gt;;
 <a href=#1584 id=1584 data-nosnippet>1584</a>
-<a href=#1585 id=1585 data-nosnippet>1585</a><span class="comment">// ===== impl Peer =====
-<a href=#1586 id=1586 data-nosnippet>1586</a>
-<a href=#1587 id=1587 data-nosnippet>1587</a></span><span class="kw">impl </span>Peer {
-<a href=#1588 id=1588 data-nosnippet>1588</a>    <span class="kw">pub fn </span>convert_send_message(
-<a href=#1589 id=1589 data-nosnippet>1589</a>        id: StreamId,
-<a href=#1590 id=1590 data-nosnippet>1590</a>        request: Request&lt;()&gt;,
-<a href=#1591 id=1591 data-nosnippet>1591</a>        protocol: <span class="prelude-ty">Option</span>&lt;Protocol&gt;,
-<a href=#1592 id=1592 data-nosnippet>1592</a>        end_of_stream: bool,
-<a href=#1593 id=1593 data-nosnippet>1593</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Headers, SendError&gt; {
-<a href=#1594 id=1594 data-nosnippet>1594</a>        <span class="kw">use </span>http::request::Parts;
-<a href=#1595 id=1595 data-nosnippet>1595</a>
-<a href=#1596 id=1596 data-nosnippet>1596</a>        <span class="kw">let </span>(
-<a href=#1597 id=1597 data-nosnippet>1597</a>            Parts {
-<a href=#1598 id=1598 data-nosnippet>1598</a>                method,
-<a href=#1599 id=1599 data-nosnippet>1599</a>                uri,
-<a href=#1600 id=1600 data-nosnippet>1600</a>                headers,
-<a href=#1601 id=1601 data-nosnippet>1601</a>                version,
-<a href=#1602 id=1602 data-nosnippet>1602</a>                ..
-<a href=#1603 id=1603 data-nosnippet>1603</a>            },
-<a href=#1604 id=1604 data-nosnippet>1604</a>            <span class="kw">_</span>,
-<a href=#1605 id=1605 data-nosnippet>1605</a>        ) = request.into_parts();
-<a href=#1606 id=1606 data-nosnippet>1606</a>
-<a href=#1607 id=1607 data-nosnippet>1607</a>        <span class="kw">let </span>is_connect = method == Method::CONNECT;
-<a href=#1608 id=1608 data-nosnippet>1608</a>
-<a href=#1609 id=1609 data-nosnippet>1609</a>        <span class="comment">// Build the set pseudo header set. All requests will include `method`
-<a href=#1610 id=1610 data-nosnippet>1610</a>        // and `path`.
-<a href=#1611 id=1611 data-nosnippet>1611</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>pseudo = Pseudo::request(method, uri, protocol);
-<a href=#1612 id=1612 data-nosnippet>1612</a>
-<a href=#1613 id=1613 data-nosnippet>1613</a>        <span class="kw">if </span>pseudo.scheme.is_none() {
-<a href=#1614 id=1614 data-nosnippet>1614</a>            <span class="comment">// If the scheme is not set, then there are a two options.
-<a href=#1615 id=1615 data-nosnippet>1615</a>            //
-<a href=#1616 id=1616 data-nosnippet>1616</a>            // 1) Authority is not set. In this case, a request was issued with
-<a href=#1617 id=1617 data-nosnippet>1617</a>            //    a relative URI. This is permitted **only** when forwarding
-<a href=#1618 id=1618 data-nosnippet>1618</a>            //    HTTP 1.x requests. If the HTTP version is set to 2.0, then
-<a href=#1619 id=1619 data-nosnippet>1619</a>            //    this is an error.
-<a href=#1620 id=1620 data-nosnippet>1620</a>            //
-<a href=#1621 id=1621 data-nosnippet>1621</a>            // 2) Authority is set, then the HTTP method *must* be CONNECT.
-<a href=#1622 id=1622 data-nosnippet>1622</a>            //
-<a href=#1623 id=1623 data-nosnippet>1623</a>            // It is not possible to have a scheme but not an authority set (the
-<a href=#1624 id=1624 data-nosnippet>1624</a>            // `http` crate does not allow it).
-<a href=#1625 id=1625 data-nosnippet>1625</a>            //
-<a href=#1626 id=1626 data-nosnippet>1626</a>            </span><span class="kw">if </span>pseudo.authority.is_none() {
-<a href=#1627 id=1627 data-nosnippet>1627</a>                <span class="kw">if </span>version == Version::HTTP_2 {
-<a href=#1628 id=1628 data-nosnippet>1628</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(UserError::MissingUriSchemeAndAuthority.into());
-<a href=#1629 id=1629 data-nosnippet>1629</a>                } <span class="kw">else </span>{
-<a href=#1630 id=1630 data-nosnippet>1630</a>                    <span class="comment">// This is acceptable as per the above comment. However,
-<a href=#1631 id=1631 data-nosnippet>1631</a>                    // HTTP/2 requires that a scheme is set. Since we are
-<a href=#1632 id=1632 data-nosnippet>1632</a>                    // forwarding an HTTP 1.1 request, the scheme is set to
-<a href=#1633 id=1633 data-nosnippet>1633</a>                    // "http".
-<a href=#1634 id=1634 data-nosnippet>1634</a>                    </span>pseudo.set_scheme(uri::Scheme::HTTP);
-<a href=#1635 id=1635 data-nosnippet>1635</a>                }
-<a href=#1636 id=1636 data-nosnippet>1636</a>            } <span class="kw">else if </span>!is_connect {
-<a href=#1637 id=1637 data-nosnippet>1637</a>                <span class="comment">// TODO: Error
-<a href=#1638 id=1638 data-nosnippet>1638</a>            </span>}
-<a href=#1639 id=1639 data-nosnippet>1639</a>        }
-<a href=#1640 id=1640 data-nosnippet>1640</a>
-<a href=#1641 id=1641 data-nosnippet>1641</a>        <span class="comment">// Create the HEADERS frame
-<a href=#1642 id=1642 data-nosnippet>1642</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>frame = Headers::new(id, pseudo, headers);
-<a href=#1643 id=1643 data-nosnippet>1643</a>
-<a href=#1644 id=1644 data-nosnippet>1644</a>        <span class="kw">if </span>end_of_stream {
-<a href=#1645 id=1645 data-nosnippet>1645</a>            frame.set_end_stream()
-<a href=#1646 id=1646 data-nosnippet>1646</a>        }
-<a href=#1647 id=1647 data-nosnippet>1647</a>
-<a href=#1648 id=1648 data-nosnippet>1648</a>        <span class="prelude-val">Ok</span>(frame)
-<a href=#1649 id=1649 data-nosnippet>1649</a>    }
-<a href=#1650 id=1650 data-nosnippet>1650</a>}
-<a href=#1651 id=1651 data-nosnippet>1651</a>
-<a href=#1652 id=1652 data-nosnippet>1652</a><span class="kw">impl </span>proto::Peer <span class="kw">for </span>Peer {
-<a href=#1653 id=1653 data-nosnippet>1653</a>    <span class="kw">type </span>Poll = Response&lt;()&gt;;
-<a href=#1654 id=1654 data-nosnippet>1654</a>
-<a href=#1655 id=1655 data-nosnippet>1655</a>    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Client"</span>;
+<a href=#1585 id=1585 data-nosnippet>1585</a>    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+<a href=#1586 id=1586 data-nosnippet>1586</a>        Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner).poll(cx)
+<a href=#1587 id=1587 data-nosnippet>1587</a>    }
+<a href=#1588 id=1588 data-nosnippet>1588</a>}
+<a href=#1589 id=1589 data-nosnippet>1589</a>
+<a href=#1590 id=1590 data-nosnippet>1590</a><span class="kw">impl </span>PushedResponseFuture {
+<a href=#1591 id=1591 data-nosnippet>1591</a>    <span class="doccomment">/// Returns the stream ID of the response stream.
+<a href=#1592 id=1592 data-nosnippet>1592</a>    ///
+<a href=#1593 id=1593 data-nosnippet>1593</a>    /// # Panics
+<a href=#1594 id=1594 data-nosnippet>1594</a>    ///
+<a href=#1595 id=1595 data-nosnippet>1595</a>    /// If the lock on the stream store has been poisoned.
+<a href=#1596 id=1596 data-nosnippet>1596</a>    </span><span class="kw">pub fn </span>stream_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::StreamId {
+<a href=#1597 id=1597 data-nosnippet>1597</a>        <span class="self">self</span>.inner.stream_id()
+<a href=#1598 id=1598 data-nosnippet>1598</a>    }
+<a href=#1599 id=1599 data-nosnippet>1599</a>}
+<a href=#1600 id=1600 data-nosnippet>1600</a>
+<a href=#1601 id=1601 data-nosnippet>1601</a><span class="comment">// ===== impl Peer =====
+<a href=#1602 id=1602 data-nosnippet>1602</a>
+<a href=#1603 id=1603 data-nosnippet>1603</a></span><span class="kw">impl </span>Peer {
+<a href=#1604 id=1604 data-nosnippet>1604</a>    <span class="kw">pub fn </span>convert_send_message(
+<a href=#1605 id=1605 data-nosnippet>1605</a>        id: StreamId,
+<a href=#1606 id=1606 data-nosnippet>1606</a>        request: Request&lt;()&gt;,
+<a href=#1607 id=1607 data-nosnippet>1607</a>        protocol: <span class="prelude-ty">Option</span>&lt;Protocol&gt;,
+<a href=#1608 id=1608 data-nosnippet>1608</a>        end_of_stream: bool,
+<a href=#1609 id=1609 data-nosnippet>1609</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Headers, SendError&gt; {
+<a href=#1610 id=1610 data-nosnippet>1610</a>        <span class="kw">use </span>http::request::Parts;
+<a href=#1611 id=1611 data-nosnippet>1611</a>
+<a href=#1612 id=1612 data-nosnippet>1612</a>        <span class="kw">let </span>(
+<a href=#1613 id=1613 data-nosnippet>1613</a>            Parts {
+<a href=#1614 id=1614 data-nosnippet>1614</a>                method,
+<a href=#1615 id=1615 data-nosnippet>1615</a>                uri,
+<a href=#1616 id=1616 data-nosnippet>1616</a>                headers,
+<a href=#1617 id=1617 data-nosnippet>1617</a>                version,
+<a href=#1618 id=1618 data-nosnippet>1618</a>                ..
+<a href=#1619 id=1619 data-nosnippet>1619</a>            },
+<a href=#1620 id=1620 data-nosnippet>1620</a>            <span class="kw">_</span>,
+<a href=#1621 id=1621 data-nosnippet>1621</a>        ) = request.into_parts();
+<a href=#1622 id=1622 data-nosnippet>1622</a>
+<a href=#1623 id=1623 data-nosnippet>1623</a>        <span class="kw">let </span>is_connect = method == Method::CONNECT;
+<a href=#1624 id=1624 data-nosnippet>1624</a>
+<a href=#1625 id=1625 data-nosnippet>1625</a>        <span class="comment">// Build the set pseudo header set. All requests will include `method`
+<a href=#1626 id=1626 data-nosnippet>1626</a>        // and `path`.
+<a href=#1627 id=1627 data-nosnippet>1627</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>pseudo = Pseudo::request(method, uri, protocol);
+<a href=#1628 id=1628 data-nosnippet>1628</a>
+<a href=#1629 id=1629 data-nosnippet>1629</a>        <span class="kw">if </span>pseudo.scheme.is_none() {
+<a href=#1630 id=1630 data-nosnippet>1630</a>            <span class="comment">// If the scheme is not set, then there are a two options.
+<a href=#1631 id=1631 data-nosnippet>1631</a>            //
+<a href=#1632 id=1632 data-nosnippet>1632</a>            // 1) Authority is not set. In this case, a request was issued with
+<a href=#1633 id=1633 data-nosnippet>1633</a>            //    a relative URI. This is permitted **only** when forwarding
+<a href=#1634 id=1634 data-nosnippet>1634</a>            //    HTTP 1.x requests. If the HTTP version is set to 2.0, then
+<a href=#1635 id=1635 data-nosnippet>1635</a>            //    this is an error.
+<a href=#1636 id=1636 data-nosnippet>1636</a>            //
+<a href=#1637 id=1637 data-nosnippet>1637</a>            // 2) Authority is set, then the HTTP method *must* be CONNECT.
+<a href=#1638 id=1638 data-nosnippet>1638</a>            //
+<a href=#1639 id=1639 data-nosnippet>1639</a>            // It is not possible to have a scheme but not an authority set (the
+<a href=#1640 id=1640 data-nosnippet>1640</a>            // `http` crate does not allow it).
+<a href=#1641 id=1641 data-nosnippet>1641</a>            //
+<a href=#1642 id=1642 data-nosnippet>1642</a>            </span><span class="kw">if </span>pseudo.authority.is_none() {
+<a href=#1643 id=1643 data-nosnippet>1643</a>                <span class="kw">if </span>version == Version::HTTP_2 {
+<a href=#1644 id=1644 data-nosnippet>1644</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(UserError::MissingUriSchemeAndAuthority.into());
+<a href=#1645 id=1645 data-nosnippet>1645</a>                } <span class="kw">else </span>{
+<a href=#1646 id=1646 data-nosnippet>1646</a>                    <span class="comment">// This is acceptable as per the above comment. However,
+<a href=#1647 id=1647 data-nosnippet>1647</a>                    // HTTP/2 requires that a scheme is set. Since we are
+<a href=#1648 id=1648 data-nosnippet>1648</a>                    // forwarding an HTTP 1.1 request, the scheme is set to
+<a href=#1649 id=1649 data-nosnippet>1649</a>                    // "http".
+<a href=#1650 id=1650 data-nosnippet>1650</a>                    </span>pseudo.set_scheme(uri::Scheme::HTTP);
+<a href=#1651 id=1651 data-nosnippet>1651</a>                }
+<a href=#1652 id=1652 data-nosnippet>1652</a>            } <span class="kw">else if </span>!is_connect {
+<a href=#1653 id=1653 data-nosnippet>1653</a>                <span class="comment">// TODO: Error
+<a href=#1654 id=1654 data-nosnippet>1654</a>            </span>}
+<a href=#1655 id=1655 data-nosnippet>1655</a>        }
 <a href=#1656 id=1656 data-nosnippet>1656</a>
-<a href=#1657 id=1657 data-nosnippet>1657</a>    <span class="kw">fn </span>r#dyn() -&gt; proto::DynPeer {
-<a href=#1658 id=1658 data-nosnippet>1658</a>        proto::DynPeer::Client
-<a href=#1659 id=1659 data-nosnippet>1659</a>    }
-<a href=#1660 id=1660 data-nosnippet>1660</a>
-<a href=#1661 id=1661 data-nosnippet>1661</a>    <span class="comment">/*
-<a href=#1662 id=1662 data-nosnippet>1662</a>    fn is_server() -&gt; bool {
-<a href=#1663 id=1663 data-nosnippet>1663</a>        false
-<a href=#1664 id=1664 data-nosnippet>1664</a>    }
-<a href=#1665 id=1665 data-nosnippet>1665</a>    */
-<a href=#1666 id=1666 data-nosnippet>1666</a>
-<a href=#1667 id=1667 data-nosnippet>1667</a>    </span><span class="kw">fn </span>convert_poll_message(
-<a href=#1668 id=1668 data-nosnippet>1668</a>        pseudo: Pseudo,
-<a href=#1669 id=1669 data-nosnippet>1669</a>        fields: HeaderMap,
-<a href=#1670 id=1670 data-nosnippet>1670</a>        stream_id: StreamId,
-<a href=#1671 id=1671 data-nosnippet>1671</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Poll, Error&gt; {
-<a href=#1672 id=1672 data-nosnippet>1672</a>        <span class="kw">let </span><span class="kw-2">mut </span>b = Response::builder();
-<a href=#1673 id=1673 data-nosnippet>1673</a>
-<a href=#1674 id=1674 data-nosnippet>1674</a>        b = b.version(Version::HTTP_2);
-<a href=#1675 id=1675 data-nosnippet>1675</a>
-<a href=#1676 id=1676 data-nosnippet>1676</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(status) = pseudo.status {
-<a href=#1677 id=1677 data-nosnippet>1677</a>            b = b.status(status);
-<a href=#1678 id=1678 data-nosnippet>1678</a>        }
-<a href=#1679 id=1679 data-nosnippet>1679</a>
-<a href=#1680 id=1680 data-nosnippet>1680</a>        <span class="kw">let </span><span class="kw-2">mut </span>response = <span class="kw">match </span>b.body(()) {
-<a href=#1681 id=1681 data-nosnippet>1681</a>            <span class="prelude-val">Ok</span>(response) =&gt; response,
-<a href=#1682 id=1682 data-nosnippet>1682</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-<a href=#1683 id=1683 data-nosnippet>1683</a>                <span class="comment">// TODO: Should there be more specialized handling for different
-<a href=#1684 id=1684 data-nosnippet>1684</a>                // kinds of errors
-<a href=#1685 id=1685 data-nosnippet>1685</a>                </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::library_reset(stream_id, Reason::PROTOCOL_ERROR));
-<a href=#1686 id=1686 data-nosnippet>1686</a>            }
-<a href=#1687 id=1687 data-nosnippet>1687</a>        };
-<a href=#1688 id=1688 data-nosnippet>1688</a>
-<a href=#1689 id=1689 data-nosnippet>1689</a>        <span class="kw-2">*</span>response.headers_mut() = fields;
-<a href=#1690 id=1690 data-nosnippet>1690</a>
-<a href=#1691 id=1691 data-nosnippet>1691</a>        <span class="prelude-val">Ok</span>(response)
-<a href=#1692 id=1692 data-nosnippet>1692</a>    }
-<a href=#1693 id=1693 data-nosnippet>1693</a>}</code></pre></div></section></main></body></html>
+<a href=#1657 id=1657 data-nosnippet>1657</a>        <span class="comment">// Create the HEADERS frame
+<a href=#1658 id=1658 data-nosnippet>1658</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>frame = Headers::new(id, pseudo, headers);
+<a href=#1659 id=1659 data-nosnippet>1659</a>
+<a href=#1660 id=1660 data-nosnippet>1660</a>        <span class="kw">if </span>end_of_stream {
+<a href=#1661 id=1661 data-nosnippet>1661</a>            frame.set_end_stream()
+<a href=#1662 id=1662 data-nosnippet>1662</a>        }
+<a href=#1663 id=1663 data-nosnippet>1663</a>
+<a href=#1664 id=1664 data-nosnippet>1664</a>        <span class="prelude-val">Ok</span>(frame)
+<a href=#1665 id=1665 data-nosnippet>1665</a>    }
+<a href=#1666 id=1666 data-nosnippet>1666</a>}
+<a href=#1667 id=1667 data-nosnippet>1667</a>
+<a href=#1668 id=1668 data-nosnippet>1668</a><span class="kw">impl </span>proto::Peer <span class="kw">for </span>Peer {
+<a href=#1669 id=1669 data-nosnippet>1669</a>    <span class="kw">type </span>Poll = Response&lt;()&gt;;
+<a href=#1670 id=1670 data-nosnippet>1670</a>
+<a href=#1671 id=1671 data-nosnippet>1671</a>    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Client"</span>;
+<a href=#1672 id=1672 data-nosnippet>1672</a>
+<a href=#1673 id=1673 data-nosnippet>1673</a>    <span class="kw">fn </span>r#dyn() -&gt; proto::DynPeer {
+<a href=#1674 id=1674 data-nosnippet>1674</a>        proto::DynPeer::Client
+<a href=#1675 id=1675 data-nosnippet>1675</a>    }
+<a href=#1676 id=1676 data-nosnippet>1676</a>
+<a href=#1677 id=1677 data-nosnippet>1677</a>    <span class="comment">/*
+<a href=#1678 id=1678 data-nosnippet>1678</a>    fn is_server() -&gt; bool {
+<a href=#1679 id=1679 data-nosnippet>1679</a>        false
+<a href=#1680 id=1680 data-nosnippet>1680</a>    }
+<a href=#1681 id=1681 data-nosnippet>1681</a>    */
+<a href=#1682 id=1682 data-nosnippet>1682</a>
+<a href=#1683 id=1683 data-nosnippet>1683</a>    </span><span class="kw">fn </span>convert_poll_message(
+<a href=#1684 id=1684 data-nosnippet>1684</a>        pseudo: Pseudo,
+<a href=#1685 id=1685 data-nosnippet>1685</a>        fields: HeaderMap,
+<a href=#1686 id=1686 data-nosnippet>1686</a>        stream_id: StreamId,
+<a href=#1687 id=1687 data-nosnippet>1687</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Poll, Error&gt; {
+<a href=#1688 id=1688 data-nosnippet>1688</a>        <span class="kw">let </span><span class="kw-2">mut </span>b = Response::builder();
+<a href=#1689 id=1689 data-nosnippet>1689</a>
+<a href=#1690 id=1690 data-nosnippet>1690</a>        b = b.version(Version::HTTP_2);
+<a href=#1691 id=1691 data-nosnippet>1691</a>
+<a href=#1692 id=1692 data-nosnippet>1692</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(status) = pseudo.status {
+<a href=#1693 id=1693 data-nosnippet>1693</a>            b = b.status(status);
+<a href=#1694 id=1694 data-nosnippet>1694</a>        }
+<a href=#1695 id=1695 data-nosnippet>1695</a>
+<a href=#1696 id=1696 data-nosnippet>1696</a>        <span class="kw">let </span><span class="kw-2">mut </span>response = <span class="kw">match </span>b.body(()) {
+<a href=#1697 id=1697 data-nosnippet>1697</a>            <span class="prelude-val">Ok</span>(response) =&gt; response,
+<a href=#1698 id=1698 data-nosnippet>1698</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+<a href=#1699 id=1699 data-nosnippet>1699</a>                <span class="comment">// TODO: Should there be more specialized handling for different
+<a href=#1700 id=1700 data-nosnippet>1700</a>                // kinds of errors
+<a href=#1701 id=1701 data-nosnippet>1701</a>                </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::library_reset(stream_id, Reason::PROTOCOL_ERROR));
+<a href=#1702 id=1702 data-nosnippet>1702</a>            }
+<a href=#1703 id=1703 data-nosnippet>1703</a>        };
+<a href=#1704 id=1704 data-nosnippet>1704</a>
+<a href=#1705 id=1705 data-nosnippet>1705</a>        <span class="kw-2">*</span>response.headers_mut() = fields;
+<a href=#1706 id=1706 data-nosnippet>1706</a>
+<a href=#1707 id=1707 data-nosnippet>1707</a>        <span class="prelude-val">Ok</span>(response)
+<a href=#1708 id=1708 data-nosnippet>1708</a>    }
+<a href=#1709 id=1709 data-nosnippet>1709</a>}
+</code></pre></div></section></main></body></html>

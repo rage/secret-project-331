@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iri-string-0.7.8/src/types/generic/reference.rs`."><title>reference.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="iri_string" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">iri_string/types/generic/</div>reference.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! IRI reference.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iri-string-0.7.10/src/types/generic/reference.rs`."><title>reference.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="iri_string" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">iri_string/types/generic/</div>reference.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! IRI reference.
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="attr">#[cfg(all(feature = <span class="string">"alloc"</span>, not(feature = <span class="string">"std"</span>)))]
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">use </span>alloc::string::String;
@@ -63,10 +63,10 @@
 <a href=#63 id=63 data-nosnippet>63</a>    /// assert!(IriReferenceStr::new("%GG").is_err());
 <a href=#64 id=64 data-nosnippet>64</a>    /// ```
 <a href=#65 id=65 data-nosnippet>65</a>    ///
-<a href=#66 id=66 data-nosnippet>66</a>    /// [RFC 3986]: https://tools.ietf.org/html/rfc3986
-<a href=#67 id=67 data-nosnippet>67</a>    /// [RFC 3987]: https://tools.ietf.org/html/rfc3987
-<a href=#68 id=68 data-nosnippet>68</a>    /// [`IRI-reference` rule]: https://tools.ietf.org/html/rfc3987#section-2.2
-<a href=#69 id=69 data-nosnippet>69</a>    /// [`URI-reference` rule]: https://tools.ietf.org/html/rfc3986#section-4.1
+<a href=#66 id=66 data-nosnippet>66</a>    /// [RFC 3986]: https://www.rfc-editor.org/rfc/rfc3986.html
+<a href=#67 id=67 data-nosnippet>67</a>    /// [RFC 3987]: https://www.rfc-editor.org/rfc/rfc3987.html
+<a href=#68 id=68 data-nosnippet>68</a>    /// [`IRI-reference` rule]: https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2
+<a href=#69 id=69 data-nosnippet>69</a>    /// [`URI-reference` rule]: https://www.rfc-editor.org/rfc/rfc3986.html#section-4.1
 <a href=#70 id=70 data-nosnippet>70</a>    /// [`RiRelativeStr`]: struct.RiRelativeStr.html
 <a href=#71 id=71 data-nosnippet>71</a>    /// [`RiStr`]: struct.RiStr.html
 <a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">struct </span>RiReferenceStr {
@@ -88,10 +88,10 @@
 <a href=#88 id=88 data-nosnippet>88</a>    ///
 <a href=#89 id=89 data-nosnippet>89</a>    /// Enabled by `alloc` or `std` feature.
 <a href=#90 id=90 data-nosnippet>90</a>    ///
-<a href=#91 id=91 data-nosnippet>91</a>    /// [RFC 3986]: https://tools.ietf.org/html/rfc3986
-<a href=#92 id=92 data-nosnippet>92</a>    /// [RFC 3987]: https://tools.ietf.org/html/rfc3987
-<a href=#93 id=93 data-nosnippet>93</a>    /// [`IRI-reference` rule]: https://tools.ietf.org/html/rfc3987#section-2.2
-<a href=#94 id=94 data-nosnippet>94</a>    /// [`URI-reference` rule]: https://tools.ietf.org/html/rfc3986#section-4.1
+<a href=#91 id=91 data-nosnippet>91</a>    /// [RFC 3986]: https://www.rfc-editor.org/rfc/rfc3986.html
+<a href=#92 id=92 data-nosnippet>92</a>    /// [RFC 3987]: https://www.rfc-editor.org/rfc/rfc3987.html
+<a href=#93 id=93 data-nosnippet>93</a>    /// [`IRI-reference` rule]: https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2
+<a href=#94 id=94 data-nosnippet>94</a>    /// [`URI-reference` rule]: https://www.rfc-editor.org/rfc/rfc3986.html#section-4.1
 <a href=#95 id=95 data-nosnippet>95</a>    /// [`RiReferenceStr`]: struct.RiReferenceString.html
 <a href=#96 id=96 data-nosnippet>96</a>    /// [`RiRelativeString`]: struct.RiRelativeString.html
 <a href=#97 id=97 data-nosnippet>97</a>    /// [`RiString`]: struct.RiString.html
@@ -116,7 +116,7 @@
 <a href=#116 id=116 data-nosnippet>116</a>        // &gt; Some productions are ambiguous. The "first-match-wins" (a.k.a.
 <a href=#117 id=117 data-nosnippet>117</a>        // &gt; "greedy") algorithm applies. For details, see [RFC3986].
 <a href=#118 id=118 data-nosnippet>118</a>        // &gt;
-<a href=#119 id=119 data-nosnippet>119</a>        // &gt; --- &lt;https://tools.ietf.org/html/rfc3987#section-2.2&gt;.
+<a href=#119 id=119 data-nosnippet>119</a>        // &gt; --- &lt;https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2&gt;.
 <a href=#120 id=120 data-nosnippet>120</a>
 <a href=#121 id=121 data-nosnippet>121</a>        </span>&lt;<span class="kw-2">&amp;</span>RiStr&lt;S&gt;&gt;::try_from(<span class="self">self</span>.as_str()).map_err(|<span class="kw">_</span>| {
 <a href=#122 id=122 data-nosnippet>122</a>            <span class="comment">// SAFETY: if an IRI reference is not an IRI, then it is a relative IRI.
@@ -155,10 +155,10 @@
 <a href=#155 id=155 data-nosnippet>155</a>    /// &gt; Some parsers allow the scheme name to be present in a relative
 <a href=#156 id=156 data-nosnippet>156</a>    /// &gt; reference if it is the same as the base URI scheme. This is considered
 <a href=#157 id=157 data-nosnippet>157</a>    /// &gt; to be a loophole in prior specifications of partial URI
-<a href=#158 id=158 data-nosnippet>158</a>    /// &gt; [RFC1630](https://tools.ietf.org/html/rfc1630). Its use should be
+<a href=#158 id=158 data-nosnippet>158</a>    /// &gt; [RFC1630](https://www.rfc-editor.org/rfc/rfc1630.html). Its use should be
 <a href=#159 id=159 data-nosnippet>159</a>    /// &gt; avoided but is allowed for backward compatibility.
 <a href=#160 id=160 data-nosnippet>160</a>    /// &gt;
-<a href=#161 id=161 data-nosnippet>161</a>    /// &gt; --- &lt;https://tools.ietf.org/html/rfc3986#section-5.4.2&gt;
+<a href=#161 id=161 data-nosnippet>161</a>    /// &gt; --- &lt;https://www.rfc-editor.org/rfc/rfc3986.html#section-5.4.2&gt;
 <a href=#162 id=162 data-nosnippet>162</a>    ///
 <a href=#163 id=163 data-nosnippet>163</a>    /// # Failures
 <a href=#164 id=164 data-nosnippet>164</a>    ///
@@ -168,8 +168,8 @@
 <a href=#168 id=168 data-nosnippet>168</a>    /// To see examples of such unresolvable IRIs, visit the documentation
 <a href=#169 id=169 data-nosnippet>169</a>    /// for [`normalize`][`crate::normalize`] module.
 <a href=#170 id=170 data-nosnippet>170</a>    ///
-<a href=#171 id=171 data-nosnippet>171</a>    /// [RFC 3986 section 5.4]: https://tools.ietf.org/html/rfc3986#section-5.4
-<a href=#172 id=172 data-nosnippet>172</a>    /// [RFC 3986 section 5.4.2]: https://tools.ietf.org/html/rfc3986#section-5.4.2
+<a href=#171 id=171 data-nosnippet>171</a>    /// [RFC 3986 section 5.4]: https://www.rfc-editor.org/rfc/rfc3986.html#section-5.4
+<a href=#172 id=172 data-nosnippet>172</a>    /// [RFC 3986 section 5.4.2]: https://www.rfc-editor.org/rfc/rfc3986.html#section-5.4.2
 <a href=#173 id=173 data-nosnippet>173</a>    </span><span class="kw">pub fn </span>resolve_against&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, base: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>RiAbsoluteStr&lt;S&gt;) -&gt; Normalized&lt;<span class="lifetime">'a</span>, RiStr&lt;S&gt;&gt; {
 <a href=#174 id=174 data-nosnippet>174</a>        FixedBaseResolver::new(base).resolve(<span class="self">self</span>.as_ref())
 <a href=#175 id=175 data-nosnippet>175</a>    }
@@ -562,7 +562,7 @@
 <a href=#562 id=562 data-nosnippet>562</a>        // &gt; Some productions are ambiguous. The "first-match-wins" (a.k.a.
 <a href=#563 id=563 data-nosnippet>563</a>        // &gt; "greedy") algorithm applies. For details, see [RFC3986].
 <a href=#564 id=564 data-nosnippet>564</a>        // &gt;
-<a href=#565 id=565 data-nosnippet>565</a>        // &gt; --- &lt;https://tools.ietf.org/html/rfc3987#section-2.2&gt;.
+<a href=#565 id=565 data-nosnippet>565</a>        // &gt; --- &lt;https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2&gt;.
 <a href=#566 id=566 data-nosnippet>566</a>        </span><span class="kw">if </span>iri::&lt;S&gt;(<span class="kw-2">&amp;</span>s).is_ok() {
 <a href=#567 id=567 data-nosnippet>567</a>            <span class="comment">// SAFETY: just checked `s` is valid as an IRI.
 <a href=#568 id=568 data-nosnippet>568</a>            </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ RiString::new_always_unchecked(s) })
@@ -694,4 +694,5 @@
 <a href=#694 id=694 data-nosnippet>694</a>            </span>);
 <a href=#695 id=695 data-nosnippet>695</a>        }
 <a href=#696 id=696 data-nosnippet>696</a>    }
-<a href=#697 id=697 data-nosnippet>697</a>}</code></pre></div></section></main></body></html>
+<a href=#697 id=697 data-nosnippet>697</a>}
+</code></pre></div></section></main></body></html>

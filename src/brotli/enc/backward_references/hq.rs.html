@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.2/src/enc/backward_references/hq.rs`."><title>hq.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">brotli/enc/backward_references/</div>hq.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::{Allocator, SliceWrapper, SliceWrapperMut};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.2/src/enc/backward_references/hq.rs`."><title>hq.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">brotli/enc/backward_references/</div>hq.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::{Allocator, SliceWrapper, SliceWrapperMut};
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>core;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>core::cmp::{max, min};
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -112,7 +112,7 @@
 <a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
 <a href=#113 id=113 data-nosnippet>113</a>    <span class="kw">let </span>gap: usize = <span class="number">0usize</span>;
 <a href=#114 id=114 data-nosnippet>114</a>    i = <span class="number">0usize</span>;
-<a href=#115 id=115 data-nosnippet>115</a>    <span class="kw">while </span>offset != !(<span class="number">0u32</span>) {
+<a href=#115 id=115 data-nosnippet>115</a>    <span class="kw">while </span><span class="macro">offset !</span>= !(<span class="number">0u32</span>) {
 <a href=#116 id=116 data-nosnippet>116</a>        {
 <a href=#117 id=117 data-nosnippet>117</a>            <span class="kw">let </span>next: <span class="kw-2">&amp;</span>ZopfliNode = <span class="kw-2">&amp;</span>nodes[pos.wrapping_add(offset <span class="kw">as </span>usize)];
 <a href=#118 id=118 data-nosnippet>118</a>            <span class="kw">let </span>copy_length = next.copy_length() <span class="kw">as </span>usize;
@@ -321,7 +321,7 @@
 <a href=#321 id=321 data-nosnippet>321</a>    <span class="kw">let </span><span class="kw-2">mut </span>matches_offset = <span class="number">0usize</span>;
 <a href=#322 id=322 data-nosnippet>322</a>    <span class="kw">let </span>cur_ix_masked: usize = cur_ix &amp; ring_buffer_mask;
 <a href=#323 id=323 data-nosnippet>323</a>    <span class="kw">let </span><span class="kw-2">mut </span>best_len: usize = <span class="number">1usize</span>;
-<a href=#324 id=324 data-nosnippet>324</a>    <span class="kw">let </span>short_match_max_backward: usize = (<span class="kw">if </span>params.quality != <span class="number">11i32 </span>{
+<a href=#324 id=324 data-nosnippet>324</a>    <span class="kw">let </span>short_match_max_backward: usize = (<span class="kw">if </span>params.<span class="macro">quality !</span>= <span class="number">11i32 </span>{
 <a href=#325 id=325 data-nosnippet>325</a>        <span class="number">16i32
 <a href=#326 id=326 data-nosnippet>326</a>    </span>} <span class="kw">else </span>{
 <a href=#327 id=327 data-nosnippet>327</a>        <span class="number">64i32
@@ -632,7 +632,7 @@
 <a href=#632 id=632 data-nosnippet>632</a>    <span class="attr">#[inline(always)]
 <a href=#633 id=633 data-nosnippet>633</a>    </span><span class="kw">fn </span>length_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
 <a href=#634 id=634 data-nosnippet>634</a>        <span class="kw">let </span>code = (<span class="self">self</span>.length_and_code() &amp; <span class="number">31u32</span>) <span class="kw">as </span>usize;
-<a href=#635 id=635 data-nosnippet>635</a>        <span class="kw">if </span>code != <span class="number">0 </span>{
+<a href=#635 id=635 data-nosnippet>635</a>        <span class="kw">if </span><span class="macro">code !</span>= <span class="number">0 </span>{
 <a href=#636 id=636 data-nosnippet>636</a>            code
 <a href=#637 id=637 data-nosnippet>637</a>        } <span class="kw">else </span>{
 <a href=#638 id=638 data-nosnippet>638</a>            <span class="self">self</span>.length()
@@ -730,7 +730,7 @@
 <a href=#730 id=730 data-nosnippet>730</a>            }
 <a href=#731 id=731 data-nosnippet>731</a>            prev_ix &amp;= ringbuffer_mask;
 <a href=#732 id=732 data-nosnippet>732</a>            <span class="kw">if </span>prev_ix.wrapping_add(best_len) &gt; ringbuffer_mask
-<a href=#733 id=733 data-nosnippet>733</a>                || continuation != ringbuffer[prev_ix.wrapping_add(best_len)]
+<a href=#733 id=733 data-nosnippet>733</a>                || <span class="macro">continuation !</span>= ringbuffer[prev_ix.wrapping_add(best_len)]
 <a href=#734 id=734 data-nosnippet>734</a>            {
 <a href=#735 id=735 data-nosnippet>735</a>                <span class="kw">continue</span>;
 <a href=#736 id=736 data-nosnippet>736</a>            }
@@ -839,7 +839,7 @@
 <a href=#839 id=839 data-nosnippet>839</a>        index = index.wrapping_sub(<span class="number">1</span>);
 <a href=#840 id=840 data-nosnippet>840</a>    }
 <a href=#841 id=841 data-nosnippet>841</a>    nodes[index].u = Union1::next(!(<span class="number">0u32</span>));
-<a href=#842 id=842 data-nosnippet>842</a>    <span class="kw">while </span>index != <span class="number">0 </span>{
+<a href=#842 id=842 data-nosnippet>842</a>    <span class="kw">while </span><span class="macro">index !</span>= <span class="number">0 </span>{
 <a href=#843 id=843 data-nosnippet>843</a>        <span class="kw">let </span>len = nodes[index].command_length() <span class="kw">as </span>usize;
 <a href=#844 id=844 data-nosnippet>844</a>        index = index.wrapping_sub(len);
 <a href=#845 id=845 data-nosnippet>845</a>        (nodes[index]).u = Union1::next(len <span class="kw">as </span>u32);
@@ -949,7 +949,7 @@
 <a href=#949 id=949 data-nosnippet>949</a>                    min(pos.wrapping_add(skip), store_end),
 <a href=#950 id=950 data-nosnippet>950</a>                );
 <a href=#951 id=951 data-nosnippet>951</a>                skip = skip.wrapping_sub(<span class="number">1</span>);
-<a href=#952 id=952 data-nosnippet>952</a>                <span class="kw">while </span>skip != <span class="number">0 </span>{
+<a href=#952 id=952 data-nosnippet>952</a>                <span class="kw">while </span><span class="macro">skip !</span>= <span class="number">0 </span>{
 <a href=#953 id=953 data-nosnippet>953</a>                    i = i.wrapping_add(<span class="number">1</span>);
 <a href=#954 id=954 data-nosnippet>954</a>                    <span class="kw">if </span>i.wrapping_add(handle.HashTypeLength()).wrapping_sub(<span class="number">1</span>) &gt;= num_bytes {
 <a href=#955 id=955 data-nosnippet>955</a>                        <span class="kw">break</span>;
@@ -1204,7 +1204,7 @@
 <a href=#1204 id=1204 data-nosnippet>1204</a>            }
 <a href=#1205 id=1205 data-nosnippet>1205</a>            <span class="kw">if </span>skip &gt; <span class="number">1usize </span>{
 <a href=#1206 id=1206 data-nosnippet>1206</a>                skip = skip.wrapping_sub(<span class="number">1</span>);
-<a href=#1207 id=1207 data-nosnippet>1207</a>                <span class="kw">while </span>skip != <span class="number">0 </span>{
+<a href=#1207 id=1207 data-nosnippet>1207</a>                <span class="kw">while </span><span class="macro">skip !</span>= <span class="number">0 </span>{
 <a href=#1208 id=1208 data-nosnippet>1208</a>                    i = i.wrapping_add(<span class="number">1</span>);
 <a href=#1209 id=1209 data-nosnippet>1209</a>                    <span class="kw">if </span>i.wrapping_add(<span class="number">3</span>) &gt;= num_bytes {
 <a href=#1210 id=1210 data-nosnippet>1210</a>                        <span class="kw">break</span>;
@@ -1290,7 +1290,7 @@
 <a href=#1290 id=1290 data-nosnippet>1290</a>                        new_size = new_size.wrapping_mul(<span class="number">2</span>);
 <a href=#1291 id=1291 data-nosnippet>1291</a>                    }
 <a href=#1292 id=1292 data-nosnippet>1292</a>                    <span class="kw">let </span><span class="kw-2">mut </span>new_array = alloc_or_default::&lt;u64, <span class="kw">_</span>&gt;(alloc, new_size);
-<a href=#1293 id=1293 data-nosnippet>1293</a>                    <span class="kw">if </span>matches_size != <span class="number">0 </span>{
+<a href=#1293 id=1293 data-nosnippet>1293</a>                    <span class="kw">if </span><span class="macro">matches_size !</span>= <span class="number">0 </span>{
 <a href=#1294 id=1294 data-nosnippet>1294</a>                        <span class="kw">for </span>(dst, src) <span class="kw">in </span>new_array
 <a href=#1295 id=1295 data-nosnippet>1295</a>                            .slice_mut()
 <a href=#1296 id=1296 data-nosnippet>1296</a>                            .split_at_mut(matches_size)
@@ -1440,4 +1440,5 @@
 <a href=#1440 id=1440 data-nosnippet>1440</a>    &lt;Alloc <span class="kw">as </span>Allocator&lt;ZopfliNode&gt;&gt;::free_cell(alloc, nodes);
 <a href=#1441 id=1441 data-nosnippet>1441</a>    &lt;Alloc <span class="kw">as </span>Allocator&lt;u64&gt;&gt;::free_cell(alloc, matches);
 <a href=#1442 id=1442 data-nosnippet>1442</a>    &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::free_cell(alloc, num_matches);
-<a href=#1443 id=1443 data-nosnippet>1443</a>}</code></pre></div></section></main></body></html>
+<a href=#1443 id=1443 data-nosnippet>1443</a>}
+</code></pre></div></section></main></body></html>

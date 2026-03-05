@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/combine-4.6.7/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">combine/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! This crate contains parser combinators, roughly based on the Haskell libraries
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/combine-4.6.7/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">combine/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! This crate contains parser combinators, roughly based on the Haskell libraries
 <a href=#2 id=2 data-nosnippet>2</a>//! [parsec](http://hackage.haskell.org/package/parsec) and
 <a href=#3 id=3 data-nosnippet>3</a>//! [attoparsec](https://hackage.haskell.org/package/attoparsec).
 <a href=#4 id=4 data-nosnippet>4</a>//!
@@ -328,8 +328,8 @@
 <a href=#328 id=328 data-nosnippet>328</a>            <span class="kw">where </span>[$(<span class="macro-nonterminal">$where_clause</span>: tt)<span class="kw-2">*</span>]
 <a href=#329 id=329 data-nosnippet>329</a>        <span class="macro-nonterminal">$parser</span>: block
 <a href=#330 id=330 data-nosnippet>330</a>    ) =&gt; {
-<a href=#331 id=331 data-nosnippet>331</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::combine_parser_impl!</span>{
-<a href=#332 id=332 data-nosnippet>332</a>            <span class="attr">#[<span class="macro-nonterminal">allow</span>(non_camel_case_types)]
+<a href=#331 id=331 data-nosnippet>331</a>        <span class="macro-nonterminal">$crate::combine_parser_impl</span>!{
+<a href=#332 id=332 data-nosnippet>332</a>            <span class="attr">#[allow(non_camel_case_types)]
 <a href=#333 id=333 data-nosnippet>333</a>            #[doc(hidden)]
 <a href=#334 id=334 data-nosnippet>334</a>            </span><span class="macro-nonterminal">$fn_vis </span><span class="kw">struct </span><span class="macro-nonterminal">$name</span>;
 <a href=#335 id=335 data-nosnippet>335</a>            (<span class="kw">type </span>PartialState = (<span class="macro-nonterminal">$partial_state</span>);)
@@ -349,7 +349,7 @@
 <a href=#349 id=349 data-nosnippet>349</a>            <span class="kw">where </span>[$(<span class="macro-nonterminal">$where_clause</span>: tt)<span class="kw-2">*</span>]
 <a href=#350 id=350 data-nosnippet>350</a>        <span class="macro-nonterminal">$parser</span>: block
 <a href=#351 id=351 data-nosnippet>351</a>    ) =&gt; {
-<a href=#352 id=352 data-nosnippet>352</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::combine_parser_impl!</span>{
+<a href=#352 id=352 data-nosnippet>352</a>        <span class="macro-nonterminal">$crate::combine_parser_impl</span>!{
 <a href=#353 id=353 data-nosnippet>353</a>            $(<span class="attr">#[<span class="macro-nonterminal">$derive</span>]</span>)*
 <a href=#354 id=354 data-nosnippet>354</a>            <span class="macro-nonterminal">$struct_vis </span><span class="kw">struct </span><span class="macro-nonterminal">$type_name</span>;
 <a href=#355 id=355 data-nosnippet>355</a>            (<span class="kw">type </span>PartialState = (<span class="macro-nonterminal">$partial_state</span>);)
@@ -366,8 +366,8 @@
 <a href=#366 id=366 data-nosnippet>366</a>            <span class="kw">where </span>[$(<span class="macro-nonterminal">$where_clause</span>: tt)<span class="kw-2">*</span>]
 <a href=#367 id=367 data-nosnippet>367</a>        <span class="macro-nonterminal">$parser</span>: block
 <a href=#368 id=368 data-nosnippet>368</a>    ) =&gt; {
-<a href=#369 id=369 data-nosnippet>369</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::combine_parser_impl!</span>{
-<a href=#370 id=370 data-nosnippet>370</a>            <span class="attr">#[<span class="macro-nonterminal">allow</span>(non_camel_case_types)]
+<a href=#369 id=369 data-nosnippet>369</a>        <span class="macro-nonterminal">$crate::combine_parser_impl</span>!{
+<a href=#370 id=370 data-nosnippet>370</a>            <span class="attr">#[allow(non_camel_case_types)]
 <a href=#371 id=371 data-nosnippet>371</a>            #[doc(hidden)]
 <a href=#372 id=372 data-nosnippet>372</a>            </span><span class="macro-nonterminal">$fn_vis </span><span class="kw">struct </span><span class="macro-nonterminal">$name</span>;
 <a href=#373 id=373 data-nosnippet>373</a>            (<span class="kw">type </span>PartialState = (());)
@@ -386,7 +386,7 @@
 <a href=#386 id=386 data-nosnippet>386</a>            <span class="kw">where </span>[$(<span class="macro-nonterminal">$where_clause</span>: tt)<span class="kw-2">*</span>]
 <a href=#387 id=387 data-nosnippet>387</a>        <span class="macro-nonterminal">$parser</span>: block
 <a href=#388 id=388 data-nosnippet>388</a>    ) =&gt; {
-<a href=#389 id=389 data-nosnippet>389</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::combine_parser_impl!</span>{
+<a href=#389 id=389 data-nosnippet>389</a>        <span class="macro-nonterminal">$crate::combine_parser_impl</span>!{
 <a href=#390 id=390 data-nosnippet>390</a>            $(<span class="attr">#[<span class="macro-nonterminal">$derive</span>]</span>)*
 <a href=#391 id=391 data-nosnippet>391</a>            <span class="macro-nonterminal">$struct_vis </span><span class="kw">struct </span><span class="macro-nonterminal">$type_name</span>;
 <a href=#392 id=392 data-nosnippet>392</a>            (<span class="kw">type </span>PartialState = (());)
@@ -457,7 +457,7 @@
 <a href=#457 id=457 data-nosnippet>457</a>            <span class="kw">type </span>Output = <span class="macro-nonterminal">$output_type</span>;
 <a href=#458 id=458 data-nosnippet>458</a>            <span class="kw">type </span>PartialState = $(<span class="macro-nonterminal">$partial_state</span>)<span class="kw-2">*</span>;
 <a href=#459 id=459 data-nosnippet>459</a>
-<a href=#460 id=460 data-nosnippet>460</a>            <span class="macro-nonterminal">$</span><span class="macro">crate::parse_mode!</span>(<span class="macro-nonterminal">$input_type</span>);
+<a href=#460 id=460 data-nosnippet>460</a>            <span class="macro-nonterminal">$crate::parse_mode</span>!(<span class="macro-nonterminal">$input_type</span>);
 <a href=#461 id=461 data-nosnippet>461</a>            <span class="attr">#[inline]
 <a href=#462 id=462 data-nosnippet>462</a>            </span><span class="kw">fn </span>parse_mode_impl&lt;M&gt;(
 <a href=#463 id=463 data-nosnippet>463</a>                <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -468,7 +468,7 @@
 <a href=#468 id=468 data-nosnippet>468</a>            <span class="kw">where </span>M: <span class="macro-nonterminal">$crate::parser::ParseMode
 <a href=#469 id=469 data-nosnippet>469</a>            </span>{
 <a href=#470 id=470 data-nosnippet>470</a>                <span class="kw">let </span><span class="macro-nonterminal">$type_name </span>{ $( <span class="macro-nonterminal">$arg</span>: <span class="kw-2">ref mut </span><span class="macro-nonterminal">$arg</span>,)* .. } = <span class="kw-2">*</span><span class="self">self</span>;
-<a href=#471 id=471 data-nosnippet>471</a>                <span class="macro-nonterminal">$</span><span class="macro">crate::combine_parse_partial!</span>(($(<span class="macro-nonterminal">$partial_state</span>)<span class="kw-2">*</span>) mode input state <span class="macro-nonterminal">$parser</span>)
+<a href=#471 id=471 data-nosnippet>471</a>                <span class="macro-nonterminal">$crate::combine_parse_partial</span>!(($(<span class="macro-nonterminal">$partial_state</span>)<span class="kw-2">*</span>) mode input state <span class="macro-nonterminal">$parser</span>)
 <a href=#472 id=472 data-nosnippet>472</a>            }
 <a href=#473 id=473 data-nosnippet>473</a>
 <a href=#474 id=474 data-nosnippet>474</a>            <span class="attr">#[inline]
@@ -1003,4 +1003,5 @@
 <a href=#1003 id=1003 data-nosnippet>1003</a>            err
 <a href=#1004 id=1004 data-nosnippet>1004</a>        });
 <a href=#1005 id=1005 data-nosnippet>1005</a>    }
-<a href=#1006 id=1006 data-nosnippet>1006</a>}</code></pre></div></section></main></body></html>
+<a href=#1006 id=1006 data-nosnippet>1006</a>}
+</code></pre></div></section></main></body></html>

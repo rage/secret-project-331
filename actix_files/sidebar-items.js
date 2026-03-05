@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["file_extension_to_mime"],"struct":["Directory","Files","FilesService","HttpRange","NamedFile"]};
+window.SIDEBAR_ITEMS = {"enum":["UriSegmentError"],"fn":["file_extension_to_mime"],"struct":["Directory","Files","FilesService","HttpRange","NamedFile","PathBufWrap"]};

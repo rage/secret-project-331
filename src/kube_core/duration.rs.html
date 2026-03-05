@@ -1,5 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kube-core-2.0.1/src/duration.rs`."><title>duration.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kube_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kube_core/</div>duration.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Kubernetes [`Duration`]s.
-<a href=#2 id=2 data-nosnippet>2</a></span><span class="kw">use </span>serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kube-core-3.0.1/src/duration.rs`."><title>duration.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kube_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kube_core/</div>duration.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Kubernetes [`Duration`]s.
+<a href=#2 id=2 data-nosnippet>2</a></span><span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 <a href=#3 id=3 data-nosnippet>3</a><span class="attr">#[cfg(feature = <span class="string">"schema"</span>)] </span><span class="kw">use </span>std::borrow::Cow;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>std::{cmp::Ordering, fmt, str::FromStr, time};
 <a href=#5 id=5 data-nosnippet>5</a>
@@ -121,7 +121,7 @@
 <a href=#121 id=121 data-nosnippet>121</a>        s = s.trim_start_matches(<span class="string">'+'</span>).trim_start_matches(<span class="string">'-'</span>);
 <a href=#122 id=122 data-nosnippet>122</a>
 <a href=#123 id=123 data-nosnippet>123</a>        <span class="kw">let </span><span class="kw-2">mut </span>total = time::Duration::from_secs(<span class="number">0</span>);
-<a href=#124 id=124 data-nosnippet>124</a>        <span class="kw">while </span>!s.is_empty() &amp;&amp; s != <span class="string">"0" </span>{
+<a href=#124 id=124 data-nosnippet>124</a>        <span class="kw">while </span>!s.is_empty() &amp;&amp; <span class="macro">s !</span>= <span class="string">"0" </span>{
 <a href=#125 id=125 data-nosnippet>125</a>            <span class="kw">let </span>unit_start = s.find(|c: char| c.is_alphabetic()).ok_or(ParseError::NoUnit)<span class="question-mark">?</span>;
 <a href=#126 id=126 data-nosnippet>126</a>
 <a href=#127 id=127 data-nosnippet>127</a>            <span class="kw">let </span>(val, rest) = s.split_at(unit_start);
@@ -283,175 +283,174 @@
 <a href=#283 id=283 data-nosnippet>283</a>    </span>}
 <a href=#284 id=284 data-nosnippet>284</a>
 <a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">fn </span>json_schema(<span class="kw">_</span>: <span class="kw-2">&amp;mut </span>schemars::generate::SchemaGenerator) -&gt; schemars::Schema {
-<a href=#286 id=286 data-nosnippet>286</a>        <span class="kw">use </span>schemars::json_schema;
-<a href=#287 id=287 data-nosnippet>287</a>
-<a href=#288 id=288 data-nosnippet>288</a>        <span class="comment">// the format should *not* be "duration", because "duration" means
-<a href=#289 id=289 data-nosnippet>289</a>        // the duration is formatted in ISO 8601, as described here:
-<a href=#290 id=290 data-nosnippet>290</a>        // https://datatracker.ietf.org/doc/html/draft-handrews-json-schema-validation-02#section-7.3.1
-<a href=#291 id=291 data-nosnippet>291</a>        </span><span class="macro">json_schema!</span>({
-<a href=#292 id=292 data-nosnippet>292</a>            <span class="string">"type"</span>: <span class="string">"string"</span>,
-<a href=#293 id=293 data-nosnippet>293</a>        })
-<a href=#294 id=294 data-nosnippet>294</a>    }
-<a href=#295 id=295 data-nosnippet>295</a>}
-<a href=#296 id=296 data-nosnippet>296</a>
-<a href=#297 id=297 data-nosnippet>297</a><span class="attr">#[cfg(test)]
-<a href=#298 id=298 data-nosnippet>298</a></span><span class="kw">mod </span>tests {
-<a href=#299 id=299 data-nosnippet>299</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#300 id=300 data-nosnippet>300</a>
-<a href=#301 id=301 data-nosnippet>301</a>    <span class="attr">#[test]
-<a href=#302 id=302 data-nosnippet>302</a>    </span><span class="kw">fn </span>parses_the_same_as_go() {
-<a href=#303 id=303 data-nosnippet>303</a>        <span class="kw">const </span>MINUTE: time::Duration = time::Duration::from_secs(<span class="number">60</span>);
-<a href=#304 id=304 data-nosnippet>304</a>        <span class="kw">const </span>HOUR: time::Duration = time::Duration::from_secs(<span class="number">60 </span>* <span class="number">60</span>);
-<a href=#305 id=305 data-nosnippet>305</a>        <span class="comment">// from Go:
-<a href=#306 id=306 data-nosnippet>306</a>        // https://cs.opensource.google/go/go/+/refs/tags/go1.20.4:src/time/time_test.go;l=891-951
-<a href=#307 id=307 data-nosnippet>307</a>        // ```
-<a href=#308 id=308 data-nosnippet>308</a>        // var parseDurationTests = []struct {
-<a href=#309 id=309 data-nosnippet>309</a>        // 	in   string
-<a href=#310 id=310 data-nosnippet>310</a>        // 	want time::Duration
-<a href=#311 id=311 data-nosnippet>311</a>        // }{
-<a href=#312 id=312 data-nosnippet>312</a>        </span><span class="kw">let </span>cases: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, Duration)] = <span class="kw-2">&amp;</span>[
-<a href=#313 id=313 data-nosnippet>313</a>            <span class="comment">// 	// simple
-<a href=#314 id=314 data-nosnippet>314</a>            // 	{"0", 0},
-<a href=#315 id=315 data-nosnippet>315</a>            </span>(<span class="string">"0"</span>, time::Duration::from_secs(<span class="number">0</span>).into()),
-<a href=#316 id=316 data-nosnippet>316</a>            <span class="comment">// 	{"5s", 5 * Second},
-<a href=#317 id=317 data-nosnippet>317</a>            </span>(<span class="string">"5s"</span>, time::Duration::from_secs(<span class="number">5</span>).into()),
-<a href=#318 id=318 data-nosnippet>318</a>            <span class="comment">// 	{"30s", 30 * Second},
-<a href=#319 id=319 data-nosnippet>319</a>            </span>(<span class="string">"30s"</span>, time::Duration::from_secs(<span class="number">30</span>).into()),
-<a href=#320 id=320 data-nosnippet>320</a>            <span class="comment">// 	{"1478s", 1478 * Second},
-<a href=#321 id=321 data-nosnippet>321</a>            </span>(<span class="string">"1478s"</span>, time::Duration::from_secs(<span class="number">1478</span>).into()),
-<a href=#322 id=322 data-nosnippet>322</a>            <span class="comment">// 	// sign
-<a href=#323 id=323 data-nosnippet>323</a>            // 	{"-5s", -5 * Second},
-<a href=#324 id=324 data-nosnippet>324</a>            </span>(<span class="string">"-5s"</span>, Duration {
-<a href=#325 id=325 data-nosnippet>325</a>                duration: time::Duration::from_secs(<span class="number">5</span>),
-<a href=#326 id=326 data-nosnippet>326</a>                is_negative: <span class="bool-val">true</span>,
-<a href=#327 id=327 data-nosnippet>327</a>            }),
-<a href=#328 id=328 data-nosnippet>328</a>            <span class="comment">// 	{"+5s", 5 * Second},
-<a href=#329 id=329 data-nosnippet>329</a>            </span>(<span class="string">"+5s"</span>, time::Duration::from_secs(<span class="number">5</span>).into()),
-<a href=#330 id=330 data-nosnippet>330</a>            <span class="comment">// 	{"-0", 0},
-<a href=#331 id=331 data-nosnippet>331</a>            </span>(<span class="string">"-0"</span>, Duration {
-<a href=#332 id=332 data-nosnippet>332</a>                duration: time::Duration::from_secs(<span class="number">0</span>),
-<a href=#333 id=333 data-nosnippet>333</a>                is_negative: <span class="bool-val">true</span>,
-<a href=#334 id=334 data-nosnippet>334</a>            }),
-<a href=#335 id=335 data-nosnippet>335</a>            <span class="comment">// 	{"+0", 0},
-<a href=#336 id=336 data-nosnippet>336</a>            </span>(<span class="string">"+0"</span>, time::Duration::from_secs(<span class="number">0</span>).into()),
-<a href=#337 id=337 data-nosnippet>337</a>            <span class="comment">// 	// decimal
-<a href=#338 id=338 data-nosnippet>338</a>            // 	{"5.0s", 5 * Second},
-<a href=#339 id=339 data-nosnippet>339</a>            </span>(<span class="string">"5s"</span>, time::Duration::from_secs(<span class="number">5</span>).into()),
-<a href=#340 id=340 data-nosnippet>340</a>            <span class="comment">// 	{"5.6s", 5*Second + 600*Millisecond},
-<a href=#341 id=341 data-nosnippet>341</a>            </span>(
-<a href=#342 id=342 data-nosnippet>342</a>                <span class="string">"5.6s"</span>,
-<a href=#343 id=343 data-nosnippet>343</a>                (time::Duration::from_secs(<span class="number">5</span>) + time::Duration::from_millis(<span class="number">600</span>)).into(),
-<a href=#344 id=344 data-nosnippet>344</a>            ),
-<a href=#345 id=345 data-nosnippet>345</a>            <span class="comment">// 	{"5.s", 5 * Second},
-<a href=#346 id=346 data-nosnippet>346</a>            </span>(<span class="string">"5.s"</span>, time::Duration::from_secs(<span class="number">5</span>).into()),
-<a href=#347 id=347 data-nosnippet>347</a>            <span class="comment">// 	{".5s", 500 * Millisecond},
-<a href=#348 id=348 data-nosnippet>348</a>            </span>(<span class="string">".5s"</span>, time::Duration::from_millis(<span class="number">500</span>).into()),
-<a href=#349 id=349 data-nosnippet>349</a>            <span class="comment">// 	{"1.0s", 1 * Second},
-<a href=#350 id=350 data-nosnippet>350</a>            </span>(<span class="string">"1.0s"</span>, time::Duration::from_secs(<span class="number">1</span>).into()),
-<a href=#351 id=351 data-nosnippet>351</a>            <span class="comment">// 	{"1.00s", 1 * Second},
-<a href=#352 id=352 data-nosnippet>352</a>            </span>(<span class="string">"1.00s"</span>, time::Duration::from_secs(<span class="number">1</span>).into()),
-<a href=#353 id=353 data-nosnippet>353</a>            <span class="comment">// 	{"1.004s", 1*Second + 4*Millisecond},
-<a href=#354 id=354 data-nosnippet>354</a>            </span>(
-<a href=#355 id=355 data-nosnippet>355</a>                <span class="string">"1.004s"</span>,
-<a href=#356 id=356 data-nosnippet>356</a>                (time::Duration::from_secs(<span class="number">1</span>) + time::Duration::from_millis(<span class="number">4</span>)).into(),
-<a href=#357 id=357 data-nosnippet>357</a>            ),
-<a href=#358 id=358 data-nosnippet>358</a>            <span class="comment">// 	{"1.0040s", 1*Second + 4*Millisecond},
-<a href=#359 id=359 data-nosnippet>359</a>            </span>(
-<a href=#360 id=360 data-nosnippet>360</a>                <span class="string">"1.0040s"</span>,
-<a href=#361 id=361 data-nosnippet>361</a>                (time::Duration::from_secs(<span class="number">1</span>) + time::Duration::from_millis(<span class="number">4</span>)).into(),
-<a href=#362 id=362 data-nosnippet>362</a>            ),
-<a href=#363 id=363 data-nosnippet>363</a>            <span class="comment">// 	{"100.00100s", 100*Second + 1*Millisecond},
-<a href=#364 id=364 data-nosnippet>364</a>            </span>(
-<a href=#365 id=365 data-nosnippet>365</a>                <span class="string">"100.00100s"</span>,
-<a href=#366 id=366 data-nosnippet>366</a>                (time::Duration::from_secs(<span class="number">100</span>) + time::Duration::from_millis(<span class="number">1</span>)).into(),
-<a href=#367 id=367 data-nosnippet>367</a>            ),
-<a href=#368 id=368 data-nosnippet>368</a>            <span class="comment">// 	// different units
-<a href=#369 id=369 data-nosnippet>369</a>            // 	{"10ns", 10 * Nanosecond},
-<a href=#370 id=370 data-nosnippet>370</a>            </span>(<span class="string">"10ns"</span>, time::Duration::from_nanos(<span class="number">10</span>).into()),
-<a href=#371 id=371 data-nosnippet>371</a>            <span class="comment">// 	{"11us", 11 * Microsecond},
-<a href=#372 id=372 data-nosnippet>372</a>            </span>(<span class="string">"11us"</span>, time::Duration::from_micros(<span class="number">11</span>).into()),
-<a href=#373 id=373 data-nosnippet>373</a>            <span class="comment">// 	{"12µs", 12 * Microsecond}, // U+00B5
-<a href=#374 id=374 data-nosnippet>374</a>            </span>(<span class="string">"12µs"</span>, time::Duration::from_micros(<span class="number">12</span>).into()),
-<a href=#375 id=375 data-nosnippet>375</a>            <span class="comment">// 	{"12μs", 12 * Microsecond}, // U+03BC
-<a href=#376 id=376 data-nosnippet>376</a>            </span>(<span class="string">"12μs"</span>, time::Duration::from_micros(<span class="number">12</span>).into()),
-<a href=#377 id=377 data-nosnippet>377</a>            <span class="comment">// 	{"13ms", 13 * Millisecond},
-<a href=#378 id=378 data-nosnippet>378</a>            </span>(<span class="string">"13ms"</span>, time::Duration::from_millis(<span class="number">13</span>).into()),
-<a href=#379 id=379 data-nosnippet>379</a>            <span class="comment">// 	{"14s", 14 * Second},
-<a href=#380 id=380 data-nosnippet>380</a>            </span>(<span class="string">"14s"</span>, time::Duration::from_secs(<span class="number">14</span>).into()),
-<a href=#381 id=381 data-nosnippet>381</a>            <span class="comment">// 	{"15m", 15 * Minute},
-<a href=#382 id=382 data-nosnippet>382</a>            </span>(<span class="string">"15m"</span>, (<span class="number">15 </span>* MINUTE).into()),
-<a href=#383 id=383 data-nosnippet>383</a>            <span class="comment">// 	{"16h", 16 * Hour},
-<a href=#384 id=384 data-nosnippet>384</a>            </span>(<span class="string">"16h"</span>, (<span class="number">16 </span>* HOUR).into()),
-<a href=#385 id=385 data-nosnippet>385</a>            <span class="comment">// 	// composite durations
-<a href=#386 id=386 data-nosnippet>386</a>            // 	{"3h30m", 3*Hour + 30*Minute},
-<a href=#387 id=387 data-nosnippet>387</a>            </span>(<span class="string">"3h30m"</span>, (<span class="number">3 </span>* HOUR + <span class="number">30 </span>* MINUTE).into()),
-<a href=#388 id=388 data-nosnippet>388</a>            <span class="comment">// 	{"10.5s4m", 4*Minute + 10*Second + 500*Millisecond},
-<a href=#389 id=389 data-nosnippet>389</a>            </span>(
-<a href=#390 id=390 data-nosnippet>390</a>                <span class="string">"10.5s4m"</span>,
-<a href=#391 id=391 data-nosnippet>391</a>                (<span class="number">4 </span>* MINUTE + time::Duration::from_secs(<span class="number">10</span>) + time::Duration::from_millis(<span class="number">500</span>)).into(),
-<a href=#392 id=392 data-nosnippet>392</a>            ),
-<a href=#393 id=393 data-nosnippet>393</a>            <span class="comment">// 	{"-2m3.4s", -(2*Minute + 3*Second + 400*Millisecond)},
-<a href=#394 id=394 data-nosnippet>394</a>            </span>(<span class="string">"-2m3.4s"</span>, Duration {
-<a href=#395 id=395 data-nosnippet>395</a>                duration: <span class="number">2 </span>* MINUTE + time::Duration::from_secs(<span class="number">3</span>) + time::Duration::from_millis(<span class="number">400</span>),
-<a href=#396 id=396 data-nosnippet>396</a>                is_negative: <span class="bool-val">true</span>,
-<a href=#397 id=397 data-nosnippet>397</a>            }),
-<a href=#398 id=398 data-nosnippet>398</a>            <span class="comment">// 	{"1h2m3s4ms5us6ns", 1*Hour + 2*Minute + 3*Second + 4*Millisecond + 5*Microsecond + 6*Nanosecond},
-<a href=#399 id=399 data-nosnippet>399</a>            </span>(
-<a href=#400 id=400 data-nosnippet>400</a>                <span class="string">"1h2m3s4ms5us6ns"</span>,
-<a href=#401 id=401 data-nosnippet>401</a>                (<span class="number">1 </span>* HOUR
-<a href=#402 id=402 data-nosnippet>402</a>                    + <span class="number">2 </span>* MINUTE
-<a href=#403 id=403 data-nosnippet>403</a>                    + time::Duration::from_secs(<span class="number">3</span>)
-<a href=#404 id=404 data-nosnippet>404</a>                    + time::Duration::from_millis(<span class="number">4</span>)
-<a href=#405 id=405 data-nosnippet>405</a>                    + time::Duration::from_micros(<span class="number">5</span>)
-<a href=#406 id=406 data-nosnippet>406</a>                    + time::Duration::from_nanos(<span class="number">6</span>))
-<a href=#407 id=407 data-nosnippet>407</a>                .into(),
-<a href=#408 id=408 data-nosnippet>408</a>            ),
-<a href=#409 id=409 data-nosnippet>409</a>            <span class="comment">// 	{"39h9m14.425s", 39*Hour + 9*Minute + 14*Second + 425*Millisecond},
-<a href=#410 id=410 data-nosnippet>410</a>            </span>(
-<a href=#411 id=411 data-nosnippet>411</a>                <span class="string">"39h9m14.425s"</span>,
-<a href=#412 id=412 data-nosnippet>412</a>                (<span class="number">39 </span>* HOUR + <span class="number">9 </span>* MINUTE + time::Duration::from_secs(<span class="number">14</span>) + time::Duration::from_millis(<span class="number">425</span>))
-<a href=#413 id=413 data-nosnippet>413</a>                    .into(),
-<a href=#414 id=414 data-nosnippet>414</a>            ),
-<a href=#415 id=415 data-nosnippet>415</a>            <span class="comment">// 	// large value
-<a href=#416 id=416 data-nosnippet>416</a>            // 	{"52763797000ns", 52763797000 * Nanosecond},
-<a href=#417 id=417 data-nosnippet>417</a>            </span>(<span class="string">"52763797000ns"</span>, time::Duration::from_nanos(<span class="number">52763797000</span>).into()),
-<a href=#418 id=418 data-nosnippet>418</a>            <span class="comment">// 	// more than 9 digits after decimal point, see https://golang.org/issue/6617
-<a href=#419 id=419 data-nosnippet>419</a>            // 	{"0.3333333333333333333h", 20 * Minute},
-<a href=#420 id=420 data-nosnippet>420</a>            </span>(<span class="string">"0.3333333333333333333h"</span>, (<span class="number">20 </span>* MINUTE).into()),
-<a href=#421 id=421 data-nosnippet>421</a>            <span class="comment">// 	// 9007199254740993 = 1&lt;&lt;53+1 cannot be stored precisely in a float64
-<a href=#422 id=422 data-nosnippet>422</a>            // 	{"9007199254740993ns", (1&lt;&lt;53 + 1) * Nanosecond},
-<a href=#423 id=423 data-nosnippet>423</a>            </span>(
-<a href=#424 id=424 data-nosnippet>424</a>                <span class="string">"9007199254740993ns"</span>,
-<a href=#425 id=425 data-nosnippet>425</a>                time::Duration::from_nanos((<span class="number">1 </span>&lt;&lt; <span class="number">53</span>) + <span class="number">1</span>).into(),
-<a href=#426 id=426 data-nosnippet>426</a>            ),
-<a href=#427 id=427 data-nosnippet>427</a>            <span class="comment">// Rust Durations can handle larger durations than Go's
-<a href=#428 id=428 data-nosnippet>428</a>            // representation, so skip these tests for their precision limits
-<a href=#429 id=429 data-nosnippet>429</a>
-<a href=#430 id=430 data-nosnippet>430</a>            // 	// largest duration that can be represented by int64 in nanoseconds
-<a href=#431 id=431 data-nosnippet>431</a>            // 	{"9223372036854775807ns", (1&lt;&lt;63 - 1) * Nanosecond},
-<a href=#432 id=432 data-nosnippet>432</a>            // ("9223372036854775807ns", time::Duration::from_nanos((1 &lt;&lt; 63) - 1).into()),
-<a href=#433 id=433 data-nosnippet>433</a>            // 	{"9223372036854775.807us", (1&lt;&lt;63 - 1) * Nanosecond},
-<a href=#434 id=434 data-nosnippet>434</a>            // ("9223372036854775.807us", time::Duration::from_nanos((1 &lt;&lt; 63) - 1).into()),
-<a href=#435 id=435 data-nosnippet>435</a>            // 	{"9223372036s854ms775us807ns", (1&lt;&lt;63 - 1) * Nanosecond},
-<a href=#436 id=436 data-nosnippet>436</a>            // 	{"-9223372036854775808ns", -1 &lt;&lt; 63 * Nanosecond},
-<a href=#437 id=437 data-nosnippet>437</a>            // 	{"-9223372036854775.808us", -1 &lt;&lt; 63 * Nanosecond},
-<a href=#438 id=438 data-nosnippet>438</a>            // 	{"-9223372036s854ms775us808ns", -1 &lt;&lt; 63 * Nanosecond},
-<a href=#439 id=439 data-nosnippet>439</a>            // 	// largest negative value
-<a href=#440 id=440 data-nosnippet>440</a>            // 	{"-9223372036854775808ns", -1 &lt;&lt; 63 * Nanosecond},
-<a href=#441 id=441 data-nosnippet>441</a>            // 	// largest negative round trip value, see https://golang.org/issue/48629
-<a href=#442 id=442 data-nosnippet>442</a>            // 	{"-2562047h47m16.854775808s", -1 &lt;&lt; 63 * Nanosecond},
-<a href=#443 id=443 data-nosnippet>443</a>
-<a href=#444 id=444 data-nosnippet>444</a>            // 	// huge string; issue 15011.
-<a href=#445 id=445 data-nosnippet>445</a>            // 	{"0.100000000000000000000h", 6 * Minute},
-<a href=#446 id=446 data-nosnippet>446</a>            </span>(<span class="string">"0.100000000000000000000h"</span>, (<span class="number">6 </span>* MINUTE).into()), <span class="comment">// 	// This value tests the first overflow check in leadingFraction.
-<a href=#447 id=447 data-nosnippet>447</a>                                                               // 	{"0.830103483285477580700h", 49*Minute + 48*Second + 372539827*Nanosecond},
-<a href=#448 id=448 data-nosnippet>448</a>                                                               // }
-<a href=#449 id=449 data-nosnippet>449</a>                                                               // ```
-<a href=#450 id=450 data-nosnippet>450</a>        </span>];
-<a href=#451 id=451 data-nosnippet>451</a>
-<a href=#452 id=452 data-nosnippet>452</a>        <span class="kw">for </span>(input, expected) <span class="kw">in </span>cases {
-<a href=#453 id=453 data-nosnippet>453</a>            <span class="kw">let </span>parsed = <span class="macro">dbg!</span>(input).parse::&lt;Duration&gt;().unwrap();
-<a href=#454 id=454 data-nosnippet>454</a>            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="macro">dbg!</span>(parsed), expected);
-<a href=#455 id=455 data-nosnippet>455</a>        }
-<a href=#456 id=456 data-nosnippet>456</a>    }
-<a href=#457 id=457 data-nosnippet>457</a>}</code></pre></div></section></main></body></html>
+<a href=#286 id=286 data-nosnippet>286</a>        <span class="comment">// the format should *not* be "duration", because "duration" means
+<a href=#287 id=287 data-nosnippet>287</a>        // the duration is formatted in ISO 8601, as described here:
+<a href=#288 id=288 data-nosnippet>288</a>        // https://datatracker.ietf.org/doc/html/draft-handrews-json-schema-validation-02#section-7.3.1
+<a href=#289 id=289 data-nosnippet>289</a>        </span><span class="macro">schemars::json_schema!</span>({
+<a href=#290 id=290 data-nosnippet>290</a>            <span class="string">"type"</span>: <span class="string">"string"</span>,
+<a href=#291 id=291 data-nosnippet>291</a>        })
+<a href=#292 id=292 data-nosnippet>292</a>    }
+<a href=#293 id=293 data-nosnippet>293</a>}
+<a href=#294 id=294 data-nosnippet>294</a>
+<a href=#295 id=295 data-nosnippet>295</a><span class="attr">#[cfg(test)]
+<a href=#296 id=296 data-nosnippet>296</a></span><span class="kw">mod </span>tests {
+<a href=#297 id=297 data-nosnippet>297</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#298 id=298 data-nosnippet>298</a>
+<a href=#299 id=299 data-nosnippet>299</a>    <span class="attr">#[test]
+<a href=#300 id=300 data-nosnippet>300</a>    </span><span class="kw">fn </span>parses_the_same_as_go() {
+<a href=#301 id=301 data-nosnippet>301</a>        <span class="kw">const </span>MINUTE: time::Duration = time::Duration::from_secs(<span class="number">60</span>);
+<a href=#302 id=302 data-nosnippet>302</a>        <span class="kw">const </span>HOUR: time::Duration = time::Duration::from_secs(<span class="number">60 </span>* <span class="number">60</span>);
+<a href=#303 id=303 data-nosnippet>303</a>        <span class="comment">// from Go:
+<a href=#304 id=304 data-nosnippet>304</a>        // https://cs.opensource.google/go/go/+/refs/tags/go1.20.4:src/time/time_test.go;l=891-951
+<a href=#305 id=305 data-nosnippet>305</a>        // ```
+<a href=#306 id=306 data-nosnippet>306</a>        // var parseDurationTests = []struct {
+<a href=#307 id=307 data-nosnippet>307</a>        // 	in   string
+<a href=#308 id=308 data-nosnippet>308</a>        // 	want time::Duration
+<a href=#309 id=309 data-nosnippet>309</a>        // }{
+<a href=#310 id=310 data-nosnippet>310</a>        </span><span class="kw">let </span>cases: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, Duration)] = <span class="kw-2">&amp;</span>[
+<a href=#311 id=311 data-nosnippet>311</a>            <span class="comment">// 	// simple
+<a href=#312 id=312 data-nosnippet>312</a>            // 	{"0", 0},
+<a href=#313 id=313 data-nosnippet>313</a>            </span>(<span class="string">"0"</span>, time::Duration::from_secs(<span class="number">0</span>).into()),
+<a href=#314 id=314 data-nosnippet>314</a>            <span class="comment">// 	{"5s", 5 * Second},
+<a href=#315 id=315 data-nosnippet>315</a>            </span>(<span class="string">"5s"</span>, time::Duration::from_secs(<span class="number">5</span>).into()),
+<a href=#316 id=316 data-nosnippet>316</a>            <span class="comment">// 	{"30s", 30 * Second},
+<a href=#317 id=317 data-nosnippet>317</a>            </span>(<span class="string">"30s"</span>, time::Duration::from_secs(<span class="number">30</span>).into()),
+<a href=#318 id=318 data-nosnippet>318</a>            <span class="comment">// 	{"1478s", 1478 * Second},
+<a href=#319 id=319 data-nosnippet>319</a>            </span>(<span class="string">"1478s"</span>, time::Duration::from_secs(<span class="number">1478</span>).into()),
+<a href=#320 id=320 data-nosnippet>320</a>            <span class="comment">// 	// sign
+<a href=#321 id=321 data-nosnippet>321</a>            // 	{"-5s", -5 * Second},
+<a href=#322 id=322 data-nosnippet>322</a>            </span>(<span class="string">"-5s"</span>, Duration {
+<a href=#323 id=323 data-nosnippet>323</a>                duration: time::Duration::from_secs(<span class="number">5</span>),
+<a href=#324 id=324 data-nosnippet>324</a>                is_negative: <span class="bool-val">true</span>,
+<a href=#325 id=325 data-nosnippet>325</a>            }),
+<a href=#326 id=326 data-nosnippet>326</a>            <span class="comment">// 	{"+5s", 5 * Second},
+<a href=#327 id=327 data-nosnippet>327</a>            </span>(<span class="string">"+5s"</span>, time::Duration::from_secs(<span class="number">5</span>).into()),
+<a href=#328 id=328 data-nosnippet>328</a>            <span class="comment">// 	{"-0", 0},
+<a href=#329 id=329 data-nosnippet>329</a>            </span>(<span class="string">"-0"</span>, Duration {
+<a href=#330 id=330 data-nosnippet>330</a>                duration: time::Duration::from_secs(<span class="number">0</span>),
+<a href=#331 id=331 data-nosnippet>331</a>                is_negative: <span class="bool-val">true</span>,
+<a href=#332 id=332 data-nosnippet>332</a>            }),
+<a href=#333 id=333 data-nosnippet>333</a>            <span class="comment">// 	{"+0", 0},
+<a href=#334 id=334 data-nosnippet>334</a>            </span>(<span class="string">"+0"</span>, time::Duration::from_secs(<span class="number">0</span>).into()),
+<a href=#335 id=335 data-nosnippet>335</a>            <span class="comment">// 	// decimal
+<a href=#336 id=336 data-nosnippet>336</a>            // 	{"5.0s", 5 * Second},
+<a href=#337 id=337 data-nosnippet>337</a>            </span>(<span class="string">"5s"</span>, time::Duration::from_secs(<span class="number">5</span>).into()),
+<a href=#338 id=338 data-nosnippet>338</a>            <span class="comment">// 	{"5.6s", 5*Second + 600*Millisecond},
+<a href=#339 id=339 data-nosnippet>339</a>            </span>(
+<a href=#340 id=340 data-nosnippet>340</a>                <span class="string">"5.6s"</span>,
+<a href=#341 id=341 data-nosnippet>341</a>                (time::Duration::from_secs(<span class="number">5</span>) + time::Duration::from_millis(<span class="number">600</span>)).into(),
+<a href=#342 id=342 data-nosnippet>342</a>            ),
+<a href=#343 id=343 data-nosnippet>343</a>            <span class="comment">// 	{"5.s", 5 * Second},
+<a href=#344 id=344 data-nosnippet>344</a>            </span>(<span class="string">"5.s"</span>, time::Duration::from_secs(<span class="number">5</span>).into()),
+<a href=#345 id=345 data-nosnippet>345</a>            <span class="comment">// 	{".5s", 500 * Millisecond},
+<a href=#346 id=346 data-nosnippet>346</a>            </span>(<span class="string">".5s"</span>, time::Duration::from_millis(<span class="number">500</span>).into()),
+<a href=#347 id=347 data-nosnippet>347</a>            <span class="comment">// 	{"1.0s", 1 * Second},
+<a href=#348 id=348 data-nosnippet>348</a>            </span>(<span class="string">"1.0s"</span>, time::Duration::from_secs(<span class="number">1</span>).into()),
+<a href=#349 id=349 data-nosnippet>349</a>            <span class="comment">// 	{"1.00s", 1 * Second},
+<a href=#350 id=350 data-nosnippet>350</a>            </span>(<span class="string">"1.00s"</span>, time::Duration::from_secs(<span class="number">1</span>).into()),
+<a href=#351 id=351 data-nosnippet>351</a>            <span class="comment">// 	{"1.004s", 1*Second + 4*Millisecond},
+<a href=#352 id=352 data-nosnippet>352</a>            </span>(
+<a href=#353 id=353 data-nosnippet>353</a>                <span class="string">"1.004s"</span>,
+<a href=#354 id=354 data-nosnippet>354</a>                (time::Duration::from_secs(<span class="number">1</span>) + time::Duration::from_millis(<span class="number">4</span>)).into(),
+<a href=#355 id=355 data-nosnippet>355</a>            ),
+<a href=#356 id=356 data-nosnippet>356</a>            <span class="comment">// 	{"1.0040s", 1*Second + 4*Millisecond},
+<a href=#357 id=357 data-nosnippet>357</a>            </span>(
+<a href=#358 id=358 data-nosnippet>358</a>                <span class="string">"1.0040s"</span>,
+<a href=#359 id=359 data-nosnippet>359</a>                (time::Duration::from_secs(<span class="number">1</span>) + time::Duration::from_millis(<span class="number">4</span>)).into(),
+<a href=#360 id=360 data-nosnippet>360</a>            ),
+<a href=#361 id=361 data-nosnippet>361</a>            <span class="comment">// 	{"100.00100s", 100*Second + 1*Millisecond},
+<a href=#362 id=362 data-nosnippet>362</a>            </span>(
+<a href=#363 id=363 data-nosnippet>363</a>                <span class="string">"100.00100s"</span>,
+<a href=#364 id=364 data-nosnippet>364</a>                (time::Duration::from_secs(<span class="number">100</span>) + time::Duration::from_millis(<span class="number">1</span>)).into(),
+<a href=#365 id=365 data-nosnippet>365</a>            ),
+<a href=#366 id=366 data-nosnippet>366</a>            <span class="comment">// 	// different units
+<a href=#367 id=367 data-nosnippet>367</a>            // 	{"10ns", 10 * Nanosecond},
+<a href=#368 id=368 data-nosnippet>368</a>            </span>(<span class="string">"10ns"</span>, time::Duration::from_nanos(<span class="number">10</span>).into()),
+<a href=#369 id=369 data-nosnippet>369</a>            <span class="comment">// 	{"11us", 11 * Microsecond},
+<a href=#370 id=370 data-nosnippet>370</a>            </span>(<span class="string">"11us"</span>, time::Duration::from_micros(<span class="number">11</span>).into()),
+<a href=#371 id=371 data-nosnippet>371</a>            <span class="comment">// 	{"12µs", 12 * Microsecond}, // U+00B5
+<a href=#372 id=372 data-nosnippet>372</a>            </span>(<span class="string">"12µs"</span>, time::Duration::from_micros(<span class="number">12</span>).into()),
+<a href=#373 id=373 data-nosnippet>373</a>            <span class="comment">// 	{"12μs", 12 * Microsecond}, // U+03BC
+<a href=#374 id=374 data-nosnippet>374</a>            </span>(<span class="string">"12μs"</span>, time::Duration::from_micros(<span class="number">12</span>).into()),
+<a href=#375 id=375 data-nosnippet>375</a>            <span class="comment">// 	{"13ms", 13 * Millisecond},
+<a href=#376 id=376 data-nosnippet>376</a>            </span>(<span class="string">"13ms"</span>, time::Duration::from_millis(<span class="number">13</span>).into()),
+<a href=#377 id=377 data-nosnippet>377</a>            <span class="comment">// 	{"14s", 14 * Second},
+<a href=#378 id=378 data-nosnippet>378</a>            </span>(<span class="string">"14s"</span>, time::Duration::from_secs(<span class="number">14</span>).into()),
+<a href=#379 id=379 data-nosnippet>379</a>            <span class="comment">// 	{"15m", 15 * Minute},
+<a href=#380 id=380 data-nosnippet>380</a>            </span>(<span class="string">"15m"</span>, (<span class="number">15 </span>* MINUTE).into()),
+<a href=#381 id=381 data-nosnippet>381</a>            <span class="comment">// 	{"16h", 16 * Hour},
+<a href=#382 id=382 data-nosnippet>382</a>            </span>(<span class="string">"16h"</span>, (<span class="number">16 </span>* HOUR).into()),
+<a href=#383 id=383 data-nosnippet>383</a>            <span class="comment">// 	// composite durations
+<a href=#384 id=384 data-nosnippet>384</a>            // 	{"3h30m", 3*Hour + 30*Minute},
+<a href=#385 id=385 data-nosnippet>385</a>            </span>(<span class="string">"3h30m"</span>, (<span class="number">3 </span>* HOUR + <span class="number">30 </span>* MINUTE).into()),
+<a href=#386 id=386 data-nosnippet>386</a>            <span class="comment">// 	{"10.5s4m", 4*Minute + 10*Second + 500*Millisecond},
+<a href=#387 id=387 data-nosnippet>387</a>            </span>(
+<a href=#388 id=388 data-nosnippet>388</a>                <span class="string">"10.5s4m"</span>,
+<a href=#389 id=389 data-nosnippet>389</a>                (<span class="number">4 </span>* MINUTE + time::Duration::from_secs(<span class="number">10</span>) + time::Duration::from_millis(<span class="number">500</span>)).into(),
+<a href=#390 id=390 data-nosnippet>390</a>            ),
+<a href=#391 id=391 data-nosnippet>391</a>            <span class="comment">// 	{"-2m3.4s", -(2*Minute + 3*Second + 400*Millisecond)},
+<a href=#392 id=392 data-nosnippet>392</a>            </span>(<span class="string">"-2m3.4s"</span>, Duration {
+<a href=#393 id=393 data-nosnippet>393</a>                duration: <span class="number">2 </span>* MINUTE + time::Duration::from_secs(<span class="number">3</span>) + time::Duration::from_millis(<span class="number">400</span>),
+<a href=#394 id=394 data-nosnippet>394</a>                is_negative: <span class="bool-val">true</span>,
+<a href=#395 id=395 data-nosnippet>395</a>            }),
+<a href=#396 id=396 data-nosnippet>396</a>            <span class="comment">// 	{"1h2m3s4ms5us6ns", 1*Hour + 2*Minute + 3*Second + 4*Millisecond + 5*Microsecond + 6*Nanosecond},
+<a href=#397 id=397 data-nosnippet>397</a>            </span>(
+<a href=#398 id=398 data-nosnippet>398</a>                <span class="string">"1h2m3s4ms5us6ns"</span>,
+<a href=#399 id=399 data-nosnippet>399</a>                (<span class="number">1 </span>* HOUR
+<a href=#400 id=400 data-nosnippet>400</a>                    + <span class="number">2 </span>* MINUTE
+<a href=#401 id=401 data-nosnippet>401</a>                    + time::Duration::from_secs(<span class="number">3</span>)
+<a href=#402 id=402 data-nosnippet>402</a>                    + time::Duration::from_millis(<span class="number">4</span>)
+<a href=#403 id=403 data-nosnippet>403</a>                    + time::Duration::from_micros(<span class="number">5</span>)
+<a href=#404 id=404 data-nosnippet>404</a>                    + time::Duration::from_nanos(<span class="number">6</span>))
+<a href=#405 id=405 data-nosnippet>405</a>                .into(),
+<a href=#406 id=406 data-nosnippet>406</a>            ),
+<a href=#407 id=407 data-nosnippet>407</a>            <span class="comment">// 	{"39h9m14.425s", 39*Hour + 9*Minute + 14*Second + 425*Millisecond},
+<a href=#408 id=408 data-nosnippet>408</a>            </span>(
+<a href=#409 id=409 data-nosnippet>409</a>                <span class="string">"39h9m14.425s"</span>,
+<a href=#410 id=410 data-nosnippet>410</a>                (<span class="number">39 </span>* HOUR + <span class="number">9 </span>* MINUTE + time::Duration::from_secs(<span class="number">14</span>) + time::Duration::from_millis(<span class="number">425</span>))
+<a href=#411 id=411 data-nosnippet>411</a>                    .into(),
+<a href=#412 id=412 data-nosnippet>412</a>            ),
+<a href=#413 id=413 data-nosnippet>413</a>            <span class="comment">// 	// large value
+<a href=#414 id=414 data-nosnippet>414</a>            // 	{"52763797000ns", 52763797000 * Nanosecond},
+<a href=#415 id=415 data-nosnippet>415</a>            </span>(<span class="string">"52763797000ns"</span>, time::Duration::from_nanos(<span class="number">52763797000</span>).into()),
+<a href=#416 id=416 data-nosnippet>416</a>            <span class="comment">// 	// more than 9 digits after decimal point, see https://golang.org/issue/6617
+<a href=#417 id=417 data-nosnippet>417</a>            // 	{"0.3333333333333333333h", 20 * Minute},
+<a href=#418 id=418 data-nosnippet>418</a>            </span>(<span class="string">"0.3333333333333333333h"</span>, (<span class="number">20 </span>* MINUTE).into()),
+<a href=#419 id=419 data-nosnippet>419</a>            <span class="comment">// 	// 9007199254740993 = 1&lt;&lt;53+1 cannot be stored precisely in a float64
+<a href=#420 id=420 data-nosnippet>420</a>            // 	{"9007199254740993ns", (1&lt;&lt;53 + 1) * Nanosecond},
+<a href=#421 id=421 data-nosnippet>421</a>            </span>(
+<a href=#422 id=422 data-nosnippet>422</a>                <span class="string">"9007199254740993ns"</span>,
+<a href=#423 id=423 data-nosnippet>423</a>                time::Duration::from_nanos((<span class="number">1 </span>&lt;&lt; <span class="number">53</span>) + <span class="number">1</span>).into(),
+<a href=#424 id=424 data-nosnippet>424</a>            ),
+<a href=#425 id=425 data-nosnippet>425</a>            <span class="comment">// Rust Durations can handle larger durations than Go's
+<a href=#426 id=426 data-nosnippet>426</a>            // representation, so skip these tests for their precision limits
+<a href=#427 id=427 data-nosnippet>427</a>
+<a href=#428 id=428 data-nosnippet>428</a>            // 	// largest duration that can be represented by int64 in nanoseconds
+<a href=#429 id=429 data-nosnippet>429</a>            // 	{"9223372036854775807ns", (1&lt;&lt;63 - 1) * Nanosecond},
+<a href=#430 id=430 data-nosnippet>430</a>            // ("9223372036854775807ns", time::Duration::from_nanos((1 &lt;&lt; 63) - 1).into()),
+<a href=#431 id=431 data-nosnippet>431</a>            // 	{"9223372036854775.807us", (1&lt;&lt;63 - 1) * Nanosecond},
+<a href=#432 id=432 data-nosnippet>432</a>            // ("9223372036854775.807us", time::Duration::from_nanos((1 &lt;&lt; 63) - 1).into()),
+<a href=#433 id=433 data-nosnippet>433</a>            // 	{"9223372036s854ms775us807ns", (1&lt;&lt;63 - 1) * Nanosecond},
+<a href=#434 id=434 data-nosnippet>434</a>            // 	{"-9223372036854775808ns", -1 &lt;&lt; 63 * Nanosecond},
+<a href=#435 id=435 data-nosnippet>435</a>            // 	{"-9223372036854775.808us", -1 &lt;&lt; 63 * Nanosecond},
+<a href=#436 id=436 data-nosnippet>436</a>            // 	{"-9223372036s854ms775us808ns", -1 &lt;&lt; 63 * Nanosecond},
+<a href=#437 id=437 data-nosnippet>437</a>            // 	// largest negative value
+<a href=#438 id=438 data-nosnippet>438</a>            // 	{"-9223372036854775808ns", -1 &lt;&lt; 63 * Nanosecond},
+<a href=#439 id=439 data-nosnippet>439</a>            // 	// largest negative round trip value, see https://golang.org/issue/48629
+<a href=#440 id=440 data-nosnippet>440</a>            // 	{"-2562047h47m16.854775808s", -1 &lt;&lt; 63 * Nanosecond},
+<a href=#441 id=441 data-nosnippet>441</a>
+<a href=#442 id=442 data-nosnippet>442</a>            // 	// huge string; issue 15011.
+<a href=#443 id=443 data-nosnippet>443</a>            // 	{"0.100000000000000000000h", 6 * Minute},
+<a href=#444 id=444 data-nosnippet>444</a>            </span>(<span class="string">"0.100000000000000000000h"</span>, (<span class="number">6 </span>* MINUTE).into()), <span class="comment">// 	// This value tests the first overflow check in leadingFraction.
+<a href=#445 id=445 data-nosnippet>445</a>                                                               // 	{"0.830103483285477580700h", 49*Minute + 48*Second + 372539827*Nanosecond},
+<a href=#446 id=446 data-nosnippet>446</a>                                                               // }
+<a href=#447 id=447 data-nosnippet>447</a>                                                               // ```
+<a href=#448 id=448 data-nosnippet>448</a>        </span>];
+<a href=#449 id=449 data-nosnippet>449</a>
+<a href=#450 id=450 data-nosnippet>450</a>        <span class="kw">for </span>(input, expected) <span class="kw">in </span>cases {
+<a href=#451 id=451 data-nosnippet>451</a>            <span class="kw">let </span>parsed = <span class="macro">dbg!</span>(input).parse::&lt;Duration&gt;().unwrap();
+<a href=#452 id=452 data-nosnippet>452</a>            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="macro">dbg!</span>(parsed), expected);
+<a href=#453 id=453 data-nosnippet>453</a>        }
+<a href=#454 id=454 data-nosnippet>454</a>    }
+<a href=#455 id=455 data-nosnippet>455</a>}
+</code></pre></div></section></main></body></html>

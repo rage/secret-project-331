@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/arc-swap-1.7.1/src/debt/helping.rs`."><title>helping.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="arc_swap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">arc_swap/debt/</div>helping.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Slots and global/thread local data for the Helping strategy.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/arc-swap-1.8.2/src/debt/helping.rs`."><title>helping.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="arc_swap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">arc_swap/debt/</div>helping.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Slots and global/thread local data for the Helping strategy.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! This is inspired (but not an exact copy) of
 <a href=#4 id=4 data-nosnippet>4</a>//! &lt;https://pvk.ca/Blog/2020/07/07/flatter-wait-free-hazard-pointers/&gt;. The debts are mostly
@@ -190,12 +190,12 @@
 <a href=#190 id=190 data-nosnippet>190</a>
 <a href=#191 id=191 data-nosnippet>191</a>    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>get_debt(<span class="kw-2">&amp;</span><span class="self">self</span>, ptr: usize, local: <span class="kw-2">&amp;</span>Local) -&gt; (usize, bool) {
 <a href=#192 id=192 data-nosnippet>192</a>        <span class="comment">// Incrementing by 4 ensures we always have enough space for 2 bit of tags.
-<a href=#193 id=193 data-nosnippet>193</a>        </span><span class="kw">let </span>gen = local.generation.get().wrapping_add(<span class="number">4</span>);
-<a href=#194 id=194 data-nosnippet>194</a>        <span class="macro">debug_assert_eq!</span>(gen &amp; GEN_TAG, <span class="number">0</span>);
-<a href=#195 id=195 data-nosnippet>195</a>        local.generation.set(gen);
+<a href=#193 id=193 data-nosnippet>193</a>        </span><span class="kw">let gen </span>= local.generation.get().wrapping_add(<span class="number">4</span>);
+<a href=#194 id=194 data-nosnippet>194</a>        <span class="macro">debug_assert_eq!</span>(<span class="kw">gen </span>&amp; GEN_TAG, <span class="number">0</span>);
+<a href=#195 id=195 data-nosnippet>195</a>        local.generation.set(<span class="kw">gen</span>);
 <a href=#196 id=196 data-nosnippet>196</a>        <span class="comment">// Signal the caller that the node should be sent to a cooldown.
-<a href=#197 id=197 data-nosnippet>197</a>        </span><span class="kw">let </span>discard = gen == <span class="number">0</span>;
-<a href=#198 id=198 data-nosnippet>198</a>        <span class="kw">let </span>gen = gen | GEN_TAG;
+<a href=#197 id=197 data-nosnippet>197</a>        </span><span class="kw">let </span>discard = <span class="kw">gen </span>== <span class="number">0</span>;
+<a href=#198 id=198 data-nosnippet>198</a>        <span class="kw">let gen </span>= <span class="kw">gen </span>| GEN_TAG;
 <a href=#199 id=199 data-nosnippet>199</a>        <span class="comment">// We will sync by the write to the control. But we also sync the value of the previous
 <a href=#200 id=200 data-nosnippet>200</a>        // generation/released slot. That way we may re-confirm in the writer that the reader is
 <a href=#201 id=201 data-nosnippet>201</a>        // not in between here and the compare_exchange below with a stale gen (eg. if we are in
@@ -206,10 +206,10 @@
 <a href=#206 id=206 data-nosnippet>206</a>        // anything else after an transaction, so this is OK. But we still need a load-store SeqCst
 <a href=#207 id=207 data-nosnippet>207</a>        // operation here to form a relation between this and the store of the actual pointer in
 <a href=#208 id=208 data-nosnippet>208</a>        // the writer thread :-(.
-<a href=#209 id=209 data-nosnippet>209</a>        </span><span class="kw">let </span>prev = <span class="self">self</span>.control.swap(gen, SeqCst);
+<a href=#209 id=209 data-nosnippet>209</a>        </span><span class="kw">let </span>prev = <span class="self">self</span>.control.swap(<span class="kw">gen</span>, SeqCst);
 <a href=#210 id=210 data-nosnippet>210</a>        <span class="macro">debug_assert_eq!</span>(IDLE, prev, <span class="string">"Left control in wrong state"</span>);
 <a href=#211 id=211 data-nosnippet>211</a>
-<a href=#212 id=212 data-nosnippet>212</a>        (gen, discard)
+<a href=#212 id=212 data-nosnippet>212</a>        (<span class="kw">gen</span>, discard)
 <a href=#213 id=213 data-nosnippet>213</a>    }
 <a href=#214 id=214 data-nosnippet>214</a>
 <a href=#215 id=215 data-nosnippet>215</a>    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>help&lt;R, T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, who: <span class="kw-2">&amp;</span><span class="self">Self</span>, storage_addr: usize, replacement: <span class="kw-2">&amp;</span>R)
@@ -237,7 +237,7 @@
 <a href=#237 id=237 data-nosnippet>237</a>                    // value of the active_addr is in between two same instances, therefore up to
 <a href=#238 id=238 data-nosnippet>238</a>                    // date to it.
 <a href=#239 id=239 data-nosnippet>239</a>                    </span><span class="kw">let </span>active_addr = who.active_addr.load(SeqCst);
-<a href=#240 id=240 data-nosnippet>240</a>                    <span class="kw">if </span>active_addr != storage_addr {
+<a href=#240 id=240 data-nosnippet>240</a>                    <span class="kw">if </span><span class="macro">active_addr !</span>= storage_addr {
 <a href=#241 id=241 data-nosnippet>241</a>                        <span class="comment">// Acquire for the same reason as on the top.
 <a href=#242 id=242 data-nosnippet>242</a>                        </span><span class="kw">let </span>new_control = who.control.load(SeqCst);
 <a href=#243 id=243 data-nosnippet>243</a>                        <span class="kw">if </span>new_control == control {
@@ -305,7 +305,7 @@
 <a href=#305 id=305 data-nosnippet>305</a>        <span class="kw-2">*</span><span class="self">self</span>.space_offer.get_mut() = <span class="kw-2">&amp;mut </span><span class="self">self</span>.handover;
 <a href=#306 id=306 data-nosnippet>306</a>    }
 <a href=#307 id=307 data-nosnippet>307</a>
-<a href=#308 id=308 data-nosnippet>308</a>    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>confirm(<span class="kw-2">&amp;</span><span class="self">self</span>, gen: usize, ptr: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), usize&gt; {
+<a href=#308 id=308 data-nosnippet>308</a>    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>confirm(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">gen</span>: usize, ptr: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), usize&gt; {
 <a href=#309 id=309 data-nosnippet>309</a>        <span class="comment">// Put the slot there and consider it acquire of a „lock“. For that we need swap, not store
 <a href=#310 id=310 data-nosnippet>310</a>        // only (we need Acquire and Acquire works only on loads). Release is to make sure control
 <a href=#311 id=311 data-nosnippet>311</a>        // is observable by the other thread (but that's probably not necessary anyway?)
@@ -315,7 +315,7 @@
 <a href=#315 id=315 data-nosnippet>315</a>        <span class="comment">// Confirm by writing to the control (or discover that we got helped). We stop anyone else
 <a href=#316 id=316 data-nosnippet>316</a>        // from helping by setting it to IDLE.
 <a href=#317 id=317 data-nosnippet>317</a>        </span><span class="kw">let </span>control = <span class="self">self</span>.control.swap(IDLE, SeqCst);
-<a href=#318 id=318 data-nosnippet>318</a>        <span class="kw">if </span>control == gen {
+<a href=#318 id=318 data-nosnippet>318</a>        <span class="kw">if </span>control == <span class="kw">gen </span>{
 <a href=#319 id=319 data-nosnippet>319</a>            <span class="comment">// Nobody interfered, we have our debt in place and can proceed.
 <a href=#320 id=320 data-nosnippet>320</a>            </span><span class="prelude-val">Ok</span>(())
 <a href=#321 id=321 data-nosnippet>321</a>        } <span class="kw">else </span>{
@@ -331,4 +331,5 @@
 <a href=#331 id=331 data-nosnippet>331</a>            </span><span class="prelude-val">Err</span>(replacement)
 <a href=#332 id=332 data-nosnippet>332</a>        }
 <a href=#333 id=333 data-nosnippet>333</a>    }
-<a href=#334 id=334 data-nosnippet>334</a>}</code></pre></div></section></main></body></html>
+<a href=#334 id=334 data-nosnippet>334</a>}
+</code></pre></div></section></main></body></html>

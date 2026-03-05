@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unsafe-libyaml-0.2.11/src/scanner.rs`."><title>scanner.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unsafe_libyaml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">unsafe_libyaml/</div>scanner.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::api::{
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unsafe-libyaml-0.2.11/src/scanner.rs`."><title>scanner.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unsafe_libyaml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">unsafe_libyaml/</div>scanner.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::api::{
 <a href=#2 id=2 data-nosnippet>2</a>    yaml_free, yaml_malloc, yaml_queue_extend, yaml_stack_extend, yaml_string_extend,
 <a href=#3 id=3 data-nosnippet>3</a>    yaml_string_join,
 <a href=#4 id=4 data-nosnippet>4</a>};
@@ -142,7 +142,7 @@
 <a href=#142 id=142 data-nosnippet>142</a>        <span class="number">0</span>,
 <a href=#143 id=143 data-nosnippet>143</a>        size_of::&lt;yaml_token_t&gt;() <span class="kw">as </span>libc::c_ulong,
 <a href=#144 id=144 data-nosnippet>144</a>    );
-<a href=#145 id=145 data-nosnippet>145</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).stream_end_produced || (<span class="kw-2">*</span>parser).error != YAML_NO_ERROR {
+<a href=#145 id=145 data-nosnippet>145</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).stream_end_produced || (<span class="kw-2">*</span>parser).<span class="macro">error !</span>= YAML_NO_ERROR {
 <a href=#146 id=146 data-nosnippet>146</a>        <span class="kw">return </span>OK;
 <a href=#147 id=147 data-nosnippet>147</a>    }
 <a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">if </span>!(<span class="kw-2">*</span>parser).token_available {
@@ -190,7 +190,7 @@
 <a href=#190 id=190 data-nosnippet>190</a>                .simple_keys
 <a href=#191 id=191 data-nosnippet>191</a>                .start
 <a href=#192 id=192 data-nosnippet>192</a>                .add((<span class="kw-2">*</span>parser).not_simple_keys <span class="kw">as </span>usize);
-<a href=#193 id=193 data-nosnippet>193</a>            <span class="kw">while </span>simple_key != (<span class="kw-2">*</span>parser).simple_keys.top {
+<a href=#193 id=193 data-nosnippet>193</a>            <span class="kw">while </span><span class="macro">simple_key !</span>= (<span class="kw-2">*</span>parser).simple_keys.top {
 <a href=#194 id=194 data-nosnippet>194</a>                <span class="kw">if </span>(<span class="kw-2">*</span>simple_key).possible &amp;&amp; (<span class="kw-2">*</span>simple_key).token_number == (<span class="kw-2">*</span>parser).tokens_parsed {
 <a href=#195 id=195 data-nosnippet>195</a>                    need_more_tokens = <span class="bool-val">true</span>;
 <a href=#196 id=196 data-nosnippet>196</a>                    <span class="kw">break</span>;
@@ -269,12 +269,12 @@
 <a href=#269 id=269 data-nosnippet>269</a>        <span class="kw">return </span>yaml_parser_fetch_block_entry(parser);
 <a href=#270 id=270 data-nosnippet>270</a>    }
 <a href=#271 id=271 data-nosnippet>271</a>    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'?'</span>)
-<a href=#272 id=272 data-nosnippet>272</a>        &amp;&amp; ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>|| <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>))
+<a href=#272 id=272 data-nosnippet>272</a>        &amp;&amp; ((<span class="kw-2">*</span>parser).<span class="macro">flow_level !</span>= <span class="number">0 </span>|| <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>))
 <a href=#273 id=273 data-nosnippet>273</a>    {
 <a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">return </span>yaml_parser_fetch_key(parser);
 <a href=#275 id=275 data-nosnippet>275</a>    }
 <a href=#276 id=276 data-nosnippet>276</a>    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b':'</span>)
-<a href=#277 id=277 data-nosnippet>277</a>        &amp;&amp; ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>|| <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>))
+<a href=#277 id=277 data-nosnippet>277</a>        &amp;&amp; ((<span class="kw-2">*</span>parser).<span class="macro">flow_level !</span>= <span class="number">0 </span>|| <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>))
 <a href=#278 id=278 data-nosnippet>278</a>    {
 <a href=#279 id=279 data-nosnippet>279</a>        <span class="kw">return </span>yaml_parser_fetch_value(parser);
 <a href=#280 id=280 data-nosnippet>280</a>    }
@@ -341,7 +341,7 @@
 <a href=#341 id=341 data-nosnippet>341</a>        .simple_keys
 <a href=#342 id=342 data-nosnippet>342</a>        .start
 <a href=#343 id=343 data-nosnippet>343</a>        .add((<span class="kw-2">*</span>parser).not_simple_keys <span class="kw">as </span>usize);
-<a href=#344 id=344 data-nosnippet>344</a>    <span class="kw">while </span>simple_key != (<span class="kw-2">*</span>parser).simple_keys.top {
+<a href=#344 id=344 data-nosnippet>344</a>    <span class="kw">while </span><span class="macro">simple_key !</span>= (<span class="kw-2">*</span>parser).simple_keys.top {
 <a href=#345 id=345 data-nosnippet>345</a>        <span class="kw">if </span>(<span class="kw-2">*</span>simple_key).possible
 <a href=#346 id=346 data-nosnippet>346</a>            &amp;&amp; ((<span class="kw-2">*</span>simple_key).mark.line &lt; (<span class="kw-2">*</span>parser).mark.line
 <a href=#347 id=347 data-nosnippet>347</a>                || (<span class="kw-2">*</span>simple_key).mark.index.force_add(<span class="number">1024_u64</span>) &lt; (<span class="kw-2">*</span>parser).mark.index)
@@ -437,7 +437,7 @@
 <a href=#437 id=437 data-nosnippet>437</a>}
 <a href=#438 id=438 data-nosnippet>438</a>
 <a href=#439 id=439 data-nosnippet>439</a><span class="kw">unsafe fn </span>yaml_parser_decrease_flow_level(parser: <span class="kw-2">*mut </span>yaml_parser_t) {
-<a href=#440 id=440 data-nosnippet>440</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>{
+<a href=#440 id=440 data-nosnippet>440</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).<span class="macro">flow_level !</span>= <span class="number">0 </span>{
 <a href=#441 id=441 data-nosnippet>441</a>        <span class="kw">let </span>fresh8 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>parser).flow_level);
 <a href=#442 id=442 data-nosnippet>442</a>        <span class="kw-2">*</span>fresh8 -= <span class="number">1</span>;
 <a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">if </span>(<span class="kw-2">*</span>parser)
@@ -461,7 +461,7 @@
 <a href=#461 id=461 data-nosnippet>461</a>) -&gt; Success {
 <a href=#462 id=462 data-nosnippet>462</a>    <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;yaml_token_t&gt;::uninit();
 <a href=#463 id=463 data-nosnippet>463</a>    <span class="kw">let </span>token = token.as_mut_ptr();
-<a href=#464 id=464 data-nosnippet>464</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>{
+<a href=#464 id=464 data-nosnippet>464</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).<span class="macro">flow_level !</span>= <span class="number">0 </span>{
 <a href=#465 id=465 data-nosnippet>465</a>        <span class="kw">return </span>OK;
 <a href=#466 id=466 data-nosnippet>466</a>    }
 <a href=#467 id=467 data-nosnippet>467</a>    <span class="kw">if </span>((<span class="kw-2">*</span>parser).indent <span class="kw">as </span>libc::c_long) &lt; column {
@@ -495,7 +495,7 @@
 <a href=#495 id=495 data-nosnippet>495</a><span class="kw">unsafe fn </span>yaml_parser_unroll_indent(parser: <span class="kw-2">*mut </span>yaml_parser_t, column: ptrdiff_t) {
 <a href=#496 id=496 data-nosnippet>496</a>    <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;yaml_token_t&gt;::uninit();
 <a href=#497 id=497 data-nosnippet>497</a>    <span class="kw">let </span>token = token.as_mut_ptr();
-<a href=#498 id=498 data-nosnippet>498</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>{
+<a href=#498 id=498 data-nosnippet>498</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).<span class="macro">flow_level !</span>= <span class="number">0 </span>{
 <a href=#499 id=499 data-nosnippet>499</a>        <span class="kw">return</span>;
 <a href=#500 id=500 data-nosnippet>500</a>    }
 <a href=#501 id=501 data-nosnippet>501</a>    <span class="kw">while </span>(<span class="kw-2">*</span>parser).indent <span class="kw">as </span>libc::c_long &gt; column {
@@ -545,7 +545,7 @@
 <a href=#545 id=545 data-nosnippet>545</a><span class="kw">unsafe fn </span>yaml_parser_fetch_stream_end(parser: <span class="kw-2">*mut </span>yaml_parser_t) -&gt; Success {
 <a href=#546 id=546 data-nosnippet>546</a>    <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;yaml_token_t&gt;::uninit();
 <a href=#547 id=547 data-nosnippet>547</a>    <span class="kw">let </span>token = token.as_mut_ptr();
-<a href=#548 id=548 data-nosnippet>548</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column != <span class="number">0_u64 </span>{
+<a href=#548 id=548 data-nosnippet>548</a>    <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.<span class="macro">column !</span>= <span class="number">0_u64 </span>{
 <a href=#549 id=549 data-nosnippet>549</a>        (<span class="kw-2">*</span>parser).mark.column = <span class="number">0_u64</span>;
 <a href=#550 id=550 data-nosnippet>550</a>        <span class="kw">let </span>fresh22 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>parser).mark.line);
 <a href=#551 id=551 data-nosnippet>551</a>        <span class="kw-2">*</span>fresh22 = (<span class="kw-2">*</span>fresh22).force_add(<span class="number">1</span>);
@@ -933,7 +933,7 @@
 <a href=#933 id=933 data-nosnippet>933</a>            <span class="kw">return </span>FAIL;
 <a href=#934 id=934 data-nosnippet>934</a>        }
 <a href=#935 id=935 data-nosnippet>935</a>        <span class="kw">while </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b' '</span>)
-<a href=#936 id=936 data-nosnippet>936</a>            || ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>|| !(<span class="kw-2">*</span>parser).simple_key_allowed)
+<a href=#936 id=936 data-nosnippet>936</a>            || ((<span class="kw-2">*</span>parser).<span class="macro">flow_level !</span>= <span class="number">0 </span>|| !(<span class="kw-2">*</span>parser).simple_key_allowed)
 <a href=#937 id=937 data-nosnippet>937</a>                &amp;&amp; <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\t'</span>)
 <a href=#938 id=938 data-nosnippet>938</a>        {
 <a href=#939 id=939 data-nosnippet>939</a>            SKIP(parser);
@@ -1044,7 +1044,7 @@
 <a href=#1044 id=1044 data-nosnippet>1044</a>            );
 <a href=#1045 id=1045 data-nosnippet>1045</a>            current_block = <span class="number">11397968426844348457</span>;
 <a href=#1046 id=1046 data-nosnippet>1046</a>        }
-<a href=#1047 id=1047 data-nosnippet>1047</a>        <span class="kw">if </span>current_block != <span class="number">11397968426844348457 </span>{
+<a href=#1047 id=1047 data-nosnippet>1047</a>        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">11397968426844348457 </span>{
 <a href=#1048 id=1048 data-nosnippet>1048</a>            <span class="kw">if </span>CACHE(parser, <span class="number">1_u64</span>).ok {
 <a href=#1049 id=1049 data-nosnippet>1049</a>                <span class="kw">loop </span>{
 <a href=#1050 id=1050 data-nosnippet>1050</a>                    <span class="kw">if </span>!<span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) {
@@ -1057,7 +1057,7 @@
 <a href=#1057 id=1057 data-nosnippet>1057</a>                        <span class="kw">break</span>;
 <a href=#1058 id=1058 data-nosnippet>1058</a>                    }
 <a href=#1059 id=1059 data-nosnippet>1059</a>                }
-<a href=#1060 id=1060 data-nosnippet>1060</a>                <span class="kw">if </span>current_block != <span class="number">11397968426844348457 </span>{
+<a href=#1060 id=1060 data-nosnippet>1060</a>                <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">11397968426844348457 </span>{
 <a href=#1061 id=1061 data-nosnippet>1061</a>                    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'#'</span>) {
 <a href=#1062 id=1062 data-nosnippet>1062</a>                        <span class="kw">loop </span>{
 <a href=#1063 id=1063 data-nosnippet>1063</a>                            <span class="kw">if </span><span class="macro">IS_BREAKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
@@ -1073,7 +1073,7 @@
 <a href=#1073 id=1073 data-nosnippet>1073</a>                    } <span class="kw">else </span>{
 <a href=#1074 id=1074 data-nosnippet>1074</a>                        current_block = <span class="number">6669252993407410313</span>;
 <a href=#1075 id=1075 data-nosnippet>1075</a>                    }
-<a href=#1076 id=1076 data-nosnippet>1076</a>                    <span class="kw">if </span>current_block != <span class="number">11397968426844348457 </span>{
+<a href=#1076 id=1076 data-nosnippet>1076</a>                    <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">11397968426844348457 </span>{
 <a href=#1077 id=1077 data-nosnippet>1077</a>                        <span class="kw">if </span>!<span class="macro">IS_BREAKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
 <a href=#1078 id=1078 data-nosnippet>1078</a>                            yaml_parser_set_scanner_error(
 <a href=#1079 id=1079 data-nosnippet>1079</a>                                parser,
@@ -1093,7 +1093,7 @@
 <a href=#1093 id=1093 data-nosnippet>1093</a>                            } <span class="kw">else </span>{
 <a href=#1094 id=1094 data-nosnippet>1094</a>                                current_block = <span class="number">652864300344834934</span>;
 <a href=#1095 id=1095 data-nosnippet>1095</a>                            }
-<a href=#1096 id=1096 data-nosnippet>1096</a>                            <span class="kw">if </span>current_block != <span class="number">11397968426844348457 </span>{
+<a href=#1096 id=1096 data-nosnippet>1096</a>                            <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">11397968426844348457 </span>{
 <a href=#1097 id=1097 data-nosnippet>1097</a>                                yaml_free(name <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#1098 id=1098 data-nosnippet>1098</a>                                <span class="kw">return </span>OK;
 <a href=#1099 id=1099 data-nosnippet>1099</a>                            }
@@ -1129,7 +1129,7 @@
 <a href=#1129 id=1129 data-nosnippet>1129</a>                <span class="kw">break</span>;
 <a href=#1130 id=1130 data-nosnippet>1130</a>            }
 <a href=#1131 id=1131 data-nosnippet>1131</a>        }
-<a href=#1132 id=1132 data-nosnippet>1132</a>        <span class="kw">if </span>current_block != <span class="number">8318012024179131575 </span>{
+<a href=#1132 id=1132 data-nosnippet>1132</a>        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">8318012024179131575 </span>{
 <a href=#1133 id=1133 data-nosnippet>1133</a>            <span class="kw">if </span>string.start == string.pointer {
 <a href=#1134 id=1134 data-nosnippet>1134</a>                yaml_parser_set_scanner_error(
 <a href=#1135 id=1135 data-nosnippet>1135</a>                    parser,
@@ -1355,7 +1355,7 @@
 <a href=#1355 id=1355 data-nosnippet>1355</a>            }
 <a href=#1356 id=1356 data-nosnippet>1356</a>            length += <span class="number">1</span>;
 <a href=#1357 id=1357 data-nosnippet>1357</a>        }
-<a href=#1358 id=1358 data-nosnippet>1358</a>        <span class="kw">if </span>current_block != <span class="number">5883759901342942623 </span>{
+<a href=#1358 id=1358 data-nosnippet>1358</a>        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">5883759901342942623 </span>{
 <a href=#1359 id=1359 data-nosnippet>1359</a>            end_mark = (<span class="kw-2">*</span>parser).mark;
 <a href=#1360 id=1360 data-nosnippet>1360</a>            <span class="kw">if </span>length == <span class="number">0
 <a href=#1361 id=1361 data-nosnippet>1361</a>                </span>|| !(<span class="macro">IS_BLANKZ!</span>((<span class="kw-2">*</span>parser).buffer)
@@ -1492,7 +1492,7 @@
 <a href=#1492 id=1492 data-nosnippet>1492</a>            }
 <a href=#1493 id=1493 data-nosnippet>1493</a>            current_block = <span class="number">4488286894823169796</span>;
 <a href=#1494 id=1494 data-nosnippet>1494</a>        }
-<a href=#1495 id=1495 data-nosnippet>1495</a>        <span class="kw">if </span>current_block != <span class="number">17708497480799081542 </span>{
+<a href=#1495 id=1495 data-nosnippet>1495</a>        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">17708497480799081542 </span>{
 <a href=#1496 id=1496 data-nosnippet>1496</a>            <span class="kw">if </span>CACHE(parser, <span class="number">1_u64</span>).ok {
 <a href=#1497 id=1497 data-nosnippet>1497</a>                <span class="kw">if </span>!<span class="macro">IS_BLANKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
 <a href=#1498 id=1498 data-nosnippet>1498</a>                    <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level == <span class="number">0 </span>|| !<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>) {
@@ -1510,7 +1510,7 @@
 <a href=#1510 id=1510 data-nosnippet>1510</a>                } <span class="kw">else </span>{
 <a href=#1511 id=1511 data-nosnippet>1511</a>                    current_block = <span class="number">7333393191927787629</span>;
 <a href=#1512 id=1512 data-nosnippet>1512</a>                }
-<a href=#1513 id=1513 data-nosnippet>1513</a>                <span class="kw">if </span>current_block != <span class="number">17708497480799081542 </span>{
+<a href=#1513 id=1513 data-nosnippet>1513</a>                <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">17708497480799081542 </span>{
 <a href=#1514 id=1514 data-nosnippet>1514</a>                    end_mark = (<span class="kw-2">*</span>parser).mark;
 <a href=#1515 id=1515 data-nosnippet>1515</a>                    memset(
 <a href=#1516 id=1516 data-nosnippet>1516</a>                        token <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
@@ -1569,7 +1569,7 @@
 <a href=#1569 id=1569 data-nosnippet>1569</a>                        <span class="kw">break</span>;
 <a href=#1570 id=1570 data-nosnippet>1570</a>                    }
 <a href=#1571 id=1571 data-nosnippet>1571</a>                }
-<a href=#1572 id=1572 data-nosnippet>1572</a>                <span class="kw">if </span>current_block != <span class="number">1771849829115608806 </span>{
+<a href=#1572 id=1572 data-nosnippet>1572</a>                <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">1771849829115608806 </span>{
 <a href=#1573 id=1573 data-nosnippet>1573</a>                    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'!'</span>) {
 <a href=#1574 id=1574 data-nosnippet>1574</a>                        <span class="macro">READ!</span>(parser, string);
 <a href=#1575 id=1575 data-nosnippet>1575</a>                        current_block = <span class="number">5689001924483802034</span>;
@@ -1587,7 +1587,7 @@
 <a href=#1587 id=1587 data-nosnippet>1587</a>                    } <span class="kw">else </span>{
 <a href=#1588 id=1588 data-nosnippet>1588</a>                        current_block = <span class="number">5689001924483802034</span>;
 <a href=#1589 id=1589 data-nosnippet>1589</a>                    }
-<a href=#1590 id=1590 data-nosnippet>1590</a>                    <span class="kw">if </span>current_block != <span class="number">1771849829115608806 </span>{
+<a href=#1590 id=1590 data-nosnippet>1590</a>                    <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">1771849829115608806 </span>{
 <a href=#1591 id=1591 data-nosnippet>1591</a>                        <span class="kw-2">*</span>handle = string.start;
 <a href=#1592 id=1592 data-nosnippet>1592</a>                        <span class="kw">return </span>OK;
 <a href=#1593 id=1593 data-nosnippet>1593</a>                    }
@@ -1790,7 +1790,7 @@
 <a href=#1790 id=1790 data-nosnippet>1790</a>        SKIP(parser);
 <a href=#1791 id=1791 data-nosnippet>1791</a>        SKIP(parser);
 <a href=#1792 id=1792 data-nosnippet>1792</a>        width -= <span class="number">1</span>;
-<a href=#1793 id=1793 data-nosnippet>1793</a>        <span class="kw">if </span>!(width != <span class="number">0</span>) {
+<a href=#1793 id=1793 data-nosnippet>1793</a>        <span class="kw">if </span>!(<span class="macro">width !</span>= <span class="number">0</span>) {
 <a href=#1794 id=1794 data-nosnippet>1794</a>            <span class="kw">break</span>;
 <a href=#1795 id=1795 data-nosnippet>1795</a>        }
 <a href=#1796 id=1796 data-nosnippet>1796</a>    }
@@ -1875,7 +1875,7 @@
 <a href=#1875 id=1875 data-nosnippet>1875</a>        } <span class="kw">else </span>{
 <a href=#1876 id=1876 data-nosnippet>1876</a>            current_block = <span class="number">11913429853522160501</span>;
 <a href=#1877 id=1877 data-nosnippet>1877</a>        }
-<a href=#1878 id=1878 data-nosnippet>1878</a>        <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>{
+<a href=#1878 id=1878 data-nosnippet>1878</a>        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">14984465786483313892 </span>{
 <a href=#1879 id=1879 data-nosnippet>1879</a>            <span class="kw">if </span>CACHE(parser, <span class="number">1_u64</span>).ok {
 <a href=#1880 id=1880 data-nosnippet>1880</a>                <span class="kw">loop </span>{
 <a href=#1881 id=1881 data-nosnippet>1881</a>                    <span class="kw">if </span>!<span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) {
@@ -1888,7 +1888,7 @@
 <a href=#1888 id=1888 data-nosnippet>1888</a>                        <span class="kw">break</span>;
 <a href=#1889 id=1889 data-nosnippet>1889</a>                    }
 <a href=#1890 id=1890 data-nosnippet>1890</a>                }
-<a href=#1891 id=1891 data-nosnippet>1891</a>                <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>{
+<a href=#1891 id=1891 data-nosnippet>1891</a>                <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">14984465786483313892 </span>{
 <a href=#1892 id=1892 data-nosnippet>1892</a>                    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'#'</span>) {
 <a href=#1893 id=1893 data-nosnippet>1893</a>                        <span class="kw">loop </span>{
 <a href=#1894 id=1894 data-nosnippet>1894</a>                            <span class="kw">if </span><span class="macro">IS_BREAKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
@@ -1904,7 +1904,7 @@
 <a href=#1904 id=1904 data-nosnippet>1904</a>                    } <span class="kw">else </span>{
 <a href=#1905 id=1905 data-nosnippet>1905</a>                        current_block = <span class="number">12997042908615822766</span>;
 <a href=#1906 id=1906 data-nosnippet>1906</a>                    }
-<a href=#1907 id=1907 data-nosnippet>1907</a>                    <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>{
+<a href=#1907 id=1907 data-nosnippet>1907</a>                    <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">14984465786483313892 </span>{
 <a href=#1908 id=1908 data-nosnippet>1908</a>                        <span class="kw">if </span>!<span class="macro">IS_BREAKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
 <a href=#1909 id=1909 data-nosnippet>1909</a>                            yaml_parser_set_scanner_error(
 <a href=#1910 id=1910 data-nosnippet>1910</a>                                parser,
@@ -1925,9 +1925,9 @@
 <a href=#1925 id=1925 data-nosnippet>1925</a>                            } <span class="kw">else </span>{
 <a href=#1926 id=1926 data-nosnippet>1926</a>                                current_block = <span class="number">13619784596304402172</span>;
 <a href=#1927 id=1927 data-nosnippet>1927</a>                            }
-<a href=#1928 id=1928 data-nosnippet>1928</a>                            <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>{
+<a href=#1928 id=1928 data-nosnippet>1928</a>                            <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">14984465786483313892 </span>{
 <a href=#1929 id=1929 data-nosnippet>1929</a>                                end_mark = (<span class="kw-2">*</span>parser).mark;
-<a href=#1930 id=1930 data-nosnippet>1930</a>                                <span class="kw">if </span>increment != <span class="number">0 </span>{
+<a href=#1930 id=1930 data-nosnippet>1930</a>                                <span class="kw">if </span><span class="macro">increment !</span>= <span class="number">0 </span>{
 <a href=#1931 id=1931 data-nosnippet>1931</a>                                    indent = <span class="kw">if </span>(<span class="kw-2">*</span>parser).indent &gt;= <span class="number">0 </span>{
 <a href=#1932 id=1932 data-nosnippet>1932</a>                                        (<span class="kw-2">*</span>parser).indent + increment
 <a href=#1933 id=1933 data-nosnippet>1933</a>                                    } <span class="kw">else </span>{
@@ -1999,14 +1999,14 @@
 <a href=#1999 id=1999 data-nosnippet>1999</a>                                                <span class="kw">break</span>;
 <a href=#2000 id=2000 data-nosnippet>2000</a>                                            }
 <a href=#2001 id=2001 data-nosnippet>2001</a>                                        }
-<a href=#2002 id=2002 data-nosnippet>2002</a>                                        <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>{
-<a href=#2003 id=2003 data-nosnippet>2003</a>                                            <span class="kw">if </span>chomping != -<span class="number">1 </span>{
+<a href=#2002 id=2002 data-nosnippet>2002</a>                                        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">14984465786483313892 </span>{
+<a href=#2003 id=2003 data-nosnippet>2003</a>                                            <span class="kw">if </span><span class="macro">chomping !</span>= -<span class="number">1 </span>{
 <a href=#2004 id=2004 data-nosnippet>2004</a>                                                <span class="macro">JOIN!</span>(string, leading_break);
 <a href=#2005 id=2005 data-nosnippet>2005</a>                                                current_block = <span class="number">17787701279558130514</span>;
 <a href=#2006 id=2006 data-nosnippet>2006</a>                                            } <span class="kw">else </span>{
 <a href=#2007 id=2007 data-nosnippet>2007</a>                                                current_block = <span class="number">17787701279558130514</span>;
 <a href=#2008 id=2008 data-nosnippet>2008</a>                                            }
-<a href=#2009 id=2009 data-nosnippet>2009</a>                                            <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>{
+<a href=#2009 id=2009 data-nosnippet>2009</a>                                            <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">14984465786483313892 </span>{
 <a href=#2010 id=2010 data-nosnippet>2010</a>                                                <span class="kw">if </span>chomping == <span class="number">1 </span>{
 <a href=#2011 id=2011 data-nosnippet>2011</a>                                                    <span class="macro">JOIN!</span>(string, trailing_breaks);
 <a href=#2012 id=2012 data-nosnippet>2012</a>                                                }
@@ -2323,7 +2323,7 @@
 <a href=#2323 id=2323 data-nosnippet>2323</a>                        }
 <a href=#2324 id=2324 data-nosnippet>2324</a>                        SKIP(parser);
 <a href=#2325 id=2325 data-nosnippet>2325</a>                        SKIP(parser);
-<a href=#2326 id=2326 data-nosnippet>2326</a>                        <span class="kw">if </span>code_length != <span class="number">0 </span>{
+<a href=#2326 id=2326 data-nosnippet>2326</a>                        <span class="kw">if </span><span class="macro">code_length !</span>= <span class="number">0 </span>{
 <a href=#2327 id=2327 data-nosnippet>2327</a>                            <span class="kw">let </span><span class="kw-2">mut </span>value: libc::c_uint = <span class="number">0</span>;
 <a href=#2328 id=2328 data-nosnippet>2328</a>                            <span class="kw">let </span><span class="kw-2">mut </span>k: size_t;
 <a href=#2329 id=2329 data-nosnippet>2329</a>                            <span class="kw">if </span>CACHE(parser, code_length).fail {
@@ -2479,7 +2479,7 @@
 <a href=#2479 id=2479 data-nosnippet>2479</a>            }
 <a href=#2480 id=2480 data-nosnippet>2480</a>        }
 <a href=#2481 id=2481 data-nosnippet>2481</a>    }
-<a href=#2482 id=2482 data-nosnippet>2482</a>    <span class="kw">if </span>current_block != <span class="number">8114179180390253173 </span>{
+<a href=#2482 id=2482 data-nosnippet>2482</a>    <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">8114179180390253173 </span>{
 <a href=#2483 id=2483 data-nosnippet>2483</a>        SKIP(parser);
 <a href=#2484 id=2484 data-nosnippet>2484</a>        end_mark = (<span class="kw-2">*</span>parser).mark;
 <a href=#2485 id=2485 data-nosnippet>2485</a>        memset(
@@ -2550,7 +2550,7 @@
 <a href=#2550 id=2550 data-nosnippet>2550</a>            <span class="kw">break</span>;
 <a href=#2551 id=2551 data-nosnippet>2551</a>        }
 <a href=#2552 id=2552 data-nosnippet>2552</a>        <span class="kw">while </span>!<span class="macro">IS_BLANKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
-<a href=#2553 id=2553 data-nosnippet>2553</a>            <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level != <span class="number">0
+<a href=#2553 id=2553 data-nosnippet>2553</a>            <span class="kw">if </span>(<span class="kw-2">*</span>parser).<span class="macro">flow_level !</span>= <span class="number">0
 <a href=#2554 id=2554 data-nosnippet>2554</a>                </span>&amp;&amp; <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b':'</span>)
 <a href=#2555 id=2555 data-nosnippet>2555</a>                &amp;&amp; (<span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>, <span class="number">1</span>)
 <a href=#2556 id=2556 data-nosnippet>2556</a>                    || <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'?'</span>, <span class="number">1</span>)
@@ -2569,7 +2569,7 @@
 <a href=#2569 id=2569 data-nosnippet>2569</a>                <span class="kw">break </span><span class="lifetime">'s_57</span>;
 <a href=#2570 id=2570 data-nosnippet>2570</a>            } <span class="kw">else </span>{
 <a href=#2571 id=2571 data-nosnippet>2571</a>                <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b':'</span>) &amp;&amp; <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>)
-<a href=#2572 id=2572 data-nosnippet>2572</a>                    || (<span class="kw-2">*</span>parser).flow_level != <span class="number">0
+<a href=#2572 id=2572 data-nosnippet>2572</a>                    || (<span class="kw-2">*</span>parser).<span class="macro">flow_level !</span>= <span class="number">0
 <a href=#2573 id=2573 data-nosnippet>2573</a>                        </span>&amp;&amp; (<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>)
 <a href=#2574 id=2574 data-nosnippet>2574</a>                            || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'['</span>)
 <a href=#2575 id=2575 data-nosnippet>2575</a>                            || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b']'</span>)
@@ -2578,7 +2578,7 @@
 <a href=#2578 id=2578 data-nosnippet>2578</a>                {
 <a href=#2579 id=2579 data-nosnippet>2579</a>                    <span class="kw">break</span>;
 <a href=#2580 id=2580 data-nosnippet>2580</a>                }
-<a href=#2581 id=2581 data-nosnippet>2581</a>                <span class="kw">if </span>leading_blanks || whitespaces.start != whitespaces.pointer {
+<a href=#2581 id=2581 data-nosnippet>2581</a>                <span class="kw">if </span>leading_blanks || whitespaces.<span class="macro">start !</span>= whitespaces.pointer {
 <a href=#2582 id=2582 data-nosnippet>2582</a>                    <span class="kw">if </span>leading_blanks {
 <a href=#2583 id=2583 data-nosnippet>2583</a>                        <span class="kw">if </span><span class="kw-2">*</span>leading_break.start == <span class="string">b'\n' </span>{
 <a href=#2584 id=2584 data-nosnippet>2584</a>                            <span class="kw">if </span><span class="kw-2">*</span>trailing_breaks.start == <span class="string">b'\0' </span>{
@@ -2662,7 +2662,7 @@
 <a href=#2662 id=2662 data-nosnippet>2662</a>            <span class="kw">break</span>;
 <a href=#2663 id=2663 data-nosnippet>2663</a>        }
 <a href=#2664 id=2664 data-nosnippet>2664</a>    }
-<a href=#2665 id=2665 data-nosnippet>2665</a>    <span class="kw">if </span>current_block != <span class="number">16642808987012640029 </span>{
+<a href=#2665 id=2665 data-nosnippet>2665</a>    <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">16642808987012640029 </span>{
 <a href=#2666 id=2666 data-nosnippet>2666</a>        memset(
 <a href=#2667 id=2667 data-nosnippet>2667</a>            token <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
 <a href=#2668 id=2668 data-nosnippet>2668</a>            <span class="number">0</span>,
@@ -2688,4 +2688,5 @@
 <a href=#2688 id=2688 data-nosnippet>2688</a>    <span class="macro">STRING_DEL!</span>(trailing_breaks);
 <a href=#2689 id=2689 data-nosnippet>2689</a>    <span class="macro">STRING_DEL!</span>(whitespaces);
 <a href=#2690 id=2690 data-nosnippet>2690</a>    FAIL
-<a href=#2691 id=2691 data-nosnippet>2691</a>}</code></pre></div></section></main></body></html>
+<a href=#2691 id=2691 data-nosnippet>2691</a>}
+</code></pre></div></section></main></body></html>

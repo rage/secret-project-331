@@ -1,9 +1,9 @@
 (function() {
-    var type_impls = Object.fromEntries([["libz_sys",[]]]);
+    var type_impls = Object.fromEntries([["aws_lc_sys",[]],["libz_sys",[]]]);
     if (window.register_type_impls) {
         window.register_type_impls(type_impls);
     } else {
         window.pending_type_impls = type_impls;
     }
 })()
-//{"start":55,"fragment_lengths":[15]}
+//{"start":55,"fragment_lengths":[17,16]}

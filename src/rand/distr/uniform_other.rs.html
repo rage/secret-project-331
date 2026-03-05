@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand-0.9.2/src/distr/uniform_other.rs`."><title>uniform_other.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/distr/</div>uniform_other.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018-2020 Developers of the Rand project.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand-0.10.0/src/distr/uniform_other.rs`."><title>uniform_other.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/distr/</div>uniform_other.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018-2020 Developers of the Rand project.
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright 2017 The Rust Project Developers.
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
@@ -10,8 +10,8 @@
 <a href=#10 id=10 data-nosnippet>10</a></span><span class="doccomment">//! `UniformChar`, `UniformDuration` implementations
 <a href=#11 id=11 data-nosnippet>11</a>
 <a href=#12 id=12 data-nosnippet>12</a></span><span class="kw">use super</span>::{Error, SampleBorrow, SampleUniform, Uniform, UniformInt, UniformSampler};
-<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span><span class="kw">crate</span>::distr::Distribution;
-<a href=#14 id=14 data-nosnippet>14</a><span class="kw">use </span><span class="kw">crate</span>::Rng;
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span><span class="kw">crate</span>::Rng;
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">use </span><span class="kw">crate</span>::distr::Distribution;
 <a href=#15 id=15 data-nosnippet>15</a><span class="kw">use </span>core::time::Duration;
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
@@ -53,7 +53,7 @@
 <a href=#53 id=53 data-nosnippet>53</a>    <span class="kw">type </span>X = char;
 <a href=#54 id=54 data-nosnippet>54</a>
 <a href=#55 id=55 data-nosnippet>55</a>    <span class="attr">#[inline] </span><span class="comment">// if the range is constant, this helps LLVM to do the
-<a href=#56 id=56 data-nosnippet>56</a>              // calculations at compile-time.
+<a href=#56 id=56 data-nosnippet>56</a>    // calculations at compile-time.
 <a href=#57 id=57 data-nosnippet>57</a>    </span><span class="kw">fn </span>new&lt;B1, B2&gt;(low_b: B1, high_b: B2) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
 <a href=#58 id=58 data-nosnippet>58</a>    <span class="kw">where
 <a href=#59 id=59 data-nosnippet>59</a>        </span>B1: SampleBorrow&lt;<span class="self">Self</span>::X&gt; + Sized,
@@ -66,7 +66,7 @@
 <a href=#66 id=66 data-nosnippet>66</a>    }
 <a href=#67 id=67 data-nosnippet>67</a>
 <a href=#68 id=68 data-nosnippet>68</a>    <span class="attr">#[inline] </span><span class="comment">// if the range is constant, this helps LLVM to do the
-<a href=#69 id=69 data-nosnippet>69</a>              // calculations at compile-time.
+<a href=#69 id=69 data-nosnippet>69</a>    // calculations at compile-time.
 <a href=#70 id=70 data-nosnippet>70</a>    </span><span class="kw">fn </span>new_inclusive&lt;B1, B2&gt;(low_b: B1, high_b: B2) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
 <a href=#71 id=71 data-nosnippet>71</a>    <span class="kw">where
 <a href=#72 id=72 data-nosnippet>72</a>        </span>B1: SampleBorrow&lt;<span class="self">Self</span>::X&gt; + Sized,
@@ -246,74 +246,76 @@
 <a href=#246 id=246 data-nosnippet>246</a><span class="attr">#[cfg(test)]
 <a href=#247 id=247 data-nosnippet>247</a></span><span class="kw">mod </span>tests {
 <a href=#248 id=248 data-nosnippet>248</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#249 id=249 data-nosnippet>249</a>
-<a href=#250 id=250 data-nosnippet>250</a>    <span class="attr">#[test]
-<a href=#251 id=251 data-nosnippet>251</a>    #[cfg(feature = <span class="string">"serde"</span>)]
-<a href=#252 id=252 data-nosnippet>252</a>    </span><span class="kw">fn </span>test_serialization_uniform_duration() {
-<a href=#253 id=253 data-nosnippet>253</a>        <span class="kw">let </span>distr = UniformDuration::new(Duration::from_secs(<span class="number">10</span>), Duration::from_secs(<span class="number">60</span>)).unwrap();
-<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">let </span>de_distr: UniformDuration =
-<a href=#255 id=255 data-nosnippet>255</a>            bincode::deserialize(<span class="kw-2">&amp;</span>bincode::serialize(<span class="kw-2">&amp;</span>distr).unwrap()).unwrap();
-<a href=#256 id=256 data-nosnippet>256</a>        <span class="macro">assert_eq!</span>(distr, de_distr);
-<a href=#257 id=257 data-nosnippet>257</a>    }
-<a href=#258 id=258 data-nosnippet>258</a>
-<a href=#259 id=259 data-nosnippet>259</a>    <span class="attr">#[test]
-<a href=#260 id=260 data-nosnippet>260</a>    #[cfg_attr(miri, ignore)] </span><span class="comment">// Miri is too slow
-<a href=#261 id=261 data-nosnippet>261</a>    </span><span class="kw">fn </span>test_char() {
-<a href=#262 id=262 data-nosnippet>262</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="kw">crate</span>::test::rng(<span class="number">891</span>);
-<a href=#263 id=263 data-nosnippet>263</a>        <span class="kw">let </span><span class="kw-2">mut </span>max = core::char::from_u32(<span class="number">0</span>).unwrap();
-<a href=#264 id=264 data-nosnippet>264</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">100 </span>{
-<a href=#265 id=265 data-nosnippet>265</a>            <span class="kw">let </span>c = rng.random_range(<span class="string">'A'</span>..=<span class="string">'Z'</span>);
-<a href=#266 id=266 data-nosnippet>266</a>            <span class="macro">assert!</span>(c.is_ascii_uppercase());
-<a href=#267 id=267 data-nosnippet>267</a>            max = max.max(c);
-<a href=#268 id=268 data-nosnippet>268</a>        }
-<a href=#269 id=269 data-nosnippet>269</a>        <span class="macro">assert_eq!</span>(max, <span class="string">'Z'</span>);
-<a href=#270 id=270 data-nosnippet>270</a>        <span class="kw">let </span>d = Uniform::new(
-<a href=#271 id=271 data-nosnippet>271</a>            core::char::from_u32(<span class="number">0xD7F0</span>).unwrap(),
-<a href=#272 id=272 data-nosnippet>272</a>            core::char::from_u32(<span class="number">0xE010</span>).unwrap(),
-<a href=#273 id=273 data-nosnippet>273</a>        )
-<a href=#274 id=274 data-nosnippet>274</a>        .unwrap();
-<a href=#275 id=275 data-nosnippet>275</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">100 </span>{
-<a href=#276 id=276 data-nosnippet>276</a>            <span class="kw">let </span>c = d.sample(<span class="kw-2">&amp;mut </span>rng);
-<a href=#277 id=277 data-nosnippet>277</a>            <span class="macro">assert!</span>((c <span class="kw">as </span>u32) &lt; <span class="number">0xD800 </span>|| (c <span class="kw">as </span>u32) &gt; <span class="number">0xDFFF</span>);
-<a href=#278 id=278 data-nosnippet>278</a>        }
-<a href=#279 id=279 data-nosnippet>279</a>        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-<a href=#280 id=280 data-nosnippet>280</a>        </span>{
-<a href=#281 id=281 data-nosnippet>281</a>            <span class="kw">use </span><span class="kw">crate</span>::distr::SampleString;
-<a href=#282 id=282 data-nosnippet>282</a>            <span class="kw">let </span>string1 = d.sample_string(<span class="kw-2">&amp;mut </span>rng, <span class="number">100</span>);
-<a href=#283 id=283 data-nosnippet>283</a>            <span class="macro">assert_eq!</span>(string1.capacity(), <span class="number">300</span>);
-<a href=#284 id=284 data-nosnippet>284</a>            <span class="kw">let </span>string2 = Uniform::new(
-<a href=#285 id=285 data-nosnippet>285</a>                core::char::from_u32(<span class="number">0x0000</span>).unwrap(),
-<a href=#286 id=286 data-nosnippet>286</a>                core::char::from_u32(<span class="number">0x0080</span>).unwrap(),
-<a href=#287 id=287 data-nosnippet>287</a>            )
-<a href=#288 id=288 data-nosnippet>288</a>            .unwrap()
-<a href=#289 id=289 data-nosnippet>289</a>            .sample_string(<span class="kw-2">&amp;mut </span>rng, <span class="number">100</span>);
-<a href=#290 id=290 data-nosnippet>290</a>            <span class="macro">assert_eq!</span>(string2.capacity(), <span class="number">100</span>);
-<a href=#291 id=291 data-nosnippet>291</a>            <span class="kw">let </span>string3 = Uniform::new_inclusive(
-<a href=#292 id=292 data-nosnippet>292</a>                core::char::from_u32(<span class="number">0x0000</span>).unwrap(),
-<a href=#293 id=293 data-nosnippet>293</a>                core::char::from_u32(<span class="number">0x0080</span>).unwrap(),
-<a href=#294 id=294 data-nosnippet>294</a>            )
-<a href=#295 id=295 data-nosnippet>295</a>            .unwrap()
-<a href=#296 id=296 data-nosnippet>296</a>            .sample_string(<span class="kw-2">&amp;mut </span>rng, <span class="number">100</span>);
-<a href=#297 id=297 data-nosnippet>297</a>            <span class="macro">assert_eq!</span>(string3.capacity(), <span class="number">200</span>);
-<a href=#298 id=298 data-nosnippet>298</a>        }
-<a href=#299 id=299 data-nosnippet>299</a>    }
-<a href=#300 id=300 data-nosnippet>300</a>
-<a href=#301 id=301 data-nosnippet>301</a>    <span class="attr">#[test]
-<a href=#302 id=302 data-nosnippet>302</a>    #[cfg_attr(miri, ignore)] </span><span class="comment">// Miri is too slow
-<a href=#303 id=303 data-nosnippet>303</a>    </span><span class="kw">fn </span>test_durations() {
-<a href=#304 id=304 data-nosnippet>304</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="kw">crate</span>::test::rng(<span class="number">253</span>);
-<a href=#305 id=305 data-nosnippet>305</a>
-<a href=#306 id=306 data-nosnippet>306</a>        <span class="kw">let </span>v = <span class="kw-2">&amp;</span>[
-<a href=#307 id=307 data-nosnippet>307</a>            (Duration::new(<span class="number">10</span>, <span class="number">50000</span>), Duration::new(<span class="number">100</span>, <span class="number">1234</span>)),
-<a href=#308 id=308 data-nosnippet>308</a>            (Duration::new(<span class="number">0</span>, <span class="number">100</span>), Duration::new(<span class="number">1</span>, <span class="number">50</span>)),
-<a href=#309 id=309 data-nosnippet>309</a>            (Duration::new(<span class="number">0</span>, <span class="number">0</span>), Duration::new(u64::MAX, <span class="number">999_999_999</span>)),
-<a href=#310 id=310 data-nosnippet>310</a>        ];
-<a href=#311 id=311 data-nosnippet>311</a>        <span class="kw">for </span><span class="kw-2">&amp;</span>(low, high) <span class="kw">in </span>v.iter() {
-<a href=#312 id=312 data-nosnippet>312</a>            <span class="kw">let </span>my_uniform = Uniform::new(low, high).unwrap();
-<a href=#313 id=313 data-nosnippet>313</a>            <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">1000 </span>{
-<a href=#314 id=314 data-nosnippet>314</a>                <span class="kw">let </span>v = rng.sample(my_uniform);
-<a href=#315 id=315 data-nosnippet>315</a>                <span class="macro">assert!</span>(low &lt;= v &amp;&amp; v &lt; high);
-<a href=#316 id=316 data-nosnippet>316</a>            }
-<a href=#317 id=317 data-nosnippet>317</a>        }
-<a href=#318 id=318 data-nosnippet>318</a>    }
-<a href=#319 id=319 data-nosnippet>319</a>}</code></pre></div></section></main></body></html>
+<a href=#249 id=249 data-nosnippet>249</a>    <span class="kw">use </span><span class="kw">crate</span>::RngExt;
+<a href=#250 id=250 data-nosnippet>250</a>
+<a href=#251 id=251 data-nosnippet>251</a>    <span class="attr">#[test]
+<a href=#252 id=252 data-nosnippet>252</a>    #[cfg(feature = <span class="string">"serde"</span>)]
+<a href=#253 id=253 data-nosnippet>253</a>    </span><span class="kw">fn </span>test_serialization_uniform_duration() {
+<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">let </span>distr = UniformDuration::new(Duration::from_secs(<span class="number">10</span>), Duration::from_secs(<span class="number">60</span>)).unwrap();
+<a href=#255 id=255 data-nosnippet>255</a>        <span class="kw">let </span>de_distr: UniformDuration =
+<a href=#256 id=256 data-nosnippet>256</a>            postcard::from_bytes(<span class="kw-2">&amp;</span>postcard::to_allocvec(<span class="kw-2">&amp;</span>distr).unwrap()).unwrap();
+<a href=#257 id=257 data-nosnippet>257</a>        <span class="macro">assert_eq!</span>(distr, de_distr);
+<a href=#258 id=258 data-nosnippet>258</a>    }
+<a href=#259 id=259 data-nosnippet>259</a>
+<a href=#260 id=260 data-nosnippet>260</a>    <span class="attr">#[test]
+<a href=#261 id=261 data-nosnippet>261</a>    #[cfg_attr(miri, ignore)] </span><span class="comment">// Miri is too slow
+<a href=#262 id=262 data-nosnippet>262</a>    </span><span class="kw">fn </span>test_char() {
+<a href=#263 id=263 data-nosnippet>263</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="kw">crate</span>::test::rng(<span class="number">891</span>);
+<a href=#264 id=264 data-nosnippet>264</a>        <span class="kw">let </span><span class="kw-2">mut </span>max = core::char::from_u32(<span class="number">0</span>).unwrap();
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">100 </span>{
+<a href=#266 id=266 data-nosnippet>266</a>            <span class="kw">let </span>c = rng.random_range(<span class="string">'A'</span>..=<span class="string">'Z'</span>);
+<a href=#267 id=267 data-nosnippet>267</a>            <span class="macro">assert!</span>(c.is_ascii_uppercase());
+<a href=#268 id=268 data-nosnippet>268</a>            max = max.max(c);
+<a href=#269 id=269 data-nosnippet>269</a>        }
+<a href=#270 id=270 data-nosnippet>270</a>        <span class="macro">assert_eq!</span>(max, <span class="string">'Z'</span>);
+<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">let </span>d = Uniform::new(
+<a href=#272 id=272 data-nosnippet>272</a>            core::char::from_u32(<span class="number">0xD7F0</span>).unwrap(),
+<a href=#273 id=273 data-nosnippet>273</a>            core::char::from_u32(<span class="number">0xE010</span>).unwrap(),
+<a href=#274 id=274 data-nosnippet>274</a>        )
+<a href=#275 id=275 data-nosnippet>275</a>        .unwrap();
+<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">100 </span>{
+<a href=#277 id=277 data-nosnippet>277</a>            <span class="kw">let </span>c = d.sample(<span class="kw-2">&amp;mut </span>rng);
+<a href=#278 id=278 data-nosnippet>278</a>            <span class="macro">assert!</span>((c <span class="kw">as </span>u32) &lt; <span class="number">0xD800 </span>|| (c <span class="kw">as </span>u32) &gt; <span class="number">0xDFFF</span>);
+<a href=#279 id=279 data-nosnippet>279</a>        }
+<a href=#280 id=280 data-nosnippet>280</a>        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#281 id=281 data-nosnippet>281</a>        </span>{
+<a href=#282 id=282 data-nosnippet>282</a>            <span class="kw">use </span><span class="kw">crate</span>::distr::SampleString;
+<a href=#283 id=283 data-nosnippet>283</a>            <span class="kw">let </span>string1 = d.sample_string(<span class="kw-2">&amp;mut </span>rng, <span class="number">100</span>);
+<a href=#284 id=284 data-nosnippet>284</a>            <span class="macro">assert_eq!</span>(string1.capacity(), <span class="number">300</span>);
+<a href=#285 id=285 data-nosnippet>285</a>            <span class="kw">let </span>string2 = Uniform::new(
+<a href=#286 id=286 data-nosnippet>286</a>                core::char::from_u32(<span class="number">0x0000</span>).unwrap(),
+<a href=#287 id=287 data-nosnippet>287</a>                core::char::from_u32(<span class="number">0x0080</span>).unwrap(),
+<a href=#288 id=288 data-nosnippet>288</a>            )
+<a href=#289 id=289 data-nosnippet>289</a>            .unwrap()
+<a href=#290 id=290 data-nosnippet>290</a>            .sample_string(<span class="kw-2">&amp;mut </span>rng, <span class="number">100</span>);
+<a href=#291 id=291 data-nosnippet>291</a>            <span class="macro">assert_eq!</span>(string2.capacity(), <span class="number">100</span>);
+<a href=#292 id=292 data-nosnippet>292</a>            <span class="kw">let </span>string3 = Uniform::new_inclusive(
+<a href=#293 id=293 data-nosnippet>293</a>                core::char::from_u32(<span class="number">0x0000</span>).unwrap(),
+<a href=#294 id=294 data-nosnippet>294</a>                core::char::from_u32(<span class="number">0x0080</span>).unwrap(),
+<a href=#295 id=295 data-nosnippet>295</a>            )
+<a href=#296 id=296 data-nosnippet>296</a>            .unwrap()
+<a href=#297 id=297 data-nosnippet>297</a>            .sample_string(<span class="kw-2">&amp;mut </span>rng, <span class="number">100</span>);
+<a href=#298 id=298 data-nosnippet>298</a>            <span class="macro">assert_eq!</span>(string3.capacity(), <span class="number">200</span>);
+<a href=#299 id=299 data-nosnippet>299</a>        }
+<a href=#300 id=300 data-nosnippet>300</a>    }
+<a href=#301 id=301 data-nosnippet>301</a>
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="attr">#[test]
+<a href=#303 id=303 data-nosnippet>303</a>    #[cfg_attr(miri, ignore)] </span><span class="comment">// Miri is too slow
+<a href=#304 id=304 data-nosnippet>304</a>    </span><span class="kw">fn </span>test_durations() {
+<a href=#305 id=305 data-nosnippet>305</a>        <span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="kw">crate</span>::test::rng(<span class="number">253</span>);
+<a href=#306 id=306 data-nosnippet>306</a>
+<a href=#307 id=307 data-nosnippet>307</a>        <span class="kw">let </span>v = <span class="kw-2">&amp;</span>[
+<a href=#308 id=308 data-nosnippet>308</a>            (Duration::new(<span class="number">10</span>, <span class="number">50000</span>), Duration::new(<span class="number">100</span>, <span class="number">1234</span>)),
+<a href=#309 id=309 data-nosnippet>309</a>            (Duration::new(<span class="number">0</span>, <span class="number">100</span>), Duration::new(<span class="number">1</span>, <span class="number">50</span>)),
+<a href=#310 id=310 data-nosnippet>310</a>            (Duration::new(<span class="number">0</span>, <span class="number">0</span>), Duration::new(u64::MAX, <span class="number">999_999_999</span>)),
+<a href=#311 id=311 data-nosnippet>311</a>        ];
+<a href=#312 id=312 data-nosnippet>312</a>        <span class="kw">for </span><span class="kw-2">&amp;</span>(low, high) <span class="kw">in </span>v.iter() {
+<a href=#313 id=313 data-nosnippet>313</a>            <span class="kw">let </span>my_uniform = Uniform::new(low, high).unwrap();
+<a href=#314 id=314 data-nosnippet>314</a>            <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">1000 </span>{
+<a href=#315 id=315 data-nosnippet>315</a>                <span class="kw">let </span>v = rng.sample(my_uniform);
+<a href=#316 id=316 data-nosnippet>316</a>                <span class="macro">assert!</span>(low &lt;= v &amp;&amp; v &lt; high);
+<a href=#317 id=317 data-nosnippet>317</a>            }
+<a href=#318 id=318 data-nosnippet>318</a>        }
+<a href=#319 id=319 data-nosnippet>319</a>    }
+<a href=#320 id=320 data-nosnippet>320</a>}
+</code></pre></div></section></main></body></html>

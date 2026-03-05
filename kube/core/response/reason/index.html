@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="StatusReason is an enumeration of possible failure causes.  Each StatusReason must map to a single HTTP status code, but multiple reasons may map to the same HTTP status code."><title>kube::core::response::reason - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="kube" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module reason</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../../../../kube/index.html"><img src="https://user-images.githubusercontent.com/639336/155115130-758a8ba9-e209-42de-bf6d-cde7be3ed86f.svg#only-light" alt="logo"></a><h2><a href="../../../../kube/index.html">kube</a><span class="version">3.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module reason</a></h2><h3><a href="#constants">Module Items</a></h3><ul class="block"><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In kube::<wbr>core::<wbr>response</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">kube</a>::<wbr><a href="../../index.html">core</a>::<wbr><a href="../index.html">response</a></div><h1>Module <span>reason</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/kube_core/response.rs.html#236">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>StatusReason is an enumeration of possible failure causes.  Each StatusReason
+must map to a single HTTP status code, but multiple reasons may map
+to the same HTTP status code.</p>
+<p>See https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#StatusReason
+for the authoritative list of reasons in Go universe.</p>
+</div></details><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.ALREADY_EXISTS.html" title="constant kube::core::response::reason::ALREADY_EXISTS">ALREADY_<wbr>EXISTS</a></dt><dd>StatusReasonAlreadyExists means the resource you are creating already exists.
+Details (optional):
+“kind” string - the kind attribute of the conflicting resource
+“id”   string - the identifier of the conflicting resource
+Status code 409</dd><dt><a class="constant" href="constant.BAD_REQUEST.html" title="constant kube::core::response::reason::BAD_REQUEST">BAD_<wbr>REQUEST</a></dt><dd>StatusReasonBadRequest means that the request itself was invalid, because the request
+doesn’t make any sense, for example deleting a read-only object.  This is different than
+StatusReasonInvalid above which indicates that the API call could possibly succeed, but the
+data was invalid.  API calls that return BadRequest can never succeed.
+Status code 400</dd><dt><a class="constant" href="constant.CONFLICT.html" title="constant kube::core::response::reason::CONFLICT">CONFLICT</a></dt><dd>StatusReasonConflict means the requested operation cannot be completed
+due to a conflict in the operation. The client may need to alter the
+request. Each resource may define custom details that indicate the
+nature of the conflict.
+Status code 409</dd><dt><a class="constant" href="constant.EXPIRED.html" title="constant kube::core::response::reason::EXPIRED">EXPIRED</a></dt><dd>StatusReasonExpired indicates that the request is invalid because the content you are requesting
+has expired and is no longer available. It is typically associated with watches that can’t be
+serviced.
+Status code 410 (gone)</dd><dt><a class="constant" href="constant.FORBIDDEN.html" title="constant kube::core::response::reason::FORBIDDEN">FORBIDDEN</a></dt><dd>StatusReasonForbidden means the server can be reached and understood the request, but refuses
+to take any further action.  It is the result of the server being configured to deny access for some reason
+to the requested resource by the client.
+Details (optional):
+“kind” string - the kind attribute of the forbidden resource
+on some operations may differ from the requested
+resource.
+“id”   string - the identifier of the forbidden resource
+Status code 403</dd><dt><a class="constant" href="constant.GONE.html" title="constant kube::core::response::reason::GONE">GONE</a></dt><dd>StatusReasonGone means the item is no longer available at the server and no
+forwarding address is known.
+Status code 410</dd><dt><a class="constant" href="constant.INTERNAL_ERROR.html" title="constant kube::core::response::reason::INTERNAL_ERROR">INTERNAL_<wbr>ERROR</a></dt><dd>StatusReasonInternalError indicates that an internal error occurred, it is unexpected
+and the outcome of the call is unknown.
+Details (optional):
+“causes” - The original error
+Status code 500</dd><dt><a class="constant" href="constant.INVALID.html" title="constant kube::core::response::reason::INVALID">INVALID</a></dt><dd>StatusReasonInvalid means the requested create or update operation cannot be
+completed due to invalid data provided as part of the request. The client may
+need to alter the request. When set, the client may use the StatusDetails
+message field as a summary of the issues encountered.
+Details (optional):
+“kind” string - the kind attribute of the invalid resource
+“id”   string - the identifier of the invalid resource
+“causes”      - one or more StatusCause entries indicating the data in the
+provided resource that was invalid.  The code, message, and
+field attributes will be set.
+Status code 422</dd><dt><a class="constant" href="constant.METHOD_NOT_ALLOWED.html" title="constant kube::core::response::reason::METHOD_NOT_ALLOWED">METHOD_<wbr>NOT_<wbr>ALLOWED</a></dt><dd>StatusReasonMethodNotAllowed means that the action the client attempted to perform on the
+resource was not supported by the code - for instance, attempting to delete a resource that
+can only be created. API calls that return MethodNotAllowed can never succeed.
+Status code 405</dd><dt><a class="constant" href="constant.NOT_ACCEPTABLE.html" title="constant kube::core::response::reason::NOT_ACCEPTABLE">NOT_<wbr>ACCEPTABLE</a></dt><dd>StatusReasonNotAcceptable means that the accept types indicated by the client were not acceptable
+to the server - for instance, attempting to receive protobuf for a resource that supports only json and yaml.
+API calls that return NotAcceptable can never succeed.
+Status code 406</dd><dt><a class="constant" href="constant.NOT_FOUND.html" title="constant kube::core::response::reason::NOT_FOUND">NOT_<wbr>FOUND</a></dt><dd>StatusReasonNotFound means one or more resources required for this operation
+could not be found.
+Details (optional):
+“kind” string - the kind attribute of the missing resource
+on some operations may differ from the requested
+resource.
+“id”   string - the identifier of the missing resource
+Status code 404</dd><dt><a class="constant" href="constant.REQUEST_ENTITY_TOO_LARGE.html" title="constant kube::core::response::reason::REQUEST_ENTITY_TOO_LARGE">REQUEST_<wbr>ENTITY_<wbr>TOO_<wbr>LARGE</a></dt><dd>StatusReasonRequestEntityTooLarge means that the request entity is too large.
+Status code 413</dd><dt><a class="constant" href="constant.SERVER_TIMEOUT.html" title="constant kube::core::response::reason::SERVER_TIMEOUT">SERVER_<wbr>TIMEOUT</a></dt><dd>StatusReasonServerTimeout means the server can be reached and understood the request,
+but cannot complete the action in a reasonable time. The client should retry the request.
+This is may be due to temporary server load or a transient communication issue with
+another server. Status code 500 is used because the HTTP spec provides no suitable
+server-requested client retry and the 5xx class represents actionable errors.
+Details (optional):
+“kind” string - the kind attribute of the resource being acted on.
+“id”   string - the operation that is being attempted.
+“retryAfterSeconds” int32 - the number of seconds before the operation should be retried
+Status code 500</dd><dt><a class="constant" href="constant.SERVICE_UNAVAILABLE.html" title="constant kube::core::response::reason::SERVICE_UNAVAILABLE">SERVICE_<wbr>UNAVAILABLE</a></dt><dd>StatusReasonServiceUnavailable means that the request itself was valid,
+but the requested service is unavailable at this time.
+Retrying the request after some time might succeed.
+Status code 503</dd><dt><a class="constant" href="constant.STORAGE_READ_ERROR.html" title="constant kube::core::response::reason::STORAGE_READ_ERROR">STORAGE_<wbr>READ_<wbr>ERROR</a></dt><dd>StatusReasonStoreReadError means that the server encountered an error while
+retrieving resources from the backend object store.
+This may be due to backend database error, or because processing of the read
+resource failed.
+Details:
+“kind” string - the kind attribute of the resource being acted on.
+“name” string - the prefix where the reading error(s) occurred
+“causes” []StatusCause
+- (optional):
+- “type” CauseType - CauseTypeUnexpectedServerResponse
+- “message” string - the error message from the store backend
+- “field” string - the full path with the key of the resource that failed reading</dd><dt><a class="constant" href="constant.TIMEOUT.html" title="constant kube::core::response::reason::TIMEOUT">TIMEOUT</a></dt><dd>StatusReasonTimeout means that the request could not be completed within the given time.
+Clients can get this response only when they specified a timeout param in the request,
+or if the server cannot complete the operation within a reasonable amount of time.
+The request might succeed with an increased value of timeout param. The client <em>should</em>
+wait at least the number of seconds specified by the retryAfterSeconds field.
+Details (optional):
+“retryAfterSeconds” int32 - the number of seconds before the operation should be retried
+Status code 504</dd><dt><a class="constant" href="constant.TOO_MANY_REQUESTS.html" title="constant kube::core::response::reason::TOO_MANY_REQUESTS">TOO_<wbr>MANY_<wbr>REQUESTS</a></dt><dd>StatusReasonTooManyRequests means the server experienced too many requests within a
+given window and that the client must wait to perform the action again. A client may
+always retry the request that led to this error, although the client should wait at least
+the number of seconds specified by the retryAfterSeconds field.
+Details (optional):
+“retryAfterSeconds” int32 - the number of seconds before the operation should be retried
+Status code 429</dd><dt><a class="constant" href="constant.UNAUTHORIZED.html" title="constant kube::core::response::reason::UNAUTHORIZED">UNAUTHORIZED</a></dt><dd>StatusReasonUnauthorized means the server can be reached and understood the request, but requires
+the user to present appropriate authorization credentials (identified by the WWW-Authenticate header)
+in order for the action to be completed. If the user has specified credentials on the request, the
+server considers them insufficient.
+Status code 401</dd><dt><a class="constant" href="constant.UNKNOWN.html" title="constant kube::core::response::reason::UNKNOWN">UNKNOWN</a></dt><dd>StatusReasonUnknown means the server has declined to indicate a specific reason.
+The details field may contain other information about this error.
+Status code 500.</dd><dt><a class="constant" href="constant.UNSUPPORTED_MEDIA_TYPE.html" title="constant kube::core::response::reason::UNSUPPORTED_MEDIA_TYPE">UNSUPPORTED_<wbr>MEDIA_<wbr>TYPE</a></dt><dd>StatusReasonUnsupportedMediaType means that the content type sent by the client is not acceptable
+to the server - for instance, attempting to send protobuf for a resource that supports only json and yaml.
+API calls that return UnsupportedMediaType can never succeed.
+Status code 415</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.is_known.html" title="fn kube::core::response::reason::is_known">is_<wbr>known</a></dt><dd>Checks status reason to be one of the known reasons.</dd></dl></section></div></main></body></html>

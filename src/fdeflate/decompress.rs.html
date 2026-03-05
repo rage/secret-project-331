@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fdeflate-0.3.7/src/decompress.rs`."><title>decompress.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fdeflate" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">fdeflate/</div>decompress.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>simd_adler32::Adler32;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fdeflate-0.3.7/src/decompress.rs`."><title>decompress.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fdeflate" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">fdeflate/</div>decompress.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>simd_adler32::Adler32;
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use crate</span>::{
 <a href=#4 id=4 data-nosnippet>4</a>    huffman::{<span class="self">self</span>, build_table},
@@ -199,7 +199,7 @@
 <a href=#199 id=199 data-nosnippet>199</a>
 <a href=#200 id=200 data-nosnippet>200</a>                <span class="kw">let </span>len = (<span class="self">self</span>.peak_bits(align_bits + <span class="number">19</span>) &gt;&gt; (align_bits + <span class="number">3</span>)) <span class="kw">as </span>u16;
 <a href=#201 id=201 data-nosnippet>201</a>                <span class="kw">let </span>nlen = (<span class="self">self</span>.peak_bits(header_bits) &gt;&gt; (align_bits + <span class="number">19</span>)) <span class="kw">as </span>u16;
-<a href=#202 id=202 data-nosnippet>202</a>                <span class="kw">if </span>nlen != !len {
+<a href=#202 id=202 data-nosnippet>202</a>                <span class="kw">if </span><span class="macro">nlen !</span>= !len {
 <a href=#203 id=203 data-nosnippet>203</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::InvalidUncompressedBlockLength);
 <a href=#204 id=204 data-nosnippet>204</a>                }
 <a href=#205 id=205 data-nosnippet>205</a>
@@ -327,7 +327,7 @@
 <a href=#327 id=327 data-nosnippet>327</a>            <span class="kw">let </span>length = (entry &amp; <span class="number">0x7</span>) <span class="kw">as </span>u8;
 <a href=#328 id=328 data-nosnippet>328</a>            <span class="kw">let </span>symbol = (entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
 <a href=#329 id=329 data-nosnippet>329</a>
-<a href=#330 id=330 data-nosnippet>330</a>            <span class="macro">debug_assert!</span>(length != <span class="number">0</span>);
+<a href=#330 id=330 data-nosnippet>330</a>            <span class="macro">debug_assert!</span>(<span class="macro">length !</span>= <span class="number">0</span>);
 <a href=#331 id=331 data-nosnippet>331</a>            <span class="kw">match </span>symbol {
 <a href=#332 id=332 data-nosnippet>332</a>                <span class="number">0</span>..=<span class="number">15 </span>=&gt; {
 <a href=#333 id=333 data-nosnippet>333</a>                    <span class="self">self</span>.header.code_lengths[<span class="self">self</span>.header.num_lengths_read] = symbol;
@@ -474,7 +474,7 @@
 <a href=#474 id=474 data-nosnippet>474</a>            // table lookups to decode more literals.
 <a href=#475 id=475 data-nosnippet>475</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>bits;
 <a href=#476 id=476 data-nosnippet>476</a>            <span class="kw">let </span><span class="kw-2">mut </span>litlen_code_bits = litlen_entry <span class="kw">as </span>u8;
-<a href=#477 id=477 data-nosnippet>477</a>            <span class="kw">if </span>litlen_entry &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+<a href=#477 id=477 data-nosnippet>477</a>            <span class="kw">if </span>litlen_entry &amp; <span class="macro">LITERAL_ENTRY !</span>= <span class="number">0 </span>{
 <a href=#478 id=478 data-nosnippet>478</a>                <span class="kw">let </span>litlen_entry2 = <span class="self">self</span>.compression.litlen_table
 <a href=#479 id=479 data-nosnippet>479</a>                    [(<span class="self">self</span>.buffer &gt;&gt; litlen_code_bits &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
 <a href=#480 id=480 data-nosnippet>480</a>                <span class="kw">let </span>litlen_code_bits2 = litlen_entry2 <span class="kw">as </span>u8;
@@ -491,13 +491,13 @@
 <a href=#491 id=491 data-nosnippet>491</a>                output[output_index + <span class="number">1</span>] = (litlen_entry &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
 <a href=#492 id=492 data-nosnippet>492</a>                output_index += advance_output_bytes;
 <a href=#493 id=493 data-nosnippet>493</a>
-<a href=#494 id=494 data-nosnippet>494</a>                <span class="kw">if </span>litlen_entry2 &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+<a href=#494 id=494 data-nosnippet>494</a>                <span class="kw">if </span>litlen_entry2 &amp; <span class="macro">LITERAL_ENTRY !</span>= <span class="number">0 </span>{
 <a href=#495 id=495 data-nosnippet>495</a>                    <span class="kw">let </span>advance_output_bytes2 = ((litlen_entry2 &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
 <a href=#496 id=496 data-nosnippet>496</a>                    output[output_index] = (litlen_entry2 &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
 <a href=#497 id=497 data-nosnippet>497</a>                    output[output_index + <span class="number">1</span>] = (litlen_entry2 &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
 <a href=#498 id=498 data-nosnippet>498</a>                    output_index += advance_output_bytes2;
 <a href=#499 id=499 data-nosnippet>499</a>
-<a href=#500 id=500 data-nosnippet>500</a>                    <span class="kw">if </span>litlen_entry3 &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+<a href=#500 id=500 data-nosnippet>500</a>                    <span class="kw">if </span>litlen_entry3 &amp; <span class="macro">LITERAL_ENTRY !</span>= <span class="number">0 </span>{
 <a href=#501 id=501 data-nosnippet>501</a>                        <span class="kw">let </span>advance_output_bytes3 = ((litlen_entry3 &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
 <a href=#502 id=502 data-nosnippet>502</a>                        output[output_index] = (litlen_entry3 &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
 <a href=#503 id=503 data-nosnippet>503</a>                        output[output_index + <span class="number">1</span>] = (litlen_entry3 &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
@@ -535,7 +535,7 @@
 <a href=#535 id=535 data-nosnippet>535</a>                        (litlen_entry &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
 <a href=#536 id=536 data-nosnippet>536</a>                        litlen_code_bits,
 <a href=#537 id=537 data-nosnippet>537</a>                    )
-<a href=#538 id=538 data-nosnippet>538</a>                } <span class="kw">else if </span>litlen_entry &amp; SECONDARY_TABLE_ENTRY != <span class="number">0 </span>{
+<a href=#538 id=538 data-nosnippet>538</a>                } <span class="kw">else if </span>litlen_entry &amp; <span class="macro">SECONDARY_TABLE_ENTRY !</span>= <span class="number">0 </span>{
 <a href=#539 id=539 data-nosnippet>539</a>                    <span class="kw">let </span>secondary_table_index =
 <a href=#540 id=540 data-nosnippet>540</a>                        (litlen_entry &gt;&gt; <span class="number">16</span>) + ((bits &gt;&gt; <span class="number">12</span>) <span class="kw">as </span>u32 &amp; (litlen_entry &amp; <span class="number">0xff</span>));
 <a href=#541 id=541 data-nosnippet>541</a>                    <span class="kw">let </span>secondary_entry =
@@ -584,7 +584,7 @@
 <a href=#584 id=584 data-nosnippet>584</a>            bits &gt;&gt;= length_extra_bits;
 <a href=#585 id=585 data-nosnippet>585</a>
 <a href=#586 id=586 data-nosnippet>586</a>            <span class="kw">let </span>dist_entry = <span class="self">self</span>.compression.dist_table[(bits &amp; <span class="number">0x1ff</span>) <span class="kw">as </span>usize];
-<a href=#587 id=587 data-nosnippet>587</a>            <span class="kw">let </span>(dist_base, dist_extra_bits, dist_code_bits) = <span class="kw">if </span>dist_entry &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+<a href=#587 id=587 data-nosnippet>587</a>            <span class="kw">let </span>(dist_base, dist_extra_bits, dist_code_bits) = <span class="kw">if </span>dist_entry &amp; <span class="macro">LITERAL_ENTRY !</span>= <span class="number">0 </span>{
 <a href=#588 id=588 data-nosnippet>588</a>                (
 <a href=#589 id=589 data-nosnippet>589</a>                    (dist_entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u16,
 <a href=#590 id=590 data-nosnippet>590</a>                    (dist_entry &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8 &amp; <span class="number">0xf</span>,
@@ -675,7 +675,7 @@
 <a href=#675 id=675 data-nosnippet>675</a>            <span class="kw">let </span>litlen_entry = <span class="self">self</span>.compression.litlen_table[(bits &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
 <a href=#676 id=676 data-nosnippet>676</a>            <span class="kw">let </span>litlen_code_bits = litlen_entry <span class="kw">as </span>u8;
 <a href=#677 id=677 data-nosnippet>677</a>
-<a href=#678 id=678 data-nosnippet>678</a>            <span class="kw">if </span>litlen_entry &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+<a href=#678 id=678 data-nosnippet>678</a>            <span class="kw">if </span>litlen_entry &amp; <span class="macro">LITERAL_ENTRY !</span>= <span class="number">0 </span>{
 <a href=#679 id=679 data-nosnippet>679</a>                <span class="comment">// Fast path: the next symbol is &lt;= 12 bits and a literal, the table specifies the
 <a href=#680 id=680 data-nosnippet>680</a>                // output bytes and we can directly write them to the output buffer.
 <a href=#681 id=681 data-nosnippet>681</a>                </span><span class="kw">let </span>advance_output_bytes = ((litlen_entry &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
@@ -711,7 +711,7 @@
 <a href=#711 id=711 data-nosnippet>711</a>                        (litlen_entry &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
 <a href=#712 id=712 data-nosnippet>712</a>                        litlen_code_bits,
 <a href=#713 id=713 data-nosnippet>713</a>                    )
-<a href=#714 id=714 data-nosnippet>714</a>                } <span class="kw">else if </span>litlen_entry &amp; SECONDARY_TABLE_ENTRY != <span class="number">0 </span>{
+<a href=#714 id=714 data-nosnippet>714</a>                } <span class="kw">else if </span>litlen_entry &amp; <span class="macro">SECONDARY_TABLE_ENTRY !</span>= <span class="number">0 </span>{
 <a href=#715 id=715 data-nosnippet>715</a>                    <span class="kw">let </span>secondary_table_index =
 <a href=#716 id=716 data-nosnippet>716</a>                        (litlen_entry &gt;&gt; <span class="number">16</span>) + ((bits &gt;&gt; <span class="number">12</span>) <span class="kw">as </span>u32 &amp; (litlen_entry &amp; <span class="number">0xff</span>));
 <a href=#717 id=717 data-nosnippet>717</a>                    <span class="kw">let </span>secondary_entry =
@@ -760,7 +760,7 @@
 <a href=#760 id=760 data-nosnippet>760</a>            bits &gt;&gt;= length_extra_bits;
 <a href=#761 id=761 data-nosnippet>761</a>
 <a href=#762 id=762 data-nosnippet>762</a>            <span class="kw">let </span>dist_entry = <span class="self">self</span>.compression.dist_table[(bits &amp; <span class="number">0x1ff</span>) <span class="kw">as </span>usize];
-<a href=#763 id=763 data-nosnippet>763</a>            <span class="kw">let </span>(dist_base, dist_extra_bits, dist_code_bits) = <span class="kw">if </span>dist_entry &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+<a href=#763 id=763 data-nosnippet>763</a>            <span class="kw">let </span>(dist_base, dist_extra_bits, dist_code_bits) = <span class="kw">if </span>dist_entry &amp; <span class="macro">LITERAL_ENTRY !</span>= <span class="number">0 </span>{
 <a href=#764 id=764 data-nosnippet>764</a>                (
 <a href=#765 id=765 data-nosnippet>765</a>                    (dist_entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u16,
 <a href=#766 id=766 data-nosnippet>766</a>                    (dist_entry &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8 &amp; <span class="number">0xf</span>,
@@ -915,7 +915,7 @@
 <a href=#915 id=915 data-nosnippet>915</a>
 <a href=#916 id=916 data-nosnippet>916</a>        <span class="comment">// Main decoding state machine.
 <a href=#917 id=917 data-nosnippet>917</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>last_state = <span class="prelude-val">None</span>;
-<a href=#918 id=918 data-nosnippet>918</a>        <span class="kw">while </span>last_state != <span class="prelude-val">Some</span>(<span class="self">self</span>.state) {
+<a href=#918 id=918 data-nosnippet>918</a>        <span class="kw">while </span><span class="macro">last_state !</span>= <span class="prelude-val">Some</span>(<span class="self">self</span>.state) {
 <a href=#919 id=919 data-nosnippet>919</a>            last_state = <span class="prelude-val">Some</span>(<span class="self">self</span>.state);
 <a href=#920 id=920 data-nosnippet>920</a>            <span class="kw">match </span><span class="self">self</span>.state {
 <a href=#921 id=921 data-nosnippet>921</a>                State::ZlibHeader =&gt; {
@@ -991,7 +991,7 @@
 <a href=#991 id=991 data-nosnippet>991</a>                    <span class="kw">let </span>align_bits = <span class="self">self</span>.nbits % <span class="number">8</span>;
 <a href=#992 id=992 data-nosnippet>992</a>                    <span class="kw">if </span><span class="self">self</span>.nbits &gt;= <span class="number">32 </span>+ align_bits {
 <a href=#993 id=993 data-nosnippet>993</a>                        <span class="self">self</span>.checksum.write(<span class="kw-2">&amp;</span>output[output_position..output_index]);
-<a href=#994 id=994 data-nosnippet>994</a>                        <span class="kw">if </span>align_bits != <span class="number">0 </span>{
+<a href=#994 id=994 data-nosnippet>994</a>                        <span class="kw">if </span><span class="macro">align_bits !</span>= <span class="number">0 </span>{
 <a href=#995 id=995 data-nosnippet>995</a>                            <span class="self">self</span>.consume_bits(align_bits);
 <a href=#996 id=996 data-nosnippet>996</a>                        }
 <a href=#997 id=997 data-nosnippet>997</a>                        <span class="attr">#[cfg(not(fuzzing))]
@@ -1009,7 +1009,7 @@
 <a href=#1009 id=1009 data-nosnippet>1009</a>            }
 <a href=#1010 id=1010 data-nosnippet>1010</a>        }
 <a href=#1011 id=1011 data-nosnippet>1011</a>
-<a href=#1012 id=1012 data-nosnippet>1012</a>        <span class="kw">if </span>!<span class="self">self</span>.ignore_adler32 &amp;&amp; <span class="self">self</span>.state != State::Done {
+<a href=#1012 id=1012 data-nosnippet>1012</a>        <span class="kw">if </span>!<span class="self">self</span>.ignore_adler32 &amp;&amp; <span class="self">self</span>.<span class="macro">state !</span>= State::Done {
 <a href=#1013 id=1013 data-nosnippet>1013</a>            <span class="self">self</span>.checksum.write(<span class="kw-2">&amp;</span>output[output_position..output_index]);
 <a href=#1014 id=1014 data-nosnippet>1014</a>        }
 <a href=#1015 id=1015 data-nosnippet>1015</a>
@@ -1130,7 +1130,7 @@
 <a href=#1130 id=1130 data-nosnippet>1130</a>                );
 <a href=#1131 id=1131 data-nosnippet>1131</a>            }
 <a href=#1132 id=1132 data-nosnippet>1132</a>        }
-<a href=#1133 id=1133 data-nosnippet>1133</a>        <span class="kw">if </span>decompressed != decompressed2 {
+<a href=#1133 id=1133 data-nosnippet>1133</a>        <span class="kw">if </span><span class="macro">decompressed !</span>= decompressed2 {
 <a href=#1134 id=1134 data-nosnippet>1134</a>            <span class="macro">panic!</span>(
 <a href=#1135 id=1135 data-nosnippet>1135</a>                <span class="string">"length mismatch {} {} {:x?}"</span>,
 <a href=#1136 id=1136 data-nosnippet>1136</a>                decompressed.len(),
@@ -1197,7 +1197,7 @@
 <a href=#1197 id=1197 data-nosnippet>1197</a>        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">50000</span>];
 <a href=#1198 id=1198 data-nosnippet>1198</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">10 </span>{
 <a href=#1199 id=1199 data-nosnippet>1199</a>            <span class="kw">for </span>byte <span class="kw">in </span><span class="kw-2">&amp;mut </span>data {
-<a href=#1200 id=1200 data-nosnippet>1200</a>                <span class="kw-2">*</span>byte = rng.gen::&lt;u8&gt;() % <span class="number">5</span>;
+<a href=#1200 id=1200 data-nosnippet>1200</a>                <span class="kw-2">*</span>byte = rng.<span class="kw">gen</span>::&lt;u8&gt;() % <span class="number">5</span>;
 <a href=#1201 id=1201 data-nosnippet>1201</a>            }
 <a href=#1202 id=1202 data-nosnippet>1202</a>            <span class="macro">println!</span>(<span class="string">"Random data: {:?}"</span>, data);
 <a href=#1203 id=1203 data-nosnippet>1203</a>            roundtrip_miniz_oxide(<span class="kw-2">&amp;</span>data);
@@ -1340,4 +1340,5 @@
 <a href=#1340 id=1340 data-nosnippet>1340</a>            TestDecompressionError::ProdError(DecompressionError::BadLiteralLengthHuffmanTree)
 <a href=#1341 id=1341 data-nosnippet>1341</a>        );
 <a href=#1342 id=1342 data-nosnippet>1342</a>    }
-<a href=#1343 id=1343 data-nosnippet>1343</a>}</code></pre></div></section></main></body></html>
+<a href=#1343 id=1343 data-nosnippet>1343</a>}
+</code></pre></div></section></main></body></html>

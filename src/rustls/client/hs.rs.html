@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.32/src/client/hs.rs`."><title>hs.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/client/</div>hs.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::borrow::ToOwned;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.37/src/client/hs.rs`."><title>hs.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/client/</div>hs.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::borrow::ToOwned;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>alloc::boxed::Box;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>alloc::vec;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>alloc::vec::Vec;
@@ -711,7 +711,7 @@
 <a href=#711 id=711 data-nosnippet>711</a>            }
 <a href=#712 id=712 data-nosnippet>712</a>        };
 <a href=#713 id=713 data-nosnippet>713</a>
-<a href=#714 id=714 data-nosnippet>714</a>        <span class="kw">if </span>server_hello.compression_method != Compression::Null {
+<a href=#714 id=714 data-nosnippet>714</a>        <span class="kw">if </span>server_hello.<span class="macro">compression_method !</span>= Compression::Null {
 <a href=#715 id=715 data-nosnippet>715</a>            <span class="kw">return </span><span class="prelude-val">Err</span>({
 <a href=#716 id=716 data-nosnippet>716</a>                cx.common.send_fatal_alert(
 <a href=#717 id=717 data-nosnippet>717</a>                    AlertDescription::IllegalParameter,
@@ -766,7 +766,7 @@
 <a href=#766 id=766 data-nosnippet>766</a>                )
 <a href=#767 id=767 data-nosnippet>767</a>            })<span class="question-mark">?</span>;
 <a href=#768 id=768 data-nosnippet>768</a>
-<a href=#769 id=769 data-nosnippet>769</a>        <span class="kw">if </span>version != suite.version().version {
+<a href=#769 id=769 data-nosnippet>769</a>        <span class="kw">if </span><span class="macro">version !</span>= suite.version().version {
 <a href=#770 id=770 data-nosnippet>770</a>            <span class="kw">return </span><span class="prelude-val">Err</span>({
 <a href=#771 id=771 data-nosnippet>771</a>                cx.common.send_fatal_alert(
 <a href=#772 id=772 data-nosnippet>772</a>                    AlertDescription::IllegalParameter,
@@ -776,7 +776,7 @@
 <a href=#776 id=776 data-nosnippet>776</a>        }
 <a href=#777 id=777 data-nosnippet>777</a>
 <a href=#778 id=778 data-nosnippet>778</a>        <span class="kw">match </span><span class="self">self</span>.suite {
-<a href=#779 id=779 data-nosnippet>779</a>            <span class="prelude-val">Some</span>(prev_suite) <span class="kw">if </span>prev_suite != suite =&gt; {
+<a href=#779 id=779 data-nosnippet>779</a>            <span class="prelude-val">Some</span>(prev_suite) <span class="kw">if </span><span class="macro">prev_suite !</span>= suite =&gt; {
 <a href=#780 id=780 data-nosnippet>780</a>                <span class="kw">return </span><span class="prelude-val">Err</span>({
 <a href=#781 id=781 data-nosnippet>781</a>                    cx.common.send_fatal_alert(
 <a href=#782 id=782 data-nosnippet>782</a>                        AlertDescription::IllegalParameter,
@@ -910,7 +910,7 @@
 <a href=#910 id=910 data-nosnippet>910</a>        // &gt; match what it sent in the ClientHello MUST abort the handshake with an
 <a href=#911 id=911 data-nosnippet>911</a>        // &gt; "illegal_parameter" alert.
 <a href=#912 id=912 data-nosnippet>912</a>        // &lt;https://www.rfc-editor.org/rfc/rfc8446#section-4.1.3&gt;
-<a href=#913 id=913 data-nosnippet>913</a>        </span><span class="kw">if </span>hrr.session_id != <span class="self">self</span>.next.input.session_id {
+<a href=#913 id=913 data-nosnippet>913</a>        </span><span class="kw">if </span>hrr.<span class="macro">session_id !</span>= <span class="self">self</span>.next.input.session_id {
 <a href=#914 id=914 data-nosnippet>914</a>            <span class="kw">return </span><span class="prelude-val">Err</span>({
 <a href=#915 id=915 data-nosnippet>915</a>                cx.common.send_fatal_alert(
 <a href=#916 id=916 data-nosnippet>916</a>                    AlertDescription::IllegalParameter,
@@ -994,7 +994,7 @@
 <a href=#994 id=994 data-nosnippet>994</a>        }
 <a href=#995 id=995 data-nosnippet>995</a>
 <a href=#996 id=996 data-nosnippet>996</a>        <span class="kw">let </span>key_share = <span class="kw">match </span>hrr.key_share {
-<a href=#997 id=997 data-nosnippet>997</a>            <span class="prelude-val">Some</span>(group) <span class="kw">if </span>group != offered_key_share.group() =&gt; {
+<a href=#997 id=997 data-nosnippet>997</a>            <span class="prelude-val">Some</span>(group) <span class="kw">if </span><span class="macro">group !</span>= offered_key_share.group() =&gt; {
 <a href=#998 id=998 data-nosnippet>998</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(skxg) = config.find_kx_group(group, ProtocolVersion::TLSv1_3) <span class="kw">else </span>{
 <a href=#999 id=999 data-nosnippet>999</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(cx.common.send_fatal_alert(
 <a href=#1000 id=1000 data-nosnippet>1000</a>                        AlertDescription::IllegalParameter,
@@ -1175,4 +1175,5 @@
 <a href=#1175 id=1175 data-nosnippet>1175</a>    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
 <a href=#1176 id=1176 data-nosnippet>1176</a>        <span class="self">self</span>.common()
 <a href=#1177 id=1177 data-nosnippet>1177</a>    }
-<a href=#1178 id=1178 data-nosnippet>1178</a>}</code></pre></div></section></main></body></html>
+<a href=#1178 id=1178 data-nosnippet>1178</a>}
+</code></pre></div></section></main></body></html>

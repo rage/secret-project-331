@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["predicates"],"struct":["CancelableJoinHandle","EventDecode","EventModify","PredicateFilter","Reflect","ResetTimerBackoff","StreamBackoff"],"trait":["Backoff","Predicate","WatchStreamExt"]};
+window.SIDEBAR_ITEMS = {"mod":["predicates"],"struct":["CancelableJoinHandle","EventDecode","EventModify","PredicateConfig","PredicateFilter","Reflect","ResetTimerBackoff","StreamBackoff"],"trait":["Backoff","Predicate","WatchStreamExt"]};

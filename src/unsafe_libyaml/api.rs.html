@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unsafe-libyaml-0.2.11/src/api.rs`."><title>api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unsafe_libyaml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">unsafe_libyaml/</div>api.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::externs::{free, malloc, memcpy, memmove, memset, realloc, strdup, strlen};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unsafe-libyaml-0.2.11/src/api.rs`."><title>api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unsafe_libyaml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">unsafe_libyaml/</div>api.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::externs::{free, malloc, memcpy, memmove, memset, realloc, strdup, strlen};
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span><span class="kw">crate</span>::ops::{ForceAdd <span class="kw">as _</span>, ForceMul <span class="kw">as _</span>};
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span><span class="kw">crate</span>::success::{Success, FAIL, OK};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><span class="kw">crate</span>::yaml::{size_t, yaml_char_t};
@@ -144,7 +144,7 @@
 <a href=#144 id=144 data-nosnippet>144</a>        <span class="kw-2">*</span>start = new_start;
 <a href=#145 id=145 data-nosnippet>145</a>    }
 <a href=#146 id=146 data-nosnippet>146</a>    <span class="kw">if </span><span class="kw-2">*</span>tail == <span class="kw-2">*</span>end {
-<a href=#147 id=147 data-nosnippet>147</a>        <span class="kw">if </span><span class="kw-2">*</span>head != <span class="kw-2">*</span>tail {
+<a href=#147 id=147 data-nosnippet>147</a>        <span class="kw">if </span><span class="kw-2">*</span><span class="macro">head !</span>= <span class="kw-2">*</span>tail {
 <a href=#148 id=148 data-nosnippet>148</a>            memmove(
 <a href=#149 id=149 data-nosnippet>149</a>                <span class="kw-2">*</span>start,
 <a href=#150 id=150 data-nosnippet>150</a>                <span class="kw-2">*</span>head,
@@ -637,12 +637,12 @@
 <a href=#637 id=637 data-nosnippet>637</a>        (<span class="kw-2">*</span>version_directive_copy).major = (<span class="kw-2">*</span>version_directive).major;
 <a href=#638 id=638 data-nosnippet>638</a>        (<span class="kw-2">*</span>version_directive_copy).minor = (<span class="kw-2">*</span>version_directive).minor;
 <a href=#639 id=639 data-nosnippet>639</a>    }
-<a href=#640 id=640 data-nosnippet>640</a>    <span class="kw">if </span>tag_directives_start != tag_directives_end {
+<a href=#640 id=640 data-nosnippet>640</a>    <span class="kw">if </span><span class="macro">tag_directives_start !</span>= tag_directives_end {
 <a href=#641 id=641 data-nosnippet>641</a>        <span class="kw">let </span><span class="kw-2">mut </span>tag_directive: <span class="kw-2">*mut </span>yaml_tag_directive_t;
 <a href=#642 id=642 data-nosnippet>642</a>        <span class="macro">STACK_INIT!</span>(tag_directives_copy, yaml_tag_directive_t);
 <a href=#643 id=643 data-nosnippet>643</a>        tag_directive = tag_directives_start;
 <a href=#644 id=644 data-nosnippet>644</a>        <span class="kw">loop </span>{
-<a href=#645 id=645 data-nosnippet>645</a>            <span class="kw">if </span>!(tag_directive != tag_directives_end) {
+<a href=#645 id=645 data-nosnippet>645</a>            <span class="kw">if </span>!(<span class="macro">tag_directive !</span>= tag_directives_end) {
 <a href=#646 id=646 data-nosnippet>646</a>                current_block = <span class="number">16203760046146113240</span>;
 <a href=#647 id=647 data-nosnippet>647</a>                <span class="kw">break</span>;
 <a href=#648 id=648 data-nosnippet>648</a>            }
@@ -680,7 +680,7 @@
 <a href=#680 id=680 data-nosnippet>680</a>    } <span class="kw">else </span>{
 <a href=#681 id=681 data-nosnippet>681</a>        current_block = <span class="number">16203760046146113240</span>;
 <a href=#682 id=682 data-nosnippet>682</a>    }
-<a href=#683 id=683 data-nosnippet>683</a>    <span class="kw">if </span>current_block != <span class="number">14964981520188694172 </span>{
+<a href=#683 id=683 data-nosnippet>683</a>    <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">14964981520188694172 </span>{
 <a href=#684 id=684 data-nosnippet>684</a>        memset(
 <a href=#685 id=685 data-nosnippet>685</a>            event <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
 <a href=#686 id=686 data-nosnippet>686</a>            <span class="number">0</span>,
@@ -825,7 +825,7 @@
 <a href=#825 id=825 data-nosnippet>825</a>        } <span class="kw">else </span>{
 <a href=#826 id=826 data-nosnippet>826</a>            current_block = <span class="number">12800627514080957624</span>;
 <a href=#827 id=827 data-nosnippet>827</a>        }
-<a href=#828 id=828 data-nosnippet>828</a>        <span class="kw">if </span>current_block != <span class="number">16285396129609901221 </span>{
+<a href=#828 id=828 data-nosnippet>828</a>        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">16285396129609901221 </span>{
 <a href=#829 id=829 data-nosnippet>829</a>            <span class="kw">if </span>length &lt; <span class="number">0 </span>{
 <a href=#830 id=830 data-nosnippet>830</a>                length = strlen(value <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char) <span class="kw">as </span>libc::c_int;
 <a href=#831 id=831 data-nosnippet>831</a>            }
@@ -916,7 +916,7 @@
 <a href=#916 id=916 data-nosnippet>916</a>            } <span class="kw">else </span>{
 <a href=#917 id=917 data-nosnippet>917</a>                current_block = <span class="number">7651349459974463963</span>;
 <a href=#918 id=918 data-nosnippet>918</a>            }
-<a href=#919 id=919 data-nosnippet>919</a>            <span class="kw">if </span>current_block != <span class="number">8817775685815971442 </span>{
+<a href=#919 id=919 data-nosnippet>919</a>            <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">8817775685815971442 </span>{
 <a href=#920 id=920 data-nosnippet>920</a>                memset(
 <a href=#921 id=921 data-nosnippet>921</a>                    event <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
 <a href=#922 id=922 data-nosnippet>922</a>                    <span class="number">0</span>,
@@ -1010,7 +1010,7 @@
 <a href=#1010 id=1010 data-nosnippet>1010</a>        } <span class="kw">else </span>{
 <a href=#1011 id=1011 data-nosnippet>1011</a>            current_block = <span class="number">7651349459974463963</span>;
 <a href=#1012 id=1012 data-nosnippet>1012</a>        }
-<a href=#1013 id=1013 data-nosnippet>1013</a>        <span class="kw">if </span>current_block != <span class="number">14748279734549812740 </span>{
+<a href=#1013 id=1013 data-nosnippet>1013</a>        <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">14748279734549812740 </span>{
 <a href=#1014 id=1014 data-nosnippet>1014</a>            memset(
 <a href=#1015 id=1015 data-nosnippet>1015</a>                event <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
 <a href=#1016 id=1016 data-nosnippet>1016</a>                <span class="number">0</span>,
@@ -1060,7 +1060,7 @@
 <a href=#1060 id=1060 data-nosnippet>1060</a>        YAML_DOCUMENT_START_EVENT =&gt; {
 <a href=#1061 id=1061 data-nosnippet>1061</a>            yaml_free((<span class="kw-2">*</span>event).data.document_start.version_directive <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#1062 id=1062 data-nosnippet>1062</a>            tag_directive = (<span class="kw-2">*</span>event).data.document_start.tag_directives.start;
-<a href=#1063 id=1063 data-nosnippet>1063</a>            <span class="kw">while </span>tag_directive != (<span class="kw-2">*</span>event).data.document_start.tag_directives.end {
+<a href=#1063 id=1063 data-nosnippet>1063</a>            <span class="kw">while </span><span class="macro">tag_directive !</span>= (<span class="kw-2">*</span>event).data.document_start.tag_directives.end {
 <a href=#1064 id=1064 data-nosnippet>1064</a>                yaml_free((<span class="kw-2">*</span>tag_directive).handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#1065 id=1065 data-nosnippet>1065</a>                yaml_free((<span class="kw-2">*</span>tag_directive).prefix <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#1066 id=1066 data-nosnippet>1066</a>                tag_directive = tag_directive.wrapping_offset(<span class="number">1</span>);
@@ -1145,12 +1145,12 @@
 <a href=#1145 id=1145 data-nosnippet>1145</a>        (<span class="kw-2">*</span>version_directive_copy).major = (<span class="kw-2">*</span>version_directive).major;
 <a href=#1146 id=1146 data-nosnippet>1146</a>        (<span class="kw-2">*</span>version_directive_copy).minor = (<span class="kw-2">*</span>version_directive).minor;
 <a href=#1147 id=1147 data-nosnippet>1147</a>    }
-<a href=#1148 id=1148 data-nosnippet>1148</a>    <span class="kw">if </span>tag_directives_start != tag_directives_end {
+<a href=#1148 id=1148 data-nosnippet>1148</a>    <span class="kw">if </span><span class="macro">tag_directives_start !</span>= tag_directives_end {
 <a href=#1149 id=1149 data-nosnippet>1149</a>        <span class="kw">let </span><span class="kw-2">mut </span>tag_directive: <span class="kw-2">*mut </span>yaml_tag_directive_t;
 <a href=#1150 id=1150 data-nosnippet>1150</a>        <span class="macro">STACK_INIT!</span>(tag_directives_copy, yaml_tag_directive_t);
 <a href=#1151 id=1151 data-nosnippet>1151</a>        tag_directive = tag_directives_start;
 <a href=#1152 id=1152 data-nosnippet>1152</a>        <span class="kw">loop </span>{
-<a href=#1153 id=1153 data-nosnippet>1153</a>            <span class="kw">if </span>!(tag_directive != tag_directives_end) {
+<a href=#1153 id=1153 data-nosnippet>1153</a>            <span class="kw">if </span>!(<span class="macro">tag_directive !</span>= tag_directives_end) {
 <a href=#1154 id=1154 data-nosnippet>1154</a>                current_block = <span class="number">14818589718467733107</span>;
 <a href=#1155 id=1155 data-nosnippet>1155</a>                <span class="kw">break</span>;
 <a href=#1156 id=1156 data-nosnippet>1156</a>            }
@@ -1188,7 +1188,7 @@
 <a href=#1188 id=1188 data-nosnippet>1188</a>    } <span class="kw">else </span>{
 <a href=#1189 id=1189 data-nosnippet>1189</a>        current_block = <span class="number">14818589718467733107</span>;
 <a href=#1190 id=1190 data-nosnippet>1190</a>    }
-<a href=#1191 id=1191 data-nosnippet>1191</a>    <span class="kw">if </span>current_block != <span class="number">8142820162064489797 </span>{
+<a href=#1191 id=1191 data-nosnippet>1191</a>    <span class="kw">if </span><span class="macro">current_block !</span>= <span class="number">8142820162064489797 </span>{
 <a href=#1192 id=1192 data-nosnippet>1192</a>        memset(
 <a href=#1193 id=1193 data-nosnippet>1193</a>            document <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
 <a href=#1194 id=1194 data-nosnippet>1194</a>            <span class="number">0</span>,
@@ -1250,7 +1250,7 @@
 <a href=#1250 id=1250 data-nosnippet>1250</a>    <span class="macro">STACK_DEL!</span>((<span class="kw-2">*</span>document).nodes);
 <a href=#1251 id=1251 data-nosnippet>1251</a>    yaml_free((<span class="kw-2">*</span>document).version_directive <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#1252 id=1252 data-nosnippet>1252</a>    tag_directive = (<span class="kw-2">*</span>document).tag_directives.start;
-<a href=#1253 id=1253 data-nosnippet>1253</a>    <span class="kw">while </span>tag_directive != (<span class="kw-2">*</span>document).tag_directives.end {
+<a href=#1253 id=1253 data-nosnippet>1253</a>    <span class="kw">while </span><span class="macro">tag_directive !</span>= (<span class="kw-2">*</span>document).tag_directives.end {
 <a href=#1254 id=1254 data-nosnippet>1254</a>        yaml_free((<span class="kw-2">*</span>tag_directive).handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#1255 id=1255 data-nosnippet>1255</a>        yaml_free((<span class="kw-2">*</span>tag_directive).prefix <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
 <a href=#1256 id=1256 data-nosnippet>1256</a>        tag_directive = tag_directive.wrapping_offset(<span class="number">1</span>);
@@ -1297,7 +1297,7 @@
 <a href=#1297 id=1297 data-nosnippet>1297</a>/// Returns the node object or NULL if the document is empty.
 <a href=#1298 id=1298 data-nosnippet>1298</a></span><span class="kw">pub unsafe fn </span>yaml_document_get_root_node(document: <span class="kw-2">*mut </span>yaml_document_t) -&gt; <span class="kw-2">*mut </span>yaml_node_t {
 <a href=#1299 id=1299 data-nosnippet>1299</a>    <span class="macro">__assert!</span>(!document.is_null());
-<a href=#1300 id=1300 data-nosnippet>1300</a>    <span class="kw">if </span>(<span class="kw-2">*</span>document).nodes.top != (<span class="kw-2">*</span>document).nodes.start {
+<a href=#1300 id=1300 data-nosnippet>1300</a>    <span class="kw">if </span>(<span class="kw-2">*</span>document).nodes.<span class="macro">top !</span>= (<span class="kw-2">*</span>document).nodes.start {
 <a href=#1301 id=1301 data-nosnippet>1301</a>        <span class="kw">return </span>(<span class="kw-2">*</span>document).nodes.start;
 <a href=#1302 id=1302 data-nosnippet>1302</a>    }
 <a href=#1303 id=1303 data-nosnippet>1303</a>    ptr::null_mut::&lt;yaml_node_t&gt;()
@@ -1546,4 +1546,5 @@
 <a href=#1546 id=1546 data-nosnippet>1546</a>        pair
 <a href=#1547 id=1547 data-nosnippet>1547</a>    );
 <a href=#1548 id=1548 data-nosnippet>1548</a>    OK
-<a href=#1549 id=1549 data-nosnippet>1549</a>}</code></pre></div></section></main></body></html>
+<a href=#1549 id=1549 data-nosnippet>1549</a>}
+</code></pre></div></section></main></body></html>

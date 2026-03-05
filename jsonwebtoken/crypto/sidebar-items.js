@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["sign","verify"],"trait":["JwtSigner","JwtVerifier"]};
+window.SIDEBAR_ITEMS = {"fn":["sign","verify"],"mod":["rust_crypto"],"struct":["CryptoProvider","JwkUtils"],"trait":["JwtSigner","JwtVerifier"]};

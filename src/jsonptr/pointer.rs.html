@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonptr-0.7.1/src/pointer.rs`."><title>pointer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jsonptr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">jsonptr/</div>pointer.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use crate</span>::{
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonptr-0.7.1/src/pointer.rs`."><title>pointer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jsonptr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">jsonptr/</div>pointer.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use crate</span>::{
 <a href=#2 id=2 data-nosnippet>2</a>    diagnostic::{diagnostic_url, Diagnostic, Label, Report},
 <a href=#3 id=3 data-nosnippet>3</a>    token::EncodingError,
 <a href=#4 id=4 data-nosnippet>4</a>    Components, InvalidEncoding, Token, Tokens,
@@ -384,7 +384,7 @@
 <a href=#384 id=384 data-nosnippet>384</a>        }
 <a href=#385 id=385 data-nosnippet>385</a>        <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">0</span>;
 <a href=#386 id=386 data-nosnippet>386</a>        <span class="kw">for </span>(a, b) <span class="kw">in </span><span class="self">self</span>.tokens().zip(other.tokens()) {
-<a href=#387 id=387 data-nosnippet>387</a>            <span class="kw">if </span>a != b {
+<a href=#387 id=387 data-nosnippet>387</a>            <span class="kw">if </span><span class="macro">a !</span>= b {
 <a href=#388 id=388 data-nosnippet>388</a>                <span class="kw">break</span>;
 <a href=#389 id=389 data-nosnippet>389</a>            }
 <a href=#390 id=390 data-nosnippet>390</a>            idx += a.encoded().len() + <span class="number">1</span>;
@@ -1975,7 +1975,7 @@
 <a href=#1975 id=1975 data-nosnippet>1975</a>        <span class="kw">for </span>token <span class="kw">in </span>tokens.drain(..) {
 <a href=#1976 id=1976 data-nosnippet>1976</a>            ptr.push_front(token);
 <a href=#1977 id=1977 data-nosnippet>1977</a>        }
-<a href=#1978 id=1978 data-nosnippet>1978</a>        <span class="kw">if </span>ptr != subjectal_ptr {
+<a href=#1978 id=1978 data-nosnippet>1978</a>        <span class="kw">if </span><span class="macro">ptr !</span>= subjectal_ptr {
 <a href=#1979 id=1979 data-nosnippet>1979</a>            <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#1980 id=1980 data-nosnippet>1980</a>        }
 <a href=#1981 id=1981 data-nosnippet>1981</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(token) = ptr.pop_front() {
@@ -1997,21 +1997,21 @@
 <a href=#1997 id=1997 data-nosnippet>1997</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(first) = ptr.first() <span class="kw">else </span>{
 <a href=#1998 id=1998 data-nosnippet>1998</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#1999 id=1999 data-nosnippet>1999</a>                };
-<a href=#2000 id=2000 data-nosnippet>2000</a>                <span class="kw">if </span>first != head {
+<a href=#2000 id=2000 data-nosnippet>2000</a>                <span class="kw">if </span><span class="macro">first !</span>= head {
 <a href=#2001 id=2001 data-nosnippet>2001</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2002 id=2002 data-nosnippet>2002</a>                }
 <a href=#2003 id=2003 data-nosnippet>2003</a>            }
 <a href=#2004 id=2004 data-nosnippet>2004</a>            {
 <a href=#2005 id=2005 data-nosnippet>2005</a>                <span class="kw">let </span><span class="kw-2">mut </span>copy = ptr.clone();
 <a href=#2006 id=2006 data-nosnippet>2006</a>                copy.pop_front();
-<a href=#2007 id=2007 data-nosnippet>2007</a>                <span class="kw">if </span>copy != tail {
+<a href=#2007 id=2007 data-nosnippet>2007</a>                <span class="kw">if </span><span class="macro">copy !</span>= tail {
 <a href=#2008 id=2008 data-nosnippet>2008</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2009 id=2009 data-nosnippet>2009</a>                }
 <a href=#2010 id=2010 data-nosnippet>2010</a>            }
 <a href=#2011 id=2011 data-nosnippet>2011</a>            {
 <a href=#2012 id=2012 data-nosnippet>2012</a>                <span class="kw">let </span><span class="kw-2">mut </span>buf = tail.to_buf();
 <a href=#2013 id=2013 data-nosnippet>2013</a>                buf.push_front(head.clone());
-<a href=#2014 id=2014 data-nosnippet>2014</a>                <span class="kw">if </span>buf != ptr {
+<a href=#2014 id=2014 data-nosnippet>2014</a>                <span class="kw">if </span><span class="macro">buf !</span>= ptr {
 <a href=#2015 id=2015 data-nosnippet>2015</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2016 id=2016 data-nosnippet>2016</a>                }
 <a href=#2017 id=2017 data-nosnippet>2017</a>            }
@@ -2032,21 +2032,21 @@
 <a href=#2032 id=2032 data-nosnippet>2032</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(last) = ptr.last() <span class="kw">else </span>{
 <a href=#2033 id=2033 data-nosnippet>2033</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2034 id=2034 data-nosnippet>2034</a>                };
-<a href=#2035 id=2035 data-nosnippet>2035</a>                <span class="kw">if </span>last != tail {
+<a href=#2035 id=2035 data-nosnippet>2035</a>                <span class="kw">if </span><span class="macro">last !</span>= tail {
 <a href=#2036 id=2036 data-nosnippet>2036</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2037 id=2037 data-nosnippet>2037</a>                }
 <a href=#2038 id=2038 data-nosnippet>2038</a>            }
 <a href=#2039 id=2039 data-nosnippet>2039</a>            {
 <a href=#2040 id=2040 data-nosnippet>2040</a>                <span class="kw">let </span><span class="kw-2">mut </span>copy = ptr.clone();
 <a href=#2041 id=2041 data-nosnippet>2041</a>                copy.pop_back();
-<a href=#2042 id=2042 data-nosnippet>2042</a>                <span class="kw">if </span>copy != head {
+<a href=#2042 id=2042 data-nosnippet>2042</a>                <span class="kw">if </span><span class="macro">copy !</span>= head {
 <a href=#2043 id=2043 data-nosnippet>2043</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2044 id=2044 data-nosnippet>2044</a>                }
 <a href=#2045 id=2045 data-nosnippet>2045</a>            }
 <a href=#2046 id=2046 data-nosnippet>2046</a>            {
 <a href=#2047 id=2047 data-nosnippet>2047</a>                <span class="kw">let </span><span class="kw-2">mut </span>buf = head.to_buf();
 <a href=#2048 id=2048 data-nosnippet>2048</a>                buf.push_back(tail.clone());
-<a href=#2049 id=2049 data-nosnippet>2049</a>                <span class="kw">if </span>buf != ptr {
+<a href=#2049 id=2049 data-nosnippet>2049</a>                <span class="kw">if </span><span class="macro">buf !</span>= ptr {
 <a href=#2050 id=2050 data-nosnippet>2050</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#2051 id=2051 data-nosnippet>2051</a>                }
 <a href=#2052 id=2052 data-nosnippet>2052</a>            }
@@ -2350,4 +2350,5 @@
 <a href=#2350 id=2350 data-nosnippet>2350</a>        <span class="kw">let </span>err = PointerBuf::parse(<span class="string">"hello-world"</span>).unwrap_err();
 <a href=#2351 id=2351 data-nosnippet>2351</a>        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, miette::Report::from(err));
 <a href=#2352 id=2352 data-nosnippet>2352</a>    }
-<a href=#2353 id=2353 data-nosnippet>2353</a>}</code></pre></div></section></main></body></html>
+<a href=#2353 id=2353 data-nosnippet>2353</a>}
+</code></pre></div></section></main></body></html>

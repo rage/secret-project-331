@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Comparable","Comparison","Filter","FilterAtom","FnArg","Literal","Segment","Selector","SingularQuery","SingularQuerySegment","Test","TestFunction"],"fn":["slice_from"],"struct":["JpQuery"]};

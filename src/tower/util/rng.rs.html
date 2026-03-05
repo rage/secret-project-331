@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tower-0.5.2/src/util/rng.rs`."><title>rng.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tower" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tower/util/</div>rng.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! [PRNG] utilities for tower middleware.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tower-0.5.3/src/util/rng.rs`."><title>rng.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tower" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tower/util/</div>rng.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! [PRNG] utilities for tower middleware.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! This module provides a generic [`Rng`] trait and a [`HasherRng`] that
 <a href=#4 id=4 data-nosnippet>4</a>//! implements the trait based on [`RandomState`] or any other [`Hasher`].
@@ -25,7 +25,7 @@
 <a href=#25 id=25 data-nosnippet>25</a>    <span class="doccomment">/// Generate a random [`f64`] between `[0, 1)`.
 <a href=#26 id=26 data-nosnippet>26</a>    </span><span class="kw">fn </span>next_f64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; f64 {
 <a href=#27 id=27 data-nosnippet>27</a>        <span class="comment">// Borrowed from:
-<a href=#28 id=28 data-nosnippet>28</a>        // https://github.com/rust-random/rand/blob/master/src/distributions/float.rs#L106
+<a href=#28 id=28 data-nosnippet>28</a>        // https://github.com/rust-random/rand/blob/master/src/distr/float.rs#L108
 <a href=#29 id=29 data-nosnippet>29</a>        </span><span class="kw">let </span>float_size = std::mem::size_of::&lt;f64&gt;() <span class="kw">as </span>u32 * <span class="number">8</span>;
 <a href=#30 id=30 data-nosnippet>30</a>        <span class="kw">let </span>precision = <span class="number">52 </span>+ <span class="number">1</span>;
 <a href=#31 id=31 data-nosnippet>31</a>        <span class="kw">let </span>scale = <span class="number">1.0 </span>/ ((<span class="number">1u64 </span>&lt;&lt; precision) <span class="kw">as </span>f64);
@@ -40,7 +40,7 @@
 <a href=#40 id=40 data-nosnippet>40</a>    ///
 <a href=#41 id=41 data-nosnippet>41</a>    /// # Panic
 <a href=#42 id=42 data-nosnippet>42</a>    ///
-<a href=#43 id=43 data-nosnippet>43</a>    /// - If start &lt; end this will panic in debug mode.
+<a href=#43 id=43 data-nosnippet>43</a>    /// - If `range.start &gt;= range.end` this will panic in debug mode.
 <a href=#44 id=44 data-nosnippet>44</a>    </span><span class="kw">fn </span>next_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: Range&lt;u64&gt;) -&gt; u64 {
 <a href=#45 id=45 data-nosnippet>45</a>        <span class="macro">debug_assert!</span>(
 <a href=#46 id=46 data-nosnippet>46</a>            range.start &lt; range.end,
@@ -132,50 +132,57 @@
 <a href=#132 id=132 data-nosnippet>132</a>
 <a href=#133 id=133 data-nosnippet>133</a>    <span class="macro">quickcheck!</span> {
 <a href=#134 id=134 data-nosnippet>134</a>        <span class="kw">fn </span>next_f64(counter: u64) -&gt; TestResult {
-<a href=#135 id=135 data-nosnippet>135</a>            <span class="kw">let </span><span class="kw-2">mut </span>rng = HasherRng::default();
-<a href=#136 id=136 data-nosnippet>136</a>            rng.counter = counter;
-<a href=#137 id=137 data-nosnippet>137</a>            <span class="kw">let </span>n = rng.next_f64();
-<a href=#138 id=138 data-nosnippet>138</a>
-<a href=#139 id=139 data-nosnippet>139</a>            TestResult::from_bool(n &lt; <span class="number">1.0 </span>&amp;&amp; n &gt;= <span class="number">0.0</span>)
-<a href=#140 id=140 data-nosnippet>140</a>        }
-<a href=#141 id=141 data-nosnippet>141</a>
-<a href=#142 id=142 data-nosnippet>142</a>        <span class="kw">fn </span>next_range(counter: u64, range: Range&lt;u64&gt;) -&gt; TestResult {
-<a href=#143 id=143 data-nosnippet>143</a>            <span class="kw">if  </span>range.start &gt;= range.end{
-<a href=#144 id=144 data-nosnippet>144</a>                <span class="kw">return </span>TestResult::discard();
-<a href=#145 id=145 data-nosnippet>145</a>            }
-<a href=#146 id=146 data-nosnippet>146</a>
-<a href=#147 id=147 data-nosnippet>147</a>            <span class="kw">let </span><span class="kw-2">mut </span>rng = HasherRng::default();
-<a href=#148 id=148 data-nosnippet>148</a>            rng.counter = counter;
-<a href=#149 id=149 data-nosnippet>149</a>
-<a href=#150 id=150 data-nosnippet>150</a>            <span class="kw">let </span>n = rng.next_range(range.clone());
-<a href=#151 id=151 data-nosnippet>151</a>
-<a href=#152 id=152 data-nosnippet>152</a>            TestResult::from_bool(n &gt;= range.start &amp;&amp; (n &lt; range.end || range.start == range.end))
-<a href=#153 id=153 data-nosnippet>153</a>        }
-<a href=#154 id=154 data-nosnippet>154</a>
-<a href=#155 id=155 data-nosnippet>155</a>        <span class="kw">fn </span>sample_floyd2(counter: u64, length: u64) -&gt; TestResult {
-<a href=#156 id=156 data-nosnippet>156</a>            <span class="kw">if </span>length &lt; <span class="number">2 </span>|| length &gt; <span class="number">256 </span>{
-<a href=#157 id=157 data-nosnippet>157</a>                <span class="kw">return </span>TestResult::discard();
-<a href=#158 id=158 data-nosnippet>158</a>            }
-<a href=#159 id=159 data-nosnippet>159</a>
-<a href=#160 id=160 data-nosnippet>160</a>            <span class="kw">let </span><span class="kw-2">mut </span>rng = HasherRng::default();
-<a href=#161 id=161 data-nosnippet>161</a>            rng.counter = counter;
-<a href=#162 id=162 data-nosnippet>162</a>
-<a href=#163 id=163 data-nosnippet>163</a>            <span class="kw">let </span>[a, b] = <span class="kw">super</span>::sample_floyd2(<span class="kw-2">&amp;mut </span>rng, length);
-<a href=#164 id=164 data-nosnippet>164</a>
-<a href=#165 id=165 data-nosnippet>165</a>            <span class="kw">if </span>a &gt;= length || b &gt;= length || a == b {
-<a href=#166 id=166 data-nosnippet>166</a>                <span class="kw">return </span>TestResult::failed();
-<a href=#167 id=167 data-nosnippet>167</a>            }
+<a href=#135 id=135 data-nosnippet>135</a>            <span class="kw">let </span><span class="kw-2">mut </span>rng = HasherRng {
+<a href=#136 id=136 data-nosnippet>136</a>                counter,
+<a href=#137 id=137 data-nosnippet>137</a>                ..HasherRng::default()
+<a href=#138 id=138 data-nosnippet>138</a>            };
+<a href=#139 id=139 data-nosnippet>139</a>            <span class="kw">let </span>n = rng.next_f64();
+<a href=#140 id=140 data-nosnippet>140</a>
+<a href=#141 id=141 data-nosnippet>141</a>            TestResult::from_bool((<span class="number">0.0</span>..<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>n))
+<a href=#142 id=142 data-nosnippet>142</a>        }
+<a href=#143 id=143 data-nosnippet>143</a>
+<a href=#144 id=144 data-nosnippet>144</a>        <span class="kw">fn </span>next_range(counter: u64, range: Range&lt;u64&gt;) -&gt; TestResult {
+<a href=#145 id=145 data-nosnippet>145</a>            <span class="kw">if </span>range.start &gt;= range.end{
+<a href=#146 id=146 data-nosnippet>146</a>                <span class="kw">return </span>TestResult::discard();
+<a href=#147 id=147 data-nosnippet>147</a>            }
+<a href=#148 id=148 data-nosnippet>148</a>
+<a href=#149 id=149 data-nosnippet>149</a>            <span class="kw">let </span><span class="kw-2">mut </span>rng = HasherRng {
+<a href=#150 id=150 data-nosnippet>150</a>                counter,
+<a href=#151 id=151 data-nosnippet>151</a>                ..HasherRng::default()
+<a href=#152 id=152 data-nosnippet>152</a>            };
+<a href=#153 id=153 data-nosnippet>153</a>
+<a href=#154 id=154 data-nosnippet>154</a>            <span class="kw">let </span>n = rng.next_range(range.clone());
+<a href=#155 id=155 data-nosnippet>155</a>
+<a href=#156 id=156 data-nosnippet>156</a>            TestResult::from_bool(n &gt;= range.start &amp;&amp; (n &lt; range.end || range.start == range.end))
+<a href=#157 id=157 data-nosnippet>157</a>        }
+<a href=#158 id=158 data-nosnippet>158</a>
+<a href=#159 id=159 data-nosnippet>159</a>        <span class="kw">fn </span>sample_floyd2(counter: u64, length: u64) -&gt; TestResult {
+<a href=#160 id=160 data-nosnippet>160</a>            <span class="kw">if </span>!(<span class="number">2</span>..=<span class="number">256</span>).contains(<span class="kw-2">&amp;</span>length) {
+<a href=#161 id=161 data-nosnippet>161</a>                <span class="kw">return </span>TestResult::discard();
+<a href=#162 id=162 data-nosnippet>162</a>            }
+<a href=#163 id=163 data-nosnippet>163</a>
+<a href=#164 id=164 data-nosnippet>164</a>            <span class="kw">let </span><span class="kw-2">mut </span>rng = HasherRng {
+<a href=#165 id=165 data-nosnippet>165</a>                counter,
+<a href=#166 id=166 data-nosnippet>166</a>                ..HasherRng::default()
+<a href=#167 id=167 data-nosnippet>167</a>            };
 <a href=#168 id=168 data-nosnippet>168</a>
-<a href=#169 id=169 data-nosnippet>169</a>            TestResult::passed()
-<a href=#170 id=170 data-nosnippet>170</a>        }
-<a href=#171 id=171 data-nosnippet>171</a>    }
-<a href=#172 id=172 data-nosnippet>172</a>
-<a href=#173 id=173 data-nosnippet>173</a>    <span class="attr">#[test]
-<a href=#174 id=174 data-nosnippet>174</a>    </span><span class="kw">fn </span>sample_inplace_boundaries() {
-<a href=#175 id=175 data-nosnippet>175</a>        <span class="kw">let </span><span class="kw-2">mut </span>r = HasherRng::default();
-<a href=#176 id=176 data-nosnippet>176</a>        <span class="kw">match </span><span class="kw">super</span>::sample_floyd2(<span class="kw-2">&amp;mut </span>r, <span class="number">2</span>) {
-<a href=#177 id=177 data-nosnippet>177</a>            [<span class="number">0</span>, <span class="number">1</span>] | [<span class="number">1</span>, <span class="number">0</span>] =&gt; (),
-<a href=#178 id=178 data-nosnippet>178</a>            array =&gt; <span class="macro">panic!</span>(<span class="string">"unexpected inplace boundaries: {:?}"</span>, array),
-<a href=#179 id=179 data-nosnippet>179</a>        }
-<a href=#180 id=180 data-nosnippet>180</a>    }
-<a href=#181 id=181 data-nosnippet>181</a>}</code></pre></div></section></main></body></html>
+<a href=#169 id=169 data-nosnippet>169</a>            <span class="kw">let </span>[a, b] = <span class="kw">super</span>::sample_floyd2(<span class="kw-2">&amp;mut </span>rng, length);
+<a href=#170 id=170 data-nosnippet>170</a>
+<a href=#171 id=171 data-nosnippet>171</a>            <span class="kw">if </span>a &gt;= length || b &gt;= length || a == b {
+<a href=#172 id=172 data-nosnippet>172</a>                <span class="kw">return </span>TestResult::failed();
+<a href=#173 id=173 data-nosnippet>173</a>            }
+<a href=#174 id=174 data-nosnippet>174</a>
+<a href=#175 id=175 data-nosnippet>175</a>            TestResult::passed()
+<a href=#176 id=176 data-nosnippet>176</a>        }
+<a href=#177 id=177 data-nosnippet>177</a>    }
+<a href=#178 id=178 data-nosnippet>178</a>
+<a href=#179 id=179 data-nosnippet>179</a>    <span class="attr">#[test]
+<a href=#180 id=180 data-nosnippet>180</a>    </span><span class="kw">fn </span>sample_inplace_boundaries() {
+<a href=#181 id=181 data-nosnippet>181</a>        <span class="kw">let </span><span class="kw-2">mut </span>r = HasherRng::default();
+<a href=#182 id=182 data-nosnippet>182</a>        <span class="kw">match </span><span class="kw">super</span>::sample_floyd2(<span class="kw-2">&amp;mut </span>r, <span class="number">2</span>) {
+<a href=#183 id=183 data-nosnippet>183</a>            [<span class="number">0</span>, <span class="number">1</span>] | [<span class="number">1</span>, <span class="number">0</span>] =&gt; (),
+<a href=#184 id=184 data-nosnippet>184</a>            array =&gt; <span class="macro">panic!</span>(<span class="string">"unexpected inplace boundaries: {:?}"</span>, array),
+<a href=#185 id=185 data-nosnippet>185</a>        }
+<a href=#186 id=186 data-nosnippet>186</a>    }
+<a href=#187 id=187 data-nosnippet>187</a>}
+</code></pre></div></section></main></body></html>

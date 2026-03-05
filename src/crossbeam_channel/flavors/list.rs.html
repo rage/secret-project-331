@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-channel-0.5.15/src/flavors/list.rs`."><title>list.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="crossbeam_channel" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">crossbeam_channel/flavors/</div>list.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Unbounded channel implemented as a linked list.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-channel-0.5.15/src/flavors/list.rs`."><title>list.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="crossbeam_channel" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">crossbeam_channel/flavors/</div>list.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Unbounded channel implemented as a linked list.
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>std::alloc::{alloc_zeroed, handle_alloc_error, Layout};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>std::boxed::Box;
@@ -219,7 +219,7 @@
 <a href=#219 id=219 data-nosnippet>219</a>
 <a href=#220 id=220 data-nosnippet>220</a>        <span class="kw">loop </span>{
 <a href=#221 id=221 data-nosnippet>221</a>            <span class="comment">// Check if the channel is disconnected.
-<a href=#222 id=222 data-nosnippet>222</a>            </span><span class="kw">if </span>tail &amp; MARK_BIT != <span class="number">0 </span>{
+<a href=#222 id=222 data-nosnippet>222</a>            </span><span class="kw">if </span>tail &amp; <span class="macro">MARK_BIT !</span>= <span class="number">0 </span>{
 <a href=#223 id=223 data-nosnippet>223</a>                token.list.block = ptr::null();
 <a href=#224 id=224 data-nosnippet>224</a>                <span class="kw">return </span><span class="bool-val">true</span>;
 <a href=#225 id=225 data-nosnippet>225</a>            }
@@ -339,7 +339,7 @@
 <a href=#339 id=339 data-nosnippet>339</a>                <span class="comment">// If the tail equals the head, that means the channel is empty.
 <a href=#340 id=340 data-nosnippet>340</a>                </span><span class="kw">if </span>head &gt;&gt; SHIFT == tail &gt;&gt; SHIFT {
 <a href=#341 id=341 data-nosnippet>341</a>                    <span class="comment">// If the channel is disconnected...
-<a href=#342 id=342 data-nosnippet>342</a>                    </span><span class="kw">if </span>tail &amp; MARK_BIT != <span class="number">0 </span>{
+<a href=#342 id=342 data-nosnippet>342</a>                    </span><span class="kw">if </span>tail &amp; <span class="macro">MARK_BIT !</span>= <span class="number">0 </span>{
 <a href=#343 id=343 data-nosnippet>343</a>                        <span class="comment">// ...then receive an error.
 <a href=#344 id=344 data-nosnippet>344</a>                        </span>token.list.block = ptr::null();
 <a href=#345 id=345 data-nosnippet>345</a>                        <span class="kw">return </span><span class="bool-val">true</span>;
@@ -350,7 +350,7 @@
 <a href=#350 id=350 data-nosnippet>350</a>                }
 <a href=#351 id=351 data-nosnippet>351</a>
 <a href=#352 id=352 data-nosnippet>352</a>                <span class="comment">// If head and tail are not in the same block, set `MARK_BIT` in head.
-<a href=#353 id=353 data-nosnippet>353</a>                </span><span class="kw">if </span>(head &gt;&gt; SHIFT) / LAP != (tail &gt;&gt; SHIFT) / LAP {
+<a href=#353 id=353 data-nosnippet>353</a>                </span><span class="kw">if </span>(head &gt;&gt; SHIFT) / <span class="macro">LAP !</span>= (tail &gt;&gt; SHIFT) / LAP {
 <a href=#354 id=354 data-nosnippet>354</a>                    new_head |= MARK_BIT;
 <a href=#355 id=355 data-nosnippet>355</a>                }
 <a href=#356 id=356 data-nosnippet>356</a>            }
@@ -415,7 +415,7 @@
 <a href=#415 id=415 data-nosnippet>415</a>        // couldn't because we were busy reading from the slot.
 <a href=#416 id=416 data-nosnippet>416</a>        </span><span class="kw">if </span>offset + <span class="number">1 </span>== BLOCK_CAP {
 <a href=#417 id=417 data-nosnippet>417</a>            Block::destroy(block, <span class="number">0</span>);
-<a href=#418 id=418 data-nosnippet>418</a>        } <span class="kw">else if </span>slot.state.fetch_or(READ, Ordering::AcqRel) &amp; DESTROY != <span class="number">0 </span>{
+<a href=#418 id=418 data-nosnippet>418</a>        } <span class="kw">else if </span>slot.state.fetch_or(READ, Ordering::AcqRel) &amp; <span class="macro">DESTROY !</span>= <span class="number">0 </span>{
 <a href=#419 id=419 data-nosnippet>419</a>            Block::destroy(block, offset + <span class="number">1</span>);
 <a href=#420 id=420 data-nosnippet>420</a>        }
 <a href=#421 id=421 data-nosnippet>421</a>
@@ -586,7 +586,7 @@
 <a href=#586 id=586 data-nosnippet>586</a>        <span class="kw">let </span><span class="kw-2">mut </span>tail = <span class="self">self</span>.tail.index.load(Ordering::Acquire);
 <a href=#587 id=587 data-nosnippet>587</a>        <span class="kw">loop </span>{
 <a href=#588 id=588 data-nosnippet>588</a>            <span class="kw">let </span>offset = (tail &gt;&gt; SHIFT) % LAP;
-<a href=#589 id=589 data-nosnippet>589</a>            <span class="kw">if </span>offset != BLOCK_CAP {
+<a href=#589 id=589 data-nosnippet>589</a>            <span class="kw">if </span><span class="macro">offset !</span>= BLOCK_CAP {
 <a href=#590 id=590 data-nosnippet>590</a>                <span class="kw">break</span>;
 <a href=#591 id=591 data-nosnippet>591</a>            }
 <a href=#592 id=592 data-nosnippet>592</a>
@@ -604,7 +604,7 @@
 <a href=#604 id=604 data-nosnippet>604</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>block = <span class="self">self</span>.head.block.swap(ptr::null_mut(), Ordering::AcqRel);
 <a href=#605 id=605 data-nosnippet>605</a>
 <a href=#606 id=606 data-nosnippet>606</a>        <span class="comment">// If we're going to be dropping messages we need to synchronize with initialization
-<a href=#607 id=607 data-nosnippet>607</a>        </span><span class="kw">if </span>head &gt;&gt; SHIFT != tail &gt;&gt; SHIFT {
+<a href=#607 id=607 data-nosnippet>607</a>        </span><span class="kw">if </span>head &gt;&gt; <span class="macro">SHIFT !</span>= tail &gt;&gt; SHIFT {
 <a href=#608 id=608 data-nosnippet>608</a>            <span class="comment">// The block can be null here only if a sender is in the process of initializing the
 <a href=#609 id=609 data-nosnippet>609</a>            // channel while another sender managed to send a message by inserting it into the
 <a href=#610 id=610 data-nosnippet>610</a>            // semi-initialized channel and advanced the tail.
@@ -617,7 +617,7 @@
 <a href=#617 id=617 data-nosnippet>617</a>
 <a href=#618 id=618 data-nosnippet>618</a>        <span class="kw">unsafe </span>{
 <a href=#619 id=619 data-nosnippet>619</a>            <span class="comment">// Drop all messages between head and tail and deallocate the heap-allocated blocks.
-<a href=#620 id=620 data-nosnippet>620</a>            </span><span class="kw">while </span>head &gt;&gt; SHIFT != tail &gt;&gt; SHIFT {
+<a href=#620 id=620 data-nosnippet>620</a>            </span><span class="kw">while </span>head &gt;&gt; <span class="macro">SHIFT !</span>= tail &gt;&gt; SHIFT {
 <a href=#621 id=621 data-nosnippet>621</a>                <span class="kw">let </span>offset = (head &gt;&gt; SHIFT) % LAP;
 <a href=#622 id=622 data-nosnippet>622</a>
 <a href=#623 id=623 data-nosnippet>623</a>                <span class="kw">if </span>offset &lt; BLOCK_CAP {
@@ -647,7 +647,7 @@
 <a href=#647 id=647 data-nosnippet>647</a>
 <a href=#648 id=648 data-nosnippet>648</a>    <span class="doccomment">/// Returns `true` if the channel is disconnected.
 <a href=#649 id=649 data-nosnippet>649</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_disconnected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#650 id=650 data-nosnippet>650</a>        <span class="self">self</span>.tail.index.load(Ordering::SeqCst) &amp; MARK_BIT != <span class="number">0
+<a href=#650 id=650 data-nosnippet>650</a>        <span class="self">self</span>.tail.index.load(Ordering::SeqCst) &amp; <span class="macro">MARK_BIT !</span>= <span class="number">0
 <a href=#651 id=651 data-nosnippet>651</a>    </span>}
 <a href=#652 id=652 data-nosnippet>652</a>
 <a href=#653 id=653 data-nosnippet>653</a>    <span class="doccomment">/// Returns `true` if the channel is empty.
@@ -675,7 +675,7 @@
 <a href=#675 id=675 data-nosnippet>675</a>
 <a href=#676 id=676 data-nosnippet>676</a>        <span class="kw">unsafe </span>{
 <a href=#677 id=677 data-nosnippet>677</a>            <span class="comment">// Drop all messages between head and tail and deallocate the heap-allocated blocks.
-<a href=#678 id=678 data-nosnippet>678</a>            </span><span class="kw">while </span>head != tail {
+<a href=#678 id=678 data-nosnippet>678</a>            </span><span class="kw">while </span><span class="macro">head !</span>= tail {
 <a href=#679 id=679 data-nosnippet>679</a>                <span class="kw">let </span>offset = (head &gt;&gt; SHIFT) % LAP;
 <a href=#680 id=680 data-nosnippet>680</a>
 <a href=#681 id=681 data-nosnippet>681</a>                <span class="kw">if </span>offset &lt; BLOCK_CAP {
@@ -770,4 +770,5 @@
 <a href=#770 id=770 data-nosnippet>770</a>    }
 <a href=#771 id=771 data-nosnippet>771</a>
 <a href=#772 id=772 data-nosnippet>772</a>    <span class="kw">fn </span>unwatch(<span class="kw-2">&amp;</span><span class="self">self</span>, _oper: Operation) {}
-<a href=#773 id=773 data-nosnippet>773</a>}</code></pre></div></section></main></body></html>
+<a href=#773 id=773 data-nosnippet>773</a>}
+</code></pre></div></section></main></body></html>

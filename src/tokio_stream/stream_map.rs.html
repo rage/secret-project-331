@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-stream-0.1.17/src/stream_map.rs`."><title>stream_map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_stream" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tokio_stream/</div>stream_map.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::Stream;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-stream-0.1.18/src/stream_map.rs`."><title>stream_map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_stream" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tokio_stream/</div>stream_map.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::Stream;
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>std::borrow::Borrow;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>std::future::poll_fn;
@@ -65,57 +65,57 @@
 <a href=#65 id=65 data-nosnippet>65</a>/// use tokio::sync::mpsc;
 <a href=#66 id=66 data-nosnippet>66</a>/// use std::pin::Pin;
 <a href=#67 id=67 data-nosnippet>67</a>///
-<a href=#68 id=68 data-nosnippet>68</a>/// #[tokio::main]
-<a href=#69 id=69 data-nosnippet>69</a>/// async fn main() {
-<a href=#70 id=70 data-nosnippet>70</a>///     let (tx1, mut rx1) = mpsc::channel::&lt;usize&gt;(10);
-<a href=#71 id=71 data-nosnippet>71</a>///     let (tx2, mut rx2) = mpsc::channel::&lt;usize&gt;(10);
+<a href=#68 id=68 data-nosnippet>68</a>/// # #[tokio::main(flavor = "current_thread")]
+<a href=#69 id=69 data-nosnippet>69</a>/// # async fn main() {
+<a href=#70 id=70 data-nosnippet>70</a>/// let (tx1, mut rx1) = mpsc::channel::&lt;usize&gt;(10);
+<a href=#71 id=71 data-nosnippet>71</a>/// let (tx2, mut rx2) = mpsc::channel::&lt;usize&gt;(10);
 <a href=#72 id=72 data-nosnippet>72</a>///
-<a href=#73 id=73 data-nosnippet>73</a>///     // Convert the channels to a `Stream`.
-<a href=#74 id=74 data-nosnippet>74</a>///     let rx1 = Box::pin(async_stream::stream! {
-<a href=#75 id=75 data-nosnippet>75</a>///           while let Some(item) = rx1.recv().await {
-<a href=#76 id=76 data-nosnippet>76</a>///               yield item;
-<a href=#77 id=77 data-nosnippet>77</a>///           }
-<a href=#78 id=78 data-nosnippet>78</a>///     }) as Pin&lt;Box&lt;dyn Stream&lt;Item = usize&gt; + Send&gt;&gt;;
+<a href=#73 id=73 data-nosnippet>73</a>/// // Convert the channels to a `Stream`.
+<a href=#74 id=74 data-nosnippet>74</a>/// let rx1 = Box::pin(async_stream::stream! {
+<a href=#75 id=75 data-nosnippet>75</a>///     while let Some(item) = rx1.recv().await {
+<a href=#76 id=76 data-nosnippet>76</a>///         yield item;
+<a href=#77 id=77 data-nosnippet>77</a>///     }
+<a href=#78 id=78 data-nosnippet>78</a>/// }) as Pin&lt;Box&lt;dyn Stream&lt;Item = usize&gt; + Send&gt;&gt;;
 <a href=#79 id=79 data-nosnippet>79</a>///
-<a href=#80 id=80 data-nosnippet>80</a>///     let rx2 = Box::pin(async_stream::stream! {
-<a href=#81 id=81 data-nosnippet>81</a>///           while let Some(item) = rx2.recv().await {
-<a href=#82 id=82 data-nosnippet>82</a>///               yield item;
-<a href=#83 id=83 data-nosnippet>83</a>///           }
-<a href=#84 id=84 data-nosnippet>84</a>///     }) as Pin&lt;Box&lt;dyn Stream&lt;Item = usize&gt; + Send&gt;&gt;;
+<a href=#80 id=80 data-nosnippet>80</a>/// let rx2 = Box::pin(async_stream::stream! {
+<a href=#81 id=81 data-nosnippet>81</a>///     while let Some(item) = rx2.recv().await {
+<a href=#82 id=82 data-nosnippet>82</a>///         yield item;
+<a href=#83 id=83 data-nosnippet>83</a>///     }
+<a href=#84 id=84 data-nosnippet>84</a>/// }) as Pin&lt;Box&lt;dyn Stream&lt;Item = usize&gt; + Send&gt;&gt;;
 <a href=#85 id=85 data-nosnippet>85</a>///
-<a href=#86 id=86 data-nosnippet>86</a>///     tokio::spawn(async move {
-<a href=#87 id=87 data-nosnippet>87</a>///         tx1.send(1).await.unwrap();
+<a href=#86 id=86 data-nosnippet>86</a>/// tokio::spawn(async move {
+<a href=#87 id=87 data-nosnippet>87</a>///     tx1.send(1).await.unwrap();
 <a href=#88 id=88 data-nosnippet>88</a>///
-<a href=#89 id=89 data-nosnippet>89</a>///         // This value will never be received. The send may or may not return
-<a href=#90 id=90 data-nosnippet>90</a>///         // `Err` depending on if the remote end closed first or not.
-<a href=#91 id=91 data-nosnippet>91</a>///         let _ = tx1.send(2).await;
-<a href=#92 id=92 data-nosnippet>92</a>///     });
+<a href=#89 id=89 data-nosnippet>89</a>///     // This value will never be received. The send may or may not return
+<a href=#90 id=90 data-nosnippet>90</a>///     // `Err` depending on if the remote end closed first or not.
+<a href=#91 id=91 data-nosnippet>91</a>///     let _ = tx1.send(2).await;
+<a href=#92 id=92 data-nosnippet>92</a>/// });
 <a href=#93 id=93 data-nosnippet>93</a>///
-<a href=#94 id=94 data-nosnippet>94</a>///     tokio::spawn(async move {
-<a href=#95 id=95 data-nosnippet>95</a>///         tx2.send(3).await.unwrap();
-<a href=#96 id=96 data-nosnippet>96</a>///         let _ = tx2.send(4).await;
-<a href=#97 id=97 data-nosnippet>97</a>///     });
+<a href=#94 id=94 data-nosnippet>94</a>/// tokio::spawn(async move {
+<a href=#95 id=95 data-nosnippet>95</a>///     tx2.send(3).await.unwrap();
+<a href=#96 id=96 data-nosnippet>96</a>///     let _ = tx2.send(4).await;
+<a href=#97 id=97 data-nosnippet>97</a>/// });
 <a href=#98 id=98 data-nosnippet>98</a>///
-<a href=#99 id=99 data-nosnippet>99</a>///     let mut map = StreamMap::new();
+<a href=#99 id=99 data-nosnippet>99</a>/// let mut map = StreamMap::new();
 <a href=#100 id=100 data-nosnippet>100</a>///
-<a href=#101 id=101 data-nosnippet>101</a>///     // Insert both streams
-<a href=#102 id=102 data-nosnippet>102</a>///     map.insert("one", rx1);
-<a href=#103 id=103 data-nosnippet>103</a>///     map.insert("two", rx2);
+<a href=#101 id=101 data-nosnippet>101</a>/// // Insert both streams
+<a href=#102 id=102 data-nosnippet>102</a>/// map.insert("one", rx1);
+<a href=#103 id=103 data-nosnippet>103</a>/// map.insert("two", rx2);
 <a href=#104 id=104 data-nosnippet>104</a>///
-<a href=#105 id=105 data-nosnippet>105</a>///     // Read twice
-<a href=#106 id=106 data-nosnippet>106</a>///     for _ in 0..2 {
-<a href=#107 id=107 data-nosnippet>107</a>///         let (key, val) = map.next().await.unwrap();
+<a href=#105 id=105 data-nosnippet>105</a>/// // Read twice
+<a href=#106 id=106 data-nosnippet>106</a>/// for _ in 0..2 {
+<a href=#107 id=107 data-nosnippet>107</a>///     let (key, val) = map.next().await.unwrap();
 <a href=#108 id=108 data-nosnippet>108</a>///
-<a href=#109 id=109 data-nosnippet>109</a>///         if key == "one" {
-<a href=#110 id=110 data-nosnippet>110</a>///             assert_eq!(val, 1);
-<a href=#111 id=111 data-nosnippet>111</a>///         } else {
-<a href=#112 id=112 data-nosnippet>112</a>///             assert_eq!(val, 3);
-<a href=#113 id=113 data-nosnippet>113</a>///         }
+<a href=#109 id=109 data-nosnippet>109</a>///     if key == "one" {
+<a href=#110 id=110 data-nosnippet>110</a>///         assert_eq!(val, 1);
+<a href=#111 id=111 data-nosnippet>111</a>///     } else {
+<a href=#112 id=112 data-nosnippet>112</a>///         assert_eq!(val, 3);
+<a href=#113 id=113 data-nosnippet>113</a>///     }
 <a href=#114 id=114 data-nosnippet>114</a>///
-<a href=#115 id=115 data-nosnippet>115</a>///         // Remove the stream to prevent reading the next value
-<a href=#116 id=116 data-nosnippet>116</a>///         map.remove(key);
-<a href=#117 id=117 data-nosnippet>117</a>///     }
-<a href=#118 id=118 data-nosnippet>118</a>/// }
+<a href=#115 id=115 data-nosnippet>115</a>///     // Remove the stream to prevent reading the next value
+<a href=#116 id=116 data-nosnippet>116</a>///     map.remove(key);
+<a href=#117 id=117 data-nosnippet>117</a>/// }
+<a href=#118 id=118 data-nosnippet>118</a>/// # }
 <a href=#119 id=119 data-nosnippet>119</a>/// ```
 <a href=#120 id=120 data-nosnippet>120</a>///
 <a href=#121 id=121 data-nosnippet>121</a>/// This example models a read-only client to a chat system with channels. The
@@ -185,20 +185,20 @@
 <a href=#185 id=185 data-nosnippet>185</a>/// ```
 <a href=#186 id=186 data-nosnippet>186</a>/// use tokio_stream::{StreamExt, StreamMap, StreamNotifyClose};
 <a href=#187 id=187 data-nosnippet>187</a>///
-<a href=#188 id=188 data-nosnippet>188</a>/// #[tokio::main]
-<a href=#189 id=189 data-nosnippet>189</a>/// async fn main() {
-<a href=#190 id=190 data-nosnippet>190</a>///     let mut map = StreamMap::new();
-<a href=#191 id=191 data-nosnippet>191</a>///     let stream = StreamNotifyClose::new(tokio_stream::iter(vec![0, 1]));
-<a href=#192 id=192 data-nosnippet>192</a>///     let stream2 = StreamNotifyClose::new(tokio_stream::iter(vec![0, 1]));
-<a href=#193 id=193 data-nosnippet>193</a>///     map.insert(0, stream);
-<a href=#194 id=194 data-nosnippet>194</a>///     map.insert(1, stream2);
-<a href=#195 id=195 data-nosnippet>195</a>///     while let Some((key, val)) = map.next().await {
-<a href=#196 id=196 data-nosnippet>196</a>///         match val {
-<a href=#197 id=197 data-nosnippet>197</a>///             Some(val) =&gt; println!("got {val:?} from stream {key:?}"),
-<a href=#198 id=198 data-nosnippet>198</a>///             None =&gt; println!("stream {key:?} closed"),
-<a href=#199 id=199 data-nosnippet>199</a>///         }
-<a href=#200 id=200 data-nosnippet>200</a>///     }
-<a href=#201 id=201 data-nosnippet>201</a>/// }
+<a href=#188 id=188 data-nosnippet>188</a>/// # #[tokio::main(flavor = "current_thread")]
+<a href=#189 id=189 data-nosnippet>189</a>/// # async fn main() {
+<a href=#190 id=190 data-nosnippet>190</a>/// let mut map = StreamMap::new();
+<a href=#191 id=191 data-nosnippet>191</a>/// let stream = StreamNotifyClose::new(tokio_stream::iter(vec![0, 1]));
+<a href=#192 id=192 data-nosnippet>192</a>/// let stream2 = StreamNotifyClose::new(tokio_stream::iter(vec![0, 1]));
+<a href=#193 id=193 data-nosnippet>193</a>/// map.insert(0, stream);
+<a href=#194 id=194 data-nosnippet>194</a>/// map.insert(1, stream2);
+<a href=#195 id=195 data-nosnippet>195</a>/// while let Some((key, val)) = map.next().await {
+<a href=#196 id=196 data-nosnippet>196</a>///     match val {
+<a href=#197 id=197 data-nosnippet>197</a>///         Some(val) =&gt; println!("got {val:?} from stream {key:?}"),
+<a href=#198 id=198 data-nosnippet>198</a>///         None =&gt; println!("stream {key:?} closed"),
+<a href=#199 id=199 data-nosnippet>199</a>///     }
+<a href=#200 id=200 data-nosnippet>200</a>/// }
+<a href=#201 id=201 data-nosnippet>201</a>/// # }
 <a href=#202 id=202 data-nosnippet>202</a>/// ```
 <a href=#203 id=203 data-nosnippet>203</a>
 <a href=#204 id=204 data-nosnippet>204</a></span><span class="attr">#[derive(Debug)]
@@ -734,90 +734,84 @@
 <a href=#734 id=734 data-nosnippet>734</a>        <span class="attr">#[cfg(not(loom))]
 <a href=#735 id=735 data-nosnippet>735</a>        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>rand {
 <a href=#736 id=736 data-nosnippet>736</a>            <span class="kw">use </span>std::collections::hash_map::RandomState;
-<a href=#737 id=737 data-nosnippet>737</a>            <span class="kw">use </span>std::hash::{BuildHasher, Hash, Hasher};
+<a href=#737 id=737 data-nosnippet>737</a>            <span class="kw">use </span>std::hash::BuildHasher;
 <a href=#738 id=738 data-nosnippet>738</a>            <span class="kw">use </span>std::sync::atomic::AtomicU32;
 <a href=#739 id=739 data-nosnippet>739</a>            <span class="kw">use </span>std::sync::atomic::Ordering::Relaxed;
 <a href=#740 id=740 data-nosnippet>740</a>
 <a href=#741 id=741 data-nosnippet>741</a>            <span class="kw">static </span>COUNTER: AtomicU32 = AtomicU32::new(<span class="number">1</span>);
 <a href=#742 id=742 data-nosnippet>742</a>
 <a href=#743 id=743 data-nosnippet>743</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>seed() -&gt; u64 {
-<a href=#744 id=744 data-nosnippet>744</a>                <span class="kw">let </span>rand_state = RandomState::new();
-<a href=#745 id=745 data-nosnippet>745</a>
-<a href=#746 id=746 data-nosnippet>746</a>                <span class="kw">let </span><span class="kw-2">mut </span>hasher = rand_state.build_hasher();
-<a href=#747 id=747 data-nosnippet>747</a>
-<a href=#748 id=748 data-nosnippet>748</a>                <span class="comment">// Hash some unique-ish data to generate some new state
-<a href=#749 id=749 data-nosnippet>749</a>                </span>COUNTER.fetch_add(<span class="number">1</span>, Relaxed).hash(<span class="kw-2">&amp;mut </span>hasher);
-<a href=#750 id=750 data-nosnippet>750</a>
-<a href=#751 id=751 data-nosnippet>751</a>                <span class="comment">// Get the seed
-<a href=#752 id=752 data-nosnippet>752</a>                </span>hasher.finish()
-<a href=#753 id=753 data-nosnippet>753</a>            }
+<a href=#744 id=744 data-nosnippet>744</a>                <span class="comment">// Hash some unique-ish data to generate some new state
+<a href=#745 id=745 data-nosnippet>745</a>                </span>RandomState::new().hash_one(COUNTER.fetch_add(<span class="number">1</span>, Relaxed))
+<a href=#746 id=746 data-nosnippet>746</a>            }
+<a href=#747 id=747 data-nosnippet>747</a>        }
+<a href=#748 id=748 data-nosnippet>748</a>
+<a href=#749 id=749 data-nosnippet>749</a>        <span class="attr">#[cfg(loom)]
+<a href=#750 id=750 data-nosnippet>750</a>        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>rand {
+<a href=#751 id=751 data-nosnippet>751</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>seed() -&gt; u64 {
+<a href=#752 id=752 data-nosnippet>752</a>                <span class="number">1
+<a href=#753 id=753 data-nosnippet>753</a>            </span>}
 <a href=#754 id=754 data-nosnippet>754</a>        }
-<a href=#755 id=755 data-nosnippet>755</a>
-<a href=#756 id=756 data-nosnippet>756</a>        <span class="attr">#[cfg(loom)]
-<a href=#757 id=757 data-nosnippet>757</a>        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>rand {
-<a href=#758 id=758 data-nosnippet>758</a>            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>seed() -&gt; u64 {
-<a href=#759 id=759 data-nosnippet>759</a>                <span class="number">1
-<a href=#760 id=760 data-nosnippet>760</a>            </span>}
-<a href=#761 id=761 data-nosnippet>761</a>        }
-<a href=#762 id=762 data-nosnippet>762</a>    }
-<a href=#763 id=763 data-nosnippet>763</a>
-<a href=#764 id=764 data-nosnippet>764</a>    <span class="doccomment">/// Fast random number generate
-<a href=#765 id=765 data-nosnippet>765</a>    ///
-<a href=#766 id=766 data-nosnippet>766</a>    /// Implement `xorshift64+`: 2 32-bit `xorshift` sequences added together.
-<a href=#767 id=767 data-nosnippet>767</a>    /// Shift triplet `[17,7,16]` was calculated as indicated in Marsaglia's
-<a href=#768 id=768 data-nosnippet>768</a>    /// `Xorshift` paper: &lt;https://www.jstatsoft.org/article/view/v008i14/xorshift.pdf&gt;
-<a href=#769 id=769 data-nosnippet>769</a>    /// This generator passes the SmallCrush suite, part of TestU01 framework:
-<a href=#770 id=770 data-nosnippet>770</a>    /// &lt;http://simul.iro.umontreal.ca/testu01/tu01.html&gt;
-<a href=#771 id=771 data-nosnippet>771</a>    </span><span class="attr">#[derive(Debug)]
-<a href=#772 id=772 data-nosnippet>772</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FastRand {
-<a href=#773 id=773 data-nosnippet>773</a>        one: Cell&lt;u32&gt;,
-<a href=#774 id=774 data-nosnippet>774</a>        two: Cell&lt;u32&gt;,
-<a href=#775 id=775 data-nosnippet>775</a>    }
-<a href=#776 id=776 data-nosnippet>776</a>
-<a href=#777 id=777 data-nosnippet>777</a>    <span class="kw">impl </span>FastRand {
-<a href=#778 id=778 data-nosnippet>778</a>        <span class="doccomment">/// Initialize a new, thread-local, fast random number generator.
-<a href=#779 id=779 data-nosnippet>779</a>        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(seed: u64) -&gt; FastRand {
-<a href=#780 id=780 data-nosnippet>780</a>            <span class="kw">let </span>one = (seed &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u32;
-<a href=#781 id=781 data-nosnippet>781</a>            <span class="kw">let </span><span class="kw-2">mut </span>two = seed <span class="kw">as </span>u32;
-<a href=#782 id=782 data-nosnippet>782</a>
-<a href=#783 id=783 data-nosnippet>783</a>            <span class="kw">if </span>two == <span class="number">0 </span>{
-<a href=#784 id=784 data-nosnippet>784</a>                <span class="comment">// This value cannot be zero
-<a href=#785 id=785 data-nosnippet>785</a>                </span>two = <span class="number">1</span>;
-<a href=#786 id=786 data-nosnippet>786</a>            }
-<a href=#787 id=787 data-nosnippet>787</a>
-<a href=#788 id=788 data-nosnippet>788</a>            FastRand {
-<a href=#789 id=789 data-nosnippet>789</a>                one: Cell::new(one),
-<a href=#790 id=790 data-nosnippet>790</a>                two: Cell::new(two),
-<a href=#791 id=791 data-nosnippet>791</a>            }
+<a href=#755 id=755 data-nosnippet>755</a>    }
+<a href=#756 id=756 data-nosnippet>756</a>
+<a href=#757 id=757 data-nosnippet>757</a>    <span class="doccomment">/// Fast random number generate
+<a href=#758 id=758 data-nosnippet>758</a>    ///
+<a href=#759 id=759 data-nosnippet>759</a>    /// Implement `xorshift64+`: 2 32-bit `xorshift` sequences added together.
+<a href=#760 id=760 data-nosnippet>760</a>    /// Shift triplet `[17,7,16]` was calculated as indicated in Marsaglia's
+<a href=#761 id=761 data-nosnippet>761</a>    /// `Xorshift` paper: &lt;https://www.jstatsoft.org/article/view/v008i14/xorshift.pdf&gt;
+<a href=#762 id=762 data-nosnippet>762</a>    /// This generator passes the SmallCrush suite, part of TestU01 framework:
+<a href=#763 id=763 data-nosnippet>763</a>    /// &lt;http://simul.iro.umontreal.ca/testu01/tu01.html&gt;
+<a href=#764 id=764 data-nosnippet>764</a>    </span><span class="attr">#[derive(Debug)]
+<a href=#765 id=765 data-nosnippet>765</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FastRand {
+<a href=#766 id=766 data-nosnippet>766</a>        one: Cell&lt;u32&gt;,
+<a href=#767 id=767 data-nosnippet>767</a>        two: Cell&lt;u32&gt;,
+<a href=#768 id=768 data-nosnippet>768</a>    }
+<a href=#769 id=769 data-nosnippet>769</a>
+<a href=#770 id=770 data-nosnippet>770</a>    <span class="kw">impl </span>FastRand {
+<a href=#771 id=771 data-nosnippet>771</a>        <span class="doccomment">/// Initialize a new, thread-local, fast random number generator.
+<a href=#772 id=772 data-nosnippet>772</a>        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(seed: u64) -&gt; FastRand {
+<a href=#773 id=773 data-nosnippet>773</a>            <span class="kw">let </span>one = (seed &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u32;
+<a href=#774 id=774 data-nosnippet>774</a>            <span class="kw">let </span><span class="kw-2">mut </span>two = seed <span class="kw">as </span>u32;
+<a href=#775 id=775 data-nosnippet>775</a>
+<a href=#776 id=776 data-nosnippet>776</a>            <span class="kw">if </span>two == <span class="number">0 </span>{
+<a href=#777 id=777 data-nosnippet>777</a>                <span class="comment">// This value cannot be zero
+<a href=#778 id=778 data-nosnippet>778</a>                </span>two = <span class="number">1</span>;
+<a href=#779 id=779 data-nosnippet>779</a>            }
+<a href=#780 id=780 data-nosnippet>780</a>
+<a href=#781 id=781 data-nosnippet>781</a>            FastRand {
+<a href=#782 id=782 data-nosnippet>782</a>                one: Cell::new(one),
+<a href=#783 id=783 data-nosnippet>783</a>                two: Cell::new(two),
+<a href=#784 id=784 data-nosnippet>784</a>            }
+<a href=#785 id=785 data-nosnippet>785</a>        }
+<a href=#786 id=786 data-nosnippet>786</a>
+<a href=#787 id=787 data-nosnippet>787</a>        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fastrand_n(<span class="kw-2">&amp;</span><span class="self">self</span>, n: u32) -&gt; u32 {
+<a href=#788 id=788 data-nosnippet>788</a>            <span class="comment">// This is similar to fastrand() % n, but faster.
+<a href=#789 id=789 data-nosnippet>789</a>            // See https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+<a href=#790 id=790 data-nosnippet>790</a>            </span><span class="kw">let </span>mul = (<span class="self">self</span>.fastrand() <span class="kw">as </span>u64).wrapping_mul(n <span class="kw">as </span>u64);
+<a href=#791 id=791 data-nosnippet>791</a>            (mul &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u32
 <a href=#792 id=792 data-nosnippet>792</a>        }
 <a href=#793 id=793 data-nosnippet>793</a>
-<a href=#794 id=794 data-nosnippet>794</a>        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fastrand_n(<span class="kw-2">&amp;</span><span class="self">self</span>, n: u32) -&gt; u32 {
-<a href=#795 id=795 data-nosnippet>795</a>            <span class="comment">// This is similar to fastrand() % n, but faster.
-<a href=#796 id=796 data-nosnippet>796</a>            // See https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
-<a href=#797 id=797 data-nosnippet>797</a>            </span><span class="kw">let </span>mul = (<span class="self">self</span>.fastrand() <span class="kw">as </span>u64).wrapping_mul(n <span class="kw">as </span>u64);
-<a href=#798 id=798 data-nosnippet>798</a>            (mul &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u32
-<a href=#799 id=799 data-nosnippet>799</a>        }
+<a href=#794 id=794 data-nosnippet>794</a>        <span class="kw">fn </span>fastrand(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+<a href=#795 id=795 data-nosnippet>795</a>            <span class="kw">let </span><span class="kw-2">mut </span>s1 = <span class="self">self</span>.one.get();
+<a href=#796 id=796 data-nosnippet>796</a>            <span class="kw">let </span>s0 = <span class="self">self</span>.two.get();
+<a href=#797 id=797 data-nosnippet>797</a>
+<a href=#798 id=798 data-nosnippet>798</a>            s1 ^= s1 &lt;&lt; <span class="number">17</span>;
+<a href=#799 id=799 data-nosnippet>799</a>            s1 = s1 ^ s0 ^ s1 &gt;&gt; <span class="number">7 </span>^ s0 &gt;&gt; <span class="number">16</span>;
 <a href=#800 id=800 data-nosnippet>800</a>
-<a href=#801 id=801 data-nosnippet>801</a>        <span class="kw">fn </span>fastrand(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
-<a href=#802 id=802 data-nosnippet>802</a>            <span class="kw">let </span><span class="kw-2">mut </span>s1 = <span class="self">self</span>.one.get();
-<a href=#803 id=803 data-nosnippet>803</a>            <span class="kw">let </span>s0 = <span class="self">self</span>.two.get();
-<a href=#804 id=804 data-nosnippet>804</a>
-<a href=#805 id=805 data-nosnippet>805</a>            s1 ^= s1 &lt;&lt; <span class="number">17</span>;
-<a href=#806 id=806 data-nosnippet>806</a>            s1 = s1 ^ s0 ^ s1 &gt;&gt; <span class="number">7 </span>^ s0 &gt;&gt; <span class="number">16</span>;
+<a href=#801 id=801 data-nosnippet>801</a>            <span class="self">self</span>.one.set(s0);
+<a href=#802 id=802 data-nosnippet>802</a>            <span class="self">self</span>.two.set(s1);
+<a href=#803 id=803 data-nosnippet>803</a>
+<a href=#804 id=804 data-nosnippet>804</a>            s0.wrapping_add(s1)
+<a href=#805 id=805 data-nosnippet>805</a>        }
+<a href=#806 id=806 data-nosnippet>806</a>    }
 <a href=#807 id=807 data-nosnippet>807</a>
-<a href=#808 id=808 data-nosnippet>808</a>            <span class="self">self</span>.one.set(s0);
-<a href=#809 id=809 data-nosnippet>809</a>            <span class="self">self</span>.two.set(s1);
-<a href=#810 id=810 data-nosnippet>810</a>
-<a href=#811 id=811 data-nosnippet>811</a>            s0.wrapping_add(s1)
+<a href=#808 id=808 data-nosnippet>808</a>    <span class="comment">// Used by `StreamMap`
+<a href=#809 id=809 data-nosnippet>809</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>thread_rng_n(n: u32) -&gt; u32 {
+<a href=#810 id=810 data-nosnippet>810</a>        <span class="macro">thread_local!</span> {
+<a href=#811 id=811 data-nosnippet>811</a>            <span class="kw">static </span>THREAD_RNG: FastRand = FastRand::new(loom::rand::seed());
 <a href=#812 id=812 data-nosnippet>812</a>        }
-<a href=#813 id=813 data-nosnippet>813</a>    }
-<a href=#814 id=814 data-nosnippet>814</a>
-<a href=#815 id=815 data-nosnippet>815</a>    <span class="comment">// Used by `StreamMap`
-<a href=#816 id=816 data-nosnippet>816</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>thread_rng_n(n: u32) -&gt; u32 {
-<a href=#817 id=817 data-nosnippet>817</a>        <span class="macro">thread_local!</span> {
-<a href=#818 id=818 data-nosnippet>818</a>            <span class="kw">static </span>THREAD_RNG: FastRand = FastRand::new(loom::rand::seed());
-<a href=#819 id=819 data-nosnippet>819</a>        }
-<a href=#820 id=820 data-nosnippet>820</a>
-<a href=#821 id=821 data-nosnippet>821</a>        THREAD_RNG.with(|rng| rng.fastrand_n(n))
-<a href=#822 id=822 data-nosnippet>822</a>    }
-<a href=#823 id=823 data-nosnippet>823</a>}</code></pre></div></section></main></body></html>
+<a href=#813 id=813 data-nosnippet>813</a>
+<a href=#814 id=814 data-nosnippet>814</a>        THREAD_RNG.with(|rng| rng.fastrand_n(n))
+<a href=#815 id=815 data-nosnippet>815</a>    }
+<a href=#816 id=816 data-nosnippet>816</a>}
+</code></pre></div></section></main></body></html>

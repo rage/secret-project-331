@@ -1,9 +1,9 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iri-string-0.7.8/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="iri_string" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">iri_string/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! String types for [RFC 3987 Internationalized Resource Identifiers (IRIs)][RFC 3987] and
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iri-string-0.7.10/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="iri_string" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">iri_string/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! String types for [RFC 3987 Internationalized Resource Identifiers (IRIs)][RFC 3987] and
 <a href=#2 id=2 data-nosnippet>2</a>//! [RFC 3986 Uniform Resource Identifiers (URIs)][RFC 3986].
 <a href=#3 id=3 data-nosnippet>3</a>//!
 <a href=#4 id=4 data-nosnippet>4</a>//! Note that this crate does not have any extra knowledge about protocols.
 <a href=#5 id=5 data-nosnippet>5</a>//! Comparisons between IRI strings by `PartialEq` and `Eq` is implemented as [simple string
-<a href=#6 id=6 data-nosnippet>6</a>//! comparison](https://tools.ietf.org/html/rfc3986#section-6.2.1).
+<a href=#6 id=6 data-nosnippet>6</a>//! comparison](https://www.rfc-editor.org/rfc/rfc3986.html#section-6.2.1).
 <a href=#7 id=7 data-nosnippet>7</a>//! You should implement by yourself or use another crate to use such extra knowledge to compare
 <a href=#8 id=8 data-nosnippet>8</a>//! IRIs / URIs.
 <a href=#9 id=9 data-nosnippet>9</a>//!
@@ -95,13 +95,13 @@
 <a href=#95 id=95 data-nosnippet>95</a>//! &gt; character. When authority is not present, the path cannot begin with two slash characters
 <a href=#96 id=96 data-nosnippet>96</a>//! &gt; ("//").
 <a href=#97 id=97 data-nosnippet>97</a>//! &gt;
-<a href=#98 id=98 data-nosnippet>98</a>//! &gt; --- [RFC 3986, section 3. Syntax Components](https://tools.ietf.org/html/rfc3986#section-3).
+<a href=#98 id=98 data-nosnippet>98</a>//! &gt; --- [RFC 3986, section 3. Syntax Components](https://www.rfc-editor.org/rfc/rfc3986.html#section-3).
 <a href=#99 id=99 data-nosnippet>99</a>//!
 <a href=#100 id=100 data-nosnippet>100</a>//! &gt; If a URI contains an authority component, then the path component must either be empty or
 <a href=#101 id=101 data-nosnippet>101</a>//! &gt; begin with a slash ("/") character. If a URI does not contain an authority component, then the
 <a href=#102 id=102 data-nosnippet>102</a>//! &gt; path cannot begin with two slash characters ("//").
 <a href=#103 id=103 data-nosnippet>103</a>//! &gt;
-<a href=#104 id=104 data-nosnippet>104</a>//! &gt; --- [RFC 3986, section 3.3. Path](https://tools.ietf.org/html/rfc3986#section-3.3)
+<a href=#104 id=104 data-nosnippet>104</a>//! &gt; --- [RFC 3986, section 3.3. Path](https://www.rfc-editor.org/rfc/rfc3986.html#section-3.3)
 <a href=#105 id=105 data-nosnippet>105</a>//!
 <a href=#106 id=106 data-nosnippet>106</a>//! We should interpret them as "if `authority` rule is completely unused (i.e. does not match any
 <a href=#107 id=107 data-nosnippet>107</a>//! strings **including empty string**), path cannot start with `//`".
@@ -129,8 +129,8 @@
 <a href=#129 id=129 data-nosnippet>129</a>//!
 <a href=#130 id=130 data-nosnippet>130</a>//! For details, see the documentation of [`normalize`] module.
 <a href=#131 id=131 data-nosnippet>131</a>//!
-<a href=#132 id=132 data-nosnippet>132</a>//! [RFC 3986]: https://tools.ietf.org/html/rfc3986
-<a href=#133 id=133 data-nosnippet>133</a>//! [RFC 3987]: https://tools.ietf.org/html/rfc3987
+<a href=#132 id=132 data-nosnippet>132</a>//! [RFC 3986]: https://www.rfc-editor.org/rfc/rfc3986.html
+<a href=#133 id=133 data-nosnippet>133</a>//! [RFC 3987]: https://www.rfc-editor.org/rfc/rfc3987.html
 <a href=#134 id=134 data-nosnippet>134</a>//! [`RiReferenceStr::resolve_against()`]: `types::RiReferenceStr::resolve_against`
 <a href=#135 id=135 data-nosnippet>135</a>//! [`RiRelativeStr::resolve_against()`]: `types::RiRelativeStr::resolve_against`
 <a href=#136 id=136 data-nosnippet>136</a></span><span class="attr">#![warn(missing_docs)]
@@ -138,7 +138,7 @@
 <a href=#138 id=138 data-nosnippet>138</a>#![warn(clippy::missing_docs_in_private_items)]
 <a href=#139 id=139 data-nosnippet>139</a>#![warn(clippy::undocumented_unsafe_blocks)]
 <a href=#140 id=140 data-nosnippet>140</a>#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
-<a href=#141 id=141 data-nosnippet>141</a>#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+<a href=#141 id=141 data-nosnippet>141</a>#![cfg_attr(docsrs, feature(doc_cfg))]
 <a href=#142 id=142 data-nosnippet>142</a>
 <a href=#143 id=143 data-nosnippet>143</a>#[cfg(feature = <span class="string">"alloc"</span>)]
 <a href=#144 id=144 data-nosnippet>144</a></span><span class="kw">extern crate </span>alloc;
@@ -156,4 +156,5 @@
 <a href=#156 id=156 data-nosnippet>156</a><span class="kw">pub mod </span>spec;
 <a href=#157 id=157 data-nosnippet>157</a><span class="kw">pub mod </span>template;
 <a href=#158 id=158 data-nosnippet>158</a><span class="kw">pub mod </span>types;
-<a href=#159 id=159 data-nosnippet>159</a><span class="kw">pub mod </span>validate;</code></pre></div></section></main></body></html>
+<a href=#159 id=159 data-nosnippet>159</a><span class="kw">pub mod </span>validate;
+</code></pre></div></section></main></body></html>

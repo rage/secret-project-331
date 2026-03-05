@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/k8s-openapi-0.26.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="k8s_openapi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">k8s_openapi/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![warn(rust_2018_idioms)]
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/k8s-openapi-0.27.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="k8s_openapi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">k8s_openapi/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![warn(rust_2018_idioms)]
 <a href=#2 id=2 data-nosnippet>2</a>#![deny(clippy::all, clippy::pedantic)]
 <a href=#3 id=3 data-nosnippet>3</a>#![allow(
 <a href=#4 id=4 data-nosnippet>4</a>    clippy::default_trait_access,
@@ -27,11 +27,11 @@
 <a href=#27 id=27 data-nosnippet>27</a>//!
 <a href=#28 id=28 data-nosnippet>28</a>//! These docs have been generated with the `
 <a href=#29 id=29 data-nosnippet>29</a>
-<a href=#30 id=30 data-nosnippet>30</a></span><span class="attr">#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.30"</span>, doc = <span class="string">"v1_30"</span>)]
-<a href=#31 id=31 data-nosnippet>31</a>#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.31"</span>, doc = <span class="string">"v1_31"</span>)]
-<a href=#32 id=32 data-nosnippet>32</a>#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.32"</span>, doc = <span class="string">"v1_32"</span>)]
-<a href=#33 id=33 data-nosnippet>33</a>#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.33"</span>, doc = <span class="string">"v1_33"</span>)]
-<a href=#34 id=34 data-nosnippet>34</a>#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.34"</span>, doc = <span class="string">"v1_34"</span>)]
+<a href=#30 id=30 data-nosnippet>30</a></span><span class="attr">#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.31"</span>, doc = <span class="string">"v1_31"</span>)]
+<a href=#31 id=31 data-nosnippet>31</a>#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.32"</span>, doc = <span class="string">"v1_32"</span>)]
+<a href=#32 id=32 data-nosnippet>32</a>#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.33"</span>, doc = <span class="string">"v1_33"</span>)]
+<a href=#33 id=33 data-nosnippet>33</a>#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.34"</span>, doc = <span class="string">"v1_34"</span>)]
+<a href=#34 id=34 data-nosnippet>34</a>#![cfg_attr(k8s_openapi_enabled_version=<span class="string">"1.35"</span>, doc = <span class="string">"v1_35"</span>)]
 <a href=#35 id=35 data-nosnippet>35</a>
 <a href=#36 id=36 data-nosnippet>36</a></span><span class="doccomment">//! ` feature enabled. To see docs for one of the other supported versions, please generate the docs locally with `cargo doc --features 'v1_&lt;&gt;'`
 <a href=#37 id=37 data-nosnippet>37</a>//!
@@ -117,10 +117,10 @@
 <a href=#117 id=117 data-nosnippet>117</a>//!
 <a href=#118 id=118 data-nosnippet>118</a>//! For example:
 <a href=#119 id=119 data-nosnippet>119</a>//!
-<a href=#120 id=120 data-nosnippet>120</a>//! 1. Your crate creates a `PodSecurityContext` and wants to set the `supplemental_groups_policy` field. This field is only available in Kubernetes 1.31+,
+<a href=#120 id=120 data-nosnippet>120</a>//! 1. Your crate creates a `PodSpec` and wants to set the `hostname_override` field. This field is only available in Kubernetes 1.34+,
 <a href=#121 id=121 data-nosnippet>121</a>//!    so you want your crate to fail to compile if a lower feature was enabled.
 <a href=#122 id=122 data-nosnippet>122</a>//!
-<a href=#123 id=123 data-nosnippet>123</a>//! 1. Your crate creates a `PodSecurityContext` and wants to set the `supplemental_groups_policy` field, but it's okay to not set it when compiling for older versions.
+<a href=#123 id=123 data-nosnippet>123</a>//! 1. Your crate creates a `PodSpec` and wants to set the `hostname_override` field, but it's okay to not set it when compiling for older versions.
 <a href=#124 id=124 data-nosnippet>124</a>//!
 <a href=#125 id=125 data-nosnippet>125</a>//! There are two ways for your crate to determine which feature of `k8s-openapi` is enabled:
 <a href=#126 id=126 data-nosnippet>126</a>//!
@@ -129,26 +129,26 @@
 <a href=#129 id=129 data-nosnippet>129</a>//!    With these macros, the two cases above would be solved like this:
 <a href=#130 id=130 data-nosnippet>130</a>//!
 <a href=#131 id=131 data-nosnippet>131</a>//!    - ```rust,ignore
-<a href=#132 id=132 data-nosnippet>132</a>//!      // The compile_error!() is only emitted if 1.30 or lower is selected.
-<a href=#133 id=133 data-nosnippet>133</a>//!      k8s_openapi::k8s_if_le_1_30! {
-<a href=#134 id=134 data-nosnippet>134</a>//!          compile_error!("This crate requires the v1_31 (or higher) feature to be enabled on the k8s-openapi crate.");
+<a href=#132 id=132 data-nosnippet>132</a>//!      // The compile_error!() is only emitted if 1.33 or lower is selected.
+<a href=#133 id=133 data-nosnippet>133</a>//!      k8s_openapi::k8s_if_le_1_33! {
+<a href=#134 id=134 data-nosnippet>134</a>//!          compile_error!("This crate requires the v1_34 (or higher) feature to be enabled on the k8s-openapi crate.");
 <a href=#135 id=135 data-nosnippet>135</a>//!      }
 <a href=#136 id=136 data-nosnippet>136</a>//!
 <a href=#137 id=137 data-nosnippet>137</a>//!      ...
 <a href=#138 id=138 data-nosnippet>138</a>//!
-<a href=#139 id=139 data-nosnippet>139</a>//!      let pod_security_context = k8s_openapi::api::core::v1::PodSecurityContext {
-<a href=#140 id=140 data-nosnippet>140</a>//!          supplemental_groups_policy: ...,
+<a href=#139 id=139 data-nosnippet>139</a>//!      let pod_spec = k8s_openapi::api::core::v1::PodSpec {
+<a href=#140 id=140 data-nosnippet>140</a>//!          hostname_override: ...,
 <a href=#141 id=141 data-nosnippet>141</a>//!          ...
 <a href=#142 id=142 data-nosnippet>142</a>//!      };
 <a href=#143 id=143 data-nosnippet>143</a>//!      ```
 <a href=#144 id=144 data-nosnippet>144</a>//!
 <a href=#145 id=145 data-nosnippet>145</a>//!    - ```rust,ignore
-<a href=#146 id=146 data-nosnippet>146</a>//!      let mut pod_security_context = k8s_openapi::api::core::v1::PodSecurityContext {
+<a href=#146 id=146 data-nosnippet>146</a>//!      let mut pod_spec = k8s_openapi::api::core::v1::PodSpec {
 <a href=#147 id=147 data-nosnippet>147</a>//!          ...
 <a href=#148 id=148 data-nosnippet>148</a>//!      };
 <a href=#149 id=149 data-nosnippet>149</a>//!
 <a href=#150 id=150 data-nosnippet>150</a>//!      k8s_openapi::k8s_if_ge_1_31! {
-<a href=#151 id=151 data-nosnippet>151</a>//!          pod_security_context.supplemental_groups_policy = ...;
+<a href=#151 id=151 data-nosnippet>151</a>//!          pod_spec.hostname_override = ...;
 <a href=#152 id=152 data-nosnippet>152</a>//!      }
 <a href=#153 id=153 data-nosnippet>153</a>//!      ```
 <a href=#154 id=154 data-nosnippet>154</a>//!
@@ -178,12 +178,12 @@
 <a href=#178 id=178 data-nosnippet>178</a>//!        // - MM is the major version.
 <a href=#179 id=179 data-nosnippet>179</a>//!        // - NN is the minor version.
 <a href=#180 id=180 data-nosnippet>180</a>//!        //
-<a href=#181 id=181 data-nosnippet>181</a>//!        // Thus, if the v1_31 feature was enabled, k8s_openapi_version would be 0x00_01_1F_00
+<a href=#181 id=181 data-nosnippet>181</a>//!        // Thus, if the v1_34 feature was enabled, k8s_openapi_version would be 0x00_01_22_00
 <a href=#182 id=182 data-nosnippet>182</a>//!
 <a href=#183 id=183 data-nosnippet>183</a>//!        // The build script can now do arbitrary things with the information.
 <a href=#184 id=184 data-nosnippet>184</a>//!        // For example, it could define custom cfgs:
-<a href=#185 id=185 data-nosnippet>185</a>//!        if k8s_openapi_version &gt;= 0x00_01_1F_00 {
-<a href=#186 id=186 data-nosnippet>186</a>//!            println!(r#"cargo::rustc-cfg=k8s_pod_security_context_supports_supplemental_groups_policy"#);
+<a href=#185 id=185 data-nosnippet>185</a>//!        if k8s_openapi_version &gt;= 0x00_01_22_00 {
+<a href=#186 id=186 data-nosnippet>186</a>//!            println!(r#"cargo::rustc-cfg=k8s_pod_spec_supports_hostname_override"#);
 <a href=#187 id=187 data-nosnippet>187</a>//!        }
 <a href=#188 id=188 data-nosnippet>188</a>//!
 <a href=#189 id=189 data-nosnippet>189</a>//!        // ... or emit new source code files under OUT_DIR, or anything else a build script can do.
@@ -193,22 +193,22 @@
 <a href=#193 id=193 data-nosnippet>193</a>//!    With this cfg, the two cases above would be solved like this:
 <a href=#194 id=194 data-nosnippet>194</a>//!
 <a href=#195 id=195 data-nosnippet>195</a>//!    - ```rust,ignore
-<a href=#196 id=196 data-nosnippet>196</a>//!      // The compile_error!() is only emitted if 1.30 or lower is selected.
-<a href=#197 id=197 data-nosnippet>197</a>//!      #[cfg(not(k8s_pod_security_context_supports_supplemental_groups_policy))]
-<a href=#198 id=198 data-nosnippet>198</a>//!      compile_error!("This crate requires the v1_31 (or higher) feature to be enabled on the k8s-openapi crate.");
+<a href=#196 id=196 data-nosnippet>196</a>//!      // The compile_error!() is only emitted if 1.33 or lower is selected.
+<a href=#197 id=197 data-nosnippet>197</a>//!      #[cfg(not(k8s_pod_spec_supports_hostname_override))]
+<a href=#198 id=198 data-nosnippet>198</a>//!      compile_error!("This crate requires the v1_34 (or higher) feature to be enabled on the k8s-openapi crate.");
 <a href=#199 id=199 data-nosnippet>199</a>//!
 <a href=#200 id=200 data-nosnippet>200</a>//!      ...
 <a href=#201 id=201 data-nosnippet>201</a>//!
-<a href=#202 id=202 data-nosnippet>202</a>//!      let pod_security_context = k8s_openapi::api::core::v1::PodSecurityContext {
-<a href=#203 id=203 data-nosnippet>203</a>//!          supplemental_groups_policy: ...,
+<a href=#202 id=202 data-nosnippet>202</a>//!      let pod_spec = k8s_openapi::api::core::v1::PodSpec {
+<a href=#203 id=203 data-nosnippet>203</a>//!          hostname_override: ...,
 <a href=#204 id=204 data-nosnippet>204</a>//!          ...
 <a href=#205 id=205 data-nosnippet>205</a>//!      };
 <a href=#206 id=206 data-nosnippet>206</a>//!      ```
 <a href=#207 id=207 data-nosnippet>207</a>//!
 <a href=#208 id=208 data-nosnippet>208</a>//!    - ```rust,ignore
-<a href=#209 id=209 data-nosnippet>209</a>//!      let pod_security_context = k8s_openapi::api::core::v1::PodSecurityContext {
-<a href=#210 id=210 data-nosnippet>210</a>//!          #[cfg(not(k8s_pod_security_context_supports_supplemental_groups_policy))]
-<a href=#211 id=211 data-nosnippet>211</a>//!          supplemental_groups_policy: ...,
+<a href=#209 id=209 data-nosnippet>209</a>//!      let pod_spec = k8s_openapi::api::core::v1::PodSpec {
+<a href=#210 id=210 data-nosnippet>210</a>//!          #[cfg(not(k8s_pod_spec_supports_hostname_override))]
+<a href=#211 id=211 data-nosnippet>211</a>//!          hostname_override: ...,
 <a href=#212 id=212 data-nosnippet>212</a>//!          ...
 <a href=#213 id=213 data-nosnippet>213</a>//!      };
 <a href=#214 id=214 data-nosnippet>214</a>//!      ```
@@ -234,7 +234,7 @@
 <a href=#234 id=234 data-nosnippet>234</a><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 <a href=#235 id=235 data-nosnippet>235</a></span><span class="kw">extern crate </span>std;
 <a href=#236 id=236 data-nosnippet>236</a>
-<a href=#237 id=237 data-nosnippet>237</a><span class="kw">pub use </span>chrono;
+<a href=#237 id=237 data-nosnippet>237</a><span class="kw">pub use </span>jiff;
 <a href=#238 id=238 data-nosnippet>238</a><span class="attr">#[cfg(feature = <span class="string">"schemars"</span>)]
 <a href=#239 id=239 data-nosnippet>239</a></span><span class="kw">pub use </span>schemars;
 <a href=#240 id=240 data-nosnippet>240</a><span class="kw">pub use </span>serde;
@@ -259,19 +259,20 @@
 <a href=#259 id=259 data-nosnippet>259</a>    api_version, group, kind, version,
 <a href=#260 id=260 data-nosnippet>260</a>};
 <a href=#261 id=261 data-nosnippet>261</a>
-<a href=#262 id=262 data-nosnippet>262</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.30"</span>)] </span><span class="kw">mod </span>v1_30;
-<a href=#263 id=263 data-nosnippet>263</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.30"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_30::<span class="kw-2">*</span>;
+<a href=#262 id=262 data-nosnippet>262</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.31"</span>)] </span><span class="kw">mod </span>v1_31;
+<a href=#263 id=263 data-nosnippet>263</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.31"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_31::<span class="kw-2">*</span>;
 <a href=#264 id=264 data-nosnippet>264</a>
-<a href=#265 id=265 data-nosnippet>265</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.31"</span>)] </span><span class="kw">mod </span>v1_31;
-<a href=#266 id=266 data-nosnippet>266</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.31"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_31::<span class="kw-2">*</span>;
+<a href=#265 id=265 data-nosnippet>265</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.32"</span>)] </span><span class="kw">mod </span>v1_32;
+<a href=#266 id=266 data-nosnippet>266</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.32"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_32::<span class="kw-2">*</span>;
 <a href=#267 id=267 data-nosnippet>267</a>
-<a href=#268 id=268 data-nosnippet>268</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.32"</span>)] </span><span class="kw">mod </span>v1_32;
-<a href=#269 id=269 data-nosnippet>269</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.32"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_32::<span class="kw-2">*</span>;
+<a href=#268 id=268 data-nosnippet>268</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.33"</span>)] </span><span class="kw">mod </span>v1_33;
+<a href=#269 id=269 data-nosnippet>269</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.33"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_33::<span class="kw-2">*</span>;
 <a href=#270 id=270 data-nosnippet>270</a>
-<a href=#271 id=271 data-nosnippet>271</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.33"</span>)] </span><span class="kw">mod </span>v1_33;
-<a href=#272 id=272 data-nosnippet>272</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.33"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_33::<span class="kw-2">*</span>;
+<a href=#271 id=271 data-nosnippet>271</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.34"</span>)] </span><span class="kw">mod </span>v1_34;
+<a href=#272 id=272 data-nosnippet>272</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.34"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_34::<span class="kw-2">*</span>;
 <a href=#273 id=273 data-nosnippet>273</a>
-<a href=#274 id=274 data-nosnippet>274</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.34"</span>)] </span><span class="kw">mod </span>v1_34;
-<a href=#275 id=275 data-nosnippet>275</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.34"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_34::<span class="kw-2">*</span>;
+<a href=#274 id=274 data-nosnippet>274</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.35"</span>)] </span><span class="kw">mod </span>v1_35;
+<a href=#275 id=275 data-nosnippet>275</a><span class="attr">#[cfg(k8s_openapi_enabled_version=<span class="string">"1.35"</span>)] </span><span class="kw">pub use </span><span class="self">self</span>::v1_35::<span class="kw-2">*</span>;
 <a href=#276 id=276 data-nosnippet>276</a>
-<a href=#277 id=277 data-nosnippet>277</a><span class="macro">include!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">"OUT_DIR"</span>), <span class="string">"/conditional_compilation_macros.rs"</span>));</code></pre></div></section></main></body></html>
+<a href=#277 id=277 data-nosnippet>277</a><span class="macro">include!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">"OUT_DIR"</span>), <span class="string">"/conditional_compilation_macros.rs"</span>));
+</code></pre></div></section></main></body></html>

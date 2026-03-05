@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iri-string-0.7.8/src/parser/trusted.rs`."><title>trusted.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="iri_string" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">iri_string/parser/</div>trusted.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Fast parsers for trusted (already validated) input.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iri-string-0.7.10/src/parser/trusted.rs`."><title>trusted.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="iri_string" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">iri_string/parser/</div>trusted.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Fast parsers for trusted (already validated) input.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! Using this in wrong way will lead to unexpected wrong result.
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -280,23 +280,23 @@
 <a href=#280 id=280 data-nosnippet>280</a>    // &gt; scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 <a href=#281 id=281 data-nosnippet>281</a>    // &gt; ```
 <a href=#282 id=282 data-nosnippet>282</a>    // &gt;
-<a href=#283 id=283 data-nosnippet>283</a>    // &gt; --- [RFC 3986, section 3.1. Scheme](https://tools.ietf.org/html/rfc3986#section-3.1)
+<a href=#283 id=283 data-nosnippet>283</a>    // &gt; --- [RFC 3986, section 3.1. Scheme](https://www.rfc-editor.org/rfc/rfc3986.html#section-3.1)
 <a href=#284 id=284 data-nosnippet>284</a>    //
 <a href=#285 id=285 data-nosnippet>285</a>    // &gt; The authority component is preceded by a double slash ("//") and is terminated by the
 <a href=#286 id=286 data-nosnippet>286</a>    // &gt; next slash ("/"), question mark ("?"), or number sign ("#") character, or by the end
 <a href=#287 id=287 data-nosnippet>287</a>    // &gt; of the URI.
 <a href=#288 id=288 data-nosnippet>288</a>    // &gt;
-<a href=#289 id=289 data-nosnippet>289</a>    // &gt; --- [RFC 3986, section 3.2. Authority](https://tools.ietf.org/html/rfc3986#section-3.2)
+<a href=#289 id=289 data-nosnippet>289</a>    // &gt; --- [RFC 3986, section 3.2. Authority](https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2)
 <a href=#290 id=290 data-nosnippet>290</a>    //
 <a href=#291 id=291 data-nosnippet>291</a>    // &gt; The path is terminated by the first question mark ("?") or number sign ("#")
 <a href=#292 id=292 data-nosnippet>292</a>    // &gt; character, or by the end of the URI.
 <a href=#293 id=293 data-nosnippet>293</a>    // &gt;
-<a href=#294 id=294 data-nosnippet>294</a>    // &gt; --- [RFC 3986, section 3.3. Path](https://tools.ietf.org/html/rfc3986#section-3.3)
+<a href=#294 id=294 data-nosnippet>294</a>    // &gt; --- [RFC 3986, section 3.3. Path](https://www.rfc-editor.org/rfc/rfc3986.html#section-3.3)
 <a href=#295 id=295 data-nosnippet>295</a>    //
 <a href=#296 id=296 data-nosnippet>296</a>    // &gt; The query component is indicated by the first question mark ("?") character and
 <a href=#297 id=297 data-nosnippet>297</a>    // &gt; terminated by a number sign ("#") character or by the end of the URI.
 <a href=#298 id=298 data-nosnippet>298</a>    // &gt;
-<a href=#299 id=299 data-nosnippet>299</a>    // &gt; --- [RFC 3986, section 3.4. Query](https://tools.ietf.org/html/rfc3986#section-3.4)
+<a href=#299 id=299 data-nosnippet>299</a>    // &gt; --- [RFC 3986, section 3.4. Query](https://www.rfc-editor.org/rfc/rfc3986.html#section-3.4)
 <a href=#300 id=300 data-nosnippet>300</a>    </span><span class="kw">match </span>find_split_hole(iri, <span class="string">b'#'</span>) {
 <a href=#301 id=301 data-nosnippet>301</a>        <span class="prelude-val">Some</span>((prefix, fragment)) =&gt; (prefix, <span class="prelude-val">Some</span>(fragment)),
 <a href=#302 id=302 data-nosnippet>302</a>        <span class="prelude-val">None </span>=&gt; (iri, <span class="prelude-val">None</span>),
@@ -457,7 +457,7 @@
 <a href=#457 id=457 data-nosnippet>457</a>        .char_indices()
 <a href=#458 id=458 data-nosnippet>458</a>        .find(|(_i, c)| !c.is_ascii() || <span class="kw-2">*</span>c == <span class="string">'%'</span>)
 <a href=#459 id=459 data-nosnippet>459</a>    {
-<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw">if </span>c != <span class="string">'%' </span>{
+<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw">if </span><span class="macro">c !</span>= <span class="string">'%' </span>{
 <a href=#461 id=461 data-nosnippet>461</a>            <span class="comment">// Non-ASCII character found.
 <a href=#462 id=462 data-nosnippet>462</a>            </span><span class="macro">debug_assert!</span>(!c.is_ascii());
 <a href=#463 id=463 data-nosnippet>463</a>            <span class="kw">return </span><span class="bool-val">false</span>;
@@ -473,4 +473,5 @@
 <a href=#473 id=473 data-nosnippet>473</a>
 <a href=#474 id=474 data-nosnippet>474</a>    <span class="comment">// Neither non-ASCII characters nor percent-encoded characters found.
 <a href=#475 id=475 data-nosnippet>475</a>    </span><span class="bool-val">true
-<a href=#476 id=476 data-nosnippet>476</a></span>}</code></pre></div></section></main></body></html>
+<a href=#476 id=476 data-nosnippet>476</a></span>}
+</code></pre></div></section></main></body></html>

@@ -6,15 +6,15 @@ import { useTranslation } from "react-i18next"
 import type { DynamicImportStatus } from "./dynamicImportStore"
 import { getDynamicImportStatus } from "./dynamicImportStore"
 
-type DynamicImportFallbackModule = { default: ComponentType<unknown> }
+type DynamicImportFallbackModule<P extends object> = { default: ComponentType<P> }
 
 /**
  * Creates a localized fallback component module for a failed dynamic import.
  */
-export const createDynamicImportFallbackModule = (
+export const createDynamicImportFallbackModule = <P extends object = Record<string, never>>(
   id: string,
   initialStatus?: DynamicImportStatus,
-): DynamicImportFallbackModule => {
+): DynamicImportFallbackModule<P> => {
   const status = initialStatus ?? getDynamicImportStatus(id)
   const reason =
     (status && "errorMessage" in status && status.errorMessage) ||
@@ -22,7 +22,7 @@ export const createDynamicImportFallbackModule = (
     (status && "lastErrorMessage" in status && status.lastErrorMessage) ||
     undefined
 
-  const Fallback = () => {
+  const Fallback: ComponentType<P> = () => {
     const { t } = useTranslation()
 
     if (typeof window === "undefined") {

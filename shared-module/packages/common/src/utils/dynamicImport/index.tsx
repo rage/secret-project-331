@@ -77,14 +77,13 @@ export interface DynamicImportDeps {
   logError?: (id: string, message: string, error: unknown) => void
   sleep?: (ms: number) => Promise<void>
   idFactory?: () => string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dynamicFn?: (loader: any, opts: any) => any
+  dynamicFn?: typeof dynamic
 }
 
 const dynamicImport = <P extends object = Record<string, never>>(
   importFn: () => Promise<{ default: ComponentType<P> }>,
   deps: DynamicImportDeps = {},
-) => {
+): ComponentType<P> => {
   const {
     now = () => Date.now(),
     reload = () => {
@@ -282,7 +281,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
     return wrappedImportPromise
   }
 
-  return dynamicFn(wrappedImport, {
+  return dynamicFn<P>(wrappedImport, {
     ssr: false,
     loading: () => <LoadingState debugId={id} />,
   })

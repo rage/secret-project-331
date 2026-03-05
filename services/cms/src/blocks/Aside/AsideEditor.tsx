@@ -11,11 +11,11 @@ import BlockWrapper from "../BlockWrapper"
 
 import { AsideComponentProps } from "."
 
-const AsideEditor: React.FC<React.PropsWithChildren<BlockEditProps<AsideComponentProps>>> = ({
+const AsideEditor = ({
   clientId,
   attributes,
   setAttributes,
-}) => {
+}: BlockEditProps<AsideComponentProps>): JSX.Element => {
   const { t } = useTranslation()
   return (
     <BlockWrapper id={clientId}>

@@ -1,5 +1,6 @@
 import { jest } from "@jest/globals"
 import { ServerResponse } from "http"
+import { WritableStream } from "stream/web"
 import { TextEncoder } from "util"
 import "@testing-library/jest-dom"
 
@@ -18,6 +19,10 @@ global.TransformStream = class TransformStream {
     this.readable = {}
     this.writable = {}
   }
+}
+
+if (!global.WritableStream) {
+  global.WritableStream = WritableStream
 }
 
 global.BroadcastChannel = class BroadcastChannel {

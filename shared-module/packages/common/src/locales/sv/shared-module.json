@@ -35,6 +35,8 @@
   "dialog-title-prompt": "Ange värde",
   "download-csv": "Ladda ner CSV",
   "dropdown-menu": "Rullgardinsmeny",
+  "dynamic-loading-slow-warning": "Inläsningen av en del av applikationen tar längre tid än väntat.",
+  "dynamic-loading-very-slow-warning": "Detta kan bero på nätverksproblem. Om inläsningen inte slutförs snart, ladda om sidan.",
   "editable": "Redigerbar",
   "email": "E-post",
   "email-templates": "E-postmallar",

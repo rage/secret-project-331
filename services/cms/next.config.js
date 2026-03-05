@@ -8,11 +8,8 @@ const normalResponseHeaders = generateNormalResponseHeaders()
  * @type {import('next').NextConfig}
  */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   output: "standalone",
-  outputFileTracingRoot: ".",
+  outputFileTracingRoot: __dirname,
   async headers() {
     return [
       {

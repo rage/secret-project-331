@@ -7,6 +7,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
+
 test("blocks render correctly", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 

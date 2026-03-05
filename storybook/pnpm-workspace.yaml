@@ -4,9 +4,9 @@ managePackageManagerVersions: true
 packageManagerStrictVersion: true
 
 # Make pnpm automatically install the right node version
-useNodeVersion: 22.20.0
+useNodeVersion: 24.14.0
 # Check that packages are compatible with this node version
-nodeVersion: 22.20.0
+nodeVersion: 24.14.0
 # Dont install packages that are not combatibile with the 'nodeVersion'
 engineStrict: true
 # Use pnpm-lock.yaml if we can

@@ -9,16 +9,14 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
-const VerseBlock: React.FC<React.PropsWithChildren<BlockRendererProps<VerseAttributes>>> = ({
-  data,
-}) => {
-  const {
-    content,
-    // className,
-    fontSize,
-    // style,
-    textAlign,
-  } = data.attributes
+interface ExtraAttributes {
+  textAlign?: string
+}
+
+const VerseBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<VerseAttributes & ExtraAttributes>>
+> = ({ data }) => {
+  const { content, fontSize, textAlign } = data.attributes
 
   return (
     <pre

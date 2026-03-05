@@ -1,0 +1,57 @@
+"use client"
+
+import type { ComponentType } from "react"
+import { useTranslation } from "react-i18next"
+
+import type { DynamicImportStatus } from "./dynamicImportStore"
+import { getDynamicImportStatus } from "./dynamicImportStore"
+
+type DynamicImportFallbackModule<P extends object> = { default: ComponentType<P> }
+
+/**
+ * Creates a localized fallback component module for a failed dynamic import.
+ */
+export const createDynamicImportFallbackModule = <P extends object = Record<string, never>>(
+  id: string,
+  initialStatus?: DynamicImportStatus,
+): DynamicImportFallbackModule<P> => {
+  const status = initialStatus ?? getDynamicImportStatus(id)
+  const reason =
+    (status && "errorMessage" in status && status.errorMessage) ||
+    (status && "details" in status && status.details) ||
+    (status && "lastErrorMessage" in status && status.lastErrorMessage) ||
+    undefined
+
+  const Fallback: ComponentType<P> = () => {
+    const { t } = useTranslation()
+
+    if (typeof window === "undefined") {
+      return null
+    }
+
+    return (
+      <div>
+        <p>
+          {t("dynamic-loading-fallback-title", "We were unable to load this part of the page.")}
+        </p>
+        {reason && <p>{t("dynamic-loading-fallback-reason", "Reason: {{reason}}", { reason })}</p>}
+        <button
+          type="button"
+          onClick={() => {
+            if (typeof window.location?.reload === "function") {
+              window.location.reload()
+            }
+          }}
+        >
+          {t("dynamic-loading-reload", "Reload page")}
+        </button>
+      </div>
+    )
+  }
+
+  Fallback.displayName = "DynamicImportFailed"
+
+  return { default: Fallback }
+}
+
+export default createDynamicImportFallbackModule

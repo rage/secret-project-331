@@ -1,8 +1,11 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
+import { BlockSaveProps } from "@wordpress/blocks"
 
-const AsideSave: React.FC<unknown> = () => {
+import { AsideComponentProps } from "."
+
+const AsideSave = (_props: BlockSaveProps<AsideComponentProps>): JSX.Element => {
   return (
     <div>
       <InnerBlocks.Content />

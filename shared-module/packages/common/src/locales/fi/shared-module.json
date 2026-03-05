@@ -36,6 +36,8 @@
   "dialog-title-prompt": "Syötä arvo",
   "download-csv": "Lataa CSV",
   "dropdown-menu": "Pudotusvalikko",
+  "dynamic-loading-slow-warning": "Sovelluksen osan lataaminen kestää odotettua kauemmin.",
+  "dynamic-loading-very-slow-warning": "Tämä saattaa johtua verkko-ongelmista. Jos lataus ei valmistu pian, ole hyvä ja lataa sivu uudelleen.",
   "editable": "Muokattava",
   "email": "Sähköposti",
   "email-templates": "Sähköposti-pohjat",

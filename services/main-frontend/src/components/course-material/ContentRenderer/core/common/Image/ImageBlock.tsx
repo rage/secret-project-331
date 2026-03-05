@@ -31,19 +31,22 @@ const ImageBlock: React.FC<
   const { disableInteractivity } = useImageInteractivity()
   const {
     alt,
-    // blurDataUrl,
-    // linkDestination, // is custom if image link defined manually, can send user out from our web page
     align,
     caption,
     height,
     linkTarget,
-    // sizeSlug,
     title,
     url,
     width,
     aspectRatio,
     scale,
+    focalPoint,
   } = data.attributes
+
+  const focalPointPos =
+    focalPoint && typeof focalPoint.x === "number" && typeof focalPoint.y === "number"
+      ? `${focalPoint.x * 100}% ${focalPoint.y * 100}%`
+      : undefined
 
   const renderImage = () => (
     <>
@@ -57,6 +60,7 @@ const ImageBlock: React.FC<
           margin: 1rem 0;
           ${scale && `transform: scale(${scale});`}
           ${aspectRatio && `aspect-ratio: ${aspectRatio};`}
+          ${focalPointPos && `object-fit: cover; object-position: ${focalPointPos};`}
         `}
         src={url}
         alt={alt}

@@ -8,6 +8,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
+
 test("multiple-choice course material row test", async ({ page, headless }, testInfo) => {
   test.slow()
   // Go to http://project-331.local/

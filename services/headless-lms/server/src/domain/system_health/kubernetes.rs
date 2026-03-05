@@ -125,7 +125,7 @@ pub async fn get_cronjobs(ns: &str) -> Result<Vec<CronJobInfo>> {
                 .status
                 .as_ref()
                 .and_then(|s| s.last_schedule_time.as_ref())
-                .map(|t| t.0.format("%Y-%m-%d %H:%M:%S UTC").to_string());
+                .map(|t| t.0.to_string());
             CronJobInfo {
                 name,
                 schedule,
@@ -229,14 +229,8 @@ pub async fn get_events(ns: &str) -> Result<Vec<EventInfo>> {
             let reason = e.reason.clone();
             let message = e.message.clone();
             let type_ = e.type_.clone();
-            let first_timestamp = e
-                .first_timestamp
-                .as_ref()
-                .map(|t| t.0.format("%Y-%m-%d %H:%M:%S UTC").to_string());
-            let last_timestamp = e
-                .last_timestamp
-                .as_ref()
-                .map(|t| t.0.format("%Y-%m-%d %H:%M:%S UTC").to_string());
+            let first_timestamp = e.first_timestamp.as_ref().map(|t| t.0.to_string());
+            let last_timestamp = e.last_timestamp.as_ref().map(|t| t.0.to_string());
             let count = e.count;
             let involved_object_kind = e.involved_object.kind.clone();
             let involved_object_name = e.involved_object.name.clone();

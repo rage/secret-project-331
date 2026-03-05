@@ -1,4 +1,4 @@
-import { createServer, RequestListener } from "http"
+import { RequestListener } from "http"
 import request from "supertest"
 
 // Type for headers that can be passed to Request constructor
@@ -6,6 +6,7 @@ type HeadersInit = Headers | Record<string, string> | [string, string][]
 
 type AppRouterHandler = (req: Request) => Promise<Response>
 
+/** Creates a SuperTest client for a given app router handler. */
 const appRouterTestClient = (handler: AppRouterHandler) => {
   const listener: RequestListener = async (req, res) => {
     try {
@@ -45,10 +46,10 @@ const appRouterTestClient = (handler: AppRouterHandler) => {
     }
   }
 
-  return request(createServer(listener))
+  return request(listener)
 }
 
-// Helper function to get request body
+/** Reads and returns the full request body as a string. */
 function getBody(req: NodeJS.ReadableStream): Promise<string> {
   return new Promise((resolve, reject) => {
     let body = ""

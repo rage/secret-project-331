@@ -25,7 +25,7 @@ test("User can create and respond to research form in a course", async ({
     await page.getByRole("button", { name: "Create or edit research form" }).click()
     await page.getByRole("button", { name: "create" }).click()
     await page.getByRole("button", { name: "Add block" }).click()
-    await page.getByRole("option", { name: "Heading" }).click()
+    await page.getByRole("option", { name: "Heading", exact: true }).click()
     await page.getByRole("document", { name: "Block: Heading" }).fill("Research form")
     await page.getByRole("combobox", { name: "Toggle view" }).selectOption("block-menu")
     await page.getByRole("option", { name: "Paragraph" }).click()

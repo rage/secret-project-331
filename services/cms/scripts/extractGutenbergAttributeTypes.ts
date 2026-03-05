@@ -6,7 +6,11 @@ import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/type
 import type { JSONSchema } from "json-schema-to-typescript"
 import type { Block } from "@wordpress/blocks"
 import fs from "fs"
+import path from "path"
+import { createRequire } from "module"
 import { compile } from "json-schema-to-typescript"
+
+const require = createRequire(import.meta.url)
 
 // -------- Make the script (node) enviroment to look enough like a browser environment for the operation to succeed --------
 const { JSDOM } = jsdom
@@ -72,14 +76,28 @@ global.MutationObserver = FakeMutationObserver
 
 //** Extract Gutenberg block attribute types */
 async function main() {
+  const elementDir = path.dirname(require.resolve("@wordpress/element/package.json"))
+  const React = require(require.resolve("react", { paths: [elementDir] })) as {
+    isValidElement: (obj: unknown) => boolean
+  }
+  const origIsValidElement = React.isValidElement
+  React.isValidElement = (obj: unknown) =>
+    origIsValidElement(obj) ||
+    (typeof obj === "object" &&
+      obj !== null &&
+      "type" in (obj as object) &&
+      "props" in (obj as object))
+
+  const blockLibraryPath = path.dirname(require.resolve("@wordpress/block-library/package.json"))
+  const tableBlockJSONPath = path.join(blockLibraryPath, "src", "table", "block.json")
+  const tableBlockJSON = JSON.parse(await fs.promises.readFile(tableBlockJSONPath, "utf-8"))
+
   // We do these imports dynamically so that our patches above are applied before the imports are executed. (Normal imports would be hoisted.)
-  const [blocks, { addFilter: _addFilter }, blockLibrary, { default: tableBlockJSON }] =
-    await Promise.all([
-      import("@wordpress/blocks"),
-      import("@wordpress/hooks"),
-      import("@wordpress/block-library"),
-      import("@wordpress/block-library/src/table/block.json"),
-    ])
+  const [blocks, { addFilter: _addFilter }, blockLibrary] = await Promise.all([
+    import("@wordpress/blocks"),
+    import("@wordpress/hooks"),
+    import("@wordpress/block-library"),
+  ])
 
   const {
     modifyEmbedBlockAttributes: _modifyEmbedBlockAttributes,
@@ -239,11 +257,11 @@ import type { StringWithHTML } from "."
 `
 
   await fs.promises.writeFile(
-    "../course-material/types/GutenbergBlockAttributes.ts",
+    "../main-frontend/types/GutenbergBlockAttributes.ts",
     banner + typescriptTypes.join("\n"),
   )
   await fs.promises.writeFile(
-    "../course-material/types/DeprecatedGutenbergBlockAttributes.ts",
+    "../main-frontend/types/DeprecatedGutenbergBlockAttributes.ts",
     banner + deprecatedTypescriptTypes.join("\n"),
   )
   console.info("Done!")

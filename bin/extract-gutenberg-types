@@ -23,7 +23,15 @@ if [ -f "./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard
 fi
 
 run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/GutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
-run_command pnpm exec prettier --write services/main-frontend/types/GutenbergBlockAttributes.ts services/main-frontend/types/GutenbergBlockAttributes.guard.ts
+if [ -f "./services/main-frontend/types/GutenbergBlockAttributes.guard.ts" ]; then
+  run_command pnpm exec prettier --write services/main-frontend/types/GutenbergBlockAttributes.ts services/main-frontend/types/GutenbergBlockAttributes.guard.ts
+else
+  run_command pnpm exec prettier --write services/main-frontend/types/GutenbergBlockAttributes.ts
+fi
 
 run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
-run_command pnpm exec prettier --write services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
+if [ -f "./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts" ]; then
+  run_command pnpm exec prettier --write services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
+else
+  run_command pnpm exec prettier --write services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts
+fi

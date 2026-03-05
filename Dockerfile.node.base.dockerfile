@@ -1,5 +1,5 @@
 # Create a dummy project for installing the right pnpm and node versions
-FROM node:22-bookworm-slim AS dummy-project-builder
+FROM node:24-bookworm-slim AS dummy-project-builder
 
 RUN mkdir -p /tmp/dummy-project
 WORKDIR /tmp/dummy-project
@@ -8,7 +8,7 @@ COPY package.json /tmp/dummy-project/real-package.json
 RUN PNPM_VERSION=$(grep -o '"packageManager": "pnpm@[^"]*"' real-package.json | sed 's/.*pnpm@\([^"]*\).*/\1/') && \
   echo "{\"name\": \"temp\", \"version\": \"1.0.0\", \"packageManager\": \"pnpm@$PNPM_VERSION\"}" > package.json
 
-FROM node:22-bookworm-slim AS node-base
+FROM node:24-bookworm-slim AS node-base
 
 RUN apt-get update \
   && apt-get upgrade -yy \

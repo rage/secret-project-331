@@ -3,15 +3,11 @@
 /**
  * WordPress dependencies
  */
-// This import is needed for bold, italics, ... formatting
-import "@wordpress/format-library"
-
 import "@wordpress/components/build-style/style.css"
 import "@wordpress/block-editor/build-style/style.css"
 import "@wordpress/block-library/build-style/style.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
-import "@wordpress/format-library/build-style/style.css"
 import { css } from "@emotion/css"
 import {
   BlockEditorKeyboardShortcuts,
@@ -20,6 +16,8 @@ import {
   // @ts-expect-error: no type definition
   __experimentalLibrary as BlockLibrary,
   BlockList,
+  // @ts-expect-error: no type definition
+  BlockTools,
   ButtonBlockAppender,
   EditorBlockListSettings,
   EditorSettings,
@@ -30,8 +28,8 @@ import {
   __unstableUseBlockSelectionClearer as useBlockSelectionClearer,
   WritingFlow,
 } from "@wordpress/block-editor"
-// @ts-expect-error: no type definition
-import { BlockTools } from "@wordpress/block-editor/build-module/components/"
+// This import is needed for bold, italics, ... formatting
+import "@wordpress/format-library"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import {
   BlockInstance,

@@ -27,6 +27,8 @@ pub use headless_lms_utils::error::backend_error::BackendError;
 pub use headless_lms_utils::{
     ApplicationConfiguration, cache::Cache, file_store::FileStore, pagination::Pagination,
 };
+pub use rand::Rng;
+pub use rand::RngExt;
 pub use serde::{Deserialize, Serialize};
 pub use sqlx::{Connection, FromRow, PgConnection, PgPool, Pool, Postgres, Type};
 #[cfg(feature = "ts_rs")]

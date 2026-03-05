@@ -26,22 +26,22 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
   await page.locator(`[aria-label="Add default block"]`).click()
   await page
     .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
-    .type(`/heading`)
+    .pressSequentially(`/heading`)
 
-  await page.click(`button[role="option"]:has-text("Heading")`)
-  await page.type(`[aria-label="Block\\:\\ Heading"]`, "Lorem Ipsum Exam")
+  await page.getByRole("option", { name: "Heading", exact: true }).click()
+  await page.getByRole("document", { name: "Block: Heading" }).fill("Lorem Ipsum Exam")
 
-  await page.press('[aria-label="Block\\:\\ Heading"]', "Enter")
+  await page.getByRole("document", { name: "Block: Heading" }).press("Enter")
 
-  await page.type(
-    `[aria-label="Empty block; start writing or type forward slash to choose a block"]`,
-    "These are the instructions",
-  )
-  await page.press(`text=These are the instructions`, "Enter")
-  await page.type(
-    `[aria-label="Empty\\ block\\;\\ start\\ writing\\ or\\ type\\ forward\\ slash\\ to\\ choose\\ a\\ block"]`,
-    "/",
-  )
+  await page
+    .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
+    .fill("These are the instructions")
+  await page.getByText("These are the instructions").press("Enter")
+  await page
+    .locator(
+      `[aria-label="Empty\\ block\\;\\ start\\ writing\\ or\\ type\\ forward\\ slash\\ to\\ choose\\ a\\ block"]`,
+    )
+    .pressSequentially("/")
 
   await page.getByText("List").click()
 

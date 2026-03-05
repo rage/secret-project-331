@@ -135,30 +135,33 @@ macro_rules! insert_data {
         let mut $tx = conn.begin().await;
     };
     (@inner tx: $tx:ident; user: $user:ident) => {
-        let rs = ::rand::Rng::sample_iter(::rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $user =
             $crate::users::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, &format!("{rs}@example.com"), None, None)
                 .await
                 .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident; org: $org:ident) => {
-        let rs = rand::Rng::sample_iter(rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $org =
             $crate::organizations::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, "", &rs, None, false)
                 .await
                 .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident; course: $course: ident) => {
-        let rs = ::rand::Rng::sample_iter(::rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $course = $crate::library::content_management::create_new_course(
             $tx.as_mut(),
             $crate::PKeyPolicy::Generate,

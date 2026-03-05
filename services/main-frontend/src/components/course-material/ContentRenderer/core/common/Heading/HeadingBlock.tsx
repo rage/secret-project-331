@@ -13,19 +13,14 @@ import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import { marginTopHeadingMapper } from "@/styles/course-material/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
-const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingAttributes>>> = ({
-  data,
-}) => {
-  const {
-    content,
-    level,
-    // align,
-    // className,
-    fontSize,
-    // placeholder,
-    // style,
-    textAlign,
-  } = data.attributes
+interface ExtraAttributes {
+  textAlign?: string
+}
+
+const HeadingBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<HeadingAttributes & ExtraAttributes>>
+> = ({ data }) => {
+  const { content, level, fontSize, textAlign, fitText } = data.attributes
 
   const headingProps: DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement> = {
     dangerouslySetInnerHTML: {
@@ -39,7 +34,9 @@ const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingA
         margin-top: ${marginTopHeadingMapper(level)};
         font-weight: 600;
         ${textAlign && `text-align: ${textAlign};`}
-        ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
+        ${fitText &&
+        `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "3rem"});`}
+        ${!fitText && fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
       `,
     ),
   }

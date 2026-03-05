@@ -141,6 +141,8 @@
   "quiz-timeline-name": "Timeline",
   "quiz-title-invalid-format": "Invalid format: check the tags",
   "quiz-type-not-supported": "Quiz type not supported",
+  "quizzes-dynamic-loading-slow-warning": "Loading a part of the application is taking longer than expected.",
+  "quizzes-dynamic-loading-very-slow-warning": "This may be due to network issues. If loading does not finish soon, please reload the page.",
   "regex": "Regex",
   "regular-expression-tester": "Regular expression tester",
   "remove": "Remove",

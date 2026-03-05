@@ -35,6 +35,8 @@
   "dialog-title-prompt": "Enter value",
   "download-csv": "Download CSV",
   "dropdown-menu": "Dropdown menu",
+  "dynamic-loading-slow-warning": "Loading a part of the application is taking longer than expected.",
+  "dynamic-loading-very-slow-warning": "This may be due to network issues. If loading does not finish soon, please reload the page.",
   "editable": "Editable",
   "email": "Email",
   "email-templates": "Email templates",

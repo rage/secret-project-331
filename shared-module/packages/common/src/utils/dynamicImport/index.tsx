@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import { ComponentType } from "react"
 
-import Spinner from "../components/Spinner"
+import LoadingState from "./LoadingState"
 
 /**
  * A utility function for creating dynamically imported components with a loading state.
@@ -23,7 +23,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
 ) =>
   dynamic(importFn, {
     ssr: false,
-    loading: () => <Spinner />,
+    loading: () => <LoadingState />,
   })
 
 export default dynamicImport

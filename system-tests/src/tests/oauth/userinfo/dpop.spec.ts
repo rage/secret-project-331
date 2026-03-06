@@ -2,12 +2,22 @@ import { expect, Page, test } from "@playwright/test"
 
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
-import { USER_EMAIL, USER_PASSWORD, USERINFO } from "../../../utils/oauth/constants"
+import { getOAuthTestUser, USERINFO } from "../../../utils/oauth/constants"
 import { createDPoPKey } from "../../../utils/oauth/dpop"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { callUserInfo, exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const DPOP_USER = getOAuthTestUser("dpop")
 
 test.describe("/userinfo endpoint - DPoP Token Validation", () => {
   async function getDPoPToken(page: Page): Promise<{
@@ -24,7 +34,7 @@ test.describe("/userinfo endpoint - DPoP Token Validation", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, DPOP_USER.email, DPOP_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -37,7 +47,6 @@ test.describe("/userinfo endpoint - DPoP Token Validation", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const key = await createDPoPKey()
     const tok = await exchangeCodeForToken(code, { kind: "dpop", key }, codeVerifier)

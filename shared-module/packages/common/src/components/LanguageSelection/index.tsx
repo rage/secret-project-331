@@ -116,7 +116,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
                 const tagParts = x.tag ? x.tag.split("-") : []
                 const isActive = Boolean(
                   currentLang === x.tag ||
-                    (currentLangParts[0] && tagParts[0] && currentLangParts[0] === tagParts[0]),
+                  (currentLangParts[0] && tagParts[0] && currentLangParts[0] === tagParts[0]),
                 )
                 return (
                   <LanguageOptionComponent

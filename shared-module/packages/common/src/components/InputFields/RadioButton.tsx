@@ -50,8 +50,10 @@ const labelClass = css`
   }
 `
 
-export interface RadioFieldProps
-  extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
+export interface RadioFieldProps extends DetailedHTMLProps<
+  InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+> {
   label: string
 }
 

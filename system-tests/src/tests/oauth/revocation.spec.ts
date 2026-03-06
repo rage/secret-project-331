@@ -4,19 +4,28 @@ import { assertAndExtractCodeFromCallbackUrl } from "../../utils/oauth/callbackH
 import { ConsentPage } from "../../utils/oauth/consentPage"
 import {
   APP_DISPLAY_NAME,
+  getOAuthTestUser,
   REVOKE,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
   TOKEN,
-  USER_EMAIL,
-  USER_PASSWORD,
   USERINFO,
 } from "../../utils/oauth/constants"
 import { performLogin } from "../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../utils/oauth/redirectServer"
 import { revokeToken } from "../../utils/oauth/revokeHelpers"
 import { callUserInfo, exchangeCodeForToken } from "../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const { email: REVOCATION_EMAIL, password: REVOCATION_PASSWORD } = getOAuthTestUser("revocation")
 
 test.describe("Token Revocation (RFC 7009)", () => {
   // Helper to get a valid access token using PKCE
@@ -33,7 +42,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
       // User needs to login
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, REVOCATION_EMAIL, REVOCATION_PASSWORD)
     } catch {
       // User is already logged in, skip login page
       // We might already be on consent page or callback, so continue
@@ -49,8 +58,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
       await consent.approve()
     } catch {
-      // Consent page didn't appear (already granted), wait for callback instead
-      await page.waitForURL(/callback/, { timeout: 10000 })
+      // Consent page didn't appear (already granted)
     }
 
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
@@ -72,7 +80,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
       // User needs to login
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, REVOCATION_EMAIL, REVOCATION_PASSWORD)
     } catch {
       // User is already logged in, skip login page
       // We might already be on consent page or callback, so continue
@@ -88,8 +96,7 @@ test.describe("Token Revocation (RFC 7009)", () => {
       await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
       await consent.approve()
     } catch {
-      // Consent page didn't appear (already granted), wait for callback instead
-      await page.waitForURL(/callback/, { timeout: 10000 })
+      // Consent page didn't appear (already granted)
     }
 
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)

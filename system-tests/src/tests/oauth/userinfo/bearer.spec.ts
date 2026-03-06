@@ -2,12 +2,22 @@ import { expect, Page, test } from "@playwright/test"
 
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
-import { USER_EMAIL, USER_PASSWORD, USERINFO } from "../../../utils/oauth/constants"
+import { getOAuthTestUser, USERINFO } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
+import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { revokeToken } from "../../../utils/oauth/revokeHelpers"
 import { callUserInfo, exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
+
+const BEARER_USER = getOAuthTestUser("bearer")
 
 test.describe("/userinfo endpoint - Bearer Token Validation", () => {
   async function getBearerToken(page: Page): Promise<string> {
@@ -21,7 +31,7 @@ test.describe("/userinfo endpoint - Bearer Token Validation", () => {
 
     try {
       await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, USER_EMAIL, USER_PASSWORD)
+      await performLogin(page, BEARER_USER.email, BEARER_USER.password)
     } catch {
       // Already logged in or consent already granted
     }
@@ -34,7 +44,6 @@ test.describe("/userinfo endpoint - Bearer Token Validation", () => {
       // Already logged in or consent already granted
     }
 
-    await page.waitForURL(/callback/, { timeout: 10000 })
     const code = await assertAndExtractCodeFromCallbackUrl(page, state)
     const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
     return tok.access_token

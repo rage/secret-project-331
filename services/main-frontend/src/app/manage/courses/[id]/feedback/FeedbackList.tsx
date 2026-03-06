@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import FeedbackPage from "./FeedbackPage"
 
 import { fetchFeedbackCount } from "@/services/backend/feedback"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -29,8 +30,18 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />
   }
 
-  if (getFeedbackCount.isLoading || !getFeedbackCount.data) {
+  if (getFeedbackCount.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+
+  if (!getFeedbackCount.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void getFeedbackCount.refetch()
+        }}
+      />
+    )
   }
 
   const items = read ? getFeedbackCount.data.read : getFeedbackCount.data.unread

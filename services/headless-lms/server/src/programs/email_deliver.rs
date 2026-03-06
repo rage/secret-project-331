@@ -1,5 +1,6 @@
 use std::{env, error::Error as StdError, time::Duration};
 
+use crate::prelude::*;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use futures::{FutureExt, StreamExt};
@@ -18,7 +19,6 @@ use lettre::{
     message::{MultiPart, SinglePart, header},
 };
 use once_cell::sync::Lazy;
-use rand::Rng;
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::HashMap;
 use uuid::Uuid;

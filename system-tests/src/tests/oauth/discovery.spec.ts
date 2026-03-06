@@ -9,6 +9,14 @@ import {
   USERINFO,
   WELL_KNOWN,
 } from "../../utils/oauth/constants"
+import { setupRedirectServer, teardownRedirectServer } from "../../utils/oauth/redirectServer"
+
+test.beforeAll(async () => {
+  await setupRedirectServer()
+})
+test.afterAll(async () => {
+  await teardownRedirectServer()
+})
 
 test.describe("OIDC discovery and JWKS", () => {
   test("well-known configuration exposes expected fields and values", async () => {

@@ -36,6 +36,8 @@
   "dialog-title-prompt": "أدخل القيمة",
   "download-csv": "تحميل CSV",
   "dropdown-menu": "قائمة منسدلة",
+  "dynamic-loading-slow-warning": "يستغرق تحميل جزء من التطبيق وقتًا أطول من المتوقع.",
+  "dynamic-loading-very-slow-warning": "قد يكون ذلك بسبب مشكلات في الشبكة. إذا لم يكتمل التحميل قريبًا، يُرجى إعادة تحميل الصفحة.",
   "editable": "قابل للتعديل",
   "email": "البريد الإلكتروني",
   "email-templates": "قوالب البريد الإلكتروني",

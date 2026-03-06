@@ -30,12 +30,6 @@ def create_payload(prompt: str, user_message: str) -> Dict[str, Any]:
             {"role": "system", "content": prompt},
             {"role": "user", "content": user_message},
         ],
-        "temperature": 0.4,
-        "top_p": 1.0,
-        "frequency_penalty": 0.0,
-        "presence_penalty": 0.0,
-        "stop": None,
-        "stream": False,
     }
 
 

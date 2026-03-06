@@ -11,6 +11,7 @@ import useLanguageNavigation from "@/hooks/course-material/language/useLanguageN
 import { useCourseData } from "@/hooks/course-material/useCourseData"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
@@ -69,8 +70,19 @@ const UserOnWrongCourseNotification: React.FC<
     return <ErrorBanner variant={"readOnly"} error={new Error(languageNavError)} />
   }
 
-  if (getCourseById.isLoading || languageNavLoading || !getCourseById.data) {
+  if (getCourseById.isLoading || languageNavLoading) {
     return <Spinner variant={variant === "compact" ? "small" : "medium"} />
+  }
+
+  if (!getCourseById.data) {
+    return (
+      <DataLoadError
+        buttonSize={variant === "compact" ? "small" : "medium"}
+        onRetry={() => {
+          void getCourseById.refetch()
+        }}
+      />
+    )
   }
 
   const courseData = getCourseById.data

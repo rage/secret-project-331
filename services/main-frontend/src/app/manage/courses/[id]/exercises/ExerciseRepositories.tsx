@@ -12,6 +12,7 @@ import {
   getExerciseRepositories,
 } from "@/services/backend/exercise-repositories"
 import Button from "@/shared-module/common/components/Button"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
@@ -55,8 +56,18 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
     return <ErrorBanner error={exerciseRepositories.error} variant={"readOnly"} />
   }
 
-  if (exerciseRepositories.isLoading || !exerciseRepositories.data) {
+  if (exerciseRepositories.isLoading) {
     return <div>{t("loading-text")}</div>
+  }
+
+  if (!exerciseRepositories.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void exerciseRepositories.refetch()
+        }}
+      />
+    )
   }
 
   return (

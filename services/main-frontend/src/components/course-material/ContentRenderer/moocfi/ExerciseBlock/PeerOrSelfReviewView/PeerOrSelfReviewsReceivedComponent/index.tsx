@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next"
 import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 
 import { fetchPeerReviewDataReceivedByExerciseId } from "@/services/course-material/backend"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
@@ -172,8 +173,25 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     return <ErrorBanner variant={"readOnly"} error={peerOrSelfReviewsReceivedQuery.error} />
   }
 
-  if (peerOrSelfReviewsReceivedQuery.isLoading || !peerOrSelfReviewsReceivedQuery.data) {
+  if (peerOrSelfReviewsReceivedQuery.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+
+  if (!peerOrSelfReviewsReceivedQuery.data) {
+    return (
+      <div>
+        <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+        <Button
+          variant={"primary"}
+          size={"medium"}
+          onClick={() => {
+            void peerOrSelfReviewsReceivedQuery.refetch()
+          }}
+        >
+          {t("button-text-try-again")}
+        </Button>
+      </div>
+    )
   }
 
   const numReceivedReviews = (data["peer"]?.length ?? 0) + (data["self"]?.length ?? 0)

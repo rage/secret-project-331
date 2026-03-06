@@ -12,6 +12,7 @@ import StatsHeader from "../../StatsHeader"
 
 import { fetchCourseWeekdayHourSubmissionCounts } from "@/services/backend/courses"
 import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/shared-module/common/bindings"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -79,8 +80,18 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
     return <ErrorBanner variant={"readOnly"} error={getCourseWeekdayHourSubmissionCount.error} />
   }
 
-  if (getCourseWeekdayHourSubmissionCount.isLoading || !getCourseWeekdayHourSubmissionCount.data) {
+  if (getCourseWeekdayHourSubmissionCount.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+
+  if (!getCourseWeekdayHourSubmissionCount.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void getCourseWeekdayHourSubmissionCount.refetch()
+        }}
+      />
+    )
   }
 
   if (getCourseWeekdayHourSubmissionCount.data.apiData.length === 0) {

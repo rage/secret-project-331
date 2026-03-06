@@ -6,6 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchGlossary } from "@/services/course-material/backend"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -26,8 +27,19 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
     return <ErrorBanner variant={"readOnly"} error={glossary.error} />
   }
 
-  if (glossary.isLoading || !glossary.data) {
+  if (glossary.isLoading) {
     return <Spinner variant={"small"} />
+  }
+
+  if (!glossary.data) {
+    return (
+      <DataLoadError
+        buttonSize="small"
+        onRetry={() => {
+          void glossary.refetch()
+        }}
+      />
+    )
   }
 
   return (

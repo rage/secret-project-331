@@ -12,6 +12,7 @@ import CourseInstanceUserInfoBox from "@/app/manage/course-instances/[id]/points
 import CourseModuleCompletionsSection from "@/app/manage/course-instances/[id]/points/user_id/CourseModuleCompletionsSection"
 import ExerciseListSection from "@/app/manage/course-instances/[id]/points/user_id/ExerciseListSection"
 import { useExerciseStatusSummaries } from "@/hooks/useExerciseStatusSummaries"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -28,8 +29,18 @@ const CourseExerciseStatusList: React.FC = () => {
     return <ErrorBanner variant={"readOnly"} error={exerciseStatusSummariesQuery.error} />
   }
 
-  if (exerciseStatusSummariesQuery.isLoading || !exerciseStatusSummariesQuery.data) {
+  if (exerciseStatusSummariesQuery.isLoading) {
     return <Spinner variant="medium" />
+  }
+
+  if (!exerciseStatusSummariesQuery.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void exerciseStatusSummariesQuery.refetch()
+        }}
+      />
+    )
   }
 
   const groupedByChapter = Object.entries(

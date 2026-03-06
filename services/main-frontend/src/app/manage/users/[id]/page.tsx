@@ -13,6 +13,7 @@ import ExerciseResetLogList from "./ExerciseResetLogList"
 import DeletedUserNotice from "@/components/DeletedUserNotice"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
 import { getCourseEnrollmentsInfo } from "@/services/backend/users"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -49,8 +50,18 @@ const UserPage: React.FC = () => {
   if (userDetailsQuery.isError) {
     return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />
   }
-  if (userDetailsQuery.isLoading || !userDetailsQuery.data) {
+  if (userDetailsQuery.isLoading) {
     return <Spinner variant="medium" />
+  }
+
+  if (!userDetailsQuery.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void userDetailsQuery.refetch()
+        }}
+      />
+    )
   }
 
   return (

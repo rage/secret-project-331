@@ -14,6 +14,8 @@ import {
   fetchUserChapterInstanceChapterProgress,
 } from "@/services/course-material/backend"
 import { PageNavigationInformation } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import NextSectionLink, {
   NextSectionLinkProps,
@@ -162,8 +164,17 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   if (getPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
   }
-  if (getPageRoutingData.isLoading || !nextPageProps || !getPageRoutingData.data) {
+  if (getPageRoutingData.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+  if (!nextPageProps || !getPageRoutingData.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void getPageRoutingData.refetch()
+        }}
+      />
+    )
   }
 
   function calculatePercentage(attempted: number, total: number): string {

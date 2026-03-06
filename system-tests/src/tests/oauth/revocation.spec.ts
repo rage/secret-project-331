@@ -21,6 +21,7 @@ import { oauthUrl } from "../../utils/oauth/urlHelpers"
 test.beforeAll(async () => {
   await setupRedirectServer()
 })
+
 test.afterAll(async () => {
   await teardownRedirectServer()
 })

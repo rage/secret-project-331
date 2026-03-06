@@ -52,6 +52,17 @@ pub async fn seed_application_task_llms(
     )
     .await?;
 
+    application_task_default_language_models::insert(
+        &mut conn,
+        ApplicationTaskDefaultLanguageModel {
+            model_id: llm.id,
+            task: ApplicationTask::CmsParagraphSuggestion,
+            context_utilization: 0.75,
+            ..Default::default()
+        },
+    )
+    .await?;
+
     Ok(SeedApplicationLLMsResult {
         llm_default_model_id: llm.id,
         llm_default_model_thinking: llm.thinking,

@@ -128,7 +128,9 @@ const allPlaceholderAbilities: AbilityDefinition<
 /** Registers all editor AI abilities (call once when editor boots). */
 export function registerEditorAiAbilities(): void {
   registerAbility(fixSpellingAbility)
-  allPlaceholderAbilities.forEach((ability) => registerAbility(ability))
+  for (const ability of allPlaceholderAbilities) {
+    registerAbility(ability)
+  }
 }
 
 export { getAbility, executeAbility, registerAbilityCategory } from "./registry"

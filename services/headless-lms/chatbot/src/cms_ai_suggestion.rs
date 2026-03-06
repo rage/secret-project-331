@@ -57,6 +57,7 @@ pub struct CmsParagraphSuggestionInput {
     pub text: String,
     pub meta_tone: Option<String>,
     pub meta_language: Option<String>,
+    pub meta_setting_type: Option<String>,
 }
 
 /// Generate multiple paragraph suggestions for CMS using an LLM with structured JSON output.
@@ -70,6 +71,7 @@ pub async fn generate_paragraph_suggestions(
         text,
         meta_tone,
         meta_language,
+        meta_setting_type,
     } = input;
 
     let mut system_instructions = SYSTEM_PROMPT.to_owned();
@@ -82,6 +84,10 @@ pub async fn generate_paragraph_suggestions(
     if let Some(lang) = meta_language {
         system_instructions.push_str("\nTarget language: ");
         system_instructions.push_str(lang);
+    }
+    if let Some(setting_type) = meta_setting_type {
+        system_instructions.push_str("\nSetting type: ");
+        system_instructions.push_str(setting_type);
     }
 
     let system_message = APIMessage {

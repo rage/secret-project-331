@@ -7,6 +7,10 @@ import type {
 import { isParagraphSuggestionResponse } from "@/shared-module/common/bindings.guard"
 import { validateResponse } from "@/shared-module/common/utils/fetching"
 
+/**
+ * Sends a ParagraphSuggestionRequest to `/ai-suggestions/paragraph` and returns a validated ParagraphSuggestionResponse.
+ * Uses `validateResponse` with `isParagraphSuggestionResponse`; throws on request or validation failures.
+ */
 export async function requestParagraphSuggestions(
   payload: ParagraphSuggestionRequest,
 ): Promise<ParagraphSuggestionResponse> {

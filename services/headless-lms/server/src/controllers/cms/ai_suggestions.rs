@@ -83,7 +83,11 @@ async fn suggest_paragraph(
         text: payload.text.clone(),
         meta_tone: meta.and_then(|m| m.tone.clone()),
         meta_language: meta.and_then(|m| m.language.clone()),
+        meta_setting_type: meta.and_then(|m| m.setting_type.clone()),
     };
+
+    // Return the DB connection to the pool before the LLM call.
+    drop(conn);
 
     let suggestions = headless_lms_chatbot::cms_ai_suggestion::generate_paragraph_suggestions(
         &app_conf,

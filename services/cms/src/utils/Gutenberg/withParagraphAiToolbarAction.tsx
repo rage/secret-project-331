@@ -30,10 +30,28 @@ const SUBMENU_TRANSLATE = "translate" as const
 
 type SubmenuState = AiActionGroupId | typeof SUBMENU_TONE | typeof SUBMENU_TRANSLATE | null
 
+const WP_ADMIN_BORDER_COLOR = "var(--wp-admin-border-color, var(--wp-admin-theme-color-darker-20))"
+const WP_ADMIN_SURFACE_COLOR =
+  "var(--wp-components-color-background, var(--wp-admin-theme-color-darker-20))"
+const WP_ADMIN_ACCENT_COLOR = "var(--wp-admin-theme-color, var(--wp-admin-theme-color-darker-10))"
+const WP_ADMIN_ACCENT_SURFACE_COLOR =
+  "var(--wp-admin-theme-color-darker-20, var(--wp-admin-theme-color))"
+const WP_ADMIN_TEXT_COLOR =
+  "var(--wp-components-color-foreground, var(--wp-admin-theme-color-darker-10))"
+
+interface ParagraphBlockProps {
+  name: string
+  attributes: {
+    content?: string
+    [key: string]: unknown
+  }
+  setAttributes: (attrs: Record<string, unknown>) => void
+  [key: string]: unknown
+}
+
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ParagraphWithAiToolbar = (props: any) => {
+  const ParagraphWithAiToolbar = (props: ParagraphBlockProps) => {
     const { t } = useTranslation()
     const { confirm } = useDialog()
     const [running, setRunning] = useState(false)
@@ -142,9 +160,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                       className={css`
                         min-width: 220px;
                         padding-right: 0.5rem;
-                        border-right: ${hasSubmenu
-                          ? "1px solid var(--wp-admin-border-color, #ddd)"
-                          : "none"};
+                        border-right: ${hasSubmenu ? `1px solid ${WP_ADMIN_BORDER_COLOR}` : "none"};
                       `}
                     >
                       <MenuGroup>
@@ -301,10 +317,11 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                 padding: 0.15rem 0.4rem;
                 border-radius: 2px;
                 border: 1px solid
-                  ${selectedIndex === index
-                    ? "var(--wp-admin-theme-color, #3858e9)"
-                    : "var(--wp-admin-border-color, #ddd)"};
-                background: ${selectedIndex === index ? "rgba(56, 88, 233, 0.08)" : "white"};
+                  ${selectedIndex === index ? WP_ADMIN_ACCENT_COLOR : WP_ADMIN_BORDER_COLOR};
+                background: ${selectedIndex === index
+                  ? WP_ADMIN_ACCENT_SURFACE_COLOR
+                  : WP_ADMIN_SURFACE_COLOR};
+                color: ${WP_ADMIN_TEXT_COLOR};
                 cursor: pointer;
                 font-size: 11px;
               `}
@@ -316,7 +333,9 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
         <p
           className={css`
             white-space: pre-wrap;
-            border: 1px solid #ddd;
+            border: 1px solid ${WP_ADMIN_BORDER_COLOR};
+            background: ${WP_ADMIN_SURFACE_COLOR};
+            color: ${WP_ADMIN_TEXT_COLOR};
             padding: 0.5rem;
             margin: 0;
           `}

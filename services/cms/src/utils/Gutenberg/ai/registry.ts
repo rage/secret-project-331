@@ -1,5 +1,6 @@
 import type { AbilityCategory, AbilityDefinition } from "./types"
 
+/** Reserved for future ability grouping: `registerAbilityCategory` stores `AbilityCategory` metadata here. */
 const categories = new Map<string, AbilityCategory>()
 const abilities = new Map<string, AbilityDefinition<unknown, unknown>>()
 

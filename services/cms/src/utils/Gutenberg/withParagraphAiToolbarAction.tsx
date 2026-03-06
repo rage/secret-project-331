@@ -30,10 +30,13 @@ import {
   AI_TRANSLATE_SUBMENU,
   type AiActionDefinition,
   type AiActionGroupId,
+  type AiActionLabelKey,
+  type AiGroupLabelKey,
 } from "./ai/menu"
 
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const PARAGRAPH_BLOCK_NAME = "core/paragraph"
 
@@ -42,14 +45,9 @@ const SUBMENU_TRANSLATE = "translate" as const
 
 type SubmenuState = AiActionGroupId | typeof SUBMENU_TONE | typeof SUBMENU_TRANSLATE | null
 
-const WP_ADMIN_BORDER_COLOR = "var(--wp-admin-border-color, var(--wp-admin-theme-color-darker-20))"
-const WP_ADMIN_SURFACE_COLOR =
-  "var(--wp-components-color-background, var(--wp-admin-theme-color-darker-20))"
-const WP_ADMIN_ACCENT_COLOR = "var(--wp-admin-theme-color, var(--wp-admin-theme-color-darker-10))"
-const WP_ADMIN_ACCENT_SURFACE_COLOR =
-  "var(--wp-admin-theme-color-darker-20, var(--wp-admin-theme-color))"
-const WP_ADMIN_TEXT_COLOR =
-  "var(--wp-components-color-foreground, var(--wp-admin-theme-color-darker-10))"
+const BORDER_COLOR = baseTheme.colors.gray[200]
+const ACCENT_COLOR = baseTheme.colors.green[600]
+const TEXT_COLOR = baseTheme.colors.gray[700]
 
 interface ParagraphBlockProps {
   name: string
@@ -201,7 +199,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                       className={css`
                         min-width: 220px;
                         padding-right: 0.5rem;
-                        border-right: ${hasSubmenu ? `1px solid ${WP_ADMIN_BORDER_COLOR}` : "none"};
+                        border-right: ${hasSubmenu ? `1px solid ${BORDER_COLOR}` : "none"};
                       `}
                     >
                       <MenuGroup>
@@ -216,7 +214,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                             aria-haspopup="menu"
                             aria-expanded={submenu === group.id}
                           >
-                            {t(group.labelKey as "ai-group-generate")}
+                            {t(group.labelKey as AiGroupLabelKey)}
                           </MenuItem>
                         ))}
                       </MenuGroup>
@@ -248,7 +246,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                           margin-left: 0.5rem;
                         `}
                       >
-                        <MenuGroup label={t(sectionGroup.labelKey as "ai-group-generate")}>
+                        <MenuGroup label={t(sectionGroup.labelKey as AiGroupLabelKey)}>
                           {sectionGroup.actions.map((action) => (
                             <MenuItem
                               key={action.id}
@@ -256,7 +254,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                                 void handleAction(action, onClose)
                               }}
                             >
-                              {t(action.labelKey as "ai-generate-draft-from-notes")}
+                              {t(action.labelKey as AiActionLabelKey)}
                             </MenuItem>
                           ))}
                         </MenuGroup>
@@ -277,7 +275,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                                 void handleAction(action, onClose)
                               }}
                             >
-                              {t(action.labelKey as "ai-tone-academic-formal")}
+                              {t(action.labelKey as AiActionLabelKey)}
                             </MenuItem>
                           ))}
                         </MenuGroup>
@@ -298,7 +296,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                                 void handleAction(action, onClose)
                               }}
                             >
-                              {t(action.labelKey as "ai-translate-english")}
+                              {t(action.labelKey as AiActionLabelKey)}
                             </MenuItem>
                           ))}
                         </MenuGroup>
@@ -324,11 +322,12 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
   const ParagraphAiSuggestionDialog = ({
     originalText,
-    originalHtml,
-    allowedHtmlTagNames,
+    originalHtml: _originalHtml,
+    allowedHtmlTagNames: _allowedHtmlTagNames,
     suggestions,
     onSelectionChange,
   }: ParagraphAiSuggestionDialogProps) => {
+    const { t } = useTranslation()
     const [selectedIndex, setSelectedIndex] = useState(0)
 
     const handleSelect = (index: number) => {
@@ -336,96 +335,72 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
       onSelectionChange?.(index)
     }
 
-    const suggestionText = extractPlainTextFromHtml(suggestions[selectedIndex] ?? "")
-    const diffChanges = diffWords(originalText ?? "", suggestionText)
-
-    let originalPreviewHtml = ""
-    let suggestionPreviewHtml = ""
-    try {
-      originalPreviewHtml = sanitizeParagraphHtml(originalHtml, {
-        allowedTagNames: allowedHtmlTagNames,
-      })
-      suggestionPreviewHtml = sanitizeParagraphHtml(suggestions[selectedIndex] ?? "", {
-        allowedTagNames: allowedHtmlTagNames,
-      })
-    } catch {
-      originalPreviewHtml = ""
-      suggestionPreviewHtml = ""
-    }
+    const hasMultiple = suggestions.length > 1
 
     return (
       <div
         className={css`
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.75rem;
         `}
       >
-        <div
-          className={css`
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.25rem;
-          `}
-        >
-          {suggestions.map((suggestion, index) => (
+        {suggestions.map((suggestion, index) => {
+          const suggestionText = extractPlainTextFromHtml(suggestion)
+          const diffChanges = diffWords(originalText ?? "", suggestionText)
+          const isSelected = selectedIndex === index
+
+          return (
             <button
               key={index}
               type="button"
               onClick={() => handleSelect(index)}
               className={css`
-                padding: 0.15rem 0.4rem;
-                border-radius: 2px;
-                border: 1px solid
-                  ${selectedIndex === index ? WP_ADMIN_ACCENT_COLOR : WP_ADMIN_BORDER_COLOR};
-                background: ${selectedIndex === index
-                  ? WP_ADMIN_ACCENT_SURFACE_COLOR
-                  : WP_ADMIN_SURFACE_COLOR};
-                color: ${WP_ADMIN_TEXT_COLOR};
+                display: block;
+                width: 100%;
+                text-align: left;
+                padding: 0.75rem 1rem;
+                border-radius: 4px;
+                border: 2px solid ${isSelected ? ACCENT_COLOR : BORDER_COLOR};
+                background: #fff;
+                color: inherit;
                 cursor: pointer;
-                font-size: 11px;
+                white-space: pre-wrap;
+                overflow-wrap: break-word;
+                transition:
+                  border-color 0.15s ease,
+                  box-shadow 0.15s ease;
+                &:hover {
+                  border-color: ${isSelected ? ACCENT_COLOR : ACCENT_COLOR};
+                  box-shadow: 0 0 0 1px ${BORDER_COLOR};
+                }
               `}
             >
-              {index + 1}
+              {hasMultiple && (
+                <span
+                  className={css`
+                    display: block;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    margin-bottom: 0.35rem;
+                    color: ${TEXT_COLOR};
+                  `}
+                >
+                  {t("ai-dialog-label-suggestion-n", { number: index + 1 })}
+                </span>
+              )}
+              <p
+                className={css`
+                  margin: 0;
+                  font-size: inherit;
+                  line-height: 1.5;
+                `}
+              >
+                <DiffFormatter changes={diffChanges} dontShowAdded />
+              </p>
             </button>
-          ))}
-        </div>
-        <div
-          className={css`
-            display: flex;
-            gap: 0.5rem;
-          `}
-        >
-          <p
-            className={css`
-              flex: 1;
-              white-space: pre-wrap;
-              border: 1px solid ${WP_ADMIN_BORDER_COLOR};
-              background: ${WP_ADMIN_SURFACE_COLOR};
-              color: ${WP_ADMIN_TEXT_COLOR};
-              padding: 0.5rem;
-              margin: 0;
-            `}
-          >
-            <DiffFormatter changes={diffChanges} />
-          </p>
-          <div
-            className={css`
-              flex: 1;
-              border: 1px solid ${WP_ADMIN_BORDER_COLOR};
-              background: ${WP_ADMIN_SURFACE_COLOR};
-              color: ${WP_ADMIN_TEXT_COLOR};
-              padding: 0.5rem;
-              margin: 0;
-              overflow-wrap: break-word;
-            `}
-          >
-            {}
-            <div
-              dangerouslySetInnerHTML={{ __html: suggestionPreviewHtml || originalPreviewHtml }}
-            />
-          </div>
-        </div>
+          )
+        })}
       </div>
     )
   }

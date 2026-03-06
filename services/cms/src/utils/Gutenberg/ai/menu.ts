@@ -1,9 +1,6 @@
-export type AiActionGroupId =
-  | "generate"
-  | "improve"
-  | "structure"
-  | "learning-support"
-  | "summaries"
+import type { ParagraphSuggestionAction } from "@/shared-module/common/bindings"
+
+export type AiActionGroupId = "improve" | "structure" | "learning-support" | "summaries"
 
 export type AiSubmenuId = "tone" | "translate"
 
@@ -15,7 +12,7 @@ export interface AiActionMeta {
 
 export interface AiActionDefinition {
   id: string
-  abilityName: string
+  abilityName: ParagraphSuggestionAction
   labelKey: string
   group: AiActionGroupId | AiSubmenuId
   meta?: AiActionMeta
@@ -33,37 +30,37 @@ export interface AiSubmenuGroup {
   actions: AiActionDefinition[]
 }
 
+/** Locale keys for group labels; use with t() so types match cms.json. */
+export type AiGroupLabelKey =
+  | "ai-group-improve"
+  | "ai-group-structure"
+  | "ai-group-learning-support"
+  | "ai-group-summaries"
+
+/** Locale keys for action labels; use with t() so types match cms.json. */
+export type AiActionLabelKey =
+  | "ai-improve-fix-spelling-grammar"
+  | "ai-improve-clarity"
+  | "ai-improve-flow"
+  | "ai-improve-concise"
+  | "ai-improve-expand-detail"
+  | "ai-improve-academic-style"
+  | "ai-structure-reorder-sentences"
+  | "ai-learning-simplify-beginners"
+  | "ai-summaries-one-sentence"
+  | "ai-summaries-two-three-sentences"
+  | "ai-summaries-key-takeaway"
+  | "ai-tone-academic-formal"
+  | "ai-tone-friendly-conversational"
+  | "ai-tone-encouraging-supportive"
+  | "ai-tone-neutral-objective"
+  | "ai-tone-confident"
+  | "ai-tone-serious"
+  | "ai-translate-english"
+  | "ai-translate-finnish"
+  | "ai-translate-swedish"
+
 export const AI_ACTIONS: AiActionDefinition[] = [
-  {
-    id: "generate-draft-from-notes",
-    abilityName: "moocfi/ai/generate-draft-from-notes",
-    labelKey: "ai-generate-draft-from-notes",
-    group: "generate",
-  },
-  {
-    id: "generate-continue-paragraph",
-    abilityName: "moocfi/ai/generate-continue-paragraph",
-    labelKey: "ai-generate-continue-paragraph",
-    group: "generate",
-  },
-  {
-    id: "generate-add-example",
-    abilityName: "moocfi/ai/generate-add-example",
-    labelKey: "ai-generate-add-example",
-    group: "generate",
-  },
-  {
-    id: "generate-add-counterpoint",
-    abilityName: "moocfi/ai/generate-add-counterpoint",
-    labelKey: "ai-generate-add-counterpoint",
-    group: "generate",
-  },
-  {
-    id: "generate-add-concluding-sentence",
-    abilityName: "moocfi/ai/generate-add-concluding-sentence",
-    labelKey: "ai-generate-add-concluding-sentence",
-    group: "generate",
-  },
   {
     id: "improve-fix-spelling-grammar",
     abilityName: "moocfi/fix-spelling",
@@ -101,69 +98,15 @@ export const AI_ACTIONS: AiActionDefinition[] = [
     group: "improve",
   },
   {
-    id: "structure-create-topic-sentence",
-    abilityName: "moocfi/ai/structure-create-topic-sentence",
-    labelKey: "ai-structure-create-topic-sentence",
-    group: "structure",
-  },
-  {
     id: "structure-reorder-sentences",
     abilityName: "moocfi/ai/structure-reorder-sentences",
     labelKey: "ai-structure-reorder-sentences",
     group: "structure",
   },
   {
-    id: "structure-split-into-paragraphs",
-    abilityName: "moocfi/ai/structure-split-into-paragraphs",
-    labelKey: "ai-structure-split-into-paragraphs",
-    group: "structure",
-  },
-  {
-    id: "structure-combine-into-one",
-    abilityName: "moocfi/ai/structure-combine-into-one",
-    labelKey: "ai-structure-combine-into-one",
-    group: "structure",
-  },
-  {
-    id: "structure-to-bullets",
-    abilityName: "moocfi/ai/structure-to-bullets",
-    labelKey: "ai-structure-to-bullets",
-    group: "structure",
-  },
-  {
-    id: "structure-from-bullets",
-    abilityName: "moocfi/ai/structure-from-bullets",
-    labelKey: "ai-structure-from-bullets",
-    group: "structure",
-  },
-  {
     id: "learning-simplify-beginners",
     abilityName: "moocfi/ai/learning-simplify-beginners",
     labelKey: "ai-learning-simplify-beginners",
-    group: "learning-support",
-  },
-  {
-    id: "learning-add-definitions",
-    abilityName: "moocfi/ai/learning-add-definitions",
-    labelKey: "ai-learning-add-definitions",
-    group: "learning-support",
-  },
-  {
-    id: "learning-add-analogy",
-    abilityName: "moocfi/ai/learning-add-analogy",
-    labelKey: "ai-learning-add-analogy",
-    group: "learning-support",
-  },
-  {
-    id: "learning-add-practice-question",
-    abilityName: "moocfi/ai/learning-add-practice-question",
-    labelKey: "ai-learning-add-practice-question",
-    group: "learning-support",
-  },
-  {
-    id: "learning-add-check-understanding",
-    abilityName: "moocfi/ai/learning-add-check-understanding",
-    labelKey: "ai-learning-add-check-understanding",
     group: "learning-support",
   },
   {
@@ -187,11 +130,6 @@ export const AI_ACTIONS: AiActionDefinition[] = [
 ]
 
 export const AI_GROUPS: AiMenuGroup[] = [
-  {
-    id: "generate",
-    labelKey: "ai-group-generate",
-    actions: AI_ACTIONS.filter((action) => action.group === "generate"),
-  },
   {
     id: "improve",
     labelKey: "ai-group-improve",

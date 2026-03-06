@@ -4,6 +4,7 @@ import type { AbilityDefinition } from "./types"
 
 import { requestParagraphSuggestions } from "@/services/backend/ai-suggestions"
 import type {
+  ParagraphSuggestionAction,
   ParagraphSuggestionContext,
   ParagraphSuggestionRequest,
 } from "@/shared-module/common/bindings"
@@ -52,7 +53,7 @@ const buildParagraphSuggestionMeta = (
 }
 
 export const buildParagraphSuggestionRequest = (
-  action: string,
+  action: ParagraphSuggestionAction,
   input: ParagraphAbilityInput,
 ): ParagraphSuggestionRequest => ({
   action,
@@ -90,7 +91,7 @@ const fixSpellingAbility: AbilityDefinition<
 }
 
 function createPlaceholderAbility(
-  abilityName: string,
+  abilityName: ParagraphSuggestionAction,
   label: string,
   description: string,
 ): AbilityDefinition<ParagraphAbilityInput, { text: string; suggestions: string[] }> {

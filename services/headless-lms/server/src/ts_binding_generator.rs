@@ -55,6 +55,7 @@ fn models(target: &mut File) {
         chapters::ChapterStatus,
         chapters::ChapterUpdate,
         chapters::ChapterWithStatus,
+        cms_ai::ParagraphSuggestionAction,
         chapters::DatabaseChapter,
         chapters::NewChapter,
         chapters::UserCourseInstanceChapterProgress,

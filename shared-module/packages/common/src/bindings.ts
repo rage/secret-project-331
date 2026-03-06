@@ -2701,6 +2701,30 @@ export interface ServicePortInfo {
   protocol: string | null
 }
 
+export interface ParagraphSuggestionMeta {
+  tone: string | null
+  language: string | null
+  setting_type: string | null
+}
+
+export interface ParagraphSuggestionContext {
+  page_id: string | null
+  course_id: string | null
+  locale: string | null
+}
+
+export interface ParagraphSuggestionRequest {
+  action: string
+  content: string
+  is_html: boolean
+  meta: ParagraphSuggestionMeta | null
+  context: ParagraphSuggestionContext | null
+}
+
+export interface ParagraphSuggestionResponse {
+  suggestions: Array<string>
+}
+
 export type HealthStatus = "healthy" | "warning" | "error"
 
 export interface SystemHealthStatus {

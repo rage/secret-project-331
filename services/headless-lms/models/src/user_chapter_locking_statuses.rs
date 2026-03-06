@@ -565,7 +565,7 @@ mod tests {
 
     #[tokio::test]
     async fn get_or_init_all_for_course_unlocks_first_chapter_when_all_not_unlocked_yet() {
-        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+        insert_data!(:tx, :user, :org, course: course);
 
         let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
             .await

@@ -391,6 +391,19 @@ fn controllers(target: &mut File) {
         };
     }
 
+    // cms
+    {
+        use cms::*;
+        export! {
+            target,
+
+            ai_suggestions::ParagraphSuggestionMeta,
+            ai_suggestions::ParagraphSuggestionContext,
+            ai_suggestions::ParagraphSuggestionRequest,
+            ai_suggestions::ParagraphSuggestionResponse,
+        };
+    }
+
     // domain
     {
         use crate::domain::*;

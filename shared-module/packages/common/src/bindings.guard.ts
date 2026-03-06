@@ -5598,7 +5598,8 @@ export function isParagraphSuggestionRequest(obj: unknown): obj is ParagraphSugg
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typeof typedObj["action"] === "string" &&
-        typeof typedObj["text"] === "string" &&
+        typeof typedObj["content"] === "string" &&
+        typeof typedObj["is_html"] === "boolean" &&
         (typedObj["meta"] === null ||
             isParagraphSuggestionMeta(typedObj["meta"]) as boolean) &&
         (typedObj["context"] === null ||

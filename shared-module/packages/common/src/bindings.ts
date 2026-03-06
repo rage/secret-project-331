@@ -2715,7 +2715,8 @@ export interface ParagraphSuggestionContext {
 
 export interface ParagraphSuggestionRequest {
   action: string
-  text: string
+  content: string
+  is_html: boolean
   meta: ParagraphSuggestionMeta | null
   context: ParagraphSuggestionContext | null
 }

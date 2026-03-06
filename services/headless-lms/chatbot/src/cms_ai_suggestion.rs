@@ -49,12 +49,13 @@ Your output must follow the JSON schema exactly:
 }"#;
 
 /// User prompt prefix; the concrete action and metadata will be appended.
-const USER_PROMPT_PREFIX: &str = "Generate multiple rewritten versions of the paragraph according to the requested action and metadata. Return JSON only.";
+const USER_PROMPT_PREFIX: &str = "Generate multiple rewritten versions of the paragraph according to the requested action and metadata. The paragraph may contain inline HTML markup valid inside a Gutenberg paragraph; preserve existing inline tags (links, emphasis, code, sub/superscripts) where possible, do not introduce block-level elements, and do not add new formatting to spans of text that were previously unformatted. Return JSON only.";
 
 /// Input payload for CMS paragraph suggestions.
 pub struct CmsParagraphSuggestionInput {
     pub action: String,
-    pub text: String,
+    pub content: String,
+    pub is_html: bool,
     pub meta_tone: Option<String>,
     pub meta_language: Option<String>,
     pub meta_setting_type: Option<String>,
@@ -68,7 +69,8 @@ pub async fn generate_paragraph_suggestions(
 ) -> ChatbotResult<Vec<String>> {
     let CmsParagraphSuggestionInput {
         action,
-        text,
+        content,
+        is_html: _,
         meta_tone,
         meta_language,
         meta_setting_type,
@@ -90,29 +92,16 @@ pub async fn generate_paragraph_suggestions(
         system_instructions.push_str(setting_type);
     }
 
-    let system_message = APIMessage {
-        role: MessageRole::System,
-        fields: APIMessageKind::Text(APIMessageText {
-            content: system_instructions,
-        }),
-    };
+    let paragraph_source = content.as_str();
 
     let user_message_content = format!(
-        "{prefix}\n\nOriginal paragraph:\n{paragraph}",
+        "{prefix}\n\nOriginal paragraph (may include inline HTML):\n{paragraph}",
         prefix = USER_PROMPT_PREFIX,
-        paragraph = text
+        paragraph = paragraph_source
     );
 
-    let user_message = APIMessage {
-        role: MessageRole::User,
-        fields: APIMessageKind::Text(APIMessageText {
-            content: user_message_content,
-        }),
-    };
-
-    let used_tokens = estimate_tokens(SYSTEM_PROMPT)
-        + estimate_tokens(USER_PROMPT_PREFIX)
-        + estimate_tokens(text);
+    let used_tokens =
+        estimate_tokens(&system_instructions) + estimate_tokens(&user_message_content);
     let token_budget =
         calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
 
@@ -123,6 +112,20 @@ pub async fn generate_paragraph_suggestions(
             None,
         ));
     }
+
+    let system_message = APIMessage {
+        role: MessageRole::System,
+        fields: APIMessageKind::Text(APIMessageText {
+            content: system_instructions,
+        }),
+    };
+
+    let user_message = APIMessage {
+        role: MessageRole::User,
+        fields: APIMessageKind::Text(APIMessageText {
+            content: user_message_content,
+        }),
+    };
 
     let params = if task_lm.thinking {
         LLMRequestParams::Thinking(ThinkingParams {

@@ -3,16 +3,21 @@ import { registerAbility } from "./registry"
 import type { AbilityDefinition } from "./types"
 
 import { requestParagraphSuggestions } from "@/services/backend/ai-suggestions"
-import type { ParagraphSuggestionRequest } from "@/shared-module/common/bindings"
+import type {
+  ParagraphSuggestionContext,
+  ParagraphSuggestionRequest,
+} from "@/shared-module/common/bindings"
 
 export interface ParagraphAbilityInputMeta {
   tone?: string
   language?: string
   settingType?: string
+  context?: ParagraphSuggestionContext | null
 }
 
 export interface ParagraphAbilityInput {
   text: string
+  isHtml?: boolean
   meta?: ParagraphAbilityInputMeta
 }
 
@@ -20,6 +25,7 @@ const BASE_INPUT_SCHEMA = {
   type: "object",
   properties: {
     text: { type: "string" },
+    isHtml: { type: "boolean" },
     meta: { type: "object" },
   },
   required: ["text"],
@@ -30,6 +36,31 @@ const BASE_OUTPUT_SCHEMA = {
   properties: { text: { type: "string" } },
   required: ["text"],
 }
+
+const buildParagraphSuggestionMeta = (
+  meta?: ParagraphAbilityInputMeta,
+): ParagraphSuggestionRequest["meta"] => {
+  if (!meta) {
+    return null
+  }
+
+  return {
+    tone: meta.tone ?? null,
+    language: meta.language ?? null,
+    setting_type: meta.settingType ?? null,
+  }
+}
+
+export const buildParagraphSuggestionRequest = (
+  action: string,
+  input: ParagraphAbilityInput,
+): ParagraphSuggestionRequest => ({
+  action,
+  content: input.text,
+  is_html: input.isHtml ?? false,
+  meta: buildParagraphSuggestionMeta(input.meta),
+  context: input.meta?.context ?? null,
+})
 
 const fixSpellingAbility: AbilityDefinition<
   ParagraphAbilityInput,
@@ -42,18 +73,7 @@ const fixSpellingAbility: AbilityDefinition<
   input_schema: BASE_INPUT_SCHEMA,
   output_schema: BASE_OUTPUT_SCHEMA,
   callback: async (input) => {
-    const payload: ParagraphSuggestionRequest = {
-      action: "moocfi/fix-spelling",
-      text: input.text,
-      meta: input.meta
-        ? {
-            tone: input.meta.tone ?? null,
-            language: input.meta.language ?? null,
-            setting_type: input.meta.settingType ?? null,
-          }
-        : null,
-      context: null,
-    }
+    const payload = buildParagraphSuggestionRequest("moocfi/fix-spelling", input)
     const response = await requestParagraphSuggestions(payload)
 
     const suggestions = response.suggestions ?? []
@@ -82,18 +102,7 @@ function createPlaceholderAbility(
     input_schema: BASE_INPUT_SCHEMA,
     output_schema: BASE_OUTPUT_SCHEMA,
     callback: async (input) => {
-      const payload: ParagraphSuggestionRequest = {
-        action: abilityName,
-        text: input.text,
-        meta: input.meta
-          ? {
-              tone: input.meta.tone ?? null,
-              language: input.meta.language ?? null,
-              setting_type: input.meta.settingType ?? null,
-            }
-          : null,
-        context: null,
-      }
+      const payload = buildParagraphSuggestionRequest(abilityName, input)
       const response = await requestParagraphSuggestions(payload)
 
       const suggestions = response.suggestions ?? []

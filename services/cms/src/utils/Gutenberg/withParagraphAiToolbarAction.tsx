@@ -8,8 +8,20 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment, useState } from "@wordpress/element"
 import { chevronRight } from "@wordpress/icons"
 import { diffWords } from "diff"
+import { useContext } from "react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
+
+import PageContext from "../../contexts/PageContext"
+import {
+  createParagraphAiSource,
+  extractPlainTextFromHtml,
+  hasMeaningfulParagraphSuggestionChange,
+} from "../Gutenberg/paragraphAiSource"
+import {
+  collectParagraphHtmlTagNames,
+  sanitizeParagraphHtml,
+} from "../Gutenberg/paragraphHtmlSanitizer"
 
 import { executeAbility } from "./ai/abilities"
 import {
@@ -56,29 +68,46 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
     const { confirm } = useDialog()
     const [running, setRunning] = useState(false)
     const [submenu, setSubmenu] = useState<SubmenuState>(null)
+    const pageContext = useContext(PageContext)
 
     if (props.name !== PARAGRAPH_BLOCK_NAME) {
       return <BlockEdit {...props} />
     }
 
     const handleAction = async (action: AiActionDefinition, close: () => void) => {
-      const originalText =
+      const originalHtml =
         typeof props.attributes?.content === "string" ? props.attributes.content : ""
+      const paragraphSource = createParagraphAiSource(originalHtml)
+      const { originalText, requestContent, requestIsHtml } = paragraphSource
+      const allowedHtmlTagNames = collectParagraphHtmlTagNames(originalHtml)
+
+      const paragraphContext =
+        pageContext && "page" in pageContext
+          ? {
+              page_id: pageContext.page.id,
+              course_id: pageContext.page.course_id,
+              locale: null,
+            }
+          : null
 
       setRunning(true)
       try {
         const result = await executeAbility<{ text: string; suggestions?: string[] }>(
           action.abilityName,
           {
-            text: originalText,
-            meta: action.meta,
+            text: requestContent,
+            isHtml: requestIsHtml,
+            meta: {
+              ...action.meta,
+              context: paragraphContext,
+            },
           },
         )
 
         const rawSuggestions =
           result.suggestions && result.suggestions.length > 0
             ? result.suggestions
-            : [result.text ?? originalText]
+            : [result.text ?? requestContent]
 
         const suggestions = rawSuggestions.filter((s) => s.trim().length > 0)
 
@@ -86,7 +115,10 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
           return
         }
 
-        if (suggestions.length === 1 && suggestions[0] === originalText) {
+        if (
+          suggestions.length === 1 &&
+          !hasMeaningfulParagraphSuggestionChange(originalHtml, suggestions[0] ?? "")
+        ) {
           return
         }
 
@@ -95,6 +127,8 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
         const dialogContent = (
           <ParagraphAiSuggestionDialog
             originalText={originalText}
+            originalHtml={originalHtml}
+            allowedHtmlTagNames={allowedHtmlTagNames}
             suggestions={suggestions}
             onSelectionChange={(index) => {
               selectedIndex = index
@@ -108,7 +142,14 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
         if (confirmed) {
           const finalText = suggestions[selectedIndex] ?? suggestions[0]
-          props.setAttributes({ content: finalText })
+          try {
+            const safeHtml = sanitizeParagraphHtml(finalText, {
+              allowedTagNames: allowedHtmlTagNames,
+            })
+            props.setAttributes({ content: safeHtml })
+          } catch {
+            toast.error(t("ai-action-failed"))
+          }
         }
       } catch (_err) {
         toast.error(t("ai-action-failed"))
@@ -275,12 +316,16 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
   interface ParagraphAiSuggestionDialogProps {
     originalText: string
+    originalHtml: string
+    allowedHtmlTagNames: Set<string>
     suggestions: string[]
     onSelectionChange?: (index: number) => void
   }
 
   const ParagraphAiSuggestionDialog = ({
     originalText,
+    originalHtml,
+    allowedHtmlTagNames,
     suggestions,
     onSelectionChange,
   }: ParagraphAiSuggestionDialogProps) => {
@@ -291,7 +336,22 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
       onSelectionChange?.(index)
     }
 
-    const diffChanges = diffWords(originalText ?? "", suggestions[selectedIndex] ?? "")
+    const suggestionText = extractPlainTextFromHtml(suggestions[selectedIndex] ?? "")
+    const diffChanges = diffWords(originalText ?? "", suggestionText)
+
+    let originalPreviewHtml = ""
+    let suggestionPreviewHtml = ""
+    try {
+      originalPreviewHtml = sanitizeParagraphHtml(originalHtml, {
+        allowedTagNames: allowedHtmlTagNames,
+      })
+      suggestionPreviewHtml = sanitizeParagraphHtml(suggestions[selectedIndex] ?? "", {
+        allowedTagNames: allowedHtmlTagNames,
+      })
+    } catch {
+      originalPreviewHtml = ""
+      suggestionPreviewHtml = ""
+    }
 
     return (
       <div
@@ -330,18 +390,42 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
             </button>
           ))}
         </div>
-        <p
+        <div
           className={css`
-            white-space: pre-wrap;
-            border: 1px solid ${WP_ADMIN_BORDER_COLOR};
-            background: ${WP_ADMIN_SURFACE_COLOR};
-            color: ${WP_ADMIN_TEXT_COLOR};
-            padding: 0.5rem;
-            margin: 0;
+            display: flex;
+            gap: 0.5rem;
           `}
         >
-          <DiffFormatter changes={diffChanges} />
-        </p>
+          <p
+            className={css`
+              flex: 1;
+              white-space: pre-wrap;
+              border: 1px solid ${WP_ADMIN_BORDER_COLOR};
+              background: ${WP_ADMIN_SURFACE_COLOR};
+              color: ${WP_ADMIN_TEXT_COLOR};
+              padding: 0.5rem;
+              margin: 0;
+            `}
+          >
+            <DiffFormatter changes={diffChanges} />
+          </p>
+          <div
+            className={css`
+              flex: 1;
+              border: 1px solid ${WP_ADMIN_BORDER_COLOR};
+              background: ${WP_ADMIN_SURFACE_COLOR};
+              color: ${WP_ADMIN_TEXT_COLOR};
+              padding: 0.5rem;
+              margin: 0;
+              overflow-wrap: break-word;
+            `}
+          >
+            {}
+            <div
+              dangerouslySetInnerHTML={{ __html: suggestionPreviewHtml || originalPreviewHtml }}
+            />
+          </div>
+        </div>
       </div>
     )
   }

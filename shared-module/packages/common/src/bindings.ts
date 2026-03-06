@@ -181,6 +181,42 @@ export interface ChapterWithStatus {
   earliest_exercise_deadline_override: string | null
 }
 
+export type ParagraphSuggestionAction =
+  | "moocfi/ai/generate-draft-from-notes"
+  | "moocfi/ai/generate-continue-paragraph"
+  | "moocfi/ai/generate-add-example"
+  | "moocfi/ai/generate-add-counterpoint"
+  | "moocfi/ai/generate-add-concluding-sentence"
+  | "moocfi/fix-spelling"
+  | "moocfi/ai/improve-clarity"
+  | "moocfi/ai/improve-flow"
+  | "moocfi/ai/improve-concise"
+  | "moocfi/ai/improve-expand-detail"
+  | "moocfi/ai/improve-academic-style"
+  | "moocfi/ai/structure-create-topic-sentence"
+  | "moocfi/ai/structure-reorder-sentences"
+  | "moocfi/ai/structure-split-into-paragraphs"
+  | "moocfi/ai/structure-combine-into-one"
+  | "moocfi/ai/structure-to-bullets"
+  | "moocfi/ai/structure-from-bullets"
+  | "moocfi/ai/learning-simplify-beginners"
+  | "moocfi/ai/learning-add-definitions"
+  | "moocfi/ai/learning-add-analogy"
+  | "moocfi/ai/learning-add-practice-question"
+  | "moocfi/ai/learning-add-check-understanding"
+  | "moocfi/ai/summaries-one-sentence"
+  | "moocfi/ai/summaries-two-three-sentences"
+  | "moocfi/ai/summaries-key-takeaway"
+  | "moocfi/ai/tone-academic-formal"
+  | "moocfi/ai/tone-friendly-conversational"
+  | "moocfi/ai/tone-encouraging-supportive"
+  | "moocfi/ai/tone-neutral-objective"
+  | "moocfi/ai/tone-confident"
+  | "moocfi/ai/tone-serious"
+  | "moocfi/ai/translate-english"
+  | "moocfi/ai/translate-finnish"
+  | "moocfi/ai/translate-swedish"
+
 export interface DatabaseChapter {
   id: string
   created_at: string
@@ -2714,7 +2750,7 @@ export interface ParagraphSuggestionContext {
 }
 
 export interface ParagraphSuggestionRequest {
-  action: string
+  action: ParagraphSuggestionAction
   content: string
   is_html: boolean
   meta: ParagraphSuggestionMeta | null

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ALLOWED_PARAGRAPH_ACTIONS"],"fn":["_add_routes","suggest_paragraph"],"struct":["ParagraphSuggestionContext","ParagraphSuggestionMeta","ParagraphSuggestionRequest","ParagraphSuggestionResponse"]};

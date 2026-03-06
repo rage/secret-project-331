@@ -161,6 +161,7 @@ const ExerciseBlock: React.FC<
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const showExercise =
     Boolean(courseMaterialState.examData?.id) ||
+    courseMaterialState.status === "loading" ||
     (loginState.signedIn ? !!courseMaterialState.settings : true)
   const [postThisStateToIFrame, dispatch] = useReducer(
     exerciseBlockPostThisStateToIFrameReducer,
@@ -301,8 +302,26 @@ const ExerciseBlock: React.FC<
   if (getCourseMaterialExercise.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
-  if (getCourseMaterialExercise.isLoading || !getCourseMaterialExercise.data) {
+  if (getCourseMaterialExercise.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+  if (!getCourseMaterialExercise.data) {
+    return (
+      <div>
+        <ErrorBanner
+          variant={"readOnly"}
+          error={t("error-loading-exercise", { defaultValue: "Error loading exercise" })}
+        />
+        <button
+          className={cx(exerciseButtonStyles)}
+          onClick={() => {
+            void getCourseMaterialExercise.refetch()
+          }}
+        >
+          {t("button-text-try-again", { defaultValue: "Try again" })}
+        </button>
+      </div>
+    )
   }
 
   const courseInstanceId = courseMaterialState.instance?.id

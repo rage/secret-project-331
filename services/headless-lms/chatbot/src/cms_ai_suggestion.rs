@@ -110,7 +110,7 @@ pub async fn generate_paragraph_suggestions(
         }),
     };
 
-    let used_tokens = estimate_tokens(&SYSTEM_PROMPT)
+    let used_tokens = estimate_tokens(SYSTEM_PROMPT)
         + estimate_tokens(USER_PROMPT_PREFIX)
         + estimate_tokens(text);
     let token_budget =

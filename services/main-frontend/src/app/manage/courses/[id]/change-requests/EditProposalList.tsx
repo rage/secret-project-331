@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import EditProposalPage from "./EditProposalPage"
 
 import { fetchEditProposalCount } from "@/services/backend/proposedEdits"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -34,8 +35,18 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />
   }
 
-  if (getEditProposalCount.isLoading || !getEditProposalCount.data) {
+  if (getEditProposalCount.isLoading) {
     return <Spinner variant="medium" />
+  }
+
+  if (!getEditProposalCount.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void getEditProposalCount.refetch()
+        }}
+      />
+    )
   }
 
   const items = pending ? getEditProposalCount.data.pending : getEditProposalCount.data.handled

@@ -8,6 +8,7 @@ import FeedbackView from "./FeedbackView"
 
 import { fetchFeedback, markAsRead } from "@/services/backend/feedback"
 import { Feedback } from "@/shared-module/common/bindings"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
@@ -43,8 +44,18 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />
   }
 
-  if (getFeedbackList.isLoading || !getFeedbackList.data) {
+  if (getFeedbackList.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+
+  if (!getFeedbackList.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void getFeedbackList.refetch()
+        }}
+      />
+    )
   }
 
   return (

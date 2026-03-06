@@ -308,17 +308,14 @@ const ExerciseBlock: React.FC<
   if (!getCourseMaterialExercise.data) {
     return (
       <div>
-        <ErrorBanner
-          variant={"readOnly"}
-          error={t("error-loading-exercise", { defaultValue: "Error loading exercise" })}
-        />
+        <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
         <button
           className={cx(exerciseButtonStyles)}
           onClick={() => {
             void getCourseMaterialExercise.refetch()
           }}
         >
-          {t("button-text-try-again", { defaultValue: "Try again" })}
+          {t("button-text-try-again")}
         </button>
       </div>
     )

@@ -13,6 +13,7 @@ import BottomPanel from "@/components/BottomPanel"
 import { submitChanges as submitModuleChanges } from "@/services/backend/course-modules"
 import { fetchCourseStructure } from "@/services/backend/courses"
 import { CompletionPolicy, ModifiedModule, NewModule } from "@/shared-module/common/bindings"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -520,8 +521,20 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
   if (courseStructureQuery.isError) {
     return <ErrorBanner variant={"link"} error={courseStructureQuery.error} />
-  } else if (courseStructureQuery.isLoading || !courseStructureQuery.data) {
+  }
+
+  if (courseStructureQuery.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+
+  if (!courseStructureQuery.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void courseStructureQuery.refetch()
+        }}
+      />
+    )
   }
 
   return (

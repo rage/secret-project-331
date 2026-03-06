@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { isPast } from "date-fns"
 import { useAtomValue, useSetAtom } from "jotai"
-import { useHydrateAtoms } from "jotai/utils"
 import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -66,16 +65,13 @@ export default function ExamPageShell({
     [examId, mode],
   )
 
-  useHydrateAtoms(
-    useMemo(
-      () =>
-        [
-          [organizationSlugAtom, organizationSlug],
-          [viewParamsAtom, viewParams],
-        ] as const,
-      [organizationSlug, viewParams],
-    ),
-  )
+  const setOrganizationSlug = useSetAtom(organizationSlugAtom)
+  const setViewParams = useSetAtom(viewParamsAtom)
+
+  useEffect(() => {
+    setOrganizationSlug(organizationSlug)
+    setViewParams(viewParams)
+  }, [organizationSlug, viewParams, setOrganizationSlug, setViewParams])
 
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const triggerRefetch = useSetAtom(refetchViewAtom)

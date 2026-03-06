@@ -1,44 +1,8 @@
 //! Controllers for requests starting with `/api/v0/cms/ai-suggestions`.
 use headless_lms_models::application_task_default_language_models::{self, ApplicationTask};
+use headless_lms_models::cms_ai::ParagraphSuggestionAction;
 
 use crate::prelude::*;
-
-const ALLOWED_PARAGRAPH_ACTIONS: &[&str] = &[
-    "moocfi/ai/generate-draft-from-notes",
-    "moocfi/ai/generate-continue-paragraph",
-    "moocfi/ai/generate-add-example",
-    "moocfi/ai/generate-add-counterpoint",
-    "moocfi/ai/generate-add-concluding-sentence",
-    "moocfi/fix-spelling",
-    "moocfi/ai/improve-clarity",
-    "moocfi/ai/improve-flow",
-    "moocfi/ai/improve-concise",
-    "moocfi/ai/improve-expand-detail",
-    "moocfi/ai/improve-academic-style",
-    "moocfi/ai/structure-create-topic-sentence",
-    "moocfi/ai/structure-reorder-sentences",
-    "moocfi/ai/structure-split-into-paragraphs",
-    "moocfi/ai/structure-combine-into-one",
-    "moocfi/ai/structure-to-bullets",
-    "moocfi/ai/structure-from-bullets",
-    "moocfi/ai/learning-simplify-beginners",
-    "moocfi/ai/learning-add-definitions",
-    "moocfi/ai/learning-add-analogy",
-    "moocfi/ai/learning-add-practice-question",
-    "moocfi/ai/learning-add-check-understanding",
-    "moocfi/ai/summaries-one-sentence",
-    "moocfi/ai/summaries-two-three-sentences",
-    "moocfi/ai/summaries-key-takeaway",
-    "moocfi/ai/tone-academic-formal",
-    "moocfi/ai/tone-friendly-conversational",
-    "moocfi/ai/tone-encouraging-supportive",
-    "moocfi/ai/tone-neutral-objective",
-    "moocfi/ai/tone-confident",
-    "moocfi/ai/tone-serious",
-    "moocfi/ai/translate-english",
-    "moocfi/ai/translate-finnish",
-    "moocfi/ai/translate-swedish",
-];
 
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -59,7 +23,7 @@ pub struct ParagraphSuggestionContext {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ParagraphSuggestionRequest {
-    pub action: String,
+    pub action: ParagraphSuggestionAction,
     pub content: String,
     pub is_html: bool,
     pub meta: Option<ParagraphSuggestionMeta>,
@@ -97,14 +61,6 @@ async fn suggest_paragraph(
         ));
     }
 
-    if !ALLOWED_PARAGRAPH_ACTIONS.contains(&payload.action.as_str()) {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Unsupported paragraph suggestion action.".to_string(),
-            None,
-        ));
-    }
-
     // Authorize: prefer page-level edit permission when page_id is available,
     // otherwise require that the user can teach at least one course.
     let token = if let Some(ParagraphSuggestionContext {
@@ -125,7 +81,7 @@ async fn suggest_paragraph(
 
     let meta = payload.meta.as_ref();
     let generator_input = headless_lms_chatbot::cms_ai_suggestion::CmsParagraphSuggestionInput {
-        action: payload.action.clone(),
+        action: payload.action,
         content: payload.content.clone(),
         is_html: payload.is_html,
         meta_tone: meta.and_then(|m| m.tone.clone()),

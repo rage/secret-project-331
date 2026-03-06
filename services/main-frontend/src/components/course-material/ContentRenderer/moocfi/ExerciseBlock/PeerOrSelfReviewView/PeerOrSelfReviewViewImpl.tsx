@@ -192,8 +192,24 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   }
 
   // Uses isFetching instead of isPending because we want there to be a visual indication when the refresh button is clicked
-  if (query.isFetching || !query.data) {
+  if (query.isFetching) {
     return <Spinner variant="medium" />
+  }
+
+  if (!query.data) {
+    return (
+      <div>
+        <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+        <button
+          className={cx(exerciseButtonStyles)}
+          onClick={() => {
+            void query.refetch()
+          }}
+        >
+          {t("button-text-try-again")}
+        </button>
+      </div>
+    )
   }
 
   if (!peerOrSelfReviewData?.answer_to_review?.course_material_exercise_tasks) {

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Sign"],"fn":["ascii_to_digit","atoi"],"trait":["FromRadix10","FromRadix10Checked","FromRadix10Signed","FromRadix10SignedChecked","FromRadix16","FromRadix16Checked","MaxNumDigits"]};

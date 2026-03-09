@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["OwnedRef","OwnedRefMut","Pool","Ref","RefMut"]};

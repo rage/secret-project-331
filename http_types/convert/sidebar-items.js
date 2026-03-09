@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"derive":["Deserialize","Serialize"],"macro":["json"],"trait":["Deserialize","DeserializeOwned","Serialize"]};

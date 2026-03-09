@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Rule"],"fn":["child_segment","comp_expr","comparable","filter_atom","function_expr","jp_query","literal","logical_expr","logical_expr_and","parse_json_path","rel_query","segment","segments","selector","singular_query","singular_query_segments","slice_selector","test"],"mod":["errors","model"],"type":["Parsed"]};

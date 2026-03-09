@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["DEFAULT_GC_INTERVAL_SECONDS"],"struct":["Builder","InMemoryBackend"]};

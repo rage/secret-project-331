@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["expand_derive_decode","expand_derive_encode","expand_derive_from_row","expand_derive_type","expand_derive_type_encode_decode"]};

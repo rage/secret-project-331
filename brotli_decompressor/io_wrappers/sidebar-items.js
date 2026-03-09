@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["write_all"],"struct":["IntoIoReader","IntoIoWriter","IoReaderWrapper","IoWriterWrapper"],"trait":["CustomRead","CustomWrite"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Value"],"fn":["from_value","to_raw_value","to_value"],"struct":["Number","RawValue","Serializer"],"trait":["Index"]};

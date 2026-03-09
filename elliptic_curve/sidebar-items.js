@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["ALGORITHM_OID"],"mod":["consts","ecdh","ops","point","scalar","sec1","weierstrass"],"struct":["Error","PublicKey","SecretKey"],"trait":["Curve","CurveArithmetic","Field","FieldBytesEncoding","Group","PrimeCurve","PrimeCurveArithmetic","PrimeField"],"type":["FieldBytes","FieldBytesSize","Result"]};

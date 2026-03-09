@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["built_on","c_flags","dir","number","platform","version"]};

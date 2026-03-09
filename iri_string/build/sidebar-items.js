@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Builder","Built","PortBuilder","UserinfoBuilder"],"trait":["Buildable"]};

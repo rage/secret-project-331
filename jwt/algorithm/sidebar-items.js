@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AlgorithmType"],"mod":["rust_crypto","store"],"trait":["SigningAlgorithm","VerifyingAlgorithm"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ConnectionType","KeepAlive"],"mod":["header","uri"],"struct":["Error","Method","StatusCode","Uri","Version"]};

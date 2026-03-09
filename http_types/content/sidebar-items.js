@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Encoding"],"mod":["accept","accept_encoding","content_encoding"],"struct":["Accept","AcceptEncoding","ContentEncoding","ContentLength","ContentLocation","ContentType","EncodingProposal","MediaTypeProposal"]};

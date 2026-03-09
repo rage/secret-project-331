@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Dispatcher","H2Service","Payload"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Constants","GlyphAssembly","GlyphConstruction","GlyphConstructions","GlyphInfo","GlyphPart","GlyphVariant","Kern","KernInfo","KernInfos","MathValue","MathValues","PartFlags","Table","Variants"]};

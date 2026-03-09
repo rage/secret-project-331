@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ClientId","Extension","MailBodyParameter","MailParameter","RcptParameter"],"struct":["ServerInfo"]};

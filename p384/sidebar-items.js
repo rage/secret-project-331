@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["ecdh","ecdsa"],"struct":["NistP384","Scalar"],"type":["AffinePoint","CompressedPoint","EncodedPoint","FieldBytes","NonZeroScalar","ProjectivePoint","PublicKey","SecretKey","U384","U48"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["SingleSubstitution","SubstitutionSubtable"],"struct":["AlternateSet","AlternateSubstitution","Ligature","LigatureSubstitution","MultipleSubstitution","ReverseChainSingleSubstitution","Sequence"],"type":["AlternateSets","LigatureSet","LigatureSets","SequenceList"]};

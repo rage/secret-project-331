@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["define_preferences","prefs_convert"],"mod":["extensions"],"struct":["LocalePreferences"],"trait":["PreferenceKey"]};

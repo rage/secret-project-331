@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Contract"],"struct":["SchemaGenerator","SchemaSettings"],"trait":["GenTransform"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["TimezoneIdentifiersWindowsV1","WindowsZonesToBcp47Map"]};

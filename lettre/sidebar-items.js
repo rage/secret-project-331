@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["address","error","message","transport"],"struct":["Message"],"trait":["Transport"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["BodySize","EitherBody"],"fn":["to_bytes","to_bytes_limited"],"struct":["BodyLimitExceeded","BodyStream","BoxBody","None","SizedStream"],"trait":["MessageBody"]};

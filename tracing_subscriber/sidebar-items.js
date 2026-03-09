@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["registry"],"mod":["field","filter","fmt","layer","prelude","registry","reload","util"]};

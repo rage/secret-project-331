@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["to_string","to_string_pretty"],"struct":["Error","Serializer","ValueSerializer"]};

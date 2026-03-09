@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["props","provider","script"],"struct":["CodePointMapData","CodePointMapDataBorrowed","CodePointSetData","CodePointSetDataBorrowed","EmojiSetData","EmojiSetDataBorrowed","PropertyNamesLong","PropertyNamesLongBorrowed","PropertyNamesShort","PropertyNamesShortBorrowed","PropertyParser","PropertyParserBorrowed"]};

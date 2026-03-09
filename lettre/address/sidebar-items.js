@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AddressError"],"struct":["Address","Envelope"]};

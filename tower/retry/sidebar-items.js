@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["backoff","budget","future"],"struct":["Retry","RetryLayer"],"trait":["Policy"]};

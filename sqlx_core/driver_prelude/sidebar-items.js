@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Either"],"mod":["hash_map"],"struct":["HashMap"]};

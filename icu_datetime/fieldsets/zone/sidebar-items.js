@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["ExemplarCity","GenericLong","GenericShort","LocalizedOffsetLong","LocalizedOffsetShort","Location","SpecificLong","SpecificShort"]};

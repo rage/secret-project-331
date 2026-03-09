@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["PgCube","PgLQueryLevel","PgLTreeParseError"],"struct":["Oid","PgBox","PgCiText","PgCircle","PgHstore","PgInterval","PgLQuery","PgLQueryVariant","PgLQueryVariantFlag","PgLSeg","PgLTree","PgLTreeLabel","PgLine","PgMoney","PgPath","PgPoint","PgPolygon","PgRange","PgTimeTz"],"trait":["PgHasArrayType"]};

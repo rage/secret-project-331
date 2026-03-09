@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["and","arg","atom","cmp","comparable","filter_","jq","lit","or","q_segment","q_segments","segment","selector","singular_query","slice","test","test_fn"],"mod":["parser","query"],"trait":["JsonPath"]};

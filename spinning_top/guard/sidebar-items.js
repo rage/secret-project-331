@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"type":["BackoffRwSpinlockReadGuard","BackoffRwSpinlockUpgradableReadGuard","BackoffRwSpinlockWriteGuard","BackoffSpinlockGuard","MappedBackoffSpinlockGuard","MappedSpinlockGuard","RwSpinlockReadGuard","RwSpinlockUpgradableReadGuard","RwSpinlockWriteGuard","SpinlockGuard"]};

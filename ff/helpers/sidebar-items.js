@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["sqrt_ratio_generic","sqrt_tonelli_shanks"]};

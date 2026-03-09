@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Day","DayPeriod","DecimalSecond","Error","FieldLength","FieldNumericOverrides","FieldSymbol","Hour","LengthError","Month","Second","SymbolError","TimeZone","Week","Weekday","Year"],"struct":["DayPeriodULE","DayULE","DecimalSecondULE","Field","FieldSymbolULE","FieldULE","HourULE","MonthULE","SecondULE","TimeZoneULE","WeekdayULE","YearULE"]};

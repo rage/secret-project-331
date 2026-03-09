@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["LookupResult"],"externcrate":["gimli"],"fn":["demangle","demangle_auto"],"struct":["Context","Frame","FrameIter","FunctionName","Location","LocationRangeIter","SplitDwarfLoad"],"trait":["LookupContinuation"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["FormattedDateTimeUncheckedError","MissingInputFieldKind"],"struct":["DateTimeInputUnchecked","FormattedDateTimeUnchecked"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["EncapsulatedSecret","HpkeKeyPair","HpkePrivateKey","HpkePublicKey","HpkeSuite"],"trait":["Hpke","HpkeOpener","HpkeSealer"]};

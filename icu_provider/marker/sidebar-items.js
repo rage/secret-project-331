@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_data_provider_never_marker"],"struct":["DataMarkerId","DataMarkerIdHash","ErasedMarker","NeverMarker"],"trait":["DataMarkerExt"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Index16","Index32","Index8","VarZeroSliceIter","VarZeroVecOwned","ZeroSliceIter"],"trait":["VarZeroVecFormat"],"type":["VarZeroSlice16","VarZeroSlice32","VarZeroVec16","VarZeroVec32"]};

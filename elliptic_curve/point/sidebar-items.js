@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["NonIdentity"],"trait":["AffineCoordinates","BatchNormalize","DecompactPoint","DecompressPoint","Double","PointCompaction","PointCompression"],"type":["AffinePoint","ProjectivePoint"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["thumbprint_ec_p256","verifying_key_from_p256_xy"]};

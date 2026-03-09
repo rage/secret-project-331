@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["AuditAnnotation","ExpressionWarning","MatchCondition","MatchResources","NamedRuleWithOperations","ParamKind","ParamRef","TypeChecking","ValidatingAdmissionPolicy","ValidatingAdmissionPolicyBinding","ValidatingAdmissionPolicyBindingSpec","ValidatingAdmissionPolicySpec","ValidatingAdmissionPolicyStatus","Validation","Variable"]};

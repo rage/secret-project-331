@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CompressionCache","CompressionLevel"],"fn":["default_cert_compressors","default_cert_decompressors"],"struct":["CompressionCacheInner","CompressionFailed","DecompressionFailed"],"trait":["CertCompressor","CertDecompressor"]};

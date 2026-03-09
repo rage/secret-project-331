@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["either","empty","fallback","filter","fixed","fork"]};

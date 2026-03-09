@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["VisitPurpose"],"struct":["VarName"],"trait":["AssocVisitor","Context","DynamicContext","ListVisitor","Visitor"]};

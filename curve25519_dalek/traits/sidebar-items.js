@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"trait":["BasepointTable","Identity","IsIdentity","MultiscalarMul","VartimeMultiscalarMul","VartimePrecomputedMultiscalarMul"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["interval","interval_at","sleep","sleep_until","timeout"],"struct":["Instant","Interval","Sleep","Timeout"]};

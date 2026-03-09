@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Service"],"fn":["register"],"struct":["Transport"],"trait":["SmartSubtransport","SmartSubtransportStream"]};

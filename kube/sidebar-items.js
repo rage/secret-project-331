@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"derive":["CustomResource","KubeSchema","Resource"],"enum":["Error"],"mod":["api","client","config","core","discovery","error","prelude","runtime"],"struct":["Api","Client","Config","Discovery"],"trait":["CustomResourceExt","Resource","ResourceExt"],"type":["Result"]};

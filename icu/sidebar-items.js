@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["calendar","casemap","collator","collections","datetime","decimal","list","locale","normalizer","plurals","properties","segmenter","time"]};

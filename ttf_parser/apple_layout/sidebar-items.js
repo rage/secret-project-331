@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["class","state"],"struct":["ExtendedStateTable","GenericStateEntry","Lookup","StateTable","ValueOffset"],"type":["StateEntry"]};

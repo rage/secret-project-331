@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["LineBreakStrictness","LineBreakWordOption","WordType"],"struct":["LineBreakOptions","SentenceBreakInvariantOptions","SentenceBreakOptions","WordBreakInvariantOptions","WordBreakOptions"]};

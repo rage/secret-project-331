@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Baked","CanonicalCompositions","DecompositionData","DecompositionTables","NonRecursiveDecompositionSupplement","NormalizerNfcV1","NormalizerNfdDataV1","NormalizerNfdSupplementV1","NormalizerNfdTablesV1","NormalizerNfkdDataV1","NormalizerNfkdTablesV1","NormalizerUts46DataV1"]};

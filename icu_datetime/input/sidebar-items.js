@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Date","DateTime","Time","TimeZone","TimeZoneInfo","UtcOffset","ZonedDateTime"]};

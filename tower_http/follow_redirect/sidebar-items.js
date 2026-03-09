@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["policy"],"struct":["FollowRedirect","FollowRedirectLayer","RequestUri","ResponseFuture"]};

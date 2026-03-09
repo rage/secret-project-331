@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["aligned_alloc","calloc","free","malloc","malloc_usable_size","posix_memalign","realloc"]};

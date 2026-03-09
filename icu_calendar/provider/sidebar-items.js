@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Baked","CalendarJapaneseExtendedV1","CalendarJapaneseModernV1","CalendarWeekV1","EraStartDate","EraStartDateULE","JapaneseEras","WeekData","WeekdaySet"]};

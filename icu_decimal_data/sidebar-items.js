@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_decimal_digits_v1","impl_decimal_symbols_v1","make_provider"]};

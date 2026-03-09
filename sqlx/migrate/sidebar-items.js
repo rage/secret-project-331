@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["MigrateError","MigrationType"],"fn":["resolve_blocking"],"struct":["AppliedMigration","Migration","Migrator"],"trait":["Migrate","MigrateDatabase","MigrationSource"]};

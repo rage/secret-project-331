@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ASN1Block","ASN1Class","ASN1DecodeErr","ASN1EncodeErr"],"fn":["der_decode","der_encode","from_der","to_der"],"macro":["oid"],"struct":["BigInt","BigUint","OID"],"trait":["FromASN1","FromASN1WithBody","ToASN1"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["TrieResult"],"struct":["Char16Trie","Char16TrieIterator"]};

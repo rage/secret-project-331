@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["iterators","options","provider","scaffold"],"struct":["GraphemeClusterSegmenter","GraphemeClusterSegmenterBorrowed","LineSegmenter","LineSegmenterBorrowed","SentenceSegmenter","SentenceSegmenterBorrowed","WordSegmenter","WordSegmenterBorrowed"]};

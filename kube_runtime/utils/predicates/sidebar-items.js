@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["annotations","finalizers","generation","labels","resource_version"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["LocaleFallbackPriority"],"struct":["LocaleFallbackConfig","LocaleFallbackIterator","LocaleFallbackerBorrowed","LocaleFallbackerWithConfig"]};

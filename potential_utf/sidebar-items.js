@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["PotentialCodePoint","PotentialUtf16","PotentialUtf8"]};

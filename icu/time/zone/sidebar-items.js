@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["TimeZoneVariant"],"mod":["iana","models","windows"],"struct":["IanaParser","IanaParserBorrowed","InvalidOffsetError","TimeZone","TimeZoneInfo","UtcOffset","VariantOffsets","VariantOffsetsCalculator","VariantOffsetsCalculatorBorrowed","WindowsParser","WindowsParserBorrowed","ZoneNameTimestamp"]};

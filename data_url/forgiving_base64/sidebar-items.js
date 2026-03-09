@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["DecodeError"],"fn":["decode_to_vec"],"struct":["Decoder","InvalidBase64"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Default","Identifier","RenameRule","TagType"],"struct":["Container","Field","Name","RenameAllRules","Variant"]};

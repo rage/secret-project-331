@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["sign","verify"],"static":["HMAC_SHA1_FOR_LEGACY_USE_ONLY","HMAC_SHA256","HMAC_SHA384","HMAC_SHA512"],"struct":["Algorithm","Context","Key","Tag"]};

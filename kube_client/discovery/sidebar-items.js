@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Scope"],"mod":["oneshot","verbs"],"struct":["ApiCapabilities","ApiGroup","ApiResource","Discovery"]};

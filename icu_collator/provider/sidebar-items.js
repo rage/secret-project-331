@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Baked","CollationData","CollationDiacritics","CollationDiacriticsV1","CollationJamo","CollationJamoV1","CollationMetadata","CollationMetadataV1","CollationReordering","CollationReorderingV1","CollationRootV1","CollationSpecialPrimaries","CollationSpecialPrimariesV1","CollationTailoringV1"]};

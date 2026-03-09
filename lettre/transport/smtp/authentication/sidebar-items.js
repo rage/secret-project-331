@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["DEFAULT_MECHANISMS"],"enum":["Mechanism"],"struct":["Credentials"]};

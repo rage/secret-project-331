@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["StartError","StartKind"],"mod":["dense","onepass","regex","sparse"],"struct":["OverlappingState"],"trait":["Automaton"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["for_host","never"],"struct":["Builder"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["BASE64_WRAP_WIDTH"],"enum":["Error","LineEnding"],"fn":["decode","decode_label","decode_vec","encapsulated_len","encapsulated_len_wrapped","encode","encode_string","encoded_len"],"struct":["Decoder","Encoder"],"trait":["PemLabel"],"type":["Base64Decoder","Base64Encoder","Result"]};

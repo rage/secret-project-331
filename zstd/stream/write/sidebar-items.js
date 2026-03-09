@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["AutoFinishEncoder","AutoFlushDecoder","Decoder","Encoder"]};

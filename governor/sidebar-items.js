@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["_guide","clock","middleware","nanos","prelude","state"],"struct":["InsufficientCapacity","Jitter","NotUntil","Quota","RateLimiter"],"type":["DefaultDirectRateLimiter","DefaultKeyedRateLimiter"]};

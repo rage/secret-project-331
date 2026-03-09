@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CompressionLevel","LatencyUnit"],"mod":["auth","body","classify","decompression","follow_redirect","map_response_body","services","trace","validate_request"],"trait":["ServiceBuilderExt","ServiceExt"],"type":["BoxError"]};

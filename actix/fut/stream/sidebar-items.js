@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["wrap_stream"],"struct":["Collect","Finish","Fold","Map","SkipWhile","StreamWrap","TakeWhile","Then","Timeout"],"trait":["ActorStream","ActorStreamExt","WrapStream"]};

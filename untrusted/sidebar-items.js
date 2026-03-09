@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["read_all_optional"],"struct":["EndOfInput","Input","Reader"]};

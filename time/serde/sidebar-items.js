@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["format_description"],"mod":["iso8601","rfc2822","rfc3339","timestamp"]};

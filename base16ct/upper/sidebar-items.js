@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["decode","decode_vec","encode","encode_str","encode_string"]};

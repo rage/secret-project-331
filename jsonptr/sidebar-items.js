@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Component","InvalidEncoding","ParseError"],"mod":["assign","delete","diagnostic","index","resolve"],"struct":["Components","EncodingError","Pointer","PointerBuf","Token","Tokens"],"type":["InvalidEncodingError","RichParseError"]};

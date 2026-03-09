@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["arc_make_mut","clone","clone_box","rc_make_mut"],"macro":["clone_trait_object"],"trait":["DynClone"]};

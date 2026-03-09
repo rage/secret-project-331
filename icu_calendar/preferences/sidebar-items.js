@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CalendarAlgorithm","HijriCalendarAlgorithm"],"struct":["CalendarPreferences"]};

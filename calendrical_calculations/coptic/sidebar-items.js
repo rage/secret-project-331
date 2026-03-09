@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["coptic_from_fixed","fixed_from_coptic"]};

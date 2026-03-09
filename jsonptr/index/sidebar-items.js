@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Index","ParseIndexError"],"struct":["InvalidCharacterError","OutOfBoundsError"]};

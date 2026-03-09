@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"static":["DEFAULT_SCOPE_SUFFIX"],"struct":["AccessToken","Secret"],"trait":["TokenCredential"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["DIGEST_LENGTH"],"struct":["Digest","DigestParseError","Sha1"]};

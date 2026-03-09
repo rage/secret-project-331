@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Operand","Operator","RangeListItem"],"struct":["AndCondition","Condition","DecimalValue","Expression","RangeList","Relation","Rule","SampleList","SampleRange","Samples","Value"]};

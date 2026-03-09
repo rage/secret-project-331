@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["ArrayBuf","FixedHeapBuf","GrowingHeapBuf"],"trait":["RealArray","RingBuf"]};

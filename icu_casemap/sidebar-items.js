@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["options","provider"],"struct":["CaseMapCloser","CaseMapCloserBorrowed","CaseMapper","CaseMapperBorrowed","TitlecaseMapper","TitlecaseMapperBorrowed"],"trait":["ClosureSink"]};

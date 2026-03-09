@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Weekday","YearAmbiguity","YearInfo"],"struct":["CyclicYear","DayOfMonth","DayOfWeekInMonth","DayOfYear","EraYear","IsoWeekOfYear","MonthCode","MonthInfo"]};

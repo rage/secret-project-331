@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["ANY","BYTE_STREAM","CSS","FORM","HTML","ICO","JAVASCRIPT","JPEG","JSON","MULTIPART_FORM","PLAIN","PNG","SSE","SVG","WASM","XML"],"struct":["Mime","ParamName","ParamValue"]};

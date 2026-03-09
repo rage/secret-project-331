@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["NotKeyed"],"struct":["RatelimitedSink","RatelimitedStream"],"trait":["DirectStateStore","SinkRateLimitExt","StreamRateLimitExt"]};

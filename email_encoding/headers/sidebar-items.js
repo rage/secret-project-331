@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["quoted_string","rfc2047","rfc2231","writer"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["deserialize_optional_string_or_vec_string","deserialize_space_delimited_vec","deserialize_untagged_enum_case_insensitive","serialize_space_delimited_vec","variant_name"]};

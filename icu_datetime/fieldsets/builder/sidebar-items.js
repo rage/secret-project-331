@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["BuilderError","DateFields","ZoneStyle"],"struct":["FieldSetBuilder"]};

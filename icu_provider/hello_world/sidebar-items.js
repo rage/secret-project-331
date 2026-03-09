@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["FormattedHelloWorld","HelloWorld","HelloWorldFormatter","HelloWorldFormatterPreferences","HelloWorldProvider","HelloWorldV1"]};

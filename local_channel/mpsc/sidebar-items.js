@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["channel"],"struct":["Receiver","SendError","Sender"]};

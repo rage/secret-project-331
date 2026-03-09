@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["BlobItem"],"struct":["BlobPrefix","Blobs","ListBlobsBuilder","ListBlobsResponse"]};

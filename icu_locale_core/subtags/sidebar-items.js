@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["language","region","script","subtag","variant"],"struct":["Language","Region","Script","Subtag","Variant","Variants"]};

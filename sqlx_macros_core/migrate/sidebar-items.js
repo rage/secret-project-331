@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["expand_migrator_from_lit_dir"],"struct":["QuoteMigrationType"]};

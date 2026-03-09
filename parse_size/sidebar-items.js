@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ByteSuffix","Error","UnitSystem"],"fn":["parse_size"],"struct":["Config"]};

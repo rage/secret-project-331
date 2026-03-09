@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Latin1","PotentiallyIllFormedUtf8","Utf16","Utf8"],"trait":["LineBreakType","RuleBreakType","WordBreakType"]};

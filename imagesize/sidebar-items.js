@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Compression","ImageError","ImageType"],"fn":["blob_size","image_type","reader_size","reader_type","size"],"struct":["ImageSize"],"type":["ImageResult"]};

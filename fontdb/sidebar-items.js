@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Family","Language","Source","Stretch","Style"],"struct":["Database","FaceInfo","ID","Query","Weight"]};

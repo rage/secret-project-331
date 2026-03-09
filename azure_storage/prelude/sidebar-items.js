@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["ConsistencyCRC64","ConsistencyMD5"]};

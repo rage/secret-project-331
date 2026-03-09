@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CodePointTrieError","TrieType","Typed"],"mod":["planes","toml"],"struct":["CodePointMapRange","CodePointMapRangeIterator","CodePointTrie","CodePointTrieHeader","FastCodePointTrie","SmallCodePointTrie"],"trait":["TrieValue","TypedCodePointTrie"]};

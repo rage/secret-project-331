@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AxisValueSubtable"],"struct":["AxisRecord","AxisValue","AxisValueFlags","AxisValueSubtableFormat1","AxisValueSubtableFormat2","AxisValueSubtableFormat3","AxisValueSubtableFormat4","AxisValueSubtables","Table"]};

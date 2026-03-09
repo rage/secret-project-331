@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Format"],"struct":["KerningPair","Subtable","Subtable0","Subtable2","Subtable3","Subtables","SubtablesIter","Table"]};

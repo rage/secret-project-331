@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["CrossVersionObjectReference","HorizontalPodAutoscaler","HorizontalPodAutoscalerSpec","HorizontalPodAutoscalerStatus","Scale","ScaleSpec","ScaleStatus"]};

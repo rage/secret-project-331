@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["add_authorization","async_require_authorization","require_authorization"],"struct":["AddAuthorization","AddAuthorizationLayer","AsyncRequireAuthorization","AsyncRequireAuthorizationLayer"],"trait":["AsyncAuthorizeRequest"]};

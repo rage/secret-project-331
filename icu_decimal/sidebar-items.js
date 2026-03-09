@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["input","options","parts","preferences","provider"],"struct":["DecimalFormatter","DecimalFormatterPreferences","FormattedDecimal"]};

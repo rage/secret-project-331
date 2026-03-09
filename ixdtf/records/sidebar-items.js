@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Sign","TimeZoneRecord","UtcOffsetRecord","UtcOffsetRecordOrZ"],"struct":["Annotation","DateRecord","Fraction","FullPrecisionOffset","IxdtfParseRecord","MinutePrecisionOffset","TimeRecord","TimeZoneAnnotation"]};

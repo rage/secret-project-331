@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ZeroTrieBuildError"],"mod":["cursor"],"struct":["ZeroAsciiIgnoreCaseTrie","ZeroTrie","ZeroTrieExtendedCapacity","ZeroTrieIterator","ZeroTriePerfectHash","ZeroTrieSimpleAscii"]};

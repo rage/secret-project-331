@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["env_parser","parser"],"struct":["EnvParser","FnParser"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Decompression","DecompressionBody","DecompressionLayer","RequestDecompression","RequestDecompressionFuture","RequestDecompressionLayer","ResponseFuture"]};

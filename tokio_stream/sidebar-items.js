@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["empty","iter","once","pending"],"mod":["adapters","wrappers"],"struct":["Elapsed","Empty","Iter","Once","Pending","StreamMap","StreamNotifyClose"],"trait":["FromStream","StreamExt"]};

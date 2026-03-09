@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["docs","options","preferences","provider"],"struct":["Collator","CollatorBorrowed","CollatorPreferences"]};

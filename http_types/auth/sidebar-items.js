@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AuthenticationScheme"],"struct":["Authorization","BasicAuth","WwwAuthenticate"]};

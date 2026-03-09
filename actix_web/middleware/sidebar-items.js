@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ErrorHandlerResponse","TrailingSlash"],"fn":["from_fn"],"struct":["Compat","Compress","Condition","DefaultHeaders","ErrorHandlers","Identity","Logger","Next","NormalizePath"]};

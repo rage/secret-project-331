@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ArcUnionBorrow"],"struct":["Arc","ArcBorrow","ArcUnion","HeaderSlice","HeaderSliceWithLengthProtected","HeaderWithLength","OffsetArc","ThinArc","UniqueArc"]};

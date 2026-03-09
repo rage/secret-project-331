@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["glob","glob_with"],"struct":["GlobError","MatchOptions","Paths","Pattern","PatternError"],"type":["GlobResult"]};

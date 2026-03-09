@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ListMerge","MapMerge","MergeStrategy","Message","Reason","StructMerge"],"fn":["merge_properties","merge_strategy","merge_strategy_property","validate","validate_property"],"struct":["Rule"]};

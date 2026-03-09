@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Debug","DelimitedBy","Foldl","Foldr","Label","Map","MapErr","MapErrWithSpan","MapWithSpan","Not","Or","OrElse","OrNot","Repeated","Rewind","SeparatedBy","Then","ThenWith","To","TryMap","Unwrapped","Validate"],"type":["IgnoreThen","Ignored","ThenIgnore"]};

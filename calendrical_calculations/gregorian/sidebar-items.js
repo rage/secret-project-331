@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["DAYS_IN_400_YEAR_CYCLE"],"fn":["day_before_year","days_before_month","easter","fixed_from_gregorian","gregorian_from_fixed","is_leap_year","year_day","year_from_fixed"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["append_blob","blob","block_blob","container","models","page_blob","service"],"static":["DEFAULT_ENDPOINT"],"struct":["Client","ClientBuilder"]};

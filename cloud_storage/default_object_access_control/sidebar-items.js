@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Entity","Role"],"struct":["DefaultObjectAccessControl","NewDefaultObjectAccessControl","ProjectTeam"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Label","Report"],"trait":["Diagnose","Diagnostic"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["IDAT","IEND","IHDR","PLTE","acTL","bKGD","cHRM","cICP","cLLI","eXIf","fcTL","fdAT","gAMA","iCCP","iTXt","mDCV","pHYs","sBIT","sRGB","tEXt","tIME","tRNS","zTXt"],"fn":["is_critical","is_private","reserved_set","safe_to_copy"],"struct":["ChunkType"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["BucketAccessControlClient","BucketClient","Client","DefaultObjectAccessControlClient","HmacKeyClient","ObjectAccessControlClient","ObjectClient"]};

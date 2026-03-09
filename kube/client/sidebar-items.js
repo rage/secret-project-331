@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AuthError","RustlsTlsError"],"mod":["middleware","retry"],"struct":["APIGroupDiscovery","APIGroupDiscoveryList","APIResourceDiscovery","APISubresourceDiscovery","APIVersionDiscovery","Body","Client","ClientBuilder","DiscoveryGroupVersionKind"],"trait":["ConfigExt"],"type":["DynBody"]};

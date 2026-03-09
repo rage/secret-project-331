@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Baked","ConditionalListJoinerPattern","ListAndV1","ListFormatterPatterns","ListJoinerPattern","ListOrV1","ListUnitV1","SerdeDFA","SpecialCasePattern"]};

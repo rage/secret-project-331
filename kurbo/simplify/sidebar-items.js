@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["SimplifyOptLevel"],"fn":["simplify_bezpath"],"struct":["SimplifyBezPath","SimplifyOptions"]};

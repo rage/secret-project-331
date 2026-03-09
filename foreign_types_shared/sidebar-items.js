@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Opaque"],"trait":["ForeignType","ForeignTypeRef"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Frame","Vp8Decoder"]};

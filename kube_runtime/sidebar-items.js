@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["controller","events","finalizer","reflector","scheduler","utils","wait","watcher"]};

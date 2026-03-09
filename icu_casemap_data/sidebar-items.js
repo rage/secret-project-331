@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_case_map_unfold_v1","impl_case_map_v1","make_provider"]};

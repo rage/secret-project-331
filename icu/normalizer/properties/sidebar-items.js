@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Decomposed"],"struct":["CanonicalCombiningClassMap","CanonicalCombiningClassMapBorrowed","CanonicalComposition","CanonicalCompositionBorrowed","CanonicalDecomposition","CanonicalDecompositionBorrowed"]};

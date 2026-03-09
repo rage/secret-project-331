@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["_Exit","_exit","execve","execveat","exit_group","gethostname","sigpending","sigsuspend"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["TestBuffer","TestRequest","TestSeqBuffer","TestSeqInner"]};

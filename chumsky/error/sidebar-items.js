@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["SimpleReason"],"struct":["Cheap","Located","Simple"],"trait":["Error"]};

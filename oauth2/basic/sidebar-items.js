@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["BasicErrorResponseType","BasicTokenType"],"type":["BasicClient","BasicErrorResponse","BasicRequestTokenError","BasicRevocationErrorResponse","BasicTokenIntrospectionResponse","BasicTokenResponse"]};

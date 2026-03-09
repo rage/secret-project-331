@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["TomlKey","TomlKeyBuilder","TomlString","TomlStringBuilder"],"trait":["ToTomlKey","ToTomlValue","TomlWrite","WriteTomlKey","WriteTomlValue"]};

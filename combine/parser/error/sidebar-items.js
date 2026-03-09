@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["expected","message","silent","unexpected","unexpected_any"],"struct":["Expected","Message","Silent","Unexpected"]};

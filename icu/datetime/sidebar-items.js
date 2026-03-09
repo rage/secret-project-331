@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["DateTimeFormatterLoadError"],"mod":["fieldsets","input","options","parts","pattern","preferences","provider","scaffold","unchecked"],"struct":["DateTimeFormatter","DateTimeFormatterPreferences","FixedCalendarDateTimeFormatter","FormattedDateTime","MismatchedCalendarError"],"type":["NoCalendarFormatter"]};

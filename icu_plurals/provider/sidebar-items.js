@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["rules"],"struct":["Baked","FourBitMetadata","PluralElementsPackedCow","PluralElementsPackedULE","PluralRulesData","PluralsCardinalV1","PluralsOrdinalV1"]};

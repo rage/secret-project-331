@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["builder","enums","zone"],"struct":["Combo","D","DE","DET","DT","E","ET","M","MD","MDE","MDET","MDT","T","Y","YM","YMD","YMDE","YMDET","YMDT"]};

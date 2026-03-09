@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Decision"],"mod":["memory"],"struct":["SimpleInput","SimpleInputFunctionBuilder","SimpleOutput"],"trait":["Backend","SimpleBackend"],"type":["SimpleInputFuture"]};

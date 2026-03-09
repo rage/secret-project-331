@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["char16trie","codepointinvlist","codepointinvliststringlist","codepointtrie"]};

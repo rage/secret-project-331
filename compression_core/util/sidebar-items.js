@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["_assert_send","_assert_sync"],"struct":["PartialBuffer","WriteBuffer"]};

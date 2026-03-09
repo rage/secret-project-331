@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["backend"],"struct":["RateLimiter","RateLimiterBuilder"],"trait":["HeaderCompatibleOutput"]};

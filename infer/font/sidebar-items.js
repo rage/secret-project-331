@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["is_otf","is_ttf","is_woff","is_woff2"]};

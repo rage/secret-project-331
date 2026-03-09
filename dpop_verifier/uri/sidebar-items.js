@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["normalize_htu","normalize_method"]};

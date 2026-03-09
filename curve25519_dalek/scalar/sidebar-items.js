@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["clamp_integer"],"struct":["Scalar"]};

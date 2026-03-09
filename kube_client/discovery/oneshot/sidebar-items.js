@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["group","pinned_group","pinned_kind"]};

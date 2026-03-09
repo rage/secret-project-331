@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ColorOutput","DecodingError","DisposalMethod","EncodingError","EncodingFormatError","Extension","ExtensionData","MemoryLimit","Repeat","Version"],"mod":["streaming_decoder"],"struct":["AnyExtension","DecodeOptions","Decoder","DecodingFormatError","Encoder","Frame"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["install_drivers"],"struct":["AnyDriver","AnyMigrateDatabase"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["UNICODE_VERSION"],"enum":["Script"],"mod":["script_extensions"],"struct":["ScriptExtension","ScriptIterator"],"trait":["UnicodeScript"]};

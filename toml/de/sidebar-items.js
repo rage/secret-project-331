@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["from_str"],"struct":["Deserializer","Error","ValueDeserializer"]};

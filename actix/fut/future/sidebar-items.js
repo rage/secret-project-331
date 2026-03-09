@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Map","Then"],"fn":["wrap_future"],"mod":["result"],"struct":["FutureWrap","Timeout"],"trait":["ActorFuture","ActorFutureExt","WrapFuture"],"type":["LocalBoxActorFuture"]};

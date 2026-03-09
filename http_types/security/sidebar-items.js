@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["FrameOptions","ReferrerOptions","Source"],"fn":["default","dns_prefetch_control","frameguard","hsts","nosniff","powered_by","referrer_policy","xss_filter"],"struct":["ContentSecurityPolicy","ReportTo","ReportToEndpoint","TimingAllowOrigin"]};

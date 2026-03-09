@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["begin_ansi_transaction_sql","commit_ansi_transaction_sql","rollback_ansi_transaction_sql"],"struct":["Transaction"]};

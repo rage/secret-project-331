@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Baked","DecimalDigitsV1","DecimalSymbolStrsBuilder","DecimalSymbols","DecimalSymbolsStrs","DecimalSymbolsV1","GroupingSizes"]};

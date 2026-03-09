@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"derive":["JsonSchema","JsonSchema_repr"],"macro":["json_schema","schema_for","schema_for_value"],"mod":["consts","generate","transform"],"struct":["Schema","SchemaGenerator"],"trait":["JsonSchema"]};

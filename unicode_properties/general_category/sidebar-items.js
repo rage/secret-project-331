@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["GeneralCategory","GeneralCategoryGroup"],"trait":["UnicodeGeneralCategory"]};

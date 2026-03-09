@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Message","MessageType"],"struct":["ClientCodec","ClientPayloadCodec","Codec","Dispatcher","ExpectHandler","H1Service","Payload","SendResponse","UpgradeHandler"],"type":["H1ServiceHandler"]};

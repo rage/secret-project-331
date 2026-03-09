@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["iana","models","windows"],"struct":["InvalidOffsetError","TimeZone","TimeZoneInfo","UtcOffset","VariantOffsetsCalculator","VariantOffsetsCalculatorBorrowed","ZoneNameTimestamp"]};

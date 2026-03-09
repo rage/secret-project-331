@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["BuilderError","Event","Xml"],"fn":["escape","unescape"],"struct":["ChildElements","Element","ElementBuilder","EndTag","Parser","ParserError","StartTag"]};

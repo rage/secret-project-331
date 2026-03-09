@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["AuthorityKeyIdentifier","BasicConstraints","ExtendedKeyUsage","KeyUsage","SubjectAlternativeName","SubjectKeyIdentifier"]};

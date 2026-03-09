@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Projection"],"struct":["ComposeRequest","CustomerEncrypton","ListRequest","Object","ObjectList","ObjectPrecondition","Owner","SizedByteStream","SourceObject"]};

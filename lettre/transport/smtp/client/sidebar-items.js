@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CertificateStore","Tls","TlsVersion"],"struct":["Certificate","Identity","SmtpConnection","TlsParameters","TlsParametersBuilder"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Mode"],"fn":["decrypt","decrypt_aead","encrypt","encrypt_aead"],"struct":["Cipher","Crypter"]};

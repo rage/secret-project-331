@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["DELETED_GLYPH","END_OF_TEXT","OUT_OF_BOUNDS"]};

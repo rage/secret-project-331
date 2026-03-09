@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["InvalidStringList"],"struct":["CodePointInversionListAndStringList","CodePointInversionListAndStringListULE"]};

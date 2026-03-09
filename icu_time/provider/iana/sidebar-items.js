@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["NON_REGION_CITY_PREFIX"],"struct":["IanaNames","IanaToBcp47Map","TimezoneIdentifiersIanaCoreV1","TimezoneIdentifiersIanaExtendedV1"]};

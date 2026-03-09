@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["algorithm","claims","error","header","token"],"struct":["Token"],"trait":["FromBase64","ToBase64"]};

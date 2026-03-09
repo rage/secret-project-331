@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["MergeError"],"fn":["merge_crds"],"trait":["CustomResourceExt"]};

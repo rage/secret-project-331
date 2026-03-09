@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["options","parts","provider"],"struct":["FormattedList","ListFormatter","ListFormatterPreferences"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["FOSS_DRIVERS"],"fn":["block_on"],"mod":["derives","migrate","query","test_attr"],"type":["Error","Result"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["B64Error","Error","InvalidValue"],"type":["Result"]};

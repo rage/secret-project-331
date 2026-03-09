@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["EntryType","HeaderMode","Unpacked"],"struct":["Archive","Builder","Entries","Entry","EntryWriter","GnuExtSparseHeader","GnuHeader","GnuSparseHeader","Header","OldHeader","PaxExtension","PaxExtensions","UstarHeader"]};

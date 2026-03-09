@@ -2,7 +2,7 @@
     conn: &amp;mut <a class="struct" href="../../prelude/struct.PgConnection.html" title="struct headless_lms_server::prelude::PgConnection">PgConnection</a>,
     exam_id: <a class="struct" href="../../prelude/struct.Uuid.html" title="struct headless_lms_server::prelude::Uuid">Uuid</a>,
     already_processed_courses: &amp;mut <a class="struct" href="https://doc.rust-lang.org/1.93.1/std/collections/hash/set/struct.HashSet.html" title="struct std::collections::hash::set::HashSet">HashSet</a>&lt;<a class="struct" href="../../prelude/struct.Uuid.html" title="struct headless_lms_server::prelude::Uuid">Uuid</a>&gt;,
-) -&gt; <a class="type" href="../../../anyhow/type.Result.html" title="type anyhow::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.unit.html">()</a>&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Processes completions for courses associated with the given exam.</p>
+) -&gt; <a class="type" href="https://docs.rs/anyhow/1.0.102/anyhow/type.Result.html" title="type anyhow::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.unit.html">()</a>&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Processes completions for courses associated with the given exam.</p>
 <p>Because the same course can belong to multiple exams at the same time, a cache for already
 processed courses can be provided to avoid unnecessarily reprocessing those courses again.</p>
 </div></details></section></div></main></body></html>

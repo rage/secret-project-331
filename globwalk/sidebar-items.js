@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["glob","glob_builder"],"struct":["FileType","GlobError","GlobWalker","GlobWalkerBuilder"],"type":["DirEntry","WalkError"]};

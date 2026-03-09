@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["ALGORITHM_ID","ALGORITHM_OID"],"enum":["Error"],"struct":["BitStringRef","Document","KeypairBytes","ObjectIdentifier","PrivateKeyInfo","PublicKeyBytes","SecretDocument"],"trait":["DecodePrivateKey","DecodePublicKey","EncodePrivateKey","EncodePublicKey"],"type":["Result"]};

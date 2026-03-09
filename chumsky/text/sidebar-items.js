@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["digits","ident","int","keyword","newline","semantic_indentation","whitespace"],"struct":["Padded"],"trait":["Character","TextParser"],"type":["Padding"]};

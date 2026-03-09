@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["GetPropertiesBuilder","GetPropertiesResponse"],"type":["GetProperties"]};

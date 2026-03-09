@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["any","eof","none_of","one_of","position","produce","satisfy","satisfy_map","token","tokens","tokens_cmp","value"],"struct":["Any","Eof","NoneOf","OneOf","Position","Produce","Satisfy","SatisfyMap","Token","Tokens","TokensCmp","Value"]};

@@ -5,19 +5,14 @@ import { MagicWandSparkles } from "@vectopus/atlas-icons-react"
 import { BlockControls } from "@wordpress/block-editor"
 import { Dropdown, MenuGroup, MenuItem, ToolbarButton, ToolbarGroup } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
-import { Fragment, useState } from "@wordpress/element"
+import { Fragment, useEffect, useState } from "@wordpress/element"
 import { chevronRight } from "@wordpress/icons"
-import { diffWords } from "diff"
 import { useContext } from "react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
-import {
-  createParagraphAiSource,
-  extractPlainTextFromHtml,
-  hasMeaningfulParagraphSuggestionChange,
-} from "../Gutenberg/paragraphAiSource"
+import { createParagraphAiSource, extractPlainTextFromHtml } from "../Gutenberg/paragraphAiSource"
 import {
   collectParagraphHtmlTagNames,
   sanitizeParagraphHtml,
@@ -34,7 +29,7 @@ import {
   type AiGroupLabelKey,
 } from "./ai/menu"
 
-import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -76,7 +71,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
       const originalHtml =
         typeof props.attributes?.content === "string" ? props.attributes.content : ""
       const paragraphSource = createParagraphAiSource(originalHtml)
-      const { originalText, requestContent, requestIsHtml } = paragraphSource
+      const { requestContent, requestIsHtml } = paragraphSource
       const allowedHtmlTagNames = collectParagraphHtmlTagNames(originalHtml)
 
       const paragraphContext =
@@ -90,58 +85,25 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
       setRunning(true)
       try {
-        const result = await executeAbility<{ text: string; suggestions?: string[] }>(
-          action.abilityName,
-          {
-            text: requestContent,
-            isHtml: requestIsHtml,
-            meta: {
-              ...action.meta,
-              context: paragraphContext,
-            },
-          },
-        )
-
-        const rawSuggestions =
-          result.suggestions && result.suggestions.length > 0
-            ? result.suggestions
-            : [result.text ?? requestContent]
-
-        const suggestions = rawSuggestions.filter((s) => s.trim().length > 0)
-
-        if (suggestions.length === 0) {
-          return
-        }
-
-        if (
-          suggestions.length === 1 &&
-          !hasMeaningfulParagraphSuggestionChange(originalHtml, suggestions[0] ?? "")
-        ) {
-          return
-        }
-
-        let selectedIndex = 0
-
+        let selectedSuggestion = ""
         const dialogContent = (
           <ParagraphAiSuggestionDialog
-            originalText={originalText}
+            action={action}
+            requestContent={requestContent}
+            requestIsHtml={requestIsHtml}
+            paragraphContext={paragraphContext}
             originalHtml={originalHtml}
             allowedHtmlTagNames={allowedHtmlTagNames}
-            suggestions={suggestions}
-            onSelectionChange={(index) => {
-              selectedIndex = index
+            onSelectionChange={(text) => {
+              selectedSuggestion = text
             }}
           />
         )
-
         close()
-
         const confirmed = await confirm(dialogContent, t("ai-dialog-title-apply"))
-
-        if (confirmed) {
-          const finalText = suggestions[selectedIndex] ?? suggestions[0]
+        if (confirmed && selectedSuggestion) {
           try {
-            const safeHtml = sanitizeParagraphHtml(finalText, {
+            const safeHtml = sanitizeParagraphHtml(selectedSuggestion, {
               allowedTagNames: allowedHtmlTagNames,
             })
             props.setAttributes({ content: safeHtml })
@@ -313,29 +275,113 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
   }
 
   interface ParagraphAiSuggestionDialogProps {
-    originalText: string
+    action: AiActionDefinition
+    requestContent: string
+    requestIsHtml: boolean
+    paragraphContext: { page_id: string; course_id: string | null; locale: null } | null
     originalHtml: string
     allowedHtmlTagNames: Set<string>
-    suggestions: string[]
-    onSelectionChange?: (index: number) => void
+    onSelectionChange?: (text: string) => void
   }
 
   const ParagraphAiSuggestionDialog = ({
-    originalText,
-    originalHtml: _originalHtml,
-    allowedHtmlTagNames: _allowedHtmlTagNames,
-    suggestions,
+    action,
+    requestContent,
+    requestIsHtml,
+    paragraphContext,
     onSelectionChange,
   }: ParagraphAiSuggestionDialogProps) => {
     const { t } = useTranslation()
+    const [suggestions, setSuggestions] = useState<string[] | null>(null)
+    const [error, setError] = useState(false)
     const [selectedIndex, setSelectedIndex] = useState(0)
 
-    const handleSelect = (index: number) => {
+    useEffect(() => {
+      let cancelled = false
+      void (async () => {
+        try {
+          const result = await executeAbility<{ text: string; suggestions?: string[] }>(
+            action.abilityName,
+            {
+              text: requestContent,
+              isHtml: requestIsHtml,
+              meta: {
+                ...action.meta,
+                context: paragraphContext,
+              },
+            },
+          )
+          if (cancelled) {
+            return
+          }
+          const rawSuggestions =
+            result.suggestions && result.suggestions.length > 0
+              ? result.suggestions
+              : [result.text ?? requestContent]
+          const list = rawSuggestions.filter((s) => s.trim().length > 0)
+          if (list.length === 0) {
+            setError(true)
+            return
+          }
+          setSuggestions(list)
+          onSelectionChange?.(list[0] ?? "")
+        } catch {
+          if (!cancelled) {
+            setError(true)
+          }
+        }
+      })()
+      return () => {
+        cancelled = true
+      }
+    }, [action, requestContent, requestIsHtml, paragraphContext, onSelectionChange])
+
+    const handleSelect = (index: number, text: string) => {
       setSelectedIndex(index)
-      onSelectionChange?.(index)
+      onSelectionChange?.(text)
     }
 
-    const hasMultiple = suggestions.length > 1
+    if (suggestions === null && !error) {
+      return (
+        <div
+          className={css`
+            min-width: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+          `}
+        >
+          <Spinner variant="small" disableMargin />
+          <span
+            className={css`
+              margin-top: 0.5rem;
+              font-size: 0.8rem;
+              color: ${TEXT_COLOR};
+            `}
+          >
+            {t("ai-loading")}
+          </span>
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div
+          className={css`
+            padding: 1rem;
+            color: ${TEXT_COLOR};
+            font-size: 0.9rem;
+          `}
+        >
+          {t("ai-loading-error")}
+        </div>
+      )
+    }
+
+    const list = suggestions ?? []
+    const hasMultiple = list.length > 1
 
     return (
       <div
@@ -345,16 +391,15 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
           gap: 0.75rem;
         `}
       >
-        {suggestions.map((suggestion, index) => {
+        {list.map((suggestion, index) => {
           const suggestionText = extractPlainTextFromHtml(suggestion)
-          const diffChanges = diffWords(originalText ?? "", suggestionText)
           const isSelected = selectedIndex === index
 
           return (
             <button
               key={index}
               type="button"
-              onClick={() => handleSelect(index)}
+              onClick={() => handleSelect(index, suggestion)}
               className={css`
                 display: block;
                 width: 100%;
@@ -396,7 +441,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                   line-height: 1.5;
                 `}
               >
-                <DiffFormatter changes={diffChanges} dontShowAdded />
+                {suggestionText}
               </p>
             </button>
           )

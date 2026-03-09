@@ -24,6 +24,8 @@
   "ai-improve-fix-spelling-grammar": "Fix spelling & grammar",
   "ai-improve-flow": "Improve flow & transitions",
   "ai-learning-simplify-beginners": "Simplify for beginners",
+  "ai-loading": "Generating suggestions…",
+  "ai-loading-error": "Could not generate suggestions. Please try again.",
   "ai-settings-remember-tone": "Remember preferred tone (this doc)",
   "ai-settings-set-audience": "Set audience…",
   "ai-settings-set-reading-level": "Set reading level…",

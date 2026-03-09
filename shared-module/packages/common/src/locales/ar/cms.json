@@ -24,6 +24,8 @@
   "ai-improve-fix-spelling-grammar": "تصحيح الإملاء والقواعد",
   "ai-improve-flow": "تحسين السلاسة والانتقالات",
   "ai-learning-simplify-beginners": "تبسيط للمبتدئين",
+  "ai-loading": "جارٍ إنشاء الاقتراحات…",
+  "ai-loading-error": "تعذر إنشاء الاقتراحات. يرجى المحاولة مرة أخرى.",
   "ai-settings-remember-tone": "تذكّر النبرة المفضلة (لهذا المستند)",
   "ai-settings-set-audience": "تحديد الجمهور المستهدف…",
   "ai-settings-set-reading-level": "تحديد مستوى القراءة…",

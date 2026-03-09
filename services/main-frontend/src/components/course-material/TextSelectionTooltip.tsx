@@ -129,6 +129,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
           resize: true,
         },
       },
+      { name: "flip", options: { fallbackPlacements: ["bottom"] } },
     ],
     strategy: "absolute",
   })
@@ -196,6 +197,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
       data-testid={feedbackTooltipTestId}
     >
       <SpeechBalloon
+        placement={attributes.popper?.["data-popper-placement"]}
         className={css`
           padding: 0.3rem;
         `}

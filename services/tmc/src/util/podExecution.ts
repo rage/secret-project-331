@@ -120,25 +120,29 @@ async function runTmcAndReadOutput(
   while waiting for a fix, we do the copy via `cat`
   */
   const testOutputPath = temporaryFile()
-  const testOutputWriteStream = createWriteStream(testOutputPath)
-  const catResult = await execWithTimeout(
-    kubeExec,
-    podName,
-    CONTAINER_NAME,
-    ["cat", "/app/test_output.txt"],
-    testOutputWriteStream,
-    process.stderr,
-    null,
-    DEFAULT_TASK_TIMEOUT_MS,
-  )
-  if (catResult.timedOut) {
-    throw new Error("Running cat inside the container timed out")
+  try {
+    const testOutputWriteStream = createWriteStream(testOutputPath)
+    const catResult = await execWithTimeout(
+      kubeExec,
+      podName,
+      CONTAINER_NAME,
+      ["cat", "/app/test_output.txt"],
+      testOutputWriteStream,
+      process.stderr,
+      null,
+      DEFAULT_TASK_TIMEOUT_MS,
+    )
+    if (catResult.timedOut) {
+      throw new Error("Running cat inside the container timed out")
+    }
+    const testOutputBuffer = await fs.readFile(testOutputPath)
+    const testOutputString = testOutputBuffer.toString()
+    logger.log(`got output ${testOutputString} end`)
+    const parsed = JSON.parse(testOutputString)
+    return { timedOut: false, output: testOutputString, parsed }
+  } finally {
+    await fs.rm(testOutputPath, { force: true }).catch(() => {})
   }
-  const testOutputBuffer = await fs.readFile(testOutputPath)
-  const testOutputString = testOutputBuffer.toString()
-  logger.log(`got output ${testOutputString} end`)
-  const parsed = JSON.parse(testOutputString)
-  return { timedOut: false, output: testOutputString, parsed }
 }
 
 /**

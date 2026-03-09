@@ -43,12 +43,12 @@ export const ActionButtons: React.FC<ActionButtonsProps> = (p) => {
               data-cy="run-btn"
             >
               <PlayIcon />
-              <span>{t("run", "Run")}</span>
+              <span>{t("run")}</span>
             </RunButton>
           ) : (
             <StopButton type="button" onClick={p.onStop} data-cy="stop-btn">
               <StopIcon />
-              <span>{t("stop", "Stop")}</span>
+              <span>{t("stop")}</span>
             </StopButton>
           ))}
         {p.isPython && (
@@ -60,16 +60,16 @@ export const ActionButtons: React.FC<ActionButtonsProps> = (p) => {
             title={p.testUnavailableReason ?? undefined}
           >
             <EyeIcon />
-            <TestButtonLabel>{t("test", "Test")}</TestButtonLabel>
+            <TestButtonLabel>{t("test")}</TestButtonLabel>
           </TestButton>
         )}
         <ResetButton type="button" data-cy="reset-btn" onClick={p.onResetClick}>
-          {t("reset", "Reset")}
+          {t("reset")}
         </ResetButton>
       </ButtonRow>
       {p.testUnavailableReason && (
         <TestUnavailableHint>
-          {t("tests-unavailable", "Tests unavailable")}: {p.testUnavailableReason}
+          {t("tests-unavailable")}: {p.testUnavailableReason}
         </TestUnavailableHint>
       )}
     </>

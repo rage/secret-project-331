@@ -29,10 +29,10 @@ export const ResetConfirmDialog: React.FC<ResetConfirmDialogProps> = (p) => {
         <ConfirmMessage>{t("are-you-sure")}</ConfirmMessage>
         <ConfirmButtons>
           <ResetButton type="button" onClick={p.onCancel}>
-            {t("button.cancel", "Cancel")}
+            {t("button.cancel")}
           </ResetButton>
           <ResetButton type="button" onClick={p.onConfirm} data-cy="reset-btn-ok">
-            {t("button.ok", "OK")}
+            {t("button.ok")}
           </ResetButton>
         </ConfirmButtons>
       </ConfirmDialog>

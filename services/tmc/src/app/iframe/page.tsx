@@ -1,5 +1,7 @@
 "use client"
 
+/* eslint-disable i18next/no-literal-string */
+
 import { css } from "@emotion/css"
 import { useSearchParams } from "next/navigation"
 import React from "react"

@@ -44,18 +44,24 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
   const headerOrange =
     (mode === "run" && (pyodideLoading || runExecuting || waitingForInput)) ||
     mode === "test-running"
-  const headerTitle =
-    mode === "test-running"
-      ? t("running-tests", "Running tests...")
-      : mode === "test-results"
-        ? t("test-results", "Test results")
-        : waitingForInput
-          ? t("waiting-for-input", "Waiting for input")
-          : pyodideLoading
-            ? t("loading-pyodide", "Loading Pyodide...")
-            : runExecuting
-              ? t("running", "Running...")
-              : t("output", "Output")
+  const headerTitle = (() => {
+    if (mode === "test-running") {
+      return t("running-tests")
+    }
+    if (mode === "test-results") {
+      return t("test-results")
+    }
+    if (waitingForInput) {
+      return t("waiting-for-input")
+    }
+    if (pyodideLoading) {
+      return t("loading-pyodide")
+    }
+    if (runExecuting) {
+      return t("running")
+    }
+    return t("output")
+  })()
 
   return (
     <OutputContainer>
@@ -63,7 +69,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         <OutputHeaderText>{headerTitle}</OutputHeaderText>
       </OutputHeader>
       <OutputBody>
-        {mode === "test-running" && <OutputPre>{t("running-tests", "Running tests...")}</OutputPre>}
+        {mode === "test-running" && <OutputPre>{t("running-tests")}</OutputPre>}
         {mode === "test-results" && testResults != null && (
           <TestResultsContent testResults={testResults} />
         )}

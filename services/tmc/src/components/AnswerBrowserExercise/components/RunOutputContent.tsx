@@ -94,9 +94,9 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
 
   return (
     <>
-      {pyodideLoading && <OutputPre>{t("loading-pyodide", "Loading Pyodide...")}</OutputPre>}
+      {pyodideLoading && <OutputPre>{t("loading-pyodide")}</OutputPre>}
       {runExecuting && !pyodideLoading && segments.length === 0 && (
-        <OutputPre>{t("running", "Running...")}</OutputPre>
+        <OutputPre>{t("running")}</OutputPre>
       )}
       {blocks.map((block, index) => {
         if (block.type === "stdout") {
@@ -121,19 +121,15 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
                 )}
                 {isLastWaiting && submitStdinLine != null ? (
                   <>
-                    <StdinWaitingBanner role="status">
-                      {t("waiting-for-input", "Waiting for input")}
-                    </StdinWaitingBanner>
-                    <StdinHint>
-                      {t("enter-input-press-enter", "Enter input and press Enter")}
-                    </StdinHint>
+                    <StdinWaitingBanner role="status">{t("waiting-for-input")}</StdinWaitingBanner>
+                    <StdinHint>{t("enter-input-press-enter")}</StdinHint>
                     <StdinInput
                       ref={inputRef}
                       type="text"
                       value={stdinValue}
                       onChange={(e) => setStdinValue(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      aria-label={t("program-input", "Program input")}
+                      aria-label={t("program-input")}
                     />
                   </>
                 ) : null}
@@ -145,18 +141,16 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
       {/* Show current waiting UI when no segment is last-waiting (e.g. very first stdin_request before any stdout) */}
       {waitingForInput && submitStdinLine != null && !lastIsInputWaiting && (
         <>
-          <StdinWaitingBanner role="status">
-            {t("waiting-for-input", "Waiting for input")}
-          </StdinWaitingBanner>
+          <StdinWaitingBanner role="status">{t("waiting-for-input")}</StdinWaitingBanner>
           {stdinPrompt && <StdinPromptLine>{stdinPrompt}</StdinPromptLine>}
-          <StdinHint>{t("enter-input-press-enter", "Enter input and press Enter")}</StdinHint>
+          <StdinHint>{t("enter-input-press-enter")}</StdinHint>
           <StdinInput
             ref={inputRef}
             type="text"
             value={stdinValue}
             onChange={(e) => setStdinValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            aria-label={t("program-input", "Program input")}
+            aria-label={t("program-input")}
           />
         </>
       )}

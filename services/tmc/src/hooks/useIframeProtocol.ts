@@ -2,7 +2,7 @@
 
 import _ from "lodash"
 import { orderBy } from "natural-orderby"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
@@ -21,16 +21,6 @@ import {
   PublicSpec,
   UserAnswer,
 } from "@/util/stateInterfaces"
-
-const iframeId = v4().slice(0, 4)
-
-const debug = (_iframeId: string, message: string, ...optionalParams: unknown[]): void => {
-  console.debug(`[tmc-iframe/${_iframeId}]`, message, ...optionalParams)
-}
-
-const logError = (_iframeId: string, message: string, ...optionalParams: unknown[]): void => {
-  console.error(`[tmc-iframe/${_iframeId}]`, message, ...optionalParams)
-}
 
 function sendSpecToParent(port: MessagePort, data: CurrentStateMessageData) {
   console.info("Posting message to parent")
@@ -57,6 +47,17 @@ function requestRepoExercises(port: MessagePort | null) {
 }
 
 export function useIframeProtocol() {
+  const iframeIdRef = useRef(v4().slice(0, 4))
+  const iframeId = iframeIdRef.current
+
+  const debug = (message: string, ...optionalParams: unknown[]): void => {
+    console.debug(`[tmc-iframe/${iframeId}]`, message, ...optionalParams)
+  }
+
+  const logError = (message: string, ...optionalParams: unknown[]): void => {
+    console.error(`[tmc-iframe/${iframeId}]`, message, ...optionalParams)
+  }
+
   const [state, setState] = useState<ExerciseIframeState | null>(null)
   const [testRequestResponse, setTestRequestResponse] = useState<RunResult | null>(null)
   const [fileUploadResponse, setFileUploadResponse] = useState<UploadResultMessage | null>(null)
@@ -83,7 +84,7 @@ export function useIframeProtocol() {
 
   const port = useExerciseServiceParentConnection((messageData, port) => {
     if (isMessageToIframe(messageData)) {
-      debug(iframeId, "Received message:", messageData)
+      debug("Received message:", messageData)
       if (messageData.message === "set-state") {
         ReactDOM.flushSync(() => {
           if (messageData.view_type === "exercise-editor") {
@@ -124,7 +125,7 @@ export function useIframeProtocol() {
               model_solution_spec: messageData.data.model_solution_spec as ModelSolutionSpec,
             })
           } else {
-            logError(iframeId, "Unknown view type received from parent")
+            logError("Unknown view type received from parent")
           }
         })
       } else if (messageData.message === "upload-result") {
@@ -145,7 +146,7 @@ export function useIframeProtocol() {
             }
           })
         } else {
-          logError(iframeId, "Failed to upload:", messageData.error)
+          logError("Failed to upload:", messageData.error)
         }
       } else if (messageData.message === "repository-exercises") {
         setState((oldState) => {
@@ -159,10 +160,10 @@ export function useIframeProtocol() {
       } else if (messageData.message === "test-results") {
         setTestRequestResponse(messageData.test_result as RunResult)
       } else {
-        logError(iframeId, "Unexpected message from parent")
+        logError("Unexpected message from parent")
       }
     } else {
-      logError(iframeId, "Frame received an unknown message from message port")
+      logError("Frame received an unknown message from message port")
     }
   })
 

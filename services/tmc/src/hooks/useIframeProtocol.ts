@@ -1,6 +1,5 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
 import _ from "lodash"
 import { orderBy } from "natural-orderby"
 import { useState } from "react"

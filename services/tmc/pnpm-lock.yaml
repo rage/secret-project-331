@@ -107,9 +107,6 @@ importers:
       next:
         specifier: ^16.0.7
         version: 16.0.7(@babel/core@7.28.4)(babel-plugin-macros@3.1.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      pyodide:
-        specifier: ^0.29.3
-        version: 0.29.3
       react:
         specifier: ^19.2.1
         version: 19.2.1
@@ -198,6 +195,9 @@ importers:
       postcss-styled-syntax:
         specifier: ^0.7.1
         version: 0.7.1(postcss@8.4.31)
+      pyodide:
+        specifier: ^0.29.3
+        version: 0.29.3
       ts-jest:
         specifier: ^29.4.4
         version: 29.4.4(@babel/core@7.28.4)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.4))(jest-util@30.2.0)(jest@30.2.0(@types/node@24.6.2)(babel-plugin-macros@3.1.0))(typescript@5.9.3)

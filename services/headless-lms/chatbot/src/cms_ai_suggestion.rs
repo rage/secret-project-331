@@ -148,7 +148,7 @@ Your output must follow the JSON schema exactly:
 }"#;
 
 /// User prompt prefix; the concrete action instruction and paragraph will be appended.
-const USER_PROMPT_PREFIX: &str = "Apply only the requested action to the paragraph below. Do not make any other changes. The paragraph may contain inline HTML markup valid inside a Gutenberg paragraph; preserve existing inline tags (links, emphasis, code, sub/superscripts) where possible, do not introduce block-level elements, and do not add new formatting to spans of text that were previously unformatted. Return JSON only.";
+pub const USER_PROMPT_PREFIX: &str = "Apply only the requested action to the paragraph below. Do not make any other changes. The paragraph may contain inline HTML markup valid inside a Gutenberg paragraph; preserve existing inline tags (links, emphasis, code, sub/superscripts) where possible, do not introduce block-level elements, and do not add new formatting to spans of text that were previously unformatted. Return JSON only.";
 
 /// Input payload for CMS paragraph suggestions.
 pub struct CmsParagraphSuggestionInput {

@@ -24,6 +24,8 @@
   "ai-improve-fix-spelling-grammar": "Rätta stavning och grammatik",
   "ai-improve-flow": "Förbättra flyt och övergångar",
   "ai-learning-simplify-beginners": "Förenkla för nybörjare",
+  "ai-loading": "Genererar förslag…",
+  "ai-loading-error": "Kunde inte generera förslag. Försök igen.",
   "ai-settings-remember-tone": "Kom ihåg föredragen ton (detta dokument)",
   "ai-settings-set-audience": "Ställ in målgrupp…",
   "ai-settings-set-reading-level": "Ställ in läsnivå…",

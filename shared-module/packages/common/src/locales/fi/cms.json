@@ -24,6 +24,8 @@
   "ai-improve-fix-spelling-grammar": "Korjaa oikeinkirjoitus ja kielioppi",
   "ai-improve-flow": "Paranna sujuvuutta ja siirtymiä",
   "ai-learning-simplify-beginners": "Yksinkertaista aloitteleville",
+  "ai-loading": "Luodaan ehdotuksia…",
+  "ai-loading-error": "Ehdotusten luonti epäonnistui. Yritä uudelleen.",
   "ai-settings-remember-tone": "Muista suosittu sävy (tämä asiakirja)",
   "ai-settings-set-audience": "Aseta kohderyhmä…",
   "ai-settings-set-reading-level": "Aseta luettavuustaso…",

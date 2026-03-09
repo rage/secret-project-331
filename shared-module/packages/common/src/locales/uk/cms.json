@@ -24,6 +24,8 @@
   "ai-improve-fix-spelling-grammar": "Виправити орфографію та граматику",
   "ai-improve-flow": "Покращити зв’язність і переходи",
   "ai-learning-simplify-beginners": "Спростити для початківців",
+  "ai-loading": "Генерація пропозицій…",
+  "ai-loading-error": "Не вдалося згенерувати пропозиції. Спробуйте ще раз.",
   "ai-settings-remember-tone": "Запам’ятати бажаний тон (цей документ)",
   "ai-settings-set-audience": "Вказати аудиторію…",
   "ai-settings-set-reading-level": "Вказати рівень читання…",

@@ -6,7 +6,7 @@ import React from "react"
 import { I18nextProvider } from "react-i18next"
 
 import i18nTest from "../../../utils/testing/i18nTest"
-import { DialogProvider, useDialog } from "../DialogProvider"
+import { DialogProvider, useConfirmDialogControls, useDialog } from "../DialogProvider"
 
 // Test wrapper with all necessary providers
 const TestWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -102,6 +102,55 @@ describe("useDialog hook", () => {
       expect(await screen.findByText("Confirm title")).toBeInTheDocument()
       fireEvent.click(screen.getByRole("button", { name: /no/i }))
       await waitFor(() => expect(resultFalse).toBe(false))
+    })
+
+    it("keeps confirm disabled until dialog content enables it", async () => {
+      let confirmResult = false
+
+      const AsyncConfirmContent: React.FC = () => {
+        const confirmDialogControls = useConfirmDialogControls()
+
+        return (
+          <button
+            onClick={() => {
+              confirmDialogControls?.setConfirmDisabled(false)
+            }}
+          >
+            Enable Confirm
+          </button>
+        )
+      }
+
+      const ConfirmOpener: React.FC = () => {
+        const { confirm } = useDialog()
+        return (
+          <button
+            onClick={async () => {
+              confirmResult = await confirm(<AsyncConfirmContent />, "Confirm title", {
+                confirmDisabled: true,
+              })
+            }}
+          >
+            Open Async Confirm
+          </button>
+        )
+      }
+
+      render(<ConfirmOpener />, { wrapper: TestWrapper })
+
+      fireEvent.click(screen.getByText("Open Async Confirm"))
+      expect(await screen.findByText("Confirm title")).toBeInTheDocument()
+
+      const confirmButton = screen.getByRole("button", { name: /yes/i })
+      expect(confirmButton).toBeDisabled()
+
+      fireEvent.click(screen.getByText("Enable Confirm"))
+
+      await waitFor(() => expect(confirmButton).not.toBeDisabled())
+
+      fireEvent.click(confirmButton)
+
+      await waitFor(() => expect(confirmResult).toBe(true))
     })
 
     it("opens prompt dialog and resolves input value or null on cancel", async () => {

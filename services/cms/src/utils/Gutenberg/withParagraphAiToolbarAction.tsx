@@ -294,6 +294,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
     requestContent,
     requestIsHtml,
     paragraphContext,
+    originalHtml,
     onSelectionChange,
   }: ParagraphAiSuggestionDialogProps) => {
     const { t } = useTranslation()
@@ -394,6 +395,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
     const list = suggestions ?? []
     const hasMultiple = list.length > 1
+    const originalText = extractPlainTextFromHtml(originalHtml)
 
     return (
       <div
@@ -401,8 +403,43 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
+          max-height: 90vh;
+          overflow-y: auto;
         `}
       >
+        {originalText.trim().length > 0 && (
+          <div
+            className={css`
+              padding: 0.75rem 1rem;
+              border-radius: 4px;
+              border: 1px solid ${BORDER_COLOR};
+              background: #f9fafb;
+              color: ${TEXT_COLOR};
+              font-size: 0.9rem;
+            `}
+          >
+            <span
+              className={css`
+                display: block;
+                font-size: 0.75rem;
+                font-weight: 600;
+                margin-bottom: 0.35rem;
+              `}
+            >
+              {t("ai-dialog-original-text")}
+            </span>
+            <p
+              className={css`
+                margin: 0;
+                line-height: 1.5;
+                white-space: pre-wrap;
+                overflow-wrap: break-word;
+              `}
+            >
+              {originalText}
+            </p>
+          </div>
+        )}
         {list.map((suggestion, index) => {
           const suggestionText = extractPlainTextFromHtml(suggestion)
           const isSelected = selectedIndex === index

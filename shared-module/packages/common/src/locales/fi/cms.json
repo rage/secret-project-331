@@ -10,6 +10,7 @@
   "ai-citations-avoid-plagiarism": "Kirjoita uudelleen plagioinnin välttämiseksi",
   "ai-citations-suggest-citation": "Ehdota, mihin tarvitaan lähdeviite",
   "ai-dialog-label-suggestion-n": "Ehdotus {{number}}",
+  "ai-dialog-original-text": "Alkuperäinen kappale",
   "ai-dialog-title-apply": "Ota muutokset käyttöön kappaleessa",
   "ai-group-citations-integrity": "Lähteet ja eettisyys",
   "ai-group-improve": "Paranna",

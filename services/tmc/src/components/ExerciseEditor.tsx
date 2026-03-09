@@ -31,7 +31,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
     return (
       <>
         {repositoryExercises > 0 && <div>{t("select-repository-exercise")}</div>}
-        {repositoryExercises == 0 && <div>No repository exercises found.</div>}
+        {repositoryExercises === 0 && <div>{t("no-repository-exercises-found")}</div>}
         <ul>
           {state.repository_exercises?.map((re) => (
             <li key={re.id}>
@@ -127,7 +127,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
             })
           }
         >
-          Select another repository exercise
+          {t("select-another-repository-exercise")}
         </Button>
       </div>
     )

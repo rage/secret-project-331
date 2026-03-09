@@ -64,7 +64,7 @@ self.inputPromise = function (prompt) {
   })
 }
 
-self.printError = function (message, kind, line, tb) {
+self.printError = function (message, kind, line, _tb) {
   var msg = kind + " on line " + line + ": " + message
   self.postMessage({ type: "run_error", message: msg, output: stdout })
   runHadError = true
@@ -72,7 +72,6 @@ self.printError = function (message, kind, line, tb) {
 
 var runHadError = false
 var stdout = ""
-var stderr = ""
 
 self.exit = function () {
   if (!runHadError) {
@@ -106,7 +105,6 @@ self.onmessage = function (e) {
   getPyodide()
     .then(function (pyodide) {
       stdout = ""
-      stderr = ""
       var stdoutDecoder = new TextDecoder("utf-8", { fatal: false })
       var stderrDecoder = new TextDecoder("utf-8", { fatal: false })
       pyodide.setStdout({
@@ -122,7 +120,6 @@ self.onmessage = function (e) {
         raw: function (byte) {
           var chunk = stderrDecoder.decode(new Uint8Array([byte]), { stream: true })
           if (chunk.length > 0) {
-            stderr += chunk
             self.postMessage({ type: "stderr", chunk: chunk })
           }
         },
@@ -141,7 +138,6 @@ self.onmessage = function (e) {
             self.postMessage({ type: "stdout", chunk: flushOut })
           }
           if (flushErr.length > 0) {
-            stderr += flushErr
             self.postMessage({ type: "stderr", chunk: flushErr })
           }
         })

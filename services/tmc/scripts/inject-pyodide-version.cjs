@@ -13,13 +13,17 @@ const { version, baseUrl } = JSON.parse(fs.readFileSync(configPath, "utf8"))
 const indexUrl = `${baseUrl}${version}/full/`
 const indexUrlStr = JSON.stringify(indexUrl)
 
+const PYODIDE_URL_PATTERN = /var PYODIDE_INDEX_URL = "[^"]*"/
+
 function injectIndexUrl(filePath) {
-  let content = fs.readFileSync(filePath, "utf8")
-  content = content.replace(
-    /var PYODIDE_INDEX_URL = "[^"]*"/,
-    `var PYODIDE_INDEX_URL = ${indexUrlStr}`,
-  )
-  fs.writeFileSync(filePath, content)
+  const content = fs.readFileSync(filePath, "utf8")
+  if (!PYODIDE_URL_PATTERN.test(content)) {
+    throw new Error(`PYODIDE_INDEX_URL pattern not found in ${filePath}`)
+  }
+  const updated = content.replace(PYODIDE_URL_PATTERN, `var PYODIDE_INDEX_URL = ${indexUrlStr}`)
+  if (updated !== content) {
+    fs.writeFileSync(filePath, updated)
+  }
 }
 
 injectIndexUrl(runWorkerPath)

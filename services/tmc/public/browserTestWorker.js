@@ -14,7 +14,10 @@ function getPyodide() {
   if (pyodidePromise !== null) {
     return pyodidePromise
   }
-  pyodidePromise = loadPyodide({ indexURL: PYODIDE_INDEX_URL })
+  pyodidePromise = loadPyodide({ indexURL: PYODIDE_INDEX_URL }).catch(function (err) {
+    pyodidePromise = null
+    throw err
+  })
   return pyodidePromise
 }
 
@@ -23,7 +26,6 @@ self.onmessage = function (e) {
   getPyodide()
     .then(function (pyodide) {
       var stdout = ""
-      var stderr = ""
       pyodide.setStdout({
         batched: function (msg) {
           stdout += msg + "\n"
@@ -31,7 +33,7 @@ self.onmessage = function (e) {
       })
       pyodide.setStderr({
         batched: function (msg) {
-          stderr += msg + "\n"
+          self.postMessage({ type: "stderr", message: msg })
         },
       })
       return pyodide.runPythonAsync(script).then(function () {

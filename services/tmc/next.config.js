@@ -4,9 +4,6 @@ const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 /** @type {import('next').NextConfig} */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   async headers() {
     return [
       {

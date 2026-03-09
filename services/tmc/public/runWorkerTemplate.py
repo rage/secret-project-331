@@ -44,6 +44,7 @@ def _wrap_in_async_main(tree):
                 returns=None,
             ),
         ],
+        type_ignores=[],
     )
     ast.fix_missing_locations(wrapped)
     return wrapped
@@ -53,11 +54,11 @@ try:
     tree = ast.parse(user_source)
     tree = PatchCode().visit(tree)
     wrapped = _wrap_in_async_main(tree)
-    user_code = compile(wrapped, " ", "exec")
+    user_code = compile(wrapped, "<user-script>", "exec")
 except SyntaxError as e:
     printError(str(e.msg), "SyntaxError", e.lineno or 0, [])
     exit()
-except Exception:
+except Exception:  # noqa: BLE001
     _t, v, tb = sys.exc_info()
     frames = traceback.extract_tb(tb)
     line = frames[-1].lineno if frames else 0
@@ -83,7 +84,7 @@ async def wrap_execution():
     try:
         await execute()
         exit()
-    except Exception:
+    except Exception:  # noqa: BLE001
         _t, v, tb = sys.exc_info()
         frames = traceback.extract_tb(tb)
         line = frames[-1].lineno if frames else 0

@@ -85,6 +85,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
       setChatbotMessageAnnouncement(t("chatbot-is-responding"))
       const message = messageToSend.trim()
       dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
+      setNewMessage("")
       const stream = await sendChatbotMessage(
         chatbotConfigurationId,
         currentConversationInfo.data.current_conversation.id,

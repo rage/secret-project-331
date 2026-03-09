@@ -75,7 +75,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     })
 
   const courseId = courseMaterialState.page?.course_id
+  const courseName = courseMaterialState.course?.name
   const pageId = courseMaterialState.page?.id
+  const pageTitle = courseMaterialState.page?.title
 
   const tracks: AudioFile[] = []
 
@@ -303,8 +305,15 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             {chatbotConfiguration.data && (
               <Chatbot chatbotConfigurationId={chatbotConfiguration.data} />
             )}
-            <FeedbackHandler courseId={courseId} pageId={pageId} />
           </>
+        )}
+        {courseId && pageId && courseName && pageTitle && (
+          <FeedbackHandler
+            courseId={courseId}
+            courseName={courseName}
+            pageId={pageId}
+            pageTitle={pageTitle}
+          />
         )}
       </>
     </GlossaryContext.Provider>

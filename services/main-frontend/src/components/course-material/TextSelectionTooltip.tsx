@@ -12,10 +12,7 @@ import AIChat from "@/img/course-material/ai-chat.svg"
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { baseTheme } from "@/shared-module/common/styles"
 import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
-import {
-  chatbotOpenAtom,
-  defaultChatbotCommunicationChannel,
-} from "@/stores/course-material/chatbotDialogStore"
+import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -31,12 +28,19 @@ const svgCss = css`
   right: 0;
 `
 
-const TextSelectionTooltip: React.FC = () => {
+interface Props {
+  courseName: string
+  pageTitle: string
+}
+
+const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
+  courseName,
+  pageTitle,
+}) => {
   // todo rename all feedback tooltip stuff?
   const { t } = useTranslation()
   const [selection] = useAtom(selectionAtom)
   const setCurrentlyOpenFeedbackDialog = useSetAtom(currentlyOpenFeedbackDialogAtom)
-  const setChatbotOpen = useSetAtom(chatbotOpenAtom)
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
@@ -204,9 +208,13 @@ const TextSelectionTooltip: React.FC = () => {
         >
           <Button
             onClick={() => {
-              console.log(chatbotCommunicationChannel)
-              setChatbotOpen(true)
-              chatbotCommunicationChannel?.newMessageMutation.mutate(t("button"))
+              chatbotCommunicationChannel?.newMessageMutation.mutate(
+                t("text-selection-summarize-with-ai", {
+                  pageTitle,
+                  courseName,
+                  selection: selection.text,
+                }),
+              )
             }}
           >
             {"Summarize..."}
@@ -214,9 +222,13 @@ const TextSelectionTooltip: React.FC = () => {
           </Button>
           <Button
             onClick={() => {
-              console.log(chatbotCommunicationChannel)
-              setChatbotOpen(true)
-              chatbotCommunicationChannel?.newMessageMutation.mutate(t("button"))
+              chatbotCommunicationChannel?.newMessageMutation.mutate(
+                t("text-selection-explain-with-ai", {
+                  pageTitle,
+                  courseName,
+                  selection: selection.text,
+                }),
+              )
             }}
           >
             {"Explain this..."}

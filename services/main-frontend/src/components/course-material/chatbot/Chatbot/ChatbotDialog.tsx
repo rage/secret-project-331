@@ -1,7 +1,7 @@
 "use client"
 
 import { css, keyframes } from "@emotion/css"
-import { useAtom, useSetAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import React, { useEffect, useId, useReducer, useRef, useState } from "react"
 import {
   FocusScope,
@@ -21,10 +21,7 @@ import { ChatbotProps } from "."
 import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
 import { sendChatbotMessage } from "@/services/course-material/backend"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import {
-  chatbotOpenAtom,
-  defaultChatbotCommunicationChannel,
-} from "@/stores/course-material/chatbotDialogStore"
+import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
 
 export const CHATBOX_WIDTH_PX = 500
 export const CHATBOX_HEIGHT_PX = 900
@@ -80,7 +77,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(false)
-  const [isOpen, setIsOpen] = useAtom(chatbotOpenAtom)
+  const [isOpen, setIsOpen] = useState(false)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
@@ -91,17 +88,43 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
 
+  let state = {
+    isOpen,
+    setOpen: (o: boolean) => {
+      setIsOpen(o)
+      if (!o) {
+        buttonRef.current?.focus()
+      }
+    },
+    open: () => {
+      setIsOpen(true)
+    },
+    close: () => {
+      // no operation prevents close on scroll
+    },
+    toggle: () => {
+      setIsOpen(!isOpen)
+      if (isOpen) {
+        buttonRef.current?.focus()
+      }
+    },
+  }
+
   const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
 
   const newMessageMutation = useToastMutation(
     async (messageToSend: string) => {
       setChatbotMessageAnnouncement("")
+      if (!state.isOpen) {
+        state.open()
+      }
       if (!currentConversationInfoQuery.data?.current_conversation) {
         throw new Error("No active conversation")
       }
       setChatbotMessageAnnouncement(t("chatbot-is-responding"))
       const message = messageToSend.trim()
       dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
+      setNewMessage("")
       const stream = await sendChatbotMessage(
         chatbotConfigurationId,
         currentConversationInfoQuery.data.current_conversation.id,
@@ -161,27 +184,6 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     return () => setSendNewMessage(null)
   })
 
-  let state = {
-    isOpen,
-    setOpen: (o: boolean) => {
-      setIsOpen(o)
-      if (!o) {
-        buttonRef.current?.focus()
-      }
-    },
-    open: () => {
-      setIsOpen(true)
-    },
-    close: () => {
-      // no operation prevents close on scroll
-    },
-    toggle: () => {
-      setIsOpen(!isOpen)
-      if (isOpen) {
-        buttonRef.current?.focus()
-      }
-    },
-  }
   let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
   let { popoverProps } = usePopover(
     {

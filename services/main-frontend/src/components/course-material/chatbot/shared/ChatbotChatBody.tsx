@@ -26,7 +26,6 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface ChatbotChatBodyProps {
-  chatbotConfigurationId: string
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   newMessage: string
@@ -44,7 +43,6 @@ interface ChatbotChatBodyProps {
 }
 
 const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
-  chatbotConfigurationId,
   currentConversationInfo,
   newConversation,
   newMessage,

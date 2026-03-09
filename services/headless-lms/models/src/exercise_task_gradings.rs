@@ -165,6 +165,50 @@ WHERE exercise_task_submission_id = $1
     Ok(res)
 }
 
+pub async fn get_by_exercise_task_submission_ids(
+    conn: &mut PgConnection,
+    exercise_task_submission_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, ExerciseTaskGrading>> {
+    if exercise_task_submission_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+
+    let gradings = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  exercise_task_submission_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as "grading_progress: _",
+  unscaled_score_given,
+  unscaled_score_maximum,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+FROM exercise_task_gradings
+WHERE exercise_task_submission_id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        exercise_task_submission_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(gradings
+        .into_iter()
+        .map(|grading| (grading.exercise_task_submission_id, grading))
+        .collect())
+}
+
 pub async fn get_total_score_given_for_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_submission_id: &Uuid,

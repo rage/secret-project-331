@@ -1,4 +1,4 @@
-import { isNumber } from "lodash"
+import { isNumber, isString } from "lodash"
 
 import { mainFrontendClient } from "../mainFrontendClient"
 
@@ -38,9 +38,84 @@ export interface Block<T> {
   innerBlocks: Block<unknown>[]
 }
 
+export interface ExerciseCsvExportTaskOption {
+  exercise_task_id: string
+  exercise_type: string
+  order_number: number
+  supports_csv_export_definitions: boolean
+  supports_csv_export_answers: boolean
+}
+
+export interface DownloadedCsvFile {
+  blob: Blob
+  fileName: string
+}
+
+const isExerciseCsvExportTaskOption = (obj: unknown): obj is ExerciseCsvExportTaskOption => {
+  const typedObj = obj as ExerciseCsvExportTaskOption
+  return (
+    !!typedObj &&
+    typeof typedObj === "object" &&
+    isString(typedObj.exercise_task_id) &&
+    isString(typedObj.exercise_type) &&
+    isNumber(typedObj.order_number) &&
+    typeof typedObj.supports_csv_export_definitions === "boolean" &&
+    typeof typedObj.supports_csv_export_answers === "boolean"
+  )
+}
+
+const extractFileNameFromHeader = (contentDisposition: string | undefined): string | null => {
+  if (!contentDisposition) {
+    return null
+  }
+  const match = contentDisposition.match(/filename="([^"]+)"/)
+  return match ? match[1] : null
+}
+
 export const fetchExercisesByCourseId = async (courseId: string): Promise<Exercise[]> => {
   const response = await mainFrontendClient.get(`/exercises/${courseId}/exercises-by-course-id`)
   return validateResponse(response, isArray(isExercise))
+}
+
+export const fetchExerciseCsvExportTaskOptions = async (
+  exerciseId: string,
+): Promise<ExerciseCsvExportTaskOption[]> => {
+  const response = await mainFrontendClient.get(`/exercises/${exerciseId}/csv-export-task-options`)
+  return validateResponse(response, isArray(isExerciseCsvExportTaskOption))
+}
+
+export const downloadExerciseDefinitionsCsv = async (
+  exerciseId: string,
+  exerciseTaskId: string,
+): Promise<DownloadedCsvFile> => {
+  const response = await mainFrontendClient.get(
+    `/exercises/${exerciseId}/export-definitions-csv?exercise_task_id=${exerciseTaskId}`,
+    { responseType: "blob" },
+  )
+  const fileName =
+    extractFileNameFromHeader(response.headers["content-disposition"]) ??
+    `exercise-${exerciseId}-definitions.csv`
+  return {
+    blob: response.data,
+    fileName,
+  }
+}
+
+export const downloadExerciseAnswersCsv = async (
+  exerciseId: string,
+  exerciseTaskId: string,
+): Promise<DownloadedCsvFile> => {
+  const response = await mainFrontendClient.get(
+    `/exercises/${exerciseId}/export-answers-csv?exercise_task_id=${exerciseTaskId}`,
+    { responseType: "blob" },
+  )
+  const fileName =
+    extractFileNameFromHeader(response.headers["content-disposition"]) ??
+    `exercise-${exerciseId}-answers.csv`
+  return {
+    blob: response.data,
+    fileName,
+  }
 }
 
 export const fetchExerciseSubmissionsForUser = async (

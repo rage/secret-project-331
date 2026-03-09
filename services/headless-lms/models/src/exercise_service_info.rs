@@ -50,6 +50,10 @@ pub struct ExerciseServiceInfoApi {
     pub model_solution_spec_endpoint_path: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_custom_view: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub csv_export_definitions_endpoint_path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub csv_export_answers_endpoint_path: Option<String>,
 }
 
 pub async fn insert(

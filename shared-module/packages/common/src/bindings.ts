@@ -906,6 +906,8 @@ export interface ExerciseServiceInfoApi {
   public_spec_endpoint_path: string
   model_solution_spec_endpoint_path: string
   has_custom_view?: boolean
+  csv_export_definitions_endpoint_path?: string
+  csv_export_answers_endpoint_path?: string
 }
 
 export interface ExerciseService {

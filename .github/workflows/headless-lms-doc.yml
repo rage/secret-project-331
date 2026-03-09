@@ -5,24 +5,28 @@ permissions: read-all
 on:
   push:
     branches: [master]
-    paths-ignore:
-      - "docs/**"
-      - "services/cms/**"
-      - "services/example-exercise/**"
-      - "services/main-frontend/**"
-      - "services/quizzes/**"
-      - "services/tmc/**"
-      - "storybook/**"
+    paths:
+      - ".github/actions/setup-node-pnpm/**"
+      - ".github/workflows/headless-lms-doc.yml"
+      - "bin/.common"
+      - "bin/generate-doc-files"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "rust-toolchain.toml"
+      - "services/headless-lms/**"
   pull_request:
     branches: [master]
-    paths-ignore:
-      - "docs/**"
-      - "services/cms/**"
-      - "services/example-exercise/**"
-      - "services/main-frontend/**"
-      - "services/quizzes/**"
-      - "services/tmc/**"
-      - "storybook/**"
+    paths:
+      - ".github/actions/setup-node-pnpm/**"
+      - ".github/workflows/headless-lms-doc.yml"
+      - "bin/.common"
+      - "bin/generate-doc-files"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "rust-toolchain.toml"
+      - "services/headless-lms/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -39,23 +43,28 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Rust toolchain
-        run: rustup show
-
-      - name: Update rust to get edition 2021 support
-        run: rustup update stable
+      - name: Cache Cargo dependencies and docs build output
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            services/headless-lms/target/
+          key: ${{ runner.os }}-headless-lms-docs-cargo-${{ hashFiles('services/headless-lms/Cargo.lock', 'rust-toolchain.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-headless-lms-docs-cargo-
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: Run pnpm install --frozen-lockfile
-        run: pnpm install --frozen-lockfile && git config --unset core.hooksPath
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Generate doc files
-        run: |
-          bin/generate-doc-files
-          pnpm run eslint:format-generated-docs
+        run: bin/generate-doc-files
 
       - name: Generate documentation
-        run: cargo doc --document-private-items
+        run: cargo doc --workspace --no-deps --document-private-items
         working-directory: services/headless-lms
 
       - name: Deploy

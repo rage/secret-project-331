@@ -30,7 +30,10 @@ import {
 } from "./ai/menu"
 
 import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import {
+  useConfirmDialogControls,
+  useDialog,
+} from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const PARAGRAPH_BLOCK_NAME = "core/paragraph"
@@ -100,7 +103,9 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
           />
         )
         close()
-        const confirmed = await confirm(dialogContent, t("ai-dialog-title-apply"))
+        const confirmed = await confirm(dialogContent, t("ai-dialog-title-apply"), {
+          confirmDisabled: true,
+        })
         if (confirmed && selectedSuggestion) {
           try {
             const safeHtml = sanitizeParagraphHtml(selectedSuggestion, {
@@ -292,9 +297,14 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
     onSelectionChange,
   }: ParagraphAiSuggestionDialogProps) => {
     const { t } = useTranslation()
+    const confirmDialogControls = useConfirmDialogControls()
     const [suggestions, setSuggestions] = useState<string[] | null>(null)
     const [error, setError] = useState(false)
     const [selectedIndex, setSelectedIndex] = useState(0)
+
+    useEffect(() => {
+      confirmDialogControls?.setConfirmDisabled(suggestions === null || error)
+    }, [confirmDialogControls, error, suggestions])
 
     useEffect(() => {
       let cancelled = false
@@ -320,6 +330,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
               : [result.text ?? requestContent]
           const list = rawSuggestions.filter((s) => s.trim().length > 0)
           if (list.length === 0) {
+            onSelectionChange?.("")
             setError(true)
             return
           }
@@ -327,6 +338,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
           onSelectionChange?.(list[0] ?? "")
         } catch {
           if (!cancelled) {
+            onSelectionChange?.("")
             setError(true)
           }
         }

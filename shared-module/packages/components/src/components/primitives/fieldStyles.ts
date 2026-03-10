@@ -10,7 +10,7 @@ const sizeValues = {
     inputPaddingTop: "1rem",
     inputPaddingBottom: "0.375rem",
     inputPaddingX: "0.75rem",
-    labelRestTop: "0.75rem",
+    labelRestTop: "0.9rem",
     labelLeft: "0.625rem",
     labelFloatTop: "-0.45rem",
     labelScale: 0.82,
@@ -21,7 +21,7 @@ const sizeValues = {
     inputPaddingTop: "1.25rem",
     inputPaddingBottom: "0.5rem",
     inputPaddingX: "0.875rem",
-    labelRestTop: "0.875rem",
+    labelRestTop: "1.2rem",
     labelLeft: "0.75rem",
     labelFloatTop: "-0.5rem",
     labelScale: 0.85,
@@ -32,7 +32,7 @@ const sizeValues = {
     inputPaddingTop: "1.375rem",
     inputPaddingBottom: "0.625rem",
     inputPaddingX: "1rem",
-    labelRestTop: "0.95rem",
+    labelRestTop: "1.25rem",
     labelLeft: "0.875rem",
     labelFloatTop: "-0.55rem",
     labelScale: 0.88,
@@ -42,9 +42,6 @@ const sizeValues = {
 } as const
 
 type SizeValues = (typeof sizeValues)[FieldSize]
-
-// ─── Layout ──────────────────────────────────────────────────────────────────
-
 export const fieldRootCss = css`
   width: 100%;
   display: flex;
@@ -55,9 +52,6 @@ export const fieldControlCss = css`
   position: relative;
   width: 100%;
 `
-
-// ─── Base input/textarea ──────────────────────────────────────────────────────
-
 const inputBaseCss = css`
   width: 100%;
   box-sizing: border-box;
@@ -106,8 +100,6 @@ const inputBaseCss = css`
   }
 `
 
-// ─── Size-specific input CSS (single-line) ────────────────────────────────────
-
 function makeInputSizeCss(s: SizeValues): string {
   return css`
     padding: ${s.inputPaddingTop} ${s.inputPaddingX} ${s.inputPaddingBottom};
@@ -126,6 +118,14 @@ function makeInputSizeCss(s: SizeValues): string {
     &[aria-invalid="true"]:focus + label,
     &[aria-invalid="true"]:not(:placeholder-shown) + label {
       color: var(--field-label-color-invalid);
+    }
+
+    /* When the label is floated (focused or filled), reduce top padding so the
+       text content appears optically centered within the control. */
+    [data-floated="true"] & {
+      /* Keep total vertical padding constant while shifting content upward. */
+      padding-top: calc(${s.inputPaddingTop} - 0.35rem);
+      padding-bottom: calc(${s.inputPaddingBottom} + 0.35rem);
     }
 
     /* Icon slots: extra horizontal padding so text doesn't overlap icons. */
@@ -156,8 +156,6 @@ export function resolveInputCss(size: FieldSize): string {
   return cx(inputBaseCss, inputSizeStyles[size])
 }
 
-// ─── Size-specific textarea CSS ───────────────────────────────────────────────
-
 function makeTextareaSizeCss(s: SizeValues): string {
   return css`
     padding: ${s.inputPaddingTop} ${s.inputPaddingX} ${s.inputPaddingBottom};
@@ -175,6 +173,11 @@ function makeTextareaSizeCss(s: SizeValues): string {
     &[aria-invalid="true"]:focus + label,
     &[aria-invalid="true"]:not(:placeholder-shown) + label {
       color: var(--field-label-color-invalid);
+    }
+
+    [data-floated="true"] & {
+      padding-top: calc(${s.inputPaddingTop} - 0.35rem);
+      padding-bottom: calc(${s.inputPaddingBottom} + 0.35rem);
     }
 
     [data-has-icon-start="true"] & {
@@ -201,8 +204,6 @@ const textareaSizeStyles: Record<FieldSize, string> = {
 export function resolveTextareaCss(size: FieldSize): string {
   return cx(inputBaseCss, textareaSizeStyles[size])
 }
-
-// ─── Label ────────────────────────────────────────────────────────────────────
 
 const labelBaseCss = css`
   position: absolute;
@@ -250,8 +251,6 @@ const labelSizeStyles: Record<FieldSize, string> = {
 export function resolveFieldLabelCss(size: FieldSize): string {
   return cx(labelBaseCss, labelSizeStyles[size])
 }
-
-// ─── Icon slots ───────────────────────────────────────────────────────────────
 
 const iconSlotBaseCss = css`
   position: absolute;
@@ -325,8 +324,6 @@ export const textareaIconSlotEndStyles: Record<FieldSize, string> = {
   lg: makeTextareaIconSlotEndCss(sizeValues.lg),
 }
 
-// ─── Messages (description / error) ──────────────────────────────────────────
-
 const messageBaseCss = css`
   margin: 0.375rem 0 0;
 `
@@ -359,8 +356,6 @@ export function resolveMessageCss(size: FieldSize, isError: boolean): string {
     isError ? messageErrorCss : messageDescriptionCss,
   )
 }
-
-// ─── Size resolver (used by components for the size prop) ─────────────────────
 
 /** Returns the size value object for a given FieldSize – useful for tests and
  *  components that need raw geometry values. */

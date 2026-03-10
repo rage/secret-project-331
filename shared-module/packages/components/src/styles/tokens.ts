@@ -206,5 +206,22 @@ export const tokensGlobal = injectGlobal`
     --btn-tertiary-bg-pressed: var(--color-clear-300);
     --btn-tertiary-shadow-hover: 0 4px 12px rgba(26, 35, 51, 0.15);
     --btn-tertiary-outline-width: 3px;
+
+    /* field */
+    --field-bg: #ffffff;
+    --field-bg-disabled: var(--color-gray-50);
+    --field-border-color: var(--color-gray-300);
+    --field-border-color-focus: var(--color-blue-500);
+    --field-border-color-invalid: var(--color-crimson-600);
+    --field-text-color: var(--color-gray-800);
+    --field-text-color-disabled: var(--color-gray-400);
+    --field-label-color: var(--color-gray-500);
+    --field-label-color-focus: var(--color-blue-600);
+    --field-label-color-invalid: var(--color-crimson-700);
+    --field-message-color: var(--color-gray-500);
+    --field-message-color-invalid: var(--color-crimson-700);
+    --field-icon-color: var(--color-gray-400);
+    --field-icon-slot-width: 2.5rem;
+    --field-transition: border-color 160ms ease, box-shadow 160ms ease;
   }
 `

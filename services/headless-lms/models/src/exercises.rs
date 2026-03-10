@@ -1,6 +1,7 @@
 use derive_more::Display;
 use futures::future::BoxFuture;
 use itertools::Itertools;
+use tracing::info;
 use url::Url;
 
 use crate::{
@@ -14,7 +15,7 @@ use crate::{
     peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
     peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
-    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmissionWithSubmissionOwner,
     peer_review_queue_entries::PeerReviewQueueEntry,
     prelude::*,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
@@ -46,6 +47,7 @@ pub struct Exercise {
     pub needs_self_review: bool,
     pub use_course_default_peer_or_self_review_config: bool,
     pub exercise_language_group_id: Option<Uuid>,
+    pub teacher_reviews_answer_after_locking: bool,
 }
 
 impl Exercise {
@@ -78,9 +80,10 @@ pub struct ExerciseStatusSummaryForUser {
     pub exercise: Exercise,
     pub user_exercise_state: Option<UserExerciseState>,
     pub exercise_slide_submissions: Vec<ExerciseSlideSubmission>,
-    pub given_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub given_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmissionWithSubmissionOwner>,
     pub given_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
-    pub received_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub received_peer_or_self_review_submissions:
+        Vec<PeerOrSelfReviewSubmissionWithSubmissionOwner>,
     pub received_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
     pub teacher_grading_decision: Option<TeacherGradingDecision>,
@@ -416,7 +419,13 @@ pub async fn get_course_material_exercise(
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExercise> {
-    let exercise = get_by_id(conn, exercise_id).await?;
+    let mut exercise = get_by_id(conn, exercise_id).await?;
+    if exercise.deadline.is_none()
+        && let Some(chapter_id) = exercise.chapter_id
+    {
+        let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
+        exercise.deadline = chapter.deadline;
+    }
     let (current_exercise_slide, instance_or_exam_id) =
         get_or_select_exercise_slide(&mut *conn, user_id, &exercise, fetch_service_info).await?;
     info!(
@@ -692,6 +701,29 @@ RETURNING id;
     Ok(deleted_ids)
 }
 
+pub async fn update_teacher_reviews_answer_after_locking(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    teacher_reviews_answer_after_locking: bool,
+) -> ModelResult<Exercise> {
+    let exercise = sqlx::query_as!(
+        Exercise,
+        r#"
+UPDATE exercises
+SET teacher_reviews_answer_after_locking = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING *
+        "#,
+        exercise_id,
+        teacher_reviews_answer_after_locking
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(exercise)
+}
+
 pub async fn set_exercise_to_use_exercise_specific_peer_or_self_review_config(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -748,6 +780,17 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_id(
         .into_group_map_by(|o| o.exercise_id);
     let mut given_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_given_peer_or_self_review_submissions_for_user_and_course(&mut *conn, user_id, course_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
+    let given_submission_ids: Vec<Uuid> = given_peer_or_self_review_submissions
+        .values()
+        .flatten()
+        .map(|prs| prs.exercise_slide_submission_id)
+        .collect();
+    let submission_owner_user_ids =
+        crate::exercise_slide_submissions::get_user_ids_by_submission_ids(
+            &mut *conn,
+            &given_submission_ids,
+        )
+        .await?;
     let mut received_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_received_peer_or_self_review_submissions_for_user_and_course(&mut *conn, user_id, course_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
     let given_peer_or_self_review_submission_ids = given_peer_or_self_review_submissions
@@ -814,10 +857,27 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_id(
                 .unwrap_or_default();
             let given_peer_or_self_review_submissions = given_peer_or_self_review_submissions
                 .remove(&exercise.id)
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into_iter()
+                .map(|prs| {
+                    let submission_owner_user_id = submission_owner_user_ids
+                        .get(&prs.exercise_slide_submission_id)
+                        .copied();
+                    PeerOrSelfReviewSubmissionWithSubmissionOwner {
+                        submission: prs,
+                        submission_owner_user_id,
+                    }
+                })
+                .collect();
             let received_peer_or_self_review_submissions = received_peer_or_self_review_submissions
                 .remove(&exercise.id)
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into_iter()
+                .map(|prs| PeerOrSelfReviewSubmissionWithSubmissionOwner {
+                    submission: prs,
+                    submission_owner_user_id: None,
+                })
+                .collect();
             let given_peer_or_self_review_question_submissions =
                 given_peer_or_self_review_question_submissions
                     .remove(&exercise.id)
@@ -1107,6 +1167,7 @@ WHERE user_exercise_state_id IN (
 mod test {
     use super::*;
     use crate::{
+        chapters,
         course_instance_enrollments::{self, NewCourseInstanceEnrollment},
         exercise_service_info::{self, PathInfo},
         exercise_services::{self, ExerciseServiceNewOrUpdate},
@@ -1114,24 +1175,12 @@ mod test {
         test_helper::*,
         user_exercise_states,
     };
+    use chrono::TimeZone;
+    use sqlx::PgConnection;
 
-    #[tokio::test]
-    async fn selects_course_material_exercise_for_enrolled_student() {
-        insert_data!(
-            :tx,
-            user: user_id,
-            org: organization_id,
-            course: course_id,
-            instance: course_instance,
-            :course_module,
-            chapter: chapter_id,
-            page: page_id,
-            exercise: exercise_id,
-            slide: exercise_slide_id,
-            task: exercise_task_id
-        );
+    async fn insert_exercise_service_with_info(tx: &mut PgConnection) {
         let exercise_service = exercise_services::insert_exercise_service(
-            tx.as_mut(),
+            tx,
             &ExerciseServiceNewOrUpdate {
                 name: "text-exercise".to_string(),
                 slug: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
@@ -1142,8 +1191,8 @@ mod test {
         )
         .await
         .unwrap();
-        let _exercise_service_info = exercise_service_info::insert(
-            tx.as_mut(),
+        exercise_service_info::insert(
+            tx,
             &PathInfo {
                 exercise_service_id: exercise_service.id,
                 user_interface_iframe_path: "/iframe".to_string(),
@@ -1155,6 +1204,24 @@ mod test {
         )
         .await
         .unwrap();
+    }
+
+    #[tokio::test]
+    async fn selects_course_material_exercise_for_enrolled_student() {
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: _organization_id,
+            course: course_id,
+            instance: course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: exercise_slide_id,
+            task: exercise_task_id
+        );
+        insert_exercise_service_with_info(tx.as_mut()).await;
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             tx.as_mut(),
             NewCourseInstanceEnrollment {
@@ -1209,5 +1276,63 @@ mod test {
                 .unwrap(),
             exercise_slide_id
         );
+    }
+
+    #[tokio::test]
+    async fn course_material_exercise_inherits_chapter_deadline() {
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: organization_id,
+            course: course_id,
+            instance: course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: page_id,
+            exercise: exercise_id,
+            slide: exercise_slide_id,
+            task: _exercise_task_id
+        );
+        insert_exercise_service_with_info(tx.as_mut()).await;
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id,
+                course_instance_id: course_instance.id,
+                user_id,
+            },
+        )
+        .await
+        .unwrap();
+
+        let chapter_deadline = Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap();
+        let chapter = chapters::get_chapter(tx.as_mut(), chapter_id)
+            .await
+            .unwrap();
+        chapters::update_chapter(
+            tx.as_mut(),
+            chapter_id,
+            chapters::ChapterUpdate {
+                name: chapter.name,
+                color: chapter.color,
+                front_page_id: chapter.front_page_id,
+                deadline: Some(chapter_deadline),
+                opens_at: chapter.opens_at,
+                course_module_id: Some(chapter.course_module_id),
+            },
+        )
+        .await
+        .unwrap();
+
+        let exercise = get_course_material_exercise(
+            tx.as_mut(),
+            Some(user_id),
+            exercise_id,
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(exercise.exercise.deadline, Some(chapter_deadline));
     }
 }

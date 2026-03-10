@@ -6,8 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { createTeacherGradingDecision } from "../services/backend/teacher-grading-decisions"
 
-import CustomPointsPopup from "./page-specific/manage/exercises/id/submissions/CustomPointsPopup"
-
+import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"

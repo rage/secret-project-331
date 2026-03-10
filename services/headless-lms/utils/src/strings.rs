@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use rand::{Rng, distr::Alphanumeric, rng};
+use rand::{RngExt, distr::Alphanumeric, rng};
 use regex::Regex;
 
 static IETF_LANGUAGE_CODE_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -18,7 +18,7 @@ pub fn generate_random_string(length: usize) -> String {
 pub fn generate_easily_writable_random_string(length: usize) -> String {
     rng()
         .sample_iter(Alphanumeric)
-        .filter(|c| c.is_ascii_lowercase() || c.is_ascii_digit())
+        .filter(|c: &u8| c.is_ascii_lowercase() || c.is_ascii_digit())
         // Filter out characters that might be confused with each other
         .filter(|c| c != &b'l' && c != &b'1' && c != &b'o' && c != &b'0')
         .take(length)

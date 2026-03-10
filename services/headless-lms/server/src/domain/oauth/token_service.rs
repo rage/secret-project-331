@@ -79,11 +79,13 @@ pub async fn process_token_grant(
                     ref_uri,
                 )
                 .await
-                .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?
+                .map_err(|_| TokenGrantError::InvalidGrant("Given grant is invalid".to_string()))?
             } else {
                 OAuthAuthCode::consume_in_transaction(&mut tx, code_digest, request.client.id)
                     .await
-                    .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?
+                    .map_err(|_| {
+                        TokenGrantError::InvalidGrant("Given grant is invalid".to_string())
+                    })?
             };
 
             // PKCE verification happens after client_id check (enforced in SQL)

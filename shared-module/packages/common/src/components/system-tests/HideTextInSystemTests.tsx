@@ -5,8 +5,8 @@ import React from "react"
 import useShouldHideStuffFromSystemTestScreenshots from "../../hooks/useShouldHideStuffForSystemTestScreenshots"
 
 interface HideTextInSystemTestProps {
-  text: string
-  testPlaceholder: string
+  text: React.ReactNode
+  testPlaceholder: React.ReactNode
 }
 
 // IF you have dynamic data that should be hidden in system tests, like timestamps using this component will hide the information automatically whenever a system test takes a screenshot.

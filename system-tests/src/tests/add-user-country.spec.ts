@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test"
 import { Topbar } from "@/utils/components/Topbar"
 import { UserSettingsPage } from "@/utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { logoutViaTopbar } from "@/utils/flows/topbar.flow"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test("User can add missing country information", async ({ page }) => {
   await test.step("Pop-up form for existing user who is missing country info", async () => {
@@ -18,14 +20,16 @@ test("User can add missing country information", async ({ page }) => {
     // Form to fill missing country
     // The country prompt has priority over course instance selection (see useDialogStep hook)
     // so it will always show first if both are needed
-    await expect(
-      page.locator("div").filter({ hasText: /^Fill missing information$/ }),
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
     await page.getByRole("button", { name: "Select a country Where do you" }).click()
     await page.getByRole("option", { name: "Andorra" }).click()
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Success", { exact: true })).toBeVisible()
-
+    await waitForSuccessNotification(
+      page,
+      async () => {
+        await page.getByRole("button", { name: "Save" }).click()
+      },
+      "Success",
+    )
     // After country prompt is handled, check if course instance selection is needed
     await selectCourseInstanceIfPrompted(page)
 
@@ -40,7 +44,7 @@ test("User can add missing country information", async ({ page }) => {
       { field: "country", expectedValue: "Finland" },
     )
 
-    await topbar.userMenu.clickItem("Log out")
+    await logoutViaTopbar(page)
   })
 
   await test.step("Add country when creating a new user and see that pop-up form doesn't show", async () => {

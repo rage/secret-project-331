@@ -122,7 +122,15 @@ mod tests {
         let assignment_blocks = vec![paragraph("Answer this question.", Uuid::new_v4())];
         let spec = JsonSource::Inline(json!({"type": "multiple_choice"}));
 
-        ExerciseBuilder::quizzes("Test Exercise", ids, false, None, spec, assignment_blocks)
+        ExerciseBuilder::quizzes(
+            "Test Exercise",
+            ids,
+            false,
+            None,
+            spec,
+            assignment_blocks,
+            true,
+        )
     }
 
     #[test]

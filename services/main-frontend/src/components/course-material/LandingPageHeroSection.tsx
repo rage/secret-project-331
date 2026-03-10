@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import ParsedText from "./ParsedText"
 
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import Button from "@/shared-module/common/components/Button"
 import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"

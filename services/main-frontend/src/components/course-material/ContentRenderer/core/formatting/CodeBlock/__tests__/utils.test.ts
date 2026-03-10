@@ -2,9 +2,32 @@ import { renderHook } from "@testing-library/react"
 
 import {
   decodeHtmlEntities,
+  formatHighlightedLinesRanges,
   replaceBrTagsWithNewlines,
   useCopyHtmlContentToClipboard,
 } from "../utils"
+
+describe("formatHighlightedLinesRanges", () => {
+  it("returns empty string for empty set", () => {
+    expect(formatHighlightedLinesRanges(new Set())).toBe("")
+  })
+
+  it("formats single line", () => {
+    expect(formatHighlightedLinesRanges(new Set([1]))).toBe("1")
+  })
+
+  it("formats consecutive lines as range", () => {
+    expect(formatHighlightedLinesRanges(new Set([2, 3, 4]))).toBe("2 to 4")
+  })
+
+  it("formats mixed single and range", () => {
+    expect(formatHighlightedLinesRanges(new Set([1, 5, 6, 7, 10, 13]))).toBe("1, 5 to 7, 10, 13")
+  })
+
+  it("sorts unsorted set", () => {
+    expect(formatHighlightedLinesRanges(new Set([10, 1, 5]))).toBe("1, 5, 10")
+  })
+})
 
 describe("replaceBrTagsWithNewlines", () => {
   it("should return null when input is null", () => {

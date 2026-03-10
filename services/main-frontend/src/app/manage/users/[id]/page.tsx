@@ -7,10 +7,13 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseInstanceEnrollmentsList from "@/components/page-specific/manage/user/id/CourseInstanceEnrollmentsList"
-import ExerciseResetLogList from "@/components/page-specific/manage/user/id/ExerciseResetLogList"
-import { useUserDetails } from "@/hooks/useUserDetails"
-import { getCourseInstanceEnrollmentsInfo } from "@/services/backend/users"
+import CourseEnrollmentsList from "./CourseEnrollmentsList"
+import ExerciseResetLogList from "./ExerciseResetLogList"
+
+import DeletedUserNotice from "@/components/DeletedUserNotice"
+import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
+import { getCourseEnrollmentsInfo } from "@/services/backend/users"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -26,32 +29,39 @@ const UserPage: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  // Get course enrollments to find course contexts for user details
-  const courseInstanceEnrollmentsQuery = useQuery({
-    queryKey: ["course-instance-enrollments", id],
-    queryFn: () => getCourseInstanceEnrollmentsInfo(id),
+  const courseEnrollmentsQuery = useQuery({
+    queryKey: ["course-enrollments", id],
+    queryFn: () => getCourseEnrollmentsInfo(id),
   })
 
-  // Get all course IDs from enrollments to use for user details
-  const courseIds =
-    courseInstanceEnrollmentsQuery.data?.course_instance_enrollments.map(
-      (enrollment) => enrollment.course_id,
-    ) ?? []
+  const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? []
 
   const userDetailsQuery = useUserDetails(courseIds, id)
+  const userDetails = extractUserDetail(userDetailsQuery.data)
+  const userDetailsNotFound = isUserDetailsNotFound(userDetailsQuery.data)
 
-  if (courseInstanceEnrollmentsQuery.isError) {
-    return <ErrorBanner error={courseInstanceEnrollmentsQuery.error} variant="readOnly" />
+  if (courseEnrollmentsQuery.isError) {
+    return <ErrorBanner error={courseEnrollmentsQuery.error} variant="readOnly" />
   }
-  if (courseInstanceEnrollmentsQuery.isLoading) {
+  if (courseEnrollmentsQuery.isLoading) {
     return <Spinner variant="medium" />
   }
 
   if (userDetailsQuery.isError) {
     return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />
   }
-  if (userDetailsQuery.isLoading || !userDetailsQuery.data) {
+  if (userDetailsQuery.isLoading) {
     return <Spinner variant="medium" />
+  }
+
+  if (!userDetailsQuery.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void userDetailsQuery.refetch()
+        }}
+      />
+    )
   }
 
   return (
@@ -61,19 +71,25 @@ const UserPage: React.FC = () => {
         <p>
           {t("label-user-id")}: {id}
         </p>
-        <p>
-          {t("label-email")}: {userDetailsQuery.data.email}
-        </p>
-        <p>
-          {t("first-name")}: {userDetailsQuery.data.first_name}
-        </p>
-        <p>
-          {t("last-name")}: {userDetailsQuery.data.last_name}
-        </p>
+        {userDetailsNotFound ? (
+          <DeletedUserNotice userId={id} />
+        ) : (
+          <>
+            <p>
+              {t("label-email")}: {userDetails?.email}
+            </p>
+            <p>
+              {t("first-name")}: {userDetails?.first_name}
+            </p>
+            <p>
+              {t("last-name")}: {userDetails?.last_name}
+            </p>
+          </>
+        )}
       </Area>
       <Area>
-        <h2>{t("header-course-instance-enrollments")}</h2>
-        <CourseInstanceEnrollmentsList userId={id} />
+        <h2>{t("header-course-enrollments")}</h2>
+        <CourseEnrollmentsList userId={id} />
       </Area>
       <OnlyRenderIfPermissions action={{ type: "teach" }} resource={{ type: "global_permissions" }}>
         <Area>

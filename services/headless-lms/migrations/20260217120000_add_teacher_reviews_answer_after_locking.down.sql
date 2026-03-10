@@ -1,0 +1,1 @@
+ALTER TABLE exercises DROP COLUMN teacher_reviews_answer_after_locking;

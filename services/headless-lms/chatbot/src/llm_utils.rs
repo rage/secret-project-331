@@ -5,6 +5,7 @@ use crate::{
 };
 use core::default::Default;
 use headless_lms_models::{
+    application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
     chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
     chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
@@ -16,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use tracing::{debug, error, instrument, trace, warn};
 
 // API version for Azure OpenAI calls
-pub const LLM_API_VERSION: &str = "2024-06-01";
+pub const LLM_API_VERSION: &str = "2024-10-21";
 
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -450,7 +451,7 @@ pub async fn make_streaming_llm_request(
 }
 
 /// Makes a non-streaming request to an LLM using application configuration
-#[instrument(skip(chat_request, app_config), fields(
+#[instrument(skip(chat_request, app_config, task_lm), fields(
     num_messages = chat_request.messages.len(),
     temperature,
     max_tokens
@@ -458,6 +459,7 @@ pub async fn make_streaming_llm_request(
 pub async fn make_blocking_llm_request(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
+    task_lm: &TaskLMSpec,
 ) -> anyhow::Result<LLMCompletionResponse> {
     debug!(
         "Preparing blocking LLM request with {} messages",
@@ -473,12 +475,36 @@ pub async fn make_blocking_llm_request(
         anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
     })?;
 
-    let api_endpoint = chatbot_config
-        .api_endpoint
-        .join("gpt-4o/chat/completions")?;
+    let model = task_lm.deployment_name.to_owned();
+    let path = model + "/chat/completions";
+
+    let api_endpoint = chatbot_config.api_endpoint.join(&path)?;
 
     trace!("Making LLM request to endpoint: {}", api_endpoint);
     make_llm_request(chat_request, &api_endpoint, &chatbot_config.api_key).await
+}
+
+/// Collects all the completion choices to a string. Assumes the completion has only
+/// text message content, no tool calls or responses.
+pub fn parse_text_completion(completion: LLMCompletionResponse) -> ChatbotResult<String> {
+    let res =
+    completion
+        .choices
+        .into_iter()
+        .map(|x| match x.message.fields {
+            APIMessageKind::Text(message) => Ok(message.content),
+            _ =>  Err(ChatbotError::new( ChatbotErrorType::InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.", None)),
+        })
+        .collect::<ChatbotResult<Vec<String>>>()?
+        .join("");
+    if res.is_empty() {
+        return Err(ChatbotError::new(
+            ChatbotErrorType::InvalidMessageShape,
+            "No content returned from LLM",
+            None,
+        ));
+    };
+    Ok(res)
 }
 
 #[cfg(test)]

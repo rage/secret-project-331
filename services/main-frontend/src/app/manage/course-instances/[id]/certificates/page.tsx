@@ -6,10 +6,9 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CertificateForm, {
-  CertificateFields,
-} from "@/components/page-specific/manage/certificates/CertificateForm"
-import CertificateView from "@/components/page-specific/manage/certificates/CertificateView"
+import CertificateForm, { CertificateFields } from "./CertificateForm"
+import CertificateView from "./CertificateView"
+
 import {
   deleteCertificateConfiguration,
   updateCertificateConfiguration,

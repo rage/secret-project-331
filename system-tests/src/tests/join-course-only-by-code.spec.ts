@@ -1,6 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -56,11 +57,12 @@ test("Join course by code only", async ({}) => {
 
     const oldJoinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
     const oldJoinCodeHref = await oldJoinCodeElement.getAttribute("href")
-    // eslint-disable-next-line playwright/no-conditional-in-test
+
     const oldJoinCode = oldJoinCodeHref?.replace("/join?code=", "").trim() || ""
 
-    await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
-    await teacherPage.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(teacherPage, async () => {
+      await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
+    })
 
     await teacherPage.waitForFunction((oldCode) => {
       const link = document.querySelector('a[href^="/join?code="]') as HTMLAnchorElement
@@ -73,7 +75,7 @@ test("Join course by code only", async ({}) => {
 
     const joinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
     const joinCodeHref = await joinCodeElement.getAttribute("href")
-    // eslint-disable-next-line playwright/no-conditional-in-test
+
     joinCode = joinCodeHref?.replace("/join?code=", "").trim() || ""
     expect(joinCode).not.toBe("")
     expect(joinCode).not.toBe(oldJoinCode)

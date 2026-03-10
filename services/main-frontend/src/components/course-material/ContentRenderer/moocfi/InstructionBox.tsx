@@ -5,10 +5,10 @@ import React from "react"
 
 import { BlockRendererProps } from ".."
 
+import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface InstructionBoxAttributes {
   content: string
@@ -51,11 +51,7 @@ const InstructionBlock: React.FC<
             }
           `}
         >
-          <span
-            dangerouslySetInnerHTML={{
-              __html: sanitizeCourseMaterialHtml(props.data.attributes.content),
-            }}
-          />
+          <ParsedText text={props.data.attributes.content} tag="span" useWrapperElement={true} />
         </div>
       </div>
     </>

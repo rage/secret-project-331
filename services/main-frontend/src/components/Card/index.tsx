@@ -21,6 +21,9 @@ export interface CardExtraProps {
   points?: { awarded: number; max: number }
   showLock?: boolean
   isLocked?: boolean
+  deadline?: string | null
+  exerciseDeadline?: string | null
+  exerciseDeadlinesMultiple?: boolean
 }
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps

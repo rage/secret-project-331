@@ -5,6 +5,7 @@ This documents all endpoints. Select a module below for a category.
 
 */
 
+pub mod ai_suggestions;
 pub mod chapters;
 pub mod code_giveaways;
 pub mod course_instances;
@@ -31,5 +32,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/exams").configure(exams::_add_routes))
         .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
         .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes))
-        .service(web::scope("/repository-exercises").configure(repository_exercises::_add_routes));
+        .service(web::scope("/repository-exercises").configure(repository_exercises::_add_routes))
+        .service(web::scope("/ai-suggestions").configure(ai_suggestions::_add_routes));
 }

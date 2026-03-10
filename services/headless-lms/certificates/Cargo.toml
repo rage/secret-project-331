@@ -12,13 +12,13 @@ headless-lms-models = { path = "../models" }
 rust-i18n = "3.1.5"
 
 # An SVG rendering library.
-resvg = "0.45.1"
+resvg = "0.47.0"
 # An SVG simplification library.
-usvg = "0.45.1"
+usvg = "0.47.0"
 # A simple, streaming XML writer.
 xmlwriter = "0.1.0"
 # High performance xml reader and writer
-quick-xml = "0.38.4"
+quick-xml = "0.39.2"
 # International Components for Unicode
 icu = { version = "2.1.1", features = ["serde"] }
 # Trait and struct definitions for the ICU data provider
@@ -28,17 +28,17 @@ icu_provider_adapters = "2.1.1"
 # Single assignment cells and lazy values.
 once_cell = "1.21.3"
 # URL library for Rust, based on the WHATWG URL Standard
-url = "2.5.7"
+url = "2.5.8"
 # Application-level tracing for Rust.
-tracing = "0.1.43"
+tracing = "0.1.44"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.100"
+anyhow = "1.0.102"
 # Date and time library for Rust
-chrono = "0.4.42"
+chrono = "0.4.44"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.19.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.21.0", features = ["serde", "v4", "v5"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
-futures = "0.3.31"
+futures = "0.3.32"
 # supports loading ICU4X data from a single serialized blob
 icu_provider_blob = "2.1.1"
 

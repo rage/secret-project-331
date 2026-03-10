@@ -7,9 +7,9 @@ import { useParams } from "next/navigation"
 import React, { useEffect, useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
-import CourseList from "@/components/page-specific/org/organizationSlug/CourseList"
-import ExamList from "@/components/page-specific/org/organizationSlug/ExamList"
+import CourseList from "./CourseList"
+import ExamList from "./ExamList"
+
 import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -34,7 +34,6 @@ const Organization: React.FC = () => {
 
   return (
     <>
-      <MainFrontendBreadCrumbs organizationSlug={organizationSlug} courseId={null} />
       <div>
         {organizationQuery.isSuccess && (
           <h1

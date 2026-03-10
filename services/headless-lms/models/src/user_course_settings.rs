@@ -17,7 +17,7 @@ pub async fn upsert_user_course_settings_for_enrollment(
     conn: &mut PgConnection,
     course_instance_enrollment: &CourseInstanceEnrollment,
 ) -> ModelResult<UserCourseSettings> {
-    use crate::{chapters, courses, user_chapter_locking_statuses};
+    use crate::{courses, user_chapter_locking_statuses};
 
     let course = courses::get_course(conn, course_instance_enrollment.course_id).await?;
 
@@ -51,29 +51,12 @@ RETURNING *;
     .await?;
 
     if course.chapter_locking_enabled {
-        let existing_statuses = user_chapter_locking_statuses::get_by_user_and_course(
+        let _ = user_chapter_locking_statuses::get_or_init_all_for_course(
             &mut *conn,
             course_instance_enrollment.user_id,
             course_instance_enrollment.course_id,
         )
         .await?;
-
-        let has_unlocked_or_completed = existing_statuses.iter().any(|s| {
-            matches!(
-                s.status,
-                user_chapter_locking_statuses::ChapterLockingStatus::Unlocked
-                    | user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked
-            )
-        });
-
-        if !has_unlocked_or_completed {
-            chapters::unlock_first_chapters_for_user(
-                &mut *conn,
-                course_instance_enrollment.user_id,
-                course_instance_enrollment.course_id,
-            )
-            .await?;
-        }
     }
 
     Ok(user_course_settings)
@@ -152,6 +135,26 @@ WHERE current_course_id = ANY($1)
   AND deleted_at IS NULL
         ",
         course_ids,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Returns all non-deleted user course settings for a user.
+pub async fn get_all_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<UserCourseSettings>> {
+    let res = sqlx::query_as!(
+        UserCourseSettings,
+        "
+SELECT *
+FROM user_course_settings
+WHERE user_id = $1
+  AND deleted_at IS NULL
+        ",
         user_id,
     )
     .fetch_all(conn)

@@ -23,8 +23,9 @@ export class PermissionsTab {
 
     await this.page.getByLabel(targetLabel).click()
 
-    await this.page.getByRole("button", { name: "Save" }).click()
-    await waitForSuccessNotification(this.page, "Operation successful")
+    await waitForSuccessNotification(this.page, async () => {
+      await this.page.getByRole("button", { name: "Save" }).click()
+    })
 
     if (verifyUpdate) {
       const actualValue = await this.getGeneralResearchConsentValue()
@@ -146,9 +147,10 @@ export class PermissionsTab {
     const apps = await this.getAuthorizedApplications()
     const app = apps.find((a) => a.name === appName)
     if (app) {
-      await app.revokeButton.click()
       try {
-        await waitForSuccessNotification(this.page, "Operation successful")
+        await waitForSuccessNotification(this.page, async () => {
+          await app.revokeButton.click()
+        })
       } catch {
         const appsAfterClick = await this.getAuthorizedApplications()
         const stillExists = appsAfterClick.some((a) => a.name === appName)

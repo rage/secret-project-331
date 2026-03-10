@@ -141,6 +141,8 @@
   "quiz-timeline-name": "خط زمني",
   "quiz-title-invalid-format": "تنسيق غير صالح: تحقق من العلامات",
   "quiz-type-not-supported": "نوع الاختبار غير مدعوم",
+  "quizzes-dynamic-loading-slow-warning": "يستغرق تحميل جزء من التطبيق وقتًا أطول من المتوقع.",
+  "quizzes-dynamic-loading-very-slow-warning": "قد يكون ذلك بسبب مشاكل في الشبكة. إذا لم يكتمل التحميل قريبًا، يرجى إعادة تحميل الصفحة.",
   "regex": "تعبير عادي",
   "regular-expression-tester": "مختبر التعبير العادي",
   "remove": "إزالة",

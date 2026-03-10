@@ -3,9 +3,12 @@ import { expect, test } from "@playwright/test"
 import { Topbar } from "../utils/components/Topbar"
 import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import { logoutViaTopbar } from "../utils/flows/topbar.flow"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
 test("Research consent form is visible on login, if not yet answered", async ({
   page,
   headless,
@@ -35,11 +38,15 @@ test("Research consent form is visible on login, if not yet answered", async ({
       snapshotName: "research-consent-form",
       waitForTheseToBeVisibleAndStable: [page.getByText("Regarding research done on courses")],
     })
-    await page.getByTestId("research-consent-dialog").getByRole("button", { name: "Save" }).click()
-    await page.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page
+        .getByTestId("research-consent-dialog")
+        .getByRole("button", { name: "Save" })
+        .click()
+    })
 
     //Login again and check research consent form doesn't show again when already answered.
-    await topbar.userMenu.clickItem("Log out")
+    await logoutViaTopbar(page)
     await topbar.clickLogin()
 
     await page.click(`label:has-text("Email")`)
@@ -57,13 +64,13 @@ test("Research consent form is visible on login, if not yet answered", async ({
       page,
       "University of Helsinki, Department of Mathematics and Statistics",
     )
-    await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
+    await page.getByRole("link", { name: "Navigate to course 'Change language course'" }).click()
     await selectCourseInstanceIfPrompted(page)
     // eslint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
 
     const topbar2 = new Topbar(page)
-    await topbar2.userMenu.clickItem("Log out")
+    await topbar2.logout()
     await topbar2.clickLogin()
     await page.click(`label:has-text("Email")`)
     await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")

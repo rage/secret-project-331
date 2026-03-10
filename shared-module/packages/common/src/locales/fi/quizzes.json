@@ -141,6 +141,8 @@
   "quiz-timeline-name": "Aikajana",
   "quiz-title-invalid-format": "Virheellinen muotoilu: tarkista tunnisteet",
   "quiz-type-not-supported": "Quizin tyyppi ei tuettu",
+  "quizzes-dynamic-loading-slow-warning": "Sovelluksen osan lataaminen kestää odotettua kauemmin.",
+  "quizzes-dynamic-loading-very-slow-warning": "Tämä saattaa johtua verkko-ongelmista. Jos lataus ei pian valmistu, lataa sivu uudelleen.",
   "regex": "Regex",
   "regular-expression-tester": "Säännöllisen lausekkeen testaaja",
   "remove": "Poista",

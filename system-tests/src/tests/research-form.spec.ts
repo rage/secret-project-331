@@ -5,6 +5,7 @@ import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsP
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -24,7 +25,7 @@ test("User can create and respond to research form in a course", async ({
     await page.getByRole("button", { name: "Create or edit research form" }).click()
     await page.getByRole("button", { name: "create" }).click()
     await page.getByRole("button", { name: "Add block" }).click()
-    await page.getByRole("option", { name: "Heading" }).click()
+    await page.getByRole("option", { name: "Heading", exact: true }).click()
     await page.getByRole("document", { name: "Block: Heading" }).fill("Research form")
     await page.getByRole("combobox", { name: "Toggle view" }).selectOption("block-menu")
     await page.getByRole("option", { name: "Paragraph" }).click()
@@ -42,8 +43,9 @@ test("User can create and respond to research form in a course", async ({
     await page.getByRole("textbox").fill("I want to take part in reseach")
     await page.getByRole("textbox").press("ArrowLeft")
     await page.getByRole("textbox").fill("I want to take part in research")
-    await page.getByRole("button", { name: "Save" }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
   })
 
   await test.step("Research form is shown on a coursepage if not answered", async () => {
@@ -60,8 +62,9 @@ test("User can create and respond to research form in a course", async ({
       waitForTheseToBeVisibleAndStable: [page.getByText("Research form")],
     })
     await page.getByText("I want to take part in research").click()
-    await page.getByRole("button", { name: "Save" }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
   })
 
   await test.step("User can change answer of the research form", async () => {

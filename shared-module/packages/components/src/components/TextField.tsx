@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { mergeProps, useObjectRef, useTextField } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
 
@@ -43,6 +43,11 @@ export type TextFieldProps = React.ComponentPropsWithoutRef<"input"> & {
   validate?: AriaTextFieldProps["validate"]
 }
 
+/** Returns true when the current input value is non-empty. */
+function isFilled(value: unknown): boolean {
+  return typeof value === "string" ? value.length > 0 : false
+}
+
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
   function TextField(props, forwardedRef) {
     const {
@@ -80,6 +85,10 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
     } = props
 
     const inputRef = useObjectRef(forwardedRef)
+    const [isFocused, setIsFocused] = useState(false)
+    const [isContentFilled, setIsContentFilled] = useState(() =>
+      isFilled(value) ? true : isFilled(defaultValue),
+    )
 
     const ariaProps: AriaTextFieldProps = {
       label,
@@ -112,10 +121,43 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       validationErrors,
     } = useTextField(ariaProps, inputRef)
 
+    useEffect(() => {
+      if (isFilled(value)) {
+        setIsContentFilled(true)
+        return
+      }
+      if (typeof value === "string") {
+        setIsContentFilled(false)
+        return
+      }
+      if (inputRef.current) {
+        setIsContentFilled(inputRef.current.value.length > 0)
+      } else {
+        setIsContentFilled(isFilled(defaultValue))
+      }
+    }, [value, defaultValue, inputRef])
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (typeof value !== "string") {
+        setIsContentFilled(e.target.value.length > 0)
+      }
+      onChange?.(e)
+    }
+
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(true)
+      onFocus?.(e)
+    }
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(false)
+      onBlur?.(e)
+    }
+
     const mergedInputProps = mergeProps(inputProps, domProps, {
-      onChange,
-      onFocus,
-      onBlur,
+      onChange: handleChange,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
       // Single space keeps :placeholder-shown false only when the field has content,
       // which drives the floating-label CSS transition.
       placeholder: " ",
@@ -132,12 +174,18 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       mergedInputProps["aria-describedby"],
     )
 
+    const isFloated = isFocused || isContentFilled
+
     return (
       <div className={cx(fieldRootCss, className)}>
         <div
           className={fieldControlCss}
           data-has-icon-start={iconStart ? "true" : undefined}
           data-has-icon-end={iconEnd ? "true" : undefined}
+          data-focused={isFocused ? "true" : "false"}
+          data-filled={isContentFilled ? "true" : "false"}
+          data-floated={isFloated ? "true" : "false"}
+          data-invalid={hookIsInvalid ? "true" : "false"}
         >
           <input
             {...mergedInputProps}

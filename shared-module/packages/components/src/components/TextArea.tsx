@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { mergeProps, useObjectRef, useTextField } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
 
@@ -47,6 +47,11 @@ export type TextAreaProps = React.ComponentPropsWithoutRef<"textarea"> & {
   autoResizeMaxHeightPx?: number
   /** Called after the height changes due to auto-resize. */
   onAutoResized?: () => void
+}
+
+/** Returns true when the current textarea value is non-empty. */
+function isFilled(value: unknown): boolean {
+  return typeof value === "string" ? value.length > 0 : false
 }
 
 /** Adjusts the element height to fit its scrollable content. Returns true if height changed. */
@@ -99,6 +104,10 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     } = props
 
     const textareaRef = useObjectRef(forwardedRef)
+    const [isFocused, setIsFocused] = useState(false)
+    const [isContentFilled, setIsContentFilled] = useState(() =>
+      isFilled(value) ? true : isFilled(defaultValue),
+    )
 
     const ariaProps = {
       label,
@@ -130,8 +139,24 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       validationErrors,
     } = useTextField(ariaProps, textareaRef)
 
+    useEffect(() => {
+      if (isFilled(value)) {
+        setIsContentFilled(true)
+        return
+      }
+      if (typeof value === "string") {
+        setIsContentFilled(false)
+        return
+      }
+      if (textareaRef.current) {
+        setIsContentFilled(textareaRef.current.value.length > 0)
+      } else {
+        setIsContentFilled(isFilled(defaultValue))
+      }
+    }, [value, defaultValue, textareaRef])
+
     // Auto-resize on mount and when the controlled value changes.
-    React.useEffect(() => {
+    useEffect(() => {
       if (!autoResize || !textareaRef.current) {
         return
       }
@@ -142,6 +167,9 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     }, [value, autoResize, autoResizeMaxHeightPx, onAutoResized, textareaRef])
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      if (typeof value !== "string") {
+        setIsContentFilled(e.target.value.length > 0)
+      }
       if (autoResize && textareaRef.current) {
         const changed = applyAutoResize(textareaRef.current, autoResizeMaxHeightPx)
         if (changed) {
@@ -151,10 +179,20 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       onChange?.(e)
     }
 
+    const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+      setIsFocused(true)
+      onFocus?.(e)
+    }
+
+    const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+      setIsFocused(false)
+      onBlur?.(e)
+    }
+
     const mergedTextareaProps = mergeProps(inputProps, domProps, {
       onChange: handleChange,
-      onFocus,
-      onBlur,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
       placeholder: " ",
     })
 
@@ -167,12 +205,18 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       mergedTextareaProps["aria-describedby"],
     )
 
+    const isFloated = isFocused || isContentFilled
+
     return (
       <div className={cx(fieldRootCss, className)}>
         <div
           className={fieldControlCss}
           data-has-icon-start={iconStart ? "true" : undefined}
           data-has-icon-end={iconEnd ? "true" : undefined}
+          data-focused={isFocused ? "true" : "false"}
+          data-filled={isContentFilled ? "true" : "false"}
+          data-floated={isFloated ? "true" : "false"}
+          data-invalid={hookIsInvalid ? "true" : "false"}
         >
           <textarea
             {...mergedTextareaProps}

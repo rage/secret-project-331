@@ -76,6 +76,68 @@ describe("TextField – accessibility wiring", () => {
   })
 })
 
+describe("TextField – floating label behavior (DOM state)", () => {
+  test("starts at rest when empty and unfocused", () => {
+    const { container } = renderUi(<TextField label="Email" />)
+    const control = container.firstChild?.firstChild as HTMLElement
+    expect(control).toHaveAttribute("data-floated", "false")
+    expect(control).toHaveAttribute("data-filled", "false")
+    expect(control).toHaveAttribute("data-focused", "false")
+  })
+
+  test("floats on focus and returns to rest on blur when empty", () => {
+    const { container } = renderUi(<TextField label="Email" />)
+    const control = container.firstChild?.firstChild as HTMLElement
+    const input = screen.getByRole("textbox")
+
+    fireEvent.focus(input)
+    expect(control).toHaveAttribute("data-focused", "true")
+    expect(control).toHaveAttribute("data-floated", "true")
+
+    fireEvent.blur(input)
+    expect(control).toHaveAttribute("data-focused", "false")
+    expect(control).toHaveAttribute("data-floated", "false")
+  })
+
+  test("starts floated when defaultValue is present", () => {
+    const { container } = renderUi(<TextField label="Email" defaultValue="a@b.com" />)
+    const control = container.firstChild?.firstChild as HTMLElement
+    expect(control).toHaveAttribute("data-filled", "true")
+    expect(control).toHaveAttribute("data-floated", "true")
+  })
+
+  test("controlled value: floats when non-empty, returns to rest when empty", () => {
+    const { container, rerender } = renderUi(<TextField label="Email" value="a@b.com" />)
+    const control = container.firstChild?.firstChild as HTMLElement
+    expect(control).toHaveAttribute("data-filled", "true")
+    expect(control).toHaveAttribute("data-floated", "true")
+
+    rerender(<TextField label="Email" value="" />)
+    expect(control).toHaveAttribute("data-filled", "false")
+    expect(control).toHaveAttribute("data-floated", "false")
+  })
+
+  test("uncontrolled change: becomes filled when user types and returns when emptied", () => {
+    const { container } = renderUi(<TextField label="Email" />)
+    const control = container.firstChild?.firstChild as HTMLElement
+    const input = screen.getByRole("textbox")
+
+    fireEvent.change(input, { target: { value: "x" } })
+    expect(control).toHaveAttribute("data-filled", "true")
+    expect(control).toHaveAttribute("data-floated", "true")
+
+    fireEvent.change(input, { target: { value: "" } })
+    expect(control).toHaveAttribute("data-filled", "false")
+    expect(control).toHaveAttribute("data-floated", "false")
+  })
+
+  test("invalid state is reflected in data-invalid", () => {
+    const { container } = renderUi(<TextField label="Email" errorMessage="Bad" />)
+    const control = container.firstChild?.firstChild as HTMLElement
+    expect(control).toHaveAttribute("data-invalid", "true")
+  })
+})
+
 describe("TextField – disabled and read-only states", () => {
   test("disabled prop disables the input", () => {
     renderUi(<TextField label="Name" disabled />)

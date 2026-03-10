@@ -1,6 +1,6 @@
 "use client"
 
-import type { Preview } from "@storybook/react"
+import type { Preview } from "@storybook/react-vite"
 
 import { tokensGlobal } from "../src/shared-module/components"
 

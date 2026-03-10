@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 import { ArrowRight, Star } from "@vectopus/atlas-icons-react"
 
 import { Button } from "../../src/shared-module/components"

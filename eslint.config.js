@@ -1,3 +1,5 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+
 import js from "@eslint/js"
 import next from "@next/eslint-plugin-next"
 import tanstackQuery from "@tanstack/eslint-plugin-query"
@@ -11,6 +13,7 @@ import playwright from "eslint-plugin-playwright"
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 import react from "eslint-plugin-react"
 import reactHooks from "eslint-plugin-react-hooks"
+import storybook from "eslint-plugin-storybook"
 import globals from "globals"
 
 const DETECT_CSS_REGEX = /:.*;/
@@ -486,6 +489,7 @@ const config = [
       "@typescript-eslint/triple-slash-reference": "off",
     },
   },
+  ...storybook.configs["flat/recommended"],
 ]
 
 export default config

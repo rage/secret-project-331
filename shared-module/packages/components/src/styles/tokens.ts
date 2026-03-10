@@ -4,7 +4,7 @@ export const tokensGlobal = injectGlobal`
   :root {
     /* sizing */
     --control-gap: var(--space-3);
-    --control-radius: var(--space-3);
+    --control-radius: var(--space-2);
 
     --control-height-sm: var(--space-5);
     --control-height-md: var(--space-6);
@@ -39,7 +39,7 @@ export const tokensGlobal = injectGlobal`
     --focus-ring-width: 2px;
     --focus-ring-offset: 2px;
     --focus-ring-offset-color: transparent;
-    --focus-ring-color: rgba(0, 120, 212, 0.6);
+    --focus-ring-color: rgba(31, 105, 100, 0.6);
 
     /* disabled */
     --btn-disabled-opacity: 0.55;
@@ -211,12 +211,12 @@ export const tokensGlobal = injectGlobal`
     --field-bg: #ffffff;
     --field-bg-disabled: var(--color-gray-50);
     --field-border-color: var(--color-gray-300);
-    --field-border-color-focus: var(--color-blue-500);
+    --field-border-color-focus: var(--color-green-500);
     --field-border-color-invalid: var(--color-crimson-600);
     --field-text-color: var(--color-gray-800);
     --field-text-color-disabled: var(--color-gray-400);
     --field-label-color: var(--color-gray-500);
-    --field-label-color-focus: var(--color-blue-600);
+    --field-label-color-focus: var(--color-green-600);
     --field-label-color-invalid: var(--color-crimson-700);
     --field-message-color: var(--color-gray-500);
     --field-message-color-invalid: var(--color-crimson-700);

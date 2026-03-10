@@ -15,7 +15,7 @@ const sizeValues = {
     labelFloatTop: "-0.45rem",
     labelScale: 0.82,
     messageFontSize: "0.8125rem",
-    borderRadius: "0.625rem",
+    borderRadius: "0.375rem",
   },
   md: {
     inputPaddingTop: "1.25rem",
@@ -26,7 +26,7 @@ const sizeValues = {
     labelFloatTop: "-0.5rem",
     labelScale: 0.85,
     messageFontSize: "0.875rem",
-    borderRadius: "0.75rem",
+    borderRadius: "0.4375rem",
   },
   lg: {
     inputPaddingTop: "1.375rem",
@@ -37,7 +37,7 @@ const sizeValues = {
     labelFloatTop: "-0.55rem",
     labelScale: 0.88,
     messageFontSize: "0.9375rem",
-    borderRadius: "0.875rem",
+    borderRadius: "0.5rem",
   },
 } as const
 

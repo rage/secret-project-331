@@ -11,8 +11,6 @@ pub struct SeedOAuthClientsResult {
     pub client_db_id: Uuid,
 }
 
-const TEST_CLIENT_IDS: &[&str] = &["test-client-id", "test-client-id-2", "test-client-id-3"];
-
 pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedOAuthClientsResult> {
     info!("Inserting OAuth Clients");
     let secret =
@@ -25,23 +23,6 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         .map(|p| format!("http://127.0.0.1:{p}/callback"))
         .collect();
     redirect_uris.push("https://localhost.emobix.co.uk:8443/test/a/testing/callback".to_string());
-
-    // Update redirect_uris for existing test clients so re-running seed fixes "redirect_uri does not match client".
-    for client_id in TEST_CLIENT_IDS {
-        let updated = sqlx::query(
-            "UPDATE oauth_clients SET redirect_uris = $1, updated_at = now() WHERE client_id = $2 AND deleted_at IS NULL",
-        )
-        .bind(&redirect_uris)
-        .bind(*client_id)
-        .execute(&mut *conn)
-        .await?;
-        if updated.rows_affected() > 0 {
-            info!(
-                "Updated redirect_uris for existing OAuth client {}",
-                client_id
-            );
-        }
-    }
 
     let scopes = vec![
         "openid".to_string(),

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+mport { expect, test } from "@playwright/test"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -19,9 +19,9 @@ test("Can get and accept paragraph AI suggestions", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Improve" }).click()
   await page.getByRole("menuitem", { name: "Fix spelling & grammar" }).click()
 
-  await expect(page.getByText("Suggestion 1")).toBeVisible()
-  await page.getByText("Suggestion 1").click()
+  await expect(page.getByText("Suggestion 1")).first().toBeVisible()
+  await page.getByText("Suggestion 1").first().click()
   await page.getByRole("button", { name: "Yes" }).click()
 
   await expect(page.getByText("Mock suggestion 1: The paragraph has been improved.")).toBeVisible()
-})
+

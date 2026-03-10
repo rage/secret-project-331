@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["TEST_CLIENT_IDS"],"fn":["seed_oauth_clients"],"struct":["SeedOAuthClientsResult"]};
+window.SIDEBAR_ITEMS = {"fn":["seed_oauth_clients"],"struct":["SeedOAuthClientsResult"]};

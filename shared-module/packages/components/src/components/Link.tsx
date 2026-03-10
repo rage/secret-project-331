@@ -77,6 +77,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       onPointerDown,
       onPointerUp,
       onPointerCancel,
+      className,
       children,
       tabIndex,
       ...rest
@@ -130,12 +131,16 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
           ? 0
           : linkProps.tabIndex
 
-    const rootClassName = styledAsButtonResolved
-      ? resolveButtonRootCss({
-          size: (styledAsButtonResolved ? size : undefined) ?? "md",
-          variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
-        })
-      : undefined
+    const rootClassName =
+      cx(
+        styledAsButtonResolved
+          ? resolveButtonRootCss({
+              size: (styledAsButtonResolved ? size : undefined) ?? "md",
+              variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
+            })
+          : undefined,
+        className,
+      ) || undefined
 
     const resolvedIcon = styledAsButtonResolved ? icon : undefined
     // eslint-disable-next-line i18next/no-literal-string

@@ -92,6 +92,16 @@ describe("Button", () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
+  test("preserves caller supplied className", () => {
+    renderUi(<Button className="stack-item">Save</Button>)
+
+    const button = screen.getByRole("button", { name: "Save" })
+    const classNames = button.getAttribute("class")?.split(" ").filter(Boolean) ?? []
+
+    expect(button).toHaveClass("stack-item")
+    expect(classNames.length).toBeGreaterThan(1)
+  })
+
   test("keyboard: Enter triggers onPress", () => {
     const onPress = jest.fn()
 

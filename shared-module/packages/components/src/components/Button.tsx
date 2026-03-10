@@ -61,6 +61,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       onKeyUp,
       onFocus,
       onBlur,
+      className,
       ...rest
     } = props
 
@@ -92,7 +93,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const { buttonProps, isPressed } = useButton(ariaOptions, ref)
 
-    const rootClassName = resolveButtonRootCss({ size, variant })
+    const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
 
     return (
       <button

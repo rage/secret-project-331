@@ -108,6 +108,20 @@ describe("Link", () => {
     expect(onPress).toHaveBeenCalledTimes(0)
   })
 
+  test("disabled link does not fire caller onClick", () => {
+    const onClick = jest.fn()
+
+    renderUi(
+      <Link href="/settings" isDisabled onClick={onClick}>
+        Settings
+      </Link>,
+    )
+
+    fireEvent.click(screen.getByRole("link", { name: "Settings" }))
+
+    expect(onClick).toHaveBeenCalledTimes(0)
+  })
+
   test("enabled link fires onPress on click", () => {
     const onPress = jest.fn()
 
@@ -181,6 +195,16 @@ describe("Link variants and sizes", () => {
     expect(link.getAttribute("class")).toBeNull()
   })
 
+  test("plain link preserves caller supplied className", () => {
+    renderUi(
+      <Link href="/settings" className="nav-link">
+        Settings
+      </Link>,
+    )
+
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveClass("nav-link")
+  })
+
   test.each(variants)("styledAsButton variant renders with styles: %s", (variant) => {
     renderUi(
       <Link href="/x" styledAsButton variant={variant} size="md">
@@ -201,5 +225,19 @@ describe("Link variants and sizes", () => {
     const link = screen.getByRole("link", { name: "Go" })
     expect(link).toBeInTheDocument()
     expect(link.getAttribute("class")).toBeTruthy()
+  })
+
+  test("styledAsButton preserves caller supplied className", () => {
+    renderUi(
+      <Link href="/checkout" styledAsButton className="nav-link">
+        Continue
+      </Link>,
+    )
+
+    const link = screen.getByRole("link", { name: "Continue" })
+    const classNames = link.getAttribute("class")?.split(" ").filter(Boolean) ?? []
+
+    expect(link).toHaveClass("nav-link")
+    expect(classNames.length).toBeGreaterThan(1)
   })
 })

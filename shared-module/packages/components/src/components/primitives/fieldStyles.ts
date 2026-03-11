@@ -1,5 +1,4 @@
 import { css, cx } from "@emotion/css"
-
 import { assertNever } from "../../lib/utils/assertNever"
 
 export type FieldSize = "sm" | "md" | "lg"
@@ -370,4 +369,151 @@ export function getFieldSizeValues(size: FieldSize): SizeValues {
     default:
       return assertNever(size)
   }
+}
+
+export const controlSurfaceBaseCss = css`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  border: 1px solid var(--field-border);
+  border-radius: calc(var(--control-radius) + 4px);
+  background: var(--field-bg);
+  color: var(--field-fg);
+  box-shadow: var(--field-shadow);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease;
+
+  &:focus-within {
+    border-color: var(--field-border-focus);
+    box-shadow:
+      0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14),
+      var(--field-shadow);
+  }
+
+  &[data-invalid="true"] {
+    border-color: var(--field-error-border);
+  }
+
+  &[data-invalid="true"]:focus-within {
+    box-shadow:
+      0 0 0 var(--focus-ring-width) rgba(158, 52, 31, 0.14),
+      var(--field-shadow);
+  }
+
+  &[data-disabled="true"] {
+    background: var(--field-disabled-bg);
+    border-color: var(--field-disabled-border);
+    color: var(--field-disabled-fg);
+  }
+
+  &[data-readonly="true"] {
+    background: var(--field-readonly-bg);
+  }
+`
+
+export const controlSurfaceFloatingCss = css`
+  padding-top: 20px;
+`
+
+export const inputResetCss = css`
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.4;
+  outline: none;
+
+  &::placeholder {
+    color: var(--field-placeholder);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    -webkit-text-fill-color: currentColor;
+  }
+`
+
+export const inputWithFloatingLabelCss = css`
+  padding-top: 2px;
+`
+
+export const textareaResetCss = css`
+  ${inputResetCss}
+  resize: vertical;
+  min-height: 96px;
+  padding-bottom: 2px;
+`
+
+export const textAreaPlainControlCss = css`
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+
+  &:focus-within {
+    border-color: transparent;
+    box-shadow: none;
+  }
+`
+
+export const textAreaPlainTextareaCss = css`
+  min-height: 0;
+`
+
+export const inlineAffixCss = css`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--field-chrome);
+
+  & > svg {
+    width: 1em;
+    height: 1em;
+  }
+`
+
+const controlSurfaceSizeSmCss = css`
+  min-height: var(--control-height-sm);
+  padding: calc(var(--control-padding-x-sm) - 2px) var(--control-padding-x-sm)
+    calc(var(--control-padding-x-sm) - 2px);
+  font-size: var(--font-size-sm);
+`
+
+const controlSurfaceSizeMdCss = css`
+  min-height: var(--control-height-md);
+  padding: calc(var(--control-padding-x-md) - 2px) var(--control-padding-x-md)
+    calc(var(--control-padding-x-md) - 2px);
+  font-size: var(--font-size-md);
+`
+
+const controlSurfaceSizeLgCss = css`
+  min-height: var(--control-height-lg);
+  padding: calc(var(--control-padding-x-lg) - 2px) var(--control-padding-x-lg)
+    calc(var(--control-padding-x-lg) - 2px);
+  font-size: var(--font-size-lg);
+`
+
+const controlSurfaceSizeStyles: Record<FieldSize, string> = {
+  sm: controlSurfaceSizeSmCss,
+  md: controlSurfaceSizeMdCss,
+  lg: controlSurfaceSizeLgCss,
+}
+
+export function resolveControlSurfaceCss(fieldSize: FieldSize, isFloating = false) {
+  return cx(
+    controlSurfaceBaseCss,
+    controlSurfaceSizeStyles[fieldSize],
+    isFloating ? controlSurfaceFloatingCss : undefined,
+  )
 }

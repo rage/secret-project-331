@@ -1,19 +1,25 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useId, useState } from "react"
 import { mergeProps, useObjectRef, useTextField } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
+import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
 
+import { FieldShell } from "./primitives/FieldShell"
 import {
   fieldControlCss,
   fieldRootCss,
   type FieldSize,
+  resolveControlSurfaceCss,
   resolveFieldLabelCss,
   resolveMessageCss,
   resolveTextareaCss,
+  textAreaPlainControlCss,
+  textAreaPlainTextareaCss,
+  textareaResetCss,
   textareaIconSlotEndStyles,
   textareaIconSlotStartStyles,
 } from "./primitives/fieldStyles"
@@ -25,6 +31,8 @@ export type TextAreaProps = React.ComponentPropsWithoutRef<"textarea"> & {
   description?: React.ReactNode
   /** Error message; also sets the field to invalid when provided. */
   errorMessage?: React.ReactNode
+  /** Optional non-error notice rendered in the stacked/plain layout. */
+  notice?: React.ReactNode
   /** Visual size of the field control: "sm", "md" (default), or "lg". */
   fieldSize?: FieldSize
   /** Decorative icon rendered at the leading edge. Anchored to the label resting position. */
@@ -39,6 +47,8 @@ export type TextAreaProps = React.ComponentPropsWithoutRef<"textarea"> & {
   isRequired?: boolean
   /** Marks the field invalid regardless of validation state. */
   isInvalid?: boolean
+  /** Compatibility layout switch used by EditableComponentTextArea. */
+  appearance?: "field" | "plain"
   validationBehavior?: AriaTextFieldProps["validationBehavior"]
   validate?: AriaTextFieldProps["validate"]
   /** When true the textarea grows to fit its content. */
@@ -74,6 +84,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       label,
       description,
       errorMessage,
+      notice,
       fieldSize = "md",
       iconStart,
       iconEnd,
@@ -87,6 +98,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       isReadOnly,
       isRequired,
       isInvalid,
+      appearance = "field",
       validationBehavior,
       validate,
       id,
@@ -96,12 +108,20 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       maxLength,
       minLength,
       className,
+      placeholder,
       autoResize = false,
       autoResizeMaxHeightPx,
       onAutoResized,
       "aria-describedby": ariaDescribedByProp,
+      "aria-invalid": ariaInvalid,
       ...domProps
     } = props
+
+    const generatedInputId = useId()
+    const inputId = id ?? generatedInputId
+    const descriptionId = useId()
+    const noticeId = useId()
+    const errorMessageId = useId()
 
     const textareaRef = useObjectRef(forwardedRef)
     const [isFocused, setIsFocused] = useState(false)
@@ -113,7 +133,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       label,
       description,
       errorMessage,
-      id,
+      id: inputId,
       // value/defaultValue must be string for useTextField
       value: value as string | undefined,
       defaultValue: defaultValue as string | undefined,
@@ -205,7 +225,70 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       mergedTextareaProps["aria-describedby"],
     )
 
+    const plainState = resolveFieldState({
+      disabled,
+      readOnly,
+      required,
+      isDisabled,
+      isReadOnly,
+      isRequired,
+      isInvalid,
+      ariaInvalid,
+      errorMessage,
+    })
+
+    const plainDescribedBy = resolveFieldDescribedBy({
+      ariaDescribedBy: ariaDescribedByProp,
+      descriptionId,
+      noticeId,
+      errorMessageId,
+      hasDescription: Boolean(description),
+      hasNotice: Boolean(notice),
+      hasErrorMessage: Boolean(errorMessage),
+    })
+
     const isFloated = isFocused || isContentFilled
+
+    if (appearance === "plain") {
+      return (
+        <FieldShell
+          className={className}
+          controlClassName={cx(resolveControlSurfaceCss(fieldSize), textAreaPlainControlCss)}
+          label={label}
+          inputId={inputId}
+          description={description}
+          descriptionId={description ? descriptionId : undefined}
+          errorMessage={errorMessage}
+          errorMessageId={errorMessage ? errorMessageId : undefined}
+          notice={notice}
+          noticeId={notice ? noticeId : undefined}
+          isDisabled={plainState.isDisabled}
+          isRequired={plainState.isRequired}
+          layout="stacked"
+        >
+          <textarea
+            {...domProps}
+            id={inputId}
+            ref={textareaRef}
+            value={value}
+            defaultValue={defaultValue}
+            className={cx(textareaResetCss, textAreaPlainTextareaCss)}
+            disabled={plainState.isDisabled}
+            readOnly={plainState.isReadOnly}
+            required={plainState.isRequired}
+            aria-invalid={plainState.isInvalid ? "true" : undefined}
+            aria-describedby={plainDescribedBy}
+            autoComplete={autoComplete}
+            maxLength={maxLength}
+            minLength={minLength}
+            placeholder={placeholder}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onChange={handleChange}
+          />
+        </FieldShell>
+      )
+    }
 
     return (
       <div className={cx(fieldRootCss, className)}>

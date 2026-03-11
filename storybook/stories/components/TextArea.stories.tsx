@@ -63,6 +63,7 @@ export const States = {
       <TextArea label="With error" errorMessage="Too short." rows={3} />
       <TextArea label="Disabled" disabled rows={3} />
       <TextArea label="Read only" defaultValue="Read-only content" readOnly rows={3} />
+      <TextArea label="Plain editor" appearance="plain" rows={3} defaultValue="Inline editable text" />
     </div>
   ),
 } satisfies StoryType

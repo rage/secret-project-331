@@ -223,5 +223,27 @@ export const tokensGlobal = injectGlobal`
     --field-icon-color: var(--color-gray-400);
     --field-icon-slot-width: 2.5rem;
     --field-transition: border-color 160ms ease, box-shadow 160ms ease;
+
+    /* compatibility aliases for the broader form component set */
+    --field-fg: var(--field-text-color);
+    --field-label: var(--field-label-color);
+    --field-description: var(--field-message-color);
+    --field-placeholder: var(--color-gray-400);
+    --field-chrome: var(--field-icon-color);
+    --field-border: var(--field-border-color);
+    --field-border-focus: var(--field-border-color-focus);
+    --field-error: var(--field-message-color-invalid);
+    --field-error-border: var(--field-border-color-invalid);
+    --field-disabled-bg: var(--field-bg-disabled);
+    --field-disabled-fg: var(--field-text-color-disabled);
+    --field-disabled-border: var(--field-border-color);
+    --field-readonly-bg: var(--color-blue-25);
+    --field-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    --field-notice: var(--color-yellow-900);
+    --field-option-highlight: var(--color-blue-50);
+    --field-option-selected: var(--color-green-50);
+
+    --switch-track-off: var(--color-clear-800);
+    --switch-track-on: var(--color-green-600);
   }
 `

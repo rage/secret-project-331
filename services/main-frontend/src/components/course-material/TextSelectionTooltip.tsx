@@ -25,7 +25,7 @@ const svgCss = css`
   height: 1.25rem;
   position: relative;
   top: 4px;
-  right: 0;
+  left: 5px;
 `
 
 interface Props {
@@ -199,7 +199,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
       <SpeechBalloon
         placement={attributes.popper?.["data-popper-placement"]}
         className={css`
-          padding: 0.3rem;
+          padding: 0.2rem;
         `}
       >
         <div
@@ -219,7 +219,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
               )
             }}
           >
-            {"Summarize..."}
+            {t("summarize")}
             <AIChat className={svgCss} />
           </Button>
           <Button
@@ -233,7 +233,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
               )
             }}
           >
-            {"Explain this..."}
+            {t("explain-this")}
             <AIChat className={svgCss} />
           </Button>
           <Button onClick={giveFeedbackHandleClick}>{t("give-feedback")}</Button>

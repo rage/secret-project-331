@@ -53,63 +53,50 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
         }
       `}
 
-      ${placement == "top" &&
-      `
-      margin-bottom: ${POINTER_SIZE};
+      ${placement == "bottom" && `margin-top: calc(${POINTER_SIZE} * 2.5);`}
+      ${placement == "top" && `margin-bottom: ${POINTER_SIZE};`}
       &:after {
+        ${placement == "bottom" &&
+        `
+          top: -${POINTER_SIZE};
+          border-bottom: ${POINTER_SIZE} solid ${COLORS.border};
+          filter: drop-shadow(0px -10px 6px ${COLORS.shadowArrow});
+        `}
+        ${placement == "top" &&
+        `
+          bottom: -${POINTER_SIZE};
+          border-top: ${POINTER_SIZE} solid ${COLORS.border};
+          filter: drop-shadow(0 8px 6px ${COLORS.shadowArrow});
+        `}
         content: "";
         position: absolute;
-        bottom: -${POINTER_SIZE};
         left: calc(50% - ${POINTER_SIZE});
         width: 0;
         height: 0;
         border-left: ${POINTER_SIZE} solid transparent;
         border-right: ${POINTER_SIZE} solid transparent;
-        border-top: ${POINTER_SIZE} solid ${COLORS.border};
-        filter: drop-shadow(0 8px 6px ${COLORS.shadowArrow});
       }
 
       &:before {
+        ${placement == "bottom" &&
+        `
+          top: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
+          border-bottom: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
+        `}
+        ${placement == "top" &&
+        `
+          bottom: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
+          border-top: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
+        `}
         content: "";
         position: absolute;
-        bottom: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
         left: calc(50% - ${POINTER_SIZE} + ${BORDER_WIDTH});
         width: 0;
         height: 0;
         border-left: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
         border-right: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
-        border-top: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
         z-index: 1;
-      }`}
-
-      ${placement == "bottom" &&
-      `
-      margin-top: calc(${POINTER_SIZE} * 2.5);
-      &:after {
-        content: "";
-        position: absolute;
-        top: -${POINTER_SIZE};
-        left: calc(50% - ${POINTER_SIZE});
-        width: 0;
-        height: 0;
-        border-left: ${POINTER_SIZE} solid transparent;
-        border-right: ${POINTER_SIZE} solid transparent;
-        border-bottom: ${POINTER_SIZE} solid ${COLORS.border};
-        filter: drop-shadow(0px -10px 6px ${COLORS.shadowArrow});
       }
-
-      &:before {
-        content: "";
-        position: absolute;
-        top: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
-        left: calc(50% - ${POINTER_SIZE} + ${BORDER_WIDTH});
-        width: 0;
-        height: 0;
-        border-left: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
-        border-right: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
-        border-bottom: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
-        z-index: 1;
-      }`}
     `
 
     return (

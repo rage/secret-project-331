@@ -1,0 +1,76 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+function print_usage() {
+  echo "Usage: bin/git-resolve-system-test-screenshot-conflicts --ours|--theirs [repo-relative screenshot paths...]"
+}
+
+ensure_inside_git_work_tree
+ensure_git_lfs_installed
+
+if [ "$#" -lt 1 ]; then
+  print_usage
+  exit 1
+fi
+
+STRATEGY="$1"
+shift
+
+case "$STRATEGY" in
+  --ours)
+    CHECKOUT_FLAG="--ours"
+    MERGE_STAGE="2"
+    STRATEGY_LABEL="ours"
+    ;;
+  --theirs)
+    CHECKOUT_FLAG="--theirs"
+    MERGE_STAGE="3"
+    STRATEGY_LABEL="theirs"
+    ;;
+  *)
+    print_usage
+    exit 1
+    ;;
+esac
+
+declare -a conflict_paths=()
+
+if [ "$#" -eq 0 ]; then
+  mapfile -d '' -t conflict_paths < <(git diff --name-only -z --diff-filter=U -- "$SYSTEM_TEST_SCREENSHOTS_PATH")
+else
+  for path in "$@"; do
+    if ! path_is_within_system_test_screenshots "$path"; then
+      echo "$path is not inside $SYSTEM_TEST_SCREENSHOTS_PATH. Aborting."
+      exit 1
+    fi
+
+    if ! git diff --name-only --diff-filter=U -- "$path" | grep -q .; then
+      echo "$path is not an unresolved merge conflict. Aborting."
+      exit 1
+    fi
+
+    conflict_paths+=("$path")
+  done
+fi
+
+if [ "${#conflict_paths[@]}" -eq 0 ]; then
+  echo -e "${GREEN}No unresolved system-test screenshot conflicts found.${RESET_EVERYTHING}"
+  exit 0
+fi
+
+for path in "${conflict_paths[@]}"; do
+  if git rev-parse -q --verify ":$MERGE_STAGE:$path" &> /dev/null; then
+    run_command git checkout "$CHECKOUT_FLAG" -- "$path"
+    hydrate_git_lfs_path_if_needed "$path" "$path"
+    run_command git add -- "$path"
+    echo "Resolved $path using $STRATEGY_LABEL and re-staged it through Git LFS."
+  else
+    run_command git rm -- "$path"
+    echo "Resolved $path by accepting the $STRATEGY_LABEL-side deletion."
+  fi
+done
+
+echo ""
+echo "If master brought in new screenshot PNGs outside LFS, run:"
+echo "  bin/git-migrate-system-test-screenshots-to-lfs"

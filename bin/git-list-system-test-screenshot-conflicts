@@ -1,0 +1,20 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+ensure_inside_git_work_tree
+
+mapfile -d '' -t conflict_paths < <(git diff --name-only -z --diff-filter=U -- "$SYSTEM_TEST_SCREENSHOTS_PATH")
+
+if [ "${#conflict_paths[@]}" -eq 0 ]; then
+  echo -e "${GREEN}No unresolved system-test screenshot conflicts found.${RESET_EVERYTHING}"
+  exit 0
+fi
+
+echo -e "${RED}Unresolved system-test screenshot conflicts:${RESET_EVERYTHING}"
+printf '%s\n' "${conflict_paths[@]}"
+echo ""
+echo "Resolve them with:"
+echo "  bin/git-resolve-system-test-screenshot-conflicts --theirs"
+echo "or"
+echo "  bin/git-resolve-system-test-screenshot-conflicts --ours"

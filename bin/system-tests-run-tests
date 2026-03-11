@@ -3,6 +3,7 @@ set -euo pipefail
 source "$(dirname "$0")/.common"
 
 ensure_git_lfs_installed
+ensure_system_test_snapshots_hydrated
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../system-tests"

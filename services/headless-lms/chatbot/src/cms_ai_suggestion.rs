@@ -113,6 +113,7 @@ fn action_instruction(action: ParagraphSuggestionAction) -> String {
         }
         ParagraphSuggestionAction::TranslateEnglish
         | ParagraphSuggestionAction::TranslateFinnish
+        | ParagraphSuggestionAction::TranslateNorwegian
         | ParagraphSuggestionAction::TranslateSwedish => {
             "Translate the paragraph into the target language while preserving meaning, domain terminology, and inline formatting. Do not add, omit, simplify, paraphrase, or reinterpret the content."
         }

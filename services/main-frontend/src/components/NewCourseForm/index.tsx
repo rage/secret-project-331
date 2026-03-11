@@ -33,6 +33,7 @@ export interface FormFields extends Omit<NewCourse, "organization_id" | "can_add
 
 export const ENGLISH_LANGUAGE_CODE = "en"
 export const FINNISH_LANGUAGE_CODE = "fi"
+export const NORWEGIAN_LANGUAGE_CODE = "no"
 export const SWEDISH_LANGUAGE_CODE = "sv"
 export const DEFAULT_LANGUAGE_CODE = ENGLISH_LANGUAGE_CODE
 

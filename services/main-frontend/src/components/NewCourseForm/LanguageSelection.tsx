@@ -9,6 +9,7 @@ import {
   FieldContainer,
   FINNISH_LANGUAGE_CODE,
   FormFields,
+  NORWEGIAN_LANGUAGE_CODE,
   SWEDISH_LANGUAGE_CODE,
 } from "."
 
@@ -66,6 +67,15 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
           value={SWEDISH_LANGUAGE_CODE}
           {...register("language_code")}
           onChange={(_event) => handleLanguageSelectionChange(SWEDISH_LANGUAGE_CODE)}
+        />
+      </FieldContainer>
+      <FieldContainer>
+        <RadioButton
+          key={NORWEGIAN_LANGUAGE_CODE}
+          label={t("norwegian")}
+          value={NORWEGIAN_LANGUAGE_CODE}
+          {...register("language_code")}
+          onChange={(_event) => handleLanguageSelectionChange(NORWEGIAN_LANGUAGE_CODE)}
         />
       </FieldContainer>
       <FieldContainer>

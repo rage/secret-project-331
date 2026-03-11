@@ -58,6 +58,7 @@ export type AiActionLabelKey =
   | "ai-tone-serious"
   | "ai-translate-english"
   | "ai-translate-finnish"
+  | "ai-translate-norwegian"
   | "ai-translate-swedish"
 
 export const AI_ACTIONS: AiActionDefinition[] = [
@@ -218,6 +219,13 @@ export const AI_TRANSLATE_SUBMENU: AiSubmenuGroup = {
       labelKey: "ai-translate-finnish",
       group: "translate",
       meta: { language: "fi" },
+    },
+    {
+      id: "translate-norwegian",
+      abilityName: "moocfi/ai/translate-norwegian",
+      labelKey: "ai-translate-norwegian",
+      group: "translate",
+      meta: { language: "no" },
     },
     {
       id: "translate-swedish",

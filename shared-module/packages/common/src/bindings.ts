@@ -215,6 +215,7 @@ export type ParagraphSuggestionAction =
   | "moocfi/ai/tone-serious"
   | "moocfi/ai/translate-english"
   | "moocfi/ai/translate-finnish"
+  | "moocfi/ai/translate-norwegian"
   | "moocfi/ai/translate-swedish"
 
 export interface DatabaseChapter {

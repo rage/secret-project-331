@@ -69,6 +69,8 @@ pub enum ParagraphSuggestionAction {
     TranslateEnglish,
     #[serde(rename = "moocfi/ai/translate-finnish")]
     TranslateFinnish,
+    #[serde(rename = "moocfi/ai/translate-norwegian")]
+    TranslateNorwegian,
     #[serde(rename = "moocfi/ai/translate-swedish")]
     TranslateSwedish,
 }
@@ -110,6 +112,7 @@ impl ParagraphSuggestionAction {
             Self::ToneSerious => "moocfi/ai/tone-serious",
             Self::TranslateEnglish => "moocfi/ai/translate-english",
             Self::TranslateFinnish => "moocfi/ai/translate-finnish",
+            Self::TranslateNorwegian => "moocfi/ai/translate-norwegian",
             Self::TranslateSwedish => "moocfi/ai/translate-swedish",
         }
     }

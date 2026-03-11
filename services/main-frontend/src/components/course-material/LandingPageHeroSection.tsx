@@ -69,14 +69,6 @@ const TextBox = styled.div<TextBoxProps>`
     }
   }
 
-  span {
-    font-style: normal;
-    font-weight: 600;
-    font-size: 22px;
-    line-height: 40px;
-    text-align: center;
-    opacity: 0.7;
-  }
   button {
     margin-top: 2rem;
     text-align: center;

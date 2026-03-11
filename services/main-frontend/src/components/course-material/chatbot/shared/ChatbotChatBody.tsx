@@ -8,8 +8,9 @@ import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { CHATBOX_HEIGHT_PX, MessageAction, MessageState } from "../Chatbot/ChatbotDialog"
+import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
+import { MessageAction, MessageState } from "./ChatbotChat"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"

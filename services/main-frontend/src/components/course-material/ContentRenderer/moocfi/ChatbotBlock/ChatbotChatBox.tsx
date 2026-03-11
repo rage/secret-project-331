@@ -1,12 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
 
-import ChatbotChatBody from "@/components/course-material/chatbot/shared/ChatbotChatBody"
-import ChatbotChatHeader from "@/components/course-material/chatbot/shared/ChatbotChatHeader"
-import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
+import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface ChatbotChatBoxProps {
@@ -14,16 +11,6 @@ export interface ChatbotChatBoxProps {
 }
 
 const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId }) => {
-  const [newMessage, setNewMessage] = React.useState("")
-  const [error, setError] = useState<Error | null>(null)
-
-  const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
-  const newConversationMutation = useNewConversationMutation(
-    chatbotConfigurationId,
-    currentConversationInfoQuery,
-    setNewMessage,
-    setError,
-  )
   return (
     <div
       className={css`
@@ -36,21 +23,7 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
         border-radius: 10px;
       `}
     >
-      <ChatbotChatHeader
-        chatbotConfigurationId={chatbotConfigurationId}
-        currentConversationInfo={currentConversationInfoQuery}
-        newConversation={newConversationMutation}
-        isCourseMaterialBlock={true}
-      />
-      <ChatbotChatBody
-        chatbotConfigurationId={chatbotConfigurationId}
-        currentConversationInfo={currentConversationInfoQuery}
-        newConversation={newConversationMutation}
-        newMessage={newMessage}
-        setNewMessage={setNewMessage}
-        error={error}
-        setError={setError}
-      />
+      <ChatbotChat chatbotConfigurationId={chatbotConfigurationId} isCourseMaterialBlock={true} />
     </div>
   )
 }

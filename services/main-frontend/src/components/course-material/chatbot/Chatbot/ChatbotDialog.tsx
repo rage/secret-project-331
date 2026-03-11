@@ -1,8 +1,7 @@
 "use client"
 
 import { css, keyframes } from "@emotion/css"
-import { useSetAtom } from "jotai"
-import React, { useEffect, useId, useReducer, useRef, useState } from "react"
+import React, { useEffect, useId, useRef, useState } from "react"
 import {
   FocusScope,
   mergeProps,
@@ -11,20 +10,23 @@ import {
   useOverlayTrigger,
   usePopover,
 } from "react-aria"
-import { useTranslation } from "react-i18next"
 
-import ChatbotChat from "./ChatbotChat"
+import ChatbotChat from "../shared/ChatbotChat"
+
 import OpenChatbotButton from "./OpenChatbotButton"
 
 import { ChatbotProps } from "."
 
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
-import { sendChatbotMessage } from "@/services/course-material/backend"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
-
 export const CHATBOX_WIDTH_PX = 500
 export const CHATBOX_HEIGHT_PX = 900
+
+export type ChatbotState = {
+  isOpen: boolean
+  setOpen: (o: boolean) => void
+  open: () => void
+  close: () => void
+  toggle: () => void
+}
 
 const openAnimation = keyframes`
   from {
@@ -48,47 +50,14 @@ const closeAnimation = keyframes`
   }
 `
 
-export interface MessageState {
-  optimisticMessage: string | null
-  streamingMessage: string | null
-}
-
-export type MessageAction =
-  | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
-  | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
-  | { type: "RESET_MESSAGES" }
-
-const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
-  switch (action.type) {
-    case "SET_OPTIMISTIC_MESSAGE":
-      return { ...state, optimisticMessage: action.payload }
-    case "APPEND_STREAMING_MESSAGE":
-      return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
-    case "RESET_MESSAGES":
-      return { optimisticMessage: null, streamingMessage: null }
-    default:
-      return state
-  }
-}
-
 const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const chatbotTitleId = useId()
-  const { t } = useTranslation()
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
-  const [messageState, dispatch] = useReducer(messageReducer, {
-    optimisticMessage: null,
-    streamingMessage: null,
-  })
-  const setSendNewMessage = useSetAtom(defaultChatbotCommunicationChannel)
 
-  const [newMessage, setNewMessage] = React.useState("")
-  const [error, setError] = useState<Error | null>(null)
-
-  let state = {
+  let state: ChatbotState = {
     isOpen,
     setOpen: (o: boolean) => {
       setIsOpen(o)
@@ -109,80 +78,6 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
       }
     },
   }
-
-  const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
-
-  const newMessageMutation = useToastMutation(
-    async (messageToSend: string) => {
-      setChatbotMessageAnnouncement("")
-      if (!state.isOpen) {
-        state.open()
-      }
-      if (!currentConversationInfoQuery.data?.current_conversation) {
-        throw new Error("No active conversation")
-      }
-      setChatbotMessageAnnouncement(t("chatbot-is-responding"))
-      const message = messageToSend.trim()
-      dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
-      setNewMessage("")
-      const stream = await sendChatbotMessage(
-        chatbotConfigurationId,
-        currentConversationInfoQuery.data.current_conversation.id,
-        message,
-      )
-      const reader = stream.getReader()
-
-      let done = false
-      while (!done) {
-        const { done: doneReading, value } = await reader.read()
-        done = doneReading
-        if (value) {
-          const valueAsString = new TextDecoder().decode(value)
-          const lines = valueAsString.split("\n")
-          for (const line of lines) {
-            if (line?.indexOf("{") !== 0) {
-              continue
-            }
-            try {
-              const parsedValue = JSON.parse(line)
-              if (parsedValue.text) {
-                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.text })
-              }
-            } catch (e) {
-              console.error(e)
-            }
-          }
-        }
-      }
-      return stream
-    },
-    { notify: false },
-    {
-      onSuccess: async () => {
-        await currentConversationInfoQuery.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
-        setError(null)
-        setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
-      },
-      onError: async (error) => {
-        if (error instanceof Error) {
-          setError(error)
-          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
-        } else {
-          console.error(`Failed to send chat message: ${error}`)
-          setError(new Error("Unknown error occurred"))
-        }
-        await currentConversationInfoQuery.refetch()
-      },
-    },
-  )
-
-  useEffect(() => {
-    setSendNewMessage({
-      newMessageMutation: newMessageMutation,
-    })
-    return () => setSendNewMessage(null)
-  })
 
   let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
   let { popoverProps } = usePopover(
@@ -262,18 +157,9 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
             >
               <ChatbotChat
                 chatbotConfigurationId={chatbotConfigurationId}
-                currentConversationInfo={currentConversationInfoQuery}
-                newMessage={newMessage}
-                setNewMessage={setNewMessage}
-                error={error}
-                setError={setError}
                 isCourseMaterialBlock={false}
-                closeChatbot={() => state.setOpen(false)}
                 titleProps={titleProps}
-                chatbotMessageAnnouncement={chatbotMessageAnnouncement}
-                dispatch={dispatch}
-                messageState={messageState}
-                newMessageMutation={newMessageMutation}
+                state={state}
               />
             </div>
           </div>

@@ -35,6 +35,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         GrantTypeName::RefreshToken,
     ];
     let pkce_methods_allowed = vec![pkce::PkceMethod::S256];
+    let allowed_origins = vec!["http://localhost".to_string()];
 
     let new_client_parms = oauth_client::NewClientParams {
         client_name: "Test Client",
@@ -45,7 +46,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         redirect_uris: redirect_uris.as_slice(),
         allowed_grant_types: &allowed_grant_types,
         scopes: scopes.as_slice(),
-        origin: "http://localhost",
+        allowed_origins: Some(allowed_origins.as_slice()),
         bearer_allowed: true,
         pkce_methods_allowed: &pkce_methods_allowed,
         post_logout_redirect_uris: None,
@@ -70,7 +71,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         redirect_uris: redirect_uris.as_slice(),
         allowed_grant_types: &allowed_grant_types,
         scopes: scopes.as_slice(),
-        origin: "http://localhost",
+        allowed_origins: Some(allowed_origins.as_slice()),
         bearer_allowed: true,
         pkce_methods_allowed: &pkce_methods_allowed,
         post_logout_redirect_uris: None,
@@ -93,7 +94,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         redirect_uris: redirect_uris.as_slice(),
         allowed_grant_types: &allowed_grant_types,
         scopes: scopes.as_slice(),
-        origin: "http://localhost",
+        allowed_origins: Some(allowed_origins.as_slice()),
         bearer_allowed: true,
         pkce_methods_allowed: &pkce_methods_allowed,
         post_logout_redirect_uris: None,

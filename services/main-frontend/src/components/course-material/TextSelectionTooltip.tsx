@@ -198,9 +198,8 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
     >
       <SpeechBalloon
         placement={attributes.popper?.["data-popper-placement"]}
-        className={css`
-          padding: 0.2rem;
-        `}
+        // eslint-disable-next-line i18next/no-literal-string
+        paddingValue="0.2rem"
       >
         <div
           className={css`

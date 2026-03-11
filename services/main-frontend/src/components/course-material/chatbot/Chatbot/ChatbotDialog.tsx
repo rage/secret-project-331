@@ -152,6 +152,14 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
                 height: inherit;
                 max-height: inherit;
                 min-height: inherit;
+                bottom: 70px;
+                right: 1rem;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0px 4px 10px rgba(177, 179, 184, 0.6);
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
               `}
               {...dialogProps}
             >

@@ -11,6 +11,7 @@ export interface SpeechBalloonProps {
   onClick?: () => void
   children?: React.ReactNode
   placement?: string
+  paddingValue?: string
 }
 
 const BORDER_RADIUS = "8px"
@@ -27,13 +28,13 @@ const COLORS = {
 }
 
 const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
-  ({ children, className, onClick, placement = "top" }, ref) => {
+  ({ children, className, onClick, placement = "top", paddingValue = "1rem 1.5rem" }, ref) => {
     const speechBalloonCss = css`
       display: inline-block;
       position: relative;
       background: ${COLORS.bg};
       color: ${COLORS.text};
-      padding: 1rem 1.5rem;
+      padding: ${paddingValue};
       border-radius: ${BORDER_RADIUS};
       border: ${BORDER_WIDTH} solid ${COLORS.border};
       box-shadow: 0 3px 15px 0px ${COLORS.shadow};

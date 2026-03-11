@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useSetAtom } from "jotai"
 import React, { DOMAttributes, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -147,34 +146,16 @@ const ChatbotChat: React.FC<DiscrChatbotDialogProps> = (props) => {
       setSendNewMessage({
         newMessageMutation: newMessageMutation,
       })
+      return () => setSendNewMessage(null)
     }
-    return () => setSendNewMessage(null)
   })
 
-  const chatbotTitleProps = isCourseMaterialBlock
-    ? { ...props }
-    : { ...props, closeChatbot: () => props.state.setOpen(false) }
+  const chatbotTitleProps = !isCourseMaterialBlock
+    ? { ...props, closeChatbot: () => props.state.setOpen(false) }
+    : { ...props }
 
   return (
-    <div
-      // remove this style?
-      className={css`
-        width: inherit;
-        max-width: inherit;
-        min-width: inherit;
-        height: inherit;
-        max-height: inherit;
-        min-height: inherit;
-        bottom: 70px;
-        right: 1rem;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0px 4px 10px rgba(177, 179, 184, 0.6);
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-      `}
-    >
+    <>
       <ChatbotChatHeader
         {...chatbotTitleProps}
         currentConversationInfo={currentConversationInfoQuery}
@@ -191,7 +172,7 @@ const ChatbotChat: React.FC<DiscrChatbotDialogProps> = (props) => {
         messageState={messageState}
         newMessageMutation={newMessageMutation}
       />
-    </div>
+    </>
   )
 }
 

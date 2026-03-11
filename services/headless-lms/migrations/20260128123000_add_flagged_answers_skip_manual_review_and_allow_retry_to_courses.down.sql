@@ -1,2 +1,0 @@
-ALTER TABLE courses
-DROP COLUMN IF EXISTS flagged_answers_skip_manual_review_and_allow_retry;

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n          id,\n          client_id,\n          client_name,\n          application_type                AS \"application_type: _\",\n          token_endpoint_auth_method      AS \"token_endpoint_auth_method: _\",\n          client_secret                   AS \"client_secret: _\",\n          client_secret_expires_at,\n          redirect_uris,\n          post_logout_redirect_uris,\n          allowed_grant_types             AS \"allowed_grant_types: _\",\n          scopes,\n          require_pkce,\n          pkce_methods_allowed            AS \"pkce_methods_allowed: _\",\n          origin,\n          bearer_allowed,\n          created_at,\n          updated_at,\n          deleted_at\n        FROM oauth_clients\n        WHERE id = $1\n          AND deleted_at IS NULL\n        ",
+  "query": "\n    SELECT\n      id,\n      client_id,\n      client_name,\n      application_type                AS \"application_type: _\",\n      token_endpoint_auth_method      AS \"token_endpoint_auth_method: _\",\n      client_secret                   AS \"client_secret: _\",\n      client_secret_expires_at,\n      redirect_uris,\n      post_logout_redirect_uris,\n      allowed_grant_types             AS \"allowed_grant_types: _\",   -- or \"grant_type[]\"\n      scopes,\n      require_pkce,\n      pkce_methods_allowed            AS \"pkce_methods_allowed: _\",  -- or \"pkce_method[]\"\n      allowed_origins,\n      bearer_allowed,\n      created_at,\n      updated_at,\n      deleted_at\n    FROM oauth_clients\n    WHERE client_id = $1\n      AND deleted_at IS NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -128,8 +128,8 @@
       },
       {
         "ordinal": 13,
-        "name": "origin",
-        "type_info": "Text"
+        "name": "allowed_origins",
+        "type_info": "TextArray"
       },
       {
         "ordinal": 14,
@@ -154,7 +154,7 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
@@ -171,12 +171,12 @@
       false,
       false,
       false,
-      false,
+      true,
       false,
       false,
       false,
       true
     ]
   },
-  "hash": "4ef41f48bdf2147c16871ac3bc606acc9828722327458e833392ab198d03a48f"
+  "hash": "c3debb72f9624d14a07f23ee7112ef53486cc788035b02d3ae840b6b15170e4e"
 }

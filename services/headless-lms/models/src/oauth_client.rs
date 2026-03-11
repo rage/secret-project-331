@@ -62,7 +62,8 @@ pub struct OAuthClient {
     pub require_pkce: bool,
     pub pkce_methods_allowed: Vec<PkceMethod>,
 
-    pub origin: String,
+    /// Optional list of allowed origins (same validation as redirect URIs). If None or empty, origin check is not enforced.
+    pub allowed_origins: Option<Vec<String>>,
     pub bearer_allowed: bool,
 
     pub created_at: DateTime<Utc>,
@@ -115,7 +116,7 @@ pub struct NewClientParams<'a> {
     pub require_pkce: bool,
     pub pkce_methods_allowed: &'a [PkceMethod],
 
-    pub origin: &'a str,
+    pub allowed_origins: Option<&'a [String]>,
     pub bearer_allowed: bool,
 }
 
@@ -194,7 +195,7 @@ impl OAuthClient {
           scopes,
           require_pkce,
           pkce_methods_allowed            AS "pkce_methods_allowed: _",
-          origin,
+          allowed_origins,
           bearer_allowed,
           created_at,
           updated_at,
@@ -238,7 +239,7 @@ impl OAuthClient {
       scopes,
       require_pkce,
       pkce_methods_allowed            AS "pkce_methods_allowed: _",  -- or "pkce_method[]"
-      origin,
+      allowed_origins,
       bearer_allowed,
       created_at,
       updated_at,
@@ -282,7 +283,7 @@ impl OAuthClient {
         scopes,
         require_pkce,
         pkce_methods_allowed,
-        origin,
+        allowed_origins,
         bearer_allowed
     )
     VALUES (
@@ -307,7 +308,7 @@ impl OAuthClient {
       scopes,
       require_pkce,
       pkce_methods_allowed            AS "pkce_methods_allowed: _",
-      origin,
+      allowed_origins,
       bearer_allowed,
       created_at,
       updated_at,
@@ -325,7 +326,7 @@ impl OAuthClient {
             p.scopes,
             p.require_pkce,
             p.pkce_methods_allowed as &[PkceMethod],
-            p.origin,
+            p.allowed_origins,
             p.bearer_allowed
         )
         .fetch_one(conn)

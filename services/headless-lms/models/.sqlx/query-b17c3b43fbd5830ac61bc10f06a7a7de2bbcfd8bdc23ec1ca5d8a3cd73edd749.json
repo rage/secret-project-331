@@ -37,7 +37,8 @@
             "kind": {
               "Enum": [
                 "content-cleaning",
-                "message-suggestion"
+                "message-suggestion",
+                "cms-paragraph-suggestion"
               ]
             }
           }
@@ -58,7 +59,8 @@
             "kind": {
               "Enum": [
                 "content-cleaning",
-                "message-suggestion"
+                "message-suggestion",
+                "cms-paragraph-suggestion"
               ]
             }
           }

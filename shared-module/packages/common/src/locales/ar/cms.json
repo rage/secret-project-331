@@ -10,6 +10,7 @@
   "ai-citations-avoid-plagiarism": "إعادة الصياغة لتجنب الانتحال",
   "ai-citations-suggest-citation": "اقتراح أماكن تحتاج إلى مرجع",
   "ai-dialog-label-suggestion-n": "اقتراح {{number}}",
+  "ai-dialog-original-text": "الفقرة الأصلية",
   "ai-dialog-title-apply": "تطبيق التغييرات على الفقرة",
   "ai-group-citations-integrity": "المراجع والنزاهة",
   "ai-group-improve": "تحسين",

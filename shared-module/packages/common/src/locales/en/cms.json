@@ -10,6 +10,7 @@
   "ai-citations-avoid-plagiarism": "Rewrite to avoid plagiarism",
   "ai-citations-suggest-citation": "Suggest where a citation is needed",
   "ai-dialog-label-suggestion-n": "Suggestion {{number}}",
+  "ai-dialog-original-text": "Original paragraph",
   "ai-dialog-title-apply": "Apply changes to paragraph",
   "ai-group-citations-integrity": "Citations & integrity",
   "ai-group-improve": "Improve",

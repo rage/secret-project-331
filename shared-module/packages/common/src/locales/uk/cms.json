@@ -10,6 +10,7 @@
   "ai-citations-avoid-plagiarism": "Переписати, щоб уникнути плагіату",
   "ai-citations-suggest-citation": "Запропонувати, де потрібне посилання",
   "ai-dialog-label-suggestion-n": "Пропозиція {{number}}",
+  "ai-dialog-original-text": "Початковий абзац",
   "ai-dialog-title-apply": "Застосувати зміни до абзацу",
   "ai-group-citations-integrity": "Цитування та академічна доброчесність",
   "ai-group-improve": "Покращити",

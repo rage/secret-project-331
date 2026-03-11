@@ -1,4 +1,5 @@
 use headless_lms_chatbot::{
+    cms_ai_suggestion::USER_PROMPT_PREFIX,
     llm_utils::{APIMessageKind, AzureCompletionRequest},
     message_suggestion::USER_PROMPT,
 };
@@ -39,6 +40,8 @@ data: [DONE]"#;
 const SUGGESTION: &str = r#"
 {"id":"mock_id","model":"gpt-4o","created":1757592280,  "object":"extensions.chat.completion.chunk","choices":[{"index":0,"message":{"role":"assistant","content": "{\"suggestions\":[\"Can you pls help me?\",\"Nice weather we're having.\",\"Hello?\"]}"},"end_turn": true,"finish_reason":"stop"}]}"#;
 
+const CMS_SUGGESTION: &str = r#"{"id":"mock_id","model":"gpt-4o","created":1757592280,"object":"extensions.chat.completion.chunk","choices":[{"index":0,"message":{"role":"assistant","content":"{\"suggestions\":[\"Mock suggestion 1: The paragraph has been improved.\",\"Mock suggestion 2: Here is an alternative version of the paragraph.\",\"Mock suggestion 3: A third distinct rewrite of the paragraph.\"]}"},"end_turn":true,"finish_reason":"stop"}]}"#;
+
 // GET /api/v0/mock_azure/test/{deployment_name}/chat/completions
 // POST /api/v0/mock_azure/test/{deployment_name}/chat/completions
 async fn mock_azure_chat_completions(
@@ -70,8 +73,11 @@ async fn mock_azure_chat_completions(
     let suggest_prompt_match = message
         .matches(message_suggestion_user_prompt)
         .collect::<Vec<&str>>();
+    let cms_suggest_match = message.contains(USER_PROMPT_PREFIX);
     let res = if !suggest_prompt_match.is_empty() {
         SUGGESTION.to_string()
+    } else if cms_suggest_match {
+        CMS_SUGGESTION.to_string()
     } else {
         COMPLETION.to_string()
     };

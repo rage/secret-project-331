@@ -6,7 +6,7 @@ import os
 import json
 import http.client
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 import json5
 import logging
 from urllib.parse import urlparse
@@ -44,6 +44,28 @@ def get_api_key() -> str:
     return api_key
 
 
+def normalize_api_host(api_host: str) -> Tuple[str, str]:
+    """Return HTTPSConnection host and the base deployment path."""
+    if api_host.startswith("//"):
+        api_host = f"https:{api_host}"
+    elif "://" not in api_host:
+        api_host = f"https://{api_host}"
+
+    parsed = urlparse(api_host)
+    host = parsed.netloc
+    if not host:
+        raise ValueError(f"AZURE_API_HOST must include a hostname: {api_host!r}")
+
+    base_path = parsed.path.rstrip("/") or "/openai/deployments"
+    deployment_scoped_path_match = re.fullmatch(
+        r"(?P<deployment_base>.*/openai/deployments)/[^/]+", base_path
+    )
+    if deployment_scoped_path_match:
+        base_path = deployment_scoped_path_match.group("deployment_base")
+
+    return host, base_path
+
+
 def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
     """Make a POST request to the Azure API with the given payload and API key."""
     api_host = os.getenv("AZURE_API_HOST")
@@ -55,17 +77,7 @@ def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
 
     original_api_host = api_host
 
-    # Ensure we have a scheme so urlparse works reliably
-    if "://" not in api_host:
-        api_host = f"https://{api_host}"
-
-    parsed = urlparse(api_host)
-
-    # Host for HTTPSConnection (no path)
-    host = parsed.netloc or parsed.path.split("/")[0]
-
-    # Base path for the API; allow overriding via AZURE_API_HOST path
-    base_path = parsed.path.rstrip("/") or "/openai/deployments"
+    host, base_path = normalize_api_host(api_host)
 
     logging.info(
         f"Using API host: '{host}', base_path: '{base_path}' (original: '{original_api_host}')"

@@ -8,6 +8,7 @@ import re
 from typing import Dict, Any, List
 import json5
 import logging
+from urllib.parse import urlparse
 
 current_file_path = os.path.abspath(__file__)
 LOCALES_DIR = os.path.abspath(
@@ -51,18 +52,25 @@ def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
             "AZURE_API_HOST and AZURE_API_MODEL environment variables must be set"
         )
 
-    # Sanitize api_host by removing protocol and leading slashes if present
-    original_api_host = api_host  # For logging
-    if api_host.startswith("https://"):
-        api_host = api_host[len("https://") :]
-    elif api_host.startswith("http://"):
-        api_host = api_host[len("http://") :]
-    if api_host.startswith("//"):
-        api_host = api_host.lstrip("/")
+    original_api_host = api_host
 
-    logging.info(f"Using API host: '{api_host}' (original: '{original_api_host}')")
+    # Ensure we have a scheme so urlparse works reliably
+    if "://" not in api_host:
+        api_host = f"https://{api_host}"
 
-    conn = http.client.HTTPSConnection(api_host)
+    parsed = urlparse(api_host)
+
+    # Host for HTTPSConnection (no path)
+    host = parsed.netloc or parsed.path.split("/")[0]
+
+    # Base path for the API; allow overriding via AZURE_API_HOST path
+    base_path = parsed.path.rstrip("/") or "/openai/deployments"
+
+    logging.info(
+        f"Using API host: '{host}', base_path: '{base_path}' (original: '{original_api_host}')"
+    )
+
+    conn = http.client.HTTPSConnection(host)
     headers = {
         "api-key": api_key,
         "Content-Type": "application/json; charset=utf-8",  # Specify UTF-8 charset
@@ -72,12 +80,8 @@ def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
 
     try:
-        conn.request(
-            "POST",
-            f"/openai/deployments/{api_model}/chat/completions?api-version=2024-06-01",
-            body,
-            headers,
-        )
+        path = f"{base_path}/{api_model}/chat/completions?api-version=2024-06-01"
+        conn.request("POST", path, body, headers)
         res = conn.getresponse()
         response_data = res.read().decode("utf-8")  # Decode response as UTF-8
         conn.close()

@@ -9,7 +9,7 @@ import { getValueFromCookieString } from "../utils/cookies"
 const LANGUAGE_QUERY_KEY = "lang"
 const IS_SERVER = typeof window === "undefined"
 
-export const SUPPORTED_LANGUAGES = ["en", "fi", "uk", "sv"] as const
+export const SUPPORTED_LANGUAGES = ["en", "fi", "uk", "sv", "no"] as const
 export const DEFAULT_LANGUAGE: SUPPORTED_LANGUAGES_KEYS = "en" as const
 
 export type SUPPORTED_LANGUAGES_KEYS = (typeof SUPPORTED_LANGUAGES)[number]

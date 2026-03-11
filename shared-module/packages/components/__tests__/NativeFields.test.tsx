@@ -2,7 +2,7 @@
 
 /* eslint-disable i18next/no-literal-string */
 
-import { screen } from "@testing-library/react"
+import { screen, within } from "@testing-library/react"
 
 import { DateField } from "../src/components/DateField"
 import { DateTimeLocalField } from "../src/components/DateTimeLocalField"
@@ -11,24 +11,35 @@ import { TimeField } from "../src/components/TimeField"
 
 import { changeFiles, renderUi } from "./testUtils"
 
-describe("native date and time fields", () => {
-  test("supports native prop passthrough and controlled updates", () => {
-    const { rerender } = renderUi(
+describe("date and time fields", () => {
+  test("renders React Aria segmented fields while keeping string values for forms", () => {
+    const { container, rerender } = renderUi(
       <DateField label="Date" value="2026-03-11" onChange={() => null} />,
     )
-    expect(screen.getByLabelText("Date")).toHaveValue("2026-03-11")
+    expect(screen.getByRole("group", { name: "Date" })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole("group", { name: "Date" })).getAllByRole("spinbutton"),
+    ).not.toHaveLength(0)
+    expect(container.querySelector('input[type="date"]')).not.toBeInTheDocument()
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("2026-03-11")
 
     rerender(<TimeField label="Time" value="12:30" onChange={() => null} />)
-    expect(screen.getByLabelText("Time")).toHaveValue("12:30")
+    expect(screen.getByRole("group", { name: "Time" })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole("group", { name: "Time" })).getAllByRole("spinbutton"),
+    ).not.toHaveLength(0)
+    expect(container.querySelector('input[type="time"]')).not.toBeInTheDocument()
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
   })
 
   test("supports description and invalid wiring", () => {
-    renderUi(
+    const { container } = renderUi(
       <DateTimeLocalField label="Publish at" description="Local time" errorMessage="Invalid" />,
     )
-    const input = screen.getByLabelText("Publish at")
-    expect(input).toHaveAttribute("aria-describedby")
-    expect(input).toHaveAttribute("aria-invalid", "true")
+    const field = screen.getByRole("group", { name: "Publish at" })
+    expect(field).toHaveAttribute("aria-describedby")
+    expect(field).toHaveAttribute("aria-invalid", "true")
+    expect(container.querySelector('input[type="datetime-local"]')).not.toBeInTheDocument()
   })
 
   test("supports disabled and readonly behavior", () => {
@@ -39,8 +50,14 @@ describe("native date and time fields", () => {
       </>,
     )
 
-    expect(screen.getByLabelText("Disabled date")).toBeDisabled()
-    expect(screen.getByLabelText("Readonly time")).toHaveAttribute("readonly")
+    expect(screen.getByRole("group", { name: "Disabled date" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    )
+    expect(screen.getByRole("group", { name: "Readonly time" })).toHaveAttribute(
+      "aria-readonly",
+      "true",
+    )
   })
 })
 

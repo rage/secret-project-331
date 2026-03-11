@@ -18,10 +18,16 @@ import {
   stackedLabelCss,
 } from "./fieldShellStyles"
 
+type ControlProps = React.HTMLAttributes<HTMLDivElement> & {
+  [key: `data-${string}`]: string | undefined
+}
+
 type FieldShellProps = React.PropsWithChildren<{
   className?: string
   controlClassName?: string
+  controlProps?: ControlProps
   label?: React.ReactNode
+  labelProps?: React.HTMLAttributes<HTMLElement>
   inputId?: string
   description?: React.ReactNode
   descriptionId?: string
@@ -39,7 +45,9 @@ export function FieldShell({
   children,
   className,
   controlClassName,
+  controlProps,
   label,
+  labelProps,
   inputId,
   description,
   descriptionId,
@@ -52,35 +60,78 @@ export function FieldShell({
   layout = "stacked",
   isFloatingRaised = false,
 }: FieldShellProps) {
-  return (
-    <div className={cx(fieldRootCss, className)}>
-      {layout === "stacked" && label ? (
-        <label className={stackedLabelCss} htmlFor={inputId}>
+  const controlSlotClassName = cx(
+    controlSlotCss,
+    layout === "floating" ? floatingControlSlotCss : undefined,
+    controlClassName,
+    controlProps?.className,
+  )
+
+  const renderStackedLabel = () => {
+    if (!label) {
+      return null
+    }
+
+    if (labelProps) {
+      return (
+        <span {...labelProps} className={cx(stackedLabelCss, labelProps.className)}>
           {label}
           {isRequired ? <span className={requiredMarkCss}>*</span> : null}
-        </label>
-      ) : null}
+        </span>
+      )
+    }
 
-      <div
+    return (
+      <label className={stackedLabelCss} htmlFor={inputId}>
+        {label}
+        {isRequired ? <span className={requiredMarkCss}>*</span> : null}
+      </label>
+    )
+  }
+
+  const renderFloatingLabel = () => {
+    if (!label) {
+      return null
+    }
+
+    if (labelProps) {
+      return (
+        <span
+          {...labelProps}
+          className={cx(
+            floatingLabelCss,
+            isFloatingRaised ? floatingLabelRaisedCss : undefined,
+            isDisabled ? floatingLabelDisabledCss : undefined,
+            labelProps.className,
+          )}
+        >
+          {label}
+          {isRequired ? <span className={requiredMarkCss}>*</span> : null}
+        </span>
+      )
+    }
+
+    return (
+      <label
         className={cx(
-          controlSlotCss,
-          layout === "floating" ? floatingControlSlotCss : undefined,
-          controlClassName,
+          floatingLabelCss,
+          isFloatingRaised ? floatingLabelRaisedCss : undefined,
+          isDisabled ? floatingLabelDisabledCss : undefined,
         )}
+        htmlFor={inputId}
       >
-        {layout === "floating" && label ? (
-          <label
-            className={cx(
-              floatingLabelCss,
-              isFloatingRaised ? floatingLabelRaisedCss : undefined,
-              isDisabled ? floatingLabelDisabledCss : undefined,
-            )}
-            htmlFor={inputId}
-          >
-            {label}
-            {isRequired ? <span className={requiredMarkCss}>*</span> : null}
-          </label>
-        ) : null}
+        {label}
+        {isRequired ? <span className={requiredMarkCss}>*</span> : null}
+      </label>
+    )
+  }
+
+  return (
+    <div className={cx(fieldRootCss, className)}>
+      {layout === "stacked" ? renderStackedLabel() : null}
+
+      <div {...controlProps} className={controlSlotClassName}>
+        {layout === "floating" ? renderFloatingLabel() : null}
 
         {children}
       </div>

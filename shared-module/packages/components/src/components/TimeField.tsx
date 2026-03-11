@@ -2,15 +2,25 @@
 
 import React from "react"
 
-import { NativeInputField, type NativeInputFieldProps } from "./primitives/NativeInputField"
+import { type NativeInputFieldProps } from "./primitives/NativeInputField"
+import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 
 export type TimeFieldProps = NativeInputFieldProps
 
 // eslint-disable-next-line i18next/no-literal-string
 const stackedLayout: NativeInputFieldProps["layout"] = "stacked"
+// eslint-disable-next-line i18next/no-literal-string
+const timeFieldKind = "time" as const
 
 export const TimeField = React.forwardRef<HTMLInputElement, TimeFieldProps>(
   function TimeField(props, forwardedRef) {
-    return <NativeInputField {...props} ref={forwardedRef} layout={stackedLayout} type="time" />
+    return (
+      <SegmentedDateInputField
+        {...props}
+        ref={forwardedRef}
+        kind={timeFieldKind}
+        layout={stackedLayout}
+      />
+    )
   },
 )

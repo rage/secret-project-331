@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # Automatically adds missing translations for all non-English languages using the Azure API.
 
+import argparse
 import os
 import json
 import http.client
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 import json5
 import logging
+from urllib.parse import urlparse
 
 current_file_path = os.path.abspath(__file__)
 LOCALES_DIR = os.path.abspath(
@@ -42,6 +44,28 @@ def get_api_key() -> str:
     return api_key
 
 
+def normalize_api_host(api_host: str) -> Tuple[str, str]:
+    """Return HTTPSConnection host and the base deployment path."""
+    if api_host.startswith("//"):
+        api_host = f"https:{api_host}"
+    elif "://" not in api_host:
+        api_host = f"https://{api_host}"
+
+    parsed = urlparse(api_host)
+    host = parsed.netloc
+    if not host:
+        raise ValueError(f"AZURE_API_HOST must include a hostname: {api_host!r}")
+
+    base_path = parsed.path.rstrip("/") or "/openai/deployments"
+    deployment_scoped_path_match = re.fullmatch(
+        r"(?P<deployment_base>.*/openai/deployments)/[^/]+", base_path
+    )
+    if deployment_scoped_path_match:
+        base_path = deployment_scoped_path_match.group("deployment_base")
+
+    return host, base_path
+
+
 def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
     """Make a POST request to the Azure API with the given payload and API key."""
     api_host = os.getenv("AZURE_API_HOST")
@@ -51,18 +75,15 @@ def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
             "AZURE_API_HOST and AZURE_API_MODEL environment variables must be set"
         )
 
-    # Sanitize api_host by removing protocol and leading slashes if present
-    original_api_host = api_host  # For logging
-    if api_host.startswith("https://"):
-        api_host = api_host[len("https://") :]
-    elif api_host.startswith("http://"):
-        api_host = api_host[len("http://") :]
-    if api_host.startswith("//"):
-        api_host = api_host.lstrip("/")
+    original_api_host = api_host
 
-    logging.info(f"Using API host: '{api_host}' (original: '{original_api_host}')")
+    host, base_path = normalize_api_host(api_host)
 
-    conn = http.client.HTTPSConnection(api_host)
+    logging.info(
+        f"Using API host: '{host}', base_path: '{base_path}' (original: '{original_api_host}')"
+    )
+
+    conn = http.client.HTTPSConnection(host)
     headers = {
         "api-key": api_key,
         "Content-Type": "application/json; charset=utf-8",  # Specify UTF-8 charset
@@ -72,12 +93,8 @@ def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
 
     try:
-        conn.request(
-            "POST",
-            f"/openai/deployments/{api_model}/chat/completions?api-version=2024-06-01",
-            body,
-            headers,
-        )
+        path = f"{base_path}/{api_model}/chat/completions?api-version=2024-06-01"
+        conn.request("POST", path, body, headers)
         res = conn.getresponse()
         response_data = res.read().decode("utf-8")  # Decode response as UTF-8
         conn.close()
@@ -198,6 +215,23 @@ def translate_missing_keys(
     return translated
 
 
+def parse_args():
+    """Parse command-line arguments for the translation script."""
+    parser = argparse.ArgumentParser(
+        description="Translate missing i18next keys for non-English locales.",
+    )
+    parser.add_argument(
+        "-l",
+        "--languages",
+        nargs="+",
+        help=(
+            "Language codes to process (e.g. fi sv ar). "
+            "If omitted, all non-English locales found in the locales directory are processed."
+        ),
+    )
+    return parser.parse_args()
+
+
 def main():
     api_host = os.getenv("AZURE_API_HOST")
     api_model = os.getenv("AZURE_API_MODEL")
@@ -210,7 +244,12 @@ def main():
     if not os.path.exists(en_dir):
         raise FileNotFoundError(f"English locale directory not found at {en_dir}")
 
-    language_slugs = get_all_language_slugs(LOCALES_DIR)
+    args = parse_args()
+
+    if args.languages:
+        language_slugs = sorted(set(args.languages))
+    else:
+        language_slugs = get_all_language_slugs(LOCALES_DIR)
     logging.info(f"Found languages to process: {language_slugs}")
 
     for lang_slug in language_slugs:

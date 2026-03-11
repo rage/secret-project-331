@@ -19,9 +19,11 @@ export interface LanguageOption {
 }
 
 const DEFAULT_LANGUAGES: LanguageOption[] = [
-  { tag: "en-US", name: "English" },
-  { tag: "fi-FI", name: "Suomi" },
-  { tag: "sv-SE", name: "Svenska" },
+  { tag: "en", name: "English" },
+  { tag: "fi", name: "Suomi" },
+  { tag: "sv", name: "Svenska" },
+  { tag: "uk", name: "Українська" },
+  { tag: "no", name: "Norsk" },
 ]
 
 const ARROW = "arrow"

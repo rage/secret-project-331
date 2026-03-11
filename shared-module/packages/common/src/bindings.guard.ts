@@ -476,6 +476,7 @@ export function isParagraphSuggestionAction(obj: unknown): obj is ParagraphSugge
             typedObj === "moocfi/ai/tone-serious" ||
             typedObj === "moocfi/ai/translate-english" ||
             typedObj === "moocfi/ai/translate-finnish" ||
+            typedObj === "moocfi/ai/translate-norwegian" ||
             typedObj === "moocfi/ai/translate-swedish")
     )
 }

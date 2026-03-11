@@ -23,6 +23,7 @@ const COLORS = {
   border: baseTheme.colors.green[400],
   text: baseTheme.colors.gray[700],
   shadow: "rgba(0, 0, 0, 0.4)",
+  shadowArrow: "rgba(0, 0, 0, 0.2)",
 }
 
 const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
@@ -65,7 +66,7 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
         border-left: ${POINTER_SIZE} solid transparent;
         border-right: ${POINTER_SIZE} solid transparent;
         border-top: ${POINTER_SIZE} solid ${COLORS.border};
-        filter: drop-shadow(0 8px 6px ${COLORS.shadow});
+        filter: drop-shadow(0 8px 6px ${COLORS.shadowArrow});
       }
 
       &:before {
@@ -94,7 +95,7 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
         border-left: ${POINTER_SIZE} solid transparent;
         border-right: ${POINTER_SIZE} solid transparent;
         border-bottom: ${POINTER_SIZE} solid ${COLORS.border};
-        filter: drop-shadow(0px -2px 6px ${COLORS.shadow});
+        filter: drop-shadow(0px -10px 6px ${COLORS.shadowArrow});
       }
 
       &:before {

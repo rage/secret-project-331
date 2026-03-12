@@ -1,10 +1,13 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from "react"
+import { Item, Section } from "@react-stately/collections"
+import { useSelectState } from "@react-stately/select"
+import type { CollectionElement, ItemElement } from "@react-types/shared"
+import React, { useId, useImperativeHandle, useMemo, useRef } from "react"
+import { HiddenSelect, useButton, useSelect } from "react-aria"
 
-import { useControllableState } from "../lib/utils/controllable"
-import { resolveFieldDescribedBy, resolveFieldState, toInputValue } from "../lib/utils/field"
+import { resolveFieldState, toInputValue } from "../lib/utils/field"
 
 import {
   fieldControlCss,
@@ -14,12 +17,16 @@ import {
   resolveSelectLabelCss,
   resolveSelectTriggerCss,
 } from "./primitives/fieldStyles"
-import { ListBox, type ListBoxItem } from "./primitives/listBox"
+import { ListBox } from "./primitives/listBox"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
 
-type SelectOption = ListBoxItem<string> & {
+type SelectOptionRecord = {
+  key: string
   value: string
+  textValue: string
+  rendered: React.ReactNode
+  isDisabled: boolean
 }
 
 type ChildrenProp = {
@@ -56,6 +63,11 @@ export type SelectProps = React.ComponentPropsWithoutRef<"select"> & {
   isInvalid?: boolean
 }
 
+// eslint-disable-next-line i18next/no-literal-string
+const optionKeyFallback = "option"
+// eslint-disable-next-line i18next/no-literal-string
+const eventTargetValueProperty = "value"
+
 const selectRootCss = css`
   position: relative;
 `
@@ -79,17 +91,6 @@ const triggerChevronCss = css`
   color: var(--field-chrome);
 `
 
-const hiddenSelectCss = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-`
-
 function getNodeTextValue(node: React.ReactNode): string {
   if (node == null || typeof node === "boolean") {
     return ""
@@ -110,8 +111,55 @@ function getNodeTextValue(node: React.ReactNode): string {
   return ""
 }
 
-function collectOptions(children: React.ReactNode): SelectOption[] {
-  const options: SelectOption[] = []
+function buildSelectCollection(children: React.ReactNode) {
+  const collectionChildren: CollectionElement<SelectOptionRecord>[] = []
+  const disabledKeys: string[] = []
+  const options: SelectOptionRecord[] = []
+  const valueToKey = new Map<string, string>()
+  const seenKeys = new Set<string>()
+  let generatedIndex = 0
+
+  function getOptionKey(value: string) {
+    if (!seenKeys.has(value)) {
+      seenKeys.add(value)
+      return value
+    }
+
+    generatedIndex += 1
+    const fallbackKey = `${value || optionKeyFallback}-${generatedIndex}`
+    seenKeys.add(fallbackKey)
+    return fallbackKey
+  }
+
+  function createOption(child: OptionElement) {
+    const textValue = getNodeTextValue(child.props.children)
+    const value = toInputValue(child.props.value ?? textValue)
+    const key = getOptionKey(value)
+
+    if (!valueToKey.has(value)) {
+      valueToKey.set(value, key)
+    }
+
+    const option = {
+      key,
+      value,
+      textValue,
+      rendered: child.props.children,
+      isDisabled: Boolean(child.props.disabled),
+    }
+
+    options.push(option)
+
+    if (option.isDisabled) {
+      disabledKeys.push(option.key)
+    }
+
+    return (
+      <Item key={option.key} textValue={option.textValue} aria-label={child.props["aria-label"]}>
+        {option.rendered}
+      </Item>
+    )
+  }
 
   function walk(node: React.ReactNode) {
     React.Children.forEach(node, (child, index) => {
@@ -125,64 +173,63 @@ function collectOptions(children: React.ReactNode): SelectOption[] {
       }
 
       if (isOptionElement(child)) {
-        const textValue = getNodeTextValue(child.props.children)
-        const value = toInputValue(child.props.value ?? textValue)
-
-        options.push({
-          item: value,
-          // eslint-disable-next-line i18next/no-literal-string
-          key: value || `option-${options.length}-${index}`,
-          value,
-          rendered: child.props.children,
-          textValue,
-          isDisabled: Boolean(child.props.disabled),
-        })
+        collectionChildren.push(createOption(child) as CollectionElement<SelectOptionRecord>)
         return
       }
 
       if (isOptGroupElement(child)) {
-        walk(child.props.children)
+        const sectionChildren: ItemElement<SelectOptionRecord>[] = []
+
+        React.Children.forEach(child.props.children, (optionChild) => {
+          if (isOptionElement(optionChild)) {
+            sectionChildren.push(createOption(optionChild) as ItemElement<SelectOptionRecord>)
+          }
+        })
+
+        collectionChildren.push(
+          (
+            <Section
+              key={`${child.props.label || "group"}-${index}`}
+              aria-label={child.props.label}
+              title={child.props.label}
+            >
+              {sectionChildren}
+            </Section>
+          ) as CollectionElement<SelectOptionRecord>,
+        )
       }
     })
   }
 
   walk(children)
-  return options
-}
 
-function getNextEnabledOption(
-  items: SelectOption[],
-  direction: 1 | -1,
-  highlightedKey: React.Key | null,
-) {
-  const enabledItems = items.filter((item) => !item.isDisabled)
-
-  if (enabledItems.length === 0) {
-    return null
+  return {
+    collectionChildren,
+    disabledKeys,
+    options,
+    valueToKey,
   }
-
-  const currentIndex = enabledItems.findIndex((item) => item.key === highlightedKey)
-  const startIndex = currentIndex === -1 ? (direction === 1 ? -1 : 0) : currentIndex
-  const nextIndex = (startIndex + direction + enabledItems.length) % enabledItems.length
-
-  return enabledItems[nextIndex] ?? null
 }
 
 function buildSelectChangeEvent(
-  target: HTMLSelectElement,
+  name: string | undefined,
   nextValue: string,
 ): React.ChangeEvent<HTMLSelectElement> {
-  const eventTarget = Object.create(target) as HTMLSelectElement
-  // eslint-disable-next-line i18next/no-literal-string
-  Object.defineProperty(eventTarget, "value", {
+  const eventTarget = document.createElement("select")
+
+  if (name) {
+    eventTarget.name = name
+  }
+
+  Object.defineProperty(eventTarget, eventTargetValueProperty, {
     configurable: true,
     enumerable: true,
     value: nextValue,
   })
 
   return {
-    target: eventTarget,
     currentTarget: eventTarget,
+    target: eventTarget,
   } as React.ChangeEvent<HTMLSelectElement>
 }
 
@@ -207,7 +254,10 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       onFocus,
       onBlur,
       onKeyDown,
+      onKeyUp,
       name,
+      autoComplete,
+      form,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
       ...rest
@@ -215,19 +265,20 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
 
     const generatedInputId = useId()
     const triggerId = id ?? generatedInputId
-    const descriptionId = useId()
-    const errorMessageId = useId()
-    // eslint-disable-next-line i18next/no-literal-string
-    const listBoxId = `${triggerId}-listbox`
-    const options = useMemo(() => collectOptions(children), [children])
-    const initialValue =
-      value !== undefined
-        ? toInputValue(value)
-        : defaultValue !== undefined
-          ? toInputValue(defaultValue)
-          : (options[0]?.value ?? "")
+    const buttonRef = useRef<HTMLButtonElement>(null)
+    const popoverRef = useRef<HTMLDivElement>(null)
+    const wrapperRef = useRef<HTMLDivElement>(null)
 
-    const state = resolveFieldState({
+    useImperativeHandle(forwardedRef, () => wrapperRef.current as HTMLDivElement)
+
+    const collection = useMemo(() => buildSelectCollection(children), [children])
+    const optionsByKey = useMemo(
+      () => new Map(collection.options.map((option) => [option.key, option])),
+      [collection.options],
+    )
+    const controlledValue = value !== undefined ? toInputValue(value) : undefined
+    const uncontrolledValue = defaultValue !== undefined ? toInputValue(defaultValue) : undefined
+    const resolvedState = resolveFieldState({
       disabled,
       required,
       isDisabled,
@@ -237,239 +288,116 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       errorMessage,
     })
 
-    const describedBy = resolveFieldDescribedBy({
-      ariaDescribedBy,
-      descriptionId,
-      errorMessageId,
-      hasDescription: Boolean(description),
-      hasErrorMessage: Boolean(errorMessage),
+    const selectedKey =
+      controlledValue !== undefined
+        ? (collection.valueToKey.get(controlledValue) ?? null)
+        : undefined
+    const defaultSelectedKey =
+      controlledValue === undefined
+        ? uncontrolledValue !== undefined
+          ? (collection.valueToKey.get(uncontrolledValue) ?? null)
+          : (collection.options[0]?.key ?? null)
+        : undefined
+
+    const state = useSelectState<SelectOptionRecord>({
+      children: collection.collectionChildren,
+      disabledKeys: collection.disabledKeys,
+      selectedKey,
+      defaultSelectedKey: defaultSelectedKey ?? undefined,
+      onSelectionChange: (key) => {
+        const option = key != null ? optionsByKey.get(String(key)) : undefined
+        onChange?.(buildSelectChangeEvent(name, option?.value ?? ""))
+      },
+      isDisabled: resolvedState.isDisabled,
+      isRequired: resolvedState.isRequired,
+      isInvalid: resolvedState.isInvalid,
+      label,
+      description,
+      errorMessage,
+      onBlur: onBlur as React.FocusEventHandler<Element> | undefined,
+      onFocus: onFocus as React.FocusEventHandler<Element> | undefined,
+      onKeyDown: onKeyDown as React.KeyboardEventHandler<Element> | undefined,
+      onKeyUp: onKeyUp as React.KeyboardEventHandler<Element> | undefined,
     })
 
-    const hiddenSelectRef = useRef<HTMLSelectElement>(null)
-    const wrapperRef = useRef<HTMLDivElement>(null)
-    const buttonRef = useRef<HTMLButtonElement>(null)
-    const suppressNextClickRef = useRef(false)
-    useImperativeHandle(forwardedRef, () => wrapperRef.current as HTMLDivElement)
+    const {
+      labelProps,
+      triggerProps,
+      valueProps,
+      menuProps,
+      descriptionProps,
+      errorMessageProps,
+      hiddenSelectProps,
+      isInvalid: hookIsInvalid,
+      validationErrors,
+    } = useSelect(
+      {
+        ...rest,
+        id: triggerId,
+        disabledKeys: collection.disabledKeys,
+        selectedKey,
+        defaultSelectedKey: defaultSelectedKey ?? undefined,
+        isDisabled: resolvedState.isDisabled,
+        isRequired: resolvedState.isRequired,
+        isInvalid: resolvedState.isInvalid,
+        label,
+        description,
+        errorMessage,
+        name,
+        autoComplete,
+        form,
+        "aria-describedby": ariaDescribedBy,
+        onBlur: onBlur as React.FocusEventHandler<Element> | undefined,
+        onFocus: onFocus as React.FocusEventHandler<Element> | undefined,
+        onKeyDown: onKeyDown as React.KeyboardEventHandler<Element> | undefined,
+        onKeyUp: onKeyUp as React.KeyboardEventHandler<Element> | undefined,
+      },
+      state,
+      buttonRef,
+    )
 
-    const [selectedValue, setSelectedValue] = useControllableState<string>({
-      value: value !== undefined ? toInputValue(value) : undefined,
-      defaultValue: initialValue,
-    })
-    const [isOpen, setIsOpen] = useState(false)
-    const [isFocused, setIsFocused] = useState(false)
-    const [highlightedKey, setHighlightedKey] = useState<React.Key | null>(null)
-
-    const selectedOption = options.find((item) => item.value === selectedValue) ?? null
-    const enabledOptions = options.filter((item) => !item.isDisabled)
-    const hasSelection = selectedValue.length > 0
-    const isFloated = isFocused || hasSelection
-
-    useEffect(() => {
-      if (!hiddenSelectRef.current) {
-        return
-      }
-
-      hiddenSelectRef.current.value = selectedValue
-    }, [selectedValue])
-
-    useEffect(() => {
-      if (!isOpen) {
-        return
-      }
-
-      function handlePointerDown(event: MouseEvent) {
-        if (!wrapperRef.current?.contains(event.target as Node)) {
-          setIsOpen(false)
-        }
-      }
-
-      document.addEventListener("mousedown", handlePointerDown)
-      return () => {
-        document.removeEventListener("mousedown", handlePointerDown)
-      }
-    }, [isOpen])
-
-    function emitChange(nextValue: string) {
-      if (!hiddenSelectRef.current || !onChange) {
-        return
-      }
-
-      hiddenSelectRef.current.value = nextValue
-      onChange(buildSelectChangeEvent(hiddenSelectRef.current, nextValue))
-    }
-
-    function openMenu() {
-      if (state.isDisabled) {
-        return
-      }
-
-      setHighlightedKey(selectedOption?.key ?? enabledOptions[0]?.key ?? null)
-      setIsOpen(true)
-    }
-
-    function closeMenu() {
-      setIsOpen(false)
-    }
-
-    function selectOption(option: ListBoxItem<string>) {
-      const nextValue = option.item
-
-      if (state.isDisabled || option.isDisabled || nextValue === selectedValue) {
-        closeMenu()
-        buttonRef.current?.focus()
-        return
-      }
-
-      setSelectedValue(nextValue)
-      emitChange(nextValue)
-      setHighlightedKey(option.key)
-      closeMenu()
-      buttonRef.current?.focus()
-    }
-
-    function moveHighlight(direction: 1 | -1) {
-      const nextOption = getNextEnabledOption(options, direction, highlightedKey)
-      setHighlightedKey(nextOption?.key ?? null)
-    }
+    const { buttonProps } = useButton(triggerProps, buttonRef)
+    const resolvedErrorMessage =
+      errorMessage ??
+      (hookIsInvalid && validationErrors.length > 0 ? validationErrors.join(" ") : null)
+    const isFloated = state.isFocused || state.selectedItem != null
 
     return (
       <div ref={wrapperRef} className={cx(fieldRootCss, className)}>
         <div
           className={cx(fieldControlCss, selectRootCss)}
-          data-focused={isFocused ? "true" : "false"}
-          data-invalid={state.isInvalid ? "true" : "false"}
+          data-focused={state.isFocused ? "true" : "false"}
           data-floated={isFloated ? "true" : "false"}
+          data-invalid={hookIsInvalid ? "true" : "false"}
         >
-          <button
-            id={triggerId}
-            ref={buttonRef}
-            className={resolveSelectTriggerCss(fieldSize)}
-            type="button"
-            role="combobox"
-            disabled={state.isDisabled}
-            aria-describedby={describedBy}
-            aria-invalid={state.isInvalid ? "true" : undefined}
-            aria-required={state.isRequired ? "true" : undefined}
-            aria-expanded={isOpen}
-            aria-haspopup="listbox"
-            aria-controls={isOpen ? listBoxId : undefined}
-            aria-activedescendant={
-              isOpen && highlightedKey != null
-                ? `${triggerId}-option-${String(highlightedKey)}`
-                : undefined
-            }
-            onFocus={(event) => {
-              setIsFocused(true)
-              onFocus?.(event as unknown as React.FocusEvent<HTMLSelectElement>)
-            }}
-            onBlur={(event) => {
-              setIsFocused(false)
-              if (!wrapperRef.current?.contains(event.relatedTarget as Node | null)) {
-                closeMenu()
-              }
-              onBlur?.(event as unknown as React.FocusEvent<HTMLSelectElement>)
-            }}
-            onClick={() => {
-              if (suppressNextClickRef.current) {
-                suppressNextClickRef.current = false
-                return
-              }
+          <HiddenSelect {...hiddenSelectProps} />
 
-              if (isOpen) {
-                closeMenu()
-              } else {
-                openMenu()
-              }
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "ArrowDown") {
-                event.preventDefault()
-                if (!isOpen) {
-                  openMenu()
-                } else {
-                  moveHighlight(1)
-                }
-              } else if (event.key === "ArrowUp") {
-                event.preventDefault()
-                if (!isOpen) {
-                  openMenu()
-                } else {
-                  moveHighlight(-1)
-                }
-              } else if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault()
-                suppressNextClickRef.current = true
-                if (!isOpen) {
-                  openMenu()
-                } else if (highlightedKey != null) {
-                  const option = options.find((item) => item.key === highlightedKey)
-                  if (option) {
-                    selectOption(option)
-                  }
-                }
-              } else if (event.key === "Escape") {
-                closeMenu()
-              } else if (event.key === "Home" && isOpen) {
-                event.preventDefault()
-                setHighlightedKey(enabledOptions[0]?.key ?? null)
-              } else if (event.key === "End" && isOpen) {
-                event.preventDefault()
-                setHighlightedKey(enabledOptions[enabledOptions.length - 1]?.key ?? null)
-              } else if (event.key === "Tab") {
-                closeMenu()
-              }
-
-              onKeyDown?.(event as unknown as React.KeyboardEvent<HTMLSelectElement>)
-            }}
-          >
-            <span className={triggerValueCss}>
-              {hasSelection ? selectedOption?.rendered : null}
+          <button {...buttonProps} ref={buttonRef} className={resolveSelectTriggerCss(fieldSize)}>
+            <span {...valueProps} className={triggerValueCss}>
+              {state.selectedItem?.rendered ?? null}
             </span>
             <span className={triggerChevronCss} aria-hidden="true">
               <span className={comboChevronCss} />
             </span>
           </button>
 
-          <label htmlFor={triggerId} className={resolveSelectLabelCss(fieldSize)}>
+          <span {...labelProps} className={resolveSelectLabelCss(fieldSize)}>
             {label}
-          </label>
+          </span>
 
-          <select
-            {...rest}
-            ref={hiddenSelectRef}
-            className={hiddenSelectCss}
-            tabIndex={-1}
-            aria-hidden="true"
-            name={name}
-            value={selectedValue}
-            disabled={state.isDisabled}
-            required={state.isRequired}
-            onChange={() => {}}
-          >
-            {children}
-          </select>
-
-          {isOpen ? (
-            <Popover>
-              <div id={listBoxId}>
-                <ListBox
-                  items={options}
-                  idBase={triggerId}
-                  highlightedKey={highlightedKey}
-                  selectedKey={selectedOption?.key ?? null}
-                  onAction={selectOption}
-                />
-              </div>
+          {state.isOpen ? (
+            <Popover popoverRef={popoverRef} state={state} triggerRef={buttonRef}>
+              <ListBox {...menuProps} state={state} />
             </Popover>
           ) : null}
         </div>
 
-        {errorMessage ? (
-          <p id={errorMessageId} role="alert" className={resolveMessageCss(fieldSize, true)}>
-            {errorMessage}
+        {resolvedErrorMessage ? (
+          <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+            {resolvedErrorMessage}
           </p>
         ) : description ? (
-          <p id={descriptionId} className={resolveMessageCss(fieldSize, false)}>
+          <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
             {description}
           </p>
         ) : null}

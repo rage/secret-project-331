@@ -14,9 +14,27 @@ importers:
       '@internationalized/date':
         specifier: ^3.10.1
         version: 3.10.1
+      '@react-stately/collections':
+        specifier: ^3.12.8
+        version: 3.12.8(react@19.2.4)
+      '@react-stately/combobox':
+        specifier: ^3.12.1
+        version: 3.12.1(react@19.2.4)
       '@react-stately/datepicker':
         specifier: ^3.15.3
         version: 3.15.3(react@19.2.4)
+      '@react-stately/list':
+        specifier: ^3.13.2
+        version: 3.13.2(react@19.2.4)
+      '@react-stately/radio':
+        specifier: ^3.11.3
+        version: 3.11.3(react@19.2.4)
+      '@react-stately/select':
+        specifier: ^3.9.0
+        version: 3.9.0(react@19.2.4)
+      '@react-stately/toggle':
+        specifier: ^3.9.3
+        version: 3.9.3(react@19.2.4)
       '@react-types/shared':
         specifier: ^3.32.1
         version: 3.32.1(react@19.2.4)

@@ -1,7 +1,5 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
 import { screen, within } from "@testing-library/react"
 
 import { DateField } from "../src/components/DateField"

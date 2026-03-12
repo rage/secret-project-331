@@ -6,7 +6,7 @@ import { mergeProps, useObjectRef, useTextField } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
-import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
+import { resolveFieldState } from "../lib/utils/field"
 
 import { FieldShell } from "./primitives/FieldShell"
 import {
@@ -17,11 +17,11 @@ import {
   resolveFieldLabelCss,
   resolveMessageCss,
   resolveTextareaCss,
+  textareaIconSlotEndStyles,
+  textareaIconSlotStartStyles,
   textAreaPlainControlCss,
   textAreaPlainTextareaCss,
   textareaResetCss,
-  textareaIconSlotEndStyles,
-  textareaIconSlotStartStyles,
 } from "./primitives/fieldStyles"
 
 export type TextAreaProps = React.ComponentPropsWithoutRef<"textarea"> & {
@@ -58,6 +58,9 @@ export type TextAreaProps = React.ComponentPropsWithoutRef<"textarea"> & {
   /** Called after the height changes due to auto-resize. */
   onAutoResized?: () => void
 }
+
+// eslint-disable-next-line i18next/no-literal-string
+const stackedLayout = "stacked" as const
 
 /** Returns true when the current textarea value is non-empty. */
 function isFilled(value: unknown): boolean {
@@ -224,6 +227,12 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       ariaDescribedByProp,
       mergedTextareaProps["aria-describedby"],
     )
+    const plainTextareaProps = mergeProps(inputProps, domProps, {
+      onChange: handleChange,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
+      placeholder,
+    })
 
     const plainState = resolveFieldState({
       disabled,
@@ -237,15 +246,12 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       errorMessage,
     })
 
-    const plainDescribedBy = resolveFieldDescribedBy({
-      ariaDescribedBy: ariaDescribedByProp,
-      descriptionId,
-      noticeId,
-      errorMessageId,
-      hasDescription: Boolean(description),
-      hasNotice: Boolean(notice),
-      hasErrorMessage: Boolean(errorMessage),
-    })
+    const plainDescribedBy = joinAriaDescribedBy(
+      typeof plainTextareaProps["aria-describedby"] === "string"
+        ? plainTextareaProps["aria-describedby"]
+        : undefined,
+      notice ? noticeId : undefined,
+    )
 
     const isFloated = isFocused || isContentFilled
 
@@ -258,33 +264,19 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           inputId={inputId}
           description={description}
           descriptionId={description ? descriptionId : undefined}
-          errorMessage={errorMessage}
-          errorMessageId={errorMessage ? errorMessageId : undefined}
+          errorMessage={resolvedErrorMessage}
+          errorMessageId={resolvedErrorMessage ? errorMessageId : undefined}
           notice={notice}
           noticeId={notice ? noticeId : undefined}
           isDisabled={plainState.isDisabled}
           isRequired={plainState.isRequired}
-          layout="stacked"
+          layout={stackedLayout}
         >
           <textarea
-            {...domProps}
-            id={inputId}
+            {...plainTextareaProps}
             ref={textareaRef}
-            value={value}
-            defaultValue={defaultValue}
             className={cx(textareaResetCss, textAreaPlainTextareaCss)}
-            disabled={plainState.isDisabled}
-            readOnly={plainState.isReadOnly}
-            required={plainState.isRequired}
-            aria-invalid={plainState.isInvalid ? "true" : undefined}
             aria-describedby={plainDescribedBy}
-            autoComplete={autoComplete}
-            maxLength={maxLength}
-            minLength={minLength}
-            placeholder={placeholder}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onChange={handleChange}
           />
         </FieldShell>
       )

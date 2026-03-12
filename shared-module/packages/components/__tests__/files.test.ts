@@ -1,7 +1,5 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
 import { formatFileName, summarizeFiles } from "../src/lib/utils/files"
 
 describe("file utils", () => {

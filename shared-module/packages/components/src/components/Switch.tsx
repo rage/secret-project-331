@@ -1,10 +1,10 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React, { useId, useImperativeHandle, useRef, useState } from "react"
-import { useFocusRing } from "react-aria"
+import { useToggleState } from "@react-stately/toggle"
+import React, { useId } from "react"
+import { mergeProps, useFocusRing, useObjectRef, useSwitch } from "react-aria"
 
-import { useControllableState } from "../lib/utils/controllable"
 import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
 
 import { FieldShell } from "./primitives/FieldShell"
@@ -33,6 +33,8 @@ export type SwitchProps = React.ComponentPropsWithoutRef<"input"> & {
 
 // eslint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
+// eslint-disable-next-line i18next/no-literal-string
+const dataStateTrue = "true"
 
 export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
   function Switch(props, forwardedRef) {
@@ -55,6 +57,10 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
       onChange,
       onKeyDown,
       onKeyUp,
+      onFocus,
+      onBlur,
+      name,
+      value,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
       ...rest
@@ -64,7 +70,7 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
     const inputId = id ?? generatedInputId
     const descriptionId = useId()
     const errorMessageId = useId()
-    const state = resolveFieldState({
+    const resolvedState = resolveFieldState({
       disabled,
       readOnly,
       required,
@@ -83,14 +89,46 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
       hasErrorMessage: Boolean(errorMessage),
     })
 
-    const [isSelected, setIsSelected] = useControllableState({
-      value: checked,
-      defaultValue: defaultChecked ?? false,
+    const inputRef = useObjectRef(forwardedRef)
+    const toggleState = useToggleState({
+      isDisabled: resolvedState.isDisabled,
+      isReadOnly: resolvedState.isReadOnly,
+      isSelected: checked,
+      defaultSelected: defaultChecked,
     })
-    const [isPressed, setIsPressed] = useState(false)
+    const inputValue =
+      value == null ? undefined : Array.isArray(value) ? value.join(",") : String(value)
+
+    const {
+      inputProps,
+      isDisabled: isSwitchDisabled,
+      isPressed,
+      isSelected,
+      labelProps,
+    } = useSwitch(
+      {
+        id: inputId,
+        name,
+        value: inputValue,
+        isDisabled: resolvedState.isDisabled,
+        isReadOnly: resolvedState.isReadOnly,
+        "aria-describedby": describedBy,
+      },
+      toggleState,
+      inputRef,
+    )
+
     const { focusProps, isFocusVisible } = useFocusRing()
-    const inputRef = useRef<HTMLInputElement>(null)
-    useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement)
+    const mergedInputProps = mergeProps(inputProps, focusProps, {
+      ...rest,
+      onBlur,
+      onChange,
+      onFocus,
+      onKeyDown,
+      onKeyUp,
+      "aria-invalid": resolvedState.isInvalid ? dataStateTrue : undefined,
+      required: resolvedState.isRequired,
+    })
 
     return (
       <FieldShell
@@ -102,67 +140,19 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
         layout={stackedLayout}
       >
         <label
+          {...labelProps}
           className={cx(checkableRowCss, resolveCheckableSizeCss(fieldSize))}
-          data-disabled={state.isDisabled ? "true" : "false"}
-          onPointerDown={() => {
-            setIsPressed(true)
-          }}
-          onPointerUp={() => {
-            setIsPressed(false)
-          }}
-          onPointerLeave={() => {
-            setIsPressed(false)
-          }}
+          data-disabled={isSwitchDisabled ? "true" : "false"}
         >
-          <input
-            {...rest}
-            {...focusProps}
-            id={inputId}
-            ref={inputRef}
-            className={checkableInputCss}
-            type="checkbox"
-            role="switch"
-            checked={isSelected}
-            disabled={state.isDisabled}
-            required={state.isRequired}
-            aria-describedby={describedBy}
-            aria-invalid={state.isInvalid ? "true" : undefined}
-            onChange={(event) => {
-              if (state.isReadOnly) {
-                return
-              }
-
-              setIsSelected(event.currentTarget.checked)
-              onChange?.(event)
-            }}
-            onKeyDown={(event) => {
-              if (event.key === " ") {
-                event.preventDefault()
-                setIsPressed(true)
-              }
-
-              onKeyDown?.(event)
-            }}
-            onKeyUp={(event) => {
-              if (event.key === " ") {
-                event.preventDefault()
-                setIsPressed(false)
-                if (!state.isReadOnly && !state.isDisabled) {
-                  inputRef.current?.click()
-                }
-              }
-
-              onKeyUp?.(event)
-            }}
-          />
+          <input {...mergedInputProps} ref={inputRef} className={checkableInputCss} />
           <span
             className={switchTrackCss}
             aria-hidden="true"
-            data-selected={isSelected ? "true" : "false"}
-            data-disabled={state.isDisabled ? "true" : "false"}
-            data-invalid={state.isInvalid ? "true" : "false"}
+            data-disabled={isSwitchDisabled ? "true" : "false"}
             data-focus-visible={isFocusVisible ? "true" : "false"}
+            data-invalid={resolvedState.isInvalid ? "true" : "false"}
             data-pressed={isPressed ? "true" : "false"}
+            data-selected={isSelected ? "true" : "false"}
           >
             <span className={switchThumbCss} data-selected={isSelected ? "true" : "false"} />
           </span>

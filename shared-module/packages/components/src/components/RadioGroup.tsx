@@ -1,10 +1,10 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useId } from "react"
-
-import { useControllableState } from "../lib/utils/controllable"
-import { resolveFieldDescribedBy } from "../lib/utils/field"
+import { useRadioGroupState } from "@react-stately/radio"
+import type { RadioGroupState } from "@react-stately/radio"
+import React from "react"
+import { useRadioGroup } from "react-aria"
 
 import {
   descriptionCss,
@@ -16,14 +16,8 @@ import {
 import type { FieldSize } from "./primitives/fieldStyles"
 
 type RadioGroupContextValue = {
-  name: string
-  selectedValue: string | null
-  setSelectedValue: (value: string) => void
   fieldSize: FieldSize
-  isDisabled: boolean
-  isReadOnly: boolean
-  isRequired: boolean
-  isInvalid: boolean
+  state: RadioGroupState
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContextValue | null>(null)
@@ -77,72 +71,75 @@ export const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>
       orientation = "vertical",
       className,
       children,
-      name: nameProp,
-      "aria-describedby": ariaDescribedBy,
+      name,
       ...rest
     } = props
 
-    const descriptionId = useId()
-    const errorMessageId = useId()
-    const generatedName = useId().replace(/:/g, "")
-    // eslint-disable-next-line i18next/no-literal-string
-    const name = nameProp ?? `radio-group-${generatedName}`
-    const describedBy = resolveFieldDescribedBy({
-      ariaDescribedBy,
-      descriptionId,
-      errorMessageId,
-      hasDescription: Boolean(description),
-      hasErrorMessage: Boolean(errorMessage),
+    const state = useRadioGroupState({
+      value,
+      defaultValue,
+      onChange,
+      name,
+      isDisabled,
+      isReadOnly,
+      isRequired,
+      isInvalid,
     })
 
-    const [selectedValue, setSelectedValue] = useControllableState<string | null>({
-      value,
-      defaultValue: defaultValue ?? null,
-      onChange: (nextValue) => {
-        if (nextValue !== null) {
-          onChange?.(nextValue)
-        }
+    const {
+      radioGroupProps,
+      labelProps,
+      descriptionProps,
+      errorMessageProps,
+      isInvalid: hookIsInvalid,
+      validationErrors,
+    } = useRadioGroup(
+      {
+        label,
+        description,
+        errorMessage,
+        name,
+        orientation,
+        isDisabled,
+        isReadOnly,
+        isRequired,
+        isInvalid,
       },
-    })
+      state,
+    )
+
+    const resolvedErrorMessage =
+      errorMessage ??
+      (hookIsInvalid && validationErrors.length > 0 ? validationErrors.join(" ") : null)
 
     return (
       <fieldset
         {...rest}
+        {...radioGroupProps}
         ref={forwardedRef}
         className={cx(fieldRootCss, fieldsetCss, className)}
-        role="radiogroup"
-        aria-describedby={describedBy}
-        aria-invalid={isInvalid ? "true" : undefined}
-        disabled={isDisabled}
+        disabled={state.isDisabled}
       >
-        <legend className={stackedLabelCss}>{label}</legend>
-        <RadioGroupContext.Provider
-          value={{
-            name,
-            selectedValue,
-            setSelectedValue,
-            fieldSize,
-            isDisabled,
-            isReadOnly,
-            isRequired,
-            isInvalid,
-          }}
-        >
+        <legend {...labelProps} className={stackedLabelCss}>
+          {label}
+        </legend>
+
+        <RadioGroupContext.Provider value={{ fieldSize, state }}>
           <div className={orientation === "horizontal" ? radioListHorizontalCss : radioListCss}>
             {children}
           </div>
         </RadioGroupContext.Provider>
 
-        {description || errorMessage ? (
+        {description || resolvedErrorMessage ? (
           <div className={messagesCss}>
             {description ? (
-              <div className={descriptionCss} id={descriptionId}>
+              <div {...descriptionProps} className={descriptionCss}>
                 {description}
               </div>
             ) : null}
-            {errorMessage ? (
-              <div className={errorCss} id={errorMessageId} role="alert">
-                {errorMessage}
+            {resolvedErrorMessage ? (
+              <div {...errorMessageProps} className={errorCss} role="alert">
+                {resolvedErrorMessage}
               </div>
             ) : null}
           </div>

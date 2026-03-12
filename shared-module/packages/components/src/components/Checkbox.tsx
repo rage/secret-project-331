@@ -1,10 +1,10 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React, { useEffect, useId, useImperativeHandle, useRef } from "react"
-import { useFocusRing } from "react-aria"
+import { useToggleState } from "@react-stately/toggle"
+import React, { useEffect, useId } from "react"
+import { mergeProps, useCheckbox, useFocusRing, useObjectRef } from "react-aria"
 
-import { useControllableState } from "../lib/utils/controllable"
 import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
 
 import { FieldShell } from "./primitives/FieldShell"
@@ -60,6 +60,10 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       onChange,
       onKeyDown,
       onKeyUp,
+      onFocus,
+      onBlur,
+      name,
+      value,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
       ...rest
@@ -69,7 +73,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     const inputId = id ?? generatedInputId
     const descriptionId = useId()
     const errorMessageId = useId()
-    const state = resolveFieldState({
+    const resolvedState = resolveFieldState({
       disabled,
       readOnly,
       required,
@@ -88,20 +92,49 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       hasErrorMessage: Boolean(errorMessage),
     })
 
-    const [isSelected, setIsSelected] = useControllableState({
-      value: checked,
-      defaultValue: defaultChecked ?? false,
+    const inputRef = useObjectRef(forwardedRef)
+    const toggleState = useToggleState({
+      isDisabled: resolvedState.isDisabled,
+      isReadOnly: resolvedState.isReadOnly,
+      isSelected: checked,
+      defaultSelected: defaultChecked,
     })
-    const inputRef = useRef<HTMLInputElement>(null)
-    useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement)
+    const inputValue =
+      value == null ? undefined : Array.isArray(value) ? value.join(",") : String(value)
+
+    const { inputProps, isSelected, labelProps } = useCheckbox(
+      {
+        id: inputId,
+        name,
+        value: inputValue,
+        isDisabled: resolvedState.isDisabled,
+        isReadOnly: resolvedState.isReadOnly,
+        isRequired: resolvedState.isRequired,
+        isInvalid: resolvedState.isInvalid,
+        isIndeterminate,
+        "aria-describedby": describedBy,
+      },
+      toggleState,
+      inputRef,
+    )
+
+    const { focusProps, isFocusVisible } = useFocusRing()
 
     useEffect(() => {
       if (inputRef.current) {
         inputRef.current.indeterminate = isIndeterminate
       }
-    }, [isIndeterminate])
+    }, [inputRef, isIndeterminate])
 
-    const { focusProps, isFocusVisible } = useFocusRing()
+    const mergedInputProps = mergeProps(inputProps, focusProps, {
+      ...rest,
+      onBlur,
+      onChange,
+      onFocus,
+      onKeyDown,
+      onKeyUp,
+    })
+
     const showCheck = isSelected && !isIndeterminate
 
     return (
@@ -114,55 +147,19 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         layout={stackedLayout}
       >
         <label
+          {...labelProps}
           className={cx(checkableRowCss, resolveCheckableSizeCss(fieldSize))}
-          data-disabled={state.isDisabled ? "true" : "false"}
+          data-disabled={resolvedState.isDisabled ? "true" : "false"}
         >
-          <input
-            {...rest}
-            {...focusProps}
-            id={inputId}
-            ref={inputRef}
-            className={checkableInputCss}
-            type="checkbox"
-            checked={isSelected}
-            disabled={state.isDisabled}
-            required={state.isRequired}
-            aria-describedby={describedBy}
-            aria-invalid={state.isInvalid ? "true" : undefined}
-            aria-checked={isIndeterminate ? "mixed" : isSelected}
-            onKeyDown={(event) => {
-              if (event.key === " ") {
-                event.preventDefault()
-              }
-              onKeyDown?.(event)
-            }}
-            onKeyUp={(event) => {
-              if (event.key === " ") {
-                event.preventDefault()
-
-                if (!state.isReadOnly && !state.isDisabled) {
-                  inputRef.current?.click()
-                }
-              }
-              onKeyUp?.(event)
-            }}
-            onChange={(event) => {
-              if (state.isReadOnly) {
-                return
-              }
-
-              setIsSelected(event.currentTarget.checked)
-              onChange?.(event)
-            }}
-          />
+          <input {...mergedInputProps} ref={inputRef} className={checkableInputCss} />
           <span
             className={resolveChoiceIndicatorCss(fieldSize, "checkbox")}
             aria-hidden="true"
-            data-selected={isSelected ? "true" : "false"}
-            data-disabled={state.isDisabled ? "true" : "false"}
-            data-invalid={state.isInvalid ? "true" : "false"}
-            data-indeterminate={isIndeterminate ? "true" : "false"}
+            data-disabled={resolvedState.isDisabled ? "true" : "false"}
             data-focus-visible={isFocusVisible ? "true" : "false"}
+            data-indeterminate={isIndeterminate ? "true" : "false"}
+            data-invalid={resolvedState.isInvalid ? "true" : "false"}
+            data-selected={isSelected ? "true" : "false"}
           >
             {showCheck ? (
               <span className={cx(choiceMarkCss, choiceMarkVisibleCss, checkboxMarkCss)} />

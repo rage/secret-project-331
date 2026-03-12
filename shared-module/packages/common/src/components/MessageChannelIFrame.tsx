@@ -104,14 +104,20 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   )
 
   useEffect(() => {
+    const clearReloadTimeout = () => {
+      if (reloadTimeoutRef.current !== null) {
+        clearTimeout(reloadTimeoutRef.current)
+        reloadTimeoutRef.current = null
+      }
+    }
+
     resetIframeConnectionState()
     reloadAttemptsRef.current = 0
-    if (reloadTimeoutRef.current !== null) {
-      clearTimeout(reloadTimeoutRef.current)
-      reloadTimeoutRef.current = null
-    }
+    clearReloadTimeout()
     setReloadNonce(0)
     setReloadExhausted(false)
+
+    return clearReloadTimeout
   }, [resetIframeConnectionState, url])
 
   const scheduleIframeReload = useCallback(() => {

@@ -328,6 +328,7 @@ function renderSegmentedField({
   fieldRef,
   fieldSize,
   hiddenInputRef,
+  hiddenInputValue,
   iconEnd,
   iconStart,
   isFocused,
@@ -346,6 +347,7 @@ function renderSegmentedField({
   fieldRef: React.RefObject<HTMLDivElement | null>
   fieldSize: FieldSize
   hiddenInputRef: React.RefObject<HTMLInputElement | null>
+  hiddenInputValue: string
   iconEnd?: React.ReactNode
   iconStart?: React.ReactNode
   isFocused: boolean
@@ -407,7 +409,11 @@ function renderSegmentedField({
           resolvedState.isDisabled ? segmentedFieldDisabledCss : undefined,
           resolvedState.isReadOnly ? segmentedFieldReadOnlyCss : undefined,
         )}
+        aria-disabled={resolvedState.isDisabled ? dataStateTrue : undefined}
         aria-describedby={describedBy}
+        aria-invalid={state.isInvalid ? dataStateTrue : undefined}
+        aria-readonly={resolvedState.isReadOnly ? dataStateTrue : undefined}
+        aria-required={resolvedState.isRequired ? dataStateTrue : undefined}
         onBlur={(event) => {
           if (!fieldRef.current?.contains(event.relatedTarget as Node | null)) {
             setIsFocused(false)
@@ -429,6 +435,7 @@ function renderSegmentedField({
         ref={hiddenInputRef}
         type="hidden"
         aria-describedby={describedBy}
+        value={hiddenInputValue}
         onChange={() => {
           return
         }}
@@ -491,6 +498,10 @@ function DateLikeSegmentedInputField(
     fieldRef: base.fieldRef,
     fieldSize: base.fieldSize,
     hiddenInputRef: base.hiddenInputRef,
+    hiddenInputValue:
+      props.kind === "date"
+        ? serializeDateValue(state.value)
+        : serializeDateTimeValue(state.value, minuteGranularity),
     iconEnd: base.iconEnd,
     iconStart: base.iconStart,
     isFocused: base.isFocused,
@@ -554,6 +565,7 @@ function TimeSegmentedInputField(
     fieldRef: base.fieldRef,
     fieldSize: base.fieldSize,
     hiddenInputRef: base.hiddenInputRef,
+    hiddenInputValue: serializeTimeValue(state.value as TimeValue | null, granularity),
     iconEnd: base.iconEnd,
     iconStart: base.iconStart,
     isFocused: base.isFocused,

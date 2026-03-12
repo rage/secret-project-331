@@ -48,8 +48,8 @@ describe("ComboBox", () => {
     expect(screen.getByRole("listbox")).toBeInTheDocument()
 
     fireEvent.change(input, { target: { value: "be" } })
-    expect(screen.getByText("Beta")).toBeInTheDocument()
-    expect(screen.queryByText("Alpha")).not.toBeInTheDocument()
+    expect(screen.getByRole("option", { name: "Beta" })).toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "Alpha" })).not.toBeInTheDocument()
   })
 
   test("selects an option and fires onSelectionChange", () => {

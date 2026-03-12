@@ -32,7 +32,7 @@ describe("RadioGroup", () => {
     )
 
     const left = screen.getByRole("radio", { name: "Left" })
-    left.focus()
+    fireEvent.focus(left)
     pressArrowDown(left)
 
     expect(screen.getByRole("radio", { name: "Right" })).toBeChecked()
@@ -91,7 +91,7 @@ describe("RadioGroup", () => {
     const standard = screen.getByRole("radio", { name: "Standard" })
     const invoice = screen.getByRole("radio", { name: "Invoice" })
 
-    express.focus()
+    fireEvent.focus(express)
     pressArrowDown(express)
 
     expect(standard).toBeChecked()

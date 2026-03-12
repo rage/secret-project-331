@@ -55,11 +55,9 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
     const errorMessageId = useId()
 
     const state = resolveFieldState({
-      disabled,
-      required,
-      isDisabled: isDisabled ?? group?.isDisabled,
-      isRequired: group?.isRequired,
-      isInvalid: group?.isInvalid,
+      isDisabled: Boolean(group?.isDisabled || isDisabled || disabled),
+      isRequired: Boolean(group?.isRequired || required),
+      isInvalid: Boolean(group?.isInvalid || errorMessage),
     })
 
     const radioValue = value == null ? "" : String(value)

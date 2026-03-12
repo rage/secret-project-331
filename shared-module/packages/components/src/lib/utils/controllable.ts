@@ -16,24 +16,37 @@ export function useControllableState<T>({
   const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue)
   const isControlled = value !== undefined
   const resolvedValue = isControlled ? value : uncontrolledValue
+  const resolvedValueRef = React.useRef(resolvedValue)
+  const isControlledRef = React.useRef(isControlled)
+  const onChangeRef = React.useRef(onChange)
 
-  const setValue = React.useCallback(
-    (nextValue: SetValueAction<T>) => {
-      const valueToSet =
-        typeof nextValue === "function"
-          ? (nextValue as (currentValue: T) => T)(resolvedValue)
-          : nextValue
+  React.useEffect(() => {
+    resolvedValueRef.current = resolvedValue
+  }, [resolvedValue])
 
-      if (!isControlled) {
-        setUncontrolledValue(valueToSet)
-      }
+  React.useEffect(() => {
+    isControlledRef.current = isControlled
+  }, [isControlled])
 
-      if (!Object.is(resolvedValue, valueToSet)) {
-        onChange?.(valueToSet)
-      }
-    },
-    [isControlled, onChange, resolvedValue],
-  )
+  React.useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
+
+  const setValue = React.useCallback((nextValue: SetValueAction<T>) => {
+    const currentValue = resolvedValueRef.current
+    const valueToSet =
+      typeof nextValue === "function"
+        ? (nextValue as (currentValue: T) => T)(currentValue)
+        : nextValue
+
+    if (!isControlledRef.current) {
+      setUncontrolledValue(valueToSet)
+    }
+
+    if (!Object.is(currentValue, valueToSet)) {
+      onChangeRef.current?.(valueToSet)
+    }
+  }, [])
 
   return [resolvedValue, setValue] as const
 }

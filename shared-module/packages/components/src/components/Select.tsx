@@ -168,10 +168,21 @@ function getNextEnabledOption(
   return enabledItems[nextIndex] ?? null
 }
 
-function buildSelectChangeEvent(target: HTMLSelectElement): React.ChangeEvent<HTMLSelectElement> {
+function buildSelectChangeEvent(
+  target: HTMLSelectElement,
+  nextValue: string,
+): React.ChangeEvent<HTMLSelectElement> {
+  const eventTarget = Object.create(target) as HTMLSelectElement
+  // eslint-disable-next-line i18next/no-literal-string
+  Object.defineProperty(eventTarget, "value", {
+    configurable: true,
+    enumerable: true,
+    value: nextValue,
+  })
+
   return {
-    target,
-    currentTarget: target,
+    target: eventTarget,
+    currentTarget: eventTarget,
   } as React.ChangeEvent<HTMLSelectElement>
 }
 
@@ -237,6 +248,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
     const hiddenSelectRef = useRef<HTMLSelectElement>(null)
     const wrapperRef = useRef<HTMLDivElement>(null)
     const buttonRef = useRef<HTMLButtonElement>(null)
+    const suppressNextClickRef = useRef(false)
     useImperativeHandle(forwardedRef, () => wrapperRef.current as HTMLDivElement)
 
     const [selectedValue, setSelectedValue] = useControllableState<string>({
@@ -283,7 +295,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       }
 
       hiddenSelectRef.current.value = nextValue
-      onChange(buildSelectChangeEvent(hiddenSelectRef.current))
+      onChange(buildSelectChangeEvent(hiddenSelectRef.current, nextValue))
     }
 
     function openMenu() {
@@ -333,11 +345,19 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
             ref={buttonRef}
             className={resolveSelectTriggerCss(fieldSize)}
             type="button"
+            role="combobox"
             disabled={state.isDisabled}
             aria-describedby={describedBy}
+            aria-invalid={state.isInvalid ? "true" : undefined}
+            aria-required={state.isRequired ? "true" : undefined}
             aria-expanded={isOpen}
             aria-haspopup="listbox"
             aria-controls={isOpen ? listBoxId : undefined}
+            aria-activedescendant={
+              isOpen && highlightedKey != null
+                ? `${triggerId}-option-${String(highlightedKey)}`
+                : undefined
+            }
             onFocus={(event) => {
               setIsFocused(true)
               onFocus?.(event as unknown as React.FocusEvent<HTMLSelectElement>)
@@ -349,10 +369,9 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
               }
               onBlur?.(event as unknown as React.FocusEvent<HTMLSelectElement>)
             }}
-            onClick={(event) => {
-              // Ignore keyboard-generated click events; keyboard interaction is
-              // handled explicitly in onKeyDown so the menu doesn't double-toggle.
-              if (event.detail === 0) {
+            onClick={() => {
+              if (suppressNextClickRef.current) {
+                suppressNextClickRef.current = false
                 return
               }
 
@@ -379,6 +398,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                 }
               } else if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault()
+                suppressNextClickRef.current = true
                 if (!isOpen) {
                   openMenu()
                 } else if (highlightedKey != null) {

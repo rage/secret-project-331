@@ -24,7 +24,7 @@ describe("TextField", () => {
     expect(input).toBeInTheDocument()
     expect(input).toHaveAttribute("aria-describedby")
     expect(input).toHaveAttribute("aria-invalid", "true")
-    expect(screen.getByText("Use your work address")).toBeInTheDocument()
+    expect(screen.queryByText("Use your work address")).not.toBeInTheDocument()
     expect(screen.getByText("Email is required")).toBeInTheDocument()
   })
 

@@ -2,7 +2,6 @@
 
 import { css, cx } from "@emotion/css"
 import React, { useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { useFilter } from "react-aria"
 
 import { useControllableState } from "../lib/utils/controllable"
 import { resolveFieldDescribedBy, resolveFieldState, toInputValue } from "../lib/utils/field"
@@ -41,9 +40,6 @@ export type ComboBoxProps<T> = Omit<React.ComponentPropsWithoutRef<"input">, "ch
 const floatingLayout = "floating" as const
 // eslint-disable-next-line i18next/no-literal-string
 const toggleOptionsLabel = "Toggle options"
-// eslint-disable-next-line i18next/no-literal-string
-const filterOptions = { sensitivity: "base" as const }
-
 function getItemKey<T>(item: T, index: number): React.Key {
   if (item == null) {
     return index
@@ -232,15 +228,15 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
   const inputRef = useRef<HTMLInputElement>(null)
   useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement)
 
-  const { contains } = useFilter(filterOptions)
-
   const filteredItems = useMemo(() => {
-    if (!inputValue) {
+    const query = inputValue.trim().toLocaleLowerCase()
+
+    if (query.length === 0) {
       return normalizedItems
     }
 
-    return normalizedItems.filter((item) => contains(item.textValue, inputValue))
-  }, [contains, inputValue, normalizedItems])
+    return normalizedItems.filter((item) => item.textValue.toLocaleLowerCase().includes(query))
+  }, [inputValue, normalizedItems])
 
   useEffect(() => {
     if (value === undefined) {

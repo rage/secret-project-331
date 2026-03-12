@@ -1,7 +1,9 @@
 const languages: Record<string, string> = {
   en: "English",
   fi: "Suomi",
+  no: "Norsk",
   sv: "Svenska",
+  uk: "Українська",
 }
 
 const getFallbackLanguageName = (ietfLanguageTag: string): string => {

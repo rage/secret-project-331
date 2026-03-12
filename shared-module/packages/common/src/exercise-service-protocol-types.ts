@@ -12,6 +12,7 @@ export type MessageFromIframe =
   | HeightChangedMessage
   | FileUploadMessage
   | RequestRepositoryExercisesMessage
+  | RequestIframeReloadMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
@@ -36,6 +37,10 @@ export interface FileUploadMessage {
 
 export interface RequestRepositoryExercisesMessage {
   message: "request-repository-exercises"
+}
+
+export interface RequestIframeReloadMessage {
+  message: "request-iframe-reload"
 }
 
 /**

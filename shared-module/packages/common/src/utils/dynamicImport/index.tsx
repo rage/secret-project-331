@@ -126,8 +126,10 @@ const dynamicImport = <P extends object = Record<string, never>>(
         DYNAMIC_IMPORT_MAX_ATTEMPTS,
         1_000,
         (attempt, error) => {
-          if (isChunkLoadError(error) && typeof reload === "function") {
-            reload()
+          if (isChunkLoadError(error)) {
+            if (typeof reload === "function") {
+              reload()
+            }
             throw error
           }
 
@@ -245,6 +247,9 @@ const dynamicImport = <P extends object = Record<string, never>>(
         noCommitTimeoutId = null
       }
       if (isChunkLoadError(error)) {
+        if (typeof reload === "function") {
+          reload()
+        }
         log(id, "dynamic-import-chunk-load-reload-triggered")
         throw error
       }

@@ -19,6 +19,7 @@ describe("Select", () => {
 
     const select = screen.getByLabelText("Country")
     expect(select).toBeInTheDocument()
+    expect(select.tagName).toBe("BUTTON")
     expect(select).toHaveAttribute("aria-describedby")
     expect(screen.getByText("Select your country")).toBeInTheDocument()
   })
@@ -32,10 +33,11 @@ describe("Select", () => {
     )
 
     const select = screen.getByLabelText("Role")
-    expect(select).toHaveValue("admin")
+    expect(select).toHaveTextContent("Admin")
 
-    fireEvent.change(select, { target: { value: "user" } })
-    expect(select).toHaveValue("user")
+    fireEvent.click(select)
+    fireEvent.click(screen.getByRole("option", { name: "User" }))
+    expect(select).toHaveTextContent("User")
   })
 
   test("supports controlled selection", () => {
@@ -47,8 +49,10 @@ describe("Select", () => {
       </Select>,
     )
 
-    fireEvent.change(screen.getByLabelText("Language"), { target: { value: "en" } })
+    fireEvent.click(screen.getByLabelText("Language"))
+    fireEvent.click(screen.getByRole("option", { name: "English" }))
     expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange.mock.calls[0][0].currentTarget.value).toBe("en")
 
     rerender(
       <Select label="Language" value="en" onChange={onChange}>
@@ -57,7 +61,7 @@ describe("Select", () => {
       </Select>,
     )
 
-    expect(screen.getByLabelText("Language")).toHaveValue("en")
+    expect(screen.getByLabelText("Language")).toHaveTextContent("English")
   })
 
   test("supports disabled and invalid behavior", () => {

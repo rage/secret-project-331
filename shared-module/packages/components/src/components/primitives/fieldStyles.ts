@@ -1,4 +1,5 @@
 import { css, cx } from "@emotion/css"
+
 import { assertNever } from "../../lib/utils/assertNever"
 
 export type FieldSize = "sm" | "md" | "lg"
@@ -9,6 +10,7 @@ const sizeValues = {
     inputPaddingTop: "1rem",
     inputPaddingBottom: "0.375rem",
     inputPaddingX: "0.75rem",
+    controlHeight: "var(--control-height-sm)",
     labelRestTop: "0.9rem",
     labelLeft: "0.625rem",
     labelFloatTop: "-0.45rem",
@@ -20,6 +22,7 @@ const sizeValues = {
     inputPaddingTop: "1.25rem",
     inputPaddingBottom: "0.5rem",
     inputPaddingX: "0.875rem",
+    controlHeight: "var(--control-height-md)",
     labelRestTop: "1.2rem",
     labelLeft: "0.75rem",
     labelFloatTop: "-0.5rem",
@@ -31,6 +34,7 @@ const sizeValues = {
     inputPaddingTop: "1.375rem",
     inputPaddingBottom: "0.625rem",
     inputPaddingX: "1rem",
+    controlHeight: "var(--control-height-lg)",
     labelRestTop: "1.25rem",
     labelLeft: "0.875rem",
     labelFloatTop: "-0.55rem",
@@ -204,6 +208,53 @@ export function resolveTextareaCss(size: FieldSize): string {
   return cx(inputBaseCss, textareaSizeStyles[size])
 }
 
+const selectTriggerBaseCss = css`
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--field-bg);
+  color: var(--field-text-color);
+  border: 1px solid var(--field-border-color);
+  border-radius: var(--control-radius);
+  font: inherit;
+  line-height: 1.5;
+  cursor: pointer;
+  outline: none;
+  transition: var(--field-transition);
+
+  [data-focused="true"] & {
+    border-color: var(--field-border-color-focus);
+    box-shadow:
+      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
+      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
+  }
+
+  [data-invalid="true"] & {
+    border-color: var(--field-border-color-invalid);
+  }
+`
+
+function makeSelectTriggerSizeCss(s: SizeValues): string {
+  return css`
+    min-height: ${s.controlHeight};
+    padding: 0 ${s.inputPaddingX};
+    border-radius: ${s.borderRadius};
+  `
+}
+
+const selectTriggerSizeStyles: Record<FieldSize, string> = {
+  sm: makeSelectTriggerSizeCss(sizeValues.sm),
+  md: makeSelectTriggerSizeCss(sizeValues.md),
+  lg: makeSelectTriggerSizeCss(sizeValues.lg),
+}
+
+/** Returns the composed className for a select trigger element. */
+export function resolveSelectTriggerCss(size: FieldSize): string {
+  return cx(selectTriggerBaseCss, selectTriggerSizeStyles[size])
+}
+
 const labelBaseCss = css`
   position: absolute;
   background: var(--field-bg);
@@ -249,6 +300,47 @@ const labelSizeStyles: Record<FieldSize, string> = {
 /** Returns the composed className for the floating label element. */
 export function resolveFieldLabelCss(size: FieldSize): string {
   return cx(labelBaseCss, labelSizeStyles[size])
+}
+
+function makeSelectLabelFloatCss(s: SizeValues): string {
+  return css`
+    [data-floated="true"] & {
+      top: ${s.labelFloatTop};
+      left: ${s.labelLeft};
+      transform: scale(${s.labelScale});
+      color: var(--field-label-color-focus);
+    }
+
+    [data-invalid="true"][data-floated="true"] & {
+      color: var(--field-label-color-invalid);
+    }
+  `
+}
+
+const selectLabelFloatStyles: Record<FieldSize, string> = {
+  sm: makeSelectLabelFloatCss(sizeValues.sm),
+  md: makeSelectLabelFloatCss(sizeValues.md),
+  lg: makeSelectLabelFloatCss(sizeValues.lg),
+}
+
+function makeSelectLabelRestCss(s: SizeValues): string {
+  return css`
+    top: 50%;
+    left: ${s.labelLeft};
+    transform: translateY(-50%);
+    max-width: calc(100% - 2.5rem);
+  `
+}
+
+const selectLabelRestStyles: Record<FieldSize, string> = {
+  sm: makeSelectLabelRestCss(sizeValues.sm),
+  md: makeSelectLabelRestCss(sizeValues.md),
+  lg: makeSelectLabelRestCss(sizeValues.lg),
+}
+
+/** Label styling tailored for select triggers, driven by wrapper state rather than :placeholder-shown. */
+export function resolveSelectLabelCss(size: FieldSize): string {
+  return cx(labelBaseCss, selectLabelRestStyles[size], selectLabelFloatStyles[size])
 }
 
 const iconSlotBaseCss = css`

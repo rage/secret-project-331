@@ -1,5 +1,7 @@
 /** @jest-environment jsdom */
 
+import { jest } from "@jest/globals"
+
 import dynamicWithIframeReload, {
   requestIframeReloadFromParent,
 } from "../../src/utils/dynamicWithIframeReload"
@@ -10,9 +12,10 @@ describe("dynamicWithIframeReload", () => {
       __exerciseServiceRequestReload?: () => void
     }
     delete anyWindow.__exerciseServiceRequestReload
+    jest.useRealTimers()
   })
 
-  test("requestIframeReloadFromParent calls the global bridge when present", () => {
+  test("requestIframeReloadFromParent calls the global bridge when present", async () => {
     let reloadCalls = 0
     const anyWindow = window as typeof window & {
       __exerciseServiceRequestReload?: () => void
@@ -21,7 +24,29 @@ describe("dynamicWithIframeReload", () => {
       reloadCalls += 1
     }
 
-    requestIframeReloadFromParent()
+    await requestIframeReloadFromParent()
+
+    expect(reloadCalls).toBe(1)
+  })
+
+  test("requestIframeReloadFromParent waits for the global bridge to appear", async () => {
+    jest.useFakeTimers()
+
+    let reloadCalls = 0
+    const anyWindow = window as typeof window & {
+      __exerciseServiceRequestReload?: () => void
+    }
+
+    const reloadRequest = requestIframeReloadFromParent()
+
+    window.setTimeout(() => {
+      anyWindow.__exerciseServiceRequestReload = () => {
+        reloadCalls += 1
+      }
+    }, 1_500)
+
+    await jest.advanceTimersByTimeAsync(1_500)
+    await reloadRequest
 
     expect(reloadCalls).toBe(1)
   })
@@ -78,6 +103,30 @@ describe("dynamicWithIframeReload", () => {
         [
           "[dynamicWithIframeReload] window.__exerciseServiceRequestReload() failed",
           expect.any(Error),
+        ],
+      ])
+    } finally {
+      console.warn = originalWarn
+    }
+  })
+
+  test("requestIframeReloadFromParent gives up after 10 seconds if the bridge never appears", async () => {
+    jest.useFakeTimers()
+
+    const originalWarn = console.warn
+    const warnCalls: unknown[][] = []
+    console.warn = (...args: unknown[]) => {
+      warnCalls.push(args)
+    }
+
+    try {
+      const reloadRequest = requestIframeReloadFromParent()
+      await jest.advanceTimersByTimeAsync(10_000)
+      await reloadRequest
+
+      expect(warnCalls).toEqual([
+        [
+          "[dynamicWithIframeReload] window.__exerciseServiceRequestReload() was not available within 10000ms",
         ],
       ])
     } finally {

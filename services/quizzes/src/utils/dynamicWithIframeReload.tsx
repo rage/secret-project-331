@@ -3,6 +3,9 @@
 import dynamic, { type DynamicOptions, type Loader } from "next/dynamic"
 import type { ComponentType } from "react"
 
+const RELOAD_BRIDGE_RETRY_INTERVAL_MS = 500
+const RELOAD_BRIDGE_MAX_WAIT_MS = 10_000
+
 /**
  * Wraps next/dynamic so that any loader failure first asks the parent iframe
  * to reload this exercise (when running inside an exercise-service iframe),
@@ -11,23 +14,43 @@ import type { ComponentType } from "react"
 /**
  * Requests an iframe reload from the parent page when available.
  */
-export function requestIframeReloadFromParent(): void {
+export async function requestIframeReloadFromParent(): Promise<void> {
   if (typeof window === "undefined") {
     return
   }
+
   const browserWindow = window as typeof window & {
     __exerciseServiceRequestReload?: () => void
   }
-  if (typeof browserWindow.__exerciseServiceRequestReload === "function") {
-    try {
-      browserWindow.__exerciseServiceRequestReload()
-    } catch (error) {
-      console.warn(
-        "[dynamicWithIframeReload] window.__exerciseServiceRequestReload() failed",
-        error,
-      )
+
+  const startedAt = Date.now()
+  while (Date.now() - startedAt <= RELOAD_BRIDGE_MAX_WAIT_MS) {
+    if (typeof browserWindow.__exerciseServiceRequestReload === "function") {
+      try {
+        browserWindow.__exerciseServiceRequestReload()
+      } catch (error) {
+        console.warn(
+          "[dynamicWithIframeReload] window.__exerciseServiceRequestReload() failed",
+          error,
+        )
+      }
+      return
     }
+
+    const elapsed = Date.now() - startedAt
+    const remainingMs = RELOAD_BRIDGE_MAX_WAIT_MS - elapsed
+    if (remainingMs <= 0) {
+      break
+    }
+
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, Math.min(RELOAD_BRIDGE_RETRY_INTERVAL_MS, remainingMs))
+    })
   }
+
+  console.warn(
+    `[dynamicWithIframeReload] window.__exerciseServiceRequestReload() was not available within ${RELOAD_BRIDGE_MAX_WAIT_MS}ms`,
+  )
 }
 
 type DynamicLoader<Props extends object> = () => Promise<
@@ -48,7 +71,7 @@ function dynamicWithIframeReload<Props extends object = Record<string, never>>(
     try {
       return await loader()
     } catch (error) {
-      requestIframeReloadFromParent()
+      await requestIframeReloadFromParent()
       throw error
     }
   }

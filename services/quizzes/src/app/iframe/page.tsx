@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
@@ -38,6 +38,7 @@ import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz
 import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"
 import migratePublicSpecQuiz from "@/util/migration/publicSpecQuiz"
 import migrateQuizAnswer from "@/util/migration/userAnswerSpec"
+import { setExerciseServiceReloadBridge } from "@/utils/iframeReloadBridge"
 
 export interface SubmissionData {
   submission_result: StudentExerciseTaskSubmissionResult
@@ -65,8 +66,16 @@ export type State =
 const IFrame: React.FC = () => {
   const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
+  const reloadBridgeCleanupRef = useRef<(() => void) | null>(null)
+  const reloadBridgePortRef = useRef<MessagePort | null>(null)
 
-  const port = useExerciseServiceParentConnection((messageData) => {
+  const port = useExerciseServiceParentConnection((messageData, messagePort) => {
+    if (reloadBridgePortRef.current !== messagePort) {
+      reloadBridgeCleanupRef.current?.()
+      reloadBridgeCleanupRef.current = setExerciseServiceReloadBridge(messagePort)
+      reloadBridgePortRef.current = messagePort
+    }
+
     if (forgivingIsSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
         if (messageData.view_type === "answer-exercise") {
@@ -207,6 +216,14 @@ const IFrame: React.FC = () => {
       console.error("Frame received an unknown message from message port")
     }
   })
+
+  useEffect(() => {
+    return () => {
+      reloadBridgeCleanupRef.current?.()
+      reloadBridgeCleanupRef.current = null
+      reloadBridgePortRef.current = null
+    }
+  }, [])
 
   return (
     <HeightTrackingContainer port={port}>

@@ -61,13 +61,14 @@ Communication between the parent page and the IFrame is restricted to specific m
 
 #### Message Summary
 
-| Message          | From   | To     | Description                                                                                                  |
-| ---------------- | ------ | ------ | ------------------------------------------------------------------------------------------------------------ |
-| `set-state`      | Parent | IFrame | Sets the view and state of the IFrame. The IFrame discards its own state and switches to the specified view. |
-| `current-state`  | IFrame | Parent | Informs the parent that the IFrame's state has changed. Includes data and validity status.                   |
-| `height-changed` | IFrame | Parent | Notifies the parent that the content height has changed, allowing the parent to resize the IFrame.           |
-| `set-language`   | Parent | IFrame | Informs the IFrame of the user's preferred language using IETF BCP 47 language tags.                         |
-| `open-link`      | Iframe | Parent | The IFrame requests a link to be opened in the browser's main browsing context.                              |
+| Message                 | From   | To     | Description                                                                                                               |
+| ----------------------- | ------ | ------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `set-state`             | Parent | IFrame | Sets the view and state of the IFrame. The IFrame discards its own state and switches to the specified view.              |
+| `current-state`         | IFrame | Parent | Informs the parent that the IFrame's state has changed. Includes data and validity status.                                |
+| `height-changed`        | IFrame | Parent | Notifies the parent that the content height has changed, allowing the parent to resize the IFrame.                        |
+| `set-language`          | Parent | IFrame | Informs the IFrame of the user's preferred language using IETF BCP 47 language tags.                                      |
+| `open-link`             | Iframe | Parent | The IFrame requests a link to be opened in the browser's main browsing context.                                           |
+| `request-iframe-reload` | Iframe | Parent | The IFrame encountered a serious client-side problem (for example, a failed chunk load) and asks the parent to reload it. |
 
 ### Views
 

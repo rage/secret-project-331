@@ -1,6 +1,5 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,17 +9,18 @@ import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import dynamicWithIframeReload from "@/utils/dynamicWithIframeReload"
 
 // Dynamic imports for different view types to keep the bundle size down
-const ExerciseEditor = dynamic(() => import("./ExerciseEditor"), {
+const ExerciseEditor = dynamicWithIframeReload(() => import("./ExerciseEditor"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
-const AnswerExercise = dynamic(() => import("./AnswerExercise"), {
+const AnswerExercise = dynamicWithIframeReload(() => import("./AnswerExercise"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
-const ViewSubmission = dynamic(() => import("./ViewSubmission"), {
+const ViewSubmission = dynamicWithIframeReload(() => import("./ViewSubmission"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })

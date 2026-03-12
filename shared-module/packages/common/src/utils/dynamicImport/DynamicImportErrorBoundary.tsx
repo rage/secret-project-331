@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { Translation } from "react-i18next"
 
 interface DynamicImportErrorBoundaryProps {
   onError: (error: unknown, info?: React.ErrorInfo) => void
@@ -34,11 +35,27 @@ class DynamicImportErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div>
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <p>Something went wrong loading this part of the page.</p>
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <button type="button" onClick={() => window.location.reload()}>
-            Reload page
+          <p>
+            <Translation>
+              {(t) =>
+                t(
+                  "dynamic-import-error-boundary-title",
+                  "Something went wrong loading this part of the page.",
+                )
+              }
+            </Translation>
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window.location?.reload === "function") {
+                window.location.reload()
+              }
+            }}
+          >
+            <Translation>
+              {(t) => t("dynamic-import-error-boundary-reload", "Reload page")}
+            </Translation>
           </button>
         </div>
       )

@@ -295,7 +295,9 @@ describe("MessageChannelIFrame", () => {
         })
 
         act(() => {
-          messageListeners.forEach((listener) => listener(readyEvent))
+          messageListeners.forEach((listener) => {
+            listener(readyEvent)
+          })
         })
       }
 
@@ -393,6 +395,115 @@ describe("MessageChannelIFrame", () => {
       jest.useRealTimers()
     })
 
+    it("resets reload attempts after the first iframe message even when onReady is omitted", async () => {
+      jest.useFakeTimers()
+      const mockChannels = [
+        createMockMessageChannel(),
+        createMockMessageChannel(),
+        createMockMessageChannel(),
+      ]
+      let channelIndex = 0
+      window.MessageChannel = jest.fn().mockImplementation(() => {
+        const channel = mockChannels[channelIndex]
+        channelIndex += 1
+        return channel
+      })
+
+      const { container } = render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+
+      const dispatchReady = (iframeWindow: { postMessage: jest.Mock }) => {
+        const readyEvent = createMockMessageEvent("ready", {
+          source: iframeWindow as unknown as Window,
+          origin: "null",
+        })
+
+        act(() => {
+          messageListeners.forEach((listener) => {
+            listener(readyEvent)
+          })
+        })
+      }
+
+      const sendCurrentState = (channel: (typeof mockChannels)[number]) => {
+        act(() => {
+          channel.port1.onmessage?.({
+            data: {
+              message: "current-state",
+              data: { connected: true },
+              valid: true,
+            },
+          } as unknown as MessageEvent)
+        })
+      }
+
+      const firstIframe = (await waitFor(() => {
+        const iframe = container.querySelector("iframe")
+        expect(iframe).not.toBeNull()
+        return iframe
+      })) as HTMLIFrameElement
+      const firstContentWindow = {
+        postMessage: jest.fn(),
+      }
+      Object.defineProperty(firstIframe, "contentWindow", {
+        value: firstContentWindow,
+        writable: true,
+      })
+
+      dispatchReady(firstContentWindow)
+      sendCurrentState(mockChannels[0])
+
+      act(() => {
+        mockChannels[0].port1.onmessage?.({
+          data: { message: "request-iframe-reload" },
+        } as unknown as MessageEvent)
+        jest.advanceTimersByTime(250)
+      })
+
+      const secondIframe = (await waitFor(() => {
+        const iframe = container.querySelector("iframe")
+        expect(iframe).not.toBe(firstIframe)
+        return iframe
+      })) as HTMLIFrameElement
+      const secondContentWindow = {
+        postMessage: jest.fn(),
+      }
+      Object.defineProperty(secondIframe, "contentWindow", {
+        value: secondContentWindow,
+        writable: true,
+      })
+
+      dispatchReady(secondContentWindow)
+      sendCurrentState(mockChannels[1])
+
+      act(() => {
+        mockChannels[1].port1.onmessage?.({
+          data: { message: "request-iframe-reload" },
+        } as unknown as MessageEvent)
+        jest.advanceTimersByTime(249)
+      })
+
+      expect(container.querySelector("iframe")).toBe(secondIframe)
+
+      act(() => {
+        jest.advanceTimersByTime(1)
+      })
+
+      await waitFor(() => {
+        expect(container.querySelector("iframe")).not.toBe(secondIframe)
+      })
+
+      jest.useRealTimers()
+    })
+
     it("shows manual reload UI when attempts are exhausted and allows restarting reloads", async () => {
       jest.useFakeTimers()
       const mockChannels = Array.from({ length: 6 }, () => createMockMessageChannel())
@@ -433,7 +544,9 @@ describe("MessageChannelIFrame", () => {
       })
 
       act(() => {
-        messageListeners.forEach((listener) => listener(readyEvent))
+        messageListeners.forEach((listener) => {
+          listener(readyEvent)
+        })
       })
 
       const triggerReloadRequest = (channel: (typeof mockChannels)[number], delay?: number) => {
@@ -791,6 +904,32 @@ describe("MessageChannelIFrame", () => {
       await waitFor(() => {
         expect(onMessageFromIframe).toHaveBeenCalledWith(customMessage, mockChannel.port1)
       })
+    })
+
+    it("ignores null port messages without crashing", async () => {
+      const mockChannel = createMockMessageChannel()
+      const onMessageFromIframe = jest.fn()
+
+      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+
+      render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={onMessageFromIframe}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+
+      act(() => {
+        mockChannel.port1.onmessage?.({
+          data: null,
+        } as unknown as MessageEvent)
+      })
+
+      expect(onMessageFromIframe).not.toHaveBeenCalled()
     })
   })
 

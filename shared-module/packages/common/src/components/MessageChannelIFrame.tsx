@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { isEqual } from "lodash"
-import React, { useCallback, useEffect, useEffectEvent, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -17,6 +17,7 @@ import {
   isOpenLinkMessage,
   isRequestIframeReloadMessage,
 } from "../exercise-service-protocol-types.guard"
+import useEventCallback from "../hooks/useEventCallback"
 import useMessageChannel from "../hooks/useMessageChannel"
 
 import { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
@@ -117,6 +118,12 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     if (!iframeRef.current) {
       return
     }
+    if (reloadTimeoutRef.current !== null) {
+      console.info(
+        "[MessageChannelIFrame] Ignoring duplicate iframe reload request while a reload is already scheduled",
+      )
+      return
+    }
     if (reloadAttemptsRef.current >= MAX_RELOAD_ATTEMPTS) {
       console.error(
         `[MessageChannelIFrame] Max iframe reload attempts (${MAX_RELOAD_ATTEMPTS}) reached. Giving up.`,
@@ -132,9 +139,6 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     )
 
     reloadAttemptsRef.current = attempt
-    if (reloadTimeoutRef.current !== null) {
-      clearTimeout(reloadTimeoutRef.current)
-    }
     reloadTimeoutRef.current = window.setTimeout(() => {
       reloadTimeoutRef.current = null
       resetIframeConnectionState({ recreateChannel: true })
@@ -169,10 +173,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     }
   }, [])
 
-  const handlePortMessage = useEffectEvent(
+  const handlePortMessage = useEventCallback(
     (message: WindowEventMap["message"], currentMessageChannel: MessageChannel) => {
-      const data = message.data
-      if (data.message) {
+      const data = message?.data
+      if (data?.message) {
         console.groupCollapsed(`Parent page: received message ${data.message} from iframe`)
       } else {
         console.groupCollapsed(`Parent page: received message from iframe`)
@@ -194,14 +198,14 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       } else if (isRequestIframeReloadMessage(data)) {
         scheduleIframeReload()
       } else if (isMessageFromIframe(data)) {
-        if (!hasSignaledReadyRef.current && onReady) {
+        if (!hasSignaledReadyRef.current) {
           hasSignaledReadyRef.current = true
           reloadAttemptsRef.current = 0
           if (reloadTimeoutRef.current !== null) {
             clearTimeout(reloadTimeoutRef.current)
             reloadTimeoutRef.current = null
           }
-          onReady()
+          onReady?.()
         }
         try {
           onMessageFromIframe(data, currentMessageChannel.port1)
@@ -237,9 +241,9 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     return () => {
       messageChannel.port1.onmessage = null
     }
-  }, [messageChannel, sendPortToIframe])
+  }, [handlePortMessage, messageChannel, sendPortToIframe])
 
-  const handleInitialReadyMessage = useEffectEvent((e: WindowEventMap["message"]) => {
+  const handleInitialReadyMessage = useEventCallback((e: WindowEventMap["message"]) => {
     // Verify the source of the message. Origin can be "null" if the IFrame is
     // sandboxed without allow-same-origin, or it can be the same as window.location.origin
     if (
@@ -299,7 +303,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     return () => {
       removeEventListener("message", temporaryEventHandler)
     }
-  }, [])
+  }, [handleInitialReadyMessage])
 
   // Keep the iframe informed of the current user interface language
   useEffect(() => {

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
@@ -66,8 +66,8 @@ export type State =
 const IFrame: React.FC = () => {
   const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
-  const reloadBridgeCleanupRef = React.useRef<(() => void) | null>(null)
-  const reloadBridgePortRef = React.useRef<MessagePort | null>(null)
+  const reloadBridgeCleanupRef = useRef<(() => void) | null>(null)
+  const reloadBridgePortRef = useRef<MessagePort | null>(null)
 
   const port = useExerciseServiceParentConnection((messageData, messagePort) => {
     if (reloadBridgePortRef.current !== messagePort) {
@@ -217,7 +217,7 @@ const IFrame: React.FC = () => {
     }
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       reloadBridgeCleanupRef.current?.()
       reloadBridgeCleanupRef.current = null

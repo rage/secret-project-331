@@ -48,4 +48,40 @@ describe("dynamicWithIframeReload", () => {
     await expect(wrappedLoader()).rejects.toThrow("dynamic load failed")
     expect(reloadCalls).toBe(1)
   })
+
+  test("preserves the original loader error if the reload bridge throws", async () => {
+    const originalWarn = console.warn
+    const warnCalls: unknown[][] = []
+    console.warn = (...args: unknown[]) => {
+      warnCalls.push(args)
+    }
+    const anyWindow = window as typeof window & {
+      __exerciseServiceRequestReload?: () => void
+    }
+    anyWindow.__exerciseServiceRequestReload = () => {
+      throw new Error("reload bridge failed")
+    }
+    const dynamicFn = (loader: unknown) => loader
+    const wrappedLoader = dynamicWithIframeReload(
+      async () => {
+        throw new Error("dynamic load failed")
+      },
+      undefined,
+      {
+        dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+      },
+    ) as unknown as () => Promise<unknown>
+
+    try {
+      await expect(wrappedLoader()).rejects.toThrow("dynamic load failed")
+      expect(warnCalls).toEqual([
+        [
+          "[dynamicWithIframeReload] window.__exerciseServiceRequestReload() failed",
+          expect.any(Error),
+        ],
+      ])
+    } finally {
+      console.warn = originalWarn
+    }
+  })
 })

@@ -19,7 +19,14 @@ export function requestIframeReloadFromParent(): void {
     __exerciseServiceRequestReload?: () => void
   }
   if (typeof browserWindow.__exerciseServiceRequestReload === "function") {
-    browserWindow.__exerciseServiceRequestReload()
+    try {
+      browserWindow.__exerciseServiceRequestReload()
+    } catch (error) {
+      console.warn(
+        "[dynamicWithIframeReload] window.__exerciseServiceRequestReload() failed",
+        error,
+      )
+    }
   }
 }
 

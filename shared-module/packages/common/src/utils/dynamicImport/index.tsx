@@ -127,9 +127,6 @@ const dynamicImport = <P extends object = Record<string, never>>(
         1_000,
         (attempt, error) => {
           if (isChunkLoadError(error)) {
-            if (typeof reload === "function") {
-              reload()
-            }
             throw error
           }
 

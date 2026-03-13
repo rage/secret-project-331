@@ -61,6 +61,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@jest/globals": "^30.3.0",
     "@svgr/webpack": "^8.1.0",
     "@types/dompurify": "^3.2.0",
     "@types/jest": "^30.0.0",

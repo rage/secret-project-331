@@ -56,7 +56,7 @@ describe("dynamicWithIframeReload", () => {
     }
     anyWindow.__exerciseServiceRequestReload = jest.fn()
 
-    const loader = jest.fn<() => Promise<{ default: () => null }>, []>().mockResolvedValue({
+    const loader = jest.fn<() => Promise<{ default: () => null }>>().mockResolvedValue({
       default: () => null,
     })
     const dynamicFn = (loaderArg: unknown) => loaderArg
@@ -82,7 +82,7 @@ describe("dynamicWithIframeReload", () => {
     anyWindow.__exerciseServiceRequestReload = jest.fn()
 
     const loader = jest
-      .fn<() => Promise<unknown>, []>()
+      .fn<() => Promise<unknown>>()
       .mockRejectedValueOnce(new Error("dynamic load failed 1"))
       .mockResolvedValueOnce({ default: () => null })
     const dynamicFn = (loaderArg: unknown) => loaderArg
@@ -113,7 +113,7 @@ describe("dynamicWithIframeReload", () => {
     anyWindow.__exerciseServiceRequestReload = jest.fn()
 
     const loader = jest
-      .fn<() => Promise<{ default: () => null }>, []>()
+      .fn<() => Promise<{ default: () => null }>>()
       .mockRejectedValueOnce(new Error("dynamic load failed 1"))
       .mockRejectedValueOnce(new Error("dynamic load failed 2"))
       .mockResolvedValueOnce({ default: () => null })

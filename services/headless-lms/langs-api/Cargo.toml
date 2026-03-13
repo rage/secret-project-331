@@ -8,17 +8,17 @@ license.workspace = true
 
 [dependencies]
 # Date and time library
-chrono = { version = "0.4.42", features = ["serde"] }
+chrono = { version = "0.4.44", features = ["serde"] }
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "5.0.0"
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.145"
+serde_json = "1.0.149"
 # derive(Error)
-thiserror = "2.0.17"
+thiserror = "2.0.18"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.19.0", features = ["serde"] }
+uuid = { version = "1.21.0", features = ["serde"] }
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -114,7 +114,7 @@ const DropdownMenu: React.FC<MenuProps> = ({
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
-        id={menuButtonTestId}
+        dataTestId={menuButtonTestId}
         ariaLabel={controlButtonAriaLabel}
         tooltipText={controlButtonTooltipText}
         showChevron={false}

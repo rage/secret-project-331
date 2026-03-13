@@ -20,6 +20,7 @@ import {
   UserPointsUpdateStrategy,
 } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -87,8 +88,18 @@ const RegradingsPage: React.FC = () => {
     return <ErrorBanner variant="readOnly" error={regradingsQuery.error} />
   }
 
-  if (regradingsQuery.isLoading || !regradingsQuery.data) {
+  if (regradingsQuery.isLoading) {
     return <Spinner variant="medium" />
+  }
+
+  if (!regradingsQuery.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void regradingsQuery.refetch()
+        }}
+      />
+    )
   }
 
   return (

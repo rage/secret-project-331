@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import ParsedText from "./ParsedText"
 
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import Button from "@/shared-module/common/components/Button"
 import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
@@ -70,14 +69,6 @@ const TextBox = styled.div<TextBoxProps>`
     }
   }
 
-  span {
-    font-style: normal;
-    font-weight: 600;
-    font-size: 22px;
-    line-height: 40px;
-    text-align: center;
-    opacity: 0.7;
-  }
   button {
     margin-top: 2rem;
     text-align: center;

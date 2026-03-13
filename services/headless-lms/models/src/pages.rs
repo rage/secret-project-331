@@ -999,6 +999,7 @@ pub struct CmsPageExercise {
     pub peer_or_self_review_config: Option<CmsPeerOrSelfReviewConfig>,
     pub peer_or_self_review_questions: Option<Vec<CmsPeerOrSelfReviewQuestion>>,
     pub use_course_default_peer_or_self_review_config: bool,
+    pub teacher_reviews_answer_after_locking: bool,
 }
 
 impl CmsPageExercise {
@@ -1019,6 +1020,7 @@ impl CmsPageExercise {
             needs_self_review: exercise.needs_self_review,
             use_course_default_peer_or_self_review_config: exercise
                 .use_course_default_peer_or_self_review_config,
+            teacher_reviews_answer_after_locking: exercise.teacher_reviews_answer_after_locking,
             peer_or_self_review_config,
             peer_or_self_review_questions,
         }
@@ -1471,7 +1473,8 @@ INSERT INTO exercises(
     needs_peer_review,
     needs_self_review,
     use_course_default_peer_or_self_review_config,
-    exercise_language_group_id
+    exercise_language_group_id,
+    teacher_reviews_answer_after_locking
   )
 VALUES (
     $1,
@@ -1488,7 +1491,8 @@ VALUES (
     $12,
     $13,
     $14,
-    $15
+    $15,
+    $16
   ) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
@@ -1505,6 +1509,7 @@ SET course_id = $2,
   needs_self_review = $13,
   use_course_default_peer_or_self_review_config = $14,
   exercise_language_group_id = $15,
+  teacher_reviews_answer_after_locking = $16,
   deleted_at = NULL
 RETURNING *;
             ",
@@ -1523,6 +1528,7 @@ RETURNING *;
             exercise_update.needs_self_review,
             exercise_update.use_course_default_peer_or_self_review_config,
             exercise_language_group_id,
+            exercise_update.teacher_reviews_answer_after_locking,
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -3573,6 +3579,7 @@ mod test {
             peer_or_self_review_config: None,
             peer_or_self_review_questions: None,
             use_course_default_peer_or_self_review_config: false,
+            teacher_reviews_answer_after_locking: true,
         };
         let e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),

@@ -141,6 +141,8 @@
   "quiz-timeline-name": "Хронологія",
   "quiz-title-invalid-format": "Недійсний формат: перевірте теги",
   "quiz-type-not-supported": "Тип вікторини не підтримується",
+  "quizzes-dynamic-loading-slow-warning": "Завантаження частини застосунку займає більше часу, ніж очікувалося.",
+  "quizzes-dynamic-loading-very-slow-warning": "Причиною можуть бути проблеми з мережею. Якщо завантаження найближчим часом не завершиться, будь ласка, перезавантажте сторінку.",
   "regex": "Регулярний вираз",
   "regular-expression-tester": "Тестер регулярних виразів",
   "remove": "Видалити",

@@ -4,16 +4,17 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { maxBy } from "lodash"
 import { useParams } from "next/navigation"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import ChapterPointsDashboard from "../ChapterPointsDashboard"
+import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
+import UserCompletionRow, { UserCompletionRowUser } from "../UserCompletionRow"
+
+import CompletionsExportButton from "./CompletionsExportButton"
+
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
-import ChapterPointsDashboard from "@/components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
-import CompletionRegistrationPreview from "@/components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
-import UserCompletionRow, {
-  UserCompletionRowUser,
-} from "@/components/page-specific/manage/course-instances/id/UserCompletionRow"
-import CompletionsExportButton from "@/components/page-specific/manage/course-instances/id/completions/CompletionsExportButton"
 import FullWidthTable from "@/components/tables/FullWidthTable"
 import CaretDownIcon from "@/imgs/caret-down.svg"
 import {
@@ -48,6 +49,14 @@ const CompletionsPage: React.FC = () => {
   const { t } = useTranslation()
   const params = useParams<{ id: string }>()
   const courseInstanceId = params.id
+
+  const crumbs = useMemo(() => [{ isLoading: false as const, label: t("completions") }], [t])
+
+  useRegisterBreadcrumbs({
+    key: `course-instance:${courseInstanceId}:completions`,
+    order: 60,
+    crumbs,
+  })
   const getCompletionsList = useQuery({
     queryKey: [`completions-list-${courseInstanceId}`],
     queryFn: async () => {

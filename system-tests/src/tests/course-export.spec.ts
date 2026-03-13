@@ -5,6 +5,7 @@ import path from "path"
 import tar from "tar-fs"
 
 import { getImgByURLPrefixAndSuffix } from "@/utils/imageLocators"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -34,13 +35,12 @@ test("course export", async ({ page }) => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
     // wait for image to upload
-    await getImgByURLPrefixAndSuffix(
-      page,
-      "http://project-331.local/api/v0/files/",
-      ".png",
-    ).waitFor()
-    await page.getByRole("button", { name: "Save", exact: true }).click()
-    await page.getByText("Operation successful").waitFor()
+    await getImgByURLPrefixAndSuffix(page, "http://project-331.local/api/v0/files/", ".png")
+      .first()
+      .waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save", exact: true }).click()
+    })
   })
 
   await test.step("Export the course", async () => {

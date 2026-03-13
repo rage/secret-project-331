@@ -55,6 +55,7 @@ fn models(target: &mut File) {
         chapters::ChapterStatus,
         chapters::ChapterUpdate,
         chapters::ChapterWithStatus,
+        cms_ai::ParagraphSuggestionAction,
         chapters::DatabaseChapter,
         chapters::NewChapter,
         chapters::UserCourseInstanceChapterProgress,
@@ -74,6 +75,7 @@ fn models(target: &mut File) {
         chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
         chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
         chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
+        chatbot_conversation_suggested_messages::ChatbotConversationSuggestedMessage,
         chatbot_conversations::ChatbotConversation,
         chatbot_conversations::ChatbotConversationInfo,
         code_giveaway_codes::CodeGiveawayCode,
@@ -86,6 +88,8 @@ fn models(target: &mut File) {
         course_background_questions::CourseBackgroundQuestionType,
         course_background_questions::CourseBackgroundQuestionsAndAnswers,
         course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
+        course_instance_enrollments::CourseEnrollmentInfo,
+        course_instance_enrollments::CourseEnrollmentsInfo,
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instance_enrollments::CourseInstanceEnrollmentsInfo,
         course_instances::ChapterScore,
@@ -257,6 +261,7 @@ fn models(target: &mut File) {
         peer_or_self_review_questions::PeerOrSelfReviewQuestion,
         peer_or_self_review_questions::PeerOrSelfReviewQuestionType,
         peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
+        peer_or_self_review_submissions::PeerOrSelfReviewSubmissionWithSubmissionOwner,
         peer_review_queue_entries::PeerReviewQueueEntry,
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
@@ -384,6 +389,19 @@ fn controllers(target: &mut File) {
             status::PodInfo,
             status::ServiceInfo,
             status::ServicePortInfo,
+        };
+    }
+
+    // cms
+    {
+        use cms::*;
+        export! {
+            target,
+
+            ai_suggestions::ParagraphSuggestionMeta,
+            ai_suggestions::ParagraphSuggestionContext,
+            ai_suggestions::ParagraphSuggestionRequest,
+            ai_suggestions::ParagraphSuggestionResponse,
         };
     }
 

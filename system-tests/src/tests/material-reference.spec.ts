@@ -4,6 +4,7 @@ import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -15,7 +16,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
 
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
-  await page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click()
+  await page.locator("[aria-label=\"Manage course \\'Material references course\\'\"] svg").click()
   await page.getByRole("tab", { name: "Other" }).click()
   await page.getByRole("tab", { name: "References" }).click()
 
@@ -147,11 +148,12 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
 
   await page.locator('[aria-label="Table caption text"]').fill(CAPTION_CONTENT)
 
-  await page.getByText("Save").nth(3).click()
-  await page.getByText(`Operation successful!`).waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Save").nth(3).click()
+  })
 
   await page.goto(
-    "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations/chapter-1/page-1",
+    "http://project-331.local/org/uh-mathstat/courses/material-references-course/chapter-1/page-1",
   )
 
   await selectCourseInstanceIfPrompted(page)
@@ -165,26 +167,31 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       await page.locator(`text=This paragraph contains a citation`).scrollIntoViewIfNeeded(),
   })
 
-  await page.getByText("Reference").scrollIntoViewIfNeeded()
+  await page.getByText("References", { exact: true }).scrollIntoViewIfNeeded()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "closed-course-material-reference-list",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Reference")],
-    beforeScreenshot: async () => await page.getByText("Reference").scrollIntoViewIfNeeded(),
+    waitForTheseToBeVisibleAndStable: [page.getByText("References", { exact: true })],
+    beforeScreenshot: async () =>
+      await page.getByText("References", { exact: true }).scrollIntoViewIfNeeded(),
   })
 
-  await page.getByText("Reference").click()
+  await page.getByText("References", { exact: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "open-course-material-reference-list",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Reference"), page.locator("text=Wang")],
-    beforeScreenshot: async () => await page.getByText("Reference").scrollIntoViewIfNeeded(),
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("References", { exact: true }),
+      page.locator("text=Wang"),
+    ],
+    beforeScreenshot: async () =>
+      await page.getByText("References", { exact: true }).scrollIntoViewIfNeeded(),
   })
 
   await test.step("Tooltip is accessible", async () => {

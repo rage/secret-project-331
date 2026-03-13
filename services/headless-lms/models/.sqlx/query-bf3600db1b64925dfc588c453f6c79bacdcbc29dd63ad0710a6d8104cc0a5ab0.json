@@ -97,7 +97,8 @@
                 "self_review",
                 "waiting_for_peer_reviews",
                 "waiting_for_manual_grading",
-                "reviewed_and_locked"
+                "reviewed_and_locked",
+                "locked"
               ]
             }
           }
@@ -125,7 +126,8 @@
                 "self_review",
                 "waiting_for_peer_reviews",
                 "waiting_for_manual_grading",
-                "reviewed_and_locked"
+                "reviewed_and_locked",
+                "locked"
               ]
             }
           }

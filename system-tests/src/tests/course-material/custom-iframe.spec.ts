@@ -3,6 +3,7 @@ import { test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -42,8 +43,9 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Edit" }).waitFor()
   await page.getByText("https://example.com/iframe").waitFor()
-  await page.getByRole("button", { name: "Save", exact: true }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+  })
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/permission-management/chapter-1/iframe-page",
   )

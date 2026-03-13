@@ -53,6 +53,7 @@ export async function respondToConfirmDialog(
   expectedTitle?: string,
 ): Promise<void> {
   const action = confirm ? "Confirm" : "Cancel"
+
   await test.step(`Respond to confirm dialog - ${action}`, async () => {
     const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
     await dialog.waitFor()
@@ -89,6 +90,7 @@ export async function fillPromptDialog(
   expectedTitle?: string,
 ): Promise<void> {
   const action = submit ? "Submit" : "Cancel"
+
   await test.step(`Fill prompt dialog - ${action}`, async () => {
     const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
     await dialog.waitFor()

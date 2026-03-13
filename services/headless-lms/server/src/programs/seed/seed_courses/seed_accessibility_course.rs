@@ -123,6 +123,7 @@ pub async fn seed_accessibility_course(
                                   ]
                                 })),
                                 vec![],
+                                true,
                             )),
                     )
                     .page(

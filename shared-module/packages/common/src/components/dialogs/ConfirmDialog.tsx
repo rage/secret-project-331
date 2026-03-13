@@ -14,6 +14,7 @@ export interface ConfirmDialogProps {
   open: boolean
   title: string
   message: React.ReactNode
+  confirmDisabled?: boolean
   onConfirm: () => void
   onCancel: () => void
 }
@@ -22,6 +23,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   open,
   title,
   message,
+  confirmDisabled = false,
   onConfirm,
   onCancel,
 }) => {
@@ -44,6 +46,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           children: t("yes"),
           variant: "primary",
           onClick: onConfirm,
+          disabled: confirmDisabled,
           "data-testid": CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
         },
       ]}

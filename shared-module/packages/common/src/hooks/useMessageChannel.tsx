@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 export default function useMessageChannel(): [MessageChannel | null, () => void] {
   const [channel, setChannel] = useState<MessageChannel | null>(() => {
@@ -10,11 +10,11 @@ export default function useMessageChannel(): [MessageChannel | null, () => void]
     return null
   })
 
-  const recreateChannel = () => {
+  const recreateChannel = useCallback(() => {
     if (typeof MessageChannel !== "undefined") {
       setChannel(new MessageChannel())
     }
-  }
+  }, [])
 
   return [channel, recreateChannel]
 }

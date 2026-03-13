@@ -8,12 +8,13 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import AllSubmissionsList from "@/components/AllSubmissionsList"
+import DeletedUserNotice from "@/components/DeletedUserNotice"
 import ExerciseGradingCard from "@/components/ExerciseGradingCard"
 import KeyValueCard from "@/components/KeyValueCard"
 import MainFrontedViewSubmission from "@/components/MainFrontedViewSubmission"
 import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsForUser"
 import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
-import { useUserDetails } from "@/hooks/useUserDetails"
+import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
 import { fetchSubmissionInfo } from "@/services/backend/submissions"
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
@@ -24,7 +25,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import {
-  courseInstanceUserStatusSummaryRoute,
+  courseUserStatusSummaryRoute,
   exerciseSubmissionsRoute,
 } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
@@ -42,6 +43,8 @@ const Submission: React.FC = () => {
     getSubmissionInfo.data?.exercise.course_id ? [getSubmissionInfo.data.exercise.course_id] : null,
     getSubmissionInfo.data?.exercise_slide_submission.user_id,
   )
+  const user = extractUserDetail(userDetails.data)
+  const userDetailsNotFound = isUserDetailsNotFound(userDetails.data)
 
   const exerciseSubmissions = useExerciseSubmissionsForUser(
     getSubmissionInfo.data?.exercise.id,
@@ -175,49 +178,53 @@ const Submission: React.FC = () => {
                     },
                   ],
                 },
-                {
-                  title: t("user-information"),
-                  items: [
-                    {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      key: "first-name",
-                      label: t("first-name"),
-                      value: userDetails.data.first_name ?? "",
-                    },
-                    {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      key: "last-name",
-                      label: t("last-name"),
-                      value: userDetails.data.last_name ?? "",
-                    },
-                    {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      key: "email",
-                      label: t("email"),
-                      value: userDetails.data.email ?? "",
-                    },
-                    {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      key: "user-id",
-                      label: t("user-id"),
-                      colSpan: 3,
-                      value: (
-                        <HideTextInSystemTests
-                          text={getSubmissionInfo.data.exercise_slide_submission.user_id}
-                          testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                        />
-                      ),
-                    },
-                  ],
-                },
+                ...(user
+                  ? [
+                      {
+                        title: t("user-information"),
+                        items: [
+                          {
+                            // eslint-disable-next-line i18next/no-literal-string
+                            key: "first-name",
+                            label: t("first-name"),
+                            value: user.first_name,
+                          },
+                          {
+                            // eslint-disable-next-line i18next/no-literal-string
+                            key: "last-name",
+                            label: t("last-name"),
+                            value: user.last_name,
+                          },
+                          {
+                            // eslint-disable-next-line i18next/no-literal-string
+                            key: "email",
+                            label: t("email"),
+                            value: user.email,
+                          },
+                          {
+                            // eslint-disable-next-line i18next/no-literal-string
+                            key: "user-id",
+                            label: t("user-id"),
+                            colSpan: 3,
+                            value: (
+                              <HideTextInSystemTests
+                                text={getSubmissionInfo.data.exercise_slide_submission.user_id}
+                                testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                              />
+                            ),
+                          },
+                        ],
+                      },
+                    ]
+                  : []),
               ]}
               actionButtons={
-                userCourseSettings.data?.current_course_instance_id
+                getSubmissionInfo.data?.exercise.course_id
                   ? [
                       <Link
                         key="course-status"
-                        href={courseInstanceUserStatusSummaryRoute(
-                          userCourseSettings.data.current_course_instance_id,
+                        href={courseUserStatusSummaryRoute(
+                          getSubmissionInfo.data.exercise.course_id,
                           getSubmissionInfo.data.exercise_slide_submission.user_id,
                         )}
                       >
@@ -228,6 +235,16 @@ const Submission: React.FC = () => {
                     ]
                   : []
               }
+            />
+          )}
+
+          {userDetails.isSuccess && userDetailsNotFound && (
+            <DeletedUserNotice
+              userId={getSubmissionInfo.data.exercise_slide_submission.user_id}
+              className={css`
+                max-width: ${narrowContainerWidthRem}rem;
+                margin: 0 auto 2rem auto;
+              `}
             />
           )}
 

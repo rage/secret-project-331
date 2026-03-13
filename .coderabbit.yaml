@@ -19,7 +19,8 @@ reviews:
     - path: "system-tests/**/*"
       instructions: >
         For Playwright system tests, make sure each test that triggers a backend mutation (e.g., clicking a save button)
-        waits for a UI confirmation element that proves the request completed successfully before proceeding.
+        waits for a UI confirmation element that proves the request completed successfully before proceeding. Prefer using
+        `waitForSuccessNotification` for success toasts. Example: `await waitForSuccessNotification(page, async () => { await page.getByRole("button", { name: "Save" }).click() })`. If the toast text differs, pass it as the third arg. Default is `/Operation successful!?/`.
         Otherwise, the test might continue before the operation finishes.
 
         Also if someone navigates to a course page, and clicks continue on a dialog straight away, make sure its done with the
@@ -47,6 +48,8 @@ reviews:
         If there is a form of any kind, make sure it uses useForm from react-hook-form, and make sure the form is integrated with the useToastMutation and useQuery hooks.
 
         For loading and error states, use the Spinner and ErrorBanner components from the shared module.
+
+        For screen-reader-only text, use VisuallyHidden from react-aria instead of custom sr-only / visually-hidden CSS.
 
         We have better replacements for window.confirm, window.alert, and window.prompt, use the DialogProvider and the useDialog hook from the shared module instead.
 

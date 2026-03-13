@@ -62,6 +62,7 @@ test.describe("Students should be able to give extra peer reviews to receive pri
     await fillPeerReview(student1Page, ["Agree", "Agree"], false)
     await student1Page.getByText("2 / 3 Peer reviews given").waitFor()
     await fillPeerReview(student1Page, ["Agree", "Agree"], false)
+
     await test.step("User should be able to give an extra peer review to speed up the process", async () => {
       await student1Page.getByRole("button", { name: "Give extra peer review" }).click()
       await student1Page.getByText("3 / 3 Peer reviews given").waitFor()
@@ -96,7 +97,7 @@ test.describe("Students should be able to give extra peer reviews to receive pri
 
       await exerciseDetailsComponent.getByRole("button", { name: "View details" }).click()
 
-      await expect(exerciseDetailsComponent).toContainText("Priority: 4")
+      await expect(exerciseDetailsComponent).toContainText(/Priority:\s*4(?!\d)/)
     })
   })
 })

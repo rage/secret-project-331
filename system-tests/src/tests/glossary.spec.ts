@@ -5,6 +5,7 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 import { waitForFooterTranslationsToLoad } from "../utils/waitingUtils"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -51,8 +52,9 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await page.getByPlaceholder("New term").fill("SSD")
     await page.getByPlaceholder("New definition").fill(SSD_DEFINITION)
 
-    await page.getByRole("button", { name: "Save", exact: true }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save", exact: true }).click()
+    })
 
     // Reload to stabilize screenshot later.
     await page.reload()
@@ -66,8 +68,9 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await page.getByPlaceholder("Updated term").fill("SSD")
     await page.getByPlaceholder("Updated definition").fill(SSD_DEFINITION)
 
-    await page.locator(':nth-match(:text("Save"), 2)').click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.locator(':nth-match(:text("Save"), 2)').click()
+    })
   })
 
   await test.step("Return to Glossary page and snapshot", async () => {

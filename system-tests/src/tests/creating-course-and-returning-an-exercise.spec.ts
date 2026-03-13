@@ -7,6 +7,7 @@ import {
   scrollLocatorsParentIframeToViewIfNeeded,
 } from "../utils/iframeLocators"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -136,8 +137,9 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   // Check :nth-match(input[type="checkbox"], 2)
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
-  await page.click('button:text-is("Save") >> visible=true')
-  await page.getByText(`Operation successful!`).waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.click('button:text-is("Save") >> visible=true')
+  })
 
   // Check that the assignment still displays after saving
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')

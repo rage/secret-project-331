@@ -172,10 +172,51 @@ export interface ChapterWithStatus {
   chapter_number: number
   front_page_id: string | null
   opens_at: string | null
+  deadline: string | null
   status: ChapterStatus
   chapter_image_url: string | null
   course_module_id: string
+  exercise_deadline_override_count: number
+  exercise_deadline_override_distinct_count: number
+  earliest_exercise_deadline_override: string | null
 }
+
+export type ParagraphSuggestionAction =
+  | "moocfi/ai/generate-draft-from-notes"
+  | "moocfi/ai/generate-continue-paragraph"
+  | "moocfi/ai/generate-add-example"
+  | "moocfi/ai/generate-add-counterpoint"
+  | "moocfi/ai/generate-add-concluding-sentence"
+  | "moocfi/fix-spelling"
+  | "moocfi/ai/improve-clarity"
+  | "moocfi/ai/improve-flow"
+  | "moocfi/ai/improve-concise"
+  | "moocfi/ai/improve-expand-detail"
+  | "moocfi/ai/improve-academic-style"
+  | "moocfi/ai/structure-create-topic-sentence"
+  | "moocfi/ai/structure-reorder-sentences"
+  | "moocfi/ai/structure-split-into-paragraphs"
+  | "moocfi/ai/structure-combine-into-one"
+  | "moocfi/ai/structure-to-bullets"
+  | "moocfi/ai/structure-from-bullets"
+  | "moocfi/ai/learning-simplify-beginners"
+  | "moocfi/ai/learning-add-definitions"
+  | "moocfi/ai/learning-add-analogy"
+  | "moocfi/ai/learning-add-practice-question"
+  | "moocfi/ai/learning-add-check-understanding"
+  | "moocfi/ai/summaries-one-sentence"
+  | "moocfi/ai/summaries-two-three-sentences"
+  | "moocfi/ai/summaries-key-takeaway"
+  | "moocfi/ai/tone-academic-formal"
+  | "moocfi/ai/tone-friendly-conversational"
+  | "moocfi/ai/tone-encouraging-supportive"
+  | "moocfi/ai/tone-neutral-objective"
+  | "moocfi/ai/tone-confident"
+  | "moocfi/ai/tone-serious"
+  | "moocfi/ai/translate-english"
+  | "moocfi/ai/translate-finnish"
+  | "moocfi/ai/translate-norwegian"
+  | "moocfi/ai/translate-swedish"
 
 export interface DatabaseChapter {
   id: string
@@ -276,6 +317,8 @@ export interface ChatbotConfiguration {
   use_semantic_reranking: boolean
   use_tools: boolean
   default_chatbot: boolean
+  suggest_next_messages: boolean
+  initial_suggested_messages: Array<string> | null
 }
 
 export interface NewChatbotConf {
@@ -303,6 +346,8 @@ export interface NewChatbotConf {
   use_tools: boolean
   default_chatbot: boolean
   chatbotconf_id: string | null
+  suggest_next_messages: boolean
+  initial_suggested_messages: Array<string> | null
 }
 
 export type VerbosityLevel = "low" | "medium" | "high"
@@ -318,6 +363,7 @@ export interface ChatbotConfigurationModel {
   thinking: boolean
   default_model: boolean
   deployment_name: string
+  context_size: number
 }
 
 export interface ChatbotConversationMessage {
@@ -373,6 +419,15 @@ export interface ChatbotConversationMessageToolOutput {
   tool_call_id: string
 }
 
+export interface ChatbotConversationSuggestedMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_message_id: string
+  message: string
+}
+
 export interface ChatbotConversation {
   id: string
   created_at: string
@@ -388,7 +443,9 @@ export interface ChatbotConversationInfo {
   current_conversation_messages: Array<ChatbotConversationMessage> | null
   current_conversation_message_citations: Array<ChatbotConversationMessageCitation> | null
   chatbot_name: string
+  course_name: string
   hide_citations: boolean
+  suggested_messages: Array<ChatbotConversationSuggestedMessage> | null
 }
 
 export interface CodeGiveawayCode {
@@ -468,6 +525,20 @@ export interface CourseCustomPrivacyPolicyCheckboxText {
   deleted_at: string | null
   text_html: string
   text_slug: string
+}
+
+export interface CourseEnrollmentInfo {
+  course_id: string
+  course: Course
+  course_instances: Array<CourseInstance>
+  user_course_settings: UserCourseSettings | null
+  course_module_completions: Array<CourseModuleCompletion>
+  first_enrolled_at: string
+  is_current: boolean
+}
+
+export interface CourseEnrollmentsInfo {
+  course_enrollments: Array<CourseEnrollmentInfo>
 }
 
 export interface CourseInstanceEnrollment {
@@ -661,6 +732,7 @@ export interface Course {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  flagged_answers_skip_manual_review_and_allow_retry: boolean
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
@@ -718,6 +790,7 @@ export interface CourseUpdate {
   is_joinable_by_code_only: boolean
   ask_marketing_consent: boolean
   flagged_answers_threshold: number
+  flagged_answers_skip_manual_review_and_allow_retry: boolean
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
@@ -1104,6 +1177,7 @@ export interface Exercise {
   needs_self_review: boolean
   use_course_default_peer_or_self_review_config: boolean
   exercise_language_group_id: string | null
+  teacher_reviews_answer_after_locking: boolean
 }
 
 export interface ExerciseGradingStatus {
@@ -1127,9 +1201,9 @@ export interface ExerciseStatusSummaryForUser {
   exercise: Exercise
   user_exercise_state: UserExerciseState | null
   exercise_slide_submissions: Array<ExerciseSlideSubmission>
-  given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+  given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
   given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
-  received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+  received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
   received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   peer_review_queue_entry: PeerReviewQueueEntry | null
   teacher_grading_decision: TeacherGradingDecision | null
@@ -1663,6 +1737,7 @@ export interface CmsPageExercise {
   peer_or_self_review_config: CmsPeerOrSelfReviewConfig | null
   peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion> | null
   use_course_default_peer_or_self_review_config: boolean
+  teacher_reviews_answer_after_locking: boolean
 }
 
 export interface CmsPageExerciseSlide {
@@ -1963,6 +2038,19 @@ export interface PeerOrSelfReviewSubmission {
   course_id: string
   peer_or_self_review_config_id: string
   exercise_slide_submission_id: string
+}
+
+export interface PeerOrSelfReviewSubmissionWithSubmissionOwner {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  user_id: string
+  exercise_id: string
+  course_id: string
+  peer_or_self_review_config_id: string
+  exercise_slide_submission_id: string
+  submission_owner_user_id: string | null
 }
 
 export interface PeerReviewQueueEntry {
@@ -2318,6 +2406,7 @@ export type ReviewingStage =
   | "WaitingForPeerReviews"
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
+  | "Locked"
 
 export interface UserCourseChapterExerciseProgress {
   exercise_id: string
@@ -2647,6 +2736,30 @@ export interface ServicePortInfo {
   port: number
   target_port: string | null
   protocol: string | null
+}
+
+export interface ParagraphSuggestionMeta {
+  tone: string | null
+  language: string | null
+  setting_type: string | null
+}
+
+export interface ParagraphSuggestionContext {
+  page_id: string | null
+  course_id: string | null
+  locale: string | null
+}
+
+export interface ParagraphSuggestionRequest {
+  action: ParagraphSuggestionAction
+  content: string
+  is_html: boolean
+  meta: ParagraphSuggestionMeta | null
+  context: ParagraphSuggestionContext | null
+}
+
+export interface ParagraphSuggestionResponse {
+  suggestions: Array<string>
 }
 
 export type HealthStatus = "healthy" | "warning" | "error"

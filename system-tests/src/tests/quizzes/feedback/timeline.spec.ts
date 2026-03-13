@@ -3,8 +3,6 @@ import { test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
-import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
-
 test.use({
   storageState: "src/states/user@example.com.json",
 })

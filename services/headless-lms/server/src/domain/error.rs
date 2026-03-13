@@ -10,6 +10,7 @@ use actix_web::{
 use backtrace::Backtrace;
 use derive_more::Display;
 use dpop_verifier::error::DpopError;
+use headless_lms_chatbot::prelude::ChatbotError;
 use headless_lms_models::{ModelError, ModelErrorType};
 use headless_lms_utils::error::{
     backend_error::BackendError, backtrace_formatter::format_backtrace, util_error::UtilError,
@@ -728,5 +729,15 @@ impl From<crate::domain::oauth::pkce::PkceError> for PkceFlowError {
 impl From<crate::domain::oauth::pkce::PkceError> for ControllerError {
     fn from(err: crate::domain::oauth::pkce::PkceError) -> Self {
         PkceFlowError::from(err).into()
+    }
+}
+
+impl From<ChatbotError> for ControllerError {
+    fn from(err: ChatbotError) -> Self {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            err.message().to_string(),
+            Some(err.into()),
+        )
     }
 }

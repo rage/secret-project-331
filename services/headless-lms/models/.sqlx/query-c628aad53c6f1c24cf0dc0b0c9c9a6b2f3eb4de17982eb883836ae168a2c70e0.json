@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  e.chapter_id,\n  MIN(COALESCE(e.deadline, c.deadline)) FILTER (\n    WHERE COALESCE(e.deadline, c.deadline) IS NOT NULL\n  ) AS earliest_exercise_deadline_override,\n  COUNT(*) FILTER (\n    WHERE e.deadline IS NOT NULL\n      AND (c.deadline IS NULL OR e.deadline <> c.deadline)\n  ) AS exercise_deadline_override_count,\n  COUNT(DISTINCT COALESCE(e.deadline, c.deadline)) FILTER (\n    WHERE COALESCE(e.deadline, c.deadline) IS NOT NULL\n  ) AS exercise_deadline_override_distinct_count\nFROM exercises e\nJOIN chapters c ON c.id = e.chapter_id\nWHERE c.course_id = $1\n  AND c.deleted_at IS NULL\n  AND e.deleted_at IS NULL\nGROUP BY e.chapter_id, c.deadline\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chapter_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "earliest_exercise_deadline_override",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "exercise_deadline_override_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "exercise_deadline_override_distinct_count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "c628aad53c6f1c24cf0dc0b0c9c9a6b2f3eb4de17982eb883836ae168a2c70e0"
+}

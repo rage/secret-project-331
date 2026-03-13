@@ -3,7 +3,7 @@
 import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 
-import { FEEDBACK_TOOLTIP_ID } from "./TextSelectionTooltip"
+import { TEXT_SELECTION_TOOLTIP_ID } from "./TextSelectionTooltip"
 
 import { selectedBlockIdAtom, selectionAtom } from "@/stores/course-material/materialFeedbackStore"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
@@ -48,7 +48,7 @@ const useSelectionTracking = (): void => {
       const isWithinFeedback = parentHasCssSelector(
         element,
         // eslint-disable-next-line i18next/no-literal-string
-        `#${FEEDBACK_DIALOG_CONTENT_ID}, #${FEEDBACK_TOOLTIP_ID}`,
+        `#${FEEDBACK_DIALOG_CONTENT_ID}, #${TEXT_SELECTION_TOOLTIP_ID}`,
       )
       return isWithinIgnoredBlock || isWithinFeedback
     }

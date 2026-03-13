@@ -180,7 +180,6 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
         <>
           <OpenChatbotButton hide={shouldRender} triggerProps={triggerProps} ref={buttonRef} />
           <ChatbotDialog
-            chatbotConfigurationId={chatbotConfigurationId}
             currentConversationInfo={currentConversationInfoQuery}
             state={state}
             buttonRef={buttonRef}
@@ -201,14 +200,12 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
       )}
       {isCourseMaterialBlock && (
         <ChatbotChatBox
-          chatbotConfigurationId={chatbotConfigurationId}
           currentConversationInfo={currentConversationInfoQuery}
           messageState={messageState}
           dispatch={dispatch}
           newMessage={newMessage}
           setNewMessage={setNewMessage}
           error={error}
-          setError={setError}
           chatbotMessageAnnouncement={chatbotMessageAnnouncement}
           newMessageMutation={newMessageMutation}
           newConversation={newConversationMutation}

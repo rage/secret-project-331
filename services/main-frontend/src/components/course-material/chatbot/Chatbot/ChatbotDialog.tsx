@@ -21,7 +21,6 @@ import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/co
 type DOMPropsType = ReturnType<typeof useOverlayTrigger>["overlayProps"]
 
 interface ChatbotDialogProps {
-  chatbotConfigurationId: string
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   state: ChatbotState
   buttonRef: RefObject<HTMLButtonElement | null>

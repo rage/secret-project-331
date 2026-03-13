@@ -26,21 +26,21 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotChatBodyProps {
+export interface ChatbotChatBodyProps {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+  messageState: MessageState
+  dispatch: (action: MessageAction) => void
   newMessage: string
   setNewMessage: React.Dispatch<React.SetStateAction<string>>
   error: Error | null
-  messageState: MessageState
   chatbotMessageAnnouncement: string
-  dispatch: React.ActionDispatch<[action: MessageAction]>
   newMessageMutation: UseMutationResult<
     ReadableStream<Uint8Array<ArrayBufferLike>>,
     unknown,
     string,
     unknown
   >
+  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
 }
 
 const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({

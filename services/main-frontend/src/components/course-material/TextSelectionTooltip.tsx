@@ -11,14 +11,14 @@ import { usePopper } from "react-popper"
 import AIChat from "@/img/course-material/ai-chat.svg"
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { baseTheme } from "@/shared-module/common/styles"
-import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
+import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
 import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
 
-export const FEEDBACK_TOOLTIP_ID = "feedback-tooltip"
+export const TEXT_SELECTION_TOOLTIP_ID = "text-selection-tooltip"
 
 const svgCss = css`
   color: #111827;
@@ -37,7 +37,6 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
   courseName,
   pageTitle,
 }) => {
-  // todo rename all feedback tooltip stuff?
   const { t } = useTranslation()
   const [selection] = useAtom(selectionAtom)
   const setCurrentlyOpenFeedbackDialog = useSetAtom(currentlyOpenFeedbackDialogAtom)
@@ -193,8 +192,8 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
       // eslint-disable-next-line react/forbid-dom-props
       style={styles.popper}
       {...attributes.popper}
-      id={FEEDBACK_TOOLTIP_ID}
-      data-testid={feedbackTooltipTestId}
+      id={TEXT_SELECTION_TOOLTIP_ID}
+      data-testid={textSelectionTooltipTestId}
     >
       <SpeechBalloon
         placement={attributes.popper?.["data-popper-placement"]}

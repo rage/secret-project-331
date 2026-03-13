@@ -30,7 +30,6 @@ interface ChatbotNoDialogHeaderProps {
 }
 
 type ChatbotChatHeaderProps = {
-  chatbotConfigurationId: string
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
 } & (ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps)

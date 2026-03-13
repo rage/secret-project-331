@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { fetchHistoryForPage } from "@/services/backend/pages"
 import { PageHistory } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
@@ -39,8 +40,18 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getPageHistory.error} />
   }
 
-  if (getPageHistory.isLoading || !getPageHistory.data) {
+  if (getPageHistory.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+
+  if (!getPageHistory.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void getPageHistory.refetch()
+        }}
+      />
+    )
   }
 
   if (getPageHistory.data.length === 0) {

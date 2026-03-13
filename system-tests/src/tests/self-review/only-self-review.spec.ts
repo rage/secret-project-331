@@ -78,6 +78,7 @@ test.describe("An exercise that has self review but no peer review works", () =>
       })
       await student1Page.getByText("Waiting for course staff to review your answer").waitFor()
     })
+
     await test.step(`Teacher reviews the answer`, async () => {
       await teacherPage.goto(
         "http://project-331.local/manage/courses/3cbaac48-59c4-4e31-9d7e-1f51c017390d/pages",

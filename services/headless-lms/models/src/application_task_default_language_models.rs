@@ -5,6 +5,7 @@ use crate::prelude::*;
 pub enum ApplicationTask {
     ContentCleaning,
     MessageSuggestion,
+    CmsParagraphSuggestion,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

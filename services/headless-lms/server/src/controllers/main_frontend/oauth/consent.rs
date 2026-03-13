@@ -117,14 +117,17 @@ pub async fn deny_consent(
     pool: web::Data<PgPool>,
     form: web::Json<ConsentDenyQuery>,
 ) -> Result<HttpResponse, Error> {
-    let mut conn = pool
-        .acquire()
-        .await
-        .map_err(actix_web::error::ErrorInternalServerError)?;
+    let mut conn = pool.acquire().await.map_err(|e| {
+        tracing::error!(err = %e, "OAuth consent/deny: pool acquire failed");
+        actix_web::error::ErrorInternalServerError(e)
+    })?;
 
     let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
         .await
-        .map_err(actix_web::error::ErrorBadRequest)?;
+        .map_err(|e| {
+            tracing::error!(err = %e, "OAuth consent/deny: client lookup failed");
+            actix_web::error::ErrorBadRequest(e)
+        })?;
 
     if !client.redirect_uris.contains(&form.redirect_uri) {
         return Err(actix_web::error::ErrorBadRequest("invalid redirect URI"));

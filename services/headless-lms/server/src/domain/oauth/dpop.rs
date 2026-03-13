@@ -38,6 +38,68 @@ impl<'c> ReplayStore for SqlxReplayStore<'c> {
     }
 }
 
+/// Buffered replay context for deferred persistence (token endpoint only).
+struct BufferedReplayEntry {
+    jti_hash: [u8; 32],
+    client_id: Option<String>,
+    jkt: Option<String>,
+    htm: Option<String>,
+    htu: Option<String>,
+    iat: Option<i64>,
+}
+
+/// Replay store that defers persisting the proof until flush is called.
+/// Used at the token endpoint so that when we return UseDpopNonce we do not
+/// record the JTI, allowing the client to retry with the nonce without hitting replay.
+pub struct DeferredReplayStore {
+    buffer: Option<BufferedReplayEntry>,
+}
+
+impl DeferredReplayStore {
+    pub fn new() -> Self {
+        Self { buffer: None }
+    }
+
+    /// Persist any buffered proof into the database. Call only after verification succeeded.
+    pub async fn flush(&mut self, conn: &mut PgConnection) -> Result<(), DpopError> {
+        if let Some(entry) = self.buffer.take() {
+            let digest = TokenDigest::from(entry.jti_hash);
+            OAuthDpopProof::insert_once(
+                conn,
+                digest,
+                entry.client_id.as_deref(),
+                entry.jkt.as_deref(),
+                entry.htm.as_deref(),
+                entry.htu.as_deref(),
+                entry.iat,
+            )
+            .await
+            .map_err(|e| DpopError::Store(e.into()))?;
+        }
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl ReplayStore for DeferredReplayStore {
+    async fn insert_once(
+        &mut self,
+        jti_hash: [u8; 32],
+        ctx: ReplayContext<'_>,
+    ) -> Result<bool, DpopError> {
+        self.buffer = Some(BufferedReplayEntry {
+            jti_hash,
+            client_id: ctx.client_id.map(String::from),
+            jkt: ctx.jkt.map(String::from),
+            htm: ctx.htm.map(String::from),
+            htu: ctx.htu.map(String::from),
+            iat: Some(ctx.iat),
+        });
+        // Report first-time so the verifier continues; we persist only on flush (after Ok).
+        Ok(true)
+    }
+}
+
 pub async fn verify_dpop_from_actix(
     conn: &mut PgConnection,
     req: &HttpRequest,
@@ -67,4 +129,41 @@ pub async fn verify_dpop_from_actix(
         .await?;
 
     Ok(verified.jkt)
+}
+
+/// DPoP verification for the token endpoint only. Uses a deferred replay store so that
+/// when the server returns UseDpopNonce the proof is not persisted; the client can retry
+/// with the nonce without the auth code being effectively revoked (replay rejection).
+pub async fn verify_dpop_from_actix_for_token(
+    conn: &mut PgConnection,
+    req: &HttpRequest,
+    dpop_nonce_key: &SecretBox<String>,
+) -> Result<String, DpopError> {
+    let hdr = dpop_header_str(req)?;
+    let htu = expected_htu_from_actix(req, true);
+
+    let mut store = DeferredReplayStore::new();
+    let verifier = DpopVerifier::new()
+        .with_max_age_seconds(300)
+        .with_future_skew_seconds(5)
+        .with_nonce_mode(dpop_verifier::NonceMode::Hmac(
+            dpop_verifier::HmacConfig::new(
+                dpop_nonce_key.expose_secret().as_bytes(),
+                300,
+                true,
+                true,
+                true,
+            ),
+        ));
+    let result = verifier
+        .verify(&mut store, hdr, &htu, "POST", None::<&str>)
+        .await;
+
+    match result {
+        Ok(verified) => {
+            store.flush(conn).await?;
+            Ok(verified.jkt)
+        }
+        Err(e) => Err(e),
+    }
 }

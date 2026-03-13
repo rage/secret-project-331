@@ -26,10 +26,12 @@ pub fn rsa_n_e_and_kid_from_pem(public_pem: &str) -> anyhow::Result<(String, Str
     Ok((n_b64, e_b64, kid))
 }
 
+/// Generate an ID token. `nonce` should be `Some` only when the authorization request
+/// included a nonce; when absent or empty, the nonce claim is omitted from the id_token.
 pub fn generate_id_token(
     user_id: uuid::Uuid,
     client_id: &str,
-    nonce: &str,
+    nonce: Option<&str>,
     expires_at: DateTime<Utc>,
     issuer: &str,
     cfg: &ApplicationConfiguration,
@@ -52,13 +54,21 @@ pub fn generate_id_token(
             )
         })?;
 
+    let nonce_claim = nonce.and_then(|s| {
+        if s.is_empty() {
+            None
+        } else {
+            Some(s.to_string())
+        }
+    });
+
     let claims = Claims {
         sub: user_id.to_string(),
         aud: client_id.to_string(),
         iss: issuer.to_string(),
         iat: now,
         exp,
-        nonce: nonce.to_string(),
+        nonce: nonce_claim,
     };
 
     let mut header = Header::new(jsonwebtoken::Algorithm::RS256);

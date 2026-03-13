@@ -95,7 +95,8 @@ pub async fn authorize(
 
     let client = OAuthClient::find_by_client_id(&mut conn, &query.client_id)
         .await
-        .map_err(|_| {
+        .map_err(|e| {
+            tracing::error!(err = %e, "OAuth authorize: client lookup failed");
             oauth_invalid_request(
                 "invalid client_id",
                 None, // Cannot verify redirect_uri without valid client_id (security: prevent open redirect)

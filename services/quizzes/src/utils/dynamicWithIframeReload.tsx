@@ -6,12 +6,6 @@ import type { ComponentType } from "react"
 const RELOAD_BRIDGE_RETRY_INTERVAL_MS = 500
 const RELOAD_BRIDGE_MAX_WAIT_MS = 10_000
 const LOADER_RETRY_DELAYS_MS = [200, 400, 800] as const
-
-/**
- * Wraps next/dynamic so that any loader failure first asks the parent iframe
- * to reload this exercise (when running inside an exercise-service iframe),
- * and then rethrows the original error.
- */
 /**
  * Requests an iframe reload from the parent page when available.
  */
@@ -62,6 +56,11 @@ export interface DynamicWithIframeReloadDeps {
   dynamicFn?: typeof dynamic
 }
 
+/**
+ * Wraps next/dynamic so that any loader failure first asks the parent iframe
+ * to reload this exercise (when running inside an exercise-service iframe),
+ * and then rethrows the original error.
+ */
 function dynamicWithIframeReload<Props extends object = Record<string, never>>(
   loader: DynamicLoader<Props>,
   options?: DynamicOptions<Props>,

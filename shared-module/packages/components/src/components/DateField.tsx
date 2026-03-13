@@ -2,13 +2,15 @@
 
 import React from "react"
 
-import { type NativeInputFieldProps } from "./primitives/NativeInputField"
-import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
+import {
+  SegmentedDateInputField,
+  type SegmentedTemporalFieldProps,
+} from "./primitives/SegmentedDateInputField"
 
-export type DateFieldProps = NativeInputFieldProps
+export type DateFieldProps = SegmentedTemporalFieldProps
 
 // eslint-disable-next-line i18next/no-literal-string
-const stackedLayout: NativeInputFieldProps["layout"] = "stacked"
+const stackedLayout: DateFieldProps["layout"] = "stacked"
 // eslint-disable-next-line i18next/no-literal-string
 const dateFieldKind = "date" as const
 

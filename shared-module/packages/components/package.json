@@ -13,10 +13,12 @@
   "dependencies": {
     "@emotion/css": "^11.13.5",
     "@internationalized/date": "^3.10.1",
+    "@react-stately/calendar": "^3.9.1",
     "@react-stately/collections": "^3.12.8",
     "@react-stately/combobox": "^3.12.1",
     "@react-stately/datepicker": "^3.15.3",
     "@react-stately/list": "^3.13.2",
+    "@react-stately/overlays": "^3.6.21",
     "@react-stately/radio": "^3.11.3",
     "@react-stately/select": "^3.9.0",
     "@react-stately/toggle": "^3.9.3",

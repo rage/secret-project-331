@@ -1,4 +1,8 @@
-import type { Preview } from "@storybook/react"
+"use client"
+
+import type { Preview } from "@storybook/react-vite"
+
+import { tokensGlobal } from "../src/shared-module/components"
 
 const preview: Preview = {
   parameters: {
@@ -15,3 +19,5 @@ const preview: Preview = {
 }
 
 export default preview
+
+void tokensGlobal

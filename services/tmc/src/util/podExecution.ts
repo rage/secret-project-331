@@ -10,6 +10,17 @@ import { Logger } from "@/util/logger"
 const DEFAULT_TASK_TIMEOUT_MS = 60000
 const CONTAINER_NAME = "tmc-submission-execution-sandbox"
 
+/**
+ * Execute a command in a pod with a maximum wall-clock wait of `timeoutMs`.
+ *
+ * - When `timedOut === true`, the helper gave up waiting (best-effort closes the exec socket),
+ *   and `exitCode` will be `undefined`; callers should treat this as a canceled/unknown outcome.
+ * - When `timedOut === false`, the exec completed and `exitCode` is the process exit code
+ *   (0 for success, non-zero for failure) when it could be observed from the Kubernetes status
+ *   stream; if it cannot be determined, `exitCode` may be `undefined`.
+ *
+ * Unexpected errors establishing the exec or from the client will reject/throw and propagate.
+ */
 export async function execWithTimeout(
   kubeExec: k8s.Exec,
   podName: string,
@@ -20,6 +31,28 @@ export async function execWithTimeout(
   stdin: internal.Readable | null,
   timeoutMs: number,
 ): Promise<{ timedOut: boolean; exitCode?: number }> {
+  let observedStatusExitCode: number | undefined
+  let observedStatus = false
+  let resolved = false
+
+  const extractExitCodeFromStatus = (status: unknown): number | undefined => {
+    const s = status as {
+      details?: { causes?: Array<{ reason?: string; message?: string }> }
+    } | null
+    const causes = s?.details?.causes
+    if (!Array.isArray(causes)) {
+      return undefined
+    }
+    const exitCause =
+      causes.find((c) => c?.reason === "ExitCode") ?? causes.find((c) => c?.message != null)
+    const msg = exitCause?.message
+    if (msg == null) {
+      return undefined
+    }
+    const parsed = Number.parseInt(msg, 10)
+    return Number.isFinite(parsed) ? parsed : undefined
+  }
+
   const execSocket = await kubeExec.exec(
     "default",
     podName,
@@ -29,31 +62,89 @@ export async function execWithTimeout(
     stderr,
     stdin,
     false,
+    (status: unknown) => {
+      observedStatus = true
+      observedStatusExitCode = extractExitCodeFromStatus(status)
+    },
   )
   const execPromise = new Promise<{ timedOut: boolean; exitCode?: number }>((resolve) => {
+    const resolveOnce = (result: { timedOut: boolean; exitCode?: number }) => {
+      if (resolved) {
+        return
+      }
+      resolved = true
+      resolve(result)
+    }
     execSocket.onclose = (ev?: { code?: number; reason?: string }) => {
-      const exitCode = ev?.code
-      resolve({ timedOut: false, exitCode })
+      // Prefer the Kubernetes status channel's exit code when available.
+      // Fall back to the close event's code only if we never observed status.
+      const exitCode = observedStatus ? observedStatusExitCode : ev?.code
+      resolveOnce({ timedOut: false, exitCode })
     }
   })
   const timeoutPromise = new Promise<{ timedOut: boolean; exitCode?: number }>((resolve) => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
+      // Best-effort stop the exec stream; the server-side process may still run.
+      try {
+        execSocket.close()
+      } catch (_e) {
+        // ignore
+      }
       resolve({ timedOut: true })
     }, timeoutMs)
+    execPromise.finally(() => clearTimeout(timer)).catch(() => {})
   })
   return await Promise.race([execPromise, timeoutPromise])
 }
 
 const WAIT_FOR_POD_RUNNING_MS = 120_000
 
-function captureStream(): { stream: Writable; getBuffer: () => Buffer } {
+function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () => Buffer } {
+  if (maxBytes === 0) {
+    return {
+      stream: new Writable({
+        write(_chunk: Buffer | string, _enc, cb) {
+          cb()
+        },
+      }),
+      getBuffer: () => Buffer.alloc(0),
+    }
+  }
+
   const chunks: Buffer[] = []
+  let totalBytes = 0
+
+  const trimToMax = () => {
+    while (totalBytes > maxBytes && chunks.length > 0) {
+      const first = chunks[0]!
+      const overflow = totalBytes - maxBytes
+      if (overflow >= first.length) {
+        chunks.shift()
+        totalBytes -= first.length
+      } else {
+        chunks[0] = first.subarray(overflow)
+        totalBytes -= overflow
+      }
+    }
+  }
+
   const stream = new Writable({
     write(chunk: Buffer | string, _enc, cb) {
-      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+      const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+      if (buf.length >= maxBytes) {
+        chunks.length = 0
+        chunks.push(buf.subarray(buf.length - maxBytes))
+        totalBytes = maxBytes
+        cb()
+        return
+      }
+      chunks.push(buf)
+      totalBytes += buf.length
+      trimToMax()
       cb()
     },
   })
+
   return {
     stream,
     getBuffer: () => Buffer.concat(chunks),
@@ -94,8 +185,8 @@ async function copySubmissionToPod(
   submissionPath: string,
 ): Promise<void> {
   const submissionReadStream = createReadStream(submissionPath)
-  const out = captureStream()
-  const err = captureStream()
+  const out = captureStream(0)
+  const err = captureStream(0)
   const tarResult = await execWithTimeout(
     kubeExec,
     podName,
@@ -134,8 +225,8 @@ async function runTmcAndReadOutput(
   podName: string,
   logger: Logger,
 ): Promise<TmcRunOutcome> {
-  const out = captureStream()
-  const err = captureStream()
+  const out = captureStream(0)
+  const err = captureStream(0)
   const tmcRunResult = await execWithTimeout(
     kubeExec,
     podName,
@@ -169,7 +260,7 @@ async function runTmcAndReadOutput(
   let testOutputWriteStream: ReturnType<typeof createWriteStream> | null = null
   try {
     testOutputWriteStream = createWriteStream(testOutputPath)
-    const catOut = captureStream()
+    const catOut = captureStream(0)
     const catResult = await execWithTimeout(
       kubeExec,
       podName,
@@ -194,8 +285,16 @@ async function runTmcAndReadOutput(
     const testOutputBuffer = await fs.readFile(testOutputPath)
     const testOutputString = testOutputBuffer.toString()
     logger.log("got test output", "length:", testOutputString.length)
-    const parsed = JSON.parse(testOutputString)
-    return { timedOut: false, output: testOutputString, parsed }
+    try {
+      const parsed = JSON.parse(testOutputString)
+      return { timedOut: false, output: testOutputString, parsed }
+    } catch (_e) {
+      return {
+        timedOut: false,
+        output: testOutputString,
+        parsed: { status: "GENERIC_ERROR", error: "INVALID_TEST_OUTPUT_JSON" },
+      }
+    }
   } finally {
     if (testOutputWriteStream && !testOutputWriteStream.destroyed) {
       testOutputWriteStream.destroy()
@@ -232,6 +331,7 @@ export async function runInSandboxPod(
 
   pod.spec = new k8s.V1PodSpec()
   pod.spec.containers = [container]
+  pod.spec.automountServiceAccountToken = false
 
   try {
     logger.log("starting sandbox image", sandboxImage)

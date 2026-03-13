@@ -102,19 +102,24 @@ const uploadModelSolution = async (
   const solutionArchive = temporaryFile()
   await compressProject(solutionDir, solutionArchive, "zstd", true, log)
 
-  debug("uploading solution to", uploadUrl)
-  const form = new FormData()
   const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
+  debug("uploading solution", "archiveName:", archiveName)
+  const form = new FormData()
   form.append(archiveName, nodeFs.createReadStream(solutionArchive))
   const headers: Record<string, string> = {}
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
   }
   const res = await axios.post(uploadUrl, form, { headers })
-  if (isObjectMap<string>(res.data)) {
+  if (
+    isObjectMap<string>(res.data) &&
+    Object.prototype.hasOwnProperty.call(res.data, archiveName) &&
+    typeof res.data[archiveName] === "string"
+  ) {
     const solutionDownloadUrl = res.data[archiveName]
     return { spec: { solution_download_url: solutionDownloadUrl }, paths: [solutionArchive] }
-  } else {
-    throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)
   }
+  throw new Error(
+    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(res.data)}`,
+  )
 }

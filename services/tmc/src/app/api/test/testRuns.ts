@@ -23,7 +23,8 @@ function evict() {
 
 export const testRuns = {
   set(id: string, result: RunResult | null) {
-    store.set(id, { result, createdAt: store.get(id)?.createdAt ?? Date.now() })
+    const createdAt = result !== null ? Date.now() : (store.get(id)?.createdAt ?? Date.now())
+    store.set(id, { result, createdAt })
     evict()
   },
   get(id: string): RunResult | null | undefined {

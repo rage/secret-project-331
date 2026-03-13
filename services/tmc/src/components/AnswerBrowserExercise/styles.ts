@@ -73,8 +73,8 @@ export const RunButton = styled(StyledButton)`
   background-color: ${colors.primary};
   color: ${colors.surface};
   &:hover:not(:disabled) {
-    background-color: ${colors.primary};
-    color: ${colors.successHover};
+    background-color: #0262bd;
+    color: ${colors.surface};
   }
 `
 
@@ -82,8 +82,8 @@ export const StopButton = styled(StyledButton)`
   background-color: ${colors.primary};
   color: ${colors.surface};
   &:hover:not(:disabled) {
-    background-color: ${colors.primary};
-    color: ${colors.danger};
+    background-color: #0262bd;
+    color: ${colors.surface};
   }
 `
 
@@ -97,18 +97,11 @@ export const TestButton = styled(StyledButton)`
   }
 `
 
-export const ResetButton = styled.button`
-  margin: 0.5em;
+export const ResetButton = styled(StyledButton)`
   margin-left: 10px;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 0.875rem;
-  font-weight: 500;
   background-color: ${colors.muted};
   color: ${colors.text};
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: ${colors.mutedHover};
   }
 `
@@ -159,7 +152,7 @@ export const OutputContainer = styled.div`
     -2px 3px 2px 1px rgba(0, 0, 0, 0.2),
     0px 1px 1px 0px rgba(0, 0, 0, 0.14),
     0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-  border: 4px 4px 0 0;
+  border-radius: 4px 4px 0 0;
   position: relative;
 `
 
@@ -204,7 +197,6 @@ export const StdinWaitingBanner = styled.div`
   font-size: 0.875rem;
 `
 
-/** Single line: prompt + optional submitted input (grey) on same line */
 export const StdinLineRow = styled.div`
   display: flex;
   align-items: baseline;
@@ -222,7 +214,6 @@ export const StdinPromptLine = styled.span`
   color: inherit;
 `
 
-/** Submitted stdin (grey background, inline so it ends at end of string) */
 export const StdinSubmittedLine = styled.span`
   display: inline;
   font-family: inherit;

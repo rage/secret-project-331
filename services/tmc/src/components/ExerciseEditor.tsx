@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { ExerciseEditorState, ExerciseIframeState } from "@/util/stateInterfaces"
 
 interface Props {
@@ -27,14 +28,18 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
 
   // cms editor view
   if (state.private_spec == null) {
-    // no exercise selected yet
-    const repositoryExercises = state.repository_exercises?.length ?? 0
+    // no exercise selected yet: treat null/undefined as loading, [] as empty
+    const repository_exercises = state.repository_exercises
+    if (repository_exercises === null || repository_exercises === undefined) {
+      return <Spinner />
+    }
+    const hasExercises = repository_exercises.length > 0
     return (
       <>
-        {repositoryExercises > 0 && <div>{t("select-repository-exercise")}</div>}
-        {repositoryExercises === 0 && <div>{t("no-repository-exercises-found")}</div>}
+        {hasExercises && <div>{t("select-repository-exercise")}</div>}
+        {!hasExercises && <div>{t("no-repository-exercises-found")}</div>}
         <ul>
-          {state.repository_exercises?.map((re) => (
+          {repository_exercises.map((re) => (
             <li key={re.id}>
               <Button
                 variant="primary"

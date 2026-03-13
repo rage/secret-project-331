@@ -139,29 +139,35 @@ const uploadPublicSpec = async (
   debug("compressing stub to", stubArchive)
   const checksum = await compressProject(stubDir, stubArchive, "zstd", true, log)
 
-  debug("uploading stub to", uploadUrl)
-  const form = new FormData()
   const archiveName = buildArchiveName(exercise)
+  debug("uploading stub", "archiveName:", archiveName)
+  const form = new FormData()
   form.append(archiveName, nodeFs.createReadStream(stubArchive))
   const headers: Record<string, string> = {}
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
   }
   const res = await axios.post(uploadUrl, form, { headers })
-  if (isObjectMap<string>(res.data)) {
+  if (
+    isObjectMap<string>(res.data) &&
+    Object.prototype.hasOwnProperty.call(res.data, archiveName) &&
+    typeof res.data[archiveName] === "string" &&
+    res.data[archiveName].length > 0
+  ) {
     const config = await getExercisePackagingConfiguration(stubDir, log)
-    const archiveDownloadPath = res.data[archiveName]
+    const stub_download_url = res.data[archiveName]
     return {
       spec: {
         type,
         archive_name: archiveName,
-        stub_download_url: archiveDownloadPath,
+        stub_download_url,
         checksum,
         student_file_paths: config.student_file_paths,
       },
       paths: [stubArchive],
     }
-  } else {
-    throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)
   }
+  throw new Error(
+    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(res.data)}`,
+  )
 }

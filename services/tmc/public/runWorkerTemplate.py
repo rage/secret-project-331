@@ -10,12 +10,27 @@ from js import userScriptB64, exit, printError, inputPromise
 
 user_source = base64.b64decode(userScriptB64).decode("utf-8")
 
+user_code = None
+
 
 class PatchCode(ast.NodeTransformer):
+    def __init__(self):
+        super().__init__()
+        self._in_async = False
+
+    def visit_AsyncFunctionDef(self, node):
+        old = self._in_async
+        self._in_async = True
+        try:
+            return self.generic_visit(node)
+        finally:
+            self._in_async = old
+
     def generic_visit(self, node):
         super().generic_visit(node)
         if (
-            isinstance(node, ast.Call)
+            self._in_async
+            and isinstance(node, ast.Call)
             and isinstance(node.func, ast.Name)
             and node.func.id == "input"
         ):
@@ -65,6 +80,9 @@ except Exception:  # noqa: BLE001
     printError(str(v), type(v).__name__, line, [])
     exit()
 
+if user_code is None:
+    exit()
+
 
 async def execute():
     exec_globals = dict(globals())
@@ -93,4 +111,5 @@ async def wrap_execution():
         exit()
 
 
-_run_task = asyncio.create_task(wrap_execution())
+if user_code is not None:
+    _run_task = asyncio.create_task(wrap_execution())

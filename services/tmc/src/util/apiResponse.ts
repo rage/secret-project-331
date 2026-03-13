@@ -18,7 +18,8 @@ export function errorResponse(statusCode: number, contextMessage: string, err?: 
     message = `${contextMessage}: ${JSON.stringify(err, undefined, 2)}`
   }
   console.error(message, stack)
-  const body: ClientErrorResponse = { message }
+  const bodyMessage = statusCode >= 500 ? contextMessage : message
+  const body: ClientErrorResponse = { message: bodyMessage }
   return Response.json(body, { status: statusCode })
 }
 

@@ -32,13 +32,28 @@ function errorRunResult(err: unknown): RunResult {
 }
 
 function isValidTestRequest(body: unknown): body is TestRequest {
-  return (
-    body !== null &&
-    typeof body === "object" &&
-    "type" in body &&
-    "templateDownloadUrl" in body &&
-    ((body as TestRequest).type === "browser" || (body as TestRequest).type === "editor")
-  )
+  if (
+    body === null ||
+    typeof body !== "object" ||
+    !("type" in body) ||
+    !("templateDownloadUrl" in body)
+  ) {
+    return false
+  }
+  const b = body as TestRequest
+  if (b.type === "browser") {
+    return (
+      Array.isArray(b.files) &&
+      b.files.every(
+        (f): f is { filepath: string; contents: string } =>
+          typeof f === "object" && f !== null && "filepath" in f && "contents" in f,
+      )
+    )
+  }
+  if (b.type === "editor") {
+    return typeof (b as { archiveDownloadUrl?: unknown }).archiveDownloadUrl === "string"
+  }
+  return false
 }
 
 export async function POST(req: Request): Promise<Response> {

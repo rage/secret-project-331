@@ -9,37 +9,42 @@ import { OutputBody, OutputContainer, OutputHeader, OutputHeaderText, OutputPre 
 import { RunOutputContent } from "./RunOutputContent"
 import { TestResultsContent } from "./TestResultsContent"
 
-import { RunResult } from "@/tmc/cli"
+import Spinner from "@/shared-module/common/components/Spinner"
+import type { RunResult } from "@/tmc/cli"
 
 export type OutputPanelMode = "run" | "test-running" | "test-results"
 
-interface OutputPanelProps {
-  mode: OutputPanelMode
-  /** For run mode */
-  pyodideLoading?: boolean
-  runExecuting?: boolean
-  runOutput?: string
-  runError?: string | null
-  waitingForInput?: boolean
-  stdinPrompt?: string
-  segments?: OutputSegment[]
-  submitStdinLine?: (line: string) => void
-  /** For test-results mode */
-  testResults?: RunResult | null
-}
+type OutputPanelProps =
+  | {
+      mode: "run"
+      pyodideLoading?: boolean
+      runExecuting?: boolean
+      runOutput?: string
+      runError?: string | null
+      waitingForInput?: boolean
+      stdinPrompt?: string
+      segments?: OutputSegment[]
+      submitStdinLine?: (line: string) => void
+    }
+  | {
+      mode: "test-running"
+    }
+  | {
+      mode: "test-results"
+      testResults: RunResult | null
+    }
 
-export const OutputPanel: React.FC<OutputPanelProps> = ({
-  mode,
-  pyodideLoading = false,
-  runExecuting = false,
-  runOutput = "",
-  runError = null,
-  waitingForInput = false,
-  stdinPrompt = "",
-  segments = [],
-  submitStdinLine,
-  testResults = null,
-}) => {
+export const OutputPanel: React.FC<OutputPanelProps> = (props) => {
+  const { mode } = props
+  const pyodideLoading = mode === "run" ? (props.pyodideLoading ?? false) : false
+  const runExecuting = mode === "run" ? (props.runExecuting ?? false) : false
+  const runOutput = mode === "run" ? (props.runOutput ?? "") : ""
+  const runError = mode === "run" ? (props.runError ?? null) : null
+  const waitingForInput = mode === "run" ? (props.waitingForInput ?? false) : false
+  const stdinPrompt = mode === "run" ? (props.stdinPrompt ?? "") : ""
+  const segments = mode === "run" ? (props.segments ?? []) : []
+  const submitStdinLine = mode === "run" ? props.submitStdinLine : undefined
+  const testResults = mode === "test-results" ? props.testResults : null
   const { t } = useTranslation()
   const headerOrange =
     (mode === "run" && (pyodideLoading || runExecuting || waitingForInput)) ||
@@ -69,7 +74,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         <OutputHeaderText>{headerTitle}</OutputHeaderText>
       </OutputHeader>
       <OutputBody>
-        {mode === "test-running" && <OutputPre>{t("running-tests")}</OutputPre>}
+        {mode === "test-running" && <Spinner />}
         {mode === "test-results" && testResults != null && (
           <TestResultsContent testResults={testResults} />
         )}

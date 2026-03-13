@@ -6,7 +6,6 @@ import { downloadStream } from "@/lib"
 import { ExerciseTaskGradingResult, GradingProgress } from "@/shared-module/common/bindings"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
-import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import {
   compressProject,
   extractProject,
@@ -74,15 +73,7 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const specRequest = body as TmcGradingRequest
-    let gradingUpdateClaim: string | null = null
-    const gradingUpdateClaimHeader = request.headers.get(
-      EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER,
-    )
-    if (typeof gradingUpdateClaimHeader === "string") {
-      gradingUpdateClaim = gradingUpdateClaimHeader
-    }
-
-    return await processGrading(specRequest, gradingUpdateClaim)
+    return await processGrading(specRequest)
   } catch (err) {
     return internalServerError("Error while processing request", err)
   }
@@ -110,10 +101,7 @@ function normalizeSubmissionData(raw: unknown): UserAnswer | null {
   return null
 }
 
-const processGrading = async (
-  req: TmcGradingRequest,
-  _gradingUpdateClaim: string | null,
-): Promise<Response> => {
+const processGrading = async (req: TmcGradingRequest): Promise<Response> => {
   const tempPaths: string[] = []
   try {
     const { exercise_spec } = req
@@ -216,7 +204,7 @@ const gradeInPod = async (
 
   const normalized = normalizePodOutput(outcome.parsed)
   if (!normalized) {
-    throw new Error("Unexpected results")
+    throw new Error(`normalizePodOutput failed; received: ${JSON.stringify(outcome.parsed)}`)
   }
 
   let gradingProgress: GradingProgress = "Failed"

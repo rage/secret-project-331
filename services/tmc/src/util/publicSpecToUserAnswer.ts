@@ -1,12 +1,20 @@
-import { extractTarZstd } from "@/util/helpers"
 import { PublicSpec, UserAnswer } from "@/util/stateInterfaces"
 
 export async function publicSpecToIframeUserAnswer(publicSpec: PublicSpec): Promise<UserAnswer> {
   if (publicSpec.type === "browser") {
-    const stubResponse = await fetch(publicSpec.stub_download_url)
-    const tarZstdArchive = await stubResponse.arrayBuffer()
-    let files = await extractTarZstd(Buffer.from(tarZstdArchive))
+    const res = await fetch("/api/extract-stub", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stub_download_url: publicSpec.stub_download_url }),
+    })
+    if (!res.ok) {
+      throw new Error(`extract-stub failed: ${res.status}`)
+    }
+    const { files: rawFiles } = (await res.json()) as {
+      files: Array<{ filepath: string; contents: string }>
+    }
     const order = publicSpec.student_file_paths
+    let files = rawFiles ?? []
     if (order.length > 0) {
       const indexOf = (path: string) => {
         const i = order.indexOf(path)

@@ -1,6 +1,7 @@
 "use client"
 
-import _ from "lodash"
+import i18n from "i18next"
+import { cloneDeep } from "lodash"
 import { orderBy } from "natural-orderby"
 import { useRef, useState } from "react"
 import ReactDOM from "react-dom"
@@ -46,9 +47,16 @@ function requestRepoExercises(port: MessagePort | null) {
   }
 }
 
+/**
+ * Manages the iframe–parent protocol for the TMC exercise iframe.
+ * Listens for: set-state, upload-result, repository-exercises, test-results, set-language.
+ * set-state payloads include view_type (exercise-editor | answer-exercise | view-submission) and type-specific data.
+ * Returns { port, state, testRequestResponse, fileUploadResponse, setStateAndSend, sendFileUploadMessage, requestRepositoryExercises }.
+ */
 export function useIframeProtocol() {
   const iframeIdRef = useRef(v4().slice(0, 4))
   const iframeId = iframeIdRef.current
+  const latestPublicSpecRequestRef = useRef(0)
 
   const debug = (message: string, ...optionalParams: unknown[]): void => {
     console.debug(`[tmc-iframe/${iframeId}]`, message, ...optionalParams)
@@ -86,6 +94,8 @@ export function useIframeProtocol() {
     if (isMessageToIframe(messageData)) {
       debug("Received message:", messageData)
       if (messageData.message === "set-state") {
+        // flushSync ensures the parent HeightTrackingContainer can measure DOM height synchronously
+        // after these state updates; without it updates may be deferred and height tracking would be wrong.
         ReactDOM.flushSync(() => {
           if (messageData.view_type === "exercise-editor") {
             setState({
@@ -96,24 +106,27 @@ export function useIframeProtocol() {
             })
           } else if (messageData.view_type === "answer-exercise") {
             const newPublicSpec = messageData.data.public_spec as PublicSpec
+            const requestToken = ++latestPublicSpecRequestRef.current
             publicSpecToIframeUserAnswer(newPublicSpec)
               .then((userAnswer) => {
-                setState((oldState) => {
-                  const previousSubmission = messageData.data
-                    .previous_submission as ExerciseTaskSubmission | null
-                  return {
-                    view_type: messageData.view_type,
-                    public_spec:
-                      oldState?.view_type === "answer-exercise"
-                        ? oldState.public_spec
-                        : _.cloneDeep(newPublicSpec),
-                    user_answer: userAnswer,
-                    previous_submission: previousSubmission,
-                  }
-                })
+                if (requestToken !== latestPublicSpecRequestRef.current) {
+                  return
+                }
+                const publicSpecClone = cloneDeep(newPublicSpec)
+                const previousSubmission = messageData.data
+                  .previous_submission as ExerciseTaskSubmission | null
+                setState(() => ({
+                  view_type: "answer-exercise" as const,
+                  public_spec: publicSpecClone,
+                  user_answer: userAnswer,
+                  previous_submission: previousSubmission,
+                }))
               })
               .catch((error) => {
-                throw new Error(`Failed to process public spec: ${error}`)
+                if (requestToken !== latestPublicSpecRequestRef.current) {
+                  return
+                }
+                logError("Failed to process public spec", error)
               })
           } else if (messageData.view_type === "view-submission") {
             setState({
@@ -133,13 +146,19 @@ export function useIframeProtocol() {
         if (messageData.success) {
           setStateAndSend(port, (old) => {
             if (old && old.view_type === "answer-exercise" && old.user_answer.type === "editor") {
-              let archiveDownloadUrl = "null"
-              messageData.urls.forEach((val) => {
-                archiveDownloadUrl = val
-              })
+              const urls = messageData.urls
+              const archiveDownloadUrl =
+                urls instanceof Map
+                  ? (Array.from(urls.values())[0] ?? null)
+                  : Array.isArray(urls)
+                    ? (urls[0] ?? null)
+                    : null
               return {
                 ...old,
-                user_answer: { type: "editor", archive_download_url: archiveDownloadUrl },
+                user_answer: {
+                  type: "editor",
+                  archive_download_url: archiveDownloadUrl ?? "",
+                },
               }
             } else {
               return old
@@ -159,6 +178,13 @@ export function useIframeProtocol() {
         })
       } else if (messageData.message === "test-results") {
         setTestRequestResponse(messageData.test_result as RunResult)
+      } else if (messageData.message === "set-language") {
+        const language =
+          (messageData as { language?: string }).language ??
+          (messageData as { data?: { language?: string } }).data?.language
+        if (typeof language === "string") {
+          void i18n.changeLanguage(language)
+        }
       } else {
         logError("Unexpected message from parent")
       }

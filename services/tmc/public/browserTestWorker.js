@@ -26,6 +26,7 @@ self.onmessage = function (e) {
   getPyodide()
     .then(function (pyodide) {
       var stdout = ""
+      var stderrBuffer = []
       pyodide.setStdout({
         batched: function (msg) {
           stdout += msg + "\n"
@@ -33,7 +34,7 @@ self.onmessage = function (e) {
       })
       pyodide.setStderr({
         batched: function (msg) {
-          self.postMessage({ type: "stderr", message: msg })
+          stderrBuffer.push(msg)
         },
       })
       return pyodide.runPythonAsync(script).then(function () {
@@ -42,6 +43,9 @@ self.onmessage = function (e) {
         })
         var lastLine = lines.length > 0 ? lines[lines.length - 1] : ""
         var runResult = JSON.parse(lastLine)
+        if (stderrBuffer.length > 0) {
+          runResult.stderr = stderrBuffer.join("\n")
+        }
         self.postMessage({ runResult: runResult })
       })
     })

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "packageManager": "pnpm@10.26.2",
   "scripts": {
-    "build": "node scripts/inject-pyodide-version.cjs && NODE_ENV=production next build",
+    "build": "node scripts/inject-pyodide-version.cjs && next build",
     "dev": "node scripts/inject-pyodide-version.cjs && next dev --port 3005 --turbopack",
     "export": "next export",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"

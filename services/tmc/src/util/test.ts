@@ -38,7 +38,17 @@ export const runTests = async (
       const submissionDir = temporaryDirectory()
       tempPaths.push(submissionDir)
       for (const { filepath, contents } of submission.files) {
+        if (filepath.includes("\0")) {
+          throw new Error("Invalid filepath: null byte")
+        }
         const resolved = path.resolve(submissionDir, filepath)
+        const relative = path.relative(submissionDir, resolved)
+        if (relative.startsWith("..") || path.isAbsolute(relative)) {
+          throw new Error(`Invalid filepath: path escapes submission dir: ${filepath}`)
+        }
+        if (!resolved.startsWith(submissionDir)) {
+          throw new Error(`Invalid filepath: path escapes submission dir: ${filepath}`)
+        }
         await fs.mkdir(path.dirname(resolved), { recursive: true })
         await fs.writeFile(resolved, contents)
       }

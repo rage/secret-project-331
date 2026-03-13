@@ -8,7 +8,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   const id = req.nextUrl.searchParams.get("id")
 
   if (typeof id === "string") {
-    return jsonOk(testRuns.get(id) ?? null)
+    return jsonOk(testRuns.get(id))
   } else {
     return badRequest("Invalid query")
   }

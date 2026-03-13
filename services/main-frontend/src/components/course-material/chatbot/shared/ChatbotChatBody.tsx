@@ -258,7 +258,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             message={message.message ?? ""}
             citations={citations.get(message.id)}
             isFromChatbot={message.message_role === "assistant"}
-            isPending={(!message.message_is_complete && newMessageMutation.isPending) ?? false}
+            isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}
         <div

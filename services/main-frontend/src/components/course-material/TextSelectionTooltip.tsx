@@ -164,7 +164,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
       border-radius: 5px;
       background-color: transparent;
       cursor: pointer;
-      padding: 0.5rem 0.7rem;
+      padding: 0.66rem 1.2rem;
 
       text-align: left;
 

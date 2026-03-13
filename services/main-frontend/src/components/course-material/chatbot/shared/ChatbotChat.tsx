@@ -56,11 +56,9 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
   isCourseMaterialBlock,
 }) => {
   const { t } = useTranslation()
-
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
-
   const [shouldRender, setShouldRender] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)

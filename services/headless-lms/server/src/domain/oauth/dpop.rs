@@ -55,6 +55,12 @@ pub struct DeferredReplayStore {
     buffer: Option<BufferedReplayEntry>,
 }
 
+impl Default for DeferredReplayStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DeferredReplayStore {
     pub fn new() -> Self {
         Self { buffer: None }

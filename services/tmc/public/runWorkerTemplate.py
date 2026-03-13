@@ -26,6 +26,24 @@ class PatchCode(ast.NodeTransformer):
         finally:
             self._in_async = old
 
+    def visit_FunctionDef(self, node):
+        """Don't rewrite input() inside sync functions (e.g. nested inside async)."""
+        old = self._in_async
+        self._in_async = False
+        try:
+            return self.generic_visit(node)
+        finally:
+            self._in_async = old
+
+    def visit_Lambda(self, node):
+        """Don't rewrite input() inside lambdas (e.g. nested inside async)."""
+        old = self._in_async
+        self._in_async = False
+        try:
+            return self.generic_visit(node)
+        finally:
+            self._in_async = old
+
     def generic_visit(self, node):
         super().generic_visit(node)
         if (

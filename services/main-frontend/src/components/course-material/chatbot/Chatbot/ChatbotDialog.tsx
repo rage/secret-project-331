@@ -1,7 +1,8 @@
 "use client"
 
 import { css, keyframes } from "@emotion/css"
-import React, { useEffect, useId, useRef, useState } from "react"
+import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import React, { RefObject, useEffect, useId, useRef } from "react"
 import {
   FocusScope,
   mergeProps,
@@ -11,11 +12,36 @@ import {
   usePopover,
 } from "react-aria"
 
-import ChatbotChat from "./ChatbotChat"
-import OpenChatbotButton from "./OpenChatbotButton"
+import { ChatbotState, MessageAction, MessageState } from "../shared/ChatbotChat"
+import ChatbotChatBody from "../shared/ChatbotChatBody"
+import ChatbotChatHeader from "../shared/ChatbotChatHeader"
 
-import { ChatbotProps } from "."
+import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 
+type DOMPropsType = ReturnType<typeof useOverlayTrigger>["overlayProps"]
+
+interface ChatbotDialogProps {
+  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
+  state: ChatbotState
+  buttonRef: RefObject<HTMLButtonElement | null>
+  shouldRender: boolean
+  setShouldRender: (value: React.SetStateAction<boolean>) => void
+  messageState: MessageState
+  dispatch: (action: MessageAction) => void
+  newMessage: string
+  setNewMessage: React.Dispatch<React.SetStateAction<string>>
+  error: Error | null
+  setError: (value: React.SetStateAction<Error | null>) => void
+  overlayProps: DOMPropsType
+  chatbotMessageAnnouncement: string
+  newMessageMutation: UseMutationResult<
+    ReadableStream<Uint8Array<ArrayBufferLike>>,
+    unknown,
+    string,
+    unknown
+  >
+  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+}
 export const CHATBOX_WIDTH_PX = 500
 export const CHATBOX_HEIGHT_PX = 900
 
@@ -41,35 +67,11 @@ const closeAnimation = keyframes`
   }
 `
 
-const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
+const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
+  let { state, buttonRef, shouldRender, setShouldRender, overlayProps } = props
   const chatbotTitleId = useId()
-  const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
-  const [shouldRender, setShouldRender] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
 
-  let state = {
-    isOpen,
-    setOpen: (o: boolean) => {
-      setIsOpen(o)
-      if (!o) {
-        buttonRef.current?.focus()
-      }
-    },
-    open: () => {
-      setIsOpen(true)
-    },
-    close: () => {
-      // no operation prevents close on scroll
-    },
-    toggle: () => {
-      setIsOpen(!isOpen)
-      if (isOpen) {
-        buttonRef.current?.focus()
-      }
-    },
-  }
-  let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
   let { popoverProps } = usePopover(
     {
       shouldUpdatePosition: false,
@@ -103,7 +105,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     if (state?.isOpen) {
       setShouldRender(true)
     }
-  }, [state?.isOpen])
+  }, [state?.isOpen, setShouldRender])
 
   const handleAnimationEnd = () => {
     if (!state?.isOpen) {
@@ -113,7 +115,6 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
 
   return (
     <>
-      <OpenChatbotButton hide={shouldRender} triggerProps={triggerProps} ref={buttonRef} />
       {shouldRender && (
         <FocusScope restoreFocus>
           <div
@@ -142,15 +143,24 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
                 height: inherit;
                 max-height: inherit;
                 min-height: inherit;
+                bottom: 70px;
+                right: 1rem;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0px 4px 10px rgba(177, 179, 184, 0.6);
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
               `}
               {...dialogProps}
             >
-              <ChatbotChat
-                chatbotConfigurationId={chatbotConfigurationId}
+              <ChatbotChatHeader
+                {...props}
+                titleProps={titleProps}
                 isCourseMaterialBlock={false}
                 closeChatbot={() => state.setOpen(false)}
-                titleProps={titleProps}
               />
+              <ChatbotChatBody {...props} />
             </div>
           </div>
         </FocusScope>

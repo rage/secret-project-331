@@ -8,9 +8,9 @@ import { useTranslation } from "react-i18next"
 
 import EditProposalDialog from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
-import FeedbackTooltip from "./FeedbackTooltip"
 import FeedbackTypeDialog from "./FeedbackTypeDialog"
 import SelectionListener, { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
+import TextSelectionTooltip from "./TextSelectionTooltip"
 
 import Button from "@/shared-module/common/components/Button"
 import {
@@ -21,10 +21,17 @@ import { getModifierKey } from "@/utils/course-material/platformDetection"
 
 interface Props {
   courseId: string
+  courseName: string
   pageId: string
+  pageTitle: string
 }
 
-const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
+const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
+  pageId,
+  courseName,
+  pageTitle,
+}) => {
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection] = useAtom(selectionAtom)
@@ -92,7 +99,9 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
       {type === "select-type" && <FeedbackTypeDialog />}
       {type === "written" && <FeedbackDialog courseId={courseId} pageId={pageId} />}
       {type === "proposed-edits" && <EditProposalDialog courseId={courseId} pageId={pageId} />}
-      {type === null && selection.text && <FeedbackTooltip />}
+      {type === null && selection.text && (
+        <TextSelectionTooltip courseName={courseName} pageTitle={pageTitle} />
+      )}
       <SelectionListener />
     </>
   )

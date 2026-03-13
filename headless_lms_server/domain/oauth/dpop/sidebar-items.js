@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["verify_dpop_from_actix"],"struct":["SqlxReplayStore"]};
+window.SIDEBAR_ITEMS = {"fn":["verify_dpop_from_actix","verify_dpop_from_actix_for_token"],"struct":["BufferedReplayEntry","DeferredReplayStore","SqlxReplayStore"]};

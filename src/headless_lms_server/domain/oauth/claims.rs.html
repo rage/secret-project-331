@@ -7,6 +7,8 @@
 <a href=#7 id=7 data-nosnippet>7</a>    <span class="kw">pub </span>iss: String,
 <a href=#8 id=8 data-nosnippet>8</a>    <span class="kw">pub </span>iat: i64,
 <a href=#9 id=9 data-nosnippet>9</a>    <span class="kw">pub </span>exp: i64,
-<a href=#10 id=10 data-nosnippet>10</a>    <span class="kw">pub </span>nonce: String,
-<a href=#11 id=11 data-nosnippet>11</a>}
+<a href=#10 id=10 data-nosnippet>10</a>    <span class="doccomment">/// OIDC nonce; only set when the authorization request included a nonce (omitted when absent per OIDC).
+<a href=#11 id=11 data-nosnippet>11</a>    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
+<a href=#12 id=12 data-nosnippet>12</a>    </span><span class="kw">pub </span>nonce: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#13 id=13 data-nosnippet>13</a>}
 </code></pre></div></section></main></body></html>

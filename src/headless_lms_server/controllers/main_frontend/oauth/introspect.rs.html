@@ -103,132 +103,134 @@
 <a href=#103 id=103 data-nosnippet>103</a>    <span class="comment">// If client not found or secret invalid, return active: false per RFC 7662
 <a href=#104 id=104 data-nosnippet>104</a>    </span><span class="kw">let </span>client = <span class="kw">match </span>client_result {
 <a href=#105 id=105 data-nosnippet>105</a>        <span class="prelude-val">Ok</span>(c) =&gt; c,
-<a href=#106 id=106 data-nosnippet>106</a>        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-<a href=#107 id=107 data-nosnippet>107</a>            <span class="comment">// Invalid client_id - return active: false per RFC 7662
-<a href=#108 id=108 data-nosnippet>108</a>            </span><span class="kw">return </span>server_token.authorized_ok(
-<a href=#109 id=109 data-nosnippet>109</a>                HttpResponse::Ok()
-<a href=#110 id=110 data-nosnippet>110</a>                    .insert_header((<span class="string">"Cache-Control"</span>, <span class="string">"no-store"</span>))
-<a href=#111 id=111 data-nosnippet>111</a>                    .json(IntrospectResponse {
-<a href=#112 id=112 data-nosnippet>112</a>                        active: <span class="bool-val">false</span>,
-<a href=#113 id=113 data-nosnippet>113</a>                        scope: <span class="prelude-val">None</span>,
-<a href=#114 id=114 data-nosnippet>114</a>                        client_id: <span class="prelude-val">None</span>,
-<a href=#115 id=115 data-nosnippet>115</a>                        username: <span class="prelude-val">None</span>,
-<a href=#116 id=116 data-nosnippet>116</a>                        exp: <span class="prelude-val">None</span>,
-<a href=#117 id=117 data-nosnippet>117</a>                        iat: <span class="prelude-val">None</span>,
-<a href=#118 id=118 data-nosnippet>118</a>                        sub: <span class="prelude-val">None</span>,
-<a href=#119 id=119 data-nosnippet>119</a>                        aud: <span class="prelude-val">None</span>,
-<a href=#120 id=120 data-nosnippet>120</a>                        iss: <span class="prelude-val">None</span>,
-<a href=#121 id=121 data-nosnippet>121</a>                        jti: <span class="prelude-val">None</span>,
-<a href=#122 id=122 data-nosnippet>122</a>                        token_type: <span class="prelude-val">None</span>,
-<a href=#123 id=123 data-nosnippet>123</a>                    }),
-<a href=#124 id=124 data-nosnippet>124</a>            );
-<a href=#125 id=125 data-nosnippet>125</a>        }
-<a href=#126 id=126 data-nosnippet>126</a>    };
-<a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a>    <span class="comment">// Validate client secret for confidential clients
-<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="kw">let </span>token_hmac_key = <span class="kw-2">&amp;</span>app_conf.oauth_server_configuration.oauth_token_hmac_key;
-<a href=#130 id=130 data-nosnippet>130</a>    <span class="kw">let </span>client_valid = <span class="kw">if </span>client.is_confidential() {
-<a href=#131 id=131 data-nosnippet>131</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>client.client_secret {
-<a href=#132 id=132 data-nosnippet>132</a>            <span class="prelude-val">Some</span>(secret) =&gt; {
-<a href=#133 id=133 data-nosnippet>133</a>                <span class="kw">let </span>provided_secret_digest = token_digest_sha256(
-<a href=#134 id=134 data-nosnippet>134</a>                    <span class="kw-2">&amp;</span>form.client_secret.clone().unwrap_or_default(),
-<a href=#135 id=135 data-nosnippet>135</a>                    token_hmac_key,
-<a href=#136 id=136 data-nosnippet>136</a>                );
-<a href=#137 id=137 data-nosnippet>137</a>                secret.constant_eq(<span class="kw-2">&amp;</span>provided_secret_digest)
-<a href=#138 id=138 data-nosnippet>138</a>            }
-<a href=#139 id=139 data-nosnippet>139</a>            <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
-<a href=#140 id=140 data-nosnippet>140</a>        }
-<a href=#141 id=141 data-nosnippet>141</a>    } <span class="kw">else </span>{
-<a href=#142 id=142 data-nosnippet>142</a>        <span class="bool-val">true </span><span class="comment">// Public clients don't need secret validation
-<a href=#143 id=143 data-nosnippet>143</a>    </span>};
-<a href=#144 id=144 data-nosnippet>144</a>
-<a href=#145 id=145 data-nosnippet>145</a>    <span class="comment">// If client secret is invalid, return active: false per RFC 7662
-<a href=#146 id=146 data-nosnippet>146</a>    </span><span class="kw">if </span>!client_valid {
-<a href=#147 id=147 data-nosnippet>147</a>        <span class="kw">return </span>server_token.authorized_ok(
-<a href=#148 id=148 data-nosnippet>148</a>            HttpResponse::Ok()
-<a href=#149 id=149 data-nosnippet>149</a>                .insert_header((<span class="string">"Cache-Control"</span>, <span class="string">"no-store"</span>))
-<a href=#150 id=150 data-nosnippet>150</a>                .json(IntrospectResponse {
-<a href=#151 id=151 data-nosnippet>151</a>                    active: <span class="bool-val">false</span>,
-<a href=#152 id=152 data-nosnippet>152</a>                    scope: <span class="prelude-val">None</span>,
-<a href=#153 id=153 data-nosnippet>153</a>                    client_id: <span class="prelude-val">None</span>,
-<a href=#154 id=154 data-nosnippet>154</a>                    username: <span class="prelude-val">None</span>,
-<a href=#155 id=155 data-nosnippet>155</a>                    exp: <span class="prelude-val">None</span>,
-<a href=#156 id=156 data-nosnippet>156</a>                    iat: <span class="prelude-val">None</span>,
-<a href=#157 id=157 data-nosnippet>157</a>                    sub: <span class="prelude-val">None</span>,
-<a href=#158 id=158 data-nosnippet>158</a>                    aud: <span class="prelude-val">None</span>,
-<a href=#159 id=159 data-nosnippet>159</a>                    iss: <span class="prelude-val">None</span>,
-<a href=#160 id=160 data-nosnippet>160</a>                    jti: <span class="prelude-val">None</span>,
-<a href=#161 id=161 data-nosnippet>161</a>                    token_type: <span class="prelude-val">None</span>,
-<a href=#162 id=162 data-nosnippet>162</a>                }),
-<a href=#163 id=163 data-nosnippet>163</a>        );
-<a href=#164 id=164 data-nosnippet>164</a>    }
-<a href=#165 id=165 data-nosnippet>165</a>
-<a href=#166 id=166 data-nosnippet>166</a>    <span class="comment">// Hash the provided token to get digest
-<a href=#167 id=167 data-nosnippet>167</a>    </span><span class="kw">let </span>token_digest = token_digest_sha256(<span class="kw-2">&amp;</span>form.token, token_hmac_key);
-<a href=#168 id=168 data-nosnippet>168</a>
-<a href=#169 id=169 data-nosnippet>169</a>    <span class="comment">// Look up the access token (only access tokens are supported)
-<a href=#170 id=170 data-nosnippet>170</a>    </span><span class="kw">let </span>access_token_result = OAuthAccessToken::find_valid(<span class="kw-2">&amp;mut </span>conn, token_digest).<span class="kw">await</span>;
-<a href=#171 id=171 data-nosnippet>171</a>
-<a href=#172 id=172 data-nosnippet>172</a>    <span class="comment">// If token not found or expired, return active: false
-<a href=#173 id=173 data-nosnippet>173</a>    </span><span class="kw">let </span>access_token = <span class="kw">match </span>access_token_result {
-<a href=#174 id=174 data-nosnippet>174</a>        <span class="prelude-val">Ok</span>(token) =&gt; token,
-<a href=#175 id=175 data-nosnippet>175</a>        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-<a href=#176 id=176 data-nosnippet>176</a>            <span class="kw">return </span>server_token.authorized_ok(
-<a href=#177 id=177 data-nosnippet>177</a>                HttpResponse::Ok()
-<a href=#178 id=178 data-nosnippet>178</a>                    .insert_header((<span class="string">"Cache-Control"</span>, <span class="string">"no-store"</span>))
-<a href=#179 id=179 data-nosnippet>179</a>                    .json(IntrospectResponse {
-<a href=#180 id=180 data-nosnippet>180</a>                        active: <span class="bool-val">false</span>,
-<a href=#181 id=181 data-nosnippet>181</a>                        scope: <span class="prelude-val">None</span>,
-<a href=#182 id=182 data-nosnippet>182</a>                        client_id: <span class="prelude-val">None</span>,
-<a href=#183 id=183 data-nosnippet>183</a>                        username: <span class="prelude-val">None</span>,
-<a href=#184 id=184 data-nosnippet>184</a>                        exp: <span class="prelude-val">None</span>,
-<a href=#185 id=185 data-nosnippet>185</a>                        iat: <span class="prelude-val">None</span>,
-<a href=#186 id=186 data-nosnippet>186</a>                        sub: <span class="prelude-val">None</span>,
-<a href=#187 id=187 data-nosnippet>187</a>                        aud: <span class="prelude-val">None</span>,
-<a href=#188 id=188 data-nosnippet>188</a>                        iss: <span class="prelude-val">None</span>,
-<a href=#189 id=189 data-nosnippet>189</a>                        jti: <span class="prelude-val">None</span>,
-<a href=#190 id=190 data-nosnippet>190</a>                        token_type: <span class="prelude-val">None</span>,
-<a href=#191 id=191 data-nosnippet>191</a>                    }),
-<a href=#192 id=192 data-nosnippet>192</a>            );
-<a href=#193 id=193 data-nosnippet>193</a>        }
-<a href=#194 id=194 data-nosnippet>194</a>    };
-<a href=#195 id=195 data-nosnippet>195</a>
-<a href=#196 id=196 data-nosnippet>196</a>    <span class="comment">// Add token type to span for observability
-<a href=#197 id=197 data-nosnippet>197</a>    </span>tracing::Span::current().record(<span class="string">"token_type"</span>, <span class="macro">format!</span>(<span class="string">"{:?}"</span>, access_token.token_type));
-<a href=#198 id=198 data-nosnippet>198</a>    tracing::Span::current().record(<span class="string">"token_active"</span>, <span class="string">"true"</span>);
-<a href=#199 id=199 data-nosnippet>199</a>
-<a href=#200 id=200 data-nosnippet>200</a>    <span class="comment">// Fetch the client that originally issued the token (not the introspecting client)
-<a href=#201 id=201 data-nosnippet>201</a>    </span><span class="kw">let </span>token_client = OAuthClient::find_by_id(<span class="kw-2">&amp;mut </span>conn, access_token.client_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#202 id=202 data-nosnippet>202</a>
-<a href=#203 id=203 data-nosnippet>203</a>    <span class="comment">// Build response with token metadata
-<a href=#204 id=204 data-nosnippet>204</a>    </span><span class="kw">let </span>base_url = app_conf.base_url.trim_end_matches(<span class="string">'/'</span>);
-<a href=#205 id=205 data-nosnippet>205</a>    <span class="kw">let </span>issuer = <span class="macro">format!</span>(<span class="string">"{}/api/v0/main-frontend/oauth"</span>, base_url);
-<a href=#206 id=206 data-nosnippet>206</a>
-<a href=#207 id=207 data-nosnippet>207</a>    <span class="kw">let </span>response = IntrospectResponse {
-<a href=#208 id=208 data-nosnippet>208</a>        active: <span class="bool-val">true</span>,
-<a href=#209 id=209 data-nosnippet>209</a>        scope: <span class="prelude-val">Some</span>(access_token.scopes.join(<span class="string">" "</span>)),
-<a href=#210 id=210 data-nosnippet>210</a>        client_id: <span class="prelude-val">Some</span>(token_client.client_id.clone()),
-<a href=#211 id=211 data-nosnippet>211</a>        username: access_token.user_id.map(|id| id.to_string()),
-<a href=#212 id=212 data-nosnippet>212</a>        exp: <span class="prelude-val">Some</span>(access_token.expires_at.timestamp()),
-<a href=#213 id=213 data-nosnippet>213</a>        iat: <span class="prelude-val">Some</span>(access_token.created_at.timestamp()),
-<a href=#214 id=214 data-nosnippet>214</a>        sub: access_token.user_id.map(|id| id.to_string()),
-<a href=#215 id=215 data-nosnippet>215</a>        aud: access_token.audience.clone(),
-<a href=#216 id=216 data-nosnippet>216</a>        iss: <span class="prelude-val">Some</span>(issuer),
-<a href=#217 id=217 data-nosnippet>217</a>        jti: <span class="prelude-val">Some</span>(access_token.jti.to_string()),
-<a href=#218 id=218 data-nosnippet>218</a>        token_type: <span class="prelude-val">Some</span>(<span class="kw">match </span>access_token.token_type {
-<a href=#219 id=219 data-nosnippet>219</a>            TokenType::Bearer =&gt; <span class="string">"Bearer"</span>.to_string(),
-<a href=#220 id=220 data-nosnippet>220</a>            TokenType::DPoP =&gt; <span class="string">"DPoP"</span>.to_string(),
-<a href=#221 id=221 data-nosnippet>221</a>        }),
-<a href=#222 id=222 data-nosnippet>222</a>    };
-<a href=#223 id=223 data-nosnippet>223</a>
-<a href=#224 id=224 data-nosnippet>224</a>    server_token.authorized_ok(
-<a href=#225 id=225 data-nosnippet>225</a>        HttpResponse::Ok()
-<a href=#226 id=226 data-nosnippet>226</a>            .insert_header((<span class="string">"Cache-Control"</span>, <span class="string">"no-store"</span>))
-<a href=#227 id=227 data-nosnippet>227</a>            .json(response),
-<a href=#228 id=228 data-nosnippet>228</a>    )
-<a href=#229 id=229 data-nosnippet>229</a>}
-<a href=#230 id=230 data-nosnippet>230</a>
-<a href=#231 id=231 data-nosnippet>231</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
-<a href=#232 id=232 data-nosnippet>232</a>    cfg.route(<span class="string">"/introspect"</span>, web::post().to(introspect));
-<a href=#233 id=233 data-nosnippet>233</a>}
+<a href=#106 id=106 data-nosnippet>106</a>        <span class="prelude-val">Err</span>(e) =&gt; {
+<a href=#107 id=107 data-nosnippet>107</a>            <span class="macro">tracing::debug!</span>(err = %e, <span class="string">"OAuth introspect: client lookup failed (inactive client_id)"</span>);
+<a href=#108 id=108 data-nosnippet>108</a>            <span class="comment">// Invalid client_id - return active: false per RFC 7662
+<a href=#109 id=109 data-nosnippet>109</a>            </span><span class="kw">return </span>server_token.authorized_ok(
+<a href=#110 id=110 data-nosnippet>110</a>                HttpResponse::Ok()
+<a href=#111 id=111 data-nosnippet>111</a>                    .insert_header((<span class="string">"Cache-Control"</span>, <span class="string">"no-store"</span>))
+<a href=#112 id=112 data-nosnippet>112</a>                    .json(IntrospectResponse {
+<a href=#113 id=113 data-nosnippet>113</a>                        active: <span class="bool-val">false</span>,
+<a href=#114 id=114 data-nosnippet>114</a>                        scope: <span class="prelude-val">None</span>,
+<a href=#115 id=115 data-nosnippet>115</a>                        client_id: <span class="prelude-val">None</span>,
+<a href=#116 id=116 data-nosnippet>116</a>                        username: <span class="prelude-val">None</span>,
+<a href=#117 id=117 data-nosnippet>117</a>                        exp: <span class="prelude-val">None</span>,
+<a href=#118 id=118 data-nosnippet>118</a>                        iat: <span class="prelude-val">None</span>,
+<a href=#119 id=119 data-nosnippet>119</a>                        sub: <span class="prelude-val">None</span>,
+<a href=#120 id=120 data-nosnippet>120</a>                        aud: <span class="prelude-val">None</span>,
+<a href=#121 id=121 data-nosnippet>121</a>                        iss: <span class="prelude-val">None</span>,
+<a href=#122 id=122 data-nosnippet>122</a>                        jti: <span class="prelude-val">None</span>,
+<a href=#123 id=123 data-nosnippet>123</a>                        token_type: <span class="prelude-val">None</span>,
+<a href=#124 id=124 data-nosnippet>124</a>                    }),
+<a href=#125 id=125 data-nosnippet>125</a>            );
+<a href=#126 id=126 data-nosnippet>126</a>        }
+<a href=#127 id=127 data-nosnippet>127</a>    };
+<a href=#128 id=128 data-nosnippet>128</a>
+<a href=#129 id=129 data-nosnippet>129</a>    <span class="comment">// Validate client secret for confidential clients
+<a href=#130 id=130 data-nosnippet>130</a>    </span><span class="kw">let </span>token_hmac_key = <span class="kw-2">&amp;</span>app_conf.oauth_server_configuration.oauth_token_hmac_key;
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="kw">let </span>client_valid = <span class="kw">if </span>client.is_confidential() {
+<a href=#132 id=132 data-nosnippet>132</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>client.client_secret {
+<a href=#133 id=133 data-nosnippet>133</a>            <span class="prelude-val">Some</span>(secret) =&gt; {
+<a href=#134 id=134 data-nosnippet>134</a>                <span class="kw">let </span>provided_secret_digest = token_digest_sha256(
+<a href=#135 id=135 data-nosnippet>135</a>                    <span class="kw-2">&amp;</span>form.client_secret.clone().unwrap_or_default(),
+<a href=#136 id=136 data-nosnippet>136</a>                    token_hmac_key,
+<a href=#137 id=137 data-nosnippet>137</a>                );
+<a href=#138 id=138 data-nosnippet>138</a>                secret.constant_eq(<span class="kw-2">&amp;</span>provided_secret_digest)
+<a href=#139 id=139 data-nosnippet>139</a>            }
+<a href=#140 id=140 data-nosnippet>140</a>            <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
+<a href=#141 id=141 data-nosnippet>141</a>        }
+<a href=#142 id=142 data-nosnippet>142</a>    } <span class="kw">else </span>{
+<a href=#143 id=143 data-nosnippet>143</a>        <span class="bool-val">true </span><span class="comment">// Public clients don't need secret validation
+<a href=#144 id=144 data-nosnippet>144</a>    </span>};
+<a href=#145 id=145 data-nosnippet>145</a>
+<a href=#146 id=146 data-nosnippet>146</a>    <span class="comment">// If client secret is invalid, return active: false per RFC 7662
+<a href=#147 id=147 data-nosnippet>147</a>    </span><span class="kw">if </span>!client_valid {
+<a href=#148 id=148 data-nosnippet>148</a>        <span class="kw">return </span>server_token.authorized_ok(
+<a href=#149 id=149 data-nosnippet>149</a>            HttpResponse::Ok()
+<a href=#150 id=150 data-nosnippet>150</a>                .insert_header((<span class="string">"Cache-Control"</span>, <span class="string">"no-store"</span>))
+<a href=#151 id=151 data-nosnippet>151</a>                .json(IntrospectResponse {
+<a href=#152 id=152 data-nosnippet>152</a>                    active: <span class="bool-val">false</span>,
+<a href=#153 id=153 data-nosnippet>153</a>                    scope: <span class="prelude-val">None</span>,
+<a href=#154 id=154 data-nosnippet>154</a>                    client_id: <span class="prelude-val">None</span>,
+<a href=#155 id=155 data-nosnippet>155</a>                    username: <span class="prelude-val">None</span>,
+<a href=#156 id=156 data-nosnippet>156</a>                    exp: <span class="prelude-val">None</span>,
+<a href=#157 id=157 data-nosnippet>157</a>                    iat: <span class="prelude-val">None</span>,
+<a href=#158 id=158 data-nosnippet>158</a>                    sub: <span class="prelude-val">None</span>,
+<a href=#159 id=159 data-nosnippet>159</a>                    aud: <span class="prelude-val">None</span>,
+<a href=#160 id=160 data-nosnippet>160</a>                    iss: <span class="prelude-val">None</span>,
+<a href=#161 id=161 data-nosnippet>161</a>                    jti: <span class="prelude-val">None</span>,
+<a href=#162 id=162 data-nosnippet>162</a>                    token_type: <span class="prelude-val">None</span>,
+<a href=#163 id=163 data-nosnippet>163</a>                }),
+<a href=#164 id=164 data-nosnippet>164</a>        );
+<a href=#165 id=165 data-nosnippet>165</a>    }
+<a href=#166 id=166 data-nosnippet>166</a>
+<a href=#167 id=167 data-nosnippet>167</a>    <span class="comment">// Hash the provided token to get digest
+<a href=#168 id=168 data-nosnippet>168</a>    </span><span class="kw">let </span>token_digest = token_digest_sha256(<span class="kw-2">&amp;</span>form.token, token_hmac_key);
+<a href=#169 id=169 data-nosnippet>169</a>
+<a href=#170 id=170 data-nosnippet>170</a>    <span class="comment">// Look up the access token (only access tokens are supported)
+<a href=#171 id=171 data-nosnippet>171</a>    </span><span class="kw">let </span>access_token_result = OAuthAccessToken::find_valid(<span class="kw-2">&amp;mut </span>conn, token_digest).<span class="kw">await</span>;
+<a href=#172 id=172 data-nosnippet>172</a>
+<a href=#173 id=173 data-nosnippet>173</a>    <span class="comment">// If token not found or expired, return active: false
+<a href=#174 id=174 data-nosnippet>174</a>    </span><span class="kw">let </span>access_token = <span class="kw">match </span>access_token_result {
+<a href=#175 id=175 data-nosnippet>175</a>        <span class="prelude-val">Ok</span>(token) =&gt; token,
+<a href=#176 id=176 data-nosnippet>176</a>        <span class="prelude-val">Err</span>(e) =&gt; {
+<a href=#177 id=177 data-nosnippet>177</a>            <span class="macro">tracing::debug!</span>(err = %e, <span class="string">"OAuth introspect: access token lookup failed (inactive/expired token)"</span>);
+<a href=#178 id=178 data-nosnippet>178</a>            <span class="kw">return </span>server_token.authorized_ok(
+<a href=#179 id=179 data-nosnippet>179</a>                HttpResponse::Ok()
+<a href=#180 id=180 data-nosnippet>180</a>                    .insert_header((<span class="string">"Cache-Control"</span>, <span class="string">"no-store"</span>))
+<a href=#181 id=181 data-nosnippet>181</a>                    .json(IntrospectResponse {
+<a href=#182 id=182 data-nosnippet>182</a>                        active: <span class="bool-val">false</span>,
+<a href=#183 id=183 data-nosnippet>183</a>                        scope: <span class="prelude-val">None</span>,
+<a href=#184 id=184 data-nosnippet>184</a>                        client_id: <span class="prelude-val">None</span>,
+<a href=#185 id=185 data-nosnippet>185</a>                        username: <span class="prelude-val">None</span>,
+<a href=#186 id=186 data-nosnippet>186</a>                        exp: <span class="prelude-val">None</span>,
+<a href=#187 id=187 data-nosnippet>187</a>                        iat: <span class="prelude-val">None</span>,
+<a href=#188 id=188 data-nosnippet>188</a>                        sub: <span class="prelude-val">None</span>,
+<a href=#189 id=189 data-nosnippet>189</a>                        aud: <span class="prelude-val">None</span>,
+<a href=#190 id=190 data-nosnippet>190</a>                        iss: <span class="prelude-val">None</span>,
+<a href=#191 id=191 data-nosnippet>191</a>                        jti: <span class="prelude-val">None</span>,
+<a href=#192 id=192 data-nosnippet>192</a>                        token_type: <span class="prelude-val">None</span>,
+<a href=#193 id=193 data-nosnippet>193</a>                    }),
+<a href=#194 id=194 data-nosnippet>194</a>            );
+<a href=#195 id=195 data-nosnippet>195</a>        }
+<a href=#196 id=196 data-nosnippet>196</a>    };
+<a href=#197 id=197 data-nosnippet>197</a>
+<a href=#198 id=198 data-nosnippet>198</a>    <span class="comment">// Add token type to span for observability
+<a href=#199 id=199 data-nosnippet>199</a>    </span>tracing::Span::current().record(<span class="string">"token_type"</span>, <span class="macro">format!</span>(<span class="string">"{:?}"</span>, access_token.token_type));
+<a href=#200 id=200 data-nosnippet>200</a>    tracing::Span::current().record(<span class="string">"token_active"</span>, <span class="string">"true"</span>);
+<a href=#201 id=201 data-nosnippet>201</a>
+<a href=#202 id=202 data-nosnippet>202</a>    <span class="comment">// Fetch the client that originally issued the token (not the introspecting client)
+<a href=#203 id=203 data-nosnippet>203</a>    </span><span class="kw">let </span>token_client = OAuthClient::find_by_id(<span class="kw-2">&amp;mut </span>conn, access_token.client_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#204 id=204 data-nosnippet>204</a>
+<a href=#205 id=205 data-nosnippet>205</a>    <span class="comment">// Build response with token metadata
+<a href=#206 id=206 data-nosnippet>206</a>    </span><span class="kw">let </span>base_url = app_conf.base_url.trim_end_matches(<span class="string">'/'</span>);
+<a href=#207 id=207 data-nosnippet>207</a>    <span class="kw">let </span>issuer = <span class="macro">format!</span>(<span class="string">"{}/api/v0/main-frontend/oauth"</span>, base_url);
+<a href=#208 id=208 data-nosnippet>208</a>
+<a href=#209 id=209 data-nosnippet>209</a>    <span class="kw">let </span>response = IntrospectResponse {
+<a href=#210 id=210 data-nosnippet>210</a>        active: <span class="bool-val">true</span>,
+<a href=#211 id=211 data-nosnippet>211</a>        scope: <span class="prelude-val">Some</span>(access_token.scopes.join(<span class="string">" "</span>)),
+<a href=#212 id=212 data-nosnippet>212</a>        client_id: <span class="prelude-val">Some</span>(token_client.client_id.clone()),
+<a href=#213 id=213 data-nosnippet>213</a>        username: access_token.user_id.map(|id| id.to_string()),
+<a href=#214 id=214 data-nosnippet>214</a>        exp: <span class="prelude-val">Some</span>(access_token.expires_at.timestamp()),
+<a href=#215 id=215 data-nosnippet>215</a>        iat: <span class="prelude-val">Some</span>(access_token.created_at.timestamp()),
+<a href=#216 id=216 data-nosnippet>216</a>        sub: access_token.user_id.map(|id| id.to_string()),
+<a href=#217 id=217 data-nosnippet>217</a>        aud: access_token.audience.clone(),
+<a href=#218 id=218 data-nosnippet>218</a>        iss: <span class="prelude-val">Some</span>(issuer),
+<a href=#219 id=219 data-nosnippet>219</a>        jti: <span class="prelude-val">Some</span>(access_token.jti.to_string()),
+<a href=#220 id=220 data-nosnippet>220</a>        token_type: <span class="prelude-val">Some</span>(<span class="kw">match </span>access_token.token_type {
+<a href=#221 id=221 data-nosnippet>221</a>            TokenType::Bearer =&gt; <span class="string">"Bearer"</span>.to_string(),
+<a href=#222 id=222 data-nosnippet>222</a>            TokenType::DPoP =&gt; <span class="string">"DPoP"</span>.to_string(),
+<a href=#223 id=223 data-nosnippet>223</a>        }),
+<a href=#224 id=224 data-nosnippet>224</a>    };
+<a href=#225 id=225 data-nosnippet>225</a>
+<a href=#226 id=226 data-nosnippet>226</a>    server_token.authorized_ok(
+<a href=#227 id=227 data-nosnippet>227</a>        HttpResponse::Ok()
+<a href=#228 id=228 data-nosnippet>228</a>            .insert_header((<span class="string">"Cache-Control"</span>, <span class="string">"no-store"</span>))
+<a href=#229 id=229 data-nosnippet>229</a>            .json(response),
+<a href=#230 id=230 data-nosnippet>230</a>    )
+<a href=#231 id=231 data-nosnippet>231</a>}
+<a href=#232 id=232 data-nosnippet>232</a>
+<a href=#233 id=233 data-nosnippet>233</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
+<a href=#234 id=234 data-nosnippet>234</a>    cfg.route(<span class="string">"/introspect"</span>, web::post().to(introspect));
+<a href=#235 id=235 data-nosnippet>235</a>}
 </code></pre></div></section></main></body></html>

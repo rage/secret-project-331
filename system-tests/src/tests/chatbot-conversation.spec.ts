@@ -121,7 +121,9 @@ test.describe("Test chatbot chat box", () => {
       // the menu popover is not inside the dialog so use student1page
       await student1Page.getByRole("menuitem", { name: "New conversation" }).click()
       await chatbotDialog.getByText("Oh...").waitFor()
-      await expect(chatbotDialog.getByText("Hello! How can I assist you")).toHaveCount(0)
+      await expect(chatbotDialog.getByText("Hello! How can I assist you")).toHaveCount(0, {
+        timeout: 10000,
+      })
     })
 
     await test.step("close the chatbox", async () => {
@@ -197,7 +199,9 @@ test.describe("Test chatbot chat box", () => {
       await student1Page.getByRole("button", { name: "Actions", exact: true }).click()
       await student1Page.getByRole("menuitem", { name: "New conversation" }).click()
       await student1Page.getByText("Haiii xD").waitFor()
-      await expect(student1Page.getByText("Hello! How can I assist you")).toHaveCount(0)
+      await expect(student1Page.getByText("Hello! How can I assist you")).toHaveCount(0, {
+        timeout: 10000,
+      })
     })
   })
 

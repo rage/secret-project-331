@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { OutputSegment } from "../hooks/useRunOutput"
-import { OutputBody, OutputContainer, OutputHeader, OutputHeaderText, OutputPre } from "../styles"
+import { OutputBody, OutputContainer, OutputHeader, OutputHeaderText } from "../styles"
 
 import { RunOutputContent } from "./RunOutputContent"
 import { TestResultsContent } from "./TestResultsContent"

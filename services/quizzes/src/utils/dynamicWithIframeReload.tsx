@@ -5,12 +5,7 @@ import type { ComponentType } from "react"
 
 const RELOAD_BRIDGE_RETRY_INTERVAL_MS = 500
 const RELOAD_BRIDGE_MAX_WAIT_MS = 10_000
-
-/**
- * Wraps next/dynamic so that any loader failure first asks the parent iframe
- * to reload this exercise (when running inside an exercise-service iframe),
- * and then rethrows the original error.
- */
+const LOADER_RETRY_DELAYS_MS = [200, 400, 800] as const
 /**
  * Requests an iframe reload from the parent page when available.
  */
@@ -61,6 +56,11 @@ export interface DynamicWithIframeReloadDeps {
   dynamicFn?: typeof dynamic
 }
 
+/**
+ * Wraps next/dynamic so that any loader failure first asks the parent iframe
+ * to reload this exercise (when running inside an exercise-service iframe),
+ * and then rethrows the original error.
+ */
 function dynamicWithIframeReload<Props extends object = Record<string, never>>(
   loader: DynamicLoader<Props>,
   options?: DynamicOptions<Props>,
@@ -68,12 +68,41 @@ function dynamicWithIframeReload<Props extends object = Record<string, never>>(
 ): ComponentType<Props> {
   const { dynamicFn = dynamic } = deps
   const wrappedLoader: DynamicLoader<Props> = async () => {
-    try {
-      return await loader()
-    } catch (error) {
-      await requestIframeReloadFromParent()
-      throw error
+    let lastError: unknown
+
+    for (let attempt = 0; attempt <= LOADER_RETRY_DELAYS_MS.length; attempt += 1) {
+      try {
+        if (attempt > 0) {
+          console.info("[dynamicWithIframeReload] invoking loader retry", {
+            attempt,
+          })
+        }
+        return await loader()
+      } catch (error) {
+        lastError = error
+
+        console.info("[dynamicWithIframeReload] loader attempt failed", {
+          attempt,
+          error,
+        })
+
+        if (attempt === LOADER_RETRY_DELAYS_MS.length) {
+          break
+        }
+
+        const delay = LOADER_RETRY_DELAYS_MS[attempt]
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, delay)
+        })
+      }
     }
+
+    await requestIframeReloadFromParent()
+    console.error(
+      "[dynamicWithIframeReload] rethrowing loader error after requesting iframe reload",
+      lastError,
+    )
+    throw lastError
   }
 
   if (options) {

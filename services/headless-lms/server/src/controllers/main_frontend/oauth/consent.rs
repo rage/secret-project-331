@@ -4,7 +4,10 @@ use crate::domain::oauth::consent_response::ConsentResponse;
 use crate::domain::oauth::helpers::oauth_invalid_request;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
-use models::{oauth_client::OAuthClient, oauth_user_client_scopes::OAuthUserClientScopes};
+use models::{
+    error::ModelErrorType, oauth_client::OAuthClient,
+    oauth_user_client_scopes::OAuthUserClientScopes,
+};
 use sqlx::PgPool;
 use url::{Url, form_urlencoded};
 
@@ -122,12 +125,21 @@ pub async fn deny_consent(
         actix_web::error::ErrorInternalServerError(e)
     })?;
 
-    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
-        .await
-        .map_err(|e| {
-            tracing::error!(err = %e, "OAuth consent/deny: client lookup failed");
-            actix_web::error::ErrorBadRequest(e)
-        })?;
+    let client_result = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await;
+    let client = match client_result {
+        Ok(c) => c,
+        Err(err) => {
+            return Err(match err.error_type() {
+                ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
+                    actix_web::error::ErrorNotFound("client not found")
+                }
+                _ => {
+                    tracing::error!(err = %err, "OAuth consent/deny: client lookup failed");
+                    actix_web::error::ErrorInternalServerError(err)
+                }
+            });
+        }
+    };
 
     if !client.redirect_uris.contains(&form.redirect_uri) {
         return Err(actix_web::error::ErrorBadRequest("invalid redirect URI"));

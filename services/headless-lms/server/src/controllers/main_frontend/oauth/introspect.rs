@@ -104,7 +104,7 @@ pub async fn introspect(
     let client = match client_result {
         Ok(c) => c,
         Err(e) => {
-            tracing::error!(err = %e, "OAuth introspect: client lookup failed");
+            tracing::debug!(err = %e, "OAuth introspect: client lookup failed (inactive client_id)");
             // Invalid client_id - return active: false per RFC 7662
             return server_token.authorized_ok(
                 HttpResponse::Ok()
@@ -174,7 +174,7 @@ pub async fn introspect(
     let access_token = match access_token_result {
         Ok(token) => token,
         Err(e) => {
-            tracing::error!(err = %e, "OAuth introspect: access token lookup failed");
+            tracing::debug!(err = %e, "OAuth introspect: access token lookup failed (inactive/expired token)");
             return server_token.authorized_ok(
                 HttpResponse::Ok()
                     .insert_header(("Cache-Control", "no-store"))

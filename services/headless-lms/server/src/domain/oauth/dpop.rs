@@ -67,10 +67,11 @@ impl DeferredReplayStore {
     }
 
     /// Persist any buffered proof into the database. Call only after verification succeeded.
+    /// Returns `Err(DpopError::Replay)` if the JTI was already seen (replay).
     pub async fn flush(&mut self, conn: &mut PgConnection) -> Result<(), DpopError> {
         if let Some(entry) = self.buffer.take() {
             let digest = TokenDigest::from(entry.jti_hash);
-            OAuthDpopProof::insert_once(
+            let first_time = OAuthDpopProof::insert_once(
                 conn,
                 digest,
                 entry.client_id.as_deref(),
@@ -81,6 +82,9 @@ impl DeferredReplayStore {
             )
             .await
             .map_err(|e| DpopError::Store(e.into()))?;
+            if !first_time {
+                return Err(DpopError::Replay);
+            }
         }
         Ok(())
     }

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
-import ViewSubmission from "./ViewSubmission"
+import ViewSubmission, { normalizeSubmission } from "./ViewSubmission"
 
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
@@ -61,6 +61,41 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
       </div>
     )
   } else if (state.view_type === "view-submission") {
+    const submission = normalizeSubmission(state.submission)
+    if (submission.type === "browser" && state.public_spec) {
+      const setStateForViewSubmission: typeof setState = (updater) => {
+        setState((prev) => {
+          if (prev?.view_type !== "view-submission") {
+            return updater(prev)
+          }
+          const fakePrev: ExerciseIframeState = {
+            // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
+            view_type: "answer-exercise",
+            public_spec: prev.public_spec,
+            user_answer: prev.submission,
+            previous_submission: null,
+          }
+          const result = updater(fakePrev)
+          if (result?.view_type === "answer-exercise") {
+            return { ...prev, submission: result.user_answer }
+          }
+          return result ?? prev
+        })
+      }
+      return (
+        <div id={EXERCISE_SERVICE_CONTENT_ID}>
+          <AnswerExercise
+            publicSpec={state.public_spec}
+            userAnswer={submission}
+            setState={setStateForViewSubmission}
+            testRequestResponse={null}
+            sendFileUploadMessage={sendFileUploadMessage}
+            fileUploadResponse={fileUploadResponse}
+            grading={state.grading}
+          />
+        </div>
+      )
+    }
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <ViewSubmission state={state} />

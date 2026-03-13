@@ -38,12 +38,22 @@ export type PrivateSpec = {
   repository_exercise: RepositoryExercise
 }
 
+/** In-browser test config: script to run in the client and optional error if build failed. */
+export type BrowserTestSpec = {
+  runtime: "python"
+  script: string
+  /** Set when script build failed (e.g. template missing test/ or tmc/). */
+  error?: string
+}
+
 export type PublicSpec = {
   type: "browser" | "editor"
   archive_name: string
   stub_download_url: string
   student_file_paths: Array<string>
   checksum: string
+  /** In-browser test: script + runtime. Omitted for editor or when no script is built. */
+  browser_test?: BrowserTestSpec
 }
 
 export type ModelSolutionSpec = {

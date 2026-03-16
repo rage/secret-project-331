@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { fetchRegradingInfo } from "@/services/backend/regradings"
 import ProgressBar from "@/shared-module/common/components/CourseProgress/ProgressBar"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -38,8 +39,18 @@ const ViewRegradingPage: React.FC = () => {
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isLoading || !query.data) {
+  if (query.isLoading) {
     return <Spinner variant="medium" />
+  }
+
+  if (!query.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void query.refetch()
+        }}
+      />
+    )
   }
 
   const nRegradingsReady = query.data.submission_infos.filter(

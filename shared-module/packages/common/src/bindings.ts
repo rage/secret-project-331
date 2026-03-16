@@ -181,6 +181,43 @@ export interface ChapterWithStatus {
   earliest_exercise_deadline_override: string | null
 }
 
+export type ParagraphSuggestionAction =
+  | "moocfi/ai/generate-draft-from-notes"
+  | "moocfi/ai/generate-continue-paragraph"
+  | "moocfi/ai/generate-add-example"
+  | "moocfi/ai/generate-add-counterpoint"
+  | "moocfi/ai/generate-add-concluding-sentence"
+  | "moocfi/fix-spelling"
+  | "moocfi/ai/improve-clarity"
+  | "moocfi/ai/improve-flow"
+  | "moocfi/ai/improve-concise"
+  | "moocfi/ai/improve-expand-detail"
+  | "moocfi/ai/improve-academic-style"
+  | "moocfi/ai/structure-create-topic-sentence"
+  | "moocfi/ai/structure-reorder-sentences"
+  | "moocfi/ai/structure-split-into-paragraphs"
+  | "moocfi/ai/structure-combine-into-one"
+  | "moocfi/ai/structure-to-bullets"
+  | "moocfi/ai/structure-from-bullets"
+  | "moocfi/ai/learning-simplify-beginners"
+  | "moocfi/ai/learning-add-definitions"
+  | "moocfi/ai/learning-add-analogy"
+  | "moocfi/ai/learning-add-practice-question"
+  | "moocfi/ai/learning-add-check-understanding"
+  | "moocfi/ai/summaries-one-sentence"
+  | "moocfi/ai/summaries-two-three-sentences"
+  | "moocfi/ai/summaries-key-takeaway"
+  | "moocfi/ai/tone-academic-formal"
+  | "moocfi/ai/tone-friendly-conversational"
+  | "moocfi/ai/tone-encouraging-supportive"
+  | "moocfi/ai/tone-neutral-objective"
+  | "moocfi/ai/tone-confident"
+  | "moocfi/ai/tone-serious"
+  | "moocfi/ai/translate-english"
+  | "moocfi/ai/translate-finnish"
+  | "moocfi/ai/translate-norwegian"
+  | "moocfi/ai/translate-swedish"
+
 export interface DatabaseChapter {
   id: string
   created_at: string
@@ -280,6 +317,8 @@ export interface ChatbotConfiguration {
   use_semantic_reranking: boolean
   use_tools: boolean
   default_chatbot: boolean
+  suggest_next_messages: boolean
+  initial_suggested_messages: Array<string> | null
 }
 
 export interface NewChatbotConf {
@@ -307,6 +346,8 @@ export interface NewChatbotConf {
   use_tools: boolean
   default_chatbot: boolean
   chatbotconf_id: string | null
+  suggest_next_messages: boolean
+  initial_suggested_messages: Array<string> | null
 }
 
 export type VerbosityLevel = "low" | "medium" | "high"
@@ -322,6 +363,7 @@ export interface ChatbotConfigurationModel {
   thinking: boolean
   default_model: boolean
   deployment_name: string
+  context_size: number
 }
 
 export interface ChatbotConversationMessage {
@@ -377,6 +419,15 @@ export interface ChatbotConversationMessageToolOutput {
   tool_call_id: string
 }
 
+export interface ChatbotConversationSuggestedMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_message_id: string
+  message: string
+}
+
 export interface ChatbotConversation {
   id: string
   created_at: string
@@ -392,7 +443,9 @@ export interface ChatbotConversationInfo {
   current_conversation_messages: Array<ChatbotConversationMessage> | null
   current_conversation_message_citations: Array<ChatbotConversationMessageCitation> | null
   chatbot_name: string
+  course_name: string
   hide_citations: boolean
+  suggested_messages: Array<ChatbotConversationSuggestedMessage> | null
 }
 
 export interface CodeGiveawayCode {
@@ -2818,6 +2871,30 @@ export interface ServicePortInfo {
   port: number
   target_port: string | null
   protocol: string | null
+}
+
+export interface ParagraphSuggestionMeta {
+  tone: string | null
+  language: string | null
+  setting_type: string | null
+}
+
+export interface ParagraphSuggestionContext {
+  page_id: string | null
+  course_id: string | null
+  locale: string | null
+}
+
+export interface ParagraphSuggestionRequest {
+  action: ParagraphSuggestionAction
+  content: string
+  is_html: boolean
+  meta: ParagraphSuggestionMeta | null
+  context: ParagraphSuggestionContext | null
+}
+
+export interface ParagraphSuggestionResponse {
+  suggestions: Array<string>
 }
 
 export type HealthStatus = "healthy" | "warning" | "error"

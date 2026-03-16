@@ -60,9 +60,10 @@ test("Grade exams manually", async ({}) => {
   await student1Page.getByRole("button", { name: "Submit" }).click()
   await student1Page.getByRole("button", { name: "Try again" }).nth(1).waitFor()
 
-  await student1Page.getByRole("button", { name: "End exam" }).click()
-  await respondToConfirmDialog(student1Page, true)
-  await expect(student1Page.getByText("Success", { exact: true })).toBeVisible()
+  await waitForSuccessNotification(student1Page, async () => {
+    await student1Page.getByRole("button", { name: "End exam" }).click()
+    await respondToConfirmDialog(student1Page, true)
+  })
 
   // Student2 goes to the exam page and submits answers and then ends exam
   await student2Page.goto(
@@ -93,9 +94,10 @@ test("Grade exams manually", async ({}) => {
   await student2Page.getByRole("button", { name: "Submit" }).click()
   await student2Page.getByRole("button", { name: "Try again" }).nth(1).waitFor()
 
-  await student2Page.getByRole("button", { name: "End exam" }).click()
-  await respondToConfirmDialog(student2Page, true)
-  await expect(student2Page.getByText("Success", { exact: true })).toBeVisible()
+  await waitForSuccessNotification(student2Page, async () => {
+    await student2Page.getByRole("button", { name: "End exam" }).click()
+    await respondToConfirmDialog(student2Page, true)
+  })
 
   // Teacher goes to the grading page and grades the students submissions
   await teacherPage.goto("http://project-331.local/organizations")
@@ -109,7 +111,7 @@ test("Grade exams manually", async ({}) => {
   await teacherPage.getByRole("link", { name: "Grading", exact: true }).click()
 
   // Check that there are both students submissions
-  await teacherPage.getByRole("cell", { name: "Number of answered" }).waitFor()
+  await teacherPage.getByRole("columnheader", { name: "Number of answered" }).waitFor()
   await expect(teacherPage.getByRole("cell", { name: "2" }).first()).toBeVisible()
 
   await teacherPage.getByRole("row", { name: "Grade Question 1" }).getByRole("button").click()

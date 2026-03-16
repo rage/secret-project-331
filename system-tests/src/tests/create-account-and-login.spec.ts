@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { Topbar } from "../utils/components/Topbar"
+import { logoutViaTopbar } from "../utils/flows/topbar.flow"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
@@ -28,8 +28,7 @@ test("User can create an account and log in", async ({ page }) => {
 
     await expect(page.getByRole("heading", { name: "Please confirm your email" })).toBeVisible()
     await page.getByRole("button", { name: "Done" }).click()
-    const topbar = new Topbar(page)
-    await topbar.logout()
+    await logoutViaTopbar(page)
   })
 
   await test.step("User can log in with the created account", async () => {

@@ -44,12 +44,13 @@ test.describe("Chapter locking feature", () => {
       await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
       await clickPageInChapterByTitle(studentPage, "Exercise in Chapter 1")
       await selectCourseInstanceIfPrompted(studentPage)
+      const exerciseFrame = await getLocatorForNthExerciseServiceIframe(studentPage, "quizzes", 1)
+      await exerciseFrame.getByRole("button", { name: "Correct answer" }).waitFor()
       await expect(
         studentPage.getByText(
           "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
         ),
       ).toBeVisible()
-      const exerciseFrame = await getLocatorForNthExerciseServiceIframe(studentPage, "quizzes", 1)
       await exerciseFrame.getByRole("button", { name: "Correct answer" }).click()
       await studentPage.getByRole("button", { name: "Submit" }).click()
       await studentPage.getByText("Try again").waitFor()
@@ -115,6 +116,11 @@ test.describe("Chapter locking feature", () => {
       )
       await teacherPage.getByRole("tab", { name: "Exercises" }).click()
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
+      await teacherPage
+        .locator('iframe[title="VIEW SUBMISSION"]')
+        .contentFrame()
+        .getByText("Correct answer", { exact: true })
+        .waitFor()
       await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("1")
       await waitForSuccessNotification(teacherPage, async () => {
@@ -225,6 +231,11 @@ test.describe("Chapter locking feature", () => {
       )
       await teacherPage.getByRole("tab", { name: "Exercises" }).click()
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
+      await teacherPage
+        .locator('iframe[title="VIEW SUBMISSION"]')
+        .contentFrame()
+        .getByText("Correct answer", { exact: true })
+        .waitFor()
       await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("1")
       await waitForSuccessNotification(teacherPage, async () => {

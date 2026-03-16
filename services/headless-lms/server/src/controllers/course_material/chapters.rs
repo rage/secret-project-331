@@ -217,7 +217,7 @@ async fn lock_chapter(
     )
     .await?;
 
-    let status = user_chapter_locking_statuses::complete_chapter(
+    let status = user_chapter_locking_statuses::complete_and_lock_chapter(
         &mut tx,
         user.id,
         *chapter_id,

@@ -46,7 +46,6 @@ export interface BlockAttributes {
 export interface ButtonAttributes {
   tagName: "a" | "button"
   type: string
-  textAlign?: string
   url?: string
   title?: string
   text?: StringWithHTML
@@ -75,15 +74,15 @@ export interface ButtonAttributes {
 
 export interface ButtonsAttributes {
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -100,15 +99,15 @@ export interface ButtonsAttributes {
 export interface CodeAttributes {
   content?: StringWithHTML
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -122,17 +121,17 @@ export interface CodeAttributes {
 export interface ColumnAttributes {
   verticalAlignment?: string
   width?: string
-  allowedBlocks?: unknown[]
   templateLock?: "all" | "insert" | "contentOnly" | false
   borderColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  allowedBlocks?: unknown[]
+  anchor?: string
+  className?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -151,15 +150,15 @@ export interface ColumnsAttributes {
   isStackedOnMobile: boolean
   templateLock?: "all" | "insert" | "contentOnly" | false
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -185,6 +184,7 @@ export interface EmbedAttributes {
   lock?: {
     [k: string]: unknown
   }
+  anchor?: string
   className?: string
   style?: {
     [k: string]: unknown
@@ -207,15 +207,15 @@ export interface FileAttributes {
   displayPreview?: boolean
   previewHeight: number
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   style?: {
     [k: string]: unknown
   }
@@ -225,23 +225,23 @@ export interface FileAttributes {
 }
 
 export interface HeadingAttributes {
-  textAlign?: string
   content?: StringWithHTML
   level: number
   levelOptions?: unknown[]
   placeholder?: string
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
+  fitText?: boolean
   style?: {
     [k: string]: unknown
   }
@@ -277,6 +277,9 @@ export interface ImageAttributes {
   height?: string
   aspectRatio?: string
   scale?: string
+  focalPoint?: {
+    [k: string]: unknown
+  }
   sizeSlug?: string
   linkDestination?: string
   linkTarget?: string
@@ -303,14 +306,14 @@ export interface ListAttributes {
   reversed?: boolean
   placeholder?: string
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -325,14 +328,14 @@ export interface ListItemAttributes {
   placeholder?: string
   content?: StringWithHTML
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -344,22 +347,23 @@ export interface ListItemAttributes {
 }
 
 export interface ParagraphAttributes {
-  align?: string
   content?: StringWithHTML
   dropCap: boolean
   placeholder?: string
   direction?: "ltr" | "rtl"
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
+  fitText?: boolean
   style?: {
     [k: string]: unknown
   }
@@ -371,14 +375,14 @@ export interface ParagraphAttributes {
 export interface PreformattedAttributes {
   content?: StringWithHTML
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -394,15 +398,15 @@ export interface PullquoteAttributes {
   citation?: StringWithHTML
   textAlign?: string
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -418,15 +422,16 @@ export interface QuoteAttributes {
   citation?: StringWithHTML
   textAlign?: string
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
+  allowedBlocks?: unknown[]
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -443,15 +448,15 @@ export interface QuoteAttributes {
 export interface SeparatorAttributes {
   opacity: string
   tagName: "hr" | "div"
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   style?: {
     [k: string]: unknown
   }
@@ -483,15 +488,15 @@ export interface TableAttributes {
   body: Cells[]
   foot: Cells[]
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -515,16 +520,15 @@ export interface CellAttributes {
 
 export interface VerseAttributes {
   content?: StringWithHTML
-  textAlign?: string
   borderColor?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
   fontFamily?: string
   fontSize?: string
   style?: {

@@ -79,11 +79,21 @@ pub async fn process_token_grant(
                     ref_uri,
                 )
                 .await
-                .map_err(|_| TokenGrantError::InvalidGrant("Given grant is invalid".to_string()))?
+                .map_err(|e| {
+                    tracing::warn!(
+                        err = %e,
+                        "OAuth token: auth code consume failed (redirect_uri check); possible causes: code already used, wrong redirect_uri, expired, or wrong client"
+                    );
+                    TokenGrantError::InvalidGrant("Given grant is invalid".to_string())
+                })?
             } else {
                 OAuthAuthCode::consume_in_transaction(&mut tx, code_digest, request.client.id)
                     .await
-                    .map_err(|_| {
+                    .map_err(|e| {
+                        tracing::warn!(
+                            err = %e,
+                            "OAuth token: auth code consume failed; possible causes: code already used, expired, or wrong client"
+                        );
                         TokenGrantError::InvalidGrant("Given grant is invalid".to_string())
                     })?
             };

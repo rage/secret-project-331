@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useEffect } from "react"
 
 import { fetchCourseInstance } from "@/services/backend/course-instances"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -29,8 +30,17 @@ const CourseInstanceStatusSummaryRedirect: React.FC = () => {
   if (courseInstanceQuery.isError) {
     return <ErrorBanner variant="readOnly" error={courseInstanceQuery.error} />
   }
-  if (courseInstanceQuery.isLoading || !courseInstanceQuery.data) {
+  if (courseInstanceQuery.isLoading) {
     return <Spinner variant="medium" />
+  }
+  if (!courseInstanceQuery.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void courseInstanceQuery.refetch()
+        }}
+      />
+    )
   }
   return <Spinner variant="medium" />
 }

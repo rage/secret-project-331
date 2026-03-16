@@ -55,6 +55,7 @@ fn models(target: &mut File) {
         chapters::ChapterStatus,
         chapters::ChapterUpdate,
         chapters::ChapterWithStatus,
+        cms_ai::ParagraphSuggestionAction,
         chapters::DatabaseChapter,
         chapters::NewChapter,
         chapters::UserCourseInstanceChapterProgress,
@@ -74,6 +75,7 @@ fn models(target: &mut File) {
         chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
         chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
         chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
+        chatbot_conversation_suggested_messages::ChatbotConversationSuggestedMessage,
         chatbot_conversations::ChatbotConversation,
         chatbot_conversations::ChatbotConversationInfo,
         code_giveaway_codes::CodeGiveawayCode,
@@ -406,6 +408,19 @@ fn controllers(target: &mut File) {
             status::PodInfo,
             status::ServiceInfo,
             status::ServicePortInfo,
+        };
+    }
+
+    // cms
+    {
+        use cms::*;
+        export! {
+            target,
+
+            ai_suggestions::ParagraphSuggestionMeta,
+            ai_suggestions::ParagraphSuggestionContext,
+            ai_suggestions::ParagraphSuggestionRequest,
+            ai_suggestions::ParagraphSuggestionResponse,
         };
     }
 

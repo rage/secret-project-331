@@ -22,6 +22,7 @@ pub enum ChatbotErrorType {
     InvalidToolName,
     InvalidToolArguments,
     ChatbotModelError,
+    ChatbotMessageSuggestError,
     UrlParse,
     TokioIo,
     SerdeJson,

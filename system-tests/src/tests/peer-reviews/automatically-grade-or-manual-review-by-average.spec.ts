@@ -31,6 +31,7 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
   test.afterEach(async () => {
     await Promise.all([context1.close(), context2.close(), context3.close(), context4.close()])
   })
+
   test("AutomaticallyGradeOrManualReviewByAverage", async () => {
     test.slow()
     const student1Page = await context1.newPage()

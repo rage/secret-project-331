@@ -57,7 +57,7 @@ test("Join course by code only", async ({}) => {
 
     const oldJoinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
     const oldJoinCodeHref = await oldJoinCodeElement.getAttribute("href")
-    // eslint-disable-next-line playwright/no-conditional-in-test
+
     const oldJoinCode = oldJoinCodeHref?.replace("/join?code=", "").trim() || ""
 
     await waitForSuccessNotification(teacherPage, async () => {
@@ -75,7 +75,7 @@ test("Join course by code only", async ({}) => {
 
     const joinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
     const joinCodeHref = await joinCodeElement.getAttribute("href")
-    // eslint-disable-next-line playwright/no-conditional-in-test
+
     joinCode = joinCodeHref?.replace("/join?code=", "").trim() || ""
     expect(joinCode).not.toBe("")
     expect(joinCode).not.toBe(oldJoinCode)

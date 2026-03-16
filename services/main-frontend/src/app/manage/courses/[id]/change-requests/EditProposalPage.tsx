@@ -8,6 +8,7 @@ import EditProposalView from "./EditProposalView"
 
 import { fetchEditProposals, processProposal } from "@/services/backend/proposedEdits"
 import { BlockProposalInfo } from "@/shared-module/common/bindings"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { fontWeights, typography } from "@/shared-module/common/styles/typography"
@@ -56,8 +57,18 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getEditProposalList.error} />
   }
 
-  if (getEditProposalList.isLoading || !getEditProposalList.data) {
+  if (getEditProposalList.isLoading) {
     return <Spinner variant={"medium"} />
+  }
+
+  if (!getEditProposalList.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void getEditProposalList.refetch()
+        }}
+      />
+    )
   }
 
   if (getEditProposalList.data.length === 0) {

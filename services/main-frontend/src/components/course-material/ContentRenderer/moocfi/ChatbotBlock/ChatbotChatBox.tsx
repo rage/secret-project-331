@@ -3,13 +3,12 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import ChatbotChatBody, {
-  ChatbotChatBodyProps,
-} from "@/components/course-material/chatbot/shared/ChatbotChatBody"
+import ChatbotChatBody from "@/components/course-material/chatbot/shared/ChatbotChatBody"
 import ChatbotChatHeader from "@/components/course-material/chatbot/shared/ChatbotChatHeader"
+import { ChatbotStateAndData } from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import { baseTheme } from "@/shared-module/common/styles"
 
-const ChatbotChatBox: React.FC<ChatbotChatBodyProps> = (props) => {
+const ChatbotChatBox: React.FC<ChatbotStateAndData> = (props) => {
   return (
     <div
       className={css`
@@ -25,7 +24,7 @@ const ChatbotChatBox: React.FC<ChatbotChatBodyProps> = (props) => {
       <ChatbotChatHeader
         isCourseMaterialBlock={true}
         currentConversationInfo={props.currentConversationInfo}
-        newConversation={props.newConversation}
+        newConversationMutation={props.newConversationMutation}
       />
       <ChatbotChatBody {...props} />
     </div>

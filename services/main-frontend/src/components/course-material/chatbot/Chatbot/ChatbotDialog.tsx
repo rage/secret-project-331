@@ -1,7 +1,6 @@
 "use client"
 
 import { css, keyframes } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import React, { useEffect, useId, useRef, useState } from "react"
 import {
   FocusScope,
@@ -13,29 +12,14 @@ import {
 } from "react-aria"
 
 import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
-import { MessageAction, MessageState } from "../shared/ChatbotChat"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
-
-import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
 
 interface ChatbotDialogProps {
-  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
+  chatbotStateAndData: ChatbotStateAndData
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-  messageState: MessageState
-  dispatch: (action: MessageAction) => void
-  newMessage: string
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>
-  error: Error | null
-  chatbotMessageAnnouncement: string
-  newMessageMutation: UseMutationResult<
-    ReadableStream<Uint8Array<ArrayBufferLike>>,
-    unknown,
-    string,
-    unknown
-  >
-  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
 }
 export const CHATBOX_WIDTH_PX = 500
 export const CHATBOX_HEIGHT_PX = 900
@@ -175,13 +159,13 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
               {...dialogProps}
             >
               <ChatbotChatHeader
-                currentConversationInfo={props.currentConversationInfo}
-                newConversation={props.newConversation}
+                currentConversationInfo={props.chatbotStateAndData.currentConversationInfo}
+                newConversationMutation={props.chatbotStateAndData.newConversationMutation}
                 titleProps={titleProps}
                 isCourseMaterialBlock={false}
                 closeChatbot={() => state.setOpen(false)}
               />
-              <ChatbotChatBody {...props} />
+              <ChatbotChatBody {...props.chatbotStateAndData} />
             </div>
           </div>
         </FocusScope>

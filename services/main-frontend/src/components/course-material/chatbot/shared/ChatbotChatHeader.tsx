@@ -31,7 +31,7 @@ interface ChatbotNoDialogHeaderProps {
 
 type ChatbotChatHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+  newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
 } & (ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps)
 
 const headerContainerStyle = css`
@@ -91,7 +91,7 @@ const buttonsWrapper = css`
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
+  const { currentConversationInfo, newConversationMutation, isCourseMaterialBlock } = props
 
   const createTranscript = useToastMutation(
     async () => {
@@ -119,11 +119,11 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       // eslint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-new-conversation-button",
       onAction: () => {
-        if (!newConversation.isPending) {
-          newConversation.mutate()
+        if (!newConversationMutation.isPending) {
+          newConversationMutation.mutate()
         }
       },
-      disabled: newConversation.isPending,
+      disabled: newConversationMutation.isPending,
       icon: (
         <AddMessage
           className={css`

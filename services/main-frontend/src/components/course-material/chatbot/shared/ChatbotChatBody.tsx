@@ -10,10 +10,10 @@ import { v4 } from "uuid"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
-import { MessageAction, MessageState } from "./ChatbotChat"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
+import { ChatbotStateAndData, MessageAction, MessageState } from "./hooks/useChatbotStateAndData"
 
 import {
   ChatbotConversation,
@@ -26,26 +26,9 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
-export interface ChatbotChatBodyProps {
-  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  messageState: MessageState
-  dispatch: (action: MessageAction) => void
-  newMessage: string
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>
-  error: Error | null
-  chatbotMessageAnnouncement: string
-  newMessageMutation: UseMutationResult<
-    ReadableStream<Uint8Array<ArrayBufferLike>>,
-    unknown,
-    string,
-    unknown
-  >
-  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-}
-
-const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
+const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
-  newConversation,
+  newConversationMutation,
   newMessage,
   setNewMessage,
   error,
@@ -223,7 +206,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
           size="medium"
           variant="secondary"
           onClick={() => {
-            newConversation.mutate()
+            newConversationMutation.mutate()
             dispatch({ type: "RESET_MESSAGES" })
           }}
         >

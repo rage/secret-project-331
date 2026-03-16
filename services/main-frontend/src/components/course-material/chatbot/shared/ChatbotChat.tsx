@@ -5,7 +5,7 @@ import React, { useState } from "react"
 import ChatbotChatBox from "../../ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import ChatbotDialog from "../Chatbot/ChatbotDialog"
 
-import { useChatbotStateAndData } from "./hooks/useChatbotStateAndData"
+import useChatbotStateAndData from "./hooks/useChatbotStateAndData"
 import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchronizeDefaultChatbotCommunicationChannel"
 
 interface ChatbotChatProps {

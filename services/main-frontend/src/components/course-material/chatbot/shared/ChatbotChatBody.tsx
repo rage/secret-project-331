@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
@@ -13,13 +12,9 @@ import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
-import { ChatbotStateAndData, MessageAction, MessageState } from "./hooks/useChatbotStateAndData"
+import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
-import {
-  ChatbotConversation,
-  ChatbotConversationInfo,
-  ChatbotConversationMessageCitation,
-} from "@/shared-module/common/bindings"
+import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"

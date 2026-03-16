@@ -49,7 +49,7 @@ export interface ChatbotStateAndData {
   >
 }
 
-export const useChatbotStateAndData = (
+const useChatbotStateAndData = (
   chatbotConfigurationId: string,
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>> | undefined,
 ) => {
@@ -143,3 +143,5 @@ export const useChatbotStateAndData = (
     chatbotMessageAnnouncement,
   }
 }
+
+export default useChatbotStateAndData

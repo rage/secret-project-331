@@ -1,6 +1,7 @@
 import * as k8s from "@kubernetes/client-node"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
 import internal, { Writable } from "stream"
+import { finished } from "stream/promises"
 import { temporaryFile } from "tempy"
 import { v4 } from "uuid"
 
@@ -75,10 +76,9 @@ export async function execWithTimeout(
       resolved = true
       resolve(result)
     }
-    execSocket.onclose = (ev?: { code?: number; reason?: string }) => {
+    execSocket.onclose = () => {
       // Prefer the Kubernetes status channel's exit code when available.
-      // Fall back to the close event's code only if we never observed status.
-      const exitCode = observedStatus ? observedStatusExitCode : ev?.code
+      const exitCode = observedStatus ? observedStatusExitCode : undefined
       resolveOnce({ timedOut: false, exitCode })
     }
   })
@@ -99,6 +99,7 @@ export async function execWithTimeout(
 
 const WAIT_FOR_POD_RUNNING_MS = 120_000
 
+// captureStream: collect up-to-maxBytes from a writable stream
 function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () => Buffer } {
   if (maxBytes === 0) {
     return {
@@ -151,6 +152,7 @@ function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () 
   }
 }
 
+// waitForPodRunning: poll pod status until it reaches Running or times out
 async function waitForPodRunning(
   kubeApi: k8s.CoreV1Api,
   podName: string,
@@ -179,6 +181,7 @@ async function waitForPodRunning(
   }
 }
 
+// copySubmissionToPod: stream and extract a submission tar into /app in the pod
 async function copySubmissionToPod(
   kubeExec: k8s.Exec,
   podName: string,
@@ -220,6 +223,7 @@ export type TmcRunOutcome =
   | { timedOut: true }
   | { timedOut: false; output: string; parsed: unknown }
 
+// runTmcAndReadOutput: run /tmc-run, copy /app/test_output.txt out and parse JSON or return error
 async function runTmcAndReadOutput(
   kubeExec: k8s.Exec,
   podName: string,
@@ -277,10 +281,7 @@ async function runTmcAndReadOutput(
     if (catResult.exitCode !== undefined && catResult.exitCode !== 0) {
       throw new Error(`Cat /app/test_output.txt exited with code ${catResult.exitCode}`)
     }
-    await new Promise<void>((resolve, reject) => {
-      const s = testOutputWriteStream!
-      s.on("finish", () => resolve()).on("error", reject)
-    })
+    await finished(testOutputWriteStream)
     testOutputWriteStream = null
     const testOutputBuffer = await fs.readFile(testOutputPath)
     const testOutputString = testOutputBuffer.toString()

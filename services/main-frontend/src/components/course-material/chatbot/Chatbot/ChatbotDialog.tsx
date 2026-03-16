@@ -143,8 +143,6 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
                 height: inherit;
                 max-height: inherit;
                 min-height: inherit;
-                bottom: 70px;
-                right: 1rem;
                 background: white;
                 border-radius: 10px;
                 box-shadow: 0px 4px 10px rgba(177, 179, 184, 0.6);
@@ -155,7 +153,8 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
               {...dialogProps}
             >
               <ChatbotChatHeader
-                {...props}
+                currentConversationInfo={props.currentConversationInfo}
+                newConversation={props.newConversation}
                 titleProps={titleProps}
                 isCourseMaterialBlock={false}
                 closeChatbot={() => state.setOpen(false)}

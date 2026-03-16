@@ -91,7 +91,7 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
     streamingMessage: null,
   })
 
-  const setSendNewMessage = useSetAtom(defaultChatbotCommunicationChannel)
+  const setDefaultChatbotCommunicationChannel = useSetAtom(defaultChatbotCommunicationChannel)
 
   const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
   const newConversationMutation = useNewConversationMutation(
@@ -165,17 +165,34 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
     },
   )
 
+  const mutateAsync = newMessageMutation.mutateAsync
+
   useEffect(() => {
     if (!isCourseMaterialBlock) {
-      setSendNewMessage({
-        newMessageMutation: newMessageMutation,
+      setDefaultChatbotCommunicationChannel({
+        sendNewMessage: async (message) => {
+          await mutateAsync(message)
+        },
       })
-      return () => setSendNewMessage(null)
+      return () => setDefaultChatbotCommunicationChannel(null)
     }
-  })
+  }, [isCourseMaterialBlock, setDefaultChatbotCommunicationChannel, mutateAsync])
 
   return (
     <>
+      {isCourseMaterialBlock && (
+        <ChatbotChatBox
+          currentConversationInfo={currentConversationInfoQuery}
+          messageState={messageState}
+          dispatch={dispatch}
+          newMessage={newMessage}
+          setNewMessage={setNewMessage}
+          error={error}
+          chatbotMessageAnnouncement={chatbotMessageAnnouncement}
+          newMessageMutation={newMessageMutation}
+          newConversation={newConversationMutation}
+        />
+      )}
       {!isCourseMaterialBlock && (
         <>
           <OpenChatbotButton hide={shouldRender} triggerProps={triggerProps} ref={buttonRef} />
@@ -197,19 +214,6 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
             newConversation={newConversationMutation}
           />
         </>
-      )}
-      {isCourseMaterialBlock && (
-        <ChatbotChatBox
-          currentConversationInfo={currentConversationInfoQuery}
-          messageState={messageState}
-          dispatch={dispatch}
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
-          error={error}
-          chatbotMessageAnnouncement={chatbotMessageAnnouncement}
-          newMessageMutation={newMessageMutation}
-          newConversation={newConversationMutation}
-        />
       )}
     </>
   )

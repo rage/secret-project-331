@@ -1,13 +1,7 @@
-import { UseMutationResult } from "@tanstack/react-query"
 import { atom } from "jotai"
 
 interface CourseDefaultChatbotCommunicationChannel {
-  newMessageMutation: UseMutationResult<
-    ReadableStream<Uint8Array<ArrayBufferLike>>,
-    unknown,
-    string,
-    unknown
-  >
+  sendNewMessage: (message: string) => Promise<void>
 }
 
 export const defaultChatbotCommunicationChannel =

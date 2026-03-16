@@ -208,7 +208,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
         >
           <Button
             onClick={() => {
-              chatbotCommunicationChannel?.newMessageMutation.mutate(
+              chatbotCommunicationChannel?.sendNewMessage(
                 t("text-selection-summarize-with-ai", {
                   pageTitle,
                   courseName,
@@ -222,7 +222,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
           </Button>
           <Button
             onClick={() => {
-              chatbotCommunicationChannel?.newMessageMutation.mutate(
+              chatbotCommunicationChannel?.sendNewMessage(
                 t("text-selection-explain-with-ai", {
                   pageTitle,
                   courseName,

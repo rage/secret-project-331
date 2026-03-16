@@ -83,7 +83,7 @@ export default function useScheduleWizardController(planId: string) {
   })
 
   const [planName, setPlanName] = useState("")
-  // eslint-disable-next-line i18next/no-literal-string
+
   const [courseSize, setCourseSize] = useState<CourseDesignerCourseSize>("medium")
   const [startsOnMonth, setStartsOnMonth] = useState(todayMonthValue())
   const [initializedFromQuery, setInitializedFromQuery] = useState<string | null>(null)

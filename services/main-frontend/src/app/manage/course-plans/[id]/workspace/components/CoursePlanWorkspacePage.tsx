@@ -3,19 +3,19 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { coursePlanQueryKeys } from "../../../coursePlanQueryKeys"
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 
-import CompactPhaseStatusWidget from "./CompactPhaseStatusWidget"
-import PlanOverviewPanel, { type OverviewStage } from "./PlanOverviewPanel"
+import PlanOverviewPanel from "./PlanOverviewPanel"
+import StageTimeline from "./StageTimeline"
 import WorkspaceStageSection from "./WorkspaceStageSection"
+import WorkspaceStageTabStrip from "./WorkspaceStageTabStrip"
 
 import {
   advanceCourseDesignerStage,
-  type CourseDesignerPlanStageWithTasks,
   type CourseDesignerStage,
   extendCourseDesignerStage,
   getCourseDesignerPlan,
@@ -255,6 +255,36 @@ const emptyStateStyles = css`
   font-style: italic;
 `
 
+type StageLabelTranslationKey =
+  | "course-plans-stage-analysis"
+  | "course-plans-stage-design"
+  | "course-plans-stage-development"
+  | "course-plans-stage-implementation"
+  | "course-plans-stage-evaluation"
+
+type StageBriefTranslationKey =
+  | "course-plans-phase-brief-analysis"
+  | "course-plans-phase-brief-design"
+  | "course-plans-phase-brief-development"
+  | "course-plans-phase-brief-implementation"
+  | "course-plans-phase-brief-evaluation"
+
+const STAGE_LABEL_KEYS = {
+  Analysis: "course-plans-stage-analysis",
+  Design: "course-plans-stage-design",
+  Development: "course-plans-stage-development",
+  Implementation: "course-plans-stage-implementation",
+  Evaluation: "course-plans-stage-evaluation",
+} satisfies Record<CourseDesignerStage, StageLabelTranslationKey>
+
+const STAGE_BRIEF_KEYS = {
+  Analysis: "course-plans-phase-brief-analysis",
+  Design: "course-plans-phase-brief-design",
+  Development: "course-plans-phase-brief-development",
+  Implementation: "course-plans-phase-brief-implementation",
+  Evaluation: "course-plans-phase-brief-evaluation",
+} satisfies Record<CourseDesignerStage, StageBriefTranslationKey>
+
 function daysBetween(from: string, to: string): number {
   const a = new Date(from)
   const b = new Date(to)
@@ -268,6 +298,8 @@ export default function CoursePlanWorkspacePage() {
   const planId = params.id ?? ""
   const queryClient = useQueryClient()
   const [isOverviewOpen, setIsOverviewOpen] = useState(false)
+  const [viewedStage, setViewedStage] = useState<CourseDesignerStage | null>(null)
+  const previousActiveStageRef = useRef<CourseDesignerStage | null>(null)
 
   const planQuery = useQuery({
     queryKey: coursePlanQueryKeys.detail(planId),
@@ -306,21 +338,35 @@ export default function CoursePlanWorkspacePage() {
     },
   )
 
-  const stageLabel = useCallback(
-    (stage: CourseDesignerStage) => {
-      // eslint-disable-next-line i18next/no-literal-string
-      const key = `course-plans-stage-${stage.toLowerCase()}`
-      return t(
-        key as
-          | "course-plans-stage-analysis"
-          | "course-plans-stage-design"
-          | "course-plans-stage-development"
-          | "course-plans-stage-implementation"
-          | "course-plans-stage-evaluation",
-      )
-    },
-    [t],
-  )
+  const stageLabel = useCallback((stage: CourseDesignerStage) => t(STAGE_LABEL_KEYS[stage]), [t])
+
+  useEffect(() => {
+    if (!planQuery.data) {
+      return
+    }
+
+    const nextActiveStage = planQuery.data.plan.active_stage
+    const firstAvailableStage = planQuery.data.stages[0]?.stage ?? null
+    const hasViewedStage =
+      viewedStage != null && planQuery.data.stages.some((stage) => stage.stage === viewedStage)
+
+    if (!hasViewedStage) {
+      setViewedStage(nextActiveStage ?? firstAvailableStage)
+      previousActiveStageRef.current = nextActiveStage
+      return
+    }
+
+    if (
+      previousActiveStageRef.current &&
+      nextActiveStage &&
+      nextActiveStage !== previousActiveStageRef.current &&
+      viewedStage === previousActiveStageRef.current
+    ) {
+      setViewedStage(nextActiveStage)
+    }
+
+    previousActiveStageRef.current = nextActiveStage
+  }, [planQuery.data, viewedStage])
 
   if (planQuery.isError) {
     return (
@@ -368,13 +414,14 @@ export default function CoursePlanWorkspacePage() {
   const currentStage = plan.active_stage
   const currentStageData = currentStage ? stages.find((s) => s.stage === currentStage) : null
 
+  const viewedStageData =
+    viewedStage != null ? (stages.find((stage) => stage.stage === viewedStage) ?? null) : null
+
   const today = new Date().toISOString().slice(0, 10)
   let timeRemainingText: string | null = null
   let timeRemainingShort: string | null = null
-  let daysLeft: number | null = null
   if (currentStageData) {
     const days = daysBetween(today, currentStageData.planned_ends_on)
-    daysLeft = days
     if (days > 0) {
       const months = Math.floor(days / 30)
       const remainingDays = days % 30
@@ -392,12 +439,6 @@ export default function CoursePlanWorkspacePage() {
       timeRemainingShort = timeRemainingText
     }
   }
-
-  const tasksRemainingCount =
-    currentStageData?.tasks != null
-      ? currentStageData.tasks.filter((task) => !task.is_completed).length
-      : -1
-  const isUrgent = daysLeft != null && daysLeft <= 0
 
   const lastEditedText = plan.updated_at
     ? t("course-plans-last-edited", {
@@ -438,13 +479,13 @@ export default function CoursePlanWorkspacePage() {
     currentStageData.status !== "Completed"
 
   const currentStageSection =
-    currentStageData && currentStage ? (
+    currentStage && viewedStageData && viewedStage ? (
       <WorkspaceStageSection
-        key={currentStageData.id}
+        key={viewedStageData.id}
         planId={planId}
-        stage={currentStageData as CourseDesignerPlanStageWithTasks}
-        stageLabel={stageLabel(currentStage)}
-        isActive
+        stage={viewedStageData}
+        stageLabel={stageLabel(viewedStage)}
+        isActive={viewedStage === currentStage}
         showStageTitle={false}
         onInvalidate={() =>
           void queryClient.invalidateQueries({
@@ -455,7 +496,7 @@ export default function CoursePlanWorkspacePage() {
     ) : null
 
   const stageDescriptionItems =
-    currentStage === "Analysis"
+    viewedStage === "Analysis"
       ? [
           t("course-plans-stage-description-analysis-1"),
           t("course-plans-stage-description-analysis-2"),
@@ -463,7 +504,7 @@ export default function CoursePlanWorkspacePage() {
           t("course-plans-stage-description-analysis-4"),
           t("course-plans-stage-description-analysis-5"),
         ]
-      : currentStage === "Design"
+      : viewedStage === "Design"
         ? [
             t("course-plans-stage-description-design-1"),
             t("course-plans-stage-description-design-2"),
@@ -471,18 +512,18 @@ export default function CoursePlanWorkspacePage() {
             t("course-plans-stage-description-design-4"),
             t("course-plans-stage-description-design-5"),
           ]
-        : currentStage === "Development"
+        : viewedStage === "Development"
           ? [
               t("course-plans-stage-description-development-1"),
               t("course-plans-stage-description-development-2"),
             ]
-          : currentStage === "Implementation"
+          : viewedStage === "Implementation"
             ? [
                 t("course-plans-stage-description-implementation-1"),
                 t("course-plans-stage-description-implementation-2"),
                 t("course-plans-stage-description-implementation-3"),
               ]
-            : currentStage === "Evaluation"
+            : viewedStage === "Evaluation"
               ? [
                   t("course-plans-stage-description-evaluation-1"),
                   t("course-plans-stage-description-evaluation-2"),
@@ -490,9 +531,9 @@ export default function CoursePlanWorkspacePage() {
               : []
 
   const keyGoalsContent =
-    currentStage && stageDescriptionItems.length > 0
+    viewedStage && stageDescriptionItems.length > 0
       ? stageDescriptionItems.map((line, index) => (
-          <li key={`${currentStage}-${index}`} className={keyGoalItemStyles}>
+          <li key={`${viewedStage}-${index}`} className={keyGoalItemStyles}>
             {line}
           </li>
         ))
@@ -515,7 +556,7 @@ export default function CoursePlanWorkspacePage() {
           isOpen={isOverviewOpen}
           onClose={() => setIsOverviewOpen(false)}
           planName={plan.name ?? t("course-plans-untitled-plan")}
-          stages={stages as OverviewStage[]}
+          stages={stages}
           activeStage={currentStage ?? null}
           stageLabel={stageLabel}
           canActOnCurrentStage={Boolean(canAct)}
@@ -534,28 +575,29 @@ export default function CoursePlanWorkspacePage() {
         />
 
         <div className={workspaceShellStyles}>
-          <div className={workspaceGridStyles}>
+          <StageTimeline stages={stages} stageLabel={stageLabel} />
+          <WorkspaceStageTabStrip
+            stagesData={stages}
+            activeStage={currentStage ?? null}
+            selectedStage={viewedStage}
+            onSelectedStageChange={setViewedStage}
+            stageLabel={stageLabel}
+            panelClassName={workspaceGridStyles}
+          >
             <div className={headerAreaStyles}>
               <div className={headerRowStyles}>
                 <div className={headerBlockStyles}>
                   <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
                   {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
                 </div>
-                {currentStage && (
-                  <CompactPhaseStatusWidget
-                    phaseName={stageLabel(currentStage)}
-                    statusTimeLine={
-                      (timeRemainingShort ?? timeRemainingText)
-                        ? t("course-plans-status-with-time", {
-                            time: timeRemainingShort ?? timeRemainingText,
-                          })
-                        : t("course-plans-status-in-progress")
-                    }
-                    tasksRemainingCount={tasksRemainingCount}
-                    isUrgent={isUrgent}
-                    onClick={() => setIsOverviewOpen(true)}
-                  />
-                )}
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => setIsOverviewOpen(true)}
+                  disabled={!currentStage}
+                >
+                  {t("course-plans-overview-title", { plan: "" }).trim()}
+                </Button>
               </div>
             </div>
 
@@ -568,15 +610,8 @@ export default function CoursePlanWorkspacePage() {
               </h2>
               <p className={aboutHeadingStyles}>{t("course-plans-about-this-phase")}</p>
               <p className={aboutTextStyles}>
-                {currentStage
-                  ? t(
-                      `course-plans-phase-brief-${currentStage.toLowerCase()}` as
-                        | "course-plans-phase-brief-analysis"
-                        | "course-plans-phase-brief-design"
-                        | "course-plans-phase-brief-development"
-                        | "course-plans-phase-brief-implementation"
-                        | "course-plans-phase-brief-evaluation",
-                    )
+                {viewedStage
+                  ? t(STAGE_BRIEF_KEYS[viewedStage])
                   : t("course-plans-instructions-placeholder")}
               </p>
               <p className={keyGoalsHeadingStyles}>{t("course-plans-key-goals")}</p>
@@ -618,7 +653,7 @@ export default function CoursePlanWorkspacePage() {
                 questions about each stage.
               </p>
             </section>
-          </div>
+          </WorkspaceStageTabStrip>
         </div>
       </div>
     </BreakFromCentered>

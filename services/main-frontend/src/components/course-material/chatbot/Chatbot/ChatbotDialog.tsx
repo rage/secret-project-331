@@ -2,7 +2,7 @@
 
 import { css, keyframes } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import React, { RefObject, useEffect, useId, useRef } from "react"
+import React, { useEffect, useId, useRef, useState } from "react"
 import {
   FocusScope,
   mergeProps,
@@ -12,27 +12,22 @@ import {
   usePopover,
 } from "react-aria"
 
-import { ChatbotState, MessageAction, MessageState } from "../shared/ChatbotChat"
+import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
+import { MessageAction, MessageState } from "../shared/ChatbotChat"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 
-type DOMPropsType = ReturnType<typeof useOverlayTrigger>["overlayProps"]
-
 interface ChatbotDialogProps {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  state: ChatbotState
-  buttonRef: RefObject<HTMLButtonElement | null>
-  shouldRender: boolean
-  setShouldRender: (value: React.SetStateAction<boolean>) => void
+  isOpen: boolean
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
   messageState: MessageState
   dispatch: (action: MessageAction) => void
   newMessage: string
   setNewMessage: React.Dispatch<React.SetStateAction<string>>
   error: Error | null
-  setError: (value: React.SetStateAction<Error | null>) => void
-  overlayProps: DOMPropsType
   chatbotMessageAnnouncement: string
   newMessageMutation: UseMutationResult<
     ReadableStream<Uint8Array<ArrayBufferLike>>,
@@ -68,9 +63,35 @@ const closeAnimation = keyframes`
 `
 
 const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
-  let { state, buttonRef, shouldRender, setShouldRender, overlayProps } = props
+  let { isOpen, setIsOpen } = props
   const chatbotTitleId = useId()
+  const [shouldRender, setShouldRender] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
+
+  let state = {
+    isOpen,
+    setOpen: (o: boolean) => {
+      setIsOpen(o)
+      if (!o) {
+        buttonRef.current?.focus()
+      }
+    },
+    open: () => {
+      setIsOpen(true)
+    },
+    close: () => {
+      // no operation prevents close on scroll
+    },
+    toggle: () => {
+      setIsOpen(!isOpen)
+      if (isOpen) {
+        buttonRef.current?.focus()
+      }
+    },
+  }
+
+  let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
 
   let { popoverProps } = usePopover(
     {
@@ -115,6 +136,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
 
   return (
     <>
+      <OpenChatbotButton hide={shouldRender} triggerProps={triggerProps} ref={buttonRef} />
       {shouldRender && (
         <FocusScope restoreFocus>
           <div

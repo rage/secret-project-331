@@ -1,13 +1,11 @@
 "use client"
 
 import { useSetAtom } from "jotai"
-import React, { useEffect, useReducer, useRef, useState } from "react"
-import { useOverlayTrigger } from "react-aria"
+import React, { useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ChatbotChatBox from "../../ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import ChatbotDialog from "../Chatbot/ChatbotDialog"
-import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
 
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
@@ -43,14 +41,6 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
   }
 }
 
-export type ChatbotState = {
-  isOpen: boolean
-  setOpen: (o: boolean) => void
-  open: () => void
-  close: () => void
-  toggle: () => void
-}
-
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
   isCourseMaterialBlock,
@@ -59,32 +49,7 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
-  const [shouldRender, setShouldRender] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const buttonRef = useRef<HTMLButtonElement | null>(null)
-
-  let state: ChatbotState = {
-    isOpen,
-    setOpen: (o: boolean) => {
-      setIsOpen(o)
-      if (!o) {
-        buttonRef.current?.focus()
-      }
-    },
-    open: () => {
-      setIsOpen(true)
-    },
-    close: () => {
-      // no operation prevents close on scroll
-    },
-    toggle: () => {
-      setIsOpen(!isOpen)
-      if (isOpen) {
-        buttonRef.current?.focus()
-      }
-    },
-  }
-  let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
 
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
@@ -103,8 +68,8 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
   const newMessageMutation = useToastMutation(
     async (messageToSend: string) => {
       setChatbotMessageAnnouncement("")
-      if (!isCourseMaterialBlock && !state.isOpen) {
-        state.open()
+      if (!isCourseMaterialBlock && !isOpen) {
+        setIsOpen(true)
       }
       if (!currentConversationInfoQuery.data?.current_conversation) {
         throw new Error("No active conversation")
@@ -182,38 +147,31 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
     <>
       {isCourseMaterialBlock && (
         <ChatbotChatBox
-          currentConversationInfo={currentConversationInfoQuery}
-          messageState={messageState}
-          dispatch={dispatch}
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
-          error={error}
           chatbotMessageAnnouncement={chatbotMessageAnnouncement}
-          newMessageMutation={newMessageMutation}
+          currentConversationInfo={currentConversationInfoQuery}
+          dispatch={dispatch}
+          error={error}
+          messageState={messageState}
           newConversation={newConversationMutation}
+          newMessage={newMessage}
+          newMessageMutation={newMessageMutation}
+          setNewMessage={setNewMessage}
         />
       )}
       {!isCourseMaterialBlock && (
-        <>
-          <OpenChatbotButton hide={shouldRender} triggerProps={triggerProps} ref={buttonRef} />
-          <ChatbotDialog
-            currentConversationInfo={currentConversationInfoQuery}
-            state={state}
-            buttonRef={buttonRef}
-            shouldRender={shouldRender}
-            setShouldRender={setShouldRender}
-            messageState={messageState}
-            dispatch={dispatch}
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            error={error}
-            setError={setError}
-            overlayProps={overlayProps}
-            chatbotMessageAnnouncement={chatbotMessageAnnouncement}
-            newMessageMutation={newMessageMutation}
-            newConversation={newConversationMutation}
-          />
-        </>
+        <ChatbotDialog
+          chatbotMessageAnnouncement={chatbotMessageAnnouncement}
+          currentConversationInfo={currentConversationInfoQuery}
+          dispatch={dispatch}
+          error={error}
+          isOpen={isOpen}
+          messageState={messageState}
+          newConversation={newConversationMutation}
+          newMessage={newMessage}
+          newMessageMutation={newMessageMutation}
+          setIsOpen={setIsOpen}
+          setNewMessage={setNewMessage}
+        />
       )}
     </>
   )

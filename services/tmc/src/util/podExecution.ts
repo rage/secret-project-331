@@ -54,20 +54,59 @@ export async function execWithTimeout(
     return Number.isFinite(parsed) ? parsed : undefined
   }
 
-  const execSocket = await kubeExec.exec(
-    "default",
-    podName,
-    containerName,
-    command,
-    stdout,
-    stderr,
-    stdin,
-    false,
-    (status: unknown) => {
-      observedStatus = true
-      observedStatusExitCode = extractExitCodeFromStatus(status)
-    },
-  )
+  let execSocket: (k8s.WebSocket & { close?: () => void; destroy?: () => void }) | undefined
+  const connectTimeoutMs = timeoutMs
+  let connectTimer: NodeJS.Timeout | undefined
+  const connectTimeoutPromise = new Promise<never>((_resolve, reject) => {
+    connectTimer = setTimeout(() => {
+      reject(new Error(`kubeExec.exec connect timed out after ${connectTimeoutMs}ms`))
+    }, connectTimeoutMs)
+  })
+  const execSocketPromise = kubeExec
+    .exec(
+      "default",
+      podName,
+      containerName,
+      command,
+      stdout,
+      stderr,
+      stdin,
+      false,
+      (status: unknown) => {
+        observedStatus = true
+        observedStatusExitCode = extractExitCodeFromStatus(status)
+      },
+    )
+    .then((s) => {
+      execSocket = s as typeof execSocket
+      return s
+    })
+  try {
+    execSocket = (await Promise.race([
+      execSocketPromise,
+      connectTimeoutPromise,
+    ])) as typeof execSocket
+  } catch (e) {
+    execSocketPromise
+      .then((s) => {
+        try {
+          ;(s as unknown as { close?: () => void }).close?.()
+        } catch (_e2) {
+          // ignore
+        }
+        try {
+          ;(s as unknown as { destroy?: () => void }).destroy?.()
+        } catch (_e2) {
+          // ignore
+        }
+      })
+      .catch(() => {})
+    throw e
+  } finally {
+    if (connectTimer) {
+      clearTimeout(connectTimer)
+    }
+  }
   const execPromise = new Promise<{ timedOut: boolean; exitCode?: number }>((resolve) => {
     const resolveOnce = (result: { timedOut: boolean; exitCode?: number }) => {
       if (resolved) {
@@ -86,7 +125,7 @@ export async function execWithTimeout(
     const timer = setTimeout(() => {
       // Best-effort stop the exec stream; the server-side process may still run.
       try {
-        execSocket.close()
+        execSocket?.close?.()
       } catch (_e) {
         // ignore
       }
@@ -99,7 +138,10 @@ export async function execWithTimeout(
 
 const WAIT_FOR_POD_RUNNING_MS = 120_000
 
-// captureStream: collect up-to-maxBytes from a writable stream
+/**
+ * Create a Writable that buffers only the last `maxBytes` of input.
+ * When `maxBytes === 0`, discards everything (useful as a sink).
+ */
 function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () => Buffer } {
   if (maxBytes === 0) {
     return {
@@ -152,7 +194,10 @@ function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () 
   }
 }
 
-// waitForPodRunning: poll pod status until it reaches Running or times out
+/**
+ * Poll pod status until it reaches Running (or throw on timeout/unexpected phase).
+ * Each status read is bounded by a per-call timeout so the loop can't hang inside the API call.
+ */
 async function waitForPodRunning(
   kubeApi: k8s.CoreV1Api,
   podName: string,
@@ -169,19 +214,45 @@ async function waitForPodRunning(
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     await delay(500)
 
-    const podStatus = await kubeApi.readNamespacedPodStatus({
-      namespace: "default",
-      name: podName,
-      pretty: "true",
-    })
-    podPhase = podStatus.status?.phase
+    const remainingMs = Math.max(0, deadline - Date.now())
+    const perCallTimeoutMs = Math.max(1000, Math.min(5000, remainingMs))
+    let perCallTimer: NodeJS.Timeout | undefined
+    try {
+      const podStatus = await Promise.race([
+        kubeApi.readNamespacedPodStatus({
+          namespace: "default",
+          name: podName,
+          pretty: "true",
+        }),
+        new Promise<never>((_resolve, reject) => {
+          perCallTimer = setTimeout(() => {
+            reject(new Error(`readNamespacedPodStatus timed out after ${perCallTimeoutMs}ms`))
+          }, perCallTimeoutMs)
+        }),
+      ])
+      podPhase = podStatus.status?.phase
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      if (msg.includes("readNamespacedPodStatus timed out")) {
+        // Retry until the overall deadline is reached.
+        continue
+      }
+      throw e
+    } finally {
+      if (perCallTimer) {
+        clearTimeout(perCallTimer)
+      }
+    }
     if (podPhase !== "Pending" && podPhase !== "Running") {
       throw new Error(`Unexpected phase ${podPhase}`)
     }
   }
 }
 
-// copySubmissionToPod: stream and extract a submission tar into /app in the pod
+/**
+ * Stream a submission archive into the pod and extract it into `/app/`.
+ * Always closes the local file stream to avoid fd leaks on errors/timeouts.
+ */
 async function copySubmissionToPod(
   kubeExec: k8s.Exec,
   podName: string,
@@ -190,32 +261,36 @@ async function copySubmissionToPod(
   const submissionReadStream = createReadStream(submissionPath)
   const out = captureStream(0)
   const err = captureStream(0)
-  const tarResult = await execWithTimeout(
-    kubeExec,
-    podName,
-    CONTAINER_NAME,
-    [
-      "tar",
-      "--verbose",
-      "--use-compress-program",
-      "zstd",
-      "--extract",
-      "--file",
-      "-",
-      "--directory",
-      "/app/",
-    ],
-    out.stream,
-    err.stream,
-    submissionReadStream,
-    DEFAULT_TASK_TIMEOUT_MS,
-  )
-  if (tarResult.timedOut) {
-    throw new Error("Running tar inside the container timed out")
-  }
-  const exitCode = tarResult.exitCode
-  if (exitCode !== undefined && exitCode !== 0) {
-    throw new Error(`Tar exited with code ${exitCode}`)
+  try {
+    const tarResult = await execWithTimeout(
+      kubeExec,
+      podName,
+      CONTAINER_NAME,
+      [
+        "tar",
+        "--verbose",
+        "--use-compress-program",
+        "zstd",
+        "--extract",
+        "--file",
+        "-",
+        "--directory",
+        "/app/",
+      ],
+      out.stream,
+      err.stream,
+      submissionReadStream,
+      DEFAULT_TASK_TIMEOUT_MS,
+    )
+    if (tarResult.timedOut) {
+      throw new Error("Running tar inside the container timed out")
+    }
+    const exitCode = tarResult.exitCode
+    if (exitCode !== undefined && exitCode !== 0) {
+      throw new Error(`Tar exited with code ${exitCode}`)
+    }
+  } finally {
+    submissionReadStream.destroy()
   }
 }
 
@@ -223,7 +298,10 @@ export type TmcRunOutcome =
   | { timedOut: true }
   | { timedOut: false; output: string; parsed: unknown }
 
-// runTmcAndReadOutput: run /tmc-run, copy /app/test_output.txt out and parse JSON or return error
+/**
+ * Run `/tmc-run`, then read `/app/test_output.txt` from the pod and parse it as JSON.
+ * Returns a synthetic "GENERIC_ERROR" payload if the process fails or output is not valid JSON.
+ */
 async function runTmcAndReadOutput(
   kubeExec: k8s.Exec,
   podName: string,

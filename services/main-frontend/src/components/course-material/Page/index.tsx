@@ -305,15 +305,14 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             {chatbotConfiguration.data && (
               <Chatbot chatbotConfigurationId={chatbotConfiguration.data} />
             )}
+            <FeedbackHandler
+              courseId={courseId}
+              courseName={courseName}
+              courseHasChatbot={chatbotConfiguration.data != null}
+              pageId={pageId}
+              pageTitle={pageTitle}
+            />
           </>
-        )}
-        {courseId && pageId && courseName && pageTitle && (
-          <FeedbackHandler
-            courseId={courseId}
-            courseName={courseName}
-            pageId={pageId}
-            pageTitle={pageTitle}
-          />
         )}
       </>
     </GlossaryContext.Provider>

@@ -21,15 +21,17 @@ import { getModifierKey } from "@/utils/course-material/platformDetection"
 
 interface Props {
   courseId: string
-  courseName: string
+  courseName?: string
+  courseHasChatbot: boolean
   pageId: string
-  pageTitle: string
+  pageTitle?: string
 }
 
 const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   courseId,
   pageId,
   courseName,
+  courseHasChatbot,
   pageTitle,
 }) => {
   const { t } = useTranslation()
@@ -100,7 +102,11 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
       {type === "written" && <FeedbackDialog courseId={courseId} pageId={pageId} />}
       {type === "proposed-edits" && <EditProposalDialog courseId={courseId} pageId={pageId} />}
       {type === null && selection.text && (
-        <TextSelectionTooltip courseName={courseName} pageTitle={pageTitle} />
+        <TextSelectionTooltip
+          courseName={courseName}
+          pageTitle={pageTitle}
+          courseHasChatbot={courseHasChatbot}
+        />
       )}
       <SelectionListener />
     </>

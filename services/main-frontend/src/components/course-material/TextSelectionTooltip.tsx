@@ -29,12 +29,14 @@ const svgCss = css`
 `
 
 interface Props {
-  courseName: string
-  pageTitle: string
+  courseName?: string
+  courseHasChatbot: boolean
+  pageTitle?: string
 }
 
 const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
   courseName,
+  courseHasChatbot,
   pageTitle,
 }) => {
   const { t } = useTranslation()
@@ -206,34 +208,39 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
             flex-flow: column nowrap;
           `}
         >
-          <Button
-            onClick={() => {
-              chatbotCommunicationChannel?.sendNewMessage(
-                t("text-selection-summarize-with-ai", {
-                  pageTitle,
-                  courseName,
-                  selection: selection.text,
-                }),
-              )
-            }}
-          >
-            {t("summarize")}
-            <AIChat className={svgCss} />
-          </Button>
-          <Button
-            onClick={() => {
-              chatbotCommunicationChannel?.sendNewMessage(
-                t("text-selection-explain-with-ai", {
-                  pageTitle,
-                  courseName,
-                  selection: selection.text,
-                }),
-              )
-            }}
-          >
-            {t("explain-this")}
-            <AIChat className={svgCss} />
-          </Button>
+          {courseName && pageTitle && courseHasChatbot && (
+            <>
+              <Button
+                onClick={() => {
+                  chatbotCommunicationChannel?.sendNewMessage(
+                    t("text-selection-summarize-with-ai", {
+                      pageTitle,
+                      courseName,
+                      selection: selection.text,
+                    }),
+                  )
+                }}
+              >
+                {t("summarize")}
+                <AIChat className={svgCss} />
+              </Button>
+              <Button
+                onClick={() => {
+                  chatbotCommunicationChannel?.sendNewMessage(
+                    t("text-selection-explain-with-ai", {
+                      pageTitle,
+                      courseName,
+                      selection: selection.text,
+                    }),
+                  )
+                }}
+              >
+                {t("explain-this")}
+                <AIChat className={svgCss} />
+              </Button>
+            </>
+          )}
+
           <Button onClick={giveFeedbackHandleClick}>{t("give-feedback")}</Button>
         </div>
       </SpeechBalloon>

@@ -176,27 +176,29 @@ pub async fn get_by_exercise_task_submission_ids(
     let gradings = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_given,
-  unscaled_score_maximum,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
-FROM exercise_task_gradings
-WHERE exercise_task_submission_id = ANY($1)
-  AND deleted_at IS NULL
+SELECT etg.id,
+  etg.created_at,
+  etg.updated_at,
+  etg.exercise_task_submission_id,
+  etg.course_id,
+  etg.exam_id,
+  etg.exercise_id,
+  etg.exercise_task_id,
+  etg.grading_priority,
+  etg.score_given,
+  etg.grading_progress as "grading_progress: _",
+  etg.unscaled_score_given,
+  etg.unscaled_score_maximum,
+  etg.grading_started_at,
+  etg.grading_completed_at,
+  etg.feedback_json,
+  etg.feedback_text,
+  etg.deleted_at
+FROM exercise_task_submissions ets
+  JOIN exercise_task_gradings etg ON ets.exercise_task_grading_id = etg.id
+WHERE ets.id = ANY($1)
+  AND ets.deleted_at IS NULL
+  AND etg.deleted_at IS NULL
         "#,
         exercise_task_submission_ids
     )

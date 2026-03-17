@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\nFROM exercise_task_gradings\nWHERE exercise_task_submission_id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT etg.id,\n  etg.created_at,\n  etg.updated_at,\n  etg.exercise_task_submission_id,\n  etg.course_id,\n  etg.exam_id,\n  etg.exercise_id,\n  etg.exercise_task_id,\n  etg.grading_priority,\n  etg.score_given,\n  etg.grading_progress as \"grading_progress: _\",\n  etg.unscaled_score_given,\n  etg.unscaled_score_maximum,\n  etg.grading_started_at,\n  etg.grading_completed_at,\n  etg.feedback_json,\n  etg.feedback_text,\n  etg.deleted_at\nFROM exercise_task_submissions ets\n  JOIN exercise_task_gradings etg ON ets.exercise_task_grading_id = etg.id\nWHERE ets.id = ANY($1)\n  AND ets.deleted_at IS NULL\n  AND etg.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -133,5 +133,5 @@
       true
     ]
   },
-  "hash": "6424dbe4f865557c7005bbc0a4a6fe1ff926183a3ab2046b0d6b0ac208af298f"
+  "hash": "e4db30db3e629e9b8454eec287a40ad065894799214c767f83be2d66656031f0"
 }

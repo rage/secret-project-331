@@ -114,7 +114,7 @@ async fn fetch_exercise_service_and_info(
         },
         None => exercise_service.public_url.parse()?,
     };
-    let service_info = models_requests::fetch_service_info(service_info_url).await?;
+    let service_info = models_requests::fetch_service_info_fast(service_info_url).await?;
     Ok((exercise_service, service_info))
 }
 

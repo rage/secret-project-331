@@ -198,6 +198,13 @@ const sectionTitleStyles = css`
   margin: 0 0 0.5rem 0;
 `
 
+const currentStageTitleStyles = css`
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: ${baseTheme.colors.gray[900]};
+  margin: 1rem 0;
+`
+
 const instructionsSectionTitleStyles = css`
   font-size: 1.15rem;
   font-weight: 600;
@@ -574,6 +581,13 @@ export default function CoursePlanWorkspacePage() {
         />
 
         <div className={workspaceShellStyles}>
+          <div className={headerRowStyles}>
+            <div className={headerBlockStyles}>
+              <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
+              {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
+            </div>
+          </div>
+
           <StageTimelineTabStrip
             stages={stages}
             activeStage={currentStage ?? null}
@@ -585,21 +599,18 @@ export default function CoursePlanWorkspacePage() {
             panelClassName={workspaceGridStyles}
           >
             <div className={headerAreaStyles}>
-              <div className={headerRowStyles}>
-                <div className={headerBlockStyles}>
-                  <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
-                  {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
-                </div>
-              </div>
+              <h2 className={currentStageTitleStyles}>
+                {viewedStage ? stageLabel(viewedStage) : t("course-plans-instructions-heading")}
+              </h2>
             </div>
 
             <section
               className={`${cardStyles} ${instructionsAreaStyles}`}
               aria-label={t("course-plans-instructions-aria-label")}
             >
-              <h2 className={instructionsSectionTitleStyles}>
+              <h3 className={instructionsSectionTitleStyles}>
                 {t("course-plans-instructions-heading")}
-              </h2>
+              </h3>
               <p className={aboutHeadingStyles}>{t("course-plans-about-this-phase")}</p>
               <p className={aboutTextStyles}>
                 {viewedStage
@@ -614,7 +625,7 @@ export default function CoursePlanWorkspacePage() {
               className={`${cardStyles} ${tasksAreaStyles} ${tasksCardStyles}`}
               aria-label={t("course-plans-tasks-aria-label")}
             >
-              <h2 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h2>
+              <h3 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h3>
               {currentStageSection ?? (
                 <p className={emptyStateStyles}>{t("course-plans-no-active-stage")}</p>
               )}
@@ -625,7 +636,7 @@ export default function CoursePlanWorkspacePage() {
               aria-label={t("course-plans-workspace-aria-label")}
             >
               {/* eslint-disable-next-line i18next/no-literal-string */}
-              <h2 className={sectionTitleStyles}>Workspace</h2>
+              <h3 className={sectionTitleStyles}>Workspace</h3>
               {/* eslint-disable-next-line i18next/no-literal-string */}
               <p className={aboutTextStyles}>
                 This area will host tools and editors for working on the current stage of your
@@ -638,7 +649,7 @@ export default function CoursePlanWorkspacePage() {
               aria-label={t("course-plans-assistant-aria-label")}
             >
               {/* eslint-disable-next-line i18next/no-literal-string */}
-              <h2 className={sectionTitleStyles}>Assistant</h2>
+              <h3 className={sectionTitleStyles}>Assistant</h3>
               {/* eslint-disable-next-line i18next/no-literal-string */}
               <p className={aboutTextStyles}>
                 A course design assistant chatbot will appear here to help you with tasks and

@@ -29,9 +29,9 @@ const timelineShellStyles = css`
 
 const cardStyles = css`
   margin: 0;
-  border-radius: 12px 12px 0 0;
+  border-radius: 12px;
   border: 1px solid ${baseTheme.colors.gray[200]};
-  border-bottom: none;
+  border-top: 2px solid ${baseTheme.colors.green[200]};
   background: ${baseTheme.colors.primary[100]};
   padding: 0.7rem 0.9rem 0.2rem;
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
@@ -41,7 +41,7 @@ const tabListRowStyles = css`
   position: relative;
   display: flex;
   align-items: stretch;
-  gap: 16px;
+  gap: 20px;
   min-height: 84px;
   padding: 0 0.15rem 0.65rem;
 `
@@ -50,7 +50,7 @@ const tabBandBaseStyles = css`
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.5rem;
   min-height: 80px;
   padding: 0.35rem 0.5rem 0.45rem;
   border-radius: 8px;
@@ -66,17 +66,18 @@ const tabBandBaseStyles = css`
 
 const tabBandUnselectedStyles = css`
   &:hover {
-    background: ${baseTheme.colors.gray[50]};
+    background: ${baseTheme.colors.gray[75]};
+    border-radius: 10px;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
   }
 `
 
 const tabBandSelectedStyles = (accent: string) => css`
-  background: ${accent}1a;
+  background: ${accent}20;
   box-shadow:
-    0 1px 3px rgba(15, 23, 42, 0.08),
-    0 1px 2px rgba(15, 23, 42, 0.06);
+    0 2px 6px rgba(15, 23, 42, 0.08),
+    0 1px 3px rgba(15, 23, 42, 0.05);
   border-bottom: 3px solid ${accent};
   border-radius: 8px 8px 0 0;
 `
@@ -89,12 +90,12 @@ const tabBandFocusRingStyles = css`
 const stagePillStyles = css`
   align-self: flex-start;
   border-radius: 999px;
-  padding: 0.15rem 0.7rem;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  background: ${baseTheme.colors.primary[100]};
+  background: ${baseTheme.colors.gray[100]};
   border: 1px solid ${baseTheme.colors.gray[300]};
   white-space: nowrap;
 `
@@ -103,6 +104,9 @@ const stagePillSelectedStyles = (accent: string) => css`
   background: ${accent};
   border-color: ${accent};
   color: white;
+  box-shadow:
+    0 1px 4px rgba(15, 23, 42, 0.15),
+    0 0 0 1px ${accent}33;
 `
 
 const stagePillCompletedStyles = css`
@@ -119,7 +123,7 @@ const stagePillFutureStyles = (accent: string) => css`
 const stageMonthsRowStyles = css`
   display: flex;
   align-items: stretch;
-  gap: 4px;
+  gap: 6px;
 `
 
 const monthDimmedStyles = css`
@@ -180,10 +184,11 @@ const currentStageCalloutContainerStyles = css`
   border-radius: 8px;
   background: ${baseTheme.colors.green[50]};
   border: 1px solid ${baseTheme.colors.green[200]};
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
   z-index: 6;
   transform: translateX(-50%);
   justify-content: center;
+  border-bottom: 2px solid ${baseTheme.colors.green[200]};
 `
 
 const currentStageLabelStyles = css`
@@ -201,9 +206,8 @@ const currentStageEditButtonStyles = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
   color: ${baseTheme.colors.gray[700]};
   cursor: pointer;
 
@@ -211,6 +215,7 @@ const currentStageEditButtonStyles = css`
   &:focus-visible {
     background: ${baseTheme.colors.gray[100]};
     color: ${baseTheme.colors.gray[800]};
+    text-decoration: underline;
     outline: none;
   }
 `
@@ -240,9 +245,9 @@ const todayLabelStyles = css`
 const todayTriangleStyles = css`
   width: 0;
   height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 7px solid ${baseTheme.colors.red[600]};
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 6px solid ${baseTheme.colors.red[600]};
 `
 
 const todayLineStyles = css`
@@ -253,13 +258,8 @@ const todayLineStyles = css`
   background: linear-gradient(
     to bottom,
     ${baseTheme.colors.red[600]},
-    ${baseTheme.colors.red[600]}80
+    ${baseTheme.colors.red[600]}40
   );
-`
-
-const tabPanelShellStyles = css`
-  border-top: 1px solid ${baseTheme.colors.gray[200]};
-  border-radius: 0 0 12px 12px;
 `
 
 const tabBandDividerStyles = css`
@@ -524,7 +524,7 @@ export default function StageTimelineTabStrip({
           </div>
         </div>
       </div>
-      <div {...tabPanelProps} ref={panelRef} className={cx(panelClassName, tabPanelShellStyles)}>
+      <div {...tabPanelProps} ref={panelRef} className={panelClassName}>
         {children}
       </div>
     </>

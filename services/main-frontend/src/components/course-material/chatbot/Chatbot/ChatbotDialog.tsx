@@ -74,9 +74,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
       }
     },
   }
-
   let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
-
   let { popoverProps } = usePopover(
     {
       shouldUpdatePosition: false,

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { getCourseEnrollmentsInfo } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
@@ -25,8 +26,18 @@ const CourseEnrollmentsList: React.FC<CourseEnrollmentsListProps> = ({ userId })
   if (courseEnrollmentsQuery.isError) {
     return <ErrorBanner variant="readOnly" error={courseEnrollmentsQuery.error} />
   }
-  if (courseEnrollmentsQuery.isLoading || !courseEnrollmentsQuery.data) {
+  if (courseEnrollmentsQuery.isLoading) {
     return <Spinner variant="medium" />
+  }
+
+  if (!courseEnrollmentsQuery.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void courseEnrollmentsQuery.refetch()
+        }}
+      />
+    )
   }
 
   return (

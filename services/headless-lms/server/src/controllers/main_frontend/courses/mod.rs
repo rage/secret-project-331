@@ -10,7 +10,6 @@ use headless_lms_models::{
     partner_block::PartnersBlock,
     suspected_cheaters::{SuspectedCheaters, Threshold},
 };
-use rand::Rng;
 use std::sync::Arc;
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
@@ -309,23 +308,18 @@ async fn update_course(
     let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
 
     if locking_just_enabled {
-        use models::{chapters, user_chapter_locking_statuses, user_course_settings};
+        use models::{user_chapter_locking_statuses, user_course_settings};
 
         let all_user_settings =
             user_course_settings::get_all_by_course_id(&mut conn, *course_id).await?;
 
         for settings in all_user_settings {
-            let existing_statuses = user_chapter_locking_statuses::get_by_user_and_course(
+            let _ = user_chapter_locking_statuses::get_or_init_all_for_course(
                 &mut conn,
                 settings.user_id,
                 *course_id,
             )
             .await?;
-
-            if existing_statuses.is_empty() {
-                chapters::unlock_first_chapters_for_user(&mut conn, settings.user_id, *course_id)
-                    .await?;
-            }
         }
     }
 

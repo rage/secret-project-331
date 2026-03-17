@@ -184,7 +184,7 @@ async fn current_conversation_info(
             if initial_suggested_messages.len() > 3 {
                 let mut rng = rand::rng();
                 initial_suggested_messages
-                    .choose_multiple(&mut rng, 3)
+                    .sample(&mut rng, 3)
                     .cloned()
                     .collect()
             } else {

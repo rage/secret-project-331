@@ -51,6 +51,7 @@ export const getParagraphStyles = (
   hideOverflow: boolean,
   dropCap: boolean,
   align: string | undefined,
+  fitText?: boolean,
 ) => css`
   ${paragraphBaseDefaults}
   ${hideOverflow && `overflow-x: hidden; overflow-y: hidden;`}
@@ -61,7 +62,9 @@ export const getParagraphStyles = (
   ${backgroundColor && `padding: 1.25em 2.375em !important;`}
 
   ${respondToOrLarger.md} {
-    font-size: ${fontSizeMapper(fontSize)};
+    ${fitText
+      ? `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "1.5rem"});`
+      : `font-size: ${fontSizeMapper(fontSize)};`}
   }
 
   ${dropCap ? hasDropCap : null}

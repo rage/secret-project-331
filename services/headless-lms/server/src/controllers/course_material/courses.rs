@@ -1070,7 +1070,7 @@ async fn get_user_chapter_locks(
     let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
 
     let statuses =
-        user_chapter_locking_statuses::get_by_user_and_course(&mut conn, user.id, *course_id)
+        user_chapter_locking_statuses::get_or_init_all_for_course(&mut conn, user.id, *course_id)
             .await?;
 
     token.authorized_ok(web::Json(statuses))

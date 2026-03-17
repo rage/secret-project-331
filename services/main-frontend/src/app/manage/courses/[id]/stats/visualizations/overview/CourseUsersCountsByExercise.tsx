@@ -11,6 +11,7 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import { fetchCourseUsersCountByExercise } from "@/services/backend/courses"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -33,8 +34,18 @@ const CourseUsersCountsByExercise: React.FC<
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isLoading || !query.data) {
+  if (query.isLoading) {
     return <Spinner variant="medium" />
+  }
+
+  if (!query.data) {
+    return (
+      <DataLoadError
+        onRetry={() => {
+          void query.refetch()
+        }}
+      />
+    )
   }
 
   const queryData = sortBy(query.data, [

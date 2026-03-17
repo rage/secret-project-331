@@ -1,4 +1,4 @@
-use crate::domain::oauth::dpop::verify_dpop_from_actix;
+use crate::domain::oauth::dpop::verify_dpop_from_actix_for_token;
 use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::helpers::{oauth_invalid_client, ok_json_no_cache, scope_has_openid};
 use crate::domain::oauth::oauth_validated::OAuthValidated;
@@ -101,7 +101,10 @@ pub async fn token(
 
     let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
         .await
-        .map_err(|_| oauth_invalid_client("invalid client_id"))?;
+        .map_err(|e| {
+            tracing::error!(err = %e, "OAuth token: client lookup failed");
+            oauth_invalid_client("invalid client_id")
+        })?;
 
     // Add non-secret fields to the span for observability
     tracing::Span::current().record("client_id", &form.client_id);
@@ -142,15 +145,13 @@ pub async fn token(
         ));
     }
 
-    // DPoP vs Bearer selection
+    // DPoP vs Bearer selection (token endpoint uses deferred replay so use_dpop_nonce does not revoke the auth code)
     let dpop_jkt_opt = if req.headers().get("DPoP").is_some() {
         Some(
-            verify_dpop_from_actix(
+            verify_dpop_from_actix_for_token(
                 &mut conn,
                 &req,
-                "POST",
                 &app_conf.oauth_server_configuration.dpop_nonce_key,
-                None,
             )
             .await?,
         )
@@ -203,7 +204,7 @@ pub async fn token(
         Some(generate_id_token(
             user_id,
             &client.client_id,
-            &nonce_opt.unwrap_or_default(),
+            nonce_opt.as_deref(),
             at_expires_at,
             &format!("{}/api/v0/main-frontend/oauth", base_url),
             &app_conf,

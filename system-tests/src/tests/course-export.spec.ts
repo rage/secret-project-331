@@ -35,11 +35,9 @@ test("course export", async ({ page }) => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
     // wait for image to upload
-    await getImgByURLPrefixAndSuffix(
-      page,
-      "http://project-331.local/api/v0/files/",
-      ".png",
-    ).waitFor()
+    await getImgByURLPrefixAndSuffix(page, "http://project-331.local/api/v0/files/", ".png")
+      .first()
+      .waitFor()
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save", exact: true }).click()
     })

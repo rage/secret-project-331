@@ -707,7 +707,7 @@ WHERE organization_id = $1
     })
 }
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseUpdate {
     pub name: String,

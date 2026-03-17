@@ -141,6 +141,8 @@
   "quiz-timeline-name": "Tidslinje",
   "quiz-title-invalid-format": "Ogiltigt format: kontrollera taggarna",
   "quiz-type-not-supported": "Quiztyp stöds inte",
+  "quizzes-dynamic-loading-slow-warning": "Inläsningen av en del av applikationen tar längre tid än väntat.",
+  "quizzes-dynamic-loading-very-slow-warning": "Detta kan bero på nätverksproblem. Om inläsningen inte slutförs snart, vänligen ladda om sidan.",
   "regex": "Regex",
   "regular-expression-tester": "Reguljärt uttryck testare",
   "remove": "Ta bort",

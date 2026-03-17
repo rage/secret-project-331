@@ -26,7 +26,10 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
 
   useSynchronizeDefaultChatbotCommunicationChannel(
     isCourseMaterialBlock,
+    chatbotStateAndData.currentConversationInfo,
     chatbotStateAndData.newMessageMutation.mutateAsync,
+    chatbotStateAndData.newConversationMutation.mutateAsync,
+    chatbotStateAndData.dispatch,
   )
 
   return (

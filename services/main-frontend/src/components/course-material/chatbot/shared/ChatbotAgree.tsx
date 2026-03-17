@@ -1,18 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
-import { MessageAction } from "./hooks/useChatbotStateAndData"
-
-import Button from "@/shared-module/common/components/Button"
-
 interface ChatbotAgreeProps {
-  newConversation: () => void
-  dispatch: (action: MessageAction) => void
+  agreeButton?: ReactNode
+  header?: ReactNode
 }
 
-const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ newConversation, dispatch }) => {
+const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ agreeButton, header }) => {
   const { t } = useTranslation()
   return (
     <div
@@ -50,7 +47,7 @@ const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ newConversation, dispatch }
           overflow: scroll;
         `}
       >
-        <h2>{t("about-the-chatbot")}</h2>
+        <h2>{header ?? t("about-the-chatbot")}</h2>
         <p>{t("chatbot-disclaimer-start")}</p>
         <ul>
           <li>{t("chatbot-discalimer-sensitive-information")}</li>
@@ -65,19 +62,7 @@ const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ newConversation, dispatch }
           </li>
         </ul>
       </div>
-      <Button
-        className={css`
-          margin-top: 6px;
-        `}
-        size="medium"
-        variant="secondary"
-        onClick={() => {
-          newConversation()
-          dispatch({ type: "RESET_MESSAGES" })
-        }}
-      >
-        {t("button-text-agree")}
-      </Button>
+      {agreeButton}
     </div>
   )
 }

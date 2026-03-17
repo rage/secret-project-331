@@ -144,7 +144,25 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   }
 
   if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
-    return <ChatbotAgree newConversation={newConversationMutation.mutate} dispatch={dispatch} />
+    return (
+      <ChatbotAgree
+        agreeButton={
+          <Button
+            className={css`
+              margin-top: 6px;
+            `}
+            size="medium"
+            variant="secondary"
+            onClick={() => {
+              newConversationMutation.mutate()
+              dispatch({ type: "RESET_MESSAGES" })
+            }}
+          >
+            {t("button-text-agree")}
+          </Button>
+        }
+      />
+    )
   }
 
   return (

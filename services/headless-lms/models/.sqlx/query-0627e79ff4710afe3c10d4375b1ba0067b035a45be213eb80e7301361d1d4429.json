@@ -1,0 +1,103 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  p.id,\n  p.created_at,\n  p.updated_at,\n  p.created_by_user_id,\n  p.name,\n  p.status AS \"status: CourseDesignerPlanStatus\",\n  p.active_stage AS \"active_stage: CourseDesignerStage\",\n  p.last_weekly_stage_email_sent_at,\n  COUNT(DISTINCT members.user_id)::BIGINT AS \"member_count!\",\n  COUNT(DISTINCT stages.stage)::BIGINT AS \"stage_count!\"\nFROM course_designer_plans p\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = p.id\n  AND self_member.user_id = $1\n  AND self_member.deleted_at IS NULL\nLEFT JOIN course_designer_plan_members members\n  ON members.course_designer_plan_id = p.id\n  AND members.deleted_at IS NULL\nLEFT JOIN course_designer_plan_stages stages\n  ON stages.course_designer_plan_id = p.id\n  AND stages.deleted_at IS NULL\nWHERE p.deleted_at IS NULL\nGROUP BY p.id\nORDER BY p.updated_at DESC, p.id DESC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_by_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "status: CourseDesignerPlanStatus",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_plan_status",
+            "kind": {
+              "Enum": [
+                "draft",
+                "scheduling",
+                "ready_to_start",
+                "in_progress",
+                "completed",
+                "archived"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "active_stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "last_weekly_stage_email_sent_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "member_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "stage_count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "0627e79ff4710afe3c10d4375b1ba0067b035a45be213eb80e7301361d1d4429"
+}

@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  stages.id,\n  stages.created_at,\n  stages.updated_at,\n  stages.stage AS \"stage: CourseDesignerStage\",\n  stages.status AS \"status: CourseDesignerPlanStageStatus\",\n  stages.planned_starts_on,\n  stages.planned_ends_on,\n  stages.actual_started_at,\n  stages.actual_completed_at\nFROM course_designer_plan_stages stages\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = stages.course_designer_plan_id\n  AND self_member.user_id = $2\n  AND self_member.deleted_at IS NULL\nWHERE stages.course_designer_plan_id = $1\n  AND stages.deleted_at IS NULL\nORDER BY\n  CASE stages.stage\n    WHEN 'analysis' THEN 1\n    WHEN 'design' THEN 2\n    WHEN 'development' THEN 3\n    WHEN 'implementation' THEN 4\n    WHEN 'evaluation' THEN 5\n  END,\n  stages.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "status: CourseDesignerPlanStageStatus",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_plan_stage_status",
+            "kind": {
+              "Enum": [
+                "not_started",
+                "in_progress",
+                "completed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "planned_starts_on",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 6,
+        "name": "planned_ends_on",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 7,
+        "name": "actual_started_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "actual_completed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "2dadd4e83ccd5f82e12d01dfe372e250309efb4539de0b36e081e153fb936877"
+}

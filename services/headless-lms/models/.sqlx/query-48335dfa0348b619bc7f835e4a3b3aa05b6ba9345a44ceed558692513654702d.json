@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  members.id,\n  members.created_at,\n  members.updated_at,\n  members.user_id\nFROM course_designer_plan_members members\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = members.course_designer_plan_id\n  AND self_member.user_id = $2\n  AND self_member.deleted_at IS NULL\nWHERE members.course_designer_plan_id = $1\n  AND members.deleted_at IS NULL\nORDER BY members.created_at ASC, members.id ASC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "48335dfa0348b619bc7f835e4a3b3aa05b6ba9345a44ceed558692513654702d"
+}

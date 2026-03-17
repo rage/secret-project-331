@@ -1,0 +1,107 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_designer_plans\nSET\n  name = $2,\n  status = $3\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING\n  id,\n  created_at,\n  updated_at,\n  created_by_user_id,\n  name,\n  status AS \"status: CourseDesignerPlanStatus\",\n  active_stage AS \"active_stage: CourseDesignerStage\",\n  last_weekly_stage_email_sent_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_by_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "status: CourseDesignerPlanStatus",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_plan_status",
+            "kind": {
+              "Enum": [
+                "draft",
+                "scheduling",
+                "ready_to_start",
+                "in_progress",
+                "completed",
+                "archived"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "active_stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "last_weekly_stage_email_sent_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "course_designer_plan_status",
+            "kind": {
+              "Enum": [
+                "draft",
+                "scheduling",
+                "ready_to_start",
+                "in_progress",
+                "completed",
+                "archived"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "0ea8cc60a82bfb68f0dfc1717c77610c998036b5359ddf9f5ac311862967823d"
+}

@@ -51,14 +51,6 @@ export function parseNumberField(value: unknown, fieldName: string): number | nu
   return typeof typedValue[fieldName] === "number" ? (typedValue[fieldName] as number) : null
 }
 
-export function parseStringField(value: unknown, fieldName: string): string | null {
-  if (!value || typeof value !== "object") {
-    return null
-  }
-  const typedValue = value as Record<string, unknown>
-  return typeof typedValue[fieldName] === "string" ? (typedValue[fieldName] as string) : null
-}
-
 export function parseBooleanField(value: unknown, fieldName: string): boolean | null {
   if (!value || typeof value !== "object") {
     return null
@@ -84,16 +76,4 @@ export function parseBooleanFieldFromObject(
   return typeof typedNestedValue[fieldName] === "boolean"
     ? (typedNestedValue[fieldName] as boolean)
     : null
-}
-
-export function getCorrectOptionIds(privateSpec: Alternative[]): string | null {
-  const correctOptionIds = privateSpec.filter((option) => option.correct).map((option) => option.id)
-  return correctOptionIds.length > 0 ? correctOptionIds.join("; ") : null
-}
-
-export function getCorrectOptionNames(privateSpec: Alternative[]): string | null {
-  const correctOptionNames = privateSpec
-    .filter((option) => option.correct)
-    .map((option) => option.name)
-  return correctOptionNames.length > 0 ? correctOptionNames.join("; ") : null
 }

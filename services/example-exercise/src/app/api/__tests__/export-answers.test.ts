@@ -36,20 +36,15 @@ test("export-answers exports grading and answer metadata", async () => {
     results: Array<{ rows: Array<Record<string, unknown>> }>
   }
 
-  assert.ok(body.columns.some((column) => column.key === "correct_option_names"))
+  assert.ok(body.columns.some((column) => column.key === "grading_selected_option_is_correct"))
   assert.equal(body.results.length, 1)
   assert.equal(body.results[0].rows.length, 1)
   assert.deepEqual(body.results[0].rows[0], {
     selected_option_id: "id-1",
     selected_option_name: "Correct option",
     selected_option_correct: true,
-    selected_option_found: true,
-    correct_option_ids: "id-1",
-    correct_option_names: "Correct option",
     grading_selected_option_is_correct: true,
     score_given: 1,
-    grading_progress: "FullyGraded",
-    feedback_text: "Good job!",
   })
 })
 
@@ -88,13 +83,8 @@ test("export-answers handles unknown selected options", async () => {
     selected_option_id: "missing-option",
     selected_option_name: null,
     selected_option_correct: null,
-    selected_option_found: false,
-    correct_option_ids: "id-1",
-    correct_option_names: "Correct option",
     grading_selected_option_is_correct: false,
     score_given: 0,
-    grading_progress: "FullyGraded",
-    feedback_text: "Your answer was not correct",
   })
 })
 

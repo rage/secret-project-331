@@ -10,9 +10,8 @@ import { coursePlanQueryKeys } from "../../../coursePlanQueryKeys"
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 
 import PlanOverviewPanel from "./PlanOverviewPanel"
-import StageTimeline from "./StageTimeline"
+import StageTimelineTabStrip from "./StageTimelineTabStrip"
 import WorkspaceStageSection from "./WorkspaceStageSection"
-import WorkspaceStageTabStrip from "./WorkspaceStageTabStrip"
 
 import {
   advanceCourseDesignerStage,
@@ -479,7 +478,7 @@ export default function CoursePlanWorkspacePage() {
     currentStageData.status !== "Completed"
 
   const currentStageSection =
-    currentStage && viewedStageData && viewedStage ? (
+    viewedStageData && viewedStage ? (
       <WorkspaceStageSection
         key={viewedStageData.id}
         planId={planId}
@@ -575,9 +574,8 @@ export default function CoursePlanWorkspacePage() {
         />
 
         <div className={workspaceShellStyles}>
-          <StageTimeline stages={stages} stageLabel={stageLabel} />
-          <WorkspaceStageTabStrip
-            stagesData={stages}
+          <StageTimelineTabStrip
+            stages={stages}
             activeStage={currentStage ?? null}
             selectedStage={viewedStage}
             onSelectedStageChange={setViewedStage}
@@ -653,7 +651,7 @@ export default function CoursePlanWorkspacePage() {
                 questions about each stage.
               </p>
             </section>
-          </WorkspaceStageTabStrip>
+          </StageTimelineTabStrip>
         </div>
       </div>
     </BreakFromCentered>

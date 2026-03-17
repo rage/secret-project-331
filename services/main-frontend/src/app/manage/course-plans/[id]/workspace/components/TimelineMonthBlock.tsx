@@ -19,6 +19,8 @@ import { format } from "date-fns"
 
 import { type StageMonth } from "../../schedule/scheduleMappers"
 
+import { baseTheme } from "@/shared-module/common/styles"
+
 const MONTH_ICONS = [
   WinterSnowflake,
   Sleigh,
@@ -37,8 +39,8 @@ const MONTH_ICONS = [
 const timelineMonthBlockStyles = css`
   min-width: 84px;
   border-radius: 12px;
-  border: 1px solid #d9dde4;
-  background: white;
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  background: ${baseTheme.colors.primary[100]};
   padding: 0.6rem 0.65rem;
   display: flex;
   flex-direction: column;
@@ -50,20 +52,20 @@ const timelineMonthBlockStyles = css`
 const timelineMonthBlockMonthStyles = css`
   font-size: 0.78rem;
   font-weight: 700;
-  color: #415167;
+  color: ${baseTheme.colors.gray[600]};
   line-height: 1.1;
 `
 
 const timelineMonthBlockYearStyles = css`
   font-size: 0.72rem;
-  color: #6a7686;
+  color: ${baseTheme.colors.gray[400]};
   line-height: 1.1;
 `
 
 const timelineMonthBlockIconStyles = css`
   width: 18px;
   height: 18px;
-  color: #2d7b4f;
+  color: ${baseTheme.colors.green[600]};
   display: flex;
   align-items: center;
   justify-content: center;

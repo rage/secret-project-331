@@ -580,6 +580,8 @@ export default function CoursePlanWorkspacePage() {
             selectedStage={viewedStage}
             onSelectedStageChange={setViewedStage}
             stageLabel={stageLabel}
+            onOpenOverview={() => setIsOverviewOpen(true)}
+            currentStageLabel={currentStage ? stageLabel(currentStage) : null}
             panelClassName={workspaceGridStyles}
           >
             <div className={headerAreaStyles}>
@@ -588,14 +590,6 @@ export default function CoursePlanWorkspacePage() {
                   <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
                   {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
                 </div>
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onClick={() => setIsOverviewOpen(true)}
-                  disabled={!currentStage}
-                >
-                  {t("course-plans-overview-title", { plan: "" }).trim()}
-                </Button>
               </div>
             </div>
 

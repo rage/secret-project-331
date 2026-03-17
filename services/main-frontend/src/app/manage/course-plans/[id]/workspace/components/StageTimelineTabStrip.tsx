@@ -20,16 +20,21 @@ import {
 } from "@/services/backend/courseDesigner"
 import { baseTheme } from "@/shared-module/common/styles"
 
-const cardStyles = css`
+const timelineShellStyles = css`
+  position: relative;
   margin-top: 0.75rem;
-  margin-bottom: 0;
+  padding-top: 2.3rem;
+  overflow-x: auto;
+`
+
+const cardStyles = css`
+  margin: 0;
   border-radius: 12px 12px 0 0;
   border: 1px solid ${baseTheme.colors.gray[200]};
   border-bottom: none;
   background: ${baseTheme.colors.primary[100]};
-  padding: 0.5rem 0.75rem 0;
+  padding: 0.7rem 0.9rem 0.2rem;
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
-  overflow-x: auto;
 `
 
 const tabListRowStyles = css`
@@ -37,8 +42,8 @@ const tabListRowStyles = css`
   display: flex;
   align-items: stretch;
   gap: 16px;
-  min-height: 86px;
-  padding: 0.25rem 0.15rem 0.65rem;
+  min-height: 84px;
+  padding: 0 0.15rem 0.65rem;
 `
 
 const tabBandBaseStyles = css`
@@ -166,6 +171,50 @@ const completedStageCheckStyles = css`
   transform: rotate(-45deg);
 `
 
+const currentStageCalloutContainerStyles = css`
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 8px;
+  background: ${baseTheme.colors.green[50]};
+  border: 1px solid ${baseTheme.colors.green[200]};
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  z-index: 6;
+  transform: translateX(-50%);
+  justify-content: center;
+`
+
+const currentStageLabelStyles = css`
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[800]};
+`
+
+const currentStageEditButtonStyles = css`
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  color: ${baseTheme.colors.gray[700]};
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: ${baseTheme.colors.gray[100]};
+    color: ${baseTheme.colors.gray[800]};
+    outline: none;
+  }
+`
+
 const todayIndicatorStyles = css`
   position: absolute;
   top: -10px;
@@ -245,6 +294,8 @@ interface StageTimelineTabStripProps {
   selectedStage: CourseDesignerStage | null
   onSelectedStageChange: (stage: CourseDesignerStage) => void
   stageLabel: (stage: CourseDesignerStage) => string
+  onOpenOverview?: () => void
+  currentStageLabel?: string | null
   panelClassName?: string
   children: ReactNode
 }
@@ -264,6 +315,8 @@ export default function StageTimelineTabStrip({
   selectedStage,
   onSelectedStageChange,
   stageLabel,
+  onOpenOverview,
+  currentStageLabel,
   panelClassName,
   children,
 }: StageTimelineTabStripProps) {
@@ -295,6 +348,10 @@ export default function StageTimelineTabStrip({
   }, [stages, stageLabel])
 
   const [todayPositionPx, setTodayPositionPx] = useState<number | null>(null)
+  const [currentStagePosition, setCurrentStagePosition] = useState<{
+    centerX: number
+    width: number
+  } | null>(null)
 
   const state = useTabListState({
     selectedKey: selectedStage ?? undefined,
@@ -312,6 +369,7 @@ export default function StageTimelineTabStrip({
   })
 
   const listRef = useRef<HTMLDivElement | null>(null)
+  const shellRef = useRef<HTMLDivElement | null>(null)
   const { tabListProps } = useTabList(
     {
       "aria-label": t("course-plans-stage-tabs-aria-label"),
@@ -352,6 +410,52 @@ export default function StageTimelineTabStrip({
   }, [stages])
 
   useEffect(() => {
+    const updateCurrentStagePosition = () => {
+      if (!activeStage) {
+        setCurrentStagePosition(null)
+        return
+      }
+
+      const shellElement = shellRef.current
+      const listElement = listRef.current
+      if (!shellElement || !listElement) {
+        setCurrentStagePosition(null)
+        return
+      }
+
+      const activeTabElement = listElement.querySelector<HTMLElement>(
+        `[data-stage-key="${activeStage}"]`,
+      )
+      if (!activeTabElement) {
+        setCurrentStagePosition(null)
+        return
+      }
+
+      const shellRect = shellElement.getBoundingClientRect()
+      const tabRect = activeTabElement.getBoundingClientRect()
+      const centerX = tabRect.left + tabRect.width / 2 - shellRect.left
+      setCurrentStagePosition({
+        centerX,
+        width: tabRect.width,
+      })
+    }
+
+    updateCurrentStagePosition()
+    if (typeof window === "undefined") {
+      return
+    }
+    window.addEventListener("resize", updateCurrentStagePosition)
+
+    const shellElement = shellRef.current
+    shellElement?.addEventListener("scroll", updateCurrentStagePosition)
+
+    return () => {
+      window.removeEventListener("resize", updateCurrentStagePosition)
+      shellElement?.removeEventListener("scroll", updateCurrentStagePosition)
+    }
+  }, [activeStage, stages])
+
+  useEffect(() => {
     if (!selectedStage || !listRef.current) {
       return
     }
@@ -374,24 +478,50 @@ export default function StageTimelineTabStrip({
 
   return (
     <>
-      <div className={cardStyles}>
-        <div {...tabListProps} ref={listRef} className={tabListRowStyles}>
-          {todayPositionPx != null && (
-            <div className={cx(todayIndicatorStyles, css({ left: todayPositionPx }))}>
-              <span className={todayLabelStyles}>{t("course-plans-timeline-today-label")}</span>
-              <div className={todayTriangleStyles} />
-              <div className={todayLineStyles} />
-            </div>
-          )}
-          {items.map((item) => (
-            <StageTimelineTab
-              key={item.key}
-              item={item}
-              state={state}
-              activeStage={activeStage}
-              onSelectedStageChange={onSelectedStageChange}
-            />
-          ))}
+      <div className={timelineShellStyles} ref={shellRef}>
+        {activeStage && currentStagePosition != null && onOpenOverview && (
+          <div
+            className={cx(
+              currentStageCalloutContainerStyles,
+              css({
+                left: currentStagePosition.centerX,
+                top: 0,
+                minWidth: Math.min(currentStagePosition.width + 32, 360),
+              }),
+            )}
+          >
+            <span className={currentStageLabelStyles}>{t("course-plans-current-stage-label")}</span>
+            <button
+              type="button"
+              className={currentStageEditButtonStyles}
+              onClick={onOpenOverview}
+              aria-label={t("course-plans-current-stage-edit-aria", {
+                stage: currentStageLabel ?? "",
+              })}
+            >
+              {t("course-plans-current-stage-edit-label")}
+            </button>
+          </div>
+        )}
+        <div className={cardStyles}>
+          <div {...tabListProps} ref={listRef} className={tabListRowStyles}>
+            {todayPositionPx != null && (
+              <div className={cx(todayIndicatorStyles, css({ left: todayPositionPx }))}>
+                <span className={todayLabelStyles}>{t("course-plans-timeline-today-label")}</span>
+                <div className={todayTriangleStyles} />
+                <div className={todayLineStyles} />
+              </div>
+            )}
+            {items.map((item) => (
+              <StageTimelineTab
+                key={item.key}
+                item={item}
+                state={state}
+                activeStage={activeStage}
+                onSelectedStageChange={onSelectedStageChange}
+              />
+            ))}
+          </div>
         </div>
       </div>
       <div {...tabPanelProps} ref={panelRef} className={cx(panelClassName, tabPanelShellStyles)}>

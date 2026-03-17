@@ -1,22 +1,15 @@
 import { NextResponse } from "next/server"
 
-import { Alternative } from "@/util/stateInterfaces"
-
-type CsvScalar = string | number | boolean | null
-
-interface CsvExportColumn {
-  key: string
-  header: string
-}
-
-interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
-}
-
-interface CsvExportResponse {
-  columns: CsvExportColumn[]
-  results: CsvExportResult[]
-}
+import {
+  CsvExportResponse,
+  getCorrectOptionIds,
+  getCorrectOptionNames,
+  parseBooleanFieldFromObject,
+  parseNumberField,
+  parsePrivateSpec,
+  parseSelectedOptionId,
+  parseStringField,
+} from "../csv-export-utils"
 
 interface CsvExportAnswersRequestItem {
   private_spec: unknown
@@ -29,25 +22,6 @@ interface CsvExportAnswersRequest {
   items: CsvExportAnswersRequestItem[]
 }
 
-function isAlternative(value: unknown): value is Alternative {
-  if (!value || typeof value !== "object") {
-    return false
-  }
-  const typedValue = value as Record<string, unknown>
-  return (
-    typeof typedValue.id === "string" &&
-    typeof typedValue.name === "string" &&
-    typeof typedValue.correct === "boolean"
-  )
-}
-
-function parsePrivateSpec(value: unknown): Alternative[] {
-  if (!Array.isArray(value) || !value.every((item) => isAlternative(item))) {
-    throw new Error("Invalid private_spec: expected an array of alternatives")
-  }
-  return value
-}
-
 function parseRequest(body: unknown): CsvExportAnswersRequest {
   if (!body || typeof body !== "object") {
     throw new Error("Invalid request body")
@@ -56,30 +30,6 @@ function parseRequest(body: unknown): CsvExportAnswersRequest {
     throw new Error("Invalid request body: items must be an array")
   }
   return body as CsvExportAnswersRequest
-}
-
-function parseSelectedOptionId(answer: unknown): string | null {
-  if (!answer || typeof answer !== "object") {
-    return null
-  }
-  const typedAnswer = answer as Record<string, unknown>
-  return typeof typedAnswer.selectedOptionId === "string" ? typedAnswer.selectedOptionId : null
-}
-
-function parseNumberField(value: unknown, fieldName: string): number | null {
-  if (!value || typeof value !== "object") {
-    return null
-  }
-  const typedValue = value as Record<string, unknown>
-  return typeof typedValue[fieldName] === "number" ? (typedValue[fieldName] as number) : null
-}
-
-function parseStringField(value: unknown, fieldName: string): string | null {
-  if (!value || typeof value !== "object") {
-    return null
-  }
-  const typedValue = value as Record<string, unknown>
-  return typeof typedValue[fieldName] === "string" ? (typedValue[fieldName] as string) : null
 }
 
 export async function POST(request: Request) {
@@ -92,6 +42,13 @@ export async function POST(request: Request) {
         { key: "selected_option_id", header: "Selected option id" },
         { key: "selected_option_name", header: "Selected option name" },
         { key: "selected_option_correct", header: "Selected option is correct" },
+        { key: "selected_option_found", header: "Selected option found" },
+        { key: "correct_option_ids", header: "Correct option ids" },
+        { key: "correct_option_names", header: "Correct option names" },
+        {
+          key: "grading_selected_option_is_correct",
+          header: "Grading says selected option is correct",
+        },
         { key: "score_given", header: "Score given" },
         { key: "grading_progress", header: "Grading progress" },
         { key: "feedback_text", header: "Feedback text" },
@@ -107,6 +64,14 @@ export async function POST(request: Request) {
               selected_option_id: selectedOptionId,
               selected_option_name: selectedOption?.name ?? null,
               selected_option_correct: selectedOption?.correct ?? null,
+              selected_option_found: selectedOption !== null,
+              correct_option_ids: getCorrectOptionIds(privateSpec),
+              correct_option_names: getCorrectOptionNames(privateSpec),
+              grading_selected_option_is_correct: parseBooleanFieldFromObject(
+                item.grading,
+                "feedback_json",
+                "selectedOptionIsCorrect",
+              ),
               score_given: parseNumberField(item.grading, "score_given"),
               grading_progress: parseStringField(item.grading, "grading_progress"),
               feedback_text: parseStringField(item.grading, "feedback_text"),

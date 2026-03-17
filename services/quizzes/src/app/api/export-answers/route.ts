@@ -4,6 +4,14 @@ import { UserAnswer, UserItemAnswer } from "../../../../types/quizTypes/answer"
 import { ItemAnswerFeedback } from "../../../../types/quizTypes/grading"
 import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../../grading/utils"
+import {
+  getHumanReadableAnswerValue,
+  getItemTitle,
+  getQuizItemById,
+  getSelectedOptionCorrectness,
+  getSelectedOptionIds,
+  getSelectedOptionTitles,
+} from "../csv-export-utils"
 
 type CsvScalar = string | number | boolean | null
 
@@ -119,8 +127,13 @@ export async function POST(request: Request) {
     const response: CsvExportResponse = {
       columns: [
         { key: "quiz_item_id", header: "Quiz item id" },
+        { key: "quiz_item_title", header: "Quiz item title" },
         { key: "answer_type", header: "Answer type" },
         { key: "answer_value", header: "Answer value" },
+        { key: "answer_value_human_readable", header: "Answer value (human readable)" },
+        { key: "selected_option_ids", header: "Selected option ids" },
+        { key: "selected_option_titles", header: "Selected option titles" },
+        { key: "selected_option_correctness", header: "Selected option correctness" },
         { key: "correctness_coefficient", header: "Correctness coefficient" },
         { key: "score_given", header: "Score given" },
         { key: "grading_progress", header: "Grading progress" },
@@ -133,14 +146,22 @@ export async function POST(request: Request) {
         const gradingProgress = getStringField(item.grading, "grading_progress")
 
         return {
-          rows: userAnswer.itemAnswers.map((itemAnswer) => ({
-            quiz_item_id: itemAnswer.quizItemId,
-            answer_type: itemAnswer.type,
-            answer_value: answerToScalarValue(itemAnswer),
-            correctness_coefficient: feedbackByQuizItemId.get(itemAnswer.quizItemId) ?? null,
-            score_given: scoreGiven,
-            grading_progress: gradingProgress,
-          })),
+          rows: userAnswer.itemAnswers.map((itemAnswer) => {
+            const quizItem = getQuizItemById(privateSpecQuiz, itemAnswer.quizItemId)
+            return {
+              quiz_item_id: itemAnswer.quizItemId,
+              quiz_item_title: quizItem ? getItemTitle(quizItem) : null,
+              answer_type: itemAnswer.type,
+              answer_value: answerToScalarValue(itemAnswer),
+              answer_value_human_readable: getHumanReadableAnswerValue(itemAnswer, quizItem),
+              selected_option_ids: getSelectedOptionIds(itemAnswer),
+              selected_option_titles: getSelectedOptionTitles(itemAnswer, quizItem),
+              selected_option_correctness: getSelectedOptionCorrectness(itemAnswer, quizItem),
+              correctness_coefficient: feedbackByQuizItemId.get(itemAnswer.quizItemId) ?? null,
+              score_given: scoreGiven,
+              grading_progress: gradingProgress,
+            }
+          }),
         }
       }),
     }

@@ -2,6 +2,26 @@ import { NextResponse } from "next/server"
 
 import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
 import { handlePrivateSpecMigration } from "../../../grading/utils"
+import {
+  getAllowSelectingMultipleOptions,
+  getChooseN,
+  getCorrectOptionIds,
+  getCorrectOptionTitles,
+  getFormatRegex,
+  getItemBody,
+  getItemTitle,
+  getMatrixOptionCellsJson,
+  getMaxWords,
+  getMinWords,
+  getOptionIds,
+  getOptionTitles,
+  getScaleMaxLabel,
+  getScaleMaxValue,
+  getScaleMinLabel,
+  getScaleMinValue,
+  getTimelineItemsJson,
+  getValidityRegex,
+} from "../csv-export-utils"
 
 type CsvScalar = string | number | boolean | null
 
@@ -37,20 +57,6 @@ function parseRequest(body: unknown): CsvExportDefinitionsRequest {
   return body as CsvExportDefinitionsRequest
 }
 
-function getItemTitle(item: PrivateSpecQuizItem): string | null {
-  if ("title" in item) {
-    return item.title ?? null
-  }
-  return null
-}
-
-function getItemBody(item: PrivateSpecQuizItem): string | null {
-  if ("body" in item) {
-    return item.body ?? null
-  }
-  return null
-}
-
 function getOptionCount(item: PrivateSpecQuizItem): number | null {
   if ("options" in item && Array.isArray(item.options)) {
     return item.options.length
@@ -72,6 +78,25 @@ export async function POST(request: Request) {
         { key: "quiz_item_title", header: "Quiz item title" },
         { key: "quiz_item_body", header: "Quiz item body" },
         { key: "option_count", header: "Option count" },
+        { key: "option_ids", header: "Option ids" },
+        { key: "option_titles", header: "Option titles" },
+        { key: "correct_option_ids", header: "Correct option ids" },
+        { key: "correct_option_titles", header: "Correct option titles" },
+        {
+          key: "allow_selecting_multiple_options",
+          header: "Allow selecting multiple options",
+        },
+        { key: "choose_n", header: "Choose N value" },
+        { key: "min_words", header: "Minimum words" },
+        { key: "max_words", header: "Maximum words" },
+        { key: "scale_min_value", header: "Scale minimum value" },
+        { key: "scale_max_value", header: "Scale maximum value" },
+        { key: "scale_min_label", header: "Scale minimum label" },
+        { key: "scale_max_label", header: "Scale maximum label" },
+        { key: "validity_regex", header: "Validity regex" },
+        { key: "format_regex", header: "Format regex" },
+        { key: "timeline_items_json", header: "Timeline items JSON" },
+        { key: "matrix_option_cells_json", header: "Matrix option cells JSON" },
       ],
       results: parsed.items.map((item) => {
         const privateSpecQuiz = handlePrivateSpecMigration(item.private_spec as PrivateSpecQuiz)
@@ -84,6 +109,22 @@ export async function POST(request: Request) {
             quiz_item_title: getItemTitle(quizItem),
             quiz_item_body: getItemBody(quizItem),
             option_count: getOptionCount(quizItem),
+            option_ids: getOptionIds(quizItem),
+            option_titles: getOptionTitles(quizItem),
+            correct_option_ids: getCorrectOptionIds(quizItem),
+            correct_option_titles: getCorrectOptionTitles(quizItem),
+            allow_selecting_multiple_options: getAllowSelectingMultipleOptions(quizItem),
+            choose_n: getChooseN(quizItem),
+            min_words: getMinWords(quizItem),
+            max_words: getMaxWords(quizItem),
+            scale_min_value: getScaleMinValue(quizItem),
+            scale_max_value: getScaleMaxValue(quizItem),
+            scale_min_label: getScaleMinLabel(quizItem),
+            scale_max_label: getScaleMaxLabel(quizItem),
+            validity_regex: getValidityRegex(quizItem),
+            format_regex: getFormatRegex(quizItem),
+            timeline_items_json: getTimelineItemsJson(quizItem),
+            matrix_option_cells_json: getMatrixOptionCellsJson(quizItem),
           })),
         }
       }),

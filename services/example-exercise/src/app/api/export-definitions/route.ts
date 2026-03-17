@@ -1,22 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { Alternative } from "@/util/stateInterfaces"
-
-type CsvScalar = string | number | boolean | null
-
-interface CsvExportColumn {
-  key: string
-  header: string
-}
-
-interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
-}
-
-interface CsvExportResponse {
-  columns: CsvExportColumn[]
-  results: CsvExportResult[]
-}
+import { CsvExportResponse, parsePrivateSpec } from "../csv-export-utils"
 
 interface CsvExportDefinitionsRequestItem {
   private_spec: unknown
@@ -24,18 +8,6 @@ interface CsvExportDefinitionsRequestItem {
 
 interface CsvExportDefinitionsRequest {
   items: CsvExportDefinitionsRequestItem[]
-}
-
-function isAlternative(value: unknown): value is Alternative {
-  if (!value || typeof value !== "object") {
-    return false
-  }
-  const typedValue = value as Record<string, unknown>
-  return (
-    typeof typedValue.id === "string" &&
-    typeof typedValue.name === "string" &&
-    typeof typedValue.correct === "boolean"
-  )
 }
 
 function parseRequest(body: unknown): CsvExportDefinitionsRequest {
@@ -48,13 +20,6 @@ function parseRequest(body: unknown): CsvExportDefinitionsRequest {
   return body as CsvExportDefinitionsRequest
 }
 
-function parsePrivateSpec(value: unknown): Alternative[] {
-  if (!Array.isArray(value) || !value.every((item) => isAlternative(item))) {
-    throw new Error("Invalid private_spec: expected an array of alternatives")
-  }
-  return value
-}
-
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -62,6 +27,8 @@ export async function POST(request: Request) {
 
     const response: CsvExportResponse = {
       columns: [
+        { key: "option_index", header: "Option index" },
+        { key: "option_count", header: "Option count" },
         { key: "option_id", header: "Option id" },
         { key: "option_name", header: "Option name" },
         { key: "option_correct", header: "Option is correct" },
@@ -69,7 +36,9 @@ export async function POST(request: Request) {
       results: parsed.items.map((item) => {
         const privateSpec = parsePrivateSpec(item.private_spec)
         return {
-          rows: privateSpec.map((alternative) => ({
+          rows: privateSpec.map((alternative, index) => ({
+            option_index: index,
+            option_count: privateSpec.length,
             option_id: alternative.id,
             option_name: alternative.name,
             option_correct: alternative.correct,

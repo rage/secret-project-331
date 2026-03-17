@@ -2,8 +2,19 @@ import { UserItemAnswer } from "../../../types/quizTypes/answer"
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
+  PrivateSpecQuizItemTimelineItem,
   QuizItemOption,
+  QuizItemType,
 } from "../../../types/quizTypes/privateSpec"
+
+export type CsvScalar = string | number | boolean | null
+
+export interface CsvExportColumn {
+  key: string
+  header: string
+}
+
+export const MATRIX_MAX_SIZE = 6
 
 function getOptions(quizItem: PrivateSpecQuizItem | null): QuizItemOption[] | null {
   if (!quizItem) {
@@ -24,15 +35,149 @@ function getOptionLabel(option: QuizItemOption): string {
   return option.title ?? option.body ?? option.id
 }
 
-function joinValues(values: string[]): string | null {
+export function joinValues(values: string[]): string | null {
   if (values.length === 0) {
     return null
   }
   return values.join("; ")
 }
 
-function matrixToHumanReadable(matrix: string[][]): string {
-  return matrix.map((row) => row.join(", ")).join(" | ")
+function isNonEmptyMatrixCell(value: string | null | undefined): value is string {
+  return typeof value === "string" && value.trim() !== ""
+}
+
+export function getQuizItemTypes(privateSpecQuiz: PrivateSpecQuiz): QuizItemType[] {
+  const seen = new Set<QuizItemType>()
+  const types: QuizItemType[] = []
+
+  for (const quizItem of privateSpecQuiz.items) {
+    if (!seen.has(quizItem.type)) {
+      seen.add(quizItem.type)
+      types.push(quizItem.type)
+    }
+  }
+
+  return types
+}
+
+export function mergeColumns(columnSets: CsvExportColumn[][]): CsvExportColumn[] {
+  const mergedColumns: CsvExportColumn[] = []
+  const seenKeys = new Set<string>()
+
+  for (const columnSet of columnSets) {
+    for (const column of columnSet) {
+      if (!seenKeys.has(column.key)) {
+        seenKeys.add(column.key)
+        mergedColumns.push(column)
+      }
+    }
+  }
+
+  return mergedColumns
+}
+
+export function getMatrixDimensions(matrix: string[][] | null | undefined): {
+  rowCount: number | null
+  columnCount: number | null
+} {
+  if (!matrix) {
+    return { rowCount: null, columnCount: null }
+  }
+
+  let maxRowIndex = -1
+  let maxColumnIndex = -1
+
+  for (let rowIndex = 0; rowIndex < MATRIX_MAX_SIZE; rowIndex += 1) {
+    const row = matrix[rowIndex] ?? []
+    for (let columnIndex = 0; columnIndex < MATRIX_MAX_SIZE; columnIndex += 1) {
+      if (isNonEmptyMatrixCell(row[columnIndex])) {
+        maxRowIndex = Math.max(maxRowIndex, rowIndex)
+        maxColumnIndex = Math.max(maxColumnIndex, columnIndex)
+      }
+    }
+  }
+
+  if (maxRowIndex === -1 || maxColumnIndex === -1) {
+    return { rowCount: null, columnCount: null }
+  }
+
+  return {
+    rowCount: maxRowIndex + 1,
+    columnCount: maxColumnIndex + 1,
+  }
+}
+
+export function getMatrixCellValue(
+  matrix: string[][] | null | undefined,
+  rowIndex: number,
+  columnIndex: number,
+): string | null {
+  const value = matrix?.[rowIndex]?.[columnIndex]
+  if (!isNonEmptyMatrixCell(value)) {
+    return null
+  }
+  return value.trim()
+}
+
+export function getMatrixCellColumns(prefix = "matrix"): CsvExportColumn[] {
+  const columns: CsvExportColumn[] = []
+
+  for (let rowIndex = 0; rowIndex < MATRIX_MAX_SIZE; rowIndex += 1) {
+    for (let columnIndex = 0; columnIndex < MATRIX_MAX_SIZE; columnIndex += 1) {
+      const rowNumber = rowIndex + 1
+      const columnNumber = columnIndex + 1
+      columns.push({
+        key: `${prefix}_row_${rowNumber}_column_${columnNumber}`,
+        header: `Matrix row ${rowNumber} column ${columnNumber}`,
+      })
+    }
+  }
+
+  return columns
+}
+
+export function matrixToHumanReadable(matrix: string[][] | null | undefined): string | null {
+  const { rowCount, columnCount } = getMatrixDimensions(matrix)
+  if (!rowCount || !columnCount) {
+    return null
+  }
+
+  const formattedRows: string[] = []
+
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex += 1) {
+    const rowValues: string[] = []
+
+    for (let columnIndex = 0; columnIndex < columnCount; columnIndex += 1) {
+      rowValues.push(getMatrixCellValue(matrix, rowIndex, columnIndex) ?? "")
+    }
+
+    formattedRows.push(rowValues.join(", "))
+  }
+
+  return formattedRows.join(" | ")
+}
+
+export function getSortedTimelineItems(
+  quizItem: PrivateSpecQuizItem | null,
+): PrivateSpecQuizItemTimelineItem[] {
+  if (quizItem?.type !== "timeline" || !quizItem.timelineItems) {
+    return []
+  }
+
+  return [...quizItem.timelineItems].sort((left, right) => {
+    const leftNumber = Number(left.year)
+    const rightNumber = Number(right.year)
+    if (Number.isFinite(leftNumber) && Number.isFinite(rightNumber)) {
+      return leftNumber - rightNumber
+    }
+    return left.year.localeCompare(right.year)
+  })
+}
+
+export function getMaxTimelineItemCount(privateSpecQuiz: PrivateSpecQuiz): number {
+  return privateSpecQuiz.items.reduce((maxCount, quizItem) => {
+    return Math.max(maxCount, getSortedTimelineItems(quizItem).length)
+  }, 0)
 }
 
 export function getQuizItemById(

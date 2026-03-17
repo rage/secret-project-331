@@ -75,7 +75,7 @@ fn csv_endpoint_is_supported(path: &Option<String>) -> bool {
 fn get_csv_export_endpoint_path(
     path: &Option<String>,
     endpoint_name: &str,
-) -> ControllerResult<String> {
+) -> Result<String, ControllerError> {
     let endpoint_path = path
         .as_ref()
         .map(|value| value.trim())
@@ -96,7 +96,7 @@ fn get_csv_export_endpoint_path(
 async fn fetch_exercise_service_and_info(
     conn: &mut PgConnection,
     exercise_type: &str,
-) -> ModelResult<(ExerciseService, ExerciseServiceInfoApi)> {
+) -> models::ModelResult<(ExerciseService, ExerciseServiceInfoApi)> {
     let exercise_service =
         models::exercise_services::get_exercise_service_by_exercise_type(conn, exercise_type)
             .await?;
@@ -121,7 +121,7 @@ async fn fetch_exercise_service_and_info(
 fn build_service_endpoint_url(
     exercise_service: &ExerciseService,
     endpoint_path: &str,
-) -> ControllerResult<Url> {
+) -> Result<Url, ControllerError> {
     let mut url = models::exercise_services::get_exercise_service_internally_preferred_baseurl(
         exercise_service,
     )?;
@@ -132,7 +132,7 @@ fn build_service_endpoint_url(
 fn get_selected_task(
     tasks: &[ExerciseTask],
     exercise_task_id: Uuid,
-) -> ControllerResult<ExerciseTask> {
+) -> Result<ExerciseTask, ControllerError> {
     tasks
         .iter()
         .find(|task| task.id == exercise_task_id)
@@ -149,7 +149,7 @@ fn get_selected_task(
 fn build_final_columns(
     base_columns: &[CsvColumnDefinition],
     service_columns: &[models_requests::ExerciseServiceCsvExportColumn],
-) -> ControllerResult<(Vec<CsvColumnDefinition>, HashMap<String, String>)> {
+) -> Result<(Vec<CsvColumnDefinition>, HashMap<String, String>), ControllerError> {
     let mut final_columns = base_columns.to_vec();
     let mut used_keys = base_columns
         .iter()
@@ -198,7 +198,7 @@ fn build_column_index_map(columns: &[CsvColumnDefinition]) -> HashMap<String, us
         .collect()
 }
 
-fn scalar_json_to_csv_value(value: &Value) -> ControllerResult<String> {
+fn scalar_json_to_csv_value(value: &Value) -> Result<String, ControllerError> {
     match value {
         Value::Null => Ok(String::new()),
         Value::Bool(value) => Ok(value.to_string()),
@@ -219,10 +219,10 @@ fn write_csv_rows(
     service_key_to_final_key: &HashMap<String, String>,
     base_row: &HashMap<String, String>,
     rows: &[HashMap<String, Value>],
-) -> ControllerResult<()> {
+) -> Result<(), ControllerError> {
     let write_single_row = |service_row: Option<&HashMap<String, Value>>,
                             writer: &mut csv::Writer<Vec<u8>>|
-     -> ControllerResult<()> {
+     -> Result<(), ControllerError> {
         let mut record = vec![String::new(); final_columns.len()];
 
         for (base_key, base_value) in base_row {
@@ -286,7 +286,7 @@ fn write_csv_rows(
     Ok(())
 }
 
-fn csv_writer_into_bytes(writer: csv::Writer<Vec<u8>>) -> ControllerResult<Vec<u8>> {
+fn csv_writer_into_bytes(writer: csv::Writer<Vec<u8>>) -> Result<Vec<u8>, ControllerError> {
     writer.into_inner().map_err(|error| {
         let csv_error = error.into_error();
         ControllerError::new(

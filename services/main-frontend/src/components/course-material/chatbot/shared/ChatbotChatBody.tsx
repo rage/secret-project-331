@@ -9,6 +9,7 @@ import { v4 } from "uuid"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
+import ChatbotAgree from "./ChatbotAgree"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
@@ -143,72 +144,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   }
 
   if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
-    return (
-      <div
-        className={css`
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          padding: 20px;
-          overflow: hidden;
-
-          h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-          }
-
-          p {
-            margin-bottom: 5px;
-          }
-
-          ul {
-            margin-bottom: 10px;
-            padding-left: 20px;
-          }
-
-          li {
-            margin-bottom: 5px;
-          }
-        `}
-      >
-        <div
-          className={css`
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: scroll;
-          `}
-        >
-          <h2>{t("about-the-chatbot")}</h2>
-          <p>{t("chatbot-disclaimer-start")}</p>
-          <ul>
-            <li>{t("chatbot-discalimer-sensitive-information")}</li>
-            <li>{t("chatbot-disclaimer-check")}</li>
-            <li>
-              {t("chatbot-disclaimer-disclose-part-1")}
-              <a href="https://studies.helsinki.fi/instructions/article/using-ai-support-learning">
-                {" "}
-                {t("chatbot-disclaimer-disclose-part-2")}
-              </a>
-              .{" "}
-            </li>
-          </ul>
-        </div>
-        <Button
-          className={css`
-            margin-top: 6px;
-          `}
-          size="medium"
-          variant="secondary"
-          onClick={() => {
-            newConversationMutation.mutate()
-            dispatch({ type: "RESET_MESSAGES" })
-          }}
-        >
-          {t("button-text-agree")}
-        </Button>
-      </div>
-    )
+    return <ChatbotAgree newConversation={newConversationMutation.mutate} dispatch={dispatch} />
   }
 
   return (

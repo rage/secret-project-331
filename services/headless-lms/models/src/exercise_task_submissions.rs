@@ -79,6 +79,7 @@ pub struct ExportedCourseSubmission {
     pub data_json: Option<serde_json::Value>,
 }
 
+/// One row for CSV export: a single attempt at an exercise task for a given exercise_slide_submission (chronological submission order).
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ExerciseTaskSubmissionCsvExportData {
     pub exercise_slide_submission_id: Uuid,
@@ -200,6 +201,7 @@ WHERE exercise_slide_submission_id = $1
     Ok(submissions)
 }
 
+/// Fetches CSV-exportable rows at attempt granularity in intended ordering.
 pub async fn get_csv_export_data_by_exercise_and_task(
     conn: &mut PgConnection,
     exercise_id: Uuid,

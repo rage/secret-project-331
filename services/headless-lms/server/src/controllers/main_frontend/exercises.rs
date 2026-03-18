@@ -68,10 +68,12 @@ struct ExerciseAnswersCsvExportRequestItem<'a> {
     model_solution_spec: &'a Option<Value>,
 }
 
+/// Returns true if the endpoint path is non-empty.
 fn csv_endpoint_is_supported(path: &Option<String>) -> bool {
     path.as_ref().is_some_and(|value| !value.trim().is_empty())
 }
 
+/// Parses and validates endpoint path or returns BadRequest if missing/empty.
 fn get_csv_export_endpoint_path(
     path: &Option<String>,
     endpoint_name: &str,
@@ -93,6 +95,7 @@ fn get_csv_export_endpoint_path(
     Ok(endpoint_path.to_string())
 }
 
+/// Fetches exercise service from DB and service info via HTTP; prefers internal_url, falls back to public_url.
 async fn fetch_exercise_service_and_info(
     conn: &mut PgConnection,
     exercise_type: &str,
@@ -100,24 +103,28 @@ async fn fetch_exercise_service_and_info(
     let exercise_service =
         models::exercise_services::get_exercise_service_by_exercise_type(conn, exercise_type)
             .await?;
-    let service_info_url = match exercise_service.internal_url.as_ref() {
-        Some(internal_url) => match internal_url.parse::<Url>() {
+    let internal_url = exercise_service.internal_url.clone();
+    let public_url = exercise_service.public_url.clone();
+    let slug = exercise_service.slug.clone();
+    let service_info_url = match internal_url.as_ref() {
+        Some(url_str) => match url_str.parse::<Url>() {
             Ok(url) => url,
             Err(error) => {
                 warn!(
-                    exercise_service_slug = ?exercise_service.slug,
+                    exercise_service_slug = ?slug,
                     ?error,
                     "Internal URL for service info is invalid, falling back to public URL."
                 );
-                exercise_service.public_url.parse()?
+                public_url.parse()?
             }
         },
-        None => exercise_service.public_url.parse()?,
+        None => public_url.parse()?,
     };
     let service_info = models_requests::fetch_service_info_fast(service_info_url).await?;
     Ok((exercise_service, service_info))
 }
 
+/// Builds final CSV endpoint URL using internally preferred base URL.
 fn build_service_endpoint_url(
     exercise_service: &ExerciseService,
     endpoint_path: &str,
@@ -129,6 +136,7 @@ fn build_service_endpoint_url(
     Ok(url)
 }
 
+/// Selects task by id or returns BadRequest if not found in list.
 fn get_selected_task(
     tasks: &[ExerciseTask],
     exercise_task_id: Uuid,
@@ -146,6 +154,7 @@ fn get_selected_task(
         })
 }
 
+/// Merges base and service columns ensuring unique keys and mapping; errors on duplicate original service keys or final name collisions.
 fn build_final_columns(
     base_columns: &[CsvColumnDefinition],
     service_columns: &[models_requests::ExerciseServiceCsvExportColumn],
@@ -163,6 +172,16 @@ fn build_final_columns(
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
                 "Exercise service CSV export response contains an empty column key.".to_string(),
+                None,
+            ));
+        }
+        if service_key_to_final_key.contains_key(key) {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                format!(
+                    "Exercise service CSV export response contains duplicate original column key '{}'.",
+                    key
+                ),
                 None,
             ));
         }
@@ -190,6 +209,7 @@ fn build_final_columns(
     Ok((final_columns, service_key_to_final_key))
 }
 
+/// Builds key -> column index map for final columns.
 fn build_column_index_map(columns: &[CsvColumnDefinition]) -> HashMap<String, usize> {
     columns
         .iter()
@@ -198,6 +218,7 @@ fn build_column_index_map(columns: &[CsvColumnDefinition]) -> HashMap<String, us
         .collect()
 }
 
+/// Converts scalar JSON to CSV string; errors on array/object.
 fn scalar_json_to_csv_value(value: &Value) -> Result<String, ControllerError> {
     match value {
         Value::Null => Ok(String::new()),
@@ -212,6 +233,7 @@ fn scalar_json_to_csv_value(value: &Value) -> Result<String, ControllerError> {
     }
 }
 
+/// Writes CSV rows merging base_row and service rows; validates keys against mapping.
 fn write_csv_rows(
     writer: &mut csv::Writer<Vec<u8>>,
     final_columns: &[CsvColumnDefinition],
@@ -286,6 +308,7 @@ fn write_csv_rows(
     Ok(())
 }
 
+/// Finalizes writer into bytes and maps CSV errors to ControllerError.
 fn csv_writer_into_bytes(writer: csv::Writer<Vec<u8>>) -> Result<Vec<u8>, ControllerError> {
     writer.into_inner().map_err(|error| {
         let csv_error = error.into_error();
@@ -615,42 +638,6 @@ async fn export_exercise_task_answers_csv(
         )
         .await?;
 
-    let mut request_items = Vec::with_capacity(export_data.len());
-    let mut base_rows = Vec::with_capacity(export_data.len());
-    for submission in &export_data {
-        let grading = gradings_by_submission_id.get(&submission.exercise_task_submission_id);
-        request_items.push(ExerciseAnswersCsvExportRequestItem {
-            private_spec: &selected_task.private_spec,
-            answer: &submission.answer,
-            grading,
-            model_solution_spec: &selected_task.model_solution_spec,
-        });
-
-        let mut base_row = HashMap::new();
-        base_row.insert(
-            "exercise_slide_submission_id".to_string(),
-            submission.exercise_slide_submission_id.to_string(),
-        );
-        base_row.insert(
-            "exercise_task_submission_id".to_string(),
-            submission.exercise_task_submission_id.to_string(),
-        );
-        base_row.insert(
-            "exercise_task_id".to_string(),
-            submission.exercise_task_id.to_string(),
-        );
-        base_row.insert(
-            "exercise_id".to_string(),
-            submission.exercise_id.to_string(),
-        );
-        base_row.insert("user_id".to_string(), submission.user_id.to_string());
-        base_row.insert(
-            "submitted_at".to_string(),
-            submission.submitted_at.to_rfc3339(),
-        );
-        base_rows.push(base_row);
-    }
-
     let base_columns = vec![
         CsvColumnDefinition::new(
             "exercise_slide_submission_id",
@@ -670,21 +657,55 @@ async fn export_exercise_task_answers_csv(
     let mut column_index_map = HashMap::new();
     let mut service_key_to_final_key = HashMap::new();
 
-    let mut offset = 0usize;
-    for request_chunk in request_items.chunks(EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE) {
+    for export_chunk in export_data.chunks(EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE) {
+        let mut request_items = Vec::with_capacity(export_chunk.len());
+        let mut base_rows = Vec::with_capacity(export_chunk.len());
+        for submission in export_chunk {
+            let grading = gradings_by_submission_id.get(&submission.exercise_task_submission_id);
+            request_items.push(ExerciseAnswersCsvExportRequestItem {
+                private_spec: &selected_task.private_spec,
+                answer: &submission.answer,
+                grading,
+                model_solution_spec: &selected_task.model_solution_spec,
+            });
+            let mut base_row = HashMap::new();
+            base_row.insert(
+                "exercise_slide_submission_id".to_string(),
+                submission.exercise_slide_submission_id.to_string(),
+            );
+            base_row.insert(
+                "exercise_task_submission_id".to_string(),
+                submission.exercise_task_submission_id.to_string(),
+            );
+            base_row.insert(
+                "exercise_task_id".to_string(),
+                submission.exercise_task_id.to_string(),
+            );
+            base_row.insert(
+                "exercise_id".to_string(),
+                submission.exercise_id.to_string(),
+            );
+            base_row.insert("user_id".to_string(), submission.user_id.to_string());
+            base_row.insert(
+                "submitted_at".to_string(),
+                submission.submitted_at.to_rfc3339(),
+            );
+            base_rows.push(base_row);
+        }
+
         let response = models_requests::post_exercise_service_csv_export_request(
             endpoint_url.clone(),
-            request_chunk,
+            &request_items,
         )
         .await?;
 
-        if response.results.len() != request_chunk.len() {
+        if response.results.len() != request_items.len() {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!(
                     "Exercise service returned {} results for {} answer items.",
                     response.results.len(),
-                    request_chunk.len()
+                    request_items.len()
                 ),
                 None,
             ));
@@ -729,7 +750,7 @@ async fn export_exercise_task_answers_csv(
         })?;
 
         for (chunk_row_index, result) in response.results.iter().enumerate() {
-            let base_row = base_rows.get(offset + chunk_row_index).ok_or_else(|| {
+            let base_row = base_rows.get(chunk_row_index).ok_or_else(|| {
                 ControllerError::new(
                     ControllerErrorType::InternalServerError,
                     "Could not map CSV export response rows back to request items.".to_string(),
@@ -745,7 +766,6 @@ async fn export_exercise_task_answers_csv(
                 &result.rows,
             )?;
         }
-        offset += request_chunk.len();
     }
 
     if final_columns.is_none() {

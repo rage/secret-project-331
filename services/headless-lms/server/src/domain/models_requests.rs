@@ -243,17 +243,20 @@ pub struct ExerciseServiceCsvExportRequest<'a, T: Serialize> {
     pub items: &'a [T],
 }
 
+/// Column definition for exercise service CSV export; callers must use scalar-only cell values.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ExerciseServiceCsvExportColumn {
     pub key: String,
     pub header: String,
 }
 
+/// One batch of CSV rows; each row's values must be scalar (null, bool, number, string). Objects/arrays are rejected by the controller.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ExerciseServiceCsvExportResult {
     pub rows: Vec<HashMap<String, serde_json::Value>>,
 }
 
+/// Full CSV export response; columns define headers, results align by index. All cell values must be scalar.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ExerciseServiceCsvExportResponse {
     pub columns: Vec<ExerciseServiceCsvExportColumn>,

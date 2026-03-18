@@ -248,10 +248,13 @@ export async function POST(request: Request) {
     const migratedPrivateSpecs = parsed.items.map((item) =>
       handlePrivateSpecMigration(item.private_spec as PrivateSpecQuiz),
     )
-    const firstPrivateSpec = migratedPrivateSpecs[0]
+    const columns =
+      migratedPrivateSpecs.length > 0
+        ? mergeColumns(migratedPrivateSpecs.map((ps) => getAnswerColumns(ps)))
+        : COMMON_ANSWER_COLUMNS
 
     const response: CsvExportResponse = {
-      columns: firstPrivateSpec ? getAnswerColumns(firstPrivateSpec) : COMMON_ANSWER_COLUMNS,
+      columns,
       results: parsed.items.map((item, index) => {
         const privateSpecQuiz = migratedPrivateSpecs[index]
         const userAnswer = handleUserAnswerMigration(privateSpecQuiz, item.answer as UserAnswer)

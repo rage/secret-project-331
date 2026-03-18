@@ -913,7 +913,7 @@
   "message-are-you-sure-you-want-to-update-peer-review-queue-reviews-received": "Ви впевнені, що бажаєте оновити відгуки, отримані для всіх записів, які не позначені як отримані достатньо рецензій? Ця операція стосується лише цього курсу.",
   "message-created-successfully": "Створено успішно",
   "message-creating-failed": "Щось пішло не так, не вдалося створити",
-  "message-csv-export-not-supported-for-this-exercise-type": "Експорт у CSV не підтримується для цього типу завдань.",
+  "message-csv-export-not-supported-for-this-exercise-type": "Експорт у CSV не підтримується для цього типу вправ.",
   "message-deleting-failed": "Щось пішло не так, не вдалося завершити видалення",
   "message-deleting-succesful": "Успішно видалено",
   "message-do-you-want-to-end-the-exam": "Ви впевнені, що хочете завершити екзамен? Переконайтеся, що ви здали всі вправи перед цим. Після цього ви не зможете відправляти відповіді.",

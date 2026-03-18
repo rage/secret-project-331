@@ -195,7 +195,7 @@ SELECT etg.id,
   etg.feedback_text,
   etg.deleted_at
 FROM exercise_task_submissions ets
-  JOIN exercise_task_gradings etg ON ets.exercise_task_grading_id = etg.id
+  JOIN exercise_task_gradings etg ON etg.exercise_task_submission_id = ets.id
 WHERE ets.id = ANY($1)
   AND ets.deleted_at IS NULL
   AND etg.deleted_at IS NULL

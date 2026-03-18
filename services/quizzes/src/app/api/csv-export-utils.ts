@@ -35,17 +35,19 @@ function getOptionLabel(option: QuizItemOption): string {
   return option.title ?? option.body ?? option.id
 }
 
+/** Joins values with " | "; avoids semicolon/comma so Office treats the cell as one column. */
 export function joinValues(values: string[]): string | null {
   if (values.length === 0) {
     return null
   }
-  return values.join("; ")
+  return values.join(" | ")
 }
 
 function isNonEmptyMatrixCell(value: string | null | undefined): value is string {
   return typeof value === "string" && value.trim() !== ""
 }
 
+/** Returns unique quiz item types in order of first appearance. */
 export function getQuizItemTypes(privateSpecQuiz: PrivateSpecQuiz): QuizItemType[] {
   const seen = new Set<QuizItemType>()
   const types: QuizItemType[] = []
@@ -60,6 +62,7 @@ export function getQuizItemTypes(privateSpecQuiz: PrivateSpecQuiz): QuizItemType
   return types
 }
 
+/** Merges column arrays by key; first occurrence wins, order preserved. */
 export function mergeColumns(columnSets: CsvExportColumn[][]): CsvExportColumn[] {
   const mergedColumns: CsvExportColumn[] = []
   const seenKeys = new Set<string>()
@@ -76,6 +79,7 @@ export function mergeColumns(columnSets: CsvExportColumn[][]): CsvExportColumn[]
   return mergedColumns
 }
 
+/** Returns non-empty row/column counts or null if matrix empty. */
 export function getMatrixDimensions(matrix: string[][] | null | undefined): {
   rowCount: number | null
   columnCount: number | null
@@ -107,6 +111,7 @@ export function getMatrixDimensions(matrix: string[][] | null | undefined): {
   }
 }
 
+/** Returns trimmed cell value or null if missing/empty. */
 export function getMatrixCellValue(
   matrix: string[][] | null | undefined,
   rowIndex: number,
@@ -119,6 +124,7 @@ export function getMatrixCellValue(
   return value.trim()
 }
 
+/** Returns column definitions for all matrix cells up to MATRIX_MAX_SIZE. */
 export function getMatrixCellColumns(prefix = "matrix"): CsvExportColumn[] {
   const columns: CsvExportColumn[] = []
 
@@ -136,6 +142,7 @@ export function getMatrixCellColumns(prefix = "matrix"): CsvExportColumn[] {
   return columns
 }
 
+/** Returns human-readable matrix string (rows joined by " | ") or null if empty. */
 export function matrixToHumanReadable(matrix: string[][] | null | undefined): string | null {
   const { rowCount, columnCount } = getMatrixDimensions(matrix)
   if (!rowCount || !columnCount) {
@@ -151,12 +158,13 @@ export function matrixToHumanReadable(matrix: string[][] | null | undefined): st
       rowValues.push(getMatrixCellValue(matrix, rowIndex, columnIndex) ?? "")
     }
 
-    formattedRows.push(rowValues.join(", "))
+    formattedRows.push(rowValues.join(" | "))
   }
 
   return formattedRows.join(" | ")
 }
 
+/** Returns timeline items sorted by year (numeric then string). */
 export function getSortedTimelineItems(
   quizItem: PrivateSpecQuizItem | null,
 ): PrivateSpecQuizItemTimelineItem[] {
@@ -174,12 +182,14 @@ export function getSortedTimelineItems(
   })
 }
 
+/** Returns max number of timeline items across all timeline quiz items. */
 export function getMaxTimelineItemCount(privateSpecQuiz: PrivateSpecQuiz): number {
   return privateSpecQuiz.items.reduce((maxCount, quizItem) => {
     return Math.max(maxCount, getSortedTimelineItems(quizItem).length)
   }, 0)
 }
 
+/** Returns quiz item by id or null if not found. */
 export function getQuizItemById(
   privateSpecQuiz: PrivateSpecQuiz,
   quizItemId: string,
@@ -187,6 +197,7 @@ export function getQuizItemById(
   return privateSpecQuiz.items.find((quizItem) => quizItem.id === quizItemId) ?? null
 }
 
+/** Returns item title if present, else null. */
 export function getItemTitle(item: PrivateSpecQuizItem): string | null {
   if ("title" in item) {
     return item.title ?? null
@@ -194,6 +205,7 @@ export function getItemTitle(item: PrivateSpecQuizItem): string | null {
   return null
 }
 
+/** Returns item body if present, else null. */
 export function getItemBody(item: PrivateSpecQuizItem): string | null {
   if ("body" in item) {
     return item.body ?? null
@@ -201,20 +213,24 @@ export function getItemBody(item: PrivateSpecQuizItem): string | null {
   return null
 }
 
+/** Returns option ids joined with " | " or null if no options. */
 export function getOptionIds(item: PrivateSpecQuizItem): string | null {
   return joinValues((getOptions(item) ?? []).map((option) => option.id))
 }
 
+/** Returns option titles/labels joined with " | " or null if no options. */
 export function getOptionTitles(item: PrivateSpecQuizItem): string | null {
   return joinValues((getOptions(item) ?? []).map(getOptionLabel))
 }
 
+/** Returns correct option ids joined with " | " or null if no options. */
 export function getCorrectOptionIds(item: PrivateSpecQuizItem): string | null {
   return joinValues(
     (getOptions(item) ?? []).filter((option) => option.correct).map((option) => option.id),
   )
 }
 
+/** Returns correct option titles joined with " | " or null if no options. */
 export function getCorrectOptionTitles(item: PrivateSpecQuizItem): string | null {
   return joinValues(
     (getOptions(item) ?? [])
@@ -223,6 +239,7 @@ export function getCorrectOptionTitles(item: PrivateSpecQuizItem): string | null
   )
 }
 
+/** Returns allowSelectingMultipleOptions for multiple-choice, else null. */
 export function getAllowSelectingMultipleOptions(item: PrivateSpecQuizItem): boolean | null {
   if (item.type !== "multiple-choice") {
     return null
@@ -230,6 +247,7 @@ export function getAllowSelectingMultipleOptions(item: PrivateSpecQuizItem): boo
   return item.allowSelectingMultipleOptions
 }
 
+/** Returns n (number to choose) for choose-n, else null. */
 export function getChooseN(item: PrivateSpecQuizItem): number | null {
   if (item.type !== "choose-n") {
     return null
@@ -237,6 +255,7 @@ export function getChooseN(item: PrivateSpecQuizItem): number | null {
   return item.n
 }
 
+/** Returns minWords for essay, else null. */
 export function getMinWords(item: PrivateSpecQuizItem): number | null {
   if (item.type !== "essay") {
     return null
@@ -244,6 +263,7 @@ export function getMinWords(item: PrivateSpecQuizItem): number | null {
   return item.minWords
 }
 
+/** Returns maxWords for essay, else null. */
 export function getMaxWords(item: PrivateSpecQuizItem): number | null {
   if (item.type !== "essay") {
     return null
@@ -251,6 +271,7 @@ export function getMaxWords(item: PrivateSpecQuizItem): number | null {
   return item.maxWords
 }
 
+/** Returns minValue for scale, else null. */
 export function getScaleMinValue(item: PrivateSpecQuizItem): number | null {
   if (item.type !== "scale") {
     return null
@@ -258,6 +279,7 @@ export function getScaleMinValue(item: PrivateSpecQuizItem): number | null {
   return item.minValue
 }
 
+/** Returns maxValue for scale, else null. */
 export function getScaleMaxValue(item: PrivateSpecQuizItem): number | null {
   if (item.type !== "scale") {
     return null
@@ -265,6 +287,7 @@ export function getScaleMaxValue(item: PrivateSpecQuizItem): number | null {
   return item.maxValue
 }
 
+/** Returns minLabel for scale, else null. */
 export function getScaleMinLabel(item: PrivateSpecQuizItem): string | null {
   if (item.type !== "scale") {
     return null
@@ -272,6 +295,7 @@ export function getScaleMinLabel(item: PrivateSpecQuizItem): string | null {
   return item.minLabel ?? null
 }
 
+/** Returns maxLabel for scale, else null. */
 export function getScaleMaxLabel(item: PrivateSpecQuizItem): string | null {
   if (item.type !== "scale") {
     return null
@@ -279,6 +303,7 @@ export function getScaleMaxLabel(item: PrivateSpecQuizItem): string | null {
   return item.maxLabel ?? null
 }
 
+/** Returns validityRegex for closed-ended-question, else null. */
 export function getValidityRegex(item: PrivateSpecQuizItem): string | null {
   if (item.type !== "closed-ended-question") {
     return null
@@ -286,6 +311,7 @@ export function getValidityRegex(item: PrivateSpecQuizItem): string | null {
   return item.validityRegex ?? null
 }
 
+/** Returns formatRegex for closed-ended-question, else null. */
 export function getFormatRegex(item: PrivateSpecQuizItem): string | null {
   if (item.type !== "closed-ended-question") {
     return null
@@ -293,6 +319,7 @@ export function getFormatRegex(item: PrivateSpecQuizItem): string | null {
   return item.formatRegex ?? null
 }
 
+/** Returns JSON string of timeline items for timeline type, else null. */
 export function getTimelineItemsJson(item: PrivateSpecQuizItem): string | null {
   if (item.type !== "timeline" || !item.timelineItems) {
     return null
@@ -300,6 +327,7 @@ export function getTimelineItemsJson(item: PrivateSpecQuizItem): string | null {
   return JSON.stringify(item.timelineItems)
 }
 
+/** Returns JSON string of optionCells for matrix type, else null. */
 export function getMatrixOptionCellsJson(item: PrivateSpecQuizItem): string | null {
   if (item.type !== "matrix" || !item.optionCells) {
     return null
@@ -318,10 +346,12 @@ function getSelectedOptionIdsFromAnswer(itemAnswer: UserItemAnswer): string[] | 
   }
 }
 
+/** Returns selected option ids joined with " | " for choice types, else null. */
 export function getSelectedOptionIds(itemAnswer: UserItemAnswer): string | null {
   return joinValues(getSelectedOptionIdsFromAnswer(itemAnswer) ?? [])
 }
 
+/** Returns selected option titles (or ids if option missing) joined with " | " for choice types, else null. */
 export function getSelectedOptionTitles(
   itemAnswer: UserItemAnswer,
   quizItem: PrivateSpecQuizItem | null,
@@ -341,6 +371,7 @@ export function getSelectedOptionTitles(
   )
 }
 
+/** Returns "correct"/"incorrect"/"unknown" for selected options joined with " | ", else null. */
 export function getSelectedOptionCorrectness(
   itemAnswer: UserItemAnswer,
   quizItem: PrivateSpecQuizItem | null,
@@ -363,6 +394,7 @@ export function getSelectedOptionCorrectness(
   )
 }
 
+/** Returns human-readable answer value per item type (titles, text, scale value, etc.) or null. */
 export function getHumanReadableAnswerValue(
   itemAnswer: UserItemAnswer,
   quizItem: PrivateSpecQuizItem | null,

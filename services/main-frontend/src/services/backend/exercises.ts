@@ -68,8 +68,23 @@ const extractFileNameFromHeader = (contentDisposition: string | undefined): stri
   if (!contentDisposition) {
     return null
   }
-  const match = contentDisposition.match(/filename="([^"]+)"/)
-  return match ? match[1] : null
+  const starMatch = contentDisposition.match(/filename\*=([^;]+)/i)
+  if (starMatch) {
+    const part = starMatch[1].trim()
+    const encodingMatch = part.match(/^([^']*)'([^']*)'(.*)$/)
+    const value = encodingMatch ? encodingMatch[3].trim() : part
+    try {
+      return decodeURIComponent(value.replace(/"/g, ""))
+    } catch {
+      return null
+    }
+  }
+  const quotedMatch = contentDisposition.match(/filename="([^"]*)"/i)
+  if (quotedMatch) {
+    return quotedMatch[1] || null
+  }
+  const unquotedMatch = contentDisposition.match(/filename=([^;\s]+)/i)
+  return unquotedMatch ? unquotedMatch[1].trim() : null
 }
 
 export const fetchExercisesByCourseId = async (courseId: string): Promise<Exercise[]> => {

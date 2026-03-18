@@ -26,6 +26,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -36,10 +37,13 @@ const downloadBlobAsFile = (blob: Blob, fileName: string) => {
   const link = document.createElement("a")
   link.href = url
   link.setAttribute("download", fileName)
-  document.body.appendChild(link)
-  link.click()
-  link.parentNode?.removeChild(link)
-  window.URL.revokeObjectURL(url)
+  try {
+    document.body.appendChild(link)
+    link.click()
+    link.parentNode?.removeChild(link)
+  } finally {
+    window.URL.revokeObjectURL(url)
+  }
 }
 
 const SubmissionsPage: React.FC = () => {
@@ -49,8 +53,6 @@ const SubmissionsPage: React.FC = () => {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const [selectedTaskId, setSelectedTaskId] = useState("")
   const [exportMode, setExportMode] = useState<ExportMode | null>(null)
-  const [exportError, setExportError] = useState<Error | null>(null)
-  const [isExporting, setIsExporting] = useState(false)
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("header-submissions") }], [t])
 
@@ -92,43 +94,44 @@ const SubmissionsPage: React.FC = () => {
       exerciseType: task.exercise_type,
     })
 
-  const openExportDialog = (mode: ExportMode) => {
-    const options = mode === "definitions" ? definitionTaskOptions : answerTaskOptions
-    if (options.length === 0) {
-      return
-    }
-    setExportError(null)
-    setExportMode(mode)
-    setSelectedTaskId(options[0].exercise_task_id)
-    setIsExportDialogOpen(true)
-  }
-
   const closeExportDialog = () => {
     setIsExportDialogOpen(false)
     setExportMode(null)
   }
 
+  const exportCsvMutation = useToastMutation(
+    async ({ mode, taskId }: { mode: ExportMode; taskId: string }) => {
+      return mode === "definitions"
+        ? await downloadExerciseDefinitionsCsv(id, taskId)
+        : await downloadExerciseAnswersCsv(id, taskId)
+    },
+    { notify: true, method: "POST" },
+    {
+      onSuccess: (download) => {
+        downloadBlobAsFile(download.blob, download.fileName)
+        closeExportDialog()
+      },
+    },
+  )
+
+  const openExportDialog = (mode: ExportMode) => {
+    const options = mode === "definitions" ? definitionTaskOptions : answerTaskOptions
+    if (options.length === 0) {
+      return
+    }
+    setExportMode(mode)
+    setSelectedTaskId(options[0].exercise_task_id)
+    setIsExportDialogOpen(true)
+  }
+
   const currentTaskOptions =
     exportMode === "definitions" ? definitionTaskOptions : answerTaskOptions
 
-  const exportCsv = async () => {
+  const exportCsv = () => {
     if (!exportMode || !selectedTaskId) {
       return
     }
-    setExportError(null)
-    setIsExporting(true)
-    try {
-      const download =
-        exportMode === "definitions"
-          ? await downloadExerciseDefinitionsCsv(id, selectedTaskId)
-          : await downloadExerciseAnswersCsv(id, selectedTaskId)
-      downloadBlobAsFile(download.blob, download.fileName)
-      closeExportDialog()
-    } catch (error) {
-      setExportError(error instanceof Error ? error : new Error(t("error-title")))
-    } finally {
-      setIsExporting(false)
-    }
+    exportCsvMutation.mutate({ mode: exportMode, taskId: selectedTaskId })
   }
 
   return (
@@ -177,7 +180,7 @@ const SubmissionsPage: React.FC = () => {
             csvExportTaskOptionsQuery.isLoading ||
             csvExportTaskOptionsQuery.isError ||
             definitionTaskOptions.length === 0 ||
-            isExporting
+            exportCsvMutation.isPending
           }
         >
           {t("button-text-export-definitions-csv")}
@@ -191,7 +194,7 @@ const SubmissionsPage: React.FC = () => {
             csvExportTaskOptionsQuery.isLoading ||
             csvExportTaskOptionsQuery.isError ||
             answerTaskOptions.length === 0 ||
-            isExporting
+            exportCsvMutation.isPending
           }
         >
           {t("button-text-export-answers-csv")}
@@ -218,7 +221,6 @@ const SubmissionsPage: React.FC = () => {
       {csvExportTaskOptionsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={csvExportTaskOptionsQuery.error} />
       )}
-      {exportError && <ErrorBanner variant={"readOnly"} error={exportError} />}
       {(exerciseQuery.isLoading || exerciseSubmissionsQuery.isLoading) && (
         <Spinner variant={"medium"} />
       )}
@@ -259,14 +261,19 @@ const SubmissionsPage: React.FC = () => {
             justify-content: flex-end;
           `}
         >
-          <Button variant="white" size="small" onClick={closeExportDialog} disabled={isExporting}>
+          <Button
+            variant="white"
+            size="small"
+            onClick={closeExportDialog}
+            disabled={exportCsvMutation.isPending}
+          >
             {t("button-text-cancel")}
           </Button>
           <Button
             variant="primary"
             size="small"
             onClick={exportCsv}
-            disabled={!selectedTaskId || isExporting}
+            disabled={!selectedTaskId || exportCsvMutation.isPending}
           >
             {t("actions-export")}
           </Button>

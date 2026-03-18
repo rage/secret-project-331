@@ -301,12 +301,13 @@ export async function POST(request: Request) {
     const migratedPrivateSpecs = parsed.items.map((item) =>
       handlePrivateSpecMigration(item.private_spec as PrivateSpecQuiz),
     )
-    const firstPrivateSpec = migratedPrivateSpecs[0] ?? null
+    const columns =
+      migratedPrivateSpecs.length > 0
+        ? mergeColumns(migratedPrivateSpecs.map((ps) => getDefinitionColumns(ps)))
+        : COMMON_DEFINITION_COLUMNS
 
     const response: CsvExportResponse = {
-      columns: firstPrivateSpec
-        ? getDefinitionColumns(firstPrivateSpec)
-        : COMMON_DEFINITION_COLUMNS,
+      columns,
       results: migratedPrivateSpecs.map((privateSpecQuiz) => {
         return {
           rows: privateSpecQuiz.items.map((quizItem) =>

@@ -372,6 +372,7 @@ fn controllers(target: &mut File) {
             exams::ExamCourseInfo,
             exercise_repositories::NewExerciseRepository,
             exercise_services::ExerciseServiceWithError,
+            exercises::ExerciseCsvExportTaskOption,
             exercises::ExerciseSubmissions,
             feedback::MarkAsRead,
             playground_views::PlaygroundViewsMessage,

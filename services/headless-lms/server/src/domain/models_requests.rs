@@ -238,6 +238,31 @@ pub struct SpecRequest<'a> {
     upload_url: Option<String>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct ExerciseServiceCsvExportRequest<'a, T: Serialize> {
+    pub items: &'a [T],
+}
+
+/// Column definition for exercise service CSV export; callers must use scalar-only cell values.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ExerciseServiceCsvExportColumn {
+    pub key: String,
+    pub header: String,
+}
+
+/// One batch of CSV rows; each row's values must be scalar (null, bool, number, string). Objects/arrays are rejected by the controller.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ExerciseServiceCsvExportResult {
+    pub rows: Vec<HashMap<String, serde_json::Value>>,
+}
+
+/// Full CSV export response; columns define headers, results align by index. All cell values must be scalar.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ExerciseServiceCsvExportResponse {
+    pub columns: Vec<ExerciseServiceCsvExportColumn>,
+    pub results: Vec<ExerciseServiceCsvExportResult>,
+}
+
 /// Fetches a public/model spec based on the private spec from the given url.
 /// The slug and jwt key are used for an upload claim that allows the service
 /// to upload files as part of the spec.
@@ -396,6 +421,45 @@ pub fn make_grading_request_sender(
         }
         .boxed()
     }
+}
+
+pub async fn post_exercise_service_csv_export_request<T: Serialize>(
+    url: Url,
+    items: &[T],
+) -> ModelResult<ExerciseServiceCsvExportResponse> {
+    let client = reqwest::Client::new();
+    let response = client
+        .post(url.clone())
+        .timeout(std::time::Duration::from_secs(120))
+        .json(&ExerciseServiceCsvExportRequest { items })
+        .send()
+        .await
+        .map_err(ModelError::from)?;
+
+    let status = response.status();
+    if !status.is_success() {
+        let status_code = status.as_u16();
+        let response_body = response.text().await.unwrap_or_default();
+        error!(
+            ?response_body,
+            status_code = %status_code,
+            "Exercise service CSV export request returned an unsuccessful status code"
+        );
+
+        return Err(ModelError::new(
+            ModelErrorType::HttpRequest {
+                status_code,
+                response_body: response_body.clone(),
+            },
+            format!(
+                "CSV export request failed with status: {} response: {}",
+                status_code, response_body
+            ),
+            None,
+        ));
+    }
+
+    parse_response_json(response).await
 }
 
 #[derive(Debug, Serialize, Deserialize)]

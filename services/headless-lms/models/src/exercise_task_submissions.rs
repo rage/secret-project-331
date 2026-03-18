@@ -79,6 +79,18 @@ pub struct ExportedCourseSubmission {
     pub data_json: Option<serde_json::Value>,
 }
 
+/// One row for CSV export: a single attempt at an exercise task for a given exercise_slide_submission (chronological submission order).
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct ExerciseTaskSubmissionCsvExportData {
+    pub exercise_slide_submission_id: Uuid,
+    pub exercise_task_submission_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub exercise_id: Uuid,
+    pub user_id: Uuid,
+    pub submitted_at: DateTime<Utc>,
+    pub answer: Option<serde_json::Value>,
+}
+
 pub async fn get_submission(
     conn: &mut PgConnection,
     submission_id: Uuid,
@@ -183,6 +195,38 @@ FROM exercise_task_submissions
 WHERE exercise_slide_submission_id = $1
         ",
         exercise_slide_submission_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+/// Fetches CSV-exportable rows at attempt granularity in intended ordering.
+pub async fn get_csv_export_data_by_exercise_and_task(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    exercise_task_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskSubmissionCsvExportData>> {
+    let submissions = sqlx::query_as!(
+        ExerciseTaskSubmissionCsvExportData,
+        r#"
+SELECT ets.exercise_slide_submission_id,
+  ets.id AS exercise_task_submission_id,
+  ets.exercise_task_id,
+  ess.exercise_id,
+  ess.user_id,
+  ets.created_at AS submitted_at,
+  ets.data_json AS answer
+FROM exercise_task_submissions ets
+  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+WHERE ess.exercise_id = $1
+  AND ets.exercise_task_id = $2
+  AND ess.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+ORDER BY ets.created_at ASC
+        "#,
+        exercise_id,
+        exercise_task_id
     )
     .fetch_all(conn)
     .await?;

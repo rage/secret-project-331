@@ -27,6 +27,7 @@ pub struct ExerciseSubmissions {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseCsvExportTaskOption {
     pub exercise_task_id: Uuid,
     pub exercise_type: String,

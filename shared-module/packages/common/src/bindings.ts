@@ -2626,6 +2626,14 @@ export interface ExerciseServiceWithError {
   service_info_error: string | null
 }
 
+export interface ExerciseCsvExportTaskOption {
+  exercise_task_id: string
+  exercise_type: string
+  order_number: number
+  supports_csv_export_definitions: boolean
+  supports_csv_export_answers: boolean
+}
+
 export interface ExerciseSubmissions {
   data: Array<ExerciseSlideSubmission>
   total_pages: number

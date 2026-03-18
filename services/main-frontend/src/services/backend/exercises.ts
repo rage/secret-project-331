@@ -1,18 +1,20 @@
-import { isNumber, isString } from "lodash"
-
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import {
   Exercise,
+  ExerciseCsvExportTaskOption,
   ExerciseSlideSubmission,
   ExerciseSubmissions,
 } from "@/shared-module/common/bindings"
 import {
   isExercise,
+  isExerciseCsvExportTaskOption,
   isExerciseSlideSubmission,
   isExerciseSubmissions,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isArray, isNumber, validateResponse } from "@/shared-module/common/utils/fetching"
+
+export type { ExerciseCsvExportTaskOption }
 
 export const fetchExerciseSubmissions = async (
   exerciseId: string,
@@ -38,30 +40,9 @@ export interface Block<T> {
   innerBlocks: Block<unknown>[]
 }
 
-export interface ExerciseCsvExportTaskOption {
-  exercise_task_id: string
-  exercise_type: string
-  order_number: number
-  supports_csv_export_definitions: boolean
-  supports_csv_export_answers: boolean
-}
-
 export interface DownloadedCsvFile {
   blob: Blob
   fileName: string
-}
-
-const isExerciseCsvExportTaskOption = (obj: unknown): obj is ExerciseCsvExportTaskOption => {
-  const typedObj = obj as ExerciseCsvExportTaskOption
-  return (
-    !!typedObj &&
-    typeof typedObj === "object" &&
-    isString(typedObj.exercise_task_id) &&
-    isString(typedObj.exercise_type) &&
-    isNumber(typedObj.order_number) &&
-    typeof typedObj.supports_csv_export_definitions === "boolean" &&
-    typeof typedObj.supports_csv_export_answers === "boolean"
-  )
 }
 
 const extractFileNameFromHeader = (contentDisposition: string | undefined): string | null => {

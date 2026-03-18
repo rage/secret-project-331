@@ -7,7 +7,24 @@ import dynamicWithIframeReload, {
 } from "../../src/utils/dynamicWithIframeReload"
 
 describe("dynamicWithIframeReload", () => {
+  const noop = () => {}
+  let realConsole: Pick<typeof console, "info" | "error" | "warn">
+
+  beforeEach(() => {
+    realConsole = {
+      info: console.info,
+      error: console.error,
+      warn: console.warn,
+    }
+    console.info = noop
+    console.error = noop
+    console.warn = noop
+  })
+
   afterEach(() => {
+    console.info = realConsole.info
+    console.error = realConsole.error
+    console.warn = realConsole.warn
     const anyWindow = window as typeof window & {
       __exerciseServiceRequestReload?: () => void
     }

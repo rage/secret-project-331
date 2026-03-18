@@ -41,6 +41,8 @@ describe("service-info", () => {
       grade_endpoint_path: "/api/grade",
       public_spec_endpoint_path: "/api/public-spec",
       model_solution_spec_endpoint_path: "/api/model-solution",
+      csv_export_definitions_endpoint_path: "/api/export-definitions",
+      csv_export_answers_endpoint_path: "/api/export-answers",
     })
   })
 })

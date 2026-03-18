@@ -18,6 +18,17 @@ import { isExerciseTaskGradingResult } from "@/shared-module/common/bindings.gua
 const client = testClient(POST)
 
 describe("grade", () => {
+  let realConsoleError: typeof console.error
+
+  beforeEach(() => {
+    realConsoleError = console.error
+    console.error = () => {}
+  })
+
+  afterEach(() => {
+    console.error = realConsoleError
+  })
+
   it("returns correct format", async () => {
     const data = oldGenerateMultipleChoiceRequest(4, 2, ["option-1"], "default")
     const response = await client.post("/api/grade").send(data)

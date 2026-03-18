@@ -30,11 +30,10 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
       setDefaultChatbotCommunicationChannel({
         sendNewMessage: async (message) => {
           if (!currentConversationInfo.data?.current_conversation) {
-            const confirmed = await confirm(
-              <ChatbotAgree header={""} />,
-              t("about-the-chatbot"),
-              {},
-            )
+            const confirmed = await confirm(<ChatbotAgree header={""} />, t("about-the-chatbot"), {
+              translatedYesButtonLabel: t("button-text-agree"),
+              translatedNoButtonLabel: t("button-text-cancel"),
+            })
             if (!confirmed) {
               return
             }

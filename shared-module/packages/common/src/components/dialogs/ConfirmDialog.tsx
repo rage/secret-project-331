@@ -14,6 +14,8 @@ export interface ConfirmDialogProps {
   open: boolean
   title: string
   message: React.ReactNode
+  translatedYesButtonLabel?: string
+  translatedNoButtonLabel?: string
   confirmDisabled?: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -23,6 +25,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   open,
   title,
   message,
+  translatedNoButtonLabel,
+  translatedYesButtonLabel,
   confirmDisabled = false,
   onConfirm,
   onCancel,
@@ -37,13 +41,13 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       closeable={false}
       buttons={[
         {
-          children: t("no"),
+          children: translatedNoButtonLabel ?? t("no"),
           variant: "secondary",
           onClick: onCancel,
           "data-testid": CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
         },
         {
-          children: t("yes"),
+          children: translatedYesButtonLabel ?? t("yes"),
           variant: "primary",
           onClick: onConfirm,
           disabled: confirmDisabled,

@@ -7,6 +7,7 @@ import { POST } from "../../src/app/api/export-answers/route"
 
 import testClient from "./utils/appRouterTestClient"
 import {
+  generateEmptyPrivateSpecQuiz,
   generatePrivateSpecWithOneCheckboxQuizItem,
   generatePrivateSpecWithOneEssayQuizItem,
   generatePrivateSpecWithOneMatrixQuizItem,
@@ -176,6 +177,83 @@ describe("export-answers", () => {
     )
   })
 
+  it("exports the task score only once for multi-item quiz submissions", async () => {
+    const privateSpec = generateEmptyPrivateSpecQuiz()
+    privateSpec.items = [
+      {
+        type: "essay",
+        id: "essay-1",
+        order: 0,
+        title: "Question 1",
+        body: null,
+        successMessage: null,
+        failureMessage: null,
+        messageOnModelSolution: null,
+        minWords: null,
+        maxWords: null,
+      },
+      {
+        type: "essay",
+        id: "essay-2",
+        order: 1,
+        title: "Question 2",
+        body: null,
+        successMessage: null,
+        failureMessage: null,
+        messageOnModelSolution: null,
+        minWords: null,
+        maxWords: null,
+      },
+    ]
+
+    const client = testClient(POST)
+    const response: request.Response = await client.post("/api/export-answers").send({
+      items: [
+        {
+          private_spec: privateSpec,
+          answer: {
+            version: "2",
+            itemAnswers: [
+              {
+                type: "essay",
+                valid: true,
+                quizItemId: "essay-1",
+                textData: "First",
+              },
+              {
+                type: "essay",
+                valid: true,
+                quizItemId: "essay-2",
+                textData: "Second",
+              },
+            ],
+          },
+          grading: {
+            score_given: 2,
+          },
+          model_solution_spec: null,
+        },
+      ],
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.body.results[0].rows).toHaveLength(2)
+    expect(response.body.results[0].rows[0]).toEqual(
+      expect.objectContaining({
+        quiz_item_id: "essay-1",
+        score_given: 2,
+        answer_text: "First",
+      }),
+    )
+    expect(response.body.results[0].rows[1]).toEqual(
+      expect.objectContaining({
+        quiz_item_id: "essay-2",
+        score_given: null,
+        answer_text: "Second",
+      }),
+    )
+  })
+
   it("exports checkbox answers without the readable helper column", async () => {
     const privateSpec = generatePrivateSpecWithOneCheckboxQuizItem()
     const quizItemId = privateSpec.items[0].id
@@ -271,6 +349,68 @@ describe("export-answers", () => {
         matrix_row_2_column_2: "D",
       }),
     )
+  })
+
+  it("includes answer columns needed by historical submissions even if the current spec changed", async () => {
+    const privateSpec = generateEmptyPrivateSpecQuiz()
+
+    const client = testClient(POST)
+    const response: request.Response = await client.post("/api/export-answers").send({
+      items: [
+        {
+          private_spec: privateSpec,
+          answer: {
+            version: "2",
+            itemAnswers: [
+              {
+                type: "essay",
+                valid: true,
+                quizItemId: "removed-item",
+                textData: "Legacy answer",
+              },
+            ],
+          },
+          grading: {
+            score_given: 1,
+          },
+          model_solution_spec: null,
+        },
+      ],
+    })
+
+    expect(response.status).toBe(200)
+    const columnKeys = response.body.columns.map((column: { key: string }) => column.key)
+    expect(columnKeys).toEqual(expect.arrayContaining(["answer_text"]))
+    expect(response.body.results[0].rows[0]).toEqual(
+      expect.objectContaining({
+        quiz_item_id: "removed-item",
+        quiz_item_body: null,
+        score_given: 1,
+        answer_text: "Legacy answer",
+      }),
+    )
+  })
+
+  it("treats null answer payloads as empty submissions", async () => {
+    const privateSpec = generatePrivateSpecWithOneEssayQuizItem()
+
+    const client = testClient(POST)
+    const response: request.Response = await client.post("/api/export-answers").send({
+      items: [
+        {
+          private_spec: privateSpec,
+          answer: null,
+          grading: {
+            score_given: 0,
+          },
+          model_solution_spec: null,
+        },
+      ],
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.body.results).toHaveLength(1)
+    expect(response.body.results[0].rows).toEqual([])
   })
 
   it("fails with invalid payload", async () => {

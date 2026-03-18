@@ -43,6 +43,12 @@ interface CsvExportAnswersRequest {
   items: CsvExportAnswersRequestItem[]
 }
 
+interface MigratedExportAnswerItem {
+  privateSpecQuiz: PrivateSpecQuiz
+  userAnswer: UserAnswer
+  scoreGiven: number | null
+}
+
 const COMMON_ANSWER_COLUMNS: CsvExportColumn[] = [
   { key: "quiz_item_id", header: "Quiz item id" },
   { key: "quiz_item_body", header: "Quiz item body" },
@@ -131,13 +137,48 @@ function getTypeSpecificAnswerColumns(
   }
 }
 
-function getAnswerColumns(privateSpecQuiz: PrivateSpecQuiz): CsvExportColumn[] {
+function getAnswerColumns(
+  privateSpecQuiz: PrivateSpecQuiz,
+  userAnswer: UserAnswer,
+): CsvExportColumn[] {
   return mergeColumns([
     COMMON_ANSWER_COLUMNS,
     ...getQuizItemTypes(privateSpecQuiz).map((type) =>
       getTypeSpecificAnswerColumns(type, privateSpecQuiz),
     ),
+    ...userAnswer.itemAnswers.map((itemAnswer) =>
+      getTypeSpecificAnswerColumns(itemAnswer.type, privateSpecQuiz),
+    ),
   ])
+}
+
+function getUserAnswer(privateSpecQuiz: PrivateSpecQuiz, answer: unknown): UserAnswer {
+  if (answer === null || typeof answer === "undefined") {
+    return { version: "2", itemAnswers: [] }
+  }
+
+  const userAnswer = handleUserAnswerMigration(privateSpecQuiz, answer as UserAnswer)
+  if (!Array.isArray(userAnswer.itemAnswers)) {
+    throw new Error("Invalid answer payload")
+  }
+
+  return userAnswer
+}
+
+function getScoreGivenForRow(
+  scoreGiven: number | null,
+  rowCount: number,
+  rowIndex: number,
+): number | null {
+  if (scoreGiven === null) {
+    return null
+  }
+
+  if (rowCount <= 1) {
+    return scoreGiven
+  }
+
+  return rowIndex === 0 ? scoreGiven : null
 }
 
 function buildCommonAnswerRow(
@@ -245,25 +286,35 @@ export async function POST(request: Request) {
     const body = await request.json()
     const parsed = parseRequest(body)
 
-    const migratedPrivateSpecs = parsed.items.map((item) =>
-      handlePrivateSpecMigration(item.private_spec as PrivateSpecQuiz),
-    )
+    const migratedItems: MigratedExportAnswerItem[] = parsed.items.map((item) => {
+      const privateSpecQuiz = handlePrivateSpecMigration(item.private_spec as PrivateSpecQuiz)
+
+      return {
+        privateSpecQuiz,
+        userAnswer: getUserAnswer(privateSpecQuiz, item.answer),
+        scoreGiven: getNumberField(item.grading, "score_given"),
+      }
+    })
     const columns =
-      migratedPrivateSpecs.length > 0
-        ? mergeColumns(migratedPrivateSpecs.map((ps) => getAnswerColumns(ps)))
+      migratedItems.length > 0
+        ? mergeColumns(
+            migratedItems.map(({ privateSpecQuiz, userAnswer }) =>
+              getAnswerColumns(privateSpecQuiz, userAnswer),
+            ),
+          )
         : COMMON_ANSWER_COLUMNS
 
     const response: CsvExportResponse = {
       columns,
-      results: parsed.items.map((item, index) => {
-        const privateSpecQuiz = migratedPrivateSpecs[index]
-        const userAnswer = handleUserAnswerMigration(privateSpecQuiz, item.answer as UserAnswer)
-        const scoreGiven = getNumberField(item.grading, "score_given")
-
+      results: migratedItems.map(({ privateSpecQuiz, userAnswer, scoreGiven }) => {
         return {
-          rows: userAnswer.itemAnswers.map((itemAnswer) => {
+          rows: userAnswer.itemAnswers.map((itemAnswer, rowIndex) => {
             const quizItem = getQuizItemById(privateSpecQuiz, itemAnswer.quizItemId)
-            return buildAnswerRow(itemAnswer, quizItem, scoreGiven)
+            return buildAnswerRow(
+              itemAnswer,
+              quizItem,
+              getScoreGivenForRow(scoreGiven, userAnswer.itemAnswers.length, rowIndex),
+            )
           }),
         }
       }),

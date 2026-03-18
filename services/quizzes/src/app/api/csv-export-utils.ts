@@ -142,7 +142,7 @@ export function getMatrixCellColumns(prefix = "matrix"): CsvExportColumn[] {
   return columns
 }
 
-/** Returns human-readable matrix string (rows joined by " | ") or null if empty. */
+/** Returns human-readable matrix string with distinct cell/row separators, or null if empty. */
 export function matrixToHumanReadable(matrix: string[][] | null | undefined): string | null {
   const { rowCount, columnCount } = getMatrixDimensions(matrix)
   if (!rowCount || !columnCount) {
@@ -161,7 +161,7 @@ export function matrixToHumanReadable(matrix: string[][] | null | undefined): st
     formattedRows.push(rowValues.join(" | "))
   }
 
-  return formattedRows.join(" | ")
+  return formattedRows.join(" / ")
 }
 
 /** Returns timeline items sorted by year (numeric then string). */

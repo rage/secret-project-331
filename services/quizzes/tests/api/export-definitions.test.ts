@@ -42,8 +42,8 @@ describe("export-definitions", () => {
     expect(response.body.results[0].rows[0]).toEqual(
       expect.objectContaining({
         quiz_item_type: "multiple-choice",
-        option_ids: "id-1; id-2",
-        option_titles: "Positive; Just no",
+        option_ids: "id-1 | id-2",
+        option_titles: "Positive | Just no",
         correct_option_ids: "id-1",
         correct_option_titles: "Positive",
         allow_selecting_multiple_options: false,
@@ -106,7 +106,7 @@ describe("export-definitions", () => {
         quiz_item_type: "matrix",
         matrix_active_rows: 2,
         matrix_active_columns: 2,
-        matrix_summary: "1, 2 | 3, 234223523",
+        matrix_summary: "1 | 2 / 3 | 234223523",
         matrix_row_1_column_1: "1",
         matrix_row_1_column_2: "2",
         matrix_row_2_column_1: "3",

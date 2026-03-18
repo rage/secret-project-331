@@ -1,6 +1,17 @@
 import { migrateQuiz } from "../../src/util/migrate"
 
 describe("private spec migration", () => {
+  let realConsoleLog: typeof console.log
+
+  beforeEach(() => {
+    realConsoleLog = console.log
+    console.log = () => {}
+  })
+
+  afterEach(() => {
+    console.log = realConsoleLog
+  })
+
   test("migrates success and failure messages from old quizzes", () => {
     const quiz = {
       ...OLD_QUIZ_SNAPSHOT,

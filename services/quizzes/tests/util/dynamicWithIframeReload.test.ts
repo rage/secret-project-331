@@ -47,11 +47,99 @@ describe("dynamicWithIframeReload", () => {
 
     await jest.advanceTimersByTimeAsync(1_500)
     await reloadRequest
-
     expect(reloadCalls).toBe(1)
   })
 
-  test("rethrows loader errors and requests iframe reload", async () => {
+  test("succeeds on first loader attempt without requesting reload", async () => {
+    const anyWindow = window as typeof window & {
+      __exerciseServiceRequestReload?: () => void
+    }
+    anyWindow.__exerciseServiceRequestReload = jest.fn()
+
+    const loader = jest.fn<() => Promise<{ default: () => null }>>().mockResolvedValue({
+      default: () => null,
+    })
+    const dynamicFn = (loaderArg: unknown) => loaderArg
+    const wrappedLoader = dynamicWithIframeReload(
+      loader as unknown as () => Promise<{ default: () => null }>,
+      undefined,
+      {
+        dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+      },
+    ) as unknown as () => Promise<unknown>
+
+    await expect(wrappedLoader()).resolves.toEqual({ default: expect.any(Function) })
+    expect(loader).toHaveBeenCalledTimes(1)
+    expect(anyWindow.__exerciseServiceRequestReload).not.toHaveBeenCalled()
+  })
+
+  test("retries loader once after failure and then succeeds without requesting reload", async () => {
+    jest.useFakeTimers()
+
+    const anyWindow = window as typeof window & {
+      __exerciseServiceRequestReload?: () => void
+    }
+    anyWindow.__exerciseServiceRequestReload = jest.fn()
+
+    const loader = jest
+      .fn<() => Promise<unknown>>()
+      .mockRejectedValueOnce(new Error("dynamic load failed 1"))
+      .mockResolvedValueOnce({ default: () => null })
+    const dynamicFn = (loaderArg: unknown) => loaderArg
+    const wrappedLoaderPromise = (
+      dynamicWithIframeReload(
+        loader as unknown as () => Promise<{ default: () => null }>,
+        undefined,
+        {
+          dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+        },
+      ) as unknown as () => Promise<unknown>
+    )()
+
+    expect(loader).toHaveBeenCalledTimes(1)
+
+    await jest.advanceTimersByTimeAsync(200)
+    await expect(wrappedLoaderPromise).resolves.toEqual({ default: expect.any(Function) })
+    expect(loader).toHaveBeenCalledTimes(2)
+    expect(anyWindow.__exerciseServiceRequestReload).not.toHaveBeenCalled()
+  })
+
+  test("retries loader multiple times before succeeding without requesting reload", async () => {
+    jest.useFakeTimers()
+
+    const anyWindow = window as typeof window & {
+      __exerciseServiceRequestReload?: () => void
+    }
+    anyWindow.__exerciseServiceRequestReload = jest.fn()
+
+    const loader = jest
+      .fn<() => Promise<{ default: () => null }>>()
+      .mockRejectedValueOnce(new Error("dynamic load failed 1"))
+      .mockRejectedValueOnce(new Error("dynamic load failed 2"))
+      .mockResolvedValueOnce({ default: () => null })
+    const dynamicFn = (loaderArg: unknown) => loaderArg
+    const wrappedLoaderPromise = (
+      dynamicWithIframeReload(
+        loader as unknown as () => Promise<{ default: () => null }>,
+        undefined,
+        {
+          dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+        },
+      ) as unknown as () => Promise<unknown>
+    )()
+
+    expect(loader).toHaveBeenCalledTimes(1)
+
+    await jest.advanceTimersByTimeAsync(200)
+    expect(loader).toHaveBeenCalledTimes(2)
+
+    await jest.advanceTimersByTimeAsync(400)
+    await expect(wrappedLoaderPromise).resolves.toEqual({ default: expect.any(Function) })
+    expect(loader).toHaveBeenCalledTimes(3)
+    expect(anyWindow.__exerciseServiceRequestReload).not.toHaveBeenCalled()
+  })
+
+  test("rethrows loader errors after all retries and requests iframe reload", async () => {
     let reloadCalls = 0
     const anyWindow = window as typeof window & {
       __exerciseServiceRequestReload?: () => void
@@ -70,11 +158,12 @@ describe("dynamicWithIframeReload", () => {
       },
     ) as unknown as () => Promise<unknown>
 
+    expect(reloadCalls).toBe(0)
     await expect(wrappedLoader()).rejects.toThrow("dynamic load failed")
     expect(reloadCalls).toBe(1)
   })
 
-  test("preserves the original loader error if the reload bridge throws", async () => {
+  test("preserves the original loader error if the reload bridge throws after all retries", async () => {
     const originalWarn = console.warn
     const warnCalls: unknown[][] = []
     console.warn = (...args: unknown[]) => {

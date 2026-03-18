@@ -2,7 +2,6 @@
 
 use std::collections::{HashMap, HashSet};
 
-use chrono::Utc;
 use futures::future;
 use serde_json::Value;
 use url::Url;
@@ -514,7 +513,6 @@ async fn export_exercise_task_definitions_csv(
         }
     };
 
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let tasks =
         models::exercise_tasks::get_exercise_tasks_by_exercise_id(&mut conn, *exercise_id).await?;
     let selected_task = get_selected_task(&tasks, query.exercise_task_id)?;
@@ -577,10 +575,8 @@ async fn export_exercise_task_definitions_csv(
 
     let csv_bytes = csv_writer_into_bytes(writer)?;
     let content_disposition = format!(
-        "attachment; filename=\"Exercise: {} - Definition task {} {}.csv\"",
-        exercise.name,
-        selected_task.order_number + 1,
-        Utc::now().format("%Y-%m-%d")
+        "attachment; filename=\"exercise-{}-definitions-{}.csv\"",
+        *exercise_id, selected_task.id
     );
 
     token.authorized_ok(
@@ -611,7 +607,6 @@ async fn export_exercise_task_answers_csv(
         }
     };
 
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let tasks =
         models::exercise_tasks::get_exercise_tasks_by_exercise_id(&mut conn, *exercise_id).await?;
     let selected_task = get_selected_task(&tasks, query.exercise_task_id)?;
@@ -784,10 +779,8 @@ async fn export_exercise_task_answers_csv(
 
     let csv_bytes = csv_writer_into_bytes(writer)?;
     let content_disposition = format!(
-        "attachment; filename=\"Exercise: {} - Answers task {} {}.csv\"",
-        exercise.name,
-        selected_task.order_number + 1,
-        Utc::now().format("%Y-%m-%d")
+        "attachment; filename=\"exercise-{}-answers-{}.csv\"",
+        *exercise_id, selected_task.id
     );
 
     token.authorized_ok(

@@ -60,6 +60,7 @@ test("Points view works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "point-view-bottom",
     waitForTheseToBeVisibleAndStable: [page.getByText("User id").first()],
+    scrollToYCoordinate: 1200,
     screenshotTarget: page,
   })
 })

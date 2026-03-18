@@ -2,27 +2,51 @@
 
 import { css } from "@emotion/css"
 import type { VirtualElement } from "@popperjs/core"
-import { useAtom, useSetAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
+import AIChat from "@/img/course-material/ai-chat.svg"
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
-import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
+import { baseTheme } from "@/shared-module/common/styles"
+import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
+import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
 
-export const FEEDBACK_TOOLTIP_ID = "feedback-tooltip"
+export const TEXT_SELECTION_TOOLTIP_ID = "text-selection-tooltip"
 
-const FeedbackTooltip: React.FC = () => {
+const svgCss = css`
+  color: ${baseTheme.colors.green[1000]};
+  height: 1.25rem;
+  position: relative;
+  top: 4px;
+  left: 5px;
+`
+
+interface Props {
+  courseName?: string
+  courseHasChatbot: boolean
+  pageTitle?: string
+}
+
+const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
+  courseName,
+  courseHasChatbot,
+  pageTitle,
+}) => {
   const { t } = useTranslation()
   const [selection] = useAtom(selectionAtom)
   const setCurrentlyOpenFeedbackDialog = useSetAtom(currentlyOpenFeedbackDialogAtom)
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
+
+  const chatbotCommunicationChannel = useAtomValue(defaultChatbotCommunicationChannel)
 
   // Show tooltip after a delay so that it's less annoying
   useEffect(() => {
@@ -78,7 +102,7 @@ const FeedbackTooltip: React.FC = () => {
     virtualReference.getBoundingClientRect = getBoundingClientRect
   }, [getBoundingClientRect, virtualReference])
 
-  const { styles, attributes, update } = usePopper(virtualReference, popperElement, {
+  const { styles, attributes, update, state } = usePopper(virtualReference, popperElement, {
     placement: "top",
     modifiers: [
       {
@@ -106,6 +130,7 @@ const FeedbackTooltip: React.FC = () => {
           resize: true,
         },
       },
+      { name: "flip", options: { fallbackPlacements: ["bottom"] } },
     ],
     strategy: "absolute",
   })
@@ -121,7 +146,7 @@ const FeedbackTooltip: React.FC = () => {
     return null
   }
 
-  const handleClick = () => {
+  const giveFeedbackHandleClick = () => {
     // eslint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type" as const)
   }
@@ -133,6 +158,22 @@ const FeedbackTooltip: React.FC = () => {
     animation: fadeIn 0.2s ease-in-out;
     pointer-events: auto;
     user-select: none;
+
+    button {
+      color: ${baseTheme.colors.green[1000]};
+      border: none;
+      border-radius: 5px;
+      background-color: transparent;
+      cursor: pointer;
+      padding: 0.66rem 1.2rem;
+
+      text-align: left;
+
+      &:hover {
+        filter: brightness(0.925);
+        background: ${baseTheme.colors.gray[25]};
+      }
+    }
 
     @keyframes fadeIn {
       from {
@@ -153,12 +194,60 @@ const FeedbackTooltip: React.FC = () => {
       // eslint-disable-next-line react/forbid-dom-props
       style={styles.popper}
       {...attributes.popper}
-      id={FEEDBACK_TOOLTIP_ID}
-      data-testid={feedbackTooltipTestId}
+      id={TEXT_SELECTION_TOOLTIP_ID}
+      data-testid={textSelectionTooltipTestId}
     >
-      <SpeechBalloon onClick={handleClick}>{t("give-feedback")}</SpeechBalloon>
+      <SpeechBalloon
+        placement={state?.placement}
+        // eslint-disable-next-line i18next/no-literal-string
+        paddingValue="0.2rem"
+      >
+        <div
+          className={css`
+            display: flex;
+            flex-flow: column nowrap;
+          `}
+        >
+          {courseName && pageTitle && courseHasChatbot && (
+            <>
+              <Button
+                isDisabled={chatbotCommunicationChannel == null}
+                onClick={() => {
+                  chatbotCommunicationChannel?.sendNewMessage(
+                    t("text-selection-summarize-with-ai", {
+                      pageTitle,
+                      courseName,
+                      selection: selection.text,
+                    }),
+                  )
+                }}
+              >
+                {t("summarize")}
+                <AIChat className={svgCss} />
+              </Button>
+              <Button
+                isDisabled={chatbotCommunicationChannel == null}
+                onClick={() => {
+                  chatbotCommunicationChannel?.sendNewMessage(
+                    t("text-selection-explain-with-ai", {
+                      pageTitle,
+                      courseName,
+                      selection: selection.text,
+                    }),
+                  )
+                }}
+              >
+                {t("explain-this")}
+                <AIChat className={svgCss} />
+              </Button>
+            </>
+          )}
+
+          <Button onClick={giveFeedbackHandleClick}>{t("give-feedback")}</Button>
+        </div>
+      </SpeechBalloon>
     </div>
   )
 }
 
-export default FeedbackTooltip
+export default TextSelectionTooltip

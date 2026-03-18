@@ -29,6 +29,8 @@ type AlertDialogType = DialogBase & {
 type ConfirmDialogType = DialogBase & {
   type: "confirm"
   confirmDisabled?: boolean
+  yesButtonLabel?: string
+  noButtonLabel?: string
   resolve: (result: boolean) => void
 }
 
@@ -64,6 +66,8 @@ const dialogReducer = (state: DialogType[], action: DialogAction): DialogType[] 
 
 type ConfirmDialogOptions = {
   confirmDisabled?: boolean
+  yesButtonLabel?: string
+  noButtonLabel?: string
 }
 
 type ConfirmDialogControls = {
@@ -136,6 +140,8 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           message,
           resolve,
           confirmDisabled: options?.confirmDisabled ?? false,
+          noButtonLabel: options?.noButtonLabel,
+          yesButtonLabel: options?.yesButtonLabel,
         })
       })
     },
@@ -186,6 +192,8 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                   </ConfirmDialogMessageProvider>
                 }
                 confirmDisabled={dialog.confirmDisabled ?? false}
+                noButtonLabel={dialog.noButtonLabel}
+                yesButtonLabel={dialog.yesButtonLabel}
                 onCancel={() => {
                   dialog.resolve(false)
                   removeDialog(dialog.id)

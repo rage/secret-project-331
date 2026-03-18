@@ -6,9 +6,8 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 
-import ChatbotChatBox from "./ChatbotChatBox"
-
 import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/SelectionListener"
+import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import { getDefaultChatbotConfigurationForCourse } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -53,7 +52,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
           }
         `}
       >
-        <ChatbotChatBox chatbotConfigurationId={chatbotConfigurationId} />
+        <ChatbotChat chatbotConfigurationId={chatbotConfigurationId} isCourseMaterialBlock={true} />
       </div>
     </div>
   )

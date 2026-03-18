@@ -47,13 +47,13 @@ const closeAnimation = keyframes`
 `
 
 const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
-  let { isOpen, setIsOpen } = props
+  const { isOpen, setIsOpen } = props
   const chatbotTitleId = useId()
   const [shouldRender, setShouldRender] = useState(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
 
-  let state = {
+  const state = {
     isOpen,
     setOpen: (o: boolean) => {
       setIsOpen(o)

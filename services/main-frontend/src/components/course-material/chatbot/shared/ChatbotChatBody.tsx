@@ -157,6 +157,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               newConversationMutation.mutate()
               dispatch({ type: "RESET_MESSAGES" })
             }}
+            disabled={newConversationMutation.isPending}
           >
             {t("button-text-agree")}
           </Button>

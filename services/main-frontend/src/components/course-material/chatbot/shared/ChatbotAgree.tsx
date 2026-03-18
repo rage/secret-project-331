@@ -6,10 +6,10 @@ import { useTranslation } from "react-i18next"
 
 interface ChatbotAgreeProps {
   agreeButton?: ReactNode
-  header?: ReactNode
+  hideHeader?: boolean
 }
 
-const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ agreeButton, header }) => {
+const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeader = false }) => {
   const { t } = useTranslation()
   return (
     <div
@@ -47,7 +47,7 @@ const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ agreeButton, header }) => {
           overflow: scroll;
         `}
       >
-        <h2>{header ?? t("about-the-chatbot")}</h2>
+        {!hideHeader && <h2>{t("about-the-chatbot")}</h2>}
         <p>{t("chatbot-disclaimer-start")}</p>
         <ul>
           <li>{t("chatbot-discalimer-sensitive-information")}</li>

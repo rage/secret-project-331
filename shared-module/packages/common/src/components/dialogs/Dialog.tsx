@@ -99,6 +99,9 @@ const Dialog: React.FC<DialogProps> = ({
                 border-radius: 5px;
                 width: 95%;
                 max-width: ${width === "normal" ? "700px" : "1200px"};
+                max-height: 90vh;
+                display: flex;
+                flex-direction: column;
                 ${disableContentScroll && "overflow: hidden;"}
                 outline: none;
 
@@ -118,6 +121,10 @@ const Dialog: React.FC<DialogProps> = ({
           >
             <div
               className={css`
+                flex: 1;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
                 ${!noPadding && "padding: 2rem 3rem;"}
               `}
             >

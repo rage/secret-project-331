@@ -1,29 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
 
 import ChatbotChatBody from "@/components/course-material/chatbot/shared/ChatbotChatBody"
 import ChatbotChatHeader from "@/components/course-material/chatbot/shared/ChatbotChatHeader"
-import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
+import { ChatbotStateAndData } from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import { baseTheme } from "@/shared-module/common/styles"
 
-export interface ChatbotChatBoxProps {
-  chatbotConfigurationId: string
-}
-
-const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId }) => {
-  const [newMessage, setNewMessage] = React.useState("")
-  const [error, setError] = useState<Error | null>(null)
-
-  const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
-  const newConversationMutation = useNewConversationMutation(
-    chatbotConfigurationId,
-    currentConversationInfoQuery,
-    setNewMessage,
-    setError,
-  )
+const ChatbotChatBox: React.FC<ChatbotStateAndData> = (props) => {
   return (
     <div
       className={css`
@@ -37,20 +22,11 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
       `}
     >
       <ChatbotChatHeader
-        chatbotConfigurationId={chatbotConfigurationId}
-        currentConversationInfo={currentConversationInfoQuery}
-        newConversation={newConversationMutation}
         isCourseMaterialBlock={true}
+        currentConversationInfo={props.currentConversationInfo}
+        newConversationMutation={props.newConversationMutation}
       />
-      <ChatbotChatBody
-        chatbotConfigurationId={chatbotConfigurationId}
-        currentConversationInfo={currentConversationInfoQuery}
-        newConversation={newConversationMutation}
-        newMessage={newMessage}
-        setNewMessage={setNewMessage}
-        error={error}
-        setError={setError}
-      />
+      <ChatbotChatBody {...props} />
     </div>
   )
 }

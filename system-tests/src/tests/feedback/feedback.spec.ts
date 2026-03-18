@@ -6,7 +6,7 @@ import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
+import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -43,10 +43,10 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "feedback-tooltip",
-    waitForTheseToBeVisibleAndStable: [page.getByTestId(feedbackTooltipTestId)],
+    waitForTheseToBeVisibleAndStable: [page.getByTestId(textSelectionTooltipTestId)],
   })
 
-  await page.getByTestId(feedbackTooltipTestId).getByText("Give feedback").click()
+  await page.getByTestId(textSelectionTooltipTestId).getByText("Give feedback").click()
 
   await page.getByText("Give written feedback").click()
 

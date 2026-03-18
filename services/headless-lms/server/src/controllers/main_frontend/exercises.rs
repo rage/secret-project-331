@@ -38,6 +38,8 @@ pub struct ExerciseCsvExportTaskOption {
 #[derive(Debug, Deserialize)]
 pub struct ExerciseCsvExportQuery {
     pub exercise_task_id: Uuid,
+    #[serde(default)]
+    pub only_latest_per_user: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -617,12 +619,21 @@ async fn export_exercise_task_answers_csv(
         get_csv_export_endpoint_path(&service_info.csv_export_answers_endpoint_path, "answers")?;
     let endpoint_url = build_service_endpoint_url(&exercise_service, &endpoint_path)?;
 
-    let export_data = models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task(
-        &mut conn,
-        *exercise_id,
-        selected_task.id,
-    )
-    .await?;
+    let export_data = if query.only_latest_per_user {
+        models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task_latest_per_user(
+            &mut conn,
+            *exercise_id,
+            selected_task.id,
+        )
+        .await?
+    } else {
+        models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task(
+            &mut conn,
+            *exercise_id,
+            selected_task.id,
+        )
+        .await?
+    };
     let submission_ids = export_data
         .iter()
         .map(|submission| submission.exercise_task_submission_id)

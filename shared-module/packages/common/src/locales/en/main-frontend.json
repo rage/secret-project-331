@@ -694,6 +694,7 @@
   "label-csv-completions-header": "The CSV file must have a header row with these columns:",
   "label-csv-completions-note": "Note: If you don't specify any dates for the completions in the CSV, the date selected above will be used for all completions. Note that you must either specify a date for each completion or none at all.",
   "label-csv-completions-user-id": "user_id: The user's ID in the system",
+  "label-csv-export-only-latest-per-user": "Export only the latest submission per user",
   "label-csv-export-task": "Exercise task",
   "label-csv-export-task-option": "Task {{order}} ({{exerciseType}})",
   "label-current": "Current",

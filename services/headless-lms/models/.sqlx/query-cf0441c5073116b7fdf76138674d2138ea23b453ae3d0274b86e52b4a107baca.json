@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH latest AS (\n  SELECT DISTINCT ON (ess.user_id) ets.id AS exercise_task_submission_id\n  FROM exercise_task_submissions ets\n  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id\n  WHERE ess.exercise_id = $1\n    AND ets.exercise_task_id = $2\n    AND ess.deleted_at IS NULL\n    AND ets.deleted_at IS NULL\n  ORDER BY ess.user_id, ets.created_at DESC\n)\nSELECT ets.exercise_slide_submission_id,\n  ets.id AS exercise_task_submission_id,\n  ets.exercise_task_id,\n  ess.exercise_id,\n  ess.user_id,\n  ets.created_at AS submitted_at,\n  ets.data_json AS answer\nFROM exercise_task_submissions ets\nJOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id\nJOIN latest ON latest.exercise_task_submission_id = ets.id\nWHERE ess.exercise_id = $1\n  AND ets.exercise_task_id = $2\n  AND ess.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\nORDER BY ets.created_at ASC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_task_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "exercise_task_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "submitted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "answer",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "cf0441c5073116b7fdf76138674d2138ea23b453ae3d0274b86e52b4a107baca"
+}

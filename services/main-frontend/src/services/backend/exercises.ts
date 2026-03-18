@@ -74,9 +74,14 @@ export const downloadExerciseDefinitionsCsv = async (
 export const downloadExerciseAnswersCsv = async (
   exerciseId: string,
   exerciseTaskId: string,
+  onlyLatestPerUser = false,
 ): Promise<DownloadedCsvFile> => {
+  const params = new URLSearchParams({ exercise_task_id: exerciseTaskId })
+  if (onlyLatestPerUser) {
+    params.set("only_latest_per_user", "true")
+  }
   const response = await mainFrontendClient.get(
-    `/exercises/${exerciseId}/export-answers-csv?exercise_task_id=${exerciseTaskId}`,
+    `/exercises/${exerciseId}/export-answers-csv?${params.toString()}`,
     { responseType: "blob" },
   )
   return {

@@ -9,7 +9,7 @@ interface ChatbotAgreeProps {
   hideHeader?: boolean
 }
 
-const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeader = false }) => {
+const ChatbotDisclaimer: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeader = false }) => {
   const { t } = useTranslation()
   return (
     <div
@@ -67,4 +67,4 @@ const ChatbotAgree: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeader = f
   )
 }
 
-export default ChatbotAgree
+export default ChatbotDisclaimer

@@ -31,7 +31,7 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
   }
 }
 
-/// Out of sight out of mind
+/// Queries, state and data needed for chatbot functionality
 export interface ChatbotStateAndData {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newMessage: string

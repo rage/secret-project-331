@@ -21,7 +21,7 @@ import {
 export const TEXT_SELECTION_TOOLTIP_ID = "text-selection-tooltip"
 
 const svgCss = css`
-  color: #111827;
+  color: ${baseTheme.colors.green[1000]};
   height: 1.25rem;
   position: relative;
   top: 4px;
@@ -102,7 +102,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
     virtualReference.getBoundingClientRect = getBoundingClientRect
   }, [getBoundingClientRect, virtualReference])
 
-  const { styles, attributes, update } = usePopper(virtualReference, popperElement, {
+  const { styles, attributes, update, state } = usePopper(virtualReference, popperElement, {
     placement: "top",
     modifiers: [
       {
@@ -160,7 +160,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
     user-select: none;
 
     button {
-      color: #111827;
+      color: ${baseTheme.colors.green[1000]};
       border: none;
       border-radius: 5px;
       background-color: transparent;
@@ -198,7 +198,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
       data-testid={textSelectionTooltipTestId}
     >
       <SpeechBalloon
-        placement={attributes.popper?.["data-popper-placement"]}
+        placement={state?.placement}
         // eslint-disable-next-line i18next/no-literal-string
         paddingValue="0.2rem"
       >

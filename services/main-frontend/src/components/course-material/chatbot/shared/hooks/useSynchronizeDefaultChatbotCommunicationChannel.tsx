@@ -5,7 +5,7 @@ import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChatbotAgree from "../ChatbotAgree"
+import ChatbotDisclaimer from "../ChatbotDisclaimer"
 
 import { MessageAction } from "./useChatbotStateAndData"
 
@@ -14,6 +14,8 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import { waitForNextTick } from "@/shared-module/common/utils/async"
 import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
 
+/// Sets a communication channel so that components outside ChatbotDialog can send
+/// messages to the default chatbot of the course.
 const useSynchronizeDefaultChatbotCommunicationChannel = (
   isCourseMaterialBlock: boolean,
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>,
@@ -31,11 +33,11 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
         sendNewMessage: async (message) => {
           if (!currentConversationInfo.data?.current_conversation) {
             const confirmed = await confirm(
-              <ChatbotAgree hideHeader={true} />,
+              <ChatbotDisclaimer hideHeader={true} />,
               t("about-the-chatbot"),
               {
-                translatedYesButtonLabel: t("button-text-agree"),
-                translatedNoButtonLabel: t("button-text-cancel"),
+                yesButtonLabel: t("button-text-agree"),
+                noButtonLabel: t("button-text-cancel"),
               },
             )
             if (!confirmed) {

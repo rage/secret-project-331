@@ -9,7 +9,7 @@ import { v4 } from "uuid"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
-import ChatbotAgree from "./ChatbotAgree"
+import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
@@ -145,7 +145,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 
   if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
     return (
-      <ChatbotAgree
+      <ChatbotDisclaimer
         agreeButton={
           <Button
             className={css`

@@ -85,8 +85,11 @@ def _wrap_in_async_main(tree):
 
 try:
     tree = ast.parse(user_source)
-    tree = PatchCode().visit(tree)
+    # Patch after wrapping: top-level user code lives inside async __run__ only after
+    # _wrap_in_async_main. Otherwise module-level input() is never rewritten to await.
     wrapped = _wrap_in_async_main(tree)
+    wrapped = PatchCode().visit(wrapped)
+    ast.fix_missing_locations(wrapped)
     user_code = compile(wrapped, "<user-script>", "exec")
 except SyntaxError as e:
     printError(str(e.msg), "SyntaxError", e.lineno or 0, [])

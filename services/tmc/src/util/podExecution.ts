@@ -54,7 +54,10 @@ export async function execWithTimeout(
     return Number.isFinite(parsed) ? parsed : undefined
   }
 
-  let execSocket: (k8s.WebSocket & { close?: () => void; destroy?: () => void }) | undefined
+  /** Socket returned by kubeExec.exec(); has onclose and optional close/destroy. */
+  let execSocket:
+    | { onclose?: (() => void) | null; close?: () => void; destroy?: () => void }
+    | undefined
   const connectTimeoutMs = timeoutMs
   let connectTimer: NodeJS.Timeout | undefined
   const connectTimeoutPromise = new Promise<never>((_resolve, reject) => {

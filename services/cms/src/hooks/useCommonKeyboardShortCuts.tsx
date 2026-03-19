@@ -27,26 +27,6 @@ const useCommonKeyboardShortcuts = ({ onUndo, onRedo }: UseCommonKeyboardShortcu
 
   useEffect(() => {
     registerShortcut({
-      name: "moocfi/save",
-      category: "global",
-      description: __("Save your changes."),
-      keyCombination: {
-        modifier: "primary",
-        character: "s",
-      },
-    })
-
-    registerShortcut({
-      name: "moocfi/open-saved-page-in-new-tab",
-      category: "global",
-      description: "Open saved page in new tab",
-      keyCombination: {
-        modifier: "primary",
-        character: "o",
-      },
-    })
-
-    registerShortcut({
       name: "moocfi/undo",
       category: "global",
       description: __("Undo your last changes."),
@@ -72,16 +52,6 @@ const useCommonKeyboardShortcuts = ({ onUndo, onRedo }: UseCommonKeyboardShortcu
       ],
     })
   }, [registerShortcut])
-
-  useShortcut("moocfi/save", (e: Event) => {
-    e.preventDefault()
-    console.info("In the future this should save the page.")
-  })
-
-  useShortcut("moocfi/open-saved-page-in-new-tab", (e: Event) => {
-    e.preventDefault()
-    console.info("In the future this should open the saved page in a new tab.")
-  })
 
   useShortcut("moocfi/undo", (e: Event) => {
     if (!onUndo || !shouldHandleBlockEditorHistoryShortcut(e)) {

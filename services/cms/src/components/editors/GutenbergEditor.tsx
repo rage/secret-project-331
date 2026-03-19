@@ -30,29 +30,22 @@ import {
 } from "@wordpress/block-editor"
 // This import is needed for bold, italics, ... formatting
 import "@wordpress/format-library"
-import { registerCoreBlocks } from "@wordpress/block-library"
-import {
-  BlockInstance,
-  getBlockType,
-  getBlockTypes,
-  registerBlockType,
-  setCategories,
-  unregisterBlockType,
-  unregisterBlockVariation,
-} from "@wordpress/blocks"
+import { type BlockConfiguration, BlockInstance } from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { useMergeRefs } from "@wordpress/compose"
-import { addFilter, removeFilter } from "@wordpress/hooks"
 // @ts-expect-error: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
-import { registerEditorAiAbilities } from "../../utils/Gutenberg/ai/abilities"
+import {
+  ensureStandaloneGutenbergBootstrap,
+  getDefaultAllowedBlockTypes,
+} from "../../utils/Gutenberg/bootstrapStandaloneGutenberg"
 import {
   createEditorHistoryEntry,
   getCurrentEditorHistoryEntry,
@@ -63,30 +56,23 @@ import {
   undoEditorHistory,
   updateCurrentEditorHistoryEntry,
 } from "../../utils/Gutenberg/editorHistory"
-import {
-  modifyEmbedBlockAttributes,
-  modifyImageBlockAttributes,
-} from "../../utils/Gutenberg/modifyBlockAttributes"
-import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
-import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenbergCategories"
-import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
-import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
-import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { primaryFont } from "@/shared-module/common/styles"
-import editBlockThemeJsonSettings from "@/utils/Gutenberg/editBlockThemeJsonSettings"
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
   onContentChange: React.Dispatch<BlockInstance[]>
   allowedBlocks?: string[]
   allowedBlockVariations?: Record<string, string[]>
-  customBlocks?: Array<Parameters<typeof registerBlockType>>
+  customBlocks?: CustomBlockDefinition[]
   mediaUpload: (props: MediaUploadProps) => void
   inspectorButtons?: JSX.Element
   /** This component has to run block migrations and validations once the Gutenberg editor and blocks have been loaded.
@@ -120,16 +106,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   const localRef = useRef()
   const contentRef = useMergeRefs([clearerRef, localRef])
 
-  const [editorSettings, setEditorSettings] = useState<
-    Partial<
-      EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
-    >
-  >({
-    disableCustomColors: false,
-    disableCustomEditorFontSizes: false,
-    styles: [],
-    codeEditingEnabled: false,
-  })
+  const [isGutenbergBootstrapped, setIsGutenbergBootstrapped] = useState(false)
   const historyRef = useRef(initializeEditorHistory(content))
   const selectionRef = useRef<GutenbergEditorSelection | undefined>(undefined)
   const localContentUpdateRef = useRef<BlockInstance[] | null>(null)
@@ -138,8 +115,39 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
 
   useEffect(() => {
-    setEditorSettings((prev) => ({ ...prev, mediaUpload }))
-  }, [mediaUpload])
+    ensureStandaloneGutenbergBootstrap({ allowedBlockVariations, customBlocks })
+    setIsGutenbergBootstrapped(true)
+  }, [allowedBlockVariations, customBlocks])
+
+  const allowedBlockTypes = useMemo(() => {
+    if (!allowedBlocks && !customBlocks) {
+      if (!isGutenbergBootstrapped) {
+        return []
+      }
+
+      return getDefaultAllowedBlockTypes()
+    }
+
+    return Array.from(
+      new Set([...(allowedBlocks ?? []), ...(customBlocks?.map(([blockName]) => blockName) ?? [])]),
+    )
+  }, [allowedBlocks, customBlocks, isGutenbergBootstrapped])
+
+  const editorSettings = useMemo<
+    Partial<
+      EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
+    >
+  >(
+    () => ({
+      disableCustomColors: false,
+      disableCustomEditorFontSizes: false,
+      styles: [],
+      codeEditingEnabled: false,
+      mediaUpload,
+      allowedBlockTypes,
+    }),
+    [allowedBlockTypes, mediaUpload],
+  )
 
   useEffect(() => {
     if (localContentUpdateRef.current === content) {
@@ -226,87 +234,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     // eslint-disable-next-line i18next/no-literal-string
     "block-props",
   )
-  useEffect(() => {
-    setCategories(modifyGutenbergCategories())
-  }, [])
-
-  useEffect(() => {
-    addFilter(
-      "blockEditor.useSetting.before",
-      "moocfi/editBlockThemeJsonSettings",
-      editBlockThemeJsonSettings,
-    )
-    // Register all core blocks
-    registerCoreBlocks()
-    // We register the BlockVariation and if it's not in allowedBlockVariations, it will be removed.
-    registerBlockVariations()
-
-    // Unregister unwanted blocks
-    if (allowedBlocks) {
-      getBlockTypes().forEach((block) => {
-        if (allowedBlocks.indexOf(block.name) === -1) {
-          unregisterBlockType(block.name)
-        }
-      })
-    }
-
-    // Unregister unwanted block variations
-    if (allowedBlockVariations) {
-      for (const [blockName, allowedVariations] of Object.entries(allowedBlockVariations)) {
-        /* @ts-expect-error: type signature incorrect */
-        getBlockType(blockName)?.variations?.forEach((variation) => {
-          if (allowedVariations.indexOf(variation.name) === -1) {
-            unregisterBlockVariation(blockName, variation.name)
-          }
-        })
-      }
-    }
-
-    // Register own blocks
-    if (customBlocks) {
-      customBlocks.forEach(([blockName, block]) => {
-        registerBlockType(blockName, block)
-      })
-    }
-
-    // Remove Gutenberg Default Button styles and add own
-    modifyBlockButton()
-
-    // core/image block crashes if there's no wp global. Setting it to null is enough fix the existing null checks
-    // in the core/image code.
-    // @ts-expect-error: setting a global
-    window.wp = null
-  }, [allowedBlockVariations, allowedBlocks, customBlocks])
-
-  addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
-  addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
-
-  // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
-  // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
-
-  /**
-   * editor.BlockEdit edits the edit function for a block
-   * Add the custom attributes for the Mentimeter to the sidebar.
-   */
-  useEffect(() => {
-    addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
-    return () => {
-      removeFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector")
-    }
-  }, [])
-
-  useEffect(() => {
-    registerEditorAiAbilities()
-    addFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar", withParagraphAiToolbarAction)
-    return () => {
-      removeFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar")
-    }
-  }, [])
 
   // This **should** be the last useEffect as it supposes that Gutenberg is fully set up
   // Runs migrations and validations for the blocks
   useEffect(() => {
-    if (!needToRunMigrationsAndValidations) {
+    if (!isGutenbergBootstrapped || !needToRunMigrationsAndValidations) {
       return
     }
     const [updatedContent, numberOfBlocksMigrated] = runMigrationsAndValidations(content)
@@ -328,13 +260,14 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     }
   }, [
     content,
+    isGutenbergBootstrapped,
     needToRunMigrationsAndValidations,
     onContentChange,
     setNeedToRunMigrationsAndValidations,
     t,
   ])
 
-  if (needToRunMigrationsAndValidations) {
+  if (!isGutenbergBootstrapped || needToRunMigrationsAndValidations) {
     return <Spinner variant="large" />
   }
 

@@ -92,7 +92,7 @@ export async function waitForViewType(
 /**
  * Waits until all MessageChannelIFrame instances have received state and a reasonable height.
  */
-export async function waitForMessageChannelIframesToBeReady(page: Page, minHeightPx = 100) {
+export async function waitForMessageChannelIframesToBeReady(page: Page, minHeightPx = 20) {
   const iframeLocator = page.getByTestId("message-channel-iframe")
   if ((await iframeLocator.count()) === 0) {
     return
@@ -104,6 +104,13 @@ export async function waitForMessageChannelIframesToBeReady(page: Page, minHeigh
       const stateSent = await nthIframe.getAttribute("data-state-sent")
       if (stateSent !== "true") {
         throw new Error(`MessageChannelIFrame ${index + 1} has not received set-state`)
+      }
+      const spinnerCount = await page
+        .frameLocator(`:nth-match(iframe[data-testid="message-channel-iframe"], ${index + 1})`)
+        .getByTestId("spinner")
+        .count()
+      if (spinnerCount > 0) {
+        throw new Error(`MessageChannelIFrame ${index + 1} still has a spinner`)
       }
       const iframeHeightValue = await nthIframe.getAttribute("data-iframe-height")
       const iframeHeight = iframeHeightValue ? Number(iframeHeightValue) : NaN

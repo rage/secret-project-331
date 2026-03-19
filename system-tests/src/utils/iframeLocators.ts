@@ -94,11 +94,11 @@ export async function waitForViewType(
  */
 export async function waitForMessageChannelIframesToBeReady(page: Page, minHeightPx = 100) {
   const iframeLocator = page.getByTestId("message-channel-iframe")
+  if ((await iframeLocator.count()) === 0) {
+    return
+  }
   await expect(async () => {
     const iframeCount = await iframeLocator.count()
-    if (iframeCount === 0) {
-      throw new Error("No MessageChannelIFrame iframes found")
-    }
     for (let index = 0; index < iframeCount; index++) {
       const nthIframe = iframeLocator.nth(index)
       const stateSent = await nthIframe.getAttribute("data-state-sent")

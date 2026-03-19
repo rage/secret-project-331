@@ -110,6 +110,9 @@ export async function execWithTimeout(
       clearTimeout(connectTimer)
     }
   }
+  if (execSocket == null) {
+    throw new Error("exec socket not available")
+  }
   const execPromise = new Promise<{ timedOut: boolean; exitCode?: number }>((resolve) => {
     const resolveOnce = (result: { timedOut: boolean; exitCode?: number }) => {
       if (resolved) {

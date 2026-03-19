@@ -84,7 +84,8 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
         className={css`
           display: flex;
           flex-direction: column;
-          height: 100%;
+          flex: 1;
+          min-height: 0;
           position: relative;
           ${backgroundColor && `background-color: ${backgroundColor};`}
           &:focus {
@@ -169,6 +170,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
         <div
           className={css`
             flex: 1;
+            min-height: 0;
             ${!noPadding && `padding: 1rem 2rem;`}
             ${!disableContentScroll && "overflow-y: auto;"}
           `}

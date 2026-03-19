@@ -233,6 +233,49 @@ ORDER BY ets.created_at ASC
     Ok(submissions)
 }
 
+/// Fetches CSV-exportable rows for the latest submission per user only, ordered by submitted_at.
+pub async fn get_csv_export_data_by_exercise_and_task_latest_per_user(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    exercise_task_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskSubmissionCsvExportData>> {
+    let submissions = sqlx::query_as!(
+        ExerciseTaskSubmissionCsvExportData,
+        r#"
+WITH latest AS (
+  SELECT DISTINCT ON (ess.user_id) ets.id AS exercise_task_submission_id
+  FROM exercise_task_submissions ets
+  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+  WHERE ess.exercise_id = $1
+    AND ets.exercise_task_id = $2
+    AND ess.deleted_at IS NULL
+    AND ets.deleted_at IS NULL
+  ORDER BY ess.user_id, ets.created_at DESC
+)
+SELECT ets.exercise_slide_submission_id,
+  ets.id AS exercise_task_submission_id,
+  ets.exercise_task_id,
+  ess.exercise_id,
+  ess.user_id,
+  ets.created_at AS submitted_at,
+  ets.data_json AS answer
+FROM exercise_task_submissions ets
+JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+JOIN latest ON latest.exercise_task_submission_id = ets.id
+WHERE ess.exercise_id = $1
+  AND ets.exercise_task_id = $2
+  AND ess.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+ORDER BY ets.created_at ASC
+        "#,
+        exercise_id,
+        exercise_task_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 pub async fn get_users_latest_exercise_task_submissions_for_exercise_slide(
     conn: &mut PgConnection,
     exercise_slide_id: Uuid,

@@ -694,6 +694,7 @@
   "label-csv-completions-header": "CSV-filen måste ha en huvudrad med dessa kolumner:",
   "label-csv-completions-note": "Obs: Om du inte anger några datum för slutföranden i CSV-filen kommer det valda datumet ovan att användas för alla slutföranden. Observera att du antingen måste ange ett datum för varje slutförande eller inget alls.",
   "label-csv-completions-user-id": "user_id: Användarens ID i systemet",
+  "label-csv-export-only-latest-per-user": "Exportera endast senaste inlämningen per användare",
   "label-csv-export-task": "Uppgift",
   "label-csv-export-task-option": "Uppgift {{order}} ({{exerciseType}})",
   "label-current": "Nuvarande",

@@ -696,6 +696,7 @@
   "label-csv-completions-header": "يجب أن يحتوي ملف CSV على صف عنوان بهذه الأعمدة:",
   "label-csv-completions-note": "ملاحظة: إذا لم تحدد أي تواريخ للإكمالات في CSV، سيتم استخدام التاريخ المحدد أعلاه لجميع الإكمالات. لاحظ أنه يجب عليك إما تحديد تاريخ لكل إكمال أو عدم تحديد أي تواريخ على الإطلاق.",
   "label-csv-completions-user-id": "user_id: معرف المستخدم في النظام",
+  "label-csv-export-only-latest-per-user": "تصدير أحدث تقديم فقط لكل مستخدم",
   "label-csv-export-task": "مهمة التمرين",
   "label-csv-export-task-option": "المهمة {{order}} ({{exerciseType}})",
   "label-current": "الحالي",

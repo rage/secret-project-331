@@ -45,29 +45,6 @@ export interface DownloadedCsvFile {
   fileName: string
 }
 
-const extractFileNameFromHeader = (contentDisposition: string | undefined): string | null => {
-  if (!contentDisposition) {
-    return null
-  }
-  const starMatch = contentDisposition.match(/filename\*=([^;]+)/i)
-  if (starMatch) {
-    const part = starMatch[1].trim()
-    const encodingMatch = part.match(/^([^']*)'([^']*)'(.*)$/)
-    const value = encodingMatch ? encodingMatch[3].trim() : part
-    try {
-      return decodeURIComponent(value.replace(/"/g, ""))
-    } catch {
-      return null
-    }
-  }
-  const quotedMatch = contentDisposition.match(/filename="([^"]*)"/i)
-  if (quotedMatch) {
-    return quotedMatch[1] || null
-  }
-  const unquotedMatch = contentDisposition.match(/filename=([^;\s]+)/i)
-  return unquotedMatch ? unquotedMatch[1].trim() : null
-}
-
 export const fetchExercisesByCourseId = async (courseId: string): Promise<Exercise[]> => {
   const response = await mainFrontendClient.get(`/exercises/${courseId}/exercises-by-course-id`)
   return validateResponse(response, isArray(isExercise))
@@ -88,29 +65,28 @@ export const downloadExerciseDefinitionsCsv = async (
     `/exercises/${exerciseId}/export-definitions-csv?exercise_task_id=${exerciseTaskId}`,
     { responseType: "blob" },
   )
-  const fileName =
-    extractFileNameFromHeader(response.headers["content-disposition"]) ??
-    `exercise-${exerciseId}-definitions.csv`
   return {
     blob: response.data,
-    fileName,
+    fileName: `exercise-${exerciseId}-definitions-${exerciseTaskId}.csv`,
   }
 }
 
 export const downloadExerciseAnswersCsv = async (
   exerciseId: string,
   exerciseTaskId: string,
+  onlyLatestPerUser = false,
 ): Promise<DownloadedCsvFile> => {
+  const params = new URLSearchParams({ exercise_task_id: exerciseTaskId })
+  if (onlyLatestPerUser) {
+    params.set("only_latest_per_user", "true")
+  }
   const response = await mainFrontendClient.get(
-    `/exercises/${exerciseId}/export-answers-csv?exercise_task_id=${exerciseTaskId}`,
+    `/exercises/${exerciseId}/export-answers-csv?${params.toString()}`,
     { responseType: "blob" },
   )
-  const fileName =
-    extractFileNameFromHeader(response.headers["content-disposition"]) ??
-    `exercise-${exerciseId}-answers.csv`
   return {
     blob: response.data,
-    fileName,
+    fileName: `exercise-${exerciseId}-answers-${exerciseTaskId}.csv`,
   }
 }
 

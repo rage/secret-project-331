@@ -20,6 +20,7 @@ import {
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -53,6 +54,7 @@ const SubmissionsPage: React.FC = () => {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const [selectedTaskId, setSelectedTaskId] = useState("")
   const [exportMode, setExportMode] = useState<ExportMode | null>(null)
+  const [onlyLatestPerUser, setOnlyLatestPerUser] = useState(false)
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("header-submissions") }], [t])
 
@@ -97,13 +99,22 @@ const SubmissionsPage: React.FC = () => {
   const closeExportDialog = () => {
     setIsExportDialogOpen(false)
     setExportMode(null)
+    setOnlyLatestPerUser(false)
   }
 
   const exportCsvMutation = useToastMutation(
-    async ({ mode, taskId }: { mode: ExportMode; taskId: string }) => {
+    async ({
+      mode,
+      taskId,
+      onlyLatestPerUser: onlyLatest,
+    }: {
+      mode: ExportMode
+      taskId: string
+      onlyLatestPerUser?: boolean
+    }) => {
       return mode === "definitions"
         ? await downloadExerciseDefinitionsCsv(id, taskId)
-        : await downloadExerciseAnswersCsv(id, taskId)
+        : await downloadExerciseAnswersCsv(id, taskId, onlyLatest ?? false)
     },
     { notify: true, method: "POST" },
     {
@@ -131,7 +142,11 @@ const SubmissionsPage: React.FC = () => {
     if (!exportMode || !selectedTaskId) {
       return
     }
-    exportCsvMutation.mutate({ mode: exportMode, taskId: selectedTaskId })
+    exportCsvMutation.mutate({
+      mode: exportMode,
+      taskId: selectedTaskId,
+      ...(exportMode === "answers" && { onlyLatestPerUser: onlyLatestPerUser }),
+    })
   }
 
   return (
@@ -254,6 +269,13 @@ const SubmissionsPage: React.FC = () => {
             value: task.exercise_task_id,
           }))}
         />
+        {exportMode === "answers" && (
+          <CheckBox
+            label={t("label-csv-export-only-latest-per-user")}
+            checked={onlyLatestPerUser}
+            onChangeByValue={(checked) => setOnlyLatestPerUser(checked)}
+          />
+        )}
         <div
           className={css`
             display: flex;

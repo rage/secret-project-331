@@ -65,7 +65,7 @@ const StyledSpinner = styled.div<SpinnerProps>`
 `
 
 const Spinner = (props: SpinnerProps) => {
-  return <StyledSpinner className={SPINNER_CLASS} {...props}></StyledSpinner>
+  return <StyledSpinner data-testid="spinner" className={SPINNER_CLASS} {...props}></StyledSpinner>
 }
 
 export default Spinner

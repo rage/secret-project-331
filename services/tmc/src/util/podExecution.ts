@@ -113,6 +113,8 @@ export async function execWithTimeout(
   if (execSocket == null) {
     throw new Error("exec socket not available")
   }
+  // Const so TS narrows inside Promise executors (closures don't see `let` narrowing).
+  const socket = execSocket
   const execPromise = new Promise<{ timedOut: boolean; exitCode?: number }>((resolve) => {
     const resolveOnce = (result: { timedOut: boolean; exitCode?: number }) => {
       if (resolved) {
@@ -121,7 +123,7 @@ export async function execWithTimeout(
       resolved = true
       resolve(result)
     }
-    execSocket.onclose = () => {
+    socket.onclose = () => {
       // Prefer the Kubernetes status channel's exit code when available.
       const exitCode = observedStatus ? observedStatusExitCode : undefined
       resolveOnce({ timedOut: false, exitCode })
@@ -131,7 +133,7 @@ export async function execWithTimeout(
     const timer = setTimeout(() => {
       // Best-effort stop the exec stream; the server-side process may still run.
       try {
-        execSocket?.close?.()
+        socket.close?.()
       } catch (_e) {
         // ignore
       }

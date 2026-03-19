@@ -699,6 +699,7 @@
   "label-csv-completions-header": "Файл CSV повинен мати рядок заголовка з цими стовпцями:",
   "label-csv-completions-note": "Примітка: Якщо ви не вказуєте жодних дат для завершень у CSV, дата, вибрана вище, буде використана для всіх завершень. Зверніть увагу, що ви повинні або вказати дату для кожного завершення, або не вказувати жодної.",
   "label-csv-completions-user-id": "user_id: Ідентифікатор користувача в системі",
+  "label-csv-export-only-latest-per-user": "Експортувати лише останнє подання для кожного користувача",
   "label-csv-export-task": "Завдання",
   "label-csv-export-task-option": "Завдання {{order}} ({{exerciseType}})",
   "label-current": "Поточний",

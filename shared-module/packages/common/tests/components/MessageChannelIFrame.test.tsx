@@ -75,9 +75,12 @@ describe("MessageChannelIFrame", () => {
       </I18nextProvider>,
     )
     await waitFor(() => res.container.querySelector("iframe"))
-    expect(res.container.querySelector("iframe")?.src).toBe(
-      "http://example.com/example-iframe-page",
+    const iframe = res.container.querySelector<HTMLIFrameElement>(
+      'iframe[data-testid="message-channel-iframe"]',
     )
+    expect(iframe?.src).toBe("http://example.com/example-iframe-page")
+    expect(iframe?.getAttribute("data-state-sent")).toBe("true")
+    expect(iframe?.getAttribute("data-iframe-height")).toBe("0")
   })
 
   describe("basic connection flow", () => {
@@ -813,6 +816,16 @@ describe("MessageChannelIFrame", () => {
 
       expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(1)
 
+      act(() => {
+        if (mockChannel.port1.onmessage) {
+          mockChannel.port1.onmessage({
+            data: { message: "height-changed", data: 500 },
+          } as MessageEvent)
+        }
+      })
+
+      expect(iframe?.getAttribute("data-iframe-height")).toBe("500")
+
       rerender(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
@@ -834,6 +847,8 @@ describe("MessageChannelIFrame", () => {
       })
 
       expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(2)
+      expect(iframe?.getAttribute("data-state-sent")).toBe("false")
+      expect(iframe?.getAttribute("data-iframe-height")).toBe("0")
     })
   })
 
@@ -946,7 +961,7 @@ describe("MessageChannelIFrame", () => {
         data: { public_spec: {}, previous_submission: null },
       }
 
-      render(
+      const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
             url="http://example.com/test"
@@ -964,6 +979,11 @@ describe("MessageChannelIFrame", () => {
             ...stateToPost,
           }),
         )
+      })
+
+      await waitFor(() => {
+        const iframe = container.querySelector("iframe")
+        expect(iframe?.getAttribute("data-state-sent")).toBe("true")
       })
     })
 

@@ -34,6 +34,8 @@ interface MessageChannelIFrameProps {
   onReady?: () => void
 }
 
+const MESSAGE_CHANNEL_IFRAME_TEST_ID = "message-channel-iframe"
+
 const useIframeSandboxingAttribute = (disableSandbox: boolean) => {
   if (disableSandbox) {
     return undefined
@@ -92,6 +94,11 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       portSentTimestampRef.current = null
       hasSignaledReadyRef.current = false
       readyMessageQueueRef.current = []
+      if (iframeRef.current) {
+        // eslint-disable-next-line i18next/no-literal-string
+        iframeRef.current.dataset.stateSent = "false"
+        iframeRef.current.dataset.iframeHeight = "0"
+      }
       if (resetRecoveryAttempts) {
         recoveryAttemptsRef.current = 0
       }
@@ -197,6 +204,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         console.info("Updating height")
         // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
+        iframeRef.current.dataset.iframeHeight = Number(data.data).toString()
       } else if (isOpenLinkMessage(data)) {
         console.info(`The iframe wants to open a link: ${data.data}`)
 
@@ -343,6 +351,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     console.info(JSON.stringify(postData, undefined, 2))
     console.groupEnd()
     messageChannel.port1.postMessage(postData)
+    if (iframeRef.current) {
+      // eslint-disable-next-line i18next/no-literal-string
+      iframeRef.current.dataset.stateSent = "true"
+    }
     lastThingPostedRef.current = postThisStateToIFrame
   }, [messageChannel, postThisStateToIFrame])
 
@@ -381,6 +393,9 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         </h4>
       )}
       <iframe
+        data-testid={MESSAGE_CHANNEL_IFRAME_TEST_ID}
+        data-state-sent="false"
+        data-iframe-height="0"
         sandbox={iframeSandboxAttribute}
         className={css`
           overflow: hidden;

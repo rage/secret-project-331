@@ -89,6 +89,33 @@ export async function waitForViewType(
   await locator.locator(`[data-view-type="${viewType}"]`).waitFor()
 }
 
+/**
+ * Waits until all MessageChannelIFrame instances have received state and a reasonable height.
+ */
+export async function waitForMessageChannelIframesToBeReady(page: Page, minHeightPx = 100) {
+  const iframeLocator = page.getByTestId("message-channel-iframe")
+  await expect(async () => {
+    const iframeCount = await iframeLocator.count()
+    if (iframeCount === 0) {
+      throw new Error("No MessageChannelIFrame iframes found")
+    }
+    for (let index = 0; index < iframeCount; index++) {
+      const nthIframe = iframeLocator.nth(index)
+      const stateSent = await nthIframe.getAttribute("data-state-sent")
+      if (stateSent !== "true") {
+        throw new Error(`MessageChannelIFrame ${index + 1} has not received set-state`)
+      }
+      const iframeHeightValue = await nthIframe.getAttribute("data-iframe-height")
+      const iframeHeight = iframeHeightValue ? Number(iframeHeightValue) : NaN
+      if (!Number.isFinite(iframeHeight) || iframeHeight <= minHeightPx) {
+        throw new Error(
+          `MessageChannelIFrame ${index + 1} height is ${iframeHeightValue ?? "missing"} (min ${minHeightPx})`,
+        )
+      }
+    }
+  }).toPass({ timeout: 10000 })
+}
+
 export async function scrollToLocatorsParentIframeAndClick(locator: Locator) {
   await scrollLocatorsParentIframeToViewIfNeeded(locator)
   await locator.click()

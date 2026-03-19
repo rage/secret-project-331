@@ -1,6 +1,9 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
+import {
+  getLocatorForNthExerciseServiceIframe,
+  waitForMessageChannelIframesToBeReady,
+} from "../../utils/iframeLocators"
 
 import { answerExercise, fillPeerReview } from "./peer_review_utils"
 
@@ -94,6 +97,8 @@ test.describe("test ManualReviewEverything behavior", () => {
       .getByText("View answers requiring attention")
       .first()
       .click()
+
+    await waitForMessageChannelIframesToBeReady(teacherPage)
 
     // Make sure the iframe above is loaded so that it does not cause scrolling
     await teacherPage.getByRole("button", { name: "Custom points" }).first().waitFor()

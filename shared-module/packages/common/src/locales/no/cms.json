@@ -235,6 +235,7 @@
   "upload-or-drag-and-drop-onto-this-block": "Last opp eller dra og slipp til denne blokken",
   "use-course-default-peer-review-config": "Bruk kursets standard fagfellevurderingskonfigurasjon",
   "use-default-text-for-label": "Bruk standard tekst for etikett",
+  "warning-custom-html-missing-paragraph-wrapper": "Advarsel: Denne Custom HTML-blokken ser ut som ett enkelt avsnitt uten <p>-tagger. Pakk inn innholdet i <p>...</p> slik at det bruker samme avsnittsstil som en vanlig avsnittsblokk.",
   "warning-mobile-background-missing": "Advarsel: Ingen mobil- eller større bakgrunnsbilde er satt, men andre skjermstørrelser har bakgrunnsbilder konfigurert. Mobilbakgrunnsbildet fungerer som standard feiltilfelle for alle skjermstørrelser. Hvis du ønsker å bruke bare ett bilde som vil vises på alle skjermstørrelser, last det opp til mobilbakgrunn eller feltet for større bilde.",
   "warning-points-are-all-or-nothing-disabled": "Advarsel: Det anbefales å aktivere \"poeng er alt eller ingenting\". Fagfellevurderingene gitt av studenter varierer i kvalitet, noe som kan føre til at noen studenter mottar urettferdige poeng for oppgaven. Aktivering av dette alternativet reduserer tilfeldigheten i mottatte poeng, og gjør fagfellevurderingsprosessen mer rettferdig for studentene.",
   "welcome-message-for-course": "Velkomstmelding for kurset...",

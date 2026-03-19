@@ -235,6 +235,7 @@
   "upload-or-drag-and-drop-onto-this-block": "Valitse tiedosto tai raahaa tiedosto tähän lohkoon",
   "use-course-default-peer-review-config": "Käytä kurssin oletusarvoista vertaisarvioasetusta",
   "use-default-text-for-label": "Käytä oletustekstiä",
+  "warning-custom-html-missing-paragraph-wrapper": "Varoitus: Tämä Custom HTML -lohko näyttää yksittäiseltä kappaleelta ilman <p>-tageja. Kääri sisältö muotoon <p>...</p>, jotta se käyttää samoja kappaletyylejä kuin tavallinen kappalelohko.",
   "warning-mobile-background-missing": "Varoitus: Mobiili- tai suurempaa taustakuvaa ei ole asetettu, mutta muille näyttökokoille on määritetty taustakuvia. Mobiilitaustakuva toimii oletusvarana kaikille näyttökokoille. Jos haluat käyttää vain yhtä kuvaa, joka näkyisi kaikilla näyttökokoilla, lataa se mobiilitaustakuvaan tai suurempaan kuvaan.",
   "warning-points-are-all-or-nothing-disabled": "Varoitus: Suositteleme, että pidät asetuksen pisteet on kaikki tai ei mitään päällä. Oppilaiden antamat vertaisarviot vaihtelevat suuresti laadultaan, mikä voi johtaa siihen, että oppilaat saavat joskus epäreiluja pisteitä tehtävästä. Tämän asetuksen käyttö vähentää satunnaisuutta saaduissa pisteissä, mikä tekee vertaisarviointiprosessista oikeudenmukaisemman oppilaille.",
   "welcome-message-for-course": "Tervetuloa kurssille viesti",

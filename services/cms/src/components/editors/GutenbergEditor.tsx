@@ -61,6 +61,7 @@ import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
+import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
@@ -210,6 +211,17 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     addFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar", withParagraphAiToolbarAction)
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter(
+      "editor.BlockEdit",
+      "moocfi/cms/customHtmlParagraphWarning",
+      withCustomHtmlParagraphWarning,
+    )
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/customHtmlParagraphWarning")
     }
   }, [])
 

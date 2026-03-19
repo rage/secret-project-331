@@ -7,7 +7,22 @@ import { __ } from "@wordpress/i18n"
 // @ts-expect-error: No type definitions
 import { store as keyboardShortcutsStore, useShortcut } from "@wordpress/keyboard-shortcuts"
 
-const useCommonKeyboardShortcuts = () => {
+interface UseCommonKeyboardShortcutsProps {
+  onUndo?: () => void
+  onRedo?: () => void
+}
+
+const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {
+  const target = event.target
+
+  return !(
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement
+  )
+}
+
+const useCommonKeyboardShortcuts = ({ onUndo, onRedo }: UseCommonKeyboardShortcutsProps = {}) => {
   const { registerShortcut } = useDispatch(keyboardShortcutsStore)
 
   useEffect(() => {
@@ -49,6 +64,12 @@ const useCommonKeyboardShortcuts = () => {
         modifier: "primaryShift",
         character: "z",
       },
+      aliases: [
+        {
+          modifier: "primary",
+          character: "y",
+        },
+      ],
     })
   }, [registerShortcut])
 
@@ -63,13 +84,21 @@ const useCommonKeyboardShortcuts = () => {
   })
 
   useShortcut("moocfi/undo", (e: Event) => {
+    if (!onUndo || !shouldHandleBlockEditorHistoryShortcut(e)) {
+      return
+    }
+
     e.preventDefault()
-    console.info("In the future this should undo")
+    onUndo()
   })
 
   useShortcut("moocfi/redo", (e: Event) => {
+    if (!onRedo || !shouldHandleBlockEditorHistoryShortcut(e)) {
+      return
+    }
+
     e.preventDefault()
-    console.info("In the future this should redo")
+    onRedo()
   })
 }
 

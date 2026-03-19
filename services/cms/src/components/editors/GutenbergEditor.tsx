@@ -54,6 +54,16 @@ import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodri
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import { registerEditorAiAbilities } from "../../utils/Gutenberg/ai/abilities"
 import {
+  createEditorHistoryEntry,
+  getCurrentEditorHistoryEntry,
+  type GutenbergEditorSelection,
+  initializeEditorHistory,
+  pushEditorHistoryEntry,
+  redoEditorHistory,
+  undoEditorHistory,
+  updateCurrentEditorHistoryEntry,
+} from "../../utils/Gutenberg/editorHistory"
+import {
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
 } from "../../utils/Gutenberg/modifyBlockAttributes"
@@ -88,6 +98,10 @@ interface GutenbergEditorProps {
   showSidebar?: boolean
 }
 
+interface GutenbergEditorChangeOptions {
+  selection?: GutenbergEditorSelection
+}
+
 const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> = ({
   content,
   onContentChange,
@@ -116,6 +130,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     styles: [],
     codeEditingEnabled: false,
   })
+  const historyRef = useRef(initializeEditorHistory(content))
+  const selectionRef = useRef<GutenbergEditorSelection | undefined>(undefined)
+  const localContentUpdateRef = useRef<BlockInstance[] | null>(null)
+  const [selection, setSelection] = useState<GutenbergEditorSelection | undefined>(undefined)
 
   const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
 
@@ -123,11 +141,83 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     setEditorSettings((prev) => ({ ...prev, mediaUpload }))
   }, [mediaUpload])
 
-  const handleChanges = (newContent: BlockInstance[]): void => {
+  useEffect(() => {
+    if (localContentUpdateRef.current === content) {
+      localContentUpdateRef.current = null
+      return
+    }
+
+    historyRef.current = initializeEditorHistory(content)
+    selectionRef.current = undefined
+    setSelection(undefined)
+  }, [content])
+
+  const setSelectionState = (nextSelection?: GutenbergEditorSelection) => {
+    selectionRef.current = nextSelection
+    setSelection(nextSelection)
+  }
+
+  const dispatchContentChange = (newContent: BlockInstance[]) => {
+    localContentUpdateRef.current = newContent
     onContentChange(newContent)
   }
-  const handleInput = (newContent: BlockInstance[]): void => {
-    onContentChange(newContent)
+
+  const handleChanges = (
+    newContent: BlockInstance[],
+    options?: GutenbergEditorChangeOptions,
+  ): void => {
+    const nextSelection = options?.selection ?? selectionRef.current
+
+    setSelectionState(nextSelection)
+    historyRef.current = pushEditorHistoryEntry(
+      historyRef.current,
+      createEditorHistoryEntry(newContent, nextSelection),
+    )
+    dispatchContentChange(newContent)
+  }
+
+  const handleInput = (
+    newContent: BlockInstance[],
+    options?: GutenbergEditorChangeOptions,
+  ): void => {
+    const nextSelection = options?.selection ?? selectionRef.current
+
+    setSelectionState(nextSelection)
+    historyRef.current = updateCurrentEditorHistoryEntry(
+      historyRef.current,
+      createEditorHistoryEntry(newContent, nextSelection),
+    )
+    dispatchContentChange(newContent)
+  }
+
+  const handleUndo = () => {
+    const nextHistory = undoEditorHistory(historyRef.current)
+
+    if (nextHistory.index === historyRef.current.index) {
+      return
+    }
+
+    historyRef.current = nextHistory
+    const nextEntry = getCurrentEditorHistoryEntry(nextHistory)
+    setSelectionState(nextEntry?.selection)
+    if (nextEntry) {
+      dispatchContentChange(nextEntry.content)
+    }
+  }
+
+  const handleRedo = () => {
+    const nextHistory = redoEditorHistory(historyRef.current)
+
+    if (nextHistory.index === historyRef.current.index) {
+      return
+    }
+
+    historyRef.current = nextHistory
+    const nextEntry = getCurrentEditorHistoryEntry(nextHistory)
+    setSelectionState(nextEntry?.selection)
+    if (nextEntry) {
+      dispatchContentChange(nextEntry.content)
+    }
   }
 
   const [sidebarView, setSidebarView] = useState<
@@ -268,6 +358,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
             value={content}
             onInput={handleInput}
             onChange={handleChanges}
+            // @ts-expect-error: selection props exist upstream but not in our type package.
+            selection={selection}
+            onChangeSelection={(nextSelection: GutenbergEditorSelection | undefined) => {
+              setSelectionState(nextSelection)
+            }}
           >
             {showSidebar && (
               <div className="editor__sidebar">
@@ -372,7 +467,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                 <div className="editor-styles-wrapper">
                   {/* @ts-expect-error: type signature incorrect */}
                   <BlockEditorKeyboardShortcuts.Register />
-                  <CommonKeyboardShortcuts />
+                  <CommonKeyboardShortcuts onUndo={handleUndo} onRedo={handleRedo} />
                   <WritingFlow
                     // @ts-expect-error: Ref missing from type definitions
                     ref={contentRef}

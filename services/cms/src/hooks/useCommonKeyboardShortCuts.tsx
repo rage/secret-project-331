@@ -1,40 +1,36 @@
+/* eslint-disable i18next/no-literal-string */
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
 import { useDispatch } from "@wordpress/data"
 import { useEffect } from "@wordpress/element"
-import { __ } from "@wordpress/i18n"
 // @ts-expect-error: No type definitions
 import { store as keyboardShortcutsStore, useShortcut } from "@wordpress/keyboard-shortcuts"
+import { useTranslation } from "react-i18next"
 
-const useCommonKeyboardShortcuts = () => {
+interface UseCommonKeyboardShortcutsProps {
+  onUndo?: () => void
+  onRedo?: () => void
+}
+
+const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {
+  const target = event.target
+
+  return !(
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement
+  )
+}
+
+const useCommonKeyboardShortcuts = ({ onUndo, onRedo }: UseCommonKeyboardShortcutsProps = {}) => {
   const { registerShortcut } = useDispatch(keyboardShortcutsStore)
+  const { t } = useTranslation()
 
   useEffect(() => {
     registerShortcut({
-      name: "moocfi/save",
-      category: "global",
-      description: __("Save your changes."),
-      keyCombination: {
-        modifier: "primary",
-        character: "s",
-      },
-    })
-
-    registerShortcut({
-      name: "moocfi/open-saved-page-in-new-tab",
-      category: "global",
-      description: "Open saved page in new tab",
-      keyCombination: {
-        modifier: "primary",
-        character: "o",
-      },
-    })
-
-    registerShortcut({
       name: "moocfi/undo",
       category: "global",
-      description: __("Undo your last changes."),
+      description: t("undo-your-last-changes"),
       keyCombination: {
         modifier: "primary",
         character: "z",
@@ -44,32 +40,36 @@ const useCommonKeyboardShortcuts = () => {
     registerShortcut({
       name: "moocfi/redo",
       category: "global",
-      description: __("Redo your last undo."),
+      description: t("redo-your-last-undo"),
       keyCombination: {
         modifier: "primaryShift",
         character: "z",
       },
+      aliases: [
+        {
+          modifier: "primary",
+          character: "y",
+        },
+      ],
     })
-  }, [registerShortcut])
-
-  useShortcut("moocfi/save", (e: Event) => {
-    e.preventDefault()
-    console.info("In the future this should save the page.")
-  })
-
-  useShortcut("moocfi/open-saved-page-in-new-tab", (e: Event) => {
-    e.preventDefault()
-    console.info("In the future this should open the saved page in a new tab.")
-  })
+  }, [registerShortcut, t])
 
   useShortcut("moocfi/undo", (e: Event) => {
+    if (!onUndo || !shouldHandleBlockEditorHistoryShortcut(e)) {
+      return
+    }
+
     e.preventDefault()
-    console.info("In the future this should undo")
+    onUndo()
   })
 
   useShortcut("moocfi/redo", (e: Event) => {
+    if (!onRedo || !shouldHandleBlockEditorHistoryShortcut(e)) {
+      return
+    }
+
     e.preventDefault()
-    console.info("In the future this should redo")
+    onRedo()
   })
 }
 

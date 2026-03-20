@@ -2,9 +2,14 @@
 
 import useCommonKeyboardShortcuts from "../hooks/useCommonKeyboardShortCuts"
 
-const CommonKeyboardShortcuts: React.FC = () => {
+interface CommonKeyboardShortcutsProps {
+  onUndo?: () => void
+  onRedo?: () => void
+}
+
+const CommonKeyboardShortcuts: React.FC<CommonKeyboardShortcutsProps> = ({ onUndo, onRedo }) => {
   // We call the hook in a component so that the hook is used only inside a ShortCutProvider.
-  useCommonKeyboardShortcuts()
+  useCommonKeyboardShortcuts({ onUndo, onRedo })
   return null
 }
 

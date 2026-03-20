@@ -33,6 +33,7 @@ import "@wordpress/format-library"
 import { type BlockConfiguration, BlockInstance } from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { useMergeRefs } from "@wordpress/compose"
+import { addFilter, removeFilter } from "@wordpress/hooks"
 // @ts-expect-error: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useMemo, useRef, useState } from "react"
@@ -57,6 +58,7 @@ import {
   updateCurrentEditorHistoryEntry,
 } from "../../utils/Gutenberg/editorHistory"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
+import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -234,6 +236,17 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     // eslint-disable-next-line i18next/no-literal-string
     "block-props",
   )
+
+  useEffect(() => {
+    addFilter(
+      "editor.BlockEdit",
+      "moocfi/cms/customHtmlParagraphWarning",
+      withCustomHtmlParagraphWarning,
+    )
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/customHtmlParagraphWarning")
+    }
+  }, [])
 
   // This **should** be the last useEffect as it supposes that Gutenberg is fully set up
   // Runs migrations and validations for the blocks

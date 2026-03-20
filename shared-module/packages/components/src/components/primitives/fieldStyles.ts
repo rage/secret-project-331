@@ -47,6 +47,7 @@ const sizeValues = {
 type SizeValues = (typeof sizeValues)[FieldSize]
 export const fieldRootCss = css`
   width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 `
@@ -417,6 +418,9 @@ export const textareaIconSlotEndStyles: Record<FieldSize, string> = {
 
 const messageBaseCss = css`
   margin: 0.375rem 0 0;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `
 
 const messageDescriptionCss = css`

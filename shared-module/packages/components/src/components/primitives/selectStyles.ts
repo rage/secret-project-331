@@ -26,6 +26,8 @@ export const popoverCss = css`
   position: absolute;
   z-index: 20;
   min-width: var(--popover-trigger-width, 0);
+  max-width: min(100vw - 24px, 560px);
+  box-sizing: border-box;
   border: 1px solid var(--field-border);
   border-radius: calc(var(--control-radius) + 4px);
   background: var(--field-bg);
@@ -52,12 +54,27 @@ export const listBoxOptionCss = css`
   cursor: pointer;
   line-height: 1.35;
 
-  &[data-highlighted="true"] {
-    background: var(--field-option-highlight);
+  & > span:first-of-type {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   &[data-selected="true"] {
     background: var(--field-option-selected);
+  }
+
+  &[data-highlighted="true"]:not([data-selected="true"]) {
+    background: var(--field-option-highlight);
+  }
+
+  &[data-selected="true"][data-highlighted="true"] {
+    background: var(--field-option-selected);
+  }
+
+  &[data-focus-visible="true"] {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: -2px;
   }
 
   &[data-disabled="true"] {

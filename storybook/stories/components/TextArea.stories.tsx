@@ -63,7 +63,12 @@ export const States = {
       <TextArea label="With error" errorMessage="Too short." rows={3} />
       <TextArea label="Disabled" disabled rows={3} />
       <TextArea label="Read only" defaultValue="Read-only content" readOnly rows={3} />
-      <TextArea label="Plain editor" appearance="plain" rows={3} defaultValue="Inline editable text" />
+      <TextArea
+        label="Plain editor"
+        appearance="plain"
+        rows={3}
+        defaultValue="Inline editable text"
+      />
     </div>
   ),
 } satisfies StoryType
@@ -101,6 +106,26 @@ export const AutoResize = {
         defaultValue={
           "This textarea auto-resizes to fit its content.\n\nResize by typing more lines and watch it clamp at a maximum height with a scrollbar."
         }
+      />
+    </div>
+  ),
+} satisfies StoryType
+
+const longUnbroken =
+  "VeryLongUnbrokenLabelStringThatShouldWrapGracefullyInNarrowLayoutsWithoutOverflowingTheViewportHorizontally"
+
+export const LongMessages = {
+  render: () => (
+    <div className={columnCss}>
+      <TextArea
+        label={longUnbroken}
+        description="Helper text that is intentionally long so description wrapping can be reviewed at narrow widths."
+        rows={3}
+      />
+      <TextArea
+        label="Label"
+        errorMessage="Error text that is intentionally long so error wrapping can be reviewed at narrow widths without horizontal overflow."
+        rows={3}
       />
     </div>
   ),

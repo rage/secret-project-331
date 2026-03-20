@@ -106,3 +106,21 @@ export const Prefilled = {
     </div>
   ),
 } satisfies StoryType
+
+const longUnbroken =
+  "VeryLongUnbrokenLabelStringThatShouldWrapGracefullyInNarrowLayoutsWithoutOverflowingTheViewportHorizontally"
+
+export const LongMessages = {
+  render: () => (
+    <div className={columnCss}>
+      <TextField
+        label={longUnbroken}
+        description="Helper text that is intentionally long so description wrapping can be reviewed at narrow widths."
+      />
+      <TextField
+        label="Label"
+        errorMessage="Error text that is intentionally long so error wrapping can be reviewed at narrow widths without horizontal overflow."
+      />
+    </div>
+  ),
+} satisfies StoryType

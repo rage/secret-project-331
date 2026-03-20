@@ -4,6 +4,7 @@ export const fieldRootCss = css`
   display: grid;
   gap: var(--space-2);
   width: 100%;
+  min-width: 0;
 `
 
 export const stackedLabelCss = css`
@@ -60,18 +61,23 @@ export const floatingLabelDisabledCss = css`
 export const messagesCss = css`
   display: grid;
   gap: var(--space-1);
+  min-width: 0;
 `
 
 export const descriptionCss = css`
   color: var(--field-description);
   font-size: 0.875rem;
   line-height: 1.45;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 `
 
 export const noticeCss = css`
   color: var(--field-notice);
   font-size: 0.875rem;
   line-height: 1.45;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 `
 
 export const errorCss = css`
@@ -79,4 +85,6 @@ export const errorCss = css`
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.45;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 `

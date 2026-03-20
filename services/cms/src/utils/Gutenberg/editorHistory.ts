@@ -48,8 +48,8 @@ export const updateCurrentEditorHistoryEntry = (
     }
   }
 
-  const entries = state.entries.slice()
-  const index = Math.min(state.index, entries.length - 1)
+  const index = Math.min(state.index, state.entries.length - 1)
+  const entries = state.entries.slice(0, index + 1)
   entries[index] = entry
 
   return {

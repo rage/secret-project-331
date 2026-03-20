@@ -1,6 +1,7 @@
 import { BlockInstance } from "@wordpress/blocks"
 
 import {
+  canRedoEditorHistory,
   createEditorHistoryEntry,
   getCurrentEditorHistoryEntry,
   initializeEditorHistory,
@@ -53,6 +54,44 @@ describe("editorHistory", () => {
 
     const redoneState = redoEditorHistory(undoneState)
     expect(getCurrentEditorHistoryEntry(redoneState)?.content).toBe(nonPersistentContent)
+  })
+
+  it("drops redo branch when the current entry is updated after undo", () => {
+    const initialState = initializeEditorHistory([createParagraphBlock("a", "A")])
+    const secondState = pushEditorHistoryEntry(
+      initialState,
+      createEditorHistoryEntry([createParagraphBlock("b", "B")]),
+    )
+    const thirdState = pushEditorHistoryEntry(
+      secondState,
+      createEditorHistoryEntry([createParagraphBlock("c", "C")]),
+    )
+
+    const undoneState = undoEditorHistory(thirdState)
+    expect(undoneState.entries).toHaveLength(3)
+
+    const updatedState = updateCurrentEditorHistoryEntry(
+      undoneState,
+      createEditorHistoryEntry([createParagraphBlock("b2", "B2")]),
+    )
+
+    expect(updatedState.entries).toHaveLength(2)
+    expect(updatedState.index).toBe(1)
+    expect(getCurrentEditorHistoryEntry(updatedState)?.content[0].clientId).toBe("b2")
+    expect(canRedoEditorHistory(updatedState)).toBe(false)
+
+    const branchedState = pushEditorHistoryEntry(
+      updatedState,
+      createEditorHistoryEntry([createParagraphBlock("d", "D")]),
+    )
+
+    expect(branchedState.entries).toHaveLength(3)
+    expect(branchedState.index).toBe(2)
+    expect(branchedState.entries.map((entry) => entry.content[0].clientId)).toEqual([
+      "a",
+      "b2",
+      "d",
+    ])
   })
 
   it("drops redo history when a new persistent change is made after undo", () => {

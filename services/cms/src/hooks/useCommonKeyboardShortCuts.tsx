@@ -1,11 +1,11 @@
+/* eslint-disable i18next/no-literal-string */
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
 import { useDispatch } from "@wordpress/data"
 import { useEffect } from "@wordpress/element"
-import { __ } from "@wordpress/i18n"
 // @ts-expect-error: No type definitions
 import { store as keyboardShortcutsStore, useShortcut } from "@wordpress/keyboard-shortcuts"
+import { useTranslation } from "react-i18next"
 
 interface UseCommonKeyboardShortcutsProps {
   onUndo?: () => void
@@ -24,12 +24,13 @@ const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {
 
 const useCommonKeyboardShortcuts = ({ onUndo, onRedo }: UseCommonKeyboardShortcutsProps = {}) => {
   const { registerShortcut } = useDispatch(keyboardShortcutsStore)
+  const { t } = useTranslation()
 
   useEffect(() => {
     registerShortcut({
       name: "moocfi/undo",
       category: "global",
-      description: __("Undo your last changes."),
+      description: t("undo-your-last-changes"),
       keyCombination: {
         modifier: "primary",
         character: "z",
@@ -39,7 +40,7 @@ const useCommonKeyboardShortcuts = ({ onUndo, onRedo }: UseCommonKeyboardShortcu
     registerShortcut({
       name: "moocfi/redo",
       category: "global",
-      description: __("Redo your last undo."),
+      description: t("redo-your-last-undo"),
       keyCombination: {
         modifier: "primaryShift",
         character: "z",
@@ -51,7 +52,7 @@ const useCommonKeyboardShortcuts = ({ onUndo, onRedo }: UseCommonKeyboardShortcu
         },
       ],
     })
-  }, [registerShortcut])
+  }, [registerShortcut, t])
 
   useShortcut("moocfi/undo", (e: Event) => {
     if (!onUndo || !shouldHandleBlockEditorHistoryShortcut(e)) {

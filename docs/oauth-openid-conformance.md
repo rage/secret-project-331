@@ -43,8 +43,6 @@ Full test outputs (HTML, traces, large folders) are **temporary** and should **n
 | What                                                    | Where                                                                              |
 | ------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | How to run the tool, copy exports, pre-flight checklist | [docs/conformance/README.md](./conformance/README.md)                              |
-| Large export folders from the desktop suite             | `docs/conformance/exports/` or repo root `oidc-comformance/` (**both gitignored**) |
-| Private scratch notes                                   | `docs/conformance/RESULTS.local.md` (**gitignored**)                               |
 | Durable summary for the team                            | This file, section **Conformance run log** (below)                                 |
 
 After each run, paste a **short** summary into **Conformance run log**: plan id (URL query e.g. `plan=…`), profile name (`client_secret_post` + `code` + static client, etc.), date, and failed test identifiers with a one-line diagnosis. That keeps history in git without an “OIDC expert” tree or personal `Downloads` paths.

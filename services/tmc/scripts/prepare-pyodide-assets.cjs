@@ -49,4 +49,3 @@ for (const entry of entries) {
 console.log(
   `Prepared Pyodide assets v${version} -> ${targetDir} (copied: ${copied}, skipped: ${skipped}).`,
 )
-

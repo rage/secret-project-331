@@ -40,6 +40,8 @@ export const checkableLabelCss = css`
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.35;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `
 
 export const switchTrackCss = css`
@@ -68,6 +70,12 @@ export const switchTrackCss = css`
 
   &[data-invalid="true"] {
     box-shadow: inset 0 0 0 1px var(--field-error-border);
+  }
+
+  &[data-invalid="true"][data-focus-visible="true"] {
+    box-shadow:
+      0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.18),
+      inset 0 0 0 1px var(--field-error-border);
   }
 
   &[data-disabled="true"] {
@@ -119,6 +127,13 @@ export const choiceIndicatorCss = css`
   }
 
   &[data-invalid="true"] {
+    border-color: var(--field-error-border);
+  }
+
+  &[data-invalid="true"][data-focus-visible="true"] {
+    box-shadow:
+      0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.18),
+      inset 0 0 0 1px var(--field-error-border);
     border-color: var(--field-error-border);
   }
 

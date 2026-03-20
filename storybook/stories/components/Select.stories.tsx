@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
 
 import { Select } from "../../src/shared-module/components"
@@ -15,6 +15,14 @@ const stackCss = css`
 const meta = {
   title: "Components/Select",
   component: Select,
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "Custom select built on React Aria `useSelect`: the visible trigger is a native `button` (not `role=combobox` on the trigger). Screen readers still get the correct listbox relationship via React Aria; keyboard support follows the WAI-ARIA listbox pattern.",
+      },
+    },
+  },
 } satisfies Meta<typeof Select>
 
 export default meta

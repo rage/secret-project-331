@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 import React, { useState } from "react"
 
 import { ComboBox } from "../../src/shared-module/components"
@@ -17,6 +17,15 @@ const items = [
   { id: "beta", label: "Beta" },
   { id: "gamma", label: "Gamma" },
   { id: "delta", label: "Delta" },
+]
+
+const longOptionItems = [
+  {
+    id: "long1",
+    label:
+      "VeryLongOptionLabelWithoutSpacesThatShouldWrapInsideTheListboxPopoverWhenTheViewportOrTriggerIsNarrow",
+  },
+  { id: "long2", label: "Short" },
 ]
 
 const meta = {
@@ -69,4 +78,14 @@ export const States = {
 
 export const Controlled = {
   render: () => <ControlledComboBoxStory />,
+} satisfies Story
+
+export const LongOptions = {
+  render: () => (
+    <div className={stackCss}>
+      <ComboBox label="Project" items={longOptionItems}>
+        {(item) => item.label}
+      </ComboBox>
+    </div>
+  ),
 } satisfies Story

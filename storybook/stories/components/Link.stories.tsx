@@ -26,7 +26,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Accessible link component built on React Aria with optional button styling, loading state, and icon slots.",
+          "Accessible link component built on React Aria with optional button styling, loading state, and icon slots. When `styledAsButton` is set, padding, variants, and sizes use the same `buttonStyles` primitives as `Button` for visual parity.",
       },
     },
   },

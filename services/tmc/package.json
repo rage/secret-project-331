@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "packageManager": "pnpm@10.30.3",
   "scripts": {
+    "postinstall": "node scripts/prepare-pyodide-assets.cjs",
     "build": "node scripts/inject-pyodide-version.cjs && next build",
     "dev": "node scripts/inject-pyodide-version.cjs && next dev --port 3005 --turbopack",
-    "export": "next export",
+    "export": "node scripts/inject-pyodide-version.cjs && next export",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {

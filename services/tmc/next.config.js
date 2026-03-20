@@ -30,7 +30,7 @@ const config = {
         svgProps: { role: "presentation" },
       },
     })
-    // Pyodide is loaded from CDN at runtime (main thread: script tag; worker: importScripts).
+    // Pyodide is loaded from our own public URLs at runtime (main thread: script tag; worker: importScripts).
     // Do not resolve/bundle the "pyodide" package.
     if (!isServer) {
       config.resolve.fallback = { ...config.resolve.fallback, pyodide: false }

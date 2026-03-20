@@ -1,5 +1,5 @@
 /**
- * Lazy-loads Pyodide in the browser from CDN via script tag.
+ * Lazy-loads Pyodide in the browser via script tag from our configured URL.
  * Avoids bundler "expression is too dynamic" by not using import("pyodide").
  */
 
@@ -30,7 +30,10 @@ function loadScript(src: string): Promise<void> {
       reject(new Error("Document not available"))
       return
     }
-    const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`)
+    const resolvedSrc = new URL(src, document.baseURI).href
+    const existing = Array.from(document.querySelectorAll<HTMLScriptElement>("script[src]")).find(
+      (s) => s.src === resolvedSrc,
+    )
     if (existing) {
       const rs = (existing as HTMLScriptElement & { readyState?: string }).readyState
       if (rs === "loaded" || rs === "complete") {

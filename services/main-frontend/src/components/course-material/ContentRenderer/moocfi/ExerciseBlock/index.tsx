@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
-import { CheckCircle, Padlock, PlusHeart } from "@vectopus/atlas-icons-react"
+import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -23,8 +23,10 @@ import UserOnWrongCourseNotification from "@/components/course-material/notifica
 import {
   ExerciseCardHeader,
   ExerciseCardPointsBadge,
+  ExerciseCardTriesBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
+import { exerciseCardPillShell } from "@/components/exercise-card/exerciseCardPillShell"
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
@@ -41,7 +43,7 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
@@ -438,80 +440,45 @@ const ExerciseBlock: React.FC<
           rightContent={
             <div
               className={css`
-                font-size: 9px;
-                text-align: center;
-                font-family: ${secondaryFont} !important;
-                text-transform: uppercase;
-                color: #57606f;
                 display: flex;
+                align-items: center;
                 justify-content: center;
-                flex-direction: column;
                 gap: 16px;
-
-                .tries {
-                  font-family: ${headingFont} !important;
-                  display: flex;
-                  color: #57606f;
-                  font-size: 14px;
-                  font-weight: 500;
-                  line-height: 0.8;
-                }
-
-                p {
-                  font-size: 16px;
-                }
-
+                flex-wrap: wrap;
                 width: 100%;
                 ${respondToOrLarger.xxs} {
                   width: auto;
+                  justify-content: flex-end;
                 }
               `}
             >
               {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
-                <div
-                  className={css`
-                    display: block;
-                  `}
-                >
-                  <span
-                    className={css`
-                      color: #57606f;
-                      font-size: 12px;
-                      display: inline-block;
-                      margin-bottom: 2px;
-                    `}
-                  >
-                    {t("tries")}
-                  </span>
-                  <div className="tries">
-                    <PlusHeart size={16} weight="bold" color="#394F77" />
-                    <p>{triesRemaining}</p>
-                  </div>
-                </div>
+                <ExerciseCardTriesBadge triesRemaining={triesRemaining} />
               )}
               {isExam && points === null ? (
                 <div
-                  className={css`
-                    display: flex;
-                    flex-direction: column;
-                    border-radius: 10px;
-                    background: #f0f0f0;
-                    height: 60px;
-                    padding: 8px 16px 6px 16px;
-                    box-shadow:
-                      rgba(45, 35, 66, 0) 0 2px 4px,
-                      rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                      #c4c4c4 0 -3px 0 inset;
-                  `}
+                  className={cx(
+                    exerciseCardPillShell,
+                    css`
+                      .heading {
+                        color: #57606f;
+                        font-size: 12px;
+                        display: inline-block;
+                        margin-bottom: 2px;
+                      }
+
+                      .value {
+                        font-size: 1rem;
+                        margin-top: 3px;
+                      }
+                    `,
+                  )}
                 >
-                  <div>{t("max-points")}</div>
-                  <div
-                    className={css`
-                      font-size: 1rem;
-                      margin-top: 3px;
-                    `}
-                  >
-                    {getCourseMaterialExercise.data.exercise.score_maximum}
+                  <div>
+                    <span className="heading">{t("max-points")}</span>
+                    <div className="value">
+                      {getCourseMaterialExercise.data.exercise.score_maximum}
+                    </div>
                   </div>
                 </div>
               ) : (

@@ -214,7 +214,7 @@ const config = [
     },
   },
   {
-    files: ["**/*.js"],
+    files: ["**/*.js", "**/*.cjs"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },

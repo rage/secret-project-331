@@ -26,7 +26,7 @@ const renderIssueText = (
     case "heading-h1-reserved":
       return t("warning-heading-h1-reserved")
     case "heading-first-should-be-h2":
-      return t("warning-heading-first-should-be-h2")
+      return t("warning-heading-first-should-be-h2", { level: issue.level })
     case "heading-level-jump":
       return t("warning-heading-level-jump", {
         fromLevel: issue.previousLevel,

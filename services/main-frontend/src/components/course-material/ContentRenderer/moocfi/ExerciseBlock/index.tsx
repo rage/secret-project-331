@@ -469,7 +469,11 @@ const ExerciseBlock: React.FC<
 
                       .value {
                         font-size: 1rem;
-                        margin-top: 3px;
+                        line-height: 1;
+                        margin-top: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
                       }
                     `,
                   )}

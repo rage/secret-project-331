@@ -10,7 +10,6 @@ import { shouldWarnAboutMissingParagraphWrapperInCustomHtml } from "./customHtml
 
 interface CustomHtmlBlockProps {
   name: string
-  isSelected?: boolean
   attributes: {
     content?: string
     [key: string]: unknown
@@ -30,8 +29,7 @@ const withCustomHtmlParagraphWarning = createHigherOrderComponent((BlockEdit) =>
     }
 
     const html = typeof props.attributes?.content === "string" ? props.attributes.content : ""
-    const shouldShowWarning =
-      props.isSelected === true && shouldWarnAboutMissingParagraphWrapperInCustomHtml(html)
+    const shouldShowWarning = shouldWarnAboutMissingParagraphWrapperInCustomHtml(html)
 
     return (
       <Fragment>

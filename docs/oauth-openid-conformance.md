@@ -17,9 +17,9 @@ Routes are mounted under the main-frontend API prefix, for example:
 - Issuer (conceptually): `{base_url}/api/v0/main-frontend/oauth`
 - Discovery: `GET …/oauth/.well-known/openid-configuration`
 - JWKS: `GET …/oauth/jwks.json`
-- Authorization: `GET` / `POST` …/oauth/authorize`
-- Token: `POST` …/oauth/token
-- UserInfo: `GET` / `POST` …/oauth/userinfo
+- Authorization: `GET / POST …/oauth/authorize`
+- Token: `POST …/oauth/token`
+- UserInfo: `GET / POST …/oauth/userinfo`
 - Revocation: `POST …/oauth/revoke`
 - Introspection: `POST …/oauth/introspect`
 - Consent UI hand-off: `…/oauth/consent` (application-specific)

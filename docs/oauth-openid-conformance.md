@@ -49,8 +49,6 @@ After each run, paste a **short** summary into **Conformance run log**: plan id 
 
 ### Conformance run log
 
-Source for the row below: exported plan in repo root **`oidc-comformance/`** (`index.html`, suite **5.1.36**), exported **2026-03-20 UTC**; plan id **auRS2w5Pv7N6c**; variant **client_auth_type=client_secret_post**, **response_type=code**, **client_registration=static_client**, **response_mode=default**.
-
 | Date       | Plan / profile                                                    | Outcome summary                                                                |
 | ---------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | 2026-03-20 | Plan `auRS2w5Pv7N6c`, `client_secret_post` + code + static client | **4 FAILED**, **7 WARNING**, **4 SKIPPED**, **4 REVIEW**, remainder **PASSED** |

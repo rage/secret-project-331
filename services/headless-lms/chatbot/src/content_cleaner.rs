@@ -330,12 +330,11 @@ async fn process_block_chunk(
     app_config: &ApplicationConfiguration,
     task_lm: &TaskLMSpec,
 ) -> ChatbotResult<String> {
-    let messages = prepare_llm_messages(chunk, system_message)?;
+    let input = prepare_llm_messages(chunk, system_message)?;
     let params = if task_lm.thinking {
         LLMRequestParams::Thinking(ThinkingParams {
-            max_completion_tokens: None,
-            verbosity: None,
-            reasoning_effort: None,
+            text: None,
+            reasoning: None,
         })
     } else {
         LLMRequestParams::NonThinking(NonThinkingParams {
@@ -343,11 +342,11 @@ async fn process_block_chunk(
             top_p: None,
             frequency_penalty: None,
             presence_penalty: None,
-            max_tokens: None,
         })
     };
     let llm_base_request: LLMRequest = LLMRequest {
-        messages,
+        input,
+        max_output_tokens: None,
         model: task_lm.model.to_owned(),
         tools: vec![],
         tool_choice: None,

@@ -25,9 +25,9 @@ use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 use tracing::trace;
-use url::Url;
 
 use crate::chatbot_error::ChatbotResult;
+use crate::chatbot_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
     AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
@@ -38,9 +38,8 @@ use crate::llm_utils::{
 use headless_lms_utils::url_encoding::url_decode;
 
 use crate::prelude::*;
-use crate::search_filter::SearchFilter;
 
-const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
+pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
 /// Context about the user and course for a chatbot interaction.
 /// Passed to tool implementations so they can access user-specific data.
@@ -136,14 +135,31 @@ pub enum LLMToolChoice {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct ThinkingParams {
-    pub max_completion_tokens: Option<i32>,
-    pub verbosity: Option<VerbosityLevel>,
-    pub reasoning_effort: Option<ReasoningEffortLevel>,
+    pub text: Option<Verbosity>,
+    pub reasoning: Option<Reasoning>,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+struct Verbosity {
+    pub verbosity: VerbosityLevel,
+}
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+struct Reasoning {
+    pub effort: ReasoningEffortLevel,
+    /// Option to generate a reasoning summary with desired level of info
+    pub summary: Option<SummaryType>,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[serde(untagged)]
+enum SummaryType {
+    Concise,
+    Detailed,
+    Auto,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct NonThinkingParams {
-    pub max_tokens: Option<i32>,
     pub temperature: Option<f32>,
     pub top_p: Option<f32>,
     pub frequency_penalty: Option<f32>,
@@ -211,11 +227,12 @@ pub struct LLMRequestResponseFormatParam {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LLMRequest {
-    pub messages: Vec<APIMessage>,
+    pub input: Vec<APIMessage>,
     pub model: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub tools: Vec<AzureLLMToolDefinition>,
     pub tool_choice: Option<LLMToolChoice>,
+    pub max_output_tokens: Option<i32>,
     #[serde(flatten)]
     pub params: LLMRequestParams,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -231,11 +248,6 @@ impl LLMRequest {
         message: &str,
         app_config: &ApplicationConfiguration,
     ) -> anyhow::Result<(Self, i32, i32)> {
-        let index_name = Url::parse(&app_config.base_url)?
-            .host_str()
-            .expect("BASE_URL must have a host")
-            .replace(".", "-");
-
         let configuration =
             models::chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
 
@@ -293,24 +305,9 @@ impl LLMRequest {
             },
         );
 
-        let data_sources = if configuration.use_azure_search {
-            let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-                anyhow::anyhow!("Azure configuration is missing from the application configuration")
-            })?;
-
-            let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-                anyhow::anyhow!(
-                    "Azure search configuration is missing from the Azure configuration"
-                )
-            })?;
-
-            let query_type = if configuration.use_semantic_reranking {
-                "vector_semantic_hybrid"
-            } else {
-                "vector_simple_hybrid"
-            };
-
-            // if there are data sources, the message history might contain incompatible
+        let (search_tool, use_search) = if configuration.use_azure_search {
+            /* this is probably not needed anymore:
+             // if there are data sources, the message history might contain incompatible
             // tool call and result messages. Remove tool call messages and turn tool
             // response messages into role=assistant messages with the tool output as
             // text content.
@@ -324,48 +321,33 @@ impl LLMRequest {
                     },
                     _ => m,
                 })
-                .collect();
-
-            vec![DataSource {
-                data_type: "azure_search".to_string(),
-                parameters: DataSourceParameters {
-                    endpoint: search_config.search_endpoint.to_string(),
-                    authentication: DataSourceParametersAuthentication {
-                        auth_type: "api_key".to_string(),
-                        key: search_config.search_api_key.clone(),
-                    },
-                    index_name,
-                    query_type: query_type.to_string(),
-                    semantic_configuration: "default".to_string(),
-                    embedding_dependency: EmbeddingDependency {
-                        dep_type: "deployment_name".to_string(),
-                        deployment_name: search_config.vectorizer_deployment_id.clone(),
-                    },
-                    in_scope: false,
-                    top_n_documents: 15,
-                    strictness: 3,
-                    filter: Some(
-                        SearchFilter::eq("course_id", configuration.course_id.to_string())
-                            .to_odata()?,
-                    ),
-                    fields_mapping: FieldsMapping {
-                        content_fields_separator: CONTENT_FIELD_SEPARATOR.to_string(),
-                        content_fields: vec!["chunk_context".to_string(), "chunk".to_string()],
-                        filepath_field: "filepath".to_string(),
-                        title_field: "title".to_string(),
-                        url_field: "url".to_string(),
-                        vector_fields: vec!["text_vector".to_string()],
-                    },
-                },
-            }]
+                .collect(); */
+            (
+                vec![AzureLLMToolDefinition::Search(
+                    get_azure_ai_search_tool_definition(
+                        app_config,
+                        configuration.course_id,
+                        configuration.use_semantic_reranking,
+                    )?,
+                )],
+                true,
+            )
         } else {
-            Vec::new()
+            (Vec::new(), false)
         };
 
-        let (tools, tool_choice) = if configuration.use_tools {
-            (get_chatbot_tool_definitions(), Some(LLMToolChoice::Auto))
+        let (mut tools, use_tools) = if configuration.use_tools {
+            (get_chatbot_tool_definitions(), true)
         } else {
-            (Vec::new(), None)
+            (Vec::new(), false)
+        };
+
+        // todo: do this in a nicer way
+        tools.extend(search_tool);
+        let tool_choice = if use_search || use_tools {
+            Some(LLMToolChoice::Auto)
+        } else {
+            None
         };
 
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
@@ -373,19 +355,16 @@ impl LLMRequest {
 
         let params = if configuration.thinking_model {
             LLMRequestParams::Thinking(ThinkingParams {
-                max_completion_tokens: Some(configuration.max_completion_tokens),
-                reasoning_effort: Some(configuration.reasoning_effort),
-                verbosity: Some(configuration.verbosity),
-                /*                 tools,
-                tool_choice: if configuration.use_tools {
-                    Some(LLMToolChoice::Auto)
-                } else {
-                    None
-                }, */
+                reasoning: Some(Reasoning {
+                    effort: configuration.reasoning_effort,
+                    summary: None,
+                }),
+                text: Some(Verbosity {
+                    verbosity: configuration.verbosity,
+                }),
             })
         } else {
             LLMRequestParams::NonThinking(NonThinkingParams {
-                max_tokens: Some(configuration.response_max_tokens),
                 temperature: Some(configuration.temperature),
                 top_p: Some(configuration.top_p),
                 frequency_penalty: Some(configuration.frequency_penalty),
@@ -395,8 +374,9 @@ impl LLMRequest {
 
         Ok((
             Self {
-                messages: api_chat_messages,
+                input: api_chat_messages,
                 model: model.model,
+                max_output_tokens: Some(0),
                 tools,
                 tool_choice,
                 params,
@@ -418,58 +398,11 @@ impl LLMRequest {
         for m in new_msgs {
             let converted_msg = m.to_chatbot_conversation_message(conversation_id, order_number)?;
             chatbot_conversation_messages::insert(conn, converted_msg).await?;
-            self.messages.push(m);
+            self.input.push(m);
             order_number += 1;
         }
         Ok((self, order_number))
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DataSource {
-    #[serde(rename = "type")]
-    pub data_type: String,
-    pub parameters: DataSourceParameters,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DataSourceParameters {
-    pub endpoint: String,
-    pub authentication: DataSourceParametersAuthentication,
-    pub index_name: String,
-    pub query_type: String,
-    pub embedding_dependency: EmbeddingDependency,
-    pub in_scope: bool,
-    pub top_n_documents: i32,
-    pub strictness: i32,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub filter: Option<String>,
-    pub fields_mapping: FieldsMapping,
-    pub semantic_configuration: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DataSourceParametersAuthentication {
-    #[serde(rename = "type")]
-    pub auth_type: String,
-    pub key: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct EmbeddingDependency {
-    #[serde(rename = "type")]
-    pub dep_type: String,
-    pub deployment_name: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct FieldsMapping {
-    pub content_fields_separator: String,
-    pub content_fields: Vec<String>,
-    pub filepath_field: String,
-    pub title_field: String,
-    pub url_field: String,
-    pub vector_fields: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

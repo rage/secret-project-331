@@ -100,25 +100,30 @@ pub async fn generate_suggested_messages(
         }),
     };
 
-    let params = if task_lm.thinking {
-        LLMRequestParams::Thinking(ThinkingParams {
-            max_completion_tokens: Some(7000),
-            verbosity: None,
-            reasoning_effort: None,
-        })
+    let (params, max_output_tokens) = if task_lm.thinking {
+        (
+            LLMRequestParams::Thinking(ThinkingParams {
+                text: None,
+                reasoning: None,
+            }),
+            Some(7000),
+        )
     } else {
-        LLMRequestParams::NonThinking(NonThinkingParams {
-            max_tokens: Some(4000),
-            temperature: None,
-            top_p: None,
-            frequency_penalty: None,
-            presence_penalty: None,
-        })
+        (
+            LLMRequestParams::NonThinking(NonThinkingParams {
+                temperature: None,
+                top_p: None,
+                frequency_penalty: None,
+                presence_penalty: None,
+            }),
+            Some(4000),
+        )
     };
 
     let chat_request = LLMRequest {
-        messages: vec![system_prompt, user_prompt],
+        input: vec![system_prompt, user_prompt],
         model: task_lm.model.to_owned(),
+        max_output_tokens,
         tools: vec![],
         tool_choice: None,
         params,

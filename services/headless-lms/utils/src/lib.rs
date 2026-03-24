@@ -131,6 +131,7 @@ pub struct AzureSearchConfiguration {
     pub vectorizer_model_name: String,
     pub search_endpoint: Url,
     pub search_api_key: String,
+    pub search_connection_id: String,
 }
 
 impl AzureSearchConfiguration {
@@ -145,6 +146,7 @@ impl AzureSearchConfiguration {
         let vectorizer_model_name = env::var("AZURE_VECTORIZER_MODEL_NAME").ok();
         let search_endpoint_str = env::var("AZURE_SEARCH_ENDPOINT").ok();
         let search_api_key = env::var("AZURE_SEARCH_API_KEY").ok();
+        let search_connection_id = env::var("AZURE_SEARCH_CONNECTION_ID").ok();
 
         if let (
             Some(vectorizer_resource_uri),
@@ -153,6 +155,7 @@ impl AzureSearchConfiguration {
             Some(vectorizer_model_name),
             Some(search_endpoint_str),
             Some(search_api_key),
+            Some(search_connection_id),
         ) = (
             vectorizer_resource_uri,
             vectorizer_deployment_id,
@@ -160,6 +163,7 @@ impl AzureSearchConfiguration {
             vectorizer_model_name,
             search_endpoint_str,
             search_api_key,
+            search_connection_id,
         ) {
             let search_endpoint =
                 Url::parse(&search_endpoint_str).context("Invalid URL in AZURE_SEARCH_ENDPOINT")?;
@@ -170,6 +174,7 @@ impl AzureSearchConfiguration {
                 vectorizer_model_name,
                 search_endpoint,
                 search_api_key,
+                search_connection_id,
             }))
         } else {
             Ok(None)
@@ -253,6 +258,7 @@ impl AzureConfiguration {
             vectorizer_model_name: "".to_string(),
             search_api_key: "".to_string(),
             search_endpoint: Url::from_str("https://example.com/does-not-exist/")?,
+            search_connection_id: "".to_string(),
         });
         let blob_storage_config = Some(AzureBlobStorageConfiguration {
             storage_account: "".to_string(),

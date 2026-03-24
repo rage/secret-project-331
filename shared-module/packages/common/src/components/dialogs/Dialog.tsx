@@ -3,9 +3,17 @@
 import { css, cx } from "@emotion/css"
 import { useDialog } from "@react-aria/dialog"
 import { FocusScope } from "@react-aria/focus"
-import { DismissButton, OverlayContainer, useModal, useOverlay } from "@react-aria/overlays"
+import {
+  DismissButton,
+  OverlayContainer,
+  useModal,
+  useModalOverlay,
+  useOverlay,
+} from "@react-aria/overlays"
+import { mergeProps } from "@react-aria/utils"
+import { useOverlayTriggerState } from "@react-stately/overlays"
 import { AriaDialogProps } from "@react-types/dialog"
-import React, { useEffect, useRef } from "react"
+import React, { useRef } from "react"
 
 import { typography } from "../../styles"
 
@@ -41,6 +49,14 @@ const Dialog: React.FC<DialogProps> = ({
   ...props
 }) => {
   const ref = useRef(null)
+  const state = useOverlayTriggerState({
+    isOpen: open,
+    onOpenChange: (isOpen) => {
+      if (!isOpen) {
+        onClose?.()
+      }
+    },
+  })
 
   const { overlayProps, underlayProps } = useOverlay(
     {
@@ -53,18 +69,21 @@ const Dialog: React.FC<DialogProps> = ({
   )
 
   const { modalProps } = useModal()
+  const { modalProps: modalOverlayProps, underlayProps: modalOverlayUnderlayProps } =
+    useModalOverlay(
+      {
+        isDismissable,
+      },
+      state,
+      ref,
+    )
   const { dialogProps } = useDialog(props, ref)
-
-  useEffect(() => {
-    if (open && preventBackgroundScroll) {
-      const originalOverflow = document.body.style.overflow
-      // eslint-disable-next-line i18next/no-literal-string
-      document.body.style.overflow = "hidden"
-      return () => {
-        document.body.style.overflow = originalOverflow
-      }
-    }
-  }, [open, preventBackgroundScroll])
+  const activeUnderlayProps = preventBackgroundScroll ? modalOverlayUnderlayProps : underlayProps
+  const activeOverlayProps = mergeProps(
+    preventBackgroundScroll ? modalOverlayProps : overlayProps,
+    dialogProps,
+    preventBackgroundScroll ? {} : modalProps,
+  )
 
   if (!open) {
     return null
@@ -73,7 +92,7 @@ const Dialog: React.FC<DialogProps> = ({
   return (
     <OverlayContainer>
       <div
-        {...underlayProps}
+        {...activeUnderlayProps}
         className={css`
           position: fixed;
           inset: 0;
@@ -88,9 +107,7 @@ const Dialog: React.FC<DialogProps> = ({
         {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
         <FocusScope contain restoreFocus autoFocus>
           <div
-            {...overlayProps}
-            {...dialogProps}
-            {...modalProps}
+            {...activeOverlayProps}
             ref={ref}
             className={cx(
               props.className,

@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use crate::{
     azure_chatbot::{
         ArrayItem, ArrayProperty, JSONSchema, JSONType, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, Schema, ThinkingParams,
+        LLMRequestResponseFormatParam, NonThinkingParams, ResponseTextOptions, Schema,
+        ThinkingParams,
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
@@ -88,6 +89,7 @@ pub async fn generate_suggested_messages(
 
     let system_prompt = APIMessage {
         role: MessageRole::System,
+        message_type: "message".to_string(),
         fields: APIMessageKind::Text(APIMessageText {
             content: prompt + conversation,
         }),
@@ -95,6 +97,7 @@ pub async fn generate_suggested_messages(
 
     let user_prompt = APIMessage {
         role: MessageRole::User,
+        message_type: "message".to_string(),
         fields: APIMessageKind::Text(APIMessageText {
             content: USER_PROMPT.to_string(),
         }),
@@ -102,10 +105,7 @@ pub async fn generate_suggested_messages(
 
     let (params, max_output_tokens) = if task_lm.thinking {
         (
-            LLMRequestParams::Thinking(ThinkingParams {
-                text: None,
-                reasoning: None,
-            }),
+            LLMRequestParams::Thinking(ThinkingParams { reasoning: None }),
             Some(7000),
         )
     } else {
@@ -127,28 +127,30 @@ pub async fn generate_suggested_messages(
         tools: vec![],
         tool_choice: None,
         params,
-        response_format: Some(LLMRequestResponseFormatParam {
-            format_type: JSONType::JsonSchema,
-            json_schema: JSONSchema {
-                name: "ChatbotNextMessageSuggestionResponse".to_string(),
-                strict: true,
-                schema: Schema {
-                    type_field: JSONType::Object,
-                    properties: HashMap::from([(
-                        "suggestions".to_string(),
-                        ArrayProperty {
-                            type_field: JSONType::Array,
-                            items: ArrayItem {
-                                type_field: JSONType::String,
+        text: Some(ResponseTextOptions {
+            verbosity: None,
+            format: Some(LLMRequestResponseFormatParam {
+                format_type: JSONType::JsonSchema,
+                json_schema: JSONSchema {
+                    name: "ChatbotNextMessageSuggestionResponse".to_string(),
+                    strict: true,
+                    schema: Schema {
+                        type_field: JSONType::Object,
+                        properties: HashMap::from([(
+                            "suggestions".to_string(),
+                            ArrayProperty {
+                                type_field: JSONType::Array,
+                                items: ArrayItem {
+                                    type_field: JSONType::String,
+                                },
                             },
-                        },
-                    )]),
-                    required: Vec::from(["suggestions".to_string()]),
-                    additional_properties: false,
+                        )]),
+                        required: Vec::from(["suggestions".to_string()]),
+                        additional_properties: false,
+                    },
                 },
-            },
+            }),
         }),
-        stop: None,
     };
 
     let completion = make_blocking_llm_request(chat_request, app_config).await?;

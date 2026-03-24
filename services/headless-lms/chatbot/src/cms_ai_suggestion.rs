@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use crate::{
     azure_chatbot::{
         ArrayItem, ArrayProperty, JSONSchema, JSONType, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, Schema, ThinkingParams,
+        LLMRequestResponseFormatParam, NonThinkingParams, ResponseTextOptions, Schema,
+        ThinkingParams,
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
@@ -218,6 +219,7 @@ pub async fn generate_paragraph_suggestions(
 
     let system_message = APIMessage {
         role: MessageRole::System,
+        message_type: "message".to_string(),
         fields: APIMessageKind::Text(APIMessageText {
             content: system_instructions,
         }),
@@ -225,6 +227,7 @@ pub async fn generate_paragraph_suggestions(
 
     let user_message = APIMessage {
         role: MessageRole::User,
+        message_type: "message".to_string(),
         fields: APIMessageKind::Text(APIMessageText {
             content: user_message_content,
         }),
@@ -232,10 +235,7 @@ pub async fn generate_paragraph_suggestions(
 
     let (params, max_output_tokens) = if task_lm.thinking {
         (
-            LLMRequestParams::Thinking(ThinkingParams {
-                text: None,
-                reasoning: None,
-            }),
+            LLMRequestParams::Thinking(ThinkingParams { reasoning: None }),
             Some(4000),
         )
     } else {
@@ -257,28 +257,30 @@ pub async fn generate_paragraph_suggestions(
         tools: vec![],
         tool_choice: None,
         params,
-        response_format: Some(LLMRequestResponseFormatParam {
-            format_type: JSONType::JsonSchema,
-            json_schema: JSONSchema {
-                name: "CmsParagraphSuggestionResponse".to_string(),
-                strict: true,
-                schema: Schema {
-                    type_field: JSONType::Object,
-                    properties: HashMap::from([(
-                        "suggestions".to_string(),
-                        ArrayProperty {
-                            type_field: JSONType::Array,
-                            items: ArrayItem {
-                                type_field: JSONType::String,
+        text: Some(ResponseTextOptions {
+            verbosity: None,
+            format: Some(LLMRequestResponseFormatParam {
+                format_type: JSONType::JsonSchema,
+                json_schema: JSONSchema {
+                    name: "CmsParagraphSuggestionResponse".to_string(),
+                    strict: true,
+                    schema: Schema {
+                        type_field: JSONType::Object,
+                        properties: HashMap::from([(
+                            "suggestions".to_string(),
+                            ArrayProperty {
+                                type_field: JSONType::Array,
+                                items: ArrayItem {
+                                    type_field: JSONType::String,
+                                },
                             },
-                        },
-                    )]),
-                    required: vec!["suggestions".to_string()],
-                    additional_properties: false,
+                        )]),
+                        required: vec!["suggestions".to_string()],
+                        additional_properties: false,
+                    },
                 },
-            },
+            }),
         }),
-        stop: None,
     };
 
     let completion = make_blocking_llm_request(chat_request, app_config).await?;

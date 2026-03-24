@@ -15,6 +15,11 @@ pub struct AzureAISearchToolDefinition {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AzureAISearch {
+    pub indexes: Vec<SearchIndex>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SearchIndex {
     pub project_connection_id: String,
     pub index_name: String,
     pub query_type: String,
@@ -72,26 +77,28 @@ pub fn get_azure_ai_search_tool_definition(
     Ok(AzureAISearchToolDefinition {
         data_type: "azure_ai_search".to_string(),
         azure_ai_search: AzureAISearch {
-            index_name,
-            project_connection_id: search_config.search_connection_id.to_owned(),
-            query_type: query_type.to_string(),
-            semantic_configuration: "default".to_string(),
-            embedding_dependency: EmbeddingDependency {
-                dep_type: "deployment_name".to_string(),
-                deployment_name: search_config.vectorizer_deployment_id.clone(),
-            },
-            in_scope: false,
-            top_k: 15,
-            strictness: 3,
-            filter: Some(SearchFilter::eq("course_id", course_id.to_string()).to_odata()?),
-            fields_mapping: FieldsMapping {
-                content_fields_separator: CONTENT_FIELD_SEPARATOR.to_string(),
-                content_fields: vec!["chunk_context".to_string(), "chunk".to_string()],
-                filepath_field: "filepath".to_string(),
-                title_field: "title".to_string(),
-                url_field: "url".to_string(),
-                vector_fields: vec!["text_vector".to_string()],
-            },
+            indexes: vec![SearchIndex {
+                index_name,
+                project_connection_id: search_config.search_connection_id.to_owned(),
+                query_type: query_type.to_string(),
+                semantic_configuration: "default".to_string(),
+                embedding_dependency: EmbeddingDependency {
+                    dep_type: "deployment_name".to_string(),
+                    deployment_name: search_config.vectorizer_deployment_id.clone(),
+                },
+                in_scope: false,
+                top_k: 15,
+                strictness: 3,
+                filter: Some(SearchFilter::eq("course_id", course_id.to_string()).to_odata()?),
+                fields_mapping: FieldsMapping {
+                    content_fields_separator: CONTENT_FIELD_SEPARATOR.to_string(),
+                    content_fields: vec!["chunk_context".to_string(), "chunk".to_string()],
+                    filepath_field: "filepath".to_string(),
+                    title_field: "title".to_string(),
+                    url_field: "url".to_string(),
+                    vector_fields: vec!["text_vector".to_string()],
+                },
+            }],
         },
     })
 }

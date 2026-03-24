@@ -10,6 +10,8 @@ use tracing_error::SpanTrace;
 
 use headless_lms_utils::error::backend_error::BackendError;
 
+use crate::search_filter::SearchFilterError;
+
 /**
 Used as the result types for all of chatbot.
 */
@@ -28,6 +30,7 @@ pub enum ChatbotErrorType {
     SerdeJson,
     Other,
     DeserializationError,
+    AzureAISearchFilterError,
 }
 
 /**
@@ -200,6 +203,16 @@ impl From<ModelError> for ChatbotError {
         Self::new(
             ChatbotErrorType::ChatbotModelError,
             err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<SearchFilterError> for ChatbotError {
+    fn from(err: SearchFilterError) -> ChatbotError {
+        Self::new(
+            ChatbotErrorType::AzureAISearchFilterError,
+            "Couldn't create search filter for AI search: ".to_string() + &err.to_string(),
             Some(err.into()),
         )
     }

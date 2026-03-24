@@ -53,7 +53,7 @@ async fn mock_azure_chat_completions(
 
     let message_kind = &payload
         .base
-        .messages
+        .input
         .last()
         .ok_or(ControllerError::new(
             ControllerErrorType::BadRequest,

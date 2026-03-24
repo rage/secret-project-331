@@ -5,10 +5,13 @@ use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
-    chatbot_tools::course_progress::CourseProgressTool,
+    chatbot_tools::{
+        azure_ai_search::AzureAISearchToolDefinition, course_progress::CourseProgressTool,
+    },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
+pub mod azure_ai_search;
 pub mod course_progress;
 
 pub trait ChatbotTool {
@@ -53,7 +56,7 @@ pub trait ChatbotTool {
 
     /// Get a AzureLLMToolDefinition struct that represents this tool.
     /// The definition is sent to the LLM as part of a chat request.
-    fn get_tool_definition() -> AzureLLMToolDefinition;
+    fn get_tool_definition() -> AzureLLMFunctionToolDefinition;
 
     /// Create a new instance from connection, args and context
     fn new(
@@ -76,21 +79,25 @@ pub struct ToolProperties<S, A: Serialize> {
     arguments: A,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum AzureLLMToolDefinition {
+    Function(AzureLLMFunctionToolDefinition),
+    Search(AzureAISearchToolDefinition),
+}
+
 /// A tool definition that is formatted for Azure.
 /// Defines a tool (function) that the LLM can call.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct AzureLLMToolDefinition {
+pub struct AzureLLMFunctionToolDefinition {
     #[serde(rename = "type")]
     pub tool_type: LLMToolType,
-    pub function: LLMTool,
-}
-/// Content of an AzureLLMToolDefinition
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMTool {
     pub name: String,
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<LLMToolParams>,
+    /// Ensures that the LLM calls the tool with the correct params. Should be `true`
+    pub strict: bool,
 }
 
 /// Parameters that a chatbot tool accepts in an AzureLLMToolDefinition
@@ -123,7 +130,9 @@ pub enum LLMToolType {
 
 /// Get a vec of AzureLLMToolDefinitions for all available chatbot tools
 pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
-    vec![CourseProgressTool::get_tool_definition()]
+    vec![AzureLLMToolDefinition::Function(
+        CourseProgressTool::get_tool_definition(),
+    )]
 }
 
 /// Create a chatbot tool with LLM-provided arguments by matching the tool call

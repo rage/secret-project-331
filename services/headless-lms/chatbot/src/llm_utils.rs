@@ -305,7 +305,7 @@ pub fn estimate_tokens(text: &str) -> i32 {
 
 /// Makes a non-streaming request to an LLM
 #[instrument(skip(chat_request, endpoint, api_key), fields(
-    num_messages = chat_request.messages.len(),
+    num_messages = chat_request.input.len(),
     temperature,
     max_tokens,
     endpoint = %endpoint
@@ -317,7 +317,7 @@ async fn make_llm_request(
 ) -> anyhow::Result<LLMCompletionResponse> {
     debug!(
         "Preparing LLM request with {} messages",
-        chat_request.messages.len()
+        chat_request.input.len()
     );
 
     trace!("Base request: {:?}", chat_request);
@@ -371,7 +371,7 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LLMCompletio
 
 /// Makes a streaming request to an LLM
 #[instrument(skip(chat_request, app_config), fields(
-    num_messages = chat_request.messages.len(),
+    num_messages = chat_request.input.len(),
     temperature,
     max_tokens
 ))]
@@ -382,7 +382,7 @@ pub async fn make_streaming_llm_request(
 ) -> anyhow::Result<Response> {
     debug!(
         "Preparing streaming LLM request with {} messages",
-        chat_request.messages.len()
+        chat_request.input.len()
     );
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         error!("Azure configuration missing");
@@ -436,7 +436,7 @@ pub async fn make_streaming_llm_request(
 
 /// Makes a non-streaming request to an LLM using application configuration
 #[instrument(skip(chat_request, app_config), fields(
-    num_messages = chat_request.messages.len(),
+    num_messages = chat_request.input.len(),
     temperature,
     max_tokens
 ))]
@@ -446,7 +446,7 @@ pub async fn make_blocking_llm_request(
 ) -> anyhow::Result<LLMCompletionResponse> {
     debug!(
         "Preparing blocking LLM request with {} messages",
-        chat_request.messages.len()
+        chat_request.input.len()
     );
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         error!("Azure configuration missing");

@@ -7,7 +7,7 @@ use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
-    chatbot_tools::{AzureLLMToolDefinition, ChatbotTool, LLMTool, LLMToolType, ToolProperties},
+    chatbot_tools::{AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolType, ToolProperties},
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
@@ -125,14 +125,13 @@ impl ChatbotTool for CourseProgressTool {
         &self.arguments
     }
 
-    fn get_tool_definition() -> AzureLLMToolDefinition {
-        AzureLLMToolDefinition {
+    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
+        AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
-            function: LLMTool {
-                name: "course_progress".to_string(),
-                description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
-                parameters: None
-            }
+            name: "course_progress".to_string(),
+            description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
+            parameters: None,
+            strict: true
         }
     }
 }

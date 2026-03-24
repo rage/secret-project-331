@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
-import React, { useContext, useEffect, useId, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import SelectCourseLanguage from "../SelectCourseLanguage"
@@ -20,10 +20,10 @@ import { postSaveCourseSettings } from "@/services/course-material/backend"
 import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, fontWeights, primaryFont, typography } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
 import {
@@ -56,7 +56,6 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   const materialSettings = useAtomValue(materialSettingsAtom)
   const viewStatus = useAtomValue(viewStatusAtom)
   const materialInstance = useAtomValue(materialInstanceAtom)
-  const dialogTitleId = useId()
 
   // i18n.language changes automatically when the page is loaded, need to update dialogLanguage automatically so that we can accurately detect when the user has changed the language
   useEffect(() => {
@@ -162,24 +161,20 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     return null
   }
   return (
-    <Dialog open={open} aria-labelledby={dialogTitleId} closeable={false} noPadding>
+    <StandardDialog
+      open={open}
+      title={t("title-course-settings")}
+      noPadding
+      leftAlignTitle={true}
+      showCloseButton={false}
+      closeable={false}
+    >
       <div
         className={css`
           padding: 2rem 3rem;
         `}
       >
         {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        <h1
-          className={css`
-            font-weight: ${fontWeights.medium};
-            font-size: ${typography.h5};
-            line-height: 26px;
-            margin-bottom: 1rem;
-          `}
-          id={dialogTitleId}
-        >
-          {t("title-course-settings")}
-        </h1>
         {pageId && selectedLangCourseId && (
           <SelectCourseLanguage
             selectedLangCourseId={selectedLangCourseId}
@@ -210,11 +205,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         <div
           className={css`
             background: ${baseTheme.colors.green[100]};
-            height: 57px;
+            min-height: 57px;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 0px 0px 4px 4px;
+            padding: 0.75rem 1rem;
           `}
         >
           <p
@@ -226,6 +221,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
               line-height: 17px;
               text-align: center;
               color: ${baseTheme.colors.green[700]};
+              margin: 0;
             `}
           >
             {t("course-language-change-warning", {
@@ -234,7 +230,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           </p>
         </div>
       )}
-    </Dialog>
+    </StandardDialog>
   )
 }
 

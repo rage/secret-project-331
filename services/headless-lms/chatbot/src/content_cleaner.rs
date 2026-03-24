@@ -47,6 +47,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = APIMessage {
         role: MessageRole::System,
+        message_type: "message".to_string(),
         fields: APIMessageKind::Text(APIMessageText {
             content: SYSTEM_PROMPT.to_string(),
         }),
@@ -332,10 +333,7 @@ async fn process_block_chunk(
 ) -> ChatbotResult<String> {
     let input = prepare_llm_messages(chunk, system_message)?;
     let params = if task_lm.thinking {
-        LLMRequestParams::Thinking(ThinkingParams {
-            text: None,
-            reasoning: None,
-        })
+        LLMRequestParams::Thinking(ThinkingParams { reasoning: None })
     } else {
         LLMRequestParams::NonThinking(NonThinkingParams {
             temperature: Some(REQUEST_TEMPERATURE),
@@ -351,8 +349,7 @@ async fn process_block_chunk(
         tools: vec![],
         tool_choice: None,
         params,
-        response_format: None,
-        stop: None,
+        text: None,
     };
     info!(
         "Processing chunk of approximately {} tokens",
@@ -379,6 +376,7 @@ pub fn prepare_llm_messages(
         system_message.clone(),
         APIMessage {
             role: MessageRole::User,
+            message_type: "message".to_string(),
             fields: APIMessageKind::Text(APIMessageText {
                 content: format!(
                     "{}\n\n{}{}\n{}",
@@ -469,6 +467,7 @@ mod tests {
         let blocks_json = blocks_to_json_string(&blocks)?;
         let system_message = APIMessage {
             role: MessageRole::System,
+            message_type: "message".to_string(),
             fields: APIMessageKind::Text(APIMessageText {
                 content: "System prompt".to_string(),
             }),

@@ -135,13 +135,15 @@ pub enum LLMToolChoice {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct ThinkingParams {
-    pub text: Option<Verbosity>,
     pub reasoning: Option<Reasoning>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct Verbosity {
-    pub verbosity: VerbosityLevel,
+pub struct ResponseTextOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub verbosity: Option<VerbosityLevel>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub format: Option<LLMRequestResponseFormatParam>,
 }
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Reasoning {
@@ -233,11 +235,9 @@ pub struct LLMRequest {
     pub tools: Vec<AzureLLMToolDefinition>,
     pub tool_choice: Option<LLMToolChoice>,
     pub max_output_tokens: Option<i32>,
+    pub text: Option<ResponseTextOptions>,
     #[serde(flatten)]
     pub params: LLMRequestParams,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub response_format: Option<LLMRequestResponseFormatParam>,
-    pub stop: Option<String>,
 }
 
 impl LLMRequest {
@@ -299,6 +299,7 @@ impl LLMRequest {
             0,
             APIMessage {
                 role: MessageRole::System,
+                message_type: "message".to_string(),
                 fields: APIMessageKind::Text(APIMessageText {
                     content: configuration.prompt.clone(),
                 }),
@@ -359,9 +360,6 @@ impl LLMRequest {
                     effort: configuration.reasoning_effort,
                     summary: None,
                 }),
-                text: Some(Verbosity {
-                    verbosity: configuration.verbosity,
-                }),
             })
         } else {
             LLMRequestParams::NonThinking(NonThinkingParams {
@@ -379,9 +377,11 @@ impl LLMRequest {
                 max_output_tokens: Some(configuration.max_output_tokens),
                 tools,
                 tool_choice,
+                text: Some(ResponseTextOptions {
+                    verbosity: Some(configuration.verbosity), // todo does it work with non-thinking?
+                    format: None,
+                }),
                 params,
-                response_format: None,
-                stop: None,
             },
             new_message.order_number,
             request_estimated_tokens,
@@ -611,6 +611,7 @@ pub async fn parse_tool<'a>(
                 });
                 tool_result_msgs.push(APIMessage {
                     role: MessageRole::Tool,
+                    message_type: "message".to_string(),
                     fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
                         content: tool.get_tool_output(),
                         name: name.to_owned(),
@@ -621,6 +622,7 @@ pub async fn parse_tool<'a>(
             // insert all tool calls made by the bot as one message into the messages
             messages.push(APIMessage {
                 role: MessageRole::Assistant,
+                message_type: "message".to_string(),
                 fields: APIMessageKind::ToolCall(APIMessageToolCall {
                     tool_calls: assistant_tool_calls,
                 }),
@@ -845,6 +847,7 @@ pub async fn send_chat_request_and_parse_stream(
             app_config,
         )
         .await?;
+    print!("🐈🐈🐈🐈🐈🐈🐈{:?}", serde_json::to_string(&chat_request));
 
     let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
         conn,

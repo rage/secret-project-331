@@ -24,6 +24,8 @@ pub struct APIMessage {
     pub role: MessageRole,
     #[serde(flatten)]
     pub fields: APIMessageKind,
+    #[serde(rename = "type")]
+    pub message_type: String, //always `message`
 }
 
 impl APIMessage {
@@ -91,6 +93,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                 if !message.tool_call_fields.is_empty() {
                     APIMessage {
                         role: message.message_role,
+                        message_type: "message".to_string(),
                         fields: APIMessageKind::ToolCall(APIMessageToolCall {
                             tool_calls: message
                                 .tool_call_fields
@@ -102,6 +105,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                 } else if let Some(msg) = message.message {
                     APIMessage {
                         role: message.message_role,
+                        message_type: "message".to_string(),
                         fields: APIMessageKind::Text(APIMessageText { content: msg }),
                     }
                 } else {
@@ -116,6 +120,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                 if let Some(tool_output) = message.tool_output {
                     APIMessage {
                         role: message.message_role,
+                        message_type: "message".to_string(),
                         fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
                             tool_call_id: tool_output.tool_call_id,
                             name: tool_output.tool_name,
@@ -132,6 +137,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
             }
             MessageRole::User => APIMessage {
                 role: message.message_role,
+                message_type: "message".to_string(),
                 fields: APIMessageKind::Text(APIMessageText {
                     content: message.message.unwrap_or_default(),
                 }),

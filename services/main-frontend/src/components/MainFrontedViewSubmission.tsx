@@ -11,7 +11,7 @@ import {
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
 import { ExerciseSlideSubmissionInfo } from "@/shared-module/common/bindings"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { headingFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 
 interface MainFrontedViewSubmissionProps {
@@ -51,7 +51,6 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
                   font-weight: 600;
                   font-size: 18px;
                   margin-bottom: 0.25rem;
-                  color: ${baseTheme.colors.gray[800]};
                 `}
               >
                 {t("submission")}:

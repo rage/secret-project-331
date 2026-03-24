@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import React, { useState } from "react"
+import { useState } from "react"
 
 import { ComboBox } from "../../src/shared-module/components"
 

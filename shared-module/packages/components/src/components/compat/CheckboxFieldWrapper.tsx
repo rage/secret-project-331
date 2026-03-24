@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Checkbox } from "../Checkbox"
 
@@ -21,9 +22,9 @@ export function CheckboxFieldWrapper({
   initialChecked = false,
   children,
 }: CheckboxFieldWrapperProps) {
+  const { t } = useTranslation()
   const [isChecked, setIsChecked] = useState(initialChecked)
-  // eslint-disable-next-line i18next/no-literal-string
-  const checkboxLabel = `Set ${fieldName}`
+  const checkboxLabel = t("checkbox.setField", { fieldName })
 
   return (
     <div>

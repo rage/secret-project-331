@@ -44,8 +44,9 @@ describe("RadioGroup", () => {
       </RadioGroup>,
     )
 
-    expect(screen.getByRole("radiogroup", { name: "Plan" })).toHaveAttribute("aria-invalid", "true")
-    expect(screen.getByRole("radio", { name: "Monthly" })).toBeRequired()
+    const group = screen.getByRole("radiogroup", { name: "Plan" })
+    expect(group).toHaveAttribute("aria-invalid", "true")
+    expect(group).toHaveAttribute("aria-required", "true")
   })
 
   test("supports disabled item and disabled group behavior", () => {

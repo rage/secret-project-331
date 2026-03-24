@@ -1,13 +1,11 @@
 const nextJest = require("next/jest")
 
-const createJestConfig = nextJest({
-  dir: "../../../services/main-frontend",
-})
+const createJestConfig = nextJest()
 
 /** @type {import('jest').Config} */
 const customJestConfig = {
   testEnvironment: "jsdom",
-  setupFilesAfterEnv: ["<rootDir>/tests/setup-jest.js"],
+  setupFilesAfterEnv: ["<rootDir>/tests/setup-jest.ts"],
 
   testMatch: ["**/?(*.)+(test|spec).(ts|tsx|js|jsx)"],
 
@@ -16,6 +14,7 @@ const customJestConfig = {
   testEnvironmentOptions: {
     customExportConditions: ["node"],
   },
+
   moduleNameMapper: {
     "^@emotion/react/jsx-runtime$": "react/jsx-runtime",
     "^@emotion/react/jsx-dev-runtime$": "react/jsx-dev-runtime",

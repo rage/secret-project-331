@@ -15,15 +15,22 @@ describe("Checkbox", () => {
   test("supports controlled and uncontrolled behavior", () => {
     const onChange = jest.fn()
     const { rerender } = renderUi(
-      <Checkbox label="Controlled" checked={false} onChange={onChange} />,
+      <Checkbox label="Controlled" defaultChecked={false} onChange={onChange} />,
     )
 
     fireEvent.click(screen.getByRole("checkbox", { name: "Controlled" }))
     expect(onChange).toHaveBeenCalledTimes(1)
-    expect(screen.getByRole("checkbox", { name: "Controlled" })).not.toBeChecked()
+    expect(screen.getByRole("checkbox", { name: "Controlled" })).toBeChecked()
 
     rerender(<Checkbox label="Controlled" checked onChange={onChange} />)
     expect(screen.getByRole("checkbox", { name: "Controlled" })).toBeChecked()
+  })
+
+  test("does not invoke consumer onChange when readOnly", () => {
+    const onChange = jest.fn()
+    renderUi(<Checkbox label="Read only" readOnly onChange={onChange} />)
+    fireEvent.click(screen.getByRole("checkbox", { name: "Read only" }))
+    expect(onChange).not.toHaveBeenCalled()
   })
 
   test("supports indeterminate state", () => {

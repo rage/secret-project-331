@@ -4,7 +4,6 @@ import { cx } from "@emotion/css"
 import React, { useContext, useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef, useRadio } from "react-aria"
 
-import { useControllableState } from "../lib/utils/controllable"
 import { joinAriaDescribedBy, resolveFieldState } from "../lib/utils/field"
 
 import { RadioGroupContext } from "./RadioGroup"
@@ -16,6 +15,7 @@ import {
   choiceMarkCss,
   choiceMarkVisibleCss,
   radioMarkCss,
+  radioStandaloneNativeIndicatorCss,
   resolveCheckableSizeCss,
   resolveChoiceIndicatorCss,
 } from "./primitives/checkableStyles"
@@ -66,7 +66,7 @@ function GroupedRadio({
   const descriptionId = useId()
   const errorMessageId = useId()
   const resolvedFieldSize = fieldSize ?? group.fieldSize ?? defaultFieldSize
-  const radioValue = value == null ? "" : String(value)
+  const radioValue = value == null ? undefined : String(value)
   const {
     inputProps,
     isDisabled: isRadioDisabled,
@@ -74,7 +74,7 @@ function GroupedRadio({
     labelProps,
   } = useRadio(
     {
-      value: radioValue,
+      value: radioValue as string,
       isDisabled: Boolean(isDisabled || disabled),
     },
     group.state,
@@ -97,7 +97,7 @@ function GroupedRadio({
     <label
       {...labelProps}
       className={cx(checkableRowCss, resolveCheckableSizeCss(resolvedFieldSize), className)}
-      data-disabled={isRadioDisabled ? "true" : "false"}
+      data-disabled={String(isRadioDisabled)}
     >
       <input
         {...mergedInputProps}
@@ -108,10 +108,10 @@ function GroupedRadio({
       <span
         className={resolveChoiceIndicatorCss(resolvedFieldSize, "radio")}
         aria-hidden="true"
-        data-disabled={isRadioDisabled ? "true" : "false"}
-        data-focus-visible={isFocusVisible ? "true" : "false"}
-        data-invalid={group.state.isInvalid ? "true" : "false"}
-        data-selected={isSelected ? "true" : "false"}
+        data-disabled={String(isRadioDisabled)}
+        data-focus-visible={String(isFocusVisible)}
+        data-invalid={String(group.state.isInvalid)}
+        data-selected={String(isSelected)}
       >
         {isSelected ? (
           <span className={cx(choiceMarkCss, choiceMarkVisibleCss, radioMarkCss)} />
@@ -157,15 +157,12 @@ function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
   const descriptionId = useId()
   const errorMessageId = useId()
   const resolvedFieldSize = fieldSize ?? defaultFieldSize
-  const radioValue = value == null ? "" : String(value)
+  const radioValue = value == null ? undefined : String(value)
+  const isControlled = checked !== undefined
   const standaloneState = resolveFieldState({
     isDisabled: Boolean(isDisabled || disabled),
     isRequired: Boolean(required),
     isInvalid: Boolean(errorMessage),
-  })
-  const [isSelected, setIsSelected] = useControllableState({
-    value: checked,
-    defaultValue: defaultChecked ?? false,
   })
   const describedBy = joinAriaDescribedBy(
     ariaDescribedBy,
@@ -173,38 +170,40 @@ function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
     errorMessage ? errorMessageId : undefined,
   )
 
+  const mergedInputProps = mergeProps(rest, focusProps, {
+    className: checkableInputCss,
+    type: "radio" as const,
+    disabled: standaloneState.isDisabled,
+    required: standaloneState.isRequired,
+    ...(radioValue !== undefined ? { value: radioValue } : {}),
+    "aria-describedby": describedBy,
+    ...(isControlled ? { checked, onChange } : { defaultChecked, onChange }),
+  })
+
   return (
     <label
       className={cx(checkableRowCss, resolveCheckableSizeCss(resolvedFieldSize), className)}
-      data-disabled={standaloneState.isDisabled ? "true" : "false"}
+      data-disabled={String(standaloneState.isDisabled)}
     >
-      <input
-        {...rest}
-        {...focusProps}
-        ref={inputRef}
-        className={checkableInputCss}
-        type="radio"
-        checked={isSelected}
-        disabled={standaloneState.isDisabled}
-        required={standaloneState.isRequired}
-        value={radioValue}
-        aria-describedby={describedBy}
-        onChange={(event) => {
-          setIsSelected(event.currentTarget.checked)
-          onChange?.(event)
-        }}
-      />
+      <input {...mergedInputProps} ref={inputRef} />
       <span
-        className={resolveChoiceIndicatorCss(resolvedFieldSize, "radio")}
+        className={cx(
+          resolveChoiceIndicatorCss(resolvedFieldSize, "radio"),
+          !isControlled ? radioStandaloneNativeIndicatorCss : undefined,
+        )}
         aria-hidden="true"
-        data-disabled={standaloneState.isDisabled ? "true" : "false"}
-        data-focus-visible={isFocusVisible ? "true" : "false"}
-        data-invalid={standaloneState.isInvalid ? "true" : "false"}
-        data-selected={isSelected ? "true" : "false"}
+        data-disabled={String(standaloneState.isDisabled)}
+        data-focus-visible={String(isFocusVisible)}
+        data-invalid={String(standaloneState.isInvalid)}
+        {...(isControlled ? { "data-selected": String(checked) } : {})}
       >
-        {isSelected ? (
-          <span className={cx(choiceMarkCss, choiceMarkVisibleCss, radioMarkCss)} />
-        ) : null}
+        {isControlled ? (
+          checked ? (
+            <span className={cx(choiceMarkCss, choiceMarkVisibleCss, radioMarkCss)} />
+          ) : null
+        ) : (
+          <span className={cx(choiceMarkCss, radioMarkCss)} />
+        )}
       </span>
       <span className={checkableContentCss}>
         <span className={checkableLabelCss}>{label}</span>

@@ -151,6 +151,17 @@ export const radioIndicatorCss = css`
   border-radius: 999px;
 `
 
+export const radioStandaloneNativeIndicatorCss = css`
+  input:checked + & {
+    background: var(--switch-track-on);
+    border-color: var(--switch-track-on);
+  }
+
+  input:checked + & > span {
+    opacity: 1;
+  }
+`
+
 export const choiceMarkCss = css`
   display: block;
   opacity: 0;

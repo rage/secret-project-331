@@ -246,10 +246,16 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       errorMessage,
     })
 
-    const plainDescribedBy = joinAriaDescribedBy(
+    const plainResolvedAriaDescribedBy = joinAriaDescribedBy(
+      ariaDescribedByProp,
       typeof plainTextareaProps["aria-describedby"] === "string"
         ? plainTextareaProps["aria-describedby"]
         : undefined,
+    )
+    const plainDescribedBy = joinAriaDescribedBy(
+      plainResolvedAriaDescribedBy,
+      description ? descriptionId : undefined,
+      resolvedErrorMessage ? errorMessageId : undefined,
       notice ? noticeId : undefined,
     )
 

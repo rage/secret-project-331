@@ -113,8 +113,8 @@ export const tokensGlobal = injectGlobal`
     --color-red-1000: #512c24;
 
     --color-yellow-25: #fdfcf6;
-    --color-yellow-50: #ffffff;
-    --color-yellow-75: #fdfcf6;
+    --color-yellow-50: #fcf9e8;
+    --color-yellow-75: #faf6e0;
     --color-yellow-100: #faf6e3;
     --color-yellow-200: #f6edc6;
     --color-yellow-300: #f1e4a9;

@@ -11,8 +11,8 @@ import { TimeField } from "../src/components/TimeField"
 import { changeFiles, renderUi } from "./testUtils"
 
 describe("date and time fields", () => {
-  test("renders React Aria segmented fields while keeping string values for forms", () => {
-    const { container, rerender } = renderUi(
+  test("DateField renders segmented controls and keeps a synchronized hidden value", () => {
+    const { container } = renderUi(
       <DateField label="Date" value="2026-03-11" onChange={() => null} />,
     )
     expect(screen.getByRole("group", { name: "Date" })).toBeInTheDocument()
@@ -25,8 +25,20 @@ describe("date and time fields", () => {
       "aria-haspopup",
       "dialog",
     )
+  })
 
-    rerender(<TimeField label="Time" value="12:30" onChange={() => null} />)
+  test("DateField updates the hidden value when the value prop changes", () => {
+    const { container, rerender } = renderUi(
+      <DateField label="Date" value="2026-03-11" onChange={() => null} />,
+    )
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("2026-03-11")
+
+    rerender(<DateField label="Date" value="2026-03-12" onChange={() => null} />)
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("2026-03-12")
+  })
+
+  test("TimeField renders segmented controls and keeps a synchronized hidden value", () => {
+    const { container } = renderUi(<TimeField label="Time" value="12:30" onChange={() => null} />)
     expect(screen.getByRole("group", { name: "Time" })).toBeInTheDocument()
     expect(
       within(screen.getByRole("group", { name: "Time" })).getAllByRole("spinbutton"),
@@ -34,6 +46,16 @@ describe("date and time fields", () => {
     expect(container.querySelector('input[type="time"]')).not.toBeInTheDocument()
     expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
     expect(screen.queryByRole("button")).not.toBeInTheDocument()
+  })
+
+  test("TimeField updates the hidden value when the value prop changes", () => {
+    const { container, rerender } = renderUi(
+      <TimeField label="Time" value="12:30" onChange={() => null} />,
+    )
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
+
+    rerender(<TimeField label="Time" value="11:00" onChange={() => null} />)
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("11:00")
   })
 
   test("opens a calendar dialog for date fields", () => {

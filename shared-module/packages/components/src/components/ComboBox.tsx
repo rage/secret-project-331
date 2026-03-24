@@ -4,8 +4,9 @@ import { css, cx } from "@emotion/css"
 import { Item } from "@react-stately/collections"
 import { useComboBoxState } from "@react-stately/combobox"
 import type { Key } from "@react-types/shared"
-import React, { useImperativeHandle, useMemo, useRef } from "react"
+import React, { useMemo, useRef } from "react"
 import { mergeProps, useButton, useComboBox, useFilter, useObjectRef } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { resolveFieldState, toInputValue } from "../lib/utils/field"
 
@@ -54,8 +55,6 @@ export type ComboBoxProps<T> = Omit<React.ComponentPropsWithoutRef<"input">, "ch
   emptyState?: React.ReactNode
 }
 
-// eslint-disable-next-line i18next/no-literal-string
-const toggleOptionsLabel = "Toggle options"
 // eslint-disable-next-line i18next/no-literal-string
 const filterSensitivityBase = "base" as const
 
@@ -174,12 +173,13 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     ...rest
   } = props
 
+  const { t } = useTranslation()
+  const toggleOptionsLabel = t("comboBox.toggleOptions")
+
   const inputRef = useObjectRef(forwardedRef)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const listBoxRef = useRef<HTMLUListElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
-
-  useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement)
 
   const generatedInputId = React.useId()
   const inputId = id ?? generatedInputId
@@ -285,6 +285,7 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
         className={cx(resolveControlSurfaceCss(fieldSize, true), comboBoxRootCss)}
         data-disabled={resolvedState.isDisabled ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
+        data-readonly={resolvedState.isReadOnly ? "true" : "false"}
       >
         <input
           {...mergedInputProps}

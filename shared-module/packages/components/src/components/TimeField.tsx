@@ -7,7 +7,7 @@ import {
   type SegmentedTemporalFieldProps,
 } from "./primitives/SegmentedDateInputField"
 
-export type TimeFieldProps = SegmentedTemporalFieldProps
+export type TimeFieldProps = Omit<SegmentedTemporalFieldProps, "layout">
 
 // eslint-disable-next-line i18next/no-literal-string
 const stackedLayout: TimeFieldProps["layout"] = "stacked"

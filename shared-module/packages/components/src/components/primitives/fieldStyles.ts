@@ -529,6 +529,14 @@ export const inputResetCss = css`
   line-height: 1.4;
   outline: none;
 
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
+      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
+    border-radius: inherit;
+  }
+
   &::placeholder {
     color: var(--field-placeholder);
   }
@@ -558,7 +566,9 @@ export const textAreaPlainControlCss = css`
 
   &:focus-within {
     border-color: transparent;
-    box-shadow: none;
+    box-shadow:
+      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
+      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
   }
 `
 

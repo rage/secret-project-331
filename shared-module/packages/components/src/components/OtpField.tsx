@@ -3,6 +3,7 @@
 import { css, cx } from "@emotion/css"
 import React, { useId, useImperativeHandle, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { useControllableState } from "../lib/utils/controllable"
 import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
@@ -40,7 +41,7 @@ const otpSlotCss = css`
 
   &:focus {
     border-color: var(--field-border-focus);
-    box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14);
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
   }
 
   &[data-invalid="true"] {
@@ -102,11 +103,6 @@ function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
   }
 }
 
-function getOtpSlotAriaLabel(index: number) {
-  // eslint-disable-next-line i18next/no-literal-string
-  return `Code character ${index + 1}`
-}
-
 export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
   function OtpField(props, forwardedRef) {
     const {
@@ -134,6 +130,8 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
       "aria-invalid": ariaInvalid,
       ...rest
     } = props
+
+    const { t } = useTranslation()
 
     const generatedInputId = useId()
     const inputId = id ?? generatedInputId
@@ -205,7 +203,6 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
         <VisuallyHidden>
           <input
             {...rest}
-            id={inputId}
             ref={hiddenInputRef}
             type="text"
             name={name}
@@ -213,8 +210,8 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
             disabled={state.isDisabled}
             readOnly={state.isReadOnly}
             required={state.isRequired}
-            aria-describedby={describedBy}
-            aria-invalid={state.isInvalid ? "true" : undefined}
+            aria-hidden="true"
+            tabIndex={-1}
             autoComplete="one-time-code"
             onChange={() => {
               return
@@ -222,7 +219,7 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
           />
         </VisuallyHidden>
 
-        <div className={otpSlotsCss} role="group" aria-describedby={describedBy}>
+        <div className={otpSlotsCss} role="group">
           {slots.map((slotValue, index) => (
             <input
               key={`${inputId}-${index}`}
@@ -233,12 +230,16 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
               type="text"
               inputMode="numeric"
               maxLength={1}
+              id={index === 0 ? inputId : undefined}
               autoComplete={index === 0 ? "one-time-code" : "off"}
               value={slotValue}
               disabled={state.isDisabled}
               readOnly={state.isReadOnly}
               data-invalid={state.isInvalid ? "true" : "false"}
-              aria-label={getOtpSlotAriaLabel(index)}
+              aria-describedby={index === 0 ? describedBy : undefined}
+              aria-invalid={index === 0 && state.isInvalid ? "true" : undefined}
+              required={index === 0 ? state.isRequired : undefined}
+              aria-label={t("otp.slotLabel", { index: index + 1 })}
               onChange={(event) => {
                 if (state.isReadOnly) {
                   return
@@ -263,6 +264,10 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
                   event.preventDefault()
                   slotRefs.current[clampOtpIndex(index + 1, length)]?.focus()
                 } else if (event.key === "Backspace") {
+                  if (state.isReadOnly) {
+                    return
+                  }
+
                   event.preventDefault()
 
                   const result = applyOtpBackspace(slots, index)
@@ -271,6 +276,10 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
                 }
               }}
               onPaste={(event) => {
+                if (state.isReadOnly) {
+                  return
+                }
+
                 event.preventDefault()
 
                 const pastedText = event.clipboardData.getData("text")

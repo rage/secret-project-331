@@ -1,6 +1,15 @@
 const DEFAULT_ALLOWED_CHARACTERS = /[0-9]/
 
+/**
+ * Builds a single-character matcher from a RegExp that must be a simple
+ * character class (e.g. `/[0-9]/`). Do not pass untrusted patterns or
+ * constructs with quantifiers (`*`, `+`, `?`, `{`) or nested groups.
+ */
 function toCharacterMatcher(pattern: RegExp) {
+  if (/[*+?{]/.test(pattern.source)) {
+    throw new Error("toCharacterMatcher expects a simple character-class RegExp (e.g. /[0-9]/)")
+  }
+
   const flags = pattern.flags.replace(/g/g, "")
   return new RegExp(pattern.source, flags)
 }

@@ -1,8 +1,9 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useId, useImperativeHandle, useRef, useState } from "react"
+import React, { useId, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
 import { summarizeFiles } from "../lib/utils/files"
@@ -48,8 +49,6 @@ const fileButtonLgCss = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
-// eslint-disable-next-line i18next/no-literal-string
-const defaultFileSummary = "No file selected"
 
 function resolveFileButtonSizeCss(fieldSize: FieldSize) {
   switch (fieldSize) {
@@ -71,7 +70,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
       description,
       errorMessage,
       fieldSize = "md",
-      buttonLabel = "Choose file",
+      buttonLabel: buttonLabelProp,
       isDisabled,
       isRequired,
       isInvalid,
@@ -83,6 +82,18 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
       "aria-invalid": ariaInvalid,
       ...rest
     } = props
+
+    const { t } = useTranslation()
+    const fileSummaryLabels = useMemo(
+      () => ({
+        empty: t("fileField.empty"),
+        unnamedFile: t("fileField.unnamed"),
+        formatMoreFiles: (additionalCount: number) =>
+          t("fileField.moreFiles", { count: additionalCount }),
+      }),
+      [t],
+    )
+    const buttonLabel = buttonLabelProp ?? t("fileField.chooseFile")
 
     const generatedInputId = useId()
     const inputId = id ?? generatedInputId
@@ -108,7 +119,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
     const inputRef = useRef<HTMLInputElement>(null)
     useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement)
 
-    const [fileSummary, setFileSummary] = useState(defaultFileSummary)
+    const [fileSummary, setFileSummary] = useState(() => fileSummaryLabels.empty)
 
     return (
       <FieldShell
@@ -135,7 +146,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
               aria-describedby={describedBy}
               aria-invalid={state.isInvalid ? "true" : undefined}
               onChange={(event) => {
-                setFileSummary(summarizeFiles(event.currentTarget.files))
+                setFileSummary(summarizeFiles(event.currentTarget.files, fileSummaryLabels))
                 onChange?.(event)
               }}
             />

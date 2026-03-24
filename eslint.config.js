@@ -428,6 +428,8 @@ const config = [
       "**/*.test.tsx",
       "**/*.test.ts",
       "storybook/**/*",
+      "**/*.stories.*",
+      "**/*.story.*",
       "shared-module/packages/create-exercise-service/**/*",
     ],
     rules: { "i18next/no-literal-string": "off" },

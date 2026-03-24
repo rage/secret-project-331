@@ -3,6 +3,9 @@
 /* eslint-disable i18next/no-literal-string */
 
 import { fireEvent, render } from "@testing-library/react"
+
+import "../tests/test-i18n"
+
 export function renderUi(ui: React.ReactElement) {
   return render(ui)
 }

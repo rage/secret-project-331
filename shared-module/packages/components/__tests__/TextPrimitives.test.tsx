@@ -53,7 +53,24 @@ describe("TextArea", () => {
   })
 
   test("supports plain appearance", () => {
-    renderUi(<TextArea label="Notes" appearance="plain" />)
-    expect(screen.getByLabelText("Notes")).toBeInTheDocument()
+    renderUi(
+      <TextArea
+        label="Notes"
+        appearance="plain"
+        description="Hint text"
+        errorMessage="Bad input"
+        notice="FYI"
+        aria-describedby="extra-desc"
+      />,
+    )
+    const textarea = screen.getByRole("textbox", { name: "Notes" }) as HTMLTextAreaElement
+    const descriptionEl = screen.getByText("Hint text")
+    const errorEl = screen.getByText("Bad input")
+    const noticeEl = screen.getByText("FYI")
+    const describedBy = textarea.getAttribute("aria-describedby") ?? ""
+    expect(describedBy).toContain(descriptionEl.id)
+    expect(describedBy).toContain(errorEl.id)
+    expect(describedBy).toContain(noticeEl.id)
+    expect(describedBy).toContain("extra-desc")
   })
 })

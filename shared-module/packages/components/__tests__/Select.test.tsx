@@ -15,7 +15,7 @@ describe("Select", () => {
       </Select>,
     )
 
-    const select = screen.getByLabelText("Country")
+    const select = screen.getByRole("button", { name: /Country/ })
     expect(select).toBeInTheDocument()
     expect(select.tagName).toBe("BUTTON")
     expect(select).toHaveAttribute("aria-describedby")
@@ -30,7 +30,7 @@ describe("Select", () => {
       </Select>,
     )
 
-    const select = screen.getByLabelText("Role")
+    const select = screen.getByRole("button", { name: /Role/ })
     expect(select).toHaveTextContent("Admin")
 
     fireEvent.click(select)
@@ -47,7 +47,7 @@ describe("Select", () => {
       </Select>,
     )
 
-    fireEvent.click(screen.getByLabelText("Language"))
+    fireEvent.click(screen.getByRole("button", { name: /Language/ }))
     fireEvent.click(screen.getByRole("option", { name: "English" }))
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange.mock.calls[0][0].currentTarget.value).toBe("en")
@@ -59,7 +59,7 @@ describe("Select", () => {
       </Select>,
     )
 
-    expect(screen.getByLabelText("Language")).toHaveTextContent("English")
+    expect(screen.getByRole("button", { name: /Language/ })).toHaveTextContent("English")
   })
 
   test("supports disabled and invalid behavior", () => {
@@ -74,7 +74,7 @@ describe("Select", () => {
       </>,
     )
 
-    expect(screen.getByLabelText("Disabled")).toBeDisabled()
-    expect(screen.getByLabelText("Invalid")).toHaveAttribute("aria-invalid", "true")
+    expect(screen.getByRole("button", { name: /Disabled/ })).toBeDisabled()
+    expect(screen.getByRole("alert")).toHaveTextContent("Required")
   })
 })

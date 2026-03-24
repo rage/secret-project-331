@@ -23,7 +23,14 @@ import {
 } from "./primitives/checkableStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-export type CheckboxProps = React.ComponentPropsWithoutRef<"input"> & {
+/**
+ * Props for {@link Checkbox}. The input always renders as `type="checkbox"`.
+ * Use `checked` with `onChange` for controlled usage; use `defaultChecked` for
+ * uncontrolled initial state. `isIndeterminate` is visual-only and does not
+ * change the checked boolean unless you also update `checked`/`onChange`; it
+ * is intended to be driven by the parent.
+ */
+export type CheckboxProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> & {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -38,6 +45,10 @@ export type CheckboxProps = React.ComponentPropsWithoutRef<"input"> & {
 // eslint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
 
+/**
+ * Accessible checkbox with label and optional description or error text.
+ * See {@link CheckboxProps} for controlled vs uncontrolled and indeterminate behavior.
+ */
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   function Checkbox(props, forwardedRef) {
     const {
@@ -129,10 +140,10 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     const mergedInputProps = mergeProps(inputProps, focusProps, {
       ...rest,
       onBlur,
-      onChange,
       onFocus,
       onKeyDown,
       onKeyUp,
+      ...(resolvedState.isReadOnly ? {} : { onChange }),
     })
 
     const showCheck = isSelected && !isIndeterminate
@@ -151,7 +162,12 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           className={cx(checkableRowCss, resolveCheckableSizeCss(fieldSize))}
           data-disabled={resolvedState.isDisabled ? "true" : "false"}
         >
-          <input {...mergedInputProps} ref={inputRef} className={checkableInputCss} />
+          <input
+            {...mergedInputProps}
+            ref={inputRef}
+            className={checkableInputCss}
+            type="checkbox"
+          />
           <span
             className={resolveChoiceIndicatorCss(fieldSize, "checkbox")}
             aria-hidden="true"

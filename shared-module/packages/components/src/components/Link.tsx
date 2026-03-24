@@ -3,7 +3,8 @@
 import { cx } from "@emotion/css"
 import NextLink from "next/link"
 import React from "react"
-import { useLink, useObjectRef } from "react-aria"
+import { useLink, useObjectRef, VisuallyHidden } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { mergeHandlers } from "../lib/utils/handlers"
@@ -19,7 +20,6 @@ import {
   resolveButtonRootCss,
   spinnerCss,
   spinnerOverlayCss,
-  srOnlyCss,
 } from "./primitives/buttonStyles"
 
 type CommonLinkExtras = PressHandlers & {
@@ -85,19 +85,19 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     const styledAsButtonResolved = styledAsButton === true
 
+    const { t } = useTranslation()
+
     const isLoading = Boolean(isLoadingProp)
     const disabled = Boolean(isDisabledProp)
     const isInteractivelyDisabled = isLoading || disabled
 
-    // eslint-disable-next-line i18next/no-literal-string
-    const defaultLoadingLabel = "Loading"
-    const loadingLabel = loadingLabelProp ?? defaultLoadingLabel
+    const loadingLabel = loadingLabelProp ?? t("link.loading")
     const loadingDescId = React.useId()
     const labelId = React.useId()
 
     const describedBy = joinAriaDescribedBy(
       ariaDescribedByProp,
-      isLoading ? loadingDescId : undefined,
+      isLoading && styledAsButtonResolved ? loadingDescId : undefined,
     )
     const userAriaLabel = ariaLabelProp
     const userLabelledBy = ariaLabelledByProp
@@ -161,7 +161,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         // eslint-disable-next-line i18next/no-literal-string
         aria-busy={isLoading ? "true" : undefined}
         tabIndex={finalTabIndex}
-        onClick={mergeHandlers(linkProps.onClick, onClick)}
+        onClick={mergeHandlers(linkProps.onClick, isInteractivelyDisabled ? undefined : onClick)}
         onPointerDown={mergeHandlers(linkProps.onPointerDown, onPointerDown)}
         onPointerUp={mergeHandlers(linkProps.onPointerUp, onPointerUp)}
         onPointerCancel={mergeHandlers(linkProps.onPointerCancel, onPointerCancel)}
@@ -187,9 +187,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
                 <span className={spinnerOverlayCss} aria-hidden="true">
                   <span className={spinnerCss} />
                 </span>
-                <span id={loadingDescId} className={srOnlyCss}>
-                  {loadingLabel}
-                </span>
+                <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
               </>
             ) : null}
           </>

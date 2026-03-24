@@ -103,7 +103,7 @@ const segmentCss = css`
   outline: none;
 
   &:focus-visible {
-    background: rgba(8, 69, 122, 0.08);
+    background: var(--color-blue-50);
   }
 `
 

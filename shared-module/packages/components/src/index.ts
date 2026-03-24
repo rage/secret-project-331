@@ -30,12 +30,14 @@ export { TimeField } from "./components/TimeField"
 export type { TimeFieldProps } from "./components/TimeField"
 export type ButtonRef = HTMLButtonElement
 export type CheckboxRef = HTMLInputElement
+export type ComboBoxRef = HTMLInputElement
 export type DateFieldRef = HTMLInputElement
 export type DateTimeLocalFieldRef = HTMLInputElement
 export type FileFieldRef = HTMLInputElement
 export type LinkRef = HTMLAnchorElement
 export type OtpFieldRef = HTMLInputElement
 export type RadioRef = HTMLInputElement
+export type RadioGroupRef = HTMLFieldSetElement
 export type SelectRef = HTMLDivElement
 export type SwitchRef = HTMLInputElement
 export type TextAreaRef = HTMLTextAreaElement

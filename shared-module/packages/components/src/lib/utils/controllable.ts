@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 
 type SetValueAction<T> = T | ((currentValue: T) => T)
 
@@ -20,15 +20,15 @@ export function useControllableState<T>({
   const isControlledRef = React.useRef(isControlled)
   const onChangeRef = React.useRef(onChange)
 
-  React.useEffect(() => {
+  useEffect(() => {
     resolvedValueRef.current = resolvedValue
   }, [resolvedValue])
 
-  React.useEffect(() => {
+  useEffect(() => {
     isControlledRef.current = isControlled
   }, [isControlled])
 
-  React.useEffect(() => {
+  useEffect(() => {
     onChangeRef.current = onChange
   }, [onChange])
 

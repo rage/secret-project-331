@@ -80,6 +80,9 @@ describe("Switch", () => {
     renderUi(<Switch ref={ref} label="Ref switch" className="switch-root" />)
 
     expect(ref.current).toBeInstanceOf(HTMLInputElement)
-    expect(document.querySelector(".switch-root")).toBeInTheDocument()
+    const root = ref.current?.closest(".switch-root")
+    expect(root).not.toBeNull()
+    expect(root).toBeInstanceOf(HTMLDivElement)
+    expect(root?.className).toEqual(expect.stringContaining("switch-root"))
   })
 })

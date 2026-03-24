@@ -6,6 +6,7 @@ import type { Node } from "@react-types/shared"
 import React from "react"
 import { useListBox, useListBoxSection, useOption } from "react-aria"
 import type { AriaListBoxOptions } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import {
   comboSelectedMarkCss,
@@ -39,9 +40,6 @@ type ListBoxProps<T extends object> = AriaListBoxOptions<T> & {
   className?: string
   emptyState?: React.ReactNode
 }
-
-// eslint-disable-next-line i18next/no-literal-string
-const defaultEmptyState = "No results found"
 
 function Option<T extends object>({ item, state }: { item: Node<T>; state: ListState<T> }) {
   const ref = React.useRef<HTMLLIElement>(null)
@@ -97,6 +95,7 @@ export function ListBox<T extends object>({
   emptyState,
   ...props
 }: ListBoxProps<T>) {
+  const { t } = useTranslation()
   const fallbackRef = React.useRef<HTMLUListElement>(null)
   const resolvedRef = listBoxRef ?? fallbackRef
   const { listBoxProps } = useListBox(props, state, resolvedRef)
@@ -106,7 +105,7 @@ export function ListBox<T extends object>({
   if (collection.length === 0) {
     return (
       <div className={listBoxEmptyStateCss} role="presentation">
-        {emptyState ?? defaultEmptyState}
+        {emptyState ?? t("listBox.noResults")}
       </div>
     )
   }

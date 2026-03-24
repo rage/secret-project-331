@@ -2,8 +2,9 @@
 
 import { cx } from "@emotion/css"
 import React from "react"
-import { useButton, useObjectRef } from "react-aria"
+import { useButton, useObjectRef, VisuallyHidden } from "react-aria"
 import type { AriaButtonOptions } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { mergeHandlers } from "../lib/utils/handlers"
@@ -19,7 +20,6 @@ import {
   resolveButtonRootCss,
   spinnerCss,
   spinnerOverlayCss,
-  srOnlyCss,
 } from "./primitives/buttonStyles"
 
 export type ButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "disabled"> &
@@ -41,7 +41,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon,
       iconPosition = "start",
       isLoading = false,
-      loadingLabel = "Loading",
+      loadingLabel: loadingLabelProp,
       disabled = false,
       children,
       onPress,
@@ -64,6 +64,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       ...rest
     } = props
+
+    const { t } = useTranslation()
+    const loadingLabel = loadingLabelProp ?? t("button.loading")
 
     const isDisabled = disabled || isLoading
 
@@ -127,9 +130,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <span className={spinnerOverlayCss} aria-hidden="true">
               <span className={spinnerCss} />
             </span>
-            <span id={loadingDescId} className={srOnlyCss}>
-              {loadingLabel}
-            </span>
+            <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
           </>
         ) : null}
       </button>

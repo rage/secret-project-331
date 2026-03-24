@@ -25,6 +25,7 @@ const spin = keyframes`
   to { transform: rotate(360deg); }
 `
 
+/** Used for non-React/CSS-only screen-reader text; prefer `VisuallyHidden` in components. */
 export const srOnlyCss = css`
   position: absolute;
   width: 1px;
@@ -257,16 +258,7 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 function resolveVariantCss(variant: ButtonVariant): string {
-  switch (variant) {
-    case "primary":
-      return variantStyles.primary
-    case "secondary":
-      return variantStyles.secondary
-    case "tertiary":
-      return variantStyles.tertiary
-    default:
-      return assertNever(variant)
-  }
+  return variantStyles[variant] ?? assertNever(variant)
 }
 
 export function resolveButtonRootCss(input: ResolveStylesInput): string {

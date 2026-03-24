@@ -701,6 +701,7 @@
   "label-csv-completions-header": "CSV-tiedostossa tulee olla otsikkorivi, jossa on nämä sarakkeet:",
   "label-csv-completions-note": "Huom: Jos et määrittele päivämääriä suorituksille CSV:ssä, yllä valittu päivämäärä käytetään kaikille suorituksille. Huomaa, että sinun tulee joko määritellä päivämäärä jokaiselle suoritukselle tai ei lainkaan.",
   "label-csv-completions-user-id": "user_id: Käyttäjän tunnus järjestelmässä",
+  "label-csv-export-only-latest-per-user": "Vie vain jokaisen käyttäjän viimeisin vastaus",
   "label-csv-export-task": "Tehtävä",
   "label-csv-export-task-option": "Tehtävä {{order}} ({{exerciseType}})",
   "label-current": "Nykyinen",

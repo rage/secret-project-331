@@ -2,7 +2,6 @@
 
 use std::collections::{HashMap, HashSet};
 
-use chrono::Utc;
 use futures::future;
 use serde_json::Value;
 use url::Url;
@@ -39,6 +38,8 @@ pub struct ExerciseCsvExportTaskOption {
 #[derive(Debug, Deserialize)]
 pub struct ExerciseCsvExportQuery {
     pub exercise_task_id: Uuid,
+    #[serde(default)]
+    pub only_latest_per_user: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -514,7 +515,6 @@ async fn export_exercise_task_definitions_csv(
         }
     };
 
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let tasks =
         models::exercise_tasks::get_exercise_tasks_by_exercise_id(&mut conn, *exercise_id).await?;
     let selected_task = get_selected_task(&tasks, query.exercise_task_id)?;
@@ -577,10 +577,8 @@ async fn export_exercise_task_definitions_csv(
 
     let csv_bytes = csv_writer_into_bytes(writer)?;
     let content_disposition = format!(
-        "attachment; filename=\"Exercise: {} - Definition task {} {}.csv\"",
-        exercise.name,
-        selected_task.order_number + 1,
-        Utc::now().format("%Y-%m-%d")
+        "attachment; filename=\"exercise-{}-definitions-{}.csv\"",
+        *exercise_id, selected_task.id
     );
 
     token.authorized_ok(
@@ -611,7 +609,6 @@ async fn export_exercise_task_answers_csv(
         }
     };
 
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let tasks =
         models::exercise_tasks::get_exercise_tasks_by_exercise_id(&mut conn, *exercise_id).await?;
     let selected_task = get_selected_task(&tasks, query.exercise_task_id)?;
@@ -622,12 +619,21 @@ async fn export_exercise_task_answers_csv(
         get_csv_export_endpoint_path(&service_info.csv_export_answers_endpoint_path, "answers")?;
     let endpoint_url = build_service_endpoint_url(&exercise_service, &endpoint_path)?;
 
-    let export_data = models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task(
-        &mut conn,
-        *exercise_id,
-        selected_task.id,
-    )
-    .await?;
+    let export_data = if query.only_latest_per_user {
+        models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task_latest_per_user(
+            &mut conn,
+            *exercise_id,
+            selected_task.id,
+        )
+        .await?
+    } else {
+        models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task(
+            &mut conn,
+            *exercise_id,
+            selected_task.id,
+        )
+        .await?
+    };
     let submission_ids = export_data
         .iter()
         .map(|submission| submission.exercise_task_submission_id)
@@ -784,10 +790,8 @@ async fn export_exercise_task_answers_csv(
 
     let csv_bytes = csv_writer_into_bytes(writer)?;
     let content_disposition = format!(
-        "attachment; filename=\"Exercise: {} - Answers task {} {}.csv\"",
-        exercise.name,
-        selected_task.order_number + 1,
-        Utc::now().format("%Y-%m-%d")
+        "attachment; filename=\"exercise-{}-answers-{}.csv\"",
+        *exercise_id, selected_task.id
     );
 
     token.authorized_ok(

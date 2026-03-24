@@ -13,7 +13,7 @@ export interface ExerciseCardHeaderProps {
 
 /** Colored top bar inside an exercise card with title and optional right-side content. */
 const ExerciseCardHeader: React.FC<React.PropsWithChildren<ExerciseCardHeaderProps>> = ({
-  backgroundColor = "#718dbf",
+  backgroundColor = "#5f7399",
   title,
   rightContent,
 }) => (

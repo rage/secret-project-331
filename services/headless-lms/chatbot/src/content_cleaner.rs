@@ -336,8 +336,6 @@ async fn process_block_chunk(
             max_completion_tokens: None,
             verbosity: None,
             reasoning_effort: None,
-            tools: vec![],
-            tool_choice: None,
         })
     } else {
         LLMRequestParams::NonThinking(NonThinkingParams {
@@ -350,7 +348,9 @@ async fn process_block_chunk(
     };
     let llm_base_request: LLMRequest = LLMRequest {
         messages,
-        data_sources: vec![],
+        model: task_lm.model.to_owned(),
+        tools: vec![],
+        tool_choice: None,
         params,
         response_format: None,
         stop: None,
@@ -360,7 +360,7 @@ async fn process_block_chunk(
         estimate_tokens(chunk)
     );
 
-    let completion = match make_blocking_llm_request(llm_base_request, app_config, task_lm).await {
+    let completion = match make_blocking_llm_request(llm_base_request, app_config).await {
         Ok(completion) => completion,
         Err(e) => {
             error!("Failed to process chunk: {}", e);

@@ -105,8 +105,6 @@ pub async fn generate_suggested_messages(
             max_completion_tokens: Some(7000),
             verbosity: None,
             reasoning_effort: None,
-            tools: vec![],
-            tool_choice: None,
         })
     } else {
         LLMRequestParams::NonThinking(NonThinkingParams {
@@ -120,7 +118,9 @@ pub async fn generate_suggested_messages(
 
     let chat_request = LLMRequest {
         messages: vec![system_prompt, user_prompt],
-        data_sources: vec![],
+        model: task_lm.model.to_owned(),
+        tools: vec![],
+        tool_choice: None,
         params,
         response_format: Some(LLMRequestResponseFormatParam {
             format_type: JSONType::JsonSchema,
@@ -146,7 +146,7 @@ pub async fn generate_suggested_messages(
         stop: None,
     };
 
-    let completion = make_blocking_llm_request(chat_request, app_config, &task_lm).await?;
+    let completion = make_blocking_llm_request(chat_request, app_config).await?;
 
     let completion_content: &String = &parse_text_completion(completion)?;
     let suggestions: ChatbotNextMessageSuggestionResponse =

@@ -139,9 +139,6 @@ pub struct ThinkingParams {
     pub max_completion_tokens: Option<i32>,
     pub verbosity: Option<VerbosityLevel>,
     pub reasoning_effort: Option<ReasoningEffortLevel>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub tools: Vec<AzureLLMToolDefinition>,
-    pub tool_choice: Option<LLMToolChoice>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -215,8 +212,10 @@ pub struct LLMRequestResponseFormatParam {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LLMRequest {
     pub messages: Vec<APIMessage>,
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub data_sources: Vec<DataSource>,
+    pub model: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub tools: Vec<AzureLLMToolDefinition>,
+    pub tool_choice: Option<LLMToolChoice>,
     #[serde(flatten)]
     pub params: LLMRequestParams,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -239,6 +238,12 @@ impl LLMRequest {
 
         let configuration =
             models::chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
+
+        let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
+            conn,
+            chatbot_configuration_id,
+        )
+        .await?;
 
         let conversation_messages =
             models::chatbot_conversation_messages::get_by_conversation_id(conn, conversation_id)
@@ -357,10 +362,10 @@ impl LLMRequest {
             Vec::new()
         };
 
-        let tools = if configuration.use_tools {
-            get_chatbot_tool_definitions()
+        let (tools, tool_choice) = if configuration.use_tools {
+            (get_chatbot_tool_definitions(), Some(LLMToolChoice::Auto))
         } else {
-            Vec::new()
+            (Vec::new(), None)
         };
 
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
@@ -371,12 +376,12 @@ impl LLMRequest {
                 max_completion_tokens: Some(configuration.max_completion_tokens),
                 reasoning_effort: Some(configuration.reasoning_effort),
                 verbosity: Some(configuration.verbosity),
-                tools,
+                /*                 tools,
                 tool_choice: if configuration.use_tools {
                     Some(LLMToolChoice::Auto)
                 } else {
                     None
-                },
+                }, */
             })
         } else {
             LLMRequestParams::NonThinking(NonThinkingParams {
@@ -391,7 +396,9 @@ impl LLMRequest {
         Ok((
             Self {
                 messages: api_chat_messages,
-                data_sources,
+                model: model.model,
+                tools,
+                tool_choice,
                 params,
                 response_format: None,
                 stop: None,

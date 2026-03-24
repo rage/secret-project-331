@@ -59,6 +59,9 @@ import {
 } from "../../utils/Gutenberg/editorHistory"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
+import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
+import withImageWarnings from "../../utils/Gutenberg/withImageWarnings"
+import withParagraphWarnings from "../../utils/Gutenberg/withParagraphWarnings"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -245,6 +248,31 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     )
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/customHtmlParagraphWarning")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/paragraphWarnings", withParagraphWarnings)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/paragraphWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/imageWarnings", withImageWarnings)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/imageWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter(
+      "editor.BlockEdit",
+      "moocfi/cms/headingHierarchyWarnings",
+      withHeadingHierarchyWarnings,
+    )
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/headingHierarchyWarnings")
     }
   }, [])
 

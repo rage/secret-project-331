@@ -28,6 +28,8 @@ import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
+import HeadingHierarchyButton from "./HeadingHierarchyButton"
+
 import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -259,6 +261,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </div>
     </div>
   )
+  const inspectorButtons = (
+    <>
+      <HeadingHierarchyButton content={content} />
+      {saveAndReset}
+    </>
+  )
   const memoizedCustomBlocks = useMemo(
     () =>
       customBlocks(
@@ -289,7 +297,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}
-          inspectorButtons={saveAndReset}
+          inspectorButtons={inspectorButtons}
           needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
           setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
         />

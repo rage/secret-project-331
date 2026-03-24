@@ -34,16 +34,26 @@ const ExerciseCardHeader: React.FC<React.PropsWithChildren<ExerciseCardHeaderPro
       }
     `}
   >
-    {title}
+    <div
+      className={css`
+        ${respondToOrLarger.xxs} {
+          min-width: 0;
+          flex: 1 1 auto;
+        }
+      `}
+    >
+      {title}
+    </div>
     {rightContent !== undefined && (
-      <>
-        <div
-          className={css`
-            flex-grow: 1;
-          `}
-        />
+      <div
+        className={css`
+          ${respondToOrLarger.xxs} {
+            flex-shrink: 0;
+          }
+        `}
+      >
         {rightContent}
-      </>
+      </div>
     )}
   </div>
 )

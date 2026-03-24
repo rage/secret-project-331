@@ -460,16 +460,38 @@ const ExerciseBlock: React.FC<
                   className={cx(
                     exerciseCardPillShell,
                     css`
+                      height: auto;
+                      min-height: 60px;
+                      box-sizing: border-box;
+                      justify-content: center;
+
+                      & > div {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 4px;
+                      }
+
                       .heading {
                         color: #57606f;
-                        font-size: 12px;
-                        display: inline-block;
-                        margin-bottom: 2px;
+                        font-size: 10px;
+                        display: block;
+                        margin-bottom: 0;
+                        line-height: 1.15;
+
+                        ${respondToOrLarger.xs} {
+                          font-size: 12px;
+                        }
+
+                        ${respondToOrLarger.lg} {
+                          font-size: 13px;
+                        }
                       }
 
                       .value {
                         font-size: 1rem;
-                        line-height: 1;
+                        line-height: 1.2;
                         margin-top: 0;
                         display: flex;
                         align-items: center;

@@ -69,6 +69,7 @@ pub async fn revoke(
                 }
                 // Database/storage failures - return 5xx per RFC 7009
                 _ => {
+                    tracing::error!(err = %err, "OAuth revoke: client lookup failed");
                     return Err(ControllerError::new(
                         ControllerErrorType::InternalServerError,
                         "Failed to authenticate client due to storage error".to_string(),

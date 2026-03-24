@@ -943,6 +943,8 @@ export interface ExerciseServiceInfoApi {
   public_spec_endpoint_path: string
   model_solution_spec_endpoint_path: string
   has_custom_view?: boolean
+  csv_export_definitions_endpoint_path?: string
+  csv_export_answers_endpoint_path?: string
 }
 
 export interface ExerciseService {
@@ -2622,6 +2624,14 @@ export interface NewExerciseRepository {
 export interface ExerciseServiceWithError {
   exercise_service: ExerciseService
   service_info_error: string | null
+}
+
+export interface ExerciseCsvExportTaskOption {
+  exercise_task_id: string
+  exercise_type: string
+  order_number: number
+  supports_csv_export_definitions: boolean
+  supports_csv_export_answers: boolean
 }
 
 export interface ExerciseSubmissions {

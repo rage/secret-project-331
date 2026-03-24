@@ -5,7 +5,8 @@
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3002 --turbopack",
-    "export": "next export"
+    "export": "next export",
+    "test": "node --import tsx --test src/app/api/__tests__/*.test.ts"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -25,9 +26,11 @@
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.5.33",
     "@react-aria/overlays": "^3.31.1",
+    "@react-aria/utils": "^3.33.1",
     "@react-stately/collections": "^3.12.10",
     "@react-stately/combobox": "^3.13.0",
     "@react-stately/datepicker": "^3.16.1",
+    "@react-stately/overlays": "^3.6.23",
     "@react-stately/radio": "^3.11.5",
     "@react-stately/select": "^3.9.2",
     "@react-stately/toggle": "^3.9.5",

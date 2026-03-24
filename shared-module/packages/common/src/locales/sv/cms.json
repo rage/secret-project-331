@@ -235,6 +235,7 @@
   "upload-or-drag-and-drop-onto-this-block": "Ladda upp eller dra och släpp på detta block",
   "use-course-default-peer-review-config": "Använd kursens standardkonfiguration för kamratgranskning",
   "use-default-text-for-label": "Använd standardtext för etikett",
+  "warning-custom-html-missing-paragraph-wrapper": "Varning: Detta Custom HTML-block ser ut som ett enda stycke utan <p>-taggar. Omge innehållet med <p>...</p> så att det använder samma styckestil som ett vanligt styckeblock.",
   "warning-mobile-background-missing": "Varning: Ingen bakgrundsbild för mobil eller större är inställd, men andra skärmstorlekar har bakgrundsbilder konfigurerade. Mobilens bakgrundsbild fungerar som standardfall för alla skärmstorlekar. Om du vill använda endast en bild som skulle visas på alla skärmstorlekar, ladda upp den till mobilbakgrunden eller större bildfält.",
   "warning-points-are-all-or-nothing-disabled": "Varning: Det rekommenderas att aktivera “poäng är allt eller inget”. Kamratgranskningar som ges av studenter varierar mycket i kvalitet, vilket kan leda till att vissa studenter får orättvisa poäng från övningen. Att aktivera detta alternativ minskar slumpmässigheten i de mottagna poängen och gör kamratgranskningsprocessen rättvisare för studenterna.",
   "welcome-message-for-course": "Välkomstmeddelande för kurs...",

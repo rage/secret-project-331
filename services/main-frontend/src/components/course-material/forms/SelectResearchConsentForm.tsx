@@ -111,6 +111,9 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
             display: flex;
             line-height: 22px;
             padding: 16px 20px 16px 20px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
           `}
         >
           <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
@@ -126,6 +129,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
             display: flex;
             justify-content: flex-end;
             align-items: center;
+            flex-shrink: 0;
             padding: 16px 20px;
             height: 72px;
             border: ${baseTheme.colors.clear[700]};

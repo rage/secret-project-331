@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { isEqual } from "lodash"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -15,7 +15,9 @@ import {
   isHeightChangedMessage,
   isMessageFromIframe,
   isOpenLinkMessage,
+  isRequestIframeReloadMessage,
 } from "../exercise-service-protocol-types.guard"
+import useEventCallback from "../hooks/useEventCallback"
 import useMessageChannel from "../hooks/useMessageChannel"
 
 import { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
@@ -31,6 +33,8 @@ interface MessageChannelIFrameProps {
   headingBeforeIframe?: string
   onReady?: () => void
 }
+
+const MESSAGE_CHANNEL_IFRAME_TEST_ID = "message-channel-iframe"
 
 const useIframeSandboxingAttribute = (disableSandbox: boolean) => {
   if (disableSandbox) {
@@ -60,28 +64,102 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const iframeSandboxAttribute = useIframeSandboxingAttribute(disableSandbox)
   const hasSignaledReadyRef = useRef(false)
+  const lastThingPostedRef = useRef<unknown>(null)
 
-  const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
+  const [reloadNonce, setReloadNonce] = useState(0)
+  const [reloadExhausted, setReloadExhausted] = useState(false)
 
   const [messageChannel, recreateMessageChannel] = useMessageChannel()
   const portSentRef = useRef(false)
   const portSentTimestampRef = useRef<number | null>(null)
   const recoveryAttemptsRef = useRef(0)
   const readyMessageQueueRef = useRef<MessageEvent[]>([])
+  const reloadAttemptsRef = useRef(0)
+  const reloadTimeoutRef = useRef<number | null>(null)
 
   const MAX_RECOVERY_ATTEMPTS = 3
   const RECOVERY_TIMEOUT_MS = 5000
+  const MAX_RELOAD_ATTEMPTS = 4
+  const INITIAL_RELOAD_DELAY_MS = 250
+
+  const resetIframeConnectionState = useCallback(
+    ({
+      recreateChannel = false,
+      resetRecoveryAttempts = true,
+    }: {
+      recreateChannel?: boolean
+      resetRecoveryAttempts?: boolean
+    } = {}) => {
+      portSentRef.current = false
+      portSentTimestampRef.current = null
+      hasSignaledReadyRef.current = false
+      readyMessageQueueRef.current = []
+      if (iframeRef.current) {
+        // eslint-disable-next-line i18next/no-literal-string
+        iframeRef.current.dataset.stateSent = "false"
+        iframeRef.current.dataset.iframeHeight = "0"
+      }
+      if (resetRecoveryAttempts) {
+        recoveryAttemptsRef.current = 0
+      }
+      lastThingPostedRef.current = null
+      if (recreateChannel) {
+        recreateMessageChannel()
+      }
+    },
+    [recreateMessageChannel],
+  )
 
   useEffect(() => {
-    portSentRef.current = false
-    portSentTimestampRef.current = null
-    recoveryAttemptsRef.current = 0
-    readyMessageQueueRef.current = []
-    setLastThingPosted(null)
-    hasSignaledReadyRef.current = false
-  }, [url])
+    const clearReloadTimeout = () => {
+      if (reloadTimeoutRef.current !== null) {
+        clearTimeout(reloadTimeoutRef.current)
+        reloadTimeoutRef.current = null
+      }
+    }
 
-  const sendPortToIframe = (messageChannel: MessageChannel, isRecovery = false) => {
+    resetIframeConnectionState()
+    reloadAttemptsRef.current = 0
+    clearReloadTimeout()
+    setReloadNonce(0)
+    setReloadExhausted(false)
+
+    return clearReloadTimeout
+  }, [resetIframeConnectionState, url])
+
+  const scheduleIframeReload = useCallback(() => {
+    if (!iframeRef.current) {
+      return
+    }
+    if (reloadTimeoutRef.current !== null) {
+      console.info(
+        "[MessageChannelIFrame] Ignoring duplicate iframe reload request while a reload is already scheduled",
+      )
+      return
+    }
+    if (reloadAttemptsRef.current >= MAX_RELOAD_ATTEMPTS) {
+      console.error(
+        `[MessageChannelIFrame] Max iframe reload attempts (${MAX_RELOAD_ATTEMPTS}) reached. Giving up.`,
+      )
+      setReloadExhausted(true)
+      return
+    }
+
+    const attempt = reloadAttemptsRef.current + 1
+    const delay = Math.min(INITIAL_RELOAD_DELAY_MS * 2 ** (attempt - 1), 2000)
+    console.warn(
+      `[MessageChannelIFrame] Scheduling iframe reload (attempt ${attempt}/${MAX_RELOAD_ATTEMPTS}) in ${delay}ms`,
+    )
+
+    reloadAttemptsRef.current = attempt
+    reloadTimeoutRef.current = window.setTimeout(() => {
+      reloadTimeoutRef.current = null
+      resetIframeConnectionState({ recreateChannel: true })
+      setReloadNonce((prev) => prev + 1)
+    }, delay)
+  }, [resetIframeConnectionState])
+
+  const sendPortToIframe = useCallback((messageChannel: MessageChannel, isRecovery = false) => {
     if (portSentRef.current && !isRecovery) {
       return
     }
@@ -106,16 +184,12 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     } catch (e) {
       console.error("[MessageChannelIFrame] Posting communication port to iframe failed", e)
     }
-  }
+  }, [])
 
-  useEffect(() => {
-    if (!messageChannel) {
-      return
-    }
-    // We use port 1 for communication, defining a event handler
-    messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
-      const data = message.data
-      if (data.message) {
+  const handlePortMessage = useEventCallback(
+    (message: WindowEventMap["message"], currentMessageChannel: MessageChannel) => {
+      const data = message?.data
+      if (data?.message) {
         console.groupCollapsed(`Parent page: received message ${data.message} from iframe`)
       } else {
         console.groupCollapsed(`Parent page: received message from iframe`)
@@ -130,17 +204,25 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         console.info("Updating height")
         // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
+        iframeRef.current.dataset.iframeHeight = Number(data.data).toString()
       } else if (isOpenLinkMessage(data)) {
         console.info(`The iframe wants to open a link: ${data.data}`)
 
         window.open(data.data, "_blank", "noopener,noreferrer")
+      } else if (isRequestIframeReloadMessage(data)) {
+        scheduleIframeReload()
       } else if (isMessageFromIframe(data)) {
-        if (!hasSignaledReadyRef.current && onReady) {
+        if (!hasSignaledReadyRef.current) {
           hasSignaledReadyRef.current = true
-          onReady()
+          reloadAttemptsRef.current = 0
+          if (reloadTimeoutRef.current !== null) {
+            clearTimeout(reloadTimeoutRef.current)
+            reloadTimeoutRef.current = null
+          }
+          onReady?.()
         }
         try {
-          onMessageFromIframe(data, messageChannel.port1)
+          onMessageFromIframe(data, currentMessageChannel.port1)
         } catch (e) {
           console.error("onMessageFromIframe crashed", e)
         }
@@ -148,6 +230,16 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         console.warn("unsupported message")
       }
       console.groupEnd()
+    },
+  )
+
+  useEffect(() => {
+    if (!messageChannel) {
+      return
+    }
+    // We use port 1 for communication, defining a event handler
+    messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
+      handlePortMessage(message, messageChannel)
     }
 
     const queuedMessages = readyMessageQueueRef.current
@@ -159,68 +251,73 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         }
       })
     }
-  }, [messageChannel, onMessageFromIframe, onReady])
+
+    return () => {
+      messageChannel.port1.onmessage = null
+    }
+  }, [handlePortMessage, messageChannel, sendPortToIframe])
+
+  const handleInitialReadyMessage = useEventCallback((e: WindowEventMap["message"]) => {
+    // Verify the source of the message. Origin can be "null" if the IFrame is
+    // sandboxed without allow-same-origin, or it can be the same as window.location.origin
+    if (
+      (!disableSandbox && e.origin !== "null" && e.origin !== window.location.origin) ||
+      e.source !== iframeRef.current?.contentWindow
+    ) {
+      if (e.data === "ready") {
+        console.warn("[MessageChannelIFrame] Received ready message from invalid origin", {
+          origin: e.origin,
+          expectedOrigins: ["null", window.location.origin],
+          isSandboxed: !disableSandbox,
+        })
+      }
+      return
+    }
+
+    if (e.data !== "ready") {
+      return
+    }
+
+    if (portSentRef.current && portSentTimestampRef.current) {
+      const timeSinceSent = Date.now() - portSentTimestampRef.current
+      if (timeSinceSent > RECOVERY_TIMEOUT_MS) {
+        if (recoveryAttemptsRef.current < MAX_RECOVERY_ATTEMPTS) {
+          console.warn(
+            `[MessageChannelIFrame] Received ready message ${timeSinceSent}ms after sending port. Initiating recovery (attempt ${recoveryAttemptsRef.current + 1}/${MAX_RECOVERY_ATTEMPTS})`,
+          )
+          recoveryAttemptsRef.current += 1
+
+          resetIframeConnectionState({ resetRecoveryAttempts: false })
+          readyMessageQueueRef.current.push(e)
+          recreateMessageChannel()
+          return
+        } else {
+          console.error(
+            `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
+          )
+        }
+      }
+      return
+    }
+
+    if (messageChannel) {
+      sendPortToIframe(messageChannel)
+    } else {
+      readyMessageQueueRef.current.push(e)
+    }
+  })
 
   // Set up a temporary listener for the initial ready event
   useEffect(() => {
     const temporaryEventHandler = (e: WindowEventMap["message"]) => {
-      // Verify the source of the message. Origin can be "null" if the IFrame is
-      // sandboxed without allow-same-origin, or it can be the same as window.location.origin
-      if (
-        (!disableSandbox && e.origin !== "null" && e.origin !== window.location.origin) ||
-        e.source !== iframeRef.current?.contentWindow
-      ) {
-        if (e.data === "ready") {
-          console.warn("[MessageChannelIFrame] Received ready message from invalid origin", {
-            origin: e.origin,
-            expectedOrigins: ["null", window.location.origin],
-            isSandboxed: !disableSandbox,
-          })
-        }
-        return
-      }
-
-      if (e.data !== "ready") {
-        return
-      }
-
-      if (portSentRef.current && portSentTimestampRef.current) {
-        const timeSinceSent = Date.now() - portSentTimestampRef.current
-        if (timeSinceSent > RECOVERY_TIMEOUT_MS) {
-          if (recoveryAttemptsRef.current < MAX_RECOVERY_ATTEMPTS) {
-            console.warn(
-              `[MessageChannelIFrame] Received ready message ${timeSinceSent}ms after sending port. Initiating recovery (attempt ${recoveryAttemptsRef.current + 1}/${MAX_RECOVERY_ATTEMPTS})`,
-            )
-            recoveryAttemptsRef.current += 1
-
-            portSentRef.current = false
-            portSentTimestampRef.current = null
-            setLastThingPosted(null)
-
-            readyMessageQueueRef.current.push(e)
-            recreateMessageChannel()
-            return
-          } else {
-            console.error(
-              `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
-            )
-          }
-        }
-        return
-      }
-
-      if (messageChannel) {
-        sendPortToIframe(messageChannel)
-      } else {
-        readyMessageQueueRef.current.push(e)
-      }
+      handleInitialReadyMessage(e)
     }
 
     addEventListener("message", temporaryEventHandler)
     return () => {
       removeEventListener("message", temporaryEventHandler)
     }
-  }, [disableSandbox, messageChannel, recreateMessageChannel])
+  }, [handleInitialReadyMessage])
 
   // Keep the iframe informed of the current user interface language
   useEffect(() => {
@@ -241,7 +338,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     if (
       !postThisStateToIFrame ||
       !messageChannel ||
-      isEqual(lastThingPosted, postThisStateToIFrame)
+      isEqual(lastThingPostedRef.current, postThisStateToIFrame)
     ) {
       return
     }
@@ -254,9 +351,11 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     console.info(JSON.stringify(postData, undefined, 2))
     console.groupEnd()
     messageChannel.port1.postMessage(postData)
-    setLastThingPosted(postThisStateToIFrame)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- lastThingPosted is only used to cancel reposting when postThisStateToIFrame has not changed. Adding it to the dependency array would cause an infinite loop.
+    if (iframeRef.current) {
+      // eslint-disable-next-line i18next/no-literal-string
+      iframeRef.current.dataset.stateSent = "true"
+    }
+    lastThingPostedRef.current = postThisStateToIFrame
   }, [messageChannel, postThisStateToIFrame])
 
   if (!messageChannel) {
@@ -294,6 +393,9 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         </h4>
       )}
       <iframe
+        data-testid={MESSAGE_CHANNEL_IFRAME_TEST_ID}
+        data-state-sent="false"
+        data-iframe-height="0"
         sandbox={iframeSandboxAttribute}
         className={css`
           overflow: hidden;
@@ -301,9 +403,48 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
           border: 0;
         `}
         title={title}
+        key={reloadNonce}
         ref={iframeRef}
         src={url}
       />
+      {reloadExhausted && (
+        <div
+          className={css`
+            margin-top: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background-color: #fff3cd;
+            color: #664d03;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+          `}
+        >
+          <span>{t("exercise-iframe-reload-exhausted-message")}</span>
+          <button
+            type="button"
+            className={css`
+              border: none;
+              border-radius: 9999px;
+              padding: 0.35rem 0.9rem;
+              font-size: 0.9rem;
+              font-weight: 500;
+              cursor: pointer;
+              background-color: #0d6efd;
+              color: #fff;
+              white-space: nowrap;
+            `}
+            onClick={() => {
+              reloadAttemptsRef.current = 0
+              setReloadExhausted(false)
+              scheduleIframeReload()
+            }}
+          >
+            {t("exercise-iframe-reload-exhausted-reload-button")}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

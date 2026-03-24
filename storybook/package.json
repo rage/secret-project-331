@@ -1,5 +1,5 @@
 {
-  "name": "storybook",
+  "name": "secret-project-storybook",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -22,7 +22,7 @@
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "storybook": "latest",
+    "storybook": "^10.2.17",
     "vite": "^6.0.7"
   },
   "scripts": {
@@ -37,10 +37,12 @@
     "@react-aria/dialog": "^3.5.25",
     "@react-aria/focus": "^3.15.0",
     "@react-aria/overlays": "^3.15.0",
+    "@react-aria/utils": "^3.33.1",
     "@react-stately/calendar": "^3.9.3",
     "@react-stately/collections": "^3.12.10",
     "@react-stately/combobox": "^3.13.0",
     "@react-stately/datepicker": "^3.16.1",
+    "@react-stately/overlays": "^3.6.23",
     "@react-stately/radio": "^3.11.5",
     "@react-stately/select": "^3.9.2",
     "@react-stately/toggle": "^3.9.5",

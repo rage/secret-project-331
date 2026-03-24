@@ -103,7 +103,8 @@ pub async fn introspect(
     // If client not found or secret invalid, return active: false per RFC 7662
     let client = match client_result {
         Ok(c) => c,
-        Err(_) => {
+        Err(e) => {
+            tracing::debug!(err = %e, "OAuth introspect: client lookup failed (inactive client_id)");
             // Invalid client_id - return active: false per RFC 7662
             return server_token.authorized_ok(
                 HttpResponse::Ok()
@@ -172,7 +173,8 @@ pub async fn introspect(
     // If token not found or expired, return active: false
     let access_token = match access_token_result {
         Ok(token) => token,
-        Err(_) => {
+        Err(e) => {
+            tracing::debug!(err = %e, "OAuth introspect: access token lookup failed (inactive/expired token)");
             return server_token.authorized_ok(
                 HttpResponse::Ok()
                     .insert_header(("Cache-Control", "no-store"))

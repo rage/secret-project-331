@@ -81,7 +81,6 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
       >
         <ExerciseCardWrapper>
           <ExerciseCardHeader
-            backgroundColor={baseTheme.colors.blue[600]}
             title={
               <h2
                 className={css`

@@ -54,7 +54,7 @@ test.describe("Uploading media as admin", () => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    await page.getByText("Replace").click()
+    await page.getByRole("button", { name: "Replace" }).click()
 
     const [newPage] = await Promise.all([
       page.waitForEvent("popup"),

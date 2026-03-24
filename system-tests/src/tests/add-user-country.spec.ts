@@ -16,17 +16,19 @@ test("User can add missing country information", async ({ page }) => {
       .fill("student-without-country@example.com")
     await page.getByRole("textbox", { name: "Password (Required)" }).fill("student-without-country")
     await page.getByRole("button", { name: "Log in" }).click()
+    await page.waitForURL(/\/org\/uh-mathstat\/courses\/accessibility-course/, { timeout: 10_000 })
 
     // Form to fill missing country
     // The country prompt has priority over course instance selection (see useDialogStep hook)
     // so it will always show first if both are needed
-    await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
-    await page.getByRole("button", { name: "Select a country Where do you" }).click()
+    const missingInfoDialog = page.getByRole("dialog", { name: "Fill missing information" })
+    await expect(missingInfoDialog).toBeVisible()
+    await missingInfoDialog.getByRole("button", { name: /Select a country/ }).click()
     await page.getByRole("option", { name: "Andorra" }).click()
     await waitForSuccessNotification(
       page,
       async () => {
-        await page.getByRole("button", { name: "Save" }).click()
+        await missingInfoDialog.getByRole("button", { name: "Save" }).click()
       },
       "Success",
     )

@@ -4,9 +4,6 @@ const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 /** @type {import('next').NextConfig} */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   async headers() {
     return [
       {
@@ -23,7 +20,7 @@ const config = {
   },
   output: "standalone",
   outputFileTracingRoot: ".",
-  webpack(config) {
+  webpack(config, { isServer }) {
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
@@ -33,7 +30,11 @@ const config = {
         svgProps: { role: "presentation" },
       },
     })
-
+    // Pyodide is loaded from our own public URLs at runtime (main thread: script tag; worker: importScripts).
+    // Do not resolve/bundle the "pyodide" package.
+    if (!isServer) {
+      config.resolve.fallback = { ...config.resolve.fallback, pyodide: false }
+    }
     return config
   },
   turbopack: {

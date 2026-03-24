@@ -10,6 +10,9 @@ WORKDIR /app
 COPY --chown=node package.json /app/
 COPY --chown=node pnpm-lock.yaml /app/
 COPY --chown=node pnpm-workspace.yaml /app/
+# postinstall runs prepare-pyodide-assets.cjs; copy its inputs before install (full tree COPY is later).
+COPY --chown=node scripts/ /app/scripts/
+COPY --chown=node src/util/pyodide-version.json /app/src/util/pyodide-version.json
 
 RUN pnpm install --frozen-lockfile
 

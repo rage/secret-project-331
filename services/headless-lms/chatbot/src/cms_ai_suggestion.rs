@@ -235,8 +235,6 @@ pub async fn generate_paragraph_suggestions(
             max_completion_tokens: Some(4000),
             verbosity: None,
             reasoning_effort: None,
-            tools: vec![],
-            tool_choice: None,
         })
     } else {
         LLMRequestParams::NonThinking(NonThinkingParams {
@@ -250,7 +248,9 @@ pub async fn generate_paragraph_suggestions(
 
     let chat_request = LLMRequest {
         messages: vec![system_message, user_message],
-        data_sources: vec![],
+        model: task_lm.model.to_owned(),
+        tools: vec![],
+        tool_choice: None,
         params,
         response_format: Some(LLMRequestResponseFormatParam {
             format_type: JSONType::JsonSchema,
@@ -276,7 +276,7 @@ pub async fn generate_paragraph_suggestions(
         stop: None,
     };
 
-    let completion = make_blocking_llm_request(chat_request, app_config, &task_lm).await?;
+    let completion = make_blocking_llm_request(chat_request, app_config).await?;
 
     let completion_content: &String = &parse_text_completion(completion)?;
     let response: CmsParagraphSuggestionResponse = serde_json::from_str(completion_content)

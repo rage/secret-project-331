@@ -5,7 +5,6 @@ use crate::{
 };
 use core::default::Default;
 use headless_lms_models::{
-    application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
     chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
     chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
@@ -282,19 +281,6 @@ pub fn build_llm_headers(api_key: &str) -> anyhow::Result<HeaderMap> {
     Ok(headers)
 }
 
-/// Prepares Azure OpenAI endpoint with API version
-#[instrument(skip(endpoint))]
-pub fn prepare_azure_endpoint(mut endpoint: url::Url) -> url::Url {
-    trace!(
-        "Preparing Azure endpoint with API version {}",
-        LLM_API_VERSION
-    );
-    // Always set the API version so that we actually use the API that the code is written for
-    endpoint.set_query(Some(&format!("api-version={}", LLM_API_VERSION)));
-    trace!("Endpoint prepared: {}", endpoint);
-    endpoint
-}
-
 /// Estimate the number of tokens in a given text.
 #[instrument(skip(text), fields(text_length = text.len()))]
 pub fn estimate_tokens(text: &str) -> i32 {
@@ -345,7 +331,7 @@ async fn make_llm_request(
     debug!("Sending request to LLM endpoint: {}", endpoint);
 
     let response = REQWEST_CLIENT
-        .post(prepare_azure_endpoint(endpoint.clone()))
+        .post(endpoint.clone())
         .headers(headers)
         .json(&request)
         .send()
@@ -416,16 +402,14 @@ pub async fn make_streaming_llm_request(
     };
 
     let headers = build_llm_headers(&chatbot_config.api_key)?;
-    let api_endpoint = chatbot_config
-        .api_endpoint
-        .join(&(model_deployment_name.to_owned() + "/chat/completions"))?;
+    let api_endpoint = chatbot_config.api_endpoint.to_owned();
     debug!(
         "Sending streaming request to LLM endpoint: {}",
         api_endpoint
     );
 
     let response = REQWEST_CLIENT
-        .post(prepare_azure_endpoint(api_endpoint.clone()))
+        .post(api_endpoint)
         .headers(headers)
         .json(&request)
         .send()
@@ -451,7 +435,7 @@ pub async fn make_streaming_llm_request(
 }
 
 /// Makes a non-streaming request to an LLM using application configuration
-#[instrument(skip(chat_request, app_config, task_lm), fields(
+#[instrument(skip(chat_request, app_config), fields(
     num_messages = chat_request.messages.len(),
     temperature,
     max_tokens
@@ -459,7 +443,6 @@ pub async fn make_streaming_llm_request(
 pub async fn make_blocking_llm_request(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
-    task_lm: &TaskLMSpec,
 ) -> anyhow::Result<LLMCompletionResponse> {
     debug!(
         "Preparing blocking LLM request with {} messages",
@@ -475,10 +458,7 @@ pub async fn make_blocking_llm_request(
         anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
     })?;
 
-    let model = task_lm.deployment_name.to_owned();
-    let path = model + "/chat/completions";
-
-    let api_endpoint = chatbot_config.api_endpoint.join(&path)?;
+    let api_endpoint = chatbot_config.api_endpoint.to_owned();
 
     trace!("Making LLM request to endpoint: {}", api_endpoint);
     make_llm_request(chat_request, &api_endpoint, &chatbot_config.api_key).await

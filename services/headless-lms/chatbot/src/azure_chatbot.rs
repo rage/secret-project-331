@@ -140,11 +140,11 @@ pub struct ThinkingParams {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-struct Verbosity {
+pub struct Verbosity {
     pub verbosity: VerbosityLevel,
 }
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-struct Reasoning {
+pub struct Reasoning {
     pub effort: ReasoningEffortLevel,
     /// Option to generate a reasoning summary with desired level of info
     pub summary: Option<SummaryType>,
@@ -152,7 +152,7 @@ struct Reasoning {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[serde(untagged)]
-enum SummaryType {
+pub enum SummaryType {
     Concise,
     Detailed,
     Auto,
@@ -376,7 +376,7 @@ impl LLMRequest {
             Self {
                 input: api_chat_messages,
                 model: model.model,
-                max_output_tokens: Some(0),
+                max_output_tokens: Some(configuration.max_output_tokens),
                 tools,
                 tool_choice,
                 params,

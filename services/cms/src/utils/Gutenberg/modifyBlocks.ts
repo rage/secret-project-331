@@ -6,7 +6,9 @@ export const modifyBlocks = (
   blocks: BlockInstance[],
   supportedBlocks: string[],
 ): BlockInstance[] => {
-  const modifiedBlocks = blocks.map((block) => {
+  return blocks.map((block) => {
+    const innerBlocks = block.innerBlocks ?? []
+
     if (supportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined) {
       return {
         clientId: block.clientId,
@@ -15,11 +17,17 @@ export const modifyBlocks = (
         attributes: { ...block.attributes, originalBlockJson: block },
         innerBlocks: [],
       }
-    } else {
+    }
+
+    if (!innerBlocks.length) {
       return block
     }
+
+    return {
+      ...block,
+      innerBlocks: modifyBlocks(innerBlocks, supportedBlocks),
+    }
   })
-  return modifiedBlocks
 }
 
 /**

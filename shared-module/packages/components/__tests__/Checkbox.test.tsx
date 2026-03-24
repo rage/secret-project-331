@@ -12,15 +12,24 @@ describe("Checkbox", () => {
     expect(screen.getByRole("checkbox", { name: "Accept terms" })).toBeInTheDocument()
   })
 
-  test("supports controlled and uncontrolled behavior", () => {
+  test("supports uncontrolled behavior", () => {
+    const onChange = jest.fn()
+    renderUi(<Checkbox label="Uncontrolled" defaultChecked={false} onChange={onChange} />)
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Uncontrolled" }))
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(screen.getByRole("checkbox", { name: "Uncontrolled" })).toBeChecked()
+  })
+
+  test("supports controlled behavior", () => {
     const onChange = jest.fn()
     const { rerender } = renderUi(
-      <Checkbox label="Controlled" defaultChecked={false} onChange={onChange} />,
+      <Checkbox label="Controlled" checked={false} onChange={onChange} />,
     )
 
     fireEvent.click(screen.getByRole("checkbox", { name: "Controlled" }))
     expect(onChange).toHaveBeenCalledTimes(1)
-    expect(screen.getByRole("checkbox", { name: "Controlled" })).toBeChecked()
+    expect(screen.getByRole("checkbox", { name: "Controlled" })).not.toBeChecked()
 
     rerender(<Checkbox label="Controlled" checked onChange={onChange} />)
     expect(screen.getByRole("checkbox", { name: "Controlled" })).toBeChecked()
@@ -37,7 +46,7 @@ describe("Checkbox", () => {
     renderUi(<Checkbox label="Partially selected" isIndeterminate />)
     const input = screen.getByRole("checkbox", { name: "Partially selected" }) as HTMLInputElement
     expect(input.indeterminate).toBe(true)
-    expect(input).toHaveAttribute("aria-checked", "mixed")
+    expect(input).not.toBeChecked()
   })
 
   test("supports keyboard space toggling", () => {

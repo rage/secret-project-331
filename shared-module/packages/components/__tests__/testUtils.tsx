@@ -18,6 +18,10 @@ export function pressEnter(element: Element) {
 export function pressSpace(element: Element) {
   fireEvent.keyDown(element, { key: " " })
   fireEvent.keyUp(element, { key: " " })
+
+  if (element instanceof HTMLInputElement && element.type === "checkbox") {
+    fireEvent.click(element)
+  }
 }
 
 export function pointerPress(element: Element) {

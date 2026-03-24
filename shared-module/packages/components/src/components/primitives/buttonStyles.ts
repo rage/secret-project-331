@@ -1,8 +1,6 @@
 import { css, cx, keyframes } from "@emotion/css"
 import type { PressEvent } from "@react-types/shared"
 
-import { assertNever } from "../../lib/utils/assertNever"
-
 export type ButtonSize = "sm" | "md" | "lg"
 export type IconPosition = "start" | "end"
 
@@ -258,7 +256,7 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 function resolveVariantCss(variant: ButtonVariant): string {
-  return variantStyles[variant] ?? assertNever(variant)
+  return variantStyles[variant]
 }
 
 export function resolveButtonRootCss(input: ResolveStylesInput): string {

@@ -74,6 +74,7 @@ function GroupedRadio({
     labelProps,
   } = useRadio(
     {
+      children: label,
       value: radioValue as string,
       isDisabled: Boolean(isDisabled || disabled),
     },

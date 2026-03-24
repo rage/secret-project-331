@@ -115,6 +115,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
 
     const { inputProps, isSelected, labelProps } = useCheckbox(
       {
+        children: label,
         id: inputId,
         name,
         value: inputValue,

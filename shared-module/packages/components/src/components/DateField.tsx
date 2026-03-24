@@ -10,7 +10,7 @@ import {
 export type DateFieldProps = Omit<SegmentedTemporalFieldProps, "layout">
 
 // eslint-disable-next-line i18next/no-literal-string
-const stackedLayout: DateFieldProps["layout"] = "stacked"
+const stackedLayout = "stacked" as const
 // eslint-disable-next-line i18next/no-literal-string
 const dateFieldKind = "date" as const
 

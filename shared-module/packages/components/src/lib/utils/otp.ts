@@ -3,10 +3,53 @@ const DEFAULT_ALLOWED_CHARACTERS = /[0-9]/
 /**
  * Builds a single-character matcher from a RegExp that must be a simple
  * character class (e.g. `/[0-9]/`). Do not pass untrusted patterns or
- * constructs with quantifiers (`*`, `+`, `?`, `{`) or nested groups.
+ * constructs with quantifiers outside the character class or nested groups.
  */
+function isSimpleCharacterClass(source: string) {
+  if (!source.startsWith("[")) {
+    return false
+  }
+
+  let index = 1
+
+  if (source[index] === "^") {
+    index += 1
+  }
+
+  let hasContent = false
+  let isFirstClassToken = true
+
+  while (index < source.length) {
+    const character = source[index]
+
+    if (character === "\\") {
+      index += 2
+      hasContent = true
+      isFirstClassToken = false
+      continue
+    }
+
+    if (character === "]") {
+      if (isFirstClassToken) {
+        index += 1
+        hasContent = true
+        isFirstClassToken = false
+        continue
+      }
+
+      return hasContent && index === source.length - 1
+    }
+
+    index += 1
+    hasContent = true
+    isFirstClassToken = false
+  }
+
+  return false
+}
+
 function toCharacterMatcher(pattern: RegExp) {
-  if (/[*+?{]/.test(pattern.source)) {
+  if (!isSimpleCharacterClass(pattern.source)) {
     throw new Error("toCharacterMatcher expects a simple character-class RegExp (e.g. /[0-9]/)")
   }
 

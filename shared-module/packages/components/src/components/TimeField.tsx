@@ -10,7 +10,7 @@ import {
 export type TimeFieldProps = Omit<SegmentedTemporalFieldProps, "layout">
 
 // eslint-disable-next-line i18next/no-literal-string
-const stackedLayout: TimeFieldProps["layout"] = "stacked"
+const stackedLayout = "stacked" as const
 // eslint-disable-next-line i18next/no-literal-string
 const timeFieldKind = "time" as const
 

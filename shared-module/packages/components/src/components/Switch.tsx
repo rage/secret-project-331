@@ -107,6 +107,7 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
       labelProps,
     } = useSwitch(
       {
+        children: label,
         id: inputId,
         name,
         value: inputValue,

@@ -22,6 +22,7 @@ interface StandardDialogProps {
   backgroundColor?: string
   actionButtons?: React.ReactNode
   disableContentScroll?: boolean
+  preventBackgroundScroll?: boolean
   leftAlignTitle?: boolean
   closeable?: boolean
   "data-testid"?: string
@@ -46,6 +47,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   backgroundColor,
   actionButtons,
   disableContentScroll = false,
+  preventBackgroundScroll = true,
   leftAlignTitle = false,
   closeable = true,
   "data-testid": dataTestId,
@@ -73,6 +75,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       role="dialog"
       aria-labelledby={titleId}
       disableContentScroll={disableContentScroll}
+      preventBackgroundScroll={preventBackgroundScroll}
       closeable={closeable}
       data-testid={dataTestId}
       isDismissable={isDismissable}

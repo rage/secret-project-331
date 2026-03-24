@@ -35,6 +35,8 @@
     "@react-aria/dialog": "^3.5.25",
     "@react-aria/focus": "^3.15.0",
     "@react-aria/overlays": "^3.15.0",
+    "@react-aria/utils": "^3.33.1",
+    "@react-stately/overlays": "^3.6.23",
     "@react-types/dialog": "^3.5.0",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.1.0",

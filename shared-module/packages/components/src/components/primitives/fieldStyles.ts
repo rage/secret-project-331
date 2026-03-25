@@ -16,8 +16,6 @@ const sizeValues = {
     inputPaddingYRest: "0.875rem",
     inputPaddingTopFloated: "1.25rem",
     inputPaddingBottomFloated: "0.5rem",
-    /** Segmented date/time: first value line below floated caption; slightly below ComboBox text inset. */
-    segmentedInputPaddingTopFloated: "1.32rem",
     inputPaddingX: "0.75rem",
     controlHeight: "var(--control-height-sm)",
     labelLeft: "0.625rem",
@@ -31,7 +29,6 @@ const sizeValues = {
     inputPaddingYRest: "1rem",
     inputPaddingTopFloated: "1.45rem",
     inputPaddingBottomFloated: "0.55rem",
-    segmentedInputPaddingTopFloated: "1.42rem",
     inputPaddingX: "0.875rem",
     controlHeight: "var(--control-height-md)",
     labelLeft: "0.75rem",
@@ -45,7 +42,6 @@ const sizeValues = {
     inputPaddingYRest: "1.125rem",
     inputPaddingTopFloated: "1.55rem",
     inputPaddingBottomFloated: "0.7rem",
-    segmentedInputPaddingTopFloated: "1.53rem",
     inputPaddingX: "1rem",
     controlHeight: "var(--control-height-lg)",
     labelLeft: "0.875rem",
@@ -611,33 +607,10 @@ export function resolveComboBoxInputCss(fieldSize: FieldSize): string {
   return cx(inputResetCss, inputWithFloatingLabelCss, makeFloatingInsetPaddingTopCss(s))
 }
 
-/** Segmented shell: rest uses symmetric vertical padding like TextField; floated top uses a dedicated
- *  inset below the caption band (tighter than ComboBox `inputPaddingTopFloated`). */
-function makeSegmentedFloatingShellPaddingCss(s: SizeValues): string {
-  return css`
-    transition:
-      padding-top ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
-      padding-bottom ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
-
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
-
-    .${fieldControlCss}[data-floated="false"] & {
-      padding-top: ${s.inputPaddingYRest};
-      padding-bottom: ${s.inputPaddingYRest};
-    }
-
-    .${fieldControlCss}[data-floated="true"] & {
-      padding-top: ${s.segmentedInputPaddingTopFloated};
-    }
-  `
-}
-
-/** Segmented date/time field shell: rest mirrors TextField padding; floated top tracks caption geometry. */
+/** Segmented date/time field shell: same top padding as ComboBox; bottom padding from control surface. */
 export function resolveSegmentedFloatingShellCss(fieldSize: FieldSize): string {
   const s = sizeValues[fieldSize]
-  return cx(inputWithFloatingLabelCss, makeSegmentedFloatingShellPaddingCss(s))
+  return cx(inputWithFloatingLabelCss, makeFloatingInsetPaddingTopCss(s))
 }
 
 export const textareaResetCss = css`

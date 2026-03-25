@@ -10,7 +10,7 @@ import {
 export type DateTimeLocalFieldProps = Omit<SegmentedTemporalFieldProps, "layout">
 
 // eslint-disable-next-line i18next/no-literal-string
-const stackedLayout = "stacked" as const
+const floatingLayout = "floating" as const
 // eslint-disable-next-line i18next/no-literal-string
 const dateTimeFieldKind = "datetime" as const
 
@@ -21,7 +21,7 @@ export const DateTimeLocalField = React.forwardRef<HTMLInputElement, DateTimeLoc
         {...props}
         ref={forwardedRef}
         kind={dateTimeFieldKind}
-        layout={stackedLayout}
+        layout={floatingLayout}
       />
     )
   },

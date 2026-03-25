@@ -4,17 +4,17 @@ import { css, cx } from "@emotion/css"
 import { Item } from "@react-stately/collections"
 import { useComboBoxState } from "@react-stately/combobox"
 import type { Key } from "@react-types/shared"
-import React, { useMemo, useRef } from "react"
+import React, { useMemo, useRef, useState } from "react"
 import { mergeProps, useButton, useComboBox, useFilter, useObjectRef } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { resolveFieldState, toInputValue } from "../lib/utils/field"
 
 import {
+  fieldControlCss,
   fieldRootCss,
   type FieldSize,
-  inputResetCss,
-  inputWithFloatingLabelCss,
+  resolveComboBoxInputCss,
   resolveControlSurfaceCss,
   resolveFieldLabelCss,
   resolveMessageCss,
@@ -272,8 +272,23 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
   )
 
   const { buttonProps } = useButton(triggerProps, buttonRef)
+  const [isFocused, setIsFocused] = useState(false)
+  const inputValueFromState = state.inputValue ?? ""
+  const hasValue =
+    state.selectedItem != null ||
+    (typeof inputValueFromState === "string" && inputValueFromState.trim().length > 0)
+  const isFloated = isFocused || hasValue
+
   const mergedInputProps = mergeProps(inputProps, {
     onChange,
+    onFocus: (event: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(true)
+      inputProps.onFocus?.(event)
+    },
+    onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(false)
+      inputProps.onBlur?.(event)
+    },
   })
   const resolvedErrorMessage =
     errorMessage ??
@@ -282,15 +297,22 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
   return (
     <div className={cx(fieldRootCss, className)}>
       <div
-        className={cx(resolveControlSurfaceCss(fieldSize, true), comboBoxRootCss)}
+        className={cx(
+          fieldControlCss,
+          resolveControlSurfaceCss(fieldSize, isFloated),
+          comboBoxRootCss,
+        )}
         data-disabled={resolvedState.isDisabled ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
         data-readonly={resolvedState.isReadOnly ? "true" : "false"}
+        data-focused={isFocused ? "true" : "false"}
+        data-floated={isFloated ? "true" : "false"}
+        data-filled={hasValue ? "true" : "false"}
       >
         <input
           {...mergedInputProps}
           ref={inputRef}
-          className={cx(inputResetCss, inputWithFloatingLabelCss)}
+          className={resolveComboBoxInputCss(fieldSize)}
         />
         <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
           {label}

@@ -222,7 +222,11 @@ export const tokensGlobal = injectGlobal`
     --field-message-color-invalid: var(--color-crimson-700);
     --field-icon-color: var(--color-gray-400);
     --field-icon-slot-width: 2.5rem;
-    --field-transition: border-color 160ms ease, box-shadow 160ms ease;
+    --field-transition:
+      border-color 160ms ease,
+      box-shadow 200ms cubic-bezier(0.2, 0, 0, 1),
+      padding-top 200ms cubic-bezier(0.2, 0, 0, 1),
+      padding-bottom 200ms cubic-bezier(0.2, 0, 0, 1);
 
     /* compatibility aliases for the broader form component set */
     --field-fg: var(--field-text-color);

@@ -1,7 +1,18 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { createCalendar, parseDate, parseDateTime, parseTime } from "@internationalized/date"
+import {
+  createCalendar,
+  getLocalTimeZone,
+  GregorianCalendar,
+  now,
+  parseDate,
+  parseDateTime,
+  parseTime,
+  toCalendar,
+  toCalendarDate,
+  toTime,
+} from "@internationalized/date"
 import {
   type DateFieldState,
   useDateFieldState,
@@ -29,10 +40,11 @@ import { DatePickerCalendar } from "./DatePickerCalendar"
 import { FieldShell } from "./FieldShell"
 import type { NativeInputFieldProps } from "./NativeInputField"
 import {
+  fieldControlCss,
   type FieldSize,
   inlineAffixCss,
-  inputWithFloatingLabelCss,
   resolveControlSurfaceCss,
+  resolveSegmentedFloatingShellCss,
 } from "./fieldStyles"
 import { Popover } from "./popover"
 
@@ -54,23 +66,25 @@ type TimeOnlyFieldProps = SegmentedDateInputFieldProps & {
   kind: "time"
 }
 
-const floatingLabelOffsetDefaultCss = css`
-  --field-floating-label-offset: 16px;
-`
-
-const floatingLabelOffsetWithAffixCss = css`
-  --field-floating-label-offset: 42px;
-`
-
-const segmentedFieldCss = css`
+/** Wraps the segment row; grows when a direct flex child of the control surface (non-picker). In the picker layout, width follows content; space before the calendar trigger sits in the picker row, not inside this shell. */
+const segmentedFieldShellCss = css`
   flex: 1 1 auto;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 2px;
+  width: 100%;
   color: inherit;
   outline: none;
+`
+
+/** Single tight row of date/time segments (no wrap, no flex-grow between parts). */
+const segmentedSegmentsRowCss = css`
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 2px;
+  white-space: nowrap;
 `
 
 const segmentedFieldDisabledCss = css`
@@ -90,17 +104,19 @@ const segmentedPickerGroupCss = css`
 `
 
 const segmentedPickerFieldCss = css`
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
 `
 
 const segmentCss = css`
   position: relative;
+  flex: 0 0 auto;
   min-width: 1ch;
   padding: 2px 0;
   border-radius: 4px;
   color: inherit;
   outline: none;
+  font-variant-numeric: tabular-nums;
 
   &:focus-visible {
     background: var(--color-blue-50);
@@ -155,6 +171,58 @@ const datePickerButtonIconCss = css`
   width: 18px;
   height: 18px;
 `
+
+/** Pins the calendar trigger to the trailing edge of the picker row so the segment cluster stays content-sized. */
+const segmentedPickerTriggerCss = css`
+  margin-inline-start: auto;
+`
+
+/** When the label is at rest (unfloated) with no value: no vertical padding on the shell so height matches TextField. */
+const segmentedFieldShellRestEmptyCss = css`
+  .${fieldControlCss}[data-floated="false"] & {
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 0;
+  }
+`
+
+/** Hides placeholder segment glyphs while the label is at rest; keeps row in layout flow at zero height for focus. */
+const segmentedSegmentsRowRestHiddenCss = css`
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  line-height: 0;
+  pointer-events: none;
+`
+
+/** True when the floating label is at rest with no committed value: hide segment placeholder row until focus or value. */
+function shouldHideRestSegmentPlaceholders(
+  layout: "floating" | "stacked",
+  isFocused: boolean,
+  hasValue: boolean,
+  isPickerOpen?: boolean,
+): boolean {
+  if (layout !== "floating") {
+    return false
+  }
+
+  if (isFocused) {
+    return false
+  }
+
+  if (hasValue) {
+    return false
+  }
+
+  if (isPickerOpen === true) {
+    return false
+  }
+
+  return true
+}
 
 const datePickerPopoverCss = css`
   width: min(360px, calc(100vw - 32px));
@@ -274,7 +342,7 @@ function serializeDateLikeInputValue(
 
 function resolveMinuteStep(step: NativeInputFieldProps["step"]) {
   if (step === undefined || step === "any") {
-    return 1
+    return 5
   }
 
   const numericStep = typeof step === "number" ? step : Number(step)
@@ -428,7 +496,12 @@ function DatePickerTriggerButton({ buttonProps }: { buttonProps: AriaButtonProps
   const { buttonProps: triggerProps } = useButton(buttonProps, ref)
 
   return (
-    <button {...triggerProps} ref={ref} className={datePickerButtonCss} type="button">
+    <button
+      {...triggerProps}
+      ref={ref}
+      className={cx(datePickerButtonCss, segmentedPickerTriggerCss)}
+      type="button"
+    >
       <CalendarIcon />
     </button>
   )
@@ -505,17 +578,21 @@ function renderSegmentedField({
     notice ? noticeId : undefined,
   )
 
+  const hideRestSegmentPlaceholders = shouldHideRestSegmentPlaceholders(
+    layout,
+    isFocused,
+    state.value != null,
+  )
+
   return (
     <FieldShell
       className={className}
-      controlClassName={cx(
-        resolveControlSurfaceCss(fieldSize, layout === "floating"),
-        iconStart ? floatingLabelOffsetWithAffixCss : floatingLabelOffsetDefaultCss,
-      )}
+      controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
       controlProps={{
         "data-disabled": resolvedState.isDisabled ? dataStateTrue : dataStateFalse,
         "data-invalid": state.isInvalid ? dataStateTrue : dataStateFalse,
         "data-readonly": resolvedState.isReadOnly ? dataStateTrue : dataStateFalse,
+        "data-has-icon-start": iconStart ? dataStateTrue : undefined,
       }}
       label={label}
       labelProps={label ? (aria.labelProps as React.HTMLAttributes<HTMLElement>) : undefined}
@@ -536,15 +613,23 @@ function renderSegmentedField({
       isDisabled={resolvedState.isDisabled}
       isRequired={resolvedState.isRequired}
       layout={layout}
+      fieldSize={fieldSize}
       isFloatingRaised={layout === "floating" ? isFocused || state.value != null : true}
+      isFloatingFocused={layout === "floating" ? isFocused : false}
+      isInvalid={state.isInvalid}
     >
       {iconStart ? <span className={inlineAffixCss}>{iconStart}</span> : null}
       <div
         {...aria.fieldProps}
         ref={fieldRef}
         className={cx(
-          segmentedFieldCss,
-          layout === "floating" ? inputWithFloatingLabelCss : undefined,
+          segmentedFieldShellCss,
+          layout === "floating" && !hideRestSegmentPlaceholders
+            ? resolveSegmentedFloatingShellCss(fieldSize)
+            : undefined,
+          layout === "floating" && hideRestSegmentPlaceholders
+            ? segmentedFieldShellRestEmptyCss
+            : undefined,
           resolvedState.isDisabled ? segmentedFieldDisabledCss : undefined,
           resolvedState.isReadOnly ? segmentedFieldReadOnlyCss : undefined,
         )}
@@ -565,9 +650,16 @@ function renderSegmentedField({
           aria.fieldProps.onFocus?.(event)
         }}
       >
-        {state.segments.map((segment: DateFieldState["segments"][number], index: number) => (
-          <DateSegment key={`${segment.type}-${index}`} segment={segment} state={state} />
-        ))}
+        <div
+          className={cx(
+            segmentedSegmentsRowCss,
+            hideRestSegmentPlaceholders && segmentedSegmentsRowRestHiddenCss,
+          )}
+        >
+          {state.segments.map((segment: DateFieldState["segments"][number], index: number) => (
+            <DateSegment key={`${segment.type}-${index}`} segment={segment} state={state} />
+          ))}
+        </div>
       </div>
       <input
         {...aria.inputProps}
@@ -603,7 +695,10 @@ function renderSegmentedPickerField({
   notice,
   noticeId,
   onClear,
+  onSelectNextWeek,
+  onSelectNow,
   onSelectToday,
+  onSelectTomorrow,
   pickerAria,
   pickerState,
   popoverClassName,
@@ -630,7 +725,10 @@ function renderSegmentedPickerField({
   notice?: React.ReactNode
   noticeId: string
   onClear: () => void
+  onSelectNextWeek?: (value: DateValue) => void
+  onSelectNow?: () => void
   onSelectToday: (value: DateValue) => void
+  onSelectTomorrow?: (value: DateValue) => void
   pickerAria: DatePickerAria
   pickerState: ReturnType<typeof useDatePickerState>
   popoverClassName: string
@@ -654,17 +752,22 @@ function renderSegmentedPickerField({
     notice ? noticeId : undefined,
   )
 
+  const hideRestSegmentPlaceholders = shouldHideRestSegmentPlaceholders(
+    layout,
+    isFocused,
+    state.value != null,
+    pickerState.isOpen,
+  )
+
   return (
     <FieldShell
       className={className}
-      controlClassName={cx(
-        resolveControlSurfaceCss(fieldSize, layout === "floating"),
-        iconStart ? floatingLabelOffsetWithAffixCss : floatingLabelOffsetDefaultCss,
-      )}
+      controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
       controlProps={{
         "data-disabled": resolvedState.isDisabled ? dataStateTrue : dataStateFalse,
         "data-invalid": pickerState.isInvalid ? dataStateTrue : dataStateFalse,
         "data-readonly": resolvedState.isReadOnly ? dataStateTrue : dataStateFalse,
+        "data-has-icon-start": iconStart ? dataStateTrue : undefined,
       }}
       label={label}
       labelProps={label ? (pickerAria.labelProps as React.HTMLAttributes<HTMLElement>) : undefined}
@@ -685,9 +788,12 @@ function renderSegmentedPickerField({
       isDisabled={resolvedState.isDisabled}
       isRequired={resolvedState.isRequired}
       layout={layout}
+      fieldSize={fieldSize}
       isFloatingRaised={
         layout === "floating" ? isFocused || state.value != null || pickerState.isOpen : true
       }
+      isFloatingFocused={layout === "floating" ? isFocused || pickerState.isOpen : false}
+      isInvalid={pickerState.isInvalid}
     >
       <div
         {...pickerAria.groupProps}
@@ -716,8 +822,13 @@ function renderSegmentedPickerField({
             {...dateFieldAria.fieldProps}
             ref={fieldRef}
             className={cx(
-              segmentedFieldCss,
-              layout === "floating" ? inputWithFloatingLabelCss : undefined,
+              segmentedFieldShellCss,
+              layout === "floating" && !hideRestSegmentPlaceholders
+                ? resolveSegmentedFloatingShellCss(fieldSize)
+                : undefined,
+              layout === "floating" && hideRestSegmentPlaceholders
+                ? segmentedFieldShellRestEmptyCss
+                : undefined,
               resolvedState.isDisabled ? segmentedFieldDisabledCss : undefined,
               resolvedState.isReadOnly ? segmentedFieldReadOnlyCss : undefined,
             )}
@@ -734,9 +845,16 @@ function renderSegmentedPickerField({
               dateFieldAria.fieldProps.onFocus?.(event)
             }}
           >
-            {state.segments.map((segment: DateFieldState["segments"][number], index: number) => (
-              <DateSegment key={`${segment.type}-${index}`} segment={segment} state={state} />
-            ))}
+            <div
+              className={cx(
+                segmentedSegmentsRowCss,
+                hideRestSegmentPlaceholders && segmentedSegmentsRowRestHiddenCss,
+              )}
+            >
+              {state.segments.map((segment: DateFieldState["segments"][number], index: number) => (
+                <DateSegment key={`${segment.type}-${index}`} segment={segment} state={state} />
+              ))}
+            </div>
           </div>
         </div>
         {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
@@ -764,7 +882,10 @@ function renderSegmentedPickerField({
             canClear={canClear}
             dialogProps={pickerAria.dialogProps}
             onClear={onClear}
+            onSelectNextWeek={onSelectNextWeek}
+            onSelectNow={onSelectNow}
             onSelectToday={onSelectToday}
+            onSelectTomorrow={onSelectTomorrow}
             timeSelectorProps={timeSelectorProps}
           />
         </Popover>
@@ -848,7 +969,36 @@ function DateLikePickerInner({
       pickerState.setOpen(false)
       onClear()
     },
+    onSelectNextWeek: (value) => {
+      if (kind === "date") {
+        pickerState.setValue(value)
+        pickerState.setOpen(false)
+        return
+      }
+
+      pickerState.setDateValue(value)
+    },
+    onSelectNow:
+      kind === "datetime"
+        ? () => {
+            const zdt = now(getLocalTimeZone())
+            const calendar = currentValue?.calendar ?? new GregorianCalendar()
+            const date = toCalendar(toCalendarDate(zdt), calendar)
+            const time = toTime(zdt)
+            pickerState.setDateValue(date)
+            pickerState.setTimeValue(time)
+          }
+        : undefined,
     onSelectToday: (value) => {
+      if (kind === "date") {
+        pickerState.setValue(value)
+        pickerState.setOpen(false)
+        return
+      }
+
+      pickerState.setDateValue(value)
+    },
+    onSelectTomorrow: (value) => {
       if (kind === "date") {
         pickerState.setValue(value)
         pickerState.setOpen(false)

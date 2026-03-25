@@ -9,14 +9,12 @@ import {
   errorCss,
   fieldRootCss,
   floatingControlSlotCss,
-  floatingLabelCss,
-  floatingLabelDisabledCss,
-  floatingLabelRaisedCss,
   messagesCss,
   noticeCss,
   requiredMarkCss,
   stackedLabelCss,
 } from "./fieldShellStyles"
+import { fieldControlCss, type FieldSize, resolveFieldLabelCss } from "./fieldStyles"
 
 type ControlProps = React.HTMLAttributes<HTMLDivElement> & {
   [key: `data-${string}`]: string | undefined
@@ -38,7 +36,12 @@ type FieldShellProps = React.PropsWithChildren<{
   isDisabled?: boolean
   isRequired?: boolean
   layout?: "floating" | "stacked"
+  /** When layout is floating: label is compact (floated) vs resting inline. */
   isFloatingRaised?: boolean
+  /** When layout is floating: control is focused (label accent). */
+  isFloatingFocused?: boolean
+  isInvalid?: boolean
+  fieldSize?: FieldSize
 }>
 
 export function FieldShell({
@@ -59,10 +62,14 @@ export function FieldShell({
   isRequired = false,
   layout = "stacked",
   isFloatingRaised = false,
+  isFloatingFocused = false,
+  isInvalid = false,
+  fieldSize = "md",
 }: FieldShellProps) {
   const controlSlotClassName = cx(
     controlSlotCss,
     layout === "floating" ? floatingControlSlotCss : undefined,
+    layout === "floating" ? fieldControlCss : undefined,
     controlClassName,
     controlProps?.className,
   )
@@ -94,17 +101,11 @@ export function FieldShell({
       return null
     }
 
+    const labelClassName = cx(resolveFieldLabelCss(fieldSize), labelProps?.className)
+
     if (labelProps) {
       return (
-        <span
-          {...labelProps}
-          className={cx(
-            floatingLabelCss,
-            isFloatingRaised ? floatingLabelRaisedCss : undefined,
-            isDisabled ? floatingLabelDisabledCss : undefined,
-            labelProps.className,
-          )}
-        >
+        <span {...labelProps} className={labelClassName}>
           {label}
           {isRequired ? <span className={requiredMarkCss}>*</span> : null}
         </span>
@@ -112,14 +113,7 @@ export function FieldShell({
     }
 
     return (
-      <label
-        className={cx(
-          floatingLabelCss,
-          isFloatingRaised ? floatingLabelRaisedCss : undefined,
-          isDisabled ? floatingLabelDisabledCss : undefined,
-        )}
-        htmlFor={inputId}
-      >
+      <label className={labelClassName} htmlFor={inputId}>
         {label}
         {isRequired ? <span className={requiredMarkCss}>*</span> : null}
       </label>
@@ -130,7 +124,14 @@ export function FieldShell({
     <div className={cx(fieldRootCss, className)}>
       {layout === "stacked" ? renderStackedLabel() : null}
 
-      <div {...controlProps} className={controlSlotClassName}>
+      <div
+        {...controlProps}
+        className={controlSlotClassName}
+        data-floated={layout === "floating" ? (isFloatingRaised ? "true" : "false") : undefined}
+        data-focused={layout === "floating" ? (isFloatingFocused ? "true" : "false") : undefined}
+        data-invalid={layout === "floating" ? (isInvalid ? "true" : "false") : undefined}
+        data-disabled={layout === "floating" ? (isDisabled ? "true" : "false") : undefined}
+      >
         {layout === "floating" ? renderFloatingLabel() : null}
 
         {children}

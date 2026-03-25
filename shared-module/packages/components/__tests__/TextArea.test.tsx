@@ -77,6 +77,7 @@ describe("TextArea – floating label behavior (DOM state)", () => {
   test("starts at rest when empty and unfocused", () => {
     const { container } = renderUi(<TextArea label="Bio" />)
     const control = container.firstChild?.firstChild as HTMLElement
+    expect(control).toHaveAttribute("data-multiline", "true")
     expect(control).toHaveAttribute("data-floated", "false")
     expect(control).toHaveAttribute("data-filled", "false")
     expect(control).toHaveAttribute("data-focused", "false")

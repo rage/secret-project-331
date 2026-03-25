@@ -65,26 +65,33 @@ describe("date and time fields", () => {
 
     expect(screen.getByRole("dialog")).toBeInTheDocument()
     expect(screen.getByRole("grid")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /Choose month and year:/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Choose month and year: March/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Choose month and year: 2026/ })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Clear" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Today" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Tomorrow" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Next week" })).toBeInTheDocument()
   })
 
-  test("lets users change the visible month from the dedicated year and month chooser", () => {
+  test("lets users change the visible month from the inline month and year pickers", () => {
     renderUi(<DateField label="Date" defaultValue="2026-03-11" />)
 
     fireEvent.click(within(screen.getByRole("group", { name: "Date" })).getByRole("button"))
-    fireEvent.click(screen.getByRole("button", { name: /Choose month and year:/ }))
+    fireEvent.click(screen.getByRole("button", { name: /Choose month and year: 2026/ }))
 
     expect(screen.queryByRole("grid")).not.toBeInTheDocument()
     expect(screen.getByRole("group", { name: "Year" })).toBeInTheDocument()
-    expect(screen.getByRole("group", { name: "Month" })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole("button", { name: "2027" }))
-    fireEvent.click(screen.getByRole("button", { name: "April" }))
-
     expect(screen.getByRole("grid")).toBeInTheDocument()
-    expect(screen.getByText("April 2027")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: /Choose month and year: March/ }))
+    expect(screen.queryByRole("grid")).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "April" }))
+    expect(screen.getByRole("grid")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Choose month and year: April/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Choose month and year: 2027/ })).toBeInTheDocument()
   })
 
   test("supports description and invalid wiring", () => {
@@ -106,21 +113,21 @@ describe("date and time fields", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument()
     const timeGroup = screen.getByRole("group", { name: "Time" })
     expect(timeGroup).toBeInTheDocument()
-    expect(within(timeGroup).getByRole("radiogroup", { name: "Hour" })).toBeInTheDocument()
-    expect(within(timeGroup).getByRole("radiogroup", { name: "Minutes" })).toBeInTheDocument()
-    expect(within(timeGroup).getByRole("radiogroup", { name: "AM / PM" })).toBeInTheDocument()
+    expect(within(timeGroup).getByRole("textbox")).toBeInTheDocument()
+    expect(within(timeGroup).getByRole("button", { name: "Decrease hour" })).toBeInTheDocument()
+    expect(within(timeGroup).getByRole("button", { name: "Decrease minute" })).toBeInTheDocument()
+    expect(within(timeGroup).getByRole("group", { name: "Day period" })).toBeInTheDocument()
   })
 
-  test("replaces the calendar and time panels while the month and year chooser is open", () => {
+  test("replaces the calendar and time panels while the inline month picker is open", () => {
     renderUi(<DateTimeLocalField label="Publish at" defaultValue="2026-03-11T12:30" />)
 
     fireEvent.click(within(screen.getByRole("group", { name: "Publish at" })).getByRole("button"))
-    fireEvent.click(screen.getByRole("button", { name: /Choose month and year:/ }))
+    fireEvent.click(screen.getByRole("button", { name: /Choose month and year: March/ }))
 
     expect(screen.queryByRole("grid")).not.toBeInTheDocument()
     expect(screen.queryByRole("group", { name: "Time" })).not.toBeInTheDocument()
-    expect(screen.getByRole("group", { name: "Year" })).toBeInTheDocument()
-    expect(screen.getByRole("group", { name: "Month" })).toBeInTheDocument()
+    expect(screen.getByText("Choose month")).toBeInTheDocument()
   })
 
   test("supports 24 hour mode without a day-period column", () => {
@@ -131,9 +138,10 @@ describe("date and time fields", () => {
     fireEvent.click(within(screen.getByRole("group", { name: "Publish at" })).getByRole("button"))
 
     const timeGroup = screen.getByRole("group", { name: "Time" })
-    expect(within(timeGroup).getByRole("radiogroup", { name: "Hour" })).toBeInTheDocument()
-    expect(within(timeGroup).getByRole("radiogroup", { name: "Minutes" })).toBeInTheDocument()
-    expect(within(timeGroup).queryByRole("radiogroup", { name: "AM / PM" })).not.toBeInTheDocument()
+    expect(within(timeGroup).getByRole("textbox")).toBeInTheDocument()
+    expect(within(timeGroup).getByRole("button", { name: "Decrease hour" })).toBeInTheDocument()
+    expect(within(timeGroup).getByRole("button", { name: "Decrease minute" })).toBeInTheDocument()
+    expect(within(timeGroup).queryByRole("group", { name: "Day period" })).not.toBeInTheDocument()
   })
 
   test("keeps the datetime popover open after choosing a date", () => {

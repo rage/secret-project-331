@@ -10,7 +10,7 @@ import {
 export type TimeFieldProps = Omit<SegmentedTemporalFieldProps, "layout">
 
 // eslint-disable-next-line i18next/no-literal-string
-const stackedLayout = "stacked" as const
+const floatingLayout = "floating" as const
 // eslint-disable-next-line i18next/no-literal-string
 const timeFieldKind = "time" as const
 
@@ -21,7 +21,7 @@ export const TimeField = React.forwardRef<HTMLInputElement, TimeFieldProps>(
         {...props}
         ref={forwardedRef}
         kind={timeFieldKind}
-        layout={stackedLayout}
+        layout={floatingLayout}
       />
     )
   },

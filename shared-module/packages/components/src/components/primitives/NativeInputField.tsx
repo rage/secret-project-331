@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { cx } from "@emotion/css"
 import React, { useEffect, useId, useState } from "react"
 
 import { resolveFieldDescribedBy, resolveFieldState, toInputValue } from "../../lib/utils/field"
@@ -13,6 +13,9 @@ import {
   inputWithFloatingLabelCss,
   resolveControlSurfaceCss,
 } from "./fieldStyles"
+
+// eslint-disable-next-line i18next/no-literal-string
+const dataAttrTrue = "true"
 
 export type NativeInputFieldProps = React.ComponentPropsWithoutRef<"input"> & {
   label: React.ReactNode
@@ -28,14 +31,6 @@ export type NativeInputFieldProps = React.ComponentPropsWithoutRef<"input"> & {
   iconEnd?: React.ReactNode
   layout?: "floating" | "stacked"
 }
-
-const floatingLabelOffsetDefaultCss = css`
-  --field-floating-label-offset: 16px;
-`
-
-const floatingLabelOffsetWithAffixCss = css`
-  --field-floating-label-offset: 42px;
-`
 
 export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFieldProps>(
   function NativeInputField(props, forwardedRef) {
@@ -108,10 +103,11 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
     return (
       <FieldShell
         className={className}
-        controlClassName={cx(
-          resolveControlSurfaceCss(fieldSize, layout === "floating"),
-          iconStart ? floatingLabelOffsetWithAffixCss : floatingLabelOffsetDefaultCss,
-        )}
+        controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
+        controlProps={{
+          "data-has-icon-start": iconStart ? dataAttrTrue : undefined,
+          "data-has-icon-end": iconEnd ? dataAttrTrue : undefined,
+        }}
         label={label}
         inputId={inputId}
         description={description}
@@ -123,7 +119,10 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
         isDisabled={state.isDisabled}
         isRequired={state.isRequired}
         layout={layout}
+        fieldSize={fieldSize}
         isFloatingRaised={layout === "floating" ? isFocused || hasValue : true}
+        isFloatingFocused={layout === "floating" ? isFocused : false}
+        isInvalid={state.isInvalid}
       >
         {iconStart ? <span className={inlineAffixCss}>{iconStart}</span> : null}
         <input

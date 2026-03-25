@@ -292,6 +292,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       <div className={cx(fieldRootCss, className)}>
         <div
           className={fieldControlCss}
+          data-multiline="true"
           data-has-icon-start={iconStart ? "true" : undefined}
           data-has-icon-end={iconEnd ? "true" : undefined}
           data-focused={isFocused ? "true" : "false"}

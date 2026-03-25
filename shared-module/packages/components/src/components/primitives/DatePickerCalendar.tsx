@@ -5,6 +5,7 @@ import {
   createCalendar,
   isSameMonth,
   isToday,
+  parseTime,
   Time,
   toCalendar,
   today,
@@ -26,73 +27,100 @@ const dialogCss = css`
   outline: none;
 `
 
+const pickerRootCss = css`
+  --picker-accent-bg: var(--color-green-600);
+  --picker-accent-fg: var(--color-primary-100);
+  --picker-accent-soft: var(--color-green-75);
+  --picker-accent-hover: var(--color-green-50);
+  --picker-focus-ring: rgba(31, 105, 100, 0.4);
+  --picker-focus-ring-strong: rgba(31, 105, 100, 0.55);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+`
+
 const pickerLayoutCss = css`
   display: grid;
   width: 100%;
   box-sizing: border-box;
-  gap: var(--space-4);
-  padding: var(--space-4);
+  gap: var(--space-3);
+  padding: var(--space-3);
 `
 
 const pickerLayoutWithTimeCss = css`
-  grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 240px);
+  align-items: stretch;
+  column-gap: var(--space-3);
 `
 
 const calendarPanelCss = css`
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
   min-width: 0;
 `
 
 const calendarHeaderCss = css`
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 32px minmax(0, 1fr) 32px;
   align-items: center;
-  gap: var(--space-2);
+  column-gap: var(--space-1);
+  width: 100%;
 `
 
 const calendarHeaderCenterCss = css`
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  justify-self: center;
 `
 
-const monthYearButtonCss = css`
-  width: 100%;
-  min-height: 38px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: 0 14px 0 var(--space-3);
-  border: 1px solid var(--field-border);
-  border-radius: calc(var(--control-radius) + 2px);
-  background: var(--field-bg);
+const monthYearLinkCss = css`
+  padding: 6px 8px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: transparent;
   color: var(--field-fg);
   cursor: pointer;
   font: inherit;
+  font-size: 0.9375rem;
   font-weight: 600;
-  text-align: left;
+  line-height: 1.2;
 
   &:focus-visible {
     outline: none;
-    border-color: var(--field-border-focus);
-    box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14);
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
   }
 
   &:disabled {
-    background: var(--field-disabled-bg);
     color: var(--field-disabled-fg);
-    border-color: var(--field-disabled-border);
     cursor: not-allowed;
   }
+
+  &:hover:not(:disabled) {
+    background: var(--picker-accent-hover);
+  }
+`
+
+const monthYearSeparatorCss = css`
+  color: var(--field-description);
+  font-weight: 500;
+  font-size: 0.875rem;
+  user-select: none;
 `
 
 const calendarNavButtonCss = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
   border-radius: 999px;
@@ -105,9 +133,9 @@ const calendarNavButtonCss = css`
 
   &:focus-visible {
     outline: none;
-    background: var(--color-blue-50);
-    color: var(--color-blue-700);
-    box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14);
+    background: var(--picker-accent-soft);
+    color: var(--color-green-800);
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
   }
 
   &:disabled {
@@ -116,8 +144,8 @@ const calendarNavButtonCss = css`
   }
 
   &:hover:not(:disabled) {
-    background: var(--color-blue-50);
-    color: var(--color-blue-700);
+    background: var(--picker-accent-soft);
+    color: var(--color-green-800);
   }
 `
 
@@ -133,10 +161,10 @@ const calendarGridCss = css`
 `
 
 const calendarWeekdayCss = css`
-  padding: 0 0 var(--space-2);
+  padding: 0 0 var(--space-1);
   color: var(--field-description);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 500;
   line-height: 1.2;
   text-align: center;
 `
@@ -154,46 +182,64 @@ const calendarCellButtonCss = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--control-radius);
   background: transparent;
   color: var(--field-fg);
   cursor: pointer;
   font: inherit;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
   transition:
     background-color 0.18s ease,
     color 0.18s ease,
     box-shadow 0.18s ease;
 
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14);
-  }
-
   &:disabled {
     cursor: not-allowed;
   }
 
   &:hover:not(:disabled) {
-    background: var(--field-option-highlight);
+    background: var(--picker-accent-hover);
   }
 `
 
-const calendarCellTodayCss = css`
-  box-shadow: inset 0 0 0 1px var(--color-blue-400);
+/** Today, not selected, not keyboard-focused */
+const calendarCellTodayOnlyCss = css`
+  box-shadow: inset 0 0 0 1px var(--color-green-500);
+`
+
+/** Keyboard focus, not selected, not today */
+const calendarCellKeyboardFocusCss = css`
+  box-shadow: 0 0 0 2px var(--picker-focus-ring-strong);
+`
+
+/** Today + keyboard focus, not selected */
+const calendarCellTodayKeyboardFocusCss = css`
+  box-shadow:
+    inset 0 0 0 1px var(--color-green-500),
+    0 0 0 2px var(--picker-focus-ring-strong);
 `
 
 const calendarCellSelectedCss = css`
-  background: var(--color-green-600);
-  color: var(--color-primary-100);
+  background: var(--picker-accent-bg);
+  color: var(--picker-accent-fg);
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: var(--picker-accent-bg);
+    color: var(--picker-accent-fg);
+  }
 `
 
-const calendarCellFocusedCss = css`
-  box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.22);
+/** Selected + keyboard focus */
+const calendarCellSelectedKeyboardFocusCss = css`
+  box-shadow:
+    0 0 0 2px var(--field-bg),
+    0 0 0 4px var(--picker-focus-ring-strong);
 `
 
 const calendarCellOutsideMonthCss = css`
@@ -216,46 +262,50 @@ const calendarCellInvalidCss = css`
 const quickActionsCss = css`
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
   padding-top: var(--space-2);
-  border-top: 1px solid var(--field-border);
+  margin-top: var(--space-1);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 `
 
-const quickActionButtonCss = css`
+const quickActionChipCss = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  padding: 0 var(--space-3);
-  border: 1px solid var(--field-border);
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid var(--color-green-200);
   border-radius: 999px;
-  background: var(--field-bg);
-  color: var(--field-fg);
+  background: var(--picker-accent-hover);
+  color: var(--color-green-800);
   cursor: pointer;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
+  line-height: 1.2;
   transition:
-    border-color 0.18s ease,
     background-color 0.18s ease,
+    border-color 0.18s ease,
     color 0.18s ease,
     box-shadow 0.18s ease;
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14);
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
   }
 
   &:disabled {
+    border-color: var(--field-disabled-border);
     background: var(--field-disabled-bg);
     color: var(--field-disabled-fg);
-    border-color: var(--field-disabled-border);
     cursor: not-allowed;
   }
 
   &:hover:not(:disabled) {
-    background: var(--field-option-highlight);
-    border-color: var(--field-border-focus);
+    background: var(--picker-accent-soft);
+    border-color: var(--color-green-300);
+    color: var(--color-green-900);
   }
 `
 
@@ -266,25 +316,21 @@ const chooserPanelCss = css`
   width: 100%;
 `
 
-const chooserHeaderCss = css`
+const chooserTitleCss = css`
+  color: var(--color-gray-400);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  letter-spacing: 0.02em;
+`
+
+const inlinePickerHeaderCss = css`
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: var(--space-2);
-`
-
-const chooserTitleCss = css`
-  color: var(--field-label);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  line-height: 1.2;
-  text-align: center;
-`
-
-const chooserColumnsCss = css`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+  margin-bottom: var(--space-2);
 `
 
 const chooserSectionCss = css`
@@ -307,141 +353,145 @@ const chooserPagerCss = css`
 `
 
 const chooserSectionLabelCss = css`
-  color: var(--field-description);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
-  text-transform: uppercase;
+  color: var(--color-gray-400);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
 `
 
 const chooserGridCss = css`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-2);
+  gap: var(--space-3);
 `
 
 const chooserGridOptionCss = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
+  min-height: 40px;
   padding: 0 var(--space-2);
-  border: 1px solid var(--field-border);
-  border-radius: calc(var(--control-radius) + 2px);
-  background: var(--field-bg);
+  border: 0;
+  border-radius: var(--control-radius);
+  background: var(--picker-accent-hover);
   color: var(--field-fg);
   cursor: pointer;
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.2;
   text-align: center;
   transition:
-    border-color 0.18s ease,
     background-color 0.18s ease,
     color 0.18s ease,
     box-shadow 0.18s ease;
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14);
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
   }
 
   &:disabled {
     background: var(--field-disabled-bg);
     color: var(--field-disabled-fg);
-    border-color: var(--field-disabled-border);
     cursor: not-allowed;
   }
 
   &:hover:not(:disabled) {
-    background: var(--field-option-highlight);
-    border-color: var(--field-border-focus);
+    background: var(--picker-accent-soft);
+    color: var(--color-green-900);
   }
 `
 
 const chooserGridOptionSelectedCss = css`
-  background: var(--color-blue-50);
-  color: var(--color-blue-700);
-  border-color: var(--color-blue-300);
-  font-weight: 700;
+  background: var(--picker-accent-bg);
+  color: var(--picker-accent-fg);
+  font-weight: 600;
 `
 
 const timePanelCss = css`
   display: grid;
   min-width: 0;
-  gap: var(--space-3);
+  gap: var(--space-1);
   align-self: stretch;
-  padding: var(--space-3);
-  border: 1px solid var(--field-border);
-  border-radius: calc(var(--control-radius) + 6px);
-  background: linear-gradient(180deg, rgba(8, 69, 122, 0.04), rgba(8, 69, 122, 0));
+  align-content: start;
+  padding: 0 0 0 var(--space-3);
+  border-left: 1px solid rgba(31, 105, 100, 0.12);
+  background: transparent;
 `
 
 const timePanelHeadingCss = css`
-  color: var(--field-label);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  line-height: 1.2;
+  color: var(--color-gray-400);
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1.25;
   letter-spacing: 0.02em;
-  text-transform: uppercase;
 `
 
-const timeColumnsCss = css`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+const timeInputCss = css`
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: var(--picker-accent-hover);
+  color: var(--field-fg);
+  font: inherit;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
 
-  &[data-has-day-period="true"] {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  &::placeholder {
+    color: var(--field-placeholder);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
+  }
+
+  &:disabled {
+    background: var(--field-disabled-bg);
+    color: var(--field-disabled-fg);
   }
 `
 
-const timeColumnCss = css`
-  display: grid;
-  gap: var(--space-2);
-  min-width: 0;
-`
-
-const timeColumnLabelCss = css`
-  color: var(--field-description);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
-  text-transform: uppercase;
-`
-
-const timeColumnListCss = css`
-  display: grid;
-  gap: var(--space-1);
-  max-height: 236px;
-  padding-right: 4px;
-  overflow-y: auto;
-`
-
-const timeColumnOptionCss = css`
+const timeControlsRowCss = css`
   display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--space-1);
+`
+
+const timeStepperGroupCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: var(--control-radius);
+  background: var(--picker-accent-soft);
+  padding: 2px;
+`
+
+const timeStepperBtnCss = css`
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  padding: 0 var(--space-2);
+  width: 28px;
+  height: 28px;
+  padding: 0;
   border: 0;
-  border-radius: calc(var(--control-radius) + 1px);
+  border-radius: calc(var(--control-radius) - 1px);
   background: transparent;
-  color: var(--field-fg);
+  color: var(--color-green-800);
   cursor: pointer;
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1;
-  transition:
-    background-color 0.18s ease,
-    color 0.18s ease,
-    box-shadow 0.18s ease;
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14);
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
   }
 
   &:disabled {
@@ -450,14 +500,98 @@ const timeColumnOptionCss = css`
   }
 
   &:hover:not(:disabled) {
-    background: var(--field-option-highlight);
+    background: var(--picker-accent-hover);
   }
 `
 
-const timeColumnOptionSelectedCss = css`
-  background: var(--color-blue-50);
-  color: var(--color-blue-700);
-  font-weight: 700;
+const timeStepperValueCss = css`
+  min-width: 2.25rem;
+  padding: 0 4px;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--field-fg);
+`
+
+const timePeriodToggleCss = css`
+  display: inline-flex;
+  border-radius: var(--control-radius);
+  background: var(--picker-accent-soft);
+  padding: 2px;
+  gap: 2px;
+`
+
+const timePeriodSegmentCss = css`
+  min-width: 2.5rem;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: calc(var(--control-radius) - 1px);
+  background: transparent;
+  color: var(--field-description);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`
+
+const timePeriodSegmentSelectedCss = css`
+  background: var(--picker-accent-bg);
+  color: var(--picker-accent-fg);
+  font-weight: 600;
+`
+
+const timeShortcutsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: 2px;
+`
+
+const timeShortcutButtonCss = css`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-green-200);
+  border-radius: 999px;
+  background: var(--picker-accent-hover);
+  color: var(--color-green-800);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.2;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
+  }
+
+  &:disabled {
+    border-color: var(--field-disabled-border);
+    background: var(--field-disabled-bg);
+    color: var(--field-disabled-fg);
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--picker-accent-soft);
+    border-color: var(--color-green-300);
+    color: var(--color-green-900);
+  }
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -475,21 +609,25 @@ const clearLabel = "Clear"
 // eslint-disable-next-line i18next/no-literal-string
 const todayLabel = "Today"
 // eslint-disable-next-line i18next/no-literal-string
+const nowLabel = "Now"
+// eslint-disable-next-line i18next/no-literal-string
+const tomorrowLabel = "Tomorrow"
+// eslint-disable-next-line i18next/no-literal-string
+const nextWeekLabel = "Next week"
+// eslint-disable-next-line i18next/no-literal-string
 const timePanelLabel = "Time"
 // eslint-disable-next-line i18next/no-literal-string
-const hourLabel = "Hour"
+const plus30Label = "+30 min"
 // eslint-disable-next-line i18next/no-literal-string
-const minuteLabel = "Minutes"
-// eslint-disable-next-line i18next/no-literal-string
-const dayPeriodLabel = "AM / PM"
+const endOfDayLabel = "End of day"
 // eslint-disable-next-line i18next/no-literal-string
 const chooseMonthYearLabel = "Choose month and year"
 // eslint-disable-next-line i18next/no-literal-string
-const chooseMonthYearTitle = "Select month and year"
+const pickMonthTitle = "Choose month"
+// eslint-disable-next-line i18next/no-literal-string
+const pickYearTitle = "Choose year"
 // eslint-disable-next-line i18next/no-literal-string
 const yearColumnLabel = "Year"
-// eslint-disable-next-line i18next/no-literal-string
-const monthColumnLabel = "Month"
 // eslint-disable-next-line i18next/no-literal-string
 const leftDirection = "left" as const
 // eslint-disable-next-line i18next/no-literal-string
@@ -505,13 +643,22 @@ const hourCycleH23 = "h23" as const
 // eslint-disable-next-line i18next/no-literal-string
 const numericDateTimePart = "numeric" as const
 // eslint-disable-next-line i18next/no-literal-string
+const minuteTwoDigitPart = "2-digit" as const
+// eslint-disable-next-line i18next/no-literal-string
 const longDateTimePart = "long" as const
 // eslint-disable-next-line i18next/no-literal-string
-const nearestScrollBlock = "nearest" as const
+const decreaseHourAriaLabel = "Decrease hour"
 // eslint-disable-next-line i18next/no-literal-string
-const hourIdPrefix = "hour-"
+const increaseHourAriaLabel = "Increase hour"
 // eslint-disable-next-line i18next/no-literal-string
-const minuteIdPrefix = "minute-"
+const decreaseMinuteAriaLabel = "Decrease minute"
+// eslint-disable-next-line i18next/no-literal-string
+const increaseMinuteAriaLabel = "Increase minute"
+// eslint-disable-next-line i18next/no-literal-string
+const dayPeriodGroupAriaLabel = "Day period"
+// eslint-disable-next-line i18next/no-literal-string
+const stepperMinusGlyph = "−"
+const stepperPlusGlyph = "+"
 // eslint-disable-next-line i18next/no-literal-string
 const yearIdPrefix = "year-"
 // eslint-disable-next-line i18next/no-literal-string
@@ -523,11 +670,13 @@ const periodPmId = "period-pm"
 // eslint-disable-next-line i18next/no-literal-string
 const pickerViewCalendar = "calendar" as const
 // eslint-disable-next-line i18next/no-literal-string
-const pickerViewChooser = "chooser" as const
+const pickerViewMonth = "month" as const
+// eslint-disable-next-line i18next/no-literal-string
+const pickerViewYear = "year" as const
 
 type SupportedHourCycle = "h11" | "h12" | "h23" | "h24"
 type DayPeriod = typeof dayPeriodAm | typeof dayPeriodPm
-type CalendarPickerView = typeof pickerViewCalendar | typeof pickerViewChooser
+type CalendarPickerView = typeof pickerViewCalendar | typeof pickerViewMonth | typeof pickerViewYear
 
 type DatePickerTimeSelectorProps = {
   granularity: "hour" | "minute"
@@ -537,13 +686,6 @@ type DatePickerTimeSelectorProps = {
   minuteStep: number
   value: TimeValue | null
   onChange: (value: TimeValue) => void
-}
-
-type TimeColumnOption = {
-  id: string
-  isSelected: boolean
-  label: string
-  onSelect: () => void
 }
 
 type ChooserGridOption = {
@@ -629,6 +771,7 @@ function CalendarCell({
     state,
     ref,
   )
+  const isTodayDate = isToday(date, state.timeZone)
 
   return (
     <td {...cellProps} className={calendarCellCss}>
@@ -637,9 +780,11 @@ function CalendarCell({
         ref={ref}
         className={cx(
           calendarCellButtonCss,
-          isToday(date, state.timeZone) ? calendarCellTodayCss : undefined,
           isSelected ? calendarCellSelectedCss : undefined,
-          isFocused ? calendarCellFocusedCss : undefined,
+          isSelected && isFocused ? calendarCellSelectedKeyboardFocusCss : undefined,
+          !isSelected && isFocused && isTodayDate ? calendarCellTodayKeyboardFocusCss : undefined,
+          !isSelected && isFocused && !isTodayDate ? calendarCellKeyboardFocusCss : undefined,
+          !isSelected && !isFocused && isTodayDate ? calendarCellTodayOnlyCss : undefined,
           isOutsideMonth ? calendarCellOutsideMonthCss : undefined,
           isUnavailable ? calendarCellUnavailableCss : undefined,
           isDisabled ? calendarCellDisabledCss : undefined,
@@ -763,20 +908,6 @@ function getDisplayHour(hour: number, hourCycle: SupportedHourCycle) {
   }
 }
 
-function getHourOptions(hourCycle: SupportedHourCycle) {
-  switch (hourCycle) {
-    case "h11":
-      return Array.from({ length: 12 }, (_, index) => index)
-    case "h12":
-      return [12, ...Array.from({ length: 11 }, (_, index) => index + 1)]
-    case "h24":
-      return [...Array.from({ length: 23 }, (_, index) => index + 1), 24]
-    case "h23":
-    default:
-      return Array.from({ length: 24 }, (_, index) => index)
-  }
-}
-
 function getBaseTime(value: TimeValue | null) {
   if (!value) {
     return new Time(0, 0)
@@ -788,22 +919,6 @@ function getBaseTime(value: TimeValue | null) {
     value.second,
     "millisecond" in value ? value.millisecond : 0,
   )
-}
-
-function toInternalHour(displayHour: number, hourCycle: SupportedHourCycle, currentHour: number) {
-  switch (hourCycle) {
-    case "h11":
-      return currentHour >= 12 ? displayHour + 12 : displayHour
-    case "h12": {
-      const normalizedHour = displayHour % 12
-      return currentHour >= 12 ? normalizedHour + 12 : normalizedHour
-    }
-    case "h24":
-      return displayHour === 24 ? 0 : displayHour
-    case "h23":
-    default:
-      return displayHour
-  }
 }
 
 function withDayPeriod(hour: number, dayPeriod: DayPeriod) {
@@ -819,176 +934,228 @@ function getYearPageStart(year: number) {
   return Math.floor((year - 1) / 12) * 12 + 1
 }
 
-function TimeColumn({
-  isDisabled,
-  label,
-  options,
-}: {
-  isDisabled: boolean
-  label: string
-  options: TimeColumnOption[]
-}) {
-  const labelId = useId()
-  const listRef = React.useRef<HTMLDivElement>(null)
-  const selectedIndex = options.findIndex((option) => option.isSelected)
-  const defaultIndex = selectedIndex >= 0 ? selectedIndex : 0
-
-  React.useEffect(() => {
-    const selectedOption = listRef.current?.querySelector<HTMLElement>('[data-selected="true"]')
-    selectedOption?.scrollIntoView?.({ block: nearestScrollBlock })
-  }, [selectedIndex])
-
-  const focusOption = (index: number) => {
-    listRef.current?.querySelector<HTMLButtonElement>(`[data-option-index="${index}"]`)?.focus()
+/** Parses typed time strings (ISO or common h:mm with optional am/pm). */
+function parseTimeInputFromUser(raw: string, hour12: boolean): Time | null {
+  const trimmed = raw.trim()
+  if (!trimmed) {
+    return null
   }
 
-  return (
-    <div className={timeColumnCss}>
-      <span id={labelId} className={timeColumnLabelCss}>
-        {label}
-      </span>
-      <div ref={listRef} role="radiogroup" aria-labelledby={labelId} className={timeColumnListCss}>
-        {options.map((option, index) => (
-          <button
-            key={option.id}
-            aria-checked={option.isSelected}
-            className={cx(
-              timeColumnOptionCss,
-              option.isSelected ? timeColumnOptionSelectedCss : undefined,
-            )}
-            data-option-index={index}
-            data-selected={option.isSelected ? "true" : "false"}
-            disabled={isDisabled}
-            role="radio"
-            tabIndex={index === defaultIndex ? 0 : -1}
-            type="button"
-            onClick={option.onSelect}
-            onKeyDown={(event) => {
-              if (isDisabled) {
-                return
-              }
+  const match = trimmed.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/)
+  if (match) {
+    let hour = Number(match[1])
+    const minute = Number(match[2])
+    const second = match[3] ? Number(match[3]) : 0
+    if (hour12) {
+      const upper = trimmed.toUpperCase()
+      const isPm = upper.includes("PM")
+      const isAm = upper.includes("AM")
+      if (isPm && hour < 12) {
+        hour += 12
+      }
+      if (isAm && hour === 12) {
+        hour = 0
+      }
+    }
+    return new Time(hour, minute, second)
+  }
 
-              let nextIndex = index
-
-              switch (event.key) {
-                case "ArrowDown":
-                case "ArrowRight":
-                  nextIndex = (index + 1) % options.length
-                  break
-                case "ArrowUp":
-                case "ArrowLeft":
-                  nextIndex = (index - 1 + options.length) % options.length
-                  break
-                case "Home":
-                  nextIndex = 0
-                  break
-                case "End":
-                  nextIndex = options.length - 1
-                  break
-                default:
-                  return
-              }
-
-              event.preventDefault()
-              options[nextIndex]?.onSelect()
-              focusOption(nextIndex)
-            }}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
+  try {
+    return parseTime(trimmed.includes("T") ? trimmed : `T${trimmed}`)
+  } catch {
+    return null
+  }
 }
 
-function TimeSelector({ timeSelectorProps }: { timeSelectorProps: DatePickerTimeSelectorProps }) {
+function adjustWallClockMinutes(value: Time, deltaMinutes: number): Time {
+  let total = value.hour * 60 + value.minute + deltaMinutes
+  total = ((total % 1440) + 1440) % 1440
+  return new Time(Math.floor(total / 60), total % 60, value.second, value.millisecond)
+}
+
+/** Renders editable time, steppers, and AM/PM aligned with calendar accent styles. */
+function HybridTimeSelector({
+  timeSelectorProps,
+}: {
+  timeSelectorProps: DatePickerTimeSelectorProps
+}) {
   const { locale } = useLocale()
   const groupId = useId()
+  const inputId = useId()
   const hourCycle = resolveHourCycle(locale, timeSelectorProps.hourCycle)
   const showsDayPeriod = hourCycle === "h11" || hourCycle === "h12"
   const dayPeriodLabels = resolveDayPeriodLabels(locale)
-  const selectedDayPeriod = getSelectedDayPeriod(timeSelectorProps.value)
-  const selectedHour = timeSelectorProps.value
-    ? getDisplayHour(timeSelectorProps.value.hour, hourCycle)
-    : null
   const baseTime = getBaseTime(timeSelectorProps.value)
   const isDisabled = Boolean(timeSelectorProps.isDisabled || timeSelectorProps.isReadOnly)
 
-  const hourOptions = getHourOptions(hourCycle).map((displayHour) => ({
-    id: `${hourIdPrefix}${displayHour}`,
-    isSelected: selectedHour === displayHour,
-    label: formatTimeOption(displayHour),
-    onSelect: () => {
-      timeSelectorProps.onChange(
-        baseTime.set({
-          hour: toInternalHour(displayHour, hourCycle, baseTime.hour),
-        }),
-      )
-    },
-  }))
+  const formattedDisplay = React.useMemo(() => {
+    const refDate = new Date(2000, 0, 1, baseTime.hour, baseTime.minute, baseTime.second)
+    return new Intl.DateTimeFormat(locale, {
+      hour: numericDateTimePart,
+      minute: minuteTwoDigitPart,
+      hour12: showsDayPeriod,
+    }).format(refDate)
+  }, [baseTime.hour, baseTime.minute, baseTime.second, locale, showsDayPeriod])
 
-  const minuteOptions = Array.from(
-    { length: Math.ceil(60 / timeSelectorProps.minuteStep) },
-    (_, index) => index * timeSelectorProps.minuteStep,
-  )
-    .filter((minute) => minute < 60)
-    .map((minute) => ({
-      id: `${minuteIdPrefix}${minute}`,
-      isSelected: timeSelectorProps.value?.minute === minute,
-      label: formatTimeOption(minute),
-      onSelect: () => {
-        timeSelectorProps.onChange(
-          baseTime.set({
-            minute,
-          }),
-        )
-      },
-    }))
+  const [draft, setDraft] = React.useState(formattedDisplay)
 
-  const dayPeriodOptions = showsDayPeriod
-    ? [
-        {
-          id: periodAmId,
-          isSelected: selectedDayPeriod === dayPeriodAm,
-          label: dayPeriodLabels.am,
-          onSelect: () => {
-            timeSelectorProps.onChange(
-              baseTime.set({
-                hour: withDayPeriod(baseTime.hour, dayPeriodAm),
-              }),
-            )
-          },
-        },
-        {
-          id: periodPmId,
-          isSelected: selectedDayPeriod === dayPeriodPm,
-          label: dayPeriodLabels.pm,
-          onSelect: () => {
-            timeSelectorProps.onChange(
-              baseTime.set({
-                hour: withDayPeriod(baseTime.hour, dayPeriodPm),
-              }),
-            )
-          },
-        },
-      ]
-    : []
+  React.useEffect(() => {
+    setDraft(formattedDisplay)
+  }, [formattedDisplay])
+
+  const selectedDayPeriod = getSelectedDayPeriod(timeSelectorProps.value)
+  const displayHourLabel = formatTimeOption(getDisplayHour(baseTime.hour, hourCycle))
+  const displayMinuteLabel = formatTimeOption(baseTime.minute)
+
+  const applyTime = (next: Time) => {
+    timeSelectorProps.onChange(next)
+  }
+
+  const onInputBlur = () => {
+    if (timeSelectorProps.granularity === "hour") {
+      setDraft(formattedDisplay)
+      return
+    }
+
+    const parsed = parseTimeInputFromUser(draft, showsDayPeriod)
+    if (parsed) {
+      applyTime(parsed)
+    } else {
+      setDraft(formattedDisplay)
+    }
+  }
 
   return (
     <div className={timePanelCss} role="group" aria-labelledby={groupId}>
       <span id={groupId} className={timePanelHeadingCss}>
         {timePanelLabel}
       </span>
-      <div className={timeColumnsCss} data-has-day-period={showsDayPeriod ? "true" : "false"}>
-        <TimeColumn isDisabled={isDisabled} label={hourLabel} options={hourOptions} />
+      <input
+        aria-labelledby={groupId}
+        className={timeInputCss}
+        disabled={isDisabled}
+        id={inputId}
+        inputMode="numeric"
+        type="text"
+        value={draft}
+        onBlur={onInputBlur}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.currentTarget.blur()
+          }
+        }}
+      />
+      <div className={timeControlsRowCss}>
+        <div className={timeStepperGroupCss}>
+          <button
+            aria-label={decreaseHourAriaLabel}
+            className={timeStepperBtnCss}
+            disabled={isDisabled}
+            type="button"
+            onClick={() => {
+              applyTime(adjustWallClockMinutes(baseTime, -60))
+            }}
+          >
+            {stepperMinusGlyph}
+          </button>
+          <span className={timeStepperValueCss}>{displayHourLabel}</span>
+          <button
+            aria-label={increaseHourAriaLabel}
+            className={timeStepperBtnCss}
+            disabled={isDisabled}
+            type="button"
+            onClick={() => {
+              applyTime(adjustWallClockMinutes(baseTime, 60))
+            }}
+          >
+            {stepperPlusGlyph}
+          </button>
+        </div>
         {timeSelectorProps.granularity === "minute" ? (
-          <TimeColumn isDisabled={isDisabled} label={minuteLabel} options={minuteOptions} />
+          <div className={timeStepperGroupCss}>
+            <button
+              aria-label={decreaseMinuteAriaLabel}
+              className={timeStepperBtnCss}
+              disabled={isDisabled}
+              type="button"
+              onClick={() => {
+                applyTime(adjustWallClockMinutes(baseTime, -timeSelectorProps.minuteStep))
+              }}
+            >
+              {stepperMinusGlyph}
+            </button>
+            <span className={timeStepperValueCss}>{displayMinuteLabel}</span>
+            <button
+              aria-label={increaseMinuteAriaLabel}
+              className={timeStepperBtnCss}
+              disabled={isDisabled}
+              type="button"
+              onClick={() => {
+                applyTime(adjustWallClockMinutes(baseTime, timeSelectorProps.minuteStep))
+              }}
+            >
+              {stepperPlusGlyph}
+            </button>
+          </div>
         ) : null}
         {showsDayPeriod ? (
-          <TimeColumn isDisabled={isDisabled} label={dayPeriodLabel} options={dayPeriodOptions} />
+          <div aria-label={dayPeriodGroupAriaLabel} className={timePeriodToggleCss} role="group">
+            <button
+              className={cx(
+                timePeriodSegmentCss,
+                selectedDayPeriod === dayPeriodAm ? timePeriodSegmentSelectedCss : undefined,
+              )}
+              disabled={isDisabled}
+              id={periodAmId}
+              type="button"
+              onClick={() => {
+                applyTime(baseTime.set({ hour: withDayPeriod(baseTime.hour, dayPeriodAm) }))
+              }}
+            >
+              {dayPeriodLabels.am}
+            </button>
+            <button
+              className={cx(
+                timePeriodSegmentCss,
+                selectedDayPeriod === dayPeriodPm ? timePeriodSegmentSelectedCss : undefined,
+              )}
+              disabled={isDisabled}
+              id={periodPmId}
+              type="button"
+              onClick={() => {
+                applyTime(baseTime.set({ hour: withDayPeriod(baseTime.hour, dayPeriodPm) }))
+              }}
+            >
+              {dayPeriodLabels.pm}
+            </button>
+          </div>
         ) : null}
       </div>
+      {timeSelectorProps.granularity === "minute" ? (
+        <div className={timeShortcutsCss}>
+          <button
+            className={timeShortcutButtonCss}
+            disabled={isDisabled}
+            type="button"
+            onClick={() => {
+              applyTime(baseTime.add({ minutes: 30 }))
+            }}
+          >
+            {plus30Label}
+          </button>
+          <button
+            className={timeShortcutButtonCss}
+            disabled={isDisabled}
+            type="button"
+            onClick={() => {
+              applyTime(new Time(23, 59, 0))
+            }}
+          >
+            {endOfDayLabel}
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -1000,7 +1167,7 @@ function ChooserGridSection({
   pager,
 }: {
   isDisabled: boolean
-  label: string
+  label?: string
   options: ChooserGridOption[]
   pager?: React.ReactNode
 }) {
@@ -1010,13 +1177,17 @@ function ChooserGridSection({
 
   return (
     <div className={chooserSectionCss}>
-      <div className={chooserSectionHeaderCss}>
-        <span id={labelId} className={chooserSectionLabelCss}>
-          {label}
-        </span>
-        {pager}
-      </div>
-      <div aria-labelledby={labelId} className={chooserGridCss} role="group">
+      {label || pager ? (
+        <div className={chooserSectionHeaderCss}>
+          {label ? (
+            <span id={labelId} className={chooserSectionLabelCss}>
+              {label}
+            </span>
+          ) : null}
+          {pager}
+        </div>
+      ) : null}
+      <div aria-labelledby={label ? labelId : undefined} className={chooserGridCss} role="group">
         {options.map((option, index) => (
           <button
             key={option.id}
@@ -1039,97 +1210,15 @@ function ChooserGridSection({
   )
 }
 
-function MonthYearChooser({
-  isInteractive,
-  monthOptions,
-  selectedMonth,
-  selectedYear,
-  yearPageStart,
-  onBackToCalendar,
-  onChooseMonth,
-  onChooseYear,
-  onNextYearPage,
-  onPreviousYearPage,
-}: {
-  isInteractive: boolean
-  monthOptions: Array<{ label: string; value: number }>
-  selectedMonth: number
-  selectedYear: number
-  yearPageStart: number
-  onBackToCalendar: () => void
-  onChooseMonth: (month: number) => void
-  onChooseYear: (year: number) => void
-  onNextYearPage: () => void
-  onPreviousYearPage: () => void
-}) {
-  const chooserYears = Array.from({ length: 12 }, (_, index) => yearPageStart + index)
-  const yearOptions: ChooserGridOption[] = chooserYears.map((year) => ({
-    id: `${yearIdPrefix}${year}`,
-    isSelected: year === selectedYear,
-    label: String(year),
-    onSelect: () => onChooseYear(year),
-  }))
-  const monthGridOptions: ChooserGridOption[] = monthOptions.map((option) => ({
-    id: `${monthIdPrefix}${option.value}`,
-    isSelected: option.value === selectedMonth,
-    label: option.label,
-    onSelect: () => onChooseMonth(option.value),
-  }))
-
-  return (
-    <div className={chooserPanelCss}>
-      <div className={chooserHeaderCss}>
-        <button
-          aria-label={backToCalendarLabel}
-          className={calendarNavButtonCss}
-          disabled={!isInteractive}
-          type="button"
-          onClick={onBackToCalendar}
-        >
-          <ChevronIcon direction={leftDirection} />
-        </button>
-        <div className={chooserTitleCss}>{chooseMonthYearTitle}</div>
-      </div>
-
-      <div className={chooserColumnsCss}>
-        <ChooserGridSection
-          isDisabled={!isInteractive}
-          label={yearColumnLabel}
-          options={yearOptions}
-          pager={
-            <div className={chooserPagerCss}>
-              <CalendarNavButton
-                direction={leftDirection}
-                isDisabled={!isInteractive}
-                label={previousYearsLabel}
-                onPress={onPreviousYearPage}
-              />
-              <CalendarNavButton
-                direction={rightDirection}
-                isDisabled={!isInteractive}
-                label={nextYearsLabel}
-                onPress={onNextYearPage}
-              />
-            </div>
-          }
-        />
-
-        <ChooserGridSection
-          isDisabled={!isInteractive}
-          label={monthColumnLabel}
-          options={monthGridOptions}
-        />
-      </div>
-    </div>
-  )
-}
-
 export type DatePickerCalendarProps = {
   calendarProps: CalendarProps<DateValue>
   canClear: boolean
   dialogProps: AriaDialogProps
   onClear: () => void
+  onSelectNextWeek?: (value: ReturnType<typeof useCalendarState>["visibleRange"]["start"]) => void
+  onSelectNow?: () => void
   onSelectToday: (value: ReturnType<typeof useCalendarState>["visibleRange"]["start"]) => void
+  onSelectTomorrow?: (value: ReturnType<typeof useCalendarState>["visibleRange"]["start"]) => void
   timeSelectorProps?: DatePickerTimeSelectorProps
 }
 
@@ -1138,7 +1227,10 @@ export function DatePickerCalendar({
   canClear,
   dialogProps,
   onClear,
+  onSelectNextWeek,
+  onSelectNow,
   onSelectToday,
+  onSelectTomorrow,
   timeSelectorProps,
 }: DatePickerCalendarProps) {
   const ref = React.useRef<HTMLDivElement>(null)
@@ -1180,26 +1272,48 @@ export function DatePickerCalendar({
   const isInteractive = !(calendarProps.isDisabled || calendarProps.isReadOnly)
   const visibleMonthLabel = monthFormatter.format(state.visibleRange.start.toDate(state.timeZone))
   const visibleYearLabel = yearFormatter.format(state.visibleRange.start.toDate(state.timeZone))
-  const openMonthYearChooser = () => {
+  const chooserYears = Array.from({ length: 12 }, (_, index) => yearPageStart + index)
+  const yearGridOptions: ChooserGridOption[] = chooserYears.map((year) => ({
+    id: `${yearIdPrefix}${year}`,
+    isSelected: year === state.visibleRange.start.year,
+    label: String(year),
+    onSelect: () => {
+      const nextDate = state.focusedDate.set({ year })
+      state.setFocusedDate(nextDate)
+      setDraftYear(year)
+      setYearPageStart(getYearPageStart(year))
+      setPickerView(pickerViewCalendar)
+    },
+  }))
+  const monthGridOptions: ChooserGridOption[] = monthOptions.map((option) => ({
+    id: `${monthIdPrefix}${option.value}`,
+    isSelected: option.value === state.visibleRange.start.month,
+    label: option.label,
+    onSelect: () => {
+      const nextDate = state.focusedDate.set({
+        day: 1,
+        month: option.value,
+        year: draftYear,
+      })
+      state.setFocusedDate(nextDate)
+      setPickerView(pickerViewCalendar)
+    },
+  }))
+
+  const openMonthPicker = () => {
     setDraftYear(state.visibleRange.start.year)
-    setYearPageStart(getYearPageStart(state.visibleRange.start.year))
-    setPickerView(pickerViewChooser)
+    setPickerView(pickerViewMonth)
   }
 
-  const applyMonthYearSelection = (year: number, month: number) => {
-    const nextDate = state.focusedDate.set({
-      day: 1,
-      month,
-      year,
-    })
-    state.setFocusedDate(nextDate)
+  const openYearPicker = () => {
+    const year = state.visibleRange.start.year
     setDraftYear(year)
     setYearPageStart(getYearPageStart(year))
-    setPickerView(pickerViewCalendar)
+    setPickerView(pickerViewYear)
   }
 
   return (
-    <div {...resolvedDialogProps} ref={ref} className={dialogCss}>
+    <div {...resolvedDialogProps} ref={ref} className={cx(dialogCss, pickerRootCss)}>
       <div
         {...calendarAriaProps}
         className={cx(
@@ -1221,14 +1335,25 @@ export function DatePickerCalendar({
                 />
                 <div className={calendarHeaderCenterCss}>
                   <button
-                    aria-label={`${chooseMonthYearLabel}: ${visibleMonthLabel} ${visibleYearLabel}`}
-                    className={monthYearButtonCss}
+                    aria-label={`${chooseMonthYearLabel}: ${visibleMonthLabel}`}
+                    className={monthYearLinkCss}
                     disabled={!isInteractive}
                     type="button"
-                    onClick={openMonthYearChooser}
+                    onClick={openMonthPicker}
                   >
-                    <span>{`${visibleMonthLabel} ${visibleYearLabel}`}</span>
-                    <ChevronIcon direction={rightDirection} />
+                    {visibleMonthLabel}
+                  </button>
+                  <span aria-hidden="true" className={monthYearSeparatorCss}>
+                    {" "}
+                  </span>
+                  <button
+                    aria-label={`${chooseMonthYearLabel}: ${visibleYearLabel}`}
+                    className={monthYearLinkCss}
+                    disabled={!isInteractive}
+                    type="button"
+                    onClick={openYearPicker}
+                  >
+                    {visibleYearLabel}
                   </button>
                 </div>
                 <CalendarNavButton
@@ -1243,47 +1368,138 @@ export function DatePickerCalendar({
 
               <div className={quickActionsCss}>
                 <button
-                  className={quickActionButtonCss}
+                  className={quickActionChipCss}
                   disabled={!canClear || !isInteractive}
                   type="button"
                   onClick={onClear}
                 >
                   {clearLabel}
                 </button>
-                <button
-                  className={quickActionButtonCss}
-                  disabled={!isInteractive}
-                  type="button"
-                  onClick={() => {
-                    const todayDate = toCalendar(
-                      today(state.timeZone),
-                      state.visibleRange.start.calendar,
-                    )
-                    state.setFocusedDate(todayDate)
-                    onSelectToday(todayDate)
-                  }}
-                >
-                  {todayLabel}
-                </button>
+                {timeSelectorProps ? (
+                  <button
+                    className={quickActionChipCss}
+                    disabled={!isInteractive || !onSelectNow}
+                    type="button"
+                    onClick={() => onSelectNow?.()}
+                  >
+                    {nowLabel}
+                  </button>
+                ) : (
+                  <button
+                    className={quickActionChipCss}
+                    disabled={!isInteractive}
+                    type="button"
+                    onClick={() => {
+                      const todayDate = toCalendar(
+                        today(state.timeZone),
+                        state.visibleRange.start.calendar,
+                      )
+                      state.setFocusedDate(todayDate)
+                      onSelectToday(todayDate)
+                    }}
+                  >
+                    {todayLabel}
+                  </button>
+                )}
+                {onSelectTomorrow ? (
+                  <button
+                    className={quickActionChipCss}
+                    disabled={!isInteractive}
+                    type="button"
+                    onClick={() => {
+                      const base = toCalendar(
+                        today(state.timeZone),
+                        state.visibleRange.start.calendar,
+                      )
+                      const next = base.add({ days: 1 })
+                      state.setFocusedDate(next)
+                      onSelectTomorrow(next)
+                    }}
+                  >
+                    {tomorrowLabel}
+                  </button>
+                ) : null}
+                {onSelectNextWeek ? (
+                  <button
+                    className={quickActionChipCss}
+                    disabled={!isInteractive}
+                    type="button"
+                    onClick={() => {
+                      const base = toCalendar(
+                        today(state.timeZone),
+                        state.visibleRange.start.calendar,
+                      )
+                      const next = base.add({ weeks: 1 })
+                      state.setFocusedDate(next)
+                      onSelectNextWeek(next)
+                    }}
+                  >
+                    {nextWeekLabel}
+                  </button>
+                ) : null}
               </div>
             </div>
 
-            {timeSelectorProps ? <TimeSelector timeSelectorProps={timeSelectorProps} /> : null}
+            {timeSelectorProps ? (
+              <HybridTimeSelector timeSelectorProps={timeSelectorProps} />
+            ) : null}
           </>
-        ) : (
-          <MonthYearChooser
-            isInteractive={isInteractive}
-            monthOptions={monthOptions}
-            selectedMonth={state.visibleRange.start.month}
-            selectedYear={draftYear}
-            yearPageStart={yearPageStart}
-            onBackToCalendar={() => setPickerView(pickerViewCalendar)}
-            onChooseMonth={(month) => applyMonthYearSelection(draftYear, month)}
-            onChooseYear={(year) => setDraftYear(year)}
-            onNextYearPage={() => setYearPageStart((current) => current + 12)}
-            onPreviousYearPage={() => setYearPageStart((current) => Math.max(1, current - 12))}
-          />
-        )}
+        ) : null}
+
+        {pickerView === pickerViewMonth ? (
+          <div className={chooserPanelCss}>
+            <div className={inlinePickerHeaderCss}>
+              <button
+                aria-label={backToCalendarLabel}
+                className={calendarNavButtonCss}
+                disabled={!isInteractive}
+                type="button"
+                onClick={() => setPickerView(pickerViewCalendar)}
+              >
+                <ChevronIcon direction={leftDirection} />
+              </button>
+              <div className={chooserTitleCss}>{pickMonthTitle}</div>
+              <span aria-hidden="true" />
+            </div>
+            <ChooserGridSection isDisabled={!isInteractive} options={monthGridOptions} />
+          </div>
+        ) : null}
+
+        {pickerView === pickerViewYear ? (
+          <div className={chooserPanelCss}>
+            <div className={inlinePickerHeaderCss}>
+              <button
+                aria-label={backToCalendarLabel}
+                className={calendarNavButtonCss}
+                disabled={!isInteractive}
+                type="button"
+                onClick={() => setPickerView(pickerViewCalendar)}
+              >
+                <ChevronIcon direction={leftDirection} />
+              </button>
+              <div className={chooserTitleCss}>{pickYearTitle}</div>
+              <div className={chooserPagerCss}>
+                <CalendarNavButton
+                  direction={leftDirection}
+                  isDisabled={!isInteractive}
+                  label={previousYearsLabel}
+                  onPress={() => setYearPageStart((current) => Math.max(1, current - 12))}
+                />
+                <CalendarNavButton
+                  direction={rightDirection}
+                  isDisabled={!isInteractive}
+                  label={nextYearsLabel}
+                  onPress={() => setYearPageStart((current) => current + 12)}
+                />
+              </div>
+            </div>
+            <ChooserGridSection
+              isDisabled={!isInteractive}
+              label={yearColumnLabel}
+              options={yearGridOptions}
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   )

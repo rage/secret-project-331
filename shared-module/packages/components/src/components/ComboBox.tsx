@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 
 import { resolveFieldState, toInputValue } from "../lib/utils/field"
 
+import { ListBox } from "./primitives/ListBox"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -19,7 +20,6 @@ import {
   resolveFieldLabelCss,
   resolveMessageCss,
 } from "./primitives/fieldStyles"
-import { ListBox } from "./primitives/listBox"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss, comboTriggerButtonCss } from "./primitives/selectStyles"
 

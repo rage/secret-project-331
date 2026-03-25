@@ -9,6 +9,7 @@ import { HiddenSelect, useButton, useSelect } from "react-aria"
 
 import { resolveFieldState, toInputValue } from "../lib/utils/field"
 
+import { ListBox } from "./primitives/ListBox"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -18,7 +19,6 @@ import {
   resolveSelectTriggerCss,
   selectTriggerValuePlaceholderCss,
 } from "./primitives/fieldStyles"
-import { ListBox } from "./primitives/listBox"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
 

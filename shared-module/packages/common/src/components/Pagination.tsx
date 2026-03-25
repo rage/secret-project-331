@@ -18,6 +18,7 @@ interface PaginationProps {
   paginationInfo: PaginationInfo
   totalPages: number
   disableItemsPerPage?: boolean
+  itemsPerPageOptions?: number[]
 }
 
 const CAPACITY = 5
@@ -104,6 +105,7 @@ const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
   paginationInfo,
   totalPages,
   disableItemsPerPage = false,
+  itemsPerPageOptions,
 }) => {
   const { t } = useTranslation()
   const page = paginationInfo.page
@@ -133,7 +135,12 @@ const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
       `}
     >
       <Container key={componentsKey}>{generatedComponents}</Container>
-      {!disableItemsPerPage && <PaginationItemsPerPage paginationInfo={paginationInfo} />}
+      {!disableItemsPerPage && (
+        <PaginationItemsPerPage
+          paginationInfo={paginationInfo}
+          itemsPerPageOptions={itemsPerPageOptions}
+        />
+      )}
     </div>
   )
 }

@@ -8,18 +8,21 @@ import { PaginationInfo } from "../hooks/usePaginationInfo"
 
 import SelectField from "./InputFields/SelectField"
 
+const DEFAULT_ITEMS_PER_PAGE_OPTIONS = [100, 1000, 10000]
+
 interface PaginationItemsPerPageProps {
   paginationInfo: PaginationInfo
+  itemsPerPageOptions?: number[]
 }
 
-const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({ paginationInfo }) => {
+const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({
+  paginationInfo,
+  itemsPerPageOptions,
+}) => {
   const { t } = useTranslation()
   const options = useMemo(() => {
-    const options = [
-      { value: "100", label: "100" },
-      { value: "1000", label: "1000" },
-      { value: "10000", label: "10000" },
-    ]
+    const base = itemsPerPageOptions ?? DEFAULT_ITEMS_PER_PAGE_OPTIONS
+    const options = base.map((n) => ({ value: n.toString(), label: n.toString() }))
     const currentLimit = paginationInfo.limit.toString()
     if (options.find((o) => o.value === currentLimit) === undefined) {
       // Someone edited a custom limit by changing the url. Let's support this use case by including this new option in the dropdown.
@@ -27,7 +30,7 @@ const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({ paginat
       options.sort((o1, o2) => Number(o1.value) - Number(o2.value))
     }
     return options
-  }, [paginationInfo.limit])
+  }, [paginationInfo.limit, itemsPerPageOptions])
   return (
     <div
       className={css`

@@ -235,6 +235,7 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
                 per_hour: Some(500),
                 per_day: Some(2000),
                 per_month: None,
+                ..Default::default()
             }))
             .route(web::post().to(token)),
     );

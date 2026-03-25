@@ -16,6 +16,7 @@ import {
   resolveMessageCss,
   resolveSelectLabelCss,
   resolveSelectTriggerCss,
+  selectTriggerValuePlaceholderCss,
 } from "./primitives/fieldStyles"
 import { ListBox } from "./primitives/listBox"
 import { Popover } from "./primitives/popover"
@@ -361,6 +362,9 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       errorMessage ??
       (hookIsInvalid && validationErrors.length > 0 ? validationErrors.join(" ") : null)
     const isFloated = state.isFocused || state.selectedItem != null
+    const selectedOption =
+      state.selectedKey != null ? optionsByKey.get(String(state.selectedKey)) : undefined
+    const isPlaceholderState = selectedOption == null || selectedOption.value === ""
 
     return (
       <div ref={wrapperRef} className={cx(fieldRootCss, className)}>
@@ -369,11 +373,18 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
           data-focused={state.isFocused ? "true" : "false"}
           data-floated={isFloated ? "true" : "false"}
           data-invalid={hookIsInvalid ? "true" : "false"}
+          data-placeholder={isPlaceholderState ? "true" : "false"}
         >
           <HiddenSelect {...hiddenSelectProps} />
 
           <button {...buttonProps} ref={buttonRef} className={resolveSelectTriggerCss(fieldSize)}>
-            <span {...valueProps} className={triggerValueCss}>
+            <span
+              {...valueProps}
+              className={cx(
+                triggerValueCss,
+                isPlaceholderState ? selectTriggerValuePlaceholderCss : undefined,
+              )}
+            >
               {state.selectedItem?.rendered ?? null}
             </span>
             <span className={triggerChevronCss} aria-hidden="true">

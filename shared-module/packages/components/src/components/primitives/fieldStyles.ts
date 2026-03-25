@@ -4,41 +4,54 @@ import { assertNever } from "../../lib/utils/assertNever"
 
 export type FieldSize = "sm" | "md" | "lg"
 
-/** Per-size geometry constants for the floating-label field. */
+/** Shared duration/easing for label + padding + field edge motion. */
+const FIELD_MOTION_DURATION = "200ms"
+const FIELD_MOTION_EASING = "cubic-bezier(0.2, 0, 0, 1)"
+
+/** Per-size geometry for filled inset floating labels (label stays inside the control).
+ *  Invariant: `inputPaddingTopFloated + inputPaddingBottomFloated === 2 * inputPaddingYRest`
+ *  so total vertical padding does not change when `data-floated` toggles (avoids focus layout shift). */
 const sizeValues = {
   sm: {
-    inputPaddingTop: "1rem",
-    inputPaddingBottom: "0.375rem",
+    inputPaddingYRest: "0.875rem",
+    inputPaddingTopFloated: "1.25rem",
+    inputPaddingBottomFloated: "0.5rem",
+    /** Segmented date/time: first value line below floated caption; slightly below ComboBox text inset. */
+    segmentedInputPaddingTopFloated: "1.32rem",
     inputPaddingX: "0.75rem",
     controlHeight: "var(--control-height-sm)",
-    labelRestTop: "0.9rem",
     labelLeft: "0.625rem",
-    labelFloatTop: "-0.45rem",
-    labelScale: 0.82,
+    labelFloatTop: "0.45rem",
+    labelRestFontSize: "1rem",
+    labelFloatFontSize: "0.6875rem",
     messageFontSize: "0.8125rem",
     borderRadius: "0.375rem",
   },
   md: {
-    inputPaddingTop: "1.25rem",
-    inputPaddingBottom: "0.5rem",
+    inputPaddingYRest: "1rem",
+    inputPaddingTopFloated: "1.45rem",
+    inputPaddingBottomFloated: "0.55rem",
+    segmentedInputPaddingTopFloated: "1.42rem",
     inputPaddingX: "0.875rem",
     controlHeight: "var(--control-height-md)",
-    labelRestTop: "1.2rem",
     labelLeft: "0.75rem",
-    labelFloatTop: "-0.5rem",
-    labelScale: 0.85,
+    labelFloatTop: "0.5rem",
+    labelRestFontSize: "1.0625rem",
+    labelFloatFontSize: "0.75rem",
     messageFontSize: "0.875rem",
     borderRadius: "0.4375rem",
   },
   lg: {
-    inputPaddingTop: "1.375rem",
-    inputPaddingBottom: "0.625rem",
+    inputPaddingYRest: "1.125rem",
+    inputPaddingTopFloated: "1.55rem",
+    inputPaddingBottomFloated: "0.7rem",
+    segmentedInputPaddingTopFloated: "1.53rem",
     inputPaddingX: "1rem",
     controlHeight: "var(--control-height-lg)",
-    labelRestTop: "1.25rem",
     labelLeft: "0.875rem",
-    labelFloatTop: "-0.55rem",
-    labelScale: 0.88,
+    labelFloatTop: "0.55rem",
+    labelRestFontSize: "1.125rem",
+    labelFloatFontSize: "0.8125rem",
     messageFontSize: "0.9375rem",
     borderRadius: "0.5rem",
   },
@@ -64,30 +77,36 @@ const inputBaseCss = css`
   display: block;
   background: var(--field-bg);
   color: var(--field-text-color);
-  border: 1px solid var(--field-border-color);
+  border: 0;
   outline: none;
-  transition: var(--field-transition);
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  transition:
+    padding-top ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    padding-bottom ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    box-shadow ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    background-color ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
 
-  /* Placeholder text is invisible; used only for :placeholder-shown detection */
   &::placeholder {
     color: transparent;
     user-select: none;
   }
 
   &:focus {
-    border-color: var(--field-border-color-focus);
     box-shadow:
+      inset 0 0 0 1px var(--field-border-focus),
       0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
       0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
   }
 
   &[aria-invalid="true"] {
-    border-color: var(--field-border-color-invalid);
+    box-shadow:
+      inset 0 0 0 1px var(--field-border-color-invalid),
+      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color);
   }
 
   &[aria-invalid="true"]:focus {
-    border-color: var(--field-border-color-invalid);
     box-shadow:
+      inset 0 0 0 1px var(--field-border-color-invalid),
       0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
       0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) rgba(130, 38, 48, 0.4);
   }
@@ -96,7 +115,7 @@ const inputBaseCss = css`
     background: var(--field-bg-disabled);
     color: var(--field-text-color-disabled);
     cursor: not-allowed;
-    border-color: var(--field-border-color);
+    box-shadow: inset 0 0 0 1px var(--field-disabled-border);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -106,45 +125,20 @@ const inputBaseCss = css`
 
 function makeInputSizeCss(s: SizeValues): string {
   return css`
-    padding: ${s.inputPaddingTop} ${s.inputPaddingX} ${s.inputPaddingBottom};
+    min-height: ${s.controlHeight};
+    padding: ${s.inputPaddingYRest} ${s.inputPaddingX} ${s.inputPaddingYRest};
     border-radius: ${s.borderRadius};
 
-    /* Float label when focused or when the field has a value (:placeholder-shown
-       is false when the user has typed something; placeholder=" " is always set). */
-    &:focus + label,
-    &:not(:placeholder-shown) + label {
-      top: ${s.labelFloatTop};
-      left: ${s.labelLeft};
-      transform: scale(${s.labelScale});
-      color: var(--field-label-color-focus);
+    .${fieldControlCss}[data-floated="true"] & {
+      padding-top: ${s.inputPaddingTopFloated};
+      padding-bottom: ${s.inputPaddingBottomFloated};
     }
 
-    &[aria-invalid="true"]:focus + label,
-    &[aria-invalid="true"]:not(:placeholder-shown) + label {
-      color: var(--field-label-color-invalid);
-    }
-
-    /* When the label is floated (focused or filled), reduce top padding so the
-       text content appears optically centered within the control. */
-    [data-floated="true"] & {
-      /* Keep total vertical padding constant while shifting content upward. */
-      padding-top: calc(${s.inputPaddingTop} - 0.35rem);
-      padding-bottom: calc(${s.inputPaddingBottom} + 0.35rem);
-    }
-
-    /* Icon slots: extra horizontal padding so text doesn't overlap icons. */
-    [data-has-icon-start="true"] & {
+    .${fieldControlCss}[data-has-icon-start="true"] & {
       padding-left: calc(${s.inputPaddingX} + var(--field-icon-slot-width));
     }
-    [data-has-icon-end="true"] & {
+    .${fieldControlCss}[data-has-icon-end="true"] & {
       padding-right: calc(${s.inputPaddingX} + var(--field-icon-slot-width));
-    }
-
-    /* Higher-specificity override: the label's left returns to the base edge when
-       it floats, even if it was shifted right by the icon-start at rest. */
-    [data-has-icon-start="true"] &:focus + label,
-    [data-has-icon-start="true"] &:not(:placeholder-shown) + label {
-      left: ${s.labelLeft};
     }
   `
 }
@@ -162,38 +156,21 @@ export function resolveInputCss(size: FieldSize): string {
 
 function makeTextareaSizeCss(s: SizeValues): string {
   return css`
-    padding: ${s.inputPaddingTop} ${s.inputPaddingX} ${s.inputPaddingBottom};
+    min-height: 96px;
+    padding: ${s.inputPaddingYRest} ${s.inputPaddingX} ${s.inputPaddingYRest};
     border-radius: ${s.borderRadius};
     resize: vertical;
 
-    &:focus + label,
-    &:not(:placeholder-shown) + label {
-      top: ${s.labelFloatTop};
-      left: ${s.labelLeft};
-      transform: scale(${s.labelScale});
-      color: var(--field-label-color-focus);
+    .${fieldControlCss}[data-floated="true"] & {
+      padding-top: ${s.inputPaddingTopFloated};
+      padding-bottom: ${s.inputPaddingBottomFloated};
     }
 
-    &[aria-invalid="true"]:focus + label,
-    &[aria-invalid="true"]:not(:placeholder-shown) + label {
-      color: var(--field-label-color-invalid);
-    }
-
-    [data-floated="true"] & {
-      padding-top: calc(${s.inputPaddingTop} - 0.35rem);
-      padding-bottom: calc(${s.inputPaddingBottom} + 0.35rem);
-    }
-
-    [data-has-icon-start="true"] & {
+    .${fieldControlCss}[data-has-icon-start="true"] & {
       padding-left: calc(${s.inputPaddingX} + var(--field-icon-slot-width));
     }
-    [data-has-icon-end="true"] & {
+    .${fieldControlCss}[data-has-icon-end="true"] & {
       padding-right: calc(${s.inputPaddingX} + var(--field-icon-slot-width));
-    }
-
-    [data-has-icon-start="true"] &:focus + label,
-    [data-has-icon-start="true"] &:not(:placeholder-shown) + label {
-      left: ${s.labelLeft};
     }
   `
 }
@@ -209,6 +186,11 @@ export function resolveTextareaCss(size: FieldSize): string {
   return cx(inputBaseCss, textareaSizeStyles[size])
 }
 
+/** Muted value text when nothing is selected or the selected option has an empty value. */
+export const selectTriggerValuePlaceholderCss = css`
+  color: var(--field-placeholder);
+`
+
 const selectTriggerBaseCss = css`
   width: 100%;
   box-sizing: border-box;
@@ -217,23 +199,37 @@ const selectTriggerBaseCss = css`
   justify-content: space-between;
   background: var(--field-bg);
   color: var(--field-text-color);
-  border: 1px solid var(--field-border-color);
+  border: 0;
   border-radius: var(--control-radius);
   font: inherit;
   line-height: 1.5;
   cursor: pointer;
   outline: none;
-  transition: var(--field-transition);
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  transition:
+    padding-top ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    padding-bottom ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    box-shadow ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
 
-  [data-focused="true"] & {
-    border-color: var(--field-border-color-focus);
+  .${fieldControlCss}[data-focused="true"] & {
     box-shadow:
+      inset 0 0 0 1px var(--field-border-focus),
       0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
       0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
   }
 
-  [data-invalid="true"] & {
-    border-color: var(--field-border-color-invalid);
+  .${fieldControlCss}[data-invalid="true"] & {
+    box-shadow:
+      inset 0 0 0 1px var(--field-border-color-invalid),
+      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color);
+  }
+
+  &:disabled .${selectTriggerValuePlaceholderCss} {
+    color: var(--field-disabled-fg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `
 
@@ -242,6 +238,17 @@ function makeSelectTriggerSizeCss(s: SizeValues): string {
     min-height: ${s.controlHeight};
     padding: 0 ${s.inputPaddingX};
     border-radius: ${s.borderRadius};
+
+    .${fieldControlCss}[data-floated="false"] & {
+      padding-top: ${s.inputPaddingYRest};
+      padding-bottom: ${s.inputPaddingYRest};
+      align-items: center;
+    }
+
+    .${fieldControlCss}[data-floated="true"] & {
+      padding-top: ${s.inputPaddingTopFloated};
+      padding-bottom: ${s.inputPaddingBottomFloated};
+    }
   `
 }
 
@@ -258,22 +265,22 @@ export function resolveSelectTriggerCss(size: FieldSize): string {
 
 const labelBaseCss = css`
   position: absolute;
-  background: var(--field-bg);
+  background: transparent;
   color: var(--field-label-color);
-  padding: 0 0.25rem;
+  padding: 0;
   pointer-events: none;
-  transform-origin: left top;
-  line-height: 1;
+  line-height: 1.2;
   max-width: calc(100% - 1rem);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: inherit;
   transition:
-    transform 160ms ease,
-    top 160ms ease,
-    left 160ms ease,
-    color 160ms ease;
+    transform ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    top ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    left ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    font-size ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    color ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    opacity ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -282,12 +289,58 @@ const labelBaseCss = css`
 
 function makeLabelSizeCss(s: SizeValues): string {
   return css`
-    top: ${s.labelRestTop};
-    left: ${s.labelLeft};
+    .${fieldControlCss}[data-floated="false"] & {
+      top: 50%;
+      left: ${s.labelLeft};
+      font-size: ${s.labelRestFontSize};
+      transform: translateY(-50%) scale(1);
+      transform-origin: left center;
+      opacity: 0.85;
+      color: var(--field-label-color);
+    }
 
-    /* When icon-start is present, label rests to the right of the icon. */
-    [data-has-icon-start="true"] & {
+    .${fieldControlCss}[data-has-icon-start="true"][data-floated="false"] & {
       left: calc(${s.labelLeft} + var(--field-icon-slot-width));
+    }
+
+    .${fieldControlCss}[data-multiline="true"][data-floated="false"] & {
+      top: ${s.inputPaddingYRest};
+      transform: translateY(0) scale(1);
+      transform-origin: left top;
+    }
+
+    .${fieldControlCss}[data-has-icon-start="true"][data-multiline="true"][data-floated="false"] & {
+      left: calc(${s.labelLeft} + var(--field-icon-slot-width));
+    }
+
+    .${fieldControlCss}[data-floated="true"] & {
+      top: ${s.labelFloatTop};
+      left: ${s.labelLeft};
+      font-size: ${s.labelFloatFontSize};
+      transform: translateY(0) scale(1);
+      transform-origin: left top;
+      opacity: 1;
+    }
+
+    .${fieldControlCss}[data-has-icon-start="true"][data-floated="true"] & {
+      left: calc(${s.labelLeft} + var(--field-icon-slot-width));
+    }
+
+    .${fieldControlCss}[data-floated="true"][data-focused="true"] & {
+      color: var(--field-label-color-focus);
+    }
+
+    .${fieldControlCss}[data-floated="true"]:not([data-focused="true"]) & {
+      color: var(--field-label-color);
+    }
+
+    .${fieldControlCss}[data-invalid="true"] & {
+      color: var(--field-label-color-invalid);
+    }
+
+    .${fieldControlCss}[data-disabled="true"] & {
+      color: var(--field-disabled-fg);
+      opacity: 0.85;
     }
   `
 }
@@ -298,50 +351,24 @@ const labelSizeStyles: Record<FieldSize, string> = {
   lg: makeLabelSizeCss(sizeValues.lg),
 }
 
-/** Returns the composed className for the floating label element. */
+/** Returns the composed className for the inset floating label on inputs and textareas. */
 export function resolveFieldLabelCss(size: FieldSize): string {
   return cx(labelBaseCss, labelSizeStyles[size])
 }
 
-function makeSelectLabelFloatCss(s: SizeValues): string {
-  return css`
-    [data-floated="true"] & {
-      top: ${s.labelFloatTop};
-      left: ${s.labelLeft};
-      transform: scale(${s.labelScale});
-      color: var(--field-label-color-focus);
-    }
+const selectLabelChevronRoomCss = css`
+  .${fieldControlCss}[data-floated="false"] & {
+    max-width: calc(100% - 2.75rem);
+  }
 
-    [data-invalid="true"][data-floated="true"] & {
-      color: var(--field-label-color-invalid);
-    }
-  `
-}
-
-const selectLabelFloatStyles: Record<FieldSize, string> = {
-  sm: makeSelectLabelFloatCss(sizeValues.sm),
-  md: makeSelectLabelFloatCss(sizeValues.md),
-  lg: makeSelectLabelFloatCss(sizeValues.lg),
-}
-
-function makeSelectLabelRestCss(s: SizeValues): string {
-  return css`
-    top: 50%;
-    left: ${s.labelLeft};
-    transform: translateY(-50%);
+  .${fieldControlCss}[data-floated="true"] & {
     max-width: calc(100% - 2.5rem);
-  `
-}
+  }
+`
 
-const selectLabelRestStyles: Record<FieldSize, string> = {
-  sm: makeSelectLabelRestCss(sizeValues.sm),
-  md: makeSelectLabelRestCss(sizeValues.md),
-  lg: makeSelectLabelRestCss(sizeValues.lg),
-}
-
-/** Label styling tailored for select triggers, driven by wrapper state rather than :placeholder-shown. */
+/** Returns label className for select triggers (same inset pattern; extra room for chevron). */
 export function resolveSelectLabelCss(size: FieldSize): string {
-  return cx(labelBaseCss, selectLabelRestStyles[size], selectLabelFloatStyles[size])
+  return cx(labelBaseCss, labelSizeStyles[size], selectLabelChevronRoomCss)
 }
 
 const iconSlotBaseCss = css`
@@ -379,41 +406,36 @@ export const iconSlotEndCss = cx(
   `,
 )
 
-/** Icon slot for multi-line textareas – anchored to the label's resting position
- *  so it appears at the top of the content area rather than the geometric centre. */
-function makeTextareaIconSlotStartCss(s: SizeValues): string {
-  return cx(
-    iconSlotBaseCss,
-    css`
-      left: 0;
-      top: ${s.labelRestTop};
-      transform: translateY(-50%);
-    `,
-  )
-}
+const textareaIconSlotStartCss = cx(
+  iconSlotBaseCss,
+  css`
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  `,
+)
 
+/** Per-size map for textarea start icons (same geometry for all sizes). */
 export const textareaIconSlotStartStyles: Record<FieldSize, string> = {
-  sm: makeTextareaIconSlotStartCss(sizeValues.sm),
-  md: makeTextareaIconSlotStartCss(sizeValues.md),
-  lg: makeTextareaIconSlotStartCss(sizeValues.lg),
+  sm: textareaIconSlotStartCss,
+  md: textareaIconSlotStartCss,
+  lg: textareaIconSlotStartCss,
 }
 
-/** Icon slot for multi-line textareas on the trailing edge. */
-function makeTextareaIconSlotEndCss(s: SizeValues): string {
-  return cx(
-    iconSlotBaseCss,
-    css`
-      right: 0;
-      top: ${s.labelRestTop};
-      transform: translateY(-50%);
-    `,
-  )
-}
+const textareaIconSlotEndCss = cx(
+  iconSlotBaseCss,
+  css`
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  `,
+)
 
+/** Per-size map for textarea end icons (same geometry for all sizes). */
 export const textareaIconSlotEndStyles: Record<FieldSize, string> = {
-  sm: makeTextareaIconSlotEndCss(sizeValues.sm),
-  md: makeTextareaIconSlotEndCss(sizeValues.md),
-  lg: makeTextareaIconSlotEndCss(sizeValues.lg),
+  sm: textareaIconSlotEndCss,
+  md: textareaIconSlotEndCss,
+  lg: textareaIconSlotEndCss,
 }
 
 const messageBaseCss = css`
@@ -473,47 +495,59 @@ export const controlSurfaceBaseCss = css`
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  border: 1px solid var(--field-border);
+  border: 0;
   border-radius: calc(var(--control-radius) + 4px);
   background: var(--field-bg);
   color: var(--field-fg);
-  box-shadow: var(--field-shadow);
+  box-shadow:
+    inset 0 0 0 1px var(--field-border),
+    var(--field-shadow);
   transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    background-color 0.18s ease,
-    color 0.18s ease;
+    box-shadow ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    padding-top ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    padding-bottom ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    background-color ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+    color ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
 
   &:focus-within {
-    border-color: var(--field-border-focus);
     box-shadow:
+      inset 0 0 0 1px var(--field-border-focus),
       0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14),
       var(--field-shadow);
   }
 
   &[data-invalid="true"] {
-    border-color: var(--field-error-border);
+    box-shadow:
+      inset 0 0 0 1px var(--field-error-border),
+      var(--field-shadow);
   }
 
   &[data-invalid="true"]:focus-within {
     box-shadow:
+      inset 0 0 0 1px var(--field-error-border),
       0 0 0 var(--focus-ring-width) rgba(158, 52, 31, 0.14),
       var(--field-shadow);
   }
 
   &[data-disabled="true"] {
     background: var(--field-disabled-bg);
-    border-color: var(--field-disabled-border);
     color: var(--field-disabled-fg);
+    box-shadow: inset 0 0 0 1px var(--field-disabled-border);
   }
 
   &[data-readonly="true"] {
     background: var(--field-readonly-bg);
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 `
 
 export const controlSurfaceFloatingCss = css`
-  padding-top: 20px;
+  &[data-floated="true"] {
+    align-items: stretch;
+  }
 `
 
 export const inputResetCss = css`
@@ -550,6 +584,61 @@ export const inputResetCss = css`
 export const inputWithFloatingLabelCss = css`
   padding-top: 2px;
 `
+
+/** Top padding for inset floating labels; bottom padding comes from control surface (ComboBox pattern). */
+function makeFloatingInsetPaddingTopCss(s: SizeValues): string {
+  return css`
+    transition:
+      padding-top ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+      padding-bottom ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+
+    .${fieldControlCss}[data-floated="false"] & {
+      padding-top: ${s.inputPaddingYRest};
+    }
+    .${fieldControlCss}[data-floated="true"] & {
+      padding-top: ${s.inputPaddingTopFloated};
+    }
+  `
+}
+
+/** Combobox input: vertical padding follows inset label band via parent data-floated. */
+export function resolveComboBoxInputCss(fieldSize: FieldSize): string {
+  const s = sizeValues[fieldSize]
+  return cx(inputResetCss, inputWithFloatingLabelCss, makeFloatingInsetPaddingTopCss(s))
+}
+
+/** Segmented shell: rest uses symmetric vertical padding like TextField; floated top uses a dedicated
+ *  inset below the caption band (tighter than ComboBox `inputPaddingTopFloated`). */
+function makeSegmentedFloatingShellPaddingCss(s: SizeValues): string {
+  return css`
+    transition:
+      padding-top ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
+      padding-bottom ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+
+    .${fieldControlCss}[data-floated="false"] & {
+      padding-top: ${s.inputPaddingYRest};
+      padding-bottom: ${s.inputPaddingYRest};
+    }
+
+    .${fieldControlCss}[data-floated="true"] & {
+      padding-top: ${s.segmentedInputPaddingTopFloated};
+    }
+  `
+}
+
+/** Segmented date/time field shell: rest mirrors TextField padding; floated top tracks caption geometry. */
+export function resolveSegmentedFloatingShellCss(fieldSize: FieldSize): string {
+  const s = sizeValues[fieldSize]
+  return cx(inputWithFloatingLabelCss, makeSegmentedFloatingShellPaddingCss(s))
+}
 
 export const textareaResetCss = css`
   ${inputResetCss}

@@ -1,6 +1,6 @@
 "use client"
 
-import { fireEvent, screen } from "@testing-library/react"
+import { fireEvent, screen, within } from "@testing-library/react"
 
 import { Select } from "../src/components/Select"
 
@@ -60,6 +60,19 @@ describe("Select", () => {
     )
 
     expect(screen.getByRole("button", { name: /Language/ })).toHaveTextContent("English")
+  })
+
+  test("renders with no option selected when initial controlled value is empty", () => {
+    renderUi(
+      <Select label="Priority" value="" onChange={() => {}}>
+        <option value="low">Low</option>
+        <option value="high">High</option>
+      </Select>,
+    )
+
+    const trigger = screen.getByRole("button", { name: /Priority/ })
+    expect(within(trigger).queryByText("Low")).not.toBeInTheDocument()
+    expect(within(trigger).queryByText("High")).not.toBeInTheDocument()
   })
 
   test("supports disabled and invalid behavior", () => {

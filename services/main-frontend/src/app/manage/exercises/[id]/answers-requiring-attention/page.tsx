@@ -21,6 +21,9 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+const ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE = [15, 50, 100, 1000, 10000]
+const ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT = 50
+
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
   <h5
     className={css`
@@ -41,7 +44,7 @@ const SubmissionsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const exerciseQuery = useExerciseQuery(id)
-  const paginationInfo = usePaginationInfo()
+  const paginationInfo = usePaginationInfo(ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT)
   const courseStructure = useCourseStructure(exerciseQuery.data?.course_id ?? null)
 
   const crumbs = useMemo(
@@ -131,7 +134,11 @@ const SubmissionsPage: React.FC = () => {
             courseId={exerciseQuery.data?.course_id ?? null}
             refetch={answersQuery.refetch}
           />
-          <Pagination totalPages={answersQuery.data?.total_pages} paginationInfo={paginationInfo} />
+          <Pagination
+            totalPages={answersQuery.data?.total_pages}
+            paginationInfo={paginationInfo}
+            itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
+          />
         </AccordionProvider>
       )}
     </div>

@@ -45,6 +45,11 @@ describe("TextArea – accessibility wiring", () => {
     expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true")
   })
 
+  test("aria-invalid preserves caller-provided invalid state", () => {
+    renderUi(<TextArea label="Bio" aria-invalid="grammar" />)
+    expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "grammar")
+  })
+
   test("isRequired / required marks the field required", () => {
     renderUi(<TextArea label="Bio" required />)
     expect(screen.getByRole("textbox")).toBeRequired()

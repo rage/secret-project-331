@@ -61,6 +61,7 @@ export const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>
       description,
       errorMessage,
       fieldSize = "md",
+      disabled,
       isDisabled = false,
       isReadOnly = false,
       isRequired = false,
@@ -75,12 +76,14 @@ export const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>
       ...rest
     } = props
 
+    const resolvedIsDisabled = isDisabled || disabled || false
+
     const state = useRadioGroupState({
       value,
       defaultValue,
       onChange,
       name,
-      isDisabled,
+      isDisabled: resolvedIsDisabled,
       isReadOnly,
       isRequired,
       isInvalid,
@@ -100,7 +103,7 @@ export const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>
         errorMessage,
         name,
         orientation,
-        isDisabled,
+        isDisabled: resolvedIsDisabled,
         isReadOnly,
         isRequired,
         isInvalid,

@@ -106,37 +106,104 @@ export function getYearPageStart(year: number) {
   return Math.floor((year - 1) / 12) * 12 + 1
 }
 
-/** Parses typed time strings (ISO or common h:mm with optional am/pm). */
-export function parseTimeInputFromUser(raw: string, hour12: boolean): Time | null {
+function normalizeDigits(raw: string, locale: string) {
+  const formatter = new Intl.NumberFormat(locale, { useGrouping: false })
+  let normalized = raw
+
+  for (let digit = 0; digit <= 9; digit += 1) {
+    const localizedDigit = formatter.format(digit)
+    if (localizedDigit !== String(digit)) {
+      normalized = normalized.split(localizedDigit).join(String(digit))
+    }
+  }
+
+  return normalized
+}
+
+function normalizeTimeInput(raw: string, locale: string) {
+  return normalizeDigits(raw.normalize("NFKC"), locale)
+    .replace(/[\u200e\u200f\u061c]/g, "")
+    .trim()
+}
+
+function normalizeDayPeriodToken(raw: string, locale: string) {
+  return normalizeTimeInput(raw, locale)
+    .toLocaleLowerCase(locale)
+    .replace(/[^\p{L}\p{N}]+/gu, "")
+}
+
+function hasDayPeriodToken(raw: string, locale: string, tokens: string[]) {
+  const normalizedSource = normalizeDayPeriodToken(raw, locale)
+  return tokens.some((token) => {
+    const normalizedToken = normalizeDayPeriodToken(token, locale)
+    return normalizedToken.length > 0 && normalizedSource.includes(normalizedToken)
+  })
+}
+
+/** Parses typed time strings (ISO or localized h:mm with optional day period). */
+export function parseTimeInputFromUser(
+  raw: string,
+  {
+    hour12,
+    locale,
+    dayPeriodLabels,
+  }: {
+    hour12: boolean
+    locale: string
+    dayPeriodLabels: ReturnType<typeof resolveDayPeriodLabels>
+  },
+): Time | null {
   const trimmed = raw.trim()
   if (!trimmed) {
     return null
   }
 
-  const match = trimmed.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/)
-  if (match) {
-    let hour = Number(match[1])
-    const minute = Number(match[2])
-    const second = match[3] ? Number(match[3]) : 0
-    if (hour12) {
-      const upper = trimmed.toUpperCase()
-      const isPm = upper.includes("PM")
-      const isAm = upper.includes("AM")
-      if (isPm && hour < 12) {
-        hour += 12
-      }
-      if (isAm && hour === 12) {
-        hour = 0
-      }
-    }
-    return new Time(hour, minute, second)
+  const normalizedInput = normalizeTimeInput(trimmed, locale)
+  const isoCandidate =
+    normalizedInput.startsWith("T") || normalizedInput.startsWith("t")
+      ? normalizedInput.slice(1)
+      : normalizedInput
+
+  let isoTime: Time | null = null
+  try {
+    isoTime = parseTime(isoCandidate)
+  } catch {
+    isoTime = null
+  }
+  if (isoTime) {
+    return isoTime
   }
 
-  try {
-    return parseTime(trimmed.includes("T") ? trimmed : `T${trimmed}`)
-  } catch {
+  const segments = normalizedInput.match(/\d+/g)
+  if (!segments || segments.length < 2 || segments.length > 3) {
     return null
   }
+
+  const [hourPart, minutePart, secondPart] = segments
+  if (minutePart.length !== 2 || (secondPart && secondPart.length !== 2)) {
+    return null
+  }
+
+  let hour = Number(hourPart)
+  const minute = Number(minutePart)
+  const second = secondPart ? Number(secondPart) : 0
+  const isPm = hasDayPeriodToken(trimmed, locale, [dayPeriodLabels.pm, "PM"])
+  const isAm = hasDayPeriodToken(trimmed, locale, [dayPeriodLabels.am, "AM"])
+
+  if (hour12) {
+    if (isPm && hour < 12) {
+      hour += 12
+    }
+    if (isAm && hour === 12) {
+      hour = 0
+    }
+  }
+
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
+    return null
+  }
+
+  return new Time(hour, minute, second)
 }
 
 /** Shifts a time by whole minutes, wrapping within a single day. */

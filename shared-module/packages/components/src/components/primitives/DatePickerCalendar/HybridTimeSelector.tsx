@@ -94,7 +94,11 @@ export function HybridTimeSelector({
       return
     }
 
-    const parsed = parseTimeInputFromUser(draft, showsDayPeriod)
+    const parsed = parseTimeInputFromUser(draft, {
+      hour12: showsDayPeriod,
+      locale,
+      dayPeriodLabels,
+    })
     if (parsed) {
       applyTime(parsed)
     } else {

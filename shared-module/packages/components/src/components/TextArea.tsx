@@ -132,6 +132,18 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       isFilled(value) ? true : isFilled(defaultValue),
     )
 
+    const resolvedState = resolveFieldState({
+      disabled,
+      readOnly,
+      required,
+      isDisabled,
+      isReadOnly,
+      isRequired,
+      isInvalid,
+      ariaInvalid,
+      errorMessage,
+    })
+
     const ariaProps = {
       label,
       description,
@@ -145,10 +157,10 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       minLength,
       validate,
       validationBehavior,
-      isDisabled: isDisabled ?? disabled,
-      isReadOnly: isReadOnly ?? readOnly,
-      isRequired: isRequired ?? required,
-      isInvalid: isInvalid ?? !!errorMessage,
+      isDisabled: resolvedState.isDisabled,
+      isReadOnly: resolvedState.isReadOnly,
+      isRequired: resolvedState.isRequired,
+      isInvalid: resolvedState.isInvalid,
       // eslint-disable-next-line i18next/no-literal-string
       inputElementType: "textarea" as const,
     }
@@ -227,24 +239,14 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       ariaDescribedByProp,
       mergedTextareaProps["aria-describedby"],
     )
+    const resolvedAriaInvalid = ariaInvalid ?? mergedTextareaProps["aria-invalid"]
     const plainTextareaProps = mergeProps(inputProps, domProps, {
       onChange: handleChange,
       onFocus: handleFocus,
       onBlur: handleBlur,
       placeholder,
     })
-
-    const plainState = resolveFieldState({
-      disabled,
-      readOnly,
-      required,
-      isDisabled,
-      isReadOnly,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
-      errorMessage,
-    })
+    const plainState = resolvedState
 
     const plainResolvedAriaDescribedBy = joinAriaDescribedBy(
       ariaDescribedByProp,
@@ -258,6 +260,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       resolvedErrorMessage ? errorMessageId : undefined,
       notice ? noticeId : undefined,
     )
+    const plainAriaInvalid = ariaInvalid ?? plainTextareaProps["aria-invalid"]
 
     const isFloated = isFocused || isContentFilled
 
@@ -283,6 +286,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
             ref={textareaRef}
             className={cx(textareaResetCss, textAreaPlainTextareaCss)}
             aria-describedby={plainDescribedBy}
+            aria-invalid={plainAriaInvalid}
           />
         </FieldShell>
       )
@@ -305,6 +309,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
             ref={textareaRef}
             className={resolveTextareaCss(fieldSize)}
             aria-describedby={resolvedAriaDescribedBy}
+            aria-invalid={resolvedAriaInvalid}
           />
           <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
             {label}

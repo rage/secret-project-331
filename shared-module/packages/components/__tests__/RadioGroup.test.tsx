@@ -68,6 +68,18 @@ describe("RadioGroup", () => {
     expect(screen.getByRole("radio", { name: "Disabled item" })).toBeDisabled()
   })
 
+  test("honors the native disabled fieldset prop", () => {
+    renderUi(
+      <RadioGroup label="Native disabled" disabled>
+        <Radio label="One" value="1" />
+        <Radio label="Two" value="2" />
+      </RadioGroup>,
+    )
+
+    expect(screen.getByRole("radio", { name: "One" })).toBeDisabled()
+    expect(screen.getByRole("radio", { name: "Two" })).toBeDisabled()
+  })
+
   test("keeps arrow navigation inside the current group when names are reused", () => {
     renderUi(
       <>
